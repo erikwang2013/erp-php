@@ -26,8 +26,8 @@ A full-stack ERP system built with webman v2 + Flutter.
 | 📥 Purchasing | Requisition→Order→Receive→Return→Settlement | Full procurement flow + approval |
 | 📤 Sales | Quotation→Order→Delivery→Return→Settlement | Quote-to-order + gross margin |
 | 🏗 Inventory | Real-time stock/batch/serial/transfer/stocktaking/alerts | Moving-weighted-average costing |
-| 💰 Finance | COA/vouchers/AR/AP/receipts/payments/cash journal/expense/profit statement | Auto-generate AR/AP + write-off |
-| 🤝 CRM | Customers/contacts/follow-ups/sales funnel | Opportunity stage management |
+| 💰 Finance | COA/vouchers/AR/AP/receipts/payments/journal/expense/profit/GL/subsidiary ledger/balance sheet/cash flow | Auto AR/AP + settlement + financial statements |
+| 🤝 CRM | Customers/contacts/follow-ups/funnel/pool/quotation/contract | Customer lifecycle + full contract workflow |
 
 ## ERP Modules
 
@@ -37,6 +37,9 @@ Cross-module data flow:
 - Sales delivery → Auto stock-out → Auto-generate AR
 - Receipts & payments → Write-off AR/AP → Update cash journal
 - Stocktaking variance → Auto-generate gain/loss inventory flow
+- Voucher audit → Auto-update general ledger + subsidiary ledger
+- Balance sheet → Auto-generated from general ledger closing balances
+- Cash flow statement → Auto-generated from cash journal (operating/investing/financing)
 
 ## Copyright
 
@@ -401,9 +404,17 @@ Authorization: Bearer <token>
 | `GET/POST/PUT/DELETE` | `/admin/finance/receipt` | Receipt |
 | `GET/POST/PUT/DELETE` | `/admin/finance/payment` | Payment |
 | `GET` | `/admin/finance/report/profit` | Profit statement |
+| `GET` | `/admin/finance/general-ledger` | General ledger (by account + period) |
+| `GET` | `/admin/finance/subsidiary-ledger` | Subsidiary ledger (per-account entries) |
+| `GET` | `/admin/finance/report/balance-sheet` | Balance sheet |
+| `GET` | `/admin/finance/report/cash-flow` | Cash flow statement (operating/investing/financing) |
 | `GET/POST/PUT/DELETE` | `/admin/finance/expense` | Expense reimbursement |
 | `GET/POST/PUT/DELETE` | `/admin/crm/opportunity` | Opportunity management |
 | `GET/POST/PUT/DELETE` | `/admin/crm/follow` | Follow-up record |
+| `GET/POST` | `/admin/crm/pool` | Customer pool (claim/release) |
+| `GET/POST/PUT/DELETE` | `/admin/crm/contract` | Contract CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/crm/quotation` | CRM quotation (supports to-contract) |
+| `POST` | `/admin/crm/quotation/{id}/to-contract` | Convert quotation to contract |
 | `GET` | `/admin/dashboard/sales` | Sales dashboard |
 | `GET` | `/admin/dashboard/inventory` | Inventory dashboard |
 | `GET` | `/admin/dashboard/finance` | Finance dashboard |

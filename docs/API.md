@@ -1768,6 +1768,10 @@ docker-compose up -d
 | POST | /admin/finance/expense/{id}/approve | 审批报销 |
 | POST | /admin/finance/expense/{id}/pay | 报销打款 |
 | GET | /admin/finance/report/profit | 利润表 |
+| GET | /admin/finance/general-ledger | 总账（按科目+期间汇总） |
+| GET | /admin/finance/subsidiary-ledger | 明细账（科目逐笔明细） |
+| GET | /admin/finance/report/balance-sheet | 资产负债表（含自动生成） |
+| GET | /admin/finance/report/cash-flow | 现金流量表（经营/投资/筹资） |
 | GET | /admin/finance/bank-account | 银行账户列表 |
 
 ### 16.6 CRM
@@ -1782,6 +1786,18 @@ docker-compose up -d
 | GET | /admin/crm/funnel | 漏斗阶段配置 |
 | GET | /admin/crm/contact | 联系人列表 |
 | POST | /admin/crm/contact | 创建联系人 |
+| GET | /admin/crm/pool | 公海池客户列表 |
+| POST | /admin/crm/pool/claim/{id} | 领取公海客户 |
+| POST | /admin/crm/pool/release/{id} | 释放客户到公海 |
+| GET/POST | /admin/crm/pool/rules | 公海池规则 CRUD |
+| GET | /admin/crm/contract | 合同列表 |
+| POST | /admin/crm/contract | 创建合同 |
+| GET | /admin/crm/contract/{id} | 合同详情 |
+| PUT | /admin/crm/contract/{id} | 更新合同 |
+| DELETE | /admin/crm/contract/{id} | 删除合同 |
+| GET | /admin/crm/quotation | CRM报价列表 |
+| POST | /admin/crm/quotation | 创建CRM报价 |
+| POST | /admin/crm/quotation/{id}/to-contract | 🔗 报价转合同 |
 
 ### 16.7 仪表盘 (Dashboard)
 

@@ -1,6 +1,6 @@
-# 开放管理后台 (open-admin)
+# 开放ERP系统 (open-erp)
 
-基于 webman v2 + Flutter 的全栈管理后台系统。
+基于 webman v2 + Flutter 的全栈ERP系统。
 
 ## 版权声明
 
@@ -46,11 +46,11 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 ## 项目结构
 
 ```
-open-admin/
+open-erp/
 ├── app/
-│   ├── admin/controller/       # 管理端控制器 (14 个)
+│   ├── admin/controller/       # 系统管理控制器 (14 个)
 │   │   ├── BaseController.php      # 基础控制器
-│   │   ├── DashboardController.php # 仪表盘（Redis 缓存）
+│   │   ├── DashboardController.php # 仪表盘 + 销售/库存/财务面板
 │   │   ├── UserController.php      # 用户 CRUD + 批量操作
 │   │   ├── RoleController.php      # 角色 CRUD
 │   │   ├── PermissionController.php# 权限 CRUD
@@ -63,36 +63,40 @@ open-admin/
 │   │   ├── HealthController.php    # 健康检查
 │   │   ├── DocsController.php      # OpenAPI 文档
 │   │   └── MetricsController.php   # Prometheus 监控指标
-│   ├── api/v1/controller/      # API v1 控制器（版本头控制）
-│   │   ├── CaptchaController.php
-│   │   └── AuthController.php
-│   ├── common/                 # 公共工具类
-│   │   ├── HashidsService.php
-│   │   ├── SnowflakeService.php
-│   │   └── EncryptionService.php
-│   ├── middleware/             # 中间件（7 个）
-│   │   ├── Cors.php            # 跨域（全局）
-│   │   ├── SecurityFilter.php  # 攻击拦截（全局：XSS/SQL注入/路径遍历/命令注入/CSRF）
-│   │   ├── RateLimit.php       # Redis 限流（全局，Lua 原子化）
-│   │   ├── ApiVersion.php      # API 版本校验
-│   │   ├── AdminAuth.php       # JWT 认证 + 黑名单
-│   │   ├── AdminPermission.php # RBAC 权限校验（Redis 60s 缓存）
-│   │   └── OperationLog.php    # 操作日志自动记录（含来源端检测）
-│   ├── model/                  # 数据模型
-│   ├── queue/                  # 队列任务
-│   └── process/                # 进程 (Http, Monitor)
+│   ├── api/v1/controller/      # 客户端 API（版本头控制）
+│   │   ├── CaptchaController.php   # 点击验证码
+│   │   ├── AuthController.php      # 登录/注册/刷新
+│   │   └── ProductController.php   # 商品查询（不含进价）
+│   ├── controller/              # 业务模块控制器（43 个）
+│   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户 (7个)
+│   │   ├── purchase/            # 采购申请/订单/收货/退货/结算 (5个)
+│   │   ├── sales/               # 销售报价/订单/发货/退货/结算 (5个)
+│   │   ├── inventory/           # 库存/流水/批次/调拨/盘点/预警 (5个)
+│   │   ├── finance/             # 科目/凭证/应收应付/收付款/日记账/报销/总账/明细账/资产负债表/现金流量表 (13个)
+│   │   └── crm/                 # 商机/跟进/漏斗/公海池/报价/合同 (7个)
+│   ├── service/                 # 业务逻辑层
+│   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
+│   │   └── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
+│   ├── common/                  # 公共工具类
+│   │   ├── HashidsService.php   # ID 编解码
+│   │   ├── SnowflakeService.php # Snowflake ID 生成
+│   │   └── EncryptionService.php# 数据加解密 + 脱敏
+│   ├── middleware/              # 中间件（7 个）
+│   │   ├── Cors.php             # 跨域
+│   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
+│   │   ├── RateLimit.php        # Redis 滑动窗口限流
+│   │   ├── ApiVersion.php       # API 版本校验
+│   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
+│   │   ├── AdminPermission.php  # RBAC 权限校验
+│   │   └── OperationLog.php     # 操作日志自动记录
+│   ├── model/                   # 数据模型（71 个）
+│   ├── queue/                   # 队列任务
+│   └── process/                 # 进程 (Http, Monitor)
 ├── apps/
-│   ├── flutter/                # Flutter Web 管理后台
+│   ├── flutter/                 # Flutter 全平台 (Web/iOS/Android/macOS/Windows/Linux)
 │   │   └── lib/app/
-│   │       ├── pages/          # 6 个完整页面
-│   │       │   ├── dashboard/  # 仪表盘
-│   │       │   ├── login/      # 登录
-│   │       │   ├── user/       # 用户管理
-│   │       │   ├── role/       # 角色权限
-│   │       │   ├── config/     # 系统配置
-│   │       │   ├── log/        # 操作日志
-│   │       │   └── profile/    # 个人中心
-│   │       ├── services/       # ApiService + AuthService
+│   │       ├── pages/           # 业务页面 (dashboard/login/user/role/config/log/profile + ERP)
+│   │       ├── services/        # ApiService + AuthService + CaptchaService + ExportService
 │   │       ├── layouts/        # 响应式布局
 │   │       └── theme/          # Material 3 主题
 │   └── harmonyos/              # HarmonyOS 客户端

@@ -719,8 +719,8 @@ graph TB
         Purchase["采购管理<br/>申请→订单→收货→退货→结算"]
         Sales["销售管理<br/>报价→订单→发货→退货→结算"]
         Inventory["库存管理<br/>出入库/批次/盘点/调拨/预警"]
-        Finance["财务管理<br/>科目/凭证/应收应付/收付款/报销"]
-        CRM["CRM<br/>客户/联系人/跟进/销售漏斗"]
+        Finance["财务管理<br/>科目/凭证/应收应付/总账/明细账/报表/报销"]
+        CRM["CRM<br/>客户/联系人/跟进/漏斗/公海池/报价/合同"]
     end
 
     subgraph Service["业务服务层"]
@@ -791,5 +791,5 @@ graph LR
 | 采购管理 | controller/purchase/ (5个) | InventoryService, FinanceService | PurchaseOrder, PurchaseReceive | 9 |
 | 销售管理 | controller/sales/ (5个) | InventoryService, FinanceService | SalesOrder, SalesDelivery | 9 |
 | 库存管理 | controller/inventory/ (5个) | InventoryService | Inventory, InventoryFlow, CostRecord | 11 |
-| 财务管理 | controller/finance/ (9个) | FinanceService | FinanceArAp, FinanceReceipt, FinancePayment | 11 |
-| CRM | controller/crm/ (4个) | - | CrmOpportunity, CrmFollowRecord, CrmContact | 4 |
+| 财务管理 | controller/finance/ (13个) | FinanceService | FinanceArAp, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet | 15 |
+| CRM | controller/crm/ (7个) | - | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation | 10 |

@@ -26,8 +26,8 @@
 | 📥 采购管理 | 申请→订单→收货→退货→结算 | 完整采购流程 + 审批 |
 | 📤 销售管理 | 报价→订单→发货→退货→结算 | 报价转订单 + 销售毛利 |
 | 🏗 库存管理 | 实时库存/批次/序列号/调拨/盘点/预警 | 移动加权平均成本核算 |
-| 💰 财务管理 | 科目/凭证/应收应付/收付款/日记账/报销/利润表 | 自动生成应收应付 + 核销 |
-| 🤝 CRM | 客户/联系人/跟进记录/销售漏斗 | 商机阶段管理 |
+| 💰 财务管理 | 科目/凭证/应收应付/收付款/日记账/报销/利润表/总账/明细账/资产负债表/现金流量表 | 自动生成应收应付 + 核销 + 财务报表 |
+| 🤝 CRM | 客户/联系人/跟进记录/销售漏斗/公海池/报价/合同 | 客户生命周期 + 合同全流程 |
 
 ## ERP 模块
 
@@ -36,7 +36,9 @@
 - 采购收货 → 自动入库（移动加权平均成本核算） → 自动生成应付
 - 销售发货 → 自动出库 → 自动生成应收
 - 收付款 → 核销应收应付 → 更新日记账
-- 盘点差异 → 自动生成盈亏出入库流水
+- 凭证审核 → 自动更新总账(科目汇总) + 明细账(逐笔记录)
+- 资产负债表 → 自动汇总总账期末余额生成
+- 现金流量表 → 自动汇总现金银行日记账生成（经营/投资/筹资三分类）
 
 ## 技术栈
 
@@ -394,9 +396,17 @@ Authorization: Bearer <token>
 | `GET/POST/PUT/DELETE` | `/admin/finance/receipt` | 收款单 |
 | `GET/POST/PUT/DELETE` | `/admin/finance/payment` | 付款单 |
 | `GET` | `/admin/finance/report/profit` | 利润表 |
+| `GET` | `/admin/finance/general-ledger` | 总账（按科目+期间汇总） |
+| `GET` | `/admin/finance/subsidiary-ledger` | 明细账（科目逐笔明细） |
+| `GET` | `/admin/finance/report/balance-sheet` | 资产负债表 |
+| `GET` | `/admin/finance/report/cash-flow` | 现金流量表（经营/投资/筹资） |
 | `GET/POST/PUT/DELETE` | `/admin/finance/expense` | 费用报销 |
 | `GET/POST/PUT/DELETE` | `/admin/crm/opportunity` | 商机管理 |
 | `GET/POST/PUT/DELETE` | `/admin/crm/follow` | 跟进记录 |
+| `GET/POST` | `/admin/crm/pool` | 公海池（客户领取/释放） |
+| `GET/POST/PUT/DELETE` | `/admin/crm/contract` | 合同 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/crm/quotation` | CRM报价（支持转合同） |
+| `POST` | `/admin/crm/quotation/{id}/to-contract` | 报价转合同 |
 | `GET` | `/admin/dashboard/sales` | 销售面板 |
 | `GET` | `/admin/dashboard/inventory` | 库存面板 |
 | `GET` | `/admin/dashboard/finance` | 财务面板 |
