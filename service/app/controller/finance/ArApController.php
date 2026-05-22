@@ -25,10 +25,7 @@ class ArApController extends BaseController
 
         $query = FinanceArAp::query();
         if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
+            $query->where('partner_id', $this->decodeId($keyword));
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
@@ -44,7 +41,7 @@ class ArApController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        $validator = validator($request->all(), ['type' => 'required|integer', 'partner_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
         if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
 
         $item = new FinanceArAp();

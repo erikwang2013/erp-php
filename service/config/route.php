@@ -139,7 +139,7 @@ Route::group('/admin', function () {
     // ============================================================
     // 财务模块
     // ============================================================
-    Route::resource('/finance/account', app\controller\finance\AccountController::class);
+    Route::resource('/finance/ar-ap', app\controller\finance\ArApController::class);
     Route::resource('/finance/voucher', app\controller\finance\VoucherController::class);
     Route::resource('/finance/receipt', app\controller\finance\ReceiptController::class);
     Route::resource('/finance/payment', app\controller\finance\PaymentController::class);

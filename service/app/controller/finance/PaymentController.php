@@ -25,10 +25,7 @@ class PaymentController extends BaseController
 
         $query = FinancePayment::query();
         if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
+            $query->where('code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
@@ -44,7 +41,7 @@ class PaymentController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'supplier_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
         if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
 
         $item = new FinancePayment();

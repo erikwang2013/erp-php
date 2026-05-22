@@ -20,20 +20,8 @@ class SettlementController extends BaseController
     {
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
-        $keyword = $request->input('keyword', '');
-        $status = $request->input('status');
 
         $query = FinanceSettlement::query();
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
-
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
@@ -44,7 +32,7 @@ class SettlementController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        $validator = validator($request->all(), ['ar_ap_id' => 'required|integer', 'receipt_payment_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
         if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
 
         $item = new FinanceSettlement();
