@@ -26,8 +26,8 @@
 | 📥 采购管理 | 申请→订单→收货→退货→结算 | 完整采购流程 + 审批 |
 | 📤 销售管理 | 报价→订单→发货→退货→结算 | 报价转订单 + 销售毛利 |
 | 🏗 库存管理 | 实时库存/批次/序列号/调拨/盘点/预警 | 移动加权平均成本核算 |
-| 💰 财务管理 | 科目/凭证/应收应付/收付款/日记账/报销/利润表/总账/明细账/资产负债表/现金流量表 | 自动生成应收应付 + 核销 + 财务报表 |
-| 🤝 CRM | 客户/联系人/跟进记录/销售漏斗/公海池/报价/合同 | 客户生命周期 + 合同全流程 |
+| 💰 财务管理 | 应收应付/收付款/日记账/报销/利润表/固定资产/税务/多币种/预算/成本利润中心 | 自动生成应收应付 + 核销 + 全面财务管理 |
+| 🤝 CRM | 客户/联系人/跟进记录/营销活动/服务工单/分析报表 | 客户全生命周期管理 |
 
 ## ERP 模块
 
@@ -401,12 +401,26 @@ Authorization: Bearer <token>
 | `GET` | `/admin/finance/report/balance-sheet` | 资产负债表 |
 | `GET` | `/admin/finance/report/cash-flow` | 现金流量表（经营/投资/筹资） |
 | `GET/POST/PUT/DELETE` | `/admin/finance/expense` | 费用报销 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/asset` | 固定资产 CRUD + 计提折旧 |
+| `GET/POST` | `/admin/finance/tax-rate` | 税率配置 |
+| `GET` | `/admin/finance/tax-record` | 税务记录 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/currency` | 币种管理 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/exchange-rate` | 汇率管理 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/budget` | 预算管理（含预算vs实际对比） |
+| `GET/POST/PUT/DELETE` | `/admin/finance/cost-center` | 成本中心（树形结构） |
+| `GET/POST/PUT/DELETE` | `/admin/finance/profit-center` | 利润中心（树形结构） |
 | `GET/POST/PUT/DELETE` | `/admin/crm/opportunity` | 商机管理 |
 | `GET/POST/PUT/DELETE` | `/admin/crm/follow` | 跟进记录 |
 | `GET/POST` | `/admin/crm/pool` | 公海池（客户领取/释放） |
 | `GET/POST/PUT/DELETE` | `/admin/crm/contract` | 合同 CRUD |
 | `GET/POST/PUT/DELETE` | `/admin/crm/quotation` | CRM报价（支持转合同） |
 | `POST` | `/admin/crm/quotation/{id}/to-contract` | 报价转合同 |
+| `GET/POST/PUT/DELETE` | `/admin/crm/campaign` | 营销活动 |
+| `GET/POST/PUT/DELETE` | `/admin/crm/ticket` | 服务工单 |
+| `POST` | `/admin/crm/ticket/{id}/assign` | 分配工单 |
+| `POST` | `/admin/crm/ticket/{id}/resolve` | 解决工单 |
+| `GET/POST` | `/admin/crm/analytics/report` | 客户分析报表 |
+| `GET/POST` | `/admin/crm/analytics/metric` | 分析指标 |
 | `GET` | `/admin/dashboard/sales` | 销售面板 |
 | `GET` | `/admin/dashboard/inventory` | 库存面板 |
 | `GET` | `/admin/dashboard/finance` | 财务面板 |

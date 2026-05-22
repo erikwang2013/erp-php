@@ -26,8 +26,8 @@ A full-stack ERP system built with webman v2 + Flutter.
 | 📥 Purchasing | Requisition→Order→Receive→Return→Settlement | Full procurement flow + approval |
 | 📤 Sales | Quotation→Order→Delivery→Return→Settlement | Quote-to-order + gross margin |
 | 🏗 Inventory | Real-time stock/batch/serial/transfer/stocktaking/alerts | Moving-weighted-average costing |
-| 💰 Finance | COA/vouchers/AR/AP/receipts/payments/journal/expense/profit/GL/subsidiary ledger/balance sheet/cash flow | Auto AR/AP + settlement + financial statements |
-| 🤝 CRM | Customers/contacts/follow-ups/funnel/pool/quotation/contract | Customer lifecycle + full contract workflow |
+| 💰 Finance | AR/AP/Receipts & Payments/Journal/Expense/Profit/Fixed Assets/Tax/Multi-Currency/Budget/Cost & Profit Centers | Auto AR/AP + settlement + comprehensive financial management |
+| 🤝 CRM | Customers/Contacts/Follow-ups/Campaigns/Service Tickets/Analytics | Customer lifecycle management |
 
 ## ERP Modules
 
@@ -409,12 +409,26 @@ Authorization: Bearer <token>
 | `GET` | `/admin/finance/report/balance-sheet` | Balance sheet |
 | `GET` | `/admin/finance/report/cash-flow` | Cash flow statement (operating/investing/financing) |
 | `GET/POST/PUT/DELETE` | `/admin/finance/expense` | Expense reimbursement |
+| `GET/POST/PUT/DELETE` | `/admin/finance/asset` | Fixed asset CRUD + depreciation |
+| `GET/POST` | `/admin/finance/tax-rate` | Tax rate configuration |
+| `GET` | `/admin/finance/tax-record` | Tax records |
+| `GET/POST/PUT/DELETE` | `/admin/finance/currency` | Currency management |
+| `GET/POST/PUT/DELETE` | `/admin/finance/exchange-rate` | Exchange rate management |
+| `GET/POST/PUT/DELETE` | `/admin/finance/budget` | Budget management (budget vs. actual) |
+| `GET/POST/PUT/DELETE` | `/admin/finance/cost-center` | Cost center (tree structure) |
+| `GET/POST/PUT/DELETE` | `/admin/finance/profit-center` | Profit center (tree structure) |
 | `GET/POST/PUT/DELETE` | `/admin/crm/opportunity` | Opportunity management |
 | `GET/POST/PUT/DELETE` | `/admin/crm/follow` | Follow-up record |
 | `GET/POST` | `/admin/crm/pool` | Customer pool (claim/release) |
 | `GET/POST/PUT/DELETE` | `/admin/crm/contract` | Contract CRUD |
 | `GET/POST/PUT/DELETE` | `/admin/crm/quotation` | CRM quotation (supports to-contract) |
 | `POST` | `/admin/crm/quotation/{id}/to-contract` | Convert quotation to contract |
+| `GET/POST/PUT/DELETE` | `/admin/crm/campaign` | Marketing campaigns |
+| `GET/POST/PUT/DELETE` | `/admin/crm/ticket` | Service tickets |
+| `POST` | `/admin/crm/ticket/{id}/assign` | Assign ticket |
+| `POST` | `/admin/crm/ticket/{id}/resolve` | Resolve ticket |
+| `GET/POST` | `/admin/crm/analytics/report` | Customer analytics report |
+| `GET/POST` | `/admin/crm/analytics/metric` | Analytics metrics |
 | `GET` | `/admin/dashboard/sales` | Sales dashboard |
 | `GET` | `/admin/dashboard/inventory` | Inventory dashboard |
 | `GET` | `/admin/dashboard/finance` | Finance dashboard |

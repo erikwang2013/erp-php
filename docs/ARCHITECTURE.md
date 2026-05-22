@@ -791,5 +791,5 @@ graph LR
 | 采购管理 | controller/purchase/ (5个) | InventoryService, FinanceService | PurchaseOrder, PurchaseReceive | 9 |
 | 销售管理 | controller/sales/ (5个) | InventoryService, FinanceService | SalesOrder, SalesDelivery | 9 |
 | 库存管理 | controller/inventory/ (5个) | InventoryService | Inventory, InventoryFlow, CostRecord | 11 |
-| 财务管理 | controller/finance/ (13个) | FinanceService | FinanceArAp, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet | 15 |
-| CRM | controller/crm/ (7个) | - | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation | 10 |
+| 财务管理 | controller/finance/ (21个) | FinanceService | FinanceArAp, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| CRM | controller/crm/ (10个) | - | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |

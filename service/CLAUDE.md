@@ -67,13 +67,13 @@ open-erp/
 │   │   ├── CaptchaController.php   # 点击验证码
 │   │   ├── AuthController.php      # 登录/注册/刷新
 │   │   └── ProductController.php   # 商品查询（不含进价）
-│   ├── controller/              # 业务模块控制器（43 个）
+│   ├── controller/              # 业务模块控制器（54 个）
 │   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户 (7个)
 │   │   ├── purchase/            # 采购申请/订单/收货/退货/结算 (5个)
 │   │   ├── sales/               # 销售报价/订单/发货/退货/结算 (5个)
 │   │   ├── inventory/           # 库存/流水/批次/调拨/盘点/预警 (5个)
-│   │   ├── finance/             # 科目/凭证/应收应付/收付款/日记账/报销/总账/明细账/资产负债表/现金流量表 (13个)
-│   │   └── crm/                 # 商机/跟进/漏斗/公海池/报价/合同 (7个)
+│   │   ├── finance/             # 科目/凭证/应收应付/收付款/日记账/报销/总账/明细账/资产负债表/现金流量表/固定资产/税务/多币种/预算/成本中心/利润中心 (21个)
+│   │   └── crm/                 # 商机/跟进/漏斗/公海池/报价/合同/营销活动/服务工单/分析报表 (10个)
 │   ├── service/                 # 业务逻辑层
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
 │   │   └── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
@@ -89,7 +89,7 @@ open-erp/
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   └── OperationLog.php     # 操作日志自动记录
-│   ├── model/                   # 数据模型（71 个）
+│   ├── model/                   # 数据模型（88 个）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, Monitor)
 ├── apps/

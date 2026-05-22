@@ -1683,7 +1683,7 @@ docker-compose up -d
 
 所有业务端点在 `/admin` 分组下，经过 `AdminAuth`（JWT 认证）、`AdminPermission`（RBAC 权限校验）、`OperationLog`（操作记录）三个中间件。
 
-> 端点总数: 商品(17) | 采购(8) | 销售(6) | 库存(8) | 财务(14) | CRM(8) | 仪表盘(3) | 客户端(2) | 共 66 端点
+> 端点总数: 商品(17) | 采购(8) | 销售(6) | 库存(8) | 财务(22) | CRM(14) | 仪表盘(3) | 客户端(2) | 共 80 端点
 
 跨模块联动端点以 🔗 标记。
 
@@ -1773,6 +1773,14 @@ docker-compose up -d
 | GET | /admin/finance/report/balance-sheet | 资产负债表（含自动生成） |
 | GET | /admin/finance/report/cash-flow | 现金流量表（经营/投资/筹资） |
 | GET | /admin/finance/bank-account | 银行账户列表 |
+| GET/POST/PUT/DELETE | /admin/finance/asset | 固定资产 CRUD + 计提折旧 |
+| GET/POST | /admin/finance/tax-rate | 税率配置 |
+| GET | /admin/finance/tax-record | 税务记录 |
+| GET/POST/PUT/DELETE | /admin/finance/currency | 币种管理 |
+| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | 汇率管理 |
+| GET/POST/PUT/DELETE | /admin/finance/budget | 预算管理（含预算vs实际对比） |
+| GET/POST/PUT/DELETE | /admin/finance/cost-center | 成本中心（树形结构） |
+| GET/POST/PUT/DELETE | /admin/finance/profit-center | 利润中心（树形结构） |
 
 ### 16.6 CRM
 
@@ -1798,6 +1806,12 @@ docker-compose up -d
 | GET | /admin/crm/quotation | CRM报价列表 |
 | POST | /admin/crm/quotation | 创建CRM报价 |
 | POST | /admin/crm/quotation/{id}/to-contract | 🔗 报价转合同 |
+| GET/POST/PUT/DELETE | /admin/crm/campaign | 营销活动 |
+| GET/POST/PUT/DELETE | /admin/crm/ticket | 服务工单 |
+| POST | /admin/crm/ticket/{id}/assign | 分配工单 |
+| POST | /admin/crm/ticket/{id}/resolve | 解决工单 |
+| GET/POST | /admin/crm/analytics/report | 客户分析报表 |
+| GET/POST | /admin/crm/analytics/metric | 分析指标 |
 
 ### 16.7 仪表盘 (Dashboard)
 
