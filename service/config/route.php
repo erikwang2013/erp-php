@@ -240,6 +240,49 @@ Route::group('/admin', function () {
     Route::resource('/project', app\controller\project\ProjectController::class);
     Route::resource('/project/task', app\controller\project\TaskController::class);
     Route::resource('/project/timesheet', app\controller\project\TimesheetController::class);
+
+    // ============================================================
+    // 人力资源管理
+    // ============================================================
+    Route::resource('/hr/department', app\controller\hr\DepartmentController::class);
+    Route::resource('/hr/employee', app\controller\hr\EmployeeController::class);
+    Route::resource('/hr/position', app\controller\hr\PositionController::class);
+    Route::any('/hr/attendance', [app\controller\hr\AttendanceController::class, 'index']);
+    Route::post('/hr/attendance/clock-in', [app\controller\hr\AttendanceController::class, 'clockIn']);
+    Route::post('/hr/attendance/clock-out', [app\controller\hr\AttendanceController::class, 'clockOut']);
+    Route::any('/hr/leave', [app\controller\hr\AttendanceController::class, 'leaveIndex']);
+    Route::post('/hr/leave', [app\controller\hr\AttendanceController::class, 'leaveStore']);
+    Route::get('/hr/leave/{id}', [app\controller\hr\AttendanceController::class, 'leaveShow']);
+    Route::put('/hr/leave/{id}', [app\controller\hr\AttendanceController::class, 'leaveUpdate']);
+    Route::delete('/hr/leave/{id}', [app\controller\hr\AttendanceController::class, 'leaveDestroy']);
+    Route::post('/hr/leave/{id}/approve', [app\controller\hr\AttendanceController::class, 'approveLeave']);
+    Route::resource('/hr/salary', app\controller\hr\SalaryController::class);
+    Route::post('/hr/salary/{id}/pay', [app\controller\hr\SalaryController::class, 'pay']);
+    Route::any('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemIndex']);
+    Route::post('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemStore']);
+    Route::get('/hr/salary-item/{id}', [app\controller\hr\SalaryController::class, 'itemShow']);
+    Route::put('/hr/salary-item/{id}', [app\controller\hr\SalaryController::class, 'itemUpdate']);
+    Route::delete('/hr/salary-item/{id}', [app\controller\hr\SalaryController::class, 'itemDestroy']);
+
+    // ============================================================
+    // 生产制造
+    // ============================================================
+    Route::resource('/mfg/bom', app\controller\manufacturing\BomController::class);
+    Route::resource('/mfg/production', app\controller\manufacturing\ProductionController::class);
+    Route::post('/mfg/production/{id}/start', [app\controller\manufacturing\ProductionController::class, 'start']);
+    Route::post('/mfg/production/{id}/complete', [app\controller\manufacturing\ProductionController::class, 'complete']);
+    Route::resource('/mfg/routing', app\controller\manufacturing\RoutingController::class);
+    Route::resource('/mfg/workstation', app\controller\manufacturing\WorkstationController::class);
+    Route::resource('/mfg/mrp', app\controller\manufacturing\MrpController::class);
+    Route::post('/mfg/mrp/{id}/generate', [app\controller\manufacturing\MrpController::class, 'generate']);
+
+    // ============================================================
+    // 自定义报表
+    // ============================================================
+    Route::resource('/report', app\controller\report\ReportController::class);
+    Route::post('/report/{id}/execute', [app\controller\report\ReportController::class, 'execute']);
+    Route::any('/report/{id}/result', [app\controller\report\ReportController::class, 'result']);
+    Route::resource('/report/schedule', app\controller\report\ReportScheduleController::class);
 })->middleware([
     app\middleware\AdminAuth::class,
     app\middleware\AdminPermission::class,
