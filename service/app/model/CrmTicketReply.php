@@ -12,4 +12,5 @@ class CrmTicketReply extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
+    public $timestamps = false;
 }

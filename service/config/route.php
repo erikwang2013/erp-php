@@ -166,6 +166,7 @@ Route::group('/admin', function () {
     Route::any('/finance/asset/{id}/depreciation', [app\controller\finance\AssetController::class, 'depreciation']);
     Route::any('/finance/tax-rate', [app\controller\finance\TaxController::class, 'rates']);
     Route::post('/finance/tax-rate', [app\controller\finance\TaxController::class, 'storeRate']);
+    Route::delete('/finance/tax-rate/{id}', [app\controller\finance\TaxController::class, 'destroyRate']);
     Route::any('/finance/tax-record', [app\controller\finance\TaxController::class, 'records']);
     Route::resource('/finance/currency', app\controller\finance\CurrencyController::class);
     Route::resource('/finance/exchange-rate', app\controller\finance\ExchangeRateController::class);
