@@ -15,7 +15,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 域 | 功能 |
 |----|------|
 | 认证 | 登录/注册/刷新/登出 + 验证码 + 账号锁定 + 会话限制 |
-| 仪表盘 | 实时统计/趋势/分布/日志（Redis 5m 缓存）|
+| 仪表盘 | 经营总览/销售看板/库存看板/财务看板（Redis 5m 缓存）|
 | 用户 | CRUD + 批量删除/启禁用 + Excel 导入 |
 | 角色权限 | CRUD + 权限树 + RBAC method.path 鉴权 |
 | 系统配置 | 键值对 CRUD |
@@ -23,6 +23,18 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 文件 | 上传 + Excel/PDF 导出（敏感数据脱敏）|
 | 安全 | 18 层纵深防御（XSS/SQL注入/CSRF/限流/CSP...）|
 | 运维 | 健康检查/Prometheus 指标/API 文档/security.txt + Docker + CI/CD |
+| 商品管理 | 商品/SKU/分类/品牌/仓库/库位/供应商/客户 |
+| 采购管理 | 申请→订单→收货→退货→结算（自动入库+生成应付）|
+| 销售管理 | 报价→订单→发货→退货→结算（自动出库+生成应收）|
+| 库存管理 | 实时库存/流水/批次/调拨/盘点/预警（移动加权平均成本）|
+| 财务管理 | 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算 |
+| CRM | 商机/跟进/漏斗/联系人/公海池/合同/报价/营销/工单/分析 |
+| 审批工作流 | 工作流定义/提交/批准/拒绝/撤回/我的审批 |
+| 消息通知 | 通知列表/已读/全部已读/未读计数 |
+| 项目管理 | 项目/任务/工时记录 |
+| 人力资源 | 部门/员工/职位/考勤/请假/薪资 |
+| 生产制造 | BOM/生产订单/工艺路线/工作站/MRP |
+| 自定义报表 | 报表模板/数据集/字段/筛选器/执行/定时调度 |
 
 ## 技术栈
 
@@ -46,11 +58,11 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 ## 项目结构
 
 ```
-open-admin/
+open-erp/
 ├── app/
-│   ├── admin/controller/       # 管理端控制器 (14 个)
+│   ├── admin/controller/       # 系统管理控制器 (14 个)
 │   │   ├── BaseController.php      # 基础控制器
-│   │   ├── DashboardController.php # 仪表盘（Redis 缓存）
+│   │   ├── DashboardController.php # 仪表盘 + 销售/库存/财务面板
 │   │   ├── UserController.php      # 用户 CRUD + 批量操作
 │   │   ├── RoleController.php      # 角色 CRUD
 │   │   ├── PermissionController.php# 权限 CRUD
@@ -63,36 +75,47 @@ open-admin/
 │   │   ├── HealthController.php    # 健康检查
 │   │   ├── DocsController.php      # OpenAPI 文档
 │   │   └── MetricsController.php   # Prometheus 监控指标
-│   ├── api/v1/controller/      # API v1 控制器（版本头控制）
-│   │   ├── CaptchaController.php
-│   │   └── AuthController.php
-│   ├── common/                 # 公共工具类
-│   │   ├── HashidsService.php
-│   │   ├── SnowflakeService.php
-│   │   └── EncryptionService.php
-│   ├── middleware/             # 中间件（7 个）
-│   │   ├── Cors.php            # 跨域（全局）
-│   │   ├── SecurityFilter.php  # 攻击拦截（全局：XSS/SQL注入/路径遍历/命令注入/CSRF）
-│   │   ├── RateLimit.php       # Redis 限流（全局，Lua 原子化）
-│   │   ├── ApiVersion.php      # API 版本校验
-│   │   ├── AdminAuth.php       # JWT 认证 + 黑名单
-│   │   ├── AdminPermission.php # RBAC 权限校验（Redis 60s 缓存）
-│   │   └── OperationLog.php    # 操作日志自动记录（含来源端检测）
-│   ├── model/                  # 数据模型
-│   ├── queue/                  # 队列任务
-│   └── process/                # 进程 (Http, Monitor)
+│   ├── api/v1/controller/      # 客户端 API（版本头控制）
+│   │   ├── CaptchaController.php   # 点击验证码
+│   │   ├── AuthController.php      # 登录/注册/刷新
+│   │   └── ProductController.php   # 商品查询（不含进价）
+│   ├── controller/              # 业务模块控制器（70 个）
+│   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户 (7个)
+│   │   ├── purchase/            # 采购申请/订单/收货/退货/结算 (5个)
+│   │   ├── sales/               # 销售报价/订单/发货/退货/结算 (5个)
+│   │   ├── inventory/           # 库存/流水/调拨/盘点/预警 (5个)
+│   │   ├── finance/             # 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算/成本利润中心 (20个)
+│   │   ├── crm/                 # 商机/跟进/漏斗/联系人/公海池/报价/合同/营销/工单/分析 (10个)
+│   │   ├── workflow/            # 工作流定义/审批提交/批准/拒绝/撤回 (2个)
+│   │   ├── notification/        # 通知列表/已读/未读计数 (1个)
+│   │   ├── project/             # 项目/任务/工时记录 (3个)
+│   │   ├── hr/                  # 部门/员工/职位/考勤/请假/薪资 (5个)
+│   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP (5个)
+│   │   └── report/              # 报表模板/数据集/执行/定时调度 (2个)
+│   ├── service/                 # 业务逻辑层
+│   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
+│   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
+│   │   └── notification/        # NotificationService: 通知发送
+│   ├── common/                  # 公共工具类
+│   │   ├── HashidsService.php   # ID 编解码
+│   │   ├── SnowflakeService.php # Snowflake ID 生成
+│   │   └── EncryptionService.php# 数据加解密 + 脱敏
+│   ├── middleware/              # 中间件（7 个）
+│   │   ├── Cors.php             # 跨域
+│   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
+│   │   ├── RateLimit.php        # Redis 滑动窗口限流
+│   │   ├── ApiVersion.php       # API 版本校验
+│   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
+│   │   ├── AdminPermission.php  # RBAC 权限校验
+│   │   └── OperationLog.php     # 操作日志自动记录
+│   ├── model/                   # 数据模型（121 个）
+│   ├── queue/                   # 队列任务
+│   └── process/                 # 进程 (Http, Monitor)
 ├── apps/
-│   ├── flutter/                # Flutter Web 管理后台
+│   ├── flutter/                 # Flutter 全平台 (Web/iOS/Android/macOS/Windows/Linux)
 │   │   └── lib/app/
-│   │       ├── pages/          # 6 个完整页面
-│   │       │   ├── dashboard/  # 仪表盘
-│   │       │   ├── login/      # 登录
-│   │       │   ├── user/       # 用户管理
-│   │       │   ├── role/       # 角色权限
-│   │       │   ├── config/     # 系统配置
-│   │       │   ├── log/        # 操作日志
-│   │       │   └── profile/    # 个人中心
-│   │       ├── services/       # ApiService + AuthService
+│   │       ├── pages/           # 业务页面 (dashboard/login/user/role/config/log/profile + ERP)
+│   │       ├── services/        # ApiService + AuthService + CaptchaService + ExportService
 │   │       ├── layouts/        # 响应式布局
 │   │       └── theme/          # Material 3 主题
 │   └── harmonyos/              # HarmonyOS 客户端
@@ -100,15 +123,17 @@ open-admin/
 │   ├── route.php               # 路由 + API 版本策略
 │   └── middleware.php           # 全局中间件注册
 ├── database/
-│   ├── migrations/             # SQL 迁移文件
+│   ├── migrations/             # SQL 迁移文件 (18 个)
 │   │   ├── 2026_05_16_000000_init_tables.sql
-│   │   └── 2026_05_20_000001_seed_permissions.sql
+│   │   ├── 2026_05_20_000001_seed_permissions.sql
+│   │   └── ... (共 18 个迁移文件)
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
 │       └── restore.sh          # 交互式恢复
 ├── docs/                       # 文档
 │   ├── ARCHITECTURE.md         # Mermaid 架构图
 │   ├── DESIGN.md               # 设计文档
+│   ├── FEATURE_DESIGN.md       # 功能设计文档
 │   ├── SECURITY.md             # 安全架构设计
 │   ├── API.md                  # API 参考文档
 │   ├── nginx-security.conf     # Nginx 安全参考配置

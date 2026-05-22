@@ -15,7 +15,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 域 | 功能 |
 |----|------|
 | 认证 | 登录/注册/刷新/登出 + 验证码 + 账号锁定 + 会话限制 |
-| 仪表盘 | 实时统计/趋势/分布/日志（Redis 5m 缓存）|
+| 仪表盘 | 经营总览/销售看板/库存看板/财务看板（Redis 5m 缓存）|
 | 用户 | CRUD + 批量删除/启禁用 + Excel 导入 |
 | 角色权限 | CRUD + 权限树 + RBAC method.path 鉴权 |
 | 系统配置 | 键值对 CRUD |
@@ -23,6 +23,18 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 文件 | 上传 + Excel/PDF 导出（敏感数据脱敏）|
 | 安全 | 18 层纵深防御（XSS/SQL注入/CSRF/限流/CSP...）|
 | 运维 | 健康检查/Prometheus 指标/API 文档/security.txt + Docker + CI/CD |
+| 商品管理 | 商品/SKU/分类/品牌/仓库/库位/供应商/客户 |
+| 采购管理 | 申请→订单→收货→退货→结算（自动入库+生成应付）|
+| 销售管理 | 报价→订单→发货→退货→结算（自动出库+生成应收）|
+| 库存管理 | 实时库存/流水/批次/调拨/盘点/预警（移动加权平均成本）|
+| 财务管理 | 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算 |
+| CRM | 商机/跟进/漏斗/联系人/公海池/合同/报价/营销/工单/分析 |
+| 审批工作流 | 工作流定义/提交/批准/拒绝/撤回/我的审批 |
+| 消息通知 | 通知列表/已读/全部已读/未读计数 |
+| 项目管理 | 项目/任务/工时记录 |
+| 人力资源 | 部门/员工/职位/考勤/请假/薪资 |
+| 生产制造 | BOM/生产订单/工艺路线/工作站/MRP |
+| 自定义报表 | 报表模板/数据集/字段/筛选器/执行/定时调度 |
 
 ## 技术栈
 
@@ -67,16 +79,23 @@ open-erp/
 │   │   ├── CaptchaController.php   # 点击验证码
 │   │   ├── AuthController.php      # 登录/注册/刷新
 │   │   └── ProductController.php   # 商品查询（不含进价）
-│   ├── controller/              # 业务模块控制器（54 个）
+│   ├── controller/              # 业务模块控制器（70 个）
 │   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户 (7个)
 │   │   ├── purchase/            # 采购申请/订单/收货/退货/结算 (5个)
 │   │   ├── sales/               # 销售报价/订单/发货/退货/结算 (5个)
-│   │   ├── inventory/           # 库存/流水/批次/调拨/盘点/预警 (5个)
-│   │   ├── finance/             # 科目/凭证/应收应付/收付款/日记账/报销/总账/明细账/资产负债表/现金流量表/固定资产/税务/多币种/预算/成本中心/利润中心 (21个)
-│   │   └── crm/                 # 商机/跟进/漏斗/公海池/报价/合同/营销活动/服务工单/分析报表 (10个)
+│   │   ├── inventory/           # 库存/流水/调拨/盘点/预警 (5个)
+│   │   ├── finance/             # 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算/成本利润中心 (20个)
+│   │   ├── crm/                 # 商机/跟进/漏斗/联系人/公海池/报价/合同/营销/工单/分析 (10个)
+│   │   ├── workflow/            # 工作流定义/审批提交/批准/拒绝/撤回 (2个)
+│   │   ├── notification/        # 通知列表/已读/未读计数 (1个)
+│   │   ├── project/             # 项目/任务/工时记录 (3个)
+│   │   ├── hr/                  # 部门/员工/职位/考勤/请假/薪资 (5个)
+│   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP (5个)
+│   │   └── report/              # 报表模板/数据集/执行/定时调度 (2个)
 │   ├── service/                 # 业务逻辑层
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
-│   │   └── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
+│   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
+│   │   └── notification/        # NotificationService: 通知发送
 │   ├── common/                  # 公共工具类
 │   │   ├── HashidsService.php   # ID 编解码
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
@@ -89,7 +108,7 @@ open-erp/
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   └── OperationLog.php     # 操作日志自动记录
-│   ├── model/                   # 数据模型（88 个）
+│   ├── model/                   # 数据模型（121 个）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, Monitor)
 ├── apps/
@@ -104,15 +123,17 @@ open-erp/
 │   ├── route.php               # 路由 + API 版本策略
 │   └── middleware.php           # 全局中间件注册
 ├── database/
-│   ├── migrations/             # SQL 迁移文件
+│   ├── migrations/             # SQL 迁移文件 (18 个)
 │   │   ├── 2026_05_16_000000_init_tables.sql
-│   │   └── 2026_05_20_000001_seed_permissions.sql
+│   │   ├── 2026_05_20_000001_seed_permissions.sql
+│   │   └── ... (共 18 个迁移文件)
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
 │       └── restore.sh          # 交互式恢复
 ├── docs/                       # 文档（项目根目录）
 │   ├── ARCHITECTURE.md         # Mermaid 架构图
 │   ├── DESIGN.md               # 设计文档
+│   ├── FEATURE_DESIGN.md       # 功能设计文档
 │   ├── SECURITY.md             # 安全架构设计
 │   ├── API.md                  # API 参考文档
 │   ├── nginx-security.conf     # Nginx 安全参考配置

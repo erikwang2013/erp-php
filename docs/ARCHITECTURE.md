@@ -144,8 +144,8 @@ flowchart TD
 
 | 层级 | 目录 | 说明 |
 |------|------|------|
-| 业务控制器 | `app/controller/{product,purchase,sales,inventory,finance,crm}/` | 35 个，按模块划分，处理业务请求 |
-| 业务服务 | `app/service/{inventory,finance}/` | 库存出入库+成本核算、财务应收应付+核销 |
+| 业务控制器 | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70 个，按模块划分，处理业务请求 |
+| 业务服务 | `app/service/{inventory,finance,notification}/` | 库存出入库+成本核算、财务应收应付+核销、通知发送 |
 
 ---
 
@@ -721,15 +721,22 @@ graph TB
         Inventory["库存管理<br/>出入库/批次/盘点/调拨/预警"]
         Finance["财务管理<br/>科目/凭证/应收应付/总账/明细账/报表/报销"]
         CRM["CRM<br/>客户/联系人/跟进/漏斗/公海池/报价/合同"]
+        Workflow["审批工作流<br/>工作流定义/提交/批准/拒绝/撤回"]
+        Notification["消息通知<br/>通知列表/已读/未读计数"]
+        Project["项目管理<br/>项目/任务/工时记录"]
+        HR["人力资源<br/>部门/员工/职位/考勤/请假/薪资"]
+        Manufacturing["生产制造<br/>BOM/生产订单/工艺路线/工作站/MRP"]
+        Report["自定义报表<br/>报表模板/数据集/字段/筛选/调度"]
     end
 
     subgraph Service["业务服务层"]
         IS["InventoryService<br/>出入库+移动加权平均成本"]
         FS["FinanceService<br/>应收应付自动生成+核销"]
+        NS["NotificationService<br/>通知统一发送"]
     end
 
     subgraph Data["数据层"]
-        MySQL["MySQL 8.0<br/>55张业务表"]
+        MySQL["MySQL 8.0<br/>122张业务表"]
         Redis["Redis 7<br/>缓存/限流/Session"]
         ES["Elasticsearch 8<br/>全文检索"]
     end
@@ -782,7 +789,81 @@ graph LR
 
 ---
 
-## 17. ERP 模块控制器-服务-模型映射表
+## 17. 审批工作流数据流
+
+```mermaid
+sequenceDiagram
+    participant Biz as 业务模块
+    participant WF as WorkflowController
+    participant APR as ApprovalController
+    participant WFE as 工作流引擎
+    participant NTF as NotificationService
+
+    Biz->>WF: 提交审批(业务单号,模块类型)
+    WF->>WFE: 匹配工作流定义→创建审批实例
+    WFE->>APR: 通知第一个节点审批人
+    APR->>NTF: 发送审批通知
+    NTF-->>APR: 通知已发送
+    APR->>APR: 审批人批准/拒绝
+    alt 批准
+        APR->>WFE: 流转到下一节点
+        alt 所有节点通过
+            WFE->>Biz: 回调: 审批通过,更新业务单据状态
+        end
+    else 拒绝
+        WFE->>Biz: 回调: 审批拒绝
+    end
+```
+
+---
+
+## 18. 消息通知数据流
+
+```mermaid
+sequenceDiagram
+    participant Event as 事件触发源
+    participant NS as NotificationService
+    participant DB as 通知表
+    participant User as 用户
+
+    Event->>NS: 触发通知(类型,标题,内容,接收人)
+    NS->>DB: 写入通知记录
+    NS-->>User: 推送(站内信/WebSocket)
+    User->>NS: 标记已读
+    NS->>DB: 更新已读状态
+    User->>NS: 查询未读计数
+    NS-->>User: 未读数量
+```
+
+---
+
+## 19. MRP 物料需求计划数据流
+
+```mermaid
+sequenceDiagram
+    participant SO as 销售订单
+    participant MRP as MrpController
+    participant BOM as MfgBom
+    participant INV as InventoryService
+    participant PO as 采购建议
+    participant MO as 生产建议
+
+    SO->>MRP: 销售订单需求
+    MRP->>BOM: 展开BOM获取物料清单
+    BOM-->>MRP: 物料+标准用量
+    MRP->>INV: 查询库存可用量
+    INV-->>MRP: 库存数量
+    MRP->>MRP: 计算净需求 = 毛需求 - 库存
+    alt 原材料不足
+        MRP->>PO: 生成采购建议
+    else 半成品不足
+        MRP->>MO: 生成生产建议
+    end
+```
+
+---
+
+## 20. ERP 模块控制器-服务-模型映射表
 
 | 模块 | Controllers (目录) | 核心Service | 主要Model | 表数 |
 |------|-------------------|-------------|-----------|------|
@@ -791,5 +872,11 @@ graph LR
 | 采购管理 | controller/purchase/ (5个) | InventoryService, FinanceService | PurchaseOrder, PurchaseReceive | 9 |
 | 销售管理 | controller/sales/ (5个) | InventoryService, FinanceService | SalesOrder, SalesDelivery | 9 |
 | 库存管理 | controller/inventory/ (5个) | InventoryService | Inventory, InventoryFlow, CostRecord | 11 |
-| 财务管理 | controller/finance/ (21个) | FinanceService | FinanceArAp, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| 财务管理 | controller/finance/ (20个) | FinanceService | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
 | CRM | controller/crm/ (10个) | - | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
+| 审批工作流 | controller/workflow/ (2个) | - | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
+| 消息通知 | controller/notification/ (1个) | NotificationService | Notification, NotificationSetting, NotificationTemplate | 3 |
+| 项目管理 | controller/project/ (3个) | - | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
+| 人力资源 | controller/hr/ (5个) | - | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 9 |
+| 生产制造 | controller/manufacturing/ (5个) | - | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| 自定义报表 | controller/report/ (2个) | - | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |

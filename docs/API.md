@@ -1683,7 +1683,7 @@ docker-compose up -d
 
 所有业务端点在 `/admin` 分组下，经过 `AdminAuth`（JWT 认证）、`AdminPermission`（RBAC 权限校验）、`OperationLog`（操作记录）三个中间件。
 
-> 端点总数: 商品(17) | 采购(8) | 销售(6) | 库存(8) | 财务(22) | CRM(14) | 仪表盘(3) | 客户端(2) | 共 80 端点
+> 端点总数: 商品(17) | 采购(8) | 销售(6) | 库存(8) | 财务(22) | CRM(14) | 工作流(6) | 通知(4) | 项目(3) | HR(9) | 制造(7) | 报表(4) | 仪表盘(3) | 客户端(2) | 共 113 端点
 
 跨模块联动端点以 🔗 标记。
 
@@ -1813,7 +1813,129 @@ docker-compose up -d
 | GET/POST | /admin/crm/analytics/report | 客户分析报表 |
 | GET/POST | /admin/crm/analytics/metric | 分析指标 |
 
-### 16.7 仪表盘 (Dashboard)
+### 16.7 审批工作流 (Workflow)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/workflow | 工作流定义列表 |
+| POST | /admin/workflow | 创建工作流定义 |
+| GET | /admin/workflow/{id} | 工作流详情 |
+| PUT | /admin/workflow/{id} | 更新工作流 |
+| DELETE | /admin/workflow/{id} | 删除工作流 |
+| POST | /admin/workflow/{id}/submit | 🔗 提交审批（创建审批实例） |
+| POST | /admin/approval/{id}/approve | 批准 |
+| POST | /admin/approval/{id}/reject | 拒绝 |
+| POST | /admin/approval/{id}/withdraw | 撤回 |
+| ANY | /admin/approval/my | 我的审批列表（待审批/已审批） |
+
+### 16.8 消息通知 (Notification)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| ANY | /admin/notification/my | 我的通知列表（分页，按时间倒序） |
+| POST | /admin/notification/{id}/read | 标记单条已读 |
+| POST | /admin/notification/read-all | 标记全部已读 |
+| ANY | /admin/notification/unread-count | 未读消息数量 |
+
+### 16.9 项目管理 (Project)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/project | 项目列表 |
+| POST | /admin/project | 创建项目 |
+| GET | /admin/project/{id} | 项目详情 |
+| PUT | /admin/project/{id} | 更新项目 |
+| DELETE | /admin/project/{id} | 删除项目 |
+| GET | /admin/project/task | 任务列表 |
+| POST | /admin/project/task | 创建任务 |
+| PUT | /admin/project/task/{id} | 更新任务 |
+| DELETE | /admin/project/task/{id} | 删除任务 |
+| GET | /admin/project/timesheet | 工时记录列表 |
+| POST | /admin/project/timesheet | 录入工时 |
+| PUT | /admin/project/timesheet/{id} | 更新工时 |
+| DELETE | /admin/project/timesheet/{id} | 删除工时 |
+
+### 16.10 人力资源管理 (HR)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/hr/department | 部门列表（树形） |
+| POST | /admin/hr/department | 创建部门 |
+| PUT | /admin/hr/department/{id} | 更新部门 |
+| DELETE | /admin/hr/department/{id} | 删除部门 |
+| GET | /admin/hr/employee | 员工列表 |
+| POST | /admin/hr/employee | 创建员工 |
+| PUT | /admin/hr/employee/{id} | 更新员工 |
+| DELETE | /admin/hr/employee/{id} | 删除员工 |
+| GET | /admin/hr/position | 职位列表 |
+| POST | /admin/hr/position | 创建职位 |
+| PUT | /admin/hr/position/{id} | 更新职位 |
+| DELETE | /admin/hr/position/{id} | 删除职位 |
+| ANY | /admin/hr/attendance | 考勤记录查询 |
+| POST | /admin/hr/attendance/clock-in | 上班打卡 |
+| POST | /admin/hr/attendance/clock-out | 下班打卡 |
+| ANY | /admin/hr/leave | 请假列表 |
+| POST | /admin/hr/leave | 提交请假申请 |
+| GET | /admin/hr/leave/{id} | 请假详情 |
+| PUT | /admin/hr/leave/{id} | 更新请假 |
+| DELETE | /admin/hr/leave/{id} | 删除请假 |
+| POST | /admin/hr/leave/{id}/approve | 🔗 审批请假 |
+| GET | /admin/hr/salary | 薪资列表 |
+| POST | /admin/hr/salary | 生成薪资单 |
+| PUT | /admin/hr/salary/{id} | 更新薪资 |
+| DELETE | /admin/hr/salary/{id} | 删除薪资 |
+| POST | /admin/hr/salary/{id}/pay | 发放薪资 |
+| ANY | /admin/hr/salary-item | 薪资项目列表 |
+| POST | /admin/hr/salary-item | 创建薪资项目 |
+| GET | /admin/hr/salary-item/{id} | 薪资项目详情 |
+| PUT | /admin/hr/salary-item/{id} | 更新薪资项目 |
+| DELETE | /admin/hr/salary-item/{id} | 删除薪资项目 |
+
+### 16.11 生产制造 (Manufacturing)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/mfg/bom | BOM 列表 |
+| POST | /admin/mfg/bom | 创建 BOM |
+| PUT | /admin/mfg/bom/{id} | 更新 BOM |
+| DELETE | /admin/mfg/bom/{id} | 删除 BOM |
+| GET | /admin/mfg/production | 生产订单列表 |
+| POST | /admin/mfg/production | 创建生产订单 |
+| PUT | /admin/mfg/production/{id} | 更新生产订单 |
+| DELETE | /admin/mfg/production/{id} | 删除生产订单 |
+| POST | /admin/mfg/production/{id}/start | 开工 |
+| POST | /admin/mfg/production/{id}/complete | 完工 |
+| GET | /admin/mfg/routing | 工艺路线列表 |
+| POST | /admin/mfg/routing | 创建工艺路线 |
+| PUT | /admin/mfg/routing/{id} | 更新工艺路线 |
+| DELETE | /admin/mfg/routing/{id} | 删除工艺路线 |
+| GET | /admin/mfg/workstation | 工作站列表 |
+| POST | /admin/mfg/workstation | 创建工作站 |
+| PUT | /admin/mfg/workstation/{id} | 更新工作站 |
+| DELETE | /admin/mfg/workstation/{id} | 删除工作站 |
+| GET | /admin/mfg/mrp | MRP 计划列表 |
+| POST | /admin/mfg/mrp | 创建 MRP 计划 |
+| PUT | /admin/mfg/mrp/{id} | 更新 MRP 计划 |
+| DELETE | /admin/mfg/mrp/{id} | 删除 MRP 计划 |
+| POST | /admin/mfg/mrp/{id}/generate | 🔗 运行 MRP 生成采购/生产建议 |
+
+### 16.12 自定义报表 (Report Builder)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/report | 报表模板列表 |
+| POST | /admin/report | 创建报表模板 |
+| GET | /admin/report/{id} | 报表模板详情 |
+| PUT | /admin/report/{id} | 更新报表模板 |
+| DELETE | /admin/report/{id} | 删除报表模板 |
+| POST | /admin/report/{id}/execute | 执行报表生成数据 |
+| ANY | /admin/report/{id}/result | 报表执行结果 |
+| GET | /admin/report/schedule | 定时调度列表 |
+| POST | /admin/report/schedule | 创建定时调度 |
+| PUT | /admin/report/schedule/{id} | 更新定时调度 |
+| DELETE | /admin/report/schedule/{id} | 删除定时调度 |
+
+### 16.13 仪表盘 (Dashboard)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
@@ -1821,7 +1943,7 @@ docker-compose up -d
 | GET | /admin/dashboard/inventory | 库存面板 |
 | GET | /admin/dashboard/finance | 财务面板 |
 
-### 16.8 客户端 API (Client API)
+### 16.14 客户端 API (Client API)
 
 客户端接口挂载在 `/api` 分组下，需要 `API-Version` 请求头。商品信息不包含进价。
 
@@ -1830,7 +1952,7 @@ docker-compose up -d
 | GET | /api/product | 商品列表（不含进价） |
 | GET | /api/product/{hashid} | 商品详情（含零售/批发价，不含进价） |
 
-### 16.9 跨模块联动说明
+### 16.15 跨模块联动说明
 
 以下端点触发跨模块自动联动，以 🔗 标记：
 
