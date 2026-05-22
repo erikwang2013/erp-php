@@ -29,6 +29,7 @@ class Product extends Model
     public function brand() { return $this->belongsTo(Brand::class, 'brand_id'); }
     public function skus() { return $this->hasMany(ProductSku::class, 'product_id'); }
     public function prices() { return $this->hasMany(ProductPrice::class, 'product_id'); }
+    public function units() { return $this->hasMany(ProductUnit::class, 'product_id'); }
 
     public function toSearchableArray(): array
     {
