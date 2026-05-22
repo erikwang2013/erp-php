@@ -106,7 +106,7 @@ open-admin/
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
 │       └── restore.sh          # 交互式恢复
-├── docs/                       # 文档
+├── docs/                       # 文档（项目根目录）
 │   ├── ARCHITECTURE.md         # Mermaid 架构图
 │   ├── DESIGN.md               # 设计文档
 │   ├── SECURITY.md             # 安全架构设计
