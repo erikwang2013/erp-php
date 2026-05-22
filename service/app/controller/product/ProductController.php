@@ -109,10 +109,10 @@ class ProductController extends BaseController
             }
 
             DB::commit();
-            return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), '创建成功');
+            return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('created'));
         } catch (\Throwable $e) {
             DB::rollBack();
-            return $this->fail('创建失败: ' . $e->getMessage(), 500);
+            return $this->fail($this->trans('fail') . ': ' . $e->getMessage(), 500);
         }
     }
 
@@ -124,7 +124,7 @@ class ProductController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $product = Product::with(['category', 'brand', 'skus', 'prices', 'units'])->find($id);
-        if (!$product) return $this->fail('商品不存在', 404);
+        if (!$product) return $this->fail($this->trans('not_found'), 404);
         return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']));
     }
 
@@ -136,7 +136,7 @@ class ProductController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $product = Product::find($id);
-        if (!$product) return $this->fail('商品不存在', 404);
+        if (!$product) return $this->fail($this->trans('not_found'), 404);
 
         $product->name = $request->input('name', $product->name);
         $product->barcode = $request->input('barcode', $product->barcode);
@@ -148,7 +148,7 @@ class ProductController extends BaseController
         if ($request->input('category_id')) $product->category_id = $this->decodeId($request->input('category_id'));
         if ($request->input('brand_id')) $product->brand_id = $this->decodeId($request->input('brand_id'));
         $product->save();
-        return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), '更新成功');
+        return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('updated'));
     }
 
     /**
@@ -159,13 +159,13 @@ class ProductController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $product = Product::find($id);
-        if (!$product) return $this->fail('商品不存在', 404);
+        if (!$product) return $this->fail($this->trans('not_found'), 404);
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
         if ($error !== null) return $this->fail($error, 422);
 
         $product->delete();
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('deleted'));
     }
 }
