@@ -46,9 +46,14 @@ class PaymentController extends BaseController
 
         $item = new FinancePayment();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
-        }
+        $item->code = $request->input('code');
+        $item->supplier_id = $this->decodeId($request->input('supplier_id'));
+        $item->bank_account_id = $this->decodeId($request->input('bank_account_id', '0'));
+        $item->amount = (float) $request->input('amount');
+        $item->method = $request->input('method', 'bank');
+        $item->remark = $request->input('remark', '');
+        $item->status = 0; // Always start as pending - NOT settable by client
+        $item->paid_at = $request->input('paid_at') ?: date('Y-m-d H:i:s');
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -67,9 +72,14 @@ class PaymentController extends BaseController
         $item = FinancePayment::find($id);
         if (!$item) return $this->fail('记录不存在', 404);
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
-        }
+        if ($request->has('code')) $item->code = $request->input('code');
+        if ($request->has('supplier_id')) $item->supplier_id = $this->decodeId($request->input('supplier_id'));
+        if ($request->has('bank_account_id')) $item->bank_account_id = $this->decodeId($request->input('bank_account_id', '0'));
+        if ($request->has('amount')) $item->amount = (float) $request->input('amount');
+        if ($request->has('method')) $item->method = $request->input('method');
+        if ($request->has('remark')) $item->remark = $request->input('remark');
+        if ($request->has('status')) $item->status = (int) $request->input('status');
+        if ($request->has('paid_at')) $item->paid_at = $request->input('paid_at');
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }

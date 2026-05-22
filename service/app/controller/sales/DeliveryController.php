@@ -40,10 +40,16 @@ class DeliveryController extends BaseController
             $query->where('status', (int) $status);
         }
         if ($orderId !== null && $orderId !== '') {
-            $query->where('order_id', $this->decodeId($orderId));
+            $decoded = $this->decodeIdSafe($orderId);
+            if ($decoded !== null && $decoded > 0) {
+                $query->where('order_id', $decoded);
+            }
         }
         if ($customerId !== null && $customerId !== '') {
-            $query->where('customer_id', $this->decodeId($customerId));
+            $decoded = $this->decodeIdSafe($customerId);
+            if ($decoded !== null && $decoded > 0) {
+                $query->where('customer_id', $decoded);
+            }
         }
 
         $total = $query->count();

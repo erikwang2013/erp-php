@@ -52,6 +52,18 @@ class BaseController
     }
 
     /**
+     * 安全解码 hashid，无效时返回 null 而不抛异常
+     */
+    protected function decodeIdSafe(string $hashid): ?int
+    {
+        try {
+            return $this->decodeId($hashid);
+        } catch (\InvalidArgumentException $e) {
+            return null;
+        }
+    }
+
+    /**
      * 批量编码数组中的 ID 字段
      */
     protected function encodeIds(array $data, array $idFields = ['id']): array

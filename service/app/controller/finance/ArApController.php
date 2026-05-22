@@ -46,9 +46,14 @@ class ArApController extends BaseController
 
         $item = new FinanceArAp();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
-        }
+        $item->type = (int) $request->input('type');
+        $item->partner_id = $this->decodeId($request->input('partner_id'));
+        $item->source_type = $request->input('source_type', '');
+        $item->source_id = $this->decodeId($request->input('source_id', '0'));
+        $item->amount = (float) $request->input('amount');
+        $item->settled_amount = 0;
+        $item->status = 0;
+        $item->due_date = $request->input('due_date');
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -67,9 +72,10 @@ class ArApController extends BaseController
         $item = FinanceArAp::find($id);
         if (!$item) return $this->fail('记录不存在', 404);
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
-        }
+        if ($request->has('partner_id')) $item->partner_id = $this->decodeId($request->input('partner_id'));
+        if ($request->has('amount')) $item->amount = (float) $request->input('amount');
+        if ($request->has('status')) $item->status = (int) $request->input('status');
+        if ($request->has('due_date')) $item->due_date = $request->input('due_date');
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }

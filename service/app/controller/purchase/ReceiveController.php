@@ -40,10 +40,16 @@ class ReceiveController extends BaseController
             $query->where('status', (int) $status);
         }
         if ($orderId !== null && $orderId !== '') {
-            $query->where('order_id', $this->decodeId($orderId));
+            $decoded = $this->decodeIdSafe($orderId);
+            if ($decoded !== null && $decoded > 0) {
+                $query->where('order_id', $decoded);
+            }
         }
         if ($supplierId !== null && $supplierId !== '') {
-            $query->where('supplier_id', $this->decodeId($supplierId));
+            $decoded = $this->decodeIdSafe($supplierId);
+            if ($decoded !== null && $decoded > 0) {
+                $query->where('supplier_id', $decoded);
+            }
         }
 
         $total = $query->count();

@@ -26,6 +26,13 @@ class FinanceService
         float $amount,
         ?string $dueDate = null
     ): int {
+        $existing = FinanceArAp::where('source_type', $sourceType)
+            ->where('source_id', $sourceId)
+            ->exists();
+        if ($existing) {
+            throw new \RuntimeException("应收记录已存在: {$sourceType}#{$sourceId}");
+        }
+
         $ar = new FinanceArAp();
         $ar->id = SnowflakeService::generate();
         $ar->type = 1;
@@ -50,6 +57,13 @@ class FinanceService
         float $amount,
         ?string $dueDate = null
     ): int {
+        $existing = FinanceArAp::where('source_type', $sourceType)
+            ->where('source_id', $sourceId)
+            ->exists();
+        if ($existing) {
+            throw new \RuntimeException("应付记录已存在: {$sourceType}#{$sourceId}");
+        }
+
         $ap = new FinanceArAp();
         $ap->id = SnowflakeService::generate();
         $ap->type = 2;
@@ -137,25 +151,29 @@ class FinanceService
         int $sourceId,
         string $summary
     ): void {
-        $account = FinanceBankAccount::findOrFail($bankAccountId);
+        DB::transaction(function () use (
+            $bankAccountId, $direction, $amount, $sourceType, $sourceId, $summary
+        ) {
+            $account = FinanceBankAccount::findOrFail($bankAccountId);
 
-        if ($direction === 1) {
-            $account->balance += $amount;
-        } else {
-            $account->balance -= $amount;
-        }
-        $account->save();
+            if ($direction === 1) {
+                $account->balance += $amount;
+            } else {
+                $account->balance -= $amount;
+            }
+            $account->save();
 
-        $journal = new FinanceCashJournal();
-        $journal->id = SnowflakeService::generate();
-        $journal->bank_account_id = $bankAccountId;
-        $journal->direction = $direction;
-        $journal->amount = $amount;
-        $journal->balance = $account->balance;
-        $journal->source_type = $sourceType;
-        $journal->source_id = $sourceId;
-        $journal->summary = $summary;
-        $journal->journal_date = date('Y-m-d');
-        $journal->save();
+            $journal = new FinanceCashJournal();
+            $journal->id = SnowflakeService::generate();
+            $journal->bank_account_id = $bankAccountId;
+            $journal->direction = $direction;
+            $journal->amount = $amount;
+            $journal->balance = $account->balance;
+            $journal->source_type = $sourceType;
+            $journal->source_id = $sourceId;
+            $journal->summary = $summary;
+            $journal->journal_date = date('Y-m-d');
+            $journal->save();
+        });
     }
 }

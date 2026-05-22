@@ -30,6 +30,9 @@ class InventoryService
         string $sourceType,
         int $sourceId
     ): int {
+        if ($quantity <= 0) throw new \InvalidArgumentException('数量必须大于0');
+        if ($unitCost < 0) throw new \InvalidArgumentException('单价不能为负数');
+
         return DB::transaction(function () use (
             $productId, $skuId, $warehouseId, $locationId,
             $batchCode, $quantity, $unitCost, $sourceType, $sourceId
@@ -49,24 +52,30 @@ class InventoryService
             $flow->source_id = $sourceId;
             $flow->save();
 
-            // 2. 更新/创建实时库存
-            $inv = Inventory::firstOrNew([
+            // 2. 更新/创建实时库存（悲观行锁防止并发覆盖）
+            $inv = Inventory::where([
                 'product_id' => $productId,
                 'sku_id' => $skuId,
                 'warehouse_id' => $warehouseId,
                 'location_id' => $locationId,
                 'batch_code' => $batchCode,
-            ]);
-            if (!$inv->exists) {
+            ])->lockForUpdate()->first();
+            if (!$inv) {
+                $inv = new Inventory();
                 $inv->id = SnowflakeService::generate();
+                $inv->product_id = $productId;
+                $inv->sku_id = $skuId;
+                $inv->warehouse_id = $warehouseId;
+                $inv->location_id = $locationId;
+                $inv->batch_code = $batchCode;
                 $inv->quantity = 0;
             }
             $inv->quantity += $quantity;
-            $inv->cost_price = $unitCost;
-            $inv->save();
 
-            // 3. 移动加权平均成本重算
-            $this->recalcMovingAverageCost($productId, $skuId, $quantity, $unitCost, 1, $flow->id);
+            // 3. 移动加权平均成本重算（必须在save之前，把加权均价写回库存记录）
+            $afterAvg = $this->recalcMovingAverageCost($productId, $skuId, $quantity, $unitCost, 1, $flow->id);
+            $inv->cost_price = $afterAvg;
+            $inv->save();
 
             // 4. 记录批次
             if (!empty($batchCode)) {
@@ -93,18 +102,20 @@ class InventoryService
         string $sourceType,
         int $sourceId
     ): int {
+        if ($quantity <= 0) throw new \InvalidArgumentException('数量必须大于0');
+
         return DB::transaction(function () use (
             $productId, $skuId, $warehouseId, $locationId,
             $batchCode, $quantity, $sourceType, $sourceId
         ) {
-            // 1. 校验库存
+            // 1. 校验库存（悲观行锁防止并发超卖）
             $inv = Inventory::where([
                 'product_id' => $productId,
                 'sku_id' => $skuId,
                 'warehouse_id' => $warehouseId,
                 'location_id' => $locationId,
                 'batch_code' => $batchCode,
-            ])->first();
+            ])->lockForUpdate()->first();
 
             if (!$inv || $inv->quantity < $quantity) {
                 throw new \RuntimeException("库存不足: product_id={$productId}, sku_id={$skuId}, 需要{$quantity}, 可用" . ($inv->quantity ?? 0));
@@ -143,7 +154,7 @@ class InventoryService
      */
     private function recalcMovingAverageCost(
         int $productId, int $skuId, float $quantity, float $unitCost, int $type, int $flowId
-    ): void {
+    ): float {
         $totalInventory = Inventory::where('product_id', $productId)
             ->where('sku_id', $skuId)
             ->sum('quantity');
@@ -163,6 +174,7 @@ class InventoryService
             : $unitCost;
 
         $this->recordCostRecord($productId, $skuId, $flowId, 1, $quantity, $unitCost, $beforeAvg, $afterAvg);
+        return round($afterAvg, 2);
     }
 
     private function recordCostRecord(
