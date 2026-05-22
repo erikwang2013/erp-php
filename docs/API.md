@@ -2,6 +2,27 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## API 文档
+
+项目使用 [hg/apidoc](https://github.com/hg-code/apidoc) 自动生成交互式 API 文档。
+
+**访问方式：** 启动服务后访问 `http://localhost:8787/apidoc`
+
+**文档分组：**
+| 分组 | 说明 | 模块数 |
+|------|------|--------|
+| 管理端接口 (Admin) | 后端管理系统全部接口 | 18 个模块 |
+| 客户端接口 (Service API) | 移动端/Web端调用的轻量接口 | 3 个模块 |
+
+**全局请求头：**
+| 请求头 | 说明 |
+|--------|------|
+| `Authorization` | JWT Bearer Token |
+| `API-Version` | API 版本号 (v1) |
+| `Accept-Language` | 国际化语言 (zh-CN/en) |
+
+**注解规范：** 所有控制器方法使用 `@Apidoc\*` 系列注解标注了接口名称、描述、URL、请求方法、参数和返回值结构。
+
 ## 1. 概述
 
 开放管理后台 (open-admin) 基于 webman v2 构建，提供 RESTful JSON API。所有管理端接口需要 JWT 认证与 RBAC 权限校验，公开接口通过 API 版本头路由到版本化控制器。

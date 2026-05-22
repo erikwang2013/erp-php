@@ -83,6 +83,7 @@ This copyright notice is permanent, must not be modified, removed, or reversed. 
 | `erikwang2013/security-php` | Security tools inspection |
 | `phpoffice/phpspreadsheet` | Excel export |
 | `barryvdh/laravel-dompdf` | PDF export (Dompdf-based) |
+| `hg/apidoc` | API doc auto-generation | Annotation-based docs, admin/client groups |
 
 ## Internationalization
 
@@ -120,6 +121,7 @@ open-erp/
 │   ├── flutter/                # Flutter cross-platform (Web PC + iOS/Android/macOS/Windows/Linux)
 │   └── harmonyos/              # HarmonyOS native client
 ├── config/                     # Configuration files (commented in Chinese)
+│   ├── plugin/hg/apidoc/        # API doc configuration
 ├── database/
 │   ├── migrations/             # SQL migration files (18 files, 122 tables)
 │   └── backup/                 # Backup/restore scripts
@@ -236,6 +238,14 @@ docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_
 - **Sensitive Fields**: Phone, email, ID card — stored as ciphertext via the `encryptable` plugin, database column type `VARCHAR(500)`
 
 ## API Conventions
+
+### API Documentation
+
+The project uses hg/apidoc for auto-generated API documentation, accessible at `/apidoc`.
+
+- Admin API: 18 module groups, with full request parameters and response structures
+- Service API: 3 groups (auth/captcha/products)
+- All endpoints annotated with JWT auth, API version, i18n and other global headers
 
 ### Response Format
 

@@ -75,6 +75,7 @@
 | `erikwang2013/security-php` | 安全工具检查 |
 | `phpoffice/phpspreadsheet` | Excel 导出 |
 | `barryvdh/laravel-dompdf` | PDF 导出（基于 Dompdf） |
+| `hg/apidoc` | API 文档自动生成 | 注解式接口文档，管理端/客户端分组 |
 
 ## 国际化
 
@@ -112,6 +113,7 @@ open-erp/
 │   ├── flutter/                # Flutter 跨平台（Web PC + iOS/Android/macOS/Windows/Linux）
 │   └── harmonyos/              # HarmonyOS 原生客户端
 ├── config/                     # 配置文件（含中文注释）
+│   ├── plugin/hg/apidoc/        # API 文档配置
 ├── database/
 │   ├── migrations/             # SQL 迁移文件（18 个，122 张表）
 │   └── backup/                 # 备份/恢复脚本
@@ -231,6 +233,14 @@ docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_
 - **敏感字段**: 手机号、邮箱、身份证号等使用 `encryptable` 插件自动加解密，数据库字段使用 `VARCHAR(500)` 存储密文
 
 ## API 规范
+
+### API 文档
+
+项目使用 hg/apidoc 自动生成接口文档，访问 `/apidoc` 查看。
+
+- 管理端接口 (Admin)：18 个模块分组，含完整请求参数和响应结构
+- 客户端接口 (Service API)：认证/验证码/商品 3 个分组
+- 所有接口标注了 JWT 认证、API 版本、国际化等全局请求头
 
 ### 统一响应格式
 

@@ -6,6 +6,8 @@
 
 开放ERP系统 (open-erp) 覆盖 14 个业务域，122 张数据表，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 中文/English 双语支持，Accept-Language 请求头自动切换。
 
+> API 文档: 启动服务后访问 `http://localhost:8787/apidoc` 查看交互式接口文档（hg/apidoc 自动生成）
+
 ---
 
 ## 1. 系统管理
