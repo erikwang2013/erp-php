@@ -159,6 +159,22 @@ Route::group('/admin', function () {
     Route::post('/finance/report/cash-flow/save', [app\controller\finance\CashFlowController::class, 'store']);
 
     // ============================================================
+    // 财务 — 固定资产/税务/多币种/预算/成本利润中心
+    // ============================================================
+    Route::resource('/finance/asset', app\controller\finance\AssetController::class);
+    Route::post('/finance/asset/{id}/depreciate', [app\controller\finance\AssetController::class, 'depreciate']);
+    Route::any('/finance/asset/{id}/depreciation', [app\controller\finance\AssetController::class, 'depreciation']);
+    Route::any('/finance/tax-rate', [app\controller\finance\TaxController::class, 'rates']);
+    Route::post('/finance/tax-rate', [app\controller\finance\TaxController::class, 'storeRate']);
+    Route::any('/finance/tax-record', [app\controller\finance\TaxController::class, 'records']);
+    Route::resource('/finance/currency', app\controller\finance\CurrencyController::class);
+    Route::resource('/finance/exchange-rate', app\controller\finance\ExchangeRateController::class);
+    Route::resource('/finance/budget', app\controller\finance\BudgetController::class);
+    Route::any('/finance/budget/{id}/comparison', [app\controller\finance\BudgetController::class, 'comparison']);
+    Route::resource('/finance/cost-center', app\controller\finance\CostCenterController::class);
+    Route::resource('/finance/profit-center', app\controller\finance\ProfitCenterController::class);
+
+    // ============================================================
     // CRM模块
     // ============================================================
     Route::resource('/crm/opportunity', app\controller\crm\OpportunityController::class);
@@ -177,6 +193,20 @@ Route::group('/admin', function () {
     Route::post('/crm/contract/{id}/transition', [app\controller\crm\ContractController::class, 'transition']);
     Route::resource('/crm/quotation', app\controller\crm\QuotationController::class);
     Route::post('/crm/quotation/{id}/to-contract', [app\controller\crm\QuotationController::class, 'toContract']);
+
+    // ============================================================
+    // CRM — 营销活动/服务工单/客户分析
+    // ============================================================
+    Route::resource('/crm/campaign', app\controller\crm\CampaignController::class);
+    Route::resource('/crm/ticket', app\controller\crm\TicketController::class);
+    Route::post('/crm/ticket/{id}/assign', [app\controller\crm\TicketController::class, 'assign']);
+    Route::post('/crm/ticket/{id}/resolve', [app\controller\crm\TicketController::class, 'resolve']);
+    Route::post('/crm/ticket/{id}/reply', [app\controller\crm\TicketController::class, 'reply']);
+    Route::any('/crm/analytics/report', [app\controller\crm\AnalyticsController::class, 'reports']);
+    Route::get('/crm/analytics/report/{id}', [app\controller\crm\AnalyticsController::class, 'reportShow']);
+    Route::post('/crm/analytics/generate', [app\controller\crm\AnalyticsController::class, 'generate']);
+    Route::any('/crm/analytics/metric', [app\controller\crm\AnalyticsController::class, 'metrics']);
+    Route::post('/crm/analytics/metric', [app\controller\crm\AnalyticsController::class, 'storeMetric']);
 
     // ============================================================
     // 仪表盘
