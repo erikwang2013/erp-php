@@ -215,6 +215,31 @@ Route::group('/admin', function () {
     Route::any('/dashboard/sales', [app\admin\controller\DashboardController::class, 'sales']);
     Route::any('/dashboard/inventory', [app\admin\controller\DashboardController::class, 'inventory']);
     Route::any('/dashboard/finance', [app\admin\controller\DashboardController::class, 'finance']);
+
+    // ============================================================
+    // 审批工作流
+    // ============================================================
+    Route::resource('/workflow', app\controller\workflow\WorkflowController::class);
+    Route::post('/workflow/{id}/submit', [app\controller\workflow\ApprovalController::class, 'submit']);
+    Route::post('/approval/{id}/approve', [app\controller\workflow\ApprovalController::class, 'approve']);
+    Route::post('/approval/{id}/reject', [app\controller\workflow\ApprovalController::class, 'reject']);
+    Route::post('/approval/{id}/withdraw', [app\controller\workflow\ApprovalController::class, 'withdraw']);
+    Route::any('/approval/my', [app\controller\workflow\ApprovalController::class, 'myApprovals']);
+
+    // ============================================================
+    // 通知系统
+    // ============================================================
+    Route::any('/notification/my', [app\controller\notification\NotificationController::class, 'myNotifications']);
+    Route::post('/notification/{id}/read', [app\controller\notification\NotificationController::class, 'markRead']);
+    Route::post('/notification/read-all', [app\controller\notification\NotificationController::class, 'markAllRead']);
+    Route::any('/notification/unread-count', [app\controller\notification\NotificationController::class, 'unreadCount']);
+
+    // ============================================================
+    // 项目管理
+    // ============================================================
+    Route::resource('/project', app\controller\project\ProjectController::class);
+    Route::resource('/project/task', app\controller\project\TaskController::class);
+    Route::resource('/project/timesheet', app\controller\project\TimesheetController::class);
 })->middleware([
     app\middleware\AdminAuth::class,
     app\middleware\AdminPermission::class,
