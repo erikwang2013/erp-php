@@ -1,0 +1,5 @@
+/runtime/
+.env
+.worktrees/
+*.log
+.DS_Store
