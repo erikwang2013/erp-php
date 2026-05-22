@@ -1,6 +1,6 @@
-# 开放管理后台 (open-admin)
+# 开放ERP系统 (open-erp)
 
-基于 webman v2 + Flutter 的全栈管理后台系统。
+基于 webman v2 + Flutter 的全栈ERP系统。
 
 > [English version](README_EN.md) | [架构设计图](docs/ARCHITECTURE.md) | [设计文档](docs/DESIGN.md) | [安全架构](docs/SECURITY.md) | [API 参考](docs/API.md)
 
@@ -20,6 +20,23 @@
 | 📁 文件管理 | 上传/Excel 导出/PDF 导出 | 敏感数据自动脱敏 |
 | 🛡 安全防护 | 18 层纵深防御 | XSS/SQL注入/路径遍历/命令注入/CSRF/限流/CSP... |
 | 🏥 运维 | 健康检查/metrics/API 文档/security.txt | Prometheus + OpenAPI 3.0 |
+| 📦 商品管理 | 商品档案/SKU/多规格/多单位/分类/品牌/价格策略 | 多级分类树 + 多单位换算 |
+| | 仓库库位 | 多仓库多库位管理 |
+| | 供应商/客户档案 | 联系人/银行账户/信用额度 |
+| 📥 采购管理 | 申请→订单→收货→退货→结算 | 完整采购流程 + 审批 |
+| 📤 销售管理 | 报价→订单→发货→退货→结算 | 报价转订单 + 销售毛利 |
+| 🏗 库存管理 | 实时库存/批次/序列号/调拨/盘点/预警 | 移动加权平均成本核算 |
+| 💰 财务管理 | 科目/凭证/应收应付/收付款/日记账/报销/利润表 | 自动生成应收应付 + 核销 |
+| 🤝 CRM | 客户/联系人/跟进记录/销售漏斗 | 商机阶段管理 |
+
+## ERP 模块
+
+各业务模块间的数据流转：
+
+- 采购收货 → 自动入库（移动加权平均成本核算） → 自动生成应付
+- 销售发货 → 自动出库 → 自动生成应收
+- 收付款 → 核销应收应付 → 更新日记账
+- 盘点差异 → 自动生成盈亏出入库流水
 
 ## 技术栈
 
@@ -44,57 +61,40 @@
 | `erikwang2013/webman-scout` | Elasticsearch 数据同步与全文检索 |
 | `erikwang2013/season` | 国家旗帜数据 |
 | `erikwang2013/poster-php` | 点击验证码生成与校验 + 海报生成 |
+| `erikwang2013/security-php` | 安全工具检查 |
 | `phpoffice/phpspreadsheet` | Excel 导出 |
 | `barryvdh/laravel-dompdf` | PDF 导出（基于 Dompdf） |
 
 ## 项目结构
 
 ```
-open-admin/
+open-erp/
 ├── app/
-│   ├── admin/controller/       # 管理端控制器
-│   │   ├── DashboardController.php # 仪表盘（Redis缓存）
-│   │   ├── UserController.php      # 用户 CRUD + 批量操作
-│   │   ├── RoleController.php      # 角色 CRUD
-│   │   ├── PermissionController.php# 权限 CRUD
-│   │   ├── ConfigController.php    # 系统配置 CRUD
-│   │   ├── LogController.php       # 操作日志查询
-│   │   ├── ProfileController.php   # 个人中心 + 登出
-│   │   ├── ExportController.php    # Excel/PDF 导出
-│   │   ├── ImportController.php    # Excel 导入用户
-│   │   ├── UploadController.php    # 文件上传
-│   │   ├── HealthController.php    # 健康检查
-│   │   ├── DocsController.php      # OpenAPI 文档
-│   │   └── BaseController.php      # 基础控制器
-│   ├── api/
-│   │   └── v1/controller/          # API v1 控制器（版本由请求头 API-Version 控制）
-│   │       ├── CaptchaController.php # 点击验证码
-│   │       └── AuthController.php    # 登录/注册/刷新令牌
-│   ├── common/                 # 公共工具类
-│   │   ├── HashidsService.php  # ID 编解码
-│   │   ├── SnowflakeService.php# Snowflake ID 生成
-│   │   └── EncryptionService.php # 数据加解密 + 脱敏
-│   ├── middleware/             # 中间件
-│   │   ├── Cors.php            # 跨域
-│   │   ├── SecurityFilter.php  # 攻击检测拦截（HTTP方法限制/XSS/SQL注入/路径遍历/命令注入/CSRF）
-│   │   ├── RateLimit.php       # Redis 限流（滑动窗口 + 响应头）
-│   │   ├── ApiVersion.php      # API 版本校验
-│   │   ├── AdminAuth.php       # JWT 认证 + 黑名单
-│   │   ├── AdminPermission.php # RBAC 权限校验
-│   │   └── OperationLog.php    # 操作日志自动记录（含来源端检测）
-│   └── model/                  # 数据模型
+│   ├── admin/controller/       # 系统管理控制器
+│   ├── api/v1/controller/      # 客户端 API（版本由 API-Version 请求头控制）
+│   ├── controller/             # 业务模块控制器
+│   │   ├── product/            # 商品/分类/品牌/仓库/供应商/客户
+│   │   ├── purchase/           # 采购申请/订单/收货/退货/结算
+│   │   ├── sales/              # 销售报价/订单/发货/退货/结算
+│   │   ├── inventory/          # 库存/流水/调拨/盘点/预警
+│   │   ├── finance/            # 科目/凭证/收款/付款/报销/报表
+│   │   └── crm/                # 商机/跟进/联系人/销售漏斗
+│   ├── service/                # 业务逻辑层
+│   │   ├── inventory/          # 出入库 + 移动加权平均成本核算
+│   │   └── finance/            # 应收应付自动生成 + 核销
+│   ├── model/                  # 55+ 个 Eloquent 模型（多模块共用）
+│   ├── middleware/             # 7 个中间件
+│   ├── common/                 # Hashids/Snowflake/Encryption 服务
+│   └── queue/                  # 队列任务
 ├── apps/
-│   ├── flutter/                # Flutter Web 管理后台（PC 风格）
-│   │   └── lib/app/
-│   │       ├── pages/          # 5 个完整页面（仪表盘/用户/角色/配置/日志/个人中心）
-│   │       ├── services/       # ApiService（JWT 拦截器）+ AuthService（Token 持久化）
-│   │       └── layouts/        # 响应式管理后台布局（侧边栏+顶栏+内容区）
-│   └── harmonyos/              # HarmonyOS 原生客户端（Token 无感刷新）
+│   ├── flutter/                # Flutter 跨平台（Web PC + iOS/Android/macOS/Windows/Linux）
+│   └── harmonyos/              # HarmonyOS 原生客户端
 ├── config/                     # 配置文件（含中文注释）
-│   ├── route.php               # 路由 + API 版本策略
-│   ├── middleware.php           # 全局中间件注册
-│   └── ...                     # 各组件配置
-├── database/migrations/        # SQL 迁移文件（含权限种子数据）
+├── database/
+│   ├── migrations/             # SQL 迁移文件（8 个，约 55 张表）
+│   └── backup/                 # 备份/恢复脚本
+├── docs/                       # 架构、设计、安全、API 文档
+├── tests/                      # PHPUnit 测试（30 个测试，258 条断言）
 ├── public/                     # 公共入口
 ├── runtime/                    # 运行时文件
 └── vendor/                     # Composer 依赖
@@ -371,6 +371,42 @@ Authorization: Bearer <token>
 | `POST` | `/admin/export/pdf` | 导出 PDF |
 | `POST` | `/admin/import/users` | Excel 导入用户 |
 | `POST` | `/admin/upload` | 文件上传（图片/文档，最大 10MB） |
+
+### 业务接口（需 JWT + RBAC）
+
+| 方法 | 路径 | 说明 |
+|-----|------|------|
+| `GET/POST/PUT/DELETE` | `/admin/product` | 商品 CRUD（含 SKU、价格） |
+| `GET/POST/PUT/DELETE` | `/admin/category` | 商品分类 CRUD（树形） |
+| `GET/POST/PUT/DELETE` | `/admin/brand` | 品牌 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/warehouse` | 仓库 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/location` | 库位 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/supplier` | 供应商 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/customer` | 客户 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/purchase/order` | 采购订单 |
+| `GET/POST/PUT/DELETE` | `/admin/purchase/receive` | 采购收货（自动入库+生成应付） |
+| `GET/POST/PUT/DELETE` | `/admin/sales/order` | 销售订单 |
+| `GET/POST/PUT/DELETE` | `/admin/sales/delivery` | 销售发货（自动出库+生成应收） |
+| `GET/POST` | `/admin/inventory` | 实时库存查询 |
+| `GET` | `/admin/inventory/flow` | 出入库流水 |
+| `GET/POST/PUT/DELETE` | `/admin/inventory/transfer` | 库存调拨 |
+| `GET/POST/PUT/DELETE` | `/admin/inventory/check` | 盘点任务 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/receipt` | 收款单 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/payment` | 付款单 |
+| `GET` | `/admin/finance/report/profit` | 利润表 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/expense` | 费用报销 |
+| `GET/POST/PUT/DELETE` | `/admin/crm/opportunity` | 商机管理 |
+| `GET/POST/PUT/DELETE` | `/admin/crm/follow` | 跟进记录 |
+| `GET` | `/admin/dashboard/sales` | 销售面板 |
+| `GET` | `/admin/dashboard/inventory` | 库存面板 |
+| `GET` | `/admin/dashboard/finance` | 财务面板 |
+
+### 客端接口（需 API-Version 头）
+
+| 方法 | 路径 | 说明 |
+|-----|------|------|
+| `GET` | `/api/product` | 商品列表（不含进价） |
+| `GET` | `/api/product/{hashid}` | 商品详情（含零售/批发价） |
 
 ## 前端说明
 

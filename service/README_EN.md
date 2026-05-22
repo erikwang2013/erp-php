@@ -1,6 +1,6 @@
-# Open Admin (open-admin)
+# Open ERP System (open-erp)
 
-A full-stack admin dashboard built with webman v2 + Flutter.
+A full-stack ERP system built with webman v2 + Flutter.
 
 > [中文文档](README.md) | [Architecture Diagrams](docs/ARCHITECTURE.md) | [Design Doc](docs/DESIGN.md) | [Security](docs/SECURITY.md) | [API Reference](docs/API.md)
 
@@ -20,6 +20,23 @@ A full-stack admin dashboard built with webman v2 + Flutter.
 | 📁 Files | Upload/Excel export/PDF export | Sensitive data auto-masked |
 | 🛡 Security | 18-layer defense-in-depth | XSS/SQLi/path traversal/cmd injection/CSRF/rate limit/CSP... |
 | 🏥 Ops | Health check/metrics/API docs/security.txt | Prometheus + OpenAPI 3.0 |
+| 📦 Products | Product catalog/SKU/variants/multi-unit/categories/brands/pricing | Multi-level category tree + unit conversion |
+| | Warehouse/Location | Multi-warehouse multi-location management |
+| | Supplier/Customer profiles | Contacts/bank accounts/credit limits |
+| 📥 Purchasing | Requisition→Order→Receive→Return→Settlement | Full procurement flow + approval |
+| 📤 Sales | Quotation→Order→Delivery→Return→Settlement | Quote-to-order + gross margin |
+| 🏗 Inventory | Real-time stock/batch/serial/transfer/stocktaking/alerts | Moving-weighted-average costing |
+| 💰 Finance | COA/vouchers/AR/AP/receipts/payments/cash journal/expense/profit statement | Auto-generate AR/AP + write-off |
+| 🤝 CRM | Customers/contacts/follow-ups/sales funnel | Opportunity stage management |
+
+## ERP Modules
+
+Cross-module data flow:
+
+- Purchase receiving → Auto stock-in (moving-weighted-average costing) → Auto-generate AP
+- Sales delivery → Auto stock-out → Auto-generate AR
+- Receipts & payments → Write-off AR/AP → Update cash journal
+- Stocktaking variance → Auto-generate gain/loss inventory flow
 
 ## Copyright
 
@@ -52,45 +69,42 @@ This copyright notice is permanent, must not be modified, removed, or reversed. 
 | `erikwang2013/webman-scout` | Elasticsearch sync and full-text search |
 | `erikwang2013/season` | Country flag data |
 | `erikwang2013/poster-php` | Click captcha generation/verification + poster generation |
+| `erikwang2013/security-php` | Security tools inspection |
 | `phpoffice/phpspreadsheet` | Excel export |
 | `barryvdh/laravel-dompdf` | PDF export (Dompdf-based) |
 
 ## Project Structure
 
 ```
-open-admin/
+open-erp/
 ├── app/
-│   ├── admin/controller/       # Admin controllers
-│   │   ├── DashboardController.php # Dashboard (Redis cached)
-│   │   ├── UserController.php      # User CRUD + batch ops
-│   │   ├── RoleController.php      # Role CRUD
-│   │   ├── PermissionController.php# Permission CRUD
-│   │   ├── ConfigController.php    # System config CRUD
-│   │   ├── LogController.php       # Operation log viewer
-│   │   ├── ProfileController.php   # Profile + logout
-│   │   ├── ExportController.php    # Excel/PDF export
-│   │   ├── ImportController.php    # Excel import users
-│   │   ├── UploadController.php    # File upload
-│   │   ├── HealthController.php    # Health check
-│   │   └── DocsController.php      # OpenAPI docs
-│   ├── api/
-│   │   └── v1/controller/          # API v1 (version via API-Version header)
-│   │       ├── CaptchaController.php
-│   │       └── AuthController.php
-│   ├── middleware/             # Middleware
-│   │   ├── Cors.php            # CORS
-│   │   ├── SecurityFilter.php  # Attack detection (HTTP method restriction/XSS/SQLi/path traversal/cmd injection/CSRF)
-│   │   ├── RateLimit.php       # Redis rate limiting
-│   │   ├── ApiVersion.php      # API version validation
-│   │   ├── AdminAuth.php       # JWT auth + blacklist
-│   │   ├── AdminPermission.php # RBAC authorization
-│   │   └── OperationLog.php    # Auto operation logging (with source detection)
-│   └── model/                  # Eloquent models
+│   ├── admin/controller/       # System management controllers
+│   ├── api/v1/controller/      # Client API (version via API-Version header)
+│   ├── controller/             # Business module controllers
+│   │   ├── product/            # Product/category/brand/warehouse/supplier/customer
+│   │   ├── purchase/           # Requisition/order/receive/return/settlement
+│   │   ├── sales/              # Quotation/order/delivery/return/settlement
+│   │   ├── inventory/          # Stock/flow/transfer/check/alert
+│   │   ├── finance/            # Account/voucher/receipt/payment/expense/report
+│   │   └── crm/                # Opportunity/follow/contact/funnel
+│   ├── service/                # Business logic layer
+│   │   ├── inventory/          # Stock in/out + moving-weighted-average cost
+│   │   └── finance/            # AR/AP auto-generation + settlement
+│   ├── model/                  # 55+ Eloquent models (shared across modules)
+│   ├── middleware/             # 7 middleware
+│   ├── common/                 # Hashids/Snowflake/Encryption services
+│   └── queue/                  # Queue tasks
 ├── apps/
-│   ├── flutter/                # Flutter Web admin panel
-│   └── harmonyos/              # HarmonyOS client (auto token refresh)
-├── config/                     # Config files
-├── database/migrations/        # SQL migrations (incl. permission seeds)
+│   ├── flutter/                # Flutter cross-platform (Web PC + iOS/Android/macOS/Windows/Linux)
+│   └── harmonyos/              # HarmonyOS native client
+├── config/                     # Configuration files (commented in Chinese)
+├── database/
+│   ├── migrations/             # SQL migration files (8 files, ~55 tables)
+│   └── backup/                 # Backup/restore scripts
+├── docs/                       # Architecture, design, security, API docs
+├── tests/                      # PHPUnit tests (30 tests, 258 assertions)
+├── public/                     # Public entry
+├── runtime/                    # Runtime files
 └── vendor/                     # Composer dependencies
 ```
 
@@ -364,6 +378,42 @@ Authorization: Bearer <token>
 | `POST` | `/admin/export/pdf` | Export to PDF |
 | `POST` | `/admin/import/users` | Import users from Excel |
 | `POST` | `/admin/upload` | Upload file |
+
+### Business Endpoints (requires JWT + RBAC)
+
+| Method | Path | Description |
+|-----|------|------|
+| `GET/POST/PUT/DELETE` | `/admin/product` | Product CRUD (incl. SKU, pricing) |
+| `GET/POST/PUT/DELETE` | `/admin/category` | Product category CRUD (tree) |
+| `GET/POST/PUT/DELETE` | `/admin/brand` | Brand CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/warehouse` | Warehouse CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/location` | Location CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/supplier` | Supplier CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/customer` | Customer CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/purchase/order` | Purchase order |
+| `GET/POST/PUT/DELETE` | `/admin/purchase/receive` | Purchase receiving (auto stock-in + AP generation) |
+| `GET/POST/PUT/DELETE` | `/admin/sales/order` | Sales order |
+| `GET/POST/PUT/DELETE` | `/admin/sales/delivery` | Sales delivery (auto stock-out + AR generation) |
+| `GET/POST` | `/admin/inventory` | Real-time inventory query |
+| `GET` | `/admin/inventory/flow` | Inventory flow |
+| `GET/POST/PUT/DELETE` | `/admin/inventory/transfer` | Inventory transfer |
+| `GET/POST/PUT/DELETE` | `/admin/inventory/check` | Stocktaking task |
+| `GET/POST/PUT/DELETE` | `/admin/finance/receipt` | Receipt |
+| `GET/POST/PUT/DELETE` | `/admin/finance/payment` | Payment |
+| `GET` | `/admin/finance/report/profit` | Profit statement |
+| `GET/POST/PUT/DELETE` | `/admin/finance/expense` | Expense reimbursement |
+| `GET/POST/PUT/DELETE` | `/admin/crm/opportunity` | Opportunity management |
+| `GET/POST/PUT/DELETE` | `/admin/crm/follow` | Follow-up record |
+| `GET` | `/admin/dashboard/sales` | Sales dashboard |
+| `GET` | `/admin/dashboard/inventory` | Inventory dashboard |
+| `GET` | `/admin/dashboard/finance` | Finance dashboard |
+
+### Client Endpoints (requires API-Version header)
+
+| Method | Path | Description |
+|-----|------|------|
+| `GET` | `/api/product` | Product list (excl. purchase price) |
+| `GET` | `/api/product/{hashid}` | Product detail (incl. retail/wholesale price) |
 
 ## Frontend Notes
 
