@@ -138,6 +138,15 @@ flowchart TD
     style CT1 fill:#1677FF,color:#fff
 ```
 
+### ERP 业务层扩展
+
+随着系统从纯管理后台演进为完整 ERP 系统，控制器层和服务层新增以下业务模块：
+
+| 层级 | 目录 | 说明 |
+|------|------|------|
+| 业务控制器 | `app/controller/{product,purchase,sales,inventory,finance,crm}/` | 35 个，按模块划分，处理业务请求 |
+| 业务服务 | `app/service/{inventory,finance}/` | 库存出入库+成本核算、财务应收应付+核销 |
+
 ---
 
 ## 3. 请求生命周期
@@ -686,3 +695,101 @@ flowchart TB
     style ES fill:#1890FF,color:#fff
     style REDIS fill:#1890FF,color:#fff
 ```
+
+---
+
+## 14. ERP 系统整体架构
+
+```mermaid
+graph TB
+    subgraph Client["客户端层"]
+        FW["Flutter Web<br/>PC管理后台"]
+        FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
+        HW["HarmonyOS<br/>鸿蒙原生App"]
+    end
+
+    subgraph Gateway["API 网关层"]
+        MW["中间件链<br/>Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+    end
+
+    subgraph Business["业务模块层"]
+        direction LR
+        Admin["系统管理<br/>用户/角色/权限/配置/日志"]
+        Product["商品管理<br/>商品/分类/品牌/仓库/供应商/客户"]
+        Purchase["采购管理<br/>申请→订单→收货→退货→结算"]
+        Sales["销售管理<br/>报价→订单→发货→退货→结算"]
+        Inventory["库存管理<br/>出入库/批次/盘点/调拨/预警"]
+        Finance["财务管理<br/>科目/凭证/应收应付/收付款/报销"]
+        CRM["CRM<br/>客户/联系人/跟进/销售漏斗"]
+    end
+
+    subgraph Service["业务服务层"]
+        IS["InventoryService<br/>出入库+移动加权平均成本"]
+        FS["FinanceService<br/>应收应付自动生成+核销"]
+    end
+
+    subgraph Data["数据层"]
+        MySQL["MySQL 8.0<br/>55张业务表"]
+        Redis["Redis 7<br/>缓存/限流/Session"]
+        ES["Elasticsearch 8<br/>全文检索"]
+    end
+
+    Client --> Gateway
+    Gateway --> Business
+    Business --> Service
+    Service --> Data
+    Business --> Data
+```
+
+---
+
+## 15. 跨模块数据流
+
+```mermaid
+sequenceDiagram
+    participant PO as 采购收货
+    participant IS as InventoryService
+    participant FS as FinanceService
+    participant INV as 库存表
+    participant COST as 成本记录
+    participant ARAP as 应收应付
+
+    PO->>IS: stockIn(商品,数量,单价)
+    IS->>INV: 更新实时库存(加锁)
+    IS->>COST: 重算移动加权平均成本
+    IS-->>PO: 返回流水ID
+    
+    PO->>FS: createAp(供应商,金额)
+    FS->>ARAP: 生成应付记录
+    
+    Note over PO,ARAP: 销售发货同理: stockOut + createAr
+```
+
+---
+
+## 16. 库存成本核算数据流
+
+```mermaid
+graph LR
+    A[采购收货 100元×10个] --> B[入库流水]
+    C[采购收货 130元×20个] --> D[入库流水]
+    B --> E[库存: 10个, 成本100]
+    D --> F[库存: 30个, 成本120]
+    E --> G[移动加权平均: 100]
+    F --> H[移动加权平均: 120]
+    H --> I[出库按120计成本]
+```
+
+---
+
+## 17. ERP 模块控制器-服务-模型映射表
+
+| 模块 | Controllers (目录) | 核心Service | 主要Model | 表数 |
+|------|-------------------|-------------|-----------|------|
+| 系统管理 | admin/controller/ (14个) | - | AdminUser, AdminRole, AdminPermission | 7 |
+| 商品管理 | controller/product/ (7个) | - | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
+| 采购管理 | controller/purchase/ (5个) | InventoryService, FinanceService | PurchaseOrder, PurchaseReceive | 9 |
+| 销售管理 | controller/sales/ (5个) | InventoryService, FinanceService | SalesOrder, SalesDelivery | 9 |
+| 库存管理 | controller/inventory/ (5个) | InventoryService | Inventory, InventoryFlow, CostRecord | 11 |
+| 财务管理 | controller/finance/ (9个) | FinanceService | FinanceArAp, FinanceReceipt, FinancePayment | 11 |
+| CRM | controller/crm/ (4个) | - | CrmOpportunity, CrmFollowRecord, CrmContact | 4 |
