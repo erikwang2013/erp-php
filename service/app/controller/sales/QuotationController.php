@@ -15,7 +15,20 @@ use support\Response;
 class QuotationController extends BaseController
 {
     /**
-     * 列表（分页）
+     * 销售报价列表（分页）
+     * @Apidoc\Title("销售报价列表")
+     * @Apidoc\Desc("获取销售报价列表，支持分页、关键词搜索和状态筛选")
+     * @Apidoc\Url("/admin/sales/quotation")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（名称/编码）")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -43,6 +56,21 @@ class QuotationController extends BaseController
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
 
+    /**
+     * 创建销售报价
+     * @Apidoc\Title("创建销售报价")
+     * @Apidoc\Desc("新增一个销售报价记录")
+     * @Apidoc\Url("/admin/sales/quotation")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="name", type="string", default="", desc="报价名称（必填）")
+     * @Apidoc\Param(name="code", type="string", default="", desc="报价单号")
+     * @Apidoc\Param(name="status", type="int", default=1, desc="状态")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="销售报价记录")
+     */
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['name' => 'required|string|max:200']);
@@ -57,6 +85,19 @@ class QuotationController extends BaseController
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
+    /**
+     * 销售报价详情
+     * @Apidoc\Title("销售报价详情")
+     * @Apidoc\Desc("根据ID获取销售报价详细信息")
+     * @Apidoc\Url("/admin/sales/quotation/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="销售报价hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="销售报价详情")
+     */
     public function show(Request $request, string $hashid): Response
     {
         $id = $this->decodeId($hashid);
@@ -65,6 +106,22 @@ class QuotationController extends BaseController
         return $this->success($this->encodeIds($item->toArray()));
     }
 
+    /**
+     * 更新销售报价
+     * @Apidoc\Title("更新销售报价")
+     * @Apidoc\Desc("根据ID更新销售报价信息")
+     * @Apidoc\Url("/admin/sales/quotation/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="销售报价hashid")
+     * @Apidoc\Param(name="name", type="string", default="", desc="报价名称")
+     * @Apidoc\Param(name="code", type="string", default="", desc="报价单号")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="更新后的销售报价记录")
+     */
     public function update(Request $request, string $hashid): Response
     {
         $id = $this->decodeId($hashid);
@@ -78,6 +135,20 @@ class QuotationController extends BaseController
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
+    /**
+     * 删除销售报价（软删除）
+     * @Apidoc\Title("删除销售报价")
+     * @Apidoc\Desc("根据ID软删除销售报价，需管理员密码二次确认")
+     * @Apidoc\Url("/admin/sales/quotation/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="销售报价hashid")
+     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="array", desc="空数组")
+     */
     public function destroy(Request $request, string $hashid): Response
     {
         $id = $this->decodeId($hashid);

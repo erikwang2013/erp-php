@@ -16,7 +16,19 @@ class CustomerController extends BaseController
 {
     /**
      * 客户列表（分页）
-     * GET /product/customer
+     * @Apidoc\Title("客户列表")
+     * @Apidoc\Desc("获取客户列表，支持分页、关键词搜索和状态筛选")
+     * @Apidoc\Url("/admin/customer")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（名称/编码）")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选（0=禁用,1=启用）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -46,7 +58,18 @@ class CustomerController extends BaseController
 
     /**
      * 创建客户
-     * POST /product/customer
+     * @Apidoc\Title("创建客户")
+     * @Apidoc\Desc("新增一个客户记录")
+     * @Apidoc\Url("/admin/customer")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="name", type="string", default="", desc="客户名称（必填）")
+     * @Apidoc\Param(name="code", type="string", default="", desc="客户编码")
+     * @Apidoc\Param(name="status", type="int", default=1, desc="状态（0=禁用,1=启用）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="客户记录")
      */
     public function store(Request $request): Response
     {
@@ -64,7 +87,16 @@ class CustomerController extends BaseController
 
     /**
      * 客户详情
-     * GET /product/customer/{id}
+     * @Apidoc\Title("客户详情")
+     * @Apidoc\Desc("根据ID获取客户详细信息")
+     * @Apidoc\Url("/admin/customer/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="客户hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="客户详情")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -76,7 +108,19 @@ class CustomerController extends BaseController
 
     /**
      * 更新客户
-     * PUT /product/customer/{id}
+     * @Apidoc\Title("更新客户")
+     * @Apidoc\Desc("根据ID更新客户信息")
+     * @Apidoc\Url("/admin/customer/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="客户hashid")
+     * @Apidoc\Param(name="name", type="string", default="", desc="客户名称")
+     * @Apidoc\Param(name="code", type="string", default="", desc="客户编码")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态（0=禁用,1=启用）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="更新后的客户记录")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -92,8 +136,18 @@ class CustomerController extends BaseController
     }
 
     /**
-     * 删除客户（软删除，需密码确认）
-     * DELETE /product/customer/{id}
+     * 删除客户（软删除）
+     * @Apidoc\Title("删除客户")
+     * @Apidoc\Desc("根据ID软删除客户，需管理员密码二次确认")
+     * @Apidoc\Url("/admin/customer/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="客户hashid")
+     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="array", desc="空数组")
      */
     public function destroy(Request $request, string $hashid): Response
     {

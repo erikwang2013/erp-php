@@ -16,7 +16,19 @@ class CategoryController extends BaseController
 {
     /**
      * 分类列表（分页）
-     * GET /product/category
+     * @Apidoc\Title("分类列表")
+     * @Apidoc\Desc("获取分类列表，支持分页、关键词搜索和状态筛选")
+     * @Apidoc\Url("/admin/category")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（名称/编码）")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选（0=禁用,1=启用）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -46,7 +58,18 @@ class CategoryController extends BaseController
 
     /**
      * 创建分类
-     * POST /product/category
+     * @Apidoc\Title("创建分类")
+     * @Apidoc\Desc("新增一个分类记录")
+     * @Apidoc\Url("/admin/category")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="name", type="string", default="", desc="分类名称（必填）")
+     * @Apidoc\Param(name="code", type="string", default="", desc="分类编码")
+     * @Apidoc\Param(name="status", type="int", default=1, desc="状态（0=禁用,1=启用）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="分类记录")
      */
     public function store(Request $request): Response
     {
@@ -64,7 +87,16 @@ class CategoryController extends BaseController
 
     /**
      * 分类详情
-     * GET /product/category/{id}
+     * @Apidoc\Title("分类详情")
+     * @Apidoc\Desc("根据ID获取分类详细信息")
+     * @Apidoc\Url("/admin/category/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="分类hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="分类详情")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -76,7 +108,19 @@ class CategoryController extends BaseController
 
     /**
      * 更新分类
-     * PUT /product/category/{id}
+     * @Apidoc\Title("更新分类")
+     * @Apidoc\Desc("根据ID更新分类信息")
+     * @Apidoc\Url("/admin/category/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="分类hashid")
+     * @Apidoc\Param(name="name", type="string", default="", desc="分类名称")
+     * @Apidoc\Param(name="code", type="string", default="", desc="分类编码")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态（0=禁用,1=启用）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="更新后的分类记录")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -92,8 +136,18 @@ class CategoryController extends BaseController
     }
 
     /**
-     * 删除分类（软删除，需密码确认）
-     * DELETE /product/category/{id}
+     * 删除分类（软删除）
+     * @Apidoc\Title("删除分类")
+     * @Apidoc\Desc("根据ID软删除分类，需管理员密码二次确认")
+     * @Apidoc\Url("/admin/category/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("商品管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="分类hashid")
+     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="array", desc="空数组")
      */
     public function destroy(Request $request, string $hashid): Response
     {
