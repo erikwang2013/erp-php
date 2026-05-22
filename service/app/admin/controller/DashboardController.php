@@ -9,7 +9,17 @@ namespace app\admin\controller;
 
 use app\model\AdminUser;
 use app\common\EncryptionService;
+use app\model\CrmOpportunity;
+use app\model\Customer;
+use app\model\FinanceArAp;
+use app\model\FinanceBankAccount;
+use app\model\FinancePayment;
+use app\model\FinanceReceipt;
+use app\model\Inventory;
+use app\model\InventoryAlertLog;
+use app\model\InventoryFlow;
 use app\model\OperationLog;
+use app\model\SalesOrder;
 use support\Redis;
 use support\Request;
 use support\Response;
@@ -159,5 +169,64 @@ class DashboardController extends BaseController
             return $today > 0 ? 100.0 : 0.0;
         }
         return round(($today - $yesterday) / $yesterday * 100, 1);
+    }
+
+    public function sales(Request $request): Response
+    {
+        $cacheKey = 'dashboard:sales:' . date('Y-m-d');
+        $cached = Redis::get($cacheKey);
+        if ($cached) return $this->success(json_decode($cached, true));
+
+        $today = date('Y-m-d');
+        $data = [
+            'today_sales' => SalesOrder::whereDate('ordered_at', $today)->where('status', '!=', 4)->sum('total_amount') ?? 0,
+            'month_sales' => SalesOrder::whereBetween('ordered_at', [date('Y-m-01'), $today])->where('status', '!=', 4)->sum('total_amount') ?? 0,
+            'top_customers' => SalesOrder::selectRaw('customer_id, sum(total_amount) as total')
+                ->whereBetween('ordered_at', [date('Y-m-01'), $today])
+                ->where('status', '!=', 4)
+                ->groupBy('customer_id')->orderByDesc('total')->limit(10)
+                ->get()->map(function ($row) {
+                    $customer = Customer::find($row->customer_id);
+                    return ['customer_id' => $this->encodeId($row->customer_id), 'customer_name' => $customer->name ?? '', 'total' => $row->total];
+                }),
+            'funnel' => CrmOpportunity::selectRaw('stage_id, count(*) as count, sum(estimated_amount) as amount')
+                ->where('status', 1)->groupBy('stage_id')->get(),
+        ];
+        Redis::setex($cacheKey, 300, json_encode($data));
+        return $this->success($data);
+    }
+
+    public function inventory(Request $request): Response
+    {
+        $cacheKey = 'dashboard:inventory:' . date('Y-m-d');
+        $cached = Redis::get($cacheKey);
+        if ($cached) return $this->success(json_decode($cached, true));
+
+        $data = [
+            'total_value' => Inventory::selectRaw('sum(quantity * cost_price) as total')->value('total') ?? 0,
+            'alert_low' => InventoryAlertLog::where('alert_type', 1)->whereDate('created_at', '>=', date('Y-m-01'))->count(),
+            'alert_high' => InventoryAlertLog::where('alert_type', 2)->whereDate('created_at', '>=', date('Y-m-01'))->count(),
+            'flow_trend' => InventoryFlow::selectRaw('DATE(created_at) as date, direction, sum(quantity) as total')
+                ->whereDate('created_at', '>=', date('Y-m-01'))->groupBy('date', 'direction')->orderBy('date')->get(),
+        ];
+        Redis::setex($cacheKey, 300, json_encode($data));
+        return $this->success($data);
+    }
+
+    public function finance(Request $request): Response
+    {
+        $cacheKey = 'dashboard:finance:' . date('Y-m-d');
+        $cached = Redis::get($cacheKey);
+        if ($cached) return $this->success(json_decode($cached, true));
+
+        $data = [
+            'total_ar' => FinanceArAp::where('type', 1)->where('status', '!=', 2)->sum('amount') ?? 0,
+            'total_ap' => FinanceArAp::where('type', 2)->where('status', '!=', 2)->sum('amount') ?? 0,
+            'month_receipt' => FinanceReceipt::whereDate('received_at', '>=', date('Y-m-01'))->sum('amount') ?? 0,
+            'month_payment' => FinancePayment::whereDate('paid_at', '>=', date('Y-m-01'))->sum('amount') ?? 0,
+            'cash_balance' => FinanceBankAccount::sum('balance') ?? 0,
+        ];
+        Redis::setex($cacheKey, 300, json_encode($data));
+        return $this->success($data);
     }
 }
