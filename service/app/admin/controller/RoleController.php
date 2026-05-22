@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("角色管理")
+ * @Apidoc\Tag("角色管理")
  */
 
 declare(strict_types=1);
@@ -15,7 +15,17 @@ class RoleController extends BaseController
 {
     /**
      * 角色列表
-     * GET /admin/role
+     * @Apidoc\Title("角色列表")
+     * @Apidoc\Desc("获取角色分页列表，包含用户数量统计")
+     * @Apidoc\Url("/admin/role")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("角色管理")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -40,7 +50,19 @@ class RoleController extends BaseController
 
     /**
      * 创建角色
-     * POST /admin/role
+     * @Apidoc\Title("创建角色")
+     * @Apidoc\Desc("创建一个新角色并同步关联权限")
+     * @Apidoc\Url("/admin/role")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("角色管理")
+     * @Apidoc\Param(name="name", type="string", require=true, desc="角色名称")
+     * @Apidoc\Param(name="slug", type="string", require=true, desc="角色标识")
+     * @Apidoc\Param(name="description", type="string", default="", desc="角色描述")
+     * @Apidoc\Param(name="status", type="int", default=1, desc="状态(1=启用,0=禁用)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="新创建的角色")
      */
     public function store(Request $request): Response
     {
@@ -71,7 +93,19 @@ class RoleController extends BaseController
 
     /**
      * 更新角色
-     * PUT /admin/role/{id}
+     * @Apidoc\Title("更新角色")
+     * @Apidoc\Desc("更新指定角色的信息并同步权限")
+     * @Apidoc\Url("/admin/role/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("角色管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="角色ID(hashid)")
+     * @Apidoc\Param(name="name", type="string", default="", desc="角色名称")
+     * @Apidoc\Param(name="description", type="string", default="", desc="角色描述")
+     * @Apidoc\Param(name="status", type="int", default=1, desc="状态(1=启用,0=禁用)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="更新后的角色")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -95,7 +129,17 @@ class RoleController extends BaseController
 
     /**
      * 删除角色（需密码二次确认）
-     * DELETE /admin/role/{id}
+     * @Apidoc\Title("删除角色")
+     * @Apidoc\Desc("删除指定角色，需当前管理员密码进行二次确认，同时清理关联的权限和用户")
+     * @Apidoc\Url("/admin/role/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("角色管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="角色ID(hashid)")
+     * @Apidoc\Param(name="password", type="string", require=true, desc="当前用户密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="array", desc="空数组")
      */
     public function destroy(Request $request, string $hashid): Response
     {

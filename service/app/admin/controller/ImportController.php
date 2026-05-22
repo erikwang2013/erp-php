@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("文件管理")
+ * @Apidoc\Tag("导入管理")
  */
 
 declare(strict_types=1);
@@ -15,6 +15,24 @@ use support\Response;
 
 class ImportController extends BaseController
 {
+    /**
+     * Excel导入用户
+     * @Apidoc\Title("Excel导入用户")
+     * @Apidoc\Desc("上传Excel文件批量导入用户，支持xlsx/xls格式，必需列为username/password/real_name")
+     * @Apidoc\Url("/admin/import/users")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("导入管理")
+     * @Apidoc\Param(name="file", type="file", require=true, desc="Excel文件(.xlsx/.xls)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="导入结果", children={
+     *     @Apidoc\Returned("total", type="int", desc="总行数"),
+     *     @Apidoc\Returned("success", type="int", desc="成功数"),
+     *     @Apidoc\Returned("failed", type="int", desc="失败数"),
+     *     @Apidoc\Returned("errors", type="array", desc="错误详情"),
+     * })
+     */
     public function users(Request $request): Response
     {
         $file = $request->file('file');
