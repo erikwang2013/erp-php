@@ -405,28 +405,41 @@ Authorization: Bearer <token>
 | `GET/POST/PUT/DELETE` | `/admin/category` | Product category CRUD (tree) |
 | `GET/POST/PUT/DELETE` | `/admin/brand` | Brand CRUD |
 | `GET/POST/PUT/DELETE` | `/admin/warehouse` | Warehouse CRUD |
+| `GET` | `/admin/warehouse/{id}/locations` | Warehouse locations |
 | `GET/POST/PUT/DELETE` | `/admin/location` | Location CRUD |
 | `GET/POST/PUT/DELETE` | `/admin/supplier` | Supplier CRUD |
 | `GET/POST/PUT/DELETE` | `/admin/customer` | Customer CRUD |
+| `ANY` | `/admin/customer-level` | Customer level management |
+| `GET/POST/PUT/DELETE` | `/admin/purchase/apply` | Purchase requisition |
 | `GET/POST/PUT/DELETE` | `/admin/purchase/order` | Purchase order |
-| `GET/POST/PUT/DELETE` | `/admin/purchase/receive` | Purchase receiving (auto stock-in + AP generation) |
+| `GET/POST/PUT/DELETE` | `/admin/purchase/receive` | Purchase receiving (auto stock-in + AP) |
+| `GET/POST/PUT/DELETE` | `/admin/purchase/return` | Purchase return |
+| `ANY` | `/admin/purchase/settlement` | Supplier settlement |
+| `GET/POST/PUT/DELETE` | `/admin/sales/quotation` | Sales quotation |
 | `GET/POST/PUT/DELETE` | `/admin/sales/order` | Sales order |
-| `GET/POST/PUT/DELETE` | `/admin/sales/delivery` | Sales delivery (auto stock-out + AR generation) |
-| `GET/POST` | `/admin/inventory` | Real-time inventory query |
-| `GET` | `/admin/inventory/flow` | Inventory flow |
+| `GET/POST/PUT/DELETE` | `/admin/sales/delivery` | Sales delivery (auto stock-out + AR) |
+| `GET/POST/PUT/DELETE` | `/admin/sales/return` | Sales return |
+| `ANY` | `/admin/sales/settlement` | Customer settlement |
+| `ANY` | `/admin/inventory` | Real-time inventory query |
+| `ANY` | `/admin/inventory/flow` | Inventory flow |
 | `GET/POST/PUT/DELETE` | `/admin/inventory/transfer` | Inventory transfer |
 | `GET/POST/PUT/DELETE` | `/admin/inventory/check` | Stocktaking task |
+| `GET/POST/PUT/DELETE` | `/admin/inventory/alert` | Inventory alert rules |
+| `GET/POST/PUT/DELETE` | `/admin/finance/ar-ap` | AR/AP |
+| `GET/POST/PUT/DELETE` | `/admin/finance/voucher` | Journal voucher |
 | `GET/POST/PUT/DELETE` | `/admin/finance/receipt` | Receipt |
 | `GET/POST/PUT/DELETE` | `/admin/finance/payment` | Payment |
-| `GET` | `/admin/finance/report/profit` | Profit statement |
-| `GET` | `/admin/finance/general-ledger` | General ledger (by account + period) |
-| `GET` | `/admin/finance/subsidiary-ledger` | Subsidiary ledger (per-account entries) |
-| `GET` | `/admin/finance/report/balance-sheet` | Balance sheet |
-| `GET` | `/admin/finance/report/cash-flow` | Cash flow statement (operating/investing/financing) |
+| `ANY` | `/admin/finance/cash-journal` | Cash/bank journal |
 | `GET/POST/PUT/DELETE` | `/admin/finance/expense` | Expense reimbursement |
+| `ANY` | `/admin/finance/report/profit` | Profit statement |
+| `GET/POST/PUT/DELETE` | `/admin/finance/bank-account` | Bank account |
+| `ANY` | `/admin/finance/general-ledger` | General ledger (by account + period) |
+| `ANY` | `/admin/finance/subsidiary-ledger` | Subsidiary ledger (per-account entries) |
+| `ANY` | `/admin/finance/report/balance-sheet` | Balance sheet |
+| `ANY` | `/admin/finance/report/cash-flow` | Cash flow statement |
 | `GET/POST/PUT/DELETE` | `/admin/finance/asset` | Fixed asset CRUD + depreciation |
-| `GET/POST` | `/admin/finance/tax-rate` | Tax rate configuration |
-| `GET` | `/admin/finance/tax-record` | Tax records |
+| `GET/POST/DELETE` | `/admin/finance/tax-rate` | Tax rate configuration |
+| `ANY` | `/admin/finance/tax-record` | Tax records |
 | `GET/POST/PUT/DELETE` | `/admin/finance/currency` | Currency management |
 | `GET/POST/PUT/DELETE` | `/admin/finance/exchange-rate` | Exchange rate management |
 | `GET/POST/PUT/DELETE` | `/admin/finance/budget` | Budget management (budget vs. actual) |
@@ -434,19 +447,56 @@ Authorization: Bearer <token>
 | `GET/POST/PUT/DELETE` | `/admin/finance/profit-center` | Profit center (tree structure) |
 | `GET/POST/PUT/DELETE` | `/admin/crm/opportunity` | Opportunity management |
 | `GET/POST/PUT/DELETE` | `/admin/crm/follow` | Follow-up record |
-| `GET/POST` | `/admin/crm/pool` | Customer pool (claim/release) |
+| `GET/POST/PUT/DELETE` | `/admin/crm/funnel` | Sales funnel stages |
+| `GET/POST/PUT/DELETE` | `/admin/crm/contact` | Contact |
+| `ANY` | `/admin/crm/pool` | Customer pool (list) |
+| `POST` | `/admin/crm/pool/claim/{id}` | Claim customer from pool |
+| `POST` | `/admin/crm/pool/release/{id}` | Release customer to pool |
+| `GET/POST/PUT/DELETE` | `/admin/crm/pool/rules` | Pool rules |
 | `GET/POST/PUT/DELETE` | `/admin/crm/contract` | Contract CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/crm/quotation` | CRM quotation (supports to-contract) |
+| `POST` | `/admin/crm/contract/{id}/transition` | Contract status transition |
+| `GET/POST/PUT/DELETE` | `/admin/crm/quotation` | CRM quotation |
 | `POST` | `/admin/crm/quotation/{id}/to-contract` | Convert quotation to contract |
 | `GET/POST/PUT/DELETE` | `/admin/crm/campaign` | Marketing campaigns |
 | `GET/POST/PUT/DELETE` | `/admin/crm/ticket` | Service tickets |
 | `POST` | `/admin/crm/ticket/{id}/assign` | Assign ticket |
 | `POST` | `/admin/crm/ticket/{id}/resolve` | Resolve ticket |
-| `GET/POST` | `/admin/crm/analytics/report` | Customer analytics report |
-| `GET/POST` | `/admin/crm/analytics/metric` | Analytics metrics |
-| `GET` | `/admin/dashboard/sales` | Sales dashboard |
-| `GET` | `/admin/dashboard/inventory` | Inventory dashboard |
-| `GET` | `/admin/dashboard/finance` | Finance dashboard |
+| `POST` | `/admin/crm/ticket/{id}/reply` | Reply ticket |
+| `ANY` | `/admin/crm/analytics/report` | Analytics reports |
+| `POST` | `/admin/crm/analytics/generate` | Generate analytics report |
+| `ANY/POST` | `/admin/crm/analytics/metric` | Analytics metrics |
+| `ANY` | `/admin/dashboard/sales` | Sales dashboard |
+| `ANY` | `/admin/dashboard/inventory` | Inventory dashboard |
+| `ANY` | `/admin/dashboard/finance` | Finance dashboard |
+| `GET/POST/PUT/DELETE` | `/admin/workflow` | Workflow definition CRUD |
+| `POST` | `/admin/workflow/{id}/submit` | Submit for approval |
+| `POST` | `/admin/approval/{id}/approve` | Approve |
+| `POST` | `/admin/approval/{id}/reject` | Reject |
+| `POST` | `/admin/approval/{id}/withdraw` | Withdraw |
+| `ANY` | `/admin/approval/my` | My approvals |
+| `ANY` | `/admin/notification/my` | My notifications |
+| `POST` | `/admin/notification/{id}/read` | Mark as read |
+| `POST` | `/admin/notification/read-all` | Mark all read |
+| `ANY` | `/admin/notification/unread-count` | Unread count |
+| `GET/POST/PUT/DELETE` | `/admin/project` | Project CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/project/task` | Project task CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/project/timesheet` | Timesheet CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/hr/department` | Department CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/hr/employee` | Employee CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/hr/position` | Position CRUD |
+| `ANY/POST` | `/admin/hr/attendance` | Attendance/clock-in/out |
+| `GET/POST/PUT/DELETE` | `/admin/hr/leave` | Leave CRUD + approval |
+| `GET/POST/PUT/DELETE` | `/admin/hr/salary` | Salary CRUD + pay |
+| `ANY/POST` | `/admin/hr/salary-item` | Salary items |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/bom` | BOM CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/production` | Production order + start/complete |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/routing` | Routing CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/workstation` | Workstation CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/mrp` | MRP plan + generate |
+| `GET/POST/PUT/DELETE` | `/admin/report` | Report template CRUD |
+| `POST` | `/admin/report/{id}/execute` | Execute report |
+| `ANY` | `/admin/report/{id}/result` | Report result |
+| `GET/POST/PUT/DELETE` | `/admin/report/schedule` | Report schedule |
 
 ### Client Endpoints (requires API-Version header)
 
