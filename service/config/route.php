@@ -149,12 +149,34 @@ Route::group('/admin', function () {
     Route::resource('/finance/bank-account', app\controller\finance\BankAccountController::class);
 
     // ============================================================
+    // 财务 — 总账/明细账/报表
+    // ============================================================
+    Route::any('/finance/general-ledger', [app\controller\finance\GeneralLedgerController::class, 'index']);
+    Route::any('/finance/subsidiary-ledger', [app\controller\finance\SubsidiaryLedgerController::class, 'index']);
+    Route::any('/finance/report/balance-sheet', [app\controller\finance\BalanceSheetController::class, 'index']);
+    Route::post('/finance/report/balance-sheet/save', [app\controller\finance\BalanceSheetController::class, 'store']);
+    Route::any('/finance/report/cash-flow', [app\controller\finance\CashFlowController::class, 'index']);
+    Route::post('/finance/report/cash-flow/save', [app\controller\finance\CashFlowController::class, 'store']);
+
+    // ============================================================
     // CRM模块
     // ============================================================
     Route::resource('/crm/opportunity', app\controller\crm\OpportunityController::class);
     Route::resource('/crm/follow', app\controller\crm\FollowRecordController::class);
     Route::resource('/crm/funnel', app\controller\crm\FunnelStageController::class);
     Route::resource('/crm/contact', app\controller\crm\ContactController::class);
+
+    // ============================================================
+    // CRM — 公海池/报价/合同
+    // ============================================================
+    Route::any('/crm/pool', [app\controller\crm\PoolController::class, 'index']);
+    Route::post('/crm/pool/claim/{id}', [app\controller\crm\PoolController::class, 'claim']);
+    Route::post('/crm/pool/release/{id}', [app\controller\crm\PoolController::class, 'release']);
+    Route::resource('/crm/pool/rules', app\controller\crm\PoolController::class, ['names' => 'pool_rules']);
+    Route::resource('/crm/contract', app\controller\crm\ContractController::class);
+    Route::post('/crm/contract/{id}/transition', [app\controller\crm\ContractController::class, 'transition']);
+    Route::resource('/crm/quotation', app\controller\crm\QuotationController::class);
+    Route::post('/crm/quotation/{id}/to-contract', [app\controller\crm\QuotationController::class, 'toContract']);
 
     // ============================================================
     // 仪表盘
