@@ -10,9 +10,9 @@
 /**
  * Translate the given message.
  */
-function __(string $key, array $replace = []): string
+function __(string $key, array $replace = [], ?string $locale = null): string
 {
-    return \app\common\I18n::trans($key, $replace);
+    return \app\common\I18n::trans($key, $replace, $locale);
 }
 
 /**

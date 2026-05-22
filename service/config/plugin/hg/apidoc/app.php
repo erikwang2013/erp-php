@@ -46,7 +46,7 @@ return [
             ],
         ],
         // （必须）指定通用注释定义的文件地址
-        'definitions'        => "app\common\controller\Definitions",
+        'definitions'        => 'app\common\controller\Definitions',
         // （必须）自动生成url规则，当接口不添加@Apidoc\Url ("xxx")注解时，使用以下规则自动生成
         'auto_url' => [
             // 字母规则，lcfirst=首字母小写；ucfirst=首字母大写；

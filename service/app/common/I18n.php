@@ -11,36 +11,24 @@ use support\Request;
 class I18n
 {
     private static array $loaded = [];
-    private static ?string $locale = null;
 
     /**
-     * Get current locale from request Accept-Language header, defaults to config locale
+     * Resolve current locale from request Accept-Language header.
+     * No static caching — webman workers are persistent, each request must be evaluated independently.
      */
     public static function getLocale(Request $request = null): string
     {
-        if (self::$locale) {
-            return self::$locale;
-        }
-
         if ($request) {
             $header = $request->header('Accept-Language', '');
             if ($header) {
                 $locale = strtolower(substr(trim(strtok($header, ',')), 0, 5));
-                // Normalize: zh-cn -> zh_CN, en-us -> en
                 $locale = str_replace('-', '_', $locale);
-                if (str_starts_with($locale, 'zh')) {
-                    $locale = 'zh_CN';
-                }
-                if (str_starts_with($locale, 'en')) {
-                    $locale = 'en';
-                }
-                self::$locale = $locale;
-                return self::$locale;
+                if (str_starts_with($locale, 'zh')) return 'zh_CN';
+                if (str_starts_with($locale, 'en')) return 'en';
+                return $locale;
             }
         }
-
-        self::$locale = config('translation.locale', 'zh_CN');
-        return self::$locale;
+        return config('translation.locale', 'zh_CN');
     }
 
     /**
@@ -48,7 +36,7 @@ class I18n
      */
     public static function trans(string $key, array $replace = [], ?string $locale = null): string
     {
-        $locale = $locale ?? self::$locale ?? config('translation.locale', 'zh_CN');
+        $locale = $locale ?? config('translation.locale', 'zh_CN');
         $fallback = config('translation.fallback_locale', ['zh_CN', 'en']);
         $path = config('translation.path', base_path() . '/resource/translations');
 
