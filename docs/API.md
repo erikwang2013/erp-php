@@ -14,6 +14,25 @@
 - **响应格式**: `{ "code": 0, "message": "success", "data": {...} }`
 - **文档端点**: `GET /api/docs` 返回 OpenAPI 3.0 JSON 规范
 
+### 国际化
+
+API 通过请求头 `Accept-Language` 自动切换语言：
+
+| 请求头值 | 语言 |
+|---------|------|
+| `zh-CN`, `zh` | 中文（默认） |
+| `en`, `en-US` | English |
+
+```bash
+# 英文响应
+curl -H "Accept-Language: en" http://localhost:8787/admin/product
+
+# 中文响应（默认）
+curl http://localhost:8787/admin/product
+```
+
+响应中的 `message` 字段会使用对应语言返回。
+
 ### 请求要求
 
 - 仅允许 `GET` / `POST` / `PUT` / `DELETE` / `OPTIONS` / `HEAD` 方法，使用其他 HTTP 方法（如 TRACE、CONNECT、PATCH）会返回 405

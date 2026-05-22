@@ -76,6 +76,10 @@
 | `phpoffice/phpspreadsheet` | Excel 导出 |
 | `barryvdh/laravel-dompdf` | PDF 导出（基于 Dompdf） |
 
+## 国际化
+
+国际化 | Accept-Language 头自动检测 | 中文/English 双语支持
+
 ## 项目结构
 
 ```
@@ -101,7 +105,7 @@ open-erp/
 │   │   ├── finance/            # 应收应付自动生成 + 核销
 │   │   └── notification/       # 通知发送服务
 │   ├── model/                  # 121 个 Eloquent 模型（多模块共用）
-│   ├── middleware/             # 7 个中间件
+│   ├── middleware/             # 8 个中间件
 │   ├── common/                 # Hashids/Snowflake/Encryption 服务
 │   └── queue/                  # 队列任务
 ├── apps/
@@ -113,6 +117,10 @@ open-erp/
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
 ├── tests/                      # PHPUnit 测试（30 个测试，258 条断言）
+├── resource/
+│   └── translations/           # 翻译文件 (zh_CN, en)
+│       ├── zh_CN/              # 中文翻译 (121 键)
+│       └── en/                 # English translations (121 keys)
 ├── public/                     # 公共入口
 ├── runtime/                    # 运行时文件
 └── vendor/                     # Composer 依赖
@@ -250,6 +258,10 @@ docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_
 | `429` | 请求过于频繁 | RateLimit 触发 / 账号锁定（5次登录失败锁定15分钟） |
 | `500` | 服务器内部错误 | |
 
+### 国际化
+
+请求头 `Accept-Language` 自动切换语言（zh-CN → 中文, en → English），默认中文。
+
 ### ID 处理
 
 - **请求/响应中的 ID**: 使用 hashids 加密为字符串，不暴露真实数据库 ID
@@ -281,7 +293,8 @@ API-Version: v1
 全局中间件对所有请求生效，按序执行：
 
 ```
-Cors（跨域预处理 + 响应头）
+Locale（Accept-Language 自动检测，设置语言环境）
+  → Cors（跨域预处理 + 响应头）
   → SecurityFilter（HTTP方法限制/请求体大小/Content-Type校验/XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截）
   → RateLimit（Redis 滑动窗口限流 + 账号锁定：5次登录失败锁定15分钟）
   → ApiVersion（API 版本校验，/api 路由组）
@@ -290,7 +303,7 @@ Cors（跨域预处理 + 响应头）
   → OperationLog（POST/PUT/DELETE 自动记录，含来源端检测，/admin 路由组）
 ```
 
-`/health` 和 `/api/docs` 为公开端点，仅经过 `Cors → SecurityFilter → RateLimit`。
+`/health` 和 `/api/docs` 为公开端点，仅经过 `Locale → Cors → SecurityFilter → RateLimit`。
 
 安全增强：
 - **账号锁定**：连续 5 次登录失败，账号自动锁定 15 分钟，期间登录返回 429

@@ -35,6 +35,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 人力资源 | 部门/员工/职位/考勤/请假/薪资 |
 | 生产制造 | BOM/生产订单/工艺路线/工作站/MRP |
 | 自定义报表 | 报表模板/数据集/字段/筛选器/执行/定时调度 |
+| 国际化 | Accept-Language 自动检测 | 中文/English 双语，翻译文件 121 键 |
 
 ## 技术栈
 
@@ -100,7 +101,8 @@ open-erp/
 │   │   ├── HashidsService.php   # ID 编解码
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
 │   │   └── EncryptionService.php# 数据加解密 + 脱敏
-│   ├── middleware/              # 中间件（7 个）
+│   ├── middleware/              # 中间件（8 个）
+│   │   ├── Locale.php           # Accept-Language 语言自动检测
 │   │   ├── Cors.php             # 跨域
 │   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
 │   │   ├── RateLimit.php        # Redis 滑动窗口限流
@@ -121,7 +123,12 @@ open-erp/
 │   └── harmonyos/              # HarmonyOS 客户端
 ├── config/                     # 配置文件
 │   ├── route.php               # 路由 + API 版本策略
-│   └── middleware.php           # 全局中间件注册
+│   ├── middleware.php           # 全局中间件注册
+│   └── translation.php          # 语言配置
+├── resource/
+│   └── translations/           # 翻译文件
+│       ├── zh_CN/              # 中文翻译 (common/modules/validation)
+│       └── en/                 # English translations (common/modules/validation)
 ├── database/
 │   ├── migrations/             # SQL 迁移文件 (18 个)
 │   │   ├── 2026_05_16_000000_init_tables.sql
@@ -162,10 +169,10 @@ open-erp/
 ## 中间件执行链
 
 ```
-全局:  Cors → SecurityFilter(方法检查→405) → RateLimit → {路由中间件}
-/admin: Cors → SecurityFilter(方法检查→405) → RateLimit → AdminAuth → AdminPermission → OperationLog → Controller
-/api:   Cors → SecurityFilter(方法检查→405) → RateLimit → ApiVersion → Controller
-/health: Cors → SecurityFilter(方法检查→405) → RateLimit → Controller
+全局:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → {路由中间件}
+/admin: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → AdminAuth → AdminPermission → OperationLog → Controller
+/api:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → ApiVersion → Controller
+/health: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → Controller
 ```
 
 ## 安全增强

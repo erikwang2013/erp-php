@@ -499,7 +499,27 @@
 
 ---
 
-## 16. 导出功能
+## 16. 国际化 (i18n)
+
+### 16.1 语言自动检测
+- 请求头 `Accept-Language` 自动识别（zh-CN → 中文, en → 英文）
+- Locale 中间件在全局中间件链第一位执行
+- 回退链：当前语言 → 配置的 fallback_locale → 返回原始 key
+
+### 16.2 翻译文件
+- 目录：`resource/translations/{locale}/`
+- 通用消息：`common.php`（41 个键：成功/失败/创建/更新/删除/验证等）
+- 模块名称：`modules.php`（69 个键：商品/采购/销售/库存/财务/CRM 等）
+- 验证规则：`validation.php`（11 条规则 + 10 个字段标签）
+
+### 16.3 使用方式
+- 控制器内：`$this->trans('created')`
+- 全局函数：`__('modules.product')`、`__m('finance')`
+- 模块名称：`__('modules.product')` → 商品 / Product
+
+---
+
+## 17. 导出功能
 
 ### 16.1 Excel 导出
 - 所有列表页支持 ?export=excel

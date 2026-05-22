@@ -84,6 +84,10 @@ This copyright notice is permanent, must not be modified, removed, or reversed. 
 | `phpoffice/phpspreadsheet` | Excel export |
 | `barryvdh/laravel-dompdf` | PDF export (Dompdf-based) |
 
+## Internationalization
+
+i18n | Accept-Language header auto-detection | Chinese/English bilingual support
+
 ## Project Structure
 
 ```
@@ -109,7 +113,7 @@ open-erp/
 │   │   ├── finance/            # AR/AP auto-generation + settlement
 │   │   └── notification/       # Notification dispatch service
 │   ├── model/                  # 121 Eloquent models (shared across modules)
-│   ├── middleware/             # 7 middleware
+│   ├── middleware/             # 8 middleware
 │   ├── common/                 # Hashids/Snowflake/Encryption services
 │   └── queue/                  # Queue tasks
 ├── apps/
@@ -121,6 +125,10 @@ open-erp/
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
 ├── tests/                      # PHPUnit tests (30 tests, 258 assertions)
+├── resource/
+│   └── translations/           # Translation files (zh_CN, en)
+│       ├── zh_CN/              # Chinese translations (121 keys)
+│       └── en/                 # English translations (121 keys)
 ├── public/                     # Public entry
 ├── runtime/                    # Runtime files
 └── vendor/                     # Composer dependencies
@@ -255,6 +263,10 @@ docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_
 | `429` | Rate limited | RateLimit triggered / Account locked (5 failed logins, 15 min lockout) |
 | `500` | Server error |
 
+### Internationalization
+
+The `Accept-Language` request header auto-switches the language (zh-CN → Chinese, en → English). Default: Chinese.
+
 ### ID Handling
 
 - **API request/response IDs**: Encrypted to hashid strings, real DB IDs never exposed
@@ -286,7 +298,8 @@ Responses include `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Res
 Global middleware runs for every request in order:
 
 ```
-Cors (preflight + response headers)
+Locale (Accept-Language auto-detection, sets language locale)
+  → Cors (preflight + response headers)
   → SecurityFilter (HTTP method restriction/body size/Content-Type check/XSS/SQLi/path traversal/cmd injection/CSRF blocking)
   → RateLimit (Redis sliding-window + account lockout: 5 failed logins = 15 min lock)
   → ApiVersion (API version validation, /api group)
@@ -295,7 +308,7 @@ Cors (preflight + response headers)
   → OperationLog (auto-log POST/PUT/DELETE with source detection, /admin group)
 ```
 
-`/health` and `/api/docs` are public, only passing through `Cors → SecurityFilter → RateLimit`.
+`/health` and `/api/docs` are public, only passing through `Locale → Cors → SecurityFilter → RateLimit`.
 
 Security enhancements:
 - **Account lockout**: 5 consecutive failed login attempts lock the account for 15 minutes; login returns 429 during lockout

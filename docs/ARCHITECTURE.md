@@ -20,6 +20,7 @@ flowchart TB
     end
 
     subgraph "应用层 (webman v2)"
+        C_LOC["Locale 中间件<br/>Accept-Language 自动检测"]
         C0["ApiVersion 中间件<br/>API-Version 头校验"]
         C1["AdminAuth 中间件<br/>JWT 验证"]
         C2["AdminPermission 中间件<br/>RBAC 权限校验"]
@@ -79,6 +80,7 @@ flowchart TD
     end
 
     subgraph "中间件层 Middleware Layer"
+        M_LOC["Locale<br/>Accept-Language 自动检测<br/>zh_CN/en"]
         M_RL["RateLimit<br/>Redis 滑动窗口限流<br/>X-RateLimit 响应头"]
         M_SF["SecurityFilter<br/>攻击检测拦截<br/>XSS/SQL注入/路径遍历/CSRF"]
         M0["ApiVersion<br/>API 版本校验<br/>注入 apiVersion"]
@@ -117,7 +119,7 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_SF --> M_RL --> M0
+    R1 --> M_LOC --> M_SF --> M_RL --> M0
     M0 --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
@@ -130,6 +132,7 @@ flowchart TD
     CT7 --> D3
 
     style R1 fill:#722ED1,color:#fff
+    style M_LOC fill:#13C2C2,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
     style M0 fill:#EB2F96,color:#fff
@@ -155,6 +158,7 @@ flowchart TD
 sequenceDiagram
     participant C as 客户端
     participant N as Nginx
+    participant MW_LOC as Locale
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
     participant MW0 as ApiVersion
@@ -167,7 +171,9 @@ sequenceDiagram
     participant OPLOG as OperationLog
 
     C->>N: HTTPS 请求<br/>Header: API-Version: v1
-    N->>MW_SF: 转发
+    N->>MW_LOC: 转发
+    MW_LOC->>MW_LOC: 解析 Accept-Language<br/>设置 locale
+    MW_LOC->>MW_SF: 通过
 
     alt 非标准 HTTP 方法 (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -709,7 +715,7 @@ graph TB
     end
 
     subgraph Gateway["API 网关层"]
-        MW["中间件链<br/>Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["中间件链<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
     end
 
     subgraph Business["业务模块层"]
