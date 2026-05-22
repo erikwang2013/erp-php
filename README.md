@@ -11,7 +11,7 @@
 | 🔐 认证 | 登录/注册/刷新令牌/登出 | 点击验证码 + JWT + 黑名单 |
 | | 账号锁定 | 5 次失败锁定 15 分钟 |
 | | 并发会话限制 | 同一用户最多 3 个有效 Token |
-| 📊 仪表盘 | 实时统计/趋势图/分布图/最近操作 | Redis 缓存 5 分钟 |
+| 📊 仪表盘 | 经营总览/销售看板/库存看板/财务看板 | Redis 缓存 5 分钟 |
 | 👥 用户管理 | CRUD + 批量删除/启禁用 | 软删除 + 密码二次确认 |
 | | Excel 批量导入 | 逐行校验 + 错误报告 |
 | 🔒 角色权限 | 角色 CRUD + 权限树 | RBAC method.path 粒度鉴权 |
@@ -27,7 +27,13 @@
 | 📤 销售管理 | 报价→订单→发货→退货→结算 | 报价转订单 + 销售毛利 |
 | 🏗 库存管理 | 实时库存/批次/序列号/调拨/盘点/预警 | 移动加权平均成本核算 |
 | 💰 财务管理 | 应收应付/收付款/日记账/报销/利润表/固定资产/税务/多币种/预算/成本利润中心 | 自动生成应收应付 + 核销 + 全面财务管理 |
-| 🤝 CRM | 客户/联系人/跟进记录/营销活动/服务工单/分析报表 | 客户全生命周期管理 |
+| 🤝 CRM | 客户/联系人/跟进记录/营销活动/服务工单/分析报表/销售漏斗/公海池/报价/合同 | 客户全生命周期管理 |
+| ✅ 审批工作流 | 工作流定义/提交审批/批准/拒绝/撤回/我的审批 | 多节点审批流程引擎 |
+| 🔔 消息通知 | 通知列表/已读标记/未读计数/全部已读 | 实时消息推送与状态追踪 |
+| 📐 项目管理 | 项目/任务/工时记录 | 项目进度跟踪与资源管理 |
+| 👤 人力资源 | 部门/员工/职位/考勤/请假/薪资 | 全面人事管理 |
+| 🏭 生产制造 | BOM/生产订单/工艺路线/工作站/MRP | 物料需求计划与生产执行 |
+| 📈 自定义报表 | 报表模板/数据集/字段/筛选器/执行/定时调度 | 可视化报表构建器 |
 
 ## ERP 模块
 
@@ -39,6 +45,9 @@
 - 凭证审核 → 自动更新总账(科目汇总) + 明细账(逐笔记录)
 - 资产负债表 → 自动汇总总账期末余额生成
 - 现金流量表 → 自动汇总现金银行日记账生成（经营/投资/筹资三分类）
+- 审批工作流 → 业务单据提交审批 → 多节点流转 → 审批结果回调业务模块
+- 消息通知 → 审批/预警/系统事件触发 → 实时推送 → 用户标记已读
+- MRP → 基于销售订单+BOM → 计算物料需求 → 生成采购建议/生产建议
 
 ## 技术栈
 
@@ -72,19 +81,26 @@
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # 系统管理控制器
+│   ├── admin/controller/       # 系统管理控制器 (14 个)
 │   ├── api/v1/controller/      # 客户端 API（版本由 API-Version 请求头控制）
-│   ├── controller/             # 业务模块控制器
-│   │   ├── product/            # 商品/分类/品牌/仓库/供应商/客户
-│   │   ├── purchase/           # 采购申请/订单/收货/退货/结算
-│   │   ├── sales/              # 销售报价/订单/发货/退货/结算
-│   │   ├── inventory/          # 库存/流水/调拨/盘点/预警
-│   │   ├── finance/            # 科目/凭证/收款/付款/报销/报表
-│   │   └── crm/                # 商机/跟进/联系人/销售漏斗
+│   ├── controller/             # 业务模块控制器 (70 个)
+│   │   ├── product/            # 商品/分类/品牌/仓库/库位/供应商/客户 (7 个)
+│   │   ├── purchase/           # 采购申请/订单/收货/退货/结算 (5 个)
+│   │   ├── sales/              # 销售报价/订单/发货/退货/结算 (5 个)
+│   │   ├── inventory/          # 库存/流水/调拨/盘点/预警 (5 个)
+│   │   ├── finance/            # 应收应付/凭证/收付款/日记账/总账/明细账/报表/资产/税务/多币种/预算 (20 个)
+│   │   ├── crm/                # 商机/跟进/漏斗/联系人/公海池/合同/报价/营销/工单/分析 (10 个)
+│   │   ├── workflow/           # 工作流定义/审批提交/批准/拒绝/撤回 (2 个)
+│   │   ├── notification/       # 通知列表/已读/未读计数 (1 个)
+│   │   ├── project/            # 项目/任务/工时记录 (3 个)
+│   │   ├── hr/                 # 部门/员工/职位/考勤/请假/薪资 (5 个)
+│   │   ├── manufacturing/      # BOM/生产订单/工艺路线/工作站/MRP (5 个)
+│   │   └── report/             # 报表模板/数据集/执行/定时调度 (2 个)
 │   ├── service/                # 业务逻辑层
 │   │   ├── inventory/          # 出入库 + 移动加权平均成本核算
-│   │   └── finance/            # 应收应付自动生成 + 核销
-│   ├── model/                  # 55+ 个 Eloquent 模型（多模块共用）
+│   │   ├── finance/            # 应收应付自动生成 + 核销
+│   │   └── notification/       # 通知发送服务
+│   ├── model/                  # 121 个 Eloquent 模型（多模块共用）
 │   ├── middleware/             # 7 个中间件
 │   ├── common/                 # Hashids/Snowflake/Encryption 服务
 │   └── queue/                  # 队列任务
@@ -93,7 +109,7 @@ open-erp/
 │   └── harmonyos/              # HarmonyOS 原生客户端
 ├── config/                     # 配置文件（含中文注释）
 ├── database/
-│   ├── migrations/             # SQL 迁移文件（8 个，约 55 张表）
+│   ├── migrations/             # SQL 迁移文件（18 个，122 张表）
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
 ├── tests/                      # PHPUnit 测试（30 个测试，258 条断言）
@@ -382,28 +398,41 @@ Authorization: Bearer <token>
 | `GET/POST/PUT/DELETE` | `/admin/category` | 商品分类 CRUD（树形） |
 | `GET/POST/PUT/DELETE` | `/admin/brand` | 品牌 CRUD |
 | `GET/POST/PUT/DELETE` | `/admin/warehouse` | 仓库 CRUD |
+| `GET` | `/admin/warehouse/{id}/locations` | 仓库下库位列表 |
 | `GET/POST/PUT/DELETE` | `/admin/location` | 库位 CRUD |
 | `GET/POST/PUT/DELETE` | `/admin/supplier` | 供应商 CRUD |
 | `GET/POST/PUT/DELETE` | `/admin/customer` | 客户 CRUD |
+| `ANY` | `/admin/customer-level` | 客户等级管理 |
+| `GET/POST/PUT/DELETE` | `/admin/purchase/apply` | 采购申请 |
 | `GET/POST/PUT/DELETE` | `/admin/purchase/order` | 采购订单 |
 | `GET/POST/PUT/DELETE` | `/admin/purchase/receive` | 采购收货（自动入库+生成应付） |
+| `GET/POST/PUT/DELETE` | `/admin/purchase/return` | 采购退货 |
+| `ANY` | `/admin/purchase/settlement` | 供应商结算 |
+| `GET/POST/PUT/DELETE` | `/admin/sales/quotation` | 销售报价 |
 | `GET/POST/PUT/DELETE` | `/admin/sales/order` | 销售订单 |
 | `GET/POST/PUT/DELETE` | `/admin/sales/delivery` | 销售发货（自动出库+生成应收） |
-| `GET/POST` | `/admin/inventory` | 实时库存查询 |
-| `GET` | `/admin/inventory/flow` | 出入库流水 |
+| `GET/POST/PUT/DELETE` | `/admin/sales/return` | 销售退货 |
+| `ANY` | `/admin/sales/settlement` | 客户结算 |
+| `ANY` | `/admin/inventory` | 实时库存查询 |
+| `ANY` | `/admin/inventory/flow` | 出入库流水 |
 | `GET/POST/PUT/DELETE` | `/admin/inventory/transfer` | 库存调拨 |
 | `GET/POST/PUT/DELETE` | `/admin/inventory/check` | 盘点任务 |
+| `GET/POST/PUT/DELETE` | `/admin/inventory/alert` | 库存预警规则 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/ar-ap` | 应收应付 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/voucher` | 记账凭证 |
 | `GET/POST/PUT/DELETE` | `/admin/finance/receipt` | 收款单 |
 | `GET/POST/PUT/DELETE` | `/admin/finance/payment` | 付款单 |
-| `GET` | `/admin/finance/report/profit` | 利润表 |
-| `GET` | `/admin/finance/general-ledger` | 总账（按科目+期间汇总） |
-| `GET` | `/admin/finance/subsidiary-ledger` | 明细账（科目逐笔明细） |
-| `GET` | `/admin/finance/report/balance-sheet` | 资产负债表 |
-| `GET` | `/admin/finance/report/cash-flow` | 现金流量表（经营/投资/筹资） |
+| `ANY` | `/admin/finance/cash-journal` | 现金银行日记账 |
 | `GET/POST/PUT/DELETE` | `/admin/finance/expense` | 费用报销 |
+| `ANY` | `/admin/finance/report/profit` | 利润表 |
+| `GET/POST/PUT/DELETE` | `/admin/finance/bank-account` | 银行账户 |
+| `ANY` | `/admin/finance/general-ledger` | 总账（按科目+期间汇总） |
+| `ANY` | `/admin/finance/subsidiary-ledger` | 明细账（科目逐笔明细） |
+| `ANY` | `/admin/finance/report/balance-sheet` | 资产负债表 |
+| `ANY` | `/admin/finance/report/cash-flow` | 现金流量表（经营/投资/筹资） |
 | `GET/POST/PUT/DELETE` | `/admin/finance/asset` | 固定资产 CRUD + 计提折旧 |
-| `GET/POST` | `/admin/finance/tax-rate` | 税率配置 |
-| `GET` | `/admin/finance/tax-record` | 税务记录 |
+| `GET/POST/DELETE` | `/admin/finance/tax-rate` | 税率配置 |
+| `ANY` | `/admin/finance/tax-record` | 税务记录 |
 | `GET/POST/PUT/DELETE` | `/admin/finance/currency` | 币种管理 |
 | `GET/POST/PUT/DELETE` | `/admin/finance/exchange-rate` | 汇率管理 |
 | `GET/POST/PUT/DELETE` | `/admin/finance/budget` | 预算管理（含预算vs实际对比） |
@@ -411,19 +440,56 @@ Authorization: Bearer <token>
 | `GET/POST/PUT/DELETE` | `/admin/finance/profit-center` | 利润中心（树形结构） |
 | `GET/POST/PUT/DELETE` | `/admin/crm/opportunity` | 商机管理 |
 | `GET/POST/PUT/DELETE` | `/admin/crm/follow` | 跟进记录 |
-| `GET/POST` | `/admin/crm/pool` | 公海池（客户领取/释放） |
+| `GET/POST/PUT/DELETE` | `/admin/crm/funnel` | 销售漏斗阶段配置 |
+| `GET/POST/PUT/DELETE` | `/admin/crm/contact` | 联系人 |
+| `ANY` | `/admin/crm/pool` | 公海池（客户列表） |
+| `POST` | `/admin/crm/pool/claim/{id}` | 领取公海客户 |
+| `POST` | `/admin/crm/pool/release/{id}` | 释放客户到公海 |
+| `GET/POST/PUT/DELETE` | `/admin/crm/pool/rules` | 公海池规则 |
 | `GET/POST/PUT/DELETE` | `/admin/crm/contract` | 合同 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/crm/quotation` | CRM报价（支持转合同） |
+| `POST` | `/admin/crm/contract/{id}/transition` | 合同状态流转 |
+| `GET/POST/PUT/DELETE` | `/admin/crm/quotation` | CRM报价 |
 | `POST` | `/admin/crm/quotation/{id}/to-contract` | 报价转合同 |
 | `GET/POST/PUT/DELETE` | `/admin/crm/campaign` | 营销活动 |
 | `GET/POST/PUT/DELETE` | `/admin/crm/ticket` | 服务工单 |
 | `POST` | `/admin/crm/ticket/{id}/assign` | 分配工单 |
 | `POST` | `/admin/crm/ticket/{id}/resolve` | 解决工单 |
-| `GET/POST` | `/admin/crm/analytics/report` | 客户分析报表 |
-| `GET/POST` | `/admin/crm/analytics/metric` | 分析指标 |
-| `GET` | `/admin/dashboard/sales` | 销售面板 |
-| `GET` | `/admin/dashboard/inventory` | 库存面板 |
-| `GET` | `/admin/dashboard/finance` | 财务面板 |
+| `POST` | `/admin/crm/ticket/{id}/reply` | 回复工单 |
+| `ANY` | `/admin/crm/analytics/report` | 客户分析报表 |
+| `POST` | `/admin/crm/analytics/generate` | 生成分析报表 |
+| `ANY/POST` | `/admin/crm/analytics/metric` | 分析指标 |
+| `ANY` | `/admin/dashboard/sales` | 销售面板 |
+| `ANY` | `/admin/dashboard/inventory` | 库存面板 |
+| `ANY` | `/admin/dashboard/finance` | 财务面板 |
+| `GET/POST/PUT/DELETE` | `/admin/workflow` | 工作流定义 CRUD |
+| `POST` | `/admin/workflow/{id}/submit` | 提交审批 |
+| `POST` | `/admin/approval/{id}/approve` | 批准 |
+| `POST` | `/admin/approval/{id}/reject` | 拒绝 |
+| `POST` | `/admin/approval/{id}/withdraw` | 撤回 |
+| `ANY` | `/admin/approval/my` | 我的审批列表 |
+| `ANY` | `/admin/notification/my` | 我的通知 |
+| `POST` | `/admin/notification/{id}/read` | 标记已读 |
+| `POST` | `/admin/notification/read-all` | 全部已读 |
+| `ANY` | `/admin/notification/unread-count` | 未读计数 |
+| `GET/POST/PUT/DELETE` | `/admin/project` | 项目 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/project/task` | 项目任务 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/project/timesheet` | 工时记录 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/hr/department` | 部门 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/hr/employee` | 员工 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/hr/position` | 职位 CRUD |
+| `ANY/POST` | `/admin/hr/attendance` | 考勤/打卡 |
+| `GET/POST/PUT/DELETE` | `/admin/hr/leave` | 请假 CRUD + 审批 |
+| `GET/POST/PUT/DELETE` | `/admin/hr/salary` | 薪资 CRUD + 发放 |
+| `ANY/POST` | `/admin/hr/salary-item` | 薪资项目 |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/bom` | BOM CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/production` | 生产订单 + 开工/完工 |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/routing` | 工艺路线 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/workstation` | 工作站 CRUD |
+| `GET/POST/PUT/DELETE` | `/admin/mfg/mrp` | MRP 计划 + 生成 |
+| `GET/POST/PUT/DELETE` | `/admin/report` | 报表模板 CRUD |
+| `POST` | `/admin/report/{id}/execute` | 执行报表 |
+| `ANY` | `/admin/report/{id}/result` | 报表结果 |
+| `GET/POST/PUT/DELETE` | `/admin/report/schedule` | 报表定时调度 |
 
 ### 客端接口（需 API-Version 头）
 

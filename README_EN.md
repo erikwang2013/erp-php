@@ -11,7 +11,7 @@ A full-stack ERP system built with webman v2 + Flutter.
 | 🔐 Auth | Login/Register/Refresh/Logout | Click captcha + JWT + blacklist |
 | | Account lockout | 5 failures → 15 min lock |
 | | Concurrent session limit | Max 3 active tokens per user |
-| 📊 Dashboard | Real-time stats/trends/distribution/logs | Redis cached 5 min |
+| 📊 Dashboard | Overview/Sales/Inventory/Finance dashboards | Redis cached 5 min |
 | 👥 Users | CRUD + batch delete/toggle status | Soft delete + password confirmation |
 | | Excel batch import | Row-level validation + error report |
 | 🔒 Roles & Perms | Role CRUD + permission tree | RBAC method.path granularity |
@@ -27,7 +27,13 @@ A full-stack ERP system built with webman v2 + Flutter.
 | 📤 Sales | Quotation→Order→Delivery→Return→Settlement | Quote-to-order + gross margin |
 | 🏗 Inventory | Real-time stock/batch/serial/transfer/stocktaking/alerts | Moving-weighted-average costing |
 | 💰 Finance | AR/AP/Receipts & Payments/Journal/Expense/Profit/Fixed Assets/Tax/Multi-Currency/Budget/Cost & Profit Centers | Auto AR/AP + settlement + comprehensive financial management |
-| 🤝 CRM | Customers/Contacts/Follow-ups/Campaigns/Service Tickets/Analytics | Customer lifecycle management |
+| 🤝 CRM | Customers/Contacts/Follow-ups/Campaigns/Tickets/Analytics/Funnel/Pool/Quotation/Contract | Customer lifecycle management |
+| ✅ Workflow | Workflow definition/Submit/Approve/Reject/Withdraw/My Approvals | Multi-node approval engine |
+| 🔔 Notification | Notification list/Mark read/Unread count/Mark all read | Real-time push with status tracking |
+| 📐 Projects | Project/Task/Timesheet | Project progress tracking & resource management |
+| 👤 HR | Department/Employee/Position/Attendance/Leave/Salary | Full HR management |
+| 🏭 Manufacturing | BOM/Production Order/Routing/Workstation/MRP | Material requirements planning & production execution |
+| 📈 Reports | Report templates/Dataset/Field/Filter/Execute/Schedule | Visual report builder |
 
 ## ERP Modules
 
@@ -36,10 +42,12 @@ Cross-module data flow:
 - Purchase receiving → Auto stock-in (moving-weighted-average costing) → Auto-generate AP
 - Sales delivery → Auto stock-out → Auto-generate AR
 - Receipts & payments → Write-off AR/AP → Update cash journal
-- Stocktaking variance → Auto-generate gain/loss inventory flow
 - Voucher audit → Auto-update general ledger + subsidiary ledger
 - Balance sheet → Auto-generated from general ledger closing balances
 - Cash flow statement → Auto-generated from cash journal (operating/investing/financing)
+- Approval workflow → Business document submission → Multi-node routing → Approval callback to business modules
+- Notification → Approval/Alert/System event triggers → Real-time push → User mark-as-read
+- MRP → Based on sales orders + BOM → Calculate material requirements → Generate purchase/production recommendations
 
 ## Copyright
 
@@ -81,19 +89,26 @@ This copyright notice is permanent, must not be modified, removed, or reversed. 
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # System management controllers
+│   ├── admin/controller/       # System management controllers (14)
 │   ├── api/v1/controller/      # Client API (version via API-Version header)
-│   ├── controller/             # Business module controllers
-│   │   ├── product/            # Product/category/brand/warehouse/supplier/customer
-│   │   ├── purchase/           # Requisition/order/receive/return/settlement
-│   │   ├── sales/              # Quotation/order/delivery/return/settlement
-│   │   ├── inventory/          # Stock/flow/transfer/check/alert
-│   │   ├── finance/            # Account/voucher/receipt/payment/expense/report
-│   │   └── crm/                # Opportunity/follow/contact/funnel
+│   ├── controller/             # Business module controllers (70)
+│   │   ├── product/            # Product/category/brand/warehouse/location/supplier/customer (7)
+│   │   ├── purchase/           # Requisition/order/receive/return/settlement (5)
+│   │   ├── sales/              # Quotation/order/delivery/return/settlement (5)
+│   │   ├── inventory/          # Stock/flow/transfer/check/alert (5)
+│   │   ├── finance/            # AR/AP/voucher/receipt/payment/journal/ledger/report/asset/tax/currency/budget (20)
+│   │   ├── crm/                # Opportunity/follow/funnel/contact/pool/contract/quotation/campaign/ticket/analytics (10)
+│   │   ├── workflow/           # Workflow definition/approval submit/approve/reject/withdraw (2)
+│   │   ├── notification/       # Notification list/read/unread count (1)
+│   │   ├── project/            # Project/task/timesheet (3)
+│   │   ├── hr/                 # Department/employee/position/attendance/leave/salary (5)
+│   │   ├── manufacturing/      # BOM/production order/routing/workstation/MRP (5)
+│   │   └── report/             # Report template/dataset/execute/schedule (2)
 │   ├── service/                # Business logic layer
 │   │   ├── inventory/          # Stock in/out + moving-weighted-average cost
-│   │   └── finance/            # AR/AP auto-generation + settlement
-│   ├── model/                  # 55+ Eloquent models (shared across modules)
+│   │   ├── finance/            # AR/AP auto-generation + settlement
+│   │   └── notification/       # Notification dispatch service
+│   ├── model/                  # 121 Eloquent models (shared across modules)
 │   ├── middleware/             # 7 middleware
 │   ├── common/                 # Hashids/Snowflake/Encryption services
 │   └── queue/                  # Queue tasks
@@ -102,7 +117,7 @@ open-erp/
 │   └── harmonyos/              # HarmonyOS native client
 ├── config/                     # Configuration files (commented in Chinese)
 ├── database/
-│   ├── migrations/             # SQL migration files (8 files, ~55 tables)
+│   ├── migrations/             # SQL migration files (18 files, 122 tables)
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
 ├── tests/                      # PHPUnit tests (30 tests, 258 assertions)
