@@ -20,7 +20,20 @@ class ProductionController extends BaseController
 {
     /**
      * 生产工单列表（分页）
-     * GET /admin/mfg/production
+     * @Apidoc\Title("生产工单列表")
+     * @Apidoc\Desc("分页查询生产工单记录")
+     * @Apidoc\Url("/admin/mfg/production")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="page", type="int", desc="页码")
+     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
+     * @Apidoc\Param(name="status", type="int", desc="状态")
+     * @Apidoc\Param(name="bom_id", type="int", desc="BOM ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -51,7 +64,18 @@ class ProductionController extends BaseController
 
     /**
      * 创建生产工单
-     * POST /admin/mfg/production
+     * @Apidoc\Title("创建生产工单")
+     * @Apidoc\Desc("新增生产工单记录")
+     * @Apidoc\Url("/admin/mfg/production")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="code", type="string", desc="工单编码，必填")
+     * @Apidoc\Param(name="bom_id", type="int", desc="BOM ID，必填")
+     * @Apidoc\Param(name="planned_quantity", type="float", desc="计划数量，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -67,15 +91,24 @@ class ProductionController extends BaseController
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id') $item->$k = $v;
         }
-        $item->status = 0; // 待生产
+        $item->status = 0;
         $item->completed_quantity = 0;
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
     /**
-     * 工单详情（含明细）
-     * GET /admin/mfg/production/{id}
+     * 工单详情
+     * @Apidoc\Title("生产工单详情")
+     * @Apidoc\Desc("查看生产工单详细信息，含明细和BOM")
+     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="工单ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -95,7 +128,16 @@ class ProductionController extends BaseController
 
     /**
      * 更新工单
-     * PUT /admin/mfg/production/{id}
+     * @Apidoc\Title("更新生产工单")
+     * @Apidoc\Desc("修改生产工单，仅待生产状态可修改")
+     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="工单ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -109,15 +151,25 @@ class ProductionController extends BaseController
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id') $item->$k = $v;
         }
-        $item->status = $originalStatus; // Status can only change via start()/complete()
+        $item->status = $originalStatus;
         $item->completed_quantity = $originalCompletedQty;
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
     /**
-     * 删除工单（软删除）
-     * DELETE /admin/mfg/production/{id}
+     * 删除工单
+     * @Apidoc\Title("删除生产工单")
+     * @Apidoc\Desc("删除生产工单，生产中或已完成不可删除，需密码确认")
+     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="工单ID")
+     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $hashid): Response
     {
@@ -137,7 +189,16 @@ class ProductionController extends BaseController
 
     /**
      * 开始生产
-     * POST /admin/mfg/production/{id}/start
+     * @Apidoc\Title("开始生产")
+     * @Apidoc\Desc("将工单状态变更为生产中")
+     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="工单ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function start(Request $request, string $hashid): Response
     {
@@ -146,7 +207,7 @@ class ProductionController extends BaseController
         if (!$item) return $this->fail('记录不存在', 404);
         if ($item->status !== 0) return $this->fail('只有待生产状态的工单可以开始生产', 422);
 
-        $item->status = 1; // 生产中
+        $item->status = 1;
         $item->actual_start = date('Y-m-d H:i:s');
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '生产已开始');
@@ -154,7 +215,17 @@ class ProductionController extends BaseController
 
     /**
      * 完成生产
-     * POST /admin/mfg/production/{id}/complete
+     * @Apidoc\Title("完成生产")
+     * @Apidoc\Desc("将工单状态变更为已完成，记录完成数量")
+     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="工单ID")
+     * @Apidoc\Param(name="completed_quantity", type="float", desc="完成数量")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function complete(Request $request, string $hashid): Response
     {
@@ -164,7 +235,7 @@ class ProductionController extends BaseController
         if ($item->status !== 1) return $this->fail('只有生产中的工单可以完成', 422);
 
         $completedQty = (float) $request->input('completed_quantity', $item->planned_quantity);
-        $item->status = 2; // 已完成
+        $item->status = 2;
         $item->completed_quantity = $completedQty;
         $item->actual_end = date('Y-m-d H:i:s');
         $item->save();

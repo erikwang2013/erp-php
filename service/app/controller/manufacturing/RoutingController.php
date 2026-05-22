@@ -18,8 +18,17 @@ use support\Response;
 class RoutingController extends BaseController
 {
     /**
-     * 工艺路线列表（按产品分组，按seq排序）
-     * GET /admin/mfg/routing
+     * 工艺路线列表
+     * @Apidoc\Title("工艺路线列表")
+     * @Apidoc\Desc("按产品分组查询工艺路线，按seq排序")
+     * @Apidoc\Url("/admin/mfg/routing")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="product_id", type="int", desc="产品ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -39,7 +48,19 @@ class RoutingController extends BaseController
 
     /**
      * 添加工序
-     * POST /admin/mfg/routing
+     * @Apidoc\Title("添加工艺工序")
+     * @Apidoc\Desc("新增工艺路线工序记录")
+     * @Apidoc\Url("/admin/mfg/routing")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="product_id", type="int", desc="产品ID，必填")
+     * @Apidoc\Param(name="name", type="string", desc="工序名称，必填")
+     * @Apidoc\Param(name="seq", type="int", desc="工序序号，必填")
+     * @Apidoc\Param(name="workstation_id", type="int", desc="工作站ID，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -63,7 +84,16 @@ class RoutingController extends BaseController
 
     /**
      * 工序详情
-     * GET /admin/mfg/routing/{id}
+     * @Apidoc\Title("工艺工序详情")
+     * @Apidoc\Desc("查看工艺路线工序详细信息")
+     * @Apidoc\Url("/admin/mfg/routing/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="工序ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -75,7 +105,16 @@ class RoutingController extends BaseController
 
     /**
      * 更新工序
-     * PUT /admin/mfg/routing/{id}
+     * @Apidoc\Title("更新工艺工序")
+     * @Apidoc\Desc("修改工艺路线工序信息")
+     * @Apidoc\Url("/admin/mfg/routing/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="工序ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -92,7 +131,17 @@ class RoutingController extends BaseController
 
     /**
      * 删除工序
-     * DELETE /admin/mfg/routing/{id}
+     * @Apidoc\Title("删除工艺工序")
+     * @Apidoc\Desc("删除工艺路线工序记录，需密码确认")
+     * @Apidoc\Url("/admin/mfg/routing/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="工序ID")
+     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $hashid): Response
     {

@@ -15,8 +15,21 @@ use support\Response;
 class GeneralLedgerController extends BaseController
 {
     /**
-     * 总账查询（按科目+会计期间汇总）
-     * GET /admin/finance/general-ledger
+     * 总账查询
+     * @Apidoc\Title("总账查询")
+     * @Apidoc\Desc("按科目+会计期间汇总查询总账")
+     * @Apidoc\Url("/admin/finance/general-ledger")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="page", type="int", desc="页码")
+     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
+     * @Apidoc\Param(name="period_year", type="int", desc="会计年度")
+     * @Apidoc\Param(name="period_month", type="int", desc="会计月份")
+     * @Apidoc\Param(name="account_id", type="int", desc="科目ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {

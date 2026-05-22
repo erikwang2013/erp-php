@@ -19,7 +19,20 @@ class QuotationController extends BaseController
 {
     /**
      * CRM报价列表（分页）
-     * GET /admin/crm/quotation
+     * @Apidoc\Title("报价列表")
+     * @Apidoc\Desc("分页查询CRM报价记录")
+     * @Apidoc\Url("/admin/crm/quotation")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("CRM")
+     * @Apidoc\Param(name="page", type="int", desc="页码")
+     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
+     * @Apidoc\Param(name="status", type="int", desc="状态")
+     * @Apidoc\Param(name="customer_id", type="int", desc="客户ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -31,9 +44,7 @@ class QuotationController extends BaseController
 
         $query = CrmQuotation::query();
         if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('code', 'like', "%{$keyword}%");
-            });
+            $query->where('code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
@@ -52,7 +63,17 @@ class QuotationController extends BaseController
 
     /**
      * 创建CRM报价
-     * POST /admin/crm/quotation
+     * @Apidoc\Title("创建报价")
+     * @Apidoc\Desc("新增CRM报价记录，含报价明细")
+     * @Apidoc\Url("/admin/crm/quotation")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("CRM")
+     * @Apidoc\Param(name="customer_id", type="int", desc="客户ID，必填")
+     * @Apidoc\Param(name="items", type="array", desc="报价明细列表")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -61,13 +82,12 @@ class QuotationController extends BaseController
 
         $item = new CrmQuotation();
         $item->id = $this->generateId();
-        $item->status = 0; // 草稿
+        $item->status = 0;
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id' && $k !== 'items') $item->$k = $v;
         }
         $item->save();
 
-        // 保存报价明细
         $items = $request->input('items', []);
         foreach ($items as $it) {
             $detail = new CrmQuotationItem();
@@ -84,7 +104,16 @@ class QuotationController extends BaseController
 
     /**
      * CRM报价详情
-     * GET /admin/crm/quotation/{id}
+     * @Apidoc\Title("报价详情")
+     * @Apidoc\Desc("查看CRM报价详细信息")
+     * @Apidoc\Url("/admin/crm/quotation/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("CRM")
+     * @Apidoc\Param(name="id", type="string", desc="报价ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -96,7 +125,17 @@ class QuotationController extends BaseController
 
     /**
      * 更新CRM报价
-     * PUT /admin/crm/quotation/{id}
+     * @Apidoc\Title("更新报价")
+     * @Apidoc\Desc("修改CRM报价信息，仅草稿状态可编辑")
+     * @Apidoc\Url("/admin/crm/quotation/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("CRM")
+     * @Apidoc\Param(name="id", type="string", desc="报价ID")
+     * @Apidoc\Param(name="items", type="array", desc="报价明细列表")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -104,7 +143,6 @@ class QuotationController extends BaseController
         $item = CrmQuotation::find($id);
         if (!$item) return $this->fail('记录不存在', 404);
 
-        // 草稿状态才能编辑
         if ($item->status !== 0) {
             return $this->fail('仅草稿状态可编辑', 422);
         }
@@ -114,7 +152,6 @@ class QuotationController extends BaseController
         }
         $item->save();
 
-        // 更新明细：先删后建
         $items = $request->input('items', []);
         if (!empty($items)) {
             CrmQuotationItem::where('quotation_id', $id)->delete();
@@ -134,7 +171,17 @@ class QuotationController extends BaseController
 
     /**
      * 删除CRM报价
-     * DELETE /admin/crm/quotation/{id}
+     * @Apidoc\Title("删除报价")
+     * @Apidoc\Desc("删除CRM报价记录，需密码确认")
+     * @Apidoc\Url("/admin/crm/quotation/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("CRM")
+     * @Apidoc\Param(name="id", type="string", desc="报价ID")
+     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $hashid): Response
     {
@@ -152,7 +199,19 @@ class QuotationController extends BaseController
 
     /**
      * 报价转合同
-     * POST /admin/crm/quotation/{id}/to-contract
+     * @Apidoc\Title("报价转合同")
+     * @Apidoc\Desc("将CRM报价转为正式合同，复制报价明细到合同明细")
+     * @Apidoc\Url("/admin/crm/quotation/{id}")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("CRM")
+     * @Apidoc\Param(name="id", type="string", desc="报价ID")
+     * @Apidoc\Param(name="code", type="string", desc="合同编号")
+     * @Apidoc\Param(name="name", type="string", desc="合同名称")
+     * @Apidoc\Param(name="remark", type="string", desc="备注")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="报价和合同数据")
      */
     public function toContract(Request $request, string $hashid): Response
     {
@@ -160,7 +219,6 @@ class QuotationController extends BaseController
         $quotation = CrmQuotation::find($id);
         if (!$quotation) return $this->fail('报价不存在', 404);
 
-        // 创建合同
         $contract = new CrmContract();
         $contract->id = $this->generateId();
         $contract->code = $request->input('code', '') ?: 'CT' . date('YmdHis');
@@ -169,12 +227,11 @@ class QuotationController extends BaseController
         $contract->opportunity_id = $quotation->opportunity_id;
         $contract->quotation_id = $id;
         $contract->total_amount = $quotation->total_amount;
-        $contract->status = 0; // 草稿
+        $contract->status = 0;
         $contract->owner_user_id = $quotation->owner_user_id;
         $contract->remark = $request->input('remark', '');
         $contract->save();
 
-        // 复制报价明细到合同明细
         $qItems = CrmQuotationItem::where('quotation_id', $id)->get();
         foreach ($qItems as $qItem) {
             $cItem = new CrmContractItem();
@@ -189,8 +246,7 @@ class QuotationController extends BaseController
             $cItem->save();
         }
 
-        // 更新报价状态为已转合同
-        $quotation->status = 3; // 已转合同
+        $quotation->status = 3;
         $quotation->save();
 
         return $this->success([

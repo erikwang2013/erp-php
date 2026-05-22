@@ -23,7 +23,20 @@ class MrpController extends BaseController
 {
     /**
      * MRP计划列表（分页）
-     * GET /admin/mfg/mrp
+     * @Apidoc\Title("MRP计划列表")
+     * @Apidoc\Desc("分页查询MRP计划记录")
+     * @Apidoc\Url("/admin/mfg/mrp")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="page", type="int", desc="页码")
+     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
+     * @Apidoc\Param(name="period_year", type="int", desc="计划年度")
+     * @Apidoc\Param(name="period_month", type="int", desc="计划月份")
+     * @Apidoc\Param(name="status", type="int", desc="状态")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -54,7 +67,18 @@ class MrpController extends BaseController
 
     /**
      * 创建MRP计划头
-     * POST /admin/mfg/mrp
+     * @Apidoc\Title("创建MRP计划")
+     * @Apidoc\Desc("新增MRP计划头记录")
+     * @Apidoc\Url("/admin/mfg/mrp")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="code", type="string", desc="计划编码，必填")
+     * @Apidoc\Param(name="period_year", type="int", desc="计划年度，必填")
+     * @Apidoc\Param(name="period_month", type="int", desc="计划月份，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -75,8 +99,17 @@ class MrpController extends BaseController
     }
 
     /**
-     * MRP计划详情（含明细）
-     * GET /admin/mfg/mrp/{id}
+     * MRP计划详情
+     * @Apidoc\Title("MRP计划详情")
+     * @Apidoc\Desc("查看MRP计划详细信息，含明细")
+     * @Apidoc\Url("/admin/mfg/mrp/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="计划ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -93,7 +126,16 @@ class MrpController extends BaseController
 
     /**
      * 更新MRP计划
-     * PUT /admin/mfg/mrp/{id}
+     * @Apidoc\Title("更新MRP计划")
+     * @Apidoc\Desc("修改MRP计划，已确认不可修改")
+     * @Apidoc\Url("/admin/mfg/mrp/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="计划ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -106,14 +148,24 @@ class MrpController extends BaseController
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id') $item->$k = $v;
         }
-        $item->status = $originalStatus; // Status can only change via generate()
+        $item->status = $originalStatus;
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
     /**
      * 删除MRP计划
-     * DELETE /admin/mfg/mrp/{id}
+     * @Apidoc\Title("删除MRP计划")
+     * @Apidoc\Desc("删除MRP计划，连明细一起删除，需密码确认")
+     * @Apidoc\Url("/admin/mfg/mrp/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="计划ID")
+     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $hashid): Response
     {
@@ -131,8 +183,17 @@ class MrpController extends BaseController
     }
 
     /**
-     * 生成MRP计划明细 — 基于各产品的BOM与库存计算净需求
-     * POST /admin/mfg/mrp/{id}/generate
+     * 生成MRP计划明细
+     * @Apidoc\Title("生成MRP明细")
+     * @Apidoc\Desc("基于各产品BOM与库存计算净需求，生成MRP计划明细")
+     * @Apidoc\Url("/admin/mfg/mrp/{id}")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("生产制造")
+     * @Apidoc\Param(name="id", type="string", desc="计划ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function generate(Request $request, string $hashid): Response
     {
@@ -141,19 +202,14 @@ class MrpController extends BaseController
         if (!$plan) return $this->fail('计划不存在', 404);
         if ($plan->status === 2) return $this->fail('已确认的计划不可重新生成', 422);
 
-        // 清除旧明细
         MfgMrpItem::where('plan_id', $planId)->delete();
 
-        // 遍历所有已生效BOM
         $boms = MfgBom::where('status', 1)->with(['items'])->get();
 
         foreach ($boms as $bom) {
             foreach ($bom->items as $bomItem) {
-                // 计算净需求: net = gross - scheduled_receipt - on_hand
-                // gross: 按BOM用量计算
                 $grossRequirement = (float) $bomItem->quantity;
 
-                // 查询当前库存
                 $inventory = Inventory::where('product_id', $bomItem->component_product_id)->first();
                 $onHand = $inventory ? (float) $inventory->quantity : 0.00;
 
@@ -176,7 +232,7 @@ class MrpController extends BaseController
             }
         }
 
-        $plan->status = 1; // 已生成
+        $plan->status = 1;
         $plan->generated_at = date('Y-m-d H:i:s');
         $plan->save();
 

@@ -20,13 +20,24 @@ use support\Response;
  */
 class AttendanceController extends BaseController
 {
-    // ============================================================
     // 考勤记录
-    // ============================================================
 
     /**
      * 考勤记录列表（分页）
-     * GET /admin/hr/attendance
+     * @Apidoc\Title("考勤记录列表")
+     * @Apidoc\Desc("分页查询考勤记录")
+     * @Apidoc\Url("/admin/hr/attendance")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="page", type="int", desc="页码")
+     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
+     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID")
+     * @Apidoc\Param(name="work_date", type="string", desc="工作日期")
+     * @Apidoc\Param(name="status", type="int", desc="状态:1正常2迟到3早退4旷工5请假")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -63,7 +74,16 @@ class AttendanceController extends BaseController
 
     /**
      * 上班打卡
-     * POST /admin/hr/attendance/clock-in
+     * @Apidoc\Title("上班打卡")
+     * @Apidoc\Desc("员工上班打卡，根据考勤规则自动判定迟到")
+     * @Apidoc\Url("/admin/hr/attendance/clock-in")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="打卡结果")
      */
     public function clockIn(Request $request): Response
     {
@@ -74,14 +94,12 @@ class AttendanceController extends BaseController
         $workDate = date('Y-m-d');
         $now = date('Y-m-d H:i:s');
 
-        // 检查今天是否已打卡
         $existing = HrAttendance::where('employee_id', $employeeId)
             ->where('work_date', $workDate)->first();
         if ($existing && $existing->clock_in) {
             return $this->fail('今天已打过上班卡', 422);
         }
 
-        // 获取考勤规则
         $rule = HrAttendanceRule::orderBy('id', 'asc')->first();
         $status = 1;
         $lateMinutes = 0;
@@ -91,7 +109,7 @@ class AttendanceController extends BaseController
             if ($clockInTime > $rule->clock_in_time) {
                 $lateMinutes = max(0, (strtotime($clockInTime) - strtotime($rule->clock_in_time)) / 60);
                 if ($lateMinutes > $rule->late_grace) {
-                    $status = 2; // 迟到
+                    $status = 2;
                 }
             }
         }
@@ -120,7 +138,16 @@ class AttendanceController extends BaseController
 
     /**
      * 下班打卡
-     * POST /admin/hr/attendance/clock-out
+     * @Apidoc\Title("下班打卡")
+     * @Apidoc\Desc("员工下班打卡，根据考勤规则自动判定早退")
+     * @Apidoc\Url("/admin/hr/attendance/clock-out")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="打卡结果")
      */
     public function clockOut(Request $request): Response
     {
@@ -140,7 +167,6 @@ class AttendanceController extends BaseController
             return $this->fail('今天已打过下班卡', 422);
         }
 
-        // 获取考勤规则
         $rule = HrAttendanceRule::find($attendance->rule_id);
         $status = $attendance->status;
         $earlyMinutes = 0;
@@ -150,7 +176,7 @@ class AttendanceController extends BaseController
             if ($clockOutTime < $rule->clock_out_time) {
                 $earlyMinutes = max(0, (strtotime($rule->clock_out_time) - strtotime($clockOutTime)) / 60);
                 if ($earlyMinutes > $rule->early_grace && $status == 1) {
-                    $status = 3; // 早退（如果之前不是迟到）
+                    $status = 3;
                 }
             }
         }
@@ -163,13 +189,24 @@ class AttendanceController extends BaseController
         return $this->success(['status' => $status, 'early_minutes' => (int) $earlyMinutes], '打卡成功');
     }
 
-    // ============================================================
     // 请假管理
-    // ============================================================
 
     /**
      * 请假列表（分页）
-     * GET /admin/hr/leave
+     * @Apidoc\Title("请假列表")
+     * @Apidoc\Desc("分页查询请假记录")
+     * @Apidoc\Url("/admin/hr/attendance")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="page", type="int", desc="页码")
+     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
+     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID")
+     * @Apidoc\Param(name="type", type="int", desc="请假类型")
+     * @Apidoc\Param(name="status", type="int", desc="状态:0待审批1已批准2已驳回")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function leaveIndex(Request $request): Response
     {
@@ -206,7 +243,20 @@ class AttendanceController extends BaseController
 
     /**
      * 创建请假
-     * POST /admin/hr/leave
+     * @Apidoc\Title("创建请假")
+     * @Apidoc\Desc("提交请假申请")
+     * @Apidoc\Url("/admin/hr/attendance")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID，必填")
+     * @Apidoc\Param(name="type", type="int", desc="请假类型，必填")
+     * @Apidoc\Param(name="start_date", type="string", desc="开始日期，必填")
+     * @Apidoc\Param(name="end_date", type="string", desc="结束日期，必填")
+     * @Apidoc\Param(name="days", type="float", desc="请假天数，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function leaveStore(Request $request): Response
     {
@@ -224,7 +274,7 @@ class AttendanceController extends BaseController
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id') $item->$k = $v;
         }
-        $item->status = 0; // 待审批
+        $item->status = 0;
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '请假申请已提交');
@@ -232,7 +282,16 @@ class AttendanceController extends BaseController
 
     /**
      * 请假详情
-     * GET /admin/hr/leave/{id}
+     * @Apidoc\Title("请假详情")
+     * @Apidoc\Desc("查看请假记录详细信息")
+     * @Apidoc\Url("/admin/hr/attendance/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="请假ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function leaveShow(Request $request, string $hashid): Response
     {
@@ -249,7 +308,16 @@ class AttendanceController extends BaseController
 
     /**
      * 更新请假
-     * PUT /admin/hr/leave/{id}
+     * @Apidoc\Title("更新请假")
+     * @Apidoc\Desc("修改请假申请，仅待审批状态可修改")
+     * @Apidoc\Url("/admin/hr/attendance/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="请假ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function leaveUpdate(Request $request, string $hashid): Response
     {
@@ -262,14 +330,24 @@ class AttendanceController extends BaseController
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id') $item->$k = $v;
         }
-        $item->status = $originalStatus; // Status can only change via approveLeave()
+        $item->status = $originalStatus;
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
     /**
-     * 删除请假（软删除）
-     * DELETE /admin/hr/leave/{id}
+     * 删除请假
+     * @Apidoc\Title("删除请假")
+     * @Apidoc\Desc("删除请假记录，需密码确认")
+     * @Apidoc\Url("/admin/hr/attendance/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="请假ID")
+     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function leaveDestroy(Request $request, string $hashid): Response
     {
@@ -287,7 +365,17 @@ class AttendanceController extends BaseController
 
     /**
      * 审批请假
-     * POST /admin/hr/leave/{id}/approve
+     * @Apidoc\Title("审批请假")
+     * @Apidoc\Desc("批准或驳回请假申请，批准后自动标记考勤为请假状态")
+     * @Apidoc\Url("/admin/hr/attendance/{id}")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="请假ID")
+     * @Apidoc\Param(name="action", type="string", desc="审批动作:approve批准/reject驳回")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function approveLeave(Request $request, string $hashid): Response
     {
@@ -296,11 +384,10 @@ class AttendanceController extends BaseController
         if (!$item) return $this->fail('记录不存在', 404);
         if ($item->status !== 0) return $this->fail('该请假申请已审批', 422);
 
-        $action = $request->input('action', 'approve'); // approve 或 reject
+        $action = $request->input('action', 'approve');
         $item->status = $action === 'reject' ? 2 : 1;
         $item->save();
 
-        // 批准后自动标记考勤为请假状态
         if ($item->status === 1) {
             $start = strtotime($item->start_date);
             $end = strtotime($item->end_date);
@@ -313,7 +400,7 @@ class AttendanceController extends BaseController
                     $att->id = $this->generateId();
                     $att->employee_id = $item->employee_id;
                     $att->work_date = $dateStr;
-                    $att->status = 5; // 请假
+                    $att->status = 5;
                     $att->created_at = date('Y-m-d H:i:s');
                     $att->save();
                 } elseif ($existing->status == 4) {

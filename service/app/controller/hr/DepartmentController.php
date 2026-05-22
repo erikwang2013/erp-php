@@ -18,8 +18,18 @@ use support\Response;
 class DepartmentController extends BaseController
 {
     /**
-     * 部门树
-     * GET /admin/hr/department
+     * 部门树形列表
+     * @Apidoc\Title("部门列表")
+     * @Apidoc\Desc("查询部门列表，支持关键词和状态筛选")
+     * @Apidoc\Url("/admin/hr/department")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
+     * @Apidoc\Param(name="status", type="int", desc="状态")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -43,7 +53,18 @@ class DepartmentController extends BaseController
 
     /**
      * 创建部门
-     * POST /admin/hr/department
+     * @Apidoc\Title("创建部门")
+     * @Apidoc\Desc("新增部门记录")
+     * @Apidoc\Url("/admin/hr/department")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="code", type="string", desc="部门编码，必填")
+     * @Apidoc\Param(name="name", type="string", desc="部门名称，必填")
+     * @Apidoc\Param(name="parent_id", type="int", desc="上级部门ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -64,7 +85,16 @@ class DepartmentController extends BaseController
 
     /**
      * 部门详情
-     * GET /admin/hr/department/{id}
+     * @Apidoc\Title("部门详情")
+     * @Apidoc\Desc("查看部门详细信息")
+     * @Apidoc\Url("/admin/hr/department/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="部门ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -76,7 +106,16 @@ class DepartmentController extends BaseController
 
     /**
      * 更新部门
-     * PUT /admin/hr/department/{id}
+     * @Apidoc\Title("更新部门")
+     * @Apidoc\Desc("修改部门信息")
+     * @Apidoc\Url("/admin/hr/department/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="部门ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -92,8 +131,18 @@ class DepartmentController extends BaseController
     }
 
     /**
-     * 删除部门（软删除，需密码确认）
-     * DELETE /admin/hr/department/{id}
+     * 删除部门
+     * @Apidoc\Title("删除部门")
+     * @Apidoc\Desc("删除部门记录，需先删除子部门，需密码确认")
+     * @Apidoc\Url("/admin/hr/department/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="部门ID")
+     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $hashid): Response
     {
@@ -101,7 +150,6 @@ class DepartmentController extends BaseController
         $item = HrDepartment::find($id);
         if (!$item) return $this->fail('记录不存在', 404);
 
-        // 检查是否有子部门
         if (HrDepartment::where('parent_id', $id)->exists()) {
             return $this->fail('存在子部门，请先删除子部门', 422);
         }

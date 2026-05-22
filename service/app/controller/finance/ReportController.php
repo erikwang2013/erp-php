@@ -12,6 +12,20 @@ use support\Response;
 
 class ReportController extends BaseController
 {
+    /**
+     * 财务利润报表
+     * @Apidoc\Title("财务利润报表")
+     * @Apidoc\Desc("按年度和月份查询利润数据，含汇总统计")
+     * @Apidoc\Url("/admin/finance/report/profit")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="year", type="int", desc="年份，默认当前年")
+     * @Apidoc\Param(name="month", type="int", desc="月份，可选")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="利润数据，含list和summary")
+     */
     public function profit(Request $request): Response
     {
         $year = (int) $request->input('year', (int) date('Y'));

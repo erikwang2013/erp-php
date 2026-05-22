@@ -17,7 +17,17 @@ class CashFlowController extends BaseController
 {
     /**
      * 现金流量表
-     * GET /admin/finance/report/cash-flow
+     * @Apidoc\Title("现金流量表")
+     * @Apidoc\Desc("查询或从现金日记账生成现金流量表")
+     * @Apidoc\Url("/admin/finance/report/cash-flow")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="report_year", type="int", desc="报表年份")
+     * @Apidoc\Param(name="report_month", type="int", desc="报表月份")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="现金流量表数据")
      */
     public function index(Request $request): Response
     {
@@ -105,8 +115,18 @@ class CashFlowController extends BaseController
     }
 
     /**
-     * 保存为快照
-     * POST /admin/finance/report/cash-flow
+     * 保存现金流量表快照
+     * @Apidoc\Title("保存现金流量表快照")
+     * @Apidoc\Desc("将现金流量表数据保存为快照记录")
+     * @Apidoc\Url("/admin/finance/report/cash-flow")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="report_year", type="int", desc="报表年份")
+     * @Apidoc\Param(name="report_month", type="int", desc="报表月份")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="快照数据")
      */
     public function store(Request $request): Response
     {

@@ -15,13 +15,19 @@ use support\Response;
 
 class TaxController extends BaseController
 {
-    // ============================================================
     // 税率配置
-    // ============================================================
 
     /**
      * 税率列表
-     * GET /admin/finance/tax-rate
+     * @Apidoc\Title("税率列表")
+     * @Apidoc\Desc("查询全部税率配置")
+     * @Apidoc\Url("/admin/finance/tax-rate")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function rates(Request $request): Response
     {
@@ -32,7 +38,19 @@ class TaxController extends BaseController
 
     /**
      * 创建/更新税率
-     * POST /admin/finance/tax-rate
+     * @Apidoc\Title("创建或更新税率")
+     * @Apidoc\Desc("有id则更新，无id则创建税率记录")
+     * @Apidoc\Url("/admin/finance/tax-rate")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="name", type="string", desc="税率名称，必填")
+     * @Apidoc\Param(name="rate", type="float", desc="税率值，必填")
+     * @Apidoc\Param(name="type", type="string", desc="税率类型，必填")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID，传则更新")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function storeRate(Request $request): Response
     {
@@ -62,7 +80,16 @@ class TaxController extends BaseController
 
     /**
      * 删除税率
-     * DELETE /admin/finance/tax-rate/{id}
+     * @Apidoc\Title("删除税率")
+     * @Apidoc\Desc("删除税率配置记录")
+     * @Apidoc\Url("/admin/finance/tax-rate/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="id", type="string", desc="税率ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroyRate(Request $request, string $hashid): Response
     {
@@ -73,13 +100,24 @@ class TaxController extends BaseController
         return $this->success([], '删除成功');
     }
 
-    // ============================================================
     // 税务记录
-    // ============================================================
 
     /**
-     * 税务记录列表（分页）
-     * GET /admin/finance/tax-record
+     * 税务记录列表
+     * @Apidoc\Title("税务记录列表")
+     * @Apidoc\Desc("分页查询税务记录")
+     * @Apidoc\Url("/admin/finance/tax-rate")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="page", type="int", desc="页码")
+     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
+     * @Apidoc\Param(name="tax_rate_id", type="int", desc="税率ID")
+     * @Apidoc\Param(name="source_type", type="string", desc="来源类型")
+     * @Apidoc\Param(name="period_year", type="int", desc="会计年度")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function records(Request $request): Response
     {

@@ -16,6 +16,21 @@ class TimesheetController extends BaseController
 {
     /**
      * 工时记录列表（分页）
+     * @Apidoc\Title("工时记录列表")
+     * @Apidoc\Desc("分页查询工时记录")
+     * @Apidoc\Url("/admin/project/timesheet")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("项目管理")
+     * @Apidoc\Param(name="page", type="int", desc="页码")
+     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
+     * @Apidoc\Param(name="project_id", type="int", desc="项目ID")
+     * @Apidoc\Param(name="task_id", type="int", desc="任务ID")
+     * @Apidoc\Param(name="user_id", type="int", desc="用户ID")
+     * @Apidoc\Param(name="work_date", type="string", desc="工作日期")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -51,6 +66,19 @@ class TimesheetController extends BaseController
 
     /**
      * 记录工时
+     * @Apidoc\Title("记录工时")
+     * @Apidoc\Desc("新增工时记录，自动聚合更新任务实际工时")
+     * @Apidoc\Url("/admin/project/timesheet")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("项目管理")
+     * @Apidoc\Param(name="project_id", type="int", desc="项目ID，必填")
+     * @Apidoc\Param(name="user_id", type="int", desc="用户ID，必填")
+     * @Apidoc\Param(name="hours", type="float", desc="工时数，必填")
+     * @Apidoc\Param(name="work_date", type="string", desc="工作日期，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -69,7 +97,6 @@ class TimesheetController extends BaseController
         }
         $item->save();
 
-        // 聚合更新任务实际工时
         $this->updateTaskActualHours($item->task_id);
 
         return $this->success($this->encodeIds($item->toArray()), '工时记录成功');
@@ -77,6 +104,16 @@ class TimesheetController extends BaseController
 
     /**
      * 工时详情
+     * @Apidoc\Title("工时详情")
+     * @Apidoc\Desc("查看工时记录详细信息")
+     * @Apidoc\Url("/admin/project/timesheet/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("项目管理")
+     * @Apidoc\Param(name="id", type="string", desc="工时ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -88,6 +125,16 @@ class TimesheetController extends BaseController
 
     /**
      * 更新工时
+     * @Apidoc\Title("更新工时")
+     * @Apidoc\Desc("修改工时记录，自动更新任务实际工时")
+     * @Apidoc\Url("/admin/project/timesheet/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("项目管理")
+     * @Apidoc\Param(name="id", type="string", desc="工时ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -107,6 +154,17 @@ class TimesheetController extends BaseController
 
     /**
      * 删除工时
+     * @Apidoc\Title("删除工时")
+     * @Apidoc\Desc("删除工时记录，自动更新任务实际工时，需密码确认")
+     * @Apidoc\Url("/admin/project/timesheet/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("项目管理")
+     * @Apidoc\Param(name="id", type="string", desc="工时ID")
+     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $hashid): Response
     {

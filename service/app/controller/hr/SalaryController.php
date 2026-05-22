@@ -19,13 +19,25 @@ use support\Response;
  */
 class SalaryController extends BaseController
 {
-    // ============================================================
     // 薪资管理
-    // ============================================================
 
     /**
      * 薪资列表（分页）
-     * GET /admin/hr/salary
+     * @Apidoc\Title("薪资列表")
+     * @Apidoc\Desc("分页查询薪资记录")
+     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="page", type="int", desc="页码")
+     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
+     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID")
+     * @Apidoc\Param(name="period_year", type="int", desc="薪资年度")
+     * @Apidoc\Param(name="period_month", type="int", desc="薪资月份")
+     * @Apidoc\Param(name="status", type="int", desc="状态:0未发放1已发放")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -67,7 +79,23 @@ class SalaryController extends BaseController
 
     /**
      * 创建薪资记录
-     * POST /admin/hr/salary
+     * @Apidoc\Title("创建薪资记录")
+     * @Apidoc\Desc("新增薪资记录，自动计算实发金额")
+     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID，必填")
+     * @Apidoc\Param(name="period_year", type="int", desc="薪资年度，必填")
+     * @Apidoc\Param(name="period_month", type="int", desc="薪资月份，必填")
+     * @Apidoc\Param(name="base_salary", type="float", desc="基本工资")
+     * @Apidoc\Param(name="performance", type="float", desc="绩效工资")
+     * @Apidoc\Param(name="overtime", type="float", desc="加班费")
+     * @Apidoc\Param(name="deduction", type="float", desc="扣款")
+     * @Apidoc\Param(name="tax", type="float", desc="个税")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -78,7 +106,6 @@ class SalaryController extends BaseController
         ]);
         if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
 
-        // 检查是否已存在
         $exists = HrSalary::where('employee_id', (int) $request->input('employee_id'))
             ->where('period_year', (int) $request->input('period_year'))
             ->where('period_month', (int) $request->input('period_month'))
@@ -91,7 +118,6 @@ class SalaryController extends BaseController
             if ($k !== 'id') $item->$k = $v;
         }
 
-        // 自动计算实发: base + performance + overtime - deduction - tax
         $item->net_salary = ($item->base_salary ?? 0)
             + ($item->performance ?? 0)
             + ($item->overtime ?? 0)
@@ -104,7 +130,16 @@ class SalaryController extends BaseController
 
     /**
      * 薪资详情
-     * GET /admin/hr/salary/{id}
+     * @Apidoc\Title("薪资详情")
+     * @Apidoc\Desc("查看薪资记录详细信息")
+     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -121,7 +156,16 @@ class SalaryController extends BaseController
 
     /**
      * 更新薪资
-     * PUT /admin/hr/salary/{id}
+     * @Apidoc\Title("更新薪资")
+     * @Apidoc\Desc("修改薪资记录，自动重新计算实发，已发放不可修改")
+     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -134,7 +178,6 @@ class SalaryController extends BaseController
             if ($k !== 'id') $item->$k = $v;
         }
 
-        // 重新计算实发
         $item->net_salary = ($item->base_salary ?? 0)
             + ($item->performance ?? 0)
             + ($item->overtime ?? 0)
@@ -147,7 +190,17 @@ class SalaryController extends BaseController
 
     /**
      * 删除薪资记录
-     * DELETE /admin/hr/salary/{id}
+     * @Apidoc\Title("删除薪资记录")
+     * @Apidoc\Desc("删除薪资记录，已发放不可删除，需密码确认")
+     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
+     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $hashid): Response
     {
@@ -166,7 +219,16 @@ class SalaryController extends BaseController
 
     /**
      * 薪资发放确认
-     * POST /admin/hr/salary/{id}/pay
+     * @Apidoc\Title("薪资发放")
+     * @Apidoc\Desc("确认薪资已发放，将状态更新为已发放")
+     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function pay(Request $request, string $hashid): Response
     {
@@ -182,7 +244,18 @@ class SalaryController extends BaseController
 
     /**
      * 批量生成薪资
-     * POST /admin/hr/salary（带 batch=1 参数）
+     * @Apidoc\Title("批量生成薪资")
+     * @Apidoc\Desc("按部门和期间为所有在职员工批量生成初始薪资记录")
+     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="period_year", type="int", desc="薪资年度")
+     * @Apidoc\Param(name="period_month", type="int", desc="薪资月份")
+     * @Apidoc\Param(name="department_id", type="int", desc="部门ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function batchGenerate(Request $request): Response
     {
@@ -218,13 +291,19 @@ class SalaryController extends BaseController
         return $this->success(['created' => $created], "批量生成完成，共 {$created} 条");
     }
 
-    // ============================================================
     // 薪资项管理
-    // ============================================================
 
     /**
      * 薪资项列表
-     * GET /admin/hr/salary-item（通过请求路径判断）
+     * @Apidoc\Title("薪资项列表")
+     * @Apidoc\Desc("查询全部薪资项配置")
+     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function itemIndex(Request $request): Response
     {
@@ -234,7 +313,17 @@ class SalaryController extends BaseController
 
     /**
      * 创建薪资项
-     * POST /admin/hr/salary-item
+     * @Apidoc\Title("创建薪资项")
+     * @Apidoc\Desc("新增薪资项配置")
+     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="code", type="string", desc="薪资项编码，必填")
+     * @Apidoc\Param(name="name", type="string", desc="薪资项名称，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function itemStore(Request $request): Response
     {
@@ -255,7 +344,16 @@ class SalaryController extends BaseController
 
     /**
      * 薪资项详情
-     * GET /admin/hr/salary-item/{id}
+     * @Apidoc\Title("薪资项详情")
+     * @Apidoc\Desc("查看薪资项详细信息")
+     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="薪资项ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function itemShow(Request $request, string $hashid): Response
     {
@@ -267,7 +365,16 @@ class SalaryController extends BaseController
 
     /**
      * 更新薪资项
-     * PUT /admin/hr/salary-item/{id}
+     * @Apidoc\Title("更新薪资项")
+     * @Apidoc\Desc("修改薪资项配置")
+     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="薪资项ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function itemUpdate(Request $request, string $hashid): Response
     {
@@ -284,7 +391,17 @@ class SalaryController extends BaseController
 
     /**
      * 删除薪资项
-     * DELETE /admin/hr/salary-item/{id}
+     * @Apidoc\Title("删除薪资项")
+     * @Apidoc\Desc("删除薪资项配置，需密码确认")
+     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="薪资项ID")
+     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function itemDestroy(Request $request, string $hashid): Response
     {
