@@ -13,6 +13,7 @@ use support\Response;
 
 /**
  * 报表调度管理
+  * @Apidoc\Tag("自定义报表")
  */
 class ReportScheduleController extends BaseController
 {

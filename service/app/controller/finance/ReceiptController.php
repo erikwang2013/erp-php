@@ -11,10 +11,32 @@ use app\model\FinanceReceipt;
 use support\Request;
 use support\Response;
 
+/**
+ * 收款管理
+ * @Apidoc\Tag("财务管理")
+ */
 class ReceiptController extends BaseController
 {
     /**
-     * 列表（分页）
+     * 收款列表（分页）
+     * @Apidoc\Title("收款列表")
+     * @Apidoc\Desc("获取收款记录分页列表，支持关键字搜索和状态筛选")
+     * @Apidoc\Url("/admin/finance/receipt")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词(收款单号)")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("list", type="array", desc="收款列表"),
+     *     @Apidoc\Returned("total", type="int", desc="总条数"),
+     *     @Apidoc\Returned("page", type="int", desc="当前页码"),
+     *     @Apidoc\Returned("limit", type="int", desc="每页条数"),
+     * })
      */
     public function index(Request $request): Response
     {
@@ -39,6 +61,25 @@ class ReceiptController extends BaseController
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
 
+    /**
+     * 创建收款记录
+     * @Apidoc\Title("创建收款记录")
+     * @Apidoc\Desc("创建一条新的收款记录，状态默认为待确认")
+     * @Apidoc\Url("/admin/finance/receipt")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="code", type="string", require=true, desc="收款单号")
+     * @Apidoc\Param(name="customer_id", type="string", require=true, desc="客户ID(hashid)")
+     * @Apidoc\Param(name="amount", type="float", require=true, desc="收款金额")
+     * @Apidoc\Param(name="bank_account_id", type="string", default="", desc="银行账户ID(hashid)")
+     * @Apidoc\Param(name="method", type="string", default="bank", desc="收款方式(bank/cash/other)")
+     * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
+     * @Apidoc\Param(name="received_at", type="string", default="", desc="收款日期(格式:Y-m-d H:i:s)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="收款记录")
+     */
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['code' => 'required|string|max:50', 'customer_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
@@ -58,6 +99,19 @@ class ReceiptController extends BaseController
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
+    /**
+     * 收款详情
+     * @Apidoc\Title("收款详情")
+     * @Apidoc\Desc("获取指定收款记录的详细信息")
+     * @Apidoc\Url("/admin/finance/receipt/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="收款记录ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="收款详情")
+     */
     public function show(Request $request, string $hashid): Response
     {
         $id = $this->decodeId($hashid);
@@ -66,6 +120,27 @@ class ReceiptController extends BaseController
         return $this->success($this->encodeIds($item->toArray()));
     }
 
+    /**
+     * 更新收款记录
+     * @Apidoc\Title("更新收款记录")
+     * @Apidoc\Desc("更新指定收款记录的信息")
+     * @Apidoc\Url("/admin/finance/receipt/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="收款记录ID(hashid)")
+     * @Apidoc\Param(name="code", type="string", default="", desc="收款单号")
+     * @Apidoc\Param(name="customer_id", type="string", default="", desc="客户ID(hashid)")
+     * @Apidoc\Param(name="amount", type="float", default="", desc="收款金额")
+     * @Apidoc\Param(name="bank_account_id", type="string", default="", desc="银行账户ID(hashid)")
+     * @Apidoc\Param(name="method", type="string", default="", desc="收款方式")
+     * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态")
+     * @Apidoc\Param(name="received_at", type="string", default="", desc="收款日期")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="更新后的收款记录")
+     */
     public function update(Request $request, string $hashid): Response
     {
         $id = $this->decodeId($hashid);
@@ -84,6 +159,20 @@ class ReceiptController extends BaseController
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
+    /**
+     * 删除收款记录
+     * @Apidoc\Title("删除收款记录")
+     * @Apidoc\Desc("软删除指定收款记录，需要密码二次确认")
+     * @Apidoc\Url("/admin/finance/receipt/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="收款记录ID(hashid)")
+     * @Apidoc\Param(name="password", type="string", require=true, desc="当前管理员密码(二次确认)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="array", desc="空数组")
+     */
     public function destroy(Request $request, string $hashid): Response
     {
         $id = $this->decodeId($hashid);

@@ -13,6 +13,7 @@ use support\Response;
 
 /**
  * 职位管理
+  * @Apidoc\Tag("人力资源")
  */
 class PositionController extends BaseController
 {

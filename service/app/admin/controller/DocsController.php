@@ -13,6 +13,7 @@ use support\Response;
 /**
  * OpenAPI 3.0 文档端点
  * GET /api/docs — 返回 JSON 格式 API 规范
+  * @Apidoc\Tag("系统")
  */
 class DocsController
 {

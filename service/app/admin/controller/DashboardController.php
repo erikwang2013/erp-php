@@ -24,11 +24,28 @@ use support\Redis;
 use support\Request;
 use support\Response;
 
+/**
+ * 仪表盘
+ * @Apidoc\Tag("仪表盘")
+ */
 class DashboardController extends BaseController
 {
     /**
-     * 仪表盘数据
-     * GET /admin/dashboard
+     * 仪表盘总览数据
+     * @Apidoc\Title("仪表盘总览")
+     * @Apidoc\Desc("获取经营总览数据，包含用户统计、趋势、分布和最近操作日志。数据缓存5分钟。")
+     * @Apidoc\Url("/admin/dashboard")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仪表盘")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("stats", type="array", desc="统计卡片数据"),
+     *     @Apidoc\Returned("trends", type="object", desc="30日趋势数据"),
+     *     @Apidoc\Returned("distribution", type="object", desc="分布数据"),
+     *     @Apidoc\Returned("recent_logs", type="array", desc="最近操作日志"),
+     * })
      */
     public function index(Request $request): Response
     {
@@ -171,6 +188,23 @@ class DashboardController extends BaseController
         return round(($today - $yesterday) / $yesterday * 100, 1);
     }
 
+    /**
+     * 销售看板
+     * @Apidoc\Title("销售看板")
+     * @Apidoc\Desc("获取销售看板数据，包含今日/本月销售额、客户排行、商机漏斗。数据缓存5分钟。")
+     * @Apidoc\Url("/admin/dashboard/sales")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仪表盘")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("today_sales", type="float", desc="今日销售额"),
+     *     @Apidoc\Returned("month_sales", type="float", desc="本月销售额"),
+     *     @Apidoc\Returned("top_customers", type="array", desc="客户排行"),
+     *     @Apidoc\Returned("funnel", type="array", desc="商机漏斗"),
+     * })
+     */
     public function sales(Request $request): Response
     {
         $cacheKey = 'dashboard:sales:' . date('Y-m-d');
@@ -209,6 +243,23 @@ class DashboardController extends BaseController
         return $this->success($data);
     }
 
+    /**
+     * 库存看板
+     * @Apidoc\Title("库存看板")
+     * @Apidoc\Desc("获取库存看板数据，包含库存总值、预警统计和出入库趋势。数据缓存5分钟。")
+     * @Apidoc\Url("/admin/dashboard/inventory")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仪表盘")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("total_value", type="float", desc="库存总值"),
+     *     @Apidoc\Returned("alert_low", type="int", desc="低库存预警数"),
+     *     @Apidoc\Returned("alert_high", type="int", desc="高库存预警数"),
+     *     @Apidoc\Returned("flow_trend", type="array", desc="出入库趋势"),
+     * })
+     */
     public function inventory(Request $request): Response
     {
         $cacheKey = 'dashboard:inventory:' . date('Y-m-d');
@@ -226,6 +277,24 @@ class DashboardController extends BaseController
         return $this->success($data);
     }
 
+    /**
+     * 财务看板
+     * @Apidoc\Title("财务看板")
+     * @Apidoc\Desc("获取财务看板数据，包含应收应付、本月收付款和现金余额。数据缓存5分钟。")
+     * @Apidoc\Url("/admin/dashboard/finance")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仪表盘")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("total_ar", type="float", desc="应收账款总额"),
+     *     @Apidoc\Returned("total_ap", type="float", desc="应付账款总额"),
+     *     @Apidoc\Returned("month_receipt", type="float", desc="本月收款"),
+     *     @Apidoc\Returned("month_payment", type="float", desc="本月付款"),
+     *     @Apidoc\Returned("cash_balance", type="float", desc="现金余额"),
+     * })
+     */
     public function finance(Request $request): Response
     {
         $cacheKey = 'dashboard:finance:' . date('Y-m-d');

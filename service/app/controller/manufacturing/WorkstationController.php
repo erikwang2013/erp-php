@@ -13,6 +13,7 @@ use support\Response;
 
 /**
  * 工作站管理
+  * @Apidoc\Tag("生产制造")
  */
 class WorkstationController extends BaseController
 {

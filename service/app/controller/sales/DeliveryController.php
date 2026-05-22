@@ -17,11 +17,34 @@ use support\Request;
 use support\Response;
 use Illuminate\Database\Capsule\Manager as DB;
 
+/**
+ * 销售发货管理
+ * @Apidoc\Tag("销售管理")
+ */
 class DeliveryController extends BaseController
 {
     /**
      * 发货单列表（分页）
-     * GET /sales/delivery
+     * @Apidoc\Title("发货单列表")
+     * @Apidoc\Desc("获取销售发货单分页列表，支持关键字/状态/订单/客户筛选")
+     * @Apidoc\Url("/admin/sales/delivery")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词(发货单号)")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选:0待发货1已发货")
+     * @Apidoc\Param(name="order_id", type="string", default="", desc="销售订单ID(hashid)")
+     * @Apidoc\Param(name="customer_id", type="string", default="", desc="客户ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("list", type="array", desc="发货单列表"),
+     *     @Apidoc\Returned("total", type="int", desc="总条数"),
+     *     @Apidoc\Returned("page", type="int", desc="当前页码"),
+     *     @Apidoc\Returned("limit", type="int", desc="每页条数"),
+     * })
      */
     public function index(Request $request): Response
     {
@@ -62,8 +85,22 @@ class DeliveryController extends BaseController
     }
 
     /**
-     * 创建发货单并执行出库 + 生成应收 + 更新订单状态
-     * POST /sales/delivery
+     * 创建发货单并执行出库
+     * @Apidoc\Title("创建发货单")
+     * @Apidoc\Desc("创建发货单并自动执行出库操作，同时生成应收记录并更新销售订单状态")
+     * @Apidoc\Url("/admin/sales/delivery")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="code", type="string", require=true, desc="发货单号")
+     * @Apidoc\Param(name="order_id", type="string", require=true, desc="销售订单ID(hashid)")
+     * @Apidoc\Param(name="customer_id", type="string", require=true, desc="客户ID(hashid)")
+     * @Apidoc\Param(name="warehouse_id", type="string", require=true, desc="仓库ID(hashid)")
+     * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
+     * @Apidoc\Param(name="items", type="array", require=true, desc="发货明细(含product_id/quantity/price等)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="发货单信息")
      */
     public function store(Request $request): Response
     {
@@ -205,7 +242,16 @@ class DeliveryController extends BaseController
 
     /**
      * 发货单详情
-     * GET /sales/delivery/{id}
+     * @Apidoc\Title("发货单详情")
+     * @Apidoc\Desc("获取指定发货单的详细信息，包含明细、订单、客户和仓库")
+     * @Apidoc\Url("/admin/sales/delivery/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="发货单ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="发货单详情(含关联数据)")
      */
     public function show(Request $request, string $hashid): Response
     {
@@ -216,8 +262,18 @@ class DeliveryController extends BaseController
     }
 
     /**
-     * 更新发货单（仅修改备注等字段，不修改核心数据）
-     * PUT /sales/delivery/{id}
+     * 更新发货单
+     * @Apidoc\Title("更新发货单")
+     * @Apidoc\Desc("更新发货单备注等信息，不修改核心数据")
+     * @Apidoc\Url("/admin/sales/delivery/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="发货单ID(hashid)")
+     * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="更新后的发货单信息")
      */
     public function update(Request $request, string $hashid): Response
     {
@@ -233,8 +289,18 @@ class DeliveryController extends BaseController
     }
 
     /**
-     * 删除发货单（软删除，需密码确认）
-     * DELETE /sales/delivery/{id}
+     * 删除发货单
+     * @Apidoc\Title("删除发货单")
+     * @Apidoc\Desc("软删除指定发货单，需要密码二次确认")
+     * @Apidoc\Url("/admin/sales/delivery/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("销售管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="发货单ID(hashid)")
+     * @Apidoc\Param(name="password", type="string", require=true, desc="当前管理员密码(二次确认)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="array", desc="空数组")
      */
     public function destroy(Request $request, string $hashid): Response
     {

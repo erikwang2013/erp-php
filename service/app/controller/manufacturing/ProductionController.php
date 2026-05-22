@@ -14,6 +14,7 @@ use support\Response;
 
 /**
  * 生产工单管理 — CRUD + 状态流转
+  * @Apidoc\Tag("生产制造")
  */
 class ProductionController extends BaseController
 {

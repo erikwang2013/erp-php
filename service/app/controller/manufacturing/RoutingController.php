@@ -13,6 +13,7 @@ use support\Response;
 
 /**
  * 工艺路线管理
+  * @Apidoc\Tag("生产制造")
  */
 class RoutingController extends BaseController
 {

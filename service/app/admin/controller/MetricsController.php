@@ -17,6 +17,7 @@ use Throwable;
 /**
  * Prometheus 指标端点
  * GET /metrics
+  * @Apidoc\Tag("系统")
  */
 class MetricsController
 {

@@ -17,6 +17,7 @@ use support\Response;
 
 /**
  * MRP计划管理 — 计划生成 + 列表
+  * @Apidoc\Tag("生产制造")
  */
 class MrpController extends BaseController
 {

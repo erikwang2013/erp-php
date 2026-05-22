@@ -13,6 +13,7 @@ use support\Response;
 
 /**
  * 部门管理 — 树形CRUD
+  * @Apidoc\Tag("人力资源")
  */
 class DepartmentController extends BaseController
 {

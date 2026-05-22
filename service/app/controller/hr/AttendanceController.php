@@ -16,6 +16,7 @@ use support\Response;
 
 /**
  * 考勤与请假管理
+  * @Apidoc\Tag("人力资源")
  */
 class AttendanceController extends BaseController
 {

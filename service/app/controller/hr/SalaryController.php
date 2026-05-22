@@ -15,6 +15,7 @@ use support\Response;
 
 /**
  * 薪资与薪资项管理
+  * @Apidoc\Tag("人力资源")
  */
 class SalaryController extends BaseController
 {
