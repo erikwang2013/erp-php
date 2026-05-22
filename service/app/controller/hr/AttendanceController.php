@@ -257,9 +257,11 @@ class AttendanceController extends BaseController
         if (!$item) return $this->fail('记录不存在', 404);
         if ($item->status !== 0) return $this->fail('只能修改待审批的请假申请', 422);
 
+        $originalStatus = $item->status;
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id') $item->$k = $v;
         }
+        $item->status = $originalStatus; // Status can only change via approveLeave()
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }

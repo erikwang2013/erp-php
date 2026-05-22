@@ -267,28 +267,25 @@ class ReportController extends BaseController
         $select = [];
         $groupBy = $queryConfig['group_by'] ?? null;
 
+        // Whitelist allowed table names (prevent SQL injection via config)
+        $allowedTables = [];
+        foreach (glob(base_path('database/migrations/*.sql')) as $f) {
+            preg_match_all('/`(erik_\w+)`/', file_get_contents($f), $m);
+            $allowedTables = array_merge($allowedTables, $m[1]);
+        }
+        $allowedTables = array_unique($allowedTables);
+
+        if (!in_array($table, $allowedTables, true)) {
+            return $this->fail('不允许的表名: ' . $table, 422);
+        }
+
         if ($template->fields->isNotEmpty()) {
             foreach ($template->fields as $field) {
-                $f = $field->field;
-                switch ($field->aggregator) {
-                    case 'sum':
-                        $select[] = "SUM({$f}) AS {$field->name}";
-                        break;
-                    case 'avg':
-                        $select[] = "AVG({$f}) AS {$field->name}";
-                        break;
-                    case 'count':
-                        $select[] = "COUNT({$f}) AS {$field->name}";
-                        break;
-                    case 'max':
-                        $select[] = "MAX({$f}) AS {$field->name}";
-                        break;
-                    case 'min':
-                        $select[] = "MIN({$f}) AS {$field->name}";
-                        break;
-                    default:
-                        $select[] = "{$f} AS {$field->name}";
+                $fieldExpr = '`' . str_replace('`', '``', $field->field) . '`';
+                if ($field->aggregator && $field->aggregator !== 'none') {
+                    $fieldExpr = strtoupper($field->aggregator) . '(' . $fieldExpr . ')';
                 }
+                $select[] = $fieldExpr . ' AS `' . str_replace('`', '``', ($field->name ?? 'value')) . '`';
             }
         } else {
             $select[] = '*';
@@ -302,6 +299,9 @@ class ReportController extends BaseController
                 $joinType = $join['type'] ?? 'LEFT';
                 $joinTable = $join['table'];
                 $joinOn = $join['on'];
+                if (!in_array($joinTable, $allowedTables, true)) {
+                    return $this->fail('不允许的表名: ' . $joinTable, 422);
+                }
                 $sql .= " {$joinType} JOIN {$joinTable} ON {$joinOn}";
             }
         }
@@ -374,7 +374,7 @@ class ReportController extends BaseController
         }
 
         // ORDER BY
-        $sql .= ' ORDER BY ' . ($select[0] ?? 'id') . ' DESC';
+        $sql .= ' ORDER BY 1 DESC';
 
         // 限制行数（安全）
         $sql .= ' LIMIT 1000';

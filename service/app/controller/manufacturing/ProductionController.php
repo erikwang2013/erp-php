@@ -103,9 +103,13 @@ class ProductionController extends BaseController
         if (!$item) return $this->fail('记录不存在', 404);
         if ($item->status !== 0) return $this->fail('只能修改待生产状态的工单', 422);
 
+        $originalStatus = $item->status;
+        $originalCompletedQty = $item->completed_quantity;
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id') $item->$k = $v;
         }
+        $item->status = $originalStatus; // Status can only change via start()/complete()
+        $item->completed_quantity = $originalCompletedQty;
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }

@@ -101,9 +101,11 @@ class MrpController extends BaseController
         if (!$item) return $this->fail('记录不存在', 404);
         if ($item->status === 2) return $this->fail('已确认的计划不可修改', 422);
 
+        $originalStatus = $item->status;
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id') $item->$k = $v;
         }
+        $item->status = $originalStatus; // Status can only change via generate()
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }

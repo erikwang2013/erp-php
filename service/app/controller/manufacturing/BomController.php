@@ -102,9 +102,11 @@ class BomController extends BaseController
         if (!$item) return $this->fail('记录不存在', 404);
         if ($item->status === 1) return $this->fail('已生效的BOM不可直接修改，请创建新版本', 422);
 
+        $originalStatus = $item->status;
         foreach ($request->all() as $k => $v) {
             if ($k !== 'id') $item->$k = $v;
         }
+        $item->status = $originalStatus; // Status can only change via activate()
         $item->save();
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
