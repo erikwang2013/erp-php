@@ -1678,3 +1678,136 @@ docker-compose up -d
 ### Nginx 安全配置
 
 生产环境部署请参考 `docs/nginx-security.conf` 进行反向代理安全加固配置。
+
+## 16. 业务 API 端点 (ERP)
+
+所有业务端点在 `/admin` 分组下，经过 `AdminAuth`（JWT 认证）、`AdminPermission`（RBAC 权限校验）、`OperationLog`（操作记录）三个中间件。
+
+> 端点总数: 商品(17) | 采购(8) | 销售(6) | 库存(8) | 财务(14) | CRM(8) | 仪表盘(3) | 客户端(2) | 共 66 端点
+
+跨模块联动端点以 🔗 标记。
+
+### 16.1 商品管理 (Product Management)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/product | 商品列表（分页+搜索+分类/状态筛选） |
+| POST | /admin/product | 创建商品（含SKU和价格） |
+| GET | /admin/product/{id} | 商品详情（含分类/品牌/SKU/价格/单位） |
+| PUT | /admin/product/{id} | 更新商品 |
+| DELETE | /admin/product/{id} | 删除商品（软删除，需密码确认） |
+| GET | /admin/category | 分类列表（树形） |
+| POST | /admin/category | 创建分类 |
+| PUT | /admin/category/{id} | 更新分类 |
+| DELETE | /admin/category/{id} | 删除分类 |
+| GET | /admin/brand | 品牌列表 |
+| POST | /admin/brand | 创建品牌 |
+| GET | /admin/warehouse | 仓库列表 |
+| POST | /admin/warehouse | 创建仓库 |
+| GET | /admin/location | 库位列表 |
+| GET | /admin/warehouse/{id}/locations | 仓库下库位列表 |
+| GET | /admin/supplier | 供应商列表（ES搜索） |
+| POST | /admin/supplier | 创建供应商 |
+| GET | /admin/customer | 客户列表（ES搜索） |
+| POST | /admin/customer | 创建客户 |
+
+### 16.2 采购管理 (Purchase)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/purchase/apply | 采购申请列表 |
+| POST | /admin/purchase/apply | 创建采购申请 |
+| GET | /admin/purchase/order | 采购订单列表 |
+| POST | /admin/purchase/order | 创建采购订单 |
+| 🔗 POST | /admin/purchase/receive | 创建收货单（自动入库+生成应付） |
+| GET | /admin/purchase/receive | 收货单列表 |
+| GET | /admin/purchase/receive/{id} | 收货单详情 |
+| POST | /admin/purchase/return | 创建退货单 |
+| GET | /admin/purchase/settlement | 供应商结算列表 |
+
+### 16.3 销售管理 (Sales)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/sales/quotation | 报价单列表 |
+| POST | /admin/sales/quotation | 创建报价单 |
+| GET | /admin/sales/order | 销售订单列表 |
+| POST | /admin/sales/order | 创建销售订单 |
+| 🔗 POST | /admin/sales/delivery | 创建发货单（自动出库+生成应收） |
+| GET | /admin/sales/delivery | 发货单列表 |
+| GET | /admin/sales/settlement | 客户结算列表 |
+
+### 16.4 库存管理 (Inventory)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/inventory | 实时库存（仓库/库位/批次/SKU维度） |
+| GET | /admin/inventory/flow | 出入库流水 |
+| GET | /admin/inventory/transfer | 调拨单列表 |
+| POST | /admin/inventory/transfer | 创建调拨单 |
+| POST | /admin/inventory/transfer/{id}/execute | 执行调拨 |
+| GET | /admin/inventory/check | 盘点任务列表 |
+| POST | /admin/inventory/check | 创建盘点任务 |
+| 🔗 POST | /admin/inventory/check/{id}/process | 处理盘点差异（自动生成盘盈/盘亏流水） |
+| GET | /admin/inventory/alert | 库存预警规则 |
+
+### 16.5 财务管理 (Finance)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/finance/account | 会计科目列表（树形） |
+| POST | /admin/finance/voucher | 创建记账凭证 |
+| GET | /admin/finance/ar-ap | 应收应付列表 |
+| POST | /admin/finance/receipt | 创建收款单 |
+| 🔗 POST | /admin/finance/receipt/{id}/settle | 收款核销应收（更新日记账） |
+| POST | /admin/finance/payment | 创建付款单 |
+| 🔗 POST | /admin/finance/payment/{id}/settle | 付款核销应付（更新日记账） |
+| GET | /admin/finance/cash-journal | 现金银行日记账 |
+| GET | /admin/finance/expense | 费用报销列表 |
+| POST | /admin/finance/expense | 提交报销申请 |
+| POST | /admin/finance/expense/{id}/approve | 审批报销 |
+| POST | /admin/finance/expense/{id}/pay | 报销打款 |
+| GET | /admin/finance/report/profit | 利润表 |
+| GET | /admin/finance/bank-account | 银行账户列表 |
+
+### 16.6 CRM
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/crm/opportunity | 商机列表 |
+| POST | /admin/crm/opportunity | 创建商机 |
+| POST | /admin/crm/opportunity/{id}/move-stage | 移动商机阶段 |
+| GET | /admin/crm/follow | 跟进记录列表 |
+| POST | /admin/crm/follow | 创建跟进记录 |
+| GET | /admin/crm/funnel | 漏斗阶段配置 |
+| GET | /admin/crm/contact | 联系人列表 |
+| POST | /admin/crm/contact | 创建联系人 |
+
+### 16.7 仪表盘 (Dashboard)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/dashboard/sales | 销售面板 |
+| GET | /admin/dashboard/inventory | 库存面板 |
+| GET | /admin/dashboard/finance | 财务面板 |
+
+### 16.8 客户端 API (Client API)
+
+客户端接口挂载在 `/api` 分组下，需要 `API-Version` 请求头。商品信息不包含进价。
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/product | 商品列表（不含进价） |
+| GET | /api/product/{hashid} | 商品详情（含零售/批发价，不含进价） |
+
+### 16.9 跨模块联动说明
+
+以下端点触发跨模块自动联动，以 🔗 标记：
+
+| 端点 | 联动动作 |
+|------|---------|
+| 🔗 POST /admin/purchase/receive | 自动调用 InventoryService.stockIn() 更新库存+重算移动加权平均成本；调用 FinanceService.createAp() 生成应付记录 |
+| 🔗 POST /admin/sales/delivery | 自动调用 InventoryService.stockOut() 扣减库存（按移动加权平均成本）；调用 FinanceService.createAr() 生成应收记录 |
+| 🔗 POST /admin/finance/receipt/{id}/settle | 核销应收记录；自动更新现金银行日记账和银行账户余额 |
+| 🔗 POST /admin/finance/payment/{id}/settle | 核销应付记录；自动更新现金银行日记账和银行账户余额 |
+| 🔗 POST /admin/inventory/check/{id}/process | 根据盘点差异自动生成盘盈/盘亏出入库流水 |
