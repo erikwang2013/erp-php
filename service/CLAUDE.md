@@ -35,7 +35,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 人力资源 | 部门/员工/职位/考勤/请假/薪资 |
 | 生产制造 | BOM/生产订单/工艺路线/工作站/MRP |
 | 自定义报表 | 报表模板/数据集/字段/筛选器/执行/定时调度 |
-| 国际化 | Accept-Language 自动检测 | 中文/English 双语，翻译文件 121 键 |
+| 国际化 | Accept-Language 自动检测 | 中文/English 双语，翻译文件 127 键 |
 
 ## 技术栈
 
@@ -102,7 +102,7 @@ open-erp/
 │   │   ├── HashidsService.php   # ID 编解码
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
 │   │   └── EncryptionService.php# 数据加解密 + 脱敏
-│   ├── middleware/              # 中间件（8 个）
+│   ├── middleware/              # 中间件（9 个）
 │   │   ├── Locale.php           # Accept-Language 语言自动检测
 │   │   ├── Cors.php             # 跨域
 │   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
@@ -110,7 +110,8 @@ open-erp/
 │   │   ├── ApiVersion.php       # API 版本校验
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
-│   │   └── OperationLog.php     # 操作日志自动记录
+│   │   ├── OperationLog.php     # 操作日志自动记录
+│   │   └── StaticFile.php       # 静态文件服务（webman 内建）
 │   ├── model/                   # 数据模型（121 个）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, Monitor)
@@ -126,7 +127,7 @@ open-erp/
 │   ├── route.php               # 路由 + API 版本策略
 │   ├── middleware.php           # 全局中间件注册
 │   └── translation.php          # 语言配置
-│   ├── plugin/hg/apidoc/        # API 文档配置（管理端18模块+客户端3模块）
+│   ├── plugin/hg/apidoc/        # API 文档配置（管理端25模块+客户端3模块）
 ├── resource/
 │   └── translations/           # 翻译文件
 │       ├── zh_CN/              # 中文翻译 (common/modules/validation)

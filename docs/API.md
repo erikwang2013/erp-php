@@ -11,7 +11,7 @@
 **文档分组：**
 | 分组 | 说明 | 模块数 |
 |------|------|--------|
-| 管理端接口 (Admin) | 后端管理系统全部接口 | 18 个模块 |
+| 管理端接口 (Admin) | 后端管理系统全部接口 | 25 个模块 |
 | 客户端接口 (Service API) | 移动端/Web端调用的轻量接口 | 3 个模块 |
 
 **全局请求头：**
@@ -1723,7 +1723,7 @@ docker-compose up -d
 
 所有业务端点在 `/admin` 分组下，经过 `AdminAuth`（JWT 认证）、`AdminPermission`（RBAC 权限校验）、`OperationLog`（操作记录）三个中间件。
 
-> 端点总数: 商品(17) | 采购(8) | 销售(6) | 库存(8) | 财务(22) | CRM(14) | 工作流(6) | 通知(4) | 项目(3) | HR(9) | 制造(7) | 报表(4) | 仪表盘(3) | 客户端(2) | 共 113 端点
+> 端点总数: 商品(17) | 采购(8) | 销售(6) | 库存(6) | 财务(17) | CRM(13) | 工作流(6) | 通知(4) | 项目(3) | HR(9) | 制造(7) | 报表(4) | 仪表盘(3) | 客户端(2) | 共 105 端点
 
 跨模块联动端点以 🔗 标记。
 
@@ -1785,28 +1785,21 @@ docker-compose up -d
 | GET | /admin/inventory/flow | 出入库流水 |
 | GET | /admin/inventory/transfer | 调拨单列表 |
 | POST | /admin/inventory/transfer | 创建调拨单 |
-| POST | /admin/inventory/transfer/{id}/execute | 执行调拨 |
 | GET | /admin/inventory/check | 盘点任务列表 |
 | POST | /admin/inventory/check | 创建盘点任务 |
-| 🔗 POST | /admin/inventory/check/{id}/process | 处理盘点差异（自动生成盘盈/盘亏流水） |
 | GET | /admin/inventory/alert | 库存预警规则 |
 
 ### 16.5 财务管理 (Finance)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/finance/account | 会计科目列表（树形） |
 | POST | /admin/finance/voucher | 创建记账凭证 |
 | GET | /admin/finance/ar-ap | 应收应付列表 |
 | POST | /admin/finance/receipt | 创建收款单 |
-| 🔗 POST | /admin/finance/receipt/{id}/settle | 收款核销应收（更新日记账） |
 | POST | /admin/finance/payment | 创建付款单 |
-| 🔗 POST | /admin/finance/payment/{id}/settle | 付款核销应付（更新日记账） |
 | GET | /admin/finance/cash-journal | 现金银行日记账 |
 | GET | /admin/finance/expense | 费用报销列表 |
 | POST | /admin/finance/expense | 提交报销申请 |
-| POST | /admin/finance/expense/{id}/approve | 审批报销 |
-| POST | /admin/finance/expense/{id}/pay | 报销打款 |
 | GET | /admin/finance/report/profit | 利润表 |
 | GET | /admin/finance/general-ledger | 总账（按科目+期间汇总） |
 | GET | /admin/finance/subsidiary-ledger | 明细账（科目逐笔明细） |
@@ -1828,7 +1821,6 @@ docker-compose up -d
 |------|------|------|
 | GET | /admin/crm/opportunity | 商机列表 |
 | POST | /admin/crm/opportunity | 创建商机 |
-| POST | /admin/crm/opportunity/{id}/move-stage | 移动商机阶段 |
 | GET | /admin/crm/follow | 跟进记录列表 |
 | POST | /admin/crm/follow | 创建跟进记录 |
 | GET | /admin/crm/funnel | 漏斗阶段配置 |
@@ -2000,6 +1992,3 @@ docker-compose up -d
 |------|---------|
 | 🔗 POST /admin/purchase/receive | 自动调用 InventoryService.stockIn() 更新库存+重算移动加权平均成本；调用 FinanceService.createAp() 生成应付记录 |
 | 🔗 POST /admin/sales/delivery | 自动调用 InventoryService.stockOut() 扣减库存（按移动加权平均成本）；调用 FinanceService.createAr() 生成应收记录 |
-| 🔗 POST /admin/finance/receipt/{id}/settle | 核销应收记录；自动更新现金银行日记账和银行账户余额 |
-| 🔗 POST /admin/finance/payment/{id}/settle | 核销应付记录；自动更新现金银行日记账和银行账户余额 |
-| 🔗 POST /admin/inventory/check/{id}/process | 根据盘点差异自动生成盘盈/盘亏出入库流水 |

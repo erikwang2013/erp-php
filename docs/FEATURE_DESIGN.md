@@ -521,13 +521,13 @@
 
 ## 17. 导出功能
 
-### 16.1 Excel 导出
+### 17.1 Excel 导出
 - 所有列表页支持 ?export=excel
 - PhpSpreadsheet 生成 .xlsx
 - 蓝底白字表头 + 冻结首行 + 自动列宽
 - 敏感字段自动脱敏
 
-### 16.2 PDF 导出
+### 17.2 PDF 导出
 - 仪表盘数据面板支持 ?export=pdf
 - Dompdf 渲染，A4 横向
 - 不可移除版权信息

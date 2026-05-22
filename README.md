@@ -93,7 +93,7 @@ open-erp/
 │   │   ├── purchase/           # 采购申请/订单/收货/退货/结算 (5 个)
 │   │   ├── sales/              # 销售报价/订单/发货/退货/结算 (5 个)
 │   │   ├── inventory/          # 库存/流水/调拨/盘点/预警 (5 个)
-│   │   ├── finance/            # 应收应付/凭证/收付款/日记账/总账/明细账/报表/资产/税务/多币种/预算 (20 个)
+│   │   ├── finance/            # 应收应付/凭证/收付款/日记账/总账/明细账/报表/资产/税务/多币种/预算/成本利润中心 (20 个)
 │   │   ├── crm/                # 商机/跟进/漏斗/联系人/公海池/合同/报价/营销/工单/分析 (10 个)
 │   │   ├── workflow/           # 工作流定义/审批提交/批准/拒绝/撤回 (2 个)
 │   │   ├── notification/       # 通知列表/已读/未读计数 (1 个)
@@ -106,7 +106,7 @@ open-erp/
 │   │   ├── finance/            # 应收应付自动生成 + 核销
 │   │   └── notification/       # 通知发送服务
 │   ├── model/                  # 121 个 Eloquent 模型（多模块共用）
-│   ├── middleware/             # 8 个中间件
+│   ├── middleware/             # 9 个中间件
 │   ├── common/                 # Hashids/Snowflake/Encryption 服务
 │   └── queue/                  # 队列任务
 ├── apps/
@@ -118,11 +118,11 @@ open-erp/
 │   ├── migrations/             # SQL 迁移文件（18 个，122 张表）
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（30 个测试，258 条断言）
+├── tests/                      # PHPUnit 测试（11 个测试文件，90 个测试方法，168 条断言）
 ├── resource/
 │   └── translations/           # 翻译文件 (zh_CN, en)
-│       ├── zh_CN/              # 中文翻译 (121 键)
-│       └── en/                 # English translations (121 keys)
+│       ├── zh_CN/              # 中文翻译 (127 键)
+│       └── en/                 # English translations (127 keys)
 ├── public/                     # 公共入口
 ├── runtime/                    # 运行时文件
 └── vendor/                     # Composer 依赖
@@ -238,7 +238,7 @@ docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_
 
 项目使用 hg/apidoc 自动生成接口文档，访问 `/apidoc` 查看。
 
-- 管理端接口 (Admin)：18 个模块分组，含完整请求参数和响应结构
+- 管理端接口 (Admin)：25 个模块分组，含完整请求参数和响应结构
 - 客户端接口 (Service API)：认证/验证码/商品 3 个分组
 - 所有接口标注了 JWT 认证、API 版本、国际化等全局请求头
 

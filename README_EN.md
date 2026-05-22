@@ -101,7 +101,7 @@ open-erp/
 │   │   ├── purchase/           # Requisition/order/receive/return/settlement (5)
 │   │   ├── sales/              # Quotation/order/delivery/return/settlement (5)
 │   │   ├── inventory/          # Stock/flow/transfer/check/alert (5)
-│   │   ├── finance/            # AR/AP/voucher/receipt/payment/journal/ledger/report/asset/tax/currency/budget (20)
+│   │   ├── finance/            # AR/AP/voucher/receipt/payment/journal/ledger/report/asset/tax/currency/budget/cost-profit-center (20)
 │   │   ├── crm/                # Opportunity/follow/funnel/contact/pool/contract/quotation/campaign/ticket/analytics (10)
 │   │   ├── workflow/           # Workflow definition/approval submit/approve/reject/withdraw (2)
 │   │   ├── notification/       # Notification list/read/unread count (1)
@@ -114,7 +114,7 @@ open-erp/
 │   │   ├── finance/            # AR/AP auto-generation + settlement
 │   │   └── notification/       # Notification dispatch service
 │   ├── model/                  # 121 Eloquent models (shared across modules)
-│   ├── middleware/             # 8 middleware
+│   ├── middleware/             # 9 middleware
 │   ├── common/                 # Hashids/Snowflake/Encryption services
 │   └── queue/                  # Queue tasks
 ├── apps/
@@ -126,11 +126,11 @@ open-erp/
 │   ├── migrations/             # SQL migration files (18 files, 122 tables)
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
-├── tests/                      # PHPUnit tests (30 tests, 258 assertions)
+├── tests/                      # PHPUnit tests (11 test files, 90 test methods, 168 assertions)
 ├── resource/
 │   └── translations/           # Translation files (zh_CN, en)
-│       ├── zh_CN/              # Chinese translations (121 keys)
-│       └── en/                 # English translations (121 keys)
+│       ├── zh_CN/              # Chinese translations (127 keys)
+│       └── en/                 # English translations (127 keys)
 ├── public/                     # Public entry
 ├── runtime/                    # Runtime files
 └── vendor/                     # Composer dependencies
@@ -243,7 +243,7 @@ docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_
 
 The project uses hg/apidoc for auto-generated API documentation, accessible at `/apidoc`.
 
-- Admin API: 18 module groups, with full request parameters and response structures
+- Admin API: 25 module groups, with full request parameters and response structures
 - Service API: 3 groups (auth/captcha/products)
 - All endpoints annotated with JWT auth, API version, i18n and other global headers
 

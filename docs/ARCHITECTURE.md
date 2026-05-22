@@ -883,6 +883,6 @@ sequenceDiagram
 | 审批工作流 | controller/workflow/ (2个) | - | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
 | 消息通知 | controller/notification/ (1个) | NotificationService | Notification, NotificationSetting, NotificationTemplate | 3 |
 | 项目管理 | controller/project/ (3个) | - | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| 人力资源 | controller/hr/ (5个) | - | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 9 |
+| 人力资源 | controller/hr/ (5个) | - | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
 | 生产制造 | controller/manufacturing/ (5个) | - | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
 | 自定义报表 | controller/report/ (2个) | - | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |

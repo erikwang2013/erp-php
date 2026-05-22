@@ -48,6 +48,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - 数据库敏感字段加解密: `erikwang2013/encryptable`
 - ES 同步与查询: `erikwang2013/webman-scout`
 - 国家旗帜: `erikwang2013/season`
+- API 文档生成: `hg/apidoc` | 注解式，访问 /apidoc
 
 ### 前端
 - Flutter 3.x，源码目录 `apps/flutter/`
@@ -100,14 +101,16 @@ open-erp/
 │   │   ├── HashidsService.php   # ID 编解码
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
 │   │   └── EncryptionService.php# 数据加解密 + 脱敏
-│   ├── middleware/              # 中间件（7 个）
+│   ├── middleware/              # 中间件（9 个）
+│   │   ├── Locale.php           # Accept-Language 语言自动检测
 │   │   ├── Cors.php             # 跨域
 │   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
 │   │   ├── RateLimit.php        # Redis 滑动窗口限流
 │   │   ├── ApiVersion.php       # API 版本校验
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
-│   │   └── OperationLog.php     # 操作日志自动记录
+│   │   ├── OperationLog.php     # 操作日志自动记录
+│   │   └── StaticFile.php       # 静态文件服务（webman 内建）
 │   ├── model/                   # 数据模型（121 个）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, Monitor)
@@ -121,7 +124,9 @@ open-erp/
 │   └── harmonyos/              # HarmonyOS 客户端
 ├── config/                     # 配置文件
 │   ├── route.php               # 路由 + API 版本策略
-│   └── middleware.php           # 全局中间件注册
+│   ├── middleware.php           # 全局中间件注册
+│   ├── translation.php          # 语言配置
+│   └── plugin/hg/apidoc/        # API 文档配置（管理端25模块+客户端3模块）
 ├── database/
 │   ├── migrations/             # SQL 迁移文件 (18 个)
 │   │   ├── 2026_05_16_000000_init_tables.sql
@@ -162,10 +167,10 @@ open-erp/
 ## 中间件执行链
 
 ```
-全局:  Cors → SecurityFilter(方法检查→405) → RateLimit → {路由中间件}
-/admin: Cors → SecurityFilter(方法检查→405) → RateLimit → AdminAuth → AdminPermission → OperationLog → Controller
-/api:   Cors → SecurityFilter(方法检查→405) → RateLimit → ApiVersion → Controller
-/health: Cors → SecurityFilter(方法检查→405) → RateLimit → Controller
+全局:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → {路由中间件}
+/admin: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → AdminAuth → AdminPermission → OperationLog → Controller
+/api:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → ApiVersion → Controller
+/health: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → Controller
 ```
 
 ## 安全增强
