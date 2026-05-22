@@ -2,7 +2,7 @@
 
 基于 webman v2 + Flutter 的全栈ERP系统。
 
-> [English version](README_EN.md) | [架构设计图](docs/ARCHITECTURE.md) | [设计文档](docs/DESIGN.md) | [安全架构](docs/SECURITY.md) | [API 参考](docs/API.md)
+> [English version](README_EN.md) | [架构设计图](docs/ARCHITECTURE.md) | [设计文档](docs/DESIGN.md) | [安全架构](docs/SECURITY.md) | [API 参考](docs/API.md) | [功能手册](docs/FUNCTIONS.md)
 
 ## 功能清单
 
