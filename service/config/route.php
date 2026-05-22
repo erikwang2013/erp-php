@@ -95,6 +95,73 @@ Route::group('/admin', function () {
 
     // 文件上传
     Route::post('/upload', [app\admin\controller\UploadController::class, 'upload']);
+
+    // ============================================================
+    // 商品基础数据
+    // ============================================================
+    Route::resource('/product', app\controller\product\ProductController::class);
+    Route::resource('/category', app\controller\product\CategoryController::class);
+    Route::resource('/brand', app\controller\product\BrandController::class);
+    Route::resource('/warehouse', app\controller\product\WarehouseController::class);
+    Route::get('/warehouse/{id}/locations', [app\controller\product\LocationController::class, 'byWarehouse']);
+    Route::resource('/location', app\controller\product\LocationController::class);
+    Route::resource('/supplier', app\controller\product\SupplierController::class);
+    Route::resource('/customer', app\controller\product\CustomerController::class);
+    Route::any('/customer-level', [app\controller\product\CustomerController::class, 'levels']);
+
+    // ============================================================
+    // 采购模块
+    // ============================================================
+    Route::resource('/purchase/apply', app\controller\purchase\ApplyController::class);
+    Route::resource('/purchase/order', app\controller\purchase\OrderController::class);
+    Route::resource('/purchase/receive', app\controller\purchase\ReceiveController::class);
+    Route::resource('/purchase/return', app\controller\purchase\ReturnController::class);
+    Route::any('/purchase/settlement', [app\controller\purchase\SettlementController::class, 'index']);
+
+    // ============================================================
+    // 销售模块
+    // ============================================================
+    Route::resource('/sales/quotation', app\controller\sales\QuotationController::class);
+    Route::resource('/sales/order', app\controller\sales\OrderController::class);
+    Route::resource('/sales/delivery', app\controller\sales\DeliveryController::class);
+    Route::resource('/sales/return', app\controller\sales\ReturnController::class);
+    Route::any('/sales/settlement', [app\controller\sales\SettlementController::class, 'index']);
+
+    // ============================================================
+    // 库存模块
+    // ============================================================
+    Route::any('/inventory', [app\controller\inventory\InventoryController::class, 'index']);
+    Route::any('/inventory/flow', [app\controller\inventory\FlowController::class, 'index']);
+    Route::resource('/inventory/transfer', app\controller\inventory\TransferController::class);
+    Route::resource('/inventory/check', app\controller\inventory\CheckTaskController::class);
+    Route::resource('/inventory/alert', app\controller\inventory\AlertController::class);
+
+    // ============================================================
+    // 财务模块
+    // ============================================================
+    Route::resource('/finance/account', app\controller\finance\AccountController::class);
+    Route::resource('/finance/voucher', app\controller\finance\VoucherController::class);
+    Route::resource('/finance/receipt', app\controller\finance\ReceiptController::class);
+    Route::resource('/finance/payment', app\controller\finance\PaymentController::class);
+    Route::any('/finance/cash-journal', [app\controller\finance\CashJournalController::class, 'index']);
+    Route::resource('/finance/expense', app\controller\finance\ExpenseController::class);
+    Route::any('/finance/report/profit', [app\controller\finance\ReportController::class, 'profit']);
+    Route::resource('/finance/bank-account', app\controller\finance\BankAccountController::class);
+
+    // ============================================================
+    // CRM模块
+    // ============================================================
+    Route::resource('/crm/opportunity', app\controller\crm\OpportunityController::class);
+    Route::resource('/crm/follow', app\controller\crm\FollowRecordController::class);
+    Route::resource('/crm/funnel', app\controller\crm\FunnelStageController::class);
+    Route::resource('/crm/contact', app\controller\crm\ContactController::class);
+
+    // ============================================================
+    // 仪表盘
+    // ============================================================
+    Route::any('/dashboard/sales', [app\admin\controller\DashboardController::class, 'sales']);
+    Route::any('/dashboard/inventory', [app\admin\controller\DashboardController::class, 'inventory']);
+    Route::any('/dashboard/finance', [app\admin\controller\DashboardController::class, 'finance']);
 })->middleware([
     app\middleware\AdminAuth::class,
     app\middleware\AdminPermission::class,
@@ -113,6 +180,10 @@ Route::group('/api', function () {
     Route::post('/auth/login', v('AuthController', 'login'));
     Route::post('/auth/register', v('AuthController', 'register'));
     Route::post('/auth/refresh', v('AuthController', 'refresh'));
+
+    // 客户端商品接口
+    Route::any('/product', v('ProductController', 'index'));
+    Route::any('/product/{hashid}', v('ProductController', 'show'));
 })->middleware([
     app\middleware\ApiVersion::class,
 ]);
