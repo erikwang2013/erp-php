@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\admin\controller;
 
 use app\common\HashidsService;
+use app\common\I18n;
 use app\common\SnowflakeService;
 use app\model\AdminUser;
 use support\Request;
@@ -80,6 +81,14 @@ class BaseController
     }
 
     /**
+     * 翻译消息，自动根据当前语言环境返回对应语言的文本
+     */
+    protected function trans(string $key, array $replace = []): string
+    {
+        return I18n::trans($key, $replace);
+    }
+
+    /**
      * 二次确认 — 验证当前登录用户密码
      * 敏感操作（删除、导出等）调用此方法确认身份
      *
@@ -90,12 +99,12 @@ class BaseController
     protected function confirmPassword(int $adminId, string $password, Request $request): ?string
     {
         if (empty($password)) {
-            return '敏感操作需要输入密码确认';
+            return $this->trans('password_required');
         }
 
         $admin = AdminUser::find($adminId);
         if (!$admin || !password_verify($password, $admin->password)) {
-            return '密码验证失败';
+            return $this->trans('password_error');
         }
 
         return null; // 验证通过

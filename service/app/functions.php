@@ -6,3 +6,19 @@
 /**
  * Here is your custom functions.
  */
+
+/**
+ * Translate the given message.
+ */
+function __(string $key, array $replace = []): string
+{
+    return \app\common\I18n::trans($key, $replace);
+}
+
+/**
+ * Translate a module name.
+ */
+function __m(string $key): string
+{
+    return \app\common\I18n::trans("modules.{$key}");
+}
