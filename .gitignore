@@ -1,5 +1,4 @@
-/admin/runtime
-/service/runtime
+runtime
 /.idea
 /.vscode
 *.log
@@ -7,9 +6,8 @@
 /tests/tmp
 /tests/.phpunit.result.cache
 /.cursor
-/service/vendor
-/admin/vendor
-/admin/composer.lock
+vendor
+composer.lock
 /.github/*
 !.github/workflows/
 .claude
