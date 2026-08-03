@@ -12,4 +12,5 @@ class CrmContractItem extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
+    protected $guarded = ['id', 'created_at', 'updated_at'];
 }

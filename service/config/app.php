@@ -19,7 +19,7 @@
 use support\Request;
 
 return [
-    'debug' => true,
+    'debug' => filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN),
     'error_reporting' => E_ALL,
     'default_timezone' => 'Asia/Shanghai',
     'request_class' => Request::class,

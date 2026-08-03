@@ -1,0 +1,12 @@
+includes:
+  - phpstan-baseline.neon
+
+parameters:
+  level: 5
+  paths:
+    - app
+  excludePaths:
+    - app/view/*
+  universalObjectCratesClasses:
+    - support\Request
+    - support\Response

@@ -9,7 +9,6 @@
 /.cursor
 /service/vendor
 /admin/vendor
-/service/composer.lock
 /admin/composer.lock
 /.github/*
 !.github/workflows/

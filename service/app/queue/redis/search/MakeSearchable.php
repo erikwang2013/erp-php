@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright (c) erik <erik@erik.xyz> (https://erik.xyz). All Rights Reserved.
  */

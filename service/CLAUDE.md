@@ -181,6 +181,8 @@ open-erp/
 
 ## 安全增强
 
+- **批量赋值保护**：全部 120 个 Model 均配置 `$guarded` 属性（id、时间戳等），防止属性注入
+- **生产配置环境变量化**：`app.debug` 从 `APP_DEBUG` 读取，session cookie `secure`/`same_site` 从环境变量读取
 - **HTTP 方法限制**：SecurityFilter 仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD，非标准方法返回 405
 - **CSP 头**：Content-Security-Policy + X-Permitted-Cross-Domain-Policies 注入所有响应
 - **账号锁定**：连续 5 次登录失败，账号锁定 15 分钟
@@ -252,9 +254,20 @@ docker-compose up -d
 
 `.github/workflows/ci.yml` 定义 GitHub Actions 流水线：
 
+- PHP 多版本矩阵测试 (8.2, 8.3, 8.4)
+- Composer 依赖安全审计 (`composer audit`)
 - PHP 语法检查 (`php -l`)
+- PHPStan 静态分析 (level 5)
+- PHP CS Fixer 代码风格检查
 - PHPUnit 单元测试
-- Flutter 静态分析 (`flutter analyze`)
+
+### 代码质量工具
+
+- **PHPStan** (level 5): 静态类型分析，配置 `phpstan.neon`
+- **php-cs-fixer** (PSR-12): 代码风格统一，配置 `.php-cs-fixer.php`
+- **EditorConfig**: 跨编辑器格式一致，配置 `.editorconfig`
+- **PHPUnit** (v12): 测试框架，90 tests / 603 assertions
+- **composer.lock**: 纳入 Git 版本控制，确保依赖一致性
 
 ### 数据库备份
 

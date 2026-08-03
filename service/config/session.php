@@ -60,9 +60,9 @@ return [
     
     'http_only' => true,
 
-    'secure' => false,
-    
-    'same_site' => '',
+    'secure' => filter_var(getenv('SESSION_SECURE'), FILTER_VALIDATE_BOOLEAN) ?: false,
+
+    'same_site' => getenv('SESSION_SAME_SITE') ?: 'Lax',
 
     'gc_probability' => [1, 1000],
 
