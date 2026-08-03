@@ -23,7 +23,7 @@ class BackendEnhancementTest extends TestCase
         $this->assertStringContainsString('function v(', $source, 'route.php 应定义 v() 函数');
         $this->assertStringContainsString('$request->apiVersion', $source, 'v() 应读取 apiVersion');
         $this->assertStringContainsString('apiVersion ??', $source, 'v() 应有 apiVersion 默认值回退');
-        $this->assertStringContainsString('return (new $class)->', $source, 'v() 应实例化并调用控制器');
+        $this->assertStringContainsString('return (new $class', $source, 'v() 应实例化并调用控制器');
     }
 
     // ============================================================

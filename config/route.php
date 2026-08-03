@@ -30,7 +30,7 @@ function v(string $controller, string $action): \Closure
         $version = $request->apiVersion ?? 'v1';
         $class = "\\app\\api\\{$version}\\controller\\{$controller}";
 
-        return (new $class)->{$action}($request);
+        return (new $class())->{$action}($request);
     };
 }
 
