@@ -123,7 +123,8 @@ open-erp/
 ├── config/                     # Configuration files (commented in Chinese)
 │   ├── plugin/hg/apidoc/        # API doc configuration
 ├── database/
-│   ├── migrations/             # SQL migration files (18 files, 122 tables)
+│   ├── install.sql              # Complete install SQL (122 tables + seed data)
+│   ├── migrations/              # SQL migration files (18 files, merged into install.sql)
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
 ├── tests/                      # PHPUnit tests (11 test files, 90 test methods, 168 assertions)
@@ -173,13 +174,22 @@ Key environment variables:
 
 ### 3. Initialize Database
 
-Run the SQL migration files in order:
+**Option 1: Web Install Wizard (Recommended)**
+
+Start the server and visit `http://localhost:8787/install`. Follow the 4-step wizard: Environment Check → Database Config → Admin Account → One-Click Install.
+
+**Option 2: Command Line Import**
 
 ```bash
-# Create tables
-mysql -u root -p < database/migrations/2026_05_16_000000_init_tables.sql
-# Seed permissions
-mysql -u root -p < database/migrations/2026_05_20_000001_seed_permissions.sql
+mysql -u root -p database_name < database/install.sql
+```
+
+`install.sql` is a merged file of 18 migrations, containing all 122 table structures and seed data.
+
+**Option 3: Docker Environment**
+
+```bash
+docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. Start Server
@@ -216,8 +226,7 @@ cp .env.docker .env
 docker-compose up -d
 
 # 3. Initialize database (run inside the app container)
-docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_16_000000_init_tables.sql
-docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_20_000001_seed_permissions.sql
+docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 4. Access
 # http://localhost:8787  (webman)
@@ -318,7 +327,7 @@ Locale (Accept-Language auto-detection, sets language locale)
   → OperationLog (auto-log POST/PUT/DELETE with source detection, /admin group)
 ```
 
-`/health` and `/api/docs` are public, only passing through `Locale → Cors → SecurityFilter → RateLimit`.
+`/health`, `/api/docs` and `/install` are public, only passing through `Locale → Cors → SecurityFilter → RateLimit`.
 
 Security enhancements:
 - **Account lockout**: 5 consecutive failed login attempts lock the account for 15 minutes; login returns 429 during lockout

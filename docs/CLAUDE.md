@@ -80,7 +80,7 @@ open-erp/
 │   │   ├── CaptchaController.php   # 点击验证码
 │   │   ├── AuthController.php      # 登录/注册/刷新
 │   │   └── ProductController.php   # 商品查询（不含进价）
-│   ├── controller/              # 业务模块控制器（70 个）
+│   ├── controller/              # 业务模块控制器（71 个，含 InstallController）
 │   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户 (7个)
 │   │   ├── purchase/            # 采购申请/订单/收货/退货/结算 (5个)
 │   │   ├── sales/               # 销售报价/订单/发货/退货/结算 (5个)
@@ -128,10 +128,10 @@ open-erp/
 │   ├── translation.php          # 语言配置
 │   └── plugin/hg/apidoc/        # API 文档配置（管理端25模块+客户端3模块）
 ├── database/
+│   ├── install.sql              # 完整安装SQL（122张表 + 种子数据）
 │   ├── migrations/             # SQL 迁移文件 (18 个)
 │   │   ├── 2026_05_16_000000_init_tables.sql
-│   │   ├── 2026_05_20_000001_seed_permissions.sql
-│   │   └── ... (共 18 个迁移文件)
+│   │   └── ... (共 18 个迁移文件，已合并入 install.sql)
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
 │       └── restore.sh          # 交互式恢复
@@ -168,9 +168,10 @@ open-erp/
 
 ```
 全局:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → {路由中间件}
-/admin: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → AdminAuth → AdminPermission → OperationLog → Controller
-/api:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → ApiVersion → Controller
-/health: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → Controller
+/health:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → Controller
+/install: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → Controller
+/admin:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → AdminAuth → AdminPermission → OperationLog → Controller
+/api:     Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → ApiVersion → Controller
 ```
 
 ## 安全增强

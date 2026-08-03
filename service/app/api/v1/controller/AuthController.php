@@ -50,7 +50,8 @@ class AuthController
         }
 
         // 验证点击验证码
-        if (!captcha_verify($request->input('captcha_key'), 'click', $request->input('clicks'))) {
+        $clicks = array_map(fn($c) => [(int)$c['x'], (int)$c['y']], $request->input('clicks'));
+        if (!captcha_verify($request->input('captcha_key'), 'click', $clicks)) {
             return json(['code' => 422, 'message' => '验证码错误，请重试', 'data' => []]);
         }
 

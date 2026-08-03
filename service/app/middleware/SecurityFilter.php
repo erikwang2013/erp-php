@@ -83,7 +83,6 @@ class SecurityFilter implements MiddlewareInterface
         }
 
         // 3. Content-Type 校验（写操作必须声明类型）
-        $method = $request->method();
         if (in_array($method, ['POST', 'PUT'], true)) {
             $ct = $request->header('Content-Type', '');
             // 文件上传跳过

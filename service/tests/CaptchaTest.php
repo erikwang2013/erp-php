@@ -70,8 +70,8 @@ class CaptchaTest extends TestCase
         $result = captcha_create('click', ['difficulty' => 'easy']);
         $targets = $result['extra']['targets'];
 
-        // 使用正确的目标坐标
-        $clicks = array_map(fn($t) => ['x' => $t['x'], 'y' => $t['y']], $targets);
+        // captcha_verify 内部期望 [x, y] 格式
+        $clicks = array_map(fn($t) => [$t['x'], $t['y']], $targets);
         $valid = captcha_verify($result['key'], 'click', $clicks);
 
         $this->assertTrue($valid, '点击正确坐标应验证通过');
@@ -83,7 +83,7 @@ class CaptchaTest extends TestCase
         $result = captcha_create('click', ['difficulty' => 'easy']);
 
         // 使用完全错误的坐标
-        $clicks = [['x' => 0, 'y' => 0], ['x' => 999, 'y' => 999]];
+        $clicks = [[0, 0], [999, 999]];
         $valid = captcha_verify($result['key'], 'click', $clicks);
 
         $this->assertFalse($valid, '错误坐标应验证失败');
@@ -94,7 +94,7 @@ class CaptchaTest extends TestCase
     {
         $result = captcha_create('click', ['difficulty' => 'easy']);
         $targets = $result['extra']['targets'];
-        $clicks = array_map(fn($t) => ['x' => $t['x'], 'y' => $t['y']], $targets);
+        $clicks = array_map(fn($t) => [$t['x'], $t['y']], $targets);
 
         // 第一次验证通过
         $first = captcha_verify($result['key'], 'click', $clicks);

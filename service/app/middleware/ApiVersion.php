@@ -16,7 +16,7 @@ use support\Response;
  * 从请求头 API-Version 读取版本号，支持版本路由转发。
  * 客户端请求示例: curl -H "API-Version: v1" /api/auth/login
  */
-class ApiVersion
+class ApiVersion implements MiddlewareInterface
 {
     /** 支持的版本列表 */
     private const SUPPORTED = ['v1'];

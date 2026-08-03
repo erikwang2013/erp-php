@@ -30,7 +30,8 @@ RUN docker-php-ext-install -j$(nproc) \
         xml \
         dom \
         xmlwriter \
-    && docker-php-ext-enable opcache pcntl
+    && pecl install event \
+    && docker-php-ext-enable opcache pcntl event
 
 # OPcache 生产配置
 RUN echo "opcache.enable=1" >> "$PHP_INI_DIR/php.ini" \

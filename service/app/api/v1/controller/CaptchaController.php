@@ -62,6 +62,8 @@ class CaptchaController
             return json(['code' => 422, 'message' => '缺少验证参数', 'data' => []]);
         }
 
+        // 前/后端传递 {x, y} 格式，captcha_verify 内部期望 [x, y]
+        $clicks = array_map(fn($c) => [(int)$c['x'], (int)$c['y']], $clicks);
         $valid = captcha_verify($key, 'click', $clicks);
 
         return json([

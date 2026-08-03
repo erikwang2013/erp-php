@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  php:
+    name: PHP ${{ matrix.php }} — Syntax & Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.3']
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis
+
+      - name: Validate composer.json
+        working-directory: service
+        run: composer validate --strict
+
+      - name: Install dependencies
+        working-directory: service
+        run: composer install --no-interaction
+
+      - name: PHP Syntax Check
+        working-directory: service
+        run: find app -name '*.php' -exec php -l {} \; | grep -v 'No syntax errors'
+
+      - name: PHPUnit Tests
+        working-directory: service
+        run: php vendor/bin/phpunit --testdox

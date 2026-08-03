@@ -33,6 +33,12 @@ function v(string $controller, string $action): \Closure
 }
 
 // ============================================================
+// 安装向导（全局，无需认证）
+// ============================================================
+Route::any('/install', [app\controller\InstallController::class, 'index']);
+Route::get('/install/test-db', [app\controller\InstallController::class, 'testDb']);
+
+// ============================================================
 // 健康检查（全局，无需认证）
 // ============================================================
 Route::get('/health', [app\admin\controller\HealthController::class, 'index']);
@@ -164,7 +170,7 @@ Route::group('/admin', function () {
     Route::resource('/finance/asset', app\controller\finance\AssetController::class);
     Route::post('/finance/asset/{id}/depreciate', [app\controller\finance\AssetController::class, 'depreciate']);
     Route::any('/finance/asset/{id}/depreciation', [app\controller\finance\AssetController::class, 'depreciation']);
-    Route::any('/finance/tax-rate', [app\controller\finance\TaxController::class, 'rates']);
+    Route::get('/finance/tax-rate', [app\controller\finance\TaxController::class, 'rates']);
     Route::post('/finance/tax-rate', [app\controller\finance\TaxController::class, 'storeRate']);
     Route::delete('/finance/tax-rate/{id}', [app\controller\finance\TaxController::class, 'destroyRate']);
     Route::any('/finance/tax-record', [app\controller\finance\TaxController::class, 'records']);
@@ -206,7 +212,7 @@ Route::group('/admin', function () {
     Route::any('/crm/analytics/report', [app\controller\crm\AnalyticsController::class, 'reports']);
     Route::get('/crm/analytics/report/{id}', [app\controller\crm\AnalyticsController::class, 'reportShow']);
     Route::post('/crm/analytics/generate', [app\controller\crm\AnalyticsController::class, 'generate']);
-    Route::any('/crm/analytics/metric', [app\controller\crm\AnalyticsController::class, 'metrics']);
+    Route::get('/crm/analytics/metric', [app\controller\crm\AnalyticsController::class, 'metrics']);
     Route::post('/crm/analytics/metric', [app\controller\crm\AnalyticsController::class, 'storeMetric']);
 
     // ============================================================
@@ -237,9 +243,9 @@ Route::group('/admin', function () {
     // ============================================================
     // 项目管理
     // ============================================================
-    Route::resource('/project', app\controller\project\ProjectController::class);
     Route::resource('/project/task', app\controller\project\TaskController::class);
     Route::resource('/project/timesheet', app\controller\project\TimesheetController::class);
+    Route::resource('/project', app\controller\project\ProjectController::class);
 
     // ============================================================
     // 人力资源管理
@@ -250,7 +256,7 @@ Route::group('/admin', function () {
     Route::any('/hr/attendance', [app\controller\hr\AttendanceController::class, 'index']);
     Route::post('/hr/attendance/clock-in', [app\controller\hr\AttendanceController::class, 'clockIn']);
     Route::post('/hr/attendance/clock-out', [app\controller\hr\AttendanceController::class, 'clockOut']);
-    Route::any('/hr/leave', [app\controller\hr\AttendanceController::class, 'leaveIndex']);
+    Route::get('/hr/leave', [app\controller\hr\AttendanceController::class, 'leaveIndex']);
     Route::post('/hr/leave', [app\controller\hr\AttendanceController::class, 'leaveStore']);
     Route::get('/hr/leave/{id}', [app\controller\hr\AttendanceController::class, 'leaveShow']);
     Route::put('/hr/leave/{id}', [app\controller\hr\AttendanceController::class, 'leaveUpdate']);
@@ -258,7 +264,7 @@ Route::group('/admin', function () {
     Route::post('/hr/leave/{id}/approve', [app\controller\hr\AttendanceController::class, 'approveLeave']);
     Route::resource('/hr/salary', app\controller\hr\SalaryController::class);
     Route::post('/hr/salary/{id}/pay', [app\controller\hr\SalaryController::class, 'pay']);
-    Route::any('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemIndex']);
+    Route::get('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemIndex']);
     Route::post('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemStore']);
     Route::get('/hr/salary-item/{id}', [app\controller\hr\SalaryController::class, 'itemShow']);
     Route::put('/hr/salary-item/{id}', [app\controller\hr\SalaryController::class, 'itemUpdate']);
@@ -279,10 +285,10 @@ Route::group('/admin', function () {
     // ============================================================
     // 自定义报表
     // ============================================================
-    Route::resource('/report', app\controller\report\ReportController::class);
+    Route::resource('/report/schedule', app\controller\report\ReportScheduleController::class);
     Route::post('/report/{id}/execute', [app\controller\report\ReportController::class, 'execute']);
     Route::any('/report/{id}/result', [app\controller\report\ReportController::class, 'result']);
-    Route::resource('/report/schedule', app\controller\report\ReportScheduleController::class);
+    Route::resource('/report', app\controller\report\ReportController::class);
 })->middleware([
     app\middleware\AdminAuth::class,
     app\middleware\AdminPermission::class,

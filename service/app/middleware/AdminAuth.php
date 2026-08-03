@@ -10,11 +10,12 @@ namespace app\middleware;
 use support\Request;
 use support\Response;
 use support\Redis;
+use Webman\MiddlewareInterface;
 use Erikwang2013\Jwt\JWT;
 use Erikwang2013\Jwt\JWTFactory;
 use Erikwang2013\Jwt\JWTException;
 
-class AdminAuth
+class AdminAuth implements MiddlewareInterface
 {
     private static ?JWT $jwt = null;
 

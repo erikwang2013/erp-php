@@ -203,8 +203,9 @@ class BackendEnhancementTest extends TestCase
     {
         $middlewares = require __DIR__ . '/../config/middleware.php';
         $this->assertIsArray($middlewares);
-        $this->assertContains(\app\middleware\Cors::class, $middlewares, '全局中间件应包含 Cors');
-        $this->assertContains(\app\middleware\RateLimit::class, $middlewares, '全局中间件应包含 RateLimit');
+        $globalMiddleware = $middlewares['@'] ?? $middlewares;
+        $this->assertContains(\app\middleware\Cors::class, $globalMiddleware, '全局中间件应包含 Cors');
+        $this->assertContains(\app\middleware\RateLimit::class, $globalMiddleware, '全局中间件应包含 RateLimit');
     }
 
     // ============================================================

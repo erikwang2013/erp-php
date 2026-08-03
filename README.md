@@ -115,7 +115,8 @@ open-erp/
 ├── config/                     # 配置文件（含中文注释）
 │   ├── plugin/hg/apidoc/        # API 文档配置
 ├── database/
-│   ├── migrations/             # SQL 迁移文件（18 个，122 张表）
+│   ├── install.sql              # 完整安装SQL（122张表 + 种子数据）
+│   ├── migrations/              # SQL 迁移文件（18 个，已合并入 install.sql）
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
 ├── tests/                      # PHPUnit 测试（11 个测试文件，90 个测试方法，168 条断言）
@@ -167,13 +168,22 @@ cp .env.example .env
 
 ### 3. 初始化数据库
 
-按顺序执行 `database/migrations/` 下的 SQL 文件：
+**方式一：Web 安装向导（推荐）**
+
+启动服务后访问 `http://localhost:8787/install`，按引导完成 4 步安装：环境检查 → 数据库配置 → 管理员账号 → 一键安装。
+
+**方式二：命令行导入**
 
 ```bash
-# 建表
-mysql -u root -p < database/migrations/2026_05_16_000000_init_tables.sql
-# 播种权限数据
-mysql -u root -p < database/migrations/2026_05_20_000001_seed_permissions.sql
+mysql -u root -p 数据库名 < database/install.sql
+```
+
+`install.sql` 由 18 个迁移文件合并而成，包含全部 122 张表结构和种子数据。
+
+**方式三：Docker 环境**
+
+```bash
+docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. 启动服务
@@ -210,8 +220,7 @@ cp .env.docker .env
 docker-compose up -d
 
 # 3. 初始化数据库（进入 app 容器执行）
-docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_16_000000_init_tables.sql
-docker-compose exec app mysql -h mysql -u root -p < database/migrations/2026_05_20_000001_seed_permissions.sql
+docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 4. 访问
 # http://localhost:8787  (webman)
@@ -313,7 +322,7 @@ Locale（Accept-Language 自动检测，设置语言环境）
   → OperationLog（POST/PUT/DELETE 自动记录，含来源端检测，/admin 路由组）
 ```
 
-`/health` 和 `/api/docs` 为公开端点，仅经过 `Locale → Cors → SecurityFilter → RateLimit`。
+`/health` 和 `/api/docs` 和 `/install` 为公开端点，仅经过 `Locale → Cors → SecurityFilter → RateLimit`。
 
 安全增强：
 - **账号锁定**：连续 5 次登录失败，账号自动锁定 15 分钟，期间登录返回 429
