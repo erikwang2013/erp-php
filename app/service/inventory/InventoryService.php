@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -8,10 +9,10 @@ declare(strict_types=1);
 namespace app\service\inventory;
 
 use app\common\SnowflakeService;
-use app\model\Inventory;
-use app\model\InventoryFlow;
 use app\model\CostRecord;
+use app\model\Inventory;
 use app\model\InventoryBatch;
+use app\model\InventoryFlow;
 use Illuminate\Database\Capsule\Manager as DB;
 
 class InventoryService
@@ -30,12 +31,23 @@ class InventoryService
         string $sourceType,
         int $sourceId
     ): int {
-        if ($quantity <= 0) throw new \InvalidArgumentException('数量必须大于0');
-        if ($unitCost < 0) throw new \InvalidArgumentException('单价不能为负数');
+        if ($quantity <= 0) {
+            throw new \InvalidArgumentException('数量必须大于0');
+        }
+        if ($unitCost < 0) {
+            throw new \InvalidArgumentException('单价不能为负数');
+        }
 
         return DB::transaction(function () use (
-            $productId, $skuId, $warehouseId, $locationId,
-            $batchCode, $quantity, $unitCost, $sourceType, $sourceId
+            $productId,
+            $skuId,
+            $warehouseId,
+            $locationId,
+            $batchCode,
+            $quantity,
+            $unitCost,
+            $sourceType,
+            $sourceId
         ) {
             // 1. 创建出入库流水
             $flow = new InventoryFlow();
@@ -102,11 +114,19 @@ class InventoryService
         string $sourceType,
         int $sourceId
     ): int {
-        if ($quantity <= 0) throw new \InvalidArgumentException('数量必须大于0');
+        if ($quantity <= 0) {
+            throw new \InvalidArgumentException('数量必须大于0');
+        }
 
         return DB::transaction(function () use (
-            $productId, $skuId, $warehouseId, $locationId,
-            $batchCode, $quantity, $sourceType, $sourceId
+            $productId,
+            $skuId,
+            $warehouseId,
+            $locationId,
+            $batchCode,
+            $quantity,
+            $sourceType,
+            $sourceId
         ) {
             // 1. 校验库存（悲观行锁防止并发超卖）
             $inv = Inventory::where([
@@ -153,7 +173,12 @@ class InventoryService
      * 移动加权平均成本计算
      */
     private function recalcMovingAverageCost(
-        int $productId, int $skuId, float $quantity, float $unitCost, int $type, int $flowId
+        int $productId,
+        int $skuId,
+        float $quantity,
+        float $unitCost,
+        int $type,
+        int $flowId
     ): float {
         $totalInventory = Inventory::where('product_id', $productId)
             ->where('sku_id', $skuId)
@@ -174,12 +199,19 @@ class InventoryService
             : $unitCost;
 
         $this->recordCostRecord($productId, $skuId, $flowId, 1, $quantity, $unitCost, $beforeAvg, $afterAvg);
+
         return round($afterAvg, 2);
     }
 
     private function recordCostRecord(
-        int $productId, int $skuId, int $flowId, int $type,
-        float $quantity, float $unitCost, float $beforeAvg, float $afterAvg
+        int $productId,
+        int $skuId,
+        int $flowId,
+        int $type,
+        float $quantity,
+        float $unitCost,
+        float $beforeAvg,
+        float $afterAvg
     ): void {
         $cost = new CostRecord();
         $cost->id = SnowflakeService::generate();

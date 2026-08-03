@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -33,6 +34,12 @@ class HrEmployee extends Model
         'emergency_phone' => Encryptable::class,
     ];
 
-    public function department() { return $this->belongsTo(HrDepartment::class, 'department_id'); }
-    public function position() { return $this->belongsTo(HrPosition::class, 'position_id'); }
+    public function department()
+    {
+        return $this->belongsTo(HrDepartment::class, 'department_id');
+    }
+    public function position()
+    {
+        return $this->belongsTo(HrPosition::class, 'position_id');
+    }
 }

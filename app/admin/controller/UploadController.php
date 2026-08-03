@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  * @Apidoc\Tag("上传管理")
@@ -51,10 +52,10 @@ class UploadController extends BaseController
             return $this->fail('文件大小不能超过 10MB', 422);
         }
 
-        $dateDir  = date('Y-m-d');
+        $dateDir = date('Y-m-d');
         $filename = md5(uniqid((string) mt_rand(), true)) . '.' . $ext;
         $relativePath = "/upload/{$dateDir}/{$filename}";
-        $absoluteDir  = public_path() . "/upload/{$dateDir}";
+        $absoluteDir = public_path() . "/upload/{$dateDir}";
 
         if (!is_dir($absoluteDir)) {
             mkdir($absoluteDir, 0755, true);

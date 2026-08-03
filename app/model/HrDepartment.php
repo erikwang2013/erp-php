@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -22,6 +23,12 @@ class HrDepartment extends Model
     protected $fillable = ['parent_id', 'code', 'name', 'manager_user_id', 'status'];
     protected $casts = ['parent_id' => 'integer', 'manager_user_id' => 'integer', 'status' => 'integer'];
 
-    public function parent() { return $this->belongsTo(HrDepartment::class, 'parent_id'); }
-    public function children() { return $this->hasMany(HrDepartment::class, 'parent_id'); }
+    public function parent()
+    {
+        return $this->belongsTo(HrDepartment::class, 'parent_id');
+    }
+    public function children()
+    {
+        return $this->hasMany(HrDepartment::class, 'parent_id');
+    }
 }

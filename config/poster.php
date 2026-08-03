@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -33,13 +34,13 @@ return [
         'default_difficulty' => getenv('POSTER_CAPTCHA_DIFFICULTY') ?: 'medium',
         // 验证误差容忍
         'tolerance' => [
-            'click'  => 18,   // 点击验证像素半径
+            'click' => 18,   // 点击验证像素半径
             'rotate' => 5,    // 旋转验证角度
             'slider' => 4,    // 滑块验证像素
         ],
         // Redis 存储配置（storage=redis 时生效）
         'redis' => [
-            'prefix'     => 'poster:captcha:',
+            'prefix' => 'poster:captcha:',
             'connection' => 'default',
         ],
         // 文件存储配置（storage=file 时生效）
@@ -50,10 +51,10 @@ return [
 
     // ── 海报生成模块 ──
     'poster' => [
-        'default_width'  => 750,
+        'default_width' => 750,
         'default_height' => 1334,
-        'font'           => null,
-        'jpeg_quality'   => 90,
+        'font' => null,
+        'jpeg_quality' => 90,
         'png_compression' => 6,
     ],
 ];

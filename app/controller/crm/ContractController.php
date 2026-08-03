@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("CRM")
@@ -58,7 +59,7 @@ class ContractController extends BaseController
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
             ->with('items')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -81,13 +82,17 @@ class ContractController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['name' => 'required|string|max:200', 'customer_id' => 'required|integer']);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new CrmContract();
         $item->id = $this->generateId();
         $item->status = 0;
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') $item->$k = $v;
+            if ($k !== 'id' && $k !== 'items') {
+                $item->$k = $v;
+            }
         }
         $item->save();
 
@@ -97,7 +102,9 @@ class ContractController extends BaseController
             $detail->id = $this->generateId();
             $detail->contract_id = $item->id;
             foreach ($it as $k => $v) {
-                if ($k !== 'id') $detail->$k = $v;
+                if ($k !== 'id') {
+                    $detail->$k = $v;
+                }
             }
             $detail->save();
         }
@@ -122,7 +129,10 @@ class ContractController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmContract::with('items')->find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -144,14 +154,18 @@ class ContractController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmContract::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         if ($item->status !== 0) {
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') $item->$k = $v;
+            if ($k !== 'id' && $k !== 'items') {
+                $item->$k = $v;
+            }
         }
         $item->save();
 
@@ -163,7 +177,9 @@ class ContractController extends BaseController
                 $detail->id = $this->generateId();
                 $detail->contract_id = $id;
                 foreach ($it as $k => $v) {
-                    if ($k !== 'id') $detail->$k = $v;
+                    if ($k !== 'id') {
+                        $detail->$k = $v;
+                    }
                 }
                 $detail->save();
             }
@@ -190,13 +206,18 @@ class ContractController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmContract::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -218,7 +239,9 @@ class ContractController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmContract::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $toStatus = (int) $request->input('to_status', -1);
         $currentStatus = (int) $item->status;
@@ -238,6 +261,7 @@ class ContractController extends BaseController
 
         $item->status = $toStatus;
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '状态更新成功');
     }
 }

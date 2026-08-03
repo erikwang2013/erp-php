@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -15,10 +16,12 @@ declare(strict_types=1);
  * @link      http://www.workerman.net/
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace app\middleware;
-use Webman\MiddlewareInterface;
-use Webman\Http\Response;
+
 use Webman\Http\Request;
+use Webman\Http\Response;
+use Webman\MiddlewareInterface;
 
 /**
  * Class StaticFile
@@ -34,6 +37,7 @@ class StaticFile implements MiddlewareInterface
         }
         /** @var Response $response */
         $response = $handler($request);
+
         // Add cross domain HTTP header
         /*$response->withHeaders([
             'Access-Control-Allow-Origin'      => '*',

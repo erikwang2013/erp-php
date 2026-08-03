@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -34,18 +35,25 @@ class EncryptionService
                 'aes-256-cbc-hmac'
             );
         }
+
         return self::$instance;
     }
 
     public static function encrypt(string $value): string
     {
-        if (empty($value)) return '';
+        if (empty($value)) {
+            return '';
+        }
+
         return self::getInstance()->encrypt($value);
     }
 
     public static function decrypt(string $value): string
     {
-        if (empty($value)) return '';
+        if (empty($value)) {
+            return '';
+        }
+
         return self::getInstance()->decrypt($value);
     }
 
@@ -54,7 +62,10 @@ class EncryptionService
      */
     public static function maskPhone(string $phone): string
     {
-        if (mb_strlen($phone) < 7) return $phone;
+        if (mb_strlen($phone) < 7) {
+            return $phone;
+        }
+
         return mb_substr($phone, 0, 3) . '****' . mb_substr($phone, -4);
     }
 
@@ -64,8 +75,11 @@ class EncryptionService
     public static function maskEmail(string $email): string
     {
         $parts = explode('@', $email);
-        if (count($parts) !== 2) return $email;
+        if (count($parts) !== 2) {
+            return $email;
+        }
         $name = $parts[0];
+
         return (mb_strlen($name) > 2 ? $name[0] . '***' : $name[0] . '**') . '@' . $parts[1];
     }
 }

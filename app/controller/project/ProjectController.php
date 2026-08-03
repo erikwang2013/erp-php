@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -70,6 +71,7 @@ class ProjectController extends BaseController
                 $data = $this->encodeIds($data);
                 // 计算实际进度
                 $data['progress'] = $this->calcProgress($item->id);
+
                 return $data;
             });
 
@@ -93,14 +95,19 @@ class ProjectController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['name' => 'required|string|max:200', 'manager_user_id' => 'required|integer|min:1']);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new Project();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -121,7 +128,9 @@ class ProjectController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = Project::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $result = $this->encodeIds($item->toArray());
         $result['progress'] = $this->calcProgress($item->id);
@@ -146,12 +155,17 @@ class ProjectController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = Project::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -173,13 +187,18 @@ class ProjectController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = Project::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -192,6 +211,7 @@ class ProjectController extends BaseController
         if ($tasks->isEmpty()) {
             return 0;
         }
+
         return (int) round($tasks->avg('progress'));
     }
 }

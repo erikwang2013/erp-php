@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("认证")
@@ -8,15 +9,14 @@ declare(strict_types=1);
 
 namespace app\api\v1\controller;
 
-use app\model\AdminUser;
 use app\common\SnowflakeService;
-use app\common\EncryptionService;
+use app\model\AdminUser;
+use Erikwang2013\Jwt\JWT;
+use Erikwang2013\Jwt\JWTFactory;
 use support\Container;
 use support\Redis;
 use support\Request;
 use support\Response;
-use Erikwang2013\Jwt\JWT;
-use Erikwang2013\Jwt\JWTFactory;
 use Throwable;
 
 class AuthController
@@ -29,6 +29,7 @@ class AuthController
             $config = config('plugin.erikwang2013.jwt.jwt', []);
             self::$jwt = JWTFactory::createFromConfig($config);
         }
+
         return self::$jwt;
     }
 
@@ -39,10 +40,10 @@ class AuthController
     public function login(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'username'    => 'required|string|min:3|max:50',
-            'password'    => 'required|string|min:6|max:32',
+            'username' => 'required|string|min:3|max:50',
+            'password' => 'required|string|min:6|max:32',
             'captcha_key' => 'required|string',
-            'clicks'      => 'required|array|min:2',
+            'clicks' => 'required|array|min:2',
         ]);
 
         if ($validator->fails()) {
@@ -50,7 +51,7 @@ class AuthController
         }
 
         // 验证点击验证码
-        $clicks = array_map(fn($c) => [(int)$c['x'], (int)$c['y']], $request->input('clicks'));
+        $clicks = array_map(fn ($c) => [(int)$c['x'], (int)$c['y']], $request->input('clicks'));
         if (!captcha_verify($request->input('captcha_key'), 'click', $clicks)) {
             return json(['code' => 422, 'message' => '验证码错误，请重试', 'data' => []]);
         }
@@ -65,25 +66,35 @@ class AuthController
             if (Redis::get($lockKey)) {
                 return json(['code' => 429, 'message' => '账号已被临时锁定，请15分钟后再试', 'data' => []]);
             }
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
 
         if (!$user || !password_verify($request->input('password'), $user->password)) {
             // 登录失败：计数 + 锁定
             try {
                 $failKey = "login_fail:{$username}";
                 $fails = Redis::incr($failKey);
-                if ($fails === 1) Redis::expire($failKey, 900);
+                if ($fails === 1) {
+                    Redis::expire($failKey, 900);
+                }
                 if ($fails >= 5) {
                     Redis::setex($lockKey, 900, '1');
                     Redis::del($failKey);
+
                     return json(['code' => 429, 'message' => '账号已被临时锁定，请15分钟后再试', 'data' => []]);
                 }
-            } catch (\Throwable) {}
+            } catch (\Throwable) {
+            }
+
             return json(['code' => 401, 'message' => '用户名或密码错误', 'data' => []]);
         }
 
         // 登录成功：清除失败计数
-        try { Redis::del("login_fail:{$username}"); Redis::del($lockKey); } catch (\Throwable) {}
+        try {
+            Redis::del("login_fail:{$username}");
+            Redis::del($lockKey);
+        } catch (\Throwable) {
+        }
 
         if ($user->status === 0) {
             return json(['code' => 403, 'message' => '账号已被禁用', 'data' => []]);
@@ -93,7 +104,8 @@ class AuthController
         $jwt = self::getJWT();
         $tokenExpire = (int)(config('plugin.erikwang2013.jwt.jwt.default_expire') ?: 7200);
         $token = $jwt->encode(['sub' => $user->id, 'username' => $user->username]);
-        $refreshToken = $jwt->encode(['sub' => $user->id, 'token_type' => 'refresh'],
+        $refreshToken = $jwt->encode(
+            ['sub' => $user->id, 'token_type' => 'refresh'],
             (int)(config('plugin.erikwang2013.jwt.jwt.refresh_expire') ?: 1209600)
         );
 
@@ -106,15 +118,15 @@ class AuthController
         $user->save();
 
         return json([
-            'code'    => 0,
+            'code' => 0,
             'message' => '登录成功',
-            'data'    => [
-                'access_token'  => $token,
+            'data' => [
+                'access_token' => $token,
                 'refresh_token' => $refreshToken,
-                'expires_in'    => (int)(config('plugin.erikwang2013.jwt.jwt.default_expire') ?: 7200),
-                'user'          => [
-                    'id'        => Container::get('hashids')->encode($user->id),
-                    'username'  => $user->username,
+                'expires_in' => (int)(config('plugin.erikwang2013.jwt.jwt.default_expire') ?: 7200),
+                'user' => [
+                    'id' => Container::get('hashids')->encode($user->id),
+                    'username' => $user->username,
                     'real_name' => $user->real_name,
                 ],
             ],
@@ -128,11 +140,11 @@ class AuthController
     public function register(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'username'    => 'required|string|min:3|max:50',
-            'password'    => 'required|string|min:6|max:32',
-            'real_name'   => 'required|string|max:50',
+            'username' => 'required|string|min:3|max:50',
+            'password' => 'required|string|min:6|max:32',
+            'real_name' => 'required|string|max:50',
             'captcha_key' => 'required|string',
-            'clicks'      => 'required|array|min:2',
+            'clicks' => 'required|array|min:2',
         ]);
 
         if ($validator->fails()) {
@@ -161,22 +173,23 @@ class AuthController
         $jwt = self::getJWT();
         $tokenExpire = (int)(config('plugin.erikwang2013.jwt.jwt.default_expire') ?: 7200);
         $token = $jwt->encode(['sub' => $user->id, 'username' => $user->username]);
-        $refreshToken = $jwt->encode(['sub' => $user->id, 'token_type' => 'refresh'],
+        $refreshToken = $jwt->encode(
+            ['sub' => $user->id, 'token_type' => 'refresh'],
             (int)(config('plugin.erikwang2013.jwt.jwt.refresh_expire') ?: 1209600)
         );
 
         $this->trackSession($user->id, $token, $tokenExpire);
 
         return json([
-            'code'    => 0,
+            'code' => 0,
             'message' => '注册成功',
-            'data'    => [
-                'access_token'  => $token,
+            'data' => [
+                'access_token' => $token,
                 'refresh_token' => $refreshToken,
-                'expires_in'    => (int)(config('plugin.erikwang2013.jwt.jwt.default_expire') ?: 7200),
-                'user'          => [
-                    'id'        => Container::get('hashids')->encode($user->id),
-                    'username'  => $user->username,
+                'expires_in' => (int)(config('plugin.erikwang2013.jwt.jwt.default_expire') ?: 7200),
+                'user' => [
+                    'id' => Container::get('hashids')->encode($user->id),
+                    'username' => $user->username,
                     'real_name' => $user->real_name,
                 ],
             ],
@@ -212,21 +225,25 @@ class AuthController
 
             $tokenExpire = (int)(config('plugin.erikwang2013.jwt.jwt.default_expire') ?: 7200);
             $token = $jwt->encode(['sub' => $payload['sub'], 'username' => $payload['username'] ?? '']);
-            $newRefresh = $jwt->encode(['sub' => $payload['sub'], 'token_type' => 'refresh'],
+            $newRefresh = $jwt->encode(
+                ['sub' => $payload['sub'], 'token_type' => 'refresh'],
                 (int)(config('plugin.erikwang2013.jwt.jwt.refresh_expire') ?: 1209600)
             );
 
             // 并发会话限制：注册新 token，移除旧 refresh token 的活跃状态
             $this->trackSession($userId, $token, $tokenExpire);
-            try { Redis::zrem("user_tokens:{$userId}", md5($refreshToken)); } catch (\Throwable) {}
+            try {
+                Redis::zrem("user_tokens:{$userId}", md5($refreshToken));
+            } catch (\Throwable) {
+            }
 
             return json([
-                'code'    => 0,
+                'code' => 0,
                 'message' => 'success',
-                'data'    => [
-                    'access_token'  => $token,
+                'data' => [
+                    'access_token' => $token,
                     'refresh_token' => $newRefresh,
-                    'expires_in'    => (int)(config('plugin.erikwang2013.jwt.jwt.default_expire') ?: 7200),
+                    'expires_in' => (int)(config('plugin.erikwang2013.jwt.jwt.default_expire') ?: 7200),
                 ],
             ]);
         } catch (Throwable $e) {

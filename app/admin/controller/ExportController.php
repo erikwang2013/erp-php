@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  * @Apidoc\Tag("文件管理")
@@ -8,17 +9,17 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
+use app\common\EncryptionService;
+use app\model\AdminRole;
+use app\model\AdminUser;
+use app\model\OperationLog;
+use app\model\SystemConfig;
+use Dompdf\Dompdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Dompdf\Dompdf;
-use app\common\EncryptionService;
-use app\model\AdminUser;
-use app\model\OperationLog;
-use app\model\AdminRole;
-use app\model\SystemConfig;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use support\Request;
 
 class ExportController extends BaseController
@@ -283,6 +284,7 @@ class ExportController extends BaseController
         $maps = [
             'admin_user' => ['phone', 'email', 'id_card'],
         ];
+
         return $maps[$table] ?? [];
     }
 }

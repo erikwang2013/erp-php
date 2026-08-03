@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -22,6 +23,12 @@ class ReportTemplate extends Model
     protected $fillable = ['code', 'name', 'module', 'query_config', 'chart_type', 'status'];
     protected $casts = ['query_config' => 'array', 'status' => 'integer'];
 
-    public function fields() { return $this->hasMany(ReportField::class, 'template_id'); }
-    public function filters() { return $this->hasMany(ReportFilter::class, 'template_id'); }
+    public function fields()
+    {
+        return $this->hasMany(ReportField::class, 'template_id');
+    }
+    public function filters()
+    {
+        return $this->hasMany(ReportFilter::class, 'template_id');
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -16,4 +17,4 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
-return new Webman\Container;
+return new Webman\Container();

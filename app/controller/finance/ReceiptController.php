@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -56,7 +57,7 @@ class ReceiptController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -83,7 +84,9 @@ class ReceiptController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['code' => 'required|string|max:50', 'customer_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new FinanceReceipt();
         $item->id = $this->generateId();
@@ -96,6 +99,7 @@ class ReceiptController extends BaseController
         $item->status = 0; // Always start as pending - NOT settable by client
         $item->received_at = $request->input('received_at') ?: date('Y-m-d H:i:s');
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -116,7 +120,10 @@ class ReceiptController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceReceipt::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -145,17 +152,36 @@ class ReceiptController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceReceipt::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
-        if ($request->has('code')) $item->code = $request->input('code');
-        if ($request->has('customer_id')) $item->customer_id = $this->decodeId($request->input('customer_id'));
-        if ($request->has('bank_account_id')) $item->bank_account_id = $this->decodeId($request->input('bank_account_id', '0'));
-        if ($request->has('amount')) $item->amount = (float) $request->input('amount');
-        if ($request->has('method')) $item->method = $request->input('method');
-        if ($request->has('remark')) $item->remark = $request->input('remark');
-        if ($request->has('status')) $item->status = (int) $request->input('status');
-        if ($request->has('received_at')) $item->received_at = $request->input('received_at');
+        if ($request->has('code')) {
+            $item->code = $request->input('code');
+        }
+        if ($request->has('customer_id')) {
+            $item->customer_id = $this->decodeId($request->input('customer_id'));
+        }
+        if ($request->has('bank_account_id')) {
+            $item->bank_account_id = $this->decodeId($request->input('bank_account_id', '0'));
+        }
+        if ($request->has('amount')) {
+            $item->amount = (float) $request->input('amount');
+        }
+        if ($request->has('method')) {
+            $item->method = $request->input('method');
+        }
+        if ($request->has('remark')) {
+            $item->remark = $request->input('remark');
+        }
+        if ($request->has('status')) {
+            $item->status = (int) $request->input('status');
+        }
+        if ($request->has('received_at')) {
+            $item->received_at = $request->input('received_at');
+        }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -177,13 +203,18 @@ class ReceiptController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceReceipt::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 }

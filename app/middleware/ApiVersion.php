@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -30,9 +31,9 @@ class ApiVersion implements MiddlewareInterface
 
         if (!in_array($version, self::SUPPORTED, true)) {
             return json([
-                'code'    => 400,
+                'code' => 400,
                 'message' => "不支持的API版本: {$version}，当前支持: " . implode(', ', self::SUPPORTED),
-                'data'    => [],
+                'data' => [],
             ]);
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -19,5 +20,8 @@ class HrPosition extends Model
     protected $fillable = ['department_id', 'code', 'name', 'rank', 'status'];
     protected $casts = ['department_id' => 'integer', 'rank' => 'integer', 'status' => 'integer'];
 
-    public function department() { return $this->belongsTo(HrDepartment::class, 'department_id'); }
+    public function department()
+    {
+        return $this->belongsTo(HrDepartment::class, 'department_id');
+    }
 }

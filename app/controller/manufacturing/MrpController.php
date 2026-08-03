@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -9,9 +10,8 @@ namespace app\controller\manufacturing;
 use app\admin\controller\BaseController;
 use app\model\Inventory;
 use app\model\MfgBom;
-use app\model\MfgBomItem;
-use app\model\MfgMrpPlan;
 use app\model\MfgMrpItem;
+use app\model\MfgMrpPlan;
 use support\Request;
 use support\Response;
 
@@ -60,7 +60,7 @@ class MrpController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -87,14 +87,19 @@ class MrpController extends BaseController
             'period_year' => 'required|integer',
             'period_month' => 'required|integer',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new MfgMrpPlan();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -115,12 +120,15 @@ class MrpController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = MfgMrpPlan::with(['items'])->find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $data = $item->toArray();
         if (isset($data['items'])) {
-            $data['items'] = array_map(fn($i) => $this->encodeIds($i), $data['items']);
+            $data['items'] = array_map(fn ($i) => $this->encodeIds($i), $data['items']);
         }
+
         return $this->success($this->encodeIds($data));
     }
 
@@ -141,15 +149,22 @@ class MrpController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = MfgMrpPlan::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
-        if ($item->status === 2) return $this->fail('已确认的计划不可修改', 422);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+        if ($item->status === 2) {
+            return $this->fail('已确认的计划不可修改', 422);
+        }
 
         $originalStatus = $item->status;
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->status = $originalStatus;
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -171,14 +186,19 @@ class MrpController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = MfgMrpPlan::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         MfgMrpItem::where('plan_id', $id)->delete();
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -199,8 +219,12 @@ class MrpController extends BaseController
     {
         $planId = $this->decodeId($hashid);
         $plan = MfgMrpPlan::find($planId);
-        if (!$plan) return $this->fail('计划不存在', 404);
-        if ($plan->status === 2) return $this->fail('已确认的计划不可重新生成', 422);
+        if (!$plan) {
+            return $this->fail('计划不存在', 404);
+        }
+        if ($plan->status === 2) {
+            return $this->fail('已确认的计划不可重新生成', 422);
+        }
 
         MfgMrpItem::where('plan_id', $planId)->delete();
 
@@ -214,7 +238,9 @@ class MrpController extends BaseController
                 $onHand = $inventory ? (float) $inventory->quantity : 0.00;
 
                 $netRequirement = $grossRequirement - $onHand;
-                if ($netRequirement < 0) $netRequirement = 0;
+                if ($netRequirement < 0) {
+                    $netRequirement = 0;
+                }
 
                 $item = new MfgMrpItem();
                 $item->id = $this->generateId();
@@ -237,6 +263,7 @@ class MrpController extends BaseController
         $plan->save();
 
         $itemCount = MfgMrpItem::where('plan_id', $planId)->count();
+
         return $this->success(['items_count' => $itemCount], "MRP计划生成完成，共 {$itemCount} 条明细");
     }
 }

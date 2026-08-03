@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -20,5 +21,8 @@ class ReportFilter extends Model
     protected $fillable = ['template_id', 'name', 'field', 'filter_type', 'default_value', 'required'];
     protected $casts = ['template_id' => 'integer', 'required' => 'integer'];
 
-    public function template() { return $this->belongsTo(ReportTemplate::class, 'template_id'); }
+    public function template()
+    {
+        return $this->belongsTo(ReportTemplate::class, 'template_id');
+    }
 }

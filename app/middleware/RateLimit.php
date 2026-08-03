@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,10 +8,10 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
-use Webman\MiddlewareInterface;
-use Webman\Http\Response;
-use Webman\Http\Request;
 use support\Redis;
+use Webman\Http\Request;
+use Webman\Http\Response;
+use Webman\MiddlewareInterface;
 
 class RateLimit implements MiddlewareInterface
 {
@@ -18,21 +19,21 @@ class RateLimit implements MiddlewareInterface
     private int $defaultWindow = 60;
 
     private array $sensitive = [
-        '/api/auth/login'    => ['limit' => 10, 'window' => 60],
+        '/api/auth/login' => ['limit' => 10, 'window' => 60],
         '/api/auth/register' => ['limit' => 5,  'window' => 60],
     ];
 
     public function process(Request $request, callable $handler): Response
     {
         $path = $request->path();
-        $ip   = $request->getRealIp();
+        $ip = $request->getRealIp();
 
-        $limit  = $this->defaultLimit;
+        $limit = $this->defaultLimit;
         $window = $this->defaultWindow;
 
         foreach ($this->sensitive as $pattern => $cfg) {
             if ($path === $pattern || str_starts_with($path, rtrim($pattern, '/') . '/')) {
-                $limit  = $cfg['limit'];
+                $limit = $cfg['limit'];
                 $window = $cfg['window'];
                 break;
             }
@@ -59,28 +60,29 @@ LUA;
         } catch (\Throwable $e) {
             return $handler($request); // Redis down, fail open
         }
-        $count     = (int) ($result[1] ?? 0);
+        $count = (int) ($result[1] ?? 0);
         $remaining = max($limit - $count, 0);
-        $reset     = time() + $window;
+        $reset = time() + $window;
 
         if (empty($result[0])) {
             return json([
-                'code'    => 429,
+                'code' => 429,
                 'message' => '请求过于频繁，请稍后再试',
-                'data'    => [],
+                'data' => [],
             ])->withStatus(429)->withHeaders([
-                'X-RateLimit-Limit'     => (string) $limit,
+                'X-RateLimit-Limit' => (string) $limit,
                 'X-RateLimit-Remaining' => '0',
-                'X-RateLimit-Reset'     => (string) $reset,
-                'Retry-After'           => (string) $window,
+                'X-RateLimit-Reset' => (string) $reset,
+                'Retry-After' => (string) $window,
             ]);
         }
 
         $response = $handler($request);
+
         return $response->withHeaders([
-            'X-RateLimit-Limit'     => (string) $limit,
+            'X-RateLimit-Limit' => (string) $limit,
             'X-RateLimit-Remaining' => (string) $remaining,
-            'X-RateLimit-Reset'     => (string) $reset,
+            'X-RateLimit-Reset' => (string) $reset,
         ]);
     }
 }

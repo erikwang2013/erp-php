@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  * @Apidoc\Tag("导入管理")
@@ -47,15 +48,15 @@ class ImportController extends BaseController
 
         $tmpPath = $file->getRealPath();
         $spreadsheet = IOFactory::load($tmpPath);
-        $sheet       = $spreadsheet->getActiveSheet();
-        $rows        = $sheet->toArray();
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
 
         if (count($rows) < 2) {
             return $this->fail('Excel 文件无数据', 422);
         }
 
         $headers = array_map('strtolower', array_map('trim', $rows[0]));
-        $colMap  = array_flip($headers);
+        $colMap = array_flip($headers);
 
         $required = ['username', 'password', 'real_name'];
         foreach ($required as $col) {
@@ -64,21 +65,23 @@ class ImportController extends BaseController
             }
         }
 
-        $total   = 0;
+        $total = 0;
         $success = 0;
-        $failed  = 0;
-        $errors  = [];
+        $failed = 0;
+        $errors = [];
 
         foreach ($rows as $idx => $row) {
-            if ($idx === 0) continue;
+            if ($idx === 0) {
+                continue;
+            }
             $total++;
 
             $username = trim((string) ($row[$colMap['username']] ?? ''));
             $password = trim((string) ($row[$colMap['password']] ?? ''));
             $realName = trim((string) ($row[$colMap['real_name']] ?? ''));
-            $phone    = trim((string) ($row[$colMap['phone']] ?? ''));
-            $email    = trim((string) ($row[$colMap['email']] ?? ''));
-            $status   = isset($colMap['status']) ? (int) ($row[$colMap['status']] ?? 1) : 1;
+            $phone = trim((string) ($row[$colMap['phone']] ?? ''));
+            $email = trim((string) ($row[$colMap['email']] ?? ''));
+            $status = isset($colMap['status']) ? (int) ($row[$colMap['status']] ?? 1) : 1;
 
             if (empty($username)) {
                 $failed++;
@@ -94,13 +97,13 @@ class ImportController extends BaseController
 
             try {
                 $user = new AdminUser();
-                $user->id        = $this->generateId();
-                $user->username  = $username;
-                $user->password  = password_hash($password, PASSWORD_BCRYPT);
+                $user->id = $this->generateId();
+                $user->username = $username;
+                $user->password = password_hash($password, PASSWORD_BCRYPT);
                 $user->real_name = $realName;
-                $user->status    = in_array($status, [0, 1], true) ? $status : 1;
-                $user->phone     = $phone;
-                $user->email     = $email;
+                $user->status = in_array($status, [0, 1], true) ? $status : 1;
+                $user->phone = $phone;
+                $user->email = $email;
                 $user->save();
                 $success++;
             } catch (\Throwable $e) {
@@ -110,10 +113,10 @@ class ImportController extends BaseController
         }
 
         return $this->success([
-            'total'   => $total,
+            'total' => $total,
             'success' => $success,
-            'failed'  => $failed,
-            'errors'  => $errors,
+            'failed' => $failed,
+            'errors' => $errors,
         ], '导入完成');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -71,6 +72,7 @@ class SalaryController extends BaseController
                 if ($item->relationLoaded('employee') && $item->employee) {
                     $data['employee'] = $this->encodeIds($item->employee->toArray());
                 }
+
                 return $this->encodeIds($data);
             });
 
@@ -104,18 +106,24 @@ class SalaryController extends BaseController
             'period_year' => 'required|integer',
             'period_month' => 'required|integer',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $exists = HrSalary::where('employee_id', (int) $request->input('employee_id'))
             ->where('period_year', (int) $request->input('period_year'))
             ->where('period_month', (int) $request->input('period_month'))
             ->exists();
-        if ($exists) return $this->fail('该员工当月薪资记录已存在', 422);
+        if ($exists) {
+            return $this->fail('该员工当月薪资记录已存在', 422);
+        }
 
         $item = new HrSalary();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
 
         $item->net_salary = ($item->base_salary ?? 0)
@@ -125,6 +133,7 @@ class SalaryController extends BaseController
             - ($item->tax ?? 0);
 
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -145,12 +154,15 @@ class SalaryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrSalary::with(['employee'])->find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $data = $item->toArray();
         if ($item->relationLoaded('employee') && $item->employee) {
             $data['employee'] = $this->encodeIds($item->employee->toArray());
         }
+
         return $this->success($this->encodeIds($data));
     }
 
@@ -171,11 +183,17 @@ class SalaryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrSalary::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
-        if ($item->status === 1) return $this->fail('已发放的薪资不可修改', 422);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+        if ($item->status === 1) {
+            return $this->fail('已发放的薪资不可修改', 422);
+        }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
 
         $item->net_salary = ($item->base_salary ?? 0)
@@ -185,6 +203,7 @@ class SalaryController extends BaseController
             - ($item->tax ?? 0);
 
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -206,14 +225,21 @@ class SalaryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrSalary::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
-        if ($item->status === 1) return $this->fail('已发放的薪资不可删除', 422);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+        if ($item->status === 1) {
+            return $this->fail('已发放的薪资不可删除', 422);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -234,11 +260,16 @@ class SalaryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrSalary::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
-        if ($item->status === 1) return $this->fail('该薪资已发放', 422);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+        if ($item->status === 1) {
+            return $this->fail('该薪资已发放', 422);
+        }
 
         $item->status = 1;
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '薪资已发放');
     }
 
@@ -275,7 +306,9 @@ class SalaryController extends BaseController
                 ->where('period_year', $periodYear)
                 ->where('period_month', $periodMonth)
                 ->exists();
-            if ($exists) continue;
+            if ($exists) {
+                continue;
+            }
 
             $salary = new HrSalary();
             $salary->id = $this->generateId();
@@ -307,7 +340,8 @@ class SalaryController extends BaseController
      */
     public function itemIndex(Request $request): Response
     {
-        $list = HrSalaryItem::orderBy('id', 'asc')->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+        $list = HrSalaryItem::orderBy('id', 'asc')->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+
         return $this->success(['list' => $list]);
     }
 
@@ -331,14 +365,19 @@ class SalaryController extends BaseController
             'code' => 'required|string|max:50',
             'name' => 'required|string|max:100',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new HrSalaryItem();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -359,7 +398,10 @@ class SalaryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrSalaryItem::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -380,12 +422,17 @@ class SalaryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrSalaryItem::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -407,13 +454,18 @@ class SalaryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrSalaryItem::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 }

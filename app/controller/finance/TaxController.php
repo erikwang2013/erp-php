@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("财务管理")
@@ -32,7 +33,8 @@ class TaxController extends BaseController
     public function rates(Request $request): Response
     {
         $list = FinanceTaxRate::query()->orderBy('id', 'asc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+
         return $this->success(['list' => $list]);
     }
 
@@ -59,22 +61,29 @@ class TaxController extends BaseController
             'rate' => 'required|numeric',
             'type' => 'required|string|max:30',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $hashid = $request->input('id', '');
         if ($hashid) {
             $id = $this->decodeId($hashid);
             $item = FinanceTaxRate::find($id);
-            if (!$item) return $this->fail('记录不存在', 404);
+            if (!$item) {
+                return $this->fail('记录不存在', 404);
+            }
         } else {
             $item = new FinanceTaxRate();
             $item->id = $this->generateId();
         }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), $hashid ? '更新成功' : '创建成功');
     }
 
@@ -95,8 +104,11 @@ class TaxController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceTaxRate::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -141,7 +153,7 @@ class TaxController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }

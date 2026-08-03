@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -8,11 +9,11 @@ namespace app\controller\product;
 
 use app\admin\controller\BaseController;
 use app\model\Product;
-use app\model\ProductSku;
 use app\model\ProductPrice;
+use app\model\ProductSku;
+use Illuminate\Database\Capsule\Manager as DB;
 use support\Request;
 use support\Response;
-use Illuminate\Database\Capsule\Manager as DB;
 
 /**
  * 商品管理
@@ -106,7 +107,9 @@ class ProductController extends BaseController
             'category_id' => 'required|string',
             'unit' => 'required|string|max:20',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         DB::beginTransaction();
         try {
@@ -151,9 +154,11 @@ class ProductController extends BaseController
             }
 
             DB::commit();
+
             return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('created'));
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return $this->fail($this->trans('fail') . ': ' . $e->getMessage(), 500);
         }
     }
@@ -175,7 +180,10 @@ class ProductController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $product = Product::with(['category', 'brand', 'skus', 'prices', 'units'])->find($id);
-        if (!$product) return $this->fail($this->trans('not_found'), 404);
+        if (!$product) {
+            return $this->fail($this->trans('not_found'), 404);
+        }
+
         return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']));
     }
 
@@ -205,7 +213,9 @@ class ProductController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $product = Product::find($id);
-        if (!$product) return $this->fail($this->trans('not_found'), 404);
+        if (!$product) {
+            return $this->fail($this->trans('not_found'), 404);
+        }
 
         $product->name = $request->input('name', $product->name);
         $product->barcode = $request->input('barcode', $product->barcode);
@@ -214,9 +224,14 @@ class ProductController extends BaseController
         $product->image = $request->input('image', $product->image);
         $product->description = $request->input('description', $product->description);
         $product->status = (int) $request->input('status', $product->status);
-        if ($request->input('category_id')) $product->category_id = $this->decodeId($request->input('category_id'));
-        if ($request->input('brand_id')) $product->brand_id = $this->decodeId($request->input('brand_id'));
+        if ($request->input('category_id')) {
+            $product->category_id = $this->decodeId($request->input('category_id'));
+        }
+        if ($request->input('brand_id')) {
+            $product->brand_id = $this->decodeId($request->input('brand_id'));
+        }
         $product->save();
+
         return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('updated'));
     }
 
@@ -238,13 +253,18 @@ class ProductController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $product = Product::find($id);
-        if (!$product) return $this->fail($this->trans('not_found'), 404);
+        if (!$product) {
+            return $this->fail($this->trans('not_found'), 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $product->delete();
+
         return $this->success([], $this->trans('deleted'));
     }
 }

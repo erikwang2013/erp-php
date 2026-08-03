@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("CRM")
@@ -72,7 +73,7 @@ class TicketController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -97,15 +98,20 @@ class TicketController extends BaseController
             'title' => 'required|string|max:200',
             'customer_id' => 'required|integer',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new CrmTicket();
         $item->id = $this->generateId();
         $item->status = 0;
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -126,12 +132,14 @@ class TicketController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmTicket::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $data = $this->encodeIds($item->toArray());
 
         $replies = CrmTicketReply::where('ticket_id', $id)->orderBy('id', 'asc')
-            ->get()->map(fn($r) => $this->encodeIds($r->toArray()));
+            ->get()->map(fn ($r) => $this->encodeIds($r->toArray()));
         $data['replies'] = $replies;
 
         return $this->success($data);
@@ -154,12 +162,17 @@ class TicketController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmTicket::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -181,14 +194,19 @@ class TicketController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmTicket::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         CrmTicketReply::where('ticket_id', $id)->delete();
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -210,16 +228,21 @@ class TicketController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmTicket::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $assigneeUserId = (int) $request->input('assignee_user_id', 0);
-        if ($assigneeUserId <= 0) return $this->fail('请指定指派人', 422);
+        if ($assigneeUserId <= 0) {
+            return $this->fail('请指定指派人', 422);
+        }
 
         $item->assignee_user_id = $assigneeUserId;
         if ((int) $item->status === 0) {
             $item->status = 1;
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '指派成功');
     }
 
@@ -241,7 +264,9 @@ class TicketController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmTicket::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         if ((int) $item->status === 3) {
             return $this->fail('工单已关闭，无法解决', 422);
@@ -284,10 +309,14 @@ class TicketController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $ticket = CrmTicket::find($id);
-        if (!$ticket) return $this->fail('工单不存在', 404);
+        if (!$ticket) {
+            return $this->fail('工单不存在', 404);
+        }
 
         $validator = validator($request->all(), ['content' => 'required|string']);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $reply = new CrmTicketReply();
         $reply->id = $this->generateId();

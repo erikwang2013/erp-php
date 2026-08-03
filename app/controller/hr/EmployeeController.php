@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -70,6 +71,7 @@ class EmployeeController extends BaseController
                     ? $this->encodeIds($item->department->toArray()) : null;
                 $data['position'] = $item->relationLoaded('position') && $item->position
                     ? $this->encodeIds($item->position->toArray()) : null;
+
                 return $this->encodeIds($data);
             });
 
@@ -96,14 +98,19 @@ class EmployeeController extends BaseController
             'code' => 'required|string|max:50',
             'name' => 'required|string|max:50',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new HrEmployee();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -124,7 +131,9 @@ class EmployeeController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrEmployee::with(['department', 'position'])->find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $data = $item->toArray();
         $data['department'] = $item->relationLoaded('department') && $item->department
@@ -152,12 +161,17 @@ class EmployeeController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrEmployee::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -179,13 +193,18 @@ class EmployeeController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrEmployee::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * JWT Webman Plugin - JWT authentication for webman framework
  * Copyright (c) 2026 erik
@@ -19,12 +20,12 @@ return [
     'storage' => [
         'type' => getenv('JWT_STORAGE_TYPE') ?: 'file',
         'database' => getenv('JWT_STORAGE_DATABASE') ?: '',
-        'prefix' => getenv('JWT_STORAGE_PREFIX') ?: 'jwt_token:'
+        'prefix' => getenv('JWT_STORAGE_PREFIX') ?: 'jwt_token:',
     ],
     'advanced' => [
         'retry_attempts' => (int)(getenv('JWT_ADVANCED_RETRY_ATTEMPTS') ?: 1),
         'retry_delay' => (int)(getenv('JWT_ADVANCED_RETRY_DELAY') ?: 100),
         'auto_cleanup' => filter_var(getenv('JWT_ADVANCED_AUTO_CLEANUP') ?: '0', FILTER_VALIDATE_BOOLEAN),
-        'cleanup_interval' => (int)(getenv('JWT_ADVANCED_CLEANUP_INTERVAL') ?: 3600)
-    ]
+        'cleanup_interval' => (int)(getenv('JWT_ADVANCED_CLEANUP_INTERVAL') ?: 3600),
+    ],
 ];

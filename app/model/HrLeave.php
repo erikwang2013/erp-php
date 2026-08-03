@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -22,5 +23,8 @@ class HrLeave extends Model
     protected $fillable = ['employee_id', 'type', 'start_date', 'end_date', 'days', 'status', 'reason'];
     protected $casts = ['employee_id' => 'integer', 'type' => 'integer', 'days' => 'float', 'status' => 'integer'];
 
-    public function employee() { return $this->belongsTo(HrEmployee::class, 'employee_id'); }
+    public function employee()
+    {
+        return $this->belongsTo(HrEmployee::class, 'employee_id');
+    }
 }

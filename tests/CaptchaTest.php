@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,8 +8,8 @@ declare(strict_types=1);
 
 namespace tests;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class CaptchaTest extends TestCase
 {
@@ -71,7 +72,7 @@ class CaptchaTest extends TestCase
         $targets = $result['extra']['targets'];
 
         // captcha_verify 内部期望 [x, y] 格式
-        $clicks = array_map(fn($t) => [$t['x'], $t['y']], $targets);
+        $clicks = array_map(fn ($t) => [$t['x'], $t['y']], $targets);
         $valid = captcha_verify($result['key'], 'click', $clicks);
 
         $this->assertTrue($valid, '点击正确坐标应验证通过');
@@ -94,7 +95,7 @@ class CaptchaTest extends TestCase
     {
         $result = captcha_create('click', ['difficulty' => 'easy']);
         $targets = $result['extra']['targets'];
-        $clicks = array_map(fn($t) => [$t['x'], $t['y']], $targets);
+        $clicks = array_map(fn ($t) => [$t['x'], $t['y']], $targets);
 
         // 第一次验证通过
         $first = captcha_verify($result['key'], 'click', $clicks);

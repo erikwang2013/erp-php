@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  * @Apidoc\Tag("权限管理")
@@ -33,6 +34,7 @@ class PermissionController extends BaseController
             ->toArray();
 
         $tree = $this->buildTree($permissions);
+
         return $this->success($tree);
     }
 
@@ -168,6 +170,7 @@ class PermissionController extends BaseController
                 $tree[] = $perm;
             }
         }
+
         return $tree;
     }
 }

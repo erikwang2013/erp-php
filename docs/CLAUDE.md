@@ -93,14 +93,15 @@ open-erp/
 │   │   ├── hr/                  # 部门/员工/职位/考勤/请假/薪资 (5个)
 │   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP (5个)
 │   │   └── report/              # 报表模板/数据集/执行/定时调度 (2个)
-│   ├── service/                 # 业务逻辑层
-│   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
+│   ├── service/                 # 业务逻辑层（容器注册，7 个）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
+│   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
 │   │   └── notification/        # NotificationService: 通知发送
-│   ├── common/                  # 公共工具类
+│   ├── common/                  # 公共工具类（容器注册，4 个）
 │   │   ├── HashidsService.php   # ID 编解码
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
-│   │   └── EncryptionService.php# 数据加解密 + 脱敏
+│   │   ├── EncryptionService.php# 数据加解密 + 脱敏
+│   │   └── I18n.php             # 国际化翻译
 │   ├── middleware/              # 中间件（9 个）
 │   │   ├── Locale.php           # Accept-Language 语言自动检测
 │   │   ├── Cors.php             # 跨域
@@ -111,7 +112,7 @@ open-erp/
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   ├── OperationLog.php     # 操作日志自动记录
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
-│   ├── model/                   # 数据模型（121 个）
+│   ├── model/                   # 数据模型（120 个）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, Monitor)
 ├── apps/
@@ -157,11 +158,11 @@ open-erp/
 ├── .env.example                # 环境变量模板
 ├── .env.docker                 # Docker 环境变量
 ├── composer.json               # PHP 依赖
-├── Dockerfile                  # Docker 构建
+├── Dockerfile                  # Docker 构建（含 OPcache + event + redis 扩展）
 ├── docker-compose.yml          # Docker 编排
 └── .github/
     └── workflows/
-        └── ci.yml              # CI/CD 流水线（PHP语法+PHPUnit+Flutter analyze）
+        └── ci.yml              # CI/CD 流水线（PHP语法+PHPStan+CS Fixer+PHPUnit+composer audit，多版本矩阵）
 ```
 
 ## 中间件执行链
@@ -233,7 +234,7 @@ Redis 滑动窗口（Lua 原子化），默认 60 次/分钟/IP/路由：
 | 服务 | 说明 |
 |------|------|
 | `nginx` | Nginx 反向代理（80/443），静态文件服务 |
-| `app` | webman PHP 8.3 应用，`Dockerfile` 构建（含 OPcache） |
+| `app` | webman PHP 8.3 应用，`Dockerfile` 构建（含 OPcache + event + redis） |
 | `mysql` | MySQL 8.0，数据卷持久化 |
 | `redis` | Redis 7 Alpine，缓存/限流/Session |
 | `elasticsearch` | Elasticsearch 8.x，全文检索 |
@@ -245,11 +246,13 @@ docker-compose up -d
 
 ### CI/CD
 
-`.github/workflows/ci.yml` 定义 GitHub Actions 流水线：
+`.github/workflows/ci.yml` 定义 GitHub Actions 流水线（PHP 8.2/8.3/8.4 矩阵）：
 
 - PHP 语法检查 (`php -l`)
+- PHPStan 静态分析 (`vendor/bin/phpstan analyse`)
+- PHP CS Fixer 代码风格检查 (`vendor/bin/php-cs-fixer fix --dry-run --diff`)
 - PHPUnit 单元测试
-- Flutter 静态分析 (`flutter analyze`)
+- Composer 安全审计 (`composer audit --no-dev`)
 
 ### 数据库备份
 

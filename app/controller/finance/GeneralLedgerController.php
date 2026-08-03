@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("财务管理")
@@ -54,7 +55,7 @@ class GeneralLedgerController extends BaseController
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('period_year', 'desc')
             ->orderBy('period_month', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }

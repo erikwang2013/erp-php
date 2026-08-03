@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,10 +8,10 @@ declare(strict_types=1);
 namespace app\controller\workflow;
 
 use app\admin\controller\BaseController;
-use app\model\ApprovalWorkflow;
-use app\model\ApprovalNode;
 use app\model\ApprovalInstance;
+use app\model\ApprovalNode;
 use app\model\ApprovalRecord;
+use app\model\ApprovalWorkflow;
 use support\Request;
 use support\Response;
 
@@ -39,18 +40,26 @@ class ApprovalController extends BaseController
     {
         $workflowId = $this->decodeId($hashid);
         $workflow = ApprovalWorkflow::find($workflowId);
-        if (!$workflow || !$workflow->enabled) return $this->fail('工作流不存在或已禁用', 404);
+        if (!$workflow || !$workflow->enabled) {
+            return $this->fail('工作流不存在或已禁用', 404);
+        }
 
         $targetType = $request->input('target_type', '');
         $targetId = (int) $request->input('target_id', 0);
-        if (!$targetType || !$targetId) return $this->fail('单据类型和ID不能为空', 422);
+        if (!$targetType || !$targetId) {
+            return $this->fail('单据类型和ID不能为空', 422);
+        }
 
         // 检查是否已有审批实例
         $exists = ApprovalInstance::where('target_type', $targetType)->where('target_id', $targetId)->first();
-        if ($exists) return $this->fail('该单据已提交审批', 422);
+        if ($exists) {
+            return $this->fail('该单据已提交审批', 422);
+        }
 
         $firstNode = ApprovalNode::where('workflow_id', $workflow->id)->orderBy('seq')->first();
-        if (!$firstNode) return $this->fail('工作流未配置审批节点', 422);
+        if (!$firstNode) {
+            return $this->fail('工作流未配置审批节点', 422);
+        }
 
         $instance = new ApprovalInstance();
         $instance->id = $this->generateId();
@@ -84,8 +93,12 @@ class ApprovalController extends BaseController
     {
         $instanceId = $this->decodeId($hashid);
         $instance = ApprovalInstance::find($instanceId);
-        if (!$instance) return $this->fail('审批实例不存在', 404);
-        if ($instance->status !== 0) return $this->fail('当前状态不可审批', 422);
+        if (!$instance) {
+            return $this->fail('审批实例不存在', 404);
+        }
+        if ($instance->status !== 0) {
+            return $this->fail('当前状态不可审批', 422);
+        }
 
         $comment = $request->input('comment', '');
         $approverId = (int)($request->adminId ?? 0);
@@ -135,11 +148,17 @@ class ApprovalController extends BaseController
     {
         $instanceId = $this->decodeId($hashid);
         $instance = ApprovalInstance::find($instanceId);
-        if (!$instance) return $this->fail('审批实例不存在', 404);
-        if ($instance->status !== 0) return $this->fail('当前状态不可审批', 422);
+        if (!$instance) {
+            return $this->fail('审批实例不存在', 404);
+        }
+        if ($instance->status !== 0) {
+            return $this->fail('当前状态不可审批', 422);
+        }
 
         $comment = $request->input('comment', '');
-        if (empty($comment)) return $this->fail('驳回意见不能为空', 422);
+        if (empty($comment)) {
+            return $this->fail('驳回意见不能为空', 422);
+        }
 
         $approverId = (int)($request->adminId ?? 0);
 
@@ -177,11 +196,17 @@ class ApprovalController extends BaseController
     {
         $instanceId = $this->decodeId($hashid);
         $instance = ApprovalInstance::find($instanceId);
-        if (!$instance) return $this->fail('审批实例不存在', 404);
-        if ($instance->status !== 0) return $this->fail('当前状态不可撤回', 422);
+        if (!$instance) {
+            return $this->fail('审批实例不存在', 404);
+        }
+        if ($instance->status !== 0) {
+            return $this->fail('当前状态不可撤回', 422);
+        }
 
         $submitterId = (int)($request->adminId ?? 0);
-        if ((int) $instance->submitter_id !== $submitterId) return $this->fail('仅提交人可撤回', 403);
+        if ((int) $instance->submitter_id !== $submitterId) {
+            return $this->fail('仅提交人可撤回', 403);
+        }
 
         $instance->status = 3;
         $instance->completed_at = date('Y-m-d H:i:s');
@@ -231,7 +256,7 @@ class ApprovalController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }

@@ -30,8 +30,8 @@ RUN docker-php-ext-install -j$(nproc) \
         xml \
         dom \
         xmlwriter \
-    && pecl install event \
-    && docker-php-ext-enable opcache pcntl event
+    && pecl install event redis \
+    && docker-php-ext-enable opcache pcntl event redis
 
 # OPcache 生产配置
 RUN echo "opcache.enable=1" >> "$PHP_INI_DIR/php.ini" \

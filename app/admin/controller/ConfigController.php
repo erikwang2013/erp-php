@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  * @Apidoc\Tag("系统配置")
@@ -31,7 +32,7 @@ class ConfigController extends BaseController
      */
     public function index(Request $request): Response
     {
-        $page  = (int) $request->input('page', 1);
+        $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $group = $request->input('group', '');
 
@@ -41,17 +42,17 @@ class ConfigController extends BaseController
         }
 
         $total = $query->count();
-        $list  = $query->offset(($page - 1) * $limit)
+        $list = $query->offset(($page - 1) * $limit)
                        ->limit($limit)
                        ->orderBy('group')
                        ->orderBy('key')
                        ->get()
-                       ->map(fn($item) => $this->encodeIds($item->toArray()));
+                       ->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success([
-            'list'  => $list,
+            'list' => $list,
             'total' => $total,
-            'page'  => $page,
+            'page' => $page,
             'limit' => $limit,
         ]);
     }
@@ -77,7 +78,7 @@ class ConfigController extends BaseController
     {
         $validator = validator($request->all(), [
             'group' => 'required|string|max:100',
-            'key'   => 'required|string|max:100',
+            'key' => 'required|string|max:100',
             'value' => 'required|string',
         ]);
 
@@ -93,11 +94,11 @@ class ConfigController extends BaseController
         }
 
         $config = new SystemConfig();
-        $config->id          = $this->generateId();
-        $config->group       = $request->input('group');
-        $config->key         = $request->input('key');
-        $config->value       = $request->input('value');
-        $config->type        = $request->input('type', 'string');
+        $config->id = $this->generateId();
+        $config->group = $request->input('group');
+        $config->key = $request->input('key');
+        $config->value = $request->input('value');
+        $config->type = $request->input('type', 'string');
         $config->description = $request->input('description', '');
         $config->save();
 
@@ -122,7 +123,7 @@ class ConfigController extends BaseController
      */
     public function update(Request $request, string $hashid): Response
     {
-        $id     = $this->decodeId($hashid);
+        $id = $this->decodeId($hashid);
         $config = SystemConfig::find($id);
         if (!$config) {
             return $this->fail('配置项不存在', 404);
@@ -159,19 +160,20 @@ class ConfigController extends BaseController
      */
     public function destroy(Request $request, string $hashid): Response
     {
-        $id     = $this->decodeId($hashid);
+        $id = $this->decodeId($hashid);
         $config = SystemConfig::find($id);
         if (!$config) {
             return $this->fail('配置项不存在', 404);
         }
 
         $adminId = $request->adminId ?? 0;
-        $error   = $this->confirmPassword($adminId, $request->input('password', ''), $request);
+        $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
         if ($error !== null) {
             return $this->fail($error, 422);
         }
 
         $config->delete();
+
         return $this->success([], '删除成功');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  * @Apidoc\Tag("个人中心")
@@ -9,11 +10,11 @@ declare(strict_types=1);
 namespace app\admin\controller;
 
 use app\model\AdminUser;
-use support\Request;
-use support\Response;
-use support\Redis;
 use Erikwang2013\Jwt\JWT;
 use Erikwang2013\Jwt\JWTFactory;
+use support\Redis;
+use support\Request;
+use support\Response;
 
 class ProfileController extends BaseController
 {
@@ -25,6 +26,7 @@ class ProfileController extends BaseController
             $config = config('plugin.erikwang2013.jwt.jwt', []);
             self::$jwt = JWTFactory::createFromConfig($config);
         }
+
         return self::$jwt;
     }
 
@@ -47,7 +49,7 @@ class ProfileController extends BaseController
     public function updateProfile(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
-        $user    = AdminUser::find($adminId);
+        $user = AdminUser::find($adminId);
         if (!$user) {
             return $this->fail('用户不存在', 404);
         }
@@ -88,7 +90,7 @@ class ProfileController extends BaseController
     public function updatePassword(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
-        $user    = AdminUser::find($adminId);
+        $user = AdminUser::find($adminId);
         if (!$user) {
             return $this->fail('用户不存在', 404);
         }
@@ -137,7 +139,7 @@ class ProfileController extends BaseController
 
         try {
             $payload = self::getJWT()->decode($token);
-            $ttl     = max((int)($payload['exp'] ?? 0) - time(), 0);
+            $ttl = max((int)($payload['exp'] ?? 0) - time(), 0);
             Redis::setex('jwt_blacklist:' . md5($token), $ttl, '1');
         } catch (\Throwable $e) {
             // token 无效也视为登出成功

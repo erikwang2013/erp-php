@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -8,7 +9,6 @@ declare(strict_types=1);
 namespace app\admin\controller;
 
 use app\model\AdminUser;
-use app\common\EncryptionService;
 use support\Request;
 use support\Response;
 
@@ -73,6 +73,7 @@ class UserController extends BaseController
                               $parts = explode('@', $data['email']);
                               $data['email'] = mb_substr($parts[0], 0, 1) . '***@' . ($parts[1] ?? '');
                           }
+
                           return $this->encodeIds($data);
                       });
 
@@ -132,6 +133,7 @@ class UserController extends BaseController
 
         $data = $user->toArray();
         unset($data['password'], $data['id_card']);
+
         return $this->success($this->encodeIds($data), '创建成功');
     }
 
@@ -158,6 +160,7 @@ class UserController extends BaseController
 
         $data = $user->toArray();
         unset($data['password'], $data['id_card']);
+
         // Encryptable cast 已自动解密，phone/email 直接为明文
         return $this->success($this->encodeIds($data));
     }
@@ -205,6 +208,7 @@ class UserController extends BaseController
 
         $data = $user->toArray();
         unset($data['password'], $data['id_card']);
+
         return $this->success($this->encodeIds($data), '更新成功');
     }
 
@@ -237,6 +241,7 @@ class UserController extends BaseController
         }
 
         $user->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -258,7 +263,7 @@ class UserController extends BaseController
      */
     public function batchDestroy(Request $request): Response
     {
-        $ids      = $request->input('ids', []);
+        $ids = $request->input('ids', []);
         $password = $request->input('password', '');
 
         if (empty($ids) || !is_array($ids)) {
@@ -266,7 +271,7 @@ class UserController extends BaseController
         }
 
         $adminId = $request->adminId ?? 0;
-        $error   = $this->confirmPassword($adminId, $password, $request);
+        $error = $this->confirmPassword($adminId, $password, $request);
         if ($error !== null) {
             return $this->fail($error, 422);
         }
@@ -307,7 +312,7 @@ class UserController extends BaseController
      */
     public function batchStatus(Request $request): Response
     {
-        $ids    = $request->input('ids', []);
+        $ids = $request->input('ids', []);
         $status = (int) $request->input('status', 0);
 
         if (empty($ids) || !is_array($ids)) {
@@ -334,6 +339,7 @@ class UserController extends BaseController
         AdminUser::whereIn('id', $decodedIds)->update(['status' => $status]);
 
         $label = $status === 1 ? '启用' : '禁用';
+
         return $this->success(['count' => count($decodedIds)], "批量{$label}成功");
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("财务管理")
@@ -57,7 +58,7 @@ class BudgetController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -83,13 +84,17 @@ class BudgetController extends BaseController
             'name' => 'required|string|max:200',
             'period_year' => 'required|integer',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new FinanceBudget();
         $item->id = $this->generateId();
         $item->status = 0; // 草稿
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') $item->$k = $v;
+            if ($k !== 'id' && $k !== 'items') {
+                $item->$k = $v;
+            }
         }
         $item->save();
 
@@ -100,7 +105,9 @@ class BudgetController extends BaseController
             $detail->id = $this->generateId();
             $detail->budget_id = $item->id;
             foreach ($it as $k => $v) {
-                if ($k !== 'id') $detail->$k = $v;
+                if ($k !== 'id') {
+                    $detail->$k = $v;
+                }
             }
             $detail->save();
         }
@@ -125,10 +132,12 @@ class BudgetController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceBudget::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $items = FinanceBudgetItem::where('budget_id', $id)->orderBy('period_month', 'asc')->get()
-            ->map(fn($it) => $this->encodeIds($it->toArray()));
+            ->map(fn ($it) => $this->encodeIds($it->toArray()));
         $data = $this->encodeIds($item->toArray());
         $data['items'] = $items;
 
@@ -154,14 +163,18 @@ class BudgetController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceBudget::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         if ((int) $item->status !== 0) {
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') $item->$k = $v;
+            if ($k !== 'id' && $k !== 'items') {
+                $item->$k = $v;
+            }
         }
         $item->save();
 
@@ -174,7 +187,9 @@ class BudgetController extends BaseController
                 $detail->id = $this->generateId();
                 $detail->budget_id = $id;
                 foreach ($it as $k => $v) {
-                    if ($k !== 'id') $detail->$k = $v;
+                    if ($k !== 'id') {
+                        $detail->$k = $v;
+                    }
                 }
                 $detail->save();
             }
@@ -201,14 +216,19 @@ class BudgetController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceBudget::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         FinanceBudgetItem::where('budget_id', $id)->delete();
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -229,7 +249,9 @@ class BudgetController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $budget = FinanceBudget::find($id);
-        if (!$budget) return $this->fail('预算不存在', 404);
+        if (!$budget) {
+            return $this->fail('预算不存在', 404);
+        }
 
         $items = FinanceBudgetItem::where('budget_id', $id)
             ->orderBy('period_month', 'asc')

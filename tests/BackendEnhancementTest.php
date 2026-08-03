@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -9,7 +10,6 @@ namespace tests;
 
 use PHPUnit\Framework\TestCase;
 use support\Request;
-use Webman\Http\Response;
 
 class BackendEnhancementTest extends TestCase
 {

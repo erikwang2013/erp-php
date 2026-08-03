@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -22,6 +23,12 @@ class MfgBom extends Model
     protected $fillable = ['product_id', 'code', 'name', 'version', 'status', 'effective_date'];
     protected $casts = ['product_id' => 'integer', 'status' => 'integer'];
 
-    public function items() { return $this->hasMany(MfgBomItem::class, 'bom_id'); }
-    public function product() { return $this->belongsTo(Product::class, 'product_id'); }
+    public function items()
+    {
+        return $this->hasMany(MfgBomItem::class, 'bom_id');
+    }
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
 }

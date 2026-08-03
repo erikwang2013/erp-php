@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -66,6 +67,7 @@ class AttendanceController extends BaseController
                 if ($item->relationLoaded('employee') && $item->employee) {
                     $data['employee'] = $this->encodeIds($item->employee->toArray());
                 }
+
                 return $this->encodeIds($data);
             });
 
@@ -89,7 +91,9 @@ class AttendanceController extends BaseController
     {
         $employeeId = (int) $request->input('employee_id');
         $employee = HrEmployee::find($employeeId);
-        if (!$employee) return $this->fail('员工不存在', 404);
+        if (!$employee) {
+            return $this->fail('员工不存在', 404);
+        }
 
         $workDate = date('Y-m-d');
         $now = date('Y-m-d H:i:s');
@@ -153,7 +157,9 @@ class AttendanceController extends BaseController
     {
         $employeeId = (int) $request->input('employee_id');
         $employee = HrEmployee::find($employeeId);
-        if (!$employee) return $this->fail('员工不存在', 404);
+        if (!$employee) {
+            return $this->fail('员工不存在', 404);
+        }
 
         $workDate = date('Y-m-d');
         $now = date('Y-m-d H:i:s');
@@ -235,6 +241,7 @@ class AttendanceController extends BaseController
                 if ($item->relationLoaded('employee') && $item->employee) {
                     $data['employee'] = $this->encodeIds($item->employee->toArray());
                 }
+
                 return $this->encodeIds($data);
             });
 
@@ -267,12 +274,16 @@ class AttendanceController extends BaseController
             'end_date' => 'required|date',
             'days' => 'required|numeric',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new HrLeave();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->status = 0;
         $item->save();
@@ -297,12 +308,15 @@ class AttendanceController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrLeave::with(['employee'])->find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $data = $item->toArray();
         if ($item->relationLoaded('employee') && $item->employee) {
             $data['employee'] = $this->encodeIds($item->employee->toArray());
         }
+
         return $this->success($this->encodeIds($data));
     }
 
@@ -323,15 +337,22 @@ class AttendanceController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrLeave::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
-        if ($item->status !== 0) return $this->fail('只能修改待审批的请假申请', 422);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+        if ($item->status !== 0) {
+            return $this->fail('只能修改待审批的请假申请', 422);
+        }
 
         $originalStatus = $item->status;
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->status = $originalStatus;
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -353,13 +374,18 @@ class AttendanceController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrLeave::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -381,8 +407,12 @@ class AttendanceController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = HrLeave::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
-        if ($item->status !== 0) return $this->fail('该请假申请已审批', 422);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+        if ($item->status !== 0) {
+            return $this->fail('该请假申请已审批', 422);
+        }
 
         $action = $request->input('action', 'approve');
         $item->status = $action === 'reject' ? 2 : 1;

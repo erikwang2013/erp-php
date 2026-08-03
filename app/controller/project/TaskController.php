@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("项目管理")
@@ -64,7 +65,7 @@ class TaskController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('seq')->orderBy('id', 'asc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -86,7 +87,9 @@ class TaskController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['name' => 'required|string|max:200', 'project_id' => 'required']);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new ProjectTask();
         $item->id = $this->generateId();
@@ -96,7 +99,9 @@ class TaskController extends BaseController
         $item->project_id = $decoded ?? (int) $projectIdHash;
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'project_id') $item->$k = $v;
+            if ($k !== 'id' && $k !== 'project_id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
 
@@ -122,13 +127,15 @@ class TaskController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = ProjectTask::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $result = $this->encodeIds($item->toArray());
 
         $result['children'] = ProjectTask::where('parent_id', $item->id)
             ->orderBy('seq')->orderBy('id')
-            ->get()->map(fn($child) => $this->encodeIds($child->toArray()));
+            ->get()->map(fn ($child) => $this->encodeIds($child->toArray()));
 
         return $this->success($result);
     }
@@ -150,10 +157,14 @@ class TaskController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = ProjectTask::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
 
@@ -180,11 +191,15 @@ class TaskController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = ProjectTask::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $projectId = $item->project_id;
         $item->delete();

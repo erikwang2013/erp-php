@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -25,7 +26,10 @@ class Customer extends Model
     protected $fillable = ['code', 'name', 'level_id', 'contact_person', 'phone', 'email', 'address', 'credit_limit', 'status', 'remark'];
     protected $casts = ['level_id' => 'integer', 'credit_limit' => 'float', 'status' => 'integer', 'phone' => Encryptable::class, 'email' => Encryptable::class];
 
-    public function level() { return $this->belongsTo(CustomerLevel::class, 'level_id'); }
+    public function level()
+    {
+        return $this->belongsTo(CustomerLevel::class, 'level_id');
+    }
 
     public function toSearchableArray(): array
     {

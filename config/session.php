@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -17,8 +18,6 @@
  */
 
 use Webman\Session\FileSessionHandler;
-use Webman\Session\RedisSessionHandler;
-use Webman\Session\RedisClusterSessionHandler;
 
 return [
 
@@ -43,21 +42,21 @@ return [
             'timeout' => 2,
             'auth' => '',
             'prefix' => 'redis_session_',
-        ]
+        ],
     ],
 
     'session_name' => 'PHPSID',
-    
+
     'auto_update_timestamp' => false,
 
-    'lifetime' => 7*24*60*60,
+    'lifetime' => 7 * 24 * 60 * 60,
 
-    'cookie_lifetime' => 365*24*60*60,
+    'cookie_lifetime' => 365 * 24 * 60 * 60,
 
     'cookie_path' => '/',
 
     'domain' => '',
-    
+
     'http_only' => true,
 
     'secure' => filter_var(getenv('SESSION_SECURE'), FILTER_VALIDATE_BOOLEAN) ?: false,

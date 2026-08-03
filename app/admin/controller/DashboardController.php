@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -8,7 +9,6 @@ declare(strict_types=1);
 namespace app\admin\controller;
 
 use app\model\AdminUser;
-use app\common\EncryptionService;
 use app\model\CrmOpportunity;
 use app\model\Customer;
 use app\model\FinanceArAp;
@@ -172,6 +172,7 @@ class DashboardController extends BaseController
                 $data['id'] = $this->encodeId($data['id']);
                 $data['user_name'] = $log->user->username ?? '系统';
                 unset($data['user'], $data['user_id']);
+
                 return $data;
             })
             ->toArray();
@@ -185,6 +186,7 @@ class DashboardController extends BaseController
         if ($yesterday === 0) {
             return $today > 0 ? 100.0 : 0.0;
         }
+
         return round(($today - $yesterday) / $yesterday * 100, 1);
     }
 
@@ -209,7 +211,9 @@ class DashboardController extends BaseController
     {
         $cacheKey = 'dashboard:sales:' . date('Y-m-d');
         $cached = Redis::get($cacheKey);
-        if ($cached) return $this->success(json_decode($cached, true));
+        if ($cached) {
+            return $this->success(json_decode($cached, true));
+        }
 
         $today = date('Y-m-d');
         $data = [
@@ -230,6 +234,7 @@ class DashboardController extends BaseController
                             ->pluck('customer_id');
                         $customers = Customer::whereIn('id', $ids)->pluck('name', 'id');
                     }
+
                     return [
                         'customer_id' => $this->encodeId($row->customer_id),
                         'customer_name' => $customers[$row->customer_id] ?? '',
@@ -240,6 +245,7 @@ class DashboardController extends BaseController
                 ->where('status', 1)->groupBy('stage_id')->get(),
         ];
         Redis::setex($cacheKey, 300, json_encode($data));
+
         return $this->success($data);
     }
 
@@ -264,7 +270,9 @@ class DashboardController extends BaseController
     {
         $cacheKey = 'dashboard:inventory:' . date('Y-m-d');
         $cached = Redis::get($cacheKey);
-        if ($cached) return $this->success(json_decode($cached, true));
+        if ($cached) {
+            return $this->success(json_decode($cached, true));
+        }
 
         $data = [
             'total_value' => Inventory::selectRaw('sum(quantity * cost_price) as total')->value('total') ?? 0,
@@ -274,6 +282,7 @@ class DashboardController extends BaseController
                 ->whereDate('created_at', '>=', date('Y-m-01'))->groupBy('date', 'direction')->orderBy('date')->get(),
         ];
         Redis::setex($cacheKey, 300, json_encode($data));
+
         return $this->success($data);
     }
 
@@ -299,7 +308,9 @@ class DashboardController extends BaseController
     {
         $cacheKey = 'dashboard:finance:' . date('Y-m-d');
         $cached = Redis::get($cacheKey);
-        if ($cached) return $this->success(json_decode($cached, true));
+        if ($cached) {
+            return $this->success(json_decode($cached, true));
+        }
 
         $data = [
             'total_ar' => FinanceArAp::where('type', 1)->where('status', '!=', 2)->sum('amount') ?? 0,
@@ -309,6 +320,7 @@ class DashboardController extends BaseController
             'cash_balance' => FinanceBankAccount::sum('balance') ?? 0,
         ];
         Redis::setex($cacheKey, 300, json_encode($data));
+
         return $this->success($data);
     }
 }

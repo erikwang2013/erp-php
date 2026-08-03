@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -28,6 +29,12 @@ class MfgProductionOrder extends Model
         'status' => 'integer',
     ];
 
-    public function bom() { return $this->belongsTo(MfgBom::class, 'bom_id'); }
-    public function items() { return $this->hasMany(MfgProductionItem::class, 'order_id'); }
+    public function bom()
+    {
+        return $this->belongsTo(MfgBom::class, 'bom_id');
+    }
+    public function items()
+    {
+        return $this->hasMany(MfgProductionItem::class, 'order_id');
+    }
 }

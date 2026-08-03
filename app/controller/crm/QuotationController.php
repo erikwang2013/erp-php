@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("CRM")
@@ -56,7 +57,7 @@ class QuotationController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -78,13 +79,17 @@ class QuotationController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['customer_id' => 'required|integer']);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new CrmQuotation();
         $item->id = $this->generateId();
         $item->status = 0;
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') $item->$k = $v;
+            if ($k !== 'id' && $k !== 'items') {
+                $item->$k = $v;
+            }
         }
         $item->save();
 
@@ -94,7 +99,9 @@ class QuotationController extends BaseController
             $detail->id = $this->generateId();
             $detail->quotation_id = $item->id;
             foreach ($it as $k => $v) {
-                if ($k !== 'id') $detail->$k = $v;
+                if ($k !== 'id') {
+                    $detail->$k = $v;
+                }
             }
             $detail->save();
         }
@@ -119,7 +126,10 @@ class QuotationController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmQuotation::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -141,14 +151,18 @@ class QuotationController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmQuotation::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         if ($item->status !== 0) {
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') $item->$k = $v;
+            if ($k !== 'id' && $k !== 'items') {
+                $item->$k = $v;
+            }
         }
         $item->save();
 
@@ -160,7 +174,9 @@ class QuotationController extends BaseController
                 $detail->id = $this->generateId();
                 $detail->quotation_id = $id;
                 foreach ($it as $k => $v) {
-                    if ($k !== 'id') $detail->$k = $v;
+                    if ($k !== 'id') {
+                        $detail->$k = $v;
+                    }
                 }
                 $detail->save();
             }
@@ -187,13 +203,18 @@ class QuotationController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmQuotation::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -217,7 +238,9 @@ class QuotationController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $quotation = CrmQuotation::find($id);
-        if (!$quotation) return $this->fail('报价不存在', 404);
+        if (!$quotation) {
+            return $this->fail('报价不存在', 404);
+        }
 
         $contract = new CrmContract();
         $contract->id = $this->generateId();

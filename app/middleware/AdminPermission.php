@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -50,14 +51,19 @@ class AdminPermission
             if ($cached) {
                 return json_decode($cached, true);
             }
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
 
         $user = AdminUser::find($adminId);
-        if (!$user) return [];
+        if (!$user) {
+            return [];
+        }
 
         $permissions = [];
         foreach ($user->roles as $role) {
-            if ($role->status === 0) continue;
+            if ($role->status === 0) {
+                continue;
+            }
             foreach ($role->permissions as $perm) {
                 $permissions[] = $perm->slug;
             }
@@ -66,7 +72,8 @@ class AdminPermission
 
         try {
             Redis::setex($cacheKey, self::CACHE_TTL, json_encode($permissions));
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
 
         return $permissions;
     }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -30,5 +31,8 @@ class HrSalary extends Model
         'status' => 'integer',
     ];
 
-    public function employee() { return $this->belongsTo(HrEmployee::class, 'employee_id'); }
+    public function employee()
+    {
+        return $this->belongsTo(HrEmployee::class, 'employee_id');
+    }
 }

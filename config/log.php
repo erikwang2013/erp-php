@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -30,7 +31,7 @@ return [
                     'class' => Monolog\Formatter\LineFormatter::class,
                     'constructor' => [null, 'Y-m-d H:i:s', true],
                 ],
-            ]
+            ],
         ],
     ],
 ];

@@ -1,10 +1,11 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-use Webman\Route;
 use support\Request;
+use Webman\Route;
 
 /**
  * API 路由配置
@@ -28,6 +29,7 @@ function v(string $controller, string $action): \Closure
     return function (Request $request) use ($controller, $action) {
         $version = $request->apiVersion ?? 'v1';
         $class = "\\app\\api\\{$version}\\controller\\{$controller}";
+
         return (new $class)->{$action}($request);
     };
 }
@@ -54,7 +56,7 @@ Expires: 2027-12-31T23:59:59Z
 Preferred-Languages: zh, en
 Canonical: https://erik.xyz/.well-known/security.txt
 TXT
-    , 200, ['Content-Type' => 'text/plain; charset=utf-8']);
+        , 200, ['Content-Type' => 'text/plain; charset=utf-8']);
 });
 
 // API 文档（全局，无需认证）

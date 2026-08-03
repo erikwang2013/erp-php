@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,10 +8,10 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
-use Webman\MiddlewareInterface;
-use Webman\Http\Response;
-use Webman\Http\Request;
 use app\common\SnowflakeService;
+use Webman\Http\Request;
+use Webman\Http\Response;
+use Webman\MiddlewareInterface;
 
 class OperationLog implements MiddlewareInterface
 {
@@ -29,14 +30,14 @@ class OperationLog implements MiddlewareInterface
             $input = $this->filterSensitive($request->all());
 
             $log = new \app\model\OperationLog();
-            $log->id         = SnowflakeService::generate();
-            $log->user_id    = $request->adminId ?? 0;
-            $log->action     = $method;
-            $log->method     = $method;
-            $log->path       = $request->path();
-            $log->ip         = $request->getRealIp();
-            $log->source     = $this->detectSource($request);
-            $log->input      = json_encode($input, JSON_UNESCAPED_UNICODE);
+            $log->id = SnowflakeService::generate();
+            $log->user_id = $request->adminId ?? 0;
+            $log->action = $method;
+            $log->method = $method;
+            $log->path = $request->path();
+            $log->ip = $request->getRealIp();
+            $log->source = $this->detectSource($request);
+            $log->input = json_encode($input, JSON_UNESCAPED_UNICODE);
             $log->created_at = date('Y-m-d H:i:s');
             $log->save();
         } catch (\Throwable $e) {
@@ -59,6 +60,7 @@ class OperationLog implements MiddlewareInterface
                 $data[$key] = $this->filterSensitive($value);
             }
         }
+
         return $data;
     }
 

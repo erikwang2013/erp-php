@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("CRM")
@@ -8,9 +9,9 @@ declare(strict_types=1);
 namespace app\controller\crm;
 
 use app\admin\controller\BaseController;
-use app\model\Customer;
 use app\model\CrmPoolRecord;
 use app\model\CrmPoolRule;
+use app\model\Customer;
 use support\Request;
 use support\Response;
 
@@ -38,6 +39,7 @@ class PoolController extends BaseController
         if (str_contains($uri, '/pool/rules')) {
             return $this->rules($request);
         }
+
         return $this->poolCustomers($request);
     }
 
@@ -68,7 +70,7 @@ class PoolController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -91,7 +93,9 @@ class PoolController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $customer = Customer::find($id);
-        if (!$customer) return $this->fail('客户不存在', 404);
+        if (!$customer) {
+            return $this->fail('客户不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
 
@@ -145,7 +149,9 @@ class PoolController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $customer = Customer::find($id);
-        if (!$customer) return $this->fail('客户不存在', 404);
+        if (!$customer) {
+            return $this->fail('客户不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
 
@@ -178,7 +184,7 @@ class PoolController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -199,14 +205,19 @@ class PoolController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['level_id' => 'required|integer']);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new CrmPoolRule();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -227,7 +238,10 @@ class PoolController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmPoolRule::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -248,12 +262,17 @@ class PoolController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmPoolRule::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -275,13 +294,18 @@ class PoolController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmPoolRule::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -11,11 +12,11 @@ use app\model\SalesDelivery;
 use app\model\SalesDeliveryItem;
 use app\model\SalesOrder;
 use app\model\SalesOrderItem;
-use app\service\inventory\InventoryService;
 use app\service\finance\FinanceService;
+use app\service\inventory\InventoryService;
+use Illuminate\Database\Capsule\Manager as DB;
 use support\Request;
 use support\Response;
-use Illuminate\Database\Capsule\Manager as DB;
 
 /**
  * 销售发货管理
@@ -114,11 +115,15 @@ class DeliveryController extends BaseController
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.price' => 'required|numeric|min:0',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $orderId = $this->decodeId($request->input('order_id'));
         $order = SalesOrder::find($orderId);
-        if (!$order) return $this->fail('销售订单不存在', 404);
+        if (!$order) {
+            return $this->fail('销售订单不存在', 404);
+        }
 
         DB::beginTransaction();
         try {
@@ -195,12 +200,14 @@ class DeliveryController extends BaseController
             $this->updateOrderStatus($order, $delivery->id);
 
             DB::commit();
+
             return $this->success(
                 $this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']),
                 '发货成功，已出库并生成应收记录'
             );
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return $this->fail('发货失败: ' . $e->getMessage(), 500);
         }
     }
@@ -221,6 +228,7 @@ class DeliveryController extends BaseController
         if ($orderItems->isEmpty()) {
             $order->status = 3; // 已发货
             $order->save();
+
             return;
         }
 
@@ -257,7 +265,10 @@ class DeliveryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $delivery = SalesDelivery::with(['items', 'order', 'customer', 'warehouse'])->find($id);
-        if (!$delivery) return $this->fail('发货单不存在', 404);
+        if (!$delivery) {
+            return $this->fail('发货单不存在', 404);
+        }
+
         return $this->success($this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']));
     }
 
@@ -279,12 +290,15 @@ class DeliveryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $delivery = SalesDelivery::find($id);
-        if (!$delivery) return $this->fail('发货单不存在', 404);
+        if (!$delivery) {
+            return $this->fail('发货单不存在', 404);
+        }
 
         if ($request->has('remark')) {
             $delivery->remark = $request->input('remark');
         }
         $delivery->save();
+
         return $this->success($this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']), '更新成功');
     }
 
@@ -306,13 +320,18 @@ class DeliveryController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $delivery = SalesDelivery::find($id);
-        if (!$delivery) return $this->fail('发货单不存在', 404);
+        if (!$delivery) {
+            return $this->fail('发货单不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $delivery->delete();
+
         return $this->success([], '删除成功');
     }
 }

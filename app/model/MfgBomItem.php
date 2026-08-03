@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -20,5 +21,8 @@ class MfgBomItem extends Model
     protected $fillable = ['bom_id', 'component_product_id', 'quantity', 'unit', 'scrap_rate', 'seq'];
     protected $casts = ['bom_id' => 'integer', 'component_product_id' => 'integer', 'quantity' => 'float', 'scrap_rate' => 'float', 'seq' => 'integer'];
 
-    public function bom() { return $this->belongsTo(MfgBom::class, 'bom_id'); }
+    public function bom()
+    {
+        return $this->belongsTo(MfgBom::class, 'bom_id');
+    }
 }

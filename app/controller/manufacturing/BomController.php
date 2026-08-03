@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -65,7 +66,7 @@ class BomController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -92,15 +93,20 @@ class BomController extends BaseController
             'code' => 'required|string|max:50',
             'name' => 'required|string|max:200',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new MfgBom();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->status = 0; // 草稿
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -121,12 +127,15 @@ class BomController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = MfgBom::with(['items'])->find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $data = $item->toArray();
         if (isset($data['items'])) {
-            $data['items'] = array_map(fn($i) => $this->encodeIds($i), $data['items']);
+            $data['items'] = array_map(fn ($i) => $this->encodeIds($i), $data['items']);
         }
+
         return $this->success($this->encodeIds($data));
     }
 
@@ -147,15 +156,22 @@ class BomController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = MfgBom::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
-        if ($item->status === 1) return $this->fail('已生效的BOM不可直接修改，请创建新版本', 422);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+        if ($item->status === 1) {
+            return $this->fail('已生效的BOM不可直接修改，请创建新版本', 422);
+        }
 
         $originalStatus = $item->status;
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->status = $originalStatus; // Status can only change via activate()
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -177,15 +193,20 @@ class BomController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = MfgBom::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         // 删除关联明细
         MfgBomItem::where('bom_id', $id)->delete();
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -208,10 +229,14 @@ class BomController extends BaseController
     {
         $sourceId = (int) $request->input('source_id');
         $source = MfgBom::with(['items'])->find($sourceId);
-        if (!$source) return $this->fail('源BOM不存在', 404);
+        if (!$source) {
+            return $this->fail('源BOM不存在', 404);
+        }
 
         $newVersion = $request->input('version', '');
-        if (!$newVersion) return $this->fail('版本号不能为空', 422);
+        if (!$newVersion) {
+            return $this->fail('版本号不能为空', 422);
+        }
 
         // 创建新BOM
         $bom = new MfgBom();
@@ -262,8 +287,12 @@ class BomController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = MfgBom::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
-        if ($item->status === 1) return $this->fail('BOM已经生效', 422);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+        if ($item->status === 1) {
+            return $this->fail('BOM已经生效', 422);
+        }
 
         // 将同一产品的其他已生效BOM设为失效
         MfgBom::where('product_id', $item->product_id)
@@ -274,6 +303,7 @@ class BomController extends BaseController
         $item->status = 1;
         $item->effective_date = date('Y-m-d');
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), 'BOM已生效');
     }
 }

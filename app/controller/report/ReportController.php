@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -67,7 +68,7 @@ class ReportController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -94,14 +95,19 @@ class ReportController extends BaseController
             'name' => 'required|string|max:200',
             'module' => 'required|string|max:50',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new ReportTemplate();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -122,15 +128,18 @@ class ReportController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = ReportTemplate::with(['fields', 'filters'])->find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $data = $item->toArray();
         if (isset($data['fields'])) {
-            $data['fields'] = array_map(fn($f) => $this->encodeIds($f), $data['fields']);
+            $data['fields'] = array_map(fn ($f) => $this->encodeIds($f), $data['fields']);
         }
         if (isset($data['filters'])) {
-            $data['filters'] = array_map(fn($f) => $this->encodeIds($f), $data['filters']);
+            $data['filters'] = array_map(fn ($f) => $this->encodeIds($f), $data['filters']);
         }
+
         return $this->success($this->encodeIds($data));
     }
 
@@ -151,12 +160,17 @@ class ReportController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = ReportTemplate::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -178,11 +192,15 @@ class ReportController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = ReportTemplate::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         // 清理关联数据
         ReportField::where('template_id', $id)->delete();
@@ -190,6 +208,7 @@ class ReportController extends BaseController
         ReportDataset::where('template_id', $id)->delete();
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -217,7 +236,8 @@ class ReportController extends BaseController
         $templateId = $this->decodeId($hashid);
         $fields = ReportField::where('template_id', $templateId)
             ->orderBy('sort_order', 'asc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+
         return $this->success(['list' => $fields]);
     }
 
@@ -245,15 +265,20 @@ class ReportController extends BaseController
             'field' => 'required|string|max:100',
             'label' => 'required|string|max:100',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new ReportField();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->created_at = date('Y-m-d H:i:s');
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '字段添加成功');
     }
 
@@ -274,8 +299,11 @@ class ReportController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = ReportField::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -303,7 +331,8 @@ class ReportController extends BaseController
         $templateId = $this->decodeId($hashid);
         $filters = ReportFilter::where('template_id', $templateId)
             ->orderBy('id', 'asc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+
         return $this->success(['list' => $filters]);
     }
 
@@ -329,15 +358,20 @@ class ReportController extends BaseController
             'name' => 'required|string|max:100',
             'field' => 'required|string|max:100',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new ReportFilter();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->created_at = date('Y-m-d H:i:s');
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '筛选条件添加成功');
     }
 
@@ -358,8 +392,11 @@ class ReportController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = ReportFilter::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -388,7 +425,9 @@ class ReportController extends BaseController
     {
         $templateId = $this->decodeId($hashid);
         $template = ReportTemplate::with(['fields', 'filters'])->find($templateId);
-        if (!$template) return $this->fail('报表模板不存在', 404);
+        if (!$template) {
+            return $this->fail('报表模板不存在', 404);
+        }
 
         $queryConfig = $template->query_config;
         if (!$queryConfig || empty($queryConfig['table'])) {
@@ -424,7 +463,7 @@ class ReportController extends BaseController
             $select[] = '*';
         }
 
-        $sql = "SELECT " . implode(', ', $select) . " FROM {$table}";
+        $sql = 'SELECT ' . implode(', ', $select) . " FROM {$table}";
 
         // JOIN
         if (!empty($queryConfig['joins'])) {
@@ -568,7 +607,9 @@ class ReportController extends BaseController
                 ->orderBy('id', 'desc')->first();
         }
 
-        if (!$dataset) return $this->fail('未找到报表数据，请先执行查询', 404);
+        if (!$dataset) {
+            return $this->fail('未找到报表数据，请先执行查询', 404);
+        }
 
         $data = $dataset->toArray();
         // 解析JSON数据

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -27,6 +28,7 @@ class SnowflakeService
                 epoch: $config['start_timestamp'] ?? null,
             );
         }
+
         return self::$instance->nextId();
     }
 }

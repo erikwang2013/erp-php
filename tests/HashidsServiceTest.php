@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,9 +8,9 @@ declare(strict_types=1);
 
 namespace tests;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use app\common\HashidsService;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class HashidsServiceTest extends TestCase
 {

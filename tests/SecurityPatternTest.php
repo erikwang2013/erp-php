@@ -1,9 +1,12 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 declare(strict_types=1);
+
 namespace tests;
+
 use PHPUnit\Framework\TestCase;
 
 class SecurityPatternTest extends TestCase
@@ -42,13 +45,17 @@ class SecurityPatternTest extends TestCase
         foreach ($files as $file) {
             $content = file_get_contents($file);
             // Skip vendor files
-            if (str_contains($file, '/vendor/')) continue;
+            if (str_contains($file, '/vendor/')) {
+                continue;
+            }
 
             $lines = explode("\n", $content);
             foreach ($lines as $line) {
                 $line = trim($line);
                 // Skip use statements and comments
-                if (str_starts_with($line, 'use ') || str_starts_with($line, '//') || str_starts_with($line, '*')) continue;
+                if (str_starts_with($line, 'use ') || str_starts_with($line, '//') || str_starts_with($line, '*')) {
+                    continue;
+                }
 
                 if (preg_match('/[^\\\\]\\\\[A-Z][a-z]+\\\\/', $line)) {
                     $violations++;
@@ -115,6 +122,7 @@ class SecurityPatternTest extends TestCase
                 $files[] = $file->getPathname();
             }
         }
+
         return $files;
     }
 
@@ -124,6 +132,7 @@ class SecurityPatternTest extends TestCase
         $endLine = $method->getEndLine();
         $length = $endLine - $startLine;
         $source = file($ref->getFileName());
+
         return implode('', array_slice($source, $startLine, $length));
     }
 }

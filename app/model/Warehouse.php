@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -23,5 +24,8 @@ class Warehouse extends Model
     protected $fillable = ['name', 'code', 'address', 'manager', 'phone', 'status'];
     protected $casts = ['status' => 'integer', 'phone' => Encryptable::class];
 
-    public function locations() { return $this->hasMany(Location::class, 'warehouse_id'); }
+    public function locations()
+    {
+        return $this->hasMany(Location::class, 'warehouse_id');
+    }
 }

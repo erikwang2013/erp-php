@@ -131,13 +131,13 @@ return [
     'xunsearch' => [
         // XunSearch 配置文件路径
         'config_path' => getenv('XUNSEARCH_CONFIG_PATH', base_path('config/xunsearch')),
-        
+
         // 默认索引配置
         'default_index' => getenv('XUNSEARCH_DEFAULT_INDEX', 'default'),
-        
+
         // 字符集
         'charset' => getenv('XUNSEARCH_CHARSET', 'utf-8'),
-        
+
         // 搜索选项
         'search' => [
             'fuzzy' => getenv('XUNSEARCH_FUZZY', true),
@@ -145,14 +145,14 @@ return [
             'auto_flush' => getenv('XUNSEARCH_AUTO_FLUSH', true),
             'batch_size' => getenv('XUNSEARCH_BATCH_SIZE', 100),
         ],
-        
+
         // 缓存配置
         'cache' => [
             'enabled' => getenv('XUNSEARCH_CACHE_ENABLED', true),
             'ttl' => getenv('XUNSEARCH_CACHE_TTL', 300),
             'store' => getenv('XUNSEARCH_CACHE_STORE', 'file'),
         ],
-        
+
         // 索引配置模板
         'index_templates' => [
             'default' => [
@@ -261,18 +261,17 @@ return [
         'import_action' => getenv('TYPESENSE_IMPORT_ACTION', 'upsert'),
     ],
 
-
     'elasticsearch' => [
         'hosts' => [
-            'http://127.0.0.1:9200'
+            'http://127.0.0.1:9200',
         ],
         'auth' => [
-            'user'   =>  null,
-            'pass'   =>  null,
+            'user' => null,
+            'pass' => null,
             'api_id' => null,
             'api_key' => null,
-            'cloud_id' => null
-        ]
+            'cloud_id' => null,
+        ],
         // index为设定的index名称 如果你的index名称为goods 则下面的index应写成goods
         //        'index' => [
         //            'setting' => [],
@@ -286,7 +285,7 @@ return [
         'username' => getenv('OPENSEARCH_USERNAME', 'admin'),
         'password' => getenv('OPENSEARCH_PASSWORD', 'admin'),
         'prefix' => getenv('OPENSEARCH_INDEX_PREFIX'),
-        'ssl_verification' => (boolean)getenv('OPENSEARCH_SSL_VERIFICATION', false),
+        'ssl_verification' => (bool)getenv('OPENSEARCH_SSL_VERIFICATION', false),
         'ssl_cert' => getenv('OPENSEARCH_SSL_CERT', ''),
         'ssl_key' => getenv('OPENSEARCH_SSL_KEY', ''),
         'retries' => getenv('OPENSEARCH_RETRIES', 2),
@@ -316,6 +315,6 @@ return [
                 'aliases' => ['products_alias'],
             ],
         ],
-    ]
+    ],
 
 ];

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("财务管理")
@@ -45,9 +46,10 @@ class ProfitCenterController extends BaseController
         }
 
         $all = $query->orderBy('parent_id', 'asc')->orderBy('id', 'asc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()))->toArray();
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()))->toArray();
 
         $tree = $this->buildTree($all, 0);
+
         return $this->success(['list' => $tree]);
     }
 
@@ -71,14 +73,19 @@ class ProfitCenterController extends BaseController
             'code' => 'required|string|max:50',
             'name' => 'required|string|max:100',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new FinanceProfitCenter();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -99,12 +106,14 @@ class ProfitCenterController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceProfitCenter::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $data = $this->encodeIds($item->toArray());
 
         $children = FinanceProfitCenter::where('parent_id', $id)->orderBy('id', 'asc')
-            ->get()->map(fn($c) => $this->encodeIds($c->toArray()));
+            ->get()->map(fn ($c) => $this->encodeIds($c->toArray()));
         $data['children'] = $children;
 
         return $this->success($data);
@@ -127,12 +136,17 @@ class ProfitCenterController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceProfitCenter::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -154,16 +168,23 @@ class ProfitCenterController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceProfitCenter::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $hasChildren = FinanceProfitCenter::where('parent_id', $id)->exists();
-        if ($hasChildren) return $this->fail('存在子级利润中心，请先删除子级', 422);
+        if ($hasChildren) {
+            return $this->fail('存在子级利润中心，请先删除子级', 422);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -179,6 +200,7 @@ class ProfitCenterController extends BaseController
                 $tree[] = $item;
             }
         }
+
         return $tree;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * JWT Webman Plugin - JWT authentication for webman framework
  * Copyright (c) 2026 erik

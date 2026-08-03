@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -20,5 +21,8 @@ class ReportField extends Model
     protected $fillable = ['template_id', 'name', 'field', 'label', 'data_type', 'aggregator', 'sort_order', 'width', 'visible'];
     protected $casts = ['template_id' => 'integer', 'sort_order' => 'integer', 'width' => 'integer', 'visible' => 'integer'];
 
-    public function template() { return $this->belongsTo(ReportTemplate::class, 'template_id'); }
+    public function template()
+    {
+        return $this->belongsTo(ReportTemplate::class, 'template_id');
+    }
 }

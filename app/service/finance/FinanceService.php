@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -9,9 +10,9 @@ namespace app\service\finance;
 
 use app\common\SnowflakeService;
 use app\model\FinanceArAp;
-use app\model\FinanceSettlement;
-use app\model\FinanceCashJournal;
 use app\model\FinanceBankAccount;
+use app\model\FinanceCashJournal;
+use app\model\FinanceSettlement;
 use Illuminate\Database\Capsule\Manager as DB;
 
 class FinanceService
@@ -44,6 +45,7 @@ class FinanceService
         $ar->status = 0;
         $ar->due_date = $dueDate;
         $ar->save();
+
         return $ar->id;
     }
 
@@ -75,6 +77,7 @@ class FinanceService
         $ap->status = 0;
         $ap->due_date = $dueDate;
         $ap->save();
+
         return $ap->id;
     }
 
@@ -152,7 +155,12 @@ class FinanceService
         string $summary
     ): void {
         DB::transaction(function () use (
-            $bankAccountId, $direction, $amount, $sourceType, $sourceId, $summary
+            $bankAccountId,
+            $direction,
+            $amount,
+            $sourceType,
+            $sourceId,
+            $summary
         ) {
             $account = FinanceBankAccount::findOrFail($bankAccountId);
 

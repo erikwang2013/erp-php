@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -87,6 +88,7 @@ class InstallController
             $env = file_get_contents($this->envPath);
             $envMarked = str_contains($env, 'APP_INSTALLED=true');
         }
+
         return $lockExists || $envMarked;
     }
 
@@ -105,6 +107,7 @@ class InstallController
         </div>
         HTML;
         $html .= $this->htmlFooter();
+
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }
 
@@ -123,6 +126,7 @@ class InstallController
         </div>
         HTML;
         $html .= $this->htmlFooter();
+
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }
 
@@ -141,7 +145,9 @@ class InstallController
             };
             $num = $i < $step ? '✓' : ($i + 1);
             $html .= "<div class=\"step {$cls}\"><span class=\"step-num\">{$num}</span><span class=\"step-label\">{$label}</span></div>";
-            if ($i < 3) $html .= '<div class="step-line"></div>';
+            if ($i < 3) {
+                $html .= '<div class="step-line"></div>';
+            }
         }
         $html .= '</div>';
 
@@ -164,6 +170,7 @@ class InstallController
         };
         $html .= '</div>';
         $html .= $this->htmlFooter();
+
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }
 
@@ -178,7 +185,9 @@ class InstallController
                 'warn' => '⚠️',
                 default => '❌',
             };
-            if ($item['status'] === 'fail') $allOk = false;
+            if ($item['status'] === 'fail') {
+                $allOk = false;
+            }
             $rows .= "<tr><td>{$icon}</td><td>{$item['name']}</td><td style=\"color:#888;font-size:13px\">{$item['value']}</td></tr>";
         }
 
@@ -187,12 +196,14 @@ class InstallController
         $html .= $allOk
             ? '<form method="post"><input type="hidden" name="step" value="0"><button type="submit" class="btn">下一步：数据库配置</button></form>'
             : '<div class="alert alert-error">请先解决以上 ❌ 标记的问题，然后刷新本页重新检查。</div>';
+
         return $html;
     }
 
     private function renderStep1(array $old): string
     {
-        $h = fn(string $k, string $d = '') => htmlspecialchars($old[$k] ?? $d);
+        $h = fn (string $k, string $d = '') => htmlspecialchars($old[$k] ?? $d);
+
         return <<<HTML
         <h1>数据库配置</h1>
         <form method="post" id="db-form">
@@ -240,6 +251,7 @@ class InstallController
             $v = htmlspecialchars($old[$k] ?? '');
             $hidden .= "<input type=\"hidden\" name=\"{$k}\" value=\"{$v}\">";
         }
+
         return <<<HTML
         <h1>管理员账号</h1>
         <form method="post">
@@ -302,11 +314,21 @@ class InstallController
     private function validateStep1(Request $request): array
     {
         $errors = [];
-        if (!$request->input('host')) $errors[] = '请输入数据库主机地址';
-        if (!$request->input('port')) $errors[] = '请输入数据库端口';
-        if (!$request->input('database')) $errors[] = '请输入数据库名';
-        if (!$request->input('username')) $errors[] = '请输入数据库用户名';
-        if (!empty($errors)) return $errors;
+        if (!$request->input('host')) {
+            $errors[] = '请输入数据库主机地址';
+        }
+        if (!$request->input('port')) {
+            $errors[] = '请输入数据库端口';
+        }
+        if (!$request->input('database')) {
+            $errors[] = '请输入数据库名';
+        }
+        if (!$request->input('username')) {
+            $errors[] = '请输入数据库用户名';
+        }
+        if (!empty($errors)) {
+            return $errors;
+        }
 
         try {
             $dsn = 'mysql:host=' . $request->input('host') . ';port=' . $request->input('port') . ';dbname=' . $request->input('database') . ';charset=utf8mb4';
@@ -317,6 +339,7 @@ class InstallController
         } catch (\PDOException $e) {
             $errors[] = '数据库连接失败: ' . $e->getMessage();
         }
+
         return $errors;
     }
 
@@ -326,9 +349,16 @@ class InstallController
         $username = trim($request->input('admin_username', ''));
         $password = $request->input('admin_password', '');
         $confirm = $request->input('admin_password_confirm', '');
-        if (strlen($username) < 3) $errors[] = '管理员用户名至少3个字符';
-        if (strlen($password) < 6) $errors[] = '密码至少6位';
-        if ($password !== $confirm) $errors[] = '两次输入的密码不一致';
+        if (strlen($username) < 3) {
+            $errors[] = '管理员用户名至少3个字符';
+        }
+        if (strlen($password) < 6) {
+            $errors[] = '密码至少6位';
+        }
+        if ($password !== $confirm) {
+            $errors[] = '两次输入的密码不一致';
+        }
+
         return $errors;
     }
 
@@ -354,7 +384,9 @@ class InstallController
             );
 
             $sql = file_get_contents($this->sqlPath);
-            if (!$sql) return ['无法读取 install.sql'];
+            if (!$sql) {
+                return ['无法读取 install.sql'];
+            }
             $pdo->exec($sql);
 
             $adminId = SnowflakeService::generate();
@@ -377,7 +409,9 @@ class InstallController
     private function writeEnv(array $db): void
     {
         $template = file_get_contents($this->envExamplePath);
-        if (!$template) $template = '';
+        if (!$template) {
+            $template = '';
+        }
 
         $replacements = [
             'DB_HOST=127.0.0.1' => "DB_HOST={$db['host']}",
@@ -452,6 +486,7 @@ class InstallController
     private function htmlHeader(string $title): string
     {
         $title = htmlspecialchars($title);
+
         return <<<HTML
         <!DOCTYPE html>
         <html lang="zh-CN">

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("审批工作流")
@@ -8,8 +9,8 @@ declare(strict_types=1);
 namespace app\controller\workflow;
 
 use app\admin\controller\BaseController;
-use app\model\ApprovalWorkflow;
 use app\model\ApprovalNode;
+use app\model\ApprovalWorkflow;
 use support\Request;
 use support\Response;
 
@@ -52,7 +53,7 @@ class WorkflowController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -76,12 +77,16 @@ class WorkflowController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['name' => 'required|string|max:100', 'code' => 'required|string|max:50', 'target_type' => 'required|string|max:30']);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $workflow = new ApprovalWorkflow();
         $workflow->id = $this->generateId();
         foreach (['code', 'name', 'target_type', 'enabled', 'remark'] as $k) {
-            if ($request->input($k) !== null) $workflow->$k = $request->input($k);
+            if ($request->input($k) !== null) {
+                $workflow->$k = $request->input($k);
+            }
         }
         $workflow->save();
 
@@ -122,10 +127,12 @@ class WorkflowController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $workflow = ApprovalWorkflow::find($id);
-        if (!$workflow) return $this->fail('记录不存在', 404);
+        if (!$workflow) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $nodes = ApprovalNode::where('workflow_id', $workflow->id)->orderBy('seq')->get()
-            ->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         $result = $this->encodeIds($workflow->toArray());
         $result['nodes'] = $nodes;
@@ -151,10 +158,14 @@ class WorkflowController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $workflow = ApprovalWorkflow::find($id);
-        if (!$workflow) return $this->fail('记录不存在', 404);
+        if (!$workflow) {
+            return $this->fail('记录不存在', 404);
+        }
 
         foreach (['code', 'name', 'target_type', 'enabled', 'remark'] as $k) {
-            if ($request->input($k) !== null) $workflow->$k = $request->input($k);
+            if ($request->input($k) !== null) {
+                $workflow->$k = $request->input($k);
+            }
         }
         $workflow->save();
 
@@ -199,13 +210,18 @@ class WorkflowController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $workflow = ApprovalWorkflow::find($id);
-        if (!$workflow) return $this->fail('记录不存在', 404);
+        if (!$workflow) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $workflow->delete();
+
         return $this->success([], '删除成功');
     }
 }

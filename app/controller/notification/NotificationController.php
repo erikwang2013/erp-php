@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("通知系统")
@@ -51,7 +52,7 @@ class NotificationController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -73,6 +74,7 @@ class NotificationController extends BaseController
     {
         $id = $this->decodeId($hashid);
         NotificationService::markRead($id);
+
         return $this->success([], '已标记为已读');
     }
 
@@ -92,6 +94,7 @@ class NotificationController extends BaseController
     {
         $userId = (int)($request->adminId ?? 0);
         NotificationService::markAllRead($userId);
+
         return $this->success([], '全部已标记为已读');
     }
 
@@ -111,6 +114,7 @@ class NotificationController extends BaseController
     {
         $userId = (int)($request->adminId ?? 0);
         $count = NotificationService::unreadCount($userId);
+
         return $this->success(['count' => $count]);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  * @Apidoc\Tag("角色管理")
@@ -38,7 +39,7 @@ class RoleController extends BaseController
                       ->limit($limit)
                       ->orderBy('id', 'asc')
                       ->get()
-                      ->map(fn($role) => $this->encodeIds($role->toArray()));
+                      ->map(fn ($role) => $this->encodeIds($role->toArray()));
 
         return $this->success([
             'list' => $list,

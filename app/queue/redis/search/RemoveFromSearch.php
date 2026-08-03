@@ -8,10 +8,9 @@ declare(strict_types=1);
 
 namespace app\queue\redis\search;
 
+use Erikwang2013\WebmanScout\Jobs\RemoveableScoutCollection;
 
 use Webman\RedisQueue\Consumer;
-
-use Erikwang2013\WebmanScout\Jobs\RemoveableScoutCollection;
 
 class RemoveFromSearch implements Consumer
 {

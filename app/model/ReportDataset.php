@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -20,5 +21,8 @@ class ReportDataset extends Model
     protected $fillable = ['template_id', 'name', 'query_sql', 'data', 'rows_count', 'generated_at', 'parameters'];
     protected $casts = ['template_id' => 'integer', 'data' => 'array', 'rows_count' => 'integer', 'parameters' => 'array'];
 
-    public function template() { return $this->belongsTo(ReportTemplate::class, 'template_id'); }
+    public function template()
+    {
+        return $this->belongsTo(ReportTemplate::class, 'template_id');
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  * @Apidoc\Tag("健康检查")
@@ -8,10 +9,10 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
-use support\Request;
-use support\Response;
 use support\Db;
 use support\Redis;
+use support\Request;
+use support\Response;
 use Throwable;
 
 class HealthController
@@ -42,13 +43,13 @@ class HealthController
             'code' => 0,
             'message' => 'success',
             'data' => [
-                'app'           => 'open-admin',
-                'version'       => '1.0',
-                'php'           => PHP_VERSION,
-                'database'      => $this->checkDb(),
-                'redis'         => $this->checkRedis(),
+                'app' => 'open-admin',
+                'version' => '1.0',
+                'php' => PHP_VERSION,
+                'database' => $this->checkDb(),
+                'redis' => $this->checkRedis(),
                 'elasticsearch' => $this->checkES(),
-                'timestamp'     => time(),
+                'timestamp' => time(),
             ],
         ]);
     }
@@ -57,6 +58,7 @@ class HealthController
     {
         try {
             Db::select('SELECT 1');
+
             return 'ok';
         } catch (Throwable) {
             return 'unavailable';
@@ -67,6 +69,7 @@ class HealthController
     {
         try {
             Redis::ping();
+
             return 'ok';
         } catch (Throwable) {
             return 'unavailable';
@@ -80,6 +83,7 @@ class HealthController
             $client = new \GuzzleHttp\Client(['timeout' => 2]);
             $resp = $client->get(rtrim($hosts[0], '/') . '/_cluster/health');
             $body = json_decode((string) $resp->getBody(), true);
+
             return $body['status'] ?? 'unknown';
         } catch (Throwable) {
             return 'unavailable';

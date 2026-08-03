@@ -1,9 +1,12 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 declare(strict_types=1);
+
 namespace tests;
+
 use PHPUnit\Framework\TestCase;
 
 class ControllerPatternTest extends TestCase
@@ -39,15 +42,15 @@ class ControllerPatternTest extends TestCase
     public function testProductModelUsesSnowflakePrimaryKey(): void
     {
         $source = file_get_contents(__DIR__ . '/../app/model/Product.php');
-        $this->assertStringContainsString("public \$incrementing = false", $source, 'Product must use non-incrementing PK');
+        $this->assertStringContainsString('public $incrementing = false', $source, 'Product must use non-incrementing PK');
         $this->assertStringContainsString("protected \$keyType = 'int'", $source, 'Product keyType must be int');
-        $this->assertStringContainsString("erik_product", $source, 'Product table must use erik_ prefix');
+        $this->assertStringContainsString('erik_product', $source, 'Product table must use erik_ prefix');
     }
 
     public function testInventoryModelUsesSnowflakePrimaryKey(): void
     {
         $source = file_get_contents(__DIR__ . '/../app/model/Inventory.php');
-        $this->assertStringContainsString("public \$incrementing = false", $source, 'Inventory must use non-incrementing PK');
+        $this->assertStringContainsString('public $incrementing = false', $source, 'Inventory must use non-incrementing PK');
         $this->assertStringContainsString("protected \$keyType = 'int'", $source, 'Inventory keyType must be int');
     }
 

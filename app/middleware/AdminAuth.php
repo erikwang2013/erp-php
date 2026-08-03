@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,13 +8,13 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
+use Erikwang2013\Jwt\JWT;
+use Erikwang2013\Jwt\JWTException;
+use Erikwang2013\Jwt\JWTFactory;
+use support\Redis;
 use support\Request;
 use support\Response;
-use support\Redis;
 use Webman\MiddlewareInterface;
-use Erikwang2013\Jwt\JWT;
-use Erikwang2013\Jwt\JWTFactory;
-use Erikwang2013\Jwt\JWTException;
 
 class AdminAuth implements MiddlewareInterface
 {
@@ -25,6 +26,7 @@ class AdminAuth implements MiddlewareInterface
             $config = config('plugin.erikwang2013.jwt.jwt', []);
             self::$jwt = JWTFactory::createFromConfig($config);
         }
+
         return self::$jwt;
     }
 

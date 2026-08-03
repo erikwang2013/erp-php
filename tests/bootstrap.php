@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -29,7 +30,9 @@ foreach (config('autoload.files', []) as $file) {
 }
 foreach (config('plugin', []) as $firm => $projects) {
     foreach ($projects as $name => $project) {
-        if (!is_array($project)) continue;
+        if (!is_array($project)) {
+            continue;
+        }
         foreach ($project['autoload']['files'] ?? [] as $file) {
             include_once $file;
         }
@@ -47,7 +50,9 @@ foreach (config('bootstrap', []) as $className) {
 }
 foreach (config('plugin', []) as $firm => $projects) {
     foreach ($projects as $name => $project) {
-        if (!is_array($project)) continue;
+        if (!is_array($project)) {
+            continue;
+        }
         foreach ($project['bootstrap'] ?? [] as $className) {
             if (class_exists($className)) {
                 $className::start($worker);

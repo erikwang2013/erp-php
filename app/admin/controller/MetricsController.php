@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,11 +8,11 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
+use app\model\AdminUser;
 use support\Db;
 use support\Redis;
 use support\Request;
 use support\Response;
-use app\model\AdminUser;
 use Throwable;
 
 /**
@@ -45,8 +46,8 @@ class MetricsController
         } catch (Throwable) {
             $activeUsers = 0;
         }
-        $metrics[] = "# HELP open_admin_active_users Active users today";
-        $metrics[] = "# TYPE open_admin_active_users gauge";
+        $metrics[] = '# HELP open_admin_active_users Active users today';
+        $metrics[] = '# TYPE open_admin_active_users gauge';
         $metrics[] = "open_admin_active_users {$activeUsers}";
 
         // 用户总数
@@ -55,8 +56,8 @@ class MetricsController
         } catch (Throwable) {
             $totalUsers = 0;
         }
-        $metrics[] = "# HELP open_admin_total_users Total registered users";
-        $metrics[] = "# TYPE open_admin_total_users gauge";
+        $metrics[] = '# HELP open_admin_total_users Total registered users';
+        $metrics[] = '# TYPE open_admin_total_users gauge';
         $metrics[] = "open_admin_total_users {$totalUsers}";
 
         // 数据库连接状态
@@ -66,8 +67,8 @@ class MetricsController
         } catch (Throwable) {
             $dbStatus = 0;
         }
-        $metrics[] = "# HELP open_admin_db_up Database connection status (1=up, 0=down)";
-        $metrics[] = "# TYPE open_admin_db_up gauge";
+        $metrics[] = '# HELP open_admin_db_up Database connection status (1=up, 0=down)';
+        $metrics[] = '# TYPE open_admin_db_up gauge';
         $metrics[] = "open_admin_db_up {$dbStatus}";
 
         // Redis 连接状态
@@ -77,13 +78,13 @@ class MetricsController
         } catch (Throwable) {
             $redisStatus = 0;
         }
-        $metrics[] = "# HELP open_admin_redis_up Redis connection status (1=up, 0=down)";
-        $metrics[] = "# TYPE open_admin_redis_up gauge";
+        $metrics[] = '# HELP open_admin_redis_up Redis connection status (1=up, 0=down)';
+        $metrics[] = '# TYPE open_admin_redis_up gauge';
         $metrics[] = "open_admin_redis_up {$redisStatus}";
 
         // PHP 信息
-        $metrics[] = "# HELP open_admin_info Application info";
-        $metrics[] = "# TYPE open_admin_info gauge";
+        $metrics[] = '# HELP open_admin_info Application info';
+        $metrics[] = '# TYPE open_admin_info gauge';
         $metrics[] = 'open_admin_info{version="1.0",php="' . PHP_VERSION . '"} 1';
 
         return response(implode("\n", $metrics) . "\n", 200, [

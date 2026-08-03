@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("财务管理")
@@ -48,7 +49,7 @@ class ArApController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -74,7 +75,9 @@ class ArApController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['type' => 'required|integer', 'partner_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new FinanceArAp();
         $item->id = $this->generateId();
@@ -87,6 +90,7 @@ class ArApController extends BaseController
         $item->status = 0;
         $item->due_date = $request->input('due_date');
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -107,7 +111,10 @@ class ArApController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceArAp::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -132,13 +139,24 @@ class ArApController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceArAp::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
-        if ($request->has('partner_id')) $item->partner_id = $this->decodeId($request->input('partner_id'));
-        if ($request->has('amount')) $item->amount = (float) $request->input('amount');
-        if ($request->has('status')) $item->status = (int) $request->input('status');
-        if ($request->has('due_date')) $item->due_date = $request->input('due_date');
+        if ($request->has('partner_id')) {
+            $item->partner_id = $this->decodeId($request->input('partner_id'));
+        }
+        if ($request->has('amount')) {
+            $item->amount = (float) $request->input('amount');
+        }
+        if ($request->has('status')) {
+            $item->status = (int) $request->input('status');
+        }
+        if ($request->has('due_date')) {
+            $item->due_date = $request->input('due_date');
+        }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -160,13 +178,18 @@ class ArApController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = FinanceArAp::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 }

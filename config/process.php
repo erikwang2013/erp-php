@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -16,9 +17,9 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
+use app\process\Http;
 use support\Log;
 use support\Request;
-use app\process\Http;
 
 global $argv;
 
@@ -36,8 +37,8 @@ return [
             'requestClass' => Request::class,
             'logger' => Log::channel('default'),
             'appPath' => app_path(),
-            'publicPath' => public_path()
-        ]
+            'publicPath' => public_path(),
+        ],
     ],
     // File update detection and automatic reload
     'monitor' => [
@@ -55,12 +56,12 @@ return [
             ], glob(base_path() . '/plugin/*/app'), glob(base_path() . '/plugin/*/config'), glob(base_path() . '/plugin/*/api')),
             // Files with these suffixes will be monitored
             'monitorExtensions' => [
-                'php', 'html', 'htm', 'env'
+                'php', 'html', 'htm', 'env',
             ],
             'options' => [
                 'enable_file_monitor' => !in_array('-d', $argv) && DIRECTORY_SEPARATOR === '/',
                 'enable_memory_monitor' => DIRECTORY_SEPARATOR === '/',
-            ]
-        ]
-    ]
+            ],
+        ],
+    ],
 ];

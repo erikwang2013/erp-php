@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("财务管理")
@@ -48,9 +49,12 @@ class CashFlowController extends BaseController
             ->whereMonth('journal_date', $month)
             ->get();
 
-        $operatingInflow = 0; $operatingOutflow = 0;
-        $investingInflow = 0; $investingOutflow = 0;
-        $financingInflow = 0; $financingOutflow = 0;
+        $operatingInflow = 0;
+        $operatingOutflow = 0;
+        $investingInflow = 0;
+        $investingOutflow = 0;
+        $financingInflow = 0;
+        $financingOutflow = 0;
 
         foreach ($journals as $journal) {
             $amount = $journal->amount ?? 0;
@@ -143,9 +147,12 @@ class CashFlowController extends BaseController
         $item = new FinanceCashFlow();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '快照保存成功');
     }
 }

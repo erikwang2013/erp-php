@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -21,5 +22,5 @@ return [
         base_path() . '/app/functions.php',
         base_path() . '/support/Request.php',
         base_path() . '/support/Response.php',
-    ]
+    ],
 ];

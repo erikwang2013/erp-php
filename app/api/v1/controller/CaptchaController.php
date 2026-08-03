@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("验证码")
@@ -63,7 +64,7 @@ class CaptchaController
         }
 
         // 前/后端传递 {x, y} 格式，captcha_verify 内部期望 [x, y]
-        $clicks = array_map(fn($c) => [(int)$c['x'], (int)$c['y']], $clicks);
+        $clicks = array_map(fn ($c) => [(int)$c['x'], (int)$c['y']], $clicks);
         $valid = captcha_verify($key, 'click', $clicks);
 
         return json([

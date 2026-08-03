@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("财务管理")
@@ -48,9 +49,13 @@ class BalanceSheetController extends BaseController
             ->where('period_month', $month)
             ->get();
 
-        $totalAssets = 0; $totalLiabilities = 0; $totalEquity = 0;
-        $currentAssets = 0; $nonCurrentAssets = 0;
-        $currentLiabilities = 0; $nonCurrentLiabilities = 0;
+        $totalAssets = 0;
+        $totalLiabilities = 0;
+        $totalEquity = 0;
+        $currentAssets = 0;
+        $nonCurrentAssets = 0;
+        $currentLiabilities = 0;
+        $nonCurrentLiabilities = 0;
 
         foreach ($ledgers as $ledger) {
             $net = $ledger->closing_debit - $ledger->closing_credit;
@@ -124,9 +129,12 @@ class BalanceSheetController extends BaseController
         $item = new FinanceBalanceSheet();
         $item->id = $this->generateId();
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '快照保存成功');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   * @Apidoc\Tag("CRM")
@@ -51,7 +52,7 @@ class AnalyticsController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -81,7 +82,9 @@ class AnalyticsController extends BaseController
             'period_year' => 'required|integer',
             'period_value' => 'required|integer',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $type = $request->input('type');
         $periodYear = (int) $request->input('period_year');
@@ -122,10 +125,13 @@ class AnalyticsController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = CrmAnalyticsReport::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $data = $this->encodeIds($item->toArray());
         $data['report_data'] = $item->report_data ? json_decode($item->report_data, true) : null;
+
         return $this->success($data);
     }
 
@@ -146,7 +152,8 @@ class AnalyticsController extends BaseController
     public function metrics(Request $request): Response
     {
         $list = CrmAnalyticsMetric::query()->orderBy('id', 'asc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+
         return $this->success(['list' => $list]);
     }
 
@@ -173,22 +180,29 @@ class AnalyticsController extends BaseController
             'key' => 'required|string|max:50',
             'type' => 'required|string|max:30',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $hashid = $request->input('id', '');
         if ($hashid) {
             $id = $this->decodeId($hashid);
             $item = CrmAnalyticsMetric::find($id);
-            if (!$item) return $this->fail('记录不存在', 404);
+            if (!$item) {
+                return $this->fail('记录不存在', 404);
+            }
         } else {
             $item = new CrmAnalyticsMetric();
             $item->id = $this->generateId();
         }
 
         foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') $item->$k = $v;
+            if ($k !== 'id') {
+                $item->$k = $v;
+            }
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), $hashid ? '更新成功' : '创建成功');
     }
 

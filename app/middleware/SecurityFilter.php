@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,10 +8,10 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
-use Webman\MiddlewareInterface;
-use Webman\Http\Response;
-use Webman\Http\Request;
 use support\Redis;
+use Webman\Http\Request;
+use Webman\Http\Response;
+use Webman\MiddlewareInterface;
 
 /**
  * Web/API 安全攻击检测拦截中间件
@@ -96,16 +97,23 @@ class SecurityFilter implements MiddlewareInterface
         // 4. 输入扫描
         $inputs = $this->collectInputs($request);
         foreach ($inputs as $source => $values) {
-            if (!is_array($values) && !is_string($values)) continue;
-            if (is_string($values)) $values = [$values];
+            if (!is_array($values) && !is_string($values)) {
+                continue;
+            }
+            if (is_string($values)) {
+                $values = [$values];
+            }
 
             foreach ($values as $key => $value) {
-                if (!is_string($value) || empty($value)) continue;
+                if (!is_string($value) || empty($value)) {
+                    continue;
+                }
                 $blocked = $this->scan($value);
                 if ($blocked !== null) {
                     $this->logBlock($request, $blocked, (string) $key, $source, substr($value, 0, 200));
                     // 攻击升级：计入 Redis，超阈值封禁
                     $this->escalate($ip);
+
                     return response('<h1>403 Forbidden</h1>', self::BLOCK_CODE);
                 }
             }
@@ -147,7 +155,8 @@ class SecurityFilter implements MiddlewareInterface
                 Redis::del($key);
                 $this->logBan($ip, $count);
             }
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
     }
 
     private function logBan(string $ip, int $count): void
@@ -162,12 +171,12 @@ class SecurityFilter implements MiddlewareInterface
     private function collectInputs(Request $request): array
     {
         return [
-            'path'  => $request->path(),
+            'path' => $request->path(),
             'query' => $request->queryString(),
-            'body'  => $request->all(),
-            'headers.Referer'   => $request->header('Referer', ''),
+            'body' => $request->all(),
+            'headers.Referer' => $request->header('Referer', ''),
             'headers.User-Agent' => $request->header('User-Agent', ''),
-            'headers.Cookie'    => $request->header('Cookie', ''),
+            'headers.Cookie' => $request->header('Cookie', ''),
             'headers.X-Forwarded-For' => $request->header('X-Forwarded-For', ''),
         ];
     }
@@ -181,6 +190,7 @@ class SecurityFilter implements MiddlewareInterface
                 }
             }
         }
+
         return null;
     }
 
@@ -201,13 +211,14 @@ class SecurityFilter implements MiddlewareInterface
                 return true;
             }
         }
+
         return false;
     }
 
     private function logBlock(Request $request, string $category, string $field, string $source, string $payload): void
     {
         $logData = sprintf(
-            "[SECURITY] %s attack blocked | IP: %s | Path: %s | Field: %s | Source: %s | Payload: %s",
+            '[SECURITY] %s attack blocked | IP: %s | Path: %s | Field: %s | Source: %s | Payload: %s',
             $category,
             $request->getRealIp(),
             $request->path(),

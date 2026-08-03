@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,8 +8,8 @@ declare(strict_types=1);
 
 namespace app\common;
 
-use support\Container;
 use InvalidArgumentException;
+use support\Container;
 
 /**
  * Hashids 编解码服务
@@ -27,6 +28,7 @@ class HashidsService
         if (empty($ids)) {
             throw new InvalidArgumentException('无效的加密ID');
         }
+
         return (int) $ids[0];
     }
 
@@ -40,6 +42,7 @@ class HashidsService
                 $data[$field] = self::encode((int) $data[$field]);
             }
         }
+
         return $data;
     }
 }

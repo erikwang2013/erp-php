@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -7,15 +8,15 @@ declare(strict_types=1);
 namespace app\controller\purchase;
 
 use app\admin\controller\BaseController;
-use app\model\PurchaseReceive;
-use app\model\PurchaseReceiveItem;
 use app\model\PurchaseOrder;
 use app\model\PurchaseOrderItem;
-use app\service\inventory\InventoryService;
+use app\model\PurchaseReceive;
+use app\model\PurchaseReceiveItem;
 use app\service\finance\FinanceService;
+use app\service\inventory\InventoryService;
+use Illuminate\Database\Capsule\Manager as DB;
 use support\Request;
 use support\Response;
-use Illuminate\Database\Capsule\Manager as DB;
 
 /**
  * 采购收货管理
@@ -114,11 +115,15 @@ class ReceiveController extends BaseController
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.price' => 'required|numeric|min:0',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $orderId = $this->decodeId($request->input('order_id'));
         $order = PurchaseOrder::find($orderId);
-        if (!$order) return $this->fail('采购订单不存在', 404);
+        if (!$order) {
+            return $this->fail('采购订单不存在', 404);
+        }
 
         DB::beginTransaction();
         try {
@@ -196,12 +201,14 @@ class ReceiveController extends BaseController
             $this->updateOrderStatus($order, $receive->id);
 
             DB::commit();
+
             return $this->success(
                 $this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']),
                 '收货成功，已入库并生成应付记录'
             );
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return $this->fail('收货失败: ' . $e->getMessage(), 500);
         }
     }
@@ -222,6 +229,7 @@ class ReceiveController extends BaseController
         if ($orderItems->isEmpty()) {
             $order->status = 3; // 已收货
             $order->save();
+
             return;
         }
 
@@ -258,7 +266,10 @@ class ReceiveController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $receive = PurchaseReceive::with(['items', 'order', 'supplier', 'warehouse'])->find($id);
-        if (!$receive) return $this->fail('收货单不存在', 404);
+        if (!$receive) {
+            return $this->fail('收货单不存在', 404);
+        }
+
         return $this->success($this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']));
     }
 
@@ -280,12 +291,15 @@ class ReceiveController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $receive = PurchaseReceive::find($id);
-        if (!$receive) return $this->fail('收货单不存在', 404);
+        if (!$receive) {
+            return $this->fail('收货单不存在', 404);
+        }
 
         if ($request->has('remark')) {
             $receive->remark = $request->input('remark');
         }
         $receive->save();
+
         return $this->success($this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']), '更新成功');
     }
 
@@ -307,13 +321,18 @@ class ReceiveController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $receive = PurchaseReceive::find($id);
-        if (!$receive) return $this->fail('收货单不存在', 404);
+        if (!$receive) {
+            return $this->fail('收货单不存在', 404);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
 
         $receive->delete();
+
         return $this->success([], '删除成功');
     }
 }

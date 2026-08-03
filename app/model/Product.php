@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -25,11 +26,26 @@ class Product extends Model
     protected $casts = ['status' => 'integer', 'category_id' => 'integer', 'brand_id' => 'integer'];
     protected $hidden = ['deleted_at'];
 
-    public function category() { return $this->belongsTo(Category::class, 'category_id'); }
-    public function brand() { return $this->belongsTo(Brand::class, 'brand_id'); }
-    public function skus() { return $this->hasMany(ProductSku::class, 'product_id'); }
-    public function prices() { return $this->hasMany(ProductPrice::class, 'product_id'); }
-    public function units() { return $this->hasMany(ProductUnit::class, 'product_id'); }
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
+    }
+    public function skus()
+    {
+        return $this->hasMany(ProductSku::class, 'product_id');
+    }
+    public function prices()
+    {
+        return $this->hasMany(ProductPrice::class, 'product_id');
+    }
+    public function units()
+    {
+        return $this->hasMany(ProductUnit::class, 'product_id');
+    }
 
     public function toSearchableArray(): array
     {

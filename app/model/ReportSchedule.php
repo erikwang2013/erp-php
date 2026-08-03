@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
@@ -19,5 +20,8 @@ class ReportSchedule extends Model
     protected $fillable = ['template_id', 'name', 'frequency', 'recipients', 'next_run_at', 'enabled', 'last_run_at'];
     protected $casts = ['template_id' => 'integer', 'frequency' => 'integer', 'enabled' => 'integer'];
 
-    public function template() { return $this->belongsTo(ReportTemplate::class, 'template_id'); }
+    public function template()
+    {
+        return $this->belongsTo(ReportTemplate::class, 'template_id');
+    }
 }
