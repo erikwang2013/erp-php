@@ -88,14 +88,18 @@ services:
     restart: unless-stopped
     environment:
       discovery.type: single-node
-      xpack.security.enabled: "false"
+      xpack.security.enabled: "true"
+      xpack.security.enrollment.enabled: "true"
+      xpack.security.http.ssl.enabled: "false"
+      xpack.security.transport.ssl.enabled: "false"
+      ELASTIC_PASSWORD: ${ES_PASSWORD:-changeme}
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     ports:
       - "${ES_PORT:-9200}:9200"
     volumes:
       - es-data:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q 'green\\|yellow'"]
+      test: ["CMD-SHELL", "curl -s -u elastic:${ES_PASSWORD:-changeme} http://localhost:9200/_cluster/health | grep -q 'green\\|yellow'"]
       interval: 30s
       timeout: 10s
       retries: 5

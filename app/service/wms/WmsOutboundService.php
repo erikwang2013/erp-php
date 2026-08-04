@@ -8,11 +8,11 @@ declare(strict_types=1);
 namespace app\service\wms;
 
 use app\common\SnowflakeService;
-use app\model\WmsPickTask;
-use app\model\WmsPickItem;
-use app\model\WmsPackTask;
 use app\model\OmsFulfillment;
 use app\model\OmsOrder;
+use app\model\WmsPackTask;
+use app\model\WmsPickItem;
+use app\model\WmsPickTask;
 use app\service\inventory\InventoryService;
 use app\service\oms\AllocationService;
 use Illuminate\Database\Capsule\Manager as DB;
@@ -30,8 +30,12 @@ class WmsOutboundService
     public function startPick(int $pickTaskId, int $assigneeId = 0): void
     {
         $pick = WmsPickTask::find($pickTaskId);
-        if (!$pick) throw new \RuntimeException('拣货任务不存在');
-        if ($pick->status !== 0) throw new \RuntimeException('当前状态不允许开始拣货');
+        if (!$pick) {
+            throw new \RuntimeException('拣货任务不存在');
+        }
+        if ($pick->status !== 0) {
+            throw new \RuntimeException('当前状态不允许开始拣货');
+        }
         $pick->status = 1;
         $pick->assigned_to = $assigneeId;
         $pick->started_at = date('Y-m-d H:i:s');
@@ -43,8 +47,12 @@ class WmsOutboundService
     {
         DB::transaction(function () use ($pickTaskId, $actuals) {
             $pick = WmsPickTask::find($pickTaskId);
-            if (!$pick) throw new \RuntimeException('拣货任务不存在');
-            if ($pick->status !== 1) throw new \RuntimeException('请先开始拣货');
+            if (!$pick) {
+                throw new \RuntimeException('拣货任务不存在');
+            }
+            if ($pick->status !== 1) {
+                throw new \RuntimeException('请先开始拣货');
+            }
 
             foreach ($actuals as $item) {
                 WmsPickItem::where('pick_task_id', $pickTaskId)
@@ -74,6 +82,7 @@ class WmsOutboundService
         $pack->package_type = $options['package_type'] ?? '';
         $pack->assigned_to = $options['assigned_to'] ?? 0;
         $pack->save();
+
         return $pack;
     }
 
@@ -81,8 +90,12 @@ class WmsOutboundService
     public function completePack(int $packTaskId, array $packageInfo): WmsPackTask
     {
         $pack = WmsPackTask::find($packTaskId);
-        if (!$pack) throw new \RuntimeException('打包任务不存在');
-        if ($pack->status !== 1) throw new \RuntimeException('请先开始打包');
+        if (!$pack) {
+            throw new \RuntimeException('打包任务不存在');
+        }
+        if ($pack->status !== 1) {
+            throw new \RuntimeException('请先开始打包');
+        }
 
         $pack->status = 2;
         $pack->weight_kg = $packageInfo['weight_kg'] ?? 0;
@@ -91,6 +104,7 @@ class WmsOutboundService
         $pack->height_cm = $packageInfo['height_cm'] ?? 0;
         $pack->completed_at = date('Y-m-d H:i:s');
         $pack->save();
+
         return $pack;
     }
 

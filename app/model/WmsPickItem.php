@@ -24,6 +24,6 @@ class WmsPickItem extends Model
         'location_id' => 'integer',
         'ordered_quantity' => 'float',
         'picked_quantity' => 'float',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
 }

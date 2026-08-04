@@ -23,6 +23,6 @@ class WmsPutawayItem extends Model
         'sku_id' => 'integer',
         'from_location_id' => 'integer',
         'to_location_id' => 'integer',
-        'quantity' => 'float'
+        'quantity' => 'float',
     ];
 }

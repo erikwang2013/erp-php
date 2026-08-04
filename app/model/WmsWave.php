@@ -21,6 +21,6 @@ class WmsWave extends Model
         'warehouse_id' => 'integer',
         'type' => 'integer',
         'status' => 'integer',
-        'priority' => 'integer'
+        'priority' => 'integer',
     ];
 }

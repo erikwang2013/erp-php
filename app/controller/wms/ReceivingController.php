@@ -40,7 +40,7 @@ class ReceivingController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -79,6 +79,7 @@ class ReceivingController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -129,14 +130,19 @@ class ReceivingController extends BaseController
     public function complete(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
 
         $actuals = $request->input('items', []);
-        if (empty($actuals)) return $this->fail('请提供收货明细', 422);
+        if (empty($actuals)) {
+            return $this->fail('请提供收货明细', 422);
+        }
 
         try {
             $service = new WmsInboundService();
             $putaway = $service->completeReceiving($id, $actuals);
+
             return $this->success($this->encodeIds($putaway->toArray()), '收货完成，已生成上架任务');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);

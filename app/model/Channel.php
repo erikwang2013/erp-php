@@ -19,6 +19,6 @@ class Channel extends Model
     protected $fillable = ['code', 'name', 'type', 'config', 'status'];
     protected $casts = [
         'config' => 'array',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
 }

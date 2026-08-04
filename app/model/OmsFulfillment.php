@@ -23,6 +23,6 @@ class OmsFulfillment extends Model
         'status' => 'integer',
         'pick_task_id' => 'integer',
         'pack_task_id' => 'integer',
-        'shipment_id' => 'integer'
+        'shipment_id' => 'integer',
     ];
 }

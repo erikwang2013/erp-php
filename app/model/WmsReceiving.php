@@ -22,6 +22,6 @@ class WmsReceiving extends Model
         'warehouse_id' => 'integer',
         'dock_location_id' => 'integer',
         'status' => 'integer',
-        'receiver_id' => 'integer'
+        'receiver_id' => 'integer',
     ];
 }

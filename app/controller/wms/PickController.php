@@ -10,7 +10,6 @@ namespace app\controller\wms;
 
 use app\admin\controller\BaseController;
 use app\model\WmsPickTask;
-use app\service\wms\WmsOutboundService;
 use support\Request;
 use support\Response;
 
@@ -40,7 +39,7 @@ class PickController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -79,6 +78,7 @@ class PickController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -129,9 +129,12 @@ class PickController extends BaseController
     public function start(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
         try {
             (new \app\service\wms\WmsOutboundService())->startPick($id, $request->adminId ?? 0);
+
             return $this->success([], '拣货任务已开始');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);
@@ -142,11 +145,16 @@ class PickController extends BaseController
     public function confirm(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
         $actuals = $request->input('items', []);
-        if (empty($actuals)) return $this->fail('请提供拣货确认明细', 422);
+        if (empty($actuals)) {
+            return $this->fail('请提供拣货确认明细', 422);
+        }
         try {
             (new \app\service\wms\WmsOutboundService())->confirmPick($id, $actuals);
+
             return $this->success([], '拣货确认完成');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);

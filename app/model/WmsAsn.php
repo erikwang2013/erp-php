@@ -22,6 +22,6 @@ class WmsAsn extends Model
         'warehouse_id' => 'integer',
         'purchase_order_id' => 'integer',
         'status' => 'integer',
-        'total_packages' => 'integer'
+        'total_packages' => 'integer',
     ];
 }

@@ -25,6 +25,7 @@ class TrackingService
         $event->event_time = $eventTime ?? date('Y-m-d H:i:s');
         $event->raw_data = $rawData ? json_decode($rawData, true) : null;
         $event->save();
+
         return $event;
     }
 
@@ -32,18 +33,26 @@ class TrackingService
     public function processWebhook(string $trackingNo, array $events): void
     {
         $shipment = TmsShipment::where('tracking_no', $trackingNo)->first();
-        if (!$shipment) throw new \RuntimeException('未找到运单: ' . $trackingNo);
+        if (!$shipment) {
+            throw new \RuntimeException('未找到运单: ' . $trackingNo);
+        }
 
         $shipmentSvc = new TmsShipmentService();
         $statusMap = ['picked_up' => 1, 'in_transit' => 2, 'out_for_delivery' => 2, 'delivered' => 3, 'exception' => 4, 'returned' => 5];
 
         foreach ($events as $evt) {
             $this->recordEvent(
-                $shipment->id, $evt['status_code'] ?? '', $evt['description'] ?? '',
-                $evt['location'] ?? '', $evt['event_time'] ?? null, $evt['raw_data'] ?? null
+                $shipment->id,
+                $evt['status_code'] ?? '',
+                $evt['description'] ?? '',
+                $evt['location'] ?? '',
+                $evt['event_time'] ?? null,
+                $evt['raw_data'] ?? null
             );
             $newStatus = $statusMap[$evt['status_code'] ?? ''] ?? null;
-            if ($newStatus !== null) $shipmentSvc->updateStatus($shipment->id, $newStatus);
+            if ($newStatus !== null) {
+                $shipmentSvc->updateStatus($shipment->id, $newStatus);
+            }
         }
     }
 }

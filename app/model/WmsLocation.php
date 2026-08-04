@@ -26,6 +26,6 @@ class WmsLocation extends Model
         'max_weight_kg' => 'float',
         'max_volume_cm3' => 'float',
         'pick_sequence' => 'integer',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
 }

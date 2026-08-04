@@ -42,7 +42,7 @@ class OrderController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -79,6 +79,7 @@ class OrderController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -143,6 +144,7 @@ class OrderController extends BaseController
         try {
             $service = new OmsOrderService();
             $service->allocateOrder($id, $items);
+
             return $this->success([], '库存分配成功');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);
@@ -167,6 +169,7 @@ class OrderController extends BaseController
         try {
             $service = new OmsOrderService();
             $fulfillment = $service->createFulfillment($id, $warehouseId);
+
             return $this->success($this->encodeIds($fulfillment->toArray()), '履约创建成功');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);
@@ -186,6 +189,7 @@ class OrderController extends BaseController
         try {
             $service = new OmsOrderService();
             $service->cancelOrder($id);
+
             return $this->success([], '订单已取消');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);

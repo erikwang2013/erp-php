@@ -40,7 +40,7 @@ class PutawayController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -79,6 +79,7 @@ class PutawayController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -129,11 +130,14 @@ class PutawayController extends BaseController
     public function start(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
 
         try {
             $service = new WmsInboundService();
             $service->startPutaway($id, $request->adminId ?? 0);
+
             return $this->success([], '上架任务已开始');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);
@@ -144,11 +148,14 @@ class PutawayController extends BaseController
     public function complete(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
 
         try {
             $service = new WmsInboundService();
             $service->confirmPutaway($id);
+
             return $this->success([], '上架完成，库存已更新');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);

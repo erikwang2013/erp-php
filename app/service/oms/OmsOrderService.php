@@ -8,8 +8,8 @@ declare(strict_types=1);
 namespace app\service\oms;
 
 use app\common\SnowflakeService;
-use app\model\OmsOrder;
 use app\model\OmsFulfillment;
+use app\model\OmsOrder;
 use app\model\SalesOrder;
 use Illuminate\Database\Capsule\Manager as DB;
 

@@ -18,23 +18,26 @@
  */
 
 use Webman\Session\FileSessionHandler;
+use Webman\Session\RedisSessionHandler;
+
+$type = getenv('SESSION_TYPE') ?: 'redis';
 
 return [
 
-    'type' => 'file', // or redis or redis_cluster
+    'type' => $type,
 
-    'handler' => FileSessionHandler::class,
+    'handler' => $type === 'redis' ? RedisSessionHandler::class : FileSessionHandler::class,
 
     'config' => [
         'file' => [
             'save_path' => runtime_path() . '/sessions',
         ],
         'redis' => [
-            'host' => '127.0.0.1',
-            'port' => 6379,
-            'auth' => '',
+            'host' => getenv('REDIS_HOST') ?: '127.0.0.1',
+            'port' => (int)(getenv('REDIS_PORT') ?: 6379),
+            'auth' => getenv('REDIS_PASSWORD') ?: '',
             'timeout' => 2,
-            'database' => '',
+            'database' => (int)(getenv('REDIS_DATABASE') ?: 0),
             'prefix' => 'redis_session_',
         ],
         'redis_cluster' => [

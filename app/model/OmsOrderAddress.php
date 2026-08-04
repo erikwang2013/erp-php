@@ -19,6 +19,6 @@ class OmsOrderAddress extends Model
     protected $fillable = ['order_id', 'type', 'contact_name', 'phone', 'email', 'country', 'state', 'city', 'district', 'address_line1', 'address_line2', 'postal_code'];
     protected $casts = [
         'order_id' => 'integer',
-        'type' => 'integer'
+        'type' => 'integer',
     ];
 }

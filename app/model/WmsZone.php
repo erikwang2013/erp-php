@@ -21,6 +21,6 @@ class WmsZone extends Model
         'warehouse_id' => 'integer',
         'type' => 'integer',
         'sort' => 'integer',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
 }

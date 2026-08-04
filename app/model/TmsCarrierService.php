@@ -21,6 +21,6 @@ class TmsCarrierService extends Model
         'carrier_id' => 'integer',
         'estimated_days_min' => 'integer',
         'estimated_days_max' => 'integer',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
 }

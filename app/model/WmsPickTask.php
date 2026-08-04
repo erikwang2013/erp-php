@@ -23,6 +23,6 @@ class WmsPickTask extends Model
         'type' => 'integer',
         'status' => 'integer',
         'assigned_to' => 'integer',
-        'priority' => 'integer'
+        'priority' => 'integer',
     ];
 }

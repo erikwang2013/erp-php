@@ -24,7 +24,9 @@ class FreightCalculatorService
             ->orderByDesc('dest_country')
             ->first();
 
-        if (!$rate) return ['charge' => 0, 'currency' => 'CNY', 'rate_id' => null];
+        if (!$rate) {
+            return ['charge' => 0, 'currency' => 'CNY', 'rate_id' => null];
+        }
 
         $charge = (float) $rate->base_rate + ($weightKg * (float) $rate->per_kg_rate);
         if ((float) $rate->fuel_surcharge_pct > 0) {
@@ -57,7 +59,8 @@ class FreightCalculatorService
                 'currency' => $rate->currency,
             ];
         }
-        usort($results, fn($a, $b) => $a['charge'] <=> $b['charge']);
+        usort($results, fn ($a, $b) => $a['charge'] <=> $b['charge']);
+
         return $results;
     }
 }

@@ -7,7 +7,6 @@ runtime
 /tests/.phpunit.result.cache
 /.cursor
 vendor
-composer.lock
 /.github/*
 !.github/workflows/
 .claude

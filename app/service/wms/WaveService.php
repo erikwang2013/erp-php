@@ -8,10 +8,10 @@ declare(strict_types=1);
 namespace app\service\wms;
 
 use app\common\SnowflakeService;
+use app\model\WmsPickItem;
+use app\model\WmsPickTask;
 use app\model\WmsWave;
 use app\model\WmsWaveOrder;
-use app\model\WmsPickTask;
-use app\model\WmsPickItem;
 use Illuminate\Database\Capsule\Manager as DB;
 
 class WaveService
@@ -38,6 +38,7 @@ class WaveService
                 $wo->sort = $i + 1;
                 $wo->save();
             }
+
             return $wave;
         });
     }
@@ -47,8 +48,12 @@ class WaveService
     {
         return DB::transaction(function () use ($waveId, $pickItems) {
             $wave = WmsWave::find($waveId);
-            if (!$wave) throw new \RuntimeException('波次不存在');
-            if ($wave->status !== 0) throw new \RuntimeException('波次状态不允许释放');
+            if (!$wave) {
+                throw new \RuntimeException('波次不存在');
+            }
+            if ($wave->status !== 0) {
+                throw new \RuntimeException('波次状态不允许释放');
+            }
 
             $pickTask = new WmsPickTask();
             $pickTask->id = SnowflakeService::generate();
@@ -74,6 +79,7 @@ class WaveService
 
             $wave->status = 1;
             $wave->save();
+
             return $pickTask;
         });
     }

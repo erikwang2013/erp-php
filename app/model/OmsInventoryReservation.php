@@ -25,6 +25,6 @@ class OmsInventoryReservation extends Model
         'source_id' => 'integer',
         'source_item_id' => 'integer',
         'reserved_quantity' => 'float',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
 }

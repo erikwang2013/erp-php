@@ -39,7 +39,7 @@ class ZoneController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -76,6 +76,7 @@ class ZoneController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 

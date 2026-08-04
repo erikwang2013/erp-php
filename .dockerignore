@@ -1,0 +1,46 @@
+# Environment & secrets
+.env
+.env.*
+!.env.example
+!.env.docker
+
+# Runtime
+runtime/
+
+# VCS
+.git/
+.gitignore
+.gitattributes
+
+# Tests & docs
+tests/
+docs/
+
+# Dev tools
+.php-cs-fixer.cache
+.phpunit.result.cache
+phpstan-baseline.neon
+.editorconfig
+
+# CI/CD
+.github/
+
+# IDE
+.idea/
+.vscode/
+.cursor/
+
+# Project-specific
+.claude/
+.claude-flow/
+.swarm/
+.mcp.json
+ruvector.db
+.agents
+skills-lock.json
+*.backup
+*.bak
+
+# Markdown
+README.md
+README_EN.md

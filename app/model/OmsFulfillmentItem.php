@@ -25,6 +25,6 @@ class OmsFulfillmentItem extends Model
         'allocated_quantity' => 'float',
         'picked_quantity' => 'float',
         'packed_quantity' => 'float',
-        'shipped_quantity' => 'float'
+        'shipped_quantity' => 'float',
     ];
 }

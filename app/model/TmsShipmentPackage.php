@@ -24,6 +24,6 @@ class TmsShipmentPackage extends Model
         'length_cm' => 'float',
         'width_cm' => 'float',
         'height_cm' => 'float',
-        'declared_value' => 'float'
+        'declared_value' => 'float',
     ];
 }

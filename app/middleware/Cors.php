@@ -16,6 +16,8 @@ class Cors implements MiddlewareInterface
 {
     public function process(Request $request, callable $handler): Response
     {
+        $nonce = base64_encode(random_bytes(16));
+
         if ($request->method() === 'OPTIONS') {
             return response('', 204, [
                 'Access-Control-Allow-Origin' => '*',
@@ -33,7 +35,7 @@ class Cors implements MiddlewareInterface
             'X-XSS-Protection' => '1; mode=block',
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
-            'Content-Security-Policy' => "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http: https:;",
+            'Content-Security-Policy' => "default-src 'self'; script-src 'self' 'nonce-{$nonce}'; style-src 'self' 'nonce-{$nonce}'; img-src 'self' data: blob:; connect-src 'self' http: https:;",
             'X-Permitted-Cross-Domain-Policies' => 'none',
         ]);
 

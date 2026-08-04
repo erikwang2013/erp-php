@@ -10,7 +10,6 @@ namespace app\controller\tms;
 
 use app\admin\controller\BaseController;
 use app\model\TmsTrackingEvent;
-use app\service\tms\TrackingService;
 use support\Request;
 use support\Response;
 
@@ -35,7 +34,7 @@ class TrackingController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -72,6 +71,7 @@ class TrackingController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -123,9 +123,12 @@ class TrackingController extends BaseController
     {
         $trackingNo = $request->input('tracking_no', '');
         $events = $request->input('events', []);
-        if (!$trackingNo || empty($events)) return $this->fail('参数不完整', 422);
+        if (!$trackingNo || empty($events)) {
+            return $this->fail('参数不完整', 422);
+        }
         try {
             (new \app\service\tms\TrackingService())->processWebhook($trackingNo, $events);
+
             return $this->success([], '轨迹已更新');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);

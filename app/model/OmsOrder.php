@@ -22,6 +22,6 @@ class OmsOrder extends Model
         'fulfillment_status' => 'integer',
         'payment_status' => 'integer',
         'shipping_fee' => 'float',
-        'priority' => 'integer'
+        'priority' => 'integer',
     ];
 }

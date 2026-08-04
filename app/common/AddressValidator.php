@@ -28,9 +28,15 @@ class AddressValidator
     public static function validate(array $address): array
     {
         $errors = [];
-        if (empty($address['contact_name'] ?? '')) $errors[] = '联系人不能为空';
-        if (empty($address['country'] ?? '')) $errors[] = '国家不能为空';
-        if (empty($address['address_line1'] ?? '')) $errors[] = '地址行不能为空';
+        if (empty($address['contact_name'] ?? '')) {
+            $errors[] = '联系人不能为空';
+        }
+        if (empty($address['country'] ?? '')) {
+            $errors[] = '国家不能为空';
+        }
+        if (empty($address['address_line1'] ?? '')) {
+            $errors[] = '地址行不能为空';
+        }
 
         $country = strtoupper($address['country'] ?? '');
         $postalCode = $address['postal_code'] ?? '';
@@ -57,13 +63,17 @@ class AddressValidator
         if (in_array($country, ['CN', 'JP', 'KR'])) {
             return ['contact_name', 'phone', 'country', 'state', 'city', 'district', 'address_line1', 'address_line2', 'postal_code'];
         }
+
         return ['contact_name', 'phone', 'email', 'country', 'state', 'city', 'address_line1', 'address_line2', 'postal_code'];
     }
 
     public static function validatePostalCode(string $country, string $postalCode): bool
     {
         $country = strtoupper($country);
-        if (!isset(self::POSTAL_PATTERNS[$country])) return true;
+        if (!isset(self::POSTAL_PATTERNS[$country])) {
+            return true;
+        }
+
         return (bool) preg_match(self::POSTAL_PATTERNS[$country], $postalCode);
     }
 }

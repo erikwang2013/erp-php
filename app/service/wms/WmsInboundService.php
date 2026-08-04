@@ -10,9 +10,9 @@ namespace app\service\wms;
 use app\common\SnowflakeService;
 use app\model\WmsAsn;
 use app\model\WmsAsnItem;
-use app\model\WmsReceiving;
-use app\model\WmsPutawayTask;
 use app\model\WmsPutawayItem;
+use app\model\WmsPutawayTask;
+use app\model\WmsReceiving;
 use app\service\inventory\InventoryService;
 use Illuminate\Database\Capsule\Manager as DB;
 
@@ -62,8 +62,12 @@ class WmsInboundService
     {
         return DB::transaction(function () use ($asnId, $warehouseId, $dockLocationId, $receiverId) {
             $asn = WmsAsn::find($asnId);
-            if (!$asn) throw new \RuntimeException('ASN不存在');
-            if (!in_array($asn->status, [0])) throw new \RuntimeException('当前ASN状态不允许收货');
+            if (!$asn) {
+                throw new \RuntimeException('ASN不存在');
+            }
+            if (!in_array($asn->status, [0])) {
+                throw new \RuntimeException('当前ASN状态不允许收货');
+            }
 
             $receiving = new WmsReceiving();
             $receiving->id = SnowflakeService::generate();
@@ -87,8 +91,12 @@ class WmsInboundService
     {
         return DB::transaction(function () use ($receivingId, $actuals) {
             $receiving = WmsReceiving::find($receivingId);
-            if (!$receiving) throw new \RuntimeException('收货记录不存在');
-            if ($receiving->status !== 1) throw new \RuntimeException('当前状态不允许完成收货');
+            if (!$receiving) {
+                throw new \RuntimeException('收货记录不存在');
+            }
+            if ($receiving->status !== 1) {
+                throw new \RuntimeException('当前状态不允许完成收货');
+            }
 
             foreach ($actuals as $item) {
                 WmsAsnItem::where('asn_id', $receiving->asn_id)
@@ -102,7 +110,7 @@ class WmsInboundService
             $receiving->save();
 
             WmsAsn::where('id', $receiving->asn_id)->update([
-                'status' => 2, 'arrived_at' => date('Y-m-d H:i:s')
+                'status' => 2, 'arrived_at' => date('Y-m-d H:i:s'),
             ]);
 
             $putaway = new WmsPutawayTask();
@@ -137,15 +145,25 @@ class WmsInboundService
     {
         DB::transaction(function () use ($putawayId) {
             $putaway = WmsPutawayTask::find($putawayId);
-            if (!$putaway) throw new \RuntimeException('上架任务不存在');
-            if ($putaway->status !== 1) throw new \RuntimeException('请先开始上架');
+            if (!$putaway) {
+                throw new \RuntimeException('上架任务不存在');
+            }
+            if ($putaway->status !== 1) {
+                throw new \RuntimeException('请先开始上架');
+            }
 
             $items = WmsPutawayItem::where('putaway_id', $putawayId)->get();
             foreach ($items as $item) {
                 $this->inventory->stockIn(
-                    $item->product_id, $item->sku_id, $putaway->warehouse_id,
-                    $item->to_location_id, $item->batch_code, $item->quantity,
-                    0, 'wms_putaway', $putawayId
+                    $item->product_id,
+                    $item->sku_id,
+                    $putaway->warehouse_id,
+                    $item->to_location_id,
+                    $item->batch_code,
+                    $item->quantity,
+                    0,
+                    'wms_putaway',
+                    $putawayId
                 );
             }
 
@@ -164,8 +182,12 @@ class WmsInboundService
     public function startPutaway(int $putawayId, int $assigneeId = 0): void
     {
         $putaway = WmsPutawayTask::find($putawayId);
-        if (!$putaway) throw new \RuntimeException('上架任务不存在');
-        if ($putaway->status !== 0) throw new \RuntimeException('当前状态不允许开始上架');
+        if (!$putaway) {
+            throw new \RuntimeException('上架任务不存在');
+        }
+        if ($putaway->status !== 0) {
+            throw new \RuntimeException('当前状态不允许开始上架');
+        }
 
         $putaway->status = 1;
         $putaway->assigned_to = $assigneeId;

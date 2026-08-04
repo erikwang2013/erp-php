@@ -40,6 +40,7 @@ class AllocationService
             );
             $reservationIds[] = $rid;
         }
+
         return $reservationIds;
     }
 

@@ -26,6 +26,6 @@ class TmsShipment extends Model
         'total_volume_cm3' => 'float',
         'package_count' => 'integer',
         'freight_charge' => 'float',
-        'insurance_charge' => 'float'
+        'insurance_charge' => 'float',
     ];
 }

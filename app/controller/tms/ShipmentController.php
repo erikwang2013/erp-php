@@ -10,7 +10,6 @@ namespace app\controller\tms;
 
 use app\admin\controller\BaseController;
 use app\model\TmsShipment;
-use app\service\tms\TmsShipmentService;
 use support\Request;
 use support\Response;
 
@@ -40,7 +39,7 @@ class ShipmentController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -79,6 +78,7 @@ class ShipmentController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -129,10 +129,13 @@ class ShipmentController extends BaseController
     public function ship(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
         try {
             $svc = new \app\service\tms\TmsShipmentService();
             $svc->confirmShip($id, $request->input('fulfillment_id', 0), $request->input('oms_order_id', 0));
+
             return $this->success([], '发货确认完成');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);
@@ -143,7 +146,10 @@ class ShipmentController extends BaseController
     public function getLabel(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
+
         return $this->success(['label_url' => '/api/shipping-label/' . $hashid], '面单生成请求已提交');
     }
 }

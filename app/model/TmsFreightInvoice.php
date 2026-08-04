@@ -23,6 +23,6 @@ class TmsFreightInvoice extends Model
         'amount' => 'float',
         'status' => 'integer',
         'invoice_date' => 'datetime',
-        'due_date' => 'datetime'
+        'due_date' => 'datetime',
     ];
 }

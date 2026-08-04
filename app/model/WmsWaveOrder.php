@@ -20,6 +20,6 @@ class WmsWaveOrder extends Model
     protected $casts = [
         'wave_id' => 'integer',
         'oms_order_id' => 'integer',
-        'sort' => 'integer'
+        'sort' => 'integer',
     ];
 }

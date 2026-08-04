@@ -26,6 +26,6 @@ class TmsFreightRate extends Model
         'fuel_surcharge_pct' => 'float',
         'valid_from' => 'datetime',
         'valid_to' => 'datetime',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
 }

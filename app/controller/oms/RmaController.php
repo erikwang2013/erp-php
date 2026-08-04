@@ -39,7 +39,7 @@ class RmaController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -78,6 +78,7 @@ class RmaController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -128,11 +129,17 @@ class RmaController extends BaseController
     public function approve(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
 
         $rma = OmsRma::find($id);
-        if (!$rma) return $this->fail($this->trans('not_found'), 404);
-        if ($rma->status !== 0) return $this->fail('当前状态不可审批', 400);
+        if (!$rma) {
+            return $this->fail($this->trans('not_found'), 404);
+        }
+        if ($rma->status !== 0) {
+            return $this->fail('当前状态不可审批', 400);
+        }
 
         $approved = $request->input('approved', true);
         if ($approved) {
@@ -151,11 +158,17 @@ class RmaController extends BaseController
     public function receive(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
 
         $rma = OmsRma::find($id);
-        if (!$rma) return $this->fail($this->trans('not_found'), 404);
-        if ($rma->status !== 2) return $this->fail('请等待退货寄回后再确认收货', 400);
+        if (!$rma) {
+            return $this->fail($this->trans('not_found'), 404);
+        }
+        if ($rma->status !== 2) {
+            return $this->fail('请等待退货寄回后再确认收货', 400);
+        }
 
         $rma->status = 3;
         $rma->received_at = date('Y-m-d H:i:s');
@@ -168,11 +181,17 @@ class RmaController extends BaseController
     public function refund(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
 
         $rma = OmsRma::find($id);
-        if (!$rma) return $this->fail($this->trans('not_found'), 404);
-        if ($rma->status !== 3 && $rma->status !== 1) return $this->fail('当前状态不可退款', 400);
+        if (!$rma) {
+            return $this->fail($this->trans('not_found'), 404);
+        }
+        if ($rma->status !== 3 && $rma->status !== 1) {
+            return $this->fail('当前状态不可退款', 400);
+        }
 
         $rma->status = 4;
         $rma->save();

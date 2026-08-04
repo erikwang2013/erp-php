@@ -21,6 +21,6 @@ class WmsPutawayTask extends Model
         'warehouse_id' => 'integer',
         'receiving_id' => 'integer',
         'status' => 'integer',
-        'assigned_to' => 'integer'
+        'assigned_to' => 'integer',
     ];
 }

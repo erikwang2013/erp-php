@@ -22,6 +22,6 @@ class WmsAsnItem extends Model
         'product_id' => 'integer',
         'sku_id' => 'integer',
         'expected_quantity' => 'float',
-        'received_quantity' => 'float'
+        'received_quantity' => 'float',
     ];
 }

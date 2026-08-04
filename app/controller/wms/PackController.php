@@ -10,7 +10,6 @@ namespace app\controller\wms;
 
 use app\admin\controller\BaseController;
 use app\model\WmsPackTask;
-use app\service\wms\WmsOutboundService;
 use support\Request;
 use support\Response;
 
@@ -40,7 +39,7 @@ class PackController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -79,6 +78,7 @@ class PackController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+
         return $this->success($this->encodeIds($item->toArray()));
     }
 
@@ -129,9 +129,12 @@ class PackController extends BaseController
     public function start(Request $request): Response
     {
         $warehouseId = $this->decodeIdSafe($request->input('warehouse_id', ''));
-        if (!$warehouseId) return $this->fail('请提供仓库ID', 422);
+        if (!$warehouseId) {
+            return $this->fail('请提供仓库ID', 422);
+        }
         try {
             $pack = (new \app\service\wms\WmsOutboundService())->startPack($warehouseId, $request->all());
+
             return $this->success($this->encodeIds($pack->toArray()), '打包任务已创建');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);
@@ -142,9 +145,12 @@ class PackController extends BaseController
     public function complete(Request $request, string $hashid): Response
     {
         $id = $this->decodeIdSafe($hashid);
-        if (!$id) return $this->fail($this->trans('invalid_id'), 400);
+        if (!$id) {
+            return $this->fail($this->trans('invalid_id'), 400);
+        }
         try {
             $pack = (new \app\service\wms\WmsOutboundService())->completePack($id, $request->all());
+
             return $this->success($this->encodeIds($pack->toArray()), '打包完成');
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 500);

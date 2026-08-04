@@ -59,8 +59,12 @@ class TmsShipmentService
     {
         DB::transaction(function () use ($shipmentId, $fulfillmentId, $omsOrderId) {
             $shipment = TmsShipment::find($shipmentId);
-            if (!$shipment) throw new \RuntimeException('运单不存在');
-            if ($shipment->status !== 0) throw new \RuntimeException('运单状态不允许发货');
+            if (!$shipment) {
+                throw new \RuntimeException('运单不存在');
+            }
+            if ($shipment->status !== 0) {
+                throw new \RuntimeException('运单状态不允许发货');
+            }
 
             (new WmsOutboundService())->confirmShip($fulfillmentId, $omsOrderId);
             $shipment->status = 1;
@@ -72,9 +76,13 @@ class TmsShipmentService
     public function updateStatus(int $shipmentId, int $status): void
     {
         $shipment = TmsShipment::find($shipmentId);
-        if (!$shipment) throw new \RuntimeException('运单不存在');
+        if (!$shipment) {
+            throw new \RuntimeException('运单不存在');
+        }
         $shipment->status = $status;
-        if ($status === 3) $shipment->actual_delivery_at = date('Y-m-d H:i:s');
+        if ($status === 3) {
+            $shipment->actual_delivery_at = date('Y-m-d H:i:s');
+        }
         $shipment->save();
     }
 

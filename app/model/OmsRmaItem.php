@@ -24,6 +24,6 @@ class OmsRmaItem extends Model
         'sku_id' => 'integer',
         'quantity' => 'float',
         'price' => 'float',
-        'amount' => 'float'
+        'amount' => 'float',
     ];
 }

@@ -223,8 +223,15 @@ class InventoryService
         }
 
         return DB::transaction(function () use (
-            $productId, $skuId, $warehouseId, $locationId, $batchCode,
-            $quantity, $sourceType, $sourceId, $sourceItemId
+            $productId,
+            $skuId,
+            $warehouseId,
+            $locationId,
+            $batchCode,
+            $quantity,
+            $sourceType,
+            $sourceId,
+            $sourceItemId
         ) {
             $inv = Inventory::where([
                 'product_id' => $productId,
@@ -292,9 +299,14 @@ class InventoryService
 
             foreach ($reservations as $r) {
                 $this->stockOut(
-                    $r->product_id, $r->sku_id, $r->warehouse_id,
-                    $r->location_id, $r->batch_code, $r->reserved_quantity,
-                    $sourceType, $sourceId
+                    $r->product_id,
+                    $r->sku_id,
+                    $r->warehouse_id,
+                    $r->location_id,
+                    $r->batch_code,
+                    $r->reserved_quantity,
+                    $sourceType,
+                    $sourceId
                 );
                 $r->status = 3;
                 $r->save();
@@ -308,14 +320,22 @@ class InventoryService
     public function getAvailableQuantity(int $productId, int $skuId, int $warehouseId = 0, int $locationId = 0): float
     {
         $query = Inventory::where('product_id', $productId)->where('sku_id', $skuId);
-        if ($warehouseId > 0) $query->where('warehouse_id', $warehouseId);
-        if ($locationId > 0) $query->where('location_id', $locationId);
+        if ($warehouseId > 0) {
+            $query->where('warehouse_id', $warehouseId);
+        }
+        if ($locationId > 0) {
+            $query->where('location_id', $locationId);
+        }
         $physicalQty = $query->sum('quantity');
 
         $resQuery = OmsInventoryReservation::where('product_id', $productId)
             ->where('sku_id', $skuId)->where('status', 1);
-        if ($warehouseId > 0) $resQuery->where('warehouse_id', $warehouseId);
-        if ($locationId > 0) $resQuery->where('location_id', $locationId);
+        if ($warehouseId > 0) {
+            $resQuery->where('warehouse_id', $warehouseId);
+        }
+        if ($locationId > 0) {
+            $resQuery->where('location_id', $locationId);
+        }
         $reserved = $resQuery->sum('reserved_quantity');
 
         return round($physicalQty - $reserved, 2);

@@ -19,6 +19,6 @@ class TmsCarrier extends Model
     protected $fillable = ['code', 'name', 'type', 'website', 'tracking_url_template', 'api_provider', 'api_config', 'contact_phone', 'status'];
     protected $casts = [
         'api_config' => 'array',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
 }

@@ -24,6 +24,6 @@ class WmsPackTask extends Model
         'length_cm' => 'float',
         'width_cm' => 'float',
         'height_cm' => 'float',
-        'assigned_to' => 'integer'
+        'assigned_to' => 'integer',
     ];
 }

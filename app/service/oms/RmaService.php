@@ -25,7 +25,9 @@ class RmaService
     /** 创建RMA */
     public function create(int $orderId, int $customerId, int $type, string $reason, array $items, array $options = []): OmsRma
     {
-        if (empty($items)) throw new \InvalidArgumentException('RMA明细不能为空');
+        if (empty($items)) {
+            throw new \InvalidArgumentException('RMA明细不能为空');
+        }
 
         $rma = new OmsRma();
         $rma->id = SnowflakeService::generate();
@@ -52,6 +54,7 @@ class RmaService
             $ri->unit = $item['unit'] ?? '';
             $ri->save();
         }
+
         return $rma;
     }
 
@@ -59,8 +62,12 @@ class RmaService
     public function approve(int $rmaId, int $approverId): void
     {
         $rma = OmsRma::find($rmaId);
-        if (!$rma) throw new \RuntimeException('RMA不存在');
-        if ($rma->status !== 0) throw new \RuntimeException('当前状态不可审批');
+        if (!$rma) {
+            throw new \RuntimeException('RMA不存在');
+        }
+        if ($rma->status !== 0) {
+            throw new \RuntimeException('当前状态不可审批');
+        }
         $rma->status = 1;
         $rma->approved_by = $approverId;
         $rma->approved_at = date('Y-m-d H:i:s');
@@ -71,8 +78,12 @@ class RmaService
     public function markReturned(int $rmaId): void
     {
         $rma = OmsRma::find($rmaId);
-        if (!$rma) throw new \RuntimeException('RMA不存在');
-        if ($rma->status !== 1) throw new \RuntimeException('请先批准RMA');
+        if (!$rma) {
+            throw new \RuntimeException('RMA不存在');
+        }
+        if ($rma->status !== 1) {
+            throw new \RuntimeException('请先批准RMA');
+        }
         $rma->status = 2;
         $rma->returned_at = date('Y-m-d H:i:s');
         $rma->save();
@@ -83,15 +94,25 @@ class RmaService
     {
         DB::transaction(function () use ($rmaId, $warehouseId, $locationId) {
             $rma = OmsRma::find($rmaId);
-            if (!$rma) throw new \RuntimeException('RMA不存在');
-            if ($rma->status !== 2) throw new \RuntimeException('请等待退货寄回');
+            if (!$rma) {
+                throw new \RuntimeException('RMA不存在');
+            }
+            if ($rma->status !== 2) {
+                throw new \RuntimeException('请等待退货寄回');
+            }
 
             $items = OmsRmaItem::where('rma_id', $rmaId)->get();
             foreach ($items as $item) {
                 $this->inventory->stockIn(
-                    $item->product_id, $item->sku_id, $warehouseId,
-                    $locationId, '', $item->quantity, $item->price,
-                    'oms_rma', $rmaId
+                    $item->product_id,
+                    $item->sku_id,
+                    $warehouseId,
+                    $locationId,
+                    '',
+                    $item->quantity,
+                    $item->price,
+                    'oms_rma',
+                    $rmaId
                 );
             }
 
@@ -105,8 +126,12 @@ class RmaService
     public function refund(int $rmaId): void
     {
         $rma = OmsRma::find($rmaId);
-        if (!$rma) throw new \RuntimeException('RMA不存在');
-        if (!in_array($rma->status, [1, 3])) throw new \RuntimeException('当前状态不可退款');
+        if (!$rma) {
+            throw new \RuntimeException('RMA不存在');
+        }
+        if (!in_array($rma->status, [1, 3])) {
+            throw new \RuntimeException('当前状态不可退款');
+        }
         $rma->status = 4;
         $rma->save();
     }
@@ -115,8 +140,12 @@ class RmaService
     public function reject(int $rmaId): void
     {
         $rma = OmsRma::find($rmaId);
-        if (!$rma) throw new \RuntimeException('RMA不存在');
-        if ($rma->status !== 0) throw new \RuntimeException('当前状态不可操作');
+        if (!$rma) {
+            throw new \RuntimeException('RMA不存在');
+        }
+        if ($rma->status !== 0) {
+            throw new \RuntimeException('当前状态不可操作');
+        }
         $rma->status = 5;
         $rma->save();
     }

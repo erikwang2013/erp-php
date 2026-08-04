@@ -19,6 +19,6 @@ class TmsTrackingEvent extends Model
     protected $fillable = ['shipment_id', 'status_code', 'description', 'location', 'event_time', 'raw_data'];
     protected $casts = [
         'shipment_id' => 'integer',
-        'raw_data' => 'array'
+        'raw_data' => 'array',
     ];
 }

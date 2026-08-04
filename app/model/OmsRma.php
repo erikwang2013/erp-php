@@ -25,6 +25,6 @@ class OmsRma extends Model
         'refund_amount' => 'float',
         'return_shipping_fee' => 'float',
         'return_shipment_id' => 'integer',
-        'approved_by' => 'integer'
+        'approved_by' => 'integer',
     ];
 }
