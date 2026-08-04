@@ -10,6 +10,7 @@ namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
 use app\model\FinanceVoucher;
+use app\service\finance\DoubleEntryService;
 use support\Request;
 use support\Response;
 
@@ -75,6 +76,18 @@ class VoucherController extends BaseController
         $validator = validator($request->all(), ['name' => 'required|string|max:200']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+
+        if ($request->input('items')) {
+            try {
+                $voucher = (new DoubleEntryService())->createVoucher(
+                    $request->all(),
+                    (array) $request->input('items')
+                );
+                return $this->success($this->encodeIds($voucher->toArray()), '创建成功');
+            } catch (\RuntimeException $e) {
+                return $this->fail($e->getMessage(), 422);
+            }
         }
 
         $item = new FinanceVoucher();

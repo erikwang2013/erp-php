@@ -12,6 +12,7 @@ use app\model\Inventory;
 use app\model\MfgBom;
 use app\model\MfgMrpItem;
 use app\model\MfgMrpPlan;
+use app\service\manufacturing\MrpEngineService;
 use support\Request;
 use support\Response;
 
@@ -229,10 +230,7 @@ class MrpController extends BaseController
                 $inventory = Inventory::where('product_id', $bomItem->component_product_id)->first();
                 $onHand = $inventory ? (float) $inventory->quantity : 0.00;
 
-                $netRequirement = $grossRequirement - $onHand;
-                if ($netRequirement < 0) {
-                    $netRequirement = 0;
-                }
+                $netRequirement = (new MrpEngineService())->calculateNetRequirement($grossRequirement, $onHand);
 
                 $item = new MfgMrpItem();
                 $item->id = $this->generateId();
