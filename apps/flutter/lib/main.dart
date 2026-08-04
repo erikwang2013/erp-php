@@ -99,6 +99,13 @@ import 'app/pages/manufacturing/routing_page.dart';
 import 'app/pages/manufacturing/workstation_page.dart';
 import 'app/pages/manufacturing/mrp_page.dart';
 
+// 质量管理
+import 'app/pages/quality/standard_list_page.dart';
+import 'app/pages/quality/iqc_list_page.dart';
+import 'app/pages/quality/ipqc_list_page.dart';
+import 'app/pages/quality/oqc_list_page.dart';
+import 'app/pages/quality/nonconformity_list_page.dart';
+
 // 人力资源
 import 'app/pages/hr/department_page.dart';
 import 'app/pages/hr/employee_list_page.dart';
@@ -118,6 +125,13 @@ import 'app/pages/workflow/my_approval_page.dart';
 import 'app/pages/notification/notification_page.dart';
 import 'app/pages/report/report_list_page.dart';
 import 'app/pages/report/report_schedule_page.dart';
+
+// BI 看板 / 设备管理 / 文档管理
+import 'app/pages/bi/dashboard_list_page.dart';
+import 'app/pages/eam/equipment_list_page.dart';
+import 'app/pages/eam/maintenance_plan_page.dart';
+import 'app/pages/eam/repair_order_page.dart';
+import 'app/pages/dms/document_list_page.dart';
 
 void main() {
   runApp(const AdminApp());
@@ -203,6 +217,12 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/mfg/routing': () => const RoutingPage(),
   '/mfg/workstation': () => const WorkstationPage(),
   '/mfg/mrp': () => const MrpPage(),
+  // 质量管理
+  '/quality/standard': () => const StandardListPage(),
+  '/quality/iqc': () => const IqcListPage(),
+  '/quality/ipqc': () => const IpqcListPage(),
+  '/quality/oqc': () => const OqcListPage(),
+  '/quality/nonconformity': () => const NonconformityListPage(),
   // 人力资源
   '/hr/department': () => const DepartmentPage(),
   '/hr/employee': () => const EmployeeListPage(),
@@ -220,6 +240,12 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/notification': () => const NotificationPage(),
   '/report/list': () => const ReportListPage(),
   '/report/schedule': () => const ReportSchedulePage(),
+  // BI 看板 / 设备管理 / 文档管理
+  '/bi/dashboard': () => const DashboardListPage(),
+  '/eam/equipment': () => const EquipmentListPage(),
+  '/eam/maintenance': () => const MaintenancePlanPage(),
+  '/eam/repair': () => const RepairOrderPage(),
+  '/dms/document': () => const DocumentListPage(),
 };
 
 /// Routes without a dedicated page yet render a placeholder inside the

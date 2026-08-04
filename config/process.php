@@ -40,6 +40,12 @@ return [
             'publicPath' => public_path(),
         ],
     ],
+    // WebSocket server for real-time notifications
+    'socket' => [
+        'handler' => \app\process\WebSocket::class,
+        'listen' => 'websocket://0.0.0.0:8282',
+        'count' => 1,
+    ],
     // File update detection and automatic reload
     'monitor' => [
         'handler' => app\process\Monitor::class,

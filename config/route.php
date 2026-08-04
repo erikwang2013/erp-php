@@ -341,6 +341,36 @@ Route::group('/admin', function () {
     Route::resource('/tms/freight-invoice', app\controller\tms\FreightInvoiceController::class);
     Route::post('/tms/freight-invoice/{id}/confirm', [app\controller\tms\FreightInvoiceController::class, 'confirm']);
     Route::post('/tms/freight-invoice/{id}/pay', [app\controller\tms\FreightInvoiceController::class, 'pay']);
+
+    // ============================================================
+    // 质量管理
+    // ============================================================
+    Route::resource('/quality/standard', app\controller\quality\InspectionStandardController::class);
+    Route::resource('/quality/iqc', app\controller\quality\IncomingCheckController::class);
+    Route::resource('/quality/ipqc', app\controller\quality\ProcessCheckController::class);
+    Route::resource('/quality/oqc', app\controller\quality\FinalCheckController::class);
+    Route::resource('/quality/nonconformity', app\controller\quality\NonconformityController::class);
+
+    // ============================================================
+    // BI 数据看板
+    // ============================================================
+    Route::resource('/bi/dashboard', app\controller\bi\DashboardController::class);
+    Route::resource('/bi/widget', app\controller\bi\WidgetController::class);
+
+    // ============================================================
+    // 设备管理
+    // ============================================================
+    Route::resource('/eam/equipment', app\controller\eam\EquipmentController::class);
+    Route::resource('/eam/maintenance', app\controller\eam\MaintenancePlanController::class);
+    Route::resource('/eam/repair', app\controller\eam\RepairOrderController::class);
+    Route::post('/eam/repair/{id}/transition', [app\controller\eam\RepairOrderController::class, 'transition']);
+
+    // ============================================================
+    // 文档管理
+    // ============================================================
+    Route::resource('/dms/document', app\controller\dms\DocumentController::class);
+    Route::get('/dms/categories', [app\controller\dms\CategoryController::class, 'index']);
+    Route::get('/dms/document/{id}/versions', [app\controller\dms\DocumentController::class, 'versions']);
 })->middleware([
     app\middleware\AdminAuth::class,
     app\middleware\AdminPermission::class,

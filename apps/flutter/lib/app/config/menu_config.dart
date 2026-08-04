@@ -101,6 +101,13 @@ const List<MenuItem> menuConfig = [
     MenuItem(label: '工作站', icon: Icons.desktop_windows, route: '/mfg/workstation'),
     MenuItem(label: 'MRP计划', icon: Icons.calculate, route: '/mfg/mrp'),
   ]),
+  MenuItem(label: '质量管理', icon: Icons.verified_user, children: [
+    MenuItem(label: '检验标准', icon: Icons.rule, route: '/quality/standard'),
+    MenuItem(label: '来料检验(IQC)', icon: Icons.download, route: '/quality/iqc'),
+    MenuItem(label: '过程检验(IPQC)', icon: Icons.engineering, route: '/quality/ipqc'),
+    MenuItem(label: '出货检验(OQC)', icon: Icons.upload, route: '/quality/oqc'),
+    MenuItem(label: '不合格品', icon: Icons.report_problem, route: '/quality/nonconformity'),
+  ]),
   MenuItem(label: '人力资源', icon: Icons.groups, children: [
     MenuItem(label: '部门管理', icon: Icons.apartment, route: '/hr/department'),
     MenuItem(label: '员工档案', icon: Icons.badge, route: '/hr/employee'),
@@ -122,6 +129,17 @@ const List<MenuItem> menuConfig = [
   MenuItem(label: '自定义报表', icon: Icons.bar_chart, children: [
     MenuItem(label: '报表管理', icon: Icons.auto_graph, route: '/report/list'),
     MenuItem(label: '定时调度', icon: Icons.schedule_send, route: '/report/schedule'),
+  ]),
+  MenuItem(label: 'BI 看板', icon: Icons.dashboard_customize, children: [
+    MenuItem(label: '仪表盘', icon: Icons.dashboard, route: '/bi/dashboard'),
+  ]),
+  MenuItem(label: '设备管理', icon: Icons.build, children: [
+    MenuItem(label: '设备台账', icon: Icons.list_alt, route: '/eam/equipment'),
+    MenuItem(label: '保养计划', icon: Icons.event, route: '/eam/maintenance'),
+    MenuItem(label: '维修工单', icon: Icons.construction, route: '/eam/repair'),
+  ]),
+  MenuItem(label: '文档管理', icon: Icons.folder, children: [
+    MenuItem(label: '文档列表', icon: Icons.article, route: '/dms/document'),
   ]),
 ];
 
