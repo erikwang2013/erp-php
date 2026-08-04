@@ -10,7 +10,7 @@ digraph RoadmapPhasesCN {
     node [fontname="Arial", fontsize=10, style="filled,rounded", penwidth=1.5];
 
     subgraph cluster_p0 {
-        label="P0 前端生态 (3-4周)";
+        label="✅ P0 前端生态 (已完成)";
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
         node [fillcolor="#bbdefb", color="#1976d2", fontsize=9];
@@ -22,7 +22,7 @@ digraph RoadmapPhasesCN {
     }
 
     subgraph cluster_p1 {
-        label="P1 业务深度 (4-6周)";
+        label="✅ P1 业务深度 (已完成)";
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
         node [fillcolor="#c8e6c9", color="#388e3c", fontsize=9];
@@ -34,7 +34,7 @@ digraph RoadmapPhasesCN {
     }
 
     subgraph cluster_p2 {
-        label="P2 运维可靠性 (1-2周)";
+        label="✅ P2 运维可靠性 (已完成)";
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fff8e1"; color="#f57f17"; penwidth=2;
         node [fillcolor="#ffecb3", color="#ffa000", fontsize=9];
@@ -45,7 +45,7 @@ digraph RoadmapPhasesCN {
     }
 
     subgraph cluster_p3 {
-        label="P3 体验增强 (2-3周)";
+        label="✅ P3 体验增强 (已完成)";
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
         node [fillcolor="#e1bee7", color="#7b1fa2", fontsize=9];

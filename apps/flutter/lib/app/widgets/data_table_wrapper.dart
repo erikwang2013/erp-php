@@ -40,7 +40,7 @@ class DataTableWrapper extends StatelessWidget {
           if (onSearch != null) SizedBox(width: 280, child: _SearchField(initialText: keyword, onSearch: onSearch)),
           if (filterBar != null) ...[const SizedBox(width: 12), filterBar!],
           const Spacer(),
-          if (actions != null) ...actions!,
+          ...?actions,
         ])),
       Expanded(child: loading
         ? const Center(child: CircularProgressIndicator())
