@@ -66,4 +66,28 @@ return [
     'config' => 'System Config',
     'log' => 'Operation Log',
     'profile' => 'Profile',
+    // OMS
+    'oms' => 'Order Management',
+    'oms_order' => 'OMS Order',
+    'oms_fulfillment' => 'Fulfillment',
+    'oms_rma' => 'RMA',
+    'oms_channel' => 'Sales Channel',
+    // WMS
+    'wms' => 'Warehouse Management',
+    'wms_zone' => 'Zone',
+    'wms_location' => 'Location Management',
+    'wms_asn' => 'ASN',
+    'wms_receiving' => 'Receiving',
+    'wms_putaway' => 'Putaway',
+    'wms_pick' => 'Picking',
+    'wms_pack' => 'Packing',
+    'wms_wave' => 'Wave',
+    // TMS
+    'tms' => 'Transport Management',
+    'tms_carrier' => 'Carrier',
+    'tms_service' => 'Carrier Service',
+    'tms_freight_rate' => 'Freight Rate',
+    'tms_shipment' => 'Shipment',
+    'tms_tracking' => 'Tracking',
+    'tms_freight_invoice' => 'Freight Invoice',
 ];

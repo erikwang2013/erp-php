@@ -20,6 +20,10 @@ use app\model\InventoryAlertLog;
 use app\model\InventoryFlow;
 use app\model\OperationLog;
 use app\model\SalesOrder;
+use app\model\OmsOrder;
+use app\model\WmsPickTask;
+use app\model\WmsReceiving;
+use app\model\TmsShipment;
 use support\Redis;
 use support\Request;
 use support\Response;
@@ -322,5 +326,38 @@ class DashboardController extends BaseController
         Redis::setex($cacheKey, 300, json_encode($data));
 
         return $this->success($data);
+    }
+
+    /** OMS KPI */
+    public function oms(Request $request): Response
+    {
+        return $this->success([
+            'pending_orders' => OmsOrder::whereIn('fulfillment_status', [0, 1])->count(),
+            'picking_orders' => OmsOrder::where('fulfillment_status', 2)->count(),
+            'shipped_today' => OmsOrder::where('fulfillment_status', 4)->whereDate('updated_at', date('Y-m-d'))->count(),
+            'pending_rma' => \app\model\OmsRma::where('status', 0)->count(),
+        ]);
+    }
+
+    /** WMS KPI */
+    public function wms(Request $request): Response
+    {
+        return $this->success([
+            'pending_receiving' => WmsReceiving::where('status', 0)->count(),
+            'pending_putaway' => \app\model\WmsPutawayTask::where('status', 0)->count(),
+            'pending_picks' => WmsPickTask::whereIn('status', [0, 1])->count(),
+            'pending_packs' => \app\model\WmsPackTask::where('status', 0)->count(),
+        ]);
+    }
+
+    /** TMS KPI */
+    public function tms(Request $request): Response
+    {
+        return $this->success([
+            'pending_shipments' => TmsShipment::where('status', 0)->count(),
+            'in_transit' => TmsShipment::whereIn('status', [1, 2])->count(),
+            'delivered_today' => TmsShipment::where('status', 3)->whereDate('actual_delivery_at', date('Y-m-d'))->count(),
+            'exception_shipments' => TmsShipment::where('status', 4)->count(),
+        ]);
     }
 }

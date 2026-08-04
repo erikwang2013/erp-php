@@ -66,4 +66,28 @@ return [
     'config' => '系统配置',
     'log' => '操作日志',
     'profile' => '个人中心',
+    // OMS
+    'oms' => '订单管理',
+    'oms_order' => 'OMS订单',
+    'oms_fulfillment' => '履约管理',
+    'oms_rma' => '退换货',
+    'oms_channel' => '销售渠道',
+    // WMS
+    'wms' => '仓储管理',
+    'wms_zone' => '库区',
+    'wms_location' => '库位管理',
+    'wms_asn' => '预到货通知',
+    'wms_receiving' => '收货管理',
+    'wms_putaway' => '上架管理',
+    'wms_pick' => '拣货管理',
+    'wms_pack' => '打包管理',
+    'wms_wave' => '波次管理',
+    // TMS
+    'tms' => '运输管理',
+    'tms_carrier' => '承运商',
+    'tms_service' => '承运商服务',
+    'tms_freight_rate' => '运费费率',
+    'tms_shipment' => '运单',
+    'tms_tracking' => '物流轨迹',
+    'tms_freight_invoice' => '运费发票',
 ];

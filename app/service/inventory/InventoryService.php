@@ -13,6 +13,7 @@ use app\model\CostRecord;
 use app\model\Inventory;
 use app\model\InventoryBatch;
 use app\model\InventoryFlow;
+use app\model\OmsInventoryReservation;
 use Illuminate\Database\Capsule\Manager as DB;
 
 class InventoryService
@@ -201,6 +202,123 @@ class InventoryService
         $this->recordCostRecord($productId, $skuId, $flowId, 1, $quantity, $unitCost, $beforeAvg, $afterAvg);
 
         return round($afterAvg, 2);
+    }
+
+    /**
+     * 库存预占 — 逻辑层锁定，不改动物理库存
+     */
+    public function reserveQuantity(
+        int $productId,
+        int $skuId,
+        int $warehouseId,
+        int $locationId,
+        string $batchCode,
+        float $quantity,
+        string $sourceType,
+        int $sourceId,
+        int $sourceItemId = 0
+    ): int {
+        if ($quantity <= 0) {
+            throw new \InvalidArgumentException('预占数量必须大于0');
+        }
+
+        return DB::transaction(function () use (
+            $productId, $skuId, $warehouseId, $locationId, $batchCode,
+            $quantity, $sourceType, $sourceId, $sourceItemId
+        ) {
+            $inv = Inventory::where([
+                'product_id' => $productId,
+                'sku_id' => $skuId,
+                'warehouse_id' => $warehouseId,
+                'location_id' => $locationId,
+                'batch_code' => $batchCode,
+            ])->lockForUpdate()->first();
+
+            $physicalQty = $inv ? $inv->quantity : 0;
+            $reserved = OmsInventoryReservation::where([
+                'product_id' => $productId,
+                'sku_id' => $skuId,
+                'warehouse_id' => $warehouseId,
+                'location_id' => $locationId,
+                'batch_code' => $batchCode,
+                'status' => 1,
+            ])->sum('reserved_quantity');
+
+            if (($physicalQty - $reserved) < $quantity) {
+                throw new \RuntimeException("库存不足: 需要{$quantity}, 可用" . ($physicalQty - $reserved));
+            }
+
+            $reservation = new OmsInventoryReservation();
+            $reservation->id = SnowflakeService::generate();
+            $reservation->product_id = $productId;
+            $reservation->sku_id = $skuId;
+            $reservation->warehouse_id = $warehouseId;
+            $reservation->location_id = $locationId;
+            $reservation->batch_code = $batchCode;
+            $reservation->source_type = $sourceType;
+            $reservation->source_id = $sourceId;
+            $reservation->source_item_id = $sourceItemId;
+            $reservation->reserved_quantity = $quantity;
+            $reservation->status = 1;
+            $reservation->save();
+
+            return $reservation->id;
+        });
+    }
+
+    /**
+     * 释放库存预占
+     */
+    public function releaseReservation(string $sourceType, int $sourceId): void
+    {
+        OmsInventoryReservation::where([
+            'source_type' => $sourceType,
+            'source_id' => $sourceId,
+            'status' => 1,
+        ])->update(['status' => 2]);
+    }
+
+    /**
+     * 消耗库存预占（预占转出库）
+     */
+    public function consumeReservation(string $sourceType, int $sourceId): void
+    {
+        DB::transaction(function () use ($sourceType, $sourceId) {
+            $reservations = OmsInventoryReservation::where([
+                'source_type' => $sourceType,
+                'source_id' => $sourceId,
+                'status' => 1,
+            ])->get();
+
+            foreach ($reservations as $r) {
+                $this->stockOut(
+                    $r->product_id, $r->sku_id, $r->warehouse_id,
+                    $r->location_id, $r->batch_code, $r->reserved_quantity,
+                    $sourceType, $sourceId
+                );
+                $r->status = 3;
+                $r->save();
+            }
+        });
+    }
+
+    /**
+     * ATP可承诺量 = 物理库存 - SUM(status=1的预占)
+     */
+    public function getAvailableQuantity(int $productId, int $skuId, int $warehouseId = 0, int $locationId = 0): float
+    {
+        $query = Inventory::where('product_id', $productId)->where('sku_id', $skuId);
+        if ($warehouseId > 0) $query->where('warehouse_id', $warehouseId);
+        if ($locationId > 0) $query->where('location_id', $locationId);
+        $physicalQty = $query->sum('quantity');
+
+        $resQuery = OmsInventoryReservation::where('product_id', $productId)
+            ->where('sku_id', $skuId)->where('status', 1);
+        if ($warehouseId > 0) $resQuery->where('warehouse_id', $warehouseId);
+        if ($locationId > 0) $resQuery->where('location_id', $locationId);
+        $reserved = $resQuery->sum('reserved_quantity');
+
+        return round($physicalQty - $reserved, 2);
     }
 
     private function recordCostRecord(

@@ -223,6 +223,9 @@ Route::group('/admin', function () {
     Route::any('/dashboard/sales', [app\admin\controller\DashboardController::class, 'sales']);
     Route::any('/dashboard/inventory', [app\admin\controller\DashboardController::class, 'inventory']);
     Route::any('/dashboard/finance', [app\admin\controller\DashboardController::class, 'finance']);
+    Route::any('/dashboard/oms', [app\admin\controller\DashboardController::class, 'oms']);
+    Route::any('/dashboard/wms', [app\admin\controller\DashboardController::class, 'wms']);
+    Route::any('/dashboard/tms', [app\admin\controller\DashboardController::class, 'tms']);
 
     // ============================================================
     // 审批工作流
@@ -291,6 +294,54 @@ Route::group('/admin', function () {
     Route::post('/report/{id}/execute', [app\controller\report\ReportController::class, 'execute']);
     Route::any('/report/{id}/result', [app\controller\report\ReportController::class, 'result']);
     Route::resource('/report', app\controller\report\ReportController::class);
+
+    // ============================================================
+    // OMS — 订单管理系统
+    // ============================================================
+    Route::resource('/oms/order', app\controller\oms\OrderController::class);
+    Route::post('/oms/order/{id}/allocate', [app\controller\oms\OrderController::class, 'allocate']);
+    Route::post('/oms/order/{id}/fulfill', [app\controller\oms\OrderController::class, 'fulfill']);
+    Route::post('/oms/order/{id}/cancel', [app\controller\oms\OrderController::class, 'cancel']);
+    Route::resource('/oms/fulfillment', app\controller\oms\FulfillmentController::class);
+    Route::resource('/oms/rma', app\controller\oms\RmaController::class);
+    Route::post('/oms/rma/{id}/approve', [app\controller\oms\RmaController::class, 'approve']);
+    Route::post('/oms/rma/{id}/receive', [app\controller\oms\RmaController::class, 'receive']);
+    Route::post('/oms/rma/{id}/refund', [app\controller\oms\RmaController::class, 'refund']);
+    Route::resource('/oms/channel', app\controller\oms\ChannelController::class);
+
+    // ============================================================
+    // WMS — 仓储管理系统
+    // ============================================================
+    Route::resource('/wms/zone', app\controller\wms\ZoneController::class);
+    Route::resource('/wms/location', app\controller\wms\LocationController::class);
+    Route::resource('/wms/asn', app\controller\wms\AsnController::class);
+    Route::resource('/wms/receiving', app\controller\wms\ReceivingController::class);
+    Route::post('/wms/receiving/{id}/complete', [app\controller\wms\ReceivingController::class, 'complete']);
+    Route::resource('/wms/putaway', app\controller\wms\PutawayController::class);
+    Route::post('/wms/putaway/{id}/complete', [app\controller\wms\PutawayController::class, 'complete']);
+    Route::resource('/wms/wave', app\controller\wms\WaveController::class);
+    Route::post('/wms/wave/{id}/release', [app\controller\wms\WaveController::class, 'release']);
+    Route::resource('/wms/pick', app\controller\wms\PickController::class);
+    Route::post('/wms/pick/{id}/start', [app\controller\wms\PickController::class, 'start']);
+    Route::post('/wms/pick/{id}/confirm', [app\controller\wms\PickController::class, 'confirm']);
+    Route::resource('/wms/pack', app\controller\wms\PackController::class);
+    Route::post('/wms/pack/{id}/start', [app\controller\wms\PackController::class, 'start']);
+    Route::post('/wms/pack/{id}/complete', [app\controller\wms\PackController::class, 'complete']);
+
+    // ============================================================
+    // TMS — 运输管理系统
+    // ============================================================
+    Route::resource('/tms/carrier', app\controller\tms\CarrierController::class);
+    Route::resource('/tms/service', app\controller\tms\ServiceController::class);
+    Route::resource('/tms/freight-rate', app\controller\tms\FreightRateController::class);
+    Route::resource('/tms/shipment', app\controller\tms\ShipmentController::class);
+    Route::post('/tms/shipment/{id}/ship', [app\controller\tms\ShipmentController::class, 'ship']);
+    Route::post('/tms/shipment/{id}/get-label', [app\controller\tms\ShipmentController::class, 'getLabel']);
+    Route::resource('/tms/tracking', app\controller\tms\TrackingController::class);
+    Route::post('/tms/tracking/callback', [app\controller\tms\TrackingController::class, 'callback']);
+    Route::resource('/tms/freight-invoice', app\controller\tms\FreightInvoiceController::class);
+    Route::post('/tms/freight-invoice/{id}/confirm', [app\controller\tms\FreightInvoiceController::class, 'confirm']);
+    Route::post('/tms/freight-invoice/{id}/pay', [app\controller\tms\FreightInvoiceController::class, 'pay']);
 })->middleware([
     app\middleware\AdminAuth::class,
     app\middleware\AdminPermission::class,
