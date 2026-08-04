@@ -99,11 +99,7 @@ class BomController extends BaseController
 
         $item = new MfgBom();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->status = 0; // 草稿
         $item->save();
 
@@ -164,11 +160,7 @@ class BomController extends BaseController
         }
 
         $originalStatus = $item->status;
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->status = $originalStatus; // Status can only change via activate()
         $item->save();
 

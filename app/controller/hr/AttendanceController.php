@@ -280,11 +280,7 @@ class AttendanceController extends BaseController
 
         $item = new HrLeave();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->status = 0;
         $item->save();
 
@@ -345,11 +341,7 @@ class AttendanceController extends BaseController
         }
 
         $originalStatus = $item->status;
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->status = $originalStatus;
         $item->save();
 

@@ -87,11 +87,7 @@ class ReportScheduleController extends BaseController
 
         $item = new ReportSchedule();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
 
         $item->next_run_at = $this->calcNextRun((int) $item->frequency);
         $item->save();
@@ -145,11 +141,7 @@ class ReportScheduleController extends BaseController
         }
 
         $oldFreq = $item->frequency;
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
 
         if ((int) $item->frequency !== (int) $oldFreq) {
             $item->next_run_at = $this->calcNextRun((int) $item->frequency);

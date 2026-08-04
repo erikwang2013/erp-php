@@ -90,12 +90,8 @@ class BudgetController extends BaseController
 
         $item = new FinanceBudget();
         $item->id = $this->generateId();
-        $item->status = 0; // 草稿
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') {
-                $item->$k = $v;
-            }
-        }
+        $item->status = 0;
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         // 保存预算明细
@@ -171,11 +167,7 @@ class BudgetController extends BaseController
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         // 更新明细：先删后建

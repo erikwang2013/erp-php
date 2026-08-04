@@ -106,11 +106,7 @@ class LocationController extends BaseController
 
         $item = new Location();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), '创建成功');
@@ -165,11 +161,7 @@ class LocationController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), '更新成功');

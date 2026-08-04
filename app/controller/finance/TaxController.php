@@ -77,11 +77,7 @@ class TaxController extends BaseController
             $item->id = $this->generateId();
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $hashid ? '更新成功' : '创建成功');

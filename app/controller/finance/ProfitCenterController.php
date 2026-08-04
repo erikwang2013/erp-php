@@ -79,11 +79,7 @@ class ProfitCenterController extends BaseController
 
         $item = new FinanceProfitCenter();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -140,11 +136,7 @@ class ProfitCenterController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');

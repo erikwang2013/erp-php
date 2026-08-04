@@ -120,11 +120,7 @@ class SalaryController extends BaseController
 
         $item = new HrSalary();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
 
         $item->net_salary = ($item->base_salary ?? 0)
             + ($item->performance ?? 0)
@@ -190,11 +186,7 @@ class SalaryController extends BaseController
             return $this->fail('已发放的薪资不可修改', 422);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
 
         $item->net_salary = ($item->base_salary ?? 0)
             + ($item->performance ?? 0)
@@ -371,11 +363,7 @@ class SalaryController extends BaseController
 
         $item = new HrSalaryItem();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -426,11 +414,7 @@ class SalaryController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');

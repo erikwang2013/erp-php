@@ -89,11 +89,7 @@ class ContractController extends BaseController
         $item = new CrmContract();
         $item->id = $this->generateId();
         $item->status = 0;
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $items = $request->input('items', []);
@@ -162,11 +158,7 @@ class ContractController extends BaseController
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $items = $request->input('items', []);

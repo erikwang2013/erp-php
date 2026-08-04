@@ -90,11 +90,7 @@ class CampaignController extends BaseController
         $item = new CrmCampaign();
         $item->id = $this->generateId();
         $item->status = 0;
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -158,11 +154,7 @@ class CampaignController extends BaseController
             return $this->fail('仅计划中或进行中状态可编辑', 422);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');

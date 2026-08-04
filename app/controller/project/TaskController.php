@@ -98,11 +98,7 @@ class TaskController extends BaseController
         $decoded = $this->decodeIdSafe($projectIdHash);
         $item->project_id = $decoded ?? (int) $projectIdHash;
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'project_id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $this->updateProjectProgress($item->project_id);
@@ -161,11 +157,7 @@ class TaskController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $this->updateProjectProgress($item->project_id);

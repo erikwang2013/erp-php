@@ -95,11 +95,7 @@ class TimesheetController extends BaseController
 
         $item = new ProjectTimesheet();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $this->updateTaskActualHours($item->task_id);
@@ -152,11 +148,7 @@ class TimesheetController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $this->updateTaskActualHours($item->task_id);

@@ -93,11 +93,7 @@ class MrpController extends BaseController
 
         $item = new MfgMrpPlan();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -157,11 +153,7 @@ class MrpController extends BaseController
         }
 
         $originalStatus = $item->status;
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->status = $originalStatus;
         $item->save();
 

@@ -128,11 +128,7 @@ class BalanceSheetController extends BaseController
 
         $item = new FinanceBalanceSheet();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '快照保存成功');

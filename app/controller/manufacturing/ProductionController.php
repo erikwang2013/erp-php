@@ -91,11 +91,7 @@ class ProductionController extends BaseController
 
         $item = new MfgProductionOrder();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->status = 0;
         $item->completed_quantity = 0;
         $item->save();
@@ -161,11 +157,7 @@ class ProductionController extends BaseController
 
         $originalStatus = $item->status;
         $originalCompletedQty = $item->completed_quantity;
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->status = $originalStatus;
         $item->completed_quantity = $originalCompletedQty;
         $item->save();

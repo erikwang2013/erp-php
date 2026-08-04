@@ -92,11 +92,7 @@ class AssetController extends BaseController
 
         $item = new FinanceAsset();
         $item->id = $this->generateId();
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->net_value = bcsub((string) $item->purchase_amount, (string) $item->accumulated_depreciation, 2);
 
         // 直线法自动计算月折旧额
@@ -160,11 +156,7 @@ class AssetController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->net_value = bcsub((string) $item->purchase_amount, (string) $item->accumulated_depreciation, 2);
 
         if ((int) $item->depreciation_method === 1 && (int) $item->useful_life > 0) {

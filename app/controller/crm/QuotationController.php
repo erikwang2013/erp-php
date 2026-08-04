@@ -86,11 +86,7 @@ class QuotationController extends BaseController
         $item = new CrmQuotation();
         $item->id = $this->generateId();
         $item->status = 0;
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $items = $request->input('items', []);
@@ -159,11 +155,7 @@ class QuotationController extends BaseController
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
-        foreach ($request->all() as $k => $v) {
-            if ($k !== 'id' && $k !== 'items') {
-                $item->$k = $v;
-            }
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $items = $request->input('items', []);
@@ -244,7 +236,7 @@ class QuotationController extends BaseController
 
         $contract = new CrmContract();
         $contract->id = $this->generateId();
-        $contract->code = $request->input('code', '') ?: 'CT' . date('YmdHis');
+        $contract->code = $request->input('code', '') ?: 'CT' . $this->generateId();
         $contract->name = $request->input('name', '') ?: '合同-' . $quotation->code;
         $contract->customer_id = $quotation->customer_id;
         $contract->opportunity_id = $quotation->opportunity_id;
