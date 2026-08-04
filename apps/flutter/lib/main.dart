@@ -128,9 +128,11 @@ import 'app/pages/report/report_schedule_page.dart';
 
 // BI 看板 / 设备管理 / 文档管理
 import 'app/pages/bi/dashboard_list_page.dart';
+import 'app/pages/bi/dataset_list_page.dart';
 import 'app/pages/eam/equipment_list_page.dart';
 import 'app/pages/eam/maintenance_plan_page.dart';
 import 'app/pages/eam/repair_order_page.dart';
+import 'app/pages/eam/spare_part_page.dart';
 import 'app/pages/dms/document_list_page.dart';
 
 void main() {
@@ -242,9 +244,11 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/report/schedule': () => const ReportSchedulePage(),
   // BI 看板 / 设备管理 / 文档管理
   '/bi/dashboard': () => const DashboardListPage(),
+  '/bi/dataset': () => const DatasetListPage(),
   '/eam/equipment': () => const EquipmentListPage(),
   '/eam/maintenance': () => const MaintenancePlanPage(),
   '/eam/repair': () => const RepairOrderPage(),
+  '/eam/spare-part': () => const SparePartPage(),
   '/dms/document': () => const DocumentListPage(),
 };
 

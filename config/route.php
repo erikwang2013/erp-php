@@ -356,6 +356,7 @@ Route::group('/admin', function () {
     // ============================================================
     Route::resource('/bi/dashboard', app\controller\bi\DashboardController::class);
     Route::resource('/bi/widget', app\controller\bi\WidgetController::class);
+    Route::resource('/bi/dataset', app\controller\bi\DatasetController::class);
 
     // ============================================================
     // 设备管理
@@ -364,6 +365,7 @@ Route::group('/admin', function () {
     Route::resource('/eam/maintenance', app\controller\eam\MaintenancePlanController::class);
     Route::resource('/eam/repair', app\controller\eam\RepairOrderController::class);
     Route::post('/eam/repair/{id}/transition', [app\controller\eam\RepairOrderController::class, 'transition']);
+    Route::resource('/eam/spare-part', app\controller\eam\SparePartController::class);
 
     // ============================================================
     // 文档管理
