@@ -1,0 +1,104 @@
+digraph SystemArchitectureCN {
+    rankdir=TB;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.4;
+    ranksep=0.6;
+    compound=true;
+
+    node [fontname="Arial", fontsize=11, style="filled,rounded", penwidth=1.5];
+
+    subgraph cluster_client {
+        label="客户端层";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        a1 [label="Flutter Web 管理后台\nPC管理控制台\n(端口 3000)", fillcolor="#bbdefb", color="#1976d2"];
+        a2 [label="HarmonyOS ArkTS\n手机/平板客户端", fillcolor="#bbdefb", color="#1976d2"];
+        a3 [label="第三方 API\nHTTP 客户端", fillcolor="#bbdefb", color="#1976d2"];
+    }
+
+    subgraph cluster_edge {
+        label="网关/边缘层";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff3e0"; color="#e65100"; penwidth=2;
+        b1 [label="Nginx 边缘节点 (docker nginx:alpine)\n反向代理 / HTTPS / Gzip\n静态文件 / 安全响应头", fillcolor="#ffe0b2", color="#ef6c00", shape="box"];
+    }
+
+    subgraph cluster_app {
+        label="应用层 — webman v2 (PHP 8.3)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+
+        subgraph cluster_mw {
+            label="中间件链";
+            fontsize=12; fontname="Arial Bold";
+            style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
+            node [fillcolor="#ffffff", color="#78909c", fontsize=10];
+            m1 [label="语言检测\n国际化"]; m2 [label="跨域处理\nCORS"]; m3 [label="安全\n过滤器"]; m4 [label="限流\n控制"]; m5 [label="API\n版本"];
+            m1 -> m2 -> m3 -> m4 -> m5 [color="#90a4ae"];
+        }
+
+        subgraph cluster_auth {
+            label="认证与鉴权";
+            fontsize=12; fontname="Arial Bold";
+            style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
+            node [fillcolor="#ffffff", color="#78909c", fontsize=10];
+            m6 [label="管理端认证\nJWT+黑名单"]; m7 [label="管理端权限\nRBAC 方法.路径"];
+            m6 -> m7 [color="#90a4ae"];
+        }
+
+        subgraph cluster_biz {
+            label="业务逻辑层（控制器与服务）";
+            fontsize=12; fontname="Arial Bold";
+            style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
+            node [fillcolor="#ffffff", color="#78909c", fontsize=10];
+            c1 [label="管理端控制器\n(14 个文件)"]; c2 [label="业务控制器\n(71 个模块)"]; c3 [label="服务层\n(7 个服务)"]; c4 [label="API 控制器 v1\n(验证码/认证/商品)"];
+        }
+
+        subgraph cluster_common {
+            label="公共服务";
+            fontsize=12; fontname="Arial Bold";
+            style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
+            node [fillcolor="#ffffff", color="#78909c", fontsize=10];
+            s1 [label="Hashids\nID 加密"]; s2 [label="Snowflake\nID 生成"]; s3 [label="数据加密\n加解密"]; s4 [label="国际化\n翻译"];
+        }
+
+        m5 -> m6; m7 -> c1; m7 -> c2; m7 -> c4;
+        c1 -> c3; c2 -> c3; c4 -> c3;
+        c3 -> s1; c3 -> s2; c3 -> s3; c3 -> s4;
+    }
+
+    subgraph cluster_data {
+        label="数据/存储层";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
+        node [shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f", fontsize=10];
+        d1 [label="MySQL 8.0\n主数据库\n122 张表\nerik_ 前缀"];
+        d2 [label="Redis 7\n缓存/会话\n限流/黑名单"];
+        d3 [label="Elasticsearch 8.x\n全文检索\nerik_ 索引前缀"];
+    }
+
+    subgraph cluster_devops {
+        label="运维层";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        node [shape="box", fillcolor="#e1bee7", color="#7b1fa2", fontsize=10];
+        e1 [label="GitHub Actions\nCI/CD 流水线\nPHP 8.2/8.3/8.4"];
+        e2 [label="Docker Compose\n5 个服务\nnginx/app/mysql/redis/es"];
+        e3 [label="Prometheus\n监控指标端点\nGET /metrics"];
+    }
+
+    a1 -> b1 [color="#1565c0", penwidth=1.5];
+    a2 -> b1 [color="#1565c0", penwidth=1.5];
+    a3 -> b1 [color="#1565c0", penwidth=1.5];
+    b1 -> m1 [color="#e65100", penwidth=1.5];
+    s1 -> d1; s2 -> d1; s3 -> d1; s1 -> d3;
+    s4 -> d2;
+    b1 -> e1 [style="dashed", color="#6a1b9a"];
+    b1 -> e2 [style="dashed", color="#6a1b9a"];
+    c3 -> e3 [style="dashed", color="#6a1b9a"];
+    d1 -> e2 [style="dashed", color="#6a1b9a"];
+    d2 -> e2 [style="dashed", color="#6a1b9a"];
+    d3 -> e2 [style="dashed", color="#6a1b9a"];
+}

@@ -1,0 +1,158 @@
+digraph SecurityArchitecture {
+    rankdir=TB;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.2;
+    ranksep=0.3;
+    compound=true;
+
+    node [fontname="Arial", fontsize=9, style="filled,rounded", penwidth=1.5];
+
+    label="18-LAYER DEFENSE-IN-DEPTH SECURITY ARCHITECTURE";
+    fontsize=18;
+    fontname="Arial Bold";
+    labelloc="t";
+
+    // Layer 0
+    subgraph cluster_L0 {
+        label="LAYER 0: Physical & Network Security";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        L0a [label="Nginx Reverse Proxy\nSSL/TLS Termination\nHSTS / Cert Mgmt", fillcolor="#bbdefb", color="#1976d2"];
+        L0b [label="Docker Network\nIsolated Bridge\nInternal Ports Only", fillcolor="#bbdefb", color="#1976d2"];
+        L0c [label="Firewall Rules\nWhitelist Ports\n80/443 Only Public", fillcolor="#bbdefb", color="#1976d2"];
+    }
+
+    // Layer 1
+    subgraph cluster_L1 {
+        label="LAYER 1: Transport Security";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8eaf6"; color="#283593"; penwidth=2;
+        L1a [label="HTTPS Enforcement\nRedirect HTTP->HTTPS\nHSTS max-age=31536000", fillcolor="#c5cae9", color="#3949ab"];
+        L1b [label="TLS 1.2+ Only\nStrong Cipher Suites\nDisable Weak Protocols", fillcolor="#c5cae9", color="#3949ab"];
+        L1c [label="Certificate Validation\nOCSP Stapling\nCertificate Transparency", fillcolor="#c5cae9", color="#3949ab"];
+    }
+
+    // Layer 2
+    subgraph cluster_L2 {
+        label="LAYER 2: HTTP Security Headers";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f2f1"; color="#00695c"; penwidth=2;
+        L2a [label="CSP\nContent-Security-Policy\ndefault-src 'self'", fillcolor="#b2dfdb", color="#00897b"];
+        L2b [label="X-Content-Type-Options\nnosniff\nPrevent MIME Sniffing", fillcolor="#b2dfdb", color="#00897b"];
+        L2c [label="X-Frame-Options\nDENY\nPrevent Clickjacking", fillcolor="#b2dfdb", color="#00897b"];
+        L2d [label="X-XSS-Protection\n1; mode=block\nBrowser XSS Filter", fillcolor="#b2dfdb", color="#00897b"];
+        L2e [label="Referrer-Policy\nstrict-origin\nLimit Referrer Leak", fillcolor="#b2dfdb", color="#00897b"];
+        L2f [label="Permissions-Policy\ncamera=() mic=()\nDisable Unused APIs", fillcolor="#b2dfdb", color="#00897b"];
+    }
+
+    // Layer 3
+    subgraph cluster_L3 {
+        label="LAYER 3: Request Validation";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff3e0"; color="#e65100"; penwidth=2;
+        L3a [label="HTTP Method Check\nOnly GET/POST/PUT\n/DELETE/OPTIONS/HEAD\n-> 405", fillcolor="#ffe0b2", color="#ef6c00"];
+        L3b [label="Body Size Limit\nMax 10MB\n-> 413", fillcolor="#ffe0b2", color="#ef6c00"];
+        L3c [label="Content-Type Check\nJSON Only (Mutations)\n-> 415", fillcolor="#ffe0b2", color="#ef6c00"];
+    }
+
+    // Layer 4
+    subgraph cluster_L4 {
+        label="LAYER 4: Input Sanitization";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#ffebee"; color="#b71c1c"; penwidth=2;
+        L4a [label="XSS Filter\nHTML Entity Encoding\nStrip Script Tags", fillcolor="#ffcdd2", color="#d32f2f"];
+        L4b [label="SQL Injection Defense\nParameterized Queries\nEloquent ORM Binding", fillcolor="#ffcdd2", color="#d32f2f"];
+        L4c [label="Path Traversal Block\nRealpath Validation\n../ Filter", fillcolor="#ffcdd2", color="#d32f2f"];
+        L4d [label="Command Injection\nescapeshellarg()\nProcess Whitelist", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    // Layer 5
+    subgraph cluster_L5 {
+        label="LAYER 5: CSRF Protection";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
+        L5a [label="Origin Header Check\nSame-Origin Validation\nReferer Verification", fillcolor="#ffcdd2", color="#d32f2f"];
+        L5b [label="Content-Type Verify\nApplication/JSON Required\nNo Form-Encoded Mutations", fillcolor="#ffcdd2", color="#d32f2f"];
+        L5c [label="Custom Header Check\nX-Requested-With\nAJAX Request Detection", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    // Layer 6
+    subgraph cluster_L6 {
+        label="LAYER 6: Rate Limiting";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#ede7f6"; color="#4527a0"; penwidth=2;
+        L6a [label="Redis Sliding Window\nLua Atomic Script\n60 req/min/IP Default", fillcolor="#d1c4e9", color="#5e35b1"];
+        L6b [label="Auth Endpoint Limit\nLogin:10/min\nRegister:5/min", fillcolor="#d1c4e9", color="#5e35b1"];
+        L6c [label="Account Lockout\n5 Failures -> 15min\nProgressive Delay", fillcolor="#d1c4e9", color="#5e35b1"];
+        L6d [label="Response Headers\nX-RateLimit-Limit\nX-RateLimit-Remaining", fillcolor="#d1c4e9", color="#5e35b1"];
+    }
+
+    // Layer 7
+    subgraph cluster_L7 {
+        label="LAYER 7: Authentication";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        L7a [label="JWT Token\nHMAC-SHA256 Sign\n2h Access / 14d Refresh", fillcolor="#c8e6c9", color="#388e3c"];
+        L7b [label="Click Captcha\nRandom Position Verify\nImage Distortion", fillcolor="#c8e6c9", color="#388e3c"];
+        L7c [label="Token Blacklist\nRedis Key-Value Store\nTTL=Remaining Validity", fillcolor="#c8e6c9", color="#388e3c"];
+        L7d [label="Session Control\nMax 3 Tokens/User\nOldest Auto-Blacklist", fillcolor="#c8e6c9", color="#388e3c"];
+    }
+
+    // Layer 8
+    subgraph cluster_L8 {
+        label="LAYER 8: Authorization (RBAC)";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        L8a [label="Permission Tree\nHierarchical Inheritance\nParent->Child Cascade", fillcolor="#e1bee7", color="#7b1fa2"];
+        L8b [label="method.path Matching\nController + Action\nWildcard Support", fillcolor="#e1bee7", color="#7b1fa2"];
+        L8c [label="Redis Cached Perms\nTTL 60s Cache\nNo N+1 Query", fillcolor="#e1bee7", color="#7b1fa2"];
+        L8d [label="Sensitive Op Check\nPassword Re-verify\nDelete/Config Change", fillcolor="#e1bee7", color="#7b1fa2"];
+    }
+
+    // Layer 9
+    subgraph cluster_L9 {
+        label="LAYER 9: Data Protection";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#f57f17"; penwidth=2;
+        L9a [label="Transport Encryption\nAES-256-CBC\nAPI Request/Response", fillcolor="#ffecb3", color="#ffa000"];
+        L9b [label="Storage Encryption\nDB Field-Level Encrypt\nPhone/Email/ID Card", fillcolor="#ffecb3", color="#ffa000"];
+        L9c [label="ID Obfuscation\nHashids Encode/Decode\nReal PK Never Exposed", fillcolor="#ffecb3", color="#ffa000"];
+        L9d [label="Data Masking\nExport Auto-Mask\nPhone: 138****1234", fillcolor="#ffecb3", color="#ffa000"];
+    }
+
+    // Layer 10
+    subgraph cluster_L10 {
+        label="LAYER 10: Audit & Monitoring";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f7fa"; color="#00838f"; penwidth=2;
+        L10a [label="Operation Logging\nPOST/PUT/DELETE Auto\nUser/IP/Source/Params", fillcolor="#b2ebf2", color="#0097a7"];
+        L10b [label="Source Detection\n8 Platforms Identified\nFlutter/HarmonyOS/API", fillcolor="#b2ebf2", color="#0097a7"];
+        L10c [label="Prometheus Metrics\n5 Gauge Indicators\nRequests/Users/DB/Memory", fillcolor="#b2ebf2", color="#0097a7"];
+        L10d [label="Health Check\nGET /health\nDB/Redis/ES Connectivity", fillcolor="#b2ebf2", color="#0097a7"];
+    }
+
+    // Layer 11
+    subgraph cluster_L11 {
+        label="LAYER 11: Compliance & Disclosure";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#efebe9"; color="#4e342e"; penwidth=2;
+        L11a [label="security.txt\nRFC 9116 Standard\n/.well-known/security.txt", fillcolor="#d7ccc8", color="#6d4c41"];
+        L11b [label="OpenAPI 3.0 Docs\nGET /api/docs\nFull Schema Exposure", fillcolor="#d7ccc8", color="#6d4c41"];
+        L11c [label="Error Sanitization\nNo Stack Traces in Prod\nGeneric Error Messages", fillcolor="#d7ccc8", color="#6d4c41"];
+    }
+
+    // Chain edges
+    L0a -> L1a [color="#90a4ae", penwidth=1.5];
+    L1a -> L2a [color="#90a4ae", penwidth=1.5];
+    L2a -> L3a [color="#90a4ae", penwidth=1.5];
+    L3a -> L4a [color="#90a4ae", penwidth=1.5];
+    L4a -> L5a [color="#90a4ae", penwidth=1.5];
+    L5a -> L6a [color="#90a4ae", penwidth=1.5];
+    L6a -> L7a [color="#90a4ae", penwidth=1.5];
+    L7a -> L8a [color="#90a4ae", penwidth=1.5];
+    L8a -> L9a [color="#90a4ae", penwidth=1.5];
+    L9a -> L10a [color="#90a4ae", penwidth=1.5];
+    L10a -> L11a [color="#90a4ae", penwidth=1.5];
+}

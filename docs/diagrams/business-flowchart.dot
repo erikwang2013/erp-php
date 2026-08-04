@@ -1,0 +1,125 @@
+digraph BusinessFlow {
+    rankdir=LR;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.3;
+    ranksep=0.5;
+    compound=true;
+
+    node [fontname="Arial", fontsize=10, style="filled,rounded", penwidth=1.5];
+
+    subgraph cluster_purchase {
+        label="PURCHASING";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        p1 [label="Purchase\nRequisition", fillcolor="#bbdefb", color="#1976d2"];
+        p2 [label="Purchase\nOrder", fillcolor="#bbdefb", color="#1976d2"];
+        p3 [label="Purchase\nReceiving", fillcolor="#bbdefb", color="#1976d2"];
+        p4 [label="Purchase\nReturn", fillcolor="#bbdefb", color="#1976d2"];
+        p5 [label="Supplier\nSettlement", fillcolor="#bbdefb", color="#1976d2"];
+        p1 -> p2 -> p3 -> p5; p2 -> p4;
+    }
+
+    subgraph cluster_sales {
+        label="SALES";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        sa1 [label="Sales\nQuotation", fillcolor="#c8e6c9", color="#388e3c"];
+        sa2 [label="Sales\nOrder", fillcolor="#c8e6c9", color="#388e3c"];
+        sa3 [label="Sales\nDelivery", fillcolor="#c8e6c9", color="#388e3c"];
+        sa4 [label="Sales\nReturn", fillcolor="#c8e6c9", color="#388e3c"];
+        sa5 [label="Customer\nSettlement", fillcolor="#c8e6c9", color="#388e3c"];
+        sa1 -> sa2 -> sa3 -> sa5; sa2 -> sa4;
+    }
+
+    subgraph cluster_inventory {
+        label="INVENTORY";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#f9a825"; penwidth=2;
+        i1 [label="Real-time\nStock", fillcolor="#ffecb3", color="#ffa000"];
+        i2 [label="Stock\nIn/Out Flow", fillcolor="#ffecb3", color="#ffa000"];
+        i3 [label="Batch &\nSerial No.", fillcolor="#ffecb3", color="#ffa000"];
+        i4 [label="Warehouse\nTransfer", fillcolor="#ffecb3", color="#ffa000"];
+        i5 [label="Stocktaking\nCheck", fillcolor="#ffecb3", color="#ffa000"];
+        i6 [label="Inventory\nAlert", fillcolor="#ffecb3", color="#ffa000"];
+    }
+
+    subgraph cluster_finance {
+        label="FINANCE";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
+        f1 [label="AR/AP\nManagement", fillcolor="#ffcdd2", color="#d32f2f"];
+        f2 [label="Voucher\nEntry", fillcolor="#ffcdd2", color="#d32f2f"];
+        f3 [label="Receipt &\nPayment", fillcolor="#ffcdd2", color="#d32f2f"];
+        f4 [label="Cash/Bank\nJournal", fillcolor="#ffcdd2", color="#d32f2f"];
+        f5 [label="General\nLedger", fillcolor="#ffcdd2", color="#d32f2f"];
+        f6 [label="Subsidiary\nLedger", fillcolor="#ffcdd2", color="#d32f2f"];
+        f7 [label="Financial\nStatements", fillcolor="#ffcdd2", color="#d32f2f"];
+        f8 [label="Fixed\nAssets", fillcolor="#ffcdd2", color="#d32f2f"];
+        f9 [label="Tax\nManagement", fillcolor="#ffcdd2", color="#d32f2f"];
+        fa [label="Multi-Currency\n& Budget", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_crm {
+        label="CRM";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        crm1 [label="Opportunity\n& Funnel", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm2 [label="Customer\nContact", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm3 [label="Public\nPool", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm4 [label="Contract &\nQuotation", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm5 [label="Campaign\n& Ticket", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm6 [label="Analytics\nReports", fillcolor="#e1bee7", color="#7b1fa2"];
+    }
+
+    subgraph cluster_mfg {
+        label="MANUFACTURING";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f2f1"; color="#00695c"; penwidth=2;
+        mf1 [label="BOM\nBill of Materials", fillcolor="#b2dfdb", color="#00897b"];
+        mf2 [label="Production\nOrder", fillcolor="#b2dfdb", color="#00897b"];
+        mf3 [label="Routing &\nWorkstation", fillcolor="#b2dfdb", color="#00897b"];
+        mf4 [label="MRP\nPlanning", fillcolor="#b2dfdb", color="#00897b"];
+    }
+
+    subgraph cluster_support {
+        label="SUPPORTING MODULES";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#eceff1"; color="#546e7a"; penwidth=2;
+        sp1 [label="Workflow\nApproval Engine", fillcolor="#cfd8dc", color="#607d8b"];
+        sp2 [label="Notification\nPush Service", fillcolor="#cfd8dc", color="#607d8b"];
+        sp3 [label="Project\nManagement", fillcolor="#cfd8dc", color="#607d8b"];
+        sp4 [label="HR\nManagement", fillcolor="#cfd8dc", color="#607d8b"];
+        sp5 [label="Custom\nReport Builder", fillcolor="#cfd8dc", color="#607d8b"];
+    }
+
+    // Cross-module data flow edges
+    p3 -> i2 [label=" Auto Stock-In\n(Moving Wt.Avg Cost)", color="#1565c0", fontsize=9, penwidth=1.5];
+    p3 -> f1 [label=" Auto Generate AP", color="#1565c0", fontsize=9, penwidth=1.5];
+    sa3 -> i2 [label=" Auto Stock-Out", color="#2e7d32", fontsize=9, penwidth=1.5];
+    sa3 -> f1 [label=" Auto Generate AR", color="#2e7d32", fontsize=9, penwidth=1.5];
+    f3 -> f1 [label=" Write-off AR/AP", color="#c62828", fontsize=9];
+    f3 -> f4 [label=" Update Journal", color="#c62828", fontsize=9];
+    f2 -> f5 [label=" Auto Update", color="#c62828", fontsize=9];
+    f2 -> f6 [label=" Auto Update", color="#c62828", fontsize=9];
+    f5 -> f7 [label=" Closing Balance", color="#c62828", fontsize=9];
+    f4 -> f7 [label=" 3-Category Summary", color="#c62828", fontsize=9];
+
+    sa2 -> mf4 [label=" Demand Signal", color="#00695c", fontsize=9];
+    mf1 -> mf4 [label=" Component Data", color="#00695c", fontsize=9];
+    mf4 -> p1 [label=" Purchase Suggestion", color="#00695c", fontsize=9];
+    mf4 -> mf2 [label=" Production Suggestion", color="#00695c", fontsize=9];
+
+    crm2 -> sa1 [color="#6a1b9a", fontsize=9];
+    crm4 -> sa1 [color="#6a1b9a", fontsize=9];
+
+    sp1 -> p2 [label=" Approval Callback", style="dashed", color="#546e7a", fontsize=9];
+    sp1 -> sa2 [label=" Approval Callback", style="dashed", color="#546e7a", fontsize=9];
+    sp1 -> f3 [label=" Approval Callback", style="dashed", color="#546e7a", fontsize=9];
+
+    sp2 -> p2 [label=" Event Push", style="dotted", color="#546e7a", fontsize=8];
+    sp2 -> sa2 [label=" Event Push", style="dotted", color="#546e7a", fontsize=8];
+    sp2 -> i6 [label=" Alert Push", style="dotted", color="#546e7a", fontsize=8];
+    sp2 -> f1 [label=" Event Push", style="dotted", color="#546e7a", fontsize=8];
+}

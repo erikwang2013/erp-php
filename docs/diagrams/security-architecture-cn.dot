@@ -1,0 +1,145 @@
+digraph SecurityArchitectureCN {
+    rankdir=TB;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.2;
+    ranksep=0.3;
+    compound=true;
+
+    node [fontname="Arial", fontsize=9, style="filled,rounded", penwidth=1.5];
+
+    label="18 层纵深防御安全架构";
+    fontsize=18;
+    fontname="Arial Bold";
+    labelloc="t";
+
+    subgraph cluster_L0 {
+        label="第 0 层: 物理与网络安全";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        L0a [label="Nginx 反向代理\nSSL/TLS 终止\nHSTS / 证书管理", fillcolor="#bbdefb", color="#1976d2"];
+        L0b [label="Docker 网络\n隔离网桥\n仅内部端口", fillcolor="#bbdefb", color="#1976d2"];
+        L0c [label="防火墙规则\n端口白名单\n仅 80/443 对外", fillcolor="#bbdefb", color="#1976d2"];
+    }
+
+    subgraph cluster_L1 {
+        label="第 1 层: 传输安全";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8eaf6"; color="#283593"; penwidth=2;
+        L1a [label="HTTPS 强制\nHTTP 重定向到 HTTPS\nHSTS max-age=31536000", fillcolor="#c5cae9", color="#3949ab"];
+        L1b [label="仅 TLS 1.2+\n强密码套件\n禁用弱协议", fillcolor="#c5cae9", color="#3949ab"];
+        L1c [label="证书验证\nOCSP 装订\n证书透明度", fillcolor="#c5cae9", color="#3949ab"];
+    }
+
+    subgraph cluster_L2 {
+        label="第 2 层: HTTP 安全响应头";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f2f1"; color="#00695c"; penwidth=2;
+        L2a [label="内容安全策略(CSP)\ndefault-src 'self'\n防止 XSS 和数据注入", fillcolor="#b2dfdb", color="#00897b"];
+        L2b [label="X-Content-Type-Options\nnosniff\n防止 MIME 类型嗅探", fillcolor="#b2dfdb", color="#00897b"];
+        L2c [label="X-Frame-Options\nDENY\n防止点击劫持", fillcolor="#b2dfdb", color="#00897b"];
+        L2d [label="X-XSS-Protection\n1; mode=block\n浏览器 XSS 过滤器", fillcolor="#b2dfdb", color="#00897b"];
+        L2e [label="Referrer-Policy\nstrict-origin\n限制引荐来源泄漏", fillcolor="#b2dfdb", color="#00897b"];
+        L2f [label="Permissions-Policy\ncamera=() mic=()\n禁用未使用API", fillcolor="#b2dfdb", color="#00897b"];
+    }
+
+    subgraph cluster_L3 {
+        label="第 3 层: 请求校验";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff3e0"; color="#e65100"; penwidth=2;
+        L3a [label="HTTP 方法检查\n仅允许 GET/POST/PUT\n/DELETE/OPTIONS/HEAD\n→ 返回 405", fillcolor="#ffe0b2", color="#ef6c00"];
+        L3b [label="请求体大小限制\n最大 10MB\n→ 返回 413", fillcolor="#ffe0b2", color="#ef6c00"];
+        L3c [label="Content-Type 检查\n变更操作仅允许 JSON\n→ 返回 415", fillcolor="#ffe0b2", color="#ef6c00"];
+    }
+
+    subgraph cluster_L4 {
+        label="第 4 层: 输入净化";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#ffebee"; color="#b71c1c"; penwidth=2;
+        L4a [label="XSS 过滤器\nHTML 实体编码\n去除脚本标签", fillcolor="#ffcdd2", color="#d32f2f"];
+        L4b [label="SQL 注入防御\n参数化查询\nEloquent ORM 绑定", fillcolor="#ffcdd2", color="#d32f2f"];
+        L4c [label="路径遍历阻止\n真实路径验证\n../ 过滤", fillcolor="#ffcdd2", color="#d32f2f"];
+        L4d [label="命令注入防御\nescapeshellarg()\n进程白名单", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_L5 {
+        label="第 5 层: CSRF 防护";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
+        L5a [label="Origin 头检查\n同源验证\nReferer 校验", fillcolor="#ffcdd2", color="#d32f2f"];
+        L5b [label="Content-Type 验证\n要求 Application/JSON\n禁止表单编码变更", fillcolor="#ffcdd2", color="#d32f2f"];
+        L5c [label="自定义头检查\nX-Requested-With\nAJAX 请求检测", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_L6 {
+        label="第 6 层: 限流控制";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#ede7f6"; color="#4527a0"; penwidth=2;
+        L6a [label="Redis 滑动窗口\nLua 原子脚本\n默认 60次/分钟/IP", fillcolor="#d1c4e9", color="#5e35b1"];
+        L6b [label="认证端点限制\n登录:10次/分\n注册:5次/分", fillcolor="#d1c4e9", color="#5e35b1"];
+        L6c [label="账号锁定\n5次失败→锁定15分钟\n渐进式延迟", fillcolor="#d1c4e9", color="#5e35b1"];
+        L6d [label="限流响应头\nX-RateLimit-Limit\nX-RateLimit-Remaining", fillcolor="#d1c4e9", color="#5e35b1"];
+    }
+
+    subgraph cluster_L7 {
+        label="第 7 层: 身份认证";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        L7a [label="JWT 令牌\nHMAC-SHA256 签名\n访问令牌2小时/刷新令牌14天", fillcolor="#c8e6c9", color="#388e3c"];
+        L7b [label="点击验证码\n随机位置验证\n图片干扰扭曲", fillcolor="#c8e6c9", color="#388e3c"];
+        L7c [label="令牌黑名单\nRedis 键值存储\nTTL=剩余有效期", fillcolor="#c8e6c9", color="#388e3c"];
+        L7d [label="会话控制\n每用户最多3令牌\n最旧令牌自动加黑名单", fillcolor="#c8e6c9", color="#388e3c"];
+    }
+
+    subgraph cluster_L8 {
+        label="第 8 层: 授权鉴权 (RBAC)";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        L8a [label="权限树\n层级继承\n父→子级联", fillcolor="#e1bee7", color="#7b1fa2"];
+        L8b [label="方法.路径匹配\n控制器+操作\n通配符支持", fillcolor="#e1bee7", color="#7b1fa2"];
+        L8c [label="Redis 缓存权限\nTTL 60秒缓存\n消除 N+1 查询", fillcolor="#e1bee7", color="#7b1fa2"];
+        L8d [label="敏感操作验证\n密码二次确认\n删除/配置变更", fillcolor="#e1bee7", color="#7b1fa2"];
+    }
+
+    subgraph cluster_L9 {
+        label="第 9 层: 数据保护";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#f57f17"; penwidth=2;
+        L9a [label="传输加密\nAES-256-CBC\nAPI 请求/响应加密", fillcolor="#ffecb3", color="#ffa000"];
+        L9b [label="存储加密\n数据库字段级加密\n手机/邮箱/身份证号", fillcolor="#ffecb3", color="#ffa000"];
+        L9c [label="ID 混淆\nHashids 编解码\n真实主键从不暴露", fillcolor="#ffecb3", color="#ffa000"];
+        L9d [label="数据脱敏\n导出自动脱敏\n手机: 138****1234", fillcolor="#ffecb3", color="#ffa000"];
+    }
+
+    subgraph cluster_L10 {
+        label="第 10 层: 审计与监控";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f7fa"; color="#00838f"; penwidth=2;
+        L10a [label="操作日志\nPOST/PUT/DELETE 自动记录\n用户/IP/来源/参数", fillcolor="#b2ebf2", color="#0097a7"];
+        L10b [label="来源端检测\n识别8种平台\nFlutter/鸿蒙/API等", fillcolor="#b2ebf2", color="#0097a7"];
+        L10c [label="Prometheus 指标\n5 项监控指标\n请求/用户/数据库/内存", fillcolor="#b2ebf2", color="#0097a7"];
+        L10d [label="健康检查\nGET /health\n数据库/Redis/ES 连通性", fillcolor="#b2ebf2", color="#0097a7"];
+    }
+
+    subgraph cluster_L11 {
+        label="第 11 层: 合规与披露";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#efebe9"; color="#4e342e"; penwidth=2;
+        L11a [label="security.txt\nRFC 9116 标准\n/.well-known/security.txt", fillcolor="#d7ccc8", color="#6d4c41"];
+        L11b [label="OpenAPI 3.0 文档\nGET /api/docs\n完整接口规范公开", fillcolor="#d7ccc8", color="#6d4c41"];
+        L11c [label="错误信息净化\n生产环境不输出堆栈\n通用错误消息", fillcolor="#d7ccc8", color="#6d4c41"];
+    }
+
+    L0a -> L1a [color="#90a4ae", penwidth=1.5];
+    L1a -> L2a [color="#90a4ae", penwidth=1.5];
+    L2a -> L3a [color="#90a4ae", penwidth=1.5];
+    L3a -> L4a [color="#90a4ae", penwidth=1.5];
+    L4a -> L5a [color="#90a4ae", penwidth=1.5];
+    L5a -> L6a [color="#90a4ae", penwidth=1.5];
+    L6a -> L7a [color="#90a4ae", penwidth=1.5];
+    L7a -> L8a [color="#90a4ae", penwidth=1.5];
+    L8a -> L9a [color="#90a4ae", penwidth=1.5];
+    L9a -> L10a [color="#90a4ae", penwidth=1.5];
+    L10a -> L11a [color="#90a4ae", penwidth=1.5];
+}

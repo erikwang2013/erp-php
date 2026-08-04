@@ -1,0 +1,94 @@
+digraph RequestLifecycle {
+    rankdir=TB;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.3;
+    ranksep=0.4;
+    compound=true;
+
+    node [fontname="Arial", fontsize=10, style="filled,rounded", penwidth=1.5];
+
+    // Header
+    label="REQUEST LIFECYCLE — Client to Database Full Path";
+    fontsize=16;
+    fontname="Arial Bold";
+    labelloc="t";
+
+    // Client
+    client [label="Client\nFlutter / HarmonyOS / API", shape="box",
+            style="filled,rounded", fillcolor="#1a237e", fontcolor="white",
+            fontsize=12, fontname="Arial Bold", penwidth=2];
+
+    // Nginx
+    nginx [label="Nginx Edge\nReverse Proxy\nSSL Termination\nSecurity Headers\nStatic File Check", shape="box",
+           fillcolor="#fff3e0", color="#e65100", fontsize=10];
+
+    // Middleware chain
+    locale [label="Locale Middleware\nDetect Accept-Language\nSet locale (zh_CN/en)", fillcolor="#e8eaf6", color="#3949ab"];
+    cors [label="CORS Middleware\nHandle OPTIONS Preflight\nAdd CORS Headers", fillcolor="#e8eaf6", color="#3949ab"];
+    secfilter [label="Security Filter\nMethod Check (405)\nBody Size <=10MB (413)\nContent-Type=JSON (415)\nXSS/SQLi/Path Traversal\nCommand Injection/CSRF", fillcolor="#ffebee", color="#c62828"];
+    ratelimit [label="Rate Limit\nRedis Sliding Window\n60 req/min/IP default\nLogin:10/min Register:5/min\nAccount Lockout Check\nSet RateLimit Headers", fillcolor="#ede7f6", color="#4527a0"];
+    apiversion [label="API Version\nValidate API-Version Header\nDefault: v1\nUnknown -> 400", fillcolor="#e0f2f1", color="#00695c"];
+
+    // Auth
+    adminauth [label="AdminAuth Middleware\nDecode JWT Token\nCheck Blacklist (Redis)\nCheck Expiry\nSet Auth Context", fillcolor="#e8f5e9", color="#2e7d32"];
+    adminperm [label="AdminPermission Middleware\nLoad Permissions from Redis Cache\n(TTL 60s)\nMatch method.path\nagainst Permission Tree\nRBAC Decision", fillcolor="#e8f5e9", color="#2e7d32"];
+    oplog [label="OperationLog Middleware\nCapture Request Data\nDetect Source Platform\n(Flutter/HarmonyOS/API etc)\nLog to DB (async)", fillcolor="#e8f5e9", color="#2e7d32"];
+
+    // Controllers
+    node [fontsize=10];
+    pubctrl [label="Public Controller\n/health /api/docs /install\nExecute and Return", fillcolor="#fff8e1", color="#f9a825"];
+    apictrl [label="API Controller v1\n/captcha /auth /product\nExecute Business Logic", fillcolor="#fff8e1", color="#f9a825"];
+    admctrl [label="Admin Controller\nValidate Input\nHashids Decode IDs\nExecute Business Rule", fillcolor="#fff8e1", color="#f9a825"];
+
+    // Service and Data layers
+    service [label="Service Layer\nInventory/Finance/Notification\nBusiness Orchestration", fillcolor="#f3e5f5", color="#6a1b9a"];
+    model [label="Model Layer\n(121 Eloquent Models)\nQuery / Mutate Data", fillcolor="#f3e5f5", color="#6a1b9a"];
+
+    // Storage
+    redis [label="Redis 7\nCache\nTTL 5min", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
+    mysql [label="MySQL 8.0\nPrimary DB\n122 tables", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
+    es [label="Elasticsearch 8.x\nFull-text Search", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
+
+    // Response
+    response [label="JSON Response\n{code:0 message:'success' data:{...}}\nHashids Encode IDs\nSensitive Data Masked", shape="box",
+              fillcolor="#1a237e", fontcolor="white", fontsize=10, penwidth=2];
+
+    // Edges
+    client -> nginx [label="HTTPS Request\nAuthorization: Bearer JWT\nAccept-Language: zh-CN", fontsize=9, color="#1a237e", penwidth=1.5];
+    nginx -> locale [label="Forward to webman :8787", fontsize=9, color="#e65100", penwidth=1.5];
+
+    locale -> cors [color="#3949ab"];
+    cors -> secfilter [color="#3949ab"];
+    secfilter -> ratelimit [color="#c62828"];
+    ratelimit -> apiversion [color="#4527a0"];
+
+    // Branch: Public
+    apiversion -> pubctrl [label="Public Endpoints\n/health /api/docs /install", fontsize=9, color="#f9a825"];
+    pubctrl -> response [color="#f9a825"];
+
+    // Branch: API
+    apiversion -> apictrl [label="API Endpoints\n/api/*", fontsize=9, color="#f9a825"];
+    apictrl -> response [color="#f9a825"];
+
+    // Branch: Admin
+    apiversion -> adminauth [label="Admin Endpoints\n/admin/*", fontsize=9, color="#2e7d32", penwidth=1.5];
+    adminauth -> adminperm [color="#2e7d32"];
+    adminperm -> oplog [color="#2e7d32"];
+    oplog -> admctrl [color="#2e7d32"];
+
+    admctrl -> service [label="Call Service", fontsize=9, color="#6a1b9a"];
+    service -> model [label="Query/Mutate", fontsize=9, color="#6a1b9a"];
+
+    model -> redis [label="Check\nCache", fontsize=8, color="#d32f2f"];
+    redis -> model [label="Cache\nHit", fontsize=8, color="#d32f2f", style="dashed"];
+    model -> mysql [label="SQL\nQuery", fontsize=8, color="#d32f2f"];
+    mysql -> model [label="Result\nSet", fontsize=8, color="#d32f2f", style="dashed"];
+    model -> es [label="Search\nIndex", fontsize=8, color="#d32f2f"];
+
+    model -> service [label="Domain\nObject", fontsize=8, color="#6a1b9a", style="dashed"];
+    service -> admctrl [label="Result\nData", fontsize=8, color="#6a1b9a", style="dashed"];
+
+    admctrl -> response [color="#1a237e"];
+}

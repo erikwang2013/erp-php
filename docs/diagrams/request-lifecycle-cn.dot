@@ -1,0 +1,81 @@
+digraph RequestLifecycleCN {
+    rankdir=TB;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.3;
+    ranksep=0.4;
+    compound=true;
+
+    node [fontname="Arial", fontsize=10, style="filled,rounded", penwidth=1.5];
+
+    label="请求生命周期 — 从客户端到数据库的完整路径";
+    fontsize=16;
+    fontname="Arial Bold";
+    labelloc="t";
+
+    client [label="客户端\nFlutter / 鸿蒙 / API", shape="box",
+            style="filled,rounded", fillcolor="#1a237e", fontcolor="white",
+            fontsize=12, fontname="Arial Bold", penwidth=2];
+
+    nginx [label="Nginx 边缘节点\n反向代理\nSSL 终止\n安全响应头\n静态文件检查", shape="box",
+           fillcolor="#fff3e0", color="#e65100", fontsize=10];
+
+    locale [label="语言中间件\n检测 Accept-Language\n设置语言环境 (zh_CN/en)", fillcolor="#e8eaf6", color="#3949ab"];
+    cors [label="跨域中间件\n处理 OPTIONS 预检\n添加 CORS 响应头", fillcolor="#e8eaf6", color="#3949ab"];
+    secfilter [label="安全过滤器\nHTTP方法校验 (405)\n请求体大小 ≤10MB (413)\nContent-Type=JSON (415)\nXSS/SQL注入/路径遍历\n命令注入/CSRF", fillcolor="#ffebee", color="#c62828"];
+    ratelimit [label="限流控制\nRedis 滑动窗口\n默认 60次/分钟/IP\n登录10次/分 注册5次/分\n账号锁定检测\n设置限流响应头", fillcolor="#ede7f6", color="#4527a0"];
+    apiversion [label="API 版本\n校验 API-Version 请求头\n默认: v1\n未知版本 → 400", fillcolor="#e0f2f1", color="#00695c"];
+
+    adminauth [label="管理端认证中间件\n解码 JWT 令牌\n检查黑名单 (Redis)\n检查过期时间\n设置认证上下文", fillcolor="#e8f5e9", color="#2e7d32"];
+    adminperm [label="管理端权限中间件\n从 Redis 缓存加载权限\n(缓存 60 秒)\n匹配 方法.路径\n与权限树比对\nRBAC 决策", fillcolor="#e8f5e9", color="#2e7d32"];
+    oplog [label="操作日志中间件\n捕获请求数据\n检测来源平台\n(Flutter/鸿蒙/API等)\n记录到数据库 (异步)", fillcolor="#e8f5e9", color="#2e7d32"];
+
+    node [fontsize=10];
+    pubctrl [label="公开控制器\n/health /api/docs /install\n执行业务逻辑并返回", fillcolor="#fff8e1", color="#f9a825"];
+    apictrl [label="API 控制器 v1\n/captcha /auth /product\n执行业务逻辑", fillcolor="#fff8e1", color="#f9a825"];
+    admctrl [label="管理端控制器\n验证输入参数\nHashids 解码 ID\n执行业务规则", fillcolor="#fff8e1", color="#f9a825"];
+
+    service [label="服务层\n库存/财务/通知\n业务编排", fillcolor="#f3e5f5", color="#6a1b9a"];
+    model [label="模型层\n(121 个 Eloquent 模型)\n查询 / 修改数据", fillcolor="#f3e5f5", color="#6a1b9a"];
+
+    redis [label="Redis 7\n缓存\nTTL 5分钟", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
+    mysql [label="MySQL 8.0\n主数据库\n122 张表", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
+    es [label="Elasticsearch 8.x\n全文检索", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
+
+    response [label="JSON 响应\n{code:0 message:'成功' data:{...}}\nHashids 编码 ID\n敏感数据脱敏", shape="box",
+              fillcolor="#1a237e", fontcolor="white", fontsize=10, penwidth=2];
+
+    client -> nginx [label="HTTPS 请求\nAuthorization: Bearer JWT\nAccept-Language: zh-CN", fontsize=9, color="#1a237e", penwidth=1.5];
+    nginx -> locale [label="转发到 webman :8787", fontsize=9, color="#e65100", penwidth=1.5];
+
+    locale -> cors [color="#3949ab"];
+    cors -> secfilter [color="#3949ab"];
+    secfilter -> ratelimit [color="#c62828"];
+    ratelimit -> apiversion [color="#4527a0"];
+
+    apiversion -> pubctrl [label="公开端点\n/health /api/docs /install", fontsize=9, color="#f9a825"];
+    pubctrl -> response [color="#f9a825"];
+
+    apiversion -> apictrl [label="API 端点\n/api/*", fontsize=9, color="#f9a825"];
+    apictrl -> response [color="#f9a825"];
+
+    apiversion -> adminauth [label="管理端端点\n/admin/*", fontsize=9, color="#2e7d32", penwidth=1.5];
+    adminauth -> adminperm [color="#2e7d32"];
+    adminperm -> oplog [color="#2e7d32"];
+    oplog -> admctrl [color="#2e7d32"];
+
+    admctrl -> service [label="调用服务", fontsize=9, color="#6a1b9a"];
+    service -> model [label="查询/修改", fontsize=9, color="#6a1b9a"];
+
+    model -> redis [label="检查\n缓存", fontsize=8, color="#d32f2f"];
+    redis -> model [label="缓存\n命中", fontsize=8, color="#d32f2f", style="dashed"];
+    model -> mysql [label="SQL\n查询", fontsize=8, color="#d32f2f"];
+    mysql -> model [label="结果\n集合", fontsize=8, color="#d32f2f", style="dashed"];
+    model -> es [label="搜索\n索引", fontsize=8, color="#d32f2f"];
+
+    model -> service [label="领域\n对象", fontsize=8, color="#6a1b9a", style="dashed"];
+    service -> admctrl [label="结果\n数据", fontsize=8, color="#6a1b9a", style="dashed"];
+
+    admctrl -> response [color="#1a237e"];
+}

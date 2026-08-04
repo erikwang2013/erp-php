@@ -1,0 +1,104 @@
+digraph SystemArchitecture {
+    rankdir=TB;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.4;
+    ranksep=0.6;
+    compound=true;
+
+    node [fontname="Arial", fontsize=11, style="filled,rounded", penwidth=1.5];
+
+    subgraph cluster_client {
+        label="CLIENT LAYER";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        a1 [label="Flutter Web Admin\nPC Management Console\n(Port 3000)", fillcolor="#bbdefb", color="#1976d2"];
+        a2 [label="HarmonyOS ArkTS\nMobile / Tablet Client", fillcolor="#bbdefb", color="#1976d2"];
+        a3 [label="Third-party API\nHTTP Clients", fillcolor="#bbdefb", color="#1976d2"];
+    }
+
+    subgraph cluster_edge {
+        label="EDGE / GATEWAY LAYER";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff3e0"; color="#e65100"; penwidth=2;
+        b1 [label="Nginx Edge Node (docker nginx:alpine)\nReverse Proxy / HTTPS / Gzip\nStatic Files / Security Headers", fillcolor="#ffe0b2", color="#ef6c00", shape="box"];
+    }
+
+    subgraph cluster_app {
+        label="APPLICATION LAYER - webman v2 (PHP 8.3)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+
+        subgraph cluster_mw {
+            label="Middleware Chain";
+            fontsize=12; fontname="Arial Bold";
+            style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
+            node [fillcolor="#ffffff", color="#78909c", fontsize=10];
+            m1 [label="Locale\ni18n Detect"]; m2 [label="CORS\nCross-Origin"]; m3 [label="Security\nFilter"]; m4 [label="Rate\nLimit"]; m5 [label="API\nVersion"];
+            m1 -> m2 -> m3 -> m4 -> m5 [color="#90a4ae"];
+        }
+
+        subgraph cluster_auth {
+            label="Auth & Permission";
+            fontsize=12; fontname="Arial Bold";
+            style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
+            node [fillcolor="#ffffff", color="#78909c", fontsize=10];
+            m6 [label="AdminAuth\nJWT+Blacklist"]; m7 [label="AdminPermission\nRBAC method.path"];
+            m6 -> m7 [color="#90a4ae"];
+        }
+
+        subgraph cluster_biz {
+            label="Business Logic (Controllers & Services)";
+            fontsize=12; fontname="Arial Bold";
+            style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
+            node [fillcolor="#ffffff", color="#78909c", fontsize=10];
+            c1 [label="Admin Controllers\n(14 files)"]; c2 [label="Business Controllers\n(71 modules)"]; c3 [label="Service Layer\n(7 services)"]; c4 [label="API Controllers v1\n(Captcha/Auth/Product)"];
+        }
+
+        subgraph cluster_common {
+            label="Common Services";
+            fontsize=12; fontname="Arial Bold";
+            style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
+            node [fillcolor="#ffffff", color="#78909c", fontsize=10];
+            s1 [label="Hashids\nID Encrypt"]; s2 [label="Snowflake\nID Generate"]; s3 [label="Encryption\nData Encrypt"]; s4 [label="I18n\nTranslate"];
+        }
+
+        m5 -> m6; m7 -> c1; m7 -> c2; m7 -> c4;
+        c1 -> c3; c2 -> c3; c4 -> c3;
+        c3 -> s1; c3 -> s2; c3 -> s3; c3 -> s4;
+    }
+
+    subgraph cluster_data {
+        label="DATA / STORAGE LAYER";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
+        node [shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f", fontsize=10];
+        d1 [label="MySQL 8.0\nPrimary Storage\n122 tables\nerik_ prefix"];
+        d2 [label="Redis 7\nCache/Session\nRate Limit\nBlacklist"];
+        d3 [label="Elasticsearch 8.x\nFull-text Search\nerik_ index prefix"];
+    }
+
+    subgraph cluster_devops {
+        label="DEVOPS";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        node [shape="box", fillcolor="#e1bee7", color="#7b1fa2", fontsize=10];
+        e1 [label="GitHub Actions\nCI/CD Pipeline\nPHP 8.2/8.3/8.4"];
+        e2 [label="Docker Compose\n5 services\nnginx/app/mysql/redis/es"];
+        e3 [label="Prometheus\nMetrics Endpoint\nGET /metrics"];
+    }
+
+    a1 -> b1 [color="#1565c0", penwidth=1.5];
+    a2 -> b1 [color="#1565c0", penwidth=1.5];
+    a3 -> b1 [color="#1565c0", penwidth=1.5];
+    b1 -> m1 [color="#e65100", penwidth=1.5];
+    s1 -> d1; s2 -> d1; s3 -> d1; s1 -> d3;
+    s4 -> d2;
+    b1 -> e1 [style="dashed", color="#6a1b9a"];
+    b1 -> e2 [style="dashed", color="#6a1b9a"];
+    c3 -> e3 [style="dashed", color="#6a1b9a"];
+    d1 -> e2 [style="dashed", color="#6a1b9a"];
+    d2 -> e2 [style="dashed", color="#6a1b9a"];
+    d3 -> e2 [style="dashed", color="#6a1b9a"];
+}

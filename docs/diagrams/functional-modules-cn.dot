@@ -1,0 +1,195 @@
+digraph FunctionalModulesCN {
+    rankdir=TB;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.3;
+    ranksep=0.5;
+    compound=true;
+    splines=polyline;
+
+    root [label="开放ERP系统\n功能模块总览\n17 个领域 / 122 张表 / 71 个控制器",
+          shape="box", style="filled,rounded", fillcolor="#1a237e", color="#0d47a1",
+          fontcolor="white", fontsize=14, fontname="Arial Bold", penwidth=2];
+
+    node [fontname="Arial", fontsize=9, style="filled,rounded", penwidth=1.5];
+
+    subgraph cluster_auth { label="认证与安全"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        a1 [label="登录/注册\n点击验证码", fillcolor="#bbdefb", color="#1976d2"];
+        a2 [label="JWT 令牌\n访问+刷新", fillcolor="#bbdefb", color="#1976d2"];
+        a3 [label="账号锁定\n5次失败锁定15分钟", fillcolor="#bbdefb", color="#1976d2"];
+        a4 [label="会话限制\n每用户最多3令牌", fillcolor="#bbdefb", color="#1976d2"];
+        a5 [label="安全登出\nRedis 黑名单", fillcolor="#bbdefb", color="#1976d2"];
+    }
+
+    subgraph cluster_dash { label="仪表盘"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        d1 [label="经营总览\n统计卡片", fillcolor="#c8e6c9", color="#388e3c"];
+        d2 [label="销售看板\n趋势折线图", fillcolor="#c8e6c9", color="#388e3c"];
+        d3 [label="库存看板\n库存水位", fillcolor="#c8e6c9", color="#388e3c"];
+        d4 [label="财务看板\n关键指标", fillcolor="#c8e6c9", color="#388e3c"];
+    }
+
+    subgraph cluster_admin { label="系统管理"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff3e0"; color="#e65100"; penwidth=2;
+        ad1 [label="用户管理\n增删改查+批量+导入", fillcolor="#ffe0b2", color="#ef6c00"];
+        ad2 [label="角色与权限\nRBAC 权限树", fillcolor="#ffe0b2", color="#ef6c00"];
+        ad3 [label="系统配置\n键值对分组", fillcolor="#ffe0b2", color="#ef6c00"];
+        ad4 [label="操作审计\n日志查询+来源端检测", fillcolor="#ffe0b2", color="#ef6c00"];
+        ad5 [label="文件管理\n上传+导出", fillcolor="#ffe0b2", color="#ef6c00"];
+    }
+
+    subgraph cluster_sec { label="安全防护层"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#ffebee"; color="#b71c1c"; penwidth=2;
+        se1 [label="XSS 防护\n输入净化", fillcolor="#ffcdd2", color="#d32f2f"];
+        se2 [label="SQL 注入防御\n参数化查询", fillcolor="#ffcdd2", color="#d32f2f"];
+        se3 [label="路径遍历阻止\n路径验证", fillcolor="#ffcdd2", color="#d32f2f"];
+        se4 [label="命令注入防御\nShell 转义", fillcolor="#ffcdd2", color="#d32f2f"];
+        se5 [label="CSRF 防护\n令牌验证", fillcolor="#ffcdd2", color="#d32f2f"];
+        se6 [label="限流控制\nRedis 滑动窗口", fillcolor="#ffcdd2", color="#d32f2f"];
+        se7 [label="CSP 响应头\n内容安全策略", fillcolor="#ffcdd2", color="#d32f2f"];
+        se8 [label="数据加密\n传输+存储双重加密", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_ops { label="运维监控"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f2f1"; color="#00695c"; penwidth=2;
+        op1 [label="健康检查\n数据库/Redis/ES", fillcolor="#b2dfdb", color="#00897b"];
+        op2 [label="Prometheus\n5 项监控指标", fillcolor="#b2dfdb", color="#00897b"];
+        op3 [label="API 文档\nOpenAPI 3.0", fillcolor="#b2dfdb", color="#00897b"];
+        op4 [label="security.txt\nRFC 9116", fillcolor="#b2dfdb", color="#00897b"];
+        op5 [label="数据库备份\nmysqldump+gzip", fillcolor="#b2dfdb", color="#00897b"];
+        op6 [label="CI/CD\nGitHub Actions", fillcolor="#b2dfdb", color="#00897b"];
+    }
+
+    subgraph cluster_product { label="商品管理"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#ede7f6"; color="#4527a0"; penwidth=2;
+        pd1 [label="商品档案\n名称/编码/规格", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd2 [label="SKU 与规格\n多规格支持", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd3 [label="多单位\n单位换算", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd4 [label="分类树\n多级分类", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd5 [label="品牌\n品牌管理", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd6 [label="仓库\n多仓库管理", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd7 [label="供应商\n联系人+银行账户", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd8 [label="客户\n信用额度", fillcolor="#d1c4e9", color="#5e35b1"];
+    }
+
+    subgraph cluster_purch { label="采购管理"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        pu1 [label="采购申请\n提交申请", fillcolor="#bbdefb", color="#1976d2"];
+        pu2 [label="采购订单\n下达订单", fillcolor="#bbdefb", color="#1976d2"];
+        pu3 [label="采购收货\n入库+生成应付", fillcolor="#bbdefb", color="#1976d2"];
+        pu4 [label="采购退货\n退回供应商", fillcolor="#bbdefb", color="#1976d2"];
+        pu5 [label="供应商结算\n付款结算", fillcolor="#bbdefb", color="#1976d2"];
+    }
+
+    subgraph cluster_sales_mod { label="销售管理"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        sl1 [label="销售报价\n生成报价", fillcolor="#c8e6c9", color="#388e3c"];
+        sl2 [label="销售订单\n确认订单", fillcolor="#c8e6c9", color="#388e3c"];
+        sl3 [label="销售发货\n出库+生成应收", fillcolor="#c8e6c9", color="#388e3c"];
+        sl4 [label="销售退货\n客户退货", fillcolor="#c8e6c9", color="#388e3c"];
+        sl5 [label="客户结算\n收款结算", fillcolor="#c8e6c9", color="#388e3c"];
+    }
+
+    subgraph cluster_inv { label="库存管理"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#f9a825"; penwidth=2;
+        iv1 [label="实时库存\n当前数量", fillcolor="#ffecb3", color="#ffa000"];
+        iv2 [label="出入库流水\n进销记录", fillcolor="#ffecb3", color="#ffa000"];
+        iv3 [label="批次追踪\n批次/批号", fillcolor="#ffecb3", color="#ffa000"];
+        iv4 [label="序列号追踪\n单品序列号", fillcolor="#ffecb3", color="#ffa000"];
+        iv5 [label="仓库调拨\n多仓库转移", fillcolor="#ffecb3", color="#ffa000"];
+        iv6 [label="盘点任务\n库存清点", fillcolor="#ffecb3", color="#ffa000"];
+        iv7 [label="预警规则\n最低/最高预警", fillcolor="#ffecb3", color="#ffa000"];
+    }
+
+    subgraph cluster_fin { label="财务管理"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
+        fn1 [label="应收应付\n自动生成", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn2 [label="记账凭证\n分录录入", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn3 [label="收付款\n资金流动", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn4 [label="现金银行日记账\n逐日记录", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn5 [label="总账\n科目汇总", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn6 [label="明细账\n逐笔明细", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn7 [label="资产负债表\n资产=负债+权益", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn8 [label="利润表\n收入-支出", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn9 [label="现金流量表\n经营/投资/筹资", fillcolor="#ffcdd2", color="#d32f2f"];
+        fna [label="固定资产\n计提折旧", fillcolor="#ffcdd2", color="#d32f2f"];
+        fnb [label="税务管理\n多税率", fillcolor="#ffcdd2", color="#d32f2f"];
+        fnc [label="多币种\n汇率管理", fillcolor="#ffcdd2", color="#d32f2f"];
+        fnd [label="预算管理\n计划vs实际", fillcolor="#ffcdd2", color="#d32f2f"];
+        fne [label="成本/利润中心\n树形结构", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_crm_mod { label="客户关系管理"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        cr1 [label="商机\n销售管道", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr2 [label="跟进记录\n活动记录", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr3 [label="销售漏斗\n阶段配置", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr4 [label="联系人\n个人信息", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr5 [label="公海池\n领取/释放", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr6 [label="合同\n状态流转", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr7 [label="报价\n转为合同", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr8 [label="营销活动\n市场推广", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr9 [label="服务工单\n客服支持", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr10 [label="分析\n报表+指标", fillcolor="#e1bee7", color="#7b1fa2"];
+    }
+
+    subgraph cluster_wf { label="审批工作流"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8eaf6"; color="#283593"; penwidth=2;
+        wf1 [label="工作流定义\n多节点配置", fillcolor="#c5cae9", color="#3949ab"];
+        wf2 [label="提交\n启动审批", fillcolor="#c5cae9", color="#3949ab"];
+        wf3 [label="批准\n通过节点", fillcolor="#c5cae9", color="#3949ab"];
+        wf4 [label="拒绝\n退回申请人", fillcolor="#c5cae9", color="#3949ab"];
+        wf5 [label="撤回\n取消申请", fillcolor="#c5cae9", color="#3949ab"];
+        wf6 [label="我的审批\n待处理列表", fillcolor="#c5cae9", color="#3949ab"];
+    }
+
+    subgraph cluster_notif { label="消息通知"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fffde7"; color="#f57f17"; penwidth=2;
+        nf1 [label="通知列表\n全部消息", fillcolor="#fff9c4", color="#fbc02d"];
+        nf2 [label="标记已读\n单条", fillcolor="#fff9c4", color="#fbc02d"];
+        nf3 [label="全部已读\n批量", fillcolor="#fff9c4", color="#fbc02d"];
+        nf4 [label="未读计数\n角标", fillcolor="#fff9c4", color="#fbc02d"];
+    }
+
+    subgraph cluster_pm { label="项目管理"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f7fa"; color="#00838f"; penwidth=2;
+        pm1 [label="项目\n定义", fillcolor="#b2ebf2", color="#0097a7"];
+        pm2 [label="任务\n分解", fillcolor="#b2ebf2", color="#0097a7"];
+        pm3 [label="工时记录\n时间日志", fillcolor="#b2ebf2", color="#0097a7"];
+    }
+
+    subgraph cluster_hr { label="人力资源"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f1f8e9"; color="#558b2f"; penwidth=2;
+        hr1 [label="部门\n组织架构", fillcolor="#dcedc8", color="#689f38"];
+        hr2 [label="员工\n人事档案", fillcolor="#dcedc8", color="#689f38"];
+        hr3 [label="职位\n岗位名称", fillcolor="#dcedc8", color="#689f38"];
+        hr4 [label="考勤\n打卡签到", fillcolor="#dcedc8", color="#689f38"];
+        hr5 [label="请假\n申请+审批", fillcolor="#dcedc8", color="#689f38"];
+        hr6 [label="薪资\n工资发放", fillcolor="#dcedc8", color="#689f38"];
+    }
+
+    subgraph cluster_mfg_mod { label="生产制造"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#efebe9"; color="#4e342e"; penwidth=2;
+        mg1 [label="物料清单\n材料组成", fillcolor="#d7ccc8", color="#6d4c41"];
+        mg2 [label="生产订单\n开工/完工", fillcolor="#d7ccc8", color="#6d4c41"];
+        mg3 [label="工艺路线\n加工流程", fillcolor="#d7ccc8", color="#6d4c41"];
+        mg4 [label="工作站\n机器/工位", fillcolor="#d7ccc8", color="#6d4c41"];
+        mg5 [label="MRP\n物料需求计划", fillcolor="#d7ccc8", color="#6d4c41"];
+    }
+
+    subgraph cluster_rpt { label="自定义报表"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#ad1457"; penwidth=2;
+        rp1 [label="报表模板\n设计", fillcolor="#f8bbd0", color="#c2185b"];
+        rp2 [label="数据集\n查询配置", fillcolor="#f8bbd0", color="#c2185b"];
+        rp3 [label="字段与筛选器\n参数配置", fillcolor="#f8bbd0", color="#c2185b"];
+        rp4 [label="执行\n生成报表", fillcolor="#f8bbd0", color="#c2185b"];
+        rp5 [label="定时调度\nCron 分发", fillcolor="#f8bbd0", color="#c2185b"];
+    }
+
+    root -> a1; root -> d1; root -> ad1; root -> se1; root -> op1;
+    root -> pd1; root -> pu1; root -> sl1; root -> iv1; root -> fn1;
+    root -> cr1; root -> wf1; root -> nf1; root -> pm1; root -> hr1;
+    root -> mg1; root -> rp1;
+}

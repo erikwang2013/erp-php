@@ -1,0 +1,197 @@
+digraph FunctionalModules {
+    rankdir=TB;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.3;
+    ranksep=0.5;
+    compound=true;
+    splines=polyline;
+
+    // Root node
+    root [label="Open ERP System\nFunctional Modules\n17 Domains / 122 Tables / 71 Controllers",
+          shape="box", style="filled,rounded", fillcolor="#1a237e", color="#0d47a1",
+          fontcolor="white", fontsize=14, fontname="Arial Bold", penwidth=2];
+
+    node [fontname="Arial", fontsize=9, style="filled,rounded", penwidth=1.5];
+
+    subgraph cluster_auth { label="AUTH & SECURITY"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        a1 [label="Login/Register\nClick Captcha", fillcolor="#bbdefb", color="#1976d2"];
+        a2 [label="JWT Token\nAccess+Refresh", fillcolor="#bbdefb", color="#1976d2"];
+        a3 [label="Account Lockout\n5 fails=15min", fillcolor="#bbdefb", color="#1976d2"];
+        a4 [label="Session Limit\nMax 3 tokens/user", fillcolor="#bbdefb", color="#1976d2"];
+        a5 [label="Logout\nRedis Blacklist", fillcolor="#bbdefb", color="#1976d2"];
+    }
+
+    subgraph cluster_dash { label="DASHBOARD"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        d1 [label="Business Overview\nStats Cards", fillcolor="#c8e6c9", color="#388e3c"];
+        d2 [label="Sales Dashboard\nTrend Charts", fillcolor="#c8e6c9", color="#388e3c"];
+        d3 [label="Inventory Dashboard\nStock Levels", fillcolor="#c8e6c9", color="#388e3c"];
+        d4 [label="Finance Dashboard\nKey Indicators", fillcolor="#c8e6c9", color="#388e3c"];
+    }
+
+    subgraph cluster_admin { label="SYSTEM ADMIN"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff3e0"; color="#e65100"; penwidth=2;
+        ad1 [label="User Management\nCRUD+Batch+Import", fillcolor="#ffe0b2", color="#ef6c00"];
+        ad2 [label="Role & Permission\nRBAC Tree", fillcolor="#ffe0b2", color="#ef6c00"];
+        ad3 [label="System Config\nKey-Value Groups", fillcolor="#ffe0b2", color="#ef6c00"];
+        ad4 [label="Operation Audit\nLog Query+Source", fillcolor="#ffe0b2", color="#ef6c00"];
+        ad5 [label="File Management\nUpload+Export", fillcolor="#ffe0b2", color="#ef6c00"];
+    }
+
+    subgraph cluster_sec { label="SECURITY LAYER"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#ffebee"; color="#b71c1c"; penwidth=2;
+        se1 [label="XSS Protection\nInput Sanitization", fillcolor="#ffcdd2", color="#d32f2f"];
+        se2 [label="SQL Injection\nParam. Queries", fillcolor="#ffcdd2", color="#d32f2f"];
+        se3 [label="Path Traversal\nPath Validation", fillcolor="#ffcdd2", color="#d32f2f"];
+        se4 [label="Command Inject\nShell Escape", fillcolor="#ffcdd2", color="#d32f2f"];
+        se5 [label="CSRF Defense\nToken Validation", fillcolor="#ffcdd2", color="#d32f2f"];
+        se6 [label="Rate Limiting\nRedis Sliding Win", fillcolor="#ffcdd2", color="#d32f2f"];
+        se7 [label="CSP Headers\nContent Security", fillcolor="#ffcdd2", color="#d32f2f"];
+        se8 [label="Data Encryption\nTransport+Storage", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_ops { label="OPERATIONS"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f2f1"; color="#00695c"; penwidth=2;
+        op1 [label="Health Check\nDB/Redis/ES", fillcolor="#b2dfdb", color="#00897b"];
+        op2 [label="Prometheus\n5 Gauge Metrics", fillcolor="#b2dfdb", color="#00897b"];
+        op3 [label="API Docs\nOpenAPI 3.0", fillcolor="#b2dfdb", color="#00897b"];
+        op4 [label="security.txt\nRFC 9116", fillcolor="#b2dfdb", color="#00897b"];
+        op5 [label="DB Backup\nmysqldump+gzip", fillcolor="#b2dfdb", color="#00897b"];
+        op6 [label="CI/CD\nGitHub Actions", fillcolor="#b2dfdb", color="#00897b"];
+    }
+
+    subgraph cluster_product { label="PRODUCT MANAGEMENT"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#ede7f6"; color="#4527a0"; penwidth=2;
+        pd1 [label="Product Catalog\nName/Code/Spec", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd2 [label="SKU & Variant\nMulti-Spec", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd3 [label="Multi-Unit\nUnit Conversion", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd4 [label="Category Tree\nMulti-Level", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd5 [label="Brand\nBrand CRUD", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd6 [label="Warehouse\nMulti-Warehouse", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd7 [label="Supplier\nContact+Bank", fillcolor="#d1c4e9", color="#5e35b1"];
+        pd8 [label="Customer\nCredit Limit", fillcolor="#d1c4e9", color="#5e35b1"];
+    }
+
+    subgraph cluster_purch { label="PURCHASING"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        pu1 [label="Requisition\nApply", fillcolor="#bbdefb", color="#1976d2"];
+        pu2 [label="Order\nIssue PO", fillcolor="#bbdefb", color="#1976d2"];
+        pu3 [label="Receiving\nStock-In+AP", fillcolor="#bbdefb", color="#1976d2"];
+        pu4 [label="Return\nReturn to Supplier", fillcolor="#bbdefb", color="#1976d2"];
+        pu5 [label="Settlement\nSupplier Payment", fillcolor="#bbdefb", color="#1976d2"];
+    }
+
+    subgraph cluster_sales_mod { label="SALES"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        sl1 [label="Quotation\nGenerate Quote", fillcolor="#c8e6c9", color="#388e3c"];
+        sl2 [label="Order\nConfirm SO", fillcolor="#c8e6c9", color="#388e3c"];
+        sl3 [label="Delivery\nStock-Out+AR", fillcolor="#c8e6c9", color="#388e3c"];
+        sl4 [label="Return\nCustomer Return", fillcolor="#c8e6c9", color="#388e3c"];
+        sl5 [label="Settlement\nCustomer Payment", fillcolor="#c8e6c9", color="#388e3c"];
+    }
+
+    subgraph cluster_inv { label="INVENTORY"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#f9a825"; penwidth=2;
+        iv1 [label="Real-time Stock\nCurrent Qty", fillcolor="#ffecb3", color="#ffa000"];
+        iv2 [label="Stock Flow\nIn/Out Records", fillcolor="#ffecb3", color="#ffa000"];
+        iv3 [label="Batch Tracking\nBatch/Lot No.", fillcolor="#ffecb3", color="#ffa000"];
+        iv4 [label="Serial Tracking\nSerial Number", fillcolor="#ffecb3", color="#ffa000"];
+        iv5 [label="Transfer\nMulti-Warehouse", fillcolor="#ffecb3", color="#ffa000"];
+        iv6 [label="Stocktaking\nCount Tasks", fillcolor="#ffecb3", color="#ffa000"];
+        iv7 [label="Alert Rules\nMin/Max Warning", fillcolor="#ffecb3", color="#ffa000"];
+    }
+
+    subgraph cluster_fin { label="FINANCE"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
+        fn1 [label="AR/AP\nAuto Generated", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn2 [label="Voucher\nJournal Entry", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn3 [label="Receipt/Payment\nCash Flow", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn4 [label="Cash Journal\nDaily Records", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn5 [label="General Ledger\nAccount Summary", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn6 [label="Sub-Ledger\nPer-Entry Detail", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn7 [label="Balance Sheet\nAssets=Liab+Equity", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn8 [label="Income Statement\nRevenue-Expense", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn9 [label="Cash Flow\nOper/Invest/Fin", fillcolor="#ffcdd2", color="#d32f2f"];
+        fna [label="Fixed Assets\nDepreciation", fillcolor="#ffcdd2", color="#d32f2f"];
+        fnb [label="Tax Mgmt\nMulti-Rate", fillcolor="#ffcdd2", color="#d32f2f"];
+        fnc [label="Multi-Currency\nExchange Rate", fillcolor="#ffcdd2", color="#d32f2f"];
+        fnd [label="Budget\nPlan vs Actual", fillcolor="#ffcdd2", color="#d32f2f"];
+        fne [label="Cost/Profit\nCenter Tree", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_crm_mod { label="CRM"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        cr1 [label="Opportunity\nSales Pipeline", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr2 [label="Follow-up\nActivity Records", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr3 [label="Sales Funnel\nStage Config", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr4 [label="Contact\nPerson Info", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr5 [label="Public Pool\nClaim/Release", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr6 [label="Contract\nStatus Transition", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr7 [label="Quotation\nTo-Contract", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr8 [label="Campaign\nMarketing", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr9 [label="Ticket\nService Desk", fillcolor="#e1bee7", color="#7b1fa2"];
+        cr10 [label="Analytics\nReports+Metrics", fillcolor="#e1bee7", color="#7b1fa2"];
+    }
+
+    subgraph cluster_wf { label="WORKFLOW"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8eaf6"; color="#283593"; penwidth=2;
+        wf1 [label="Workflow Def\nMulti-Node Config", fillcolor="#c5cae9", color="#3949ab"];
+        wf2 [label="Submit\nStart Approval", fillcolor="#c5cae9", color="#3949ab"];
+        wf3 [label="Approve\nPass Node", fillcolor="#c5cae9", color="#3949ab"];
+        wf4 [label="Reject\nReturn to Sender", fillcolor="#c5cae9", color="#3949ab"];
+        wf5 [label="Withdraw\nCancel Request", fillcolor="#c5cae9", color="#3949ab"];
+        wf6 [label="My Approvals\nPending List", fillcolor="#c5cae9", color="#3949ab"];
+    }
+
+    subgraph cluster_notif { label="NOTIFICATION"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fffde7"; color="#f57f17"; penwidth=2;
+        nf1 [label="Notification List\nAll Messages", fillcolor="#fff9c4", color="#fbc02d"];
+        nf2 [label="Mark Read\nSingle", fillcolor="#fff9c4", color="#fbc02d"];
+        nf3 [label="Mark All Read\nBatch", fillcolor="#fff9c4", color="#fbc02d"];
+        nf4 [label="Unread Count\nBadge", fillcolor="#fff9c4", color="#fbc02d"];
+    }
+
+    subgraph cluster_pm { label="PROJECT MGMT"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f7fa"; color="#00838f"; penwidth=2;
+        pm1 [label="Project\nDefinition", fillcolor="#b2ebf2", color="#0097a7"];
+        pm2 [label="Task\nBreakdown", fillcolor="#b2ebf2", color="#0097a7"];
+        pm3 [label="Timesheet\nHours Log", fillcolor="#b2ebf2", color="#0097a7"];
+    }
+
+    subgraph cluster_hr { label="HUMAN RESOURCES"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f1f8e9"; color="#558b2f"; penwidth=2;
+        hr1 [label="Department\nOrg Structure", fillcolor="#dcedc8", color="#689f38"];
+        hr2 [label="Employee\nPersonnel File", fillcolor="#dcedc8", color="#689f38"];
+        hr3 [label="Position\nJob Titles", fillcolor="#dcedc8", color="#689f38"];
+        hr4 [label="Attendance\nClock In/Out", fillcolor="#dcedc8", color="#689f38"];
+        hr5 [label="Leave\nRequest+Approve", fillcolor="#dcedc8", color="#689f38"];
+        hr6 [label="Salary\nPayroll", fillcolor="#dcedc8", color="#689f38"];
+    }
+
+    subgraph cluster_mfg_mod { label="MANUFACTURING"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#efebe9"; color="#4e342e"; penwidth=2;
+        mg1 [label="BOM\nBill of Materials", fillcolor="#d7ccc8", color="#6d4c41"];
+        mg2 [label="Production Order\nStart/Complete", fillcolor="#d7ccc8", color="#6d4c41"];
+        mg3 [label="Routing\nProcess Path", fillcolor="#d7ccc8", color="#6d4c41"];
+        mg4 [label="Workstation\nMachine/Station", fillcolor="#d7ccc8", color="#6d4c41"];
+        mg5 [label="MRP\nDemand Planning", fillcolor="#d7ccc8", color="#6d4c41"];
+    }
+
+    subgraph cluster_rpt { label="REPORTS"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#ad1457"; penwidth=2;
+        rp1 [label="Report Template\nDesign", fillcolor="#f8bbd0", color="#c2185b"];
+        rp2 [label="Dataset\nQuery Config", fillcolor="#f8bbd0", color="#c2185b"];
+        rp3 [label="Field & Filter\nParameters", fillcolor="#f8bbd0", color="#c2185b"];
+        rp4 [label="Execute\nGenerate Report", fillcolor="#f8bbd0", color="#c2185b"];
+        rp5 [label="Schedule\nCron Dispatch", fillcolor="#f8bbd0", color="#c2185b"];
+    }
+
+    // Connect root to all domains
+    root -> a1; root -> d1; root -> ad1; root -> se1; root -> op1;
+    root -> pd1; root -> pu1; root -> sl1; root -> iv1; root -> fn1;
+    root -> cr1; root -> wf1; root -> nf1; root -> pm1; root -> hr1;
+    root -> mg1; root -> rp1;
+}

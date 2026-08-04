@@ -2,7 +2,7 @@
 
 基于 webman v2 + Flutter 的全栈ERP系统。
 
-> [English version](README_EN.md) |[版本对比](docs/EDITIONS.md) | [架构设计图](docs/ARCHITECTURE.md) | [设计文档](docs/DESIGN.md) | [安全架构](docs/SECURITY.md) | [API 参考](docs/API.md) | [功能手册](docs/FUNCTIONS.md)
+> [English version](README_EN.md) |[版本对比](docs/EDITIONS.md) | [架构设计图](docs/ARCHITECTURE.md) | [系统架构图](#系统架构图) | [设计文档](docs/DESIGN.md) | [安全架构](docs/SECURITY.md) | [API 参考](docs/API.md) | [功能手册](docs/FUNCTIONS.md)
 
 ## 功能清单
 
@@ -129,6 +129,42 @@ open-erp/
 └── vendor/                     # Composer 依赖
 ```
 
+## 系统架构图
+
+> 点击图片查看原始 SVG。图表使用英文命名，完整清晰展示系统各层面的架构设计。
+
+### 系统拓扑架构
+
+![System Architecture](./docs/diagrams/system-architecture-cn.svg)
+
+**五层架构**: 客户端层 → 网关边缘层(Nginx 反向代理) → 应用层(webman v2 + 中间件链 + 认证鉴权 + 业务逻辑 + 公共服务) → 数据存储层(MySQL + Redis + Elasticsearch) → 运维层(CI/CD + Docker + Prometheus)
+
+### 业务数据流程图
+
+![Business Flowchart](./docs/diagrams/business-flowchart-cn.svg)
+
+**七大业务域联动**: 采购 → 库存 → 销售 → 财务形成核心供应链闭环；客户关系管理驱动销售；生产制造MRP基于销售订单+物料清单驱动采购计划和生产计划；审批工作流、消息通知、项目管理、人力资源作为支撑模块贯穿全流程。
+
+### 功能模块总览
+
+![Functional Modules](./docs/diagrams/functional-modules-cn.svg)
+
+**17 大功能域、122 张数据表、71 个控制器**: 涵盖认证安全、仪表盘、系统管理、安全防护、运维监控、商品管理、采购、销售、库存、财务(14子模块)、CRM(10子模块)、审批工作流、消息通知、项目管理、人力资源、生产制造(MRP)、自定义报表。
+
+### 请求生命周期
+
+![Request Lifecycle](./docs/diagrams/request-lifecycle-cn.svg)
+
+**从客户端到数据库的完整请求路径**: 客户端(Flutter/鸿蒙) → Nginx SSL终止 → 语言检测 → 跨域处理 → 安全过滤器 → 限流 → API版本校验 → [管理端: JWT认证 → RBAC权限 → 操作日志] → 控制器 → 服务层 → 模型层 → 缓存/数据库/搜索引擎 → JSON响应。图中包含缓存命中和缓存未命中两条路径。
+
+### 安全纵深防御架构
+
+![Security Architecture](./docs/diagrams/security-architecture-cn.svg)
+
+**18 层纵深防御**: L0 物理网络 → L1 传输安全 → L2 HTTP 安全头 → L3 请求校验 → L4 输入净化 → L5 CSRF 防护 → L6 限流 → L7 认证(JWT+Captcha+黑名单+会话控制) → L8 RBAC 授权 → L9 数据保护(传输加密+存储加密+ID混淆+数据脱敏) → L10 审计监控 → L11 合规披露。
+
+---
+
 ## 环境要求
 
 - PHP >= 8.3
@@ -230,8 +266,6 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 - `Dockerfile`: PHP 8.3 + OPcache + Composer，基于 `php:8.3-cli`
 - `docker-compose.yml`: 5 个服务编排，网络隔离，数据卷持久化
 - `.env.docker`: Docker 环境专用环境变量
-
-
 ## 数据库规范
 
 - **表前缀**: `erik_`

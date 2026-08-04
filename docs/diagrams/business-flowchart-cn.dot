@@ -1,0 +1,124 @@
+digraph BusinessFlowCN {
+    rankdir=LR;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.3;
+    ranksep=0.5;
+    compound=true;
+
+    node [fontname="Arial", fontsize=10, style="filled,rounded", penwidth=1.5];
+
+    subgraph cluster_purchase {
+        label="采购管理";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        p1 [label="采购\n申请", fillcolor="#bbdefb", color="#1976d2"];
+        p2 [label="采购\n订单", fillcolor="#bbdefb", color="#1976d2"];
+        p3 [label="采购\n收货", fillcolor="#bbdefb", color="#1976d2"];
+        p4 [label="采购\n退货", fillcolor="#bbdefb", color="#1976d2"];
+        p5 [label="供应商\n结算", fillcolor="#bbdefb", color="#1976d2"];
+        p1 -> p2 -> p3 -> p5; p2 -> p4;
+    }
+
+    subgraph cluster_sales {
+        label="销售管理";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        sa1 [label="销售\n报价", fillcolor="#c8e6c9", color="#388e3c"];
+        sa2 [label="销售\n订单", fillcolor="#c8e6c9", color="#388e3c"];
+        sa3 [label="销售\n发货", fillcolor="#c8e6c9", color="#388e3c"];
+        sa4 [label="销售\n退货", fillcolor="#c8e6c9", color="#388e3c"];
+        sa5 [label="客户\n结算", fillcolor="#c8e6c9", color="#388e3c"];
+        sa1 -> sa2 -> sa3 -> sa5; sa2 -> sa4;
+    }
+
+    subgraph cluster_inventory {
+        label="库存管理";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#f9a825"; penwidth=2;
+        i1 [label="实时\n库存", fillcolor="#ffecb3", color="#ffa000"];
+        i2 [label="出入库\n流水", fillcolor="#ffecb3", color="#ffa000"];
+        i3 [label="批次/\n序列号", fillcolor="#ffecb3", color="#ffa000"];
+        i4 [label="仓库\n调拨", fillcolor="#ffecb3", color="#ffa000"];
+        i5 [label="盘点\n任务", fillcolor="#ffecb3", color="#ffa000"];
+        i6 [label="库存\n预警", fillcolor="#ffecb3", color="#ffa000"];
+    }
+
+    subgraph cluster_finance {
+        label="财务管理";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
+        f1 [label="应收应付\n管理", fillcolor="#ffcdd2", color="#d32f2f"];
+        f2 [label="记账\n凭证", fillcolor="#ffcdd2", color="#d32f2f"];
+        f3 [label="收款\n付款", fillcolor="#ffcdd2", color="#d32f2f"];
+        f4 [label="现金银行\n日记账", fillcolor="#ffcdd2", color="#d32f2f"];
+        f5 [label="总账\n汇总", fillcolor="#ffcdd2", color="#d32f2f"];
+        f6 [label="明细账\n逐笔", fillcolor="#ffcdd2", color="#d32f2f"];
+        f7 [label="财务\n报表", fillcolor="#ffcdd2", color="#d32f2f"];
+        f8 [label="固定\n资产", fillcolor="#ffcdd2", color="#d32f2f"];
+        f9 [label="税务\n管理", fillcolor="#ffcdd2", color="#d32f2f"];
+        fa [label="多币种\n与预算", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_crm {
+        label="客户关系管理";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        crm1 [label="商机与\n漏斗", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm2 [label="客户\n联系人", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm3 [label="公海\n客户池", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm4 [label="合同与\n报价", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm5 [label="营销与\n工单", fillcolor="#e1bee7", color="#7b1fa2"];
+        crm6 [label="分析\n报表", fillcolor="#e1bee7", color="#7b1fa2"];
+    }
+
+    subgraph cluster_mfg {
+        label="生产制造";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f2f1"; color="#00695c"; penwidth=2;
+        mf1 [label="物料清单\nBOM", fillcolor="#b2dfdb", color="#00897b"];
+        mf2 [label="生产\n订单", fillcolor="#b2dfdb", color="#00897b"];
+        mf3 [label="工艺路线\n与工作站", fillcolor="#b2dfdb", color="#00897b"];
+        mf4 [label="MRP\n物料需求计划", fillcolor="#b2dfdb", color="#00897b"];
+    }
+
+    subgraph cluster_support {
+        label="支撑模块";
+        fontsize=13; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#eceff1"; color="#546e7a"; penwidth=2;
+        sp1 [label="审批\n工作流引擎", fillcolor="#cfd8dc", color="#607d8b"];
+        sp2 [label="消息\n推送服务", fillcolor="#cfd8dc", color="#607d8b"];
+        sp3 [label="项目\n管理", fillcolor="#cfd8dc", color="#607d8b"];
+        sp4 [label="人力\n资源", fillcolor="#cfd8dc", color="#607d8b"];
+        sp5 [label="自定义\n报表构建器", fillcolor="#cfd8dc", color="#607d8b"];
+    }
+
+    p3 -> i2 [label=" 自动入库\n(移动加权平均)", color="#1565c0", fontsize=9, penwidth=1.5];
+    p3 -> f1 [label=" 自动生成应付", color="#1565c0", fontsize=9, penwidth=1.5];
+    sa3 -> i2 [label=" 自动出库", color="#2e7d32", fontsize=9, penwidth=1.5];
+    sa3 -> f1 [label=" 自动生成应收", color="#2e7d32", fontsize=9, penwidth=1.5];
+    f3 -> f1 [label=" 核销应收应付", color="#c62828", fontsize=9];
+    f3 -> f4 [label=" 更新日记账", color="#c62828", fontsize=9];
+    f2 -> f5 [label=" 自动更新总账", color="#c62828", fontsize=9];
+    f2 -> f6 [label=" 自动更新明细账", color="#c62828", fontsize=9];
+    f5 -> f7 [label=" 期末余额", color="#c62828", fontsize=9];
+    f4 -> f7 [label=" 三类汇总", color="#c62828", fontsize=9];
+
+    sa2 -> mf4 [label=" 需求信号", color="#00695c", fontsize=9];
+    mf1 -> mf4 [label=" 组件数据", color="#00695c", fontsize=9];
+    mf4 -> p1 [label=" 采购建议", color="#00695c", fontsize=9];
+    mf4 -> mf2 [label=" 生产建议", color="#00695c", fontsize=9];
+
+    crm2 -> sa1 [color="#6a1b9a", fontsize=9];
+    crm4 -> sa1 [color="#6a1b9a", fontsize=9];
+
+    sp1 -> p2 [label=" 审批回调", style="dashed", color="#546e7a", fontsize=9];
+    sp1 -> sa2 [label=" 审批回调", style="dashed", color="#546e7a", fontsize=9];
+    sp1 -> f3 [label=" 审批回调", style="dashed", color="#546e7a", fontsize=9];
+
+    sp2 -> p2 [label=" 事件推送", style="dotted", color="#546e7a", fontsize=8];
+    sp2 -> sa2 [label=" 事件推送", style="dotted", color="#546e7a", fontsize=8];
+    sp2 -> i6 [label=" 预警推送", style="dotted", color="#546e7a", fontsize=8];
+    sp2 -> f1 [label=" 事件推送", style="dotted", color="#546e7a", fontsize=8];
+}

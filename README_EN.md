@@ -2,7 +2,7 @@
 
 A full-stack ERP system built with webman v2 + Flutter.
 
-> [中文文档](README.md) |[Edition Comparison](docs/EDITIONS.md) | [Architecture Diagrams](docs/ARCHITECTURE.md) | [Design Doc](docs/DESIGN.md) | [Security](docs/SECURITY.md) | [API Reference](docs/API.md)
+> [中文文档](README.md) |[Edition Comparison](docs/EDITIONS.md) | [Architecture Diagrams](docs/ARCHITECTURE.md) | [System Diagrams](#system-architecture-diagrams) | [Design Doc](docs/DESIGN.md) | [Security](docs/SECURITY.md) | [API Reference](docs/API.md)
 
 ## Features
 
@@ -136,6 +136,42 @@ open-erp/
 ├── runtime/                    # Runtime files
 └── vendor/                     # Composer dependencies
 ```
+
+## System Architecture Diagrams
+
+> Click images to view original SVG. All diagrams use English naming with clear, complete architectural design.
+
+### System Architecture
+
+![System Architecture](./docs/diagrams/system-architecture.svg)
+
+**Five-Layer Architecture**: Client Layer → Edge/Gateway (Nginx) → Application Layer (webman v2 + Middleware Chain + RBAC + Business Logic + Common Services) → Data/Storage (MySQL + Redis + Elasticsearch) → DevOps (CI/CD + Docker + Prometheus)
+
+### Business Data Flow
+
+![Business Flowchart](./docs/diagrams/business-flowchart.svg)
+
+**Seven-Domain Cross-Module Flow**: Purchasing → Inventory → Sales → Finance form the core supply chain loop; CRM drives Sales; Manufacturing MRP drives Purchasing based on Sales+BOM; Workflow/Notification/Project/HR serve as supporting modules throughout.
+
+### Functional Module Overview
+
+![Functional Modules](./docs/diagrams/functional-modules.svg)
+
+**17 Domains, 122 Tables, 71 Controllers**: Covering Auth & Security, Dashboard, System Admin, Security Layer, Operations, Product Management, Purchasing, Sales, Inventory, Finance (14 sub-modules), CRM (10 sub-modules), Workflow, Notification, Project Management, HR, Manufacturing (MRP), Custom Reports.
+
+### Request Lifecycle
+
+![Request Lifecycle](./docs/diagrams/request-lifecycle.svg)
+
+**Complete Request Path from Client to Database**: Flutter/HarmonyOS → Nginx SSL Termination → Locale → CORS → SecurityFilter → RateLimit → ApiVersion → [Admin: Auth → Permission → OperationLog] → Controller → Service → Model → Cache/DB/ES → JSON Response. Includes both cache hit and miss paths.
+
+### Security Defense-in-Depth Architecture
+
+![Security Architecture](./docs/diagrams/security-architecture.svg)
+
+**18-Layer Defense-in-Depth**: L0 Physical/Network → L1 Transport Security → L2 HTTP Security Headers → L3 Request Validation → L4 Input Sanitization → L5 CSRF Protection → L6 Rate Limiting → L7 Authentication (JWT+Captcha+Blacklist+Session Control) → L8 RBAC Authorization → L9 Data Protection (Transport+Storage Encryption+ID Obfuscation+Data Masking) → L10 Audit & Monitoring → L11 Compliance & Disclosure.
+
+---
 
 ## Requirements
 
