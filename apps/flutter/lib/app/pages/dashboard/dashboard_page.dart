@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../widgets/stat_card.dart';
 import 'dashboard_controller.dart';
 
 class DashboardPage extends GetView<DashboardController> {
@@ -10,17 +11,14 @@ class DashboardPage extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     Get.put(DashboardController());
-    return Obx(() {
-      if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
-      }
-
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return DefaultTabController(
+      length: 4,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            child: Row(
               children: [
                 Text('仪表盘',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
@@ -39,7 +37,38 @@ class DashboardPage extends GetView<DashboardController> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(24, 16, 24, 0),
+            child: TabBar(
+              tabs: [Tab(text: '总览'), Tab(text: 'OMS'), Tab(text: 'WMS'), Tab(text: 'TMS')],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _overview(context),
+                _opsTab(controller.omsStats),
+                _opsTab(controller.wmsStats),
+                _opsTab(controller.tmsStats),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _overview(BuildContext context) {
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             _buildStatsGrid(context),
             const SizedBox(height: 24),
             _buildTrendChart(context),
@@ -56,6 +85,32 @@ class DashboardPage extends GetView<DashboardController> {
         ),
       );
     });
+  }
+
+  Widget _opsTab(List<Map<String, dynamic>> stats) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 340,
+          mainAxisExtent: 96,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemCount: stats.length,
+        itemBuilder: (context, i) {
+          final s = stats[i];
+          return StatCard(
+            title: s['label'],
+            value: s['value'],
+            icon: s['icon'],
+            color: s['color'],
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildStatsGrid(BuildContext context) {

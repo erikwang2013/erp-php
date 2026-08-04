@@ -15,6 +15,27 @@ class DashboardController extends GetxController {
   final trends = <String, dynamic>{}.obs;
   final recentLogs = <Map<String, dynamic>>[].obs;
 
+  /// OMS / WMS / TMS operation stats for the dashboard tabs.
+  /// Mock values for now; replace with backend endpoints when available.
+  final omsStats = <Map<String, dynamic>>[
+    {'label': 'OMS 订单', 'value': '328', 'icon': Icons.shopping_bag, 'color': const Color(0xFF1677FF)},
+    {'label': '履约率', 'value': '96.4%', 'icon': Icons.checklist, 'color': const Color(0xFF52C41A)},
+    {'label': 'RMA 单', 'value': '12', 'icon': Icons.replay, 'color': const Color(0xFFFA8C16)},
+  ].obs;
+
+  final wmsStats = <Map<String, dynamic>>[
+    {'label': '待收货', 'value': '6', 'icon': Icons.download, 'color': const Color(0xFF1677FF)},
+    {'label': '待上架', 'value': '9', 'icon': Icons.upload, 'color': const Color(0xFF52C41A)},
+    {'label': '待拣货', 'value': '14', 'icon': Icons.shopping_basket, 'color': const Color(0xFFFA8C16)},
+    {'label': '待打包', 'value': '5', 'icon': Icons.inventory_2, 'color': const Color(0xFF722ED1)},
+  ].obs;
+
+  final tmsStats = <Map<String, dynamic>>[
+    {'label': '在途运单', 'value': '47', 'icon': Icons.local_shipping, 'color': const Color(0xFF1677FF)},
+    {'label': '异常运单', 'value': '3', 'icon': Icons.warning_amber, 'color': const Color(0xFFFA8C16)},
+    {'label': '本月运费', 'value': '¥86,420', 'icon': Icons.attach_money, 'color': const Color(0xFF52C41A)},
+  ].obs;
+
   List<List<FlSpot>> get trendSpots {
     final allSeries = trends['series'] as List<dynamic>? ?? [];
     return allSeries.map((s) {

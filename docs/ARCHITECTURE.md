@@ -917,3 +917,69 @@ TMS: Rate Shop → Ship → Confirm (stockOut + AR) → Tracking → Delivery
 WMS Inbound: ASN → Receive → Putaway (stockIn + AP)
 RMA: Request → Approve → Return → Receive (stockIn) → Refund
 ```
+
+---
+
+## 21. 生态系统路线图 (2026-08)
+
+> 详细设计规范: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`
+
+### 21.1 当前基线评估
+
+| 维度 | 评分 | 关键差距 |
+|------|------|----------|
+| 后端 API | 85/100 | 多模块为 CRUD 骨架，缺少业务计算引擎 |
+| 安全防护 | 95/100 | 18 层纵深防御，已生产就绪 |
+| 前端 UI | 20/100 | **最大短板**: Flutter 12 页覆盖 ~20% 模块，Web 管理面板缺失 |
+| 运维生态 | 70/100 | 缺迁移回滚、自动备份、可观测性 |
+| 业务深度 | 55/100 | 财务/HR/制造核心算法未实现 |
+| **综合** | **65/100** | |
+
+### 21.2 四阶段串行路线图
+
+```
+P0(3-4周) → P1(4-6周) → P2(1-2周) → P3(2-3周) = 总计约13周
+```
+
+| 阶段 | 名称 | 核心交付 |
+|------|------|----------|
+| **P0** | 前端生态 | Flutter Web 全模块管理面板（14 模块 40+ 页）、通用组件库、HarmonyOS 对齐 |
+| **P1** | 业务深度 | 财务复式记账引擎、薪资计算引擎、MRP 引擎、质量管理模块、实时通知(WebSocket) |
+| **P2** | 运维可靠性 | 数据库迁移回滚、自动备份增强、OpenTelemetry 追踪、RabbitMQ 队列驱动 |
+| **P3** | 体验增强 | BI 可拖拽看板、设备管理(EAM)、多租户隔离、文档管理(DMS) |
+
+### 21.3 中间件链演进
+
+```
+当前:   Locale → Cors → SecurityFilter → RateLimit → {路由组}
+P1 后:  Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {路由组}
+P2 后:  Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {路由组}
+P3 后:  Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {路由组}
+```
+
+### 21.4 P0 目标架构 — Flutter Web 管理面板
+
+| 层级 | 新增内容 |
+|------|----------|
+| 布局层 | `AdminLayout` PC 三栏布局（可折叠侧边栏 + 顶栏 + 内容区） |
+| 组件层 | `DataTableWrapper`, `FormDialog`, `ConfirmDialog`, `StatCard`, `BreadcrumbNav`, `FileUploader` |
+| 页面层 | 从现有 12 页扩展到 14 模块 40+ 页面全覆盖 |
+| 服务层 | 复用现有 `ApiService`, `AuthService`, `CaptchaService`, `ExportService` |
+
+### 21.5 P1 目标架构 — 业务计算引擎
+
+| 引擎 | 服务类 | 关键规则 |
+|------|--------|----------|
+| 复式记账 | `DoubleEntryService`, `PeriodCloseService`, `AccountBalanceService` | 借贷平衡强制校验、期末损益结转、多币种汇率折算 |
+| 薪资计算 | `SalaryEngineService`, `SocialInsuranceService`, `HousingFundService`, `TaxCalculatorService` | 社保基数上下限、公积金比例、个税累进税率、银行代发 |
+| MRP | `MrpEngineService`, `BomExplosionService`, `NetRequirementService` | BOM逐层展开+损耗、低层码(LLC)、安全库存、批量规则 |
+| 质量 | `QmsInspectionService` | IQC来料/IPQC过程/OQC出货 三单流转 |
+| 通知 | `WebSocketService`, `ChannelRouter` | 站内/邮件/企微/钉钉 多渠道 |
+
+### 21.6 数据模型变更汇总
+
+| 阶段 | 新增表数 | 涉及模块 |
+|------|----------|----------|
+| P0 | 0 | 纯前端，无表变更 |
+| P1 | 14 | 财务(2) + HR(3) + 制造(2) + 质量(5) + 通知(2) |
+| P3 | 7 | BI(2) + EAM(3) + DMS(2) |

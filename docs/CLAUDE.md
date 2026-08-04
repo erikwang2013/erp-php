@@ -10,6 +10,21 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 > **不可修改、不可移除、不可逆。** 所有新建文件必须包含上述版权声明作为文件头注释。
 
+## 生态系统路线图
+
+> 设计规范: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`
+> 架构文档: `docs/ARCHITECTURE.md` §21
+> 功能矩阵: `docs/FUNCTIONS.md` §19
+
+**当前综合评分 65/100** — 后端和安全层扎实，最大短板是前端UI和业务深度。
+
+| 阶段 | 工期 | 核心目标 |
+|------|------|----------|
+| 🔵 **P0** 前端生态 | 3-4 周 | Flutter Web 管理面板覆盖全部 14 模块 / HarmonyOS 对齐 |
+| 🟢 **P1** 业务深度 | 4-6 周 | 财务复式记账引擎 / 薪资计算引擎 / MRP 引擎 / IQC-IPQC-OQC / WebSocket 通知 |
+| 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 / 自动备份 / OpenTelemetry / RabbitMQ 驱动 |
+| 🟣 **P3** 体验增强 | 2-3 周 | BI 可拖拽看板 / 设备管理 EAM / 多租户隔离 / 文档管理 DMS |
+
 ## 功能清单
 
 | 域 | 功能 |

@@ -10,6 +10,9 @@ class ApiService {
   static final ApiService _instance = ApiService._();
   factory ApiService() => _instance;
 
+  /// Shared singleton instance (alternative to the factory constructor).
+  static ApiService get instance => _instance;
+
   late final Dio dio;
   static const String baseUrl = String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:8787');
 

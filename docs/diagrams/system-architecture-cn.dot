@@ -89,6 +89,17 @@ digraph SystemArchitectureCN {
         e3 [label="Prometheus\n监控指标端点\nGET /metrics"];
     }
 
+    subgraph cluster_planned {
+        label="规划中 (P0/P1/P2/P3)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded,dashed"; fillcolor="#fafafa"; color="#9e9e9e"; penwidth=2;
+        node [shape="box", fillcolor="#e0e0e0", color="#bdbdbd", fontsize=9, style="filled,dashed"];
+        p0 [label="P0: Flutter Web\n全模块管理面板\n通用组件库"];
+        p1a [label="P1: 业务引擎\n复式记账/薪资/MRP\n质量/通知/WebSocket"];
+        p2 [label="P2: 可观测性\nOpenTelemetry\nRabbitMQ 队列"];
+        p3 [label="P3: BI看板\n设备管理/多租户\n文档管理"];
+    }
+
     a1 -> b1 [color="#1565c0", penwidth=1.5];
     a2 -> b1 [color="#1565c0", penwidth=1.5];
     a3 -> b1 [color="#1565c0", penwidth=1.5];

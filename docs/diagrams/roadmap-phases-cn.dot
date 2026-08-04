@@ -1,0 +1,72 @@
+digraph RoadmapPhasesCN {
+    rankdir=LR;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.4;
+    ranksep=0.8;
+    compound=true;
+
+    node [fontname="Arial", fontsize=10, style="filled,rounded", penwidth=1.5];
+
+    subgraph cluster_p0 {
+        label="P0 前端生态 (3-4周)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        node [fillcolor="#bbdefb", color="#1976d2", fontsize=9];
+        p0a [label="Flutter 架构重构\nAdminLayout + GetX"];
+        p0b [label="通用组件库\nDataTable/Form/Confirm"];
+        p0c [label="14模块 40+页面\n全模块管理面板"];
+        p0d [label="HarmonyOS 对齐\n补全剩余页面"];
+        p0a -> p0b -> p0c; p0b -> p0d;
+    }
+
+    subgraph cluster_p1 {
+        label="P1 业务深度 (4-6周)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        node [fillcolor="#c8e6c9", color="#388e3c", fontsize=9];
+        p1a [label="财务复式记账引擎\n借贷平衡/期末结转\n多币种合并报表"];
+        p1b [label="薪资计算引擎\n社保/公积金/个税\n银行代发文件"];
+        p1c [label="MRP 引擎\nBOM 逐层展开\n净需求+建议订单"];
+        p1d [label="质量管理 QMS\nIQC 来料/IPQC 过程\nOQC 出货检验"];
+        p1e [label="实时通知系统\nWebSocket 推送\n多渠道(邮件/企微/钉钉)"];
+    }
+
+    subgraph cluster_p2 {
+        label="P2 运维可靠性 (1-2周)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#f57f17"; penwidth=2;
+        node [fillcolor="#ffecb3", color="#ffa000", fontsize=9];
+        p2a [label="数据库迁移回滚\nrollback.sh\n迁移文件逆序执行"];
+        p2b [label="自动备份增强\ncron 定时备份\n完整性校验"];
+        p2c [label="可观测性\nOpenTelemetry\nX-Trace-Id + 业务指标"];
+        p2d [label="消息队列升级\nRedis to RabbitMQ\n可选驱动切换"];
+    }
+
+    subgraph cluster_p3 {
+        label="P3 体验增强 (2-3周)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        node [fillcolor="#e1bee7", color="#7b1fa2", fontsize=9];
+        p3a [label="BI 数据看板\n可拖拽仪表盘\n柱状/折线/饼图组件"];
+        p3b [label="设备管理 EAM\n设备台账/保养计划\n维修工单/备件管理"];
+        p3c [label="多租户隔离\n共享数据库+tenant_id\n中间件全局隔离"];
+        p3d [label="文档管理 DMS\n受控文档/版本管理\n审批发布"];
+    }
+
+    subgraph cluster_current {
+        label="当前基线 (2026-08-04)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f5f5f5"; color="#616161"; penwidth=2;
+        node [fillcolor="#e0e0e0", color="#757575", fontsize=9, shape="box"];
+        cur [label="后端 14模块 80+控制器 120+模型\n安全 18层纵深防御 95分\nFlutter 12页 HarmonyOS 9页\nDocker Compose 5服务 + CI/CD\n综合评分: 65/100"];
+    }
+
+    cur -> p0a [color="#1565c0", penwidth=2];
+    p0c -> p1a [color="#2e7d32", penwidth=2];
+    p1e -> p2a [color="#f57f17", penwidth=2];
+    p2d -> p3a [color="#6a1b9a", penwidth=2];
+
+    legend [label="串行瀑布: P0 to P1 to P2 to P3\n每阶段有独立性子任务可并行\n总工期约13周", shape="note", fillcolor="#fafafa", color="#9e9e9e", fontsize=10];
+}

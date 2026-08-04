@@ -218,4 +218,16 @@ digraph FunctionalModulesCN {
     root -> cr1; root -> wf1; root -> nf1; root -> pm1; root -> hr1;
     root -> mg1; root -> rp1;
     root -> om1; root -> wm1; root -> tm1;
+
+    subgraph cluster_legend {
+        label="模块状态图例 (2026-08-04)";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae"; penwidth=1;
+        node [shape="box", fontsize=9, style="filled,rounded"];
+        lg1 [label="已完成\n13模块", fillcolor="#c8e6c9", color="#388e3c"];
+        lg2 [label="骨架\n7模块", fillcolor="#ffecb3", color="#ffa000"];
+        lg3 [label="缺失\n7模块", fillcolor="#ffcdd2", color="#d32f2f"];
+        lg4 [label="P1 计划\n财务引擎/薪资/MRP/质量/通知", fillcolor="#a5d6a7", color="#2e7d32"];
+        lg5 [label="P3 计划\nBI看板/EAM/多租户/DMS", fillcolor="#ce93d8", color="#6a1b9a"];
+    }
 }

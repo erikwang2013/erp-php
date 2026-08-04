@@ -1,0 +1,72 @@
+digraph RoadmapPhases {
+    rankdir=LR;
+    fontname="Arial";
+    fontsize=14;
+    bgcolor="transparent";
+    nodesep=0.4;
+    ranksep=0.8;
+    compound=true;
+
+    node [fontname="Arial", fontsize=10, style="filled,rounded", penwidth=1.5];
+
+    subgraph cluster_p0 {
+        label="P0 Frontend Ecosystem (3-4 wks)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e3f2fd"; color="#1565c0"; penwidth=2;
+        node [fillcolor="#bbdefb", color="#1976d2", fontsize=9];
+        p0a [label="Flutter Arch Refactor\nAdminLayout + GetX"];
+        p0b [label="Shared Components\nDataTable/Form/Confirm"];
+        p0c [label="14 Modules 40+ Pages\nFull Admin Panel"];
+        p0d [label="HarmonyOS Alignment\nComplete Remaining Pages"];
+        p0a -> p0b -> p0c; p0b -> p0d;
+    }
+
+    subgraph cluster_p1 {
+        label="P1 Business Depth (4-6 wks)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e8f5e9"; color="#2e7d32"; penwidth=2;
+        node [fillcolor="#c8e6c9", color="#388e3c", fontsize=9];
+        p1a [label="Double-Entry Engine\nDr/Cr Balance/Period Close\nMulti-Currency Consolidation"];
+        p1b [label="Payroll Engine\nSocial Insurance/Housing Fund\nProgressive Tax/Bank Export"];
+        p1c [label="MRP Engine\nBOM Explosion\nNet Req + Order Suggestions"];
+        p1d [label="Quality Management\nIQC/IPQC/OQC\nNonconformity Handling"];
+        p1e [label="Real-time Notifications\nWebSocket Push\nMulti-channel (Email/WeCom/DingTalk)"];
+    }
+
+    subgraph cluster_p2 {
+        label="P2 Operational Reliability (1-2 wks)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#f57f17"; penwidth=2;
+        node [fillcolor="#ffecb3", color="#ffa000", fontsize=9];
+        p2a [label="DB Migration Rollback\nrollback.sh\nReverse Execution"];
+        p2b [label="Auto-Backup Enhancement\nCron Scheduled Backup\nIntegrity Validation"];
+        p2c [label="Observability\nOpenTelemetry\nX-Trace-Id + Biz Metrics"];
+        p2d [label="Message Queue Upgrade\nRedis to RabbitMQ\nPluggable Driver"];
+    }
+
+    subgraph cluster_p3 {
+        label="P3 Experience Enhancement (2-3 wks)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        node [fillcolor="#e1bee7", color="#7b1fa2", fontsize=9];
+        p3a [label="BI Dashboards\nDrag-and-drop Layout\nBar/Line/Pie Widgets"];
+        p3b [label="EAM Equipment Mgmt\nEquipment Ledger/Maintenance\nRepair Orders/Spare Parts"];
+        p3c [label="Multi-Tenancy\nShared DB + tenant_id\nTenantScope Middleware"];
+        p3d [label="Document Management\nControlled Docs/Versioning\nApproval + Publishing"];
+    }
+
+    subgraph cluster_current {
+        label="Current Baseline (2026-08-04)";
+        fontsize=14; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f5f5f5"; color="#616161"; penwidth=2;
+        node [fillcolor="#e0e0e0", color="#757575", fontsize=9, shape="box"];
+        cur [label="Backend 14 Modules 80+ Controllers 120+ Models\nSecurity 18 Layer Defense-in-Depth 95/100\nFlutter 12 Pages HarmonyOS 9 Pages\nDocker Compose 5 Services + CI/CD\nOverall Score: 65/100"];
+    }
+
+    cur -> p0a [color="#1565c0", penwidth=2];
+    p0c -> p1a [color="#2e7d32", penwidth=2];
+    p1e -> p2a [color="#f57f17", penwidth=2];
+    p2d -> p3a [color="#6a1b9a", penwidth=2];
+
+    legend [label="Serial Waterfall: P0 to P1 to P2 to P3\nIndependent subtasks can run in parallel within phases\nTotal ~13 weeks", shape="note", fillcolor="#fafafa", color="#9e9e9e", fontsize=10];
+}
