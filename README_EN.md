@@ -48,6 +48,11 @@ Cross-module data flow:
 - Approval workflow → Business document submission → Multi-node routing → Approval callback to business modules
 - Notification → Approval/Alert/System event triggers → Real-time push → User mark-as-read
 - MRP → Based on sales orders + BOM → Calculate material requirements → Generate purchase/production recommendations
+- OMS → Multi-channel order import → Inventory reservation (ATP) → Create fulfillment → Dispatch to WMS
+- WMS → Wave aggregation → Pick tasks → Pick confirmation → Pack → Trigger TMS shipment creation
+- TMS → Freight rate shop → Create shipment → Confirm ship (stockOut+AR) → Tracking → Delivery
+- WMS Inbound → ASN → Receiving → QA → Putaway confirm (stockIn+AP) → Inventory update
+- RMA → Return request → Approve → Return shipment → Receive + stockIn → Refund
 
 ## Copyright
 
@@ -105,15 +110,21 @@ open-erp/
 │   │   ├── crm/                # Opportunity/follow/funnel/contact/pool/contract/quotation/campaign/ticket/analytics (10)
 │   │   ├── workflow/           # Workflow definition/approval submit/approve/reject/withdraw (2)
 │   │   ├── notification/       # Notification list/read/unread count (1)
+    │   ├── oms/                # Order orchestration / Inventory allocation / RMA lifecycle
+    │   ├── wms/                # Inbound (ASN→receiving→putaway) / Outbound (wave→pick→pack)
+    │   └── tms/                # Shipment / Freight calculator / Tracking
 │   │   ├── project/            # Project/task/timesheet (3)
 │   │   ├── hr/                 # Department/employee/position/attendance/leave/salary (5)
 │   │   ├── manufacturing/      # BOM/production order/routing/workstation/MRP (5)
+    │   ├── oms/                # OMS: order/fufillment/RMA/channel (4 controllers)
+    │   ├── wms/                # WMS: zone/location/ASN/receiving/putaway/wave/pick/pack (8 controllers)
+    │   └── tms/                # TMS: carrier/service/rate/shipment/tracking/invoice (6 controllers)
 │   │   └── report/             # Report template/dataset/execute/schedule (2)
 │   ├── service/                # Business logic layer
 │   │   ├── inventory/          # Stock in/out + moving-weighted-average cost
 │   │   ├── finance/            # AR/AP auto-generation + settlement
 │   │   └── notification/       # Notification dispatch service
-│   ├── model/                  # 121 Eloquent models (shared across modules)
+│   ├── model/                  # 148 Eloquent models (shared across modules)
 │   ├── middleware/             # 9 middleware
 │   ├── common/                 # Hashids/Snowflake/Encryption services
 │   └── queue/                  # Queue tasks
@@ -123,7 +134,7 @@ open-erp/
 ├── config/                     # Configuration files (commented in Chinese)
 │   ├── plugin/hg/apidoc/        # API doc configuration
 ├── database/
-│   ├── install.sql              # Complete install SQL (122 tables + seed data)
+│   ├── install.sql              # Complete install SQL (149 tables + seed data)
 │   ├── migrations/              # SQL migration files (18 files, merged into install.sql)
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
@@ -220,7 +231,7 @@ Start the server and visit `http://localhost:8787/install`. Follow the 4-step wi
 mysql -u root -p database_name < database/install.sql
 ```
 
-`install.sql` is a merged file of 18 migrations, containing all 122 table structures and seed data.
+`install.sql` is a merged file of 22 migrations, containing all 122 table structures and seed data.
 
 **Option 3: Docker Environment**
 

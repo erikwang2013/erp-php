@@ -54,14 +54,10 @@ class CarrierController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $data = $request->all();
-        unset($data['id']);
-
         $item = new TmsCarrier();
         $item->id = $this->generateId();
-        foreach ($data as $k => $v) {
-            if ($v !== null) $item->$k = $v;
-        }
+        $this->fillModelFromRequest($item, $request);
+
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('created'));
@@ -96,12 +92,8 @@ class CarrierController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
+        $this->fillModelFromRequest($item, $request);
 
-        $data = $request->all();
-        unset($data['id']);
-        foreach ($data as $k => $v) {
-            if ($v !== null) $item->$k = $v;
-        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('updated'));

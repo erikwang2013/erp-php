@@ -886,3 +886,34 @@ sequenceDiagram
 | 人力资源 | controller/hr/ (5个) | - | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
 | 生产制造 | controller/manufacturing/ (5个) | - | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
 | 自定义报表 | controller/report/ (2个) | - | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
+
+---
+
+## OMS/WMS/TMS 扩展模块 (2026-08)
+
+### OMS (Order Management System) — 8 tables
+- **订单扩展** (`erik_oms_order`)：多渠道聚合/履约状态/支付状态/优先级
+- **订单地址** (`erik_oms_order_address`)：收货/账单地址(多国格式)
+- **履约记录** (`erik_oms_fulfillment`+`_item`)：分配/已拣/已打包/已发数量追踪
+- **RMA** (`erik_oms_rma`+`_item`)：退换货全生命周期
+- **库存预占** (`erik_oms_inventory_reservation`)：ATP = physical - reserved
+- **渠道** (`erik_channel`)：direct/marketplace/edi/pos
+
+### WMS (Warehouse Management System) — 12 tables
+- **库区库位** (`erik_wms_zone`, `erik_wms_location`)：zone→aisle→rack→level→bin
+- **入库** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
+- **出库** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+
+### TMS (Transport Management System) — 7 tables
+- **承运商** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
+- **运单** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
+- **发票** (`erik_tms_freight_invoice`)
+
+### Data Flow
+```
+OMS: Channel Order → Inventory Reservation (ATP) → Create Fulfillment → WMS
+WMS: Wave → Pick → Pack → TMS Shipment
+TMS: Rate Shop → Ship → Confirm (stockOut + AR) → Tracking → Delivery
+WMS Inbound: ASN → Receive → Putaway (stockIn + AP)
+RMA: Request → Approve → Return → Receive (stockIn) → Refund
+```

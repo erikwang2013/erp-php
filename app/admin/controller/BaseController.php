@@ -12,6 +12,7 @@ use app\common\HashidsService;
 use app\common\I18n;
 use app\common\SnowflakeService;
 use app\model\AdminUser;
+use support\Model;
 use support\Request;
 use support\Response;
 
@@ -109,5 +110,13 @@ class BaseController
         }
 
         return null; // 验证通过
+    }
+
+    /**
+     * 安全填充模型 — 仅允许 $fillable 字段，防止 mass assignment
+     */
+    protected function fillModelFromRequest(Model $model, Request $request): void
+    {
+        $model->fill($request->only($model->getFillable()));
     }
 }

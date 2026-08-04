@@ -8,7 +8,7 @@ digraph FunctionalModulesCN {
     compound=true;
     splines=polyline;
 
-    root [label="开放ERP系统\n功能模块总览\n17 个领域 / 122 张表 / 71 个控制器",
+    root [label="开放ERP系统\n功能模块总览\n20 个领域 / 149 张表 / 89 个控制器",
           shape="box", style="filled,rounded", fillcolor="#1a237e", color="#0d47a1",
           fontcolor="white", fontsize=14, fontname="Arial Bold", penwidth=2];
 
@@ -188,8 +188,34 @@ digraph FunctionalModulesCN {
         rp5 [label="定时调度\nCron 分发", fillcolor="#f8bbd0", color="#c2185b"];
     }
 
+    subgraph cluster_oms { label="订单管理(OMS)"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f7fa"; color="#00838f"; penwidth=2;
+        om1 [label="多渠道订单\n聚合与导入", fillcolor="#b2ebf2", color="#0097a7"];
+        om2 [label="履约编排\n分配→拣货→发货", fillcolor="#b2ebf2", color="#0097a7"];
+        om3 [label="库存预占\nATP+悲观锁", fillcolor="#b2ebf2", color="#0097a7"];
+        om4 [label="RMA退换货\n审批→退回→退款", fillcolor="#b2ebf2", color="#0097a7"];
+        om5 [label="渠道管理\n类型+配置", fillcolor="#b2ebf2", color="#0097a7"];
+    }
+
+    subgraph cluster_wms_mod { label="仓储管理(WMS)"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        wm1 [label="库区库位\n层级+条码+容积", fillcolor="#e1bee7", color="#7b1fa2"];
+        wm2 [label="入库\nASN→收货→上架", fillcolor="#e1bee7", color="#7b1fa2"];
+        wm3 [label="出库\n波次→拣货→打包", fillcolor="#e1bee7", color="#7b1fa2"];
+        wm4 [label="波次管理\n订单聚合+优化", fillcolor="#e1bee7", color="#7b1fa2"];
+    }
+
+    subgraph cluster_tms_mod { label="运输管理(TMS)"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#ff8f00"; penwidth=2;
+        tm1 [label="承运商管理\n服务+API抽象", fillcolor="#ffecb3", color="#ffa000"];
+        tm2 [label="运费比价\n费率卡+多币种", fillcolor="#ffecb3", color="#ffa000"];
+        tm3 [label="运单+面单\n创建+追踪号", fillcolor="#ffecb3", color="#ffa000"];
+        tm4 [label="物流轨迹\nwebhook同步", fillcolor="#ffecb3", color="#ffa000"];
+    }
+
     root -> a1; root -> d1; root -> ad1; root -> se1; root -> op1;
     root -> pd1; root -> pu1; root -> sl1; root -> iv1; root -> fn1;
     root -> cr1; root -> wf1; root -> nf1; root -> pm1; root -> hr1;
     root -> mg1; root -> rp1;
+    root -> om1; root -> wm1; root -> tm1;
 }

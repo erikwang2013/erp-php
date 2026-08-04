@@ -129,7 +129,7 @@ open-erp/
 │   ├── translation.php          # 语言配置
 │   └── plugin/hg/apidoc/        # API 文档配置（管理端25模块+客户端3模块）
 ├── database/
-│   ├── install.sql              # 完整安装SQL（122张表 + 种子数据）
+│   ├── install.sql              # 完整安装SQL（149张表 + 种子数据）
 │   ├── migrations/             # SQL 迁移文件 (18 个)
 │   │   ├── 2026_05_16_000000_init_tables.sql
 │   │   └── ... (共 18 个迁移文件，已合并入 install.sql)

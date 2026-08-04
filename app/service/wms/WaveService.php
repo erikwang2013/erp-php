@@ -22,7 +22,7 @@ class WaveService
         return DB::transaction(function () use ($warehouseId, $omsOrderIds, $options) {
             $wave = new WmsWave();
             $wave->id = SnowflakeService::generate();
-            $wave->code = $options['code'] ?? ('WAV' . date('YmdHis') . rand(100, 999));
+            $wave->code = $options['code'] ?? ('WAV' . $this->generateId());
             $wave->warehouse_id = $warehouseId;
             $wave->type = $options['type'] ?? 1;
             $wave->status = 0;
@@ -52,7 +52,7 @@ class WaveService
 
             $pickTask = new WmsPickTask();
             $pickTask->id = SnowflakeService::generate();
-            $pickTask->code = 'PICK' . date('YmdHis') . rand(100, 999);
+            $pickTask->code = 'PICK' . $this->generateId();
             $pickTask->warehouse_id = $wave->warehouse_id;
             $pickTask->wave_id = $waveId;
             $pickTask->type = 4;

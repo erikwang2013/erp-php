@@ -68,7 +68,7 @@ class WmsOutboundService
     {
         $pack = new WmsPackTask();
         $pack->id = SnowflakeService::generate();
-        $pack->code = 'PACK' . date('YmdHis') . rand(100, 999);
+        $pack->code = 'PACK' . $this->generateId();
         $pack->warehouse_id = $warehouseId;
         $pack->status = 1;
         $pack->package_type = $options['package_type'] ?? '';

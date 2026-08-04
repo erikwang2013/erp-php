@@ -338,7 +338,6 @@ Route::group('/admin', function () {
     Route::post('/tms/shipment/{id}/ship', [app\controller\tms\ShipmentController::class, 'ship']);
     Route::post('/tms/shipment/{id}/get-label', [app\controller\tms\ShipmentController::class, 'getLabel']);
     Route::resource('/tms/tracking', app\controller\tms\TrackingController::class);
-    Route::post('/tms/tracking/callback', [app\controller\tms\TrackingController::class, 'callback']);
     Route::resource('/tms/freight-invoice', app\controller\tms\FreightInvoiceController::class);
     Route::post('/tms/freight-invoice/{id}/confirm', [app\controller\tms\FreightInvoiceController::class, 'confirm']);
     Route::post('/tms/freight-invoice/{id}/pay', [app\controller\tms\FreightInvoiceController::class, 'pay']);
@@ -367,6 +366,10 @@ Route::group('/api', function () {
 })->middleware([
     app\middleware\ApiVersion::class,
 ]);
+
+// TMS 物流轨迹回调（承运商 webhook，无需 JWT，HMAC 签名验证）
+Route::post('/api/tms/tracking/callback', [app\controller\tms\TrackingController::class, 'callbackWebhook'])
+    ->middleware([app\middleware\TrackingSignature::class]);
 
 // 关闭默认路由
 Route::disableDefaultRoute();

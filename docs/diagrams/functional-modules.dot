@@ -9,7 +9,7 @@ digraph FunctionalModules {
     splines=polyline;
 
     // Root node
-    root [label="Open ERP System\nFunctional Modules\n17 Domains / 122 Tables / 71 Controllers",
+    root [label="Open ERP System\nFunctional Modules\n20 Domains / 149 Tables / 89 Controllers",
           shape="box", style="filled,rounded", fillcolor="#1a237e", color="#0d47a1",
           fontcolor="white", fontsize=14, fontname="Arial Bold", penwidth=2];
 
@@ -190,8 +190,32 @@ digraph FunctionalModules {
     }
 
     // Connect root to all domains
+
+    subgraph cluster_oms { label="OMS"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e0f7fa"; color="#00838f"; penwidth=2;
+        om1 [label="Multi-channel\nOrder Import", fillcolor="#b2ebf2", color="#0097a7"];
+        om2 [label="Fulfillment\nOrchestration", fillcolor="#b2ebf2", color="#0097a7"];
+        om3 [label="Inventory\nReservation+ATP", fillcolor="#b2ebf2", color="#0097a7"];
+        om4 [label="RMA Returns\nApprove-Refund", fillcolor="#b2ebf2", color="#0097a7"];
+    }
+
+    subgraph cluster_wms_mod { label="WMS"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f3e5f5"; color="#6a1b9a"; penwidth=2;
+        wm1 [label="Zone+Location\nHierarchy+Barcode", fillcolor="#e1bee7", color="#7b1fa2"];
+        wm2 [label="Inbound\nASN-Receive-Putaway", fillcolor="#e1bee7", color="#7b1fa2"];
+        wm3 [label="Outbound\nWave-Pick-Pack", fillcolor="#e1bee7", color="#7b1fa2"];
+    }
+
+    subgraph cluster_tms_mod { label="TMS"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fff8e1"; color="#ff8f00"; penwidth=2;
+        tm1 [label="Carrier Mgmt\nService+API", fillcolor="#ffecb3", color="#ffa000"];
+        tm2 [label="Freight Rate\nShop+Currency", fillcolor="#ffecb3", color="#ffa000"];
+        tm3 [label="Shipment+Label\nCreate+Tracking", fillcolor="#ffecb3", color="#ffa000"];
+    }
+
     root -> a1; root -> d1; root -> ad1; root -> se1; root -> op1;
     root -> pd1; root -> pu1; root -> sl1; root -> iv1; root -> fn1;
     root -> cr1; root -> wf1; root -> nf1; root -> pm1; root -> hr1;
     root -> mg1; root -> rp1;
+    root -> om1; root -> wm1; root -> tm1;
 }

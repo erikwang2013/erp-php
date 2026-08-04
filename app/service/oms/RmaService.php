@@ -29,7 +29,7 @@ class RmaService
 
         $rma = new OmsRma();
         $rma->id = SnowflakeService::generate();
-        $rma->code = $options['code'] ?? ('RMA' . date('YmdHis') . rand(100, 999));
+        $rma->code = $options['code'] ?? ('RMA' . $this->generateId());
         $rma->order_id = $orderId;
         $rma->customer_id = $customerId;
         $rma->type = $type;

@@ -24,7 +24,7 @@ class TmsShipmentService
 
             $shipment = new TmsShipment();
             $shipment->id = SnowflakeService::generate();
-            $shipment->code = $options['code'] ?? ('SHP' . date('YmdHis') . rand(100, 999));
+            $shipment->code = $options['code'] ?? ('SHP' . $this->generateId());
             $shipment->carrier_service_id = $carrierServiceId;
             $shipment->tracking_no = $options['tracking_no'] ?? '';
             $shipment->status = 0;

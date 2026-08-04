@@ -1984,7 +1984,53 @@ docker-compose up -d
 | GET | /api/product | 商品列表（不含进价） |
 | GET | /api/product/{hashid} | 商品详情（含零售/批发价，不含进价） |
 
-### 16.15 跨模块联动说明
+### 16.15 OMS 订单管理
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/oms/order | OMS订单列表 |
+| POST | /admin/oms/order | 创建OMS订单 |
+| 🔗 POST | /admin/oms/order/{id}/allocate | 库存分配(预占) |
+| 🔗 POST | /admin/oms/order/{id}/fulfill | 创建履约 |
+| POST | /admin/oms/order/{id}/cancel | 取消订单(释放预留) |
+| POST | /admin/oms/rma/{id}/approve | 审批RMA |
+| POST | /admin/oms/rma/{id}/refund | RMA退款 |
+
+### 16.16 WMS 仓储管理
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/wms/zone | 库区列表(CURD) |
+| GET | /admin/wms/location | WMS库位列表(CRUD) |
+| GET | /admin/wms/asn | ASN列表(CRUD) |
+| POST | /admin/wms/receiving/{id}/complete | 完成收货→自动生成上架任务 |
+| POST | /admin/wms/putaway/{id}/complete | 确认上架→触发stockIn |
+| POST | /admin/wms/wave/{id}/release | 释放波次→生成拣货任务 |
+| POST | /admin/wms/pick/{id}/start | 开始拣货 |
+| POST | /admin/wms/pick/{id}/confirm | 拣货确认 |
+| POST | /admin/wms/pack/{id}/complete | 打包完成 |
+
+### 16.17 TMS 运输管理
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/tms/carrier | 承运商列表(CRUD) |
+| GET | /admin/tms/service | 承运商服务(CRUD) |
+| GET | /admin/tms/freight-rate | 运费费率(CRUD) |
+| GET | /admin/tms/shipment | 运单列表(CRUD) |
+| 🔗 POST | /admin/tms/shipment/{id}/ship | 确认发货(stockOut+AR) |
+| POST | /admin/tms/tracking/callback | 承运商轨迹webhook |
+| POST | /admin/tms/freight-invoice/{id}/pay | 运费发票付款(生成AP) |
+
+### 16.18 仪表盘扩展
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /admin/dashboard/oms | OMS KPI(待处理/拣货中/今日发货/RMA) |
+| GET | /admin/dashboard/wms | WMS KPI(待收货/待上架/待拣货/待打包) |
+| GET | /admin/dashboard/tms | TMS KPI(待发货/运输中/签收/异常) |
+
+### 16.19 跨模块联动说明
 
 以下端点触发跨模块自动联动，以 🔗 标记：
 

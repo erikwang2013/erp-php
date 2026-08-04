@@ -54,16 +54,11 @@ class RmaController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $data = $request->all();
-        unset($data['id']);
-        if (empty($data['code'])) {
-            $data['code'] = 'oms/rma' . date('YmdHis') . rand(100, 999);
-        }
-
         $item = new OmsRma();
         $item->id = $this->generateId();
-        foreach ($data as $k => $v) {
-            if ($v !== null) $item->$k = $v;
+        $this->fillModelFromRequest($item, $request);
+        if (empty($item->code)) {
+            $item->code = 'oms/rma' . $this->generateId();
         }
         $item->save();
 
@@ -100,11 +95,7 @@ class RmaController extends BaseController
             return $this->fail($this->trans('not_found'), 404);
         }
 
-        $data = $request->all();
-        unset($data['id']);
-        foreach ($data as $k => $v) {
-            if ($v !== null) $item->$k = $v;
-        }
+        $this->fillModelFromRequest($item, $request);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('updated'));
