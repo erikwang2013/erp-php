@@ -46,7 +46,7 @@ class SecurityFilter implements MiddlewareInterface
             '/(?:[\"\'])\s*(?:--|#)\s*[\"\']?\s*(?:OR|AND|SELECT|INSERT|UPDATE|DELETE|DROP)/i',
         ],
         '路径遍历' => [
-            '/\.\.[\/\\\\]{2,}/',
+            '/\.\.[\/\\\\]/',
             '/\/(?:etc\/(?:passwd|shadow|hosts)|proc\/self|boot\.ini|win\.ini|WEB-INF|\.env|\.git\/)/i',
             '/%00/',
         ],

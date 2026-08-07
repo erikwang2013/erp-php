@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\dms;
 
 use app\admin\controller\BaseController;
+use app\model\DmsCategory;
 use app\model\DmsDocument;
 use app\model\DmsDocumentVersion;
 use support\Request;
@@ -152,7 +153,9 @@ class DocumentController extends BaseController
      */
     public function categories(Request $request): Response
     {
-        return $this->success(['list' => self::CATEGORIES]);
+        $categories = DmsCategory::where('status', 1)->orderBy('sort')->pluck('name')->all();
+
+        return $this->success(['list' => $categories ?: self::CATEGORIES]);
     }
 
     /**

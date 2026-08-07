@@ -53,7 +53,7 @@ digraph SystemArchitecture {
             fontsize=12; fontname="Arial Bold";
             style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
             node [fillcolor="#ffffff", color="#78909c", fontsize=10];
-            c1 [label="Admin Controllers\n(14 files)"]; c2 [label="Business Controllers\n(71 modules)"]; c3 [label="Service Layer\n(7 services)"]; c4 [label="API Controllers v1\n(Captcha/Auth/Product)"];
+            c1 [label="Admin Controllers\n(14 files)"]; c2 [label="Business Controllers\n(104)"]; c3 [label="Service Layer\n(24 services)"]; c4 [label="API Controllers v1\n(Captcha/Auth/Product)"];
         }
 
         subgraph cluster_common {
@@ -74,7 +74,7 @@ digraph SystemArchitecture {
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
         node [shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f", fontsize=10];
-        d1 [label="MySQL 8.0\nPrimary Storage\n122 tables\nerik_ prefix"];
+        d1 [label="MySQL 8.0\nPrimary Storage\n163 tables\nerik_ prefix"];
         d2 [label="Redis 7\nCache/Session\nRate Limit\nBlacklist"];
         d3 [label="Elasticsearch 8.x\nFull-text Search\nerik_ index prefix"];
     }

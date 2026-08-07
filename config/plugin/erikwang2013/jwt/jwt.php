@@ -10,7 +10,7 @@
 
 return [
     'enable' => true,
-    'secret_key' => getenv('JWT_SECRET_KEY') ?: 'open-admin-jwt-secret-change-in-production',
+    'secret_key' => env_required('JWT_SECRET_KEY'),
     'algorithm' => getenv('JWT_ALGORITHM') ?: 'HS256',
     'issuer' => getenv('JWT_ISSUER') ?: 'open-admin',
     'audience' => getenv('JWT_AUDIENCE') ?: 'open-admin',

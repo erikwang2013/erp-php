@@ -13,19 +13,11 @@ use app\model\OmsOrder;
 use app\model\WmsPackTask;
 use app\model\WmsPickItem;
 use app\model\WmsPickTask;
-use app\service\inventory\InventoryService;
 use app\service\oms\AllocationService;
 use Illuminate\Database\Capsule\Manager as DB;
 
 class WmsOutboundService
 {
-    private InventoryService $inventory;
-
-    public function __construct()
-    {
-        $this->inventory = new InventoryService();
-    }
-
     /** 开始拣货 */
     public function startPick(int $pickTaskId, int $assigneeId = 0): void
     {
@@ -76,7 +68,7 @@ class WmsOutboundService
     {
         $pack = new WmsPackTask();
         $pack->id = SnowflakeService::generate();
-        $pack->code = 'PACK' . $this->generateId();
+        $pack->code = 'PACK' . SnowflakeService::generate();
         $pack->warehouse_id = $warehouseId;
         $pack->status = 1;
         $pack->package_type = $options['package_type'] ?? '';
@@ -112,16 +104,29 @@ class WmsOutboundService
     public function confirmShip(int $fulfillmentId, int $omsOrderId): void
     {
         DB::transaction(function () use ($fulfillmentId, $omsOrderId) {
+            $order = OmsOrder::where('id', $omsOrderId)->lockForUpdate()->first();
+            if (!$order) {
+                throw new \RuntimeException('OMS订单不存在');
+            }
+            if (in_array($order->fulfillment_status, [4, 5], true)) {
+                throw new \RuntimeException('订单已发货或已签收，禁止重复发货');
+            }
+
+            $fulfillment = OmsFulfillment::where('id', $fulfillmentId)->lockForUpdate()->first();
+            if (!$fulfillment) {
+                throw new \RuntimeException('履约单不存在');
+            }
+            if (in_array($fulfillment->status, [5], true)) {
+                throw new \RuntimeException('该履约单已发货');
+            }
+
             $allocSvc = new AllocationService();
             $allocSvc->consume($omsOrderId);
 
-            $fulfillment = OmsFulfillment::find($fulfillmentId);
-            if ($fulfillment) {
-                $fulfillment->status = 5;
-                $fulfillment->save();
-            }
-
-            OmsOrder::where('id', $omsOrderId)->update(['fulfillment_status' => 4]);
+            $fulfillment->status = 5;
+            $fulfillment->save();
+            $order->fulfillment_status = 4;
+            $order->save();
         });
     }
 }

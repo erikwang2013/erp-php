@@ -15,7 +15,7 @@
 return [
     // 数据库加密密钥，生产环境请使用 32 字节随机字符串并通过环境变量注入
     // 注意: 与 API 传输加密密钥 ENCRYPTION_KEY 独立，两者不可共用
-    'key' => getenv('ENCRYPTABLE_KEY') ?: 'open-admin-db-encryption-key-32b',
+    'key' => env_required('ENCRYPTABLE_KEY'),
 
     // 加密算法，默认 aes-128-ecb。也支持 aes-256-cbc, sm4-ecb
     'cipher' => getenv('ENCRYPTABLE_CIPHER') ?: 'aes-128-ecb',

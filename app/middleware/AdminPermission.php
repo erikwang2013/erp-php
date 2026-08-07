@@ -35,11 +35,55 @@ class AdminPermission
 
         $requiredPermission = strtolower($method) . '.' . trim($path, '/');
 
-        if (!in_array($requiredPermission, $permissions)) {
+        if (!$this->hasPermission($permissions, $requiredPermission)) {
             return json(['code' => 403, 'message' => '无权限访问', 'data' => []]);
         }
 
         return $next($request);
+    }
+
+    /**
+     * 权限匹配规则（与种子 slug 兼容）:
+     * 1. 精确匹配 get.admin/product
+     * 2. 动态段回退: put.admin/user/123 命中 put.admin/user（资源级权限）
+     * 3. Route::any 兼容: any.admin/x 命中 get/post/put/delete/patch.admin/x
+     */
+    private function hasPermission(array $permissions, string $required): bool
+    {
+        if (in_array($required, $permissions, true)) {
+            return true;
+        }
+
+        if (str_contains($required, '/')) {
+            $prefix = substr($required, 0, strrpos($required, '/'));
+            while ($prefix !== '') {
+                if (in_array($prefix, $permissions, true)) {
+                    return true;
+                }
+                if (!str_contains($prefix, '/')) {
+                    break;
+                }
+                $prefix = substr($prefix, 0, strrpos($prefix, '/'));
+            }
+        }
+
+        if (str_starts_with($required, 'any.')) {
+            $path = substr($required, 4);
+            foreach (['get', 'post', 'put', 'delete', 'patch'] as $m) {
+                if (in_array("{$m}.{$path}", $permissions, true)) {
+                    return true;
+                }
+                $seg = $path;
+                while (str_contains($seg, '/')) {
+                    $seg = substr($seg, 0, strrpos($seg, '/'));
+                    if (in_array("{$m}.{$seg}", $permissions, true)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     private function getUserPermissions(int $adminId): array

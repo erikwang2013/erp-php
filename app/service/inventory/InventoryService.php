@@ -13,6 +13,7 @@ use app\model\CostRecord;
 use app\model\Inventory;
 use app\model\InventoryBatch;
 use app\model\InventoryFlow;
+use app\model\InventorySerial;
 use app\model\OmsInventoryReservation;
 use Illuminate\Database\Capsule\Manager as DB;
 
@@ -30,7 +31,8 @@ class InventoryService
         float $quantity,
         float $unitCost,
         string $sourceType,
-        int $sourceId
+        int $sourceId,
+        array $serials = []
     ): int {
         if ($quantity <= 0) {
             throw new \InvalidArgumentException('数量必须大于0');
@@ -48,7 +50,8 @@ class InventoryService
             $quantity,
             $unitCost,
             $sourceType,
-            $sourceId
+            $sourceId,
+            $serials
         ) {
             // 1. 创建出入库流水
             $flow = new InventoryFlow();
@@ -98,6 +101,9 @@ class InventoryService
                 );
             }
 
+            // 5. 记录序列号（可选）
+            $this->recordSerialsIn($productId, $skuId, $serials, $flow->id);
+
             return $flow->id;
         });
     }
@@ -113,7 +119,8 @@ class InventoryService
         string $batchCode,
         float $quantity,
         string $sourceType,
-        int $sourceId
+        int $sourceId,
+        array $serials = []
     ): int {
         if ($quantity <= 0) {
             throw new \InvalidArgumentException('数量必须大于0');
@@ -127,7 +134,8 @@ class InventoryService
             $batchCode,
             $quantity,
             $sourceType,
-            $sourceId
+            $sourceId,
+            $serials
         ) {
             // 1. 校验库存（悲观行锁防止并发超卖）
             $inv = Inventory::where([
@@ -166,6 +174,9 @@ class InventoryService
             // 4. 记录出库成本（出库不改变加权均价）
             $this->recordCostRecord($productId, $skuId, $flow->id, 2, $quantity, $currentCost, $currentCost, $currentCost);
 
+            // 5. 序列号出库标记（可选）
+            $this->recordSerialsOut($serials, $flow->id);
+
             return $flow->id;
         });
     }
@@ -181,27 +192,31 @@ class InventoryService
         int $type,
         int $flowId
     ): float {
-        $totalInventory = Inventory::where('product_id', $productId)
+        // 按SKU聚合全部库存行的数量与成本，避免跨仓加权成本串算
+        $rows = Inventory::where('product_id', $productId)
             ->where('sku_id', $skuId)
-            ->sum('quantity');
+            ->get(['quantity', 'cost_price']);
+        $totalQty = 0;
+        $totalValue = 0.0;
+        foreach ($rows as $row) {
+            $qty = (float)$row->quantity;
+            $totalQty += $qty;
+            $totalValue += $qty * (float)($row->cost_price ?? 0);
+        }
 
-        $lastCost = CostRecord::where('product_id', $productId)
-            ->where('sku_id', $skuId)
-            ->where('type', 1)
-            ->orderByDesc('id')
-            ->first();
-
-        $beforeAvg = $lastCost ? $lastCost->after_avg_cost : $unitCost;
-        $beforeTotalQty = $totalInventory - $quantity;
-        $beforeTotalValue = $beforeTotalQty * $beforeAvg;
-        $newValue = $quantity * $unitCost;
-        $afterAvg = $totalInventory > 0
-            ? round(($beforeTotalValue + $newValue) / $totalInventory, 2)
+        $beforeAvg = $totalQty > 0 ? round($totalValue / $totalQty, 2) : $unitCost;
+        $afterAvg = ($totalQty + $quantity) > 0
+            ? round(($totalValue + $quantity * $unitCost) / ($totalQty + $quantity), 2)
             : $unitCost;
+
+        // 同步该SKU所有库存行的成本价，保证出库成本一致
+        Inventory::where('product_id', $productId)
+            ->where('sku_id', $skuId)
+            ->update(['cost_price' => $afterAvg]);
 
         $this->recordCostRecord($productId, $skuId, $flowId, 1, $quantity, $unitCost, $beforeAvg, $afterAvg);
 
-        return round($afterAvg, 2);
+        return $afterAvg;
     }
 
     /**
@@ -339,6 +354,41 @@ class InventoryService
         $reserved = $resQuery->sum('reserved_quantity');
 
         return round($physicalQty - $reserved, 2);
+    }
+
+    private function recordSerialsIn(int $productId, int $skuId, array $serials, int $flowId): void
+    {
+        foreach ($serials as $serialCode) {
+            $serialCode = trim((string)$serialCode);
+            if ($serialCode === '') {
+                continue;
+            }
+            if (InventorySerial::where('serial_code', $serialCode)->exists()) {
+                throw new \RuntimeException("序列号已存在: {$serialCode}");
+            }
+            $serial = new InventorySerial();
+            $serial->id = SnowflakeService::generate();
+            $serial->product_id = $productId;
+            $serial->sku_id = $skuId;
+            $serial->serial_code = $serialCode;
+            $serial->status = 0;
+            $serial->in_flow_id = $flowId;
+            $serial->save();
+        }
+    }
+
+    private function recordSerialsOut(array $serials, int $flowId): void
+    {
+        foreach ($serials as $serialCode) {
+            $code = trim((string)$serialCode);
+            $serial = InventorySerial::where('serial_code', $code)->first();
+            if (!$serial || $serial->status !== 0) {
+                throw new \RuntimeException("序列号不在库，禁止出库: {$code}");
+            }
+            $serial->status = 1;
+            $serial->out_flow_id = $flowId;
+            $serial->save();
+        }
     }
 
     private function recordCostRecord(

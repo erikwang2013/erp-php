@@ -71,8 +71,8 @@
 </g>
 <g id="clust13" class="cluster">
 <title>cluster_L12</title>
-<path fill="#fafafa" stroke="#bdbdbd" stroke-width="2" stroke-dasharray="5,2" d="M520,-8C520,-8 896,-8 896,-8 902,-8 908,-14 908,-20 908,-20 908,-86.74 908,-86.74 908,-92.74 902,-98.74 896,-98.74 896,-98.74 520,-98.74 520,-98.74 514,-98.74 508,-92.74 508,-86.74 508,-86.74 508,-20 508,-20 508,-14 514,-8 520,-8"/>
-<text text-anchor="middle" x="708" y="-85.14" font-family="Arial Bold" font-size="12.00">第 12 层: 可观测性 (P2 规划中)</text>
+<path fill="#f9fbe7" stroke="#827717" stroke-width="2" d="M520,-8C520,-8 896,-8 896,-8 902,-8 908,-14 908,-20 908,-20 908,-86.74 908,-86.74 908,-92.74 902,-98.74 896,-98.74 896,-98.74 520,-98.74 520,-98.74 514,-98.74 508,-92.74 508,-86.74 508,-86.74 508,-20 508,-20 508,-14 514,-8 520,-8"/>
+<text text-anchor="middle" x="708" y="-85.14" font-family="Arial Bold" font-size="12.00">第 12 层: 可观测性 (已完成)</text>
 </g>
 <!-- L0a -->
 <g id="node1" class="node">
@@ -488,7 +488,7 @@
 <!-- L12a -->
 <g id="node46" class="node">
 <title>L12a</title>
-<ellipse fill="none" stroke="#9e9e9e" stroke-width="1.5" stroke-dasharray="5,2" cx="837" cy="-42.87" rx="62.87" ry="26.74"/>
+<ellipse fill="#f0f4c3" stroke="#9e9d24" stroke-width="1.5" cx="837" cy="-42.87" rx="62.87" ry="26.74"/>
 <text text-anchor="middle" x="837" y="-50.67" font-family="Arial" font-size="9.00">分布式追踪</text>
 <text text-anchor="middle" x="837" y="-40.67" font-family="Arial" font-size="9.00">OpenTelemetry</text>
 <text text-anchor="middle" x="837" y="-30.67" font-family="Arial" font-size="9.00">X&#45;Trace&#45;Id 全链路</text>
@@ -496,8 +496,8 @@
 <!-- L11a&#45;&gt;L12a -->
 <g id="edge12" class="edge">
 <title>L11a&#45;&gt;L12a</title>
-<path fill="none" stroke="#bdbdbd" stroke-dasharray="5,2" d="M837,-114.69C837,-104.06 837,-91.57 837,-80.07"/>
-<polygon fill="#bdbdbd" stroke="#bdbdbd" points="840.5,-79.87 837,-69.87 833.5,-79.87 840.5,-79.87"/>
+<path fill="none" stroke="#827717" stroke-width="1.5" d="M837,-114.69C837,-104.06 837,-91.57 837,-80.07"/>
+<polygon fill="#827717" stroke="#827717" stroke-width="1.5" points="840.5,-79.87 837,-69.87 833.5,-79.87 840.5,-79.87"/>
 </g>
 <!-- L11b -->
 <g id="node44" class="node">
@@ -518,7 +518,7 @@
 <!-- L12b -->
 <g id="node47" class="node">
 <title>L12b</title>
-<ellipse fill="none" stroke="#9e9e9e" stroke-width="1.5" stroke-dasharray="5,2" cx="708" cy="-42.87" rx="51.74" ry="26.74"/>
+<ellipse fill="#f0f4c3" stroke="#9e9d24" stroke-width="1.5" cx="708" cy="-42.87" rx="51.74" ry="26.74"/>
 <text text-anchor="middle" x="708" y="-50.67" font-family="Arial" font-size="9.00">业务指标</text>
 <text text-anchor="middle" x="708" y="-40.67" font-family="Arial" font-size="9.00">订单量/履约率</text>
 <text text-anchor="middle" x="708" y="-30.67" font-family="Arial" font-size="9.00">库存周转天数</text>
@@ -526,7 +526,7 @@
 <!-- L12c -->
 <g id="node48" class="node">
 <title>L12c</title>
-<ellipse fill="none" stroke="#9e9e9e" stroke-width="1.5" stroke-dasharray="5,2" cx="579" cy="-42.87" rx="62.87" ry="26.74"/>
+<ellipse fill="#f0f4c3" stroke="#9e9d24" stroke-width="1.5" cx="579" cy="-42.87" rx="62.87" ry="26.74"/>
 <text text-anchor="middle" x="579" y="-50.67" font-family="Arial" font-size="9.00">审计增强</text>
 <text text-anchor="middle" x="579" y="-40.67" font-family="Arial" font-size="9.00">业务级审计追踪</text>
 <text text-anchor="middle" x="579" y="-30.67" font-family="Arial" font-size="9.00">敏感操作完整记录</text>

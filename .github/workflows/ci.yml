@@ -18,6 +18,18 @@ jobs:
         image: redis:7-alpine
         ports:
           - 6379:6379
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: open_admin
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     steps:
       - uses: actions/checkout@v4
 
@@ -47,8 +59,11 @@ jobs:
       - name: PHP Syntax Check
         run: find app -name '*.php' -exec php -l {} \; | grep -v 'No syntax errors'
 
+      - name: Create .env from example
+        run: cp .env.example .env
+
       - name: PHPStan Static Analysis
-        run: vendor/bin/phpstan analyse --no-progress
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
 
       - name: PHP CS Fixer (dry-run)
         run: vendor/bin/php-cs-fixer fix --dry-run --diff

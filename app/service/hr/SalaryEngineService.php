@@ -52,7 +52,8 @@ class SalaryEngineService
         $socialInsurance = round($siBase * self::SOCIAL_INSURANCE_PERSONAL_RATE, 2);
         $housingFund = round($hfBase * $this->housingFundRate, 2);
         $taxableIncome = $gross - $socialInsurance - $housingFund - 5000;
-        $tax = $this->calculateTax(max($taxableIncome, 0));
+        // 月度工资按累计预扣法换算: 月度应税 × 12 套用年度税率表，再折算回月度
+        $tax = round($this->calculateTax(max($taxableIncome, 0) * 12) / 12, 2);
         $net = round($gross - $socialInsurance - $housingFund - $tax - $deduction, 2);
 
         return [
@@ -68,25 +69,20 @@ class SalaryEngineService
 
     public function calculateTax(float $annualTaxableIncome): float
     {
+        if ($annualTaxableIncome <= 0) {
+            return 0.0;
+        }
+
+        // 累进分段求和本身已等价于"全额×税率-速算扣除数"，不再重复扣减速算扣除数
         $tax = 0.0;
-        foreach (self::TAX_BRACKETS as [$from, $to, $rate, $qd]) {
-            if ($annualTaxableIncome > $from) {
-                $taxableInBracket = min($annualTaxableIncome, $to) - $from;
-                $tax += $taxableInBracket * $rate;
+        foreach (self::TAX_BRACKETS as [$from, $to, $rate]) {
+            if ($annualTaxableIncome <= $from) {
+                break;
             }
+            $taxableInBracket = min($annualTaxableIncome, $to) - $from;
+            $tax += $taxableInBracket * $rate;
         }
 
-        return round(max($tax - $this->getQuickDeduction($annualTaxableIncome), 0), 2);
-    }
-
-    private function getQuickDeduction(float $income): float
-    {
-        foreach (self::TAX_BRACKETS as [$from, $to, $rate, $qd]) {
-            if ($income <= $to) {
-                return (float)$qd;
-            }
-        }
-
-        return 181920;
+        return round($tax, 2);
     }
 }

@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace app\service\oms;
 
 use app\common\SnowflakeService;
+use app\model\Inventory;
+use app\model\InventoryFlow;
 use app\model\OmsRma;
 use app\model\OmsRmaItem;
 use app\service\inventory\InventoryService;
@@ -31,7 +33,7 @@ class RmaService
 
         $rma = new OmsRma();
         $rma->id = SnowflakeService::generate();
-        $rma->code = $options['code'] ?? ('RMA' . $this->generateId());
+        $rma->code = $options['code'] ?? ('RMA' . SnowflakeService::generate());
         $rma->order_id = $orderId;
         $rma->customer_id = $customerId;
         $rma->type = $type;
@@ -93,7 +95,7 @@ class RmaService
     public function receive(int $rmaId, int $warehouseId, int $locationId): void
     {
         DB::transaction(function () use ($rmaId, $warehouseId, $locationId) {
-            $rma = OmsRma::find($rmaId);
+            $rma = OmsRma::where('id', $rmaId)->lockForUpdate()->first();
             if (!$rma) {
                 throw new \RuntimeException('RMA不存在');
             }
@@ -103,6 +105,8 @@ class RmaService
 
             $items = OmsRmaItem::where('rma_id', $rmaId)->get();
             foreach ($items as $item) {
+                // 入库成本取原出库成本，避免用销售价污染加权平均成本
+                $cost = $this->getReturnCostBasis($item->product_id, $item->sku_id);
                 $this->inventory->stockIn(
                     $item->product_id,
                     $item->sku_id,
@@ -110,7 +114,7 @@ class RmaService
                     $locationId,
                     '',
                     $item->quantity,
-                    $item->price,
+                    $cost,
                     'oms_rma',
                     $rmaId
                 );
@@ -120,6 +124,21 @@ class RmaService
             $rma->received_at = date('Y-m-d H:i:s');
             $rma->save();
         });
+    }
+
+    private function getReturnCostBasis(int $productId, int $skuId): float
+    {
+        $lastOut = InventoryFlow::where('product_id', $productId)
+            ->where('sku_id', $skuId)
+            ->where('direction', 2)
+            ->orderByDesc('id')
+            ->first();
+        if ($lastOut) {
+            return max((float)$lastOut->cost_price, 0.0);
+        }
+        $inv = Inventory::where('product_id', $productId)->where('sku_id', $skuId)->first();
+
+        return $inv ? max((float)$inv->cost_price, 0.0) : 0.0;
     }
 
     /** 退款 */

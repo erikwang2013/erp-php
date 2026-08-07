@@ -21,7 +21,7 @@ return [
     */
 
     // getenv 仅单参数；勿写 getenv('X','default')，第二个参数是 local_only(bool)，会导致 driver=false 进而误匹配 createDriver()
-    'driver' => getenv('OPENSEARCH_SCOUT_DRIVER') ?: 'opensearch',
+    'driver' => getenv('SCOUT_DRIVER') ?: 'elasticsearch',
 
     /*
     |--------------------------------------------------------------------------
@@ -47,7 +47,7 @@ return [
     |
     */
 
-    'queue' => getenv('OPENSEARCH_SCOUT_QUEUE', false),
+    'queue' => getenv('SCOUT_QUEUE', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -262,15 +262,15 @@ return [
     ],
 
     'elasticsearch' => [
-        'hosts' => [
-            'http://127.0.0.1:9200',
-        ],
+        // 主机列表：逗号分隔，与 .env 的 SCOUT_HOSTS 保持一致
+        'hosts' => array_values(array_filter(array_map('trim', explode(',', (string)(getenv('SCOUT_HOSTS') ?: 'http://127.0.0.1:9200'))))),
+        // 认证信息：从环境变量读取；未配置时为匿名访问（本地开发）
         'auth' => [
-            'user' => null,
-            'pass' => null,
-            'api_id' => null,
-            'api_key' => null,
-            'cloud_id' => null,
+            'user' => getenv('ES_USERNAME') ?: null,
+            'pass' => getenv('ES_PASSWORD') ?: null,
+            'api_id' => getenv('ES_API_ID') ?: null,
+            'api_key' => getenv('ES_API_KEY') ?: null,
+            'cloud_id' => getenv('ES_CLOUD_ID') ?: null,
         ],
         // index为设定的index名称 如果你的index名称为goods 则下面的index应写成goods
         //        'index' => [

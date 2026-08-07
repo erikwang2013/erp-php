@@ -53,7 +53,7 @@ digraph SystemArchitectureCN {
             fontsize=12; fontname="Arial Bold";
             style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
             node [fillcolor="#ffffff", color="#78909c", fontsize=10];
-            c1 [label="管理端控制器\n(14 个文件)"]; c2 [label="业务控制器\n(71 个模块)"]; c3 [label="服务层\n(7 个服务)"]; c4 [label="API 控制器 v1\n(验证码/认证/商品)"];
+            c1 [label="管理端控制器\n(14 个文件)"]; c2 [label="业务控制器\n(104 个)"]; c3 [label="服务层\n(24 个服务)"]; c4 [label="API 控制器 v1\n(验证码/认证/商品)"];
         }
 
         subgraph cluster_common {
@@ -74,7 +74,7 @@ digraph SystemArchitectureCN {
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
         node [shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f", fontsize=10];
-        d1 [label="MySQL 8.0\n主数据库\n122 张表\nerik_ 前缀"];
+        d1 [label="MySQL 8.0\n主数据库\n163 张表\nerik_ 前缀"];
         d2 [label="Redis 7\n缓存/会话\n限流/黑名单"];
         d3 [label="Elasticsearch 8.x\n全文检索\nerik_ 索引前缀"];
     }
@@ -87,17 +87,6 @@ digraph SystemArchitectureCN {
         e1 [label="GitHub Actions\nCI/CD 流水线\nPHP 8.2/8.3/8.4"];
         e2 [label="Docker Compose\n5 个服务\nnginx/app/mysql/redis/es"];
         e3 [label="Prometheus\n监控指标端点\nGET /metrics"];
-    }
-
-    subgraph cluster_planned {
-        label="规划中 (P0/P1/P2/P3)";
-        fontsize=14; fontname="Arial Bold";
-        style="filled,rounded,dashed"; fillcolor="#fafafa"; color="#9e9e9e"; penwidth=2;
-        node [shape="box", fillcolor="#e0e0e0", color="#bdbdbd", fontsize=9, style="filled,dashed"];
-        p0 [label="P0: Flutter Web\n全模块管理面板\n通用组件库"];
-        p1a [label="P1: 业务引擎\n复式记账/薪资/MRP\n质量/通知/WebSocket"];
-        p2 [label="P2: 可观测性\nOpenTelemetry\nRabbitMQ 队列"];
-        p3 [label="P3: BI看板\n设备管理/多租户\n文档管理"];
     }
 
     a1 -> b1 [color="#1565c0", penwidth=1.5];

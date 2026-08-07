@@ -37,10 +37,10 @@ digraph RequestLifecycleCN {
     admctrl [label="管理端控制器\n验证输入参数\nHashids 解码 ID\n执行业务规则", fillcolor="#fff8e1", color="#f9a825"];
 
     service [label="服务层\n库存/财务/通知\n业务编排", fillcolor="#f3e5f5", color="#6a1b9a"];
-    model [label="模型层\n(121 个 Eloquent 模型)\n查询 / 修改数据", fillcolor="#f3e5f5", color="#6a1b9a"];
+    model [label="模型层\n(161 个 Eloquent 模型)\n查询 / 修改数据", fillcolor="#f3e5f5", color="#6a1b9a"];
 
     redis [label="Redis 7\n缓存\nTTL 5分钟", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
-    mysql [label="MySQL 8.0\n主数据库\n122 张表", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
+    mysql [label="MySQL 8.0\n主数据库\n163 张表", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
     es [label="Elasticsearch 8.x\n全文检索", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
 
     response [label="JSON 响应\n{code:0 message:'成功' data:{...}}\nHashids 编码 ID\n敏感数据脱敏", shape="box",

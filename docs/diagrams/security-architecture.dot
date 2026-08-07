@@ -155,4 +155,16 @@ digraph SecurityArchitecture {
     L8a -> L9a [color="#90a4ae", penwidth=1.5];
     L9a -> L10a [color="#90a4ae", penwidth=1.5];
     L10a -> L11a [color="#90a4ae", penwidth=1.5];
+
+    // Layer 12
+    subgraph cluster_L12 {
+        label="LAYER 12: Observability (COMPLETED)";
+        fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f9fbe7"; color="#827717"; penwidth=2;
+        L12a [label="Distributed Tracing\nOpenTelemetry\nX-Trace-Id Full Chain", fillcolor="#f0f4c3", color="#9e9d24"];
+        L12b [label="Business Metrics\nOrders/Fulfillment Rate\nInventory Turnover Days", fillcolor="#f0f4c3", color="#9e9d24"];
+        L12c [label="Audit Enhancement\nBiz-Level Audit Trail\nSensitive Ops Full Log", fillcolor="#f0f4c3", color="#9e9d24"];
+    }
+
+    L11a -> L12a [color="#827717", penwidth=1.5];
 }

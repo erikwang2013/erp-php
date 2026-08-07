@@ -10,7 +10,6 @@ namespace app\middleware;
 
 use Erikwang2013\Jwt\JWT;
 use Erikwang2013\Jwt\JWTException;
-use Erikwang2013\Jwt\JWTFactory;
 use support\Redis;
 use Webman\Http\Request;
 use Webman\Http\Response;
@@ -18,16 +17,9 @@ use Webman\MiddlewareInterface;
 
 class AdminAuth implements MiddlewareInterface
 {
-    private static ?JWT $jwt = null;
-
     private static function getJWT(): JWT
     {
-        if (self::$jwt === null) {
-            $config = config('plugin.erikwang2013.jwt.jwt', []);
-            self::$jwt = JWTFactory::createFromConfig($config);
-        }
-
-        return self::$jwt;
+        return jwt_instance();
     }
 
     public function process(Request $request, callable $next): Response
@@ -51,12 +43,49 @@ class AdminAuth implements MiddlewareInterface
 
         try {
             $payload = self::getJWT()->decode($token);
-            $request->adminId = $payload['sub'] ?? 0;
-            $request->adminUsername = $payload['username'] ?? '';
         } catch (JWTException | \Exception $e) {
             return json(['code' => 401, 'message' => 'Token已过期或无效', 'data' => []]);
         }
 
+        // 刷新令牌不能当访问令牌使用
+        if (($payload['token_type'] ?? '') === 'refresh') {
+            return json(['code' => 401, 'message' => '请使用访问令牌', 'data' => []]);
+        }
+
+        $userId = (int)($payload['sub'] ?? 0);
+        if ($userId === 0) {
+            return json(['code' => 401, 'message' => 'Token已过期或无效', 'data' => []]);
+        }
+        if (!self::isUserActive($userId)) {
+            return json(['code' => 401, 'message' => '账号已被禁用', 'data' => []]);
+        }
+
+        $request->adminId = $userId;
+        $request->adminUsername = $payload['username'] ?? '';
+
         return $next($request);
+    }
+
+    /** 用户启用状态（Redis 缓存 60 秒，避免每请求查库） */
+    private static function isUserActive(int $userId): bool
+    {
+        $cacheKey = "user_status:{$userId}";
+        try {
+            $cached = Redis::get($cacheKey);
+            if ($cached !== null && $cached !== false) {
+                return $cached === '1';
+            }
+        } catch (\Throwable) {
+        }
+
+        $user = \app\model\AdminUser::find($userId);
+        $active = $user && (int)$user->status === 1;
+
+        try {
+            Redis::setex($cacheKey, 60, $active ? '1' : '0');
+        } catch (\Throwable) {
+        }
+
+        return $active;
     }
 }

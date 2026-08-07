@@ -25,7 +25,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + 多租户 + DMS + 7新表 | ✅ |
 
-**测试**: 132 tests, 779 assertions — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: 137 tests, 805 assertions — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 
@@ -52,6 +52,13 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 人力资源 | 部门/员工/职位/考勤/请假/薪资 |
 | 生产制造 | BOM/生产订单/工艺路线/工作站/MRP |
 | 自定义报表 | 报表模板/数据集/字段/筛选器/执行/定时调度 |
+| OMS 订单管理 | 多渠道订单/履约编排/库存预占(ATP)/RMA退换货/渠道管理 |
+| WMS 仓储管理 | 库区库位(层级+条码)/入库(ASN→收货→上架)/出库(波次→拣货→打包) |
+| TMS 运输管理 | 承运商/运费比价/运单面单/物流轨迹(webhook) |
+| QMS 质量管理 | 进料IQC/制程IPQC/出货OQC检验 + 检验标准 + 不合格品处理 |
+| EAM 设备管理 | 设备台账/保养计划/维修工单/备件管理 |
+| DMS 文档管理 | 文档分类/文档/版本管理 |
+| BI 看板 | 看板布局/图表组件 |
 
 ## 技术栈
 
@@ -97,7 +104,7 @@ open-erp/
 │   │   ├── CaptchaController.php   # 点击验证码
 │   │   ├── AuthController.php      # 登录/注册/刷新
 │   │   └── ProductController.php   # 商品查询（不含进价）
-│   ├── controller/              # 业务模块控制器（71 个，含 InstallController）
+│   ├── controller/              # 业务模块控制器（104 个，含 InstallController）
 │   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户 (7个)
 │   │   ├── purchase/            # 采购申请/订单/收货/退货/结算 (5个)
 │   │   ├── sales/               # 销售报价/订单/发货/退货/结算 (5个)
@@ -109,17 +116,25 @@ open-erp/
 │   │   ├── project/             # 项目/任务/工时记录 (3个)
 │   │   ├── hr/                  # 部门/员工/职位/考勤/请假/薪资 (5个)
 │   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP (5个)
-│   │   └── report/              # 报表模板/数据集/执行/定时调度 (2个)
-│   ├── service/                 # 业务逻辑层（容器注册，7 个）
+│   │   ├── report/              # 报表模板/数据集/执行/定时调度 (2个)
+│   │   ├── oms/                 # 订单/履约/库存预占/RMA/渠道 (4个)
+│   │   ├── wms/                 # 库区库位/ASN收货/上架/波次/拣货/打包 (8个)
+│   │   ├── tms/                 # 承运商/费率/运单/面单/轨迹 (6个)
+│   │   ├── quality/             # IQC/IPQC/OQC/检验标准/不合格品 (5个)
+│   │   ├── eam/                 # 设备/保养计划/维修工单/备件 (4个)
+│   │   ├── dms/                 # 文档分类/文档/版本 (2个)
+│   │   └── bi/                  # BI看板/图表组件 (3个)
+│   ├── service/                 # 业务逻辑层（容器注册，24 个）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
-│   │   └── notification/        # NotificationService: 通知发送
+│   │   ├── notification/        # NotificationService: 通知发送
+│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/  # 订单/仓储/运输/质检/人事/制造服务
 │   ├── common/                  # 公共工具类（容器注册，4 个）
 │   │   ├── HashidsService.php   # ID 编解码
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
 │   │   ├── EncryptionService.php# 数据加解密 + 脱敏
 │   │   └── I18n.php             # 国际化翻译
-│   ├── middleware/              # 中间件（9 个）
+│   ├── middleware/              # 中间件（12 个）
 │   │   ├── Locale.php           # Accept-Language 语言自动检测
 │   │   ├── Cors.php             # 跨域
 │   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
@@ -128,8 +143,11 @@ open-erp/
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   ├── OperationLog.php     # 操作日志自动记录
+│   │   ├── TenantScope.php      # 多租户隔离（静态调用）
+│   │   ├── TracingId.php        # 全链路 TraceId
+│   │   ├── TrackingSignature.php# 请求签名校验
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
-│   ├── model/                   # 数据模型（120 个）
+│   ├── model/                   # 数据模型（161 个）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, Monitor)
 ├── apps/
@@ -146,10 +164,10 @@ open-erp/
 │   ├── translation.php          # 语言配置
 │   └── plugin/hg/apidoc/        # API 文档配置（管理端25模块+客户端3模块）
 ├── database/
-│   ├── install.sql              # 完整安装SQL（149张表 + 种子数据）
-│   ├── migrations/             # SQL 迁移文件 (18 个)
+│   ├── install.sql              # 完整安装SQL（163张表 + 种子数据）
+│   ├── migrations/             # SQL 迁移文件 (29 个)
 │   │   ├── 2026_05_16_000000_init_tables.sql
-│   │   └── ... (共 18 个迁移文件，已合并入 install.sql)
+│   │   └── ... (共 29 个迁移文件，已合并入 install.sql)
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
 │       └── restore.sh          # 交互式恢复
@@ -185,11 +203,11 @@ open-erp/
 ## 中间件执行链
 
 ```
-全局:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → {路由中间件}
-/health:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → Controller
-/install: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → Controller
-/admin:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → AdminAuth → AdminPermission → OperationLog → Controller
-/api:     Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → ApiVersion → Controller
+全局:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
+/health:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/install: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/admin:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
+/api:     Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → ApiVersion → Controller
 ```
 
 ## 安全增强

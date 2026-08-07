@@ -44,11 +44,11 @@ digraph RequestLifecycle {
 
     // Service and Data layers
     service [label="Service Layer\nInventory/Finance/Notification\nBusiness Orchestration", fillcolor="#f3e5f5", color="#6a1b9a"];
-    model [label="Model Layer\n(121 Eloquent Models)\nQuery / Mutate Data", fillcolor="#f3e5f5", color="#6a1b9a"];
+    model [label="Model Layer\n(161 Eloquent Models)\nQuery / Mutate Data", fillcolor="#f3e5f5", color="#6a1b9a"];
 
     // Storage
     redis [label="Redis 7\nCache\nTTL 5min", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
-    mysql [label="MySQL 8.0\nPrimary DB\n122 tables", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
+    mysql [label="MySQL 8.0\nPrimary DB\n163 tables", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
     es [label="Elasticsearch 8.x\nFull-text Search", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
 
     // Response

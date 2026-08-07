@@ -742,7 +742,7 @@ graph TB
     end
 
     subgraph Data["数据层"]
-        MySQL["MySQL 8.0<br/>122张业务表"]
+        MySQL["MySQL 8.0<br/>163张业务表"]
         Redis["Redis 7<br/>缓存/限流/Session"]
         ES["Elasticsearch 8<br/>全文检索"]
     end
@@ -924,7 +924,9 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 
 > 详细设计规范: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`
 
-### 21.1 当前基线评估
+### 21.1 基线评估（路线图启动时）
+
+> P0~P3 已全部交付，当前综合评分 89/100（见 docs/CLAUDE.md）；下表为路线图启动前的基线快照。
 
 | 维度 | 评分 | 关键差距 |
 |------|------|----------|
@@ -951,7 +953,7 @@ P0(3-4周) → P1(4-6周) → P2(1-2周) → P3(2-3周) = 总计约13周
 ### 21.3 中间件链演进
 
 ```
-当前:   Locale → Cors → SecurityFilter → RateLimit → {路由组}
+现状:   Locale → Cors → SecurityFilter → RateLimit → TracingId → {路由组}
 P1 后:  Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {路由组}
 P2 后:  Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {路由组}
 P3 后:  Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {路由组}

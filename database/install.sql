@@ -2,7 +2,7 @@
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 开放ERP系统 — 完整安装SQL
 --
--- 本文件由以下18个迁移文件合并而成：
+-- 本文件由以下29个迁移文件合并而成：
 --   000000_init_tables.sql            — 管理后台核心表
 --   000001_seed_permissions.sql       — RBAC权限种子数据
 --   000002_add_source_to_operation_log.sql — 操作日志来源端字段（已合并入建表语句）
@@ -14,13 +14,24 @@
 --   000010_finance_ledger_tables.sql  — 财务总账/明细账/报表
 --   000011_crm_expansion_tables.sql   — CRM扩展(公海池/合同)
 --   000012_finance_expansion_tables.sql — 财务扩展(固定资产/税务/多币种/预算)
---   000013_crm_expansion_tables.sql   — CRM扩展(营销/工单/分析)
+--   000013_crm_extra_tables.sql       — CRM扩展(营销/工单/分析)
 --   000014_approval_workflow_tables.sql — 审批工作流引擎
 --   000015_notification_tables.sql    — 消息通知系统
 --   000016_project_tables.sql         — 项目管理
 --   000017_hr_tables.sql              — 人力资源
 --   000018_manufacturing_tables.sql   — 生产制造
 --   000019_report_builder_tables.sql  — 自定义报表构建器
+--   000020_oms_tables.sql             — 订单管理(OMS)
+--   000021_wms_tables.sql             — 仓储管理(WMS)
+--   000022_tms_tables.sql             — 运输管理(TMS)
+--   000023_seed_oms_wms_tms_permissions.sql — OMS/WMS/TMS权限种子
+--   000024_qms_tables.sql             — 质量管理(QMS)
+--   000025_p3_tables.sql              — P3体验增强表
+--   000026_seed_p3_permissions.sql    — P3权限种子
+--   000027_eam_spare_part.sql         — 设备备件(EAM)
+--   000028_seed_qms_permissions.sql   — QMS权限种子
+--   000029_dms_category.sql           — 文档管理分类表
+--   000030_seed_service_permissions.sql — 财务报表/TMS运费/质检服务权限种子
 --
 -- 执行方式:
 --   mysql -u root -p 数据库名 < install.sql
@@ -2441,6 +2452,1172 @@ SELECT 10000000000000001, `id` FROM `erik_admin_permission`
 WHERE `id` NOT IN (
     SELECT `permission_id` FROM `erik_admin_role_permission` WHERE `role_id` = 10000000000000001
 );
+
+-- ============================================================
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+-- 迁移: OMS订单管理系统表（8张表）
+-- 包含: OMS订单扩展/订单地址/履约记录/履约明细/RMA/RMA明细/库存预占/销售渠道
+-- ============================================================
+
+-- ============================================================
+-- OMS订单扩展（关联 erik_sales_order）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_oms_order` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '关联 erik_sales_order.id',
+    `channel` VARCHAR(30) NOT NULL DEFAULT 'manual' COMMENT '渠道: manual/web/mobile/api/marketplace/edi/pos',
+    `channel_order_no` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '渠道订单号',
+    `channel_store` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '渠道店铺名称',
+    `fulfillment_status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '履约状态: 0=未分配 1=已分配 2=拣货中 3=已打包 4=已发货 5=已签收',
+    `payment_status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '支付状态: 0=待支付 1=已支付 2=部分退款 3=已退款',
+    `shipping_method` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '配送方式',
+    `shipping_fee` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '运费',
+    `buyer_message` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '买家备注',
+    `seller_note` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '卖家备注',
+    `priority` TINYINT UNSIGNED NOT NULL DEFAULT 5 COMMENT '优先级: 1=最高 5=正常 9=最低',
+    `hold_until` DATETIME DEFAULT NULL COMMENT '冻结到指定时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_order_id` (`order_id`),
+    KEY `idx_channel` (`channel`),
+    KEY `idx_fulfillment_status` (`fulfillment_status`),
+    KEY `idx_payment_status` (`payment_status`),
+    KEY `idx_priority` (`priority`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='OMS订单扩展';
+
+-- ============================================================
+-- OMS订单地址（收货/账单地址，支持多国格式）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_oms_order_address` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT 'OMS订单ID',
+    `type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '类型: 1=收货地址 2=账单地址',
+    `contact_name` VARCHAR(100) NOT NULL COMMENT '联系人',
+    `phone` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '电话（加密存储）',
+    `email` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '邮箱（加密存储）',
+    `country` VARCHAR(50) NOT NULL DEFAULT 'CN' COMMENT '国家ISO代码',
+    `state` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '省/州',
+    `city` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '城市',
+    `district` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '区/县',
+    `address_line1` VARCHAR(300) NOT NULL DEFAULT '' COMMENT '地址行1',
+    `address_line2` VARCHAR(300) NOT NULL DEFAULT '' COMMENT '地址行2',
+    `postal_code` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '邮编',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_order_id_type` (`order_id`, `type`),
+    KEY `idx_country` (`country`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='OMS订单地址';
+
+-- ============================================================
+-- OMS履约记录（关联WMS任务 + TMS运单）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_oms_fulfillment` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `oms_order_id` BIGINT UNSIGNED NOT NULL COMMENT 'OMS订单ID',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '发货仓库ID',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待处理 1=分配中 2=拣货中 3=打包中 4=待发货 5=已发货 6=已取消',
+    `pick_task_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'WMS拣货任务ID',
+    `pack_task_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'WMS打包任务ID',
+    `shipment_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TMS运单ID',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_oms_order_id` (`oms_order_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_warehouse_id` (`warehouse_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='OMS履约记录';
+
+-- ============================================================
+-- OMS履约明细（行项级别的履约进度追踪）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_oms_fulfillment_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `fulfillment_id` BIGINT UNSIGNED NOT NULL COMMENT '履约记录ID',
+    `order_item_id` BIGINT UNSIGNED NOT NULL COMMENT '关联 SalesOrderItem.id',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
+    `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
+    `allocated_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '已分配数量',
+    `picked_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '已拣数量',
+    `packed_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '已打包数量',
+    `shipped_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '已发数量',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_fulfillment_id` (`fulfillment_id`),
+    KEY `idx_order_item_id` (`order_item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='OMS履约明细';
+
+-- ============================================================
+-- OMS退换货授权(RMA)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_oms_rma` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT 'RMA单号',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '原订单ID',
+    `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
+    `type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '类型: 1=退货 2=换货 3=维修',
+    `reason` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '退货原因',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待审核 1=已批准 2=已退回 3=已收货 4=已退款 5=已拒绝',
+    `refund_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '退款金额',
+    `return_shipping_fee` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '退货运费',
+    `return_shipment_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TMS退货运单ID',
+    `approved_by` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '审批人ID',
+    `approved_at` DATETIME DEFAULT NULL COMMENT '审批时间',
+    `returned_at` DATETIME DEFAULT NULL COMMENT '退回时间',
+    `received_at` DATETIME DEFAULT NULL COMMENT '收货时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_order_id` (`order_id`),
+    KEY `idx_customer_id` (`customer_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='OMS退换货';
+
+-- ============================================================
+-- OMS退换货明细
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_oms_rma_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `rma_id` BIGINT UNSIGNED NOT NULL COMMENT 'RMA ID',
+    `order_item_id` BIGINT UNSIGNED NOT NULL COMMENT '订单明细ID',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
+    `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
+    `quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '退货数量',
+    `price` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '退款单价',
+    `amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '退款金额',
+    `unit` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '单位',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_rma_id` (`rma_id`),
+    KEY `idx_order_item_id` (`order_item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='OMS退换货明细';
+
+-- ============================================================
+-- OMS库存预占（逻辑锁层，不改动物理库存）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_oms_inventory_reservation` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
+    `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
+    `location_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '库位ID',
+    `batch_code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '批次号',
+    `source_type` VARCHAR(30) NOT NULL COMMENT '来源类型: oms_order',
+    `source_id` BIGINT UNSIGNED NOT NULL COMMENT '来源ID（OMS订单ID）',
+    `source_item_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源明细ID',
+    `reserved_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '预占数量',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 1=已预留 2=已释放 3=已消耗',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_source` (`source_type`, `source_id`),
+    KEY `idx_inventory` (`product_id`, `sku_id`, `warehouse_id`, `location_id`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='OMS库存预占';
+
+-- ============================================================
+-- 销售渠道定义
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_channel` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(30) NOT NULL COMMENT '渠道编码',
+    `name` VARCHAR(100) NOT NULL COMMENT '渠道名称',
+    `type` VARCHAR(20) NOT NULL DEFAULT 'direct' COMMENT '类型: direct/marketplace/edi/pos',
+    `config` JSON DEFAULT NULL COMMENT '渠道配置（JSON）',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_type` (`type`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售渠道';
+-- ============================================================
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+-- 迁移: WMS仓储管理系统表（12张表）
+-- 包含: 库区/库位扩展/ASN/ASN明细/收货任务/上架任务/上架明细/拣货任务/拣货明细/打包任务/波次/波次订单关联
+-- ============================================================
+
+-- ============================================================
+-- WMS库区
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_zone` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
+    `code` VARCHAR(30) NOT NULL COMMENT '库区编码',
+    `name` VARCHAR(100) NOT NULL COMMENT '库区名称',
+    `type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '类型: 1=收货区 2=存储区 3=拣货区 4=打包区 5=发货区 6=退货区 7=质检区',
+    `sort` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_warehouse_code` (`warehouse_id`, `code`),
+    KEY `idx_warehouse_id` (`warehouse_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS库区';
+
+-- ============================================================
+-- WMS库位扩展（关联 erik_location，增加层级/容积/承重等WMS属性）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_location` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `location_id` BIGINT UNSIGNED NOT NULL COMMENT '关联 erik_location.id',
+    `zone_id` BIGINT UNSIGNED NOT NULL COMMENT '库区ID',
+    `aisle` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '巷道',
+    `rack` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '货架',
+    `level` VARCHAR(10) NOT NULL DEFAULT '' COMMENT '层',
+    `bin` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '货位',
+    `barcode` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '库位条码',
+    `length_cm` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '长(cm)',
+    `width_cm` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '宽(cm)',
+    `height_cm` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '高(cm)',
+    `max_weight_kg` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '最大承重(kg)',
+    `max_volume_cm3` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '最大容积(cm³)',
+    `pick_sequence` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '拣货顺序',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 1=可用 0=禁用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_location_id` (`location_id`),
+    KEY `idx_zone_id` (`zone_id`),
+    KEY `idx_barcode` (`barcode`),
+    KEY `idx_pick_sequence` (`pick_sequence`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS库位扩展';
+
+-- ============================================================
+-- WMS预到货通知(ASN)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_asn` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT 'ASN单号',
+    `supplier_id` BIGINT UNSIGNED NOT NULL COMMENT '供应商ID',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '收货仓库ID',
+    `purchase_order_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '采购订单ID',
+    `expected_arrive_at` DATETIME DEFAULT NULL COMMENT '预计到货时间',
+    `arrived_at` DATETIME DEFAULT NULL COMMENT '实际到货时间',
+    `carrier` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '承运商',
+    `tracking_no` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '物流单号',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待收货 1=收货中 2=已收货 3=已上架',
+    `total_packages` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '总件数',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_supplier_id` (`supplier_id`),
+    KEY `idx_warehouse_id` (`warehouse_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS预到货通知';
+
+-- ============================================================
+-- WMS预到货明细
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_asn_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `asn_id` BIGINT UNSIGNED NOT NULL COMMENT 'ASN ID',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
+    `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
+    `expected_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '预期数量',
+    `received_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '实收数量',
+    `unit` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '单位',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_asn_id` (`asn_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS预到货明细';
+
+-- ============================================================
+-- WMS收货任务
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_receiving` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '收货单号',
+    `asn_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ASN ID',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
+    `dock_location_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '收货月台库位ID',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待收货 1=收货中 2=已完成 3=已质检',
+    `receiver_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '收货人ID',
+    `received_at` DATETIME DEFAULT NULL COMMENT '收货完成时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_asn_id` (`asn_id`),
+    KEY `idx_warehouse_id` (`warehouse_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS收货任务';
+
+-- ============================================================
+-- WMS上架任务
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_putaway_task` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '上架任务号',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
+    `receiving_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '收货任务ID',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待上架 1=上架中 2=已完成',
+    `strategy` VARCHAR(30) NOT NULL DEFAULT 'fifo' COMMENT '上架策略: fifo/lifo/zone_fixed/abc',
+    `assigned_to` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '指派人员ID',
+    `completed_at` DATETIME DEFAULT NULL COMMENT '完成时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_warehouse_id` (`warehouse_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS上架任务';
+
+-- ============================================================
+-- WMS上架明细
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_putaway_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `putaway_id` BIGINT UNSIGNED NOT NULL COMMENT '上架任务ID',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
+    `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
+    `batch_code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '批次号',
+    `from_location_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源库位（收货暂存区）',
+    `to_location_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '目标库位',
+    `quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '上架数量',
+    `unit` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '单位',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_putaway_id` (`putaway_id`),
+    KEY `idx_to_location_id` (`to_location_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS上架明细';
+
+-- ============================================================
+-- WMS拣货任务
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_pick_task` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '拣货任务号',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
+    `wave_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '波次ID',
+    `type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '类型: 1=按单拣货 2=批量拣货 3=分区拣货 4=波次拣货',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待拣货 1=拣货中 2=已完成 3=已取消',
+    `assigned_to` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '指派人员ID',
+    `priority` TINYINT UNSIGNED NOT NULL DEFAULT 5 COMMENT '优先级: 1=最高 5=正常',
+    `started_at` DATETIME DEFAULT NULL COMMENT '开始时间',
+    `completed_at` DATETIME DEFAULT NULL COMMENT '完成时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_warehouse_id` (`warehouse_id`),
+    KEY `idx_wave_id` (`wave_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_assigned_to` (`assigned_to`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS拣货任务';
+
+-- ============================================================
+-- WMS拣货明细
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_pick_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `pick_task_id` BIGINT UNSIGNED NOT NULL COMMENT '拣货任务ID',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
+    `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
+    `batch_code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '批次号',
+    `location_id` BIGINT UNSIGNED NOT NULL COMMENT '拣货库位ID',
+    `ordered_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '应拣数量',
+    `picked_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '实拣数量',
+    `unit` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '单位',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待拣 1=已拣',
+    `picked_at` DATETIME DEFAULT NULL COMMENT '拣货时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_pick_task_id` (`pick_task_id`),
+    KEY `idx_location_id` (`location_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS拣货明细';
+
+-- ============================================================
+-- WMS打包任务
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_pack_task` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '打包任务号',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待打包 1=打包中 2=已完成',
+    `package_type` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '包装类型: box/bag/pallet/envelope',
+    `weight_kg` DECIMAL(10,3) NOT NULL DEFAULT 0.000 COMMENT '重量(kg)',
+    `length_cm` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '长(cm)',
+    `width_cm` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '宽(cm)',
+    `height_cm` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '高(cm)',
+    `assigned_to` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '指派人员ID',
+    `completed_at` DATETIME DEFAULT NULL COMMENT '完成时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_warehouse_id` (`warehouse_id`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS打包任务';
+
+-- ============================================================
+-- WMS波次（按波次聚合订单统一拣货）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_wave` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '波次号',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
+    `type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '类型: 1=拣货波次 2=发货波次',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待处理 1=处理中 2=已完成',
+    `priority` TINYINT UNSIGNED NOT NULL DEFAULT 5 COMMENT '优先级: 1=最高 5=正常',
+    `scheduled_at` DATETIME DEFAULT NULL COMMENT '计划时间',
+    `completed_at` DATETIME DEFAULT NULL COMMENT '完成时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_warehouse_id` (`warehouse_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_scheduled_at` (`scheduled_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS波次';
+
+-- ============================================================
+-- WMS波次-订单关联
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_wms_wave_order` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `wave_id` BIGINT UNSIGNED NOT NULL COMMENT '波次ID',
+    `oms_order_id` BIGINT UNSIGNED NOT NULL COMMENT 'OMS订单ID',
+    `sort` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_wave_order` (`wave_id`, `oms_order_id`),
+    KEY `idx_oms_order_id` (`oms_order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS波次订单关联';
+-- ============================================================
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+-- 迁移: TMS运输管理系统表（7张表）
+-- 包含: 承运商/承运商服务/运费费率/运单/物流轨迹/包裹明细/运费发票
+-- ============================================================
+
+-- ============================================================
+-- TMS承运商
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_tms_carrier` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(30) NOT NULL COMMENT '承运商编码',
+    `name` VARCHAR(100) NOT NULL COMMENT '承运商名称',
+    `type` VARCHAR(30) NOT NULL DEFAULT 'express' COMMENT '类型: express/ltl/ftl/air/ocean/rail',
+    `website` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '官网',
+    `tracking_url_template` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '物流追踪URL模板',
+    `api_provider` VARCHAR(50) NOT NULL DEFAULT '' COMMENT 'API供应商: custom/shippo/afterShip/17track',
+    `api_config` JSON DEFAULT NULL COMMENT 'API配置（JSON）',
+    `contact_phone` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '联系电话（加密存储）',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_type` (`type`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='TMS承运商';
+
+-- ============================================================
+-- TMS承运商服务
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_tms_carrier_service` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `carrier_id` BIGINT UNSIGNED NOT NULL COMMENT '承运商ID',
+    `code` VARCHAR(50) NOT NULL COMMENT '服务编码',
+    `name` VARCHAR(100) NOT NULL COMMENT '服务名称',
+    `type` VARCHAR(30) NOT NULL DEFAULT 'standard' COMMENT '服务类型: standard/express/overnight/2day/economy',
+    `estimated_days_min` INT UNSIGNED NOT NULL DEFAULT 1 COMMENT '预计最少天数',
+    `estimated_days_max` INT UNSIGNED NOT NULL DEFAULT 3 COMMENT '预计最多天数',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_carrier_service` (`carrier_id`, `code`),
+    KEY `idx_carrier_id` (`carrier_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='TMS承运商服务';
+
+-- ============================================================
+-- TMS运费费率卡
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_tms_freight_rate` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `carrier_service_id` BIGINT UNSIGNED NOT NULL COMMENT '承运商服务ID',
+    `origin_country` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '始发国ISO代码',
+    `origin_zone` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '始发区域',
+    `dest_country` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '目的国ISO代码',
+    `dest_zone` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '目的区域',
+    `weight_from_kg` DECIMAL(10,3) NOT NULL DEFAULT 0.000 COMMENT '重量起(kg)',
+    `weight_to_kg` DECIMAL(10,3) NOT NULL DEFAULT 999.000 COMMENT '重量止(kg)',
+    `base_rate` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '起步价',
+    `per_kg_rate` DECIMAL(12,4) NOT NULL DEFAULT 0.0000 COMMENT '每公斤单价',
+    `fuel_surcharge_pct` DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '燃油附加费率(%)',
+    `currency` VARCHAR(3) NOT NULL DEFAULT 'CNY' COMMENT '币种',
+    `valid_from` DATE NOT NULL COMMENT '生效日期',
+    `valid_to` DATE DEFAULT NULL COMMENT '失效日期',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_carrier_service_id` (`carrier_service_id`),
+    KEY `idx_dest` (`dest_country`, `dest_zone`),
+    KEY `idx_valid` (`valid_from`, `valid_to`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='TMS运费费率';
+
+-- ============================================================
+-- TMS运单
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_tms_shipment` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '运单号（内部）',
+    `carrier_service_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '承运商服务ID',
+    `tracking_no` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '物流追踪号',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待发货 1=已取件 2=运输中 3=已送达 4=异常 5=已退回',
+    `shipping_label_url` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '面单URL',
+    `estimated_delivery_at` DATETIME DEFAULT NULL COMMENT '预计送达时间',
+    `actual_delivery_at` DATETIME DEFAULT NULL COMMENT '实际签收时间',
+    `origin_address_snapshot` JSON DEFAULT NULL COMMENT '发件地址快照',
+    `dest_address_snapshot` JSON DEFAULT NULL COMMENT '收件地址快照',
+    `total_weight_kg` DECIMAL(10,3) NOT NULL DEFAULT 0.000 COMMENT '总重量(kg)',
+    `total_volume_cm3` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '总体积(cm³)',
+    `package_count` INT UNSIGNED NOT NULL DEFAULT 1 COMMENT '包裹数量',
+    `freight_charge` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '运费',
+    `insurance_charge` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '保价费',
+    `currency` VARCHAR(3) NOT NULL DEFAULT 'CNY' COMMENT '币种',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_tracking_no` (`tracking_no`),
+    KEY `idx_carrier_service_id` (`carrier_service_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='TMS运单';
+
+-- ============================================================
+-- TMS物流轨迹
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_tms_tracking_event` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `shipment_id` BIGINT UNSIGNED NOT NULL COMMENT '运单ID',
+    `status_code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '状态码: picked_up/in_transit/out_for_delivery/delivered/exception',
+    `description` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '事件描述',
+    `location` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '发生地点',
+    `event_time` DATETIME DEFAULT NULL COMMENT '事件时间',
+    `raw_data` JSON DEFAULT NULL COMMENT '原始数据',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_shipment_id` (`shipment_id`),
+    KEY `idx_event_time` (`event_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='TMS物流轨迹';
+
+-- ============================================================
+-- TMS包裹明细
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_tms_shipment_package` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `shipment_id` BIGINT UNSIGNED NOT NULL COMMENT '运单ID',
+    `pack_task_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联WMS打包任务ID',
+    `package_no` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '包裹编号',
+    `weight_kg` DECIMAL(10,3) NOT NULL DEFAULT 0.000 COMMENT '重量(kg)',
+    `length_cm` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '长(cm)',
+    `width_cm` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '宽(cm)',
+    `height_cm` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '高(cm)',
+    `declared_value` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '申报价值',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_shipment_id` (`shipment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='TMS包裹明细';
+
+-- ============================================================
+-- TMS运费发票
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_tms_freight_invoice` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '运费发票号',
+    `carrier_id` BIGINT UNSIGNED NOT NULL COMMENT '承运商ID',
+    `shipment_id` BIGINT UNSIGNED NOT NULL COMMENT '运单ID',
+    `amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '金额',
+    `currency` VARCHAR(3) NOT NULL DEFAULT 'CNY' COMMENT '币种',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待审核 1=已确认 2=已付款',
+    `invoice_date` DATE DEFAULT NULL COMMENT '发票日期',
+    `due_date` DATE DEFAULT NULL COMMENT '到期日',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_carrier_id` (`carrier_id`),
+    KEY `idx_shipment_id` (`shipment_id`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='TMS运费发票';
+-- ============================================================
+-- OMS/WMS/TMS 模块权限种子数据
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+--
+-- 初始化 OMS/WMS/TMS 模块的菜单权限和 API 权限
+-- 超级管理员 (super_admin) 自动获得所有新增权限
+-- ============================================================
+
+-- ============================================================
+-- 菜单权限 (type=1) — OMS / WMS / TMS
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000201, NULL, '订单管理(OMS)', 'oms',   1, 'receipt_long',  '/admin/oms',  13, NOW(), NOW()),
+(31000000000000202, NULL, '仓储管理(WMS)', 'wms',   1, 'warehouse',     '/admin/wms',  14, NOW(), NOW()),
+(31000000000000203, NULL, '运输管理(TMS)', 'tms',   1, 'local_shipping','/admin/tms',  15, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — OMS 订单管理
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000301, 31000000000000201, 'OMS订单-查看',   'get.admin/oms/order',    3, NULL, NULL, 1, NOW(), NOW()),
+(31000000000000302, 31000000000000201, 'OMS订单-创建',   'post.admin/oms/order',   3, NULL, NULL, 2, NOW(), NOW()),
+(31000000000000303, 31000000000000201, 'OMS订单-更新',   'put.admin/oms/order',    3, NULL, NULL, 3, NOW(), NOW()),
+(31000000000000304, 31000000000000201, 'OMS订单-删除',   'delete.admin/oms/order', 3, NULL, NULL, 4, NOW(), NOW()),
+(31000000000000305, 31000000000000201, 'OMS订单-分配',   'post.admin/oms/order/allocate', 3, NULL, NULL, 5, NOW(), NOW()),
+(31000000000000306, 31000000000000201, 'OMS订单-履约',   'post.admin/oms/order/fulfill',  3, NULL, NULL, 6, NOW(), NOW()),
+(31000000000000307, 31000000000000201, 'OMS订单-取消',   'post.admin/oms/order/cancel',   3, NULL, NULL, 7, NOW(), NOW());
+
+-- OMS 履约管理
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000311, 31000000000000201, '履约-查看',   'get.admin/oms/fulfillment',    3, NULL, NULL, 10, NOW(), NOW()),
+(31000000000000312, 31000000000000201, '履约-创建',   'post.admin/oms/fulfillment',   3, NULL, NULL, 11, NOW(), NOW());
+
+-- OMS RMA
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000321, 31000000000000201, 'RMA-查看',   'get.admin/oms/rma',       3, NULL, NULL, 15, NOW(), NOW()),
+(31000000000000322, 31000000000000201, 'RMA-创建',   'post.admin/oms/rma',      3, NULL, NULL, 16, NOW(), NOW()),
+(31000000000000323, 31000000000000201, 'RMA-更新',   'put.admin/oms/rma',       3, NULL, NULL, 17, NOW(), NOW()),
+(31000000000000324, 31000000000000201, 'RMA-删除',   'delete.admin/oms/rma',    3, NULL, NULL, 18, NOW(), NOW()),
+(31000000000000325, 31000000000000201, 'RMA-审批',   'post.admin/oms/rma/approve',  3, NULL, NULL, 19, NOW(), NOW()),
+(31000000000000326, 31000000000000201, 'RMA-收货',   'post.admin/oms/rma/receive',  3, NULL, NULL, 20, NOW(), NOW()),
+(31000000000000327, 31000000000000201, 'RMA-退款',   'post.admin/oms/rma/refund',   3, NULL, NULL, 21, NOW(), NOW());
+
+-- OMS 渠道管理
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000331, 31000000000000201, '渠道-查看',   'get.admin/oms/channel',    3, NULL, NULL, 25, NOW(), NOW()),
+(31000000000000332, 31000000000000201, '渠道-创建',   'post.admin/oms/channel',   3, NULL, NULL, 26, NOW(), NOW()),
+(31000000000000333, 31000000000000201, '渠道-更新',   'put.admin/oms/channel',    3, NULL, NULL, 27, NOW(), NOW()),
+(31000000000000334, 31000000000000201, '渠道-删除',   'delete.admin/oms/channel', 3, NULL, NULL, 28, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — WMS 仓储管理
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000401, 31000000000000202, '库区-查看',   'get.admin/wms/zone',    3, NULL, NULL, 1, NOW(), NOW()),
+(31000000000000402, 31000000000000202, '库区-创建',   'post.admin/wms/zone',   3, NULL, NULL, 2, NOW(), NOW()),
+(31000000000000403, 31000000000000202, '库区-更新',   'put.admin/wms/zone',    3, NULL, NULL, 3, NOW(), NOW()),
+(31000000000000404, 31000000000000202, '库区-删除',   'delete.admin/wms/zone', 3, NULL, NULL, 4, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000411, 31000000000000202, 'WMS库位-查看',   'get.admin/wms/location',    3, NULL, NULL, 8, NOW(), NOW()),
+(31000000000000412, 31000000000000202, 'WMS库位-创建',   'post.admin/wms/location',   3, NULL, NULL, 9, NOW(), NOW()),
+(31000000000000413, 31000000000000202, 'WMS库位-更新',   'put.admin/wms/location',    3, NULL, NULL, 10, NOW(), NOW()),
+(31000000000000414, 31000000000000202, 'WMS库位-删除',   'delete.admin/wms/location', 3, NULL, NULL, 11, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000421, 31000000000000202, 'ASN-查看',   'get.admin/wms/asn',    3, NULL, NULL, 15, NOW(), NOW()),
+(31000000000000422, 31000000000000202, 'ASN-创建',   'post.admin/wms/asn',   3, NULL, NULL, 16, NOW(), NOW()),
+(31000000000000423, 31000000000000202, 'ASN-更新',   'put.admin/wms/asn',    3, NULL, NULL, 17, NOW(), NOW()),
+(31000000000000424, 31000000000000202, 'ASN-删除',   'delete.admin/wms/asn', 3, NULL, NULL, 18, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000431, 31000000000000202, '收货-查看',   'get.admin/wms/receiving',           3, NULL, NULL, 22, NOW(), NOW()),
+(31000000000000432, 31000000000000202, '收货-创建',   'post.admin/wms/receiving',          3, NULL, NULL, 23, NOW(), NOW()),
+(31000000000000433, 31000000000000202, '收货-完成',   'post.admin/wms/receiving/complete', 3, NULL, NULL, 24, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000441, 31000000000000202, '上架-查看',   'get.admin/wms/putaway',           3, NULL, NULL, 28, NOW(), NOW()),
+(31000000000000442, 31000000000000202, '上架-创建',   'post.admin/wms/putaway',          3, NULL, NULL, 29, NOW(), NOW()),
+(31000000000000443, 31000000000000202, '上架-完成',   'post.admin/wms/putaway/complete', 3, NULL, NULL, 30, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000451, 31000000000000202, '波次-查看',   'get.admin/wms/wave',          3, NULL, NULL, 35, NOW(), NOW()),
+(31000000000000452, 31000000000000202, '波次-创建',   'post.admin/wms/wave',         3, NULL, NULL, 36, NOW(), NOW()),
+(31000000000000453, 31000000000000202, '波次-释放',   'post.admin/wms/wave/release', 3, NULL, NULL, 37, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000461, 31000000000000202, '拣货-查看',   'get.admin/wms/pick',             3, NULL, NULL, 42, NOW(), NOW()),
+(31000000000000462, 31000000000000202, '拣货-开始',   'post.admin/wms/pick/start',      3, NULL, NULL, 43, NOW(), NOW()),
+(31000000000000463, 31000000000000202, '拣货-确认',   'post.admin/wms/pick/confirm',    3, NULL, NULL, 44, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000471, 31000000000000202, '打包-查看',   'get.admin/wms/pack',             3, NULL, NULL, 48, NOW(), NOW()),
+(31000000000000472, 31000000000000202, '打包-开始',   'post.admin/wms/pack/start',      3, NULL, NULL, 49, NOW(), NOW()),
+(31000000000000473, 31000000000000202, '打包-完成',   'post.admin/wms/pack/complete',   3, NULL, NULL, 50, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — TMS 运输管理
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000501, 31000000000000203, '承运商-查看',   'get.admin/tms/carrier',    3, NULL, NULL, 1, NOW(), NOW()),
+(31000000000000502, 31000000000000203, '承运商-创建',   'post.admin/tms/carrier',   3, NULL, NULL, 2, NOW(), NOW()),
+(31000000000000503, 31000000000000203, '承运商-更新',   'put.admin/tms/carrier',    3, NULL, NULL, 3, NOW(), NOW()),
+(31000000000000504, 31000000000000203, '承运商-删除',   'delete.admin/tms/carrier', 3, NULL, NULL, 4, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000511, 31000000000000203, '承运商服务-查看',   'get.admin/tms/service',    3, NULL, NULL, 8, NOW(), NOW()),
+(31000000000000512, 31000000000000203, '承运商服务-创建',   'post.admin/tms/service',   3, NULL, NULL, 9, NOW(), NOW()),
+(31000000000000513, 31000000000000203, '承运商服务-更新',   'put.admin/tms/service',    3, NULL, NULL, 10, NOW(), NOW()),
+(31000000000000514, 31000000000000203, '承运商服务-删除',   'delete.admin/tms/service', 3, NULL, NULL, 11, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000521, 31000000000000203, '运费费率-查看',   'get.admin/tms/freight-rate',    3, NULL, NULL, 15, NOW(), NOW()),
+(31000000000000522, 31000000000000203, '运费费率-创建',   'post.admin/tms/freight-rate',   3, NULL, NULL, 16, NOW(), NOW()),
+(31000000000000523, 31000000000000203, '运费费率-更新',   'put.admin/tms/freight-rate',    3, NULL, NULL, 17, NOW(), NOW()),
+(31000000000000524, 31000000000000203, '运费费率-删除',   'delete.admin/tms/freight-rate', 3, NULL, NULL, 18, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000531, 31000000000000203, '运单-查看',   'get.admin/tms/shipment',           3, NULL, NULL, 22, NOW(), NOW()),
+(31000000000000532, 31000000000000203, '运单-创建',   'post.admin/tms/shipment',          3, NULL, NULL, 23, NOW(), NOW()),
+(31000000000000533, 31000000000000203, '运单-发货',   'post.admin/tms/shipment/ship',     3, NULL, NULL, 24, NOW(), NOW()),
+(31000000000000534, 31000000000000203, '运单-面单',   'post.admin/tms/shipment/get-label',3, NULL, NULL, 25, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000541, 31000000000000203, '轨迹-查看',   'get.admin/tms/tracking',    3, NULL, NULL, 30, NOW(), NOW()),
+(31000000000000542, 31000000000000203, '轨迹-回调',   'post.admin/tms/tracking/callback', 3, NULL, NULL, 31, NOW(), NOW());
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000551, 31000000000000203, '运费发票-查看',   'get.admin/tms/freight-invoice',    3, NULL, NULL, 35, NOW(), NOW()),
+(31000000000000552, 31000000000000203, '运费发票-创建',   'post.admin/tms/freight-invoice',   3, NULL, NULL, 36, NOW(), NOW()),
+(31000000000000553, 31000000000000203, '运费发票-确认',   'post.admin/tms/freight-invoice/confirm', 3, NULL, NULL, 37, NOW(), NOW()),
+(31000000000000554, 31000000000000203, '运费发票-付款',   'post.admin/tms/freight-invoice/pay',     3, NULL, NULL, 38, NOW(), NOW());
+-- ============================================================
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+-- 迁移: QMS质量管理系统表（5张表）
+-- 包含: 检验标准/IQC来料检验/IPQC过程检验/OQC出货检验/不合格品
+-- ============================================================
+
+-- ============================================================
+-- QMS检验标准
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_quality_inspection_standard` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `name` VARCHAR(200) NOT NULL COMMENT '标准名称',
+    `code` VARCHAR(50) NOT NULL COMMENT '标准编码',
+    `product_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '适用商品ID',
+    `type` VARCHAR(30) NOT NULL DEFAULT 'iqc' COMMENT '检验类型: iqc/ipqc/oqc',
+    `specification` TEXT DEFAULT NULL COMMENT '检验规格说明',
+    `sampling_plan` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '抽样方案',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_product_id` (`product_id`),
+    KEY `idx_type` (`type`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='QMS检验标准';
+
+-- ============================================================
+-- QMS来料检验记录 (IQC)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_quality_iqc_record` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '检验单号',
+    `receiving_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联采购收货单ID',
+    `product_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '商品ID',
+    `standard_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '检验标准ID',
+    `inspected_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '检验数量',
+    `passed_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '合格数量',
+    `rejected_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '不合格数量',
+    `result` VARCHAR(20) NOT NULL DEFAULT 'pass' COMMENT '检验结果: pass=合格 reject=不合格',
+    `inspector` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '检验员',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待处理 1=已完成',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_receiving_id` (`receiving_id`),
+    KEY `idx_product_id` (`product_id`),
+    KEY `idx_standard_id` (`standard_id`),
+    KEY `idx_result` (`result`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='QMS来料检验记录(IQC)';
+
+-- ============================================================
+-- QMS过程检验记录 (IPQC)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_quality_ipqc_record` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '检验单号',
+    `production_order_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '生产工单ID',
+    `product_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '商品ID',
+    `workstation_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '工作站ID',
+    `standard_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '检验标准ID',
+    `inspected_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '检验数量',
+    `passed_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '合格数量',
+    `rejected_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '不合格数量',
+    `result` VARCHAR(20) NOT NULL DEFAULT 'pass' COMMENT '检验结果: pass=合格 reject=不合格',
+    `inspector` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '检验员',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待处理 1=已完成',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_production_order_id` (`production_order_id`),
+    KEY `idx_product_id` (`product_id`),
+    KEY `idx_workstation_id` (`workstation_id`),
+    KEY `idx_standard_id` (`standard_id`),
+    KEY `idx_result` (`result`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='QMS过程检验记录(IPQC)';
+
+-- ============================================================
+-- QMS出货检验记录 (OQC)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_quality_oqc_record` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '检验单号',
+    `delivery_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联销售发货单ID',
+    `product_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '商品ID',
+    `standard_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '检验标准ID',
+    `inspected_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '检验数量',
+    `passed_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '合格数量',
+    `rejected_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '不合格数量',
+    `result` VARCHAR(20) NOT NULL DEFAULT 'pass' COMMENT '检验结果: pass=合格 reject=不合格',
+    `inspector` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '检验员',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待处理 1=已完成',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_delivery_id` (`delivery_id`),
+    KEY `idx_product_id` (`product_id`),
+    KEY `idx_standard_id` (`standard_id`),
+    KEY `idx_result` (`result`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='QMS出货检验记录(OQC)';
+
+-- ============================================================
+-- QMS不合格品
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_quality_nonconformity` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '不合格品编号',
+    `source_type` VARCHAR(30) NOT NULL DEFAULT 'iqc' COMMENT '来源类型: iqc/ipqc/oqc',
+    `source_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源记录ID（检验单ID）',
+    `product_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '商品ID',
+    `defect_type` VARCHAR(100) NOT NULL COMMENT '缺陷类型',
+    `defect_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '缺陷数量',
+    `severity` VARCHAR(20) NOT NULL DEFAULT 'minor' COMMENT '严重程度: minor/major/critical',
+    `disposition` VARCHAR(30) NOT NULL DEFAULT 'pending' COMMENT '处置方式: pending/return/repair/scrap/accept',
+    `root_cause` TEXT DEFAULT NULL COMMENT '根本原因',
+    `corrective_action` TEXT DEFAULT NULL COMMENT '纠正措施',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待处理 1=处理中 2=已关闭',
+    `reported_by` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '报告人',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_source_type` (`source_type`, `source_id`),
+    KEY `idx_product_id` (`product_id`),
+    KEY `idx_severity` (`severity`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='QMS不合格品';
+-- P3 Experience Enhancement Tables
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+CREATE TABLE IF NOT EXISTS `erik_bi_dashboard` (
+    `id` BIGINT UNSIGNED NOT NULL,
+    `name` VARCHAR(200) NOT NULL DEFAULT '',
+    `layout` JSON DEFAULT NULL,
+    `user_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `status` TINYINT NOT NULL DEFAULT 1,
+    `created_at` DATETIME NULL DEFAULT NULL,
+    `updated_at` DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `erik_bi_widget` (
+    `id` BIGINT UNSIGNED NOT NULL,
+    `dashboard_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `name` VARCHAR(200) NOT NULL DEFAULT '',
+    `type` VARCHAR(50) NOT NULL DEFAULT 'table',
+    `dataset_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `config` JSON DEFAULT NULL,
+    `position_x` INT NOT NULL DEFAULT 0,
+    `position_y` INT NOT NULL DEFAULT 0,
+    `width` INT NOT NULL DEFAULT 4,
+    `height` INT NOT NULL DEFAULT 3,
+    `created_at` DATETIME NULL DEFAULT NULL,
+    `updated_at` DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `idx_dashboard_id` (`dashboard_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `erik_eam_equipment` (
+    `id` BIGINT UNSIGNED NOT NULL,
+    `code` VARCHAR(100) NOT NULL DEFAULT '',
+    `name` VARCHAR(200) NOT NULL DEFAULT '',
+    `model` VARCHAR(100) NOT NULL DEFAULT '',
+    `serial_number` VARCHAR(100) NOT NULL DEFAULT '',
+    `category` VARCHAR(50) NOT NULL DEFAULT '',
+    `location` VARCHAR(200) NOT NULL DEFAULT '',
+    `department_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `purchase_date` DATE NULL DEFAULT NULL,
+    `warranty_expiry` DATE NULL DEFAULT NULL,
+    `status` TINYINT NOT NULL DEFAULT 1,
+    `created_at` DATETIME NULL DEFAULT NULL,
+    `updated_at` DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `erik_eam_maintenance_plan` (
+    `id` BIGINT UNSIGNED NOT NULL,
+    `equipment_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `name` VARCHAR(200) NOT NULL DEFAULT '',
+    `frequency` VARCHAR(50) NOT NULL DEFAULT '',
+    `last_date` DATE NULL DEFAULT NULL,
+    `next_date` DATE NULL DEFAULT NULL,
+    `assignee` VARCHAR(100) NOT NULL DEFAULT '',
+    `status` TINYINT NOT NULL DEFAULT 1,
+    `created_at` DATETIME NULL DEFAULT NULL,
+    `updated_at` DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `idx_equipment_id` (`equipment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `erik_eam_repair_order` (
+    `id` BIGINT UNSIGNED NOT NULL,
+    `code` VARCHAR(100) NOT NULL DEFAULT '',
+    `equipment_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `fault_description` TEXT DEFAULT NULL,
+    `repair_type` VARCHAR(50) NOT NULL DEFAULT 'corrective',
+    `assignee` VARCHAR(100) NOT NULL DEFAULT '',
+    `start_date` DATE NULL DEFAULT NULL,
+    `end_date` DATE NULL DEFAULT NULL,
+    `cost` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    `status` VARCHAR(20) NOT NULL DEFAULT 'open',
+    `created_at` DATETIME NULL DEFAULT NULL,
+    `updated_at` DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `idx_equipment_id` (`equipment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `erik_dms_document` (
+    `id` BIGINT UNSIGNED NOT NULL,
+    `code` VARCHAR(100) NOT NULL DEFAULT '',
+    `title` VARCHAR(500) NOT NULL DEFAULT '',
+    `category` VARCHAR(100) NOT NULL DEFAULT '',
+    `version` INT NOT NULL DEFAULT 1,
+    `author` VARCHAR(100) NOT NULL DEFAULT '',
+    `status` VARCHAR(20) NOT NULL DEFAULT 'draft',
+    `content` LONGTEXT DEFAULT NULL,
+    `tags` VARCHAR(500) NOT NULL DEFAULT '',
+    `created_at` DATETIME NULL DEFAULT NULL,
+    `updated_at` DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `idx_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `erik_dms_document_version` (
+    `id` BIGINT UNSIGNED NOT NULL,
+    `document_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `version` INT NOT NULL DEFAULT 1,
+    `content` LONGTEXT DEFAULT NULL,
+    `changed_by` VARCHAR(100) NOT NULL DEFAULT '',
+    `change_note` VARCHAR(500) NOT NULL DEFAULT '',
+    `created_at` DATETIME NULL DEFAULT NULL,
+    `updated_at` DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `idx_document_id` (`document_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- ============================================================
+-- P3 体验增强模块权限种子数据
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+--
+-- 初始化 BI看板 / 设备管理(EAM) / 文档管理(DMS) 的菜单权限和 API 权限
+-- 超级管理员 (super_admin) 自动获得所有新增权限
+-- ============================================================
+
+-- ============================================================
+-- 菜单权限 (type=1) — BI看板 / 设备管理 / 文档管理
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000205, NULL, 'BI看板', 'bi', 1, 'dashboard_customize', '/admin/bi', 17, NOW(), NOW()),
+(31000000000000206, NULL, '设备管理(EAM)', 'eam', 1, 'build', '/admin/eam', 18, NOW(), NOW()),
+(31000000000000207, NULL, '文档管理(DMS)', 'dms', 1, 'folder', '/admin/dms', 19, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — BI 看板
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000701, 31000000000000205, 'BI看板-查看',   'get.admin/bi/dashboard',    3, NULL, NULL, 1, NOW(), NOW()),
+(31000000000000702, 31000000000000205, 'BI看板-创建',   'post.admin/bi/dashboard',   3, NULL, NULL, 2, NOW(), NOW()),
+(31000000000000703, 31000000000000205, 'BI看板-更新',   'put.admin/bi/dashboard',    3, NULL, NULL, 3, NOW(), NOW()),
+(31000000000000704, 31000000000000205, 'BI看板-删除',   'delete.admin/bi/dashboard', 3, NULL, NULL, 4, NOW(), NOW()),
+(31000000000000705, 31000000000000205, '看板组件-查看', 'get.admin/bi/widget',       3, NULL, NULL, 5, NOW(), NOW()),
+(31000000000000706, 31000000000000205, '看板组件-创建', 'post.admin/bi/widget',      3, NULL, NULL, 6, NOW(), NOW()),
+(31000000000000707, 31000000000000205, '看板组件-更新', 'put.admin/bi/widget',       3, NULL, NULL, 7, NOW(), NOW()),
+(31000000000000708, 31000000000000205, '看板组件-删除', 'delete.admin/bi/widget',    3, NULL, NULL, 8, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — 设备管理 (EAM)
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000711, 31000000000000206, '设备台账-查看',   'get.admin/eam/equipment',    3, NULL, NULL, 1, NOW(), NOW()),
+(31000000000000712, 31000000000000206, '设备台账-创建',   'post.admin/eam/equipment',   3, NULL, NULL, 2, NOW(), NOW()),
+(31000000000000713, 31000000000000206, '设备台账-更新',   'put.admin/eam/equipment',    3, NULL, NULL, 3, NOW(), NOW()),
+(31000000000000714, 31000000000000206, '设备台账-删除',   'delete.admin/eam/equipment', 3, NULL, NULL, 4, NOW(), NOW()),
+(31000000000000715, 31000000000000206, '保养计划-查看',   'get.admin/eam/maintenance',    3, NULL, NULL, 5, NOW(), NOW()),
+(31000000000000716, 31000000000000206, '保养计划-创建',   'post.admin/eam/maintenance',   3, NULL, NULL, 6, NOW(), NOW()),
+(31000000000000717, 31000000000000206, '保养计划-更新',   'put.admin/eam/maintenance',    3, NULL, NULL, 7, NOW(), NOW()),
+(31000000000000718, 31000000000000206, '保养计划-删除',   'delete.admin/eam/maintenance', 3, NULL, NULL, 8, NOW(), NOW()),
+(31000000000000719, 31000000000000206, '维修工单-查看',   'get.admin/eam/repair',    3, NULL, NULL, 9, NOW(), NOW()),
+(31000000000000720, 31000000000000206, '维修工单-创建',   'post.admin/eam/repair',   3, NULL, NULL, 10, NOW(), NOW()),
+(31000000000000721, 31000000000000206, '维修工单-更新',   'put.admin/eam/repair',    3, NULL, NULL, 11, NOW(), NOW()),
+(31000000000000722, 31000000000000206, '维修工单-删除',   'delete.admin/eam/repair', 3, NULL, NULL, 12, NOW(), NOW()),
+(31000000000000723, 31000000000000206, '维修工单-状态流转', 'post.admin/eam/repair/{id}/transition', 3, NULL, NULL, 13, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — 文档管理 (DMS)
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000731, 31000000000000207, '文档-查看',   'get.admin/dms/document',    3, NULL, NULL, 1, NOW(), NOW()),
+(31000000000000732, 31000000000000207, '文档-创建',   'post.admin/dms/document',   3, NULL, NULL, 2, NOW(), NOW()),
+(31000000000000733, 31000000000000207, '文档-更新',   'put.admin/dms/document',    3, NULL, NULL, 3, NOW(), NOW()),
+(31000000000000734, 31000000000000207, '文档-删除',   'delete.admin/dms/document', 3, NULL, NULL, 4, NOW(), NOW()),
+(31000000000000735, 31000000000000207, '文档分类-查看', 'get.admin/dms/categories', 3, NULL, NULL, 5, NOW(), NOW());
+
+-- ============================================================
+-- 超级管理员角色 (ID=10000000000000001) 关联所有新增权限
+-- ============================================================
+INSERT INTO `erik_admin_role_permission` (`role_id`, `permission_id`)
+SELECT 10000000000000001, `id` FROM `erik_admin_permission`
+WHERE `id` NOT IN (
+    SELECT `permission_id` FROM `erik_admin_role_permission` WHERE `role_id` = 10000000000000001
+);
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+CREATE TABLE IF NOT EXISTS `erik_eam_spare_part` (
+    `id` BIGINT UNSIGNED NOT NULL,
+    `code` VARCHAR(100) NOT NULL DEFAULT '',
+    `name` VARCHAR(200) NOT NULL DEFAULT '',
+    `equipment_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `spec` VARCHAR(200) NOT NULL DEFAULT '',
+    `unit` VARCHAR(20) NOT NULL DEFAULT '',
+    `stock_qty` DECIMAL(12,2) NOT NULL DEFAULT 0,
+    `min_stock` DECIMAL(12,2) NOT NULL DEFAULT 0,
+    `location` VARCHAR(200) NOT NULL DEFAULT '',
+    `status` TINYINT NOT NULL DEFAULT 1,
+    `created_at` DATETIME NULL DEFAULT NULL,
+    `updated_at` DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `idx_equipment_id` (`equipment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- ============================================================
+-- QMS质量管理模块权限种子数据
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+--
+-- 初始化 QMS 模块的菜单权限和 API 权限
+-- 超级管理员 (super_admin) 自动获得所有新增权限
+-- ============================================================
+
+-- ============================================================
+-- 菜单权限 (type=1) — QMS 质量管理
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000204, NULL, '质量管理(QMS)', 'quality', 1, 'verified_user', '/admin/quality', 16, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — 检验标准
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000601, 31000000000000204, '检验标准-查看',   'get.admin/quality/standard',       3, NULL, NULL, 1, NOW(), NOW()),
+(31000000000000602, 31000000000000204, '检验标准-创建',   'post.admin/quality/standard',      3, NULL, NULL, 2, NOW(), NOW()),
+(31000000000000603, 31000000000000204, '检验标准-更新',   'put.admin/quality/standard',       3, NULL, NULL, 3, NOW(), NOW()),
+(31000000000000604, 31000000000000204, '检验标准-删除',   'delete.admin/quality/standard',    3, NULL, NULL, 4, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — 来料检验 (IQC)
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000611, 31000000000000204, 'IQC-查看',   'get.admin/quality/iqc',    3, NULL, NULL, 8, NOW(), NOW()),
+(31000000000000612, 31000000000000204, 'IQC-创建',   'post.admin/quality/iqc',   3, NULL, NULL, 9, NOW(), NOW()),
+(31000000000000613, 31000000000000204, 'IQC-更新',   'put.admin/quality/iqc',    3, NULL, NULL, 10, NOW(), NOW()),
+(31000000000000614, 31000000000000204, 'IQC-删除',   'delete.admin/quality/iqc', 3, NULL, NULL, 11, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — 过程检验 (IPQC)
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000621, 31000000000000204, 'IPQC-查看',   'get.admin/quality/ipqc',    3, NULL, NULL, 15, NOW(), NOW()),
+(31000000000000622, 31000000000000204, 'IPQC-创建',   'post.admin/quality/ipqc',   3, NULL, NULL, 16, NOW(), NOW()),
+(31000000000000623, 31000000000000204, 'IPQC-更新',   'put.admin/quality/ipqc',    3, NULL, NULL, 17, NOW(), NOW()),
+(31000000000000624, 31000000000000204, 'IPQC-删除',   'delete.admin/quality/ipqc', 3, NULL, NULL, 18, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — 出货检验 (OQC)
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000631, 31000000000000204, 'OQC-查看',   'get.admin/quality/oqc',    3, NULL, NULL, 22, NOW(), NOW()),
+(31000000000000632, 31000000000000204, 'OQC-创建',   'post.admin/quality/oqc',   3, NULL, NULL, 23, NOW(), NOW()),
+(31000000000000633, 31000000000000204, 'OQC-更新',   'put.admin/quality/oqc',    3, NULL, NULL, 24, NOW(), NOW()),
+(31000000000000634, 31000000000000204, 'OQC-删除',   'delete.admin/quality/oqc', 3, NULL, NULL, 25, NOW(), NOW());
+
+-- ============================================================
+-- API 权限 (type=3) — 不合格品
+-- ============================================================
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000641, 31000000000000204, '不合格品-查看',   'get.admin/quality/nonconformity',    3, NULL, NULL, 29, NOW(), NOW()),
+(31000000000000642, 31000000000000204, '不合格品-创建',   'post.admin/quality/nonconformity',   3, NULL, NULL, 30, NOW(), NOW()),
+(31000000000000643, 31000000000000204, '不合格品-更新',   'put.admin/quality/nonconformity',    3, NULL, NULL, 31, NOW(), NOW()),
+(31000000000000644, 31000000000000204, '不合格品-删除',   'delete.admin/quality/nonconformity', 3, NULL, NULL, 32, NOW(), NOW());
+
+-- DMS Document Category Table
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+CREATE TABLE IF NOT EXISTS `erik_dms_category` (
+    `id` BIGINT UNSIGNED NOT NULL,
+    `name` VARCHAR(100) NOT NULL DEFAULT '',
+    `sort` INT NOT NULL DEFAULT 0,
+    `status` TINYINT NOT NULL DEFAULT 1,
+    `created_at` DATETIME NULL DEFAULT NULL,
+    `updated_at` DATETIME NULL DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `erik_dms_category` (`id`, `name`, `sort`, `status`) VALUES
+(1, '制度规范', 1, 1),
+(2, '流程文档', 2, 1),
+(3, '技术文档', 3, 1),
+(4, '合同协议', 4, 1),
+(5, '培训材料', 5, 1),
+(6, '其他', 99, 1);
+
+-- Service wiring permission seeds
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000740, 31000000000000005, '期末结转-执行',     'post.admin/finance/report/close-period',    3, NULL, NULL, 30, NOW(), NOW()),
+(31000000000000741, 31000000000000005, '多币种合并-执行',   'post.admin/finance/report/consolidate',     3, NULL, NULL, 31, NOW(), NOW()),
+(31000000000000742, 31000000000000005, '财务指标-计算',     'post.admin/finance/report/ratios',          3, NULL, NULL, 32, NOW(), NOW()),
+(31000000000000743, 31000000000000005, '试算平衡-查看',     'get.admin/finance/report/trial-balance',    3, NULL, NULL, 33, NOW(), NOW()),
+(31000000000000744, 31000000000000005, '科目余额-查看',     'get.admin/finance/report/account-balance',  3, NULL, NULL, 34, NOW(), NOW()),
+(31000000000000745, 31000000000000203, '运费-计算',         'post.admin/tms/freight-rate/calculate',     3, NULL, NULL, 19, NOW(), NOW()),
+(31000000000000746, 31000000000000203, '运费-比价',         'get.admin/tms/freight-rate/rate-shop',      3, NULL, NULL, 20, NOW(), NOW()),
+(31000000000000747, 31000000000000204, '检验-登记',         'post.admin/quality/inspection/record',      3, NULL, NULL, 33, NOW(), NOW()),
+(31000000000000748, 31000000000000204, '检验-合格率',       'post.admin/quality/inspection/pass-rate',   3, NULL, NULL, 34, NOW(), NOW());
 
 -- ============================================================
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz

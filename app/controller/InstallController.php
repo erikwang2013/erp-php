@@ -52,12 +52,20 @@ class InstallController
 
     public function testDb(Request $request): Response
     {
+        if ($this->isInstalled()) {
+            return json(['code' => 1, 'message' => '系统已安装，禁止调用']);
+        }
+
         try {
             $host = $request->input('host', '127.0.0.1');
             $port = $request->input('port', '3306');
             $database = $request->input('database', '');
             $username = $request->input('username', 'root');
             $password = $request->input('password', '');
+
+            if (!preg_match('/^[a-zA-Z0-9._\-:]+$/', (string) $host) || !preg_match('/^\d{1,5}$/', (string) $port)) {
+                return json(['code' => 1, 'message' => '非法的主机或端口参数']);
+            }
 
             $dsn = "mysql:host={$host};port={$port};charset=utf8mb4";
             if ($database) {

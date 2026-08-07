@@ -31,7 +31,7 @@ class WmsInboundService
         return DB::transaction(function () use ($supplierId, $warehouseId, $items, $options) {
             $asn = new WmsAsn();
             $asn->id = SnowflakeService::generate();
-            $asn->code = $options['code'] ?? ('ASN' . $this->generateId());
+            $asn->code = $options['code'] ?? ('ASN' . SnowflakeService::generate());
             $asn->supplier_id = $supplierId;
             $asn->warehouse_id = $warehouseId;
             $asn->purchase_order_id = $options['purchase_order_id'] ?? 0;
@@ -71,7 +71,7 @@ class WmsInboundService
 
             $receiving = new WmsReceiving();
             $receiving->id = SnowflakeService::generate();
-            $receiving->code = 'RCV' . $this->generateId();
+            $receiving->code = 'RCV' . SnowflakeService::generate();
             $receiving->asn_id = $asnId;
             $receiving->warehouse_id = $warehouseId;
             $receiving->dock_location_id = $dockLocationId;
@@ -115,7 +115,7 @@ class WmsInboundService
 
             $putaway = new WmsPutawayTask();
             $putaway->id = SnowflakeService::generate();
-            $putaway->code = 'PUT' . $this->generateId();
+            $putaway->code = 'PUT' . SnowflakeService::generate();
             $putaway->warehouse_id = $receiving->warehouse_id;
             $putaway->receiving_id = $receivingId;
             $putaway->status = 0;

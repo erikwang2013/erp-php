@@ -144,13 +144,13 @@ digraph SecurityArchitectureCN {
     L10a -> L11a [color="#90a4ae", penwidth=1.5];
 
     subgraph cluster_L12 {
-        label="第 12 层: 可观测性 (P2 规划中)";
+        label="第 12 层: 可观测性 (已完成)";
         fontsize=12; fontname="Arial Bold";
-        style="filled,rounded,dashed"; fillcolor="#fafafa"; color="#bdbdbd"; penwidth=2;
-        L12a [label="分布式追踪\nOpenTelemetry\nX-Trace-Id 全链路", fillcolor="#e0e0e0", color="#9e9e9e", style="dashed"];
-        L12b [label="业务指标\n订单量/履约率\n库存周转天数", fillcolor="#e0e0e0", color="#9e9e9e", style="dashed"];
-        L12c [label="审计增强\n业务级审计追踪\n敏感操作完整记录", fillcolor="#e0e0e0", color="#9e9e9e", style="dashed"];
+        style="filled,rounded"; fillcolor="#f9fbe7"; color="#827717"; penwidth=2;
+        L12a [label="分布式追踪\nOpenTelemetry\nX-Trace-Id 全链路", fillcolor="#f0f4c3", color="#9e9d24"];
+        L12b [label="业务指标\n订单量/履约率\n库存周转天数", fillcolor="#f0f4c3", color="#9e9d24"];
+        L12c [label="审计增强\n业务级审计追踪\n敏感操作完整记录", fillcolor="#f0f4c3", color="#9e9d24"];
     }
 
-    L11a -> L12a [color="#bdbdbd", penwidth=1, style="dashed"];
+    L11a -> L12a [color="#827717", penwidth=1.5];
 }

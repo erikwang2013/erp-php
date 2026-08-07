@@ -238,7 +238,7 @@
 <title>c2</title>
 <ellipse fill="#ffffff" stroke="#78909c" stroke-width="1.5" cx="297" cy="-424.57" rx="75.82" ry="21.43"/>
 <text text-anchor="middle" x="297" y="-427.57" font-family="Arial" font-size="10.00">Business Controllers</text>
-<text text-anchor="middle" x="297" y="-416.57" font-family="Arial" font-size="10.00">(71 modules)</text>
+<text text-anchor="middle" x="297" y="-416.57" font-family="Arial" font-size="10.00">(104)</text>
 </g>
 <!-- m7&#45;&gt;c2 -->
 <g id="edge8" class="edge">
@@ -264,7 +264,7 @@
 <title>c3</title>
 <ellipse fill="#ffffff" stroke="#78909c" stroke-width="1.5" cx="325" cy="-339.14" rx="54.39" ry="21.43"/>
 <text text-anchor="middle" x="325" y="-342.14" font-family="Arial" font-size="10.00">Service Layer</text>
-<text text-anchor="middle" x="325" y="-331.14" font-family="Arial" font-size="10.00">(7 services)</text>
+<text text-anchor="middle" x="325" y="-331.14" font-family="Arial" font-size="10.00">(24 services)</text>
 </g>
 <!-- c1&#45;&gt;c3 -->
 <g id="edge10" class="edge">
@@ -357,7 +357,7 @@
 <path fill="none" stroke="#d32f2f" stroke-width="1.5" d="M418.5,-168.8C418.5,-165.24 399,-162.34 375,-162.34 351,-162.34 331.5,-165.24 331.5,-168.8"/>
 <text text-anchor="middle" x="375" y="-153.75" font-family="Arial" font-size="10.00">MySQL 8.0</text>
 <text text-anchor="middle" x="375" y="-142.75" font-family="Arial" font-size="10.00">Primary Storage</text>
-<text text-anchor="middle" x="375" y="-131.75" font-family="Arial" font-size="10.00">122 tables</text>
+<text text-anchor="middle" x="375" y="-131.75" font-family="Arial" font-size="10.00">163 tables</text>
 <text text-anchor="middle" x="375" y="-120.75" font-family="Arial" font-size="10.00">erik_ prefix</text>
 </g>
 <!-- s1&#45;&gt;d1 -->

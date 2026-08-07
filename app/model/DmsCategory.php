@@ -9,13 +9,13 @@ namespace app\model;
 
 use support\Model;
 
-class QualityOqcRecord extends Model
+class DmsCategory extends Model
 {
-    protected $table = 'erik_quality_oqc_record';
+    protected $table = 'erik_dms_category';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
 
-    protected $fillable = ['id', 'code', 'delivery_id', 'product_id', 'standard_id', 'inspected_qty', 'passed_qty', 'rejected_qty', 'result', 'inspector', 'remark', 'status'];
+    protected $fillable = ['name', 'sort', 'status'];
     public $timestamps = true;
 }

@@ -29,6 +29,14 @@ class NotificationService
         $notification->source_id = $sourceId;
         $notification->is_read = 0;
         $notification->save();
+
+        // WebSocket 实时推送（无 WS 连接时静默跳过）
+        WebSocketService::pushToUser($userId, [
+            'id' => $notification->id,
+            'title' => $title,
+            'content' => $content,
+            'type' => $type,
+        ]);
     }
 
     /**
@@ -57,9 +65,10 @@ class NotificationService
     /**
      * 标记单条通知已读
      */
-    public static function markRead(int $notificationId): void
+    public static function markRead(int $notificationId, int $userId): void
     {
         Notification::where('id', $notificationId)
+            ->where('user_id', $userId)
             ->where('is_read', 0)
             ->update(['is_read' => 1, 'read_at' => date('Y-m-d H:i:s')]);
     }

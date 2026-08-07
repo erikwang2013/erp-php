@@ -48,6 +48,21 @@ class UploadController extends BaseController
             return $this->fail('不支持的文件类型: .' . $ext, 422);
         }
 
+        // 嗅探真实 MIME，防止伪造扩展名上传可执行内容
+        $mimeMap = [
+            'jpg' => ['image/jpeg'],
+            'jpeg' => ['image/jpeg'],
+            'png' => ['image/png'],
+            'gif' => ['image/gif'],
+            'pdf' => ['application/pdf'],
+            'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/zip'],
+            'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip'],
+        ];
+        $realMime = (new \finfo(FILEINFO_MIME_TYPE))->file($file->getRealPath());
+        if (!$realMime || !in_array($realMime, $mimeMap[$ext] ?? [], true)) {
+            return $this->fail('文件内容与扩展名不匹配，已拒绝上传', 422);
+        }
+
         if ($file->getSize() > $this->maxSize) {
             return $this->fail('文件大小不能超过 10MB', 422);
         }

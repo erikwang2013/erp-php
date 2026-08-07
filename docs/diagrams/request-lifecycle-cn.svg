@@ -266,7 +266,7 @@
 <title>model</title>
 <ellipse fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5" cx="118" cy="-133.37" rx="81.13" ry="28.98"/>
 <text text-anchor="middle" x="118" y="-141.87" font-family="Arial" font-size="10.00">模型层</text>
-<text text-anchor="middle" x="118" y="-130.87" font-family="Arial" font-size="10.00">(121 个 Eloquent 模型)</text>
+<text text-anchor="middle" x="118" y="-130.87" font-family="Arial" font-size="10.00">(161 个 Eloquent 模型)</text>
 <text text-anchor="middle" x="118" y="-119.87" font-family="Arial" font-size="10.00">查询 / 修改数据</text>
 </g>
 <!-- service&#45;&gt;model -->
@@ -308,7 +308,7 @@
 <path fill="none" stroke="#d32f2f" stroke-width="1.5" d="M151,-51.4C151,-48.56 136.21,-46.25 118,-46.25 99.79,-46.25 85,-48.56 85,-51.4"/>
 <text text-anchor="middle" x="118" y="-36.69" font-family="Arial" font-size="10.00">MySQL 8.0</text>
 <text text-anchor="middle" x="118" y="-25.69" font-family="Arial" font-size="10.00">主数据库</text>
-<text text-anchor="middle" x="118" y="-14.69" font-family="Arial" font-size="10.00">122 张表</text>
+<text text-anchor="middle" x="118" y="-14.69" font-family="Arial" font-size="10.00">163 张表</text>
 </g>
 <!-- model&#45;&gt;mysql -->
 <g id="edge19" class="edge">

@@ -73,7 +73,8 @@ class NotificationController extends BaseController
     public function markRead(Request $request, string $hashid): Response
     {
         $id = $this->decodeId($hashid);
-        NotificationService::markRead($id);
+        $userId = (int)($request->adminId ?? 0);
+        NotificationService::markRead($id, $userId);
 
         return $this->success([], '已标记为已读');
     }

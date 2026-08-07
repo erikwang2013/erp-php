@@ -266,7 +266,7 @@
 <title>model</title>
 <ellipse fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5" cx="122" cy="-133.37" rx="80.72" ry="28.98"/>
 <text text-anchor="middle" x="122" y="-141.87" font-family="Arial" font-size="10.00">Model Layer</text>
-<text text-anchor="middle" x="122" y="-130.87" font-family="Arial" font-size="10.00">(121 Eloquent Models)</text>
+<text text-anchor="middle" x="122" y="-130.87" font-family="Arial" font-size="10.00">(161 Eloquent Models)</text>
 <text text-anchor="middle" x="122" y="-119.87" font-family="Arial" font-size="10.00">Query / Mutate Data</text>
 </g>
 <!-- service&#45;&gt;model -->
@@ -308,7 +308,7 @@
 <path fill="none" stroke="#d32f2f" stroke-width="1.5" d="M157,-51.4C157,-48.56 141.76,-46.25 123,-46.25 104.24,-46.25 89,-48.56 89,-51.4"/>
 <text text-anchor="middle" x="123" y="-36.69" font-family="Arial" font-size="10.00">MySQL 8.0</text>
 <text text-anchor="middle" x="123" y="-25.69" font-family="Arial" font-size="10.00">Primary DB</text>
-<text text-anchor="middle" x="123" y="-14.69" font-family="Arial" font-size="10.00">122 tables</text>
+<text text-anchor="middle" x="123" y="-14.69" font-family="Arial" font-size="10.00">163 tables</text>
 </g>
 <!-- model&#45;&gt;mysql -->
 <g id="edge19" class="edge">

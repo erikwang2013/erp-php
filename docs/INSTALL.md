@@ -43,7 +43,7 @@ cd /home/wwwroot/erp-php/service
 mysql -u root -p erp < database/install.sql
 ```
 
-`install.sql` 包含全部 122 张表的结构和初始种子数据（超级管理员角色、权限树、漏斗阶段、税率、币种、分析指标），由 18 个迁移文件合并而成。
+`install.sql` 包含全部 163 张表的结构和初始种子数据（超级管理员角色、权限树、漏斗阶段、税率、币种、分析指标、文档分类、服务接口权限），由 29 个迁移文件合并而成。
 
 ### 3. 配置环境变量
 
@@ -143,7 +143,7 @@ mysql -h mysql -u root -p erp < database/install.sql
 
 ---
 
-## 表清单（122 张表）
+## 表清单（163 张表）
 
 | 模块 | 表数 | 表名 |
 |------|------|------|
@@ -163,6 +163,14 @@ mysql -h mysql -u root -p erp < database/install.sql
 | 人力资源 | 8 | hr_department, hr_position, hr_employee, hr_attendance_rule, hr_attendance, hr_leave, hr_salary, hr_salary_item |
 | 生产制造 | 8 | mfg_bom, mfg_bom_item, mfg_production_order, mfg_production_item, mfg_routing, mfg_workstation, mfg_mrp_plan, mfg_mrp_item |
 | 自定义报表 | 5 | report_template, report_field, report_filter, report_dataset, report_schedule |
+| OMS 订单管理 | 7 | oms_order, oms_order_address, oms_fulfillment, oms_fulfillment_item, oms_rma, oms_rma_item, oms_inventory_reservation |
+| WMS 仓储管理 | 12 | wms_asn, wms_asn_item, wms_receiving, wms_putaway_task, wms_putaway_item, wms_wave, wms_wave_order, wms_pick_task, wms_pick_item, wms_pack_task, wms_zone, wms_location |
+| TMS 运输管理 | 7 | tms_carrier, tms_carrier_service, tms_freight_rate, tms_freight_invoice, tms_shipment, tms_shipment_package, tms_tracking_event |
+| QMS 质量管理 | 5 | quality_iqc_record, quality_ipqc_record, quality_oqc_record, quality_inspection_standard, quality_nonconformity |
+| EAM 设备管理 | 4 | eam_equipment, eam_maintenance_plan, eam_repair_order, eam_spare_part |
+| DMS 文档管理 | 3 | dms_category, dms_document, dms_document_version |
+| BI 看板 | 2 | bi_dashboard, bi_widget |
+| 渠道 | 1 | channel |
 
 ---
 

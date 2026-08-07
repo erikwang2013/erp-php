@@ -3,12 +3,12 @@ digraph FunctionalModulesCN {
     fontname="Arial";
     fontsize=14;
     bgcolor="transparent";
-    nodesep=0.3;
-    ranksep=0.5;
+    nodesep=0.4;
+    ranksep=0.6;
     compound=true;
     splines=polyline;
 
-    root [label="开放ERP系统\n功能模块总览\n20 个领域 / 149 张表 / 89 个控制器",
+    root [label="开放ERP系统\n功能模块总览\n19 个业务领域 / 163 张表\n121 个控制器",
           shape="box", style="filled,rounded", fillcolor="#1a237e", color="#0d47a1",
           fontcolor="white", fontsize=14, fontname="Arial Bold", penwidth=2];
 
@@ -103,9 +103,9 @@ digraph FunctionalModulesCN {
         iv7 [label="预警规则\n最低/最高预警", fillcolor="#ffecb3", color="#ffa000"];
     }
 
-    subgraph cluster_fin { label="财务管理"; fontsize=12; fontname="Arial Bold";
+    subgraph cluster_fin { label="财务管理 - 基础"; fontsize=12; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
-        fn1 [label="应收应付\n自动生成", fillcolor="#ffcdd2", color="#d32f2f"];
+        fn1 [label="应收应付\n自动生成+核销", fillcolor="#ffcdd2", color="#d32f2f"];
         fn2 [label="记账凭证\n分录录入", fillcolor="#ffcdd2", color="#d32f2f"];
         fn3 [label="收付款\n资金流动", fillcolor="#ffcdd2", color="#d32f2f"];
         fn4 [label="现金银行日记账\n逐日记录", fillcolor="#ffcdd2", color="#d32f2f"];
@@ -114,6 +114,10 @@ digraph FunctionalModulesCN {
         fn7 [label="资产负债表\n资产=负债+权益", fillcolor="#ffcdd2", color="#d32f2f"];
         fn8 [label="利润表\n收入-支出", fillcolor="#ffcdd2", color="#d32f2f"];
         fn9 [label="现金流量表\n经营/投资/筹资", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_fin2 { label="财务管理 - 扩展"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
         fna [label="固定资产\n计提折旧", fillcolor="#ffcdd2", color="#d32f2f"];
         fnb [label="税务管理\n多税率", fillcolor="#ffcdd2", color="#d32f2f"];
         fnc [label="多币种\n汇率管理", fillcolor="#ffcdd2", color="#d32f2f"];
@@ -213,21 +217,49 @@ digraph FunctionalModulesCN {
         tm4 [label="物流轨迹\nwebhook同步", fillcolor="#ffecb3", color="#ffa000"];
     }
 
+    subgraph cluster_qms { label="质量管理(QMS)"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f9fbe7"; color="#827717"; penwidth=2;
+        q1 [label="进料检验 IQC\n来料质检", fillcolor="#f0f4c3", color="#9e9d24"];
+        q2 [label="制程检验 IPQC\n过程质检", fillcolor="#f0f4c3", color="#9e9d24"];
+        q3 [label="出货检验 OQC\n成品质检", fillcolor="#f0f4c3", color="#9e9d24"];
+        q4 [label="检验标准\n规则配置", fillcolor="#f0f4c3", color="#9e9d24"];
+        q5 [label="不合格品处理\n隔离/返工/报废", fillcolor="#f0f4c3", color="#9e9d24"];
+    }
+
+    subgraph cluster_eam { label="设备管理(EAM)"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fbe9e7"; color="#bf360c"; penwidth=2;
+        ea1 [label="设备档案\n台账管理", fillcolor="#ffccbc", color="#ff5722"];
+        ea2 [label="保养计划\n周期保养", fillcolor="#ffccbc", color="#ff5722"];
+        ea3 [label="维修工单\n报修处理", fillcolor="#ffccbc", color="#ff5722"];
+        ea4 [label="备件管理\n库存+领用", fillcolor="#ffccbc", color="#ff5722"];
+    }
+
+    subgraph cluster_dms { label="文档管理(DMS)"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e1f5fe"; color="#01579b"; penwidth=2;
+        dm1 [label="文档分类\n树形目录", fillcolor="#b3e5fc", color="#0288d1"];
+        dm2 [label="文档\n上传+权限", fillcolor="#b3e5fc", color="#0288d1"];
+        dm3 [label="版本管理\n历史版本", fillcolor="#b3e5fc", color="#0288d1"];
+    }
+
+    subgraph cluster_bi { label="BI 看板"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#eceff1"; color="#455a64"; penwidth=2;
+        bi1 [label="看板\n布局配置", fillcolor="#cfd8dc", color="#546e7a"];
+        bi2 [label="图表组件\n指标展示", fillcolor="#cfd8dc", color="#546e7a"];
+    }
+
     root -> a1; root -> d1; root -> ad1; root -> se1; root -> op1;
     root -> pd1; root -> pu1; root -> sl1; root -> iv1; root -> fn1;
     root -> cr1; root -> wf1; root -> nf1; root -> pm1; root -> hr1;
     root -> mg1; root -> rp1;
     root -> om1; root -> wm1; root -> tm1;
+    root -> q1; root -> ea1; root -> dm1; root -> bi1;
 
     subgraph cluster_legend {
-        label="模块状态图例 (2026-08-04)";
+        label="模块状态图例 (2026-08-07)";
         fontsize=12; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae"; penwidth=1;
         node [shape="box", fontsize=9, style="filled,rounded"];
-        lg1 [label="已完成\n13模块", fillcolor="#c8e6c9", color="#388e3c"];
-        lg2 [label="骨架\n7模块", fillcolor="#ffecb3", color="#ffa000"];
-        lg3 [label="缺失\n7模块", fillcolor="#ffcdd2", color="#d32f2f"];
-        lg4 [label="P1 计划\n财务引擎/薪资/MRP/质量/通知", fillcolor="#a5d6a7", color="#2e7d32"];
-        lg5 [label="P3 计划\nBI看板/EAM/多租户/DMS", fillcolor="#ce93d8", color="#6a1b9a"];
+        lg1 [label="已完成\n24 个模块\n(19 业务 + 5 平台)", fillcolor="#c8e6c9", color="#388e3c"];
+        lg2 [label="路线图 P0~P3\n已全部交付", fillcolor="#a5d6a7", color="#2e7d32"];
     }
 }

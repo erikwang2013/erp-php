@@ -9,6 +9,7 @@ namespace app\controller\quality;
 
 use app\admin\controller\BaseController;
 use app\model\QualityIqcRecord;
+use app\service\quality\QmsInspectionService;
 use support\Request;
 use support\Response;
 
@@ -91,5 +92,58 @@ class IncomingCheckController extends BaseController
         $item->delete();
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * 检验登记（自动生成不合格品单）
+     * @Apidoc\Title("检验登记")
+     * @Apidoc\Desc("按检验类型(iqc/ipqc/oqc)登记结果，reject时自动创建不合格品单")
+     * @Apidoc\Url("/admin/quality/inspection/record")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("质量管理")
+     * @Apidoc\Param(name="record_type", type="string", desc="检验类型: iqc/ipqc/oqc，必填")
+     * @Apidoc\Param(name="inspected_qty", type="int", desc="检验数量，必填")
+     * @Apidoc\Param(name="result", type="string", desc="结果: pass/reject，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="检验记录ID")
+     */
+    public function record(Request $request): Response
+    {
+        $validator = validator($request->all(), [
+            'record_type' => 'required|in:iqc,ipqc,oqc',
+            'inspected_qty' => 'required|integer|min:0',
+            'result' => 'required|in:pass,reject',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
+        $id = (new QmsInspectionService())->recordInspection((string) $request->input('record_type'), $request->all());
+
+        return $this->success(['id' => $this->encodeIds(['id' => $id])['id']], '检验记录已保存');
+    }
+
+    /**
+     * 检验合格率
+     * @Apidoc\Title("检验合格率")
+     * @Apidoc\Desc("按检验明细汇总计算合格率")
+     * @Apidoc\Url("/admin/quality/inspection/pass-rate")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("质量管理")
+     * @Apidoc\Param(name="records", type="array", desc="检验记录[{inspected_qty,passed_qty}]")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="合格率(pass_rate)")
+     */
+    public function passRate(Request $request): Response
+    {
+        $records = $request->input('records', []);
+        if (!is_array($records)) {
+            return $this->fail('records 必须为数组', 422);
+        }
+
+        return $this->success(['pass_rate' => (new QmsInspectionService())->calculatePassRate($records)]);
     }
 }

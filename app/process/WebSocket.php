@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace app\process;
 
+use app\service\notification\WebSocketService;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request;
 
@@ -14,7 +15,7 @@ class WebSocket
 {
     public function onConnect(TcpConnection $connection): void
     {
-        // WebSocket connection established
+        WebSocketService::setWorker($connection->worker);
     }
 
     public function onWebSocketConnect(TcpConnection $connection, Request $request): void

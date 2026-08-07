@@ -3,13 +3,13 @@ digraph FunctionalModules {
     fontname="Arial";
     fontsize=14;
     bgcolor="transparent";
-    nodesep=0.3;
-    ranksep=0.5;
+    nodesep=0.4;
+    ranksep=0.6;
     compound=true;
     splines=polyline;
 
     // Root node
-    root [label="Open ERP System\nFunctional Modules\n20 Domains / 149 Tables / 89 Controllers",
+    root [label="Open ERP System\nFunctional Modules\n19 Business Domains / 163 Tables\n121 Controllers",
           shape="box", style="filled,rounded", fillcolor="#1a237e", color="#0d47a1",
           fontcolor="white", fontsize=14, fontname="Arial Bold", penwidth=2];
 
@@ -104,7 +104,7 @@ digraph FunctionalModules {
         iv7 [label="Alert Rules\nMin/Max Warning", fillcolor="#ffecb3", color="#ffa000"];
     }
 
-    subgraph cluster_fin { label="FINANCE"; fontsize=12; fontname="Arial Bold";
+    subgraph cluster_fin { label="FINANCE - BASIC"; fontsize=12; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
         fn1 [label="AR/AP\nAuto Generated", fillcolor="#ffcdd2", color="#d32f2f"];
         fn2 [label="Voucher\nJournal Entry", fillcolor="#ffcdd2", color="#d32f2f"];
@@ -115,6 +115,10 @@ digraph FunctionalModules {
         fn7 [label="Balance Sheet\nAssets=Liab+Equity", fillcolor="#ffcdd2", color="#d32f2f"];
         fn8 [label="Income Statement\nRevenue-Expense", fillcolor="#ffcdd2", color="#d32f2f"];
         fn9 [label="Cash Flow\nOper/Invest/Fin", fillcolor="#ffcdd2", color="#d32f2f"];
+    }
+
+    subgraph cluster_fin2 { label="FINANCE - EXTENDED"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
         fna [label="Fixed Assets\nDepreciation", fillcolor="#ffcdd2", color="#d32f2f"];
         fnb [label="Tax Mgmt\nMulti-Rate", fillcolor="#ffcdd2", color="#d32f2f"];
         fnc [label="Multi-Currency\nExchange Rate", fillcolor="#ffcdd2", color="#d32f2f"];
@@ -197,6 +201,7 @@ digraph FunctionalModules {
         om2 [label="Fulfillment\nOrchestration", fillcolor="#b2ebf2", color="#0097a7"];
         om3 [label="Inventory\nReservation+ATP", fillcolor="#b2ebf2", color="#0097a7"];
         om4 [label="RMA Returns\nApprove-Refund", fillcolor="#b2ebf2", color="#0097a7"];
+        om5 [label="Channel Mgmt\nTypes+Config", fillcolor="#b2ebf2", color="#0097a7"];
     }
 
     subgraph cluster_wms_mod { label="WMS"; fontsize=12; fontname="Arial Bold";
@@ -204,6 +209,7 @@ digraph FunctionalModules {
         wm1 [label="Zone+Location\nHierarchy+Barcode", fillcolor="#e1bee7", color="#7b1fa2"];
         wm2 [label="Inbound\nASN-Receive-Putaway", fillcolor="#e1bee7", color="#7b1fa2"];
         wm3 [label="Outbound\nWave-Pick-Pack", fillcolor="#e1bee7", color="#7b1fa2"];
+        wm4 [label="Wave Mgmt\nOrder Aggregation", fillcolor="#e1bee7", color="#7b1fa2"];
     }
 
     subgraph cluster_tms_mod { label="TMS"; fontsize=12; fontname="Arial Bold";
@@ -211,6 +217,37 @@ digraph FunctionalModules {
         tm1 [label="Carrier Mgmt\nService+API", fillcolor="#ffecb3", color="#ffa000"];
         tm2 [label="Freight Rate\nShop+Currency", fillcolor="#ffecb3", color="#ffa000"];
         tm3 [label="Shipment+Label\nCreate+Tracking", fillcolor="#ffecb3", color="#ffa000"];
+        tm4 [label="Tracking Events\nWebhook Sync", fillcolor="#ffecb3", color="#ffa000"];
+    }
+
+    subgraph cluster_qms { label="QUALITY (QMS)"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#f9fbe7"; color="#827717"; penwidth=2;
+        q1 [label="Incoming IQC\nInbound Inspection", fillcolor="#f0f4c3", color="#9e9d24"];
+        q2 [label="In-Process IPQC\nProcess Inspection", fillcolor="#f0f4c3", color="#9e9d24"];
+        q3 [label="Outgoing OQC\nFinished Inspection", fillcolor="#f0f4c3", color="#9e9d24"];
+        q4 [label="Inspection Std.\nRule Config", fillcolor="#f0f4c3", color="#9e9d24"];
+        q5 [label="Nonconformity\nIsolate/Rework/Scrap", fillcolor="#f0f4c3", color="#9e9d24"];
+    }
+
+    subgraph cluster_eam { label="EQUIPMENT (EAM)"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#fbe9e7"; color="#bf360c"; penwidth=2;
+        ea1 [label="Equipment Ledger\nAsset Register", fillcolor="#ffccbc", color="#ff5722"];
+        ea2 [label="Maintenance Plan\nScheduled Service", fillcolor="#ffccbc", color="#ff5722"];
+        ea3 [label="Repair Order\nFault Handling", fillcolor="#ffccbc", color="#ff5722"];
+        ea4 [label="Spare Parts\nStock+Issue", fillcolor="#ffccbc", color="#ff5722"];
+    }
+
+    subgraph cluster_dms { label="DOCUMENT (DMS)"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#e1f5fe"; color="#01579b"; penwidth=2;
+        dm1 [label="Doc Category\nTree Structure", fillcolor="#b3e5fc", color="#0288d1"];
+        dm2 [label="Document\nUpload+Access", fillcolor="#b3e5fc", color="#0288d1"];
+        dm3 [label="Version Control\nHistory", fillcolor="#b3e5fc", color="#0288d1"];
+    }
+
+    subgraph cluster_bi { label="BI DASHBOARDS"; fontsize=12; fontname="Arial Bold";
+        style="filled,rounded"; fillcolor="#eceff1"; color="#455a64"; penwidth=2;
+        bi1 [label="Dashboard\nLayout Config", fillcolor="#cfd8dc", color="#546e7a"];
+        bi2 [label="Chart Widgets\nMetric Display", fillcolor="#cfd8dc", color="#546e7a"];
     }
 
     root -> a1; root -> d1; root -> ad1; root -> se1; root -> op1;
@@ -218,4 +255,5 @@ digraph FunctionalModules {
     root -> cr1; root -> wf1; root -> nf1; root -> pm1; root -> hr1;
     root -> mg1; root -> rp1;
     root -> om1; root -> wm1; root -> tm1;
+    root -> q1; root -> ea1; root -> dm1; root -> bi1;
 }

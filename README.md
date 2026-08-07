@@ -119,8 +119,8 @@ open-erp/
 │   │   ├── oms/                # 订单编排/库存分配/RMA生命周期
 │   │   ├── wms/                # 入库流程(ASN→收货→上架) / 出库流程(波次→拣货→打包)
 │   │   └── tms/                # 运单管理/运费比价/物流轨迹
-│   ├── model/                  # 148 个 Eloquent 模型（多模块共用）
-│   ├── middleware/             # 9 个中间件
+│   ├── model/                  # 161 个 Eloquent 模型（多模块共用）
+│   ├── middleware/             # 12 个中间件
 │   ├── common/                 # Hashids/Snowflake/Encryption 服务
 │   └── queue/                  # 队列任务
 ├── apps/
@@ -129,11 +129,11 @@ open-erp/
 ├── config/                     # 配置文件（含中文注释）
 │   ├── plugin/hg/apidoc/        # API 文档配置
 ├── database/
-│   ├── install.sql              # 完整安装SQL（149张表 + 种子数据）
-│   ├── migrations/              # SQL 迁移文件（22 个，已合并入 install.sql）
+│   ├── install.sql              # 完整安装SQL（163张表 + 种子数据）
+│   ├── migrations/              # SQL 迁移文件（29 个，已合并入 install.sql）
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（11 个测试文件，90 个测试方法，168 条断言）
+├── tests/                      # PHPUnit 测试（20 个测试文件，137 个测试方法，805 条断言）
 ├── resource/
 │   └── translations/           # 翻译文件 (zh_CN, en)
 │       ├── zh_CN/              # 中文翻译 (127 键)
@@ -163,7 +163,7 @@ open-erp/
 
 ![Functional Modules](./docs/diagrams/functional-modules-cn.svg)
 
-**20 大功能域、149 张数据表、89 个控制器**: 涵盖认证安全、仪表盘、系统管理、安全防护、运维监控、商品管理、采购、销售、库存、财务(14子模块)、CRM(10子模块)、审批工作流、消息通知、项目管理、人力资源、生产制造(MRP)、自定义报表。
+**19 大业务域、163 张数据表、121 个控制器**: 涵盖认证安全、仪表盘、系统管理、安全防护、运维监控、商品管理、采购、销售、库存、财务(14子模块)、CRM(10子模块)、审批工作流、消息通知、项目管理、人力资源、生产制造(MRP)、自定义报表、订单管理(OMS)、仓储管理(WMS)、运输管理(TMS)、质量管理(QMS)、设备管理(EAM)、文档管理(DMS)、BI看板。
 
 ### 请求生命周期
 
@@ -228,7 +228,7 @@ cp .env.example .env
 mysql -u root -p 数据库名 < database/install.sql
 ```
 
-`install.sql` 由 22 个迁移文件合并而成，包含全部 122 张表结构和种子数据。
+`install.sql` 由 29 个迁移文件合并而成，包含全部 163 张表结构和种子数据。
 
 **方式三：Docker 环境**
 

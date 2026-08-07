@@ -87,9 +87,12 @@ class FinanceService
     public function settleReceipt(int $receiptId, int $arApId, float $amount): void
     {
         DB::transaction(function () use ($receiptId, $arApId, $amount) {
-            $arAp = FinanceArAp::findOrFail($arApId);
+            $arAp = FinanceArAp::where('id', $arApId)->lockForUpdate()->firstOrFail();
             if ($arAp->type !== 1) {
                 throw new \RuntimeException('核销对象不是应收记录');
+            }
+            if ($amount <= 0) {
+                throw new \InvalidArgumentException('核销金额必须大于0');
             }
 
             $remain = $arAp->amount - $arAp->settled_amount;
@@ -118,9 +121,12 @@ class FinanceService
     public function settlePayment(int $paymentId, int $arApId, float $amount): void
     {
         DB::transaction(function () use ($paymentId, $arApId, $amount) {
-            $arAp = FinanceArAp::findOrFail($arApId);
+            $arAp = FinanceArAp::where('id', $arApId)->lockForUpdate()->firstOrFail();
             if ($arAp->type !== 2) {
                 throw new \RuntimeException('核销对象不是应付记录');
+            }
+            if ($amount <= 0) {
+                throw new \InvalidArgumentException('核销金额必须大于0');
             }
 
             $remain = $arAp->amount - $arAp->settled_amount;
@@ -162,11 +168,14 @@ class FinanceService
             $sourceId,
             $summary
         ) {
-            $account = FinanceBankAccount::findOrFail($bankAccountId);
+            $account = FinanceBankAccount::where('id', $bankAccountId)->lockForUpdate()->firstOrFail();
 
             if ($direction === 1) {
                 $account->balance += $amount;
             } else {
+                if ($account->balance < $amount) {
+                    throw new \RuntimeException('账户余额不足');
+                }
                 $account->balance -= $amount;
             }
             $account->save();

@@ -12,7 +12,6 @@ namespace app\api\v1\controller;
 use app\common\SnowflakeService;
 use app\model\AdminUser;
 use Erikwang2013\Jwt\JWT;
-use Erikwang2013\Jwt\JWTFactory;
 use support\Container;
 use support\Redis;
 use support\Request;
@@ -21,16 +20,9 @@ use Throwable;
 
 class AuthController
 {
-    private static ?JWT $jwt = null;
-
     private static function getJWT(): JWT
     {
-        if (self::$jwt === null) {
-            $config = config('plugin.erikwang2013.jwt.jwt', []);
-            self::$jwt = JWTFactory::createFromConfig($config);
-        }
-
-        return self::$jwt;
+        return jwt_instance();
     }
 
     /**
@@ -211,7 +203,16 @@ class AuthController
         try {
             $jwt = self::getJWT();
             $payload = $jwt->decode($refreshToken);
+        } catch (Throwable $e) {
+            return json(['code' => 401, 'message' => '刷新令牌无效或已过期', 'data' => []]);
+        }
 
+        // 仅接受刷新令牌，访问令牌不可用于续期
+        if (($payload['token_type'] ?? '') !== 'refresh') {
+            return json(['code' => 401, 'message' => '请使用刷新令牌', 'data' => []]);
+        }
+
+        try {
             // 刷新时更新最后登录时间和IP
             $userId = $payload['sub'] ?? 0;
             if ($userId) {

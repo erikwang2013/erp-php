@@ -11,6 +11,8 @@ use app\admin\controller\BaseController;
 use app\model\HrEmployee;
 use app\model\HrSalary;
 use app\model\HrSalaryItem;
+use app\service\hr\BankPayrollService;
+use app\service\hr\SalaryEngineService;
 use support\Request;
 use support\Response;
 
@@ -314,6 +316,68 @@ class SalaryController extends BaseController
         }
 
         return $this->success(['created' => $created], "批量生成完成，共 {$created} 条");
+    }
+
+    /**
+     * 薪资试算
+     * @Apidoc\Title("薪资试算")
+     * @Apidoc\Desc("按基本工资/绩效/加班/扣款试算个税与实发金额")
+     * @Apidoc\Url("/admin/hr/salary/calculate")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="base_salary", type="float", desc="基本工资")
+     * @Apidoc\Param(name="performance", type="float", desc="绩效工资")
+     * @Apidoc\Param(name="overtime", type="float", desc="加班费")
+     * @Apidoc\Param(name="deduction", type="float", desc="扣款")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="试算结果")
+     */
+    public function calculate(Request $request): Response
+    {
+        $baseSalary = (float) $request->input('base_salary', 0);
+        if ($baseSalary < 0) {
+            return $this->fail('base_salary 不能为负数', 422);
+        }
+        $result = (new SalaryEngineService())->calculate(
+            $baseSalary,
+            (float) $request->input('performance', 0),
+            (float) $request->input('overtime', 0),
+            (float) $request->input('deduction', 0)
+        );
+
+        return $this->success($result, '试算完成');
+    }
+
+    /**
+     * 银行代发文件
+     * @Apidoc\Title("银行代发文件")
+     * @Apidoc\Desc("校验员工银行账号并生成代发CSV")
+     * @Apidoc\Url("/admin/hr/salary/payroll-file")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="bank_code", type="string", desc="银行代码: ICBC/BOC/CCB/CMB")
+     * @Apidoc\Param(name="records", type="array", desc="代发记录[{employee_name,bank_account,net_salary,bank_branch}]")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="代发文件内容与校验结果")
+     */
+    public function payrollFile(Request $request): Response
+    {
+        $records = $request->input('records', []);
+        if (!is_array($records)) {
+            return $this->fail('records 必须为数组', 422);
+        }
+        $service = new BankPayrollService();
+        $validation = $service->validateAccounts($records);
+        if (!$validation['valid']) {
+            return $this->success(['valid' => false, 'errors' => $validation['errors'], 'file' => ''], '账号校验未通过');
+        }
+        $file = $service->generatePayrollFile($records, (string) $request->input('bank_code', 'ICBC'));
+
+        return $this->success(['valid' => true, 'file' => $file], '代发文件已生成');
     }
 
     // 薪资项管理

@@ -56,11 +56,11 @@ digraph RoadmapPhasesCN {
     }
 
     subgraph cluster_current {
-        label="当前基线 (2026-08-04)";
+        label="全量交付基线 (2026-08-07)";
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#f5f5f5"; color="#616161"; penwidth=2;
         node [fillcolor="#e0e0e0", color="#757575", fontsize=9, shape="box"];
-        cur [label="后端 14模块 80+控制器 120+模型\n安全 18层纵深防御 95分\nFlutter 12页 HarmonyOS 9页\nDocker Compose 5服务 + CI/CD\n综合评分: 65/100"];
+        cur [label="后端 19业务模块 121控制器 161模型\n安全 18层纵深防御\n24个业务服务\nDocker Compose 5服务 + CI/CD\n综合评分: 89/100"];
     }
 
     cur -> p0a [color="#1565c0", penwidth=2];

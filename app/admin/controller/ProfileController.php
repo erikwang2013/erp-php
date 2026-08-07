@@ -11,23 +11,15 @@ namespace app\admin\controller;
 
 use app\model\AdminUser;
 use Erikwang2013\Jwt\JWT;
-use Erikwang2013\Jwt\JWTFactory;
 use support\Redis;
 use support\Request;
 use support\Response;
 
 class ProfileController extends BaseController
 {
-    private static ?JWT $jwt = null;
-
     private static function getJWT(): JWT
     {
-        if (self::$jwt === null) {
-            $config = config('plugin.erikwang2013.jwt.jwt', []);
-            self::$jwt = JWTFactory::createFromConfig($config);
-        }
-
-        return self::$jwt;
+        return jwt_instance();
     }
 
     /**

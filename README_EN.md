@@ -134,11 +134,11 @@ open-erp/
 ├── config/                     # Configuration files (commented in Chinese)
 │   ├── plugin/hg/apidoc/        # API doc configuration
 ├── database/
-│   ├── install.sql              # Complete install SQL (149 tables + seed data)
-│   ├── migrations/              # SQL migration files (18 files, merged into install.sql)
+│   ├── install.sql              # Complete install SQL (163 tables + seed data)
+│   ├── migrations/              # SQL migration files (29 files, merged into install.sql)
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
-├── tests/                      # PHPUnit tests (11 test files, 90 test methods, 168 assertions)
+├── tests/                      # PHPUnit tests (20 test files, 137 test methods, 805 assertions)
 ├── resource/
 │   └── translations/           # Translation files (zh_CN, en)
 │       ├── zh_CN/              # Chinese translations (127 keys)
@@ -168,7 +168,7 @@ open-erp/
 
 ![Functional Modules](./docs/diagrams/functional-modules.svg)
 
-**17 Domains, 122 Tables, 71 Controllers**: Covering Auth & Security, Dashboard, System Admin, Security Layer, Operations, Product Management, Purchasing, Sales, Inventory, Finance (14 sub-modules), CRM (10 sub-modules), Workflow, Notification, Project Management, HR, Manufacturing (MRP), Custom Reports.
+**19 Domains, 163 Tables, 121 Controllers**: Covering Auth & Security, Dashboard, System Admin, Security Layer, Operations, Product Management, Purchasing, Sales, Inventory, Finance (14 sub-modules), CRM (10 sub-modules), Workflow, Notification, Project Management, HR, Manufacturing (MRP), Custom Reports, OMS, WMS, TMS, QMS, EAM, DMS, BI.
 
 ### Request Lifecycle
 
@@ -231,7 +231,7 @@ Start the server and visit `http://localhost:8787/install`. Follow the 4-step wi
 mysql -u root -p database_name < database/install.sql
 ```
 
-`install.sql` is a merged file of 22 migrations, containing all 122 table structures and seed data.
+`install.sql` is a merged file of 29 migrations, containing all 163 table structures and seed data.
 
 **Option 3: Docker Environment**
 

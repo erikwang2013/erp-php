@@ -43,18 +43,6 @@ parameters:
 			path: app/admin/controller/ConfigController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\SystemConfig\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/ConfigController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SystemConfig\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/ConfigController.php
-
-		-
 			message: '#^Call to an undefined method support\\Request\:\:has\(\)\.$#'
 			identifier: method.notFound
 			count: 3
@@ -67,20 +55,8 @@ parameters:
 			path: app/admin/controller/ConfigController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\SystemConfig\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/admin/controller/ConfigController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\SystemConfig\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/admin/controller/ConfigController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/admin/controller/ConfigController.php
 
@@ -157,15 +133,27 @@ parameters:
 			path: app/admin/controller/DashboardController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\OperationLog\:\:whereDate\(\)\.$#'
+			message: '#^Call to an undefined static method app\\model\\OmsOrder\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
 			path: app/admin/controller/DashboardController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\OperationLog\:\:with\(\)\.$#'
+			message: '#^Call to an undefined static method app\\model\\OmsOrder\:\:whereIn\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
+			path: app/admin/controller/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsRma\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/admin/controller/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OperationLog\:\:whereDate\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
 			path: app/admin/controller/DashboardController.php
 
 		-
@@ -187,14 +175,50 @@ parameters:
 			path: app/admin/controller/DashboardController.php
 
 		-
-			message: '#^Call to static method get\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method app\\model\\TmsShipment\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/admin/controller/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsShipment\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/admin/controller/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPackTask\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/admin/controller/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPickTask\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/admin/controller/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPutawayTask\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/admin/controller/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsReceiving\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/admin/controller/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method support\\Redis\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 4
 			path: app/admin/controller/DashboardController.php
 
 		-
-			message: '#^Call to static method setex\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:setex\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 4
 			path: app/admin/controller/DashboardController.php
 
@@ -215,12 +239,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/admin/controller/DocsController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\AdminRole\|app\\model\\AdminUser\|app\\model\\OperationLog\|app\\model\\SystemConfig\:\:newQuery\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/ExportController.php
 
 		-
 			message: '#^Method app\\admin\\controller\\ExportController\:\:excel\(\) has invalid return type app\\admin\\controller\\Response\.$#'
@@ -247,8 +265,8 @@ parameters:
 			path: app/admin/controller/ExportController.php
 
 		-
-			message: '#^Call to static method ping\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:ping\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/admin/controller/HealthController.php
 
@@ -301,22 +319,10 @@ parameters:
 			path: app/admin/controller/ImportController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\AdminUser\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/ImportController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\AdminUser\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/admin/controller/ImportController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\OperationLog\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/admin/controller/LogController.php
 
 		-
 			message: '#^Call to an undefined static method app\\model\\AdminUser\:\:count\(\)\.$#'
@@ -331,8 +337,8 @@ parameters:
 			path: app/admin/controller/MetricsController.php
 
 		-
-			message: '#^Call to static method ping\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:ping\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/admin/controller/MetricsController.php
 
@@ -391,18 +397,6 @@ parameters:
 			path: app/admin/controller/PermissionController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\AdminPermission\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/PermissionController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\AdminPermission\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/PermissionController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\AdminPermission\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
@@ -417,12 +411,6 @@ parameters:
 		-
 			message: '#^Call to an undefined static method app\\model\\AdminPermission\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/admin/controller/PermissionController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/admin/controller/PermissionController.php
 
@@ -487,8 +475,8 @@ parameters:
 			path: app/admin/controller/ProfileController.php
 
 		-
-			message: '#^Call to static method setex\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:setex\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/admin/controller/ProfileController.php
 
@@ -523,18 +511,6 @@ parameters:
 			path: app/admin/controller/RoleController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\AdminRole\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/RoleController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\AdminRole\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/RoleController.php
-
-		-
 			message: '#^Call to an undefined method support\\Request\:\:has\(\)\.$#'
 			identifier: method.notFound
 			count: 2
@@ -549,12 +525,6 @@ parameters:
 		-
 			message: '#^Call to an undefined static method app\\model\\AdminRole\:\:withCount\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/admin/controller/RoleController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/admin/controller/RoleController.php
 
@@ -649,18 +619,6 @@ parameters:
 			path: app/admin/controller/UserController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\AdminUser\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/UserController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\AdminUser\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/admin/controller/UserController.php
-
-		-
 			message: '#^Call to an undefined method support\\Request\:\:has\(\)\.$#'
 			identifier: method.notFound
 			count: 3
@@ -670,12 +628,6 @@ parameters:
 			message: '#^Call to an undefined static method app\\model\\AdminUser\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/admin/controller/UserController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\AdminUser\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: app/admin/controller/UserController.php
 
 		-
@@ -691,12 +643,6 @@ parameters:
 			path: app/admin/controller/UserController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/admin/controller/UserController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\AdminUser\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 1
@@ -705,7 +651,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\AdminUser\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 5
+			count: 1
 			path: app/api/v1/controller/AuthController.php
 
 		-
@@ -723,7 +669,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\AdminUser\:\:\$real_name\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/api/v1/controller/AuthController.php
 
 		-
@@ -735,12 +681,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\AdminUser\:\:\$username\.$#'
 			identifier: property.notFound
-			count: 3
-			path: app/api/v1/controller/AuthController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\AdminUser\:\:save\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/api/v1/controller/AuthController.php
 
@@ -763,69 +703,63 @@ parameters:
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method del\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:del\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 3
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method expire\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:expire\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 2
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method get\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method incr\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:incr\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method setex\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:setex\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 2
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method zadd\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:zadd\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method zcard\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:zcard\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method zrange\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:zrange\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method zrem\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:zrem\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 2
 			path: app/api/v1/controller/AuthController.php
 
 		-
-			message: '#^Call to static method zremrangebyscore\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:zremrangebyscore\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
-			path: app/api/v1/controller/AuthController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 2
 			path: app/api/v1/controller/AuthController.php
 
 		-
@@ -835,16 +769,52 @@ parameters:
 			path: app/api/v1/controller/ProductController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Product\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/api/v1/controller/ProductController.php
-
-		-
 			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
 			path: app/common/HashidsService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\BiDashboard\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/bi/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\BiDashboard\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/bi/DashboardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\BiWidget\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/controller/bi/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ReportDataset\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/bi/DatasetController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\ReportDataset\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/bi/DatasetController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\BiWidget\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/bi/WidgetController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\BiWidget\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/bi/WidgetController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\CrmAnalyticsMetric\:\:\$id\.$#'
@@ -901,25 +871,7 @@ parameters:
 			path: app/controller/crm/AnalyticsController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\CrmAnalyticsReport\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmAnalyticsReport\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\CrmAnalyticsMetric\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmAnalyticsMetric\:\:query\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/crm/AnalyticsController.php
@@ -928,18 +880,6 @@ parameters:
 			message: '#^Call to an undefined static method app\\model\\CrmAnalyticsReport\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmAnalyticsReport\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 2
 			path: app/controller/crm/AnalyticsController.php
 
 		-
@@ -955,27 +895,9 @@ parameters:
 			path: app/controller/crm/CampaignController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\CrmCampaign\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/CampaignController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmCampaign\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/CampaignController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\CrmCampaign\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/crm/CampaignController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmCampaign\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: app/controller/crm/CampaignController.php
 
 		-
@@ -985,26 +907,8 @@ parameters:
 			path: app/controller/crm/CampaignController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/crm/CampaignController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\CrmContact\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/ContactController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmContact\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/ContactController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmContact\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/crm/ContactController.php
 
@@ -1012,18 +916,6 @@ parameters:
 			message: '#^Call to an undefined static method app\\model\\CrmContact\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/crm/ContactController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmContact\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/ContactController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/crm/ContactController.php
 
 		-
@@ -1051,50 +943,14 @@ parameters:
 			path: app/controller/crm/ContractController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\CrmContract\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/ContractController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmContract\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/ContractController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmContractItem\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/crm/ContractController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\CrmContract\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/controller/crm/ContractController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CrmContract\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/ContractController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmContract\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/ContractController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\CrmContractItem\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/ContractController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/controller/crm/ContractController.php
 
@@ -1105,50 +961,14 @@ parameters:
 			path: app/controller/crm/FollowRecordController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\CrmFollowRecord\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/FollowRecordController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmFollowRecord\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/FollowRecordController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\CrmFollowRecord\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/controller/crm/FollowRecordController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CrmFollowRecord\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/FollowRecordController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/crm/FollowRecordController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\CrmFunnelStage\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/FunnelStageController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmFunnelStage\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/FunnelStageController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmFunnelStage\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/crm/FunnelStageController.php
 
@@ -1159,32 +979,8 @@ parameters:
 			path: app/controller/crm/FunnelStageController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CrmFunnelStage\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/FunnelStageController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/crm/FunnelStageController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\CrmOpportunity\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/OpportunityController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmOpportunity\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/OpportunityController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmOpportunity\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/crm/OpportunityController.php
 
@@ -1192,18 +988,6 @@ parameters:
 			message: '#^Call to an undefined static method app\\model\\CrmOpportunity\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/crm/OpportunityController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmOpportunity\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/OpportunityController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/crm/OpportunityController.php
 
 		-
@@ -1249,33 +1033,9 @@ parameters:
 			path: app/controller/crm/PoolController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\CrmPoolRecord\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmPoolRule\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmPoolRule\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/PoolController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\CrmPoolRule\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmPoolRule\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: app/controller/crm/PoolController.php
 
 		-
@@ -1297,12 +1057,6 @@ parameters:
 			path: app/controller/crm/PoolController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/crm/PoolController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1317,7 +1071,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/crm/QuotationController.php
 
 		-
@@ -1435,63 +1189,15 @@ parameters:
 			path: app/controller/crm/QuotationController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\CrmContract\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmContract\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmContractItem\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmQuotation\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmQuotation\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmQuotationItem\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/crm/QuotationController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\CrmQuotation\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 4
 			path: app/controller/crm/QuotationController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CrmQuotation\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\CrmQuotationItem\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/crm/QuotationController.php
 
 		-
@@ -1537,39 +1243,9 @@ parameters:
 			path: app/controller/crm/TicketController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\CrmTicket\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmTicket\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmTicketReply\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmTicketReply\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/crm/TicketController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\CrmTicket\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 6
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmTicket\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: app/controller/crm/TicketController.php
 
 		-
@@ -1579,10 +1255,154 @@ parameters:
 			path: app/controller/crm/TicketController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
+			message: '#^Call to an undefined static method app\\model\\DmsCategory\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/dms/CategoryController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocument\:\:\$author\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocument\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocument\:\:\$content\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocument\:\:\$id\.$#'
+			identifier: property.notFound
 			count: 2
-			path: app/controller/crm/TicketController.php
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocument\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocument\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocumentVersion\:\:\$change_note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocumentVersion\:\:\$changed_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocumentVersion\:\:\$content\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocumentVersion\:\:\$document_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocumentVersion\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\DmsDocumentVersion\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\DmsCategory\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\DmsDocument\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\DmsDocumentVersion\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamEquipment\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/eam/EquipmentController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\EamEquipment\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/eam/EquipmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamMaintenancePlan\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/eam/MaintenancePlanController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\EamMaintenancePlan\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/eam/MaintenancePlanController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/eam/RepairOrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/eam/RepairOrderController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\EamRepairOrder\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/controller/eam/RepairOrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamSparePart\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/eam/SparePartController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\EamSparePart\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/eam/SparePartController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\FinanceArAp\:\:\$amount\.$#'
@@ -1639,18 +1459,6 @@ parameters:
 			path: app/controller/finance/ArApController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\FinanceArAp\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/ArApController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceArAp\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/ArApController.php
-
-		-
 			message: '#^Call to an undefined method support\\Request\:\:has\(\)\.$#'
 			identifier: method.notFound
 			count: 4
@@ -1660,18 +1468,6 @@ parameters:
 			message: '#^Call to an undefined static method app\\model\\FinanceArAp\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/finance/ArApController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceArAp\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/ArApController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/finance/ArApController.php
 
 		-
@@ -1749,7 +1545,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\FinanceAssetDepreciation\:\:\$net_value\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/finance/AssetController.php
 
 		-
@@ -1765,39 +1561,9 @@ parameters:
 			path: app/controller/finance/AssetController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\FinanceAsset\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/AssetController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceAsset\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/AssetController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceAssetDepreciation\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/AssetController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceAssetDepreciation\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/AssetController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\FinanceAsset\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 4
-			path: app/controller/finance/AssetController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceAsset\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: app/controller/finance/AssetController.php
 
 		-
@@ -1807,26 +1573,8 @@ parameters:
 			path: app/controller/finance/AssetController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/AssetController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\FinanceBalanceSheet\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/finance/BalanceSheetController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceBalanceSheet\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/BalanceSheetController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceBalanceSheet\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/finance/BalanceSheetController.php
 
@@ -1849,33 +1597,9 @@ parameters:
 			path: app/controller/finance/BankAccountController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\FinanceBankAccount\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/BankAccountController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceBankAccount\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/BankAccountController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\FinanceBankAccount\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/finance/BankAccountController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceBankAccount\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/BankAccountController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/finance/BankAccountController.php
 
 		-
@@ -1903,33 +1627,9 @@ parameters:
 			path: app/controller/finance/BudgetController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\FinanceBudget\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/BudgetController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceBudget\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/BudgetController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceBudgetItem\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/finance/BudgetController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\FinanceBudget\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 4
-			path: app/controller/finance/BudgetController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceBudget\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: app/controller/finance/BudgetController.php
 
 		-
@@ -1939,26 +1639,8 @@ parameters:
 			path: app/controller/finance/BudgetController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/BudgetController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\FinanceCashFlow\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/finance/CashFlowController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceCashFlow\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/CashFlowController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceCashFlow\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/finance/CashFlowController.php
 
@@ -1981,50 +1663,14 @@ parameters:
 			path: app/controller/finance/CashJournalController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\FinanceCashJournal\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/CashJournalController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceCashJournal\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/CashJournalController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\FinanceCashJournal\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/controller/finance/CashJournalController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\FinanceCashJournal\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/CashJournalController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/CashJournalController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\FinanceCostCenter\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/finance/CostCenterController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceCostCenter\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/CostCenterController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceCostCenter\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/finance/CostCenterController.php
 
@@ -2035,38 +1681,14 @@ parameters:
 			path: app/controller/finance/CostCenterController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\FinanceCostCenter\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/CostCenterController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\FinanceCostCenter\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
 			path: app/controller/finance/CostCenterController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/CostCenterController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\FinanceCurrency\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/finance/CurrencyController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceCurrency\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/CurrencyController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceCurrency\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/finance/CurrencyController.php
 
@@ -2077,32 +1699,8 @@ parameters:
 			path: app/controller/finance/CurrencyController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\FinanceCurrency\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/CurrencyController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/CurrencyController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\FinanceExchangeRate\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/finance/ExchangeRateController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceExchangeRate\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/ExchangeRateController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceExchangeRate\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/finance/ExchangeRateController.php
 
@@ -2113,32 +1711,8 @@ parameters:
 			path: app/controller/finance/ExchangeRateController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\FinanceExchangeRate\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/ExchangeRateController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/ExchangeRateController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\FinanceExpense\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/finance/ExpenseController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceExpense\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/ExpenseController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceExpense\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/finance/ExpenseController.php
 
@@ -2147,24 +1721,6 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/controller/finance/ExpenseController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceExpense\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/ExpenseController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/ExpenseController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceGeneralLedger\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/GeneralLedgerController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\FinancePayment\:\:\$amount\.$#'
@@ -2221,18 +1777,6 @@ parameters:
 			path: app/controller/finance/PaymentController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\FinancePayment\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/PaymentController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinancePayment\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/PaymentController.php
-
-		-
 			message: '#^Call to an undefined method support\\Request\:\:has\(\)\.$#'
 			identifier: method.notFound
 			count: 8
@@ -2245,32 +1789,8 @@ parameters:
 			path: app/controller/finance/PaymentController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\FinancePayment\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/PaymentController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/PaymentController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\FinanceProfitCenter\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/finance/ProfitCenterController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceProfitCenter\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/ProfitCenterController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceProfitCenter\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/finance/ProfitCenterController.php
 
@@ -2281,21 +1801,9 @@ parameters:
 			path: app/controller/finance/ProfitCenterController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\FinanceProfitCenter\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/ProfitCenterController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\FinanceProfitCenter\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
-			path: app/controller/finance/ProfitCenterController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/finance/ProfitCenterController.php
 
 		-
@@ -2353,18 +1861,6 @@ parameters:
 			path: app/controller/finance/ReceiptController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\FinanceReceipt\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/ReceiptController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceReceipt\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/ReceiptController.php
-
-		-
 			message: '#^Call to an undefined method support\\Request\:\:has\(\)\.$#'
 			identifier: method.notFound
 			count: 8
@@ -2374,18 +1870,6 @@ parameters:
 			message: '#^Call to an undefined static method app\\model\\FinanceReceipt\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/finance/ReceiptController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceReceipt\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/ReceiptController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/finance/ReceiptController.php
 
 		-
@@ -2401,40 +1885,10 @@ parameters:
 			path: app/controller/finance/SettlementController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\FinanceSettlement\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/SettlementController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceSettlement\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/SettlementController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\FinanceSettlement\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/controller/finance/SettlementController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceSettlement\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/SettlementController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/SettlementController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceSubsidiaryLedger\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/SubsidiaryLedgerController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\FinanceTaxRate\:\:\$id\.$#'
@@ -2449,38 +1903,8 @@ parameters:
 			path: app/controller/finance/TaxController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\FinanceTaxRate\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/TaxController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceTaxRecord\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/TaxController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/finance/TaxController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\FinanceVoucher\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/finance/VoucherController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceVoucher\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/finance/VoucherController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceVoucher\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/finance/VoucherController.php
 
@@ -2488,18 +1912,6 @@ parameters:
 			message: '#^Call to an undefined static method app\\model\\FinanceVoucher\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/finance/VoucherController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\FinanceVoucher\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/finance/VoucherController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/finance/VoucherController.php
 
 		-
@@ -2563,33 +1975,9 @@ parameters:
 			path: app/controller/hr/AttendanceController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\HrAttendance\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrLeave\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrLeave\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/hr/AttendanceController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\HrAttendance\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrAttendance\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: app/controller/hr/AttendanceController.php
 
 		-
@@ -2617,32 +2005,8 @@ parameters:
 			path: app/controller/hr/AttendanceController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\HrLeave\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/hr/AttendanceController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\HrDepartment\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/DepartmentController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrDepartment\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/hr/DepartmentController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrDepartment\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/hr/DepartmentController.php
 
@@ -2653,20 +2017,8 @@ parameters:
 			path: app/controller/hr/DepartmentController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\HrDepartment\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/hr/DepartmentController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\HrDepartment\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/hr/DepartmentController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/controller/hr/DepartmentController.php
 
@@ -2677,33 +2029,9 @@ parameters:
 			path: app/controller/hr/EmployeeController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\HrEmployee\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/hr/EmployeeController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrEmployee\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/hr/EmployeeController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
-			path: app/controller/hr/EmployeeController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/hr/EmployeeController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/hr/EmployeeController.php
 
 		-
@@ -2713,46 +2041,10 @@ parameters:
 			path: app/controller/hr/PositionController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\HrPosition\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/hr/PositionController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrPosition\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/hr/PositionController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\HrPosition\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/controller/hr/PositionController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrPosition\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/hr/PositionController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/hr/PositionController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$base_salary\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$deduction\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$employee_id\.$#'
@@ -2770,18 +2062,6 @@ parameters:
 			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$net_salary\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$overtime\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$performance\.$#'
-			identifier: property.notFound
-			count: 1
 			path: app/controller/hr/SalaryController.php
 
 		-
@@ -2803,38 +2083,8 @@ parameters:
 			path: app/controller/hr/SalaryController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$tax\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\HrSalaryItem\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrSalary\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrSalary\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrSalaryItem\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrSalaryItem\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/hr/SalaryController.php
 
@@ -2857,12 +2107,6 @@ parameters:
 			path: app/controller/hr/SalaryController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\HrSalary\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/hr/SalaryController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\HrSalaryItem\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
@@ -2875,26 +2119,8 @@ parameters:
 			path: app/controller/hr/SalaryController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 2
-			path: app/controller/hr/SalaryController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\InventoryAlertRule\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/inventory/AlertController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\InventoryAlertRule\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/inventory/AlertController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\InventoryAlertRule\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/inventory/AlertController.php
 
@@ -2905,32 +2131,8 @@ parameters:
 			path: app/controller/inventory/AlertController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\InventoryAlertRule\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/inventory/AlertController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/inventory/AlertController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\CheckTask\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/inventory/CheckTaskController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CheckTask\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/inventory/CheckTaskController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CheckTask\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/inventory/CheckTaskController.php
 
@@ -2941,32 +2143,8 @@ parameters:
 			path: app/controller/inventory/CheckTaskController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CheckTask\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/inventory/CheckTaskController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/inventory/CheckTaskController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/inventory/FlowController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\InventoryFlow\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/inventory/FlowController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\InventoryFlow\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/inventory/FlowController.php
 
@@ -2977,32 +2155,8 @@ parameters:
 			path: app/controller/inventory/FlowController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\InventoryFlow\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/inventory/FlowController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/inventory/FlowController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Inventory\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/inventory/InventoryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Inventory\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/inventory/InventoryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Inventory\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/inventory/InventoryController.php
 
@@ -3013,32 +2167,8 @@ parameters:
 			path: app/controller/inventory/InventoryController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Inventory\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/inventory/InventoryController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/inventory/InventoryController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Transfer\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/inventory/TransferController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Transfer\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/inventory/TransferController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Transfer\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/inventory/TransferController.php
 
@@ -3046,18 +2176,6 @@ parameters:
 			message: '#^Call to an undefined static method app\\model\\Transfer\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/inventory/TransferController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\Transfer\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/inventory/TransferController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/inventory/TransferController.php
 
 		-
@@ -3075,7 +2193,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 2
 			path: app/controller/manufacturing/BomController.php
 
 		-
@@ -3151,33 +2269,9 @@ parameters:
 			path: app/controller/manufacturing/BomController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\MfgBom\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgBom\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgBomItem\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\MfgBom\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgBom\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: app/controller/manufacturing/BomController.php
 
 		-
@@ -3187,20 +2281,8 @@ parameters:
 			path: app/controller/manufacturing/BomController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\MfgBom\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/manufacturing/BomController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\MfgBomItem\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/controller/manufacturing/BomController.php
 
@@ -3277,24 +2359,6 @@ parameters:
 			path: app/controller/manufacturing/MrpController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\MfgMrpItem\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgMrpPlan\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgMrpPlan\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\Inventory\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -3319,24 +2383,6 @@ parameters:
 			path: app/controller/manufacturing/MrpController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\MfgMrpPlan\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgMrpPlan\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\MfgProductionOrder\:\:\$completed_quantity\.$#'
 			identifier: property.notFound
 			count: 1
@@ -3355,18 +2401,6 @@ parameters:
 			path: app/controller/manufacturing/ProductionController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\MfgProductionOrder\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/ProductionController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgProductionOrder\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/ProductionController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\MfgProductionItem\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -3376,24 +2410,6 @@ parameters:
 			message: '#^Call to an undefined static method app\\model\\MfgProductionOrder\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 4
-			path: app/controller/manufacturing/ProductionController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgProductionOrder\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/ProductionController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgProductionOrder\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/ProductionController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/manufacturing/ProductionController.php
 
 		-
@@ -3409,33 +2425,9 @@ parameters:
 			path: app/controller/manufacturing/RoutingController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\MfgRouting\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/RoutingController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgRouting\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/RoutingController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\MfgRouting\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/manufacturing/RoutingController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgRouting\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/RoutingController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/manufacturing/RoutingController.php
 
 		-
@@ -3451,56 +2443,68 @@ parameters:
 			path: app/controller/manufacturing/WorkstationController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\MfgWorkstation\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/WorkstationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgWorkstation\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/manufacturing/WorkstationController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\MfgWorkstation\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/controller/manufacturing/WorkstationController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\MfgWorkstation\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Access to an undefined property app\\model\\Channel\:\:\$id\.$#'
+			identifier: property.notFound
 			count: 1
-			path: app/controller/manufacturing/WorkstationController.php
+			path: app/controller/oms/ChannelController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/manufacturing/WorkstationController.php
+			message: '#^Call to an undefined static method app\\model\\Channel\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/oms/ChannelController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Notification\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Access to an undefined property app\\model\\OmsFulfillment\:\:\$id\.$#'
+			identifier: property.notFound
 			count: 1
-			path: app/controller/notification/NotificationController.php
+			path: app/controller/oms/FulfillmentController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsFulfillment\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/oms/FulfillmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/oms/OrderController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsOrder\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/oms/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/oms/RmaController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/oms/RmaController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsRma\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 6
+			path: app/controller/oms/RmaController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\Brand\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/product/BrandController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Brand\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/BrandController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Brand\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/product/BrandController.php
 
@@ -3511,32 +2515,8 @@ parameters:
 			path: app/controller/product/BrandController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Brand\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/product/BrandController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/product/BrandController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Category\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/product/CategoryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Category\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/CategoryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Category\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/product/CategoryController.php
 
@@ -3547,32 +2527,8 @@ parameters:
 			path: app/controller/product/CategoryController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Category\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/product/CategoryController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/product/CategoryController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Customer\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/product/CustomerController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Customer\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/CustomerController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Customer\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/product/CustomerController.php
 
@@ -3583,32 +2539,8 @@ parameters:
 			path: app/controller/product/CustomerController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Customer\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/product/CustomerController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/product/CustomerController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Location\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/product/LocationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Location\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/LocationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Location\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/product/LocationController.php
 
@@ -3619,20 +2551,8 @@ parameters:
 			path: app/controller/product/LocationController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Location\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/product/LocationController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\Location\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/product/LocationController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/controller/product/LocationController.php
 
@@ -3669,7 +2589,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\Product\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 1
 			path: app/controller/product/ProductController.php
 
 		-
@@ -3775,30 +2695,6 @@ parameters:
 			path: app/controller/product/ProductController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\Product\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Product\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ProductPrice\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ProductSku\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
 			message: '#^Call to an undefined method support\\Request\:\:has\(\)\.$#'
 			identifier: method.notFound
 			count: 2
@@ -3829,32 +2725,8 @@ parameters:
 			path: app/controller/product/ProductController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Product\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Supplier\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/product/SupplierController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Supplier\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/SupplierController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Supplier\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/product/SupplierController.php
 
@@ -3865,32 +2737,8 @@ parameters:
 			path: app/controller/product/SupplierController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Supplier\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/product/SupplierController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/product/SupplierController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Warehouse\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/product/WarehouseController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Warehouse\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/product/WarehouseController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Warehouse\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/product/WarehouseController.php
 
@@ -3901,32 +2749,8 @@ parameters:
 			path: app/controller/product/WarehouseController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Warehouse\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/product/WarehouseController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/product/WarehouseController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Project\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/project/ProjectController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Project\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/project/ProjectController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Project\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/project/ProjectController.php
 
@@ -3937,20 +2761,8 @@ parameters:
 			path: app/controller/project/ProjectController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Project\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/project/ProjectController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\ProjectTask\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/project/ProjectController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/controller/project/ProjectController.php
 
@@ -3967,18 +2779,6 @@ parameters:
 			path: app/controller/project/TaskController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\ProjectTask\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/project/TaskController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ProjectTask\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/project/TaskController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\Project\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -3991,21 +2791,9 @@ parameters:
 			path: app/controller/project/TaskController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\ProjectTask\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/project/TaskController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\ProjectTask\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
-			path: app/controller/project/TaskController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/project/TaskController.php
 
 		-
@@ -4017,18 +2805,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\ProjectTimesheet\:\:\$task_id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/project/TimesheetController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ProjectTimesheet\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/project/TimesheetController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ProjectTimesheet\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/project/TimesheetController.php
 
@@ -4045,20 +2821,8 @@ parameters:
 			path: app/controller/project/TimesheetController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\ProjectTimesheet\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/project/TimesheetController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\ProjectTimesheet\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/project/TimesheetController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/controller/project/TimesheetController.php
 
@@ -4069,33 +2833,9 @@ parameters:
 			path: app/controller/purchase/ApplyController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\PurchaseApply\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/purchase/ApplyController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseApply\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/purchase/ApplyController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\PurchaseApply\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/purchase/ApplyController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\PurchaseApply\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/purchase/ApplyController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/purchase/ApplyController.php
 
 		-
@@ -4105,33 +2845,9 @@ parameters:
 			path: app/controller/purchase/OrderController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\PurchaseOrder\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/purchase/OrderController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseOrder\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/purchase/OrderController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\PurchaseOrder\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/purchase/OrderController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\PurchaseOrder\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/purchase/OrderController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/purchase/OrderController.php
 
 		-
@@ -4155,7 +2871,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 5
+			count: 1
 			path: app/controller/purchase/ReceiveController.php
 
 		-
@@ -4179,19 +2895,19 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$status\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/purchase/ReceiveController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$supplier_id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/purchase/ReceiveController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$warehouse_id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/purchase/ReceiveController.php
 
 		-
@@ -4261,30 +2977,6 @@ parameters:
 			path: app/controller/purchase/ReceiveController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\PurchaseOrder\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/purchase/ReceiveController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseReceive\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/purchase/ReceiveController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseReceive\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/purchase/ReceiveController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseReceiveItem\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/purchase/ReceiveController.php
-
-		-
 			message: '#^Call to an undefined method support\\Request\:\:has\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -4333,20 +3025,8 @@ parameters:
 			path: app/controller/purchase/ReceiveController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\PurchaseReceive\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/purchase/ReceiveController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\PurchaseReceiveItem\:\:whereIn\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/purchase/ReceiveController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
 			count: 1
 			path: app/controller/purchase/ReceiveController.php
 
@@ -4357,50 +3037,14 @@ parameters:
 			path: app/controller/purchase/ReturnController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\PurchaseReturn\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/purchase/ReturnController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseReturn\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/purchase/ReturnController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\PurchaseReturn\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/controller/purchase/ReturnController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\PurchaseReturn\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/purchase/ReturnController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/purchase/ReturnController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\PurchaseSettlement\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/purchase/SettlementController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseSettlement\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/purchase/SettlementController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseSettlement\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/purchase/SettlementController.php
 
@@ -4411,16 +3055,64 @@ parameters:
 			path: app/controller/purchase/SettlementController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\PurchaseSettlement\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Access to an undefined property app\\model\\QualityOqcRecord\:\:\$id\.$#'
+			identifier: property.notFound
 			count: 1
-			path: app/controller/purchase/SettlementController.php
+			path: app/controller/quality/FinalCheckController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
+			message: '#^Call to an undefined static method app\\model\\QualityOqcRecord\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/quality/FinalCheckController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityIqcRecord\:\:\$id\.$#'
+			identifier: property.notFound
 			count: 1
-			path: app/controller/purchase/SettlementController.php
+			path: app/controller/quality/IncomingCheckController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\QualityIqcRecord\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/quality/IncomingCheckController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityInspectionStandard\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/quality/InspectionStandardController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\QualityInspectionStandard\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/quality/InspectionStandardController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/quality/NonconformityController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\QualityNonconformity\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/quality/NonconformityController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityIpcqRecord\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/quality/ProcessCheckController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\QualityIpcqRecord\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/quality/ProcessCheckController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\ReportDataset\:\:\$created_at\.$#'
@@ -4443,7 +3135,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\ReportDataset\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/report/ReportController.php
 
 		-
@@ -4507,48 +3199,6 @@ parameters:
 			path: app/controller/report/ReportController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\ReportDataset\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/report/ReportController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportField\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/report/ReportController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportField\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/report/ReportController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportFilter\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/report/ReportController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportFilter\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/report/ReportController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportTemplate\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/report/ReportController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportTemplate\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/report/ReportController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\ReportDataset\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -4591,27 +3241,9 @@ parameters:
 			path: app/controller/report/ReportController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\ReportTemplate\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/report/ReportController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\ReportTemplate\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/report/ReportController.php
-
-		-
 			message: '#^Call to static method select\(\) on an unknown class support\\Db\.$#'
 			identifier: class.notFound
 			count: 1
-			path: app/controller/report/ReportController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 3
 			path: app/controller/report/ReportController.php
 
 		-
@@ -4633,33 +3265,9 @@ parameters:
 			path: app/controller/report/ReportScheduleController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\ReportSchedule\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/report/ReportScheduleController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportSchedule\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/report/ReportScheduleController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\ReportSchedule\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/report/ReportScheduleController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\ReportSchedule\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/report/ReportScheduleController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
 			path: app/controller/report/ReportScheduleController.php
 
 		-
@@ -4671,7 +3279,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\SalesDelivery\:\:\$customer_id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/sales/DeliveryController.php
 
 		-
@@ -4683,7 +3291,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\SalesDelivery\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 5
+			count: 1
 			path: app/controller/sales/DeliveryController.php
 
 		-
@@ -4701,13 +3309,13 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\SalesDelivery\:\:\$status\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/sales/DeliveryController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\SalesDelivery\:\:\$warehouse_id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/sales/DeliveryController.php
 
 		-
@@ -4789,30 +3397,6 @@ parameters:
 			path: app/controller/sales/DeliveryController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\SalesDelivery\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/sales/DeliveryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesDelivery\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/sales/DeliveryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesDeliveryItem\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/sales/DeliveryController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesOrder\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/sales/DeliveryController.php
-
-		-
 			message: '#^Call to an undefined method support\\Request\:\:has\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -4849,12 +3433,6 @@ parameters:
 			path: app/controller/sales/DeliveryController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\SalesDelivery\:\:with\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/sales/DeliveryController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\SalesDeliveryItem\:\:whereIn\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -4873,26 +3451,8 @@ parameters:
 			path: app/controller/sales/DeliveryController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/sales/DeliveryController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\SalesOrder\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/sales/OrderController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesOrder\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/sales/OrderController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesOrder\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/sales/OrderController.php
 
@@ -4903,32 +3463,8 @@ parameters:
 			path: app/controller/sales/OrderController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\SalesOrder\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/sales/OrderController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/sales/OrderController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\SalesQuotation\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/sales/QuotationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesQuotation\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/sales/QuotationController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesQuotation\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/sales/QuotationController.php
 
@@ -4939,32 +3475,8 @@ parameters:
 			path: app/controller/sales/QuotationController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\SalesQuotation\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/sales/QuotationController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/sales/QuotationController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\SalesReturn\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/sales/ReturnController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesReturn\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/sales/ReturnController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesReturn\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/sales/ReturnController.php
 
@@ -4975,32 +3487,8 @@ parameters:
 			path: app/controller/sales/ReturnController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\SalesReturn\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/sales/ReturnController.php
-
-		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/sales/ReturnController.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\SalesSettlement\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/sales/SettlementController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesSettlement\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/sales/SettlementController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesSettlement\:\:toArray\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/controller/sales/SettlementController.php
 
@@ -5011,16 +3499,220 @@ parameters:
 			path: app/controller/sales/SettlementController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\SalesSettlement\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Access to an undefined property app\\model\\TmsCarrier\:\:\$id\.$#'
+			identifier: property.notFound
 			count: 1
-			path: app/controller/sales/SettlementController.php
+			path: app/controller/tms/CarrierController.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
+			message: '#^Call to an undefined static method app\\model\\TmsCarrier\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/tms/CarrierController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsFreightInvoice\:\:\$code\.$#'
+			identifier: property.notFound
 			count: 1
-			path: app/controller/sales/SettlementController.php
+			path: app/controller/tms/FreightInvoiceController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsFreightInvoice\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/FreightInvoiceController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsFreightInvoice\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 5
+			path: app/controller/tms/FreightInvoiceController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsFreightRate\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/FreightRateController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsFreightRate\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/tms/FreightRateController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsCarrierService\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/ServiceController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsCarrierService\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/tms/ServiceController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/ShipmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/ShipmentController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsShipment\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/tms/ShipmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/TrackingController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsTrackingEvent\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/tms/TrackingController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/AsnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/AsnController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsAsn\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/wms/AsnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsLocation\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/LocationController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsLocation\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/wms/LocationController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPackTask\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/PackController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPackTask\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/PackController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPackTask\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/wms/PackController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickTask\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/PickController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickTask\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/PickController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPickTask\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/wms/PickController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayTask\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/PutawayController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayTask\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/PutawayController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPutawayTask\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/wms/PutawayController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsReceiving\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/ReceivingController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsReceiving\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/ReceivingController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsReceiving\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/wms/ReceivingController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWave\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/WaveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWave\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/WaveController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsWave\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/wms/WaveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsZone\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/wms/ZoneController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsZone\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/wms/ZoneController.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\ApprovalInstance\:\:\$current_node_id\.$#'
@@ -5107,33 +3799,9 @@ parameters:
 			path: app/controller/workflow/ApprovalController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\ApprovalInstance\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/workflow/ApprovalController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ApprovalInstance\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/workflow/ApprovalController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ApprovalRecord\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/workflow/ApprovalController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\ApprovalInstance\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: app/controller/workflow/ApprovalController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\ApprovalInstance\:\:query\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: app/controller/workflow/ApprovalController.php
 
 		-
@@ -5241,7 +3909,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\ApprovalWorkflow\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/workflow/WorkflowController.php
 
 		-
@@ -5263,24 +3931,6 @@ parameters:
 			path: app/controller/workflow/WorkflowController.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\ApprovalNode\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/controller/workflow/WorkflowController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ApprovalWorkflow\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/workflow/WorkflowController.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ApprovalWorkflow\:\:toArray\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/controller/workflow/WorkflowController.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\ApprovalNode\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
@@ -5293,20 +3943,32 @@ parameters:
 			path: app/controller/workflow/WorkflowController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\ApprovalWorkflow\:\:query\(\)\.$#'
+			message: '#^Access to an undefined property Webman\\Http\\Request\:\:\$adminId\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/middleware/AdminAuth.php
+
+		-
+			message: '#^Access to an undefined property Webman\\Http\\Request\:\:\$adminUsername\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/middleware/AdminAuth.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\AdminUser\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: app/controller/workflow/WorkflowController.php
+			path: app/middleware/AdminAuth.php
 
 		-
-			message: '#^Function validator not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/controller/workflow/WorkflowController.php
+			message: '#^Call to an undefined static method support\\Redis\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/middleware/AdminAuth.php
 
 		-
-			message: '#^Call to static method get\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:setex\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/middleware/AdminAuth.php
 
@@ -5317,16 +3979,22 @@ parameters:
 			path: app/middleware/AdminPermission.php
 
 		-
-			message: '#^Call to static method get\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/middleware/AdminPermission.php
 
 		-
-			message: '#^Call to static method setex\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:setex\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/middleware/AdminPermission.php
+
+		-
+			message: '#^Access to an undefined property Webman\\Http\\Request\:\:\$apiVersion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/middleware/ApiVersion.php
 
 		-
 			message: '#^Parameter \#1 \$request of static method app\\common\\I18n\:\:getLocale\(\) expects support\\Request\|null, Webman\\Http\\Request given\.$#'
@@ -5389,70 +4057,52 @@ parameters:
 			path: app/middleware/OperationLog.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\OperationLog\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/middleware/OperationLog.php
-
-		-
-			message: '#^Call to static method eval\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:eval\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/middleware/RateLimit.php
 
 		-
-			message: '#^Call to static method del\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:del\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/middleware/SecurityFilter.php
 
 		-
-			message: '#^Call to static method expire\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:expire\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/middleware/SecurityFilter.php
 
 		-
-			message: '#^Call to static method get\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/middleware/SecurityFilter.php
 
 		-
-			message: '#^Call to static method incr\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:incr\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/middleware/SecurityFilter.php
 
 		-
-			message: '#^Call to static method setex\(\) on an unknown class support\\Redis\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined static method support\\Redis\:\:setex\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/middleware/SecurityFilter.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\AdminPermission\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Access to an undefined property Webman\\Http\\Request\:\:\$tenantId\.$#'
+			identifier: property.notFound
 			count: 1
-			path: app/model/AdminPermission.php
+			path: app/middleware/TenantScope.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\AdminPermission\:\:belongsToMany\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Access to an undefined property Webman\\Http\\Request\:\:\$traceId\.$#'
+			identifier: property.notFound
 			count: 1
-			path: app/model/AdminPermission.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\AdminPermission\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/AdminPermission.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\AdminRole\:\:belongsToMany\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/model/AdminRole.php
+			path: app/middleware/TracingId.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\AdminUser\:\:\$real_name\.$#'
@@ -5467,24 +4117,6 @@ parameters:
 			path: app/model/AdminUser.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\AdminUser\:\:belongsToMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/AdminUser.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmContract\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/CrmContract.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\CrmContract\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/CrmContract.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Customer\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
@@ -5495,114 +4127,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/model/Customer.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Customer\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/Customer.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrAttendance\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/model/HrAttendance.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrDepartment\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/HrDepartment.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrDepartment\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/HrDepartment.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrEmployee\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/model/HrEmployee.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrLeave\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/HrLeave.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrPosition\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/HrPosition.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\HrSalary\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/HrSalary.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgBom\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/MfgBom.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgBom\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/MfgBom.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgBomItem\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/MfgBomItem.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgMrpItem\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/model/MfgMrpItem.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgMrpPlan\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/MfgMrpPlan.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgProductionItem\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/MfgProductionItem.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgProductionOrder\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/MfgProductionOrder.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgProductionOrder\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/MfgProductionOrder.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\MfgRouting\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/model/MfgRouting.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\OperationLog\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/OperationLog.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\Product\:\:\$barcode\.$#'
@@ -5623,84 +4147,6 @@ parameters:
 			path: app/model/Product.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\Product\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/model/Product.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\Product\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: app/model/Product.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseOrder\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/PurchaseOrder.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseOrder\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/PurchaseOrder.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseReceive\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: app/model/PurchaseReceive.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\PurchaseReceive\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/PurchaseReceive.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportDataset\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/ReportDataset.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportField\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/ReportField.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportFilter\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/ReportFilter.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportSchedule\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/ReportSchedule.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\ReportTemplate\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/model/ReportTemplate.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesDelivery\:\:belongsTo\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: app/model/SalesDelivery.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\SalesDelivery\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/model/SalesDelivery.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Supplier\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
@@ -5713,10 +4159,106 @@ parameters:
 			path: app/model/Supplier.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\Warehouse\:\:hasMany\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Trait app\\model\\concerns\\TenantScope is used zero times and is not analysed\.$#'
+			identifier: trait.unused
 			count: 1
-			path: app/model/Warehouse.php
+			path: app/model/concerns/TenantScope.php
+
+		-
+			message: '#^Access to an undefined property Workerman\\Connection\\TcpConnection\:\:\$userId\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/process/WebSocket.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucher\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucher\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucher\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucher\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucher\:\:\$voucher_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucherItem\:\:\$account_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucherItem\:\:\$credit_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucherItem\:\:\$debit_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucherItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucherItem\:\:\$summary\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucherItem\:\:\$voucher_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceVoucher\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceVoucher\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/DoubleEntryService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceVoucherItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/finance/DoubleEntryService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\FinanceArAp\:\:\$amount\.$#'
@@ -5733,7 +4275,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\FinanceArAp\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 4
+			count: 2
 			path: app/service/finance/FinanceService.php
 
 		-
@@ -5863,43 +4405,19 @@ parameters:
 			path: app/service/finance/FinanceService.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\FinanceArAp\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/service/finance/FinanceService.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceCashJournal\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/service/finance/FinanceService.php
-
-		-
-			message: '#^Call to an undefined method app\\model\\FinanceSettlement\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/service/finance/FinanceService.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/service/finance/FinanceService.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\FinanceArAp\:\:findOrFail\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/service/finance/FinanceService.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\FinanceArAp\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 2
+			count: 4
 			path: app/service/finance/FinanceService.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\FinanceBankAccount\:\:findOrFail\(\)\.$#'
+			message: '#^Call to an undefined static method app\\model\\FinanceBankAccount\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/service/finance/FinanceService.php
@@ -6021,7 +4539,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 6
+			count: 2
 			path: app/service/inventory/InventoryService.php
 
 		-
@@ -6067,33 +4585,117 @@ parameters:
 			path: app/service/inventory/InventoryService.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\CostRecord\:\:save\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Access to an undefined property app\\model\\InventorySerial\:\:\$id\.$#'
+			identifier: property.notFound
 			count: 1
 			path: app/service/inventory/InventoryService.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\InventoryFlow\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 2
+			message: '#^Access to an undefined property app\\model\\InventorySerial\:\:\$in_flow_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventorySerial\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventorySerial\:\:\$serial_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventorySerial\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventorySerial\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$batch_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$location_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$reserved_quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$source_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$source_item_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$source_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsInventoryReservation\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
 			path: app/service/inventory/InventoryService.php
 
 		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 2
-			path: app/service/inventory/InventoryService.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CostRecord\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
+			count: 4
 			path: app/service/inventory/InventoryService.php
 
 		-
 			message: '#^Call to an undefined static method app\\model\\Inventory\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 3
+			count: 6
 			path: app/service/inventory/InventoryService.php
 
 		-
@@ -6101,6 +4703,48 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\InventorySerial\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsInventoryReservation\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Notification\:\:\$content\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/ChannelRouter.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Notification\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/ChannelRouter.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Notification\:\:\$is_read\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/ChannelRouter.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Notification\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/ChannelRouter.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Notification\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/ChannelRouter.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\Notification\:\:\$content\.$#'
@@ -6151,12 +4795,6 @@ parameters:
 			path: app/service/notification/NotificationService.php
 
 		-
-			message: '#^Call to an undefined method app\\model\\Notification\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/service/notification/NotificationService.php
-
-		-
 			message: '#^Call to an undefined static method app\\model\\Notification\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
@@ -6167,3 +4805,1041 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/service/notification/NotificationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsFulfillment\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsFulfillment\:\:\$oms_order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsFulfillment\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsFulfillment\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$buyer_message\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$channel\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$channel_order_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$channel_store\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$fulfillment_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$payment_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$priority\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$seller_note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$shipping_fee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsOrder\:\:\$shipping_method\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsFulfillment\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsOrder\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\SalesOrder\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/oms/OmsOrderService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$reason\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$refund_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$return_shipping_fee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRma\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRmaItem\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRmaItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRmaItem\:\:\$order_item_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRmaItem\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRmaItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRmaItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRmaItem\:\:\$rma_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRmaItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsRmaItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Inventory\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\InventoryFlow\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsRma\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsRma\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsRmaItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$defect_qty\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$defect_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$reported_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$severity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$source_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$source_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/quality/QmsInspectionService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsFreightRate\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/tms/FreightCalculatorService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$carrier_service_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$currency\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$dest_address_snapshot\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$estimated_delivery_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$freight_charge\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$insurance_charge\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$package_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$total_volume_cm3\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$total_weight_kg\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipment\:\:\$tracking_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipmentPackage\:\:\$declared_value\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipmentPackage\:\:\$height_cm\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipmentPackage\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipmentPackage\:\:\$length_cm\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipmentPackage\:\:\$pack_task_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipmentPackage\:\:\$package_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipmentPackage\:\:\$shipment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipmentPackage\:\:\$weight_kg\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsShipmentPackage\:\:\$width_cm\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsShipment\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsShipment\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPackTask\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/tms/TmsShipmentService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TrackingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$event_time\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TrackingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TrackingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$location\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TrackingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$raw_data\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TrackingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$shipment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TrackingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$status_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tms/TrackingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsShipment\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/tms/TrackingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickItem\:\:\$batch_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickItem\:\:\$location_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickItem\:\:\$ordered_quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickItem\:\:\$pick_task_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickTask\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickTask\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickTask\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickTask\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickTask\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPickTask\:\:\$wave_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWave\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWave\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWave\:\:\$priority\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWave\:\:\$scheduled_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWave\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWave\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWave\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWaveOrder\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWaveOrder\:\:\$oms_order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWaveOrder\:\:\$sort\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsWaveOrder\:\:\$wave_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsWave\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/wms/WaveService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$carrier\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$expected_arrive_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$purchase_order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$total_packages\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$tracking_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsn\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsnItem\:\:\$asn_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsnItem\:\:\$expected_quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsnItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsnItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsnItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsAsnItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayItem\:\:\$batch_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayItem\:\:\$from_location_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayItem\:\:\$putaway_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayItem\:\:\$to_location_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayTask\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayTask\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayTask\:\:\$receiving_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayTask\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayTask\:\:\$strategy\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPutawayTask\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsReceiving\:\:\$asn_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsReceiving\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsReceiving\:\:\$dock_location_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsReceiving\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsReceiving\:\:\$receiver_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsReceiving\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsReceiving\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsAsn\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsAsn\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsAsnItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPutawayItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPutawayTask\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsReceiving\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/wms/WmsInboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPackTask\:\:\$assigned_to\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPackTask\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPackTask\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPackTask\:\:\$package_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPackTask\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WmsPackTask\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsFulfillment\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsOrder\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPackTask\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPickItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/wms/WmsOutboundService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WmsPickTask\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/wms/WmsOutboundService.php

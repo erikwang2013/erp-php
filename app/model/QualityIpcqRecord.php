@@ -16,6 +16,6 @@ class QualityIpcqRecord extends Model
     public $incrementing = false;
     protected $keyType = 'int';
 
-    protected $fillable = ['code', 'production_order_id', 'product_id', 'workstation_id', 'standard_id', 'inspected_qty', 'passed_qty', 'rejected_qty', 'result', 'inspector', 'remark', 'status'];
+    protected $fillable = ['id', 'code', 'production_order_id', 'product_id', 'workstation_id', 'standard_id', 'inspected_qty', 'passed_qty', 'rejected_qty', 'result', 'inspector', 'remark', 'status'];
     public $timestamps = true;
 }

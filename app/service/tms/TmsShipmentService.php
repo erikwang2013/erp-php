@@ -24,7 +24,7 @@ class TmsShipmentService
 
             $shipment = new TmsShipment();
             $shipment->id = SnowflakeService::generate();
-            $shipment->code = $options['code'] ?? ('SHP' . $this->generateId());
+            $shipment->code = $options['code'] ?? ('SHP' . SnowflakeService::generate());
             $shipment->carrier_service_id = $carrierServiceId;
             $shipment->tracking_no = $options['tracking_no'] ?? '';
             $shipment->status = 0;
@@ -75,20 +75,35 @@ class TmsShipmentService
     /** 更新物流状态 */
     public function updateStatus(int $shipmentId, int $status): void
     {
-        $shipment = TmsShipment::find($shipmentId);
-        if (!$shipment) {
-            throw new \RuntimeException('运单不存在');
-        }
-        $shipment->status = $status;
-        if ($status === 3) {
-            $shipment->actual_delivery_at = date('Y-m-d H:i:s');
-        }
-        $shipment->save();
+        DB::transaction(function () use ($shipmentId, $status) {
+            $shipment = TmsShipment::where('id', $shipmentId)->lockForUpdate()->first();
+            if (!$shipment) {
+                throw new \RuntimeException('运单不存在');
+            }
+            if ($status < $shipment->status) {
+                throw new \RuntimeException("物流状态不可回退: 当前{$shipment->status} → {$status}");
+            }
+            $shipment->status = $status;
+            if ($status === 3) {
+                $shipment->actual_delivery_at = date('Y-m-d H:i:s');
+            }
+            $shipment->save();
+        });
     }
 
     /** 更新追踪号 */
     public function updateTrackingNo(int $shipmentId, string $trackingNo): void
     {
-        TmsShipment::where('id', $shipmentId)->update(['tracking_no' => $trackingNo]);
+        DB::transaction(function () use ($shipmentId, $trackingNo) {
+            $shipment = TmsShipment::where('id', $shipmentId)->lockForUpdate()->first();
+            if (!$shipment) {
+                throw new \RuntimeException('运单不存在');
+            }
+            if ($shipment->status === 3) {
+                throw new \RuntimeException('运单已签收，不可修改追踪号');
+            }
+            $shipment->tracking_no = $trackingNo;
+            $shipment->save();
+        });
     }
 }

@@ -125,6 +125,9 @@ digraph BusinessFlowCN {
     oms [label="OMS\n订单管理", shape="box", style="filled,rounded", fillcolor="#b2ebf2"];
     wms [label="WMS\n仓储管理", shape="box", style="filled,rounded", fillcolor="#e1bee7"];
     tms [label="TMS\n运输管理", shape="box", style="filled,rounded", fillcolor="#ffecb3"];
+    sales_order [label="销售订单", shape="box", style="filled,rounded", fillcolor="#c8e6c9", color="#388e3c"];
+    delivery [label="配送交付", shape="box", style="filled,rounded", fillcolor="#c8e6c9", color="#388e3c"];
+    reservation [label="库存预占", shape="box", style="filled,rounded", fillcolor="#ffecb3", color="#ffa000"];
     sales_order -> oms [label="订单导入", style="bold", color="#00838f"];
     oms -> wms [label="创建履约", style="bold", color="#6a1b9a"];
     wms -> tms [label="打包完成", style="bold", color="#ff8f00"];

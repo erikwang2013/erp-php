@@ -10,6 +10,10 @@ namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
 use app\model\FinanceProfit;
+use app\service\finance\AccountBalanceService;
+use app\service\finance\ConsolidationService;
+use app\service\finance\FinancialRatioService;
+use app\service\finance\PeriodCloseService;
 use support\Request;
 use support\Response;
 
@@ -49,5 +53,110 @@ class ReportController extends BaseController
         ];
 
         return $this->success(['list' => $data, 'summary' => $summary]);
+    }
+
+    /**
+     * 期末损益结转
+     * @Apidoc\Title("期末损益结转")
+     * @Apidoc\Desc("将损益类科目余额结转至本年利润")
+     * @Apidoc\Url("/admin/finance/report/close-period")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="year", type="int", desc="年份，默认当前年")
+     * @Apidoc\Param(name="month", type="int", desc="月份(1-12)，默认当前月")
+     */
+    public function closePeriod(Request $request): Response
+    {
+        $year = (int) $request->input('year', (int) date('Y'));
+        $month = (int) $request->input('month', (int) date('m'));
+        if ($month < 1 || $month > 12) {
+            return $this->fail('月份必须在1-12之间', 422);
+        }
+
+        return $this->success((new PeriodCloseService())->closeProfitAndLoss($year, $month));
+    }
+
+    /**
+     * 多币种报表合并
+     * @Apidoc\Title("多币种合并")
+     * @Apidoc\Desc("按期末汇率将外币报表折算为本位币")
+     * @Apidoc\Url("/admin/finance/report/consolidate")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="subsidiary_reports", type="array", desc="子公司报表列表")
+     * @Apidoc\Param(name="base_currency", type="string", desc="本位币，默认CNY")
+     */
+    public function consolidate(Request $request): Response
+    {
+        $subsidiaryReports = $request->input('subsidiary_reports', []);
+        if (!is_array($subsidiaryReports)) {
+            return $this->fail('subsidiary_reports 必须为数组', 422);
+        }
+        $baseCurrency = (string) $request->input('base_currency', 'CNY');
+
+        return $this->success((new ConsolidationService())->consolidate($subsidiaryReports, $baseCurrency));
+    }
+
+    /**
+     * 财务指标计算
+     * @Apidoc\Title("财务指标计算")
+     * @Apidoc\Desc("由资产负债表与利润表计算流动比率/负债率/净利率/资产收益率")
+     * @Apidoc\Url("/admin/finance/report/ratios")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="balance_sheet", type="object", desc="资产负债表(流动资产/流动负债/总负债/总资产)")
+     * @Apidoc\Param(name="profit_statement", type="object", desc="利润表(净利润/营业收入)")
+     */
+    public function ratios(Request $request): Response
+    {
+        $balanceSheet = $request->input('balance_sheet', []);
+        $profitStatement = $request->input('profit_statement', []);
+        if (!is_array($balanceSheet) || !is_array($profitStatement)) {
+            return $this->fail('balance_sheet 与 profit_statement 必须为对象', 422);
+        }
+
+        return $this->success((new FinancialRatioService())->calculate($balanceSheet, $profitStatement));
+    }
+
+    /**
+     * 试算平衡表
+     * @Apidoc\Title("试算平衡表")
+     * @Apidoc\Desc("按期间汇总科目借贷方发生额与余额")
+     * @Apidoc\Url("/admin/finance/report/trial-balance")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="period", type="string", desc="期间 YYYY-MM，默认当前月")
+     */
+    public function trialBalance(Request $request): Response
+    {
+        $period = (string) $request->input('period', date('Y-m'));
+
+        return $this->success((new AccountBalanceService())->getTrialBalance($period));
+    }
+
+    /**
+     * 科目余额查询
+     * @Apidoc\Title("科目余额查询")
+     * @Apidoc\Desc("查询指定会计科目在期间的期初/本期/期末余额")
+     * @Apidoc\Url("/admin/finance/report/account-balance")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="account_subject_id", type="int", desc="科目ID，必填")
+     * @Apidoc\Param(name="period", type="string", desc="期间 YYYY-MM，默认当前月")
+     */
+    public function accountBalance(Request $request): Response
+    {
+        $accountSubjectId = (int) $request->input('account_subject_id', 0);
+        if ($accountSubjectId <= 0) {
+            return $this->fail('account_subject_id 必须大于0', 422);
+        }
+        $period = (string) $request->input('period', '');
+
+        return $this->success((new AccountBalanceService())->getBalance($accountSubjectId, $period));
     }
 }

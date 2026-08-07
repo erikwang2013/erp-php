@@ -154,6 +154,11 @@ Route::group('/admin', function () {
     Route::any('/finance/cash-journal', [app\controller\finance\CashJournalController::class, 'index']);
     Route::resource('/finance/expense', app\controller\finance\ExpenseController::class);
     Route::any('/finance/report/profit', [app\controller\finance\ReportController::class, 'profit']);
+    Route::post('/finance/report/close-period', [app\controller\finance\ReportController::class, 'closePeriod']);
+    Route::post('/finance/report/consolidate', [app\controller\finance\ReportController::class, 'consolidate']);
+    Route::post('/finance/report/ratios', [app\controller\finance\ReportController::class, 'ratios']);
+    Route::get('/finance/report/trial-balance', [app\controller\finance\ReportController::class, 'trialBalance']);
+    Route::get('/finance/report/account-balance', [app\controller\finance\ReportController::class, 'accountBalance']);
     Route::resource('/finance/bank-account', app\controller\finance\BankAccountController::class);
 
     // ============================================================
@@ -268,6 +273,8 @@ Route::group('/admin', function () {
     Route::delete('/hr/leave/{id}', [app\controller\hr\AttendanceController::class, 'leaveDestroy']);
     Route::post('/hr/leave/{id}/approve', [app\controller\hr\AttendanceController::class, 'approveLeave']);
     Route::resource('/hr/salary', app\controller\hr\SalaryController::class);
+    Route::post('/hr/salary/calculate', [app\controller\hr\SalaryController::class, 'calculate']);
+    Route::post('/hr/salary/payroll-file', [app\controller\hr\SalaryController::class, 'payrollFile']);
     Route::post('/hr/salary/{id}/pay', [app\controller\hr\SalaryController::class, 'pay']);
     Route::get('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemIndex']);
     Route::post('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemStore']);
@@ -334,6 +341,8 @@ Route::group('/admin', function () {
     Route::resource('/tms/carrier', app\controller\tms\CarrierController::class);
     Route::resource('/tms/service', app\controller\tms\ServiceController::class);
     Route::resource('/tms/freight-rate', app\controller\tms\FreightRateController::class);
+    Route::post('/tms/freight-rate/calculate', [app\controller\tms\FreightRateController::class, 'calculate']);
+    Route::get('/tms/freight-rate/rate-shop', [app\controller\tms\FreightRateController::class, 'rateShop']);
     Route::resource('/tms/shipment', app\controller\tms\ShipmentController::class);
     Route::post('/tms/shipment/{id}/ship', [app\controller\tms\ShipmentController::class, 'ship']);
     Route::post('/tms/shipment/{id}/get-label', [app\controller\tms\ShipmentController::class, 'getLabel']);
@@ -350,6 +359,8 @@ Route::group('/admin', function () {
     Route::resource('/quality/ipqc', app\controller\quality\ProcessCheckController::class);
     Route::resource('/quality/oqc', app\controller\quality\FinalCheckController::class);
     Route::resource('/quality/nonconformity', app\controller\quality\NonconformityController::class);
+    Route::post('/quality/inspection/record', [app\controller\quality\IncomingCheckController::class, 'record']);
+    Route::post('/quality/inspection/pass-rate', [app\controller\quality\IncomingCheckController::class, 'passRate']);
 
     // ============================================================
     // BI 数据看板

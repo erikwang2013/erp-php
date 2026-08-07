@@ -57,7 +57,7 @@ class OmsOrderService
     public function allocateOrder(int $omsOrderId, array $items): void
     {
         DB::transaction(function () use ($omsOrderId, $items) {
-            $oms = OmsOrder::find($omsOrderId);
+            $oms = OmsOrder::where('id', $omsOrderId)->lockForUpdate()->first();
             if (!$oms) {
                 throw new \RuntimeException('OMS订单不存在');
             }
@@ -75,7 +75,7 @@ class OmsOrderService
     public function cancelOrder(int $omsOrderId): void
     {
         DB::transaction(function () use ($omsOrderId) {
-            $oms = OmsOrder::find($omsOrderId);
+            $oms = OmsOrder::where('id', $omsOrderId)->lockForUpdate()->first();
             if (!$oms) {
                 throw new \RuntimeException('OMS订单不存在');
             }
@@ -95,21 +95,26 @@ class OmsOrderService
     /** 创建履约记录 */
     public function createFulfillment(int $omsOrderId, int $warehouseId): OmsFulfillment
     {
-        $oms = OmsOrder::find($omsOrderId);
-        if (!$oms) {
-            throw new \RuntimeException('OMS订单不存在');
-        }
-        if ($oms->fulfillment_status !== 1) {
-            throw new \RuntimeException('请先完成库存分配');
-        }
+        return DB::transaction(function () use ($omsOrderId, $warehouseId) {
+            $oms = OmsOrder::where('id', $omsOrderId)->lockForUpdate()->first();
+            if (!$oms) {
+                throw new \RuntimeException('OMS订单不存在');
+            }
+            if ($oms->fulfillment_status !== 1) {
+                throw new \RuntimeException('请先完成库存分配');
+            }
+            if (OmsFulfillment::where('oms_order_id', $omsOrderId)->where('status', '<', 5)->exists()) {
+                throw new \RuntimeException('该订单已有进行中的履约单');
+            }
 
-        $fulfillment = new OmsFulfillment();
-        $fulfillment->id = SnowflakeService::generate();
-        $fulfillment->oms_order_id = $omsOrderId;
-        $fulfillment->warehouse_id = $warehouseId;
-        $fulfillment->status = 1;
-        $fulfillment->save();
+            $fulfillment = new OmsFulfillment();
+            $fulfillment->id = SnowflakeService::generate();
+            $fulfillment->oms_order_id = $omsOrderId;
+            $fulfillment->warehouse_id = $warehouseId;
+            $fulfillment->status = 1;
+            $fulfillment->save();
 
-        return $fulfillment;
+            return $fulfillment;
+        });
     }
 }
