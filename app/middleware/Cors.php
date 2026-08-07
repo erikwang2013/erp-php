@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
+use app\common\CorsPolicy;
 use Webman\Http\Request;
 use Webman\Http\Response;
 use Webman\MiddlewareInterface;
@@ -19,26 +20,19 @@ class Cors implements MiddlewareInterface
         $nonce = base64_encode(random_bytes(16));
 
         if ($request->method() === 'OPTIONS') {
-            return response('', 204, [
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Allow-Methods' => 'GET,POST,PUT,DELETE,OPTIONS',
-                'Access-Control-Allow-Headers' => 'Authorization,Content-Type,API-Version',
-                'Access-Control-Max-Age' => '86400',
-            ]);
+            return response('', 204, CorsPolicy::preflightHeaders($request));
         }
 
         $response = $handler($request);
-        $response = $response->withHeaders([
-            'Access-Control-Allow-Origin' => '*',
+        $headers = [
             'X-Content-Type-Options' => 'nosniff',
             'X-Frame-Options' => 'DENY',
-            'X-XSS-Protection' => '1; mode=block',
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
-            'Content-Security-Policy' => "default-src 'self'; script-src 'self' 'nonce-{$nonce}'; style-src 'self' 'nonce-{$nonce}'; img-src 'self' data: blob:; connect-src 'self' http: https:;",
+            'Content-Security-Policy' => "default-src 'self'; script-src 'self' 'nonce-{$nonce}'; style-src 'self' 'nonce-{$nonce}'; img-src 'self' data: blob:; connect-src 'self';",
             'X-Permitted-Cross-Domain-Policies' => 'none',
-        ]);
+        ];
 
-        return $response;
+        return $response->withHeaders(array_merge($headers, CorsPolicy::responseHeaders($request)));
     }
 }

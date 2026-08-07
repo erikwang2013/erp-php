@@ -34,16 +34,23 @@ class RepairOrderController extends BaseController
         $limit = (int)$request->input('limit', 15);
         $query = EamRepairOrder::query();
         $keyword = $request->input('keyword', '');
-        if ($keyword) $query->where(function ($q) use ($keyword) {
-            $q->where('code', 'like', "%{$keyword}%")
-              ->orWhere('fault_description', 'like', "%{$keyword}%");
-        });
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('code', 'like', "%{$keyword}%")
+                  ->orWhere('fault_description', 'like', "%{$keyword}%");
+            });
+        }
         $status = $request->input('status');
-        if ($status !== null && $status !== '') $query->where('status', $status);
+        if ($status !== null && $status !== '') {
+            $query->where('status', $status);
+        }
         $equipmentId = $request->input('equipment_id');
-        if ($equipmentId) $query->where('equipment_id', $this->decodeId($equipmentId));
+        if ($equipmentId) {
+            $query->where('equipment_id', $this->decodeId($equipmentId));
+        }
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn($i) => $this->encodeIds($i->toArray()));
+        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray()));
+
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
 
@@ -55,12 +62,15 @@ class RepairOrderController extends BaseController
             'fault_description' => 'required|string|max:1000',
             'repair_type' => 'required|string|max:50',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $item = new EamRepairOrder();
         $item->id = $this->generateId();
         $item->status = 'open';
         $this->fillModelFromRequest($item, $request);
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
@@ -68,6 +78,7 @@ class RepairOrderController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = EamRepairOrder::find($id);
+
         return $item ? $this->success($this->encodeIds($item->toArray())) : $this->fail('记录不存在', 404);
     }
 
@@ -75,13 +86,16 @@ class RepairOrderController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = EamRepairOrder::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
         // 已完成/已取消的工单不允许编辑
         if (in_array($item->status, ['completed', 'cancelled'], true)) {
             return $this->fail('已完成或已取消的工单不允许编辑', 422);
         }
         $this->fillModelFromRequest($item, $request);
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
@@ -89,11 +103,16 @@ class RepairOrderController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = EamRepairOrder::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -108,7 +127,9 @@ class RepairOrderController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = EamRepairOrder::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         $target = $request->input('status', '');
         if (!isset(self::STATUS_TRANSITIONS[$item->status])) {
@@ -123,6 +144,7 @@ class RepairOrderController extends BaseController
             $item->end_date = date('Y-m-d H:i:s');
         }
         $item->save();
+
         return $this->success($this->encodeIds($item->toArray()), '状态更新成功');
     }
 }

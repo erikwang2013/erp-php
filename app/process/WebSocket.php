@@ -9,7 +9,6 @@ namespace app\process;
 
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request;
-use Workerman\Worker;
 
 class WebSocket
 {
@@ -27,7 +26,9 @@ class WebSocket
     public function onMessage(TcpConnection $connection, string $data): void
     {
         $msg = json_decode($data, true);
-        if (!$msg) return;
+        if (!$msg) {
+            return;
+        }
 
         $type = $msg['type'] ?? '';
         switch ($type) {

@@ -20,6 +20,7 @@ class TracingId implements MiddlewareInterface
 
         /** @var Response $response */
         $response = $handler($request);
+
         return $response->withHeader('X-Trace-Id', $traceId);
     }
 

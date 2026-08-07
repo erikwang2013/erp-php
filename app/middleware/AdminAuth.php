@@ -12,8 +12,8 @@ use Erikwang2013\Jwt\JWT;
 use Erikwang2013\Jwt\JWTException;
 use Erikwang2013\Jwt\JWTFactory;
 use support\Redis;
-use support\Request;
-use support\Response;
+use Webman\Http\Request;
+use Webman\Http\Response;
 use Webman\MiddlewareInterface;
 
 class AdminAuth implements MiddlewareInterface

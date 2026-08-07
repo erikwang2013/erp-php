@@ -44,7 +44,7 @@ class HealthController
             'message' => 'success',
             'data' => [
                 'app' => 'open-admin',
-                'version' => '1.0',
+                'version' => '1.1',
                 'php' => PHP_VERSION,
                 'database' => $this->checkDb(),
                 'redis' => $this->checkRedis(),

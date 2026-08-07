@@ -84,6 +84,7 @@ class VoucherController extends BaseController
                     $request->all(),
                     (array) $request->input('items')
                 );
+
                 return $this->success($this->encodeIds($voucher->toArray()), '创建成功');
             } catch (\RuntimeException $e) {
                 return $this->fail($e->getMessage(), 422);

@@ -24,7 +24,9 @@ class WebSocketService
      */
     public static function pushToUser(int $userId, array $data): bool
     {
-        if (!self::$worker) return false;
+        if (!self::$worker) {
+            return false;
+        }
 
         $sent = false;
         foreach (self::$worker->connections as $conn) {
@@ -33,6 +35,7 @@ class WebSocketService
                 $sent = true;
             }
         }
+
         return $sent;
     }
 
@@ -41,12 +44,15 @@ class WebSocketService
      */
     public static function broadcast(array $data): int
     {
-        if (!self::$worker) return 0;
+        if (!self::$worker) {
+            return 0;
+        }
         $count = 0;
         foreach (self::$worker->connections as $conn) {
             $conn->send(json_encode(['type' => 'broadcast', 'data' => $data]));
             $count++;
         }
+
         return $count;
     }
 }

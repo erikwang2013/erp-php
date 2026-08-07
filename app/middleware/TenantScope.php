@@ -25,6 +25,7 @@ class TenantScope implements MiddlewareInterface
             // Scoped models will use this to filter queries
             \app\model\concerns\TenantScope::setCurrentTenantId((int)$tenantId);
         }
+
         return $handler($request);
     }
 }

@@ -40,7 +40,7 @@ class BackendEnhancementTest extends TestCase
 
         $this->assertEquals(0, $body['code']);
         $this->assertEquals('open-admin', $body['data']['app']);
-        $this->assertEquals('1.0', $body['data']['version']);
+        $this->assertEquals('1.1', $body['data']['version']);
         $this->assertEquals(PHP_VERSION, $body['data']['php']);
         $this->assertArrayHasKey('database', $body['data']);
         $this->assertArrayHasKey('redis', $body['data']);
@@ -302,7 +302,8 @@ class BackendEnhancementTest extends TestCase
     public function test_cors_response_is_assigned_correctly(): void
     {
         $source = file_get_contents(__DIR__ . '/../app/middleware/Cors.php');
-        $this->assertStringContainsString('$response = $response->withHeaders', $source);
+        $this->assertStringContainsString('withHeaders', $source);
+        $this->assertStringContainsString('CorsPolicy', $source);
     }
 
     // ============================================================

@@ -197,7 +197,7 @@ Route::group('/admin', function () {
     Route::any('/crm/pool', [app\controller\crm\PoolController::class, 'index']);
     Route::post('/crm/pool/claim/{id}', [app\controller\crm\PoolController::class, 'claim']);
     Route::post('/crm/pool/release/{id}', [app\controller\crm\PoolController::class, 'release']);
-    Route::resource('/crm/pool/rules', app\controller\crm\PoolController::class, ['names' => 'pool_rules']);
+    Route::get('/crm/pool/rules', [app\controller\crm\PoolController::class, 'rules']);
     Route::resource('/crm/contract', app\controller\crm\ContractController::class);
     Route::post('/crm/contract/{id}/transition', [app\controller\crm\ContractController::class, 'transition']);
     Route::resource('/crm/quotation', app\controller\crm\QuotationController::class);
@@ -402,6 +402,15 @@ Route::group('/api', function () {
 // TMS 物流轨迹回调（承运商 webhook，无需 JWT，HMAC 签名验证）
 Route::post('/api/tms/tracking/callback', [app\controller\tms\TrackingController::class, 'callbackWebhook'])
     ->middleware([app\middleware\TrackingSignature::class]);
+
+// CORS 预检兜底（fallback 对未匹配请求生效，需自行附加跨域头）
+Route::fallback(function (support\Request $request) {
+    if ($request->method() === 'OPTIONS') {
+        return response('', 204, \app\common\CorsPolicy::preflightHeaders($request));
+    }
+
+    return json(['code' => 404, 'message' => '404 Not Found', 'data' => []]);
+});
 
 // 关闭默认路由
 Route::disableDefaultRoute();

@@ -19,6 +19,7 @@ class TemplateRenderer
         foreach ($variables as $key => $value) {
             $result = str_replace('{' . $key . '}', (string)$value, $result);
         }
+
         return $result;
     }
 
@@ -34,6 +35,7 @@ class TemplateRenderer
         ];
 
         $tpl = $templates[$templateCode] ?? ['title' => '通知', 'content' => '{message}'];
+
         return [
             'title' => $this->render($tpl['title'], $variables),
             'content' => $this->render($tpl['content'], $variables),

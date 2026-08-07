@@ -8,8 +8,9 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
-use support\Request;
-use support\Response;
+use Webman\Http\Request;
+use Webman\Http\Response;
+use Webman\MiddlewareInterface;
 
 /**
  * API 版本中间件

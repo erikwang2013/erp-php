@@ -8,11 +8,6 @@ declare(strict_types=1);
 
 namespace app\service\finance;
 
-use app\common\SnowflakeService;
-use app\model\FinanceVoucher;
-use app\model\FinanceVoucherItem;
-use Illuminate\Database\Capsule\Manager as DB;
-
 class PeriodCloseService
 {
     /**

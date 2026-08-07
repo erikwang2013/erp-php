@@ -30,16 +30,23 @@ class DocumentController extends BaseController
         $limit = (int)$request->input('limit', 15);
         $query = DmsDocument::query();
         $keyword = $request->input('keyword', '');
-        if ($keyword) $query->where(function ($q) use ($keyword) {
-            $q->where('title', 'like', "%{$keyword}%")
-              ->orWhere('code', 'like', "%{$keyword}%");
-        });
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                  ->orWhere('code', 'like', "%{$keyword}%");
+            });
+        }
         $category = $request->input('category');
-        if ($category) $query->where('category', $category);
+        if ($category) {
+            $query->where('category', $category);
+        }
         $status = $request->input('status');
-        if ($status !== null && $status !== '') $query->where('status', (int)$status);
+        if ($status !== null && $status !== '') {
+            $query->where('status', (int)$status);
+        }
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn($i) => $this->encodeIds($i->toArray()));
+        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray()));
+
         return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
 
@@ -50,7 +57,9 @@ class DocumentController extends BaseController
             'category' => 'required|string|max:50',
             'status' => 'nullable|integer|between:0,1',
         ]);
-        if ($validator->fails()) return $this->fail($validator->errors()->first(), 422);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
 
         $item = new DmsDocument();
         $item->id = $this->generateId();
@@ -71,10 +80,13 @@ class DocumentController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = DmsDocument::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
         $data = $this->encodeIds($item->toArray());
-        $versions = DmsDocumentVersion::where('document_id', $id)->orderBy('id', 'desc')->get()->map(fn($v) => $this->encodeIds($v->toArray()));
+        $versions = DmsDocumentVersion::where('document_id', $id)->orderBy('id', 'desc')->get()->map(fn ($v) => $this->encodeIds($v->toArray()));
         $data['versions'] = $versions;
+
         return $this->success($data);
     }
 
@@ -82,7 +94,9 @@ class DocumentController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = DmsDocument::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
 
         // 内容变更时自动生成新版本
         $contentChanged = $request->input('content') !== null
@@ -102,12 +116,17 @@ class DocumentController extends BaseController
     {
         $id = $this->decodeId($hashid);
         $item = DmsDocument::find($id);
-        if (!$item) return $this->fail('记录不存在', 404);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
+        }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) return $this->fail($error, 422);
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
         DmsDocumentVersion::where('document_id', $id)->delete();
         $item->delete();
+
         return $this->success([], '删除成功');
     }
 
@@ -120,7 +139,8 @@ class DocumentController extends BaseController
     public function versions(Request $request, string $hashid): Response
     {
         $id = $this->decodeId($hashid);
-        $versions = DmsDocumentVersion::where('document_id', $id)->orderBy('id', 'desc')->get()->map(fn($v) => $this->encodeIds($v->toArray()));
+        $versions = DmsDocumentVersion::where('document_id', $id)->orderBy('id', 'desc')->get()->map(fn ($v) => $this->encodeIds($v->toArray()));
+
         return $this->success(['list' => $versions]);
     }
 

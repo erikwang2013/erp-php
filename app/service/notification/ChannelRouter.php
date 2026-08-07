@@ -23,6 +23,7 @@ class ChannelRouter
                 default => false, // email/wecom/dingtalk: stub for future implementation
             };
         }
+
         return $results;
     }
 
@@ -36,6 +37,7 @@ class ChannelRouter
             $notification->content = $content;
             $notification->is_read = 0;
             $notification->save();
+
             return true;
         } catch (\Throwable) {
             return false;

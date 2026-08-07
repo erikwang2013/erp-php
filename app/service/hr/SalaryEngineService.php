@@ -27,11 +27,21 @@ class SalaryEngineService
 
     public function configure(array $config): void
     {
-        if (isset($config['housingFundRate'])) $this->housingFundRate = (float)$config['housingFundRate'];
-        if (isset($config['siBaseMin'])) $this->siBaseMin = (float)$config['siBaseMin'];
-        if (isset($config['siBaseMax'])) $this->siBaseMax = (float)$config['siBaseMax'];
-        if (isset($config['hfBaseMin'])) $this->hfBaseMin = (float)$config['hfBaseMin'];
-        if (isset($config['hfBaseMax'])) $this->hfBaseMax = (float)$config['hfBaseMax'];
+        if (isset($config['housingFundRate'])) {
+            $this->housingFundRate = (float)$config['housingFundRate'];
+        }
+        if (isset($config['siBaseMin'])) {
+            $this->siBaseMin = (float)$config['siBaseMin'];
+        }
+        if (isset($config['siBaseMax'])) {
+            $this->siBaseMax = (float)$config['siBaseMax'];
+        }
+        if (isset($config['hfBaseMin'])) {
+            $this->hfBaseMin = (float)$config['hfBaseMin'];
+        }
+        if (isset($config['hfBaseMax'])) {
+            $this->hfBaseMax = (float)$config['hfBaseMax'];
+        }
     }
 
     public function calculate(float $baseSalary, float $performance = 0, float $overtime = 0, float $deduction = 0): array
@@ -44,6 +54,7 @@ class SalaryEngineService
         $taxableIncome = $gross - $socialInsurance - $housingFund - 5000;
         $tax = $this->calculateTax(max($taxableIncome, 0));
         $net = round($gross - $socialInsurance - $housingFund - $tax - $deduction, 2);
+
         return [
             'gross' => round($gross, 2),
             'social_insurance' => $socialInsurance,
@@ -64,14 +75,18 @@ class SalaryEngineService
                 $tax += $taxableInBracket * $rate;
             }
         }
+
         return round(max($tax - $this->getQuickDeduction($annualTaxableIncome), 0), 2);
     }
 
     private function getQuickDeduction(float $income): float
     {
         foreach (self::TAX_BRACKETS as [$from, $to, $rate, $qd]) {
-            if ($income <= $to) return (float)$qd;
+            if ($income <= $to) {
+                return (float)$qd;
+            }
         }
+
         return 181920;
     }
 }

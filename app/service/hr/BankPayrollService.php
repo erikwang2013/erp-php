@@ -27,6 +27,7 @@ class BankPayrollService
                 $r['bank_branch'] ?? '',
             ]);
         }
+
         return implode("\n", $lines);
     }
 
@@ -38,6 +39,7 @@ class BankPayrollService
                 $errors[] = "记录#{$i}: 缺少银行账号";
             }
         }
+
         return ['valid' => empty($errors), 'errors' => $errors];
     }
 }

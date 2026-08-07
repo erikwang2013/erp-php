@@ -64,6 +64,7 @@ class QmsInspectionService
             $totalInspected += (int)($r['inspected_qty'] ?? 0);
             $totalPassed += (int)($r['passed_qty'] ?? 0);
         }
+
         return $totalInspected > 0 ? round(($totalPassed / $totalInspected) * 100, 2) : 0;
     }
 }

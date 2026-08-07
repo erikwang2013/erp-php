@@ -25,3 +25,20 @@ function __m(string $key): string
 {
     return \app\common\I18n::trans("modules.{$key}");
 }
+
+/**
+ * Create a validator instance (Laravel-compatible helper).
+ */
+function validator(array $data = [], array $rules = [], array $messages = [], array $attributes = []): \Illuminate\Validation\Validator
+{
+    static $factory = null;
+
+    if ($factory === null) {
+        $loader = new \Illuminate\Translation\ArrayLoader();
+        $factory = new \Illuminate\Validation\Factory(
+            new \Illuminate\Translation\Translator($loader, 'zh_CN')
+        );
+    }
+
+    return $factory->make($data, $rules, $messages, $attributes);
+}

@@ -25,7 +25,9 @@ class DoubleEntryService
         if (abs($totalDebit - $totalCredit) > 0.001) {
             throw new \RuntimeException(sprintf(
                 '借贷不平衡: 借方合计=%.2f, 贷方合计=%.2f, 差额=%.2f',
-                $totalDebit, $totalCredit, abs($totalDebit - $totalCredit)
+                $totalDebit,
+                $totalCredit,
+                abs($totalDebit - $totalCredit)
             ));
         }
     }
@@ -33,6 +35,7 @@ class DoubleEntryService
     public function createVoucher(array $data, array $items): FinanceVoucher
     {
         $this->validateBalance($items);
+
         return DB::transaction(function () use ($data, $items) {
             $voucher = new FinanceVoucher();
             $voucher->id = SnowflakeService::generate();
@@ -51,6 +54,7 @@ class DoubleEntryService
                 $vi->summary = $item['summary'] ?? '';
                 $vi->save();
             }
+
             return $voucher;
         });
     }
@@ -58,12 +62,17 @@ class DoubleEntryService
     public function audit(int $voucherId): FinanceVoucher
     {
         $voucher = FinanceVoucher::find($voucherId);
-        if (!$voucher) throw new \RuntimeException('凭证不存在');
-        if ($voucher->status !== 1) throw new \RuntimeException('仅已保存状态的凭证可审核');
+        if (!$voucher) {
+            throw new \RuntimeException('凭证不存在');
+        }
+        if ($voucher->status !== 1) {
+            throw new \RuntimeException('仅已保存状态的凭证可审核');
+        }
         $items = FinanceVoucherItem::where('voucher_id', $voucherId)->get()->toArray();
         $this->validateBalance($items);
         $voucher->status = 2;
         $voucher->save();
+
         return $voucher;
     }
 
@@ -74,12 +83,13 @@ class DoubleEntryService
             throw new \RuntimeException('只能冲销已审核的凭证');
         }
         $items = FinanceVoucherItem::where('voucher_id', $voucherId)->get()->toArray();
-        $reversedItems = array_map(fn($i) => [
+        $reversedItems = array_map(fn ($i) => [
             'account_subject_id' => $i['account_subject_id'],
             'debit_amount' => $i['credit_amount'],
             'credit_amount' => $i['debit_amount'],
             'summary' => '冲销: ' . ($i['summary'] ?? ''),
         ], $items);
+
         return $this->createVoucher([
             'name' => '冲销-' . $original->name,
             'code' => 'REV-' . $original->code,
