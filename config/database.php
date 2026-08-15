@@ -27,8 +27,9 @@ return [
             'database' => getenv('DB_DATABASE') ?: 'open_admin',
             // 用户名
             'username' => getenv('DB_USERNAME') ?: 'root',
-            // 密码
-            'password' => getenv('DB_PASSWORD') ?: '',
+            // 密码：生产环境（APP_ENV=production）禁止空口令，缺失/为空一律拒绝启动；
+            // 本地开发允许空口令（如 root 空密码的本地 MySQL）；弱占位值任何环境都拒绝
+            'password' => env_secret('DB_PASSWORD', '数据库', !env_is_production()),
             // 字符集，统一使用 utf8mb4
             'charset' => 'utf8mb4',
             // 排序规则

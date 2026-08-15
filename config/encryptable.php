@@ -13,7 +13,8 @@ declare(strict_types=1);
  */
 return [
     // 数据库加密密钥，生产环境请使用 32 字节随机字符串并通过环境变量注入
-    'key' => getenv('ENCRYPTABLE_KEY') ?: 'open-admin-db-encryption-key-32b',
+    // 强校验：缺失/为空/弱占位值（change-me/CHANGE_ME/xxx）一律拒绝启动
+    'key' => env_required('ENCRYPTABLE_KEY'),
 
     // 加密算法，推荐 AES-256-CBC
     'cipher' => getenv('ENCRYPTABLE_CIPHER') ?: 'AES-256-CBC',

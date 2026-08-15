@@ -69,9 +69,9 @@ class PutawayController extends BaseController
     /**
      * 详情
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -86,9 +86,9 @@ class PutawayController extends BaseController
     /**
      * 更新
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -106,9 +106,9 @@ class PutawayController extends BaseController
     /**
      * 删除
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -127,9 +127,9 @@ class PutawayController extends BaseController
     }
 
     /** 开始上架 */
-    public function start(Request $request, string $hashid): Response
+    public function start(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -140,14 +140,16 @@ class PutawayController extends BaseController
 
             return $this->success([], '上架任务已开始');
         } catch (\Throwable $e) {
+            $this->logError('开始上架', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }
 
     /** 确认上架 → 触发入库 */
-    public function complete(Request $request, string $hashid): Response
+    public function complete(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -158,6 +160,8 @@ class PutawayController extends BaseController
 
             return $this->success([], '上架完成，库存已更新');
         } catch (\Throwable $e) {
+            $this->logError('确认上架', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }

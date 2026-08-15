@@ -119,9 +119,9 @@ class BomController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="BOM详情(含明细)")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = MfgBom::with(['items'])->find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -148,9 +148,9 @@ class BomController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的BOM信息")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = MfgBom::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -181,9 +181,9 @@ class BomController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = MfgBom::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -275,9 +275,9 @@ class BomController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="已生效的BOM信息")
      */
-    public function activate(Request $request, string $hashid): Response
+    public function activate(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = MfgBom::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);

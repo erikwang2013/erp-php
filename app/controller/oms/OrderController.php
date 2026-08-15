@@ -69,9 +69,9 @@ class OrderController extends BaseController
     /**
      * 详情
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -86,9 +86,9 @@ class OrderController extends BaseController
     /**
      * 更新
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -106,9 +106,9 @@ class OrderController extends BaseController
     /**
      * 删除
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -129,9 +129,9 @@ class OrderController extends BaseController
     /**
      * 库存分配
      */
-    public function allocate(Request $request, string $hashid): Response
+    public function allocate(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -147,6 +147,8 @@ class OrderController extends BaseController
 
             return $this->success([], '库存分配成功');
         } catch (\Throwable $e) {
+            $this->logError('库存分配', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }
@@ -154,9 +156,9 @@ class OrderController extends BaseController
     /**
      * 创建履约
      */
-    public function fulfill(Request $request, string $hashid): Response
+    public function fulfill(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -172,6 +174,8 @@ class OrderController extends BaseController
 
             return $this->success($this->encodeIds($fulfillment->toArray()), '履约创建成功');
         } catch (\Throwable $e) {
+            $this->logError('创建履约', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }
@@ -179,9 +183,9 @@ class OrderController extends BaseController
     /**
      * 取消订单
      */
-    public function cancel(Request $request, string $hashid): Response
+    public function cancel(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -192,6 +196,8 @@ class OrderController extends BaseController
 
             return $this->success([], '订单已取消');
         } catch (\Throwable $e) {
+            $this->logError('取消订单', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }

@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
+use support\Log;
 use support\Redis;
 use Webman\Http\Request;
 use Webman\Http\Response;
@@ -134,7 +135,12 @@ class SecurityFilter implements MiddlewareInterface
     {
         try {
             return (bool) Redis::get("security_ban:{$ip}");
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // 有意的 fail-open 降级：Redis 故障期间无法校验黑名单，若直接拦截将导致大面积误伤；
+            // 但被封禁 IP 可能因此放行，必须记录告警日志并尽快恢复 Redis。
+            Log::warning('安全过滤：Redis 不可用，跳过 IP 黑名单检查（fail-open 降级）: '
+                . $e->getMessage() . ' | TraceId: ' . trace_id());
+
             return false;
         }
     }
@@ -155,7 +161,10 @@ class SecurityFilter implements MiddlewareInterface
                 Redis::del($key);
                 $this->logBan($ip, $count);
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // 攻击升级记录失败 = 攻击防护静默失效，必须记录错误日志
+            Log::error('安全过滤：攻击升级计数失败（IP 封禁可能未生效）: '
+                . $e->getMessage() . ' | IP: ' . $ip . ' | TraceId: ' . trace_id());
         }
     }
 

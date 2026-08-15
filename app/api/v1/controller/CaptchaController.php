@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace app\api\v1\controller;
 
+use support\Log;
 use support\Request;
 use support\Response;
 use Throwable;
@@ -40,6 +41,9 @@ class CaptchaController
                 ],
             ]);
         } catch (Throwable $e) {
+            // fail-closed：向客户端返回明确失败，同时记录根因便于排查
+            Log::error('验证码生成失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+
             return json([
                 'code' => 500,
                 'message' => '验证码生成失败',

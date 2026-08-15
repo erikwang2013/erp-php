@@ -12,6 +12,7 @@ use app\common\HashidsService;
 use app\common\I18n;
 use app\common\SnowflakeService;
 use app\model\AdminUser;
+use support\Log;
 use support\Model;
 use support\Request;
 use support\Response;
@@ -118,5 +119,19 @@ class BaseController
     protected function fillModelFromRequest(Model $model, Request $request): void
     {
         $model->fill($request->only($model->getFillable()));
+    }
+
+    /**
+     * 记录异常日志（含 TraceId），供各控制器 catch 分支统一调用。
+     *
+     * fail-open 审计要求：任何被捕获吞掉的异常都必须留下可观测日志，
+     * 避免"静默失败"导致问题无法排查。
+     */
+    protected function logError(string $action, \Throwable $e): void
+    {
+        Log::error(
+            '[' . static::class . '] ' . $action . ' 失败: '
+            . $e->getMessage() . ' | TraceId: ' . trace_id()
+        );
     }
 }

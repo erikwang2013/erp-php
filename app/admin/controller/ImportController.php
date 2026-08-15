@@ -11,6 +11,7 @@ namespace app\admin\controller;
 
 use app\model\AdminUser;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use support\Log;
 use support\Request;
 use support\Response;
 
@@ -109,6 +110,8 @@ class ImportController extends BaseController
             } catch (\Throwable $e) {
                 $failed++;
                 $errors[] = ['row' => $idx + 1, 'reason' => $e->getMessage()];
+                // 行级失败已回显给客户端，但需留日志便于批量问题排查
+                Log::warning('导入用户：第 ' . ($idx + 1) . ' 行失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
             }
         }
 

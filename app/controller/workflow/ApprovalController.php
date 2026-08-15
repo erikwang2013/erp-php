@@ -36,9 +36,9 @@ class ApprovalController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="审批实例")
      */
-    public function submit(Request $request, string $hashid): Response
+    public function submit(Request $request, string $id): Response
     {
-        $workflowId = $this->decodeId($hashid);
+        $workflowId = $this->decodeId($id);
         $workflow = ApprovalWorkflow::find($workflowId);
         if (!$workflow || !$workflow->enabled) {
             return $this->fail('工作流不存在或已禁用', 404);
@@ -89,9 +89,9 @@ class ApprovalController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function approve(Request $request, string $hashid): Response
+    public function approve(Request $request, string $id): Response
     {
-        $instanceId = $this->decodeId($hashid);
+        $instanceId = $this->decodeId($id);
         $instance = ApprovalInstance::find($instanceId);
         if (!$instance) {
             return $this->fail('审批实例不存在', 404);
@@ -144,9 +144,9 @@ class ApprovalController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function reject(Request $request, string $hashid): Response
+    public function reject(Request $request, string $id): Response
     {
-        $instanceId = $this->decodeId($hashid);
+        $instanceId = $this->decodeId($id);
         $instance = ApprovalInstance::find($instanceId);
         if (!$instance) {
             return $this->fail('审批实例不存在', 404);
@@ -192,9 +192,9 @@ class ApprovalController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function withdraw(Request $request, string $hashid): Response
+    public function withdraw(Request $request, string $id): Response
     {
-        $instanceId = $this->decodeId($hashid);
+        $instanceId = $this->decodeId($id);
         $instance = ApprovalInstance::find($instanceId);
         if (!$instance) {
             return $this->fail('审批实例不存在', 404);

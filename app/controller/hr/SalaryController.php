@@ -148,9 +148,9 @@ class SalaryController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrSalary::with(['employee'])->find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -177,9 +177,9 @@ class SalaryController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrSalary::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -215,9 +215,9 @@ class SalaryController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrSalary::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -250,9 +250,9 @@ class SalaryController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function pay(Request $request, string $hashid): Response
+    public function pay(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrSalary::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -446,9 +446,9 @@ class SalaryController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function itemShow(Request $request, string $hashid): Response
+    public function itemShow(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrSalaryItem::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -470,9 +470,9 @@ class SalaryController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function itemUpdate(Request $request, string $hashid): Response
+    public function itemUpdate(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrSalaryItem::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -498,9 +498,9 @@ class SalaryController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function itemDestroy(Request $request, string $hashid): Response
+    public function itemDestroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrSalaryItem::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);

@@ -121,9 +121,9 @@ class AnalyticsController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function reportShow(Request $request, string $hashid): Response
+    public function reportShow(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmAnalyticsReport::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -186,7 +186,7 @@ class AnalyticsController extends BaseController
 
         $hashid = $request->input('id', '');
         if ($hashid) {
-            $id = $this->decodeId($hashid);
+            $id = $this->decodeId($id);
             $item = CrmAnalyticsMetric::find($id);
             if (!$item) {
                 return $this->fail('记录不存在', 404);

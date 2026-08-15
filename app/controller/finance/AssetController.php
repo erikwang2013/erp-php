@@ -118,9 +118,9 @@ class AssetController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = FinanceAsset::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -148,9 +148,9 @@ class AssetController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = FinanceAsset::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -182,9 +182,9 @@ class AssetController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = FinanceAsset::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -216,9 +216,9 @@ class AssetController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="折旧记录")
      */
-    public function depreciate(Request $request, string $hashid): Response
+    public function depreciate(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $asset = FinanceAsset::find($id);
         if (!$asset) {
             return $this->fail('资产不存在', 404);
@@ -272,9 +272,9 @@ class AssetController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="折旧记录列表")
      */
-    public function depreciation(Request $request, string $hashid): Response
+    public function depreciation(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $list = FinanceAssetDepreciation::where('asset_id', $id)
             ->orderBy('period_year', 'desc')->orderBy('period_month', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));

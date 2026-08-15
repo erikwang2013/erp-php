@@ -127,7 +127,7 @@ class ProductController extends BaseController
             $product->status = (int) $request->input('status', 1);
             $product->save();
 
-            if ($request->has('skus') && is_array($request->input('skus'))) {
+            if ($request->input('skus') !== null && is_array($request->input('skus'))) {
                 foreach ($request->input('skus') as $skuData) {
                     $sku = new ProductSku();
                     $sku->id = $this->generateId();
@@ -141,7 +141,7 @@ class ProductController extends BaseController
                 }
             }
 
-            if ($request->has('prices') && is_array($request->input('prices'))) {
+            if ($request->input('prices') !== null && is_array($request->input('prices'))) {
                 foreach ($request->input('prices') as $priceData) {
                     $price = new ProductPrice();
                     $price->id = $this->generateId();
@@ -158,6 +158,7 @@ class ProductController extends BaseController
             return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('created'));
         } catch (\Throwable $e) {
             DB::rollBack();
+            $this->logError('创建商品', $e);
 
             return $this->fail($this->trans('fail') . ': ' . $e->getMessage(), 500);
         }
@@ -176,9 +177,9 @@ class ProductController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="商品详情(含关联数据)")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $product = Product::with(['category', 'brand', 'skus', 'prices', 'units'])->find($id);
         if (!$product) {
             return $this->fail($this->trans('not_found'), 404);
@@ -209,9 +210,9 @@ class ProductController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的商品信息")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $product = Product::find($id);
         if (!$product) {
             return $this->fail($this->trans('not_found'), 404);
@@ -249,9 +250,9 @@ class ProductController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $product = Product::find($id);
         if (!$product) {
             return $this->fail($this->trans('not_found'), 404);

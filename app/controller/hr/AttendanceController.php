@@ -300,9 +300,9 @@ class AttendanceController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function leaveShow(Request $request, string $hashid): Response
+    public function leaveShow(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrLeave::with(['employee'])->find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -329,9 +329,9 @@ class AttendanceController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function leaveUpdate(Request $request, string $hashid): Response
+    public function leaveUpdate(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrLeave::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -362,9 +362,9 @@ class AttendanceController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function leaveDestroy(Request $request, string $hashid): Response
+    public function leaveDestroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrLeave::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -395,9 +395,9 @@ class AttendanceController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function approveLeave(Request $request, string $hashid): Response
+    public function approveLeave(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrLeave::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);

@@ -150,9 +150,9 @@ class UserController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="用户详情")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
             return $this->fail('用户不存在', 404);
@@ -183,9 +183,9 @@ class UserController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的用户信息")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
             return $this->fail('用户不存在', 404);
@@ -226,9 +226,9 @@ class UserController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
             return $this->fail('用户不存在', 404);

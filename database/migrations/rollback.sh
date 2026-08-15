@@ -12,7 +12,8 @@ MYSQL_CMD="mysql -h${DB_HOST:-127.0.0.1} -P${DB_PORT:-3306} -u${DB_USERNAME:-roo
 MYSQL_CMD="$MYSQL_CMD ${DB_DATABASE:-open_admin}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROLLBACK_DIR="$SCRIPT_DIR/rollback"
+# 回滚文件与迁移文件同目录存放（*_rollback.sql），与 database/migrations/ 下的迁移文件一一对应
+ROLLBACK_DIR="$SCRIPT_DIR"
 
 if [ "$1" = "--last" ]; then
     MIGRATION=$(ls "$ROLLBACK_DIR"/*_rollback.sql 2>/dev/null | sort -r | head -1)

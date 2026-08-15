@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\controller;
 
 use app\common\SnowflakeService;
+use support\Log;
 use support\Request;
 use support\Response;
 
@@ -410,6 +411,9 @@ class InstallController
 
             return [];
         } catch (\Throwable $e) {
+            // 安装失败已回显给操作者，同时留日志便于运维排查
+            Log::error('系统安装失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+
             return ['安装失败: ' . $e->getMessage()];
         }
     }

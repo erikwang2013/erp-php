@@ -108,9 +108,9 @@ class RoleController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的角色")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $role = AdminRole::find($id);
         if (!$role) {
             return $this->fail('角色不存在', 404);
@@ -142,9 +142,9 @@ class RoleController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $role = AdminRole::find($id);
         if (!$role) {
             return $this->fail('角色不存在', 404);

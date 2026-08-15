@@ -4,6 +4,12 @@
  * Copyright (c) erik <erik@erik.xyz> (https://erik.xyz). All Rights Reserved.
  */
 
+// 强校验：使用 elasticsearch 驱动时，ES 口令必须显式配置
+// （缺失/为空/弱占位值 change-me/CHANGE_ME/xxx 一律拒绝启动，fail-fast）
+if ((getenv('SCOUT_DRIVER') ?: 'elasticsearch') === 'elasticsearch') {
+    env_secret('ES_PASSWORD', 'Elasticsearch');
+}
+
 return [
     'enable' => true,
     /*

@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
+use support\Log;
 use support\Redis;
 use Webman\Http\Request;
 use Webman\Http\Response;
@@ -62,7 +63,12 @@ LUA;
         try {
             $result = Redis::eval($lua, 1, $key, $windowStart, $limit, $now, $now . '.' . mt_rand(), $window + 10);
         } catch (\Throwable $e) {
-            return $handler($request); // Redis down, fail open
+            // 有意的 fail-open 降级：Redis 故障期间放开限流，避免正常用户被误伤；
+            // 但敏感接口（登录/注册等）的防爆破能力随之失效，必须记录告警日志。
+            Log::warning('限流：Redis 不可用，本次请求跳过限流（fail-open 降级）: '
+                . $e->getMessage() . ' | Path: ' . $path . ' | TraceId: ' . trace_id());
+
+            return $handler($request);
         }
         $count = (int) ($result[1] ?? 0);
         $remaining = max($limit - $count, 0);

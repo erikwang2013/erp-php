@@ -7,11 +7,57 @@
          bootstrap="tests/bootstrap.php"
          colors="true"
          stopOnFailure="false">
+    <!--
+     测试套件说明：
+     - Unit：默认单元套件（354 项基线），directory tests 递归发现但显式排除
+       tests/Integration；集成测试不随单元套件执行（PHPUnit 12 未指定
+       testsuite 时会运行全部套件，集成类无 TEST_DB_* / TEST_REDIS_* 环境
+       变量时也会在 setUp 中 markTestSkipped 优雅跳过，不会失败）。
+     - Integration：集成测试套件，类均标注 Group('integration') 属性，
+       以下三种运行方式等价（均为按 integration 分组过滤）：
+         phpunit -group integration
+         phpunit -testsuite Integration
+         phpunit -testsuite Integration -group integration
+       集成测试环境变量契约见 tests/Integration/IntegrationTestCase.php。
+    -->
     <testsuites>
         <testsuite name="Unit">
             <directory>tests</directory>
+            <exclude>tests/Integration</exclude>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
         </testsuite>
     </testsuites>
+    <!--
+        覆盖率采集范围（PHPUnit 12 语法，路径相对本文件）：
+        - 采集 app/ 全部业务代码（controller / service / model / middleware / process / queue ...）
+        - 排除纯 CRUD 的 app/admin/controller（无业务逻辑，拖低"整体 ≥30%"门槛）
+        - 排除 app/view（视图模板，非业务代码）
+        业务层（app/service）与整体门槛由 scripts/check-coverage.php 校验。
+    -->
+    <source>
+        <include>
+            <directory suffix=".php">app</directory>
+        </include>
+        <exclude>
+            <directory suffix=".php">app/admin/controller</directory>
+            <directory suffix=".php">app/view</directory>
+        </exclude>
+    </source>
+    <!--
+        覆盖率报告默认输出（CI 会再用命令行参数显式覆盖同路径）。
+        采集驱动说明：PHPUnit 12 不自动配置 pcov.directory，且 pcov.* 为
+        PHP_INI_SYSTEM（phpunit.xml 的 <ini> 无法生效），因此启用方式统一放
+        命令行：php -d pcov.enabled=1 -d pcov.directory="$PWD" vendor/bin/phpunit ...
+        （无 pcov 时设 XDEBUG_MODE=coverage 走 xdebug，二者 PHPUnit 会自动选择。）
+    -->
+    <coverage>
+        <report>
+            <clover outputFile="runtime/coverage/clover.xml"/>
+            <html outputDirectory="runtime/coverage/html" lowUpperBound="30" highLowerBound="80"/>
+        </report>
+    </coverage>
     <php>
         <ini name="display_errors" value="On"/>
         <ini name="error_reporting" value="-1"/>

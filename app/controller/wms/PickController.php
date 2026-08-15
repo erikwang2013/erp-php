@@ -68,9 +68,9 @@ class PickController extends BaseController
     /**
      * 详情
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -85,9 +85,9 @@ class PickController extends BaseController
     /**
      * 更新
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -105,9 +105,9 @@ class PickController extends BaseController
     /**
      * 删除
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -126,9 +126,9 @@ class PickController extends BaseController
     }
 
     /** 开始拣货 */
-    public function start(Request $request, string $hashid): Response
+    public function start(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -137,14 +137,16 @@ class PickController extends BaseController
 
             return $this->success([], '拣货任务已开始');
         } catch (\Throwable $e) {
+            $this->logError('开始拣货', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }
 
     /** 确认拣货 */
-    public function confirm(Request $request, string $hashid): Response
+    public function confirm(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -157,6 +159,8 @@ class PickController extends BaseController
 
             return $this->success([], '拣货确认完成');
         } catch (\Throwable $e) {
+            $this->logError('确认拣货', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }

@@ -98,9 +98,9 @@ class ProfitCenterController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = FinanceProfitCenter::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -128,9 +128,9 @@ class ProfitCenterController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = FinanceProfitCenter::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -156,9 +156,9 @@ class ProfitCenterController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = FinanceProfitCenter::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);

@@ -37,6 +37,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          # coverage: pcov —— 用 pcov 作为覆盖率采集驱动（比 xdebug 快），
+          # 同时不安装默认的 xdebug。若改用 xdebug：去掉该行并把下方采集步骤
+          # 换成 XDEBUG_MODE=coverage vendor/bin/phpunit ...
+          coverage: pcov
           extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis
           tools: composer:v2
 
@@ -69,4 +73,113 @@ jobs:
         run: vendor/bin/php-cs-fixer fix --dry-run --diff
 
       - name: PHPUnit Tests
-        run: php vendor/bin/phpunit --testdox
+        # --no-coverage：普通测试步骤不做覆盖率采集（phpunit.xml 已配置报告输出，
+        # 不关闭的话每轮都会重复采集+生成 HTML），覆盖率由下方专门步骤负责
+        run: php vendor/bin/phpunit --testdox --no-coverage
+
+      - name: PHPUnit Coverage Collection (pcov)
+        # 采集驱动：CI 已通过 setup-php coverage: pcov 安装 pcov。
+        # pcov.* 为 PHP_INI_SYSTEM，只能经 -d 在进程启动时设置；
+        # pcov.directory 指向仓库根，报告范围由 phpunit.xml 的 <source> 过滤。
+        # 若改用 xdebug：删除 -d 参数并设 env: XDEBUG_MODE: coverage。
+        run: |
+          mkdir -p runtime/coverage
+          php -d pcov.enabled=1 -d pcov.directory="$PWD" vendor/bin/phpunit \
+            --coverage-clover runtime/coverage/clover.xml \
+            --coverage-html runtime/coverage/html
+        env:
+          XDEBUG_MODE: coverage
+
+      - name: Coverage Threshold Gate
+        # 渐进门槛（当前基线）：整体 ≥4%，业务层 app/service ≥10%，不达标即红。
+        # 目标门槛：整体 ≥30%，业务层 ≥40%（见 docs/superpowers/plans/2026-08-07-next-phase-plan.md P1-B4），
+        # 随测试补充逐步收紧——每轮合入前将阈值上调至略低于实测值，直至达到目标，防止覆盖率回退。
+        # 注：当前实测 4.78%/10.61%（新增测试多为校验/契约类，对 controller 成功路径覆盖有限，属正常起步值）。
+        run: php scripts/check-coverage.php \
+          --clover=runtime/coverage/clover.xml \
+          --threshold=4 \
+          --business-dir=service \
+          --business-threshold=10
+
+  # ============================================================
+  # E2E 冒烟测试（骨架，默认禁用，不参与结果判定）
+  # ------------------------------------------------------------
+  # 用途: 真实 HTTP 走通核心链路（健康检查/登录/JWT/RBAC/CRUD/刷新令牌）
+  # 运行: php tests/E2E/smoke.php [--base-url=...] [--list]
+  #       需要服务已启动（php start.php start -d）且数据库有测试账号。
+  # 启用条件（三选一满足后把 if: false 改为 if: true 或删除该行）:
+  #   1. 服务启动方式稳定（MySQL/Redis 依赖 + install.sql 种子 + 测试账号）
+  #   2. 或 DB 已有可登录的 admin 角色账号（E2E_USER/E2E_PASS 环境变量注入）
+  #   3. 或确认 E2E 链路 6/7/8 路由参数名约定已修复
+  #      （webman resource 路由生成 {id}，UserController 用 $hashid 参数名
+  #        会导致 GET/PUT/DELETE /admin/user/{id} 返回 400，需先修复或
+  #        让 smoke.php 按实际约定适配后再启用）
+  # 若仅临时观察：去掉 if: false 并保留 continue-on-error: true。
+  # 本地验证命令（与本 job 等价）:
+  #   php start.php start -d
+  #   E2E_USER=admin E2E_PASS=xxx php tests/E2E/smoke.php --base-url=http://127.0.0.1:8787
+  # ============================================================
+  e2e:
+    name: E2E Smoke — HTTP 核心链路
+    runs-on: ubuntu-latest
+    if: false # 待服务启动方式稳定后启用（见上方注释）
+    continue-on-error: true # 双保险：即使启用也不阻断主 CI 结果
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: open_admin
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction
+
+      - name: Create .env from example
+        run: cp .env.example .env
+
+      - name: Initialize database (install.sql + test account)
+        # TODO: 启用前需补齐以下步骤（当前仅骨架占位）:
+        #   mysql -h 127.0.0.1 -u root open_admin < database/install.sql
+        #   INSERT 测试账号并绑定 super_admin 角色（role_id 见种子数据）
+        #   通过 env 注入 JWT_SECRET_KEY 等强随机密钥（.env.example 为占位值会拒绝启动）
+        run: echo "E2E 数据库初始化步骤待补齐（见 job 注释）"
+
+      - name: Start webman service
+        # 若 8787 被占用可临时改 config/process.php 的 listen 端口
+        run: php start.php start -d
+
+      - name: Wait for health check
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8787/health > /dev/null 2>&1; then
+              echo "health OK"; exit 0
+            fi
+            sleep 1
+          done
+          echo "service not healthy"; exit 1
+
+      - name: Run E2E smoke
+        run: php tests/E2E/smoke.php --base-url=http://127.0.0.1:8787
+        env:
+          E2E_USER: admin
+          E2E_PASS: admin123 # TODO: 与预置测试账号一致

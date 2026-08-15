@@ -123,9 +123,9 @@ class EmployeeController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="员工详情(含部门/职位)")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrEmployee::with(['department', 'position'])->find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -153,9 +153,9 @@ class EmployeeController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的员工信息")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrEmployee::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -181,9 +181,9 @@ class EmployeeController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = HrEmployee::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);

@@ -100,9 +100,9 @@ class PermissionController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的权限")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $perm = AdminPermission::find($id);
         if (!$perm) {
             return $this->fail('权限不存在', 404);
@@ -131,9 +131,9 @@ class PermissionController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $perm = AdminPermission::find($id);
         if (!$perm) {
             return $this->fail('权限不存在', 404);

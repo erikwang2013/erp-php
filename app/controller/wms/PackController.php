@@ -68,9 +68,9 @@ class PackController extends BaseController
     /**
      * 详情
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -85,9 +85,9 @@ class PackController extends BaseController
     /**
      * 更新
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -105,9 +105,9 @@ class PackController extends BaseController
     /**
      * 删除
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -137,14 +137,16 @@ class PackController extends BaseController
 
             return $this->success($this->encodeIds($pack->toArray()), '打包任务已创建');
         } catch (\Throwable $e) {
+            $this->logError('创建打包任务', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }
 
     /** 完成打包 */
-    public function complete(Request $request, string $hashid): Response
+    public function complete(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -153,6 +155,8 @@ class PackController extends BaseController
 
             return $this->success($this->encodeIds($pack->toArray()), '打包完成');
         } catch (\Throwable $e) {
+            $this->logError('完成打包', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }

@@ -15,6 +15,7 @@ use app\model\PurchaseReceiveItem;
 use app\service\finance\FinanceService;
 use app\service\inventory\InventoryService;
 use Illuminate\Database\Capsule\Manager as DB;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -139,8 +140,9 @@ class ReceiveController extends BaseController
             $receive->received_at = date('Y-m-d H:i:s');
             $receive->save();
 
-            $inventoryService = new InventoryService();
-            $financeService = new FinanceService();
+            // 从容器获取服务实例（便于测试时替换/注入 mock）
+            $inventoryService = Container::get(InventoryService::class);
+            $financeService = Container::get(FinanceService::class);
             $totalReceiveAmount = 0;
 
             // 2. 创建收货明细 + 执行入库
@@ -208,6 +210,7 @@ class ReceiveController extends BaseController
             );
         } catch (\Throwable $e) {
             DB::rollBack();
+            $this->logError('执行收货', $e);
 
             return $this->fail('收货失败: ' . $e->getMessage(), 500);
         }
@@ -262,9 +265,9 @@ class ReceiveController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="收货单详情(含关联数据)")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $receive = PurchaseReceive::with(['items', 'order', 'supplier', 'warehouse'])->find($id);
         if (!$receive) {
             return $this->fail('收货单不存在', 404);
@@ -287,15 +290,15 @@ class ReceiveController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的收货单信息")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $receive = PurchaseReceive::find($id);
         if (!$receive) {
             return $this->fail('收货单不存在', 404);
         }
 
-        if ($request->has('remark')) {
+        if ($request->input('remark') !== null) {
             $receive->remark = $request->input('remark');
         }
         $receive->save();
@@ -317,9 +320,9 @@ class ReceiveController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $receive = PurchaseReceive::find($id);
         if (!$receive) {
             return $this->fail('收货单不存在', 404);

@@ -118,9 +118,9 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmQuotation::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -143,9 +143,9 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmQuotation::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -191,9 +191,9 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmQuotation::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -226,9 +226,9 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="报价和合同数据")
      */
-    public function toContract(Request $request, string $hashid): Response
+    public function toContract(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $quotation = CrmQuotation::find($id);
         if (!$quotation) {
             return $this->fail('报价不存在', 404);

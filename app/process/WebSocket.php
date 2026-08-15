@@ -9,8 +9,12 @@ namespace app\process;
 
 use app\middleware\AdminAuth;
 use app\service\notification\WebSocketService;
+use support\Log;
+use support\Redis;
+use Throwable;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request;
+use Workerman\Worker;
 
 /**
  * WebSocket 服务端（监听 websocket://0.0.0.0:8282）
@@ -26,9 +30,37 @@ use Workerman\Protocols\Http\Request;
  */
 class WebSocket
 {
+    /**
+     * Redis 中记录在线连接数的键
+     *
+     * 说明：WebSocket 服务运行在独立 Workerman 进程（config/process.php 中的 socket 进程），
+     * 与承载 /metrics 的 HTTP 进程不共享内存，因此连接数经 Redis 键跨进程同步，
+     * 供 MetricsController 读取（见 getConnectionCount()）。
+     */
+    public const CONNECTION_COUNT_KEY = 'erp:ws:connections';
+
+    /**
+     * 进程启动回调：重置在线连接计数，避免残留上一次运行期的旧值
+     */
+    public function onWorkerStart(Worker $worker): void
+    {
+        try {
+            Redis::set(self::CONNECTION_COUNT_KEY, 0);
+        } catch (Throwable $e) {
+            Log::error('WebSocket 连接计数初始化失败: ' . $e->getMessage());
+        }
+    }
+
     public function onConnect(TcpConnection $connection): void
     {
         WebSocketService::setWorker($connection->worker);
+
+        // 在线连接数 +1（写入 Redis，供 HTTP 进程的 /metrics 读取）
+        try {
+            Redis::incr(self::CONNECTION_COUNT_KEY);
+        } catch (Throwable $e) {
+            Log::error('WebSocket 在线连接计数失败(incr): ' . $e->getMessage());
+        }
     }
 
     public function onWebSocketConnect(TcpConnection $connection, Request $request): void
@@ -129,6 +161,28 @@ class WebSocket
 
     public function onClose(TcpConnection $connection): void
     {
-        // Cleanup on disconnect
+        // 在线连接数 -1（连接关闭时同步递减 Redis 计数）
+        try {
+            Redis::decr(self::CONNECTION_COUNT_KEY);
+        } catch (Throwable $e) {
+            Log::error('WebSocket 在线连接计数失败(decr): ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * 读取当前在线连接数（供监控指标使用）
+     *
+     * 说明：WebSocket 进程与 HTTP 进程不共享内存，连接数经 Redis 键跨进程同步；
+     * 读取失败或计数为负时返回 0（fail-open），并记录日志便于排查。
+     */
+    public static function getConnectionCount(): int
+    {
+        try {
+            return max(0, (int)Redis::get(self::CONNECTION_COUNT_KEY));
+        } catch (Throwable $e) {
+            Log::error('获取 WebSocket 在线连接数失败: ' . $e->getMessage());
+
+            return 0;
+        }
     }
 }

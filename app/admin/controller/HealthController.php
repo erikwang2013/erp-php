@@ -61,6 +61,7 @@ class HealthController
 
             return 'ok';
         } catch (Throwable) {
+            // 有意为之：健康检查端点必须始终可响应，组件故障以状态值上报而非抛异常
             return 'unavailable';
         }
     }
@@ -72,6 +73,7 @@ class HealthController
 
             return 'ok';
         } catch (Throwable) {
+            // 有意为之：健康检查端点必须始终可响应，组件故障以状态值上报而非抛异常
             return 'unavailable';
         }
     }
@@ -86,6 +88,7 @@ class HealthController
 
             return $body['status'] ?? 'unknown';
         } catch (Throwable) {
+            // 有意为之：健康检查端点必须始终可响应，组件故障以状态值上报而非抛异常
             return 'unavailable';
         }
     }

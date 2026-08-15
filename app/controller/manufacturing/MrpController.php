@@ -113,9 +113,9 @@ class MrpController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = MfgMrpPlan::with(['items'])->find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -142,9 +142,9 @@ class MrpController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = MfgMrpPlan::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -175,9 +175,9 @@ class MrpController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = MfgMrpPlan::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -208,9 +208,9 @@ class MrpController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function generate(Request $request, string $hashid): Response
+    public function generate(Request $request, string $id): Response
     {
-        $planId = $this->decodeId($hashid);
+        $planId = $this->decodeId($id);
         $plan = MfgMrpPlan::find($planId);
         if (!$plan) {
             return $this->fail('计划不存在', 404);

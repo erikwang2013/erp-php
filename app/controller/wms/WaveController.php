@@ -68,9 +68,9 @@ class WaveController extends BaseController
     /**
      * 详情
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -85,9 +85,9 @@ class WaveController extends BaseController
     /**
      * 更新
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -105,9 +105,9 @@ class WaveController extends BaseController
     /**
      * 删除
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -126,9 +126,9 @@ class WaveController extends BaseController
     }
 
     /** 释放波次 → 生成拣货任务 */
-    public function release(Request $request, string $hashid): Response
+    public function release(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -144,6 +144,8 @@ class WaveController extends BaseController
 
             return $this->success($this->encodeIds($pickTask->toArray()), '波次已释放，拣货任务已生成');
         } catch (\Throwable $e) {
+            $this->logError('释放波次', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }

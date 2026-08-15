@@ -69,9 +69,9 @@ class ReceivingController extends BaseController
     /**
      * 详情
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -86,9 +86,9 @@ class ReceivingController extends BaseController
     /**
      * 更新
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -106,9 +106,9 @@ class ReceivingController extends BaseController
     /**
      * 删除
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -127,9 +127,9 @@ class ReceivingController extends BaseController
     }
 
     /** 完成收货并生成上架任务 */
-    public function complete(Request $request, string $hashid): Response
+    public function complete(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -145,6 +145,8 @@ class ReceivingController extends BaseController
 
             return $this->success($this->encodeIds($putaway->toArray()), '收货完成，已生成上架任务');
         } catch (\Throwable $e) {
+            $this->logError('完成收货', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }

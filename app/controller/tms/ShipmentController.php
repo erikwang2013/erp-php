@@ -68,9 +68,9 @@ class ShipmentController extends BaseController
     /**
      * 详情
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -85,9 +85,9 @@ class ShipmentController extends BaseController
     /**
      * 更新
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -105,9 +105,9 @@ class ShipmentController extends BaseController
     /**
      * 删除
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -126,9 +126,9 @@ class ShipmentController extends BaseController
     }
 
     /** 确认发货 */
-    public function ship(Request $request, string $hashid): Response
+    public function ship(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
+        $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
@@ -138,18 +138,21 @@ class ShipmentController extends BaseController
 
             return $this->success([], '发货确认完成');
         } catch (\Throwable $e) {
+            $this->logError('确认发货', $e);
+
             return $this->fail($e->getMessage(), 500);
         }
     }
 
     /** 获取面单 */
-    public function getLabel(Request $request, string $hashid): Response
+    public function getLabel(Request $request, string $id): Response
     {
-        $id = $this->decodeIdSafe($hashid);
-        if (!$id) {
+        // 校验 hashid 合法性，同时保留原始 hash 用于面单下载地址
+        $decodedId = $this->decodeIdSafe($id);
+        if (!$decodedId) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
 
-        return $this->success(['label_url' => '/api/shipping-label/' . $hashid], '面单生成请求已提交');
+        return $this->success(['label_url' => '/api/shipping-label/' . $id], '面单生成请求已提交');
     }
 }

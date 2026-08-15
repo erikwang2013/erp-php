@@ -89,9 +89,9 @@ class PoolController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function claim(Request $request, string $hashid): Response
+    public function claim(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $customer = Customer::find($id);
         if (!$customer) {
             return $this->fail('客户不存在', 404);
@@ -145,9 +145,9 @@ class PoolController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function release(Request $request, string $hashid): Response
+    public function release(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $customer = Customer::find($id);
         if (!$customer) {
             return $this->fail('客户不存在', 404);
@@ -230,9 +230,9 @@ class PoolController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmPoolRule::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -254,9 +254,9 @@ class PoolController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmPoolRule::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -282,9 +282,9 @@ class PoolController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmPoolRule::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);

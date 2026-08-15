@@ -124,9 +124,9 @@ class TicketController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmTicket::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -154,9 +154,9 @@ class TicketController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmTicket::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -182,9 +182,9 @@ class TicketController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmTicket::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -216,9 +216,9 @@ class TicketController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function assign(Request $request, string $hashid): Response
+    public function assign(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmTicket::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -252,9 +252,9 @@ class TicketController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function resolve(Request $request, string $hashid): Response
+    public function resolve(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = CrmTicket::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -297,9 +297,9 @@ class TicketController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function reply(Request $request, string $hashid): Response
+    public function reply(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $ticket = CrmTicket::find($id);
         if (!$ticket) {
             return $this->fail('工单不存在', 404);

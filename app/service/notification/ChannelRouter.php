@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace app\service\notification;
 
+use support\Log;
+
 class ChannelRouter
 {
     /**
@@ -39,7 +41,10 @@ class ChannelRouter
             $notification->save();
 
             return true;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // 站内信落库失败：向调用方返回 false（fail-closed 信号），并记录根因
+            Log::error('站内信发送失败（落库异常）: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+
             return false;
         }
     }

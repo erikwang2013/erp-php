@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\middleware;
 
 use app\model\AdminUser;
+use support\Log;
 use support\Redis;
 use support\Request;
 use support\Response;
@@ -95,7 +96,9 @@ class AdminPermission
             if ($cached) {
                 return json_decode($cached, true);
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // 缓存读取失败：降级从数据库取权限（fail-safe，权限校验不会被绕过），仅记录日志
+            Log::warning('权限缓存读取失败，降级查库: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
         }
 
         $user = AdminUser::find($adminId);
@@ -116,7 +119,9 @@ class AdminPermission
 
         try {
             Redis::setex($cacheKey, self::CACHE_TTL, json_encode($permissions));
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // 缓存写入失败不影响本次鉴权结果，仅记录日志
+            Log::warning('权限缓存写入失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
         }
 
         return $permissions;

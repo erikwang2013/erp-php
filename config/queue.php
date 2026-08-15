@@ -27,7 +27,8 @@ return [
             'host' => getenv('RABBITMQ_HOST') ?: '127.0.0.1',
             'port' => (int)(getenv('RABBITMQ_PORT') ?: 5672),
             'user' => getenv('RABBITMQ_USER') ?: 'guest',
-            'password' => getenv('RABBITMQ_PASSWORD') ?: 'guest',
+            // 口令强校验：缺失/为空/弱占位值（change-me/CHANGE_ME/xxx）一律拒绝启动
+            'password' => env_secret('RABBITMQ_PASSWORD', 'RabbitMQ'),
             'vhost' => getenv('RABBITMQ_VHOST') ?: '/',
             'queue' => 'default',
         ],

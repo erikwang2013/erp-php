@@ -10,6 +10,7 @@ namespace app\middleware;
 
 use Erikwang2013\Jwt\JWT;
 use Erikwang2013\Jwt\JWTException;
+use support\Log;
 use support\Redis;
 use Webman\Http\Request;
 use Webman\Http\Response;
@@ -55,13 +56,16 @@ class AdminAuth implements MiddlewareInterface
         }
 
         // 检查 JWT 黑名单（Redis 不可用时跳过，不阻断鉴权）
+        // 注意：这是有意的 fail-open 降级 —— Redis 故障期间已注销的令牌无法被黑名单拦截，
+        // 但签名校验仍有效。必须记录告警日志以便运维及时发现并修复 Redis。
         $blacklistKey = 'jwt_blacklist:' . md5($token);
         try {
             if (Redis::get($blacklistKey)) {
                 return ['ok' => false, 'error' => 'Token已失效，请重新登录'];
             }
-        } catch (\Throwable) {
-            // Redis down, skip blacklist check
+        } catch (\Throwable $e) {
+            Log::warning('鉴权：Redis 不可用，跳过 JWT 黑名单检查（fail-open 降级）: '
+                . $e->getMessage() . ' | TraceId: ' . trace_id());
         }
 
         try {
@@ -95,7 +99,9 @@ class AdminAuth implements MiddlewareInterface
             if ($cached !== null && $cached !== false) {
                 return $cached === '1';
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // 缓存读取失败：降级走数据库（fail-safe），但需记录日志
+            Log::warning('用户状态缓存读取失败，降级查库: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
         }
 
         $user = \app\model\AdminUser::find($userId);
@@ -103,7 +109,9 @@ class AdminAuth implements MiddlewareInterface
 
         try {
             Redis::setex($cacheKey, 60, $active ? '1' : '0');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // 缓存写入失败不影响本次鉴权结果，仅记录日志
+            Log::warning('用户状态缓存写入失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
         }
 
         return $active;

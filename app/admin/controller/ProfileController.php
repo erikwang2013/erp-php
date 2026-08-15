@@ -11,6 +11,7 @@ namespace app\admin\controller;
 
 use app\model\AdminUser;
 use Erikwang2013\Jwt\JWT;
+use support\Log;
 use support\Redis;
 use support\Request;
 use support\Response;
@@ -129,12 +130,23 @@ class ProfileController extends BaseController
             return $this->fail('未登录', 401);
         }
 
+        // 令牌已失效/无效：登出本身即为幂等成功，无需写入黑名单
         try {
             $payload = self::getJWT()->decode($token);
+        } catch (\Throwable $e) {
+            Log::warning('登出：令牌已失效，按幂等成功处理 | TraceId: ' . trace_id());
+
+            return $this->success([], '已登出');
+        }
+
+        // 黑名单写入失败：令牌可能仍有效，不能谎报登出成功（fail-closed）
+        try {
             $ttl = max((int)($payload['exp'] ?? 0) - time(), 0);
             Redis::setex('jwt_blacklist:' . md5($token), $ttl, '1');
         } catch (\Throwable $e) {
-            // token 无效也视为登出成功
+            Log::error('登出失败：JWT 黑名单写入异常: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+
+            return $this->fail('登出失败，请稍后重试', 500);
         }
 
         return $this->success([], '已登出');

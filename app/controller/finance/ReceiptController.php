@@ -116,9 +116,9 @@ class ReceiptController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="收款详情")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = FinanceReceipt::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -148,36 +148,36 @@ class ReceiptController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的收款记录")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = FinanceReceipt::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
-        if ($request->has('code')) {
+        if ($request->input('code') !== null) {
             $item->code = $request->input('code');
         }
-        if ($request->has('customer_id')) {
+        if ($request->input('customer_id') !== null) {
             $item->customer_id = $this->decodeId($request->input('customer_id'));
         }
-        if ($request->has('bank_account_id')) {
+        if ($request->input('bank_account_id') !== null) {
             $item->bank_account_id = $this->decodeId($request->input('bank_account_id', '0'));
         }
-        if ($request->has('amount')) {
+        if ($request->input('amount') !== null) {
             $item->amount = (float) $request->input('amount');
         }
-        if ($request->has('method')) {
+        if ($request->input('method') !== null) {
             $item->method = $request->input('method');
         }
-        if ($request->has('remark')) {
+        if ($request->input('remark') !== null) {
             $item->remark = $request->input('remark');
         }
-        if ($request->has('status')) {
+        if ($request->input('status') !== null) {
             $item->status = (int) $request->input('status');
         }
-        if ($request->has('received_at')) {
+        if ($request->input('received_at') !== null) {
             $item->received_at = $request->input('received_at');
         }
         $item->save();
@@ -199,9 +199,9 @@ class ReceiptController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = FinanceReceipt::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);

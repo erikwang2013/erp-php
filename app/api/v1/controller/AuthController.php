@@ -13,6 +13,7 @@ use app\common\SnowflakeService;
 use app\model\AdminUser;
 use Erikwang2013\Jwt\JWT;
 use support\Container;
+use support\Log;
 use support\Redis;
 use support\Request;
 use support\Response;
@@ -58,7 +59,9 @@ class AuthController
             if (Redis::get($lockKey)) {
                 return json(['code' => 429, 'message' => '账号已被临时锁定，请15分钟后再试', 'data' => []]);
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // 锁定检查失败 = 防爆破保护可能失效（fail-open 降级），必须记录告警日志
+            Log::warning('登录：账号锁定检查失败（Redis 不可用）: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
         }
 
         if (!$user || !password_verify($request->input('password'), $user->password)) {
@@ -75,7 +78,9 @@ class AuthController
 
                     return json(['code' => 429, 'message' => '账号已被临时锁定，请15分钟后再试', 'data' => []]);
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                // 失败计数写入失败 = 登录防爆破锁定不会触发（fail-open 降级），必须记录告警日志
+                Log::warning('登录：失败计数/锁定写入失败（Redis 不可用）: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
             }
 
             return json(['code' => 401, 'message' => '用户名或密码错误', 'data' => []]);
@@ -85,7 +90,9 @@ class AuthController
         try {
             Redis::del("login_fail:{$username}");
             Redis::del($lockKey);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // 清理失败仅影响下次计数准确性，记录日志即可
+            Log::warning('登录：清除失败计数异常: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
         }
 
         if ($user->status === 0) {
@@ -204,6 +211,9 @@ class AuthController
             $jwt = self::getJWT();
             $payload = $jwt->decode($refreshToken);
         } catch (Throwable $e) {
+            // 令牌无效：fail-closed 拒绝，记录失败原因便于审计
+            Log::warning('刷新令牌解析失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+
             return json(['code' => 401, 'message' => '刷新令牌无效或已过期', 'data' => []]);
         }
 
@@ -235,7 +245,9 @@ class AuthController
             $this->trackSession($userId, $token, $tokenExpire);
             try {
                 Redis::zrem("user_tokens:{$userId}", md5($refreshToken));
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                // 旧令牌清理失败仅影响会话计数精度，记录日志即可
+                Log::warning('刷新令牌：移除旧 refresh token 失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
             }
 
             return json([
@@ -248,6 +260,9 @@ class AuthController
                 ],
             ]);
         } catch (Throwable $e) {
+            // 刷新流程内任何异常（含数据库写入失败）统一按 fail-closed 拒绝，并记录根因
+            Log::error('刷新令牌流程异常: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+
             return json(['code' => 401, 'message' => '刷新令牌无效或已过期', 'data' => []]);
         }
     }
@@ -284,8 +299,9 @@ class AuthController
                 }
             }
             Redis::expire($key, $expiresIn + 3600);
-        } catch (\Throwable) {
-            // Redis 故障不影响登录
+        } catch (\Throwable $e) {
+            // 有意的 fail-open 降级：会话跟踪失败不阻断登录，但并发会话限制将失效，需记录告警日志
+            Log::warning('会话跟踪失败（并发会话限制可能失效）: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
         }
     }
 }

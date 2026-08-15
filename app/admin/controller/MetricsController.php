@@ -9,7 +9,10 @@ declare(strict_types=1);
 namespace app\admin\controller;
 
 use app\model\AdminUser;
+use app\process\WebSocket;
+use app\queue\RedisQueue;
 use support\Db;
+use support\Log;
 use support\Redis;
 use support\Request;
 use support\Response;
@@ -43,7 +46,9 @@ class MetricsController
         // 活跃用户数
         try {
             $activeUsers = AdminUser::whereDate('last_login_at', date('Y-m-d'))->count();
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            // 指标端点不应因单一指标失败而崩溃，但需记录以便监控告警
+            Log::warning('指标：活跃用户数统计失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
             $activeUsers = 0;
         }
         $metrics[] = '# HELP open_admin_active_users Active users today';
@@ -53,7 +58,9 @@ class MetricsController
         // 用户总数
         try {
             $totalUsers = AdminUser::count();
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            // 指标端点不应因单一指标失败而崩溃，但需记录以便监控告警
+            Log::warning('指标：用户总数统计失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
             $totalUsers = 0;
         }
         $metrics[] = '# HELP open_admin_total_users Total registered users';
@@ -64,7 +71,9 @@ class MetricsController
         try {
             Db::select('SELECT 1');
             $dbStatus = 1;
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            // 指标端点不应因单一指标失败而崩溃，但需记录以便监控告警
+            Log::warning('指标：数据库连通性检查失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
             $dbStatus = 0;
         }
         $metrics[] = '# HELP open_admin_db_up Database connection status (1=up, 0=down)';
@@ -75,12 +84,32 @@ class MetricsController
         try {
             Redis::ping();
             $redisStatus = 1;
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            // 指标端点不应因单一指标失败而崩溃，但需记录以便监控告警
+            Log::warning('指标：Redis 连通性检查失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
             $redisStatus = 0;
         }
         $metrics[] = '# HELP open_admin_redis_up Redis connection status (1=up, 0=down)';
         $metrics[] = '# TYPE open_admin_redis_up gauge';
         $metrics[] = "open_admin_redis_up {$redisStatus}";
+
+        // 队列积压数量（redis-queue 消费的 Redis LIST 长度，队列键如 erp:queue:default）
+        try {
+            $queueBacklog = (int)Redis::lLen(RedisQueue::key());
+        } catch (Throwable $e) {
+            // fail-open：获取失败输出 0 并记录日志，避免指标端点本身故障
+            Log::error('获取队列积压指标失败: ' . $e->getMessage());
+            $queueBacklog = 0;
+        }
+        $metrics[] = '# HELP open_admin_queue_backlog Redis queue backlog (pending message count)';
+        $metrics[] = '# TYPE open_admin_queue_backlog gauge';
+        $metrics[] = "open_admin_queue_backlog {$queueBacklog}";
+
+        // WebSocket 在线连接数（WebSocket 进程维护，经 Redis 键跨进程同步；内部已 fail-open 为 0）
+        $websocketConnections = WebSocket::getConnectionCount();
+        $metrics[] = '# HELP open_admin_websocket_connections Current WebSocket online connection count';
+        $metrics[] = '# TYPE open_admin_websocket_connections gauge';
+        $metrics[] = "open_admin_websocket_connections {$websocketConnections}";
 
         // PHP 信息
         $metrics[] = '# HELP open_admin_info Application info';

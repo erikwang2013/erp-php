@@ -70,9 +70,9 @@ class NotificationController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
-    public function markRead(Request $request, string $hashid): Response
+    public function markRead(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $userId = (int)($request->adminId ?? 0);
         NotificationService::markRead($id, $userId);
 

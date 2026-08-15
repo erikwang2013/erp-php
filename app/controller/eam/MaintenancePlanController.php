@@ -59,17 +59,17 @@ class MaintenancePlanController extends BaseController
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = EamMaintenancePlan::find($id);
 
         return $item ? $this->success($this->encodeIds($item->toArray())) : $this->fail('记录不存在', 404);
     }
 
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = EamMaintenancePlan::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -80,9 +80,9 @@ class MaintenancePlanController extends BaseController
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = EamMaintenancePlan::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);

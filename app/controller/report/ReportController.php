@@ -120,9 +120,9 @@ class ReportController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="模板详情(含字段/筛选)")
      */
-    public function show(Request $request, string $hashid): Response
+    public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = ReportTemplate::with(['fields', 'filters'])->find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -152,9 +152,9 @@ class ReportController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的模板信息")
      */
-    public function update(Request $request, string $hashid): Response
+    public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = ReportTemplate::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -180,9 +180,9 @@ class ReportController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function destroy(Request $request, string $hashid): Response
+    public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = ReportTemplate::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -223,9 +223,9 @@ class ReportController extends BaseController
      *     @Apidoc\Returned("list", type="array", desc="字段列表"),
      * })
      */
-    public function fields(Request $request, string $hashid): Response
+    public function fields(Request $request, string $id): Response
     {
-        $templateId = $this->decodeId($hashid);
+        $templateId = $this->decodeId($id);
         $fields = ReportField::where('template_id', $templateId)
             ->orderBy('sort_order', 'asc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
@@ -283,9 +283,9 @@ class ReportController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function deleteField(Request $request, string $hashid): Response
+    public function deleteField(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = ReportField::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -314,9 +314,9 @@ class ReportController extends BaseController
      *     @Apidoc\Returned("list", type="array", desc="筛选条件列表"),
      * })
      */
-    public function filters(Request $request, string $hashid): Response
+    public function filters(Request $request, string $id): Response
     {
-        $templateId = $this->decodeId($hashid);
+        $templateId = $this->decodeId($id);
         $filters = ReportFilter::where('template_id', $templateId)
             ->orderBy('id', 'asc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
@@ -372,9 +372,9 @@ class ReportController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
      */
-    public function deleteFilter(Request $request, string $hashid): Response
+    public function deleteFilter(Request $request, string $id): Response
     {
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $item = ReportFilter::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -405,9 +405,9 @@ class ReportController extends BaseController
      *     @Apidoc\Returned("query_sql", type="string", desc="执行的SQL"),
      * })
      */
-    public function execute(Request $request, string $hashid): Response
+    public function execute(Request $request, string $id): Response
     {
-        $templateId = $this->decodeId($hashid);
+        $templateId = $this->decodeId($id);
         $template = ReportTemplate::with(['fields', 'filters'])->find($templateId);
         if (!$template) {
             return $this->fail('报表模板不存在', 404);
@@ -559,6 +559,8 @@ class ReportController extends BaseController
                 'query_sql' => $sql,
             ], '查询执行成功');
         } catch (\Throwable $e) {
+            $this->logError('执行报表查询', $e);
+
             return $this->fail('查询执行失败: ' . $e->getMessage(), 500);
         }
     }
@@ -577,10 +579,10 @@ class ReportController extends BaseController
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="数据集详情(含查询结果)")
      */
-    public function result(Request $request, string $hashid): Response
+    public function result(Request $request, string $id): Response
     {
         // 支持按模板ID或数据集ID查看
-        $id = $this->decodeId($hashid);
+        $id = $this->decodeId($id);
         $datasetId = $request->input('dataset_id');
 
         if ($datasetId) {
