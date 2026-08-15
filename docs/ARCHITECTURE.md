@@ -985,3 +985,59 @@ P3 后:  Locale → Cors → SecurityFilter → RateLimit → TracingId → Tena
 | P0 | 0 | 纯前端，无表变更 |
 | P1 | 14 | 财务(2) + HR(3) + 制造(2) + 质量(5) + 通知(2) |
 | P3 | 7 | BI(2) + EAM(3) + DMS(2) |
+
+---
+
+## 22. 多租户（预留能力，未启用）
+
+> 版权声明同文件头：Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+### 22.1 定位与决策
+
+多租户在本项目中定位为**预留能力**，本期**不接线、不启用**（文档化降级）。与规划一致：
+SaaS 计费、租户自助开通等"多租户完整商业化方案"不在本项目建设范围内；本期仅保留最小
+代码骨架（中间件 + 模型 Trait）并给出启用步骤，供后续按需启用。
+注：§21.2 路线图 P3 中的"多租户隔离"据此调整为"预留能力（文档化降级）"，保留骨架、不接线。
+
+决策依据（2026-08 评审）：
+- 现有部署几乎全部为单租户，接线会引入不必要的隔离复杂度与回归风险；
+- 当前骨架存在技术缺陷（见 22.4），"接线即隔离"不成立，需先完成设计修正；
+- 隔离需为 163 张表中的业务表逐表加列、逐模型启用，成本远超"最小接线"。
+
+### 22.2 现状事实（代码与配置核对）
+
+| 项 | 现状 |
+|----|------|
+| `app/middleware/TenantScope.php` | 存在，未注册；从 `X-Tenant-Id` 头读取租户，头缺失时直接放行 |
+| `app/model/concerns/TenantScope.php` | 存在，无模型使用；`bootTenantScope()` 全局作用域仅在设置租户后过滤 |
+| `config/middleware.php` | 全局链：Locale → Cors → SecurityFilter → RateLimit → TracingId，无 TenantScope |
+| `config/route.php` /admin 组 | AdminAuth → AdminPermission → OperationLog，无 TenantScope |
+| JWT 载荷 | 仅 `sub` / `username` / `token_type`，**无 tenant_id 声明**（`app/api/v1/controller/AuthController.php`） |
+| 数据库 | **全库无 tenant_id 列**（install.sql 与 30 个迁移文件均无） |
+| 模型 | **无任何模型 use TenantScope trait** |
+
+### 22.3 启用步骤（预留参考，本期不执行）
+
+1. 注册中间件：在 `config/route.php` 的 /admin 分组 `middleware()` 中追加
+   `app\middleware\TenantScope::class`（置于 AdminAuth 之后，确保已认证）。
+2. 请求方在请求头携带 `X-Tenant-Id`（int 租户ID）。
+3. 为需要隔离的业务表增加 `tenant_id` 列（BIGINT + 索引）并回填存量数据；
+   字典/系统表（如 `erik_admin_user`、`erik_role`、`erik_permission`）不隔离。
+4. 在需要隔离的模型类中 `use app\model\concerns\TenantScope;`，自动按当前租户过滤。
+5. （可选）如需从 JWT 而非请求头取租户：扩展登录签发载荷增加 `tenant_id` 声明，
+   并在中间件中从 `$payload['tenant_id']` 读取。
+
+### 22.4 已知技术限制（启用前必须解决）
+
+- **静态传递链路断裂（PHP 8.3 实测）**：中间件经 trait 名调用 `setCurrentTenantId()`
+  写入的是 trait 自身的静态拷贝，使用该 trait 的模型类读取不到，查询不会被过滤。
+  启用时需改为基于请求上下文注入（如 `request()->tenantId`）。
+- **静态全局状态串扰**：Workerman 为常驻进程，静态属性跨请求共享；若启用协程模式
+  （Swoole/Swow）会发生跨租户数据串扰，需改为请求级绑定（`context()` / 请求对象）。
+- **数据面缺口**：全库无 tenant_id 列，需逐表迁移；跨租户共享的字典表需设计豁免机制。
+
+### 22.5 验收口径
+
+本期验收 = 文档与代码一致：`config/middleware.php` 与 `config/route.php` 不含
+TenantScope 注册；中间件与 Trait 注释明确标注"预留能力，未启用"并给出启用步骤；
+本节描述与代码现状逐条对应。

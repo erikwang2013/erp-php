@@ -40,13 +40,6 @@ class _TaxPageState extends State<TaxPage> {
     });
   }
 
-  Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: '编辑', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/finance/tax-rate/${row['id']}', data: data);
-      _load(); return true;
-    });
-  }
-
   Future<void> _delete(Map<String, dynamic> row) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['name'] ?? row['code'] ?? ''}」吗？', onConfirm: (password) async {
       await ApiService.instance.delete('/admin/finance/tax-rate/${row['id']}', data: {'password': password});
@@ -79,7 +72,6 @@ class _TaxPageState extends State<TaxPage> {
     '名称': r['name'] ?? '',
     '编码': r['code'] ?? '',
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
-      IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),
   };

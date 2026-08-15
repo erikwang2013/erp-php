@@ -16,7 +16,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
   int _total = 0, _page = 1;
   final int _limit = 20;
   String _keyword = '';
-  static const List<String> _statuses = ['待审核', '已审核', '部分收货', '已收货', '已取消'];
   String? _statusFilter;
   bool _loading = true;
 
@@ -35,30 +34,90 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
   }
 
   Future<void> _create() async {
-    await FormDialog.show(context, title: '新增', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/purchase/order', data: data);
+    await FormDialog.show(context, title: '新增采购订单', fields: _formFields(), onSubmit: (data) async {
+      final payload = _buildPayload(data);
+      await ApiService.instance.post('/admin/purchase/order', data: payload);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: '编辑', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/purchase/order/${row['id']}', data: data);
+    await FormDialog.show(context, title: '编辑采购订单', fields: _formFields(),
+      initialData: _toEditData(row), onSubmit: (data) async {
+      final payload = _buildPayload(data);
+      await ApiService.instance.put('/admin/purchase/order/${row['id']}', data: payload);
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
-    await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['name'] ?? row['code'] ?? ''}」吗？', onConfirm: (password) async {
+    await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['code'] ?? ''}」吗？', onConfirm: (password) async {
       await ApiService.instance.delete('/admin/purchase/order/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
 
-  List<FormFieldConfig> _formFields() => const [
-    FormFieldConfig(name: 'name', label: '名称', required: true),
-    FormFieldConfig(name: 'code', label: '编码'),
-  ];
+  // 后端 erik_purchase_order 字段: code/apply_id/supplier_id/warehouse_id/
+  // total_amount/status/remark/ordered_at（store() 同时校验 name 必填）
+  static const List<String> _statusLabels = ['待审核', '已审核', '部分收货', '已收货', '已取消'];
+
+  List<FormFieldConfig> _formFields() {
+    final now = DateTime.now();
+    String pad(int v) => v.toString().padLeft(2, '0');
+    final defaultOrderedAt =
+        '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
+    return [
+      FormFieldConfig(name: 'name', label: '订单名称', required: true, hint: '必填（后端校验）'),
+      FormFieldConfig(name: 'code', label: '订单编号', hint: '留空自动生成 PO+时间戳'),
+      FormFieldConfig(name: 'supplier_id', label: '供应商ID', required: true, hint: '从供应商列表页获取数字ID'),
+      FormFieldConfig(name: 'apply_id', label: '采购申请ID', hint: '留空为0'),
+      FormFieldConfig(name: 'warehouse_id', label: '收货仓库ID', hint: '留空为0'),
+      FormFieldConfig(name: 'total_amount', label: '订单总金额', type: FormFieldType.number, hint: '如 100.00'),
+      FormFieldConfig(name: 'status', label: '状态', type: FormFieldType.dropdown,
+        options: ['0 - 待审核', '1 - 已审核', '2 - 部分收货', '3 - 已收货', '4 - 已取消'], initialValue: '0 - 待审核'),
+      FormFieldConfig(name: 'ordered_at', label: '下单时间', initialValue: defaultOrderedAt,
+        hint: '格式 YYYY-MM-DD HH:mm:ss'),
+      FormFieldConfig(name: 'remark', label: '备注', type: FormFieldType.multiline),
+    ];
+  }
+
+  /// 把表单提交值转换为后端 store()/update() 接收的参数（status 拆出数字）。
+  Map<String, dynamic> _buildPayload(Map<String, String> data) {
+    var code = data['code']?.trim() ?? '';
+    if (code.isEmpty) {
+      final now = DateTime.now();
+      code = 'PO${now.year}${_p2(now.month)}${_p2(now.day)}${_p2(now.hour)}${_p2(now.minute)}${_p2(now.second)}';
+    }
+    final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
+    return {
+      'name': data['name'],
+      'code': code,
+      'supplier_id': data['supplier_id']?.trim(),
+      'apply_id': (data['apply_id']?.trim().isEmpty ?? true) ? '0' : data['apply_id']!.trim(),
+      'warehouse_id': (data['warehouse_id']?.trim().isEmpty ?? true) ? '0' : data['warehouse_id']!.trim(),
+      'total_amount': (data['total_amount']?.trim().isEmpty ?? true) ? '0' : data['total_amount']!.trim(),
+      'status': statusRaw,
+      'ordered_at': data['ordered_at']?.trim(),
+      'remark': data['remark']?.trim() ?? '',
+    };
+  }
+
+  /// 编辑回填：把后端数字 status 转回下拉选项文案。
+  Map<String, dynamic> _toEditData(Map<String, dynamic> row) {
+    final d = Map<String, dynamic>.from(row);
+    final s = d['status'];
+    if (s is int && s >= 0 && s < _statusLabels.length) {
+      d['status'] = '$s - ${_statusLabels[s]}';
+    }
+    return d;
+  }
+
+  String _p2(int v) => v.toString().padLeft(2, '0');
+
+  static String _statusText(dynamic s) {
+    final i = s is int ? s : int.tryParse('$s') ?? 0;
+    return (i >= 0 && i < _statusLabels.length) ? _statusLabels[i] : '$s';
+  }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
@@ -71,7 +130,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     filterBar: DropdownButton<String>(
       value: _statusFilter,
       hint: const Text('状态'),
-      items: [for (final s in _statuses) DropdownMenuItem(value: s, child: Text(s))],
+      items: [for (var i = 0; i < _statusLabels.length; i++) DropdownMenuItem(value: '$i', child: Text(_statusLabels[i]))],
       onChanged: (v) { _statusFilter = v; _page = 1; _load(); },
     ),
     actions: [
@@ -79,12 +138,13 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     ],
   );
 
-  List<String> _columns() => ['名称', '编码', '状态', '操作'];
+  List<String> _columns() => ['订单编号', '供应商ID', '总金额', '状态', '操作'];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    '名称': r['name'] ?? '',
-    '编码': r['code'] ?? '',
-    '状态': _chip(r['status']),
+    '订单编号': r['code'] ?? '',
+    '供应商ID': r['supplier_id'] ?? '',
+    '总金额': r['total_amount'] ?? '',
+    '状态': _chip(_statusText(r['status'])),
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),

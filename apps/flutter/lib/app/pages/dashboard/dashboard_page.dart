@@ -48,9 +48,9 @@ class DashboardPage extends GetView<DashboardController> {
             child: TabBarView(
               children: [
                 _overview(context),
-                _opsTab(controller.omsStats),
-                _opsTab(controller.wmsStats),
-                _opsTab(controller.tmsStats),
+                Obx(() => _opsTab(controller.omsStats)),
+                Obx(() => _opsTab(controller.wmsStats)),
+                Obx(() => _opsTab(controller.tmsStats)),
               ],
             ),
           ),

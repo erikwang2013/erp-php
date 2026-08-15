@@ -27,43 +27,63 @@ class AdminAuth implements MiddlewareInterface
         $token = $request->header('Authorization', '');
         $token = str_replace('Bearer ', '', $token);
 
-        if (empty($token)) {
-            return json(['code' => 401, 'message' => '未登录', 'data' => []]);
+        // 复用统一的 JWT 校验逻辑（与 WebSocket 鉴权共用）
+        $result = self::validateToken($token);
+        if (!$result['ok']) {
+            return json(['code' => 401, 'message' => $result['error'], 'data' => []]);
         }
 
-        // 检查 JWT 黑名单
+        $payload = $result['payload'];
+        $request->adminId = (int)$payload['sub'];
+        $request->adminUsername = $payload['username'] ?? '';
+
+        return $next($request);
+    }
+
+    /**
+     * 校验 JWT 访问令牌（HTTP 中间件与 WebSocket 鉴权共用，可复用）
+     *
+     * 校验顺序：空令牌 → Redis 黑名单 → 签名/有效期 → refresh 令牌拦截
+     * → sub 用户 ID → 用户启用状态。
+     *
+     * @return array{ok: bool, payload?: array, error?: string} ok=true 时携带 payload，否则携带 error 提示
+     */
+    public static function validateToken(string $token): array
+    {
+        if ($token === '') {
+            return ['ok' => false, 'error' => '未登录'];
+        }
+
+        // 检查 JWT 黑名单（Redis 不可用时跳过，不阻断鉴权）
         $blacklistKey = 'jwt_blacklist:' . md5($token);
         try {
             if (Redis::get($blacklistKey)) {
-                return json(['code' => 401, 'message' => 'Token已失效，请重新登录', 'data' => []]);
+                return ['ok' => false, 'error' => 'Token已失效，请重新登录'];
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // Redis down, skip blacklist check
         }
 
         try {
             $payload = self::getJWT()->decode($token);
-        } catch (JWTException | \Exception $e) {
-            return json(['code' => 401, 'message' => 'Token已过期或无效', 'data' => []]);
+        } catch (JWTException | \Exception) {
+            return ['ok' => false, 'error' => 'Token已过期或无效'];
         }
 
         // 刷新令牌不能当访问令牌使用
         if (($payload['token_type'] ?? '') === 'refresh') {
-            return json(['code' => 401, 'message' => '请使用访问令牌', 'data' => []]);
+            return ['ok' => false, 'error' => '请使用访问令牌'];
         }
 
         $userId = (int)($payload['sub'] ?? 0);
         if ($userId === 0) {
-            return json(['code' => 401, 'message' => 'Token已过期或无效', 'data' => []]);
+            return ['ok' => false, 'error' => 'Token已过期或无效'];
         }
         if (!self::isUserActive($userId)) {
-            return json(['code' => 401, 'message' => '账号已被禁用', 'data' => []]);
+            return ['ok' => false, 'error' => '账号已被禁用'];
         }
 
-        $request->adminId = $userId;
-        $request->adminUsername = $payload['username'] ?? '';
-
-        return $next($request);
+        return ['ok' => true, 'payload' => $payload];
     }
 
     /** 用户启用状态（Redis 缓存 60 秒，避免每请求查库） */

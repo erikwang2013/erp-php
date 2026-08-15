@@ -21,7 +21,7 @@ struct ReceivingPage {
   async loadData() {
     this.loading = true;
     try {
-      const res = await this.api.get('/admin/wms/receiving?page=${this.page}&limit=${this.limit}');
+      const res = await this.api.get(`/admin/wms/receiving?page=${this.page}&limit=${this.limit}`);
       const data = res['data'] as Record<string, Object>;
       this.items = (data['list'] as Array<Object>) ?? [];
       this.total = (data['total'] as number) ?? 0;

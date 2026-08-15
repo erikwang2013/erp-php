@@ -19,7 +19,7 @@ struct PurchaseOrderPage {
   async loadData() {
     this.loading = true;
     try {
-      const res = await this.api.get('/admin/purchaseorder/?page=1&limit=20', { 'API-Version': 'v1' });
+      const res = await this.api.get('/admin/purchase/order/?page=1&limit=20', { 'API-Version': 'v1' });
       this.items = (res['data'] as Record<string, Object>)['list'] as Array<Object>;
     } finally {
       this.loading = false;

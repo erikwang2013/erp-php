@@ -34,30 +34,107 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
   }
 
   Future<void> _create() async {
-    await FormDialog.show(context, title: '新增', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/oms/order', data: data);
+    await FormDialog.show(context, title: '新增OMS订单', fields: _formFields(), onSubmit: (data) async {
+      final payload = _buildPayload(data);
+      await ApiService.instance.post('/admin/oms/order', data: payload);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: '编辑', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/oms/order/${row['id']}', data: data);
+    await FormDialog.show(context, title: '编辑OMS订单', fields: _formFields(),
+      initialData: _toEditData(row), onSubmit: (data) async {
+      final payload = _buildPayload(data);
+      await ApiService.instance.put('/admin/oms/order/${row['id']}', data: payload);
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
-    await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['name'] ?? row['code'] ?? ''}」吗？', onConfirm: (password) async {
+    await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['channel_order_no'] ?? row['code'] ?? ''}」吗？', onConfirm: (password) async {
       await ApiService.instance.delete('/admin/oms/order/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
 
-  List<FormFieldConfig> _formFields() => const [
-    FormFieldConfig(name: 'name', label: '名称', required: true),
-    FormFieldConfig(name: 'code', label: '编码'),
-  ];
+  // 后端 erik_oms_order 字段: order_id/channel/channel_order_no/channel_store/
+  // fulfillment_status/payment_status/shipping_method/shipping_fee/
+  // buyer_message/seller_note/priority/hold_until（store() 同时校验 code 必填）
+  static const List<String> _channelOptions = ['manual', 'web', 'mobile', 'api', 'marketplace', 'edi', 'pos'];
+  static const List<String> _fulfillmentLabels = ['未分配', '已分配', '拣货中', '已打包', '已发货', '已签收'];
+  static const List<String> _paymentLabels = ['待支付', '已支付', '部分退款', '已退款'];
+  static const List<String> _priorityOptions = ['1 - 最高', '5 - 正常', '9 - 最低'];
+
+  List<FormFieldConfig> _formFields() {
+    return [
+      FormFieldConfig(name: 'code', label: '订单编码', required: true, hint: '必填（后端校验），如 OM+时间戳'),
+      FormFieldConfig(name: 'order_id', label: '关联销售订单ID', required: true, hint: '从销售订单列表页获取数字ID'),
+      FormFieldConfig(name: 'channel', label: '渠道', type: FormFieldType.dropdown,
+        options: _channelOptions, initialValue: 'manual'),
+      FormFieldConfig(name: 'channel_order_no', label: '渠道订单号'),
+      FormFieldConfig(name: 'channel_store', label: '渠道店铺名称'),
+      FormFieldConfig(name: 'fulfillment_status', label: '履约状态', type: FormFieldType.dropdown,
+        options: ['0 - 未分配', '1 - 已分配', '2 - 拣货中', '3 - 已打包', '4 - 已发货', '5 - 已签收'],
+        initialValue: '0 - 未分配'),
+      FormFieldConfig(name: 'payment_status', label: '支付状态', type: FormFieldType.dropdown,
+        options: ['0 - 待支付', '1 - 已支付', '2 - 部分退款', '3 - 已退款'], initialValue: '0 - 待支付'),
+      FormFieldConfig(name: 'shipping_method', label: '配送方式'),
+      FormFieldConfig(name: 'shipping_fee', label: '运费', type: FormFieldType.number, hint: '如 10.00'),
+      FormFieldConfig(name: 'priority', label: '优先级', type: FormFieldType.dropdown,
+        options: _priorityOptions, initialValue: '5 - 正常'),
+      FormFieldConfig(name: 'buyer_message', label: '买家备注', type: FormFieldType.multiline),
+      FormFieldConfig(name: 'seller_note', label: '卖家备注', type: FormFieldType.multiline),
+      FormFieldConfig(name: 'hold_until', label: '冻结时间', hint: '格式 YYYY-MM-DD HH:mm:ss，可留空'),
+    ];
+  }
+
+  /// 组装后端 store()/update() 接收的参数（状态/优先级拆出数字/枚举值）。
+  Map<String, dynamic> _buildPayload(Map<String, String> data) {
+    String pick(String key) => (data[key] ?? '').split(' - ').first.trim();
+    return {
+      'code': data['code']?.trim() ?? '',
+      'order_id': data['order_id']?.trim(),
+      'channel': data['channel']?.trim(),
+      'channel_order_no': data['channel_order_no']?.trim() ?? '',
+      'channel_store': data['channel_store']?.trim() ?? '',
+      'fulfillment_status': pick('fulfillment_status'),
+      'payment_status': pick('payment_status'),
+      'shipping_method': data['shipping_method']?.trim() ?? '',
+      'shipping_fee': (data['shipping_fee']?.trim().isEmpty ?? true) ? '0' : data['shipping_fee']!.trim(),
+      'priority': pick('priority'),
+      'buyer_message': data['buyer_message']?.trim() ?? '',
+      'seller_note': data['seller_note']?.trim() ?? '',
+      'hold_until': data['hold_until']?.trim(),
+    };
+  }
+
+  /// 编辑回填：把后端数字状态/优先级转回下拉选项文案。
+  Map<String, dynamic> _toEditData(Map<String, dynamic> row) {
+    final d = Map<String, dynamic>.from(row);
+    final f = d['fulfillment_status'];
+    if (f is int && f >= 0 && f < _fulfillmentLabels.length) {
+      d['fulfillment_status'] = '$f - ${_fulfillmentLabels[f]}';
+    }
+    final p = d['payment_status'];
+    if (p is int && p >= 0 && p < _paymentLabels.length) {
+      d['payment_status'] = '$p - ${_paymentLabels[p]}';
+    }
+    final pr = d['priority'];
+    if (pr is int && (pr == 1 || pr == 5 || pr == 9)) {
+      d['priority'] = '$pr - ${pr == 1 ? '最高' : (pr == 5 ? '正常' : '最低')}';
+    }
+    return d;
+  }
+
+  static String _fulfillmentText(dynamic s) {
+    final i = s is int ? s : int.tryParse('$s') ?? 0;
+    return (i >= 0 && i < _fulfillmentLabels.length) ? _fulfillmentLabels[i] : '$s';
+  }
+
+  static String _paymentText(dynamic s) {
+    final i = s is int ? s : int.tryParse('$s') ?? 0;
+    return (i >= 0 && i < _paymentLabels.length) ? _paymentLabels[i] : '$s';
+  }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
@@ -73,15 +150,34 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     ],
   );
 
-  List<String> _columns() => ['名称', '编码', '操作'];
+  List<String> _columns() => ['渠道订单号', '渠道', '履约状态', '支付状态', '操作'];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    '名称': r['name'] ?? '',
-    '编码': r['code'] ?? '',
+    '渠道订单号': r['channel_order_no'] ?? '',
+    '渠道': r['channel'] ?? '',
+    '履约状态': _chip(_fulfillmentText(r['fulfillment_status'])),
+    '支付状态': _chip(_paymentText(r['payment_status'])),
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),
   };
+
+  Widget _chip(String s) {
+    final color = switch (s) {
+      '已发货' || '已签收' || '已支付' => Colors.green,
+      '拣货中' || '已打包' || '部分退款' => Colors.orange,
+      '已退款' => Colors.red,
+      _ => Colors.blue,
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(s, style: TextStyle(color: color, fontSize: 12)),
+    );
+  }
 
 }

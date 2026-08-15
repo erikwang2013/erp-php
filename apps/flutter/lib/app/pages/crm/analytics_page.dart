@@ -2,8 +2,6 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
-import '../../widgets/form_dialog.dart';
-import '../../widgets/confirm_dialog.dart';
 
 class CrmAnalyticsPage extends StatefulWidget {
   const CrmAnalyticsPage({super.key});
@@ -33,32 +31,6 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
     } catch (e) { setState(() => _loading = false); }
   }
 
-  Future<void> _create() async {
-    await FormDialog.show(context, title: '新增', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/crm/analytics/report', data: data);
-      _load(); return true;
-    });
-  }
-
-  Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: '编辑', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/crm/analytics/report/${row['id']}', data: data);
-      _load(); return true;
-    });
-  }
-
-  Future<void> _delete(Map<String, dynamic> row) async {
-    await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['name'] ?? row['code'] ?? ''}」吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/crm/analytics/report/${row['id']}', data: {'password': password});
-      _load(); return true;
-    });
-  }
-
-  List<FormFieldConfig> _formFields() => const [
-    FormFieldConfig(name: 'name', label: '名称', required: true),
-    FormFieldConfig(name: 'code', label: '编码'),
-  ];
-
   @override
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
@@ -67,21 +39,13 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
-    
-    actions: [
-      ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: const Text('新增')),
-    ],
   );
 
-  List<String> _columns() => ['名称', '编码', '操作'];
+  List<String> _columns() => ['名称', '编码'];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     '名称': r['name'] ?? '',
     '编码': r['code'] ?? '',
-    '操作': Row(mainAxisSize: MainAxisSize.min, children: [
-      IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-      IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
-    ]),
   };
 
 }

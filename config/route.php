@@ -48,6 +48,11 @@ Route::get('/health', [app\admin\controller\HealthController::class, 'index']);
 // Prometheus 指标（无需认证）
 Route::get('/metrics', [app\admin\controller\MetricsController::class, 'index']);
 
+// ============================================================
+// 调试接口（TODO: 队列冒烟联调完成后移除）
+// ============================================================
+Route::get('/debug/queue-smoke', [app\controller\DebugController::class, 'queueSmoke']);
+
 // security.txt — RFC 9116 安全漏洞报告联系人
 Route::get('/.well-known/security.txt', function () {
     return response(<<<'TXT'
@@ -272,9 +277,10 @@ Route::group('/admin', function () {
     Route::put('/hr/leave/{id}', [app\controller\hr\AttendanceController::class, 'leaveUpdate']);
     Route::delete('/hr/leave/{id}', [app\controller\hr\AttendanceController::class, 'leaveDestroy']);
     Route::post('/hr/leave/{id}/approve', [app\controller\hr\AttendanceController::class, 'approveLeave']);
-    Route::resource('/hr/salary', app\controller\hr\SalaryController::class);
+    // 注意：静态子路径（calculate/payroll-file）必须在 resource 之前注册，避免被 {id} 变量路由遮蔽（FastRoute BadRouteException）
     Route::post('/hr/salary/calculate', [app\controller\hr\SalaryController::class, 'calculate']);
     Route::post('/hr/salary/payroll-file', [app\controller\hr\SalaryController::class, 'payrollFile']);
+    Route::resource('/hr/salary', app\controller\hr\SalaryController::class);
     Route::post('/hr/salary/{id}/pay', [app\controller\hr\SalaryController::class, 'pay']);
     Route::get('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemIndex']);
     Route::post('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemStore']);
@@ -340,9 +346,11 @@ Route::group('/admin', function () {
     // ============================================================
     Route::resource('/tms/carrier', app\controller\tms\CarrierController::class);
     Route::resource('/tms/service', app\controller\tms\ServiceController::class);
-    Route::resource('/tms/freight-rate', app\controller\tms\FreightRateController::class);
+    // 注意：静态子路径（calculate/rate-shop）必须在 resource（生成 {id} 变量路由）之前注册，
+    // 否则会被 FastRoute 判定为被变量路由遮蔽而抛出 BadRouteException，导致 worker 启动崩溃。
     Route::post('/tms/freight-rate/calculate', [app\controller\tms\FreightRateController::class, 'calculate']);
     Route::get('/tms/freight-rate/rate-shop', [app\controller\tms\FreightRateController::class, 'rateShop']);
+    Route::resource('/tms/freight-rate', app\controller\tms\FreightRateController::class);
     Route::resource('/tms/shipment', app\controller\tms\ShipmentController::class);
     Route::post('/tms/shipment/{id}/ship', [app\controller\tms\ShipmentController::class, 'ship']);
     Route::post('/tms/shipment/{id}/get-label', [app\controller\tms\ShipmentController::class, 'getLabel']);

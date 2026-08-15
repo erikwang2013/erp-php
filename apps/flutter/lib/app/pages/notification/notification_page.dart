@@ -40,7 +40,11 @@ class _NotificationPageState extends State<NotificationPage> {
     actions: [
       ElevatedButton.icon(
         onPressed: () async {
-          try { await ApiService.instance.post('/admin/notification/my/read'); } catch (_) {}
+          try {
+            await ApiService.instance.post('/admin/notification/read-all');
+          } catch (e) {
+            debugPrint('全部标记已读失败: $e');
+          }
           _load();
         },
         icon: const Icon(Icons.mark_email_read, size: 18),

@@ -21,7 +21,7 @@ struct AttendancePage {
   async loadData() {
     this.loading = true;
     try {
-      const res = await this.api.get('/admin/hr/attendance?page=${this.page}&limit=${this.limit}');
+      const res = await this.api.get(`/admin/hr/attendance?page=${this.page}&limit=${this.limit}`);
       const data = res['data'] as Record<string, Object>;
       this.items = (data['list'] as Array<Object>) ?? [];
       this.total = (data['total'] as number) ?? 0;
