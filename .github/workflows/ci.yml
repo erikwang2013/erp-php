@@ -179,7 +179,21 @@ jobs:
       - name: Docs stats check
         # 单元测试无需 MySQL/Redis：集成用例在缺少 TEST_DB_* / TEST_REDIS_* 时
         # 会 markTestSkipped 优雅跳过，跳过用例仍计入 tests 总数，不影响比对。
-        run: bash scripts/doc-stats.sh --check
+        # 调试说明：失败时把完整输出上传为 artifact（doc-stats-log），
+        # 用于定位 CI/本地环境差异（本地 18/18 通过、CI 确定性红）。
+        run: |
+          mkdir -p runtime
+          bash scripts/doc-stats.sh --check > runtime/doc-stats.log 2>&1
+          code=$?
+          cat runtime/doc-stats.log
+          exit $code
+
+      - name: Upload doc-stats log (debug)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: doc-stats-log
+          path: runtime/doc-stats.log
 
   # ============================================================
   # E2E 冒烟测试（骨架，默认禁用，不参与结果判定）

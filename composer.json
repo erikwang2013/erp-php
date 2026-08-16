@@ -78,6 +78,9 @@
       "erikwang2013/encryptable": true,
       "erikwang2013/webman-scout": true,
       "erikwang2013/encryption": true
+    },
+    "audit": {
+      "abandoned": "report"
     }
   },
   "require-dev": {
