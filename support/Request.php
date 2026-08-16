@@ -20,5 +20,12 @@ namespace support;
  */
 class Request extends \Webman\Http\Request
 {
-
+    /**
+     * 判断请求中是否包含指定字段（webman 原生 Request 无 has()，
+     * 各 controller 的 $request->has('field') 均依赖本方法）。
+     */
+    public function has(string $key): bool
+    {
+        return $this->get($key) !== null;
+    }
 }

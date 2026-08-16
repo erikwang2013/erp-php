@@ -176,3 +176,23 @@ SELECT 10000000000000001, `id` FROM `erik_admin_permission`
 WHERE `id` NOT IN (
     SELECT `permission_id` FROM `erik_admin_role_permission` WHERE `role_id` = 10000000000000001
 );
+
+-- ============================================================
+-- 操作日志表（dashboard 统计依赖；含 000002 迁移的 source 列）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_operation_log` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `user_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作用户ID',
+    `action` VARCHAR(100) NOT NULL COMMENT '操作动作，如 admin.user.store',
+    `method` VARCHAR(10) NOT NULL DEFAULT '' COMMENT '请求方法: GET|POST|PUT|DELETE',
+    `path` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '请求路径',
+    `ip` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '操作IP',
+    `source` VARCHAR(20) NOT NULL DEFAULT 'web' COMMENT '操作来源端: ipados|macos|windows|linux|ios|android|harmonyos|web',
+    `input` TEXT COMMENT '请求参数（敏感字段已脱敏）',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`),
+    KEY `idx_action` (`action`),
+    KEY `idx_created_at` (`created_at`),
+    KEY `idx_source` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='操作日志表';

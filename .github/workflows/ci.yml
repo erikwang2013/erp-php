@@ -329,7 +329,12 @@ jobs:
 
       - name: Start webman service
         # 端口与 config/process.php 的 listen（8788）保持一致
-        run: php start.php start -d
+        # SCOUT_DRIVER=null：CI 不安装 ES 客户端包（composer 未引入 elasticsearch/elasticsearch），
+        # 而登录路径会 save 用户模型触发 Searchable trait 同步 —— 默认 elasticsearch 驱动下
+        # EngineManager 直接抛异常致登录 500。E2E 不测搜索，切 null 驱动（webman-scout 文档化禁用开关）。
+        run: |
+          sed -i 's/^SCOUT_DRIVER=elasticsearch/SCOUT_DRIVER=null/' .env
+          php start.php start -d
 
       - name: Wait for health check
         run: |
