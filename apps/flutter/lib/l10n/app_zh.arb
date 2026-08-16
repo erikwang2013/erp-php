@@ -33,6 +33,10 @@
   "commonLoading": "加载中...",
   "commonRequestFailed": "请求失败",
 
+  "apiNetworkError": "网络连接失败，请检查网络",
+  "apiTimeoutError": "请求超时，请稍后重试",
+  "apiUnauthorized": "登录状态已失效，请重新登录",
+
   "dashboardTitle": "仪表盘",
   "dashboardExport": "导出",
   "dashboardExportPdf": "导出PDF",

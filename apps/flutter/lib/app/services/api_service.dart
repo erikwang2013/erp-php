@@ -50,23 +50,62 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> get(String path, {Map<String, dynamic>? params}) async {
-    final resp = await dio.get(path, queryParameters: params);
-    return _handleResponse(resp);
+    try {
+      final resp = await dio.get(path, queryParameters: params);
+      return _handleResponse(resp);
+    } on DioException catch (e) {
+      throw ApiException(e.response?.statusCode ?? -1, friendlyError(e));
+    }
   }
 
   Future<Map<String, dynamic>> post(String path, {dynamic data}) async {
-    final resp = await dio.post(path, data: data);
-    return _handleResponse(resp);
+    try {
+      final resp = await dio.post(path, data: data);
+      return _handleResponse(resp);
+    } on DioException catch (e) {
+      throw ApiException(e.response?.statusCode ?? -1, friendlyError(e));
+    }
   }
 
   Future<Map<String, dynamic>> put(String path, {dynamic data}) async {
-    final resp = await dio.put(path, data: data);
-    return _handleResponse(resp);
+    try {
+      final resp = await dio.put(path, data: data);
+      return _handleResponse(resp);
+    } on DioException catch (e) {
+      throw ApiException(e.response?.statusCode ?? -1, friendlyError(e));
+    }
   }
 
   Future<Map<String, dynamic>> delete(String path, {dynamic data}) async {
-    final resp = await dio.delete(path, data: data);
-    return _handleResponse(resp);
+    try {
+      final resp = await dio.delete(path, data: data);
+      return _handleResponse(resp);
+    } on DioException catch (e) {
+      throw ApiException(e.response?.statusCode ?? -1, friendlyError(e));
+    }
+  }
+
+  /// 将异常映射为当前语言（AppL10n.current）下的用户可读消息。
+  /// 与后端 app/common/I18n.php 的 key 风格对齐：api.* / common.*。
+  static String friendlyError(Object e) {
+    final l10n = AppL10n.current;
+    if (e is ApiException) return e.message; // 业务错误已在抛出处翻译
+    if (e is DioException) {
+      switch (e.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return l10n.apiTimeoutError;
+        case DioExceptionType.connectionError:
+          return l10n.apiNetworkError;
+        case DioExceptionType.badResponse:
+          if (e.response?.statusCode == 401) return l10n.apiUnauthorized;
+          return l10n.commonRequestFailed;
+        default:
+          return l10n.commonRequestFailed;
+      }
+    }
+    return l10n.commonRequestFailed;
   }
 
   Map<String, dynamic> _handleResponse(Response resp) {

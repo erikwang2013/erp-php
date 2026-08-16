@@ -102,6 +102,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get commonRequestFailed => '请求失败';
 
   @override
+  String get apiNetworkError => '网络连接失败，请检查网络';
+
+  @override
+  String get apiTimeoutError => '请求超时，请稍后重试';
+
+  @override
+  String get apiUnauthorized => '登录状态已失效，请重新登录';
+
+  @override
   String get dashboardTitle => '仪表盘';
 
   @override

@@ -6,10 +6,12 @@
 //   3. 刷新失败清除本地 token
 // 全部通过注入 FakeHttpClientAdapter 完成，离线运行。
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:admin_app/app/l10n/app_l10n.dart';
 import 'package:admin_app/app/services/api_service.dart';
 import 'package:admin_app/app/services/auth_service.dart';
 
@@ -107,7 +109,7 @@ void main() {
       // 访问受保护接口 → 401 → 拦截器自动刷新
       await expectLater(
         ApiService.instance.get('/api/user'),
-        throwsA(isA<DioException>()),
+        throwsA(isA<ApiException>()),
       );
 
       // 会话应已用新 token 更新
@@ -142,7 +144,7 @@ void main() {
 
       await expectLater(
         ApiService.instance.get('/api/user'),
-        throwsA(isA<DioException>()),
+        throwsA(isA<ApiException>()),
       );
 
       // token 应被清除，回到未登录状态
@@ -175,6 +177,32 @@ void main() {
 
       final result = await ApiService.instance.tryRefresh();
       expect(result, isFalse);
+    });
+  });
+
+  group('ApiService.friendlyError — 错误消息 i18n 映射', () {
+    DioException _err(DioExceptionType type) =>
+        DioException(requestOptions: RequestOptions(path: '/x'), type: type);
+
+    test('默认中文：网络错误 / 超时 / 401 映射到对应 key', () {
+      AppL10n.setLocale(const Locale('zh', 'CN'));
+      expect(ApiService.friendlyError(_err(DioExceptionType.connectionError)),
+          '网络连接失败，请检查网络');
+      expect(ApiService.friendlyError(_err(DioExceptionType.connectionTimeout)),
+          '请求超时，请稍后重试');
+      expect(ApiService.friendlyError(_err(DioExceptionType.receiveTimeout)),
+          '请求超时，请稍后重试');
+      expect(ApiService.friendlyError(_err(DioExceptionType.badResponse)),
+          '请求失败');
+    });
+
+    test('切到英文后错误消息随语言切换', () {
+      AppL10n.setLocale(const Locale('en'));
+      expect(ApiService.friendlyError(_err(DioExceptionType.connectionError)),
+          'Network connection failed, please check your network');
+      expect(ApiService.friendlyError(_err(DioExceptionType.badResponse)),
+          'Request failed');
+      AppL10n.setLocale(const Locale('zh', 'CN')); // 恢复默认，避免影响其他用例
     });
   });
 }

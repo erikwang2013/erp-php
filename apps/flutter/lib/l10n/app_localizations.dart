@@ -272,6 +272,24 @@ abstract class AppLocalizations {
   /// **'请求失败'**
   String get commonRequestFailed;
 
+  /// No description provided for @apiNetworkError.
+  ///
+  /// In zh, this message translates to:
+  /// **'网络连接失败，请检查网络'**
+  String get apiNetworkError;
+
+  /// No description provided for @apiTimeoutError.
+  ///
+  /// In zh, this message translates to:
+  /// **'请求超时，请稍后重试'**
+  String get apiTimeoutError;
+
+  /// No description provided for @apiUnauthorized.
+  ///
+  /// In zh, this message translates to:
+  /// **'登录状态已失效，请重新登录'**
+  String get apiUnauthorized;
+
   /// No description provided for @dashboardTitle.
   ///
   /// In zh, this message translates to:

@@ -102,6 +102,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonRequestFailed => 'Request failed';
 
   @override
+  String get apiNetworkError =>
+      'Network connection failed, please check your network';
+
+  @override
+  String get apiTimeoutError => 'Request timed out, please retry later';
+
+  @override
+  String get apiUnauthorized => 'Session expired, please log in again';
+
+  @override
   String get dashboardTitle => 'Dashboard';
 
   @override

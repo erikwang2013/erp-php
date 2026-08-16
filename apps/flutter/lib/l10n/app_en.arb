@@ -33,6 +33,10 @@
   "commonLoading": "Loading...",
   "commonRequestFailed": "Request failed",
 
+  "apiNetworkError": "Network connection failed, please check your network",
+  "apiTimeoutError": "Request timed out, please retry later",
+  "apiUnauthorized": "Session expired, please log in again",
+
   "dashboardTitle": "Dashboard",
   "dashboardExport": "Export",
   "dashboardExportPdf": "Export PDF",

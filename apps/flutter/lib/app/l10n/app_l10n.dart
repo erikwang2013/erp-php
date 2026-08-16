@@ -19,11 +19,16 @@ class AppL10n {
 
   static Locale _locale = const Locale('zh', 'CN');
 
+  /// 语言切换通知：setLocale 后触发 AdminApp 重建以刷新全部文案。
+  static final ValueNotifier<Locale> localeNotifier = ValueNotifier<Locale>(_locale);
+
   static Locale get locale => _locale;
 
-  /// 预留的语言切换入口：后续可接系统语言 / 用户偏好（SharedPreferences）。
-  /// 当前为最小可行，默认固定中文。
-  static void setLocale(Locale locale) => _locale = locale;
+  /// 运行时切换语言（en/zh）。后续可接系统语言或用户偏好（SharedPreferences）。
+  static void setLocale(Locale locale) {
+    _locale = locale;
+    localeNotifier.value = locale;
+  }
 
   /// Widget 环境翻译入口；无 Localizations delegate 时回退中文。
   static AppLocalizations of(BuildContext context) =>

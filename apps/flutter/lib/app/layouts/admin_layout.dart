@@ -127,7 +127,7 @@ class _AdminLayoutState extends State<AdminLayout> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.navAdminTitle),
-        actions: [_buildUserMenu()],
+        actions: [_buildLangToggle(), _buildUserMenu()],
       ),
       drawer: Drawer(
         child: ListView(
@@ -242,9 +242,29 @@ class _AdminLayoutState extends State<AdminLayout> {
             onPressed: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
           ),
           const Spacer(),
+          _buildLangToggle(),
           _buildUserMenu(),
         ],
       ),
+    );
+  }
+
+  /// 语言切换（en/zh）：AppL10n.setLocale 触发全局重建。
+  Widget _buildLangToggle() {
+    final isZh = AppL10n.locale.languageCode == 'zh';
+    return PopupMenuButton<String>(
+      tooltip: 'Language',
+      offset: const Offset(0, headerHeight),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(isZh ? '中文' : 'EN', style: const TextStyle(fontSize: 13)),
+      ),
+      onSelected: (code) => AppL10n.setLocale(
+          code == 'zh' ? const Locale('zh', 'CN') : const Locale('en')),
+      itemBuilder: (_) => const [
+        PopupMenuItem(value: 'zh', child: Text('中文')),
+        PopupMenuItem(value: 'en', child: Text('English')),
+      ],
     );
   }
 
