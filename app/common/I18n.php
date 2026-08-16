@@ -17,7 +17,7 @@ class I18n
      * Resolve current locale from request Accept-Language header.
      * No static caching — webman workers are persistent, each request must be evaluated independently.
      */
-    public static function getLocale(Request $request = null): string
+    public static function getLocale(?Request $request = null): string
     {
         if ($request) {
             $header = $request->header('Accept-Language', '');

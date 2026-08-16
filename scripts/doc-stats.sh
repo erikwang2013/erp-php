@@ -106,6 +106,11 @@ collect() {
       tests="${BASH_REMATCH[1]}"
       assertions="${BASH_REMATCH[2]}"
     fi
+    # 解析失败时输出 phpunit 尾部供 CI 诊断（--check 模式会随 stdout 进 ::error::）
+    if [[ -z "$tests" || -z "$assertions" ]]; then
+      echo "!! phpunit 输出无法解析（尾部 20 行如下）:"
+      printf '%s\n' "$out" | tail -20
+    fi
   fi
   if [[ -z "$tests" && -f .phpunit.result.cache ]]; then
     tests="$(php -r '$d=json_decode(file_get_contents(".phpunit.result.cache"), true); echo count($d["times"] ?? []);' 2>/dev/null || true)"

@@ -138,11 +138,12 @@ jobs:
       - name: Install dependencies
         # 曾在 CI 连续失败（本地成功）；失败输出经 ::error:: 写入
         # check-run annotations（API 匿名可读）便于定位。
+        # --retry 3：pub.dev 网络抖动（Resolving dependencies 阶段超时）重试。
         # 注意：GH Actions 默认 bash -e，命令替换内失败会直接终止步骤，
         # ::error:: 不会执行 —— 用 set +e 包住捕获行。
         run: |
           set +e
-          out="$(flutter pub get 2>&1)"
+          out="$(flutter pub get --retry 3 2>&1)"
           code=$?
           set -e
           printf '%s\n' "$out"
