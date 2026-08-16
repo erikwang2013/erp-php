@@ -138,9 +138,13 @@ jobs:
       - name: Install dependencies
         # 曾在 CI 连续失败（本地成功）；失败输出经 ::error:: 写入
         # check-run annotations（API 匿名可读）便于定位。
+        # 注意：GH Actions 默认 bash -e，命令替换内失败会直接终止步骤，
+        # ::error:: 不会执行 —— 用 set +e 包住捕获行。
         run: |
+          set +e
           out="$(flutter pub get 2>&1)"
           code=$?
+          set -e
           printf '%s\n' "$out"
           if [ $code -ne 0 ]; then
             echo "::error::$(printf '%s' "$out" | tail -25 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
@@ -195,10 +199,14 @@ jobs:
         # 会 markTestSkipped 优雅跳过，跳过用例仍计入 tests 总数，不影响比对。
         # 失败时输出经 ::error:: 写入 check-run annotations（API 匿名可读），
         # 便于定位 CI/本地环境差异（本地 18/18 通过、CI 曾确定性红）。
+        # 注意：GH Actions 默认 bash -e，命令替换内脚本失败会直接终止步骤
+        # （printf / ::error:: 均不执行）—— 必须 set +e 包住捕获行。
         run: |
           mkdir -p runtime
+          set +e
           out="$(bash scripts/doc-stats.sh --check 2>&1)"
           code=$?
+          set -e
           printf '%s\n' "$out"
           if [ $code -ne 0 ]; then
             echo "::error::$(printf '%s' "$out" | tail -15 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"

@@ -247,28 +247,26 @@ parameters:
 			path: app/admin/controller/DocsController.php
 
 		-
-			message: '#^Method app\\admin\\controller\\ExportController\:\:excel\(\) has invalid return type app\\admin\\controller\\Response\.$#'
-			identifier: class.notFound
+			# PHP >= 8.3.33 下 phpstan 对 Illuminate Builder 的推断为 Collection<int, stdClass>
+			# （8.3.7 推断为模型类）。运行期返回真实模型，toArray() 合法，属分析器版本差异，
+			# 故入基线；本地 8.3.7 不产生该错误 → 条目不匹配，由 phpstan.neon 的
+			# reportUnmatchedIgnoredErrors: false 放行。
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
 			count: 1
-			path: app/admin/controller/ExportController.php
+			path: app/admin/controller/ConfigController.php
 
 		-
-			message: '#^Method app\\admin\\controller\\ExportController\:\:excel\(\) should return app\\admin\\controller\\Response but returns Webman\\Http\\Response\.$#'
-			identifier: return.type
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
 			count: 1
-			path: app/admin/controller/ExportController.php
+			path: app/admin/controller/DashboardController.php
 
 		-
-			message: '#^Method app\\admin\\controller\\ExportController\:\:pdf\(\) has invalid return type app\\admin\\controller\\Response\.$#'
-			identifier: class.notFound
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
 			count: 1
-			path: app/admin/controller/ExportController.php
-
-		-
-			message: '#^Method app\\admin\\controller\\ExportController\:\:pdf\(\) should return app\\admin\\controller\\Response but returns Webman\\Http\\Response\.$#'
-			identifier: return.type
-			count: 1
-			path: app/admin/controller/ExportController.php
+			path: app/admin/controller/LogController.php
 
 		-
 			message: '#^Call to an undefined static method support\\Redis\:\:ping\(\)\.$#'

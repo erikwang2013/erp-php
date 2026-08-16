@@ -3,6 +3,9 @@ includes:
 
 parameters:
   level: 5
+  # 基线在不同 PHP 补丁版本下错误集不同（8.3.7 与 8.3.33 对 Illuminate Builder /
+  # @method 魔术方法的推断存在差异）：允许基线条目在另一版本下不匹配而不报错。
+  reportUnmatchedIgnoredErrors: false
   paths:
     - app
   excludePaths:
