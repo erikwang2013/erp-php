@@ -43,7 +43,8 @@ jobs:
           # 同时不安装默认的 xdebug。若改用 xdebug：去掉该行并把下方采集步骤
           # 换成 XDEBUG_MODE=coverage vendor/bin/phpunit ...
           coverage: pcov
-          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis
+          # bcmath/gmp：HashidsServiceTest 依赖（缺任一扩展即失败，曾致 phpunit exit 2）
+          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis, bcmath, gmp
           tools: composer:v2
 
       - name: Cache Composer
@@ -85,8 +86,20 @@ jobs:
 
       - name: PHPUnit Tests
         # --no-coverage：普通测试步骤不做覆盖率采集（phpunit.xml 已配置报告输出，
-        # 不关闭的话每轮都会重复采集+生成 HTML），覆盖率由下方专门步骤负责
-        run: php vendor/bin/phpunit --testdox --no-coverage
+        # 不关闭的话每轮都会重复采集+生成 HTML），覆盖率由下方专门步骤负责。
+        # 失败时把输出尾部（含失败测试名与 Tests 总结）写入 ::error:: 注解，
+        # 便于匿名定位 CI 特有失败（本地/CI 扩展差异曾致 Hashids 测试 exit 2）。
+        # 注意：GH Actions 默认 bash -e，命令替换内失败会直接终止步骤 —— set +e 包住。
+        run: |
+          set +e
+          out="$(php vendor/bin/phpunit --no-coverage 2>&1)"
+          code=$?
+          set -e
+          printf '%s\n' "$out"
+          if [ $code -ne 0 ]; then
+            echo "::error::$(printf '%s' "$out" | tail -35 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            exit $code
+          fi
 
       - name: PHPUnit Coverage Collection (pcov)
         # 采集驱动：CI 已通过 setup-php coverage: pcov 安装 pcov。
@@ -190,7 +203,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis
+          # 与 php job 保持同一扩展集（bcmath/gmp 供 Hashids 测试，缺则断言数漂移）
+          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis, bcmath, gmp
           tools: composer:v2
 
       - name: Install dependencies
