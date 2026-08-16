@@ -35,9 +35,15 @@ function validator(array $data = [], array $rules = [], array $messages = [], ar
 
     if ($factory === null) {
         $loader = new \Illuminate\Translation\ArrayLoader();
-        $factory = new \Illuminate\Validation\Factory(
-            new \Illuminate\Translation\Translator($loader, 'zh_CN')
-        );
+        foreach (['zh_CN', 'en'] as $locale) {
+            $file = config('translation.path', base_path() . '/resource/translations') . "/{$locale}/validation.php";
+            if (is_file($file)) {
+                $loader->addMessages($locale, 'validation', require $file);
+            }
+        }
+        $translator = new \Illuminate\Translation\Translator($loader, 'zh_CN');
+        $translator->setFallback('en');
+        $factory = new \Illuminate\Validation\Factory($translator);
     }
 
     return $factory->make($data, $rules, $messages, $attributes);

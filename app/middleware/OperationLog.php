@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\middleware;
 
 use app\common\SnowflakeService;
+use support\Log;
 use Webman\Http\Request;
 use Webman\Http\Response;
 use Webman\MiddlewareInterface;
@@ -41,7 +42,9 @@ class OperationLog implements MiddlewareInterface
             $log->created_at = date('Y-m-d H:i:s');
             $log->save();
         } catch (\Throwable $e) {
-            // 日志记录失败不应影响业务请求
+            // 操作日志落库失败不应影响业务请求（fail-open 保留），
+            // 但审计日志缺失必须显式告警，否则审计链路静默失效无从发现
+            Log::warning('操作日志落库失败（审计记录缺失）: ' . $e->getMessage() . ' | Path: ' . $request->path() . ' | TraceId: ' . trace_id());
         }
 
         return $response;
