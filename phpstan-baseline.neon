@@ -883,447 +883,105 @@ parameters:
 			path: app/controller/bi/WidgetController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\CrmAnalyticsMetric\:\:\$id\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$report_data\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/controller/crm/AnalyticsController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$generated_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$period_type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$period_value\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$period_year\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$report_data\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmAnalyticsMetric\:\:find\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/crm/AnalyticsController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CrmAnalyticsReport\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Undefined variable\: \$id$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/controller/crm/AnalyticsController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmCampaign\:\:\$id\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/CampaignController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmCampaign\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/CampaignController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmCampaign\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/crm/CampaignController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmCampaignParticipant\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
 			count: 2
 			path: app/controller/crm/CampaignController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\CrmContact\:\:\$id\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/crm/CampaignController.php
+
+		-
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/crm/ContactController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CrmContact\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/crm/ContactController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/ContractController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$status\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/controller/crm/ContractController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$contract_id\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/controller/crm/ContractController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/ContractController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmContract\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/crm/ContractController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmContractItem\:\:where\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/crm/ContractController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\CrmFollowRecord\:\:\$id\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/crm/FollowRecordController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CrmFollowRecord\:\:find\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/crm/FollowRecordController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmFunnelStage\:\:\$id\.$#'
-			identifier: property.notFound
 			count: 1
 			path: app/controller/crm/FunnelStageController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CrmFunnelStage\:\:find\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/crm/FunnelStageController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmOpportunity\:\:\$id\.$#'
-			identifier: property.notFound
 			count: 1
 			path: app/controller/crm/OpportunityController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\CrmOpportunity\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/crm/OpportunityController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$action\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$customer_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$from_user_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$remark\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$to_user_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmPoolRule\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmPoolRule\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmPoolRule\:\:where\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/crm/PoolController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Customer\:\:find\(\)\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/crm/QuotationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/crm/QuotationController.php
+
+		-
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/crm/PoolController.php
+			count: 1
+			path: app/controller/crm/QuotationController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Customer\:\:where\(\)\.$#'
+			message: '#^Parameter \#1 \$quotation of method app\\service\\crm\\CrmService\:\:convertQuotationToContract\(\) expects app\\model\\CrmQuotation, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/controller/crm/QuotationController.php
+
+		-
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/crm/PoolController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$code\.$#'
-			identifier: property.notFound
 			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$customer_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$opportunity_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$owner_user_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$quotation_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$remark\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$total_amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$contract_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$product_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$quantity\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$sku_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$unit\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmQuotation\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmQuotation\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmQuotationItem\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmQuotationItem\:\:\$quotation_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmQuotation\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 4
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmQuotationItem\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/crm/QuotationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmTicket\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmTicket\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$content\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$is_internal\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$ticket_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$user_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmTicket\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 6
-			path: app/controller/crm/TicketController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\CrmTicketReply\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
 			path: app/controller/crm/TicketController.php
 
 		-
@@ -1975,55 +1633,13 @@ parameters:
 			path: app/controller/finance/VoucherController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$clock_in\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$employee\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/controller/hr/AttendanceController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$employee_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$late_minutes\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$rule_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$work_date\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrLeave\:\:\$id\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/controller/hr/AttendanceController.php
@@ -2035,145 +1651,55 @@ parameters:
 			path: app/controller/hr/AttendanceController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\HrAttendance\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrAttendanceRule\:\:find\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/hr/AttendanceController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\HrAttendanceRule\:\:orderBy\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrLeave\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/hr/AttendanceController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrDepartment\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/DepartmentController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrDepartment\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/hr/DepartmentController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrDepartment\:\:where\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/hr/DepartmentController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\HrEmployee\:\:\$id\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$department\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/controller/hr/EmployeeController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$position\.$#'
+			identifier: property.notFound
+			count: 1
 			path: app/controller/hr/EmployeeController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\HrPosition\:\:\$id\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/hr/EmployeeController.php
+
+		-
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/hr/PositionController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\HrPosition\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/hr/PositionController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$employee_id\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$employee\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/controller/hr/SalaryController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$net_salary\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$period_month\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/controller/hr/SalaryController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$period_year\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\HrSalaryItem\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrSalary\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrSalary\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrSalaryItem\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/hr/SalaryController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\HrSalaryItem\:\:orderBy\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/hr/SalaryController.php
@@ -2239,273 +1765,57 @@ parameters:
 			path: app/controller/inventory/TransferController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$code\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/controller/manufacturing/BomController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$effective_date\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/manufacturing/BomController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$id\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/MrpController.php
+
+		-
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/manufacturing/MrpController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$bom\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/ProductionController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$product_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$version\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$bom_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$component_product_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$quantity\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$scrap_rate\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$seq\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$unit\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgBom\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgBom\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgBomItem\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/BomController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$gross_requirement\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$net_requirement\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$on_hand\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$plan_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$planned_end\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$planned_order_qty\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$planned_start\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$product_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$scheduled_receipt\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgMrpPlan\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\Inventory\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgBom\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgMrpItem\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgMrpPlan\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/manufacturing/MrpController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgProductionOrder\:\:\$completed_quantity\.$#'
-			identifier: property.notFound
-			count: 1
 			path: app/controller/manufacturing/ProductionController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\MfgProductionOrder\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/ProductionController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgProductionOrder\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/ProductionController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgProductionItem\:\:where\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/manufacturing/ProductionController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\MfgProductionOrder\:\:find\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 4
-			path: app/controller/manufacturing/ProductionController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgRouting\:\:\$created_at\.$#'
-			identifier: property.notFound
 			count: 1
 			path: app/controller/manufacturing/RoutingController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\MfgRouting\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/RoutingController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgRouting\:\:find\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/manufacturing/RoutingController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgWorkstation\:\:\$created_at\.$#'
-			identifier: property.notFound
 			count: 1
-			path: app/controller/manufacturing/WorkstationController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\MfgWorkstation\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/manufacturing/WorkstationController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\MfgWorkstation\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
 			path: app/controller/manufacturing/WorkstationController.php
 
 		-
@@ -2563,243 +1873,75 @@ parameters:
 			path: app/controller/oms/RmaController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\Brand\:\:\$id\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/product/BrandController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Brand\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
+			message: '#^Class app\\controller\\product\\CrmContact not found\.$#'
+			identifier: class.notFound
+			count: 6
 			path: app/controller/product/BrandController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\Category\:\:\$id\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/product/CategoryController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Category\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
+			message: '#^Class app\\controller\\product\\CrmContact not found\.$#'
+			identifier: class.notFound
+			count: 6
 			path: app/controller/product/CategoryController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\Customer\:\:\$id\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/product/CustomerController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Customer\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
+			message: '#^Class app\\controller\\product\\CrmContact not found\.$#'
+			identifier: class.notFound
+			count: 6
 			path: app/controller/product/CustomerController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\Location\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/LocationController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\Location\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: app/controller/product/LocationController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\Location\:\:where\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/product/LocationController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$barcode\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$brand_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$category_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$code\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$description\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$image\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$spec\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Product\:\:\$unit\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$price_type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$product_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$sku_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$barcode\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$cost_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$product_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$sku_code\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$spec_attrs\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:beginTransaction\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/product/ProductController.php
 
 		-
-			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:commit\(\)\.$#'
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:rollBack\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Call to an undefined static method app\\model\\Product\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: app/controller/product/ProductController.php
-
-		-
-			message: '#^Access to an undefined property app\\model\\Supplier\:\:\$id\.$#'
-			identifier: property.notFound
 			count: 1
 			path: app/controller/product/SupplierController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Supplier\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
+			message: '#^Class app\\controller\\product\\CrmContact not found\.$#'
+			identifier: class.notFound
+			count: 6
 			path: app/controller/product/SupplierController.php
 
 		-
-			message: '#^Access to an undefined property app\\model\\Warehouse\:\:\$id\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
 			path: app/controller/product/WarehouseController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\Warehouse\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
+			message: '#^Class app\\controller\\product\\CrmContact not found\.$#'
+			identifier: class.notFound
+			count: 6
 			path: app/controller/product/WarehouseController.php
 
 		-
@@ -4339,6 +3481,342 @@ parameters:
 			path: app/queue/redis/SmokeTask.php
 
 		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\:\:orderBy\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/service/AbstractCrudService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$generated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$period_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$period_value\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$period_year\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$report_data\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmAnalyticsReport\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$opportunity_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$owner_user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$quotation_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContract\:\:\$total_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$contract_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmContractItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$action\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$from_user_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmPoolRecord\:\:\$to_user_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmQuotation\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmQuotation\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmQuotation\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmQuotation\:\:\$opportunity_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmQuotation\:\:\$owner_user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmQuotation\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmQuotation\:\:\$total_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$content\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$is_internal\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$ticket_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\CrmTicketReply\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CrmAnalyticsMetric\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CrmCampaign\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CrmCampaignParticipant\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CrmContract\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CrmPoolRule\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CrmQuotationItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CrmTicket\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CrmTicketReply\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
+			message: '#^Method app\\service\\crm\\CrmService\:\:upsertMetric\(\) should return app\\model\\CrmAnalyticsMetric\|null but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/service/crm/CrmService.php
+
+		-
 			message: '#^Access to an undefined property app\\model\\FinanceVoucher\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1
@@ -4589,6 +4067,144 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/service/finance/FinanceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$clock_in\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$employee_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$late_minutes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$rule_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrAttendance\:\:\$work_date\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$employee_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$net_salary\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$period_month\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$period_year\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrAttendance\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrAttendanceRule\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrAttendanceRule\:\:orderBy\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrDepartment\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrLeave\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrSalary\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/hr/HrService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrSalary\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/HrService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\CostRecord\:\:\$after_avg_cost\.$#'
@@ -4883,6 +4499,204 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 4
 			path: app/service/inventory/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$effective_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$bom_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$component_product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$scrap_rate\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$seq\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgBomItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$gross_requirement\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$net_requirement\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$on_hand\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$plan_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$planned_end\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$planned_order_qty\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$planned_start\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgMrpItem\:\:\$scheduled_receipt\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Inventory\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MfgBom\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MfgBom\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MfgMrpItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MfgMrpPlan\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MfgProductionOrder\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Call to an undefined static method support\\Container\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/manufacturing/ManufacturingService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\Notification\:\:\$content\.$#'
@@ -5243,6 +5057,138 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/service/oms/RmaService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$barcode\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$brand_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$category_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$image\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$spec\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Product\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$price_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:beginTransaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:commit\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:rollBack\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/product/ProductService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Product\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/product/ProductService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\QualityNonconformity\:\:\$code\.$#'

@@ -8,11 +8,10 @@ declare(strict_types=1);
 namespace app\controller\manufacturing;
 
 use app\admin\controller\BaseController;
-use app\model\Inventory;
-use app\model\MfgBom;
-use app\model\MfgMrpItem;
 use app\model\MfgMrpPlan;
-use app\service\manufacturing\MrpEngineService;
+use app\service\manufacturing\ManufacturingService;
+use InvalidArgumentException;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -47,23 +46,17 @@ class MrpController extends BaseController
         $periodMonth = $request->input('period_month');
         $status = $request->input('status');
 
-        $query = MfgMrpPlan::query();
-        if ($periodYear) {
-            $query->where('period_year', (int) $periodYear);
-        }
-        if ($periodMonth) {
-            $query->where('period_month', (int) $periodMonth);
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
+        $result = $this->mfg()->list(MfgMrpPlan::class, [
+            'period_year' => $periodYear,
+            'period_month' => $periodMonth,
+            'status' => $status,
+        ], $page, $limit, [
+            'eqFilters' => ['status'],
+            'truthyFilters' => ['period_year', 'period_month'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -92,10 +85,7 @@ class MrpController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new MfgMrpPlan();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->mfg()->create(MfgMrpPlan::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -116,7 +106,7 @@ class MrpController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgMrpPlan::with(['items'])->find($id);
+        $item = $this->mfg()->find(MfgMrpPlan::class, $id, ['items']);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -145,7 +135,7 @@ class MrpController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgMrpPlan::find($id);
+        $item = $this->mfg()->find(MfgMrpPlan::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -153,10 +143,7 @@ class MrpController extends BaseController
             return $this->fail('已确认的计划不可修改', 422);
         }
 
-        $originalStatus = $item->status;
-        $this->fillModelFromRequest($item, $request);
-        $item->status = $originalStatus;
-        $item->save();
+        $item = $this->mfg()->update(MfgMrpPlan::class, $id, $request->all(), ['status']);
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -178,7 +165,7 @@ class MrpController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgMrpPlan::find($id);
+        $item = $this->mfg()->find(MfgMrpPlan::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -189,8 +176,7 @@ class MrpController extends BaseController
             return $this->fail($error, 422);
         }
 
-        MfgMrpItem::where('plan_id', $id)->delete();
-        $item->delete();
+        $this->mfg()->deleteMrpPlanWithItems($id);
 
         return $this->success([], '删除成功');
     }
@@ -211,49 +197,24 @@ class MrpController extends BaseController
     public function generate(Request $request, string $id): Response
     {
         $planId = $this->decodeId($id);
-        $plan = MfgMrpPlan::find($planId);
-        if (!$plan) {
+
+        try {
+            $itemCount = $this->mfg()->generateMrpItems($planId);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+        if ($itemCount === null) {
             return $this->fail('计划不存在', 404);
         }
-        if ($plan->status === 2) {
-            return $this->fail('已确认的计划不可重新生成', 422);
-        }
-
-        MfgMrpItem::where('plan_id', $planId)->delete();
-
-        $boms = MfgBom::where('status', 1)->with(['items'])->get();
-
-        foreach ($boms as $bom) {
-            foreach ($bom->items as $bomItem) {
-                $grossRequirement = (float) $bomItem->quantity;
-
-                $inventory = Inventory::where('product_id', $bomItem->component_product_id)->first();
-                $onHand = $inventory ? (float) $inventory->quantity : 0.00;
-
-                $netRequirement = (new MrpEngineService())->calculateNetRequirement($grossRequirement, $onHand);
-
-                $item = new MfgMrpItem();
-                $item->id = $this->generateId();
-                $item->plan_id = $planId;
-                $item->product_id = $bomItem->component_product_id;
-                $item->gross_requirement = $grossRequirement;
-                $item->scheduled_receipt = 0;
-                $item->on_hand = $onHand;
-                $item->net_requirement = $netRequirement;
-                $item->planned_order_qty = $netRequirement;
-                $item->planned_start = date('Y-m-d');
-                $item->planned_end = date('Y-m-d', strtotime('+7 days'));
-                $item->created_at = date('Y-m-d H:i:s');
-                $item->save();
-            }
-        }
-
-        $plan->status = 1;
-        $plan->generated_at = date('Y-m-d H:i:s');
-        $plan->save();
-
-        $itemCount = MfgMrpItem::where('plan_id', $planId)->count();
 
         return $this->success(['items_count' => $itemCount], "MRP计划生成完成，共 {$itemCount} 条明细");
+    }
+
+    /**
+     * 生产制造薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function mfg(): ManufacturingService
+    {
+        return Container::get(ManufacturingService::class);
     }
 }

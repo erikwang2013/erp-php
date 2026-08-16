@@ -632,7 +632,7 @@ GitHub Actions 持续集成流水线：`.github/workflows/ci.yml`
 
 - PHP 语法检查 (`php -l`)
 - PHPUnit 单元测试
-- Flutter 静态分析 (`flutter analyze`)
+- Flutter 静态分析 (`flutter analyze`，CI 已含，启用中 — 见 `.github/workflows/ci.yml` 的 flutter job)
 
 ### 数据库备份
 

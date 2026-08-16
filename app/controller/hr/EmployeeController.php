@@ -9,6 +9,8 @@ namespace app\controller\hr;
 
 use app\admin\controller\BaseController;
 use app\model\HrEmployee;
+use app\service\hr\HrService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -48,34 +50,24 @@ class EmployeeController extends BaseController
         $status = $request->input('status');
         $departmentId = $request->input('department_id');
 
-        $query = HrEmployee::with(['department', 'position']);
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
-        if ($departmentId) {
-            $query->where('department_id', (int) $departmentId);
-        }
+        $result = $this->hr()->list(HrEmployee::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+            'department_id' => $departmentId,
+        ], $page, $limit, [
+            'searchFields' => ['name', 'code'],
+            'eqFilters' => ['status'],
+            'truthyFilters' => ['department_id'],
+            'with' => ['department', 'position'],
+        ]);
+        $list = array_map(function ($data) {
+            $data['department'] = !empty($data['department']) ? $this->encodeIds($data['department']) : null;
+            $data['position'] = !empty($data['position']) ? $this->encodeIds($data['position']) : null;
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(function ($item) {
-                $data = $item->toArray();
-                $data['department'] = $item->relationLoaded('department') && $item->department
-                    ? $this->encodeIds($item->department->toArray()) : null;
-                $data['position'] = $item->relationLoaded('position') && $item->position
-                    ? $this->encodeIds($item->position->toArray()) : null;
+            return $this->encodeIds($data);
+        }, $result['list']);
 
-                return $this->encodeIds($data);
-            });
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -102,10 +94,7 @@ class EmployeeController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new HrEmployee();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->hr()->create(HrEmployee::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -126,7 +115,7 @@ class EmployeeController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrEmployee::with(['department', 'position'])->find($id);
+        $item = $this->hr()->find(HrEmployee::class, $id, ['department', 'position']);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -156,13 +145,10 @@ class EmployeeController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrEmployee::find($id);
+        $item = $this->hr()->update(HrEmployee::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -184,7 +170,7 @@ class EmployeeController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrEmployee::find($id);
+        $item = $this->hr()->find(HrEmployee::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -195,8 +181,16 @@ class EmployeeController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->hr()->delete(HrEmployee::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * HR 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function hr(): HrService
+    {
+        return Container::get(HrService::class);
     }
 }

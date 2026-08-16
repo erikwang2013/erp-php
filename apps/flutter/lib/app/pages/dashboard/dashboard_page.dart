@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../widgets/stat_card.dart';
+import '../../l10n/app_l10n.dart';
 import 'dashboard_controller.dart';
 
 class DashboardPage extends GetView<DashboardController> {
@@ -10,6 +11,7 @@ class DashboardPage extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     Get.put(DashboardController());
     return DefaultTabController(
       length: 4,
@@ -20,28 +22,33 @@ class DashboardPage extends GetView<DashboardController> {
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
             child: Row(
               children: [
-                Text('仪表盘',
+                Text(l10n.dashboardTitle,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
                 const Spacer(),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.download),
-                  tooltip: '导出',
+                  tooltip: l10n.dashboardExport,
                   onSelected: (type) {
                     if (type == 'pdf') controller.exportPdf();
                     if (type == 'excel') controller.exportExcel();
                   },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'pdf', child: ListTile(leading: Icon(Icons.picture_as_pdf), title: Text('导出PDF'), dense: true)),
-                    PopupMenuItem(value: 'excel', child: ListTile(leading: Icon(Icons.table_chart), title: Text('导出Excel'), dense: true)),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'pdf', child: ListTile(leading: const Icon(Icons.picture_as_pdf), title: Text(l10n.dashboardExportPdf), dense: true)),
+                    PopupMenuItem(value: 'excel', child: ListTile(leading: const Icon(Icons.table_chart), title: Text(l10n.dashboardExportExcel), dense: true)),
                   ],
                 ),
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(24, 16, 24, 0),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
             child: TabBar(
-              tabs: [Tab(text: '总览'), Tab(text: 'OMS'), Tab(text: 'WMS'), Tab(text: 'TMS')],
+              tabs: [
+                Tab(text: l10n.dashboardOverview),
+                const Tab(text: 'OMS'),
+                const Tab(text: 'WMS'),
+                const Tab(text: 'TMS'),
+              ],
             ),
           ),
           Expanded(
@@ -156,13 +163,14 @@ class DashboardPage extends GetView<DashboardController> {
   }
 
   Widget _buildTrendChart(BuildContext context) {
+    final l10n = AppL10n.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('数据趋势（近30天）', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text(l10n.dashboardTrend, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             const SizedBox(height: 16),
             SizedBox(
               height: 300,
@@ -204,13 +212,14 @@ class DashboardPage extends GetView<DashboardController> {
   }
 
   Widget _buildDistributionChart(BuildContext context) {
+    final l10n = AppL10n.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('用户状态分布', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text(l10n.dashboardUserStatus, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
@@ -226,9 +235,9 @@ class DashboardPage extends GetView<DashboardController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildLegend(const Color(0xFF1677FF), '启用'),
+                _buildLegend(const Color(0xFF1677FF), l10n.dashboardEnabled),
                 const SizedBox(width: 24),
-                _buildLegend(const Color(0xFF52C41A), '禁用'),
+                _buildLegend(const Color(0xFF52C41A), l10n.dashboardDisabled),
               ],
             ),
           ],
@@ -249,13 +258,14 @@ class DashboardPage extends GetView<DashboardController> {
   }
 
   Widget _buildRecentLogs(BuildContext context) {
+    final l10n = AppL10n.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('最近操作', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text(l10n.dashboardRecentOps, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             const SizedBox(height: 12),
             ...controller.recentLogs.take(8).map((log) => ListTile(
               dense: true,

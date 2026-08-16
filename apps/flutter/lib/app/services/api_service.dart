@@ -5,6 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide Response;
 import 'auth_service.dart';
+import '../l10n/app_l10n.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._();
@@ -71,7 +72,8 @@ class ApiService {
   Map<String, dynamic> _handleResponse(Response resp) {
     final body = resp.data as Map<String, dynamic>;
     if (body['code'] != 0) {
-      throw ApiException(body['code'] as int, body['message'] as String? ?? '请求失败');
+      // 统一错误提示走 i18n（key 与后端 app/common/I18n.php 的 common.* 风格对齐）
+      throw ApiException(body['code'] as int, body['message'] as String? ?? AppL10n.current.commonRequestFailed);
     }
     return body;
   }

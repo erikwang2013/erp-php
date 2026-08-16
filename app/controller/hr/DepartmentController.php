@@ -9,6 +9,8 @@ namespace app\controller\hr;
 
 use app\admin\controller\BaseController;
 use app\model\HrDepartment;
+use app\service\hr\HrService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -37,18 +39,16 @@ class DepartmentController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $query = HrDepartment::query();
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
-
-        $list = $query->orderBy('id', 'asc')->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $list = $this->hr()->all(HrDepartment::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+        ], [
+            'searchFields' => ['name', 'code'],
+            'eqFilters' => ['status'],
+            'orderBy' => 'id',
+            'orderDir' => 'asc',
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $list);
 
         return $this->success(['list' => $list]);
     }
@@ -78,10 +78,7 @@ class DepartmentController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new HrDepartment();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->hr()->create(HrDepartment::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -102,7 +99,7 @@ class DepartmentController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrDepartment::find($id);
+        $item = $this->hr()->find(HrDepartment::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -126,13 +123,10 @@ class DepartmentController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrDepartment::find($id);
+        $item = $this->hr()->update(HrDepartment::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -154,12 +148,12 @@ class DepartmentController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrDepartment::find($id);
+        $item = $this->hr()->find(HrDepartment::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
-        if (HrDepartment::where('parent_id', $id)->exists()) {
+        if ($this->hr()->hasChildDepartments($id)) {
             return $this->fail('存在子部门，请先删除子部门', 422);
         }
 
@@ -169,8 +163,16 @@ class DepartmentController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->hr()->delete(HrDepartment::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * HR 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function hr(): HrService
+    {
+        return Container::get(HrService::class);
     }
 }

@@ -9,6 +9,8 @@ namespace app\controller\manufacturing;
 
 use app\admin\controller\BaseController;
 use app\model\MfgRouting;
+use app\service\manufacturing\ManufacturingService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -35,14 +37,13 @@ class RoutingController extends BaseController
     {
         $productId = $request->input('product_id');
 
-        $query = MfgRouting::query();
-        if ($productId) {
-            $query->where('product_id', (int) $productId);
-        }
-
-        $list = $query->orderBy('product_id', 'asc')
-            ->orderBy('seq', 'asc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $list = $this->mfg()->all(MfgRouting::class, [
+            'product_id' => $productId,
+        ], [
+            'truthyFilters' => ['product_id'],
+            'orderBy' => [['product_id', 'asc'], ['seq', 'asc']],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $list);
 
         return $this->success(['list' => $list]);
     }
@@ -75,11 +76,7 @@ class RoutingController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new MfgRouting();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->created_at = date('Y-m-d H:i:s');
-        $item->save();
+        $item = $this->mfg()->create(MfgRouting::class, $request->all(), ['created_at' => date('Y-m-d H:i:s')]);
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -100,7 +97,7 @@ class RoutingController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgRouting::find($id);
+        $item = $this->mfg()->find(MfgRouting::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -124,13 +121,10 @@ class RoutingController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgRouting::find($id);
+        $item = $this->mfg()->update(MfgRouting::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -152,7 +146,7 @@ class RoutingController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgRouting::find($id);
+        $item = $this->mfg()->find(MfgRouting::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -163,8 +157,16 @@ class RoutingController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->mfg()->delete(MfgRouting::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * 生产制造薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function mfg(): ManufacturingService
+    {
+        return Container::get(ManufacturingService::class);
     }
 }

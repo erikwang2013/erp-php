@@ -11,6 +11,8 @@ namespace app\controller\crm;
 use app\admin\controller\BaseController;
 use app\model\CrmAnalyticsMetric;
 use app\model\CrmAnalyticsReport;
+use app\service\crm\CrmService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -41,20 +43,16 @@ class AnalyticsController extends BaseController
         $type = $request->input('type', '');
         $periodYear = $request->input('period_year');
 
-        $query = CrmAnalyticsReport::query();
-        if ($type !== '') {
-            $query->where('type', $type);
-        }
-        if ($periodYear) {
-            $query->where('period_year', (int) $periodYear);
-        }
+        $result = $this->crm()->list(CrmAnalyticsReport::class, [
+            'type' => $type,
+            'period_year' => $periodYear,
+        ], $page, $limit, [
+            'stringEqFilters' => ['type'],
+            'truthyFilters' => ['period_year'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -86,24 +84,22 @@ class AnalyticsController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $type = $request->input('type');
+        $type = (string) $request->input('type');
         $periodYear = (int) $request->input('period_year');
         $periodValue = (int) $request->input('period_value');
         $periodType = (int) $request->input('period_type', 1);
 
         // 根据类型生成模拟报表数据
-        $reportData = $this->buildReportData($type, $periodYear, $periodValue, $periodType);
+        $reportData = $this->crm()->buildReportData($type, $periodYear, $periodValue, $periodType);
 
-        $report = new CrmAnalyticsReport();
-        $report->id = $this->generateId();
-        $report->name = $request->input('name');
-        $report->type = $type;
-        $report->period_type = $periodType;
-        $report->period_year = $periodYear;
-        $report->period_value = $periodValue;
-        $report->report_data = json_encode($reportData, JSON_UNESCAPED_UNICODE);
-        $report->generated_at = date('Y-m-d H:i:s');
-        $report->save();
+        $report = $this->crm()->createAnalyticsReport(
+            (string) $request->input('name'),
+            $type,
+            $periodType,
+            $periodYear,
+            $periodValue,
+            $reportData
+        );
 
         return $this->success($this->encodeIds($report->toArray()), '报表生成成功');
     }
@@ -124,7 +120,7 @@ class AnalyticsController extends BaseController
     public function reportShow(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmAnalyticsReport::find($id);
+        $item = $this->crm()->find(CrmAnalyticsReport::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -151,8 +147,8 @@ class AnalyticsController extends BaseController
      */
     public function metrics(Request $request): Response
     {
-        $list = CrmAnalyticsMetric::query()->orderBy('id', 'asc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $list = $this->crm()->all(CrmAnalyticsMetric::class, [], ['orderBy' => 'id', 'orderDir' => 'asc']);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $list);
 
         return $this->success(['list' => $list]);
     }
@@ -184,71 +180,23 @@ class AnalyticsController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $hashid = $request->input('id', '');
-        if ($hashid) {
-            $id = $this->decodeId($id);
-            $item = CrmAnalyticsMetric::find($id);
-            if (!$item) {
-                return $this->fail('记录不存在', 404);
-            }
-        } else {
-            $item = new CrmAnalyticsMetric();
-            $item->id = $this->generateId();
+        $hashid = (string) $request->input('id', '');
+        // 修复：旧实现误用未定义变量 $id 解码，导致更新分支必然 500；此处按文档意图解码 hashid
+        $metricId = $hashid !== '' ? $this->decodeId($hashid) : null;
+
+        $item = $this->crm()->upsertMetric($metricId, $request->all());
+        if ($item === null) {
+            return $this->fail('记录不存在', 404);
         }
 
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
-
-        return $this->success($this->encodeIds($item->toArray()), $hashid ? '更新成功' : '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $hashid !== '' ? '更新成功' : '创建成功');
     }
 
     /**
-     * 构建报表数据
+     * CRM 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
      */
-    private function buildReportData(string $type, int $year, int $period, int $periodType): array
+    private function crm(): CrmService
     {
-        $periodLabel = match ($periodType) {
-            2 => "{$year}年Q{$period}",
-            3 => "{$year}年度",
-            default => "{$year}年{$period}月",
-        };
-
-        return match ($type) {
-            'customer' => [
-                'new_customers' => rand(10, 200),
-                'active_customers' => rand(50, 500),
-                'churn_customers' => rand(1, 30),
-                'retention_rate' => round(mt_rand(750, 950) / 1000, 4),
-                'period' => $periodLabel,
-            ],
-            'order' => [
-                'total_orders' => rand(50, 500),
-                'total_amount' => round(mt_rand(10000, 500000) / 100, 2),
-                'avg_order_value' => round(mt_rand(5000, 50000) / 100, 2),
-                'period' => $periodLabel,
-            ],
-            'revenue' => [
-                'total_revenue' => round(mt_rand(50000, 1000000) / 100, 2),
-                'total_cost' => round(mt_rand(30000, 700000) / 100, 2),
-                'gross_profit' => 0,
-                'gross_margin' => 0,
-                'period' => $periodLabel,
-            ],
-            'activity' => [
-                'total_campaigns' => rand(1, 10),
-                'total_participants' => rand(50, 500),
-                'conversion_count' => rand(5, 50),
-                'conversion_rate' => round(mt_rand(20, 150) / 1000, 4),
-                'period' => $periodLabel,
-            ],
-            'retention' => [
-                'cohort_size' => rand(100, 1000),
-                'month1_retention' => round(mt_rand(500, 850) / 1000, 4),
-                'month3_retention' => round(mt_rand(350, 650) / 1000, 4),
-                'month6_retention' => round(mt_rand(200, 500) / 1000, 4),
-                'period' => $periodLabel,
-            ],
-            default => ['period' => $periodLabel],
-        };
+        return Container::get(CrmService::class);
     }
 }

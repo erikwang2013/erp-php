@@ -1,4 +1,8 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+//
+// 导航菜单配置。当前为最小国际化：仅“仪表盘 / 系统管理”两项通过
+// i18nKey 接入 arb（key 与后端 app/common/I18n.php 的 nav.* 风格对齐），
+// 其余菜单文案暂保留硬编码中文，后续 i18n（全量菜单改造不在 P2 范围）。
 import 'package:flutter/material.dart';
 
 class MenuItem {
@@ -6,12 +10,21 @@ class MenuItem {
   final IconData icon;
   final String? route;
   final List<MenuItem>? children;
-  const MenuItem({required this.label, required this.icon, this.route, this.children});
+
+  /// 可选 i18n key（如 nav.dashboard）；为 null 时直接显示 [label]。
+  final String? i18nKey;
+  const MenuItem({
+    required this.label,
+    required this.icon,
+    this.route,
+    this.children,
+    this.i18nKey,
+  });
 }
 
 const List<MenuItem> menuConfig = [
-  MenuItem(label: '仪表盘', icon: Icons.dashboard, route: '/dashboard'),
-  MenuItem(label: '系统管理', icon: Icons.settings, children: [
+  MenuItem(label: '仪表盘', icon: Icons.dashboard, route: '/dashboard', i18nKey: 'nav.dashboard'),
+  MenuItem(label: '系统管理', icon: Icons.settings, i18nKey: 'nav.system', children: [
     MenuItem(label: '用户管理', icon: Icons.people, route: '/system/users'),
     MenuItem(label: '角色权限', icon: Icons.security, route: '/system/roles'),
     MenuItem(label: '系统配置', icon: Icons.tune, route: '/system/config'),
@@ -33,12 +46,14 @@ const List<MenuItem> menuConfig = [
     MenuItem(label: '采购订单', icon: Icons.receipt_long, route: '/purchase/order'),
     MenuItem(label: '采购收货', icon: Icons.move_to_inbox, route: '/purchase/receive'),
     MenuItem(label: '采购退货', icon: Icons.assignment_return, route: '/purchase/return'),
+    MenuItem(label: '采购结算', icon: Icons.paid, route: '/purchase/settlement'),
   ]),
   MenuItem(label: '销售管理', icon: Icons.point_of_sale, children: [
     MenuItem(label: '销售报价', icon: Icons.price_check, route: '/sales/quotation'),
     MenuItem(label: '销售订单', icon: Icons.receipt, route: '/sales/order'),
     MenuItem(label: '销售发货', icon: Icons.local_shipping, route: '/sales/delivery'),
     MenuItem(label: '销售退货', icon: Icons.assignment_return, route: '/sales/return'),
+    MenuItem(label: '销售结算', icon: Icons.paid, route: '/sales/settlement'),
   ]),
   MenuItem(label: '库存管理', icon: Icons.inventory, children: [
     MenuItem(label: '实时库存', icon: Icons.storage, route: '/inventory/list'),
@@ -59,6 +74,8 @@ const List<MenuItem> menuConfig = [
     MenuItem(label: '固定资产', icon: Icons.account_balance_wallet, route: '/finance/asset'),
     MenuItem(label: '税务管理', icon: Icons.gavel, route: '/finance/tax'),
     MenuItem(label: '多币种/汇率', icon: Icons.currency_exchange, route: '/finance/currency'),
+    MenuItem(label: '银行账户', icon: Icons.account_balance, route: '/finance/bank-account'),
+    MenuItem(label: '汇率管理', icon: Icons.swap_horiz, route: '/finance/exchange-rate'),
     MenuItem(label: '预算管理', icon: Icons.savings, route: '/finance/budget'),
     MenuItem(label: '成本/利润中心', icon: Icons.pie_chart, route: '/finance/cost-profit'),
   ]),

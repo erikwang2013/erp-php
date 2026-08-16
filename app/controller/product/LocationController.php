@@ -10,6 +10,8 @@ namespace app\controller\product;
 
 use app\admin\controller\BaseController;
 use app\model\Location;
+use app\service\product\ProductService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -38,23 +40,16 @@ class LocationController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $query = Location::query();
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
+        $result = $this->product()->list(Location::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+        ], $page, $limit, [
+            'searchFields' => ['name', 'code'],
+            'eqFilters' => ['status'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'warehouse_id']), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'warehouse_id']));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -73,10 +68,14 @@ class LocationController extends BaseController
     public function byWarehouse(Request $request, string $warehouseHashid): Response
     {
         $warehouseId = $this->decodeId($warehouseHashid);
-        $list = Location::where('warehouse_id', $warehouseId)
-            ->orderBy('id', 'desc')
-            ->get()
-            ->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'warehouse_id']));
+        $list = $this->product()->all(Location::class, [
+            'warehouse_id' => $warehouseId,
+        ], [
+            'eqFilters' => ['warehouse_id'],
+            'orderBy' => 'id',
+            'orderDir' => 'desc',
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'warehouse_id']), $list);
 
         return $this->success(['list' => $list]);
     }
@@ -104,10 +103,7 @@ class LocationController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new Location();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->product()->create(Location::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), '创建成功');
     }
@@ -128,7 +124,7 @@ class LocationController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = Location::find($id);
+        $item = $this->product()->find(Location::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -156,13 +152,10 @@ class LocationController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = Location::find($id);
+        $item = $this->product()->update(Location::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), '更新成功');
     }
@@ -184,7 +177,7 @@ class LocationController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = Location::find($id);
+        $item = $this->product()->find(Location::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -195,8 +188,16 @@ class LocationController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->product()->delete(Location::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * 商品模块薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function product(): ProductService
+    {
+        return Container::get(ProductService::class);
     }
 }

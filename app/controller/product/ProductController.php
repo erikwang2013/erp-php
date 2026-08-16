@@ -9,11 +9,11 @@ namespace app\controller\product;
 
 use app\admin\controller\BaseController;
 use app\model\Product;
-use app\model\ProductPrice;
-use app\model\ProductSku;
-use Illuminate\Database\Capsule\Manager as DB;
+use app\service\product\ProductService;
+use support\Container;
 use support\Request;
 use support\Response;
+use Throwable;
 
 /**
  * 商品管理
@@ -51,28 +51,22 @@ class ProductController extends BaseController
         $categoryId = $request->input('category_id');
         $status = $request->input('status');
 
-        $query = Product::with(['category', 'brand']);
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%")
-                  ->orWhere('barcode', 'like', "%{$keyword}%");
-            });
-        }
+        $filters = [
+            'keyword' => $keyword,
+            'status' => $status,
+        ];
         if ($categoryId !== null && $categoryId !== '') {
-            $query->where('category_id', $this->decodeId($categoryId));
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+            $filters['category_id'] = $this->decodeId($categoryId);
         }
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)
-            ->orderBy('id', 'desc')->get()->map(function ($p) {
-                return $this->encodeIds($p->toArray(), ['id', 'category_id', 'brand_id']);
-            });
+        $result = $this->product()->list(Product::class, $filters, $page, $limit, [
+            'searchFields' => ['name', 'code', 'barcode'],
+            'eqFilters' => ['status', 'category_id'],
+            'with' => ['category', 'brand'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'category_id', 'brand_id']), $result['list']);
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -111,53 +105,22 @@ class ProductController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        DB::beginTransaction();
         try {
-            $product = new Product();
-            $product->id = $this->generateId();
-            $product->code = $request->input('code');
-            $product->name = $request->input('name');
-            $product->category_id = $this->decodeId($request->input('category_id'));
-            $product->brand_id = $request->input('brand_id') ? $this->decodeId($request->input('brand_id')) : 0;
-            $product->barcode = $request->input('barcode', '');
-            $product->spec = $request->input('spec', '');
-            $product->unit = $request->input('unit');
-            $product->image = $request->input('image', '');
-            $product->description = $request->input('description', '');
-            $product->status = (int) $request->input('status', 1);
-            $product->save();
-
-            if ($request->input('skus') !== null && is_array($request->input('skus'))) {
-                foreach ($request->input('skus') as $skuData) {
-                    $sku = new ProductSku();
-                    $sku->id = $this->generateId();
-                    $sku->product_id = $product->id;
-                    $sku->sku_code = $skuData['sku_code'] ?? '';
-                    $sku->barcode = $skuData['barcode'] ?? '';
-                    $sku->spec_attrs = json_encode($skuData['spec_attrs'] ?? [], JSON_UNESCAPED_UNICODE);
-                    $sku->cost_price = (float) ($skuData['cost_price'] ?? 0);
-                    $sku->status = 1;
-                    $sku->save();
-                }
-            }
-
-            if ($request->input('prices') !== null && is_array($request->input('prices'))) {
-                foreach ($request->input('prices') as $priceData) {
-                    $price = new ProductPrice();
-                    $price->id = $this->generateId();
-                    $price->product_id = $product->id;
-                    $price->sku_id = 0;
-                    $price->price_type = $priceData['price_type'];
-                    $price->price = (float) $priceData['price'];
-                    $price->save();
-                }
-            }
-
-            DB::commit();
+            $product = $this->product()->createProductWithRelations([
+                'code' => $request->input('code'),
+                'name' => $request->input('name'),
+                'category_id' => $this->decodeId($request->input('category_id')),
+                'brand_id' => $request->input('brand_id') ? $this->decodeId($request->input('brand_id')) : 0,
+                'barcode' => $request->input('barcode', ''),
+                'spec' => $request->input('spec', ''),
+                'unit' => $request->input('unit'),
+                'image' => $request->input('image', ''),
+                'description' => $request->input('description', ''),
+                'status' => (int) $request->input('status', 1),
+            ], is_array($request->input('skus')) ? $request->input('skus') : [], is_array($request->input('prices')) ? $request->input('prices') : []);
 
             return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('created'));
-        } catch (\Throwable $e) {
-            DB::rollBack();
+        } catch (Throwable $e) {
             $this->logError('创建商品', $e);
 
             return $this->fail($this->trans('fail') . ': ' . $e->getMessage(), 500);
@@ -180,7 +143,7 @@ class ProductController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $product = Product::with(['category', 'brand', 'skus', 'prices', 'units'])->find($id);
+        $product = $this->product()->findProductWithRelations($id);
         if (!$product) {
             return $this->fail($this->trans('not_found'), 404);
         }
@@ -213,25 +176,21 @@ class ProductController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $product = Product::find($id);
+
+        $input = $request->all();
+        // 与原控制器一致：category_id / brand_id 为空时不更新，非空时解码为 int
+        foreach (['category_id', 'brand_id'] as $fk) {
+            if (empty($input[$fk])) {
+                unset($input[$fk]);
+            } else {
+                $input[$fk] = $this->decodeId($input[$fk]);
+            }
+        }
+
+        $product = $this->product()->updateProduct($id, $input);
         if (!$product) {
             return $this->fail($this->trans('not_found'), 404);
         }
-
-        $product->name = $request->input('name', $product->name);
-        $product->barcode = $request->input('barcode', $product->barcode);
-        $product->spec = $request->input('spec', $product->spec);
-        $product->unit = $request->input('unit', $product->unit);
-        $product->image = $request->input('image', $product->image);
-        $product->description = $request->input('description', $product->description);
-        $product->status = (int) $request->input('status', $product->status);
-        if ($request->input('category_id')) {
-            $product->category_id = $this->decodeId($request->input('category_id'));
-        }
-        if ($request->input('brand_id')) {
-            $product->brand_id = $this->decodeId($request->input('brand_id'));
-        }
-        $product->save();
 
         return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('updated'));
     }
@@ -253,7 +212,7 @@ class ProductController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $product = Product::find($id);
+        $product = $this->product()->find(Product::class, $id);
         if (!$product) {
             return $this->fail($this->trans('not_found'), 404);
         }
@@ -264,8 +223,16 @@ class ProductController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $product->delete();
+        $this->product()->delete(Product::class, $id);
 
         return $this->success([], $this->trans('deleted'));
+    }
+
+    /**
+     * 商品模块薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function product(): ProductService
+    {
+        return Container::get(ProductService::class);
     }
 }

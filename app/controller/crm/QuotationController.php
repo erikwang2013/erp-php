@@ -9,10 +9,10 @@ declare(strict_types=1);
 namespace app\controller\crm;
 
 use app\admin\controller\BaseController;
-use app\model\CrmContract;
-use app\model\CrmContractItem;
 use app\model\CrmQuotation;
 use app\model\CrmQuotationItem;
+use app\service\crm\CrmService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -43,23 +43,17 @@ class QuotationController extends BaseController
         $status = $request->input('status');
         $customerId = $request->input('customer_id');
 
-        $query = CrmQuotation::query();
-        if ($keyword) {
-            $query->where('code', 'like', "%{$keyword}%");
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
-        if ($customerId !== null && $customerId !== '') {
-            $query->where('customer_id', (int) $customerId);
-        }
+        $result = $this->crm()->list(CrmQuotation::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+            'customer_id' => $customerId,
+        ], $page, $limit, [
+            'searchFields' => ['code'],
+            'eqFilters' => ['status', 'customer_id'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -83,23 +77,11 @@ class QuotationController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new CrmQuotation();
-        $item->id = $this->generateId();
-        $item->status = 0;
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->crm()->create(CrmQuotation::class, $request->all(), ['status' => 0]);
 
         $items = $request->input('items', []);
-        foreach ($items as $it) {
-            $detail = new CrmQuotationItem();
-            $detail->id = $this->generateId();
-            $detail->quotation_id = $item->id;
-            foreach ($it as $k => $v) {
-                if ($k !== 'id') {
-                    $detail->$k = $v;
-                }
-            }
-            $detail->save();
+        if (is_array($items)) {
+            $this->crm()->replaceItems(CrmQuotationItem::class, 'quotation_id', $item->id, $items);
         }
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -121,7 +103,7 @@ class QuotationController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmQuotation::find($id);
+        $item = $this->crm()->find(CrmQuotation::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -146,7 +128,7 @@ class QuotationController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmQuotation::find($id);
+        $item = $this->crm()->find(CrmQuotation::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -155,23 +137,11 @@ class QuotationController extends BaseController
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->crm()->update(CrmQuotation::class, $id, $request->all());
 
         $items = $request->input('items', []);
         if (!empty($items)) {
-            CrmQuotationItem::where('quotation_id', $id)->delete();
-            foreach ($items as $it) {
-                $detail = new CrmQuotationItem();
-                $detail->id = $this->generateId();
-                $detail->quotation_id = $id;
-                foreach ($it as $k => $v) {
-                    if ($k !== 'id') {
-                        $detail->$k = $v;
-                    }
-                }
-                $detail->save();
-            }
+            $this->crm()->replaceItems(CrmQuotationItem::class, 'quotation_id', $id, $items);
         }
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
@@ -194,7 +164,7 @@ class QuotationController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmQuotation::find($id);
+        $item = $this->crm()->find(CrmQuotation::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -205,7 +175,7 @@ class QuotationController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->crm()->delete(CrmQuotation::class, $id);
 
         return $this->success([], '删除成功');
     }
@@ -229,44 +199,29 @@ class QuotationController extends BaseController
     public function toContract(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $quotation = CrmQuotation::find($id);
+        $quotation = $this->crm()->find(CrmQuotation::class, $id);
         if (!$quotation) {
             return $this->fail('报价不存在', 404);
         }
 
-        $contract = new CrmContract();
-        $contract->id = $this->generateId();
-        $contract->code = $request->input('code', '') ?: 'CT' . $this->generateId();
-        $contract->name = $request->input('name', '') ?: '合同-' . $quotation->code;
-        $contract->customer_id = $quotation->customer_id;
-        $contract->opportunity_id = $quotation->opportunity_id;
-        $contract->quotation_id = $id;
-        $contract->total_amount = $quotation->total_amount;
-        $contract->status = 0;
-        $contract->owner_user_id = $quotation->owner_user_id;
-        $contract->remark = $request->input('remark', '');
-        $contract->save();
-
-        $qItems = CrmQuotationItem::where('quotation_id', $id)->get();
-        foreach ($qItems as $qItem) {
-            $cItem = new CrmContractItem();
-            $cItem->id = $this->generateId();
-            $cItem->contract_id = $contract->id;
-            $cItem->product_id = $qItem->product_id;
-            $cItem->sku_id = $qItem->sku_id;
-            $cItem->quantity = $qItem->quantity;
-            $cItem->price = $qItem->price;
-            $cItem->amount = $qItem->amount;
-            $cItem->unit = $qItem->unit;
-            $cItem->save();
-        }
-
-        $quotation->status = 3;
-        $quotation->save();
+        $result = $this->crm()->convertQuotationToContract(
+            $quotation,
+            (string) $request->input('code', ''),
+            (string) $request->input('name', ''),
+            (string) $request->input('remark', '')
+        );
 
         return $this->success([
-            'quotation' => $this->encodeIds($quotation->toArray()),
-            'contract' => $this->encodeIds($contract->toArray()),
+            'quotation' => $this->encodeIds($result['quotation']->toArray()),
+            'contract' => $this->encodeIds($result['contract']->toArray()),
         ], '报价已转为合同');
+    }
+
+    /**
+     * CRM 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function crm(): CrmService
+    {
+        return Container::get(CrmService::class);
     }
 }

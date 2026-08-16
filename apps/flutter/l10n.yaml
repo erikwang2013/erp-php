@@ -1,0 +1,8 @@
+# gen-l10n 配置：最小国际化
+# - 模板 arb 为 app_zh.arb（中文为默认语言）
+# - 输出类名 AppLocalizations，getter 可空（无 delegates 时回退中文，保证离线测试可跑）
+arb-dir: lib/l10n
+template-arb-file: app_zh.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: true

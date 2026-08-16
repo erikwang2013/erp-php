@@ -102,6 +102,77 @@ jobs:
           --business-threshold=10
 
   # ============================================================
+  # Flutter 前端 CI（E1）
+  # ------------------------------------------------------------
+  # 独立于 PHP job，互不影响。步骤：安装 Flutter stable → pub get →
+  # analyze → test → build web（在 apps/flutter/ 目录运行）。
+  # 说明：当前以 continue-on-error: true 接入（不阻断主 CI），
+  # 待 GitHub Actions 环境装 Flutter / 构建耗时稳定后，移除该行收紧为硬性检查。
+  flutter:
+    name: Flutter — Analyze & Test & Build
+    runs-on: ubuntu-latest
+    continue-on-error: true # 待环境稳定后收紧（见上方注释）
+    defaults:
+      run:
+        working-directory: apps/flutter
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Flutter Static Analysis
+        run: flutter analyze
+
+      - name: Flutter Tests
+        run: flutter test
+
+      - name: Flutter Build Web (release)
+        # --no-tree-shake-icons 跳过图标 tree-shaking，显著缩短构建耗时
+        run: flutter build web --release --no-tree-shake-icons
+
+  # ============================================================
+  # 文档校验（D5）：统计数字与代码事实一致性
+  # ------------------------------------------------------------
+  # 运行 scripts/doc-stats.sh --check：
+  #   1) 实时采集代码统计（控制器/服务/模型/迁移/中间件/表/模块/测试数等）；
+  #   2) 扫描 docs/**/*.md 中 <!-- stats:key=value --> 注释标注并逐键比对；
+  #   3) 文档数字与代码事实漂移即红（文档数据治理 D2/D3/D4/D5）。
+  # 注意：doc-stats 需要 phpunit 输出（vendor/bin/phpunit --no-coverage），
+  #       故本作业先安装依赖并创建 .env，由脚本内部执行 phpunit 取真实值。
+  # 本地等价命令：bash scripts/doc-stats.sh --check
+  # ============================================================
+  docs:
+    name: Docs — 统计数字一致性校验 (doc-stats)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction
+
+      - name: Create .env from example
+        run: cp .env.example .env
+
+      - name: Docs stats check
+        # 单元测试无需 MySQL/Redis：集成用例在缺少 TEST_DB_* / TEST_REDIS_* 时
+        # 会 markTestSkipped 优雅跳过，跳过用例仍计入 tests 总数，不影响比对。
+        run: bash scripts/doc-stats.sh --check
+
+  # ============================================================
   # E2E 冒烟测试（骨架，默认禁用，不参与结果判定）
   # ------------------------------------------------------------
   # 用途: 真实 HTTP 走通核心链路（健康检查/登录/JWT/RBAC/CRUD/刷新令牌）

@@ -9,6 +9,8 @@ namespace app\controller\hr;
 
 use app\admin\controller\BaseController;
 use app\model\HrPosition;
+use app\service\hr\HrService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -43,26 +45,18 @@ class PositionController extends BaseController
         $status = $request->input('status');
         $departmentId = $request->input('department_id');
 
-        $query = HrPosition::query();
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
-        if ($departmentId) {
-            $query->where('department_id', (int) $departmentId);
-        }
+        $result = $this->hr()->list(HrPosition::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+            'department_id' => $departmentId,
+        ], $page, $limit, [
+            'searchFields' => ['name', 'code'],
+            'eqFilters' => ['status'],
+            'truthyFilters' => ['department_id'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -90,10 +84,7 @@ class PositionController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new HrPosition();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->hr()->create(HrPosition::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -114,7 +105,7 @@ class PositionController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrPosition::find($id);
+        $item = $this->hr()->find(HrPosition::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -138,13 +129,10 @@ class PositionController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrPosition::find($id);
+        $item = $this->hr()->update(HrPosition::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -166,7 +154,7 @@ class PositionController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrPosition::find($id);
+        $item = $this->hr()->find(HrPosition::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -177,8 +165,16 @@ class PositionController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->hr()->delete(HrPosition::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * HR 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function hr(): HrService
+    {
+        return Container::get(HrService::class);
     }
 }

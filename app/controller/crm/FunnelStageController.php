@@ -10,6 +10,8 @@ namespace app\controller\crm;
 
 use app\admin\controller\BaseController;
 use app\model\CrmFunnelStage;
+use app\service\crm\CrmService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -18,7 +20,7 @@ class FunnelStageController extends BaseController
     /**
      * 漏斗阶段列表（分页）
      * @Apidoc\Title("漏斗阶段列表")
-     * @Apidoc\Desc("分页查询漏斗阶段配置")
+     * @Apidoc\Desc("分页查询漏斗阶段记录")
      * @Apidoc\Url("/admin/crm/funnel")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
@@ -38,23 +40,16 @@ class FunnelStageController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $query = CrmFunnelStage::query();
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
+        $result = $this->crm()->list(CrmFunnelStage::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+        ], $page, $limit, [
+            'searchFields' => ['name', 'code'],
+            'eqFilters' => ['status'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -65,7 +60,7 @@ class FunnelStageController extends BaseController
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="name", type="string", desc="阶段名称，必填")
+     * @Apidoc\Param(name="name", type="string", desc="漏斗阶段名称，必填")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
@@ -77,10 +72,7 @@ class FunnelStageController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new CrmFunnelStage();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->crm()->create(CrmFunnelStage::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -93,7 +85,7 @@ class FunnelStageController extends BaseController
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="阶段ID")
+     * @Apidoc\Param(name="id", type="string", desc="漏斗阶段ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
@@ -101,7 +93,7 @@ class FunnelStageController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmFunnelStage::find($id);
+        $item = $this->crm()->find(CrmFunnelStage::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -117,7 +109,7 @@ class FunnelStageController extends BaseController
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="阶段ID")
+     * @Apidoc\Param(name="id", type="string", desc="漏斗阶段ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
@@ -125,13 +117,10 @@ class FunnelStageController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmFunnelStage::find($id);
+        $item = $this->crm()->update(CrmFunnelStage::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -144,7 +133,7 @@ class FunnelStageController extends BaseController
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="阶段ID")
+     * @Apidoc\Param(name="id", type="string", desc="漏斗阶段ID")
      * @Apidoc\Param(name="password", type="string", desc="管理员密码")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
@@ -153,7 +142,7 @@ class FunnelStageController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmFunnelStage::find($id);
+        $item = $this->crm()->find(CrmFunnelStage::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -164,8 +153,16 @@ class FunnelStageController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->crm()->delete(CrmFunnelStage::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * CRM 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function crm(): CrmService
+    {
+        return Container::get(CrmService::class);
     }
 }

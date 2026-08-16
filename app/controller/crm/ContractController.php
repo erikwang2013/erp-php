@@ -11,6 +11,9 @@ namespace app\controller\crm;
 use app\admin\controller\BaseController;
 use app\model\CrmContract;
 use app\model\CrmContractItem;
+use app\service\crm\CrmService;
+use InvalidArgumentException;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -41,27 +44,18 @@ class ContractController extends BaseController
         $status = $request->input('status');
         $customerId = $request->input('customer_id');
 
-        $query = CrmContract::query();
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
-        if ($customerId !== null && $customerId !== '') {
-            $query->where('customer_id', (int) $customerId);
-        }
+        $result = $this->crm()->list(CrmContract::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+            'customer_id' => $customerId,
+        ], $page, $limit, [
+            'searchFields' => ['name', 'code'],
+            'eqFilters' => ['status', 'customer_id'],
+            'with' => ['items'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->with('items')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -86,23 +80,11 @@ class ContractController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new CrmContract();
-        $item->id = $this->generateId();
-        $item->status = 0;
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->crm()->create(CrmContract::class, $request->all(), ['status' => 0], false);
 
         $items = $request->input('items', []);
-        foreach ($items as $it) {
-            $detail = new CrmContractItem();
-            $detail->id = $this->generateId();
-            $detail->contract_id = $item->id;
-            foreach ($it as $k => $v) {
-                if ($k !== 'id') {
-                    $detail->$k = $v;
-                }
-            }
-            $detail->save();
+        if (is_array($items)) {
+            $this->crm()->replaceItems(CrmContractItem::class, 'contract_id', $item->id, $items);
         }
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -124,7 +106,7 @@ class ContractController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmContract::with('items')->find($id);
+        $item = $this->crm()->find(CrmContract::class, $id, ['items']);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -149,7 +131,7 @@ class ContractController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmContract::find($id);
+        $item = $this->crm()->find(CrmContract::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -158,23 +140,11 @@ class ContractController extends BaseController
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->crm()->update(CrmContract::class, $id, $request->all());
 
         $items = $request->input('items', []);
         if (!empty($items)) {
-            CrmContractItem::where('contract_id', $id)->delete();
-            foreach ($items as $it) {
-                $detail = new CrmContractItem();
-                $detail->id = $this->generateId();
-                $detail->contract_id = $id;
-                foreach ($it as $k => $v) {
-                    if ($k !== 'id') {
-                        $detail->$k = $v;
-                    }
-                }
-                $detail->save();
-            }
+            $this->crm()->replaceItems(CrmContractItem::class, 'contract_id', $id, $items);
         }
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
@@ -197,7 +167,7 @@ class ContractController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmContract::find($id);
+        $item = $this->crm()->find(CrmContract::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -208,7 +178,7 @@ class ContractController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->crm()->delete(CrmContract::class, $id);
 
         return $this->success([], '删除成功');
     }
@@ -230,30 +200,25 @@ class ContractController extends BaseController
     public function transition(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmContract::find($id);
+        $toStatus = (int) $request->input('to_status', -1);
+
+        try {
+            $item = $this->crm()->transitionContract($id, $toStatus);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
-        $toStatus = (int) $request->input('to_status', -1);
-        $currentStatus = (int) $item->status;
-
-        $allowedTransitions = [
-            0 => [1],
-            1 => [2, 0],
-            2 => [3],
-            3 => [4, 5],
-            4 => [],
-            5 => [],
-        ];
-
-        if (!isset($allowedTransitions[$currentStatus]) || !in_array($toStatus, $allowedTransitions[$currentStatus])) {
-            return $this->fail("不允许从状态 {$currentStatus} 流转到 {$toStatus}", 422);
-        }
-
-        $item->status = $toStatus;
-        $item->save();
-
         return $this->success($this->encodeIds($item->toArray()), '状态更新成功');
+    }
+
+    /**
+     * CRM 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function crm(): CrmService
+    {
+        return Container::get(CrmService::class);
     }
 }

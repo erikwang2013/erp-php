@@ -8,11 +8,13 @@ declare(strict_types=1);
 namespace app\controller\hr;
 
 use app\admin\controller\BaseController;
-use app\model\HrEmployee;
 use app\model\HrSalary;
 use app\model\HrSalaryItem;
 use app\service\hr\BankPayrollService;
+use app\service\hr\HrService;
 use app\service\hr\SalaryEngineService;
+use InvalidArgumentException;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -51,34 +53,24 @@ class SalaryController extends BaseController
         $periodMonth = $request->input('period_month');
         $status = $request->input('status');
 
-        $query = HrSalary::with(['employee']);
-        if ($employeeId) {
-            $query->where('employee_id', (int) $employeeId);
-        }
-        if ($periodYear) {
-            $query->where('period_year', (int) $periodYear);
-        }
-        if ($periodMonth) {
-            $query->where('period_month', (int) $periodMonth);
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
+        $result = $this->hr()->list(HrSalary::class, [
+            'employee_id' => $employeeId,
+            'period_year' => $periodYear,
+            'period_month' => $periodMonth,
+            'status' => $status,
+        ], $page, $limit, [
+            'eqFilters' => ['status'],
+            'truthyFilters' => ['employee_id', 'period_year', 'period_month'],
+            'with' => ['employee'],
+            'orderBy' => [['period_year', 'desc'], ['period_month', 'desc']],
+        ]);
+        $list = array_map(function ($data) {
+            $data['employee'] = !empty($data['employee']) ? $this->encodeIds($data['employee']) : null;
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('period_year', 'desc')
-            ->orderBy('period_month', 'desc')
-            ->get()->map(function ($item) {
-                $data = $item->toArray();
-                if ($item->relationLoaded('employee') && $item->employee) {
-                    $data['employee'] = $this->encodeIds($item->employee->toArray());
-                }
+            return $this->encodeIds($data);
+        }, $result['list']);
 
-                return $this->encodeIds($data);
-            });
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -112,25 +104,11 @@ class SalaryController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $exists = HrSalary::where('employee_id', (int) $request->input('employee_id'))
-            ->where('period_year', (int) $request->input('period_year'))
-            ->where('period_month', (int) $request->input('period_month'))
-            ->exists();
-        if ($exists) {
-            return $this->fail('该员工当月薪资记录已存在', 422);
+        try {
+            $item = $this->hr()->createSalary($request->all());
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
         }
-
-        $item = new HrSalary();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-
-        $item->net_salary = ($item->base_salary ?? 0)
-            + ($item->performance ?? 0)
-            + ($item->overtime ?? 0)
-            - ($item->deduction ?? 0)
-            - ($item->tax ?? 0);
-
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -151,7 +129,7 @@ class SalaryController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrSalary::with(['employee'])->find($id);
+        $item = $this->hr()->find(HrSalary::class, $id, ['employee']);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -180,23 +158,15 @@ class SalaryController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrSalary::find($id);
+
+        try {
+            $item = $this->hr()->updateSalary($id, $request->all());
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-        if ($item->status === 1) {
-            return $this->fail('已发放的薪资不可修改', 422);
-        }
-
-        $this->fillModelFromRequest($item, $request);
-
-        $item->net_salary = ($item->base_salary ?? 0)
-            + ($item->performance ?? 0)
-            + ($item->overtime ?? 0)
-            - ($item->deduction ?? 0)
-            - ($item->tax ?? 0);
-
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -218,7 +188,7 @@ class SalaryController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrSalary::find($id);
+        $item = $this->hr()->find(HrSalary::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -232,7 +202,7 @@ class SalaryController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->hr()->delete(HrSalary::class, $id);
 
         return $this->success([], '删除成功');
     }
@@ -253,16 +223,15 @@ class SalaryController extends BaseController
     public function pay(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrSalary::find($id);
+
+        try {
+            $item = $this->hr()->paySalary($id);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-        if ($item->status === 1) {
-            return $this->fail('该薪资已发放', 422);
-        }
-
-        $item->status = 1;
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '薪资已发放');
     }
@@ -286,34 +255,9 @@ class SalaryController extends BaseController
     {
         $periodYear = (int) $request->input('period_year', (int) date('Y'));
         $periodMonth = (int) $request->input('period_month', (int) date('m'));
-        $departmentId = $request->input('department_id');
+        $departmentId = $request->input('department_id') ? (int) $request->input('department_id') : null;
 
-        $employees = HrEmployee::where('status', 1);
-        if ($departmentId) {
-            $employees->where('department_id', (int) $departmentId);
-        }
-        $employees = $employees->get();
-
-        $created = 0;
-        foreach ($employees as $emp) {
-            $exists = HrSalary::where('employee_id', $emp->id)
-                ->where('period_year', $periodYear)
-                ->where('period_month', $periodMonth)
-                ->exists();
-            if ($exists) {
-                continue;
-            }
-
-            $salary = new HrSalary();
-            $salary->id = $this->generateId();
-            $salary->employee_id = $emp->id;
-            $salary->period_year = $periodYear;
-            $salary->period_month = $periodMonth;
-            $salary->status = 0;
-            $salary->net_salary = 0;
-            $salary->save();
-            $created++;
-        }
+        $created = $this->hr()->batchGenerateSalaries($periodYear, $periodMonth, $departmentId);
 
         return $this->success(['created' => $created], "批量生成完成，共 {$created} 条");
     }
@@ -396,7 +340,8 @@ class SalaryController extends BaseController
      */
     public function itemIndex(Request $request): Response
     {
-        $list = HrSalaryItem::orderBy('id', 'asc')->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $list = $this->hr()->all(HrSalaryItem::class, [], ['orderBy' => 'id', 'orderDir' => 'asc']);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $list);
 
         return $this->success(['list' => $list]);
     }
@@ -425,10 +370,7 @@ class SalaryController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new HrSalaryItem();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->hr()->create(HrSalaryItem::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -449,7 +391,7 @@ class SalaryController extends BaseController
     public function itemShow(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrSalaryItem::find($id);
+        $item = $this->hr()->find(HrSalaryItem::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -473,13 +415,10 @@ class SalaryController extends BaseController
     public function itemUpdate(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrSalaryItem::find($id);
+        $item = $this->hr()->update(HrSalaryItem::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -501,7 +440,7 @@ class SalaryController extends BaseController
     public function itemDestroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = HrSalaryItem::find($id);
+        $item = $this->hr()->find(HrSalaryItem::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -512,8 +451,16 @@ class SalaryController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->hr()->delete(HrSalaryItem::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * HR 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function hr(): HrService
+    {
+        return Container::get(HrService::class);
     }
 }

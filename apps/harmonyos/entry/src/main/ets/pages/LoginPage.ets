@@ -137,7 +137,8 @@ struct LoginPage {
       const result = JSON.parse(resp.result as string);
       if (result.code === 0) {
         await TokenManager.saveTokens(result.data.access_token, result.data.refresh_token);
-        AppStorage.setOrCreate('adminUsername', trimmedUsername);
+        // 用户名同样做内存 + Preferences 持久化，冷启动恢复登录态后个人中心可读
+        await TokenManager.saveUsername(trimmedUsername);
         router.replaceUrl({ url: 'pages/DashboardPage' });
       } else {
         this.loginError = result.message ?? '登录失败';

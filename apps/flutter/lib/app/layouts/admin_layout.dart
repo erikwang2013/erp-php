@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import '../services/auth_service.dart';
 import '../config/menu_config.dart';
+import '../l10n/app_l10n.dart';
 
 class AdminLayout extends StatefulWidget {
   final Widget child;
@@ -99,6 +100,20 @@ class _AdminLayoutState extends State<AdminLayout> {
     });
   }
 
+  /// 菜单显示文案：优先取 i18n（i18nKey 非空时），否则回退硬编码 label。
+  /// 最小国际化：仅 nav.dashboard / nav.system 两项接入，其余后续 i18n。
+  String _menuLabel(MenuItem item) {
+    final l10n = AppL10n.of(context);
+    switch (item.i18nKey) {
+      case 'nav.dashboard':
+        return l10n.navDashboard;
+      case 'nav.system':
+        return l10n.navSystem;
+      default:
+        return item.label;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isPhone) return _buildPhoneLayout();
@@ -108,9 +123,10 @@ class _AdminLayoutState extends State<AdminLayout> {
   // ─── PHONE layout: AppBar + Drawer ────────────────────────────────
 
   Widget _buildPhoneLayout() {
+    final l10n = AppL10n.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('管理后台'),
+        title: Text(l10n.navAdminTitle),
         actions: [_buildUserMenu()],
       ),
       drawer: Drawer(
@@ -121,12 +137,12 @@ class _AdminLayoutState extends State<AdminLayout> {
               height: headerHeight,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               alignment: Alignment.centerLeft,
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.admin_panel_settings, size: 24),
-                  SizedBox(width: 8),
-                  Text('管理后台',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Icon(Icons.admin_panel_settings, size: 24),
+                  const SizedBox(width: 8),
+                  Text(l10n.navAdminTitle,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -170,6 +186,7 @@ class _AdminLayoutState extends State<AdminLayout> {
   }
 
   Widget _buildSidebar() {
+    final l10n = AppL10n.of(context);
     final width = _sidebarCollapsed ? sidebarCollapsedWidth : sidebarWidth;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -183,12 +200,12 @@ class _AdminLayoutState extends State<AdminLayout> {
             alignment: Alignment.centerLeft,
             child: _sidebarCollapsed
                 ? const Icon(Icons.admin_panel_settings, size: 28)
-                : const Row(
+                : Row(
                     children: [
-                      Icon(Icons.admin_panel_settings, size: 24),
-                      SizedBox(width: 8),
-                      Text('管理后台',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.admin_panel_settings, size: 24),
+                      const SizedBox(width: 8),
+                      Text(l10n.navAdminTitle,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ],
                   ),
           ),
@@ -207,6 +224,7 @@ class _AdminLayoutState extends State<AdminLayout> {
   }
 
   Widget _buildHeader() {
+    final l10n = AppL10n.of(context);
     return Container(
       height: headerHeight,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -220,7 +238,7 @@ class _AdminLayoutState extends State<AdminLayout> {
         children: [
           IconButton(
             icon: Icon(_sidebarCollapsed ? Icons.menu_open : Icons.menu),
-            tooltip: _sidebarCollapsed ? '展开菜单' : '收起菜单',
+            tooltip: _sidebarCollapsed ? l10n.navExpandMenu : l10n.navCollapseMenu,
             onPressed: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
           ),
           const Spacer(),
@@ -231,15 +249,16 @@ class _AdminLayoutState extends State<AdminLayout> {
   }
 
   Widget _buildUserMenu() {
+    final l10n = AppL10n.of(context);
     return PopupMenuButton<String>(
       offset: const Offset(0, headerHeight),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircleAvatar(radius: 14, child: Icon(Icons.person, size: 16)),
-          SizedBox(width: 8),
-          Text('管理员', style: TextStyle(fontSize: 14)),
-          Icon(Icons.arrow_drop_down, size: 20),
+          const CircleAvatar(radius: 14, child: Icon(Icons.person, size: 16)),
+          const SizedBox(width: 8),
+          Text(l10n.navAdministrator, style: const TextStyle(fontSize: 14)),
+          const Icon(Icons.arrow_drop_down, size: 20),
         ],
       ),
       onSelected: (value) {
@@ -249,26 +268,26 @@ class _AdminLayoutState extends State<AdminLayout> {
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text('确认退出'),
-              content: const Text('确定要退出登录吗？'),
+              title: Text(l10n.navLogoutConfirmTitle),
+              content: Text(l10n.navLogoutConfirmMessage),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+                TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.commonCancel)),
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(ctx);
                     await AuthService.clearToken();
                     Get.offAllNamed('/login');
                   },
-                  child: const Text('确定退出', style: TextStyle(color: Colors.red)),
+                  child: Text(l10n.navLogoutConfirm, style: const TextStyle(color: Colors.red)),
                 ),
               ],
             ),
           );
         }
       },
-      itemBuilder: (_) => const [
-        PopupMenuItem(value: 'profile', child: Text('个人中心')),
-        PopupMenuItem(value: 'logout', child: Text('退出登录')),
+      itemBuilder: (_) => [
+        PopupMenuItem(value: 'profile', child: Text(l10n.navProfile)),
+        PopupMenuItem(value: 'logout', child: Text(l10n.navLogout)),
       ],
     );
   }
@@ -310,7 +329,7 @@ class _AdminLayoutState extends State<AdminLayout> {
               Icon(item.icon, size: 20),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(item.label,
+                child: Text(_menuLabel(item),
                     style: const TextStyle(fontSize: 14),
                     overflow: TextOverflow.ellipsis),
               ),
@@ -344,7 +363,7 @@ class _AdminLayoutState extends State<AdminLayout> {
                   size: 18, color: selected ? scheme.primary : scheme.onSurfaceVariant),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(item.label,
+                child: Text(_menuLabel(item),
                     style: TextStyle(
                         fontSize: 14,
                         color: selected ? scheme.primary : scheme.onSurface),
@@ -366,18 +385,18 @@ class _AdminLayoutState extends State<AdminLayout> {
   Widget _collapsedTile(MenuItem item) {
     if (item.route != null) {
       return Tooltip(
-        message: item.label,
+        message: _menuLabel(item),
         child: _collapsedIconButton(item, () => _goTo(item.route!)),
       );
     }
     return Tooltip(
-      message: item.label,
+      message: _menuLabel(item),
       child: PopupMenuButton<String>(
         icon: Icon(item.icon, size: 20),
         onSelected: _goTo,
         itemBuilder: (_) => [
           for (final c in item.children ?? const <MenuItem>[])
-            if (c.route != null) PopupMenuItem(value: c.route, child: Text(c.label)),
+            if (c.route != null) PopupMenuItem(value: c.route, child: Text(_menuLabel(c))),
         ],
       ),
     );

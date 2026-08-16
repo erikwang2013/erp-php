@@ -23,6 +23,7 @@ use app\model\CrmQuotation;
 use app\model\CrmQuotationItem;
 use app\model\CrmTicket;
 use app\model\CrmTicketReply;
+use app\service\crm\CrmService;
 use PHPUnit\Framework\TestCase;
 use support\Request;
 
@@ -283,10 +284,10 @@ class CrmModuleTest extends TestCase
 
     public function testAnalyticsReportPeriodLabels(): void
     {
-        $controller = new \app\controller\crm\AnalyticsController();
-        $month = $this->invokeProtected($controller, 'buildReportData', 'customer', 2026, 1, 1);
-        $quarter = $this->invokeProtected($controller, 'buildReportData', 'customer', 2026, 2, 2);
-        $year = $this->invokeProtected($controller, 'buildReportData', 'customer', 2026, 0, 3);
+        $service = new CrmService();
+        $month = $service->buildReportData('customer', 2026, 1, 1);
+        $quarter = $service->buildReportData('customer', 2026, 2, 2);
+        $year = $service->buildReportData('customer', 2026, 0, 3);
         $this->assertEquals('2026年1月', $month['period']);
         $this->assertEquals('2026年Q2', $quarter['period']);
         $this->assertEquals('2026年度', $year['period']);
@@ -294,34 +295,34 @@ class CrmModuleTest extends TestCase
 
     public function testAnalyticsReportDataTypesGenerateExpectedKeys(): void
     {
-        $controller = new \app\controller\crm\AnalyticsController();
-        $customer = $this->invokeProtected($controller, 'buildReportData', 'customer', 2026, 1, 1);
+        $service = new CrmService();
+        $customer = $service->buildReportData('customer', 2026, 1, 1);
         $this->assertArrayHasKey('new_customers', $customer);
         $this->assertArrayHasKey('retention_rate', $customer);
 
-        $order = $this->invokeProtected($controller, 'buildReportData', 'order', 2026, 1, 1);
+        $order = $service->buildReportData('order', 2026, 1, 1);
         $this->assertArrayHasKey('total_orders', $order);
         $this->assertArrayHasKey('total_amount', $order);
 
-        $revenue = $this->invokeProtected($controller, 'buildReportData', 'revenue', 2026, 1, 1);
+        $revenue = $service->buildReportData('revenue', 2026, 1, 1);
         $this->assertArrayHasKey('total_revenue', $revenue);
         $this->assertArrayHasKey('gross_margin', $revenue);
 
-        $activity = $this->invokeProtected($controller, 'buildReportData', 'activity', 2026, 1, 1);
+        $activity = $service->buildReportData('activity', 2026, 1, 1);
         $this->assertArrayHasKey('conversion_rate', $activity);
 
-        $retention = $this->invokeProtected($controller, 'buildReportData', 'retention', 2026, 1, 1);
+        $retention = $service->buildReportData('retention', 2026, 1, 1);
         $this->assertArrayHasKey('month6_retention', $retention);
 
-        $unknown = $this->invokeProtected($controller, 'buildReportData', 'unknown-type', 2026, 1, 1);
+        $unknown = $service->buildReportData('unknown-type', 2026, 1, 1);
         $this->assertSame(['period' => '2026年1月'], $unknown, '未知类型仅返回 period');
     }
 
     public function testAnalyticsReportValuesWithinDocumentedBounds(): void
     {
-        $controller = new \app\controller\crm\AnalyticsController();
+        $service = new CrmService();
         for ($i = 0; $i < 10; $i++) {
-            $customer = $this->invokeProtected($controller, 'buildReportData', 'customer', 2026, 1, 1);
+            $customer = $service->buildReportData('customer', 2026, 1, 1);
             $this->assertGreaterThanOrEqual(0.75, $customer['retention_rate']);
             $this->assertLessThanOrEqual(0.95, $customer['retention_rate']);
             $this->assertGreaterThanOrEqual(10, $customer['new_customers']);
@@ -332,8 +333,8 @@ class CrmModuleTest extends TestCase
     public function testAnalyticsReportGrossProfitComputedAsRevenueMinusCost(): void
     {
         // revenue 类型: gross_profit/gross_margin 占位为 0，由后续财务环节计算（文档化行为）
-        $controller = new \app\controller\crm\AnalyticsController();
-        $revenue = $this->invokeProtected($controller, 'buildReportData', 'revenue', 2026, 1, 1);
+        $service = new CrmService();
+        $revenue = $service->buildReportData('revenue', 2026, 1, 1);
         $this->assertEquals(0, $revenue['gross_profit']);
         $this->assertEquals(0, $revenue['gross_margin']);
     }

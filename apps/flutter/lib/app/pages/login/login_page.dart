@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/captcha_service.dart';
+import '../../l10n/app_l10n.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -45,7 +46,8 @@ class _LoginPageState extends State<LoginPage> {
         _clickLabels.clear();
       });
     } catch (_) {
-      setState(() => _error = '验证码加载失败');
+      // 用 context 的 Localizations 翻译（异步回调中安全；无 delegates 时回退中文）
+      setState(() => _error = AppL10n.of(context).loginCaptchaLoadFailed);
     }
   }
 
@@ -74,15 +76,15 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordCtrl.text;
 
     if (username.isEmpty || password.isEmpty) {
-      setState(() => _error = '请输入用户名和密码');
+      setState(() => _error = AppL10n.of(context).loginRequired);
       return;
     }
     if (_captchaData == null) {
-      setState(() => _error = '请加载验证码');
+      setState(() => _error = AppL10n.of(context).loginCaptchaRequired);
       return;
     }
     if (_clicks.length < _captchaData!.targets.length) {
-      setState(() => _error = '请按顺序点击图中文字『${_captchaData!.targets[_clicks.length].text}』');
+      setState(() => _error = AppL10n.of(context).loginClickTarget(_captchaData!.targets[_clicks.length].text));
       return;
     }
 
@@ -105,11 +107,11 @@ class _LoginPageState extends State<LoginPage> {
         );
         if (mounted) Navigator.of(context).pushReplacementNamed('/dashboard');
       } else {
-        setState(() => _error = resp.data['message'] ?? '登录失败');
+        setState(() => _error = resp.data['message'] ?? AppL10n.of(context).loginLoginFailed);
         _loadCaptcha();
       }
     } catch (e) {
-      setState(() => _error = '网络错误，请检查连接');
+      setState(() => _error = AppL10n.of(context).loginNetworkError);
       _loadCaptcha();
     } finally {
       setState(() => _loading = false);
@@ -125,6 +127,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -137,16 +140,16 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 const Icon(Icons.admin_panel_settings, size: 64, color: Color(0xFF1677FF)),
                 const SizedBox(height: 12),
-                const Text('开放管理后台', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1677FF))),
+                Text(l10n.loginTitle, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1677FF))),
                 const SizedBox(height: 32),
 
                 // Username
                 TextField(
                   controller: _usernameCtrl,
-                  decoration: const InputDecoration(
-                    labelText: '用户名',
-                    prefixIcon: Icon(Icons.person_outline),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.loginUsername,
+                    prefixIcon: const Icon(Icons.person_outline),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -155,10 +158,10 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _passwordCtrl,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: '密码',
-                    prefixIcon: Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.loginPassword,
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    border: const OutlineInputBorder(),
                   ),
                   onSubmitted: (_) => _login(),
                 ),
@@ -166,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 // Click Captcha
                 if (_captchaImage != null && _captchaData != null) ...[
-                  Text('请按顺序点击图中文字: ${_captchaData!.targets.map((t) => '"${t.text}"').join(' → ')}',
+                  Text(l10n.loginCaptchaPrompt(_captchaData!.targets.map((t) => '"${t.text}"').join(' → ')),
                       style: const TextStyle(fontSize: 13, color: Colors.black87)),
                   const SizedBox(height: 8),
                   ClipRRect(
@@ -210,10 +213,10 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('已点击 ${_clicks.length}/${_captchaData!.targets.length}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(l10n.loginCaptchaClicked(_clicks.length, _captchaData!.targets.length), style: const TextStyle(fontSize: 12, color: Colors.grey)),
                       TextButton.icon(
                         icon: const Icon(Icons.refresh, size: 16),
-                        label: const Text('换一张'),
+                        label: Text(l10n.loginRefresh),
                         onPressed: _loadCaptcha,
                       ),
                     ],
@@ -244,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: _loading ? null : _login,
                     child: _loading
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('登 录', style: TextStyle(fontSize: 16)),
+                        : Text(l10n.loginButton, style: const TextStyle(fontSize: 16)),
                   ),
                 ),
                 const SizedBox(height: 20),

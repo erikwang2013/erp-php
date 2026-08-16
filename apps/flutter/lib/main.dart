@@ -1,8 +1,11 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'app/theme/app_theme.dart';
+import 'app/l10n/app_l10n.dart';
+import 'l10n/app_localizations.dart';
 import 'app/layouts/admin_layout.dart';
 import 'app/config/menu_config.dart';
 import 'app/pages/login/login_page.dart';
@@ -31,12 +34,14 @@ import 'app/pages/purchase/apply_list_page.dart';
 import 'app/pages/purchase/order_list_page.dart';
 import 'app/pages/purchase/receive_list_page.dart';
 import 'app/pages/purchase/return_list_page.dart';
+import 'app/pages/purchase/settlement_list_page.dart';
 
 // 销售管理
 import 'app/pages/sales/quotation_list_page.dart';
 import 'app/pages/sales/order_list_page.dart';
 import 'app/pages/sales/delivery_list_page.dart';
 import 'app/pages/sales/return_list_page.dart';
+import 'app/pages/sales/settlement_list_page.dart';
 
 // 库存管理
 import 'app/pages/inventory/inventory_list_page.dart';
@@ -57,6 +62,8 @@ import 'app/pages/finance/report_page.dart';
 import 'app/pages/finance/asset_list_page.dart';
 import 'app/pages/finance/tax_page.dart';
 import 'app/pages/finance/currency_page.dart';
+import 'app/pages/finance/bank_account_page.dart';
+import 'app/pages/finance/exchange_rate_page.dart';
 import 'app/pages/finance/budget_page.dart';
 import 'app/pages/finance/cost_profit_page.dart';
 
@@ -160,11 +167,13 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/purchase/order': () => const PurchaseOrderListPage(),
   '/purchase/receive': () => const PurchaseReceiveListPage(),
   '/purchase/return': () => const PurchaseReturnListPage(),
+  '/purchase/settlement': () => const PurchaseSettlementListPage(),
   // 销售管理
   '/sales/quotation': () => const SalesQuotationListPage(),
   '/sales/order': () => const SalesOrderListPage(),
   '/sales/delivery': () => const SalesDeliveryListPage(),
   '/sales/return': () => const SalesReturnListPage(),
+  '/sales/settlement': () => const SalesSettlementListPage(),
   // 库存管理
   '/inventory/list': () => const InventoryListPage(),
   '/inventory/flow': () => const InventoryFlowListPage(),
@@ -183,6 +192,8 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/finance/asset': () => const AssetListPage(),
   '/finance/tax': () => const TaxPage(),
   '/finance/currency': () => const CurrencyPage(),
+  '/finance/bank-account': () => const BankAccountPage(),
+  '/finance/exchange-rate': () => const ExchangeRatePage(),
   '/finance/budget': () => const BudgetPage(),
   '/finance/cost-profit': () => const CostProfitPage(),
   // CRM
@@ -276,6 +287,17 @@ class AdminApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
+      // 国际化（最小可行）：中英双语，默认中文。
+      // 与后端 app/common/I18n.php 的键名风格对齐（login.* / nav.* / common.*），
+      // locale 暂固定中文，后续可接系统语言或用户偏好（见 AppL10n.setLocale）。
+      locale: AppL10n.locale,
+      supportedLocales: AppL10n.supportedLocales,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate,
+      ],
       builder: (context, child) => ResponsiveBreakpoints.builder(
         child: child!,
         breakpoints: [
@@ -315,6 +337,7 @@ class PlaceholderPage extends StatelessWidget {
           Text(route,
               style: TextStyle(color: Theme.of(context).colorScheme.outline)),
           const SizedBox(height: 4),
+          // 后续 i18n：占位页文案暂保留硬编码中文
           const Text('页面开发中，敬请期待'),
         ],
       ),

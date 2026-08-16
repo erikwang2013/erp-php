@@ -57,6 +57,36 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
     });
   }
 
+  /// 销售结算：打开结算表单（金额/日期/方式 → 后端 amount/received_amount/settled_at/status），
+  /// 提交 POST /admin/sales/settlement。
+  Future<void> _settle(Map<String, dynamic> row) async {
+    final now = DateTime.now();
+    String pad(int v) => v.toString().padLeft(2, '0');
+    final defaultSettledAt =
+        '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
+    await FormDialog.show(context, title: '销售结算', fields: [
+      FormFieldConfig(name: 'customer_id', label: '客户ID', required: true, initialValue: '${row['customer_id'] ?? ''}'),
+      FormFieldConfig(name: 'delivery_id', label: '发货单ID', required: true),
+      FormFieldConfig(name: 'amount', label: '应收金额', type: FormFieldType.number, hint: '如 1000.00'),
+      FormFieldConfig(name: 'received_amount', label: '已收金额', type: FormFieldType.number, hint: '默认 0'),
+      FormFieldConfig(name: 'status', label: '结算状态', type: FormFieldType.dropdown,
+        options: ['0 - 未结算', '1 - 部分结算', '2 - 已结算'], initialValue: '0 - 未结算'),
+      FormFieldConfig(name: 'settled_at', label: '结算时间', initialValue: defaultSettledAt,
+        hint: '格式 YYYY-MM-DD HH:mm:ss'),
+    ], onSubmit: (data) async {
+      final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
+      await ApiService.instance.post('/admin/sales/settlement', data: {
+        'customer_id': data['customer_id']?.trim(),
+        'delivery_id': data['delivery_id']?.trim(),
+        'amount': (data['amount']?.trim().isEmpty ?? true) ? '0' : data['amount']!.trim(),
+        'received_amount': (data['received_amount']?.trim().isEmpty ?? true) ? '0' : data['received_amount']!.trim(),
+        'status': statusRaw,
+        'settled_at': data['settled_at']?.trim(),
+      });
+      _load(); return true;
+    });
+  }
+
   // 后端 erik_sales_order 字段: code/customer_id/warehouse_id/total_amount/
   // discount_amount/status/remark/ordered_at（store() 同时校验 name 必填）
   static const List<String> _statusLabels = ['待审核', '已审核', '部分发货', '已发货', '已取消'];
@@ -146,6 +176,8 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
     '总金额': r['total_amount'] ?? '',
     '状态': _chip(_statusText(r['status'])),
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(icon: const Icon(Icons.paid, size: 18, color: Colors.teal),
+        tooltip: '结算', onPressed: () => _settle(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),

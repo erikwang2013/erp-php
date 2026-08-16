@@ -54,6 +54,22 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
     });
   }
 
+  /// 报价转合同：填写合同编号/名称/备注，调用 POST /admin/crm/quotation/{id}/to-contract。
+  Future<void> _toContract(Map<String, dynamic> row) async {
+    await FormDialog.show(context, title: '报价转合同', fields: const [
+      FormFieldConfig(name: 'code', label: '合同编号', hint: '留空自动生成 CT+时间戳'),
+      FormFieldConfig(name: 'name', label: '合同名称', hint: '留空默认 合同-报价单号'),
+      FormFieldConfig(name: 'remark', label: '备注', type: FormFieldType.multiline),
+    ], onSubmit: (data) async {
+      await ApiService.instance.post('/admin/crm/quotation/${row['id']}/to-contract', data: {
+        'code': data['code']?.trim(),
+        'name': data['name']?.trim(),
+        'remark': data['remark']?.trim() ?? '',
+      });
+      _load(); return true;
+    });
+  }
+
   List<FormFieldConfig> _formFields() => const [
     FormFieldConfig(name: 'name', label: '名称', required: true),
     FormFieldConfig(name: 'code', label: '编码'),
@@ -79,6 +95,8 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
     '名称': r['name'] ?? '',
     '编码': r['code'] ?? '',
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(icon: const Icon(Icons.handshake, size: 18, color: Colors.teal),
+        tooltip: '转合同', onPressed: () => _toContract(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),

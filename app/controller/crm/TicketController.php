@@ -10,7 +10,9 @@ namespace app\controller\crm;
 
 use app\admin\controller\BaseController;
 use app\model\CrmTicket;
-use app\model\CrmTicketReply;
+use app\service\crm\CrmService;
+use InvalidArgumentException;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -47,35 +49,22 @@ class TicketController extends BaseController
         $customerId = $request->input('customer_id');
         $assigneeUserId = $request->input('assignee_user_id');
 
-        $query = CrmTicket::query();
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('title', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
-        if ($priority !== null && $priority !== '') {
-            $query->where('priority', (int) $priority);
-        }
-        if ($category !== '') {
-            $query->where('category', $category);
-        }
-        if ($customerId) {
-            $query->where('customer_id', (int) $customerId);
-        }
-        if ($assigneeUserId) {
-            $query->where('assignee_user_id', (int) $assigneeUserId);
-        }
+        $result = $this->crm()->list(CrmTicket::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+            'priority' => $priority,
+            'category' => $category,
+            'customer_id' => $customerId,
+            'assignee_user_id' => $assigneeUserId,
+        ], $page, $limit, [
+            'searchFields' => ['title', 'code'],
+            'eqFilters' => ['status', 'priority'],
+            'stringEqFilters' => ['category'],
+            'truthyFilters' => ['customer_id', 'assignee_user_id'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -102,11 +91,7 @@ class TicketController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new CrmTicket();
-        $item->id = $this->generateId();
-        $item->status = 0;
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->crm()->create(CrmTicket::class, $request->all(), ['status' => 0]);
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -127,16 +112,15 @@ class TicketController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmTicket::find($id);
+        $item = $this->crm()->find(CrmTicket::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
         $data = $this->encodeIds($item->toArray());
 
-        $replies = CrmTicketReply::where('ticket_id', $id)->orderBy('id', 'asc')
-            ->get()->map(fn ($r) => $this->encodeIds($r->toArray()));
-        $data['replies'] = $replies;
+        $replies = $this->crm()->ticketReplies($id);
+        $data['replies'] = array_map(fn ($r) => $this->encodeIds($r), $replies);
 
         return $this->success($data);
     }
@@ -157,13 +141,10 @@ class TicketController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmTicket::find($id);
+        $item = $this->crm()->update(CrmTicket::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -185,7 +166,7 @@ class TicketController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmTicket::find($id);
+        $item = $this->crm()->find(CrmTicket::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -196,8 +177,7 @@ class TicketController extends BaseController
             return $this->fail($error, 422);
         }
 
-        CrmTicketReply::where('ticket_id', $id)->delete();
-        $item->delete();
+        $this->crm()->deleteTicketWithReplies($id);
 
         return $this->success([], '删除成功');
     }
@@ -219,21 +199,16 @@ class TicketController extends BaseController
     public function assign(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmTicket::find($id);
-        if (!$item) {
-            return $this->fail('记录不存在', 404);
-        }
 
         $assigneeUserId = (int) $request->input('assignee_user_id', 0);
         if ($assigneeUserId <= 0) {
             return $this->fail('请指定指派人', 422);
         }
 
-        $item->assignee_user_id = $assigneeUserId;
-        if ((int) $item->status === 0) {
-            $item->status = 1;
+        $item = $this->crm()->assignTicket($id, $assigneeUserId);
+        if (!$item) {
+            return $this->fail('记录不存在', 404);
         }
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '指派成功');
     }
@@ -255,28 +230,15 @@ class TicketController extends BaseController
     public function resolve(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmTicket::find($id);
+        $userId = $request->adminId ?? 0;
+
+        try {
+            $item = $this->crm()->resolveTicket($id, (string) $request->input('content', ''), $userId);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
         if (!$item) {
             return $this->fail('记录不存在', 404);
-        }
-
-        if ((int) $item->status === 3) {
-            return $this->fail('工单已关闭，无法解决', 422);
-        }
-
-        $item->status = 2;
-        $item->resolved_at = date('Y-m-d H:i:s');
-        $item->save();
-
-        $content = $request->input('content', '');
-        if ($content !== '') {
-            $reply = new CrmTicketReply();
-            $reply->id = $this->generateId();
-            $reply->ticket_id = $id;
-            $reply->user_id = $request->adminId ?? 0;
-            $reply->content = $content;
-            $reply->is_internal = 0;
-            $reply->save();
         }
 
         return $this->success($this->encodeIds($item->toArray()), '工单已解决');
@@ -300,7 +262,7 @@ class TicketController extends BaseController
     public function reply(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $ticket = CrmTicket::find($id);
+        $ticket = $this->crm()->find(CrmTicket::class, $id);
         if (!$ticket) {
             return $this->fail('工单不存在', 404);
         }
@@ -310,14 +272,21 @@ class TicketController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $reply = new CrmTicketReply();
-        $reply->id = $this->generateId();
-        $reply->ticket_id = $id;
-        $reply->user_id = $request->adminId ?? 0;
-        $reply->content = $request->input('content', '');
-        $reply->is_internal = (int) $request->input('is_internal', 0);
-        $reply->save();
+        $reply = $this->crm()->addTicketReply(
+            $id,
+            $request->adminId ?? 0,
+            (string) $request->input('content', ''),
+            (int) $request->input('is_internal', 0)
+        );
 
         return $this->success($this->encodeIds($reply->toArray()), '回复成功');
+    }
+
+    /**
+     * CRM 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function crm(): CrmService
+    {
+        return Container::get(CrmService::class);
     }
 }

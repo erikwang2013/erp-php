@@ -871,21 +871,47 @@ sequenceDiagram
 
 ## 20. ERP 模块控制器-服务-模型映射表
 
+> 服务层说明：`核心Service` 列标注该模块已下沉的业务服务；标注 **⚠ 控制器直查模型，已知技术债** 的模块，
+> 控制器仍直接调用模型查询/写入方法（`XxxModel::find/where/save` 等），尚未抽取服务层，属已知技术债，
+> 后续按 P2-F2 服务层轻量提取模式（`app/service/AbstractCrudService` 通用 CRUD 基类 + 模块 Service）逐步收敛。
+
 | 模块 | Controllers (目录) | 核心Service | 主要Model | 表数 |
 |------|-------------------|-------------|-----------|------|
-| 系统管理 | admin/controller/ (14个) | - | AdminUser, AdminRole, AdminPermission | 7 |
-| 商品管理 | controller/product/ (7个) | - | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
-| 采购管理 | controller/purchase/ (5个) | InventoryService, FinanceService | PurchaseOrder, PurchaseReceive | 9 |
-| 销售管理 | controller/sales/ (5个) | InventoryService, FinanceService | SalesOrder, SalesDelivery | 9 |
-| 库存管理 | controller/inventory/ (5个) | InventoryService | Inventory, InventoryFlow, CostRecord | 11 |
-| 财务管理 | controller/finance/ (20个) | FinanceService | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
-| CRM | controller/crm/ (10个) | - | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
-| 审批工作流 | controller/workflow/ (2个) | - | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
-| 消息通知 | controller/notification/ (1个) | NotificationService | Notification, NotificationSetting, NotificationTemplate | 3 |
-| 项目管理 | controller/project/ (3个) | - | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| 人力资源 | controller/hr/ (5个) | - | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
-| 生产制造 | controller/manufacturing/ (5个) | - | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
-| 自定义报表 | controller/report/ (2个) | - | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
+| 系统管理 | admin/controller/ (14个) | - ⚠控制器直查模型，已知技术债 | AdminUser, AdminRole, AdminPermission | 7 |
+| 商品管理 | controller/product/ (7个) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
+| 采购管理 | controller/purchase/ (5个) | InventoryService, FinanceService ⚠CRUD仍直查，已知技术债 | PurchaseOrder, PurchaseReceive | 9 |
+| 销售管理 | controller/sales/ (5个) | InventoryService, FinanceService ⚠CRUD仍直查，已知技术债 | SalesOrder, SalesDelivery | 9 |
+| 库存管理 | controller/inventory/ (5个) | InventoryService ⚠CRUD仍直查，已知技术债 | Inventory, InventoryFlow, CostRecord | 11 |
+| 财务管理 | controller/finance/ (20个) | FinanceService ⚠CRUD仍直查，已知技术债 | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| CRM | controller/crm/ (10个) | CrmService | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
+| 审批工作流 | controller/workflow/ (2个) | - ⚠控制器直查模型，已知技术债 | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
+| 消息通知 | controller/notification/ (1个) | NotificationService ⚠CRUD仍直查，已知技术债 | Notification, NotificationSetting, NotificationTemplate | 3 |
+| 项目管理 | controller/project/ (3个) | - ⚠控制器直查模型，已知技术债 | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
+| 人力资源 | controller/hr/ (5个) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
+| 生产制造 | controller/manufacturing/ (5个) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| 自定义报表 | controller/report/ (2个) | - ⚠控制器直查模型，已知技术债 | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
+| EAM 设备管理 | controller/eam/ (4个) | - ⚠控制器直查模型，已知技术债 | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart | 4 |
+| DMS 文档管理 | controller/dms/ (2个) | - ⚠控制器直查模型，已知技术债 | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
+| BI 看板 | controller/bi/ (3个) | - ⚠控制器直查模型，已知技术债 | BiDashboard, BiWidget | 2 |
+
+### 20.1 P2-F2 服务层轻量提取记录（crm/hr/manufacturing/product 已完成抽取）
+
+| 模块 | 抽取前控制器直查调用数 | 抽取后 | 新增 Service | 抽取内容 |
+|------|----------------------|--------|--------------|----------|
+| CRM | 57 | 0 | `app/service/crm/CrmService.php` | 通用 CRUD + 合同状态流转、报价转合同、公海池领取/释放、工单指派/解决/回复、明细级联清理、分析报表数据构建 |
+| 人力资源 | 38 | 0 | `app/service/hr/HrService.php` | 通用 CRUD + 打卡迟到/早退判定、请假审批（自动生成请假考勤）、薪资唯一性/实发计算/发放/批量生成 |
+| 生产制造 | 33 | 0 | `app/service/manufacturing/ManufacturingService.php` | 通用 CRUD + 工单开始/完成流转、BOM 版本复制/生效互斥、MRP 明细生成 |
+| 商品管理 | 29 | 0 | `app/service/product/ProductService.php` | 通用 CRUD + 商品事务创建（SKU/价格）、按字段保留原值更新、详情关联加载 |
+
+抽取模式：`app/service/AbstractCrudService.php` 提供 `list/all/find/create/update/delete/deleteWhere` 通用 CRUD
+与 `normalizePageParams/canTransition` 纯逻辑助手；模块 Service 继承之并沉淀模块特有业务。
+控制器经 `Container::get(XxxService::class)`（class_exists 回退）注入服务，保持路由/参数/返回结构完全不变；
+hashid 编解码、密码二次确认、响应包装等 HTTP 关注点仍留在控制器。
+新 Service 已在 `config/dependence.php` 登记（该文件为 dead config，未被 addDefinitions 加载，运行期依赖容器
+class_exists 回退实例化，故所有 Service 保持无参构造）。
+
+未抽取模块（项目管理 18 次、自定义报表 18 次、采购 24 次、销售 24 次、系统管理 42 次等）已在表中标注
+"控制器直查模型，已知技术债"，后续迭代按同一模式抽取。
 
 ---
 

@@ -1,0 +1,63 @@
+{
+  "@@locale": "en",
+
+  "loginTitle": "Open ERP Admin",
+  "loginUsername": "Username",
+  "loginPassword": "Password",
+  "loginCaptchaPrompt": "Click the characters in the image in order: {text}",
+  "loginCaptchaClicked": "Clicked {count}/{total}",
+  "loginRefresh": "Refresh",
+  "loginButton": "Log In",
+  "loginLoginFailed": "Login failed",
+  "loginRequired": "Please enter username and password",
+  "loginCaptchaRequired": "Please load the captcha",
+  "loginCaptchaLoadFailed": "Failed to load captcha",
+  "loginClickTarget": "Click the character '{text}' in order",
+  "loginNetworkError": "Network error, please check your connection",
+
+  "navDashboard": "Dashboard",
+  "navSystem": "System",
+  "navAdminTitle": "Admin Console",
+  "navAdministrator": "Administrator",
+  "navProfile": "Profile",
+  "navLogout": "Log Out",
+  "navLogoutConfirmTitle": "Confirm Log Out",
+  "navLogoutConfirmMessage": "Are you sure you want to log out?",
+  "navLogoutConfirm": "Confirm",
+  "navExpandMenu": "Expand menu",
+  "navCollapseMenu": "Collapse menu",
+
+  "commonConfirm": "OK",
+  "commonCancel": "Cancel",
+  "commonDeleteConfirm": "Confirm delete",
+  "commonLoading": "Loading...",
+  "commonRequestFailed": "Request failed",
+
+  "dashboardTitle": "Dashboard",
+  "dashboardExport": "Export",
+  "dashboardExportPdf": "Export PDF",
+  "dashboardExportExcel": "Export Excel",
+  "dashboardOverview": "Overview",
+  "dashboardTrend": "Data Trend (Last 30 Days)",
+  "dashboardUserStatus": "User Status Distribution",
+  "dashboardEnabled": "Enabled",
+  "dashboardDisabled": "Disabled",
+  "dashboardRecentOps": "Recent Operations",
+
+  "@loginCaptchaPrompt": {
+    "placeholders": {
+      "text": {"type": "String"}
+    }
+  },
+  "@loginCaptchaClicked": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "@loginClickTarget": {
+    "placeholders": {
+      "text": {"type": "String"}
+    }
+  }
+}

@@ -8,8 +8,10 @@ declare(strict_types=1);
 namespace app\controller\manufacturing;
 
 use app\admin\controller\BaseController;
-use app\model\MfgProductionItem;
 use app\model\MfgProductionOrder;
+use app\service\manufacturing\ManufacturingService;
+use InvalidArgumentException;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -44,23 +46,18 @@ class ProductionController extends BaseController
         $status = $request->input('status');
         $bomId = $request->input('bom_id');
 
-        $query = MfgProductionOrder::query();
-        if ($keyword) {
-            $query->where('code', 'like', "%{$keyword}%");
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
-        if ($bomId) {
-            $query->where('bom_id', (int) $bomId);
-        }
+        $result = $this->mfg()->list(MfgProductionOrder::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+            'bom_id' => $bomId,
+        ], $page, $limit, [
+            'searchFields' => ['code'],
+            'eqFilters' => ['status'],
+            'truthyFilters' => ['bom_id'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -89,12 +86,10 @@ class ProductionController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new MfgProductionOrder();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->status = 0;
-        $item->completed_quantity = 0;
-        $item->save();
+        $item = $this->mfg()->create(MfgProductionOrder::class, $request->all(), [
+            'status' => 0,
+            'completed_quantity' => 0,
+        ]);
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -115,7 +110,7 @@ class ProductionController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgProductionOrder::with(['items', 'bom'])->find($id);
+        $item = $this->mfg()->find(MfgProductionOrder::class, $id, ['items', 'bom']);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -147,7 +142,7 @@ class ProductionController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgProductionOrder::find($id);
+        $item = $this->mfg()->find(MfgProductionOrder::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -155,12 +150,7 @@ class ProductionController extends BaseController
             return $this->fail('只能修改待生产状态的工单', 422);
         }
 
-        $originalStatus = $item->status;
-        $originalCompletedQty = $item->completed_quantity;
-        $this->fillModelFromRequest($item, $request);
-        $item->status = $originalStatus;
-        $item->completed_quantity = $originalCompletedQty;
-        $item->save();
+        $item = $this->mfg()->update(MfgProductionOrder::class, $id, $request->all(), ['status', 'completed_quantity']);
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -182,7 +172,7 @@ class ProductionController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgProductionOrder::find($id);
+        $item = $this->mfg()->find(MfgProductionOrder::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -196,8 +186,7 @@ class ProductionController extends BaseController
             return $this->fail($error, 422);
         }
 
-        MfgProductionItem::where('order_id', $id)->delete();
-        $item->delete();
+        $this->mfg()->deleteProductionOrderWithItems($id);
 
         return $this->success([], '删除成功');
     }
@@ -218,17 +207,15 @@ class ProductionController extends BaseController
     public function start(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgProductionOrder::find($id);
+
+        try {
+            $item = $this->mfg()->startProduction($id);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-        if ($item->status !== 0) {
-            return $this->fail('只有待生产状态的工单可以开始生产', 422);
-        }
-
-        $item->status = 1;
-        $item->actual_start = date('Y-m-d H:i:s');
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '生产已开始');
     }
@@ -250,20 +237,24 @@ class ProductionController extends BaseController
     public function complete(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = MfgProductionOrder::find($id);
+
+        try {
+            $item = $this->mfg()->completeProduction($id, $request->input('completed_quantity') !== null ? (float) $request->input('completed_quantity') : null);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-        if ($item->status !== 1) {
-            return $this->fail('只有生产中的工单可以完成', 422);
-        }
-
-        $completedQty = (float) $request->input('completed_quantity', $item->planned_quantity);
-        $item->status = 2;
-        $item->completed_quantity = $completedQty;
-        $item->actual_end = date('Y-m-d H:i:s');
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '生产已完成');
+    }
+
+    /**
+     * 生产制造薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function mfg(): ManufacturingService
+    {
+        return Container::get(ManufacturingService::class);
     }
 }

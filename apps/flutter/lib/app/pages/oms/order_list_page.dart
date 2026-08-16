@@ -57,6 +57,18 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     });
   }
 
+  /// 创建履约：填写发货仓库ID，调用 POST /admin/oms/order/{id}/fulfill。
+  Future<void> _fulfill(Map<String, dynamic> row) async {
+    await FormDialog.show(context, title: '创建履约', fields: const [
+      FormFieldConfig(name: 'warehouse_id', label: '发货仓库ID', required: true, hint: '后端要求提供发货仓库'),
+    ], onSubmit: (data) async {
+      await ApiService.instance.post('/admin/oms/order/${row['id']}/fulfill', data: {
+        'warehouse_id': data['warehouse_id']?.trim(),
+      });
+      _load(); return true;
+    });
+  }
+
   // 后端 erik_oms_order 字段: order_id/channel/channel_order_no/channel_store/
   // fulfillment_status/payment_status/shipping_method/shipping_fee/
   // buyer_message/seller_note/priority/hold_until（store() 同时校验 code 必填）
@@ -158,6 +170,8 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     '履约状态': _chip(_fulfillmentText(r['fulfillment_status'])),
     '支付状态': _chip(_paymentText(r['payment_status'])),
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(icon: const Icon(Icons.local_shipping, size: 18, color: Colors.teal),
+        tooltip: '履约', onPressed: () => _fulfill(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),

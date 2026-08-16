@@ -10,6 +10,8 @@ namespace app\controller\crm;
 
 use app\admin\controller\BaseController;
 use app\model\CrmContact;
+use app\service\crm\CrmService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -38,23 +40,16 @@ class ContactController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $query = CrmContact::query();
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
+        $result = $this->crm()->list(CrmContact::class, [
+            'keyword' => $keyword,
+            'status' => $status,
+        ], $page, $limit, [
+            'searchFields' => ['name', 'code'],
+            'eqFilters' => ['status'],
+        ]);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -77,10 +72,7 @@ class ContactController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new CrmContact();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->crm()->create(CrmContact::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -101,7 +93,7 @@ class ContactController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmContact::find($id);
+        $item = $this->crm()->find(CrmContact::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -125,13 +117,10 @@ class ContactController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmContact::find($id);
+        $item = $this->crm()->update(CrmContact::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -153,7 +142,7 @@ class ContactController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmContact::find($id);
+        $item = $this->crm()->find(CrmContact::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -164,8 +153,16 @@ class ContactController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->crm()->delete(CrmContact::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * CRM 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function crm(): CrmService
+    {
+        return Container::get(CrmService::class);
     }
 }

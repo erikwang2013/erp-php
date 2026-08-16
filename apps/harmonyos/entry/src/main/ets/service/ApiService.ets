@@ -54,12 +54,12 @@ export class ApiService {
         return this.request<T>(method, path, body, retryCount + 1);
       }
       // 刷新失败，清除 token 并通知调用方
-      TokenManager.clearTokens();
+      await TokenManager.clearTokens();
       throw new Error('UNAUTHORIZED');
     }
 
     if (response.responseCode === 401) {
-      TokenManager.clearTokens();
+      await TokenManager.clearTokens();
       throw new Error('UNAUTHORIZED');
     }
 
@@ -95,7 +95,7 @@ export class ApiService {
       if (refreshResponse.responseCode === 200) {
         const data = JSON.parse(refreshResponse.result as string);
         if (data.code === 0 && data.data) {
-          TokenManager.saveTokens(
+          await TokenManager.saveTokens(
             data.data.access_token,
             data.data.refresh_token
           );

@@ -9,9 +9,10 @@ declare(strict_types=1);
 namespace app\controller\crm;
 
 use app\admin\controller\BaseController;
-use app\model\CrmPoolRecord;
 use app\model\CrmPoolRule;
-use app\model\Customer;
+use app\service\crm\CrmService;
+use InvalidArgumentException;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -53,26 +54,13 @@ class PoolController extends BaseController
         $keyword = $request->input('keyword', '');
         $levelId = $request->input('level_id');
 
-        $query = Customer::where(function ($q) {
-            $q->where('status', 0)->orWhere('owner_user_id', 0);
-        });
+        $result = $this->crm()->poolCustomers([
+            'keyword' => $keyword,
+            'level_id' => $levelId,
+        ], $page, $limit);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
-        }
-        if ($levelId !== null && $levelId !== '') {
-            $query->where('level_id', (int) $levelId);
-        }
-
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
-
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -92,41 +80,16 @@ class PoolController extends BaseController
     public function claim(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $customer = Customer::find($id);
+        $adminId = $request->adminId ?? 0;
+
+        try {
+            $customer = $this->crm()->claimCustomer($id, $adminId, (string) $request->input('remark', ''));
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
         if (!$customer) {
             return $this->fail('客户不存在', 404);
         }
-
-        $adminId = $request->adminId ?? 0;
-
-        if ($customer->status !== 0 && $customer->owner_user_id !== 0) {
-            return $this->fail('该客户不在公海池中', 422);
-        }
-
-        $rule = CrmPoolRule::where('level_id', $customer->level_id)
-            ->where('enabled', 1)
-            ->first();
-        if ($rule) {
-            $claimed = Customer::where('owner_user_id', $adminId)
-                ->where('status', '>', 0)
-                ->count();
-            if ($claimed >= $rule->max_claims) {
-                return $this->fail('已达到最大领取数量限制(' . $rule->max_claims . ')', 422);
-            }
-        }
-
-        $customer->owner_user_id = $adminId;
-        $customer->status = 1;
-        $customer->save();
-
-        $record = new CrmPoolRecord();
-        $record->id = $this->generateId();
-        $record->customer_id = $id;
-        $record->action = 1;
-        $record->from_user_id = 0;
-        $record->to_user_id = $adminId;
-        $record->remark = $request->input('remark', '');
-        $record->save();
 
         return $this->success($this->encodeIds($customer->toArray()), '领取成功');
     }
@@ -148,26 +111,12 @@ class PoolController extends BaseController
     public function release(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $customer = Customer::find($id);
+        $adminId = $request->adminId ?? 0;
+
+        $customer = $this->crm()->releaseCustomer($id, $adminId, (string) $request->input('remark', ''));
         if (!$customer) {
             return $this->fail('客户不存在', 404);
         }
-
-        $adminId = $request->adminId ?? 0;
-
-        $fromUserId = $customer->owner_user_id;
-        $customer->owner_user_id = 0;
-        $customer->status = 0;
-        $customer->save();
-
-        $record = new CrmPoolRecord();
-        $record->id = $this->generateId();
-        $record->customer_id = $id;
-        $record->action = 2;
-        $record->from_user_id = $fromUserId;
-        $record->to_user_id = 0;
-        $record->remark = $request->input('remark', '');
-        $record->save();
 
         return $this->success($this->encodeIds($customer->toArray()), '释放成功');
     }
@@ -180,13 +129,10 @@ class PoolController extends BaseController
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
 
-        $query = CrmPoolRule::query();
-        $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $result = $this->crm()->list(CrmPoolRule::class, [], $page, $limit);
+        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
     /**
@@ -209,10 +155,7 @@ class PoolController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new CrmPoolRule();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        $item = $this->crm()->create(CrmPoolRule::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -233,7 +176,7 @@ class PoolController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmPoolRule::find($id);
+        $item = $this->crm()->find(CrmPoolRule::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -257,13 +200,10 @@ class PoolController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmPoolRule::find($id);
+        $item = $this->crm()->update(CrmPoolRule::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
@@ -285,7 +225,7 @@ class PoolController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = CrmPoolRule::find($id);
+        $item = $this->crm()->find(CrmPoolRule::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -296,8 +236,16 @@ class PoolController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        $this->crm()->delete(CrmPoolRule::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * CRM 薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
+     */
+    private function crm(): CrmService
+    {
+        return Container::get(CrmService::class);
     }
 }

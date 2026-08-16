@@ -1,0 +1,63 @@
+{
+  "@@locale": "zh",
+
+  "loginTitle": "开放管理后台",
+  "loginUsername": "用户名",
+  "loginPassword": "密码",
+  "loginCaptchaPrompt": "请按顺序点击图中文字: {text}",
+  "loginCaptchaClicked": "已点击 {count}/{total}",
+  "loginRefresh": "换一张",
+  "loginButton": "登 录",
+  "loginLoginFailed": "登录失败",
+  "loginRequired": "请输入用户名和密码",
+  "loginCaptchaRequired": "请加载验证码",
+  "loginCaptchaLoadFailed": "验证码加载失败",
+  "loginClickTarget": "请按顺序点击图中文字『{text}』",
+  "loginNetworkError": "网络错误，请检查连接",
+
+  "navDashboard": "仪表盘",
+  "navSystem": "系统管理",
+  "navAdminTitle": "管理后台",
+  "navAdministrator": "管理员",
+  "navProfile": "个人中心",
+  "navLogout": "退出登录",
+  "navLogoutConfirmTitle": "确认退出",
+  "navLogoutConfirmMessage": "确定要退出登录吗？",
+  "navLogoutConfirm": "确定退出",
+  "navExpandMenu": "展开菜单",
+  "navCollapseMenu": "收起菜单",
+
+  "commonConfirm": "确定",
+  "commonCancel": "取消",
+  "commonDeleteConfirm": "确认删除",
+  "commonLoading": "加载中...",
+  "commonRequestFailed": "请求失败",
+
+  "dashboardTitle": "仪表盘",
+  "dashboardExport": "导出",
+  "dashboardExportPdf": "导出PDF",
+  "dashboardExportExcel": "导出Excel",
+  "dashboardOverview": "总览",
+  "dashboardTrend": "数据趋势（近30天）",
+  "dashboardUserStatus": "用户状态分布",
+  "dashboardEnabled": "启用",
+  "dashboardDisabled": "禁用",
+  "dashboardRecentOps": "最近操作",
+
+  "@loginCaptchaPrompt": {
+    "placeholders": {
+      "text": {"type": "String"}
+    }
+  },
+  "@loginCaptchaClicked": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "@loginClickTarget": {
+    "placeholders": {
+      "text": {"type": "String"}
+    }
+  }
+}

@@ -4,7 +4,7 @@
 
 ## 概述
 
-开放ERP系统 (open-erp) 覆盖 19 个业务域，163 张数据表，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 中文/English 双语支持，Accept-Language 请求头自动切换。
+开放ERP系统 (open-erp) 覆盖 19 个业务域 <!-- stats:modules=19 -->，163 张数据表 <!-- stats:tables=163 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 中文/English 双语支持，Accept-Language 请求头自动切换。
 
 > API 文档: 启动服务后访问 `http://localhost:8787/apidoc` 查看交互式接口文档（hg/apidoc 自动生成）
 
@@ -493,22 +493,25 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 维度 | 数量 |
 |------|------|
-| 业务模块 | 19 |
-| 数据库表 | 163 |
-| 数据模型 | 161 |
-| 控制器 | 121 |
-| 业务服务 | 24 |
-| API 路由 | 198 |
-| 中间件 | 9 |
-| PHP 源文件 | 268 |
-| SQL 迁移文件 | 22 |
-| 前端页面 (Flutter) | 7 |
-| 前端页面 (HarmonyOS) | 4 |
-| 单元测试 | 11 个测试文件 / 90 个测试方法 / 168 条断言 |
+| 业务模块 | 19 <!-- stats:modules=19 --> |
+| 数据库表 | 163 <!-- stats:tables=163 --> |
+| 数据模型 | 161 <!-- stats:models=161 --> |
+| 控制器 | 123 <!-- stats:controllers=123 --> |
+| 业务服务 | 29 <!-- stats:services=29 --> |
+| API 路由 | 198（动态生成，见 `scripts/check-endpoints.php`，不参与 doc-stats 校验）|
+| 中间件 | 12 <!-- stats:middleware=12 --> |
+| PHP 源文件 | 340 <!-- stats:php_files=340 --> |
+| SQL 迁移文件 | 29 <!-- stats:migrations=29 --> |
+| 前端页面 (Flutter) | 7（前端统计，未纳入 doc-stats 校验）|
+| 前端页面 (HarmonyOS) | 4（前端统计，未纳入 doc-stats 校验）|
+| 单元测试 | 38 个测试文件 <!-- stats:test_files=38 --> / 396 个测试方法 <!-- stats:tests=396 --> / 2116 条断言 <!-- stats:assertions=2116 --> |
+
+> 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
+> （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。
 
 ---
 
-## 19. 模块完成度矩阵 (2026-08-04)
+## 19. 模块完成度矩阵 (2026-08-16 校正)
 
 ### 状态图例
 
@@ -545,23 +548,40 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | HR — 组织/考勤/请假 | ✅ | ⚠️ | 🔴 | 🔴 | 🔵 P0 |
 | HR — 薪资引擎 | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
 | 制造 — BOM/生产/MRP | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| 质量管理 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 P1 |
+| 质量管理 | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
 | 自定义报表 | ✅ | ⚠️ | 🔴 | 🔴 | 🔵 P0 |
-| BI 看板 | 🔴 | 🔴 | 🔴 | 🔴 | 🟣 P3 |
-| 设备管理 EAM | 🔴 | 🔴 | 🔴 | 🔴 | 🟣 P3 |
-| 多租户 | 🔴 | 🔴 | 🔴 | 🔴 | 🟣 P3 |
-| 文档管理 DMS | 🔴 | 🔴 | 🔴 | 🔴 | 🟣 P3 |
+| BI 看板 | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
+| 设备管理 EAM | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
+| 多租户 | ⚠️ | ⚠️ | 🔴 | 🔴 | 🟣 P3 |
+| 文档管理 DMS | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
 | 可观测性 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 | 迁移回滚/备份 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 
 ### 统计
 
-| 维度 | ✅ 完成 | ⚠️ 骨架 | 🔴 缺失 | 完成率 |
-|------|---------|----------|---------|--------|
-| 模块 (27) | 14 | 7 | 6 | 52% |
-| 后端 API | 21 | 4 | 2 | 78% |
-| 业务逻辑 | 10 | 8 | 9 | 37% |
-| Flutter 前端 | 0 | 12 | 15 | 0% |
-| HarmonyOS | 0 | 9 | 18 | 0% |
+| 维度 | ✅ 完成 | ⚠️ 骨架 | 🔴 缺失 | N/A | 完成率 |
+|------|---------|----------|---------|-----|--------|
+| 模块 (27) | 14 | 12 | 1 | 0 | 52% |
+| 后端 API | 19 | 7 | 1 | 0 | 70% |
+| 业务逻辑 | 14 | 7 | 6 | 0 | 52% |
+| Flutter 前端 | 0 | 8 | 17 | 2 | 0% |
+| HarmonyOS | 0 | 6 | 19 | 2 | 0% |
+
+> **统计口径（2026-08-16 校正）**：模块行按「后端 API 与业务逻辑均实现」计；
+> 后端 API / 业务逻辑 两行按矩阵对应列统计（本次已按代码现状将 QMS/EAM/DMS/BI 校正为 ✅、
+> 多租户校正为 ⚠️，证据见下方「代码证据」）；Flutter / HarmonyOS 为前端页面工作量统计
+> （可观测性、迁移回滚 2 行标注 N/A），未纳入后端 doc-stats 校验。
+
+### 代码证据（2026-08-16 校正）
+
+本次完成度校正依据（文件存在性可由 `bash scripts/doc-stats.sh` 与 `find` 佐证）：
+
+| 模块 | 校正 | 代码证据 |
+|------|------|----------|
+| 质量管理 | 🔴 → ✅ | `app/controller/quality/`（5 控制器）+ `app/service/quality/QmsInspectionService.php` + `tests/QualityModuleTest.php` |
+| BI 看板 | 🔴 → ✅ | `app/controller/bi/`（3 控制器：Dashboard/Dataset/Widget）+ `tests/BiModuleTest.php` |
+| 设备管理 EAM | 🔴 → ✅ | `app/controller/eam/`（4 控制器）+ `tests/EamModuleTest.php` |
+| 文档管理 DMS | 🔴 → ✅ | `app/controller/dms/`（2 控制器）+ `tests/DmsModuleTest.php` |
+| 多租户 | 🔴 → ⚠️ | `app/middleware/TenantScope.php` + `app/model/concerns/TenantScope.php` + `tests/Integration/TenantScopeIntegrationTest.php`（已知缺陷：静态租户 ID 未随模型传播，故为骨架而非完成） |
 
 > 详细路线图设计规范: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`
