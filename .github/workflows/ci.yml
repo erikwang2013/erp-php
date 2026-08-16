@@ -332,8 +332,13 @@ jobs:
         # SCOUT_DRIVER=null：CI 不安装 ES 客户端包（composer 未引入 elasticsearch/elasticsearch），
         # 而登录路径会 save 用户模型触发 Searchable trait 同步 —— 默认 elasticsearch 驱动下
         # EngineManager 直接抛异常致登录 500。E2E 不测搜索，切 null 驱动（webman-scout 文档化禁用开关）。
+        # DB_PASSWORD 置空：Generate random secrets 会把 .env.example 的 CHANGE_ME_ 口令替换为
+        # 随机 hex，而 CI MySQL 是 MYSQL_ALLOW_EMPTY_PASSWORD（root 空口令）—— 不置空则
+        # webman 带随机密码连接必 Access denied（health 仍 200，db=unavailable，登录 500）。
+        # 开发环境 env_secret 允许空口令（env_is_production() 门控），此改动仅影响 E2E 场景。
         run: |
           sed -i 's/^SCOUT_DRIVER=elasticsearch/SCOUT_DRIVER=null/' .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=/' .env
           php start.php start -d
 
       - name: Wait for health check
