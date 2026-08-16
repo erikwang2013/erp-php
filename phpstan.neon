@@ -7,6 +7,8 @@ parameters:
     - app
   excludePaths:
     - app/view/*
+    # webman-scout 安装时自动生成的任务类样例（引用未安装的 Webman\RedisQueue\Consumer）
+    - app/queue/redis/search/*
   universalObjectCratesClasses:
     - support\Request
     - support\Response

@@ -500,11 +500,11 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 业务服务 | 29 <!-- stats:services=29 --> |
 | API 路由 | 198（动态生成，见 `scripts/check-endpoints.php`，不参与 doc-stats 校验）|
 | 中间件 | 12 <!-- stats:middleware=12 --> |
-| PHP 源文件 | 340 <!-- stats:php_files=340 --> |
+| PHP 源文件 | 343 <!-- stats:php_files=343 --> |
 | SQL 迁移文件 | 29 <!-- stats:migrations=29 --> |
 | 前端页面 (Flutter) | 7（前端统计，未纳入 doc-stats 校验）|
 | 前端页面 (HarmonyOS) | 4（前端统计，未纳入 doc-stats 校验）|
-| 单元测试 | 38 个测试文件 <!-- stats:test_files=38 --> / 396 个测试方法 <!-- stats:tests=396 --> / 2116 条断言 <!-- stats:assertions=2116 --> |
+| 单元测试 | 38 个测试文件 <!-- stats:test_files=38 --> / 396 个测试方法 <!-- stats:tests=396 --> / 2119 条断言 <!-- stats:assertions=2119 --> |
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。

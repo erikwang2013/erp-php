@@ -47,7 +47,8 @@
   },
   "autoload": {
     "psr-4": {
-      "": "./",
+      "support\\": "./support",
+      "tests\\": "./tests",
       "app\\": "./app",
       "App\\": "./app",
       "app\\View\\Components\\": "./app/view/components"
