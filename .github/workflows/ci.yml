@@ -63,7 +63,12 @@ jobs:
         run: composer audit --no-dev
 
       - name: PHP Syntax Check
-        run: find app -name '*.php' -exec php -l {} \; | grep -v 'No syntax errors'
+        # 注意：不能写成 `find ... | grep -v ...`（全部通过时 grep 无输出 → exit 1，
+        # GitHub Actions 默认 pipefail 下步骤会误报失败）。if 判定：有错误行 → 失败。
+        run: |
+          if find app -name '*.php' -exec php -l {} \; 2>&1 | grep -v 'No syntax errors'; then
+            exit 1
+          fi
 
       - name: Create .env from example
         run: cp .env.example .env
@@ -131,7 +136,16 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        # 曾在 CI 连续失败（本地成功）；失败输出经 ::error:: 写入
+        # check-run annotations（API 匿名可读）便于定位。
+        run: |
+          out="$(flutter pub get 2>&1)"
+          code=$?
+          printf '%s\n' "$out"
+          if [ $code -ne 0 ]; then
+            echo "::error::$(printf '%s' "$out" | tail -25 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            exit $code
+          fi
 
       - name: Flutter Static Analysis
         run: flutter analyze
@@ -179,21 +193,17 @@ jobs:
       - name: Docs stats check
         # 单元测试无需 MySQL/Redis：集成用例在缺少 TEST_DB_* / TEST_REDIS_* 时
         # 会 markTestSkipped 优雅跳过，跳过用例仍计入 tests 总数，不影响比对。
-        # 调试说明：失败时把完整输出上传为 artifact（doc-stats-log），
-        # 用于定位 CI/本地环境差异（本地 18/18 通过、CI 确定性红）。
+        # 失败时输出经 ::error:: 写入 check-run annotations（API 匿名可读），
+        # 便于定位 CI/本地环境差异（本地 18/18 通过、CI 曾确定性红）。
         run: |
           mkdir -p runtime
-          bash scripts/doc-stats.sh --check > runtime/doc-stats.log 2>&1
+          out="$(bash scripts/doc-stats.sh --check 2>&1)"
           code=$?
-          cat runtime/doc-stats.log
-          exit $code
-
-      - name: Upload doc-stats log (debug)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: doc-stats-log
-          path: runtime/doc-stats.log
+          printf '%s\n' "$out"
+          if [ $code -ne 0 ]; then
+            echo "::error::$(printf '%s' "$out" | tail -15 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            exit $code
+          fi
 
   # ============================================================
   # E2E 冒烟测试（骨架，默认禁用，不参与结果判定）
