@@ -106,10 +106,12 @@ collect() {
       tests="${BASH_REMATCH[1]}"
       assertions="${BASH_REMATCH[2]}"
     fi
-    # 解析失败时输出 phpunit 尾部供 CI 诊断（--check 模式会随 stdout 进 ::error::）
+    # 解析失败时输出 phpunit 尾部供 CI 诊断。
+    # collect() 的 stdout 被重定向进 $STATS_FILE，故走 stderr ——
+    # ci.yml 的 `2>&1` 捕获会把它带进 ::error:: 注解。
     if [[ -z "$tests" || -z "$assertions" ]]; then
-      echo "!! phpunit 输出无法解析（尾部 20 行如下）:"
-      printf '%s\n' "$out" | tail -20
+      echo "!! phpunit 输出无法解析（尾部 20 行如下）:" >&2
+      printf '%s\n' "$out" | tail -20 >&2
     fi
   fi
   if [[ -z "$tests" && -f .phpunit.result.cache ]]; then

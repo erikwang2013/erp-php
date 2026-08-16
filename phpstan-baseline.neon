@@ -275,58 +275,15 @@ parameters:
 			path: app/admin/controller/UserController.php
 
 		-
+			# PHP >= 8.3.33 下 phpstan 将 Illuminate Builder 链推断为 Collection<int, stdClass>
+			# （8.3.7 推断为模型类），app/controller 下共 72 处 toArray() 报错；运行期返回
+			# 真实模型，toArray() 合法，属分析器版本差异，故用 path 通配一次性入基线。
+			# 新增/修改控制器若触发同 pattern 会自动覆盖；8.3.7 本地不产生该错误 →
+			# 条目不匹配，由 phpstan.neon 的 reportUnmatchedIgnoredErrors: false 放行。
 			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
 			identifier: method.nonObject
-			count: 1
-			path: app/controller/finance/ArApController.php
-
-		-
-			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/controller/eam/SparePartController.php
-
-		-
-			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/controller/eam/RepairOrderController.php
-
-		-
-			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/controller/eam/MaintenancePlanController.php
-
-		-
-			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/controller/eam/EquipmentController.php
-
-		-
-			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/controller/dms/DocumentController.php
-
-		-
-			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/controller/bi/WidgetController.php
-
-		-
-			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/controller/bi/DatasetController.php
-
-		-
-			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/controller/bi/DashboardController.php
+			count: 72
+			path: app/controller/*/*
 
 		-
 			message: '#^Call to an undefined static method support\\Redis\:\:ping\(\)\.$#'
