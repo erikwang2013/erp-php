@@ -66,6 +66,7 @@ import 'app/pages/finance/bank_account_page.dart';
 import 'app/pages/finance/exchange_rate_page.dart';
 import 'app/pages/finance/budget_page.dart';
 import 'app/pages/finance/cost_profit_page.dart';
+import 'app/pages/finance/subsidiary_ledger_page.dart';
 
 // CRM
 import 'app/pages/crm/opportunity_list_page.dart';
@@ -75,6 +76,8 @@ import 'app/pages/crm/contract_list_page.dart';
 import 'app/pages/crm/quotation_list_page.dart';
 import 'app/pages/crm/campaign_list_page.dart';
 import 'app/pages/crm/ticket_list_page.dart';
+import 'app/pages/crm/follow_list_page.dart';
+import 'app/pages/crm/funnel_list_page.dart';
 import 'app/pages/crm/analytics_page.dart';
 
 // OMS
@@ -120,6 +123,7 @@ import 'app/pages/hr/position_page.dart';
 import 'app/pages/hr/attendance_page.dart';
 import 'app/pages/hr/leave_page.dart';
 import 'app/pages/hr/salary_page.dart';
+import 'app/pages/hr/salary_item_page.dart';
 
 // 项目管理
 import 'app/pages/project/project_list_page.dart';
@@ -196,6 +200,7 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/finance/exchange-rate': () => const ExchangeRatePage(),
   '/finance/budget': () => const BudgetPage(),
   '/finance/cost-profit': () => const CostProfitPage(),
+  '/finance/subsidiary-ledger': () => const SubsidiaryLedgerPage(),
   // CRM
   '/crm/opportunity': () => const OpportunityListPage(),
   '/crm/contact': () => const ContactListPage(),
@@ -204,6 +209,8 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/crm/quotation': () => const CrmQuotationListPage(),
   '/crm/campaign': () => const CampaignListPage(),
   '/crm/ticket': () => const TicketListPage(),
+  '/crm/follow': () => const FollowListPage(),
+  '/crm/funnel': () => const FunnelListPage(),
   '/crm/analytics': () => const CrmAnalyticsPage(),
   // OMS
   '/oms/order': () => const OmsOrderListPage(),
@@ -243,6 +250,7 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/hr/attendance': () => const AttendancePage(),
   '/hr/leave': () => const LeavePage(),
   '/hr/salary': () => const SalaryPage(),
+  '/hr/salary-item': () => const SalaryItemPage(),
   // 项目管理
   '/project/list': () => const ProjectListPage(),
   '/project/task': () => const ProjectTaskListPage(),
@@ -282,36 +290,40 @@ class AdminApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: '开放管理后台',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      // 国际化（最小可行）：中英双语，默认中文。
-      // 与后端 app/common/I18n.php 的键名风格对齐（login.* / nav.* / common.*），
-      // locale 暂固定中文，后续可接系统语言或用户偏好（见 AppL10n.setLocale）。
-      locale: AppL10n.locale,
-      supportedLocales: AppL10n.supportedLocales,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        AppLocalizations.delegate,
-      ],
-      builder: (context, child) => ResponsiveBreakpoints.builder(
-        child: child!,
-        breakpoints: [
-          const Breakpoint(start: 0, end: 767, name: PHONE),
-          const Breakpoint(start: 768, end: 1199, name: TABLET),
-          const Breakpoint(start: 1200, end: 4500, name: DESKTOP),
+    // 监听 AppL10n.setLocale 以支持运行时切换语言（en/zh）。
+    return ValueListenableBuilder<Locale>(
+      valueListenable: AppL10n.localeNotifier,
+      builder: (context, locale, _) => GetMaterialApp(
+        title: '开放管理后台',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        // 国际化（最小可行）：中英双语，默认中文。
+        // 与后端 app/common/I18n.php 的键名风格对齐（login.* / nav.* / common.*），
+        // locale 可运行时切换（AppL10n.setLocale），后续可接系统语言或用户偏好。
+        locale: locale,
+        supportedLocales: AppL10n.supportedLocales,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          AppLocalizations.delegate,
         ],
+        builder: (context, child) => ResponsiveBreakpoints.builder(
+          child: child!,
+          breakpoints: [
+            const Breakpoint(start: 0, end: 767, name: PHONE),
+            const Breakpoint(start: 768, end: 1199, name: TABLET),
+            const Breakpoint(start: 1200, end: 4500, name: DESKTOP),
+          ],
+        ),
+        getPages: [
+          GetPage(name: '/login', page: () => const LoginPage()),
+          GetPage(name: '/profile', page: () => const ProfilePage()),
+          ..._menuRoutes,
+        ],
+        initialRoute: '/login',
       ),
-      getPages: [
-        GetPage(name: '/login', page: () => const LoginPage()),
-        GetPage(name: '/profile', page: () => const ProfilePage()),
-        ..._menuRoutes,
-      ],
-      initialRoute: '/login',
     );
   }
 }

@@ -70,6 +70,7 @@ const List<MenuItem> menuConfig = [
     MenuItem(label: '现金日记账', icon: Icons.book, route: '/finance/cash-journal'),
     MenuItem(label: '费用报销', icon: Icons.receipt_long, route: '/finance/expense'),
     MenuItem(label: '总账/明细账', icon: Icons.menu_book, route: '/finance/ledger'),
+    MenuItem(label: '明细分类账', icon: Icons.receipt_long, route: '/finance/subsidiary-ledger'),
     MenuItem(label: '财务报表', icon: Icons.assessment, route: '/finance/report'),
     MenuItem(label: '固定资产', icon: Icons.account_balance_wallet, route: '/finance/asset'),
     MenuItem(label: '税务管理', icon: Icons.gavel, route: '/finance/tax'),
@@ -87,6 +88,8 @@ const List<MenuItem> menuConfig = [
     MenuItem(label: '报价单', icon: Icons.request_quote, route: '/crm/quotation'),
     MenuItem(label: '营销活动', icon: Icons.campaign, route: '/crm/campaign'),
     MenuItem(label: '服务工单', icon: Icons.support_agent, route: '/crm/ticket'),
+    MenuItem(label: '跟进记录', icon: Icons.follow_the_signs, route: '/crm/follow'),
+    MenuItem(label: '销售漏斗', icon: Icons.filter_alt, route: '/crm/funnel'),
     MenuItem(label: '客户分析', icon: Icons.analytics, route: '/crm/analytics'),
   ]),
   MenuItem(label: '订单管理', icon: Icons.shopping_bag, children: [
@@ -132,6 +135,7 @@ const List<MenuItem> menuConfig = [
     MenuItem(label: '考勤管理', icon: Icons.access_time, route: '/hr/attendance'),
     MenuItem(label: '请假管理', icon: Icons.event_busy, route: '/hr/leave'),
     MenuItem(label: '薪资管理', icon: Icons.monetization_on, route: '/hr/salary'),
+    MenuItem(label: '薪资项配置', icon: Icons.settings_applications, route: '/hr/salary-item'),
   ]),
   MenuItem(label: '项目管理', icon: Icons.task_alt, children: [
     MenuItem(label: '项目列表', icon: Icons.folder, route: '/project/list'),
