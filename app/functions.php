@@ -142,3 +142,7 @@ function jwt_instance(): \Erikwang2013\Jwt\JWT
 
     return $jwt;
 }
+
+// poster-php 配置挂载：PosterConfig 默认只读包内 vendor config（driver 硬编码 auto），
+// 项目 config/poster.php 需在此显式加载才生效（生产与测试共用此引导路径）。
+\Erikwang2013\Poster\PosterConfig::load(dirname(__DIR__) . '/config/poster.php');

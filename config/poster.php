@@ -15,7 +15,11 @@ return [
     // ── 图像处理驱动 ──
     'image' => [
         // 驱动类型: auto=自动检测 | gd | imagick
-        'driver' => getenv('POSTER_IMAGE_DRIVER') ?: 'auto',
+        // 默认 gd：poster-php 的 ImagickDriver 在 verify 路径存在
+        // "Typed property $resource must not be accessed before initialization" bug
+        // （PHP 8.4 + imagick 扩展时 CaptchaTest 全挂）；gd 为全环境一致路径
+        // （CI 扩展列表显式含 gd）。部署侧仍可用 POSTER_IMAGE_DRIVER=imagick 覆盖。
+        'driver' => getenv('POSTER_IMAGE_DRIVER') ?: 'gd',
         // JPEG 输出质量 0-100
         'quality' => (int)(getenv('POSTER_IMAGE_QUALITY') ?: 90),
         // 默认字体路径，null=使用包自带字体
