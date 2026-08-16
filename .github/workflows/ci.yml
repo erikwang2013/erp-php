@@ -259,7 +259,7 @@ jobs:
   # 用途: 走通健康检查/登录/JWT/RBAC/CRUD/刷新令牌 10 条链路
   # 运行: php tests/E2E/smoke.php [--base-url=...] [--list]
   #       需要服务已启动（php start.php start -d）且数据库有测试账号。
-  # 数据库初始化: install.sql 全量种子 + 手工 INSERT 测试账号（admin/admin123）
+  # 数据库初始化: e2e 最小种子（database/e2e-seed.sql）+ 手工 INSERT 测试账号（admin/admin123）
   #   并绑定 super_admin 角色（role_id=10000000000000001，见 install.sql 种子）。
   # 参数名约定: 已核对 UserController::show/update/destroy 形参为 string $id，
   #   与 webman resource 路由生成的 {id} 匹配，无需适配（早期注释里的
@@ -312,12 +312,14 @@ jobs:
       - name: Generate random secrets for placeholder check
         run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 32)/g" .env
 
-      - name: Initialize database (install.sql + test account)
-        # 全量种子（含 super_admin 角色 id=10000000000000001 与全部权限绑定），
-        # 再插入 E2E 测试账号并绑定角色。bcrypt 哈希在 CI 运行时生成，
-        # 避免仓库内提交固定哈希。user 表主键为 snowflake 手写 id（无自增）。
+      - name: Initialize database (e2e minimal seed + test account)
+        # 最小种子 database/e2e-seed.sql：5 张核心表（user/role/permission/user_role/role_permission）
+        # + migration 000001 全部权限 + super_admin 角色 + 权限全绑定。
+        # 不用全量 install.sql：其历史 seed 含跨 migration 重复权限 ID（000009/000023 段冲突）
+        # 与 NULL 违反 NOT NULL 的缺陷，无法在 MySQL 8.0 完整导入（已知债务，见 e2e-seed.sql 头注释）。
+        # 测试账号 bcrypt 哈希在 CI 运行时生成，避免仓库内提交固定哈希。
         run: |
-          mysql -h 127.0.0.1 -u root open_admin < database/install.sql
+          mysql -h 127.0.0.1 -u root open_admin < database/e2e-seed.sql
           HASH=$(php -r "echo password_hash('admin123', PASSWORD_BCRYPT);")
           mysql -h 127.0.0.1 -u root open_admin -e "
             INSERT INTO erik_admin_user (id, username, password, real_name, status)

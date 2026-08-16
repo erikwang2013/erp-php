@@ -1,3 +1,76 @@
+
+-- ============================================================
+-- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+-- E2E 冒烟测试最小种子（CI e2e job 专用）
+-- 仅建核心权限表 + 权限种子 + super_admin 角色绑定，
+-- 不含 163 张业务表（install.sql 全量种子含历史 NULL/重复 ID 缺陷，
+-- 全量安装文件修复见 docs 已知问题，不在 E2E 范围）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erik_admin_user` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `username` VARCHAR(50) NOT NULL COMMENT '用户名',
+    `password` VARCHAR(255) NOT NULL COMMENT '密码（bcrypt哈希）',
+    `real_name` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '真实姓名',
+    `avatar` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '头像URL',
+    `email` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '邮箱（加密存储）',
+    `phone` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '手机号（加密存储）',
+    `id_card` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '身份证号（加密存储）',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `last_login_at` DATETIME DEFAULT NULL COMMENT '最后登录时间',
+    `last_login_ip` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '最后登录IP',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_username` (`username`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`),
+    KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理用户表';
+
+CREATE TABLE IF NOT EXISTS `erik_admin_role` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `name` VARCHAR(50) NOT NULL COMMENT '角色名称',
+    `slug` VARCHAR(50) NOT NULL COMMENT '角色标识，用于权限判断',
+    `description` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '角色描述',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_slug` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色表';
+
+CREATE TABLE IF NOT EXISTS `erik_admin_permission` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '父级权限ID，0表示顶级',
+    `name` VARCHAR(50) NOT NULL COMMENT '权限名称',
+    `slug` VARCHAR(100) NOT NULL COMMENT '权限标识，格式: 模块.操作（如 user.create）',
+    `type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '类型: 1=菜单 2=按钮 3=API接口',
+    `icon` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '菜单图标（仅type=1时使用）',
+    `path` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '前端路由路径（仅type=1时使用）',
+    `sort` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序值，越小越靠前',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_parent_id` (`parent_id`),
+    KEY `idx_sort` (`sort`),
+    KEY `idx_type` (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='权限表';
+
+CREATE TABLE IF NOT EXISTS `erik_admin_user_role` (
+    `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    `role_id` BIGINT UNSIGNED NOT NULL COMMENT '角色ID',
+    PRIMARY KEY (`user_id`, `role_id`),
+    KEY `idx_role_id` (`role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户角色关联表';
+
+CREATE TABLE IF NOT EXISTS `erik_admin_role_permission` (
+    `role_id` BIGINT UNSIGNED NOT NULL COMMENT '角色ID',
+    `permission_id` BIGINT UNSIGNED NOT NULL COMMENT '权限ID',
+    PRIMARY KEY (`role_id`, `permission_id`),
+    KEY `idx_permission_id` (`permission_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色权限关联表';
+
 -- ============================================================
 -- 权限种子数据
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
@@ -83,6 +156,20 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 
 -- ============================================================
 -- 超级管理员角色 (ID=10000000000000001) 关联所有权限
+-- ============================================================
+INSERT INTO `erik_admin_role_permission` (`role_id`, `permission_id`)
+SELECT 10000000000000001, `id` FROM `erik_admin_permission`
+WHERE `id` NOT IN (
+    SELECT `permission_id` FROM `erik_admin_role_permission` WHERE `role_id` = 10000000000000001
+);
+
+-- ============================================================
+INSERT INTO `erik_admin_role` (`id`, `name`, `slug`, `description`, `status`) VALUES
+(10000000000000001, '超级管理员', 'super_admin', '系统超级管理员，拥有所有权限', 1);
+
+-- ============================================================
+
+-- 超级管理员角色关联所有权限
 -- ============================================================
 INSERT INTO `erik_admin_role_permission` (`role_id`, `permission_id`)
 SELECT 10000000000000001, `id` FROM `erik_admin_permission`
