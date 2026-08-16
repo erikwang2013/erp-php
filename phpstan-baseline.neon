@@ -4524,7 +4524,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$code\.$#'
 			identifier: property.notFound
-			count: 1
 			path: app/service/manufacturing/ManufacturingService.php
 
 		-
@@ -4542,19 +4541,16 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$name\.$#'
 			identifier: property.notFound
-			count: 1
 			path: app/service/manufacturing/ManufacturingService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$product_id\.$#'
 			identifier: property.notFound
-			count: 1
 			path: app/service/manufacturing/ManufacturingService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$status\.$#'
 			identifier: property.notFound
-			count: 1
 			path: app/service/manufacturing/ManufacturingService.php
 
 		-
@@ -5984,3 +5980,44 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 2
 			path: app/service/wms/WmsOutboundService.php
+
+		-
+			# MfgBom 属性访问：8.3.7 下 phpstan 报告 1 次、8.3.33+ 下 2 次（推断差异），
+			# count 精确匹配在补丁版本间双向不兼容，故本条及上方 $code/$name/$product_id/$status
+			# 不设 count —— 忽略该 pattern 任意次数；8.3.7 下 0 次由
+			# phpstan.neon reportUnmatchedIgnoredErrors: false 放行。
+			message: '#^Access to an undefined property app\\model\\MfgBom\:\:\$items\.$#'
+			identifier: property.notFound
+			path: app/service/manufacturing/ManufacturingService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/AbstractCrudService.php
+
+		-
+			message: '#^Strict comparison using !== between bool\|string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/middleware/AdminAuth.php
+
+		-
+			message: '#^Static method support\\Redis\:\:eval\(\) invoked with 8 parameters, 2-4 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: app/middleware/RateLimit.php
+
+		-
+			message: '#^Strict comparison using !== between string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/process/QueueConsumer.php
+
+		-
+			# ReportTemplate 动态属性：8.3.33+ 下 phpstan 报告 6 处（8.3.7 不报），
+			# 8.3.7 下 0 次由 reportUnmatchedIgnoredErrors: false 放行。
+			message: '#^Access to an undefined property app\\model\\ReportTemplate\:\:.*\.$#'
+			identifier: property.notFound
+			count: 6
+			path: app/controller/report/ReportController.php
