@@ -106,11 +106,18 @@ jobs:
         # pcov.* 为 PHP_INI_SYSTEM，只能经 -d 在进程启动时设置；
         # pcov.directory 指向仓库根，报告范围由 phpunit.xml 的 <source> 过滤。
         # 若改用 xdebug：删除 -d 参数并设 env: XDEBUG_MODE: coverage。
+        # 注意：pcov 驱动缺失时 phpunit 会打印 "No code coverage driver available"
+        # 并以 exit 0 结束且不写 clover.xml（曾致 gate 报"找不到 clover.xml" exit 2
+        # 难归因）—— 下面显式检查 clover 是否生成，缺失即红并注解。
         run: |
           mkdir -p runtime/coverage
           php -d pcov.enabled=1 -d pcov.directory="$PWD" vendor/bin/phpunit \
             --coverage-clover runtime/coverage/clover.xml \
             --coverage-html runtime/coverage/html
+          if [ ! -s runtime/coverage/clover.xml ]; then
+            echo "::error::coverage 未生成 clover.xml（pcov 驱动缺失？）—— 检查 Setup PHP 步骤"
+            exit 1
+          fi
         env:
           XDEBUG_MODE: coverage
 
@@ -119,11 +126,22 @@ jobs:
         # 目标门槛：整体 ≥30%，业务层 ≥40%（见 docs/superpowers/plans/2026-08-07-next-phase-plan.md P1-B4），
         # 随测试补充逐步收紧——每轮合入前将阈值上调至略低于实测值，直至达到目标，防止覆盖率回退。
         # 注：当前实测 4.78%/10.61%（新增测试多为校验/契约类，对 controller 成功路径覆盖有限，属正常起步值）。
-        run: php scripts/check-coverage.php \
-          --clover=runtime/coverage/clover.xml \
-          --threshold=4 \
-          --business-dir=service \
-          --business-threshold=10
+        # 失败时输出经 ::error:: 写入 check-run annotations（API 匿名可读）便于定位
+        # （"找不到 clover.xml" 需回头查上一步 Coverage Collection）。
+        run: |
+          set +e
+          out="$(php scripts/check-coverage.php \
+            --clover=runtime/coverage/clover.xml \
+            --threshold=4 \
+            --business-dir=service \
+            --business-threshold=10 2>&1)"
+          code=$?
+          set -e
+          printf '%s\n' "$out"
+          if [ $code -ne 0 ]; then
+            echo "::error::$(printf '%s' "$out" | tail -15 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            exit $code
+          fi
 
   # ============================================================
   # Flutter 前端 CI（E1）
