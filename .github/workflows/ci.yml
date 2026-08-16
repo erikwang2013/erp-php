@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['8.2', '8.3', '8.4']
+        # 项目要求 PHP 8.3+（CLAUDE.md）；phpunit ^12.5 亦要求 PHP >= 8.3，
+        # 8.2 无法安装 dev 依赖，故矩阵从 8.3 起
+        php: ['8.3', '8.4']
     services:
       redis:
         image: redis:7-alpine
