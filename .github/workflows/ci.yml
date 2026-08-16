@@ -66,6 +66,10 @@ jobs:
       - name: Create .env from example
         run: cp .env.example .env
 
+      # C1 强校验拒绝 CHANGE_ME_ 占位值启动，CI 需模拟真实部署生成随机密钥
+      - name: Generate random secrets for placeholder check
+        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 32)/g" .env
+
       - name: PHPStan Static Analysis
         run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
 
@@ -167,6 +171,9 @@ jobs:
       - name: Create .env from example
         run: cp .env.example .env
 
+      - name: Generate random secrets for placeholder check
+        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 32)/g" .env
+
       - name: Docs stats check
         # 单元测试无需 MySQL/Redis：集成用例在缺少 TEST_DB_* / TEST_REDIS_* 时
         # 会 markTestSkipped 优雅跳过，跳过用例仍计入 tests 总数，不影响比对。
@@ -188,7 +195,7 @@ jobs:
   # 若仅临时观察：去掉 if: false 并保留 continue-on-error: true。
   # 本地验证命令（与本 job 等价）:
   #   php start.php start -d
-  #   E2E_USER=admin E2E_PASS=xxx php tests/E2E/smoke.php --base-url=http://127.0.0.1:8787
+  #   E2E_USER=admin E2E_PASS=xxx php tests/E2E/smoke.php --base-url=http://127.0.0.1:8788
   # ============================================================
   e2e:
     name: E2E Smoke — HTTP 核心链路
@@ -250,7 +257,7 @@ jobs:
           echo "service not healthy"; exit 1
 
       - name: Run E2E smoke
-        run: php tests/E2E/smoke.php --base-url=http://127.0.0.1:8787
+        run: php tests/E2E/smoke.php --base-url=http://127.0.0.1:8788
         env:
           E2E_USER: admin
           E2E_PASS: admin123 # TODO: 与预置测试账号一致
