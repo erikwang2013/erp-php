@@ -254,28 +254,25 @@ jobs:
           fi
 
   # ============================================================
-  # E2E 冒烟测试（骨架，默认禁用，不参与结果判定）
+  # E2E 冒烟测试：真实 HTTP 走通核心链路
   # ------------------------------------------------------------
-  # 用途: 真实 HTTP 走通核心链路（健康检查/登录/JWT/RBAC/CRUD/刷新令牌）
+  # 用途: 走通健康检查/登录/JWT/RBAC/CRUD/刷新令牌 10 条链路
   # 运行: php tests/E2E/smoke.php [--base-url=...] [--list]
   #       需要服务已启动（php start.php start -d）且数据库有测试账号。
-  # 启用条件（三选一满足后把 if: false 改为 if: true 或删除该行）:
-  #   1. 服务启动方式稳定（MySQL/Redis 依赖 + install.sql 种子 + 测试账号）
-  #   2. 或 DB 已有可登录的 admin 角色账号（E2E_USER/E2E_PASS 环境变量注入）
-  #   3. 或确认 E2E 链路 6/7/8 路由参数名约定已修复
-  #      （webman resource 路由生成 {id}，UserController 用 $hashid 参数名
-  #        会导致 GET/PUT/DELETE /admin/user/{id} 返回 400，需先修复或
-  #        让 smoke.php 按实际约定适配后再启用）
-  # 若仅临时观察：去掉 if: false 并保留 continue-on-error: true。
+  # 数据库初始化: install.sql 全量种子 + 手工 INSERT 测试账号（admin/admin123）
+  #   并绑定 super_admin 角色（role_id=10000000000000001，见 install.sql 种子）。
+  # 参数名约定: 已核对 UserController::show/update/destroy 形参为 string $id，
+  #   与 webman resource 路由生成的 {id} 匹配，无需适配（早期注释里的
+  #   $hashid 顾虑已过时）。id 经 encodeIds/decodeId 做 hashid 往返，链路自洽。
+  # 端口: config/process.php 监听 8788，smoke 与健康检查均用 8788。
   # 本地验证命令（与本 job 等价）:
+  #   mysql -h 127.0.0.1 -u root open_admin < database/install.sql
   #   php start.php start -d
-  #   E2E_USER=admin E2E_PASS=xxx php tests/E2E/smoke.php --base-url=http://127.0.0.1:8788
+  #   E2E_USER=admin E2E_PASS=admin123 php tests/E2E/smoke.php --base-url=http://127.0.0.1:8788
   # ============================================================
   e2e:
     name: E2E Smoke — HTTP 核心链路
     runs-on: ubuntu-latest
-    if: false # 待服务启动方式稳定后启用（见上方注释）
-    continue-on-error: true # 双保险：即使启用也不阻断主 CI 结果
     services:
       redis:
         image: redis:7-alpine
@@ -300,7 +297,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis
+          # 与 php job 保持同一扩展集（bcmath/gmp 供 Hashids 依赖，缺任一即失败）
+          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis, bcmath, gmp
           tools: composer:v2
 
       - name: Install dependencies
@@ -309,21 +307,32 @@ jobs:
       - name: Create .env from example
         run: cp .env.example .env
 
+      # C1 强校验拒绝 CHANGE_ME_ 占位值启动，CI 需模拟真实部署生成随机密钥
+      # （与 php job 的 sed 做法一致，避免为每个 CHANGE_ME_ 单独写一条替换）
+      - name: Generate random secrets for placeholder check
+        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 32)/g" .env
+
       - name: Initialize database (install.sql + test account)
-        # TODO: 启用前需补齐以下步骤（当前仅骨架占位）:
-        #   mysql -h 127.0.0.1 -u root open_admin < database/install.sql
-        #   INSERT 测试账号并绑定 super_admin 角色（role_id 见种子数据）
-        #   通过 env 注入 JWT_SECRET_KEY 等强随机密钥（.env.example 为占位值会拒绝启动）
-        run: echo "E2E 数据库初始化步骤待补齐（见 job 注释）"
+        # 全量种子（含 super_admin 角色 id=10000000000000001 与全部权限绑定），
+        # 再插入 E2E 测试账号并绑定角色。bcrypt 哈希在 CI 运行时生成，
+        # 避免仓库内提交固定哈希。user 表主键为 snowflake 手写 id（无自增）。
+        run: |
+          mysql -h 127.0.0.1 -u root open_admin < database/install.sql
+          HASH=$(php -r "echo password_hash('admin123', PASSWORD_BCRYPT);")
+          mysql -h 127.0.0.1 -u root open_admin -e "
+            INSERT INTO erik_admin_user (id, username, password, real_name, status)
+            VALUES (90000000000000001, 'admin', '$HASH', 'E2E Admin', 1);
+            INSERT INTO erik_admin_user_role (user_id, role_id)
+            VALUES (90000000000000001, 10000000000000001);"
 
       - name: Start webman service
-        # 若 8787 被占用可临时改 config/process.php 的 listen 端口
+        # 端口与 config/process.php 的 listen（8788）保持一致
         run: php start.php start -d
 
       - name: Wait for health check
         run: |
           for i in $(seq 1 30); do
-            if curl -sf http://127.0.0.1:8787/health > /dev/null 2>&1; then
+            if curl -sf http://127.0.0.1:8788/health > /dev/null 2>&1; then
               echo "health OK"; exit 0
             fi
             sleep 1
@@ -334,4 +343,4 @@ jobs:
         run: php tests/E2E/smoke.php --base-url=http://127.0.0.1:8788
         env:
           E2E_USER: admin
-          E2E_PASS: admin123 # TODO: 与预置测试账号一致
+          E2E_PASS: admin123 # 与 Initialize database 步骤插入的测试账号一致
