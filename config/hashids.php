@@ -36,13 +36,13 @@ return [
     'connections' => [
 
         'main' => [
-            'salt' => '',
+            'salt' => env_required('HASHIDS_SALT'),
             'length' => 0,
             // 'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
         ],
 
         'alternative' => [
-            'salt' => 'your-salt-string',
+            'salt' => env_required('HASHIDS_ALT_SALT'),
             'length' => 0,
             // 'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
         ],
