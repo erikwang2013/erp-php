@@ -147,7 +147,7 @@ jobs:
   # Flutter 前端 CI（E1）
   # ------------------------------------------------------------
   # 独立于 PHP job，互不影响。步骤：安装 Flutter stable → pub get →
-  # analyze → test → build web（在 apps/flutter/ 目录运行）。
+  # analyze → test（打包步骤已按需求取消：推送后不再构建 web 产物）。
   # 说明：当前以 continue-on-error: true 接入（不阻断主 CI），
   # 待 GitHub Actions 环境装 Flutter / 构建耗时稳定后，移除该行收紧为硬性检查。
   flutter:
@@ -195,10 +195,6 @@ jobs:
 
       - name: Flutter Tests
         run: flutter test
-
-      - name: Flutter Build Web (release)
-        # --no-tree-shake-icons 跳过图标 tree-shaking，显著缩短构建耗时
-        run: flutter build web --release --no-tree-shake-icons
 
   # ============================================================
   # 文档校验（D5）：统计数字与代码事实一致性
