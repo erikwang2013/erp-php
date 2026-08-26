@@ -204,7 +204,7 @@ jobs:
   # 文档校验（D5）：统计数字与代码事实一致性
   # ------------------------------------------------------------
   # 运行 scripts/doc-stats.sh --check：
-  #   1) 实时采集代码统计（控制器/服务/模型/迁移/中间件/表/模块/测试数等）；
+  #   1) 实时采集代码统计（控制器/服务/模型/中间件/表/模块/测试数等）；
   #   2) 扫描 docs/**/*.md 中 <!-- stats:key=value --> 注释标注并逐键比对；
   #   3) 文档数字与代码事实漂移即红（文档数据治理 D2/D3/D4/D5）。
   # 注意：doc-stats 需要 phpunit 输出（vendor/bin/phpunit --no-coverage），
@@ -314,7 +314,7 @@ jobs:
 
       - name: Initialize database (e2e minimal seed + test account)
         # 最小种子 database/e2e-seed.sql：5 张核心表（user/role/permission/user_role/role_permission）
-        # + migration 000001 全部权限 + super_admin 角色 + 权限全绑定。
+        # + 内置权限种子 + super_admin 角色 + 权限全绑定。
         # 仅因导入快、隔离性好而用最小种子；全量 database/install.sql 已可完整导入
         # （163 张表 + 全部种子，跨 migration 重复权限 ID 与 NULL 缺陷已于 2026-08-26 修复）。
         # 测试账号 bcrypt 哈希在 CI 运行时生成，避免仓库内提交固定哈希。
@@ -356,3 +356,27 @@ jobs:
         env:
           E2E_USER: admin
           E2E_PASS: admin123 # 与 Initialize database 步骤插入的测试账号一致
+
+  # ============================================================
+  # 版本增量发布（推送规则）
+  # ------------------------------------------------------------
+  # push 到 main 且 php/docs/e2e 全部通过后，按最新 tag patch+1 创建
+  # 新版本 tag（v1.1.4 → v1.1.5）并推送。PR 不触发（if 限定 push）。
+  # tag push 不匹配 on.push.branches: [main]，不会递归触发本 workflow。
+  # 远端已存在同名 tag（并发 CI / 手动已打）时脚本自动跳过，幂等。
+  # 本地预览：bash scripts/bump-version.sh --check
+  # ============================================================
+  release:
+    name: Release — 版本增量 tag
+    runs-on: ubuntu-latest
+    needs: [php, docs, e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 浅克隆不带历史 tag，必须全量拉取才能读到最新版本
+          fetch-depth: 0
+      - name: Create version tag
+        run: bash scripts/bump-version.sh --create
