@@ -16,6 +16,7 @@ use app\model\InventoryFlow;
 use app\model\InventorySerial;
 use app\model\OmsInventoryReservation;
 use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\QueryException;
 
 class InventoryService
 {
@@ -85,6 +86,25 @@ class InventoryService
                 $inv->location_id = $locationId;
                 $inv->batch_code = $batchCode;
                 $inv->quantity = 0;
+                try {
+                    // 并发首单竞态：两事务首次入库同一 (product_id, sku_id, warehouse_id, location_id, batch_code)
+                    // 时都查不到行，均走创建路径；由唯一索引 uk_product_sku_warehouse_location_batch 兜底，
+                    // 后到事务在此抛 1062 唯一键冲突
+                    $inv->save();
+                } catch (QueryException $e) {
+                    if (!$this->isDuplicateKey($e)) {
+                        throw $e;
+                    }
+                    // 另一事务已抢先创建该行：重读既有行（行锁串行化后一事务），
+                    // 落入下方统一的累加 + 均价重算路径，避免重复行或均价错乱
+                    $inv = Inventory::where([
+                        'product_id' => $productId,
+                        'sku_id' => $skuId,
+                        'warehouse_id' => $warehouseId,
+                        'location_id' => $locationId,
+                        'batch_code' => $batchCode,
+                    ])->lockForUpdate()->firstOrFail();
+                }
             }
             $inv->quantity += $quantity;
 
@@ -182,6 +202,14 @@ class InventoryService
     }
 
     /**
+     * MySQL 唯一键冲突(1062)判定：仅 1062 走重读重算，其余异常原样抛出
+     */
+    private function isDuplicateKey(QueryException $e): bool
+    {
+        return ($e->errorInfo[1] ?? 0) === 1062;
+    }
+
+    /**
      * 移动加权平均成本计算
      */
     private function recalcMovingAverageCost(
@@ -194,8 +222,8 @@ class InventoryService
     ): float {
         // 按SKU聚合全部库存行的数量与成本，避免跨仓加权成本串算
         // 悲观行锁：锁住该 SKU 全部库存行，串行化聚合读与批量成本更新，防止并发入库丢失更新
-        // ponytail: SKU 尚无任何库存行（首次入库）时锁不到行，两个并发首单可能各算各的均价；
-        // 需要完全串行时引入 SKU 级锁（如 Redis 分布式锁或库存汇总行）。
+        // 首次入库无行可锁的竞态由唯一索引 uk_product_sku_warehouse_location_batch 兜底：
+        // 后到事务在 stockIn 创建路径捕获 1062 后重读既有行再重算（见 stockIn）。
         $rows = Inventory::where('product_id', $productId)
             ->where('sku_id', $skuId)
             ->lockForUpdate()

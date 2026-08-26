@@ -14,8 +14,12 @@
 - **生产**：`RedisQueue::push(ClassName::class, 'consume', $data)` 执行 `LPUSH`。
 - **消费**：`config/process.php` 中 `redis-queue` 进程（count=1），`onWorkerStart` 后每
   **0.5 秒**轮询 `LPOP` 排空队列，按消息体 `{class, method, data}` 白名单分发到任务类。
-- **失败处理**：单条消息失败不中断消费循环，自动重试（attempts+1 重新入队，最多 3 次），
+- **失败处理**：单条消息失败不中断消费循环，自动重试（attempts+1，最多 3 次），
   超限进入死信队列 `erp:queue:failed` 并写错误日志。
+- **指数退避**：重试不立即执行，而是写入延迟集（zset，键 `erp:queue:{queue}:delay`）延迟入队，
+  第 n 次重试延迟 `min(RETRY_BASE_DELAY * 2^(n-1), RETRY_MAX_DELAY)` 秒
+  （`app/process/QueueConsumer.php` 常量：base=5s、cap=120s，实际 3 次上限下为 5s/10s），
+  到期后由消费进程提升回主队列，避免失败消息风暴式重试。
 - **消息体约定与官方 `webman/redis-queue` 的作业格式一致**（`class` / `method` / `data`），
   便于将来无痛迁移。
 

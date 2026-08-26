@@ -504,7 +504,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | SQL 迁移文件 | 29 <!-- stats:migrations=30 --> |
 | 前端页面 (Flutter) | 7（前端统计，未纳入 doc-stats 校验）|
 | 前端页面 (HarmonyOS) | 4（前端统计，未纳入 doc-stats 校验）|
-| 单元测试 | 49 个测试文件 <!-- stats:test_files=49 --> / 408 个测试方法 / 2243 条断言（tests/assertions 随 PHP 补丁版本与扩展浮动，不参与 stats 精确校验）|
+| 单元测试 | 50 个测试文件 <!-- stats:test_files=50 --> / 442 个测试用例 / 2263 条断言（tests/assertions 随 PHP 补丁版本与扩展浮动，不参与 stats 精确校验）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。

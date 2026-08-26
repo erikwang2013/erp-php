@@ -22,6 +22,9 @@ use Workerman\Worker;
  * 本进程使用 Workerman 原生 Timer + Redis LIST（LPUSH/LPOP）实现最小队列消费：
  *  - 进程启动（onWorkerStart）时扫描 consumer_dir 下的任务类并注册 0.5 秒定时器，
  *    周期性排空 Redis 队列；
+ *  - 失败重试采用延迟入队（zset 延迟集，键 {queue}:delay）：第 n 次重试延迟
+ *    min(RETRY_BASE_DELAY * 2^(n-1), RETRY_MAX_DELAY) 秒，到期后提升回主队列；
+ *  - 最多重试 MAX_ATTEMPTS 次，超限进入死信队列 erp:queue:failed；
  *  - 消息体格式见 app/queue/RedisQueue.php，与 webman/redis-queue 的
  *    {class, method, data} 约定一致，便于将来替换为官方扩展时平滑迁移；
  *  - 只允许消费 consumer_dir 下扫描到的任务类，防止队列消息触发任意类调用。
@@ -40,6 +43,15 @@ class QueueConsumer
 
     /** 死信队列键（失败消息兜底，人工排查后可重投） */
     private const FAILED_QUEUE_KEY = 'erp:queue:failed';
+
+    /** 指数退避基础延迟（秒）：第 n 次重试延迟 = min(BASE * 2^(n-1), MAX) */
+    private const RETRY_BASE_DELAY = 5;
+
+    /** 指数退避最大延迟上限（秒），防止高重试次数时延迟无限增长 */
+    private const RETRY_MAX_DELAY = 120;
+
+    /** 延迟队列键后缀（延迟集为 zset：score=到期时间戳，member=消息体 JSON） */
+    private const DELAY_KEY_SUFFIX = ':delay';
 
     /** 消费任务目录（由 config/process.php 的 constructor 注入） */
     private string $consumerDir;
@@ -105,6 +117,8 @@ class QueueConsumer
     private function consumeOnce(): void
     {
         try {
+            // 先把已到期的延迟消息提升回主队列，再排空主队列
+            $this->promoteDueDelayed();
             $key = RedisQueue::key($this->queue);
 
             while (($raw = $this->popMessage($key)) !== null) {
@@ -151,9 +165,7 @@ class QueueConsumer
     }
 
     /**
-     * 失败重试：attempts 未超限则携带 attempts+1 重新入队，否则推入死信队列
-     * ponytail: 重试立即回到队尾、无延迟退避，靠 MAX_ATTEMPTS 封顶；
-     * 需要指数退避时改为 zset 延迟队列 + 到期扫描进程。
+     * 失败重试：attempts 未超限则按指数退避延迟入队，否则推入死信队列
      */
     private function retryOrFail(array $job, string $raw, Throwable $e): void
     {
@@ -164,8 +176,9 @@ class QueueConsumer
             $job['attempts'] = $attempts;
             $requeued = json_encode($job, JSON_UNESCAPED_UNICODE);
             if ($requeued !== false) {
-                $this->requeue(RedisQueue::key($this->queue), $requeued);
-                Log::warning("redis-queue: 任务执行失败，第{$attempts}次重试入队 {$failed}");
+                $delay = $this->retryDelay($attempts);
+                $this->requeueDelayed($this->delayKey(), $requeued, $delay);
+                Log::warning("redis-queue: 任务执行失败，第{$attempts}次重试（{$delay}s 后）入队 {$failed}");
 
                 return;
             }
@@ -189,11 +202,43 @@ class QueueConsumer
     }
 
     /**
-     * 重新入队（回队尾）
+     * 指数退避延迟（秒）：第 $attempts 次尝试的延迟 = min(BASE * 2^(attempts-1), MAX)
+     * 当前 MAX_ATTEMPTS=3 时实际只会用到 5s/10s，上限为将来提高重试次数预留
      */
-    protected function requeue(string $key, string $raw): void
+    private function retryDelay(int $attempts): int
     {
-        Redis::rPush($key, $raw);
+        return min(self::RETRY_BASE_DELAY * (2 ** ($attempts - 1)), self::RETRY_MAX_DELAY);
+    }
+
+    /**
+     * 延迟队列键（zset：score=到期时间戳，member=消息体 JSON）
+     */
+    private function delayKey(): string
+    {
+        return RedisQueue::KEY_PREFIX . $this->queue . self::DELAY_KEY_SUFFIX;
+    }
+
+    /**
+     * 把到期（score <= 当前时间戳）的延迟消息从 zset 提升回主队列
+     * 注：消费进程 count=1 单进程扫描，无并发竞争；zRem 命中才入队，防止重复提升
+     */
+    protected function promoteDueDelayed(): void
+    {
+        $delayKey = $this->delayKey();
+        $due = Redis::zRangeByScore($delayKey, 0, time());
+        foreach ($due as $raw) {
+            if ((int)Redis::zRem($delayKey, $raw) > 0) {
+                Redis::rPush(RedisQueue::key($this->queue), (string)$raw);
+            }
+        }
+    }
+
+    /**
+     * 延迟入队：写入延迟 zset（score=当前时间+延迟秒数），到期后由 promoteDueDelayed 提升回主队列
+     */
+    protected function requeueDelayed(string $delayKey, string $raw, int $delay): void
+    {
+        Redis::zAdd($delayKey, time() + $delay, $raw);
     }
 
     /**
