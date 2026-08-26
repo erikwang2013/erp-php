@@ -162,8 +162,9 @@ class DocsController
         ];
     }
 
-    private function path(string $summary, string $method, array $notes = [], ?string $responseRef = null, ?array $params = null): array
+    private function path(string $summary, string $method, ?array $notes = [], ?string $responseRef = null, ?array $params = null): array
     {
+        $notes = $notes ?? [];
         $methods = explode('|', strtoupper($method));
         $path = [];
 

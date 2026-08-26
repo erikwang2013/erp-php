@@ -31,25 +31,29 @@ class UserListPage extends GetView<UserController> {
               label: const Text('新增用户'),
             ),
             const SizedBox(width: 8),
-            if (ctrl.selectedIds.isNotEmpty) ...[
-              ElevatedButton.icon(
-                onPressed: () => _confirmBatchDelete(context, ctrl),
-                icon: const Icon(Icons.delete, color: Colors.red),
-                label: Text('删除(${ctrl.selectedIds.length})'),
-                style: ElevatedButton.styleFrom(foregroundColor: Colors.red),
-              ),
-              const SizedBox(width: 8),
-              PopupMenuButton<String>(
-                onSelected: (v) {
-                  if (v == 'enable') ctrl.batchSetStatus(1);
-                  if (v == 'disable') ctrl.batchSetStatus(0);
-                },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'enable', child: Text('批量启用')),
-                  PopupMenuItem(value: 'disable', child: Text('批量禁用')),
-                ],
-              ),
-            ],
+            // selectedIds 是响应式的，批量操作按钮需包裹在 Obx 中，否则勾选后不会出现
+            Obx(() {
+              if (ctrl.selectedIds.isEmpty) return const SizedBox.shrink();
+              return Row(mainAxisSize: MainAxisSize.min, children: [
+                ElevatedButton.icon(
+                  onPressed: () => _confirmBatchDelete(context, ctrl),
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  label: Text('删除(${ctrl.selectedIds.length})'),
+                  style: ElevatedButton.styleFrom(foregroundColor: Colors.red),
+                ),
+                const SizedBox(width: 8),
+                PopupMenuButton<String>(
+                  onSelected: (v) {
+                    if (v == 'enable') ctrl.batchSetStatus(1);
+                    if (v == 'disable') ctrl.batchSetStatus(0);
+                  },
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(value: 'enable', child: Text('批量启用')),
+                    PopupMenuItem(value: 'disable', child: Text('批量禁用')),
+                  ],
+                ),
+              ]);
+            }),
           ],
         ),
         const SizedBox(height: 12),

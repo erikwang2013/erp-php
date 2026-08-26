@@ -11,6 +11,7 @@ namespace app\admin\controller;
 
 use app\model\AdminPermission;
 use support\Request;
+use support\Response;
 
 class PermissionController extends BaseController
 {
