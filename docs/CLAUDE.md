@@ -2,6 +2,8 @@
 
 基于 webman v2 + Flutter 的全栈管理后台系统。
 
+![章鱼吉祥物](mascot.svg)
+
 ## 版权声明
 
 ```
@@ -25,7 +27,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + 多租户 + DMS + 7新表 | ✅ |
 
-**测试**: 442 tests, 2238 assertions（26 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: 513 tests, 2368 assertions（32 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 
