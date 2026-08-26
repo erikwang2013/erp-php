@@ -379,4 +379,20 @@ jobs:
           # 浅克隆不带历史 tag，必须全量拉取才能读到最新版本
           fetch-depth: 0
       - name: Create version tag
-        run: bash scripts/bump-version.sh --create
+        # CI runner 无 git 身份配置，annotated tag（git tag -a）需要 committer
+        # 身份 —— 缺失时 git 报 "不允许空的姓名" 并以 exit 128 失败（曾致
+        # release job 仅显示 "Process completed with exit code 128" 难归因），
+        # 故先设置 github-actions bot 身份再执行。
+        # 失败时输出经 ::error:: 写入 check-run annotations 便于定位。
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          set +e
+          out="$(bash scripts/bump-version.sh --create 2>&1)"
+          code=$?
+          set -e
+          printf '%s\n' "$out"
+          if [ $code -ne 0 ]; then
+            echo "::error::$(printf '%s' "$out" | tail -15 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            exit $code
+          fi
