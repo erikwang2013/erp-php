@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * 集成测试专用模型：映射真实业务表 erik_product（结构见
- * database/migrations/2026_05_22_000003_product_base_tables.sql）。
+ * database/install.sql）。
  *
  * 不使用 app\model\Product 的原因：
  * 1. Product 挂载 Searchable（webman-scout），保存时会触发索引观察器，

@@ -50,7 +50,7 @@ class BiModuleTest extends TestCase
     public function testWidgetLayoutDefaults(): void
     {
         // 迁移定义：type 默认 table、width 默认 4、height 默认 3
-        $source = file_get_contents(__DIR__ . '/../database/migrations/2026_08_04_000025_p3_tables.sql');
+        $source = file_get_contents(__DIR__ . '/../database/install.sql');
         $this->assertStringContainsString("`type` VARCHAR(50) NOT NULL DEFAULT 'table'", $source);
         $this->assertStringContainsString('`width` INT NOT NULL DEFAULT 4', $source);
         $this->assertStringContainsString('`height` INT NOT NULL DEFAULT 3', $source);

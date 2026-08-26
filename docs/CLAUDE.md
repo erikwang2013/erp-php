@@ -164,10 +164,8 @@ open-erp/
 │   ├── translation.php          # 语言配置
 │   └── plugin/hg/apidoc/        # API 文档配置（管理端25模块+客户端3模块）
 ├── database/
-│   ├── install.sql              # 完整安装SQL（163张表 + 种子数据）
-│   ├── migrations/             # SQL 迁移文件 (29 个)
-│   │   ├── 2026_05_16_000000_init_tables.sql
-│   │   └── ... (共 29 个迁移文件，已合并入 install.sql)
+│   ├── install.sql              # 完整安装SQL（163张表 + 种子数据，全部迁移已并入）
+│   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
 │       └── restore.sh          # 交互式恢复

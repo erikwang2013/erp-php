@@ -219,7 +219,7 @@ class DatabaseIntegrationTest extends IntegrationTestCase
     {
         if (!Capsule::schema()->hasTable(self::REAL_PRODUCT_TABLE)) {
             self::markTestSkipped(
-                '测试库中不存在 erik_product 表，请先执行 database/migrations 下的迁移'
+                '测试库中不存在 erik_product 表，请先执行 database/install.sql'
                 . '（CI 中 mysql service 已预建 open_admin 库）'
             );
         }

@@ -135,7 +135,7 @@ open-erp/
 │   ├── plugin/hg/apidoc/        # API doc configuration
 ├── database/
 │   ├── install.sql              # Complete install SQL (163 tables + seed data)
-│   ├── migrations/              # SQL migration files (29 files, merged into install.sql)
+│   ├── e2e-seed.sql             # E2E/CI minimal seed
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
 ├── tests/                      # PHPUnit tests (20 test files, 137 test methods, 805 assertions)
@@ -231,7 +231,7 @@ Start the server and visit `http://localhost:8787/install`. Follow the 4-step wi
 mysql -u root -p database_name < database/install.sql
 ```
 
-`install.sql` is a merged file of 29 migrations, containing all 163 table structures and seed data.
+`install.sql` is the single install script (all migrations merged), containing all 163 table structures and seed data.
 
 **Option 3: Docker Environment**
 

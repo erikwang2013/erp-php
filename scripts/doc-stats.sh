@@ -64,11 +64,6 @@ collect() {
   v="$(find app/model -name '*.php' -type f ! -path '*/concerns/*' 2>/dev/null | wc -l | tr -d ' ')"
   echo "models=${v:-0}"
 
-  # ---- 迁移 ----
-  # 正向迁移数：回滚（*rollback*）文件不计入
-  v="$(find database/migrations -maxdepth 1 -name '*.sql' -type f ! -name '*rollback*' 2>/dev/null | wc -l | tr -d ' ')"
-  echo "migrations=${v:-0}"
-
   # ---- 中间件 ----
   v="$(find app/middleware -maxdepth 1 -name '*.php' -type f 2>/dev/null | wc -l | tr -d ' ')"
   echo "middleware=${v:-0}"

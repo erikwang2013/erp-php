@@ -38,7 +38,7 @@ class WorkflowModuleTest extends TestCase
         $this->assertStringContainsString('$instance->status !== 0', $source, '仅审批中状态可操作');
 
         // 迁移注释契约
-        $migration = file_get_contents(__DIR__ . '/../database/migrations/2026_05_22_000014_approval_workflow_tables.sql');
+        $migration = file_get_contents(__DIR__ . '/../database/install.sql');
         $this->assertStringContainsString('0审批中1已通过2已驳回3已撤回', $migration);
     }
 
@@ -182,7 +182,7 @@ class WorkflowModuleTest extends TestCase
         $source = file_get_contents(__DIR__ . '/../app/controller/workflow/ApprovalController.php');
         $this->assertStringContainsString('该单据已提交审批', $source);
 
-        $migration = file_get_contents(__DIR__ . '/../database/migrations/2026_05_22_000014_approval_workflow_tables.sql');
+        $migration = file_get_contents(__DIR__ . '/../database/install.sql');
         $this->assertStringContainsString('uk_target', $migration, 'target_type+target_id 应唯一');
     }
 

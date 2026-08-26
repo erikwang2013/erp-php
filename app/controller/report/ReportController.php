@@ -424,12 +424,8 @@ class ReportController extends BaseController
         $groupBy = $queryConfig['group_by'] ?? null;
 
         // Whitelist allowed table names (prevent SQL injection via config)
-        $allowedTables = [];
-        foreach (glob(base_path('database/migrations/*.sql')) as $f) {
-            preg_match_all('/`(erik_\w+)`/', file_get_contents($f), $m);
-            $allowedTables = array_merge($allowedTables, $m[1]);
-        }
-        $allowedTables = array_unique($allowedTables);
+        preg_match_all('/`(erik_\w+)`/', file_get_contents(base_path('database/install.sql')), $m);
+        $allowedTables = array_unique($m[1]);
 
         if (!in_array($table, $allowedTables, true)) {
             return $this->fail('不允许的表名: ' . $table, 422);

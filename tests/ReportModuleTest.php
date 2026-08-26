@@ -178,13 +178,9 @@ class ReportModuleTest extends TestCase
 
     public function testTableWhitelistBuiltFromMigrations(): void
     {
-        // execute() 白名单：glob 迁移 SQL 提取 `erik_\w+` 表名
-        $allowed = [];
-        foreach (glob(base_path('database/migrations/*.sql')) as $f) {
-            preg_match_all('/`(erik_\w+)`/', file_get_contents($f), $m);
-            $allowed = array_merge($allowed, $m[1]);
-        }
-        $allowed = array_unique($allowed);
+        // execute() 白名单：从 install.sql 提取 `erik_\w+` 表名
+        preg_match_all('/`(erik_\w+)`/', file_get_contents(base_path('database/install.sql')), $m);
+        $allowed = array_unique($m[1]);
         foreach (['erik_sales_order', 'erik_eam_equipment', 'erik_bi_dashboard', 'erik_approval_instance', 'erik_report_template'] as $t) {
             $this->assertContains($t, $allowed, "表 {$t} 应出现在白名单");
         }

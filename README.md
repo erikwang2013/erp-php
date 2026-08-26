@@ -130,7 +130,7 @@ open-erp/
 │   ├── plugin/hg/apidoc/        # API 文档配置
 ├── database/
 │   ├── install.sql              # 完整安装SQL（163张表 + 种子数据）
-│   ├── migrations/              # SQL 迁移文件（29 个，已合并入 install.sql）
+│   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
 ├── tests/                      # PHPUnit 测试（20 个测试文件，137 个测试方法，805 条断言）
