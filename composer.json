@@ -52,7 +52,10 @@
       "app\\": "./app",
       "App\\": "./app",
       "app\\View\\Components\\": "./app/view/components"
-    }
+    },
+    "files": [
+      "app/functions.php"
+    ]
   },
   "scripts": {
     "post-package-install": [
