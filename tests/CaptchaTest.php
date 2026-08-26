@@ -8,9 +8,17 @@ declare(strict_types=1);
 
 namespace tests;
 
+use Erikwang2013\Poster\PosterConfig;
+use Erikwang2013\Poster\Storage\StorageFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * 契约对齐 erikwang2013/poster-php v1.2.3：
+ * 目标坐标属服务端秘密，generate() 的 extra 仅返回 texts（order+text），
+ * 前端提交点击坐标后由服务端比对（README: "目标坐标不返回，仅服务端校验"）。
+ * verify 用例从存储读回真实坐标构造点击序列。
+ */
 class CaptchaTest extends TestCase
 {
     protected function setUp(): void
@@ -21,6 +29,15 @@ class CaptchaTest extends TestCase
         }
     }
 
+    private function storedTargets(string $key): array
+    {
+        $storage = StorageFactory::create(PosterConfig::get('captcha.storage'));
+        $stored = $storage->get($key);
+        $this->assertIsArray($stored, '存储中应存在该验证码数据');
+        $this->assertArrayHasKey('targets', $stored);
+        return $stored['targets'];
+    }
+
     #[Test]
     public function captcha_generate_returns_valid_structure(): void
     {
@@ -29,11 +46,11 @@ class CaptchaTest extends TestCase
         $this->assertArrayHasKey('key', $result, '应包含 key');
         $this->assertArrayHasKey('image', $result, '应包含 image');
         $this->assertArrayHasKey('extra', $result, '应包含 extra');
-        $this->assertArrayHasKey('targets', $result['extra'], 'extra 应包含 targets');
+        $this->assertArrayHasKey('texts', $result['extra'], 'extra 应包含 texts');
 
         $this->assertNotEmpty($result['key']);
         $this->assertNotEmpty($result['image']);
-        $this->assertCount(3, $result['extra']['targets'], 'medium 难度应有 3 个目标');
+        $this->assertCount(3, $result['extra']['texts'], 'medium 难度应有 3 个提示文字');
     }
 
     #[Test]
@@ -41,13 +58,9 @@ class CaptchaTest extends TestCase
     {
         $result = captcha_create('click', ['difficulty' => 'easy']);
 
-        foreach ($result['extra']['targets'] as $target) {
-            $this->assertArrayHasKey('x', $target);
-            $this->assertArrayHasKey('y', $target);
+        foreach ($result['extra']['texts'] as $target) {
             $this->assertArrayHasKey('text', $target);
             $this->assertArrayHasKey('order', $target);
-            $this->assertIsInt($target['x']);
-            $this->assertIsInt($target['y']);
             $this->assertIsString($target['text']);
             $this->assertIsInt($target['order']);
         }
@@ -60,18 +73,18 @@ class CaptchaTest extends TestCase
         $medium = captcha_create('click', ['difficulty' => 'medium']);
         $hard = captcha_create('click', ['difficulty' => 'hard']);
 
-        $this->assertCount(2, $easy['extra']['targets'], 'easy 应为 2 个目标');
-        $this->assertCount(3, $medium['extra']['targets'], 'medium 应为 3 个目标');
-        $this->assertCount(4, $hard['extra']['targets'], 'hard 应为 4 个目标');
+        $this->assertCount(2, $easy['extra']['texts'], 'easy 应为 2 个目标');
+        $this->assertCount(3, $medium['extra']['texts'], 'medium 应为 3 个目标');
+        $this->assertCount(4, $hard['extra']['texts'], 'hard 应为 4 个目标');
     }
 
     #[Test]
     public function captcha_verify_correct_clicks_passes(): void
     {
         $result = captcha_create('click', ['difficulty' => 'easy']);
-        $targets = $result['extra']['targets'];
 
-        // captcha_verify 内部期望 [x, y] 格式
+        // 坐标不随响应返回，从服务端存储读回真实目标坐标
+        $targets = $this->storedTargets($result['key']);
         $clicks = array_map(fn ($t) => [$t['x'], $t['y']], $targets);
         $valid = captcha_verify($result['key'], 'click', $clicks);
 
@@ -94,12 +107,16 @@ class CaptchaTest extends TestCase
     public function captcha_key_has_limited_attempts(): void
     {
         $result = captcha_create('click', ['difficulty' => 'easy']);
-        $targets = $result['extra']['targets'];
+        $targets = $this->storedTargets($result['key']);
         $clicks = array_map(fn ($t) => [$t['x'], $t['y']], $targets);
 
         // 第一次验证通过
         $first = captcha_verify($result['key'], 'click', $clicks);
         $this->assertTrue($first);
+
+        // 验证通过后 key 即作废，二次验证应失败
+        $second = captcha_verify($result['key'], 'click', $clicks);
+        $this->assertFalse($second, '验证通过后 key 应被销毁');
     }
 
     #[Test]

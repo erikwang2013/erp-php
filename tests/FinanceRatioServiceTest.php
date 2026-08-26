@@ -25,4 +25,15 @@ class FinanceRatioServiceTest extends TestCase
         $this->assertEquals('12.5%', $r['net_profit_margin']);
         $this->assertEquals('10%', $r['return_on_assets']);
     }
+
+    public function testZeroInputsDoNotDivideByZero(): void
+    {
+        $svc = new FinancialRatioService();
+        $r = $svc->calculate([], []);
+        // 分母缺省兜底（?? 1 与 max(_,1)）：空输入不得产生除零/NaN/Inf
+        $this->assertSame(0.0, $r['current_ratio']);
+        $this->assertSame('0%', $r['debt_ratio']);
+        $this->assertSame('0%', $r['net_profit_margin']);
+        $this->assertSame('0%', $r['return_on_assets']);
+    }
 }

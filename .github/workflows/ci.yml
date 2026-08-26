@@ -84,6 +84,11 @@ jobs:
       - name: PHP CS Fixer (dry-run)
         run: vendor/bin/php-cs-fixer fix --dry-run --diff
 
+      # 遗留#2：集成测试由 TEST_DB_* 驱动（tests/Integration/IntegrationTestCase.php），
+      # 缺表会连接成功但查询失败 —— 先导入全量 install.sql（163 张表 + 全部种子）再跑。
+      - name: Initialize database (full seed for integration tests)
+        run: mysql -h 127.0.0.1 -u root open_admin < database/install.sql
+
       - name: PHPUnit Tests
         # --no-coverage：普通测试步骤不做覆盖率采集（phpunit.xml 已配置报告输出，
         # 不关闭的话每轮都会重复采集+生成 HTML），覆盖率由下方专门步骤负责。
@@ -100,6 +105,12 @@ jobs:
             echo "::error::$(printf '%s' "$out" | tail -35 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
             exit $code
           fi
+        # 遗留#2：与 e2e job 的 mysql/redis 服务一致，跑起集成测试（缺则 markTestSkipped 跳过）
+        env:
+          TEST_DB_DATABASE: open_admin
+          TEST_DB_USERNAME: root
+          TEST_DB_PASSWORD: ""
+          TEST_REDIS_HOST: 127.0.0.1
 
       - name: PHPUnit Coverage Collection (pcov)
         # 采集驱动：CI 已通过 setup-php coverage: pcov 安装 pcov。
@@ -120,6 +131,11 @@ jobs:
           fi
         env:
           XDEBUG_MODE: coverage
+          # 与 PHPUnit Tests 步骤一致，覆盖率采集同样纳入集成测试
+          TEST_DB_DATABASE: open_admin
+          TEST_DB_USERNAME: root
+          TEST_DB_PASSWORD: ""
+          TEST_REDIS_HOST: 127.0.0.1
 
       - name: Coverage Threshold Gate
         # 渐进门槛（当前基线）：整体 ≥4%，业务层 app/service ≥10%，不达标即红。
@@ -255,7 +271,7 @@ jobs:
   # 用途: 走通健康检查/登录/JWT/RBAC/CRUD/刷新令牌 10 条链路
   # 运行: php tests/E2E/smoke.php [--base-url=...] [--list]
   #       需要服务已启动（php start.php start -d）且数据库有测试账号。
-  # 数据库初始化: e2e 最小种子（database/e2e-seed.sql）+ 手工 INSERT 测试账号（admin/admin123）
+  # 数据库初始化: 全量种子 database/install.sql（163 张表）+ 手工 INSERT 测试账号（admin/admin123）
   #   并绑定 super_admin 角色（role_id=10000000000000001，见 install.sql 种子）。
   # 参数名约定: 已核对 UserController::show/update/destroy 形参为 string $id，
   #   与 webman resource 路由生成的 {id} 匹配，无需适配（早期注释里的
@@ -308,14 +324,14 @@ jobs:
       - name: Generate random secrets for placeholder check
         run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 32)/g" .env
 
-      - name: Initialize database (e2e minimal seed + test account)
-        # 最小种子 database/e2e-seed.sql：5 张核心表（user/role/permission/user_role/role_permission）
-        # + 内置权限种子 + super_admin 角色 + 权限全绑定。
-        # 仅因导入快、隔离性好而用最小种子；全量 database/install.sql 已可完整导入
-        # （163 张表 + 全部种子，跨 migration 重复权限 ID 与 NULL 缺陷已于 2026-08-26 修复）。
+      - name: Initialize database (full seed + test account)
+        # 遗留#2：已由最小种子升级为全量 database/install.sql（163 张表 + 全部种子），
+        # 让 api-coverage 全模块遍历真正覆盖（最小种子缺业务表会 SKIP）。
+        # install.sql 可一条 mysql 命令完整导入（跨 migration 重复权限 ID 与
+        # NULL 缺陷已于 2026-08-26 修复，本地验证命令见本 job 头注释）。
         # 测试账号 bcrypt 哈希在 CI 运行时生成，避免仓库内提交固定哈希。
         run: |
-          mysql -h 127.0.0.1 -u root open_admin < database/e2e-seed.sql
+          mysql -h 127.0.0.1 -u root open_admin < database/install.sql
           HASH=$(php -r "echo password_hash('admin123', PASSWORD_BCRYPT);")
           mysql -h 127.0.0.1 -u root open_admin -e "
             INSERT INTO erik_admin_user (id, username, password, real_name, status)
@@ -349,6 +365,14 @@ jobs:
 
       - name: Run E2E smoke
         run: php tests/E2E/smoke.php --base-url=http://127.0.0.1:8788
+        env:
+          E2E_USER: admin
+          E2E_PASS: admin123 # 与 Initialize database 步骤插入的测试账号一致
+
+      - name: Run E2E API coverage
+        # 遗留#2：api-coverage 全模块只读遍历（25 业务模块 + 系统管理，全读操作）。
+        # 已升级全量种子，业务表齐全应全绿；脚本以 FAIL>0 定退出码，SKIP 不失败。
+        run: php tests/E2E/api-coverage.php --base-url=http://127.0.0.1:8788
         env:
           E2E_USER: admin
           E2E_PASS: admin123 # 与 Initialize database 步骤插入的测试账号一致

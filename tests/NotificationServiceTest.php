@@ -32,6 +32,14 @@ class NotificationServiceTest extends TestCase
         $this->assertEquals('通知', $msg['title']);
     }
 
+    public function testMissingVariableStaysAsPlaceholder(): void
+    {
+        $renderer = new TemplateRenderer();
+        // 变量缺失时保留占位符原文而非抛错，避免单点故障阻断整条通知
+        $result = $renderer->render('Hi {name}, order {order_no}', ['name' => 'Zhang']);
+        $this->assertSame('Hi Zhang, order {order_no}', $result);
+    }
+
     public function testEmailChannelWritesOutbox(): void
     {
         $router = new ChannelRouter();
