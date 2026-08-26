@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
+use support\Log;
 use Webman\Http\Request;
 use Webman\Http\Response;
 use Webman\MiddlewareInterface;
@@ -27,7 +28,10 @@ class TrackingSignature implements MiddlewareInterface
     {
         $secret = getenv('TRACKING_WEBHOOK_SECRET') ?: '';
         if ($secret === '') {
-            return $next($request);
+            // fail-closed：secret 未配置时拒绝回调，避免签名校验被跳过
+            Log::warning('TRACKING_WEBHOOK_SECRET 未配置，已拒绝物流轨迹回调（fail-closed）');
+
+            return json(['code' => 503, 'message' => 'Webhook secret not configured', 'data' => []])->withStatus(503);
         }
 
         $timestamp = (int) $request->header('X-Tracking-Timestamp', '0');

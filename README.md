@@ -351,7 +351,7 @@ API-Version: v1
 
 基于 Redis 滑动窗口算法，默认 60 次/分钟/IP/路由。敏感接口更严格：
 - 登录：10 次/分钟
-- 注册：5 次/分钟
+- 注册：5 次/分钟（默认关闭，需 `REGISTRATION_ENABLED=1` 开启）
 
 响应头包含 `X-RateLimit-Limit`、`X-RateLimit-Remaining`、`X-RateLimit-Reset`。超限返回 429 并附带 `Retry-After`。
 
@@ -433,7 +433,7 @@ Authorization: Bearer <token>
 | `POST` | `/api/captcha/generate` | 生成点击验证码 |
 | `POST` | `/api/captcha/verify` | 校验点击验证码 |
 | `POST` | `/api/auth/login` | 登录（需 captcha） |
-| `POST` | `/api/auth/register` | 注册（需 captcha） |
+| `POST` | `/api/auth/register` | 注册（需 captcha，默认关闭需 `REGISTRATION_ENABLED=1`） |
 | `POST` | `/api/auth/refresh` | 刷新令牌 |
 | `GET` | `/metrics` | Prometheus 监控指标 |
 

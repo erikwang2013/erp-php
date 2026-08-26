@@ -14,14 +14,18 @@
 - **生产**：`RedisQueue::push(ClassName::class, 'consume', $data)` 执行 `LPUSH`。
 - **消费**：`config/process.php` 中 `redis-queue` 进程（count=1），`onWorkerStart` 后每
   **0.5 秒**轮询 `LPOP` 排空队列，按消息体 `{class, method, data}` 白名单分发到任务类。
+- **失败处理**：单条消息失败不中断消费循环，自动重试（attempts+1 重新入队，最多 3 次），
+  超限进入死信队列 `erp:queue:failed` 并写错误日志。
 - **消息体约定与官方 `webman/redis-queue` 的作业格式一致**（`class` / `method` / `data`），
   便于将来无痛迁移。
 
 ### 冒烟验证（端到端）
 
 1. 启动服务：`php start.php start -d`，`php start.php status` 应能看到 `redis-queue` 进程；
-2. 投递：`curl http://127.0.0.1:8787/debug/queue-smoke`
-   （TODO 调试路由，联调完成后移除；业务代码改用 `RedisQueue::push(...)`）；
+2. 投递（原调试路由 `/debug/queue-smoke` 已随安全修复移除，改用生产者投递）：
+   ```php
+   app\queue\RedisQueue::push(app\queue\redis\SmokeTask::class, 'consume', ['trigger' => 'smoke']);
+   ```
 3. 观察消费结果：
    - `tail -f runtime/logs/queue-smoke-$(date +%F).log` —— 冒烟任务写入的操作日志；
    - `redis-cli GET erp:queue:smoke:count` —— 消费次数计数器；

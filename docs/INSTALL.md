@@ -68,6 +68,9 @@ REDIS_PASSWORD=
 
 JWT_SECRET=修改为32位以上随机字符串
 APP_KEY=修改为32位随机字符串
+
+# 开放注册开关（默认 0=关闭，接口返回 403；生产建议保持关闭）
+REGISTRATION_ENABLED=0
 ```
 
 ### 4. 安装PHP依赖

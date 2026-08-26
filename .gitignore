@@ -20,3 +20,5 @@ skills-lock.json
 .php-cs-fixer.cache
 *.backup
 *.bak
+# 前端依赖目录（Flutter/HarmonyOS 构建产物与包缓存，不纳入版本库）
+apps/flutter/vendor/

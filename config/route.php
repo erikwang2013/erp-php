@@ -48,11 +48,6 @@ Route::get('/health', [app\admin\controller\HealthController::class, 'index']);
 // Prometheus 指标（无需认证）
 Route::get('/metrics', [app\admin\controller\MetricsController::class, 'index']);
 
-// ============================================================
-// 调试接口（TODO: 队列冒烟联调完成后移除）
-// ============================================================
-Route::get('/debug/queue-smoke', [app\controller\DebugController::class, 'queueSmoke']);
-
 // security.txt — RFC 9116 安全漏洞报告联系人
 Route::get('/.well-known/security.txt', function () {
     return response(<<<'TXT'

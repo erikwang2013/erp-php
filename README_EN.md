@@ -355,7 +355,7 @@ API-Version: v1
 
 Redis sliding-window algorithm, default 60 req/min/IP/route. Stricter limits for auth:
 - Login: 10 req/min
-- Register: 5 req/min
+- Register: 5 req/min (disabled by default, enable via `REGISTRATION_ENABLED=1`)
 
 Responses include `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` headers. 429 responses include `Retry-After`.
 
@@ -437,7 +437,7 @@ Authorization: Bearer <token>
 | `POST` | `/api/captcha/generate` | Generate click captcha |
 | `POST` | `/api/captcha/verify` | Verify click positions |
 | `POST` | `/api/auth/login` | Login (requires captcha) |
-| `POST` | `/api/auth/register` | Register (requires captcha) |
+| `POST` | `/api/auth/register` | Register (requires captcha; disabled by default, enable via `REGISTRATION_ENABLED=1`) |
 | `POST` | `/api/auth/refresh` | Refresh token |
 | `GET` | `/metrics` | Prometheus metrics |
 

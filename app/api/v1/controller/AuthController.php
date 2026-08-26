@@ -133,11 +133,16 @@ class AuthController
     }
 
     /**
-     * 注册（需先通过点击验证码）
+     * 注册（需先通过点击验证码；受 REGISTRATION_ENABLED 配置开关控制，默认关闭）
      * POST /api/auth/register
      */
     public function register(Request $request): Response
     {
+        // 注册开关：REGISTRATION_ENABLED=1 才开放，默认关闭（生产环境建议保持关闭）
+        if (getenv('REGISTRATION_ENABLED') !== '1') {
+            return json(['code' => 403, 'message' => '注册功能未开放', 'data' => []]);
+        }
+
         $validator = validator($request->all(), [
             'username' => 'required|string|min:3|max:50',
             'password' => 'required|string|min:6|max:32',

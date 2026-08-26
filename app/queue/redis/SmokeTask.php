@@ -15,11 +15,11 @@ use support\Redis;
  * 队列冒烟任务
  *
  * 用于验证「投递 → 消费」端到端链路是否可用：
- * - send()   : 生产者，把任务投递到 Redis 队列（调试路由 /debug/queue-smoke 调用）；
+ * - send()   : 生产者，把任务投递到 Redis 队列；
  * - consume(): 消费者，由 redis-queue 消费进程回调，把执行日志写入 runtime/logs/
  *              并累加 Redis 计数器，二者均可用于观察消费是否发生。
  *
- * 业务代码中投递示例（与调试路由等价）：
+ * 业务代码中投递示例：
  *   RedisQueue::push(SmokeTask::class, 'consume', ['trigger' => 'business']);
  */
 class SmokeTask

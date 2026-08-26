@@ -45,7 +45,7 @@ class DoubleEntryService
         return DB::transaction(function () use ($data, $items) {
             $voucher = new FinanceVoucher();
             $voucher->id = SnowflakeService::generate();
-            $voucher->code = $data['code'] ?? ('VCH' . date('YmdHis'));
+            $voucher->code = $data['code'] ?? ('VCH' . SnowflakeService::generate());
             $voucher->voucher_date = $data['voucher_date'] ?? date('Y-m-d');
             $voucher->remark = (string)($data['remark'] ?? $data['name'] ?? '');
             $voucher->status = 0;

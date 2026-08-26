@@ -113,6 +113,7 @@ class ReceiveController extends BaseController
             'warehouse_id' => 'required|string',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required',
+            'items.*.order_item_id' => 'required',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.price' => 'required|numeric|min:0',
         ]);
@@ -125,6 +126,9 @@ class ReceiveController extends BaseController
         if (!$order) {
             return $this->fail('采购订单不存在', 404);
         }
+
+        // 预取订单明细（按 id 索引），供归属校验与超收校验使用
+        $orderItems = PurchaseOrderItem::query()->where('order_id', $orderId)->get()->keyBy('id');
 
         DB::beginTransaction();
         try {
@@ -157,6 +161,29 @@ class ReceiveController extends BaseController
                 $batchCode = $itemData['batch_code'] ?? '';
                 $unit = $itemData['unit'] ?? '';
                 $totalReceiveAmount += $amount;
+
+                // 归属校验：order_item_id 必须属于该采购单
+                if ($orderItemId <= 0 || !isset($orderItems[$orderItemId])) {
+                    throw new \RuntimeException("收货明细 order_item_id 缺失或不属于该采购订单: order_item_id={$orderItemId}");
+                }
+
+                // 超收校验（严格拒绝）：该行累计实收（历史已入库收货单 + 本次）不得超过采购数量
+                // 行锁串行化并发：锁住采购明细行后再做累计校验，防并发两单同时通过
+                $orderItem = PurchaseOrderItem::query()->whereKey($orderItemId)->lockForUpdate()->first();
+                if (!$orderItem) {
+                    throw new \RuntimeException("采购明细不存在: order_item_id={$orderItemId}");
+                }
+                $receivedSoFar = (float) PurchaseReceiveItem::query()->join('erik_purchase_receive', 'erik_purchase_receive.id', '=', 'erik_purchase_receive_item.receive_id')
+                    ->where('erik_purchase_receive.order_id', $orderId)
+                    ->where('erik_purchase_receive.status', 1)
+                    ->where('erik_purchase_receive_item.order_item_id', $orderItemId)
+                    ->sum('erik_purchase_receive_item.quantity');
+                $orderedQty = (float) $orderItem->quantity;
+                if (($receivedSoFar + $quantity) > $orderedQty) {
+                    throw new \RuntimeException(
+                        "超收拒绝: 行{$orderItemId} 采购{$orderedQty}, 累计实收" . round($receivedSoFar + $quantity, 2)
+                    );
+                }
 
                 // 创建收货明细
                 $receiveItem = new PurchaseReceiveItem();
@@ -218,16 +245,12 @@ class ReceiveController extends BaseController
 
     /**
      * 更新采购订单收货状态
-     * 判断该订单所有已入库收货单的总数量，决定订单状态为部分收货或已收货
+     * 逐明细行比较：每行累计实收 ≥ 该行采购数量才算该行完成；
+     * 全部行完成 → 已收货，有任意行完成 → 部分收货（修复跨明细总量比较的误判）。
      */
     private function updateOrderStatus(PurchaseOrder $order, int $receiveId): void
     {
-        // 统计该订单所有已入库的收货单
-        $receivedCount = PurchaseReceive::where('order_id', $order->id)
-            ->where('status', 1)
-            ->count();
-
-        $orderItems = PurchaseOrderItem::where('order_id', $order->id)->get();
+        $orderItems = PurchaseOrderItem::query()->where('order_id', $order->id)->get();
 
         if ($orderItems->isEmpty()) {
             $order->status = 3; // 已收货
@@ -236,17 +259,33 @@ class ReceiveController extends BaseController
             return;
         }
 
-        // 统计所有已收货单的收货明细中本订单明细的累计收货数量
-        $allReceivedItemIds = PurchaseReceive::where('order_id', $order->id)
-            ->where('status', 1)
-            ->pluck('id');
+        // 各订单明细行的累计实收（跨全部已入库收货单）
+        $receivedByItem = PurchaseReceiveItem::query()->join('erik_purchase_receive', 'erik_purchase_receive.id', '=', 'erik_purchase_receive_item.receive_id')
+            ->where('erik_purchase_receive.order_id', $order->id)
+            ->where('erik_purchase_receive.status', 1)
+            ->groupBy('erik_purchase_receive_item.order_item_id')
+            ->selectRaw('erik_purchase_receive_item.order_item_id')
+            ->selectRaw('SUM(erik_purchase_receive_item.quantity) as total_received')
+            ->get()
+            ->pluck('total_received', 'order_item_id');
 
-        $totalOrderedQty = $orderItems->sum('quantity');
-        $totalReceivedQty = PurchaseReceiveItem::whereIn('receive_id', $allReceivedItemIds)->sum('quantity');
+        $allComplete = true;
+        $anyReceived = false;
+        foreach ($orderItems as $item) {
+            $received = (float) ($receivedByItem[$item->id] ?? 0);
+            if ($received <= 0) {
+                $allComplete = false;
+                continue;
+            }
+            $anyReceived = true;
+            if ($received < (float) $item->quantity) {
+                $allComplete = false;
+            }
+        }
 
-        if ($totalReceivedQty >= $totalOrderedQty) {
-            $order->status = 3; // 已收货
-        } elseif ($receivedCount > 0) {
+        if ($allComplete) {
+            $order->status = 3; // 每行实收均达采购量 → 已收货
+        } elseif ($anyReceived) {
             $order->status = 2; // 部分收货
         }
         $order->save();

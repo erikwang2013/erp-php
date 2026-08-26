@@ -12,6 +12,7 @@ use app\model\OmsFulfillment;
 use app\model\OmsOrder;
 use app\model\SalesOrder;
 use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\QueryException;
 
 class OmsOrderService
 {
@@ -48,7 +49,19 @@ class OmsOrderService
         $oms->buyer_message = $options['buyer_message'] ?? '';
         $oms->seller_note = $options['seller_note'] ?? '';
         $oms->priority = $options['priority'] ?? 5;
-        $oms->save();
+
+        try {
+            $oms->save();
+        } catch (QueryException $e) {
+            // 查重与插入之间的并发竞态兜底：erik_oms_order.uk_order_id 唯一索引
+            // （见 2026_08_04_000020_oms_tables.sql）保证并发插入只有一个成功，
+            // 失败方读取已存在记录返回，避免重复创建 OMS 单
+            $existing = OmsOrder::query()->where('order_id', $salesOrderId)->first();
+            if ($existing) {
+                return $existing;
+            }
+            throw $e;
+        }
 
         return $oms;
     }

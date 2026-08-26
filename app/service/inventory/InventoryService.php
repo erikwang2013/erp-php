@@ -193,8 +193,12 @@ class InventoryService
         int $flowId
     ): float {
         // 按SKU聚合全部库存行的数量与成本，避免跨仓加权成本串算
+        // 悲观行锁：锁住该 SKU 全部库存行，串行化聚合读与批量成本更新，防止并发入库丢失更新
+        // ponytail: SKU 尚无任何库存行（首次入库）时锁不到行，两个并发首单可能各算各的均价；
+        // 需要完全串行时引入 SKU 级锁（如 Redis 分布式锁或库存汇总行）。
         $rows = Inventory::where('product_id', $productId)
             ->where('sku_id', $skuId)
+            ->lockForUpdate()
             ->get(['quantity', 'cost_price']);
         $totalQty = 0;
         $totalValue = 0.0;

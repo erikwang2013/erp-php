@@ -277,6 +277,7 @@ POST /api/auth/register
 - **认证**: 无需
 - **请求头**: `API-Version: v1`（必须）
 - **限流**: 5 次/分钟（按 IP + 路径）
+- **开关**: 默认关闭（`REGISTRATION_ENABLED=0`），关闭时返回 403；需在 `.env` 显式开启（`REGISTRATION_ENABLED=1`）
 
 **请求体**:
 ```json
@@ -318,7 +319,7 @@ POST /api/auth/register
 }
 ```
 
-注册成功后直接返回 JWT 令牌，用户状态默认启用（status=1）。
+注册成功后直接返回 JWT 令牌，用户状态默认启用（status=1）。仅当 `REGISTRATION_ENABLED=1` 时该端点可用。
 
 ### 3.7 刷新令牌
 

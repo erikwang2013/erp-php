@@ -113,6 +113,7 @@ class DeliveryController extends BaseController
             'warehouse_id' => 'required|string',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required',
+            'items.*.order_item_id' => 'required',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.price' => 'required|numeric|min:0',
         ]);
@@ -125,6 +126,9 @@ class DeliveryController extends BaseController
         if (!$order) {
             return $this->fail('销售订单不存在', 404);
         }
+
+        // 预取订单明细（按 id 索引），供归属校验与超发校验使用
+        $orderItems = SalesOrderItem::query()->where('order_id', $orderId)->get()->keyBy('id');
 
         DB::beginTransaction();
         try {
@@ -157,6 +161,29 @@ class DeliveryController extends BaseController
                 $batchCode = $itemData['batch_code'] ?? '';
                 $unit = $itemData['unit'] ?? '';
                 $totalDeliveryAmount += $amount;
+
+                // 归属校验：order_item_id 必须属于该销售单
+                if ($orderItemId <= 0 || !isset($orderItems[$orderItemId])) {
+                    throw new \RuntimeException("发货明细 order_item_id 缺失或不属于该销售订单: order_item_id={$orderItemId}");
+                }
+
+                // 超发校验（严格拒绝）：该行累计实发（历史已出库发货单 + 本次）不得超过订购数量
+                // 行锁串行化并发：锁住销售明细行后再做累计校验，防并发两单同时通过
+                $orderItem = SalesOrderItem::query()->whereKey($orderItemId)->lockForUpdate()->first();
+                if (!$orderItem) {
+                    throw new \RuntimeException("销售明细不存在: order_item_id={$orderItemId}");
+                }
+                $deliveredSoFar = (float) SalesDeliveryItem::query()->join('erik_sales_delivery', 'erik_sales_delivery.id', '=', 'erik_sales_delivery_item.delivery_id')
+                    ->where('erik_sales_delivery.order_id', $orderId)
+                    ->where('erik_sales_delivery.status', 1)
+                    ->where('erik_sales_delivery_item.order_item_id', $orderItemId)
+                    ->sum('erik_sales_delivery_item.quantity');
+                $orderedQty = (float) $orderItem->quantity;
+                if (($deliveredSoFar + $quantity) > $orderedQty) {
+                    throw new \RuntimeException(
+                        "超发拒绝: 行{$orderItemId} 订购{$orderedQty}, 累计实发" . round($deliveredSoFar + $quantity, 2)
+                    );
+                }
 
                 // 创建发货明细
                 $deliveryItem = new SalesDeliveryItem();
@@ -217,16 +244,12 @@ class DeliveryController extends BaseController
 
     /**
      * 更新销售订单发货状态
-     * 判断该订单所有已发货发货单的总数量，决定订单状态为部分发货或已发货
+     * 逐明细行比较：每行累计实发 ≥ 该行订购数量才算该行完成；
+     * 全部行完成 → 已发货，有任意行完成 → 部分发货（修复跨明细总量比较的误判）。
      */
     private function updateOrderStatus(SalesOrder $order, int $deliveryId): void
     {
-        // 统计该订单所有已发货的发货单
-        $deliveredCount = SalesDelivery::where('order_id', $order->id)
-            ->where('status', 1)
-            ->count();
-
-        $orderItems = SalesOrderItem::where('order_id', $order->id)->get();
+        $orderItems = SalesOrderItem::query()->where('order_id', $order->id)->get();
 
         if ($orderItems->isEmpty()) {
             $order->status = 3; // 已发货
@@ -235,17 +258,33 @@ class DeliveryController extends BaseController
             return;
         }
 
-        // 统计所有已发货单的发货明细中本订单明细的累计发货数量
-        $allDeliveredIds = SalesDelivery::where('order_id', $order->id)
-            ->where('status', 1)
-            ->pluck('id');
+        // 各订单明细行的累计实发（跨全部已出库发货单）
+        $deliveredByItem = SalesDeliveryItem::query()->join('erik_sales_delivery', 'erik_sales_delivery.id', '=', 'erik_sales_delivery_item.delivery_id')
+            ->where('erik_sales_delivery.order_id', $order->id)
+            ->where('erik_sales_delivery.status', 1)
+            ->groupBy('erik_sales_delivery_item.order_item_id')
+            ->selectRaw('erik_sales_delivery_item.order_item_id')
+            ->selectRaw('SUM(erik_sales_delivery_item.quantity) as total_delivered')
+            ->get()
+            ->pluck('total_delivered', 'order_item_id');
 
-        $totalOrderedQty = $orderItems->sum('quantity');
-        $totalDeliveredQty = SalesDeliveryItem::whereIn('delivery_id', $allDeliveredIds)->sum('quantity');
+        $allComplete = true;
+        $anyDelivered = false;
+        foreach ($orderItems as $item) {
+            $delivered = (float) ($deliveredByItem[$item->id] ?? 0);
+            if ($delivered <= 0) {
+                $allComplete = false;
+                continue;
+            }
+            $anyDelivered = true;
+            if ($delivered < (float) $item->quantity) {
+                $allComplete = false;
+            }
+        }
 
-        if ($totalDeliveredQty >= $totalOrderedQty) {
-            $order->status = 3; // 已发货
-        } elseif ($deliveredCount > 0) {
+        if ($allComplete) {
+            $order->status = 3; // 每行实发均达订购量 → 已发货
+        } elseif ($anyDelivered) {
             $order->status = 2; // 部分发货
         }
         $order->save();

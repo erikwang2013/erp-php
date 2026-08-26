@@ -435,9 +435,27 @@ class ReportController extends BaseController
             return $this->fail('不允许的表名: ' . $table, 422);
         }
 
+        // 校验字段/聚合函数/筛选字段/group_by/join 标识符（白名单，拒绝任何函数/表达式片段）
         if ($template->fields->isNotEmpty()) {
             foreach ($template->fields as $field) {
-                $fieldExpr = '`' . str_replace('`', '``', $field->field) . '`';
+                if (($err = $this->validateIdentifier($field->field, '字段名')) !== null) {
+                    return $this->fail($err, 422);
+                }
+                if ($field->aggregator && $field->aggregator !== 'none'
+                    && ($err = $this->validateIdentifier($field->aggregator, '聚合函数')) !== null) {
+                    return $this->fail($err, 422);
+                }
+            }
+        }
+        foreach ($template->filters as $filter) {
+            if (($err = $this->validateIdentifier($filter->field, '筛选字段')) !== null) {
+                return $this->fail($err, 422);
+            }
+        }
+
+        if ($template->fields->isNotEmpty()) {
+            foreach ($template->fields as $field) {
+                $fieldExpr = $this->quoteColumn($field->field);
                 if ($field->aggregator && $field->aggregator !== 'none') {
                     $fieldExpr = strtoupper($field->aggregator) . '(' . $fieldExpr . ')';
                 }
@@ -449,14 +467,20 @@ class ReportController extends BaseController
 
         $sql = 'SELECT ' . implode(', ', $select) . " FROM {$table}";
 
-        // JOIN
+        // JOIN（on 仅允许 "列 [=|<|>|<=|>=|!=] 列" 形式，列名白名单校验）
         if (!empty($queryConfig['joins'])) {
             foreach ($queryConfig['joins'] as $join) {
-                $joinType = $join['type'] ?? 'LEFT';
-                $joinTable = $join['table'];
-                $joinOn = $join['on'];
+                $joinType = strtoupper((string) ($join['type'] ?? 'LEFT'));
+                $joinTable = (string) ($join['table'] ?? '');
+                $joinOn = (string) ($join['on'] ?? '');
+                if (!in_array($joinType, ['LEFT', 'RIGHT', 'INNER'], true)) {
+                    return $this->fail('不支持的 JOIN 类型: ' . $joinType, 422);
+                }
                 if (!in_array($joinTable, $allowedTables, true)) {
                     return $this->fail('不允许的表名: ' . $joinTable, 422);
+                }
+                if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?\s*(=|<=>|<|>|<=|>=|!=)\s*[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', $joinOn)) {
+                    return $this->fail('JOIN ON 条件非法：仅支持 "列 操作符 列"', 422);
                 }
                 $sql .= " {$joinType} JOIN {$joinTable} ON {$joinOn}";
             }
@@ -472,20 +496,21 @@ class ReportController extends BaseController
                     return $this->fail("筛选条件「{$filter->name}」为必填", 422);
                 }
                 if ($value !== null && $value !== '') {
+                    $filterRef = $this->quoteColumn($filter->field);
                     switch ($filter->filter_type) {
                         case 'text':
-                            $whereClauses[] = "{$filter->field} LIKE ?";
+                            $whereClauses[] = "{$filterRef} LIKE ?";
                             $params[] = "%{$value}%";
                             break;
                         case 'date_range':
                             if (is_array($value) || str_contains($value, ',')) {
                                 $dates = is_array($value) ? $value : explode(',', $value);
                                 if (!empty($dates[0])) {
-                                    $whereClauses[] = "{$filter->field} >= ?";
+                                    $whereClauses[] = "{$filterRef} >= ?";
                                     $params[] = $dates[0];
                                 }
                                 if (!empty($dates[1])) {
-                                    $whereClauses[] = "{$filter->field} <= ?";
+                                    $whereClauses[] = "{$filterRef} <= ?";
                                     $params[] = $dates[1];
                                 }
                             }
@@ -494,18 +519,18 @@ class ReportController extends BaseController
                             if (is_array($value) || str_contains($value, ',')) {
                                 $nums = is_array($value) ? $value : explode(',', $value);
                                 if (!empty($nums[0])) {
-                                    $whereClauses[] = "{$filter->field} >= ?";
+                                    $whereClauses[] = "{$filterRef} >= ?";
                                     $params[] = $nums[0];
                                 }
                                 if (!empty($nums[1])) {
-                                    $whereClauses[] = "{$filter->field} <= ?";
+                                    $whereClauses[] = "{$filterRef} <= ?";
                                     $params[] = $nums[1];
                                 }
                             }
                             break;
                         case 'select':
                         default:
-                            $whereClauses[] = "{$filter->field} = ?";
+                            $whereClauses[] = "{$filterRef} = ?";
                             $params[] = $value;
                             break;
                     }
@@ -513,10 +538,18 @@ class ReportController extends BaseController
             }
         }
 
-        // 额外的where条件
+        // 额外的where条件（仅接受结构化 field/op/value，值一律参数绑定，拒绝裸 SQL）
         if (!empty($queryConfig['where'])) {
             foreach ($queryConfig['where'] as $w) {
-                $whereClauses[] = $w;
+                if (!is_array($w)) {
+                    return $this->fail('where 条件必须为结构化字段条件（field/op/value）', 422);
+                }
+                $clause = $this->buildWhereClause($w);
+                if ($clause === null) {
+                    return $this->fail('where 条件非法：仅支持白名单字段与 eq/neq/gt/gte/lt/lte/like/between/in 操作符', 422);
+                }
+                $whereClauses[] = $clause[0];
+                array_push($params, ...$clause[1]);
             }
         }
 
@@ -524,9 +557,13 @@ class ReportController extends BaseController
             $sql .= ' WHERE ' . implode(' AND ', $whereClauses);
         }
 
-        // GROUP BY
+        // GROUP BY（仅允许单个/逗号分隔的列名，拒绝函数/表达式；每段可带 alias. 前缀）
         if ($groupBy) {
-            $sql .= ' GROUP BY ' . $groupBy;
+            if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?(\s*,\s*[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?)*$/', $groupBy)) {
+                return $this->fail('GROUP BY 字段非法', 422);
+            }
+            $groupBySql = implode(', ', array_map(fn (string $g) => $this->quoteColumn(trim($g)), explode(',', $groupBy)));
+            $sql .= ' GROUP BY ' . $groupBySql;
         }
 
         // ORDER BY
@@ -559,9 +596,82 @@ class ReportController extends BaseController
                 'query_sql' => $sql,
             ], '查询执行成功');
         } catch (\Throwable $e) {
+            // 不回显原始异常信息（可能泄露表结构/SQL），详情记录服务端日志
             $this->logError('执行报表查询', $e);
 
-            return $this->fail('查询执行失败: ' . $e->getMessage(), 500);
+            return $this->fail('查询执行失败，请查看服务端日志', 500);
+        }
+    }
+
+    /**
+     * 校验拼入 SQL 的标识符（列名/字段名/聚合函数），非法返回错误信息，合法返回 null。
+     * 允许 [A-Za-z_][A-Za-z0-9_]* 或别名点号形式 alias.col（JOIN 模板用），拒绝任何函数/表达式/字符串片段。
+     */
+    protected function validateIdentifier(mixed $value, string $context): ?string
+    {
+        if (!is_string($value) || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', $value)) {
+            return "{$context} 非法: " . (is_scalar($value) ? (string) $value : gettype($value));
+        }
+
+        return null;
+    }
+
+    /**
+     * 将已通过白名单校验的标识符渲染为安全 SQL 列引用：alias.col → `alias`.`col`。
+     * 调用方必须先经 validateIdentifier 校验，此处不再重复校验。
+     */
+    protected function quoteColumn(string $identifier): string
+    {
+        return implode('.', array_map(fn (string $part) => '`' . $part . '`', explode('.', $identifier)));
+    }
+
+    /**
+     * 将结构化 where 条件（field/op/value）映射为参数化 SQL 片段 [sql, params]，非法返回 null。
+     * 支持 op: eq/neq/gt/gte/lt/lte/like/between/in；field 白名单校验，值一律参数绑定。
+     */
+    protected function buildWhereClause(array $w): ?array
+    {
+        $field = (string) ($w['field'] ?? '');
+        $op = (string) ($w['op'] ?? '');
+        $value = $w['value'] ?? null;
+
+        if ($this->validateIdentifier($field, 'where 字段') !== null) {
+            return null;
+        }
+
+        $fieldRef = $this->quoteColumn($field);
+
+        switch ($op) {
+            case 'eq':
+                return ["{$fieldRef} = ?", [$value]];
+            case 'neq':
+                return ["{$fieldRef} <> ?", [$value]];
+            case 'gt':
+                return ["{$fieldRef} > ?", [$value]];
+            case 'gte':
+                return ["{$fieldRef} >= ?", [$value]];
+            case 'lt':
+                return ["{$fieldRef} < ?", [$value]];
+            case 'lte':
+                return ["{$fieldRef} <= ?", [$value]];
+            case 'like':
+                return ["{$fieldRef} LIKE ?", [$value]];
+            case 'between':
+                if (!is_array($value) || count($value) !== 2) {
+                    return null;
+                }
+                $bounds = array_values($value);
+
+                return ["{$fieldRef} BETWEEN ? AND ?", [$bounds[0], $bounds[1]]];
+            case 'in':
+                if (!is_array($value) || $value === []) {
+                    return null;
+                }
+                $values = array_values($value);
+
+                return ["{$fieldRef} IN (" . implode(', ', array_fill(0, count($values), '?')) . ")", $values];
+            default:
+                return null;
         }
     }
 

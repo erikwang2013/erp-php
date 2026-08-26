@@ -12,8 +12,11 @@ use app\common\SnowflakeService;
 use app\model\FinanceArAp;
 use app\model\FinanceBankAccount;
 use app\model\FinanceCashJournal;
+use app\model\FinancePayment;
+use app\model\FinanceReceipt;
 use app\model\FinanceSettlement;
 use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\QueryException;
 
 class FinanceService
 {
@@ -44,7 +47,7 @@ class FinanceService
         $ar->settled_amount = 0;
         $ar->status = 0;
         $ar->due_date = $dueDate;
-        $ar->save();
+        $this->saveUniqueArAp($ar, "应收记录已存在: {$sourceType}#{$sourceId}");
 
         return $ar->id;
     }
@@ -76,9 +79,24 @@ class FinanceService
         $ap->settled_amount = 0;
         $ap->status = 0;
         $ap->due_date = $dueDate;
-        $ap->save();
+        $this->saveUniqueArAp($ap, "应付记录已存在: {$sourceType}#{$sourceId}");
 
         return $ap->id;
+    }
+
+    /**
+     * 保存应收应付记录，唯一索引(uk_source)冲突时转业务异常而非 SQL 500
+     */
+    private function saveUniqueArAp(FinanceArAp $model, string $duplicateMessage): void
+    {
+        try {
+            $model->save();
+        } catch (QueryException $e) {
+            if (($e->errorInfo[1] ?? 0) === 1062) {
+                throw new \RuntimeException($duplicateMessage);
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -94,6 +112,7 @@ class FinanceService
             if ($amount <= 0) {
                 throw new \InvalidArgumentException('核销金额必须大于0');
             }
+            $this->assertReceiptPaymentUsable(1, $receiptId, $arAp->partner_id, $amount);
 
             $remain = $arAp->amount - $arAp->settled_amount;
             if ($amount > $remain) {
@@ -116,6 +135,29 @@ class FinanceService
     }
 
     /**
+     * 校验收/付款单可核销：存在、已审核、归属一致、剩余可核销额充足。
+     * $type: 1=收款单（核销应收） 2=付款单（核销应付）
+     */
+    private function assertReceiptPaymentUsable(int $type, int $id, int $partnerId, float $amount): void
+    {
+        $doc = $type === 1 ? FinanceReceipt::find($id) : FinancePayment::find($id);
+        $label = $type === 1 ? '收款单' : '付款单';
+        if (!$doc) {
+            throw new \RuntimeException("{$label}不存在");
+        }
+        if ((int) $doc->status !== 1) {
+            throw new \RuntimeException("{$label}未审核，不可核销");
+        }
+        if ((int) ($type === 1 ? $doc->customer_id : $doc->supplier_id) !== $partnerId) {
+            throw new \RuntimeException("{$label}与核销对象归属不一致");
+        }
+        $used = (float) FinanceSettlement::where('receipt_payment_id', $id)->sum('amount');
+        if (($used + $amount) > (float) $doc->amount) {
+            throw new \RuntimeException("核销金额超出{$label}剩余可核销额");
+        }
+    }
+
+    /**
      * 付款核销应付
      */
     public function settlePayment(int $paymentId, int $arApId, float $amount): void
@@ -128,6 +170,7 @@ class FinanceService
             if ($amount <= 0) {
                 throw new \InvalidArgumentException('核销金额必须大于0');
             }
+            $this->assertReceiptPaymentUsable(2, $paymentId, $arAp->partner_id, $amount);
 
             $remain = $arAp->amount - $arAp->settled_amount;
             if ($amount > $remain) {
@@ -170,6 +213,9 @@ class FinanceService
         ) {
             $account = FinanceBankAccount::where('id', $bankAccountId)->lockForUpdate()->firstOrFail();
 
+            if (!in_array($direction, [1, 2], true)) {
+                throw new \InvalidArgumentException('direction 非法: 仅支持 1=收入, 2=支出');
+            }
             if ($direction === 1) {
                 $account->balance += $amount;
             } else {

@@ -970,6 +970,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_ar_ap` (
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_source` (`source_type`, `source_id`),
     KEY `idx_type` (`type`),
     KEY `idx_partner_id` (`partner_id`),
     KEY `idx_status` (`status`),

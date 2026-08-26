@@ -9,11 +9,13 @@ namespace app\service\wms;
 
 use app\common\SnowflakeService;
 use app\model\OmsFulfillment;
+use app\model\OmsInventoryReservation;
 use app\model\OmsOrder;
 use app\model\WmsPackTask;
 use app\model\WmsPickItem;
 use app\model\WmsPickTask;
-use app\service\oms\AllocationService;
+use app\model\WmsWaveOrder;
+use app\service\inventory\InventoryService;
 use Illuminate\Database\Capsule\Manager as DB;
 
 class WmsOutboundService
@@ -47,14 +49,27 @@ class WmsOutboundService
             }
 
             foreach ($actuals as $item) {
-                WmsPickItem::where('pick_task_id', $pickTaskId)
+                // 明细行归属校验：必须属于该拣货任务（pick_task_id 唯一界定）
+                $pickItem = WmsPickItem::where('pick_task_id', $pickTaskId)
                     ->where('product_id', $item['product_id'])
                     ->where('location_id', $item['location_id'])
-                    ->update([
-                        'picked_quantity' => $item['picked_quantity'],
-                        'status' => 1,
-                        'picked_at' => date('Y-m-d H:i:s'),
-                    ]);
+                    ->first();
+                if (!$pickItem) {
+                    throw new \RuntimeException('拣货明细不存在或不属于该拣货任务: product_id=' . $item['product_id']);
+                }
+
+                // 超拣拒绝：实拣数量不得超过该行应拣（预占）数量
+                $picked = (float)$item['picked_quantity'];
+                if ($picked < 0 || $picked > (float)$pickItem->ordered_quantity) {
+                    throw new \RuntimeException(
+                        "实拣数量超限: product_id={$item['product_id']}, 应拣{$pickItem->ordered_quantity}, 实拣{$picked}"
+                    );
+                }
+
+                $pickItem->picked_quantity = $picked;
+                $pickItem->status = 1;
+                $pickItem->picked_at = date('Y-m-d H:i:s');
+                $pickItem->save();
             }
 
             $pick->status = 2;
@@ -100,7 +115,7 @@ class WmsOutboundService
         return $pack;
     }
 
-    /** 发货确认 — 消耗预占 + stockOut + 更新履约 */
+    /** 发货确认 — 按实际拣货数量扣物理库存 + 更新履约 */
     public function confirmShip(int $fulfillmentId, int $omsOrderId): void
     {
         DB::transaction(function () use ($fulfillmentId, $omsOrderId) {
@@ -120,13 +135,83 @@ class WmsOutboundService
                 throw new \RuntimeException('该履约单已发货');
             }
 
-            $allocSvc = new AllocationService();
-            $allocSvc->consume($omsOrderId);
+            $this->consumeByPickedQuantity($omsOrderId);
 
             $fulfillment->status = 5;
             $fulfillment->save();
             $order->fulfillment_status = 4;
             $order->save();
         });
+    }
+
+    /**
+     * 按实际拣货数量出库并结算预占（修复按预占全额 stockOut 的超扣问题）：
+     *  - 实拣 ≥ 预占：按预占数量出库，预占标记消耗（status=3）；
+     *  - 部分实拣：按实拣数量出库，未拣部分释放回可用库存（status=2）；
+     *  - 未拣：整行释放（status=2），不动物理库存。
+     */
+    private function consumeByPickedQuantity(int $omsOrderId): void
+    {
+        // 订单 → 波次 → 拣货任务 → 实拣明细（status=1 且实拣 > 0）
+        $pickTasks = WmsPickTask::whereIn(
+            'wave_id',
+            WmsWaveOrder::where('oms_order_id', $omsOrderId)->pluck('wave_id')
+        )->get(['id', 'warehouse_id']);
+        $pickItems = WmsPickItem::whereIn('pick_task_id', $pickTasks->pluck('id'))
+            ->where('status', 1)
+            ->where('picked_quantity', '>', 0)
+            ->get();
+        $warehouseByTask = $pickTasks->pluck('warehouse_id', 'id');
+
+        // 按库存维度（商品/SKU/仓库/库位/批次）聚合实拣数量
+        $pickedByKey = [];
+        foreach ($pickItems as $pi) {
+            $key = $this->reservationKey(
+                (int)$pi->product_id,
+                (int)$pi->sku_id,
+                (int)($warehouseByTask[$pi->pick_task_id] ?? 0),
+                (int)$pi->location_id,
+                (string)$pi->batch_code
+            );
+            $pickedByKey[$key] = ((float)($pickedByKey[$key] ?? 0)) + (float)$pi->picked_quantity;
+        }
+
+        $inventory = new InventoryService();
+        $reservations = OmsInventoryReservation::where('source_type', 'oms_order')
+            ->where('source_id', $omsOrderId)
+            ->where('status', 1)
+            ->get();
+
+        foreach ($reservations as $r) {
+            $key = $this->reservationKey(
+                (int)$r->product_id,
+                (int)$r->sku_id,
+                (int)$r->warehouse_id,
+                (int)$r->location_id,
+                (string)$r->batch_code
+            );
+            $picked = (float)($pickedByKey[$key] ?? 0);
+            $reserved = (float)$r->reserved_quantity;
+
+            if ($picked >= $reserved) {
+                $inventory->stockOut($r->product_id, $r->sku_id, $r->warehouse_id, $r->location_id, $r->batch_code, $reserved, 'oms_order', $omsOrderId);
+                $r->status = 3; // 全部实拣 → 预占消耗
+                $pickedByKey[$key] = $picked - $reserved;
+            } elseif ($picked > 0) {
+                $inventory->stockOut($r->product_id, $r->sku_id, $r->warehouse_id, $r->location_id, $r->batch_code, $picked, 'oms_order', $omsOrderId);
+                $r->reserved_quantity = round($reserved - $picked, 2); // 保留未拣部分记录
+                $r->status = 2; // 部分实拣 → 未拣部分释放
+                $pickedByKey[$key] = 0;
+            } else {
+                $r->status = 2; // 未实拣 → 整行释放
+            }
+            $r->save();
+        }
+    }
+
+    /** 库存维度聚合键 */
+    private function reservationKey(int $productId, int $skuId, int $warehouseId, int $locationId, string $batchCode): string
+    {
+        return implode(':', [$productId, $skuId, $warehouseId, $locationId, $batchCode]);
     }
 }

@@ -35,6 +35,12 @@ class QueueConsumer
     /** 轮询间隔（秒） */
     private const POLL_INTERVAL = 0.5;
 
+    /** 最大尝试次数（含首次执行），超过后消息进入死信队列 */
+    private const MAX_ATTEMPTS = 3;
+
+    /** 死信队列键（失败消息兜底，人工排查后可重投） */
+    private const FAILED_QUEUE_KEY = 'erp:queue:failed';
+
     /** 消费任务目录（由 config/process.php 的 constructor 注入） */
     private string $consumerDir;
 
@@ -42,7 +48,7 @@ class QueueConsumer
     private string $queue = '';
 
     /** 已扫描到的任务类白名单（类名 => true） */
-    private array $taskClasses = [];
+    protected array $taskClasses = [];
 
     public function __construct(string $consumerDir = '')
     {
@@ -101,8 +107,13 @@ class QueueConsumer
         try {
             $key = RedisQueue::key($this->queue);
 
-            while (($raw = Redis::lPop($key)) !== false && $raw !== null) {
-                $this->handleJob((string)$raw);
+            while (($raw = $this->popMessage($key)) !== null) {
+                try {
+                    $this->handleJob($raw);
+                } catch (Throwable $e) {
+                    // 单条消息处理异常不中断消费循环（handleJob 内部已兜底，此处双保险）
+                    Log::error('redis-queue 消费单条消息异常: ' . $e->getMessage());
+                }
             }
         } catch (Throwable $e) {
             Log::error('redis-queue 消费循环异常: ' . $e->getMessage());
@@ -135,7 +146,61 @@ class QueueConsumer
         try {
             $class::$method($data);
         } catch (Throwable $e) {
-            Log::error("redis-queue: 任务执行失败 {$class}::{$method}: " . $e->getMessage());
+            $this->retryOrFail($job, $raw, $e);
         }
+    }
+
+    /**
+     * 失败重试：attempts 未超限则携带 attempts+1 重新入队，否则推入死信队列
+     * ponytail: 重试立即回到队尾、无延迟退避，靠 MAX_ATTEMPTS 封顶；
+     * 需要指数退避时改为 zset 延迟队列 + 到期扫描进程。
+     */
+    private function retryOrFail(array $job, string $raw, Throwable $e): void
+    {
+        $attempts = (int)($job['attempts'] ?? 0) + 1;
+        $failed = "{$job['class']}::{$job['method']}: " . $e->getMessage();
+
+        if ($attempts < self::MAX_ATTEMPTS) {
+            $job['attempts'] = $attempts;
+            $requeued = json_encode($job, JSON_UNESCAPED_UNICODE);
+            if ($requeued !== false) {
+                $this->requeue(RedisQueue::key($this->queue), $requeued);
+                Log::warning("redis-queue: 任务执行失败，第{$attempts}次重试入队 {$failed}");
+
+                return;
+            }
+        }
+
+        // 超限：带最终尝试次数写入死信，便于人工排查重试历史
+        $job['attempts'] = $attempts;
+        $deadRaw = json_encode($job, JSON_UNESCAPED_UNICODE);
+        $this->deadLetter(self::FAILED_QUEUE_KEY, $deadRaw !== false ? $deadRaw : $raw);
+        Log::error("redis-queue: 任务失败已进入死信队列 {$failed}");
+    }
+
+    /**
+     * 从队列头取出一条消息（拆出可覆写的方法，便于单元测试注入内存实现）
+     */
+    protected function popMessage(string $key): ?string
+    {
+        $raw = Redis::lPop($key);
+
+        return ($raw === false || $raw === null) ? null : (string)$raw;
+    }
+
+    /**
+     * 重新入队（回队尾）
+     */
+    protected function requeue(string $key, string $raw): void
+    {
+        Redis::rPush($key, $raw);
+    }
+
+    /**
+     * 写入死信队列
+     */
+    protected function deadLetter(string $key, string $raw): void
+    {
+        Redis::lPush($key, $raw);
     }
 }
