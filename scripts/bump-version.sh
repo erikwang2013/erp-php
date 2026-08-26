@@ -20,8 +20,14 @@ cd "$ROOT"
 
 # 最新 vX.Y.Z 三段格式 tag 的 patch+1；无匹配 tag 时兜底 v0.0.1
 # 注：先 sed 去掉 v 前缀再 awk，避免 "v1"+0 被 awk 数值化误判为 0
+# 优先读远端 tag（本地 git tag 可能陈旧——曾致算出已被占用的版本号），
+# 远端不可达时回退本地 tag 列表
 next_version() {
-  git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 \
+  local tags
+  tags="$(git ls-remote --tags origin 2>/dev/null | grep -oE 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's|refs/tags/||')" \
+    || tags="$(git tag)"
+  printf '%s\n' "$tags" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+    | sort -V | tail -1 \
     | sed 's/^v//' \
     | awk -F. '{printf "v%d.%d.%d\n", $1, $2, $3+1}' \
     || echo "v0.0.1"
