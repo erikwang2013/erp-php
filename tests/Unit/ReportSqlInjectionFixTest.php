@@ -41,11 +41,11 @@ class ReportSqlInjectionFixTest extends TestCase
         $clause = $this->invokeProtected($this->controller, 'buildWhereClause', [
             'field' => 'status',
             'op' => 'eq',
-            'value' => "1 OR 1=1",
+            'value' => '1 OR 1=1',
         ]);
         $this->assertNotNull($clause);
         $this->assertSame('`status` = ?', $clause[0]);
-        $this->assertSame(["1 OR 1=1"], $clause[1]);
+        $this->assertSame(['1 OR 1=1'], $clause[1]);
         // 值不得出现在 SQL 片段中
         $this->assertStringNotContainsString('1=1', $clause[0]);
     }

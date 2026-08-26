@@ -665,7 +665,7 @@ class ReportController extends BaseController
                 }
                 $values = array_values($value);
 
-                return ["{$fieldRef} IN (" . implode(', ', array_fill(0, count($values), '?')) . ")", $values];
+                return ["{$fieldRef} IN (" . implode(', ', array_fill(0, count($values), '?')) . ')', $values];
             default:
                 return null;
         }

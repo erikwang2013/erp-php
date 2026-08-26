@@ -58,7 +58,7 @@ class DatabaseSchemaTest extends TestCase
                 $this->assertStringNotContainsString(
                     'AUTO_INCREMENT',
                     $match,
-                    "Table should not use AUTO_INCREMENT"
+                    'Table should not use AUTO_INCREMENT'
                 );
             }
         }

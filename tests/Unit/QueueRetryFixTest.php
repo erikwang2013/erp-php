@@ -194,6 +194,7 @@ class MemoryQueueConsumer extends QueueConsumer
             function (array $item) use ($now): bool {
                 if ($item[0] <= $now) {
                     $this->queue[] = $item[1];
+
                     return false;
                 }
 
