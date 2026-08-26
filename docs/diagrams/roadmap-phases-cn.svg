@@ -128,16 +128,16 @@
 <!-- p2a -->
 <g id="node10" class="node">
 <title>p2a</title>
-<ellipse fill="#ffecb3" stroke="#ffa000" stroke-width="1.5" cx="1139.9" cy="-541" rx="62.87" ry="26.74"/>
-<text text-anchor="middle" x="1139.9" y="-548.8" font-family="Arial" font-size="9.00">数据库迁移回滚</text>
-<text text-anchor="middle" x="1139.9" y="-538.8" font-family="Arial" font-size="9.00">rollback.sh</text>
-<text text-anchor="middle" x="1139.9" y="-528.8" font-family="Arial" font-size="9.00">迁移文件逆序执行</text>
+<ellipse fill="#ffecb3" stroke="#ffa000" stroke-width="1.5" cx="1139.9" cy="-541" rx="71.34" ry="26.74"/>
+<text text-anchor="middle" x="1139.9" y="-548.8" font-family="Arial" font-size="9.00">数据库 Schema 回滚</text>
+<text text-anchor="middle" x="1139.9" y="-538.8" font-family="Arial" font-size="9.00">install.sql 重建</text>
+<text text-anchor="middle" x="1139.9" y="-528.8" font-family="Arial" font-size="9.00">备份 + 恢复</text>
 </g>
 <!-- p1e&#45;&gt;p2a -->
 <g id="edge6" class="edge">
 <title>p1e&#45;&gt;p2a</title>
-<path fill="none" stroke="#f57f17" stroke-width="2" d="M996.79,-541C1019.46,-541 1044.27,-541 1066.73,-541"/>
-<polygon fill="#f57f17" stroke="#f57f17" stroke-width="2" points="1066.86,-544.5 1076.86,-541 1066.86,-537.5 1066.86,-544.5"/>
+<path fill="none" stroke="#f57f17" stroke-width="2" d="M996.79,-541C1016.64,-541 1038.12,-541 1058.23,-541"/>
+<polygon fill="#f57f17" stroke="#f57f17" stroke-width="2" points="1058.29,-544.5 1068.29,-541 1058.29,-537.5 1058.29,-544.5"/>
 </g>
 <!-- p2b -->
 <g id="node11" class="node">

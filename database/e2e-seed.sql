@@ -3,8 +3,8 @@
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- E2E 冒烟测试最小种子（CI e2e job 专用）
 -- 仅建核心权限表 + 权限种子 + super_admin 角色绑定，
--- 不含 163 张业务表（install.sql 全量种子含历史 NULL/重复 ID 缺陷，
--- 全量安装文件修复见 docs 已知问题，不在 E2E 范围）
+-- 不含 163 张业务表；install.sql 全量种子已可完整导入（2026-08-26 修复），
+-- E2E 用最小种子仅为导入快、测试隔离
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `erik_admin_user` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',

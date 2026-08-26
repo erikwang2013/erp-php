@@ -128,16 +128,16 @@
 <!-- p2a -->
 <g id="node10" class="node">
 <title>p2a</title>
-<ellipse fill="#ffecb3" stroke="#ffa000" stroke-width="1.5" cx="1449.39" cy="-541" rx="76.24" ry="26.74"/>
-<text text-anchor="middle" x="1449.39" y="-548.8" font-family="Arial" font-size="9.00">DB Migration Rollback</text>
-<text text-anchor="middle" x="1449.39" y="-538.8" font-family="Arial" font-size="9.00">rollback.sh</text>
-<text text-anchor="middle" x="1449.39" y="-528.8" font-family="Arial" font-size="9.00">Reverse Execution</text>
+<ellipse fill="#ffecb3" stroke="#ffa000" stroke-width="1.5" cx="1449.39" cy="-541" rx="73.58" ry="26.74"/>
+<text text-anchor="middle" x="1449.39" y="-548.8" font-family="Arial" font-size="9.00">DB Schema Rollback</text>
+<text text-anchor="middle" x="1449.39" y="-538.8" font-family="Arial" font-size="9.00">install.sql Rebuild</text>
+<text text-anchor="middle" x="1449.39" y="-528.8" font-family="Arial" font-size="9.00">Backup + Restore</text>
 </g>
 <!-- p1e&#45;&gt;p2a -->
 <g id="edge6" class="edge">
 <title>p1e&#45;&gt;p2a</title>
-<path fill="none" stroke="#f57f17" stroke-width="2" d="M1250.01,-541C1287.66,-541 1328.15,-541 1362.67,-541"/>
-<polygon fill="#f57f17" stroke="#f57f17" stroke-width="2" points="1362.71,-544.5 1372.71,-541 1362.71,-537.5 1362.71,-544.5"/>
+<path fill="none" stroke="#f57f17" stroke-width="2" d="M1250.01,-541C1288.63,-541 1330.24,-541 1365.33,-541"/>
+<polygon fill="#f57f17" stroke="#f57f17" stroke-width="2" points="1365.52,-544.5 1375.52,-541 1365.52,-537.5 1365.52,-544.5"/>
 </g>
 <!-- p2b -->
 <g id="node11" class="node">

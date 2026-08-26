@@ -38,7 +38,7 @@ digraph RoadmapPhasesCN {
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fff8e1"; color="#f57f17"; penwidth=2;
         node [fillcolor="#ffecb3", color="#ffa000", fontsize=9];
-        p2a [label="数据库迁移回滚\nrollback.sh\n迁移文件逆序执行"];
+        p2a [label="数据库 Schema 回滚\ninstall.sql 重建\n备份 + 恢复"];
         p2b [label="自动备份增强\ncron 定时备份\n完整性校验"];
         p2c [label="可观测性\nOpenTelemetry\nX-Trace-Id + 业务指标"];
         p2d [label="消息队列升级\nRedis to RabbitMQ\n可选驱动切换"];

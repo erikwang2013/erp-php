@@ -3083,126 +3083,126 @@ CREATE TABLE IF NOT EXISTS `erik_tms_freight_invoice` (
 -- 菜单权限 (type=1) — OMS / WMS / TMS
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000201, 0, '订单管理(OMS)', 'oms',   1, 'receipt_long',  '/admin/oms',  13, NOW(), NOW()),
-(31000000000000202, 0, '仓储管理(WMS)', 'wms',   1, 'warehouse',     '/admin/wms',  14, NOW(), NOW()),
-(31000000000000203, 0, '运输管理(TMS)', 'tms',   1, 'local_shipping','/admin/tms',  15, NOW(), NOW());
+(31000000000000208, 0, '订单管理(OMS)', 'oms',   1, 'receipt_long',  '/admin/oms',  13, NOW(), NOW()),
+(31000000000000209, 0, '仓储管理(WMS)', 'wms',   1, 'warehouse',     '/admin/wms',  14, NOW(), NOW()),
+(31000000000000210, 0, '运输管理(TMS)', 'tms',   1, 'local_shipping','/admin/tms',  15, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — OMS 订单管理
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000301, 31000000000000201, 'OMS订单-查看',   'get.admin/oms/order', 3, '', '', 1, NOW(), NOW()),
-(31000000000000302, 31000000000000201, 'OMS订单-创建',   'post.admin/oms/order', 3, '', '', 2, NOW(), NOW()),
-(31000000000000303, 31000000000000201, 'OMS订单-更新',   'put.admin/oms/order', 3, '', '', 3, NOW(), NOW()),
-(31000000000000304, 31000000000000201, 'OMS订单-删除',   'delete.admin/oms/order', 3, '', '', 4, NOW(), NOW()),
-(31000000000000305, 31000000000000201, 'OMS订单-分配',   'post.admin/oms/order/allocate', 3, '', '', 5, NOW(), NOW()),
-(31000000000000306, 31000000000000201, 'OMS订单-履约',   'post.admin/oms/order/fulfill', 3, '', '', 6, NOW(), NOW()),
-(31000000000000307, 31000000000000201, 'OMS订单-取消',   'post.admin/oms/order/cancel', 3, '', '', 7, NOW(), NOW());
+(31000000000000341, 31000000000000208, 'OMS订单-查看',   'get.admin/oms/order', 3, '', '', 1, NOW(), NOW()),
+(31000000000000342, 31000000000000208, 'OMS订单-创建',   'post.admin/oms/order', 3, '', '', 2, NOW(), NOW()),
+(31000000000000343, 31000000000000208, 'OMS订单-更新',   'put.admin/oms/order', 3, '', '', 3, NOW(), NOW()),
+(31000000000000344, 31000000000000208, 'OMS订单-删除',   'delete.admin/oms/order', 3, '', '', 4, NOW(), NOW()),
+(31000000000000345, 31000000000000208, 'OMS订单-分配',   'post.admin/oms/order/allocate', 3, '', '', 5, NOW(), NOW()),
+(31000000000000346, 31000000000000208, 'OMS订单-履约',   'post.admin/oms/order/fulfill', 3, '', '', 6, NOW(), NOW()),
+(31000000000000347, 31000000000000208, 'OMS订单-取消',   'post.admin/oms/order/cancel', 3, '', '', 7, NOW(), NOW());
 
 -- OMS 履约管理
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000311, 31000000000000201, '履约-查看',   'get.admin/oms/fulfillment', 3, '', '', 10, NOW(), NOW()),
-(31000000000000312, 31000000000000201, '履约-创建',   'post.admin/oms/fulfillment', 3, '', '', 11, NOW(), NOW());
+(31000000000000351, 31000000000000208, '履约-查看',   'get.admin/oms/fulfillment', 3, '', '', 10, NOW(), NOW()),
+(31000000000000352, 31000000000000208, '履约-创建',   'post.admin/oms/fulfillment', 3, '', '', 11, NOW(), NOW());
 
 -- OMS RMA
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000321, 31000000000000201, 'RMA-查看',   'get.admin/oms/rma', 3, '', '', 15, NOW(), NOW()),
-(31000000000000322, 31000000000000201, 'RMA-创建',   'post.admin/oms/rma', 3, '', '', 16, NOW(), NOW()),
-(31000000000000323, 31000000000000201, 'RMA-更新',   'put.admin/oms/rma', 3, '', '', 17, NOW(), NOW()),
-(31000000000000324, 31000000000000201, 'RMA-删除',   'delete.admin/oms/rma', 3, '', '', 18, NOW(), NOW()),
-(31000000000000325, 31000000000000201, 'RMA-审批',   'post.admin/oms/rma/approve', 3, '', '', 19, NOW(), NOW()),
-(31000000000000326, 31000000000000201, 'RMA-收货',   'post.admin/oms/rma/receive', 3, '', '', 20, NOW(), NOW()),
-(31000000000000327, 31000000000000201, 'RMA-退款',   'post.admin/oms/rma/refund', 3, '', '', 21, NOW(), NOW());
+(31000000000000361, 31000000000000208, 'RMA-查看',   'get.admin/oms/rma', 3, '', '', 15, NOW(), NOW()),
+(31000000000000362, 31000000000000208, 'RMA-创建',   'post.admin/oms/rma', 3, '', '', 16, NOW(), NOW()),
+(31000000000000363, 31000000000000208, 'RMA-更新',   'put.admin/oms/rma', 3, '', '', 17, NOW(), NOW()),
+(31000000000000364, 31000000000000208, 'RMA-删除',   'delete.admin/oms/rma', 3, '', '', 18, NOW(), NOW()),
+(31000000000000365, 31000000000000208, 'RMA-审批',   'post.admin/oms/rma/approve', 3, '', '', 19, NOW(), NOW()),
+(31000000000000366, 31000000000000208, 'RMA-收货',   'post.admin/oms/rma/receive', 3, '', '', 20, NOW(), NOW()),
+(31000000000000367, 31000000000000208, 'RMA-退款',   'post.admin/oms/rma/refund', 3, '', '', 21, NOW(), NOW());
 
 -- OMS 渠道管理
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000331, 31000000000000201, '渠道-查看',   'get.admin/oms/channel', 3, '', '', 25, NOW(), NOW()),
-(31000000000000332, 31000000000000201, '渠道-创建',   'post.admin/oms/channel', 3, '', '', 26, NOW(), NOW()),
-(31000000000000333, 31000000000000201, '渠道-更新',   'put.admin/oms/channel', 3, '', '', 27, NOW(), NOW()),
-(31000000000000334, 31000000000000201, '渠道-删除',   'delete.admin/oms/channel', 3, '', '', 28, NOW(), NOW());
+(31000000000000371, 31000000000000208, '渠道-查看',   'get.admin/oms/channel', 3, '', '', 25, NOW(), NOW()),
+(31000000000000372, 31000000000000208, '渠道-创建',   'post.admin/oms/channel', 3, '', '', 26, NOW(), NOW()),
+(31000000000000373, 31000000000000208, '渠道-更新',   'put.admin/oms/channel', 3, '', '', 27, NOW(), NOW()),
+(31000000000000374, 31000000000000208, '渠道-删除',   'delete.admin/oms/channel', 3, '', '', 28, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — WMS 仓储管理
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000401, 31000000000000202, '库区-查看',   'get.admin/wms/zone', 3, '', '', 1, NOW(), NOW()),
-(31000000000000402, 31000000000000202, '库区-创建',   'post.admin/wms/zone', 3, '', '', 2, NOW(), NOW()),
-(31000000000000403, 31000000000000202, '库区-更新',   'put.admin/wms/zone', 3, '', '', 3, NOW(), NOW()),
-(31000000000000404, 31000000000000202, '库区-删除',   'delete.admin/wms/zone', 3, '', '', 4, NOW(), NOW());
+(31000000000000401, 31000000000000209, '库区-查看',   'get.admin/wms/zone', 3, '', '', 1, NOW(), NOW()),
+(31000000000000402, 31000000000000209, '库区-创建',   'post.admin/wms/zone', 3, '', '', 2, NOW(), NOW()),
+(31000000000000403, 31000000000000209, '库区-更新',   'put.admin/wms/zone', 3, '', '', 3, NOW(), NOW()),
+(31000000000000404, 31000000000000209, '库区-删除',   'delete.admin/wms/zone', 3, '', '', 4, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000411, 31000000000000202, 'WMS库位-查看',   'get.admin/wms/location', 3, '', '', 8, NOW(), NOW()),
-(31000000000000412, 31000000000000202, 'WMS库位-创建',   'post.admin/wms/location', 3, '', '', 9, NOW(), NOW()),
-(31000000000000413, 31000000000000202, 'WMS库位-更新',   'put.admin/wms/location', 3, '', '', 10, NOW(), NOW()),
-(31000000000000414, 31000000000000202, 'WMS库位-删除',   'delete.admin/wms/location', 3, '', '', 11, NOW(), NOW());
+(31000000000000411, 31000000000000209, 'WMS库位-查看',   'get.admin/wms/location', 3, '', '', 8, NOW(), NOW()),
+(31000000000000412, 31000000000000209, 'WMS库位-创建',   'post.admin/wms/location', 3, '', '', 9, NOW(), NOW()),
+(31000000000000413, 31000000000000209, 'WMS库位-更新',   'put.admin/wms/location', 3, '', '', 10, NOW(), NOW()),
+(31000000000000414, 31000000000000209, 'WMS库位-删除',   'delete.admin/wms/location', 3, '', '', 11, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000421, 31000000000000202, 'ASN-查看',   'get.admin/wms/asn', 3, '', '', 15, NOW(), NOW()),
-(31000000000000422, 31000000000000202, 'ASN-创建',   'post.admin/wms/asn', 3, '', '', 16, NOW(), NOW()),
-(31000000000000423, 31000000000000202, 'ASN-更新',   'put.admin/wms/asn', 3, '', '', 17, NOW(), NOW()),
-(31000000000000424, 31000000000000202, 'ASN-删除',   'delete.admin/wms/asn', 3, '', '', 18, NOW(), NOW());
+(31000000000000421, 31000000000000209, 'ASN-查看',   'get.admin/wms/asn', 3, '', '', 15, NOW(), NOW()),
+(31000000000000422, 31000000000000209, 'ASN-创建',   'post.admin/wms/asn', 3, '', '', 16, NOW(), NOW()),
+(31000000000000423, 31000000000000209, 'ASN-更新',   'put.admin/wms/asn', 3, '', '', 17, NOW(), NOW()),
+(31000000000000424, 31000000000000209, 'ASN-删除',   'delete.admin/wms/asn', 3, '', '', 18, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000431, 31000000000000202, '收货-查看',   'get.admin/wms/receiving', 3, '', '', 22, NOW(), NOW()),
-(31000000000000432, 31000000000000202, '收货-创建',   'post.admin/wms/receiving', 3, '', '', 23, NOW(), NOW()),
-(31000000000000433, 31000000000000202, '收货-完成',   'post.admin/wms/receiving/complete', 3, '', '', 24, NOW(), NOW());
+(31000000000000431, 31000000000000209, '收货-查看',   'get.admin/wms/receiving', 3, '', '', 22, NOW(), NOW()),
+(31000000000000432, 31000000000000209, '收货-创建',   'post.admin/wms/receiving', 3, '', '', 23, NOW(), NOW()),
+(31000000000000433, 31000000000000209, '收货-完成',   'post.admin/wms/receiving/complete', 3, '', '', 24, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000441, 31000000000000202, '上架-查看',   'get.admin/wms/putaway', 3, '', '', 28, NOW(), NOW()),
-(31000000000000442, 31000000000000202, '上架-创建',   'post.admin/wms/putaway', 3, '', '', 29, NOW(), NOW()),
-(31000000000000443, 31000000000000202, '上架-完成',   'post.admin/wms/putaway/complete', 3, '', '', 30, NOW(), NOW());
+(31000000000000441, 31000000000000209, '上架-查看',   'get.admin/wms/putaway', 3, '', '', 28, NOW(), NOW()),
+(31000000000000442, 31000000000000209, '上架-创建',   'post.admin/wms/putaway', 3, '', '', 29, NOW(), NOW()),
+(31000000000000443, 31000000000000209, '上架-完成',   'post.admin/wms/putaway/complete', 3, '', '', 30, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000451, 31000000000000202, '波次-查看',   'get.admin/wms/wave', 3, '', '', 35, NOW(), NOW()),
-(31000000000000452, 31000000000000202, '波次-创建',   'post.admin/wms/wave', 3, '', '', 36, NOW(), NOW()),
-(31000000000000453, 31000000000000202, '波次-释放',   'post.admin/wms/wave/release', 3, '', '', 37, NOW(), NOW());
+(31000000000000451, 31000000000000209, '波次-查看',   'get.admin/wms/wave', 3, '', '', 35, NOW(), NOW()),
+(31000000000000452, 31000000000000209, '波次-创建',   'post.admin/wms/wave', 3, '', '', 36, NOW(), NOW()),
+(31000000000000453, 31000000000000209, '波次-释放',   'post.admin/wms/wave/release', 3, '', '', 37, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000461, 31000000000000202, '拣货-查看',   'get.admin/wms/pick', 3, '', '', 42, NOW(), NOW()),
-(31000000000000462, 31000000000000202, '拣货-开始',   'post.admin/wms/pick/start', 3, '', '', 43, NOW(), NOW()),
-(31000000000000463, 31000000000000202, '拣货-确认',   'post.admin/wms/pick/confirm', 3, '', '', 44, NOW(), NOW());
+(31000000000000461, 31000000000000209, '拣货-查看',   'get.admin/wms/pick', 3, '', '', 42, NOW(), NOW()),
+(31000000000000462, 31000000000000209, '拣货-开始',   'post.admin/wms/pick/start', 3, '', '', 43, NOW(), NOW()),
+(31000000000000463, 31000000000000209, '拣货-确认',   'post.admin/wms/pick/confirm', 3, '', '', 44, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000471, 31000000000000202, '打包-查看',   'get.admin/wms/pack', 3, '', '', 48, NOW(), NOW()),
-(31000000000000472, 31000000000000202, '打包-开始',   'post.admin/wms/pack/start', 3, '', '', 49, NOW(), NOW()),
-(31000000000000473, 31000000000000202, '打包-完成',   'post.admin/wms/pack/complete', 3, '', '', 50, NOW(), NOW());
+(31000000000000471, 31000000000000209, '打包-查看',   'get.admin/wms/pack', 3, '', '', 48, NOW(), NOW()),
+(31000000000000472, 31000000000000209, '打包-开始',   'post.admin/wms/pack/start', 3, '', '', 49, NOW(), NOW()),
+(31000000000000473, 31000000000000209, '打包-完成',   'post.admin/wms/pack/complete', 3, '', '', 50, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — TMS 运输管理
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000501, 31000000000000203, '承运商-查看',   'get.admin/tms/carrier', 3, '', '', 1, NOW(), NOW()),
-(31000000000000502, 31000000000000203, '承运商-创建',   'post.admin/tms/carrier', 3, '', '', 2, NOW(), NOW()),
-(31000000000000503, 31000000000000203, '承运商-更新',   'put.admin/tms/carrier', 3, '', '', 3, NOW(), NOW()),
-(31000000000000504, 31000000000000203, '承运商-删除',   'delete.admin/tms/carrier', 3, '', '', 4, NOW(), NOW());
+(31000000000000501, 31000000000000210, '承运商-查看',   'get.admin/tms/carrier', 3, '', '', 1, NOW(), NOW()),
+(31000000000000502, 31000000000000210, '承运商-创建',   'post.admin/tms/carrier', 3, '', '', 2, NOW(), NOW()),
+(31000000000000503, 31000000000000210, '承运商-更新',   'put.admin/tms/carrier', 3, '', '', 3, NOW(), NOW()),
+(31000000000000504, 31000000000000210, '承运商-删除',   'delete.admin/tms/carrier', 3, '', '', 4, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000511, 31000000000000203, '承运商服务-查看',   'get.admin/tms/service', 3, '', '', 8, NOW(), NOW()),
-(31000000000000512, 31000000000000203, '承运商服务-创建',   'post.admin/tms/service', 3, '', '', 9, NOW(), NOW()),
-(31000000000000513, 31000000000000203, '承运商服务-更新',   'put.admin/tms/service', 3, '', '', 10, NOW(), NOW()),
-(31000000000000514, 31000000000000203, '承运商服务-删除',   'delete.admin/tms/service', 3, '', '', 11, NOW(), NOW());
+(31000000000000511, 31000000000000210, '承运商服务-查看',   'get.admin/tms/service', 3, '', '', 8, NOW(), NOW()),
+(31000000000000512, 31000000000000210, '承运商服务-创建',   'post.admin/tms/service', 3, '', '', 9, NOW(), NOW()),
+(31000000000000513, 31000000000000210, '承运商服务-更新',   'put.admin/tms/service', 3, '', '', 10, NOW(), NOW()),
+(31000000000000514, 31000000000000210, '承运商服务-删除',   'delete.admin/tms/service', 3, '', '', 11, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000521, 31000000000000203, '运费费率-查看',   'get.admin/tms/freight-rate', 3, '', '', 15, NOW(), NOW()),
-(31000000000000522, 31000000000000203, '运费费率-创建',   'post.admin/tms/freight-rate', 3, '', '', 16, NOW(), NOW()),
-(31000000000000523, 31000000000000203, '运费费率-更新',   'put.admin/tms/freight-rate', 3, '', '', 17, NOW(), NOW()),
-(31000000000000524, 31000000000000203, '运费费率-删除',   'delete.admin/tms/freight-rate', 3, '', '', 18, NOW(), NOW());
+(31000000000000521, 31000000000000210, '运费费率-查看',   'get.admin/tms/freight-rate', 3, '', '', 15, NOW(), NOW()),
+(31000000000000522, 31000000000000210, '运费费率-创建',   'post.admin/tms/freight-rate', 3, '', '', 16, NOW(), NOW()),
+(31000000000000523, 31000000000000210, '运费费率-更新',   'put.admin/tms/freight-rate', 3, '', '', 17, NOW(), NOW()),
+(31000000000000524, 31000000000000210, '运费费率-删除',   'delete.admin/tms/freight-rate', 3, '', '', 18, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000531, 31000000000000203, '运单-查看',   'get.admin/tms/shipment', 3, '', '', 22, NOW(), NOW()),
-(31000000000000532, 31000000000000203, '运单-创建',   'post.admin/tms/shipment', 3, '', '', 23, NOW(), NOW()),
-(31000000000000533, 31000000000000203, '运单-发货',   'post.admin/tms/shipment/ship', 3, '', '', 24, NOW(), NOW()),
-(31000000000000534, 31000000000000203, '运单-面单',   'post.admin/tms/shipment/get-label',3, NULL, NULL, 25, NOW(), NOW());
+(31000000000000531, 31000000000000210, '运单-查看',   'get.admin/tms/shipment', 3, '', '', 22, NOW(), NOW()),
+(31000000000000532, 31000000000000210, '运单-创建',   'post.admin/tms/shipment', 3, '', '', 23, NOW(), NOW()),
+(31000000000000533, 31000000000000210, '运单-发货',   'post.admin/tms/shipment/ship', 3, '', '', 24, NOW(), NOW()),
+(31000000000000534, 31000000000000210, '运单-面单',   'post.admin/tms/shipment/get-label',3, '', '', 25, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000541, 31000000000000203, '轨迹-查看',   'get.admin/tms/tracking', 3, '', '', 30, NOW(), NOW()),
-(31000000000000542, 31000000000000203, '轨迹-回调',   'post.admin/tms/tracking/callback', 3, '', '', 31, NOW(), NOW());
+(31000000000000541, 31000000000000210, '轨迹-查看',   'get.admin/tms/tracking', 3, '', '', 30, NOW(), NOW()),
+(31000000000000542, 31000000000000210, '轨迹-回调',   'post.admin/tms/tracking/callback', 3, '', '', 31, NOW(), NOW());
 
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000551, 31000000000000203, '运费发票-查看',   'get.admin/tms/freight-invoice', 3, '', '', 35, NOW(), NOW()),
-(31000000000000552, 31000000000000203, '运费发票-创建',   'post.admin/tms/freight-invoice', 3, '', '', 36, NOW(), NOW()),
-(31000000000000553, 31000000000000203, '运费发票-确认',   'post.admin/tms/freight-invoice/confirm', 3, '', '', 37, NOW(), NOW()),
-(31000000000000554, 31000000000000203, '运费发票-付款',   'post.admin/tms/freight-invoice/pay', 3, '', '', 38, NOW(), NOW());
+(31000000000000551, 31000000000000210, '运费发票-查看',   'get.admin/tms/freight-invoice', 3, '', '', 35, NOW(), NOW()),
+(31000000000000552, 31000000000000210, '运费发票-创建',   'post.admin/tms/freight-invoice', 3, '', '', 36, NOW(), NOW()),
+(31000000000000553, 31000000000000210, '运费发票-确认',   'post.admin/tms/freight-invoice/confirm', 3, '', '', 37, NOW(), NOW()),
+(31000000000000554, 31000000000000210, '运费发票-付款',   'post.admin/tms/freight-invoice/pay', 3, '', '', 38, NOW(), NOW());
 -- ============================================================
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 迁移: QMS质量管理系统表（5张表）
@@ -3538,52 +3538,52 @@ CREATE TABLE IF NOT EXISTS `erik_eam_spare_part` (
 -- 菜单权限 (type=1) — QMS 质量管理
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000204, 0, '质量管理(QMS)', 'quality', 1, 'verified_user', '/admin/quality', 16, NOW(), NOW());
+(31000000000000215, 0, '质量管理(QMS)', 'quality', 1, 'verified_user', '/admin/quality', 16, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — 检验标准
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000601, 31000000000000204, '检验标准-查看',   'get.admin/quality/standard', 3, '', '', 1, NOW(), NOW()),
-(31000000000000602, 31000000000000204, '检验标准-创建',   'post.admin/quality/standard', 3, '', '', 2, NOW(), NOW()),
-(31000000000000603, 31000000000000204, '检验标准-更新',   'put.admin/quality/standard', 3, '', '', 3, NOW(), NOW()),
-(31000000000000604, 31000000000000204, '检验标准-删除',   'delete.admin/quality/standard', 3, '', '', 4, NOW(), NOW());
+(31000000000000601, 31000000000000215, '检验标准-查看',   'get.admin/quality/standard', 3, '', '', 1, NOW(), NOW()),
+(31000000000000602, 31000000000000215, '检验标准-创建',   'post.admin/quality/standard', 3, '', '', 2, NOW(), NOW()),
+(31000000000000603, 31000000000000215, '检验标准-更新',   'put.admin/quality/standard', 3, '', '', 3, NOW(), NOW()),
+(31000000000000604, 31000000000000215, '检验标准-删除',   'delete.admin/quality/standard', 3, '', '', 4, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — 来料检验 (IQC)
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000611, 31000000000000204, 'IQC-查看',   'get.admin/quality/iqc', 3, '', '', 8, NOW(), NOW()),
-(31000000000000612, 31000000000000204, 'IQC-创建',   'post.admin/quality/iqc', 3, '', '', 9, NOW(), NOW()),
-(31000000000000613, 31000000000000204, 'IQC-更新',   'put.admin/quality/iqc', 3, '', '', 10, NOW(), NOW()),
-(31000000000000614, 31000000000000204, 'IQC-删除',   'delete.admin/quality/iqc', 3, '', '', 11, NOW(), NOW());
+(31000000000000611, 31000000000000215, 'IQC-查看',   'get.admin/quality/iqc', 3, '', '', 8, NOW(), NOW()),
+(31000000000000612, 31000000000000215, 'IQC-创建',   'post.admin/quality/iqc', 3, '', '', 9, NOW(), NOW()),
+(31000000000000613, 31000000000000215, 'IQC-更新',   'put.admin/quality/iqc', 3, '', '', 10, NOW(), NOW()),
+(31000000000000614, 31000000000000215, 'IQC-删除',   'delete.admin/quality/iqc', 3, '', '', 11, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — 过程检验 (IPQC)
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000621, 31000000000000204, 'IPQC-查看',   'get.admin/quality/ipqc', 3, '', '', 15, NOW(), NOW()),
-(31000000000000622, 31000000000000204, 'IPQC-创建',   'post.admin/quality/ipqc', 3, '', '', 16, NOW(), NOW()),
-(31000000000000623, 31000000000000204, 'IPQC-更新',   'put.admin/quality/ipqc', 3, '', '', 17, NOW(), NOW()),
-(31000000000000624, 31000000000000204, 'IPQC-删除',   'delete.admin/quality/ipqc', 3, '', '', 18, NOW(), NOW());
+(31000000000000621, 31000000000000215, 'IPQC-查看',   'get.admin/quality/ipqc', 3, '', '', 15, NOW(), NOW()),
+(31000000000000622, 31000000000000215, 'IPQC-创建',   'post.admin/quality/ipqc', 3, '', '', 16, NOW(), NOW()),
+(31000000000000623, 31000000000000215, 'IPQC-更新',   'put.admin/quality/ipqc', 3, '', '', 17, NOW(), NOW()),
+(31000000000000624, 31000000000000215, 'IPQC-删除',   'delete.admin/quality/ipqc', 3, '', '', 18, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — 出货检验 (OQC)
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000631, 31000000000000204, 'OQC-查看',   'get.admin/quality/oqc', 3, '', '', 22, NOW(), NOW()),
-(31000000000000632, 31000000000000204, 'OQC-创建',   'post.admin/quality/oqc', 3, '', '', 23, NOW(), NOW()),
-(31000000000000633, 31000000000000204, 'OQC-更新',   'put.admin/quality/oqc', 3, '', '', 24, NOW(), NOW()),
-(31000000000000634, 31000000000000204, 'OQC-删除',   'delete.admin/quality/oqc', 3, '', '', 25, NOW(), NOW());
+(31000000000000631, 31000000000000215, 'OQC-查看',   'get.admin/quality/oqc', 3, '', '', 22, NOW(), NOW()),
+(31000000000000632, 31000000000000215, 'OQC-创建',   'post.admin/quality/oqc', 3, '', '', 23, NOW(), NOW()),
+(31000000000000633, 31000000000000215, 'OQC-更新',   'put.admin/quality/oqc', 3, '', '', 24, NOW(), NOW()),
+(31000000000000634, 31000000000000215, 'OQC-删除',   'delete.admin/quality/oqc', 3, '', '', 25, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — 不合格品
 -- ============================================================
 INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000641, 31000000000000204, '不合格品-查看',   'get.admin/quality/nonconformity', 3, '', '', 29, NOW(), NOW()),
-(31000000000000642, 31000000000000204, '不合格品-创建',   'post.admin/quality/nonconformity', 3, '', '', 30, NOW(), NOW()),
-(31000000000000643, 31000000000000204, '不合格品-更新',   'put.admin/quality/nonconformity', 3, '', '', 31, NOW(), NOW()),
-(31000000000000644, 31000000000000204, '不合格品-删除',   'delete.admin/quality/nonconformity', 3, '', '', 32, NOW(), NOW());
+(31000000000000641, 31000000000000215, '不合格品-查看',   'get.admin/quality/nonconformity', 3, '', '', 29, NOW(), NOW()),
+(31000000000000642, 31000000000000215, '不合格品-创建',   'post.admin/quality/nonconformity', 3, '', '', 30, NOW(), NOW()),
+(31000000000000643, 31000000000000215, '不合格品-更新',   'put.admin/quality/nonconformity', 3, '', '', 31, NOW(), NOW()),
+(31000000000000644, 31000000000000215, '不合格品-删除',   'delete.admin/quality/nonconformity', 3, '', '', 32, NOW(), NOW());
 
 -- DMS Document Category Table
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
@@ -3615,12 +3615,19 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 (31000000000000742, 31000000000000005, '财务指标-计算',     'post.admin/finance/report/ratios', 3, '', '', 32, NOW(), NOW()),
 (31000000000000743, 31000000000000005, '试算平衡-查看',     'get.admin/finance/report/trial-balance', 3, '', '', 33, NOW(), NOW()),
 (31000000000000744, 31000000000000005, '科目余额-查看',     'get.admin/finance/report/account-balance', 3, '', '', 34, NOW(), NOW()),
-(31000000000000745, 31000000000000203, '运费-计算',         'post.admin/tms/freight-rate/calculate', 3, '', '', 19, NOW(), NOW()),
-(31000000000000746, 31000000000000203, '运费-比价',         'get.admin/tms/freight-rate/rate-shop', 3, '', '', 20, NOW(), NOW()),
-(31000000000000747, 31000000000000204, '检验-登记',         'post.admin/quality/inspection/record', 3, '', '', 33, NOW(), NOW()),
-(31000000000000748, 31000000000000204, '检验-合格率',       'post.admin/quality/inspection/pass-rate', 3, '', '', 34, NOW(), NOW());
+(31000000000000745, 31000000000000210, '运费-计算',         'post.admin/tms/freight-rate/calculate', 3, '', '', 19, NOW(), NOW()),
+(31000000000000746, 31000000000000210, '运费-比价',         'get.admin/tms/freight-rate/rate-shop', 3, '', '', 20, NOW(), NOW()),
+(31000000000000747, 31000000000000215, '检验-登记',         'post.admin/quality/inspection/record', 3, '', '', 33, NOW(), NOW()),
+(31000000000000748, 31000000000000215, '检验-合格率',       'post.admin/quality/inspection/pass-rate', 3, '', '', 34, NOW(), NOW());
 
 -- ============================================================
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 安装完成
 -- ============================================================
+-- 超级管理员角色 (ID=10000000000000001) 关联全部权限（含末尾新增的 QMS/服务接线权限）
+-- ============================================================
+INSERT INTO `erik_admin_role_permission` (`role_id`, `permission_id`)
+SELECT 10000000000000001, `id` FROM `erik_admin_permission`
+WHERE `id` NOT IN (
+    SELECT `permission_id` FROM `erik_admin_role_permission` WHERE `role_id` = 10000000000000001
+);

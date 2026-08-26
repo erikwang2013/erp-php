@@ -1039,7 +1039,7 @@ SaaS 计费、租户自助开通等"多租户完整商业化方案"不在本项�
 | `config/middleware.php` | 全局链：Locale → Cors → SecurityFilter → RateLimit → TracingId，无 TenantScope |
 | `config/route.php` /admin 组 | AdminAuth → AdminPermission → OperationLog，无 TenantScope |
 | JWT 载荷 | 仅 `sub` / `username` / `token_type`，**无 tenant_id 声明**（`app/api/v1/controller/AuthController.php`） |
-| 数据库 | **全库无 tenant_id 列**（install.sql 与 30 个迁移文件均无） |
+| 数据库 | **全库无 tenant_id 列**（install.sql 亦无） |
 | 模型 | **无任何模型 use TenantScope trait** |
 
 ### 22.3 启用步骤（预留参考，本期不执行）

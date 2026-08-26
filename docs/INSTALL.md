@@ -43,7 +43,7 @@ cd /home/wwwroot/erp-php/service
 mysql -u root -p erp < database/install.sql
 ```
 
-`install.sql` 包含全部 163 张表的结构和初始种子数据（超级管理员角色、权限树、漏斗阶段、税率、币种、分析指标、文档分类、服务接口权限），由 29 个迁移文件合并而成。
+`install.sql` 包含全部 163 张表的结构和初始种子数据（超级管理员角色、权限树、漏斗阶段、税率、币种、分析指标、文档分类、服务接口权限）；schema 以 database/install.sql 为唯一事实源。
 
 ### 3. 配置环境变量
 
@@ -125,7 +125,7 @@ cd /home/wwwroot/erp-php
 cp .env.docker .env
 docker-compose up -d
 
-# 进入容器执行数据库迁移
+# 进入容器导入数据库
 docker-compose exec app bash
 mysql -h mysql -u root -p erp < database/install.sql
 ```

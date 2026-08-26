@@ -370,7 +370,7 @@
 
 ### 13.2 报表执行
 - 动态 SQL 生成（基于字段和筛选配置）
-- 表名白名单防护（从迁移文件解析）
+- 表名白名单防护（从 install.sql 解析）
 - 结果数据集快照（JSON 存储）
 
 ### 13.3 定时报表
@@ -504,7 +504,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 数据库安装脚本 | 单文件 `database/install.sql`（163 张表，已并入全部迁移）|
 | 前端页面 (Flutter) | 7（前端统计，未纳入 doc-stats 校验）|
 | 前端页面 (HarmonyOS) | 4（前端统计，未纳入 doc-stats 校验）|
-| 单元测试 | 50 个测试文件 <!-- stats:test_files=50 --> / 442 个测试用例 / 2263 条断言（tests/assertions 随 PHP 补丁版本与扩展浮动，不参与 stats 精确校验）|
+| 单元测试 | 50 个测试文件 <!-- stats:test_files=50 --> / 442 个测试用例 / 2238 条断言（tests/assertions 随 PHP 补丁版本与扩展浮动，不参与 stats 精确校验）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。

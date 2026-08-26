@@ -315,8 +315,8 @@ jobs:
       - name: Initialize database (e2e minimal seed + test account)
         # 最小种子 database/e2e-seed.sql：5 张核心表（user/role/permission/user_role/role_permission）
         # + migration 000001 全部权限 + super_admin 角色 + 权限全绑定。
-        # 不用全量 install.sql：其历史 seed 含跨 migration 重复权限 ID（000009/000023 段冲突）
-        # 与 NULL 违反 NOT NULL 的缺陷，无法在 MySQL 8.0 完整导入（已知债务，见 e2e-seed.sql 头注释）。
+        # 仅因导入快、隔离性好而用最小种子；全量 database/install.sql 已可完整导入
+        # （163 张表 + 全部种子，跨 migration 重复权限 ID 与 NULL 缺陷已于 2026-08-26 修复）。
         # 测试账号 bcrypt 哈希在 CI 运行时生成，避免仓库内提交固定哈希。
         run: |
           mysql -h 127.0.0.1 -u root open_admin < database/e2e-seed.sql

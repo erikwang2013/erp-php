@@ -11,7 +11,7 @@
 
 | 维度 | 现状 | 对团队的含义 |
 |------|------|--------------|
-| 后端 | webman (Workerman) PHP 8.3+，**22 个业务模块**、121+ 控制器、24 服务、161 模型、163 张表、29 迁移、12 中间件 | 单体大而全，按业务域分工，防止单 agent 上下文爆炸 |
+| 后端 | webman (Workerman) PHP 8.3+，**22 个业务模块**、121+ 控制器、24 服务、161 模型、163 张表、12 中间件（schema 以 database/install.sql 为唯一事实源） | 单体大而全，按业务域分工，防止单 agent 上下文爆炸 |
 | 前端 | Flutter **97 页**（Web/移动端）+ HarmonyOS **34 页**，覆盖全部模块 | 双端并行维护，需要专职前端角色 |
 | 质量基线 | PHPUnit 137 测试 / 805 断言、PHPStan + baseline、CS-Fixer、CI 多版本矩阵 | 已具备纪律，测试/审查角色直接嵌入流水线 |
 | 版本矩阵 | `lite` / `standard` / `full` 三分支（62/72/163 表） | 改动需考虑跨分支同步，需版本协调 |
@@ -27,7 +27,7 @@
 | 角色 | 现有 agent 对应 | 职责（针对本项目） |
 |------|-----------------|--------------------|
 | **项目经理 Lead** | `planner` / `swarm/hierarchical-coordinator` | 需求拆解 → 路由 → 验收；维护 22 模块任务队列；决定 pipeline / fan-out / supervisor 模式；跨角色消息中转 |
-| **系统架构师** | `sparc/architecture` | 表结构/迁移设计（163 表 + 29 迁移归属）；跨模块数据流（采购收货→库存→应付、销售发货→应收→出库等链路）；微服务拆分边界决策 |
+| **系统架构师** | `sparc/architecture` | 表结构设计（163 表，schema 以 database/install.sql 为唯一事实源）；跨模块数据流（采购收货→库存→应付、销售发货→应收→出库等链路）；微服务拆分边界决策 |
 | **后端开发者** | `core` / 自定义 `backend-dev` | 控制器 / 服务 / 模型实现；遵循 `app/service` 分层与中间件链（Locale→Cors→SecurityFilter→RateLimit→TracingId→业务中间件） |
 | **测试工程师** | `testing/tdd-london-swarm` + `production-validator` | PHPUnit 用例先行（引擎边界测试）；三分支回归验证；`tests/` 覆盖缺口补齐 |
 | **代码审查员** | `consensus/security-manager` | PHPStan 零新增 baseline、CS-Fixer 合规、18 层安全模式检查；提交前质量门禁把守 |
@@ -89,7 +89,7 @@ php-cs-fixer       # --dry-run 通过
 composer audit     # 无高危依赖漏洞
 ```
 
-涉及数据库的改动必须经过架构师（163 表 + 29 迁移归属明确）；涉及前端改动必须跑 Flutter `flutter analyze` 0 error / 0 warning。
+涉及数据库的改动必须经过架构师（163 表，schema 以 database/install.sql 为唯一事实源）；涉及前端改动必须跑 Flutter `flutter analyze` 0 error / 0 warning。
 
 ---
 

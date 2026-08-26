@@ -38,7 +38,7 @@ digraph RoadmapPhases {
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fff8e1"; color="#f57f17"; penwidth=2;
         node [fillcolor="#ffecb3", color="#ffa000", fontsize=9];
-        p2a [label="DB Migration Rollback\nrollback.sh\nReverse Execution"];
+        p2a [label="DB Schema Rollback\ninstall.sql Rebuild\nBackup + Restore"];
         p2b [label="Auto-Backup Enhancement\nCron Scheduled Backup\nIntegrity Validation"];
         p2c [label="Observability\nOpenTelemetry\nX-Trace-Id + Biz Metrics"];
         p2d [label="Message Queue Upgrade\nRedis to RabbitMQ\nPluggable Driver"];
