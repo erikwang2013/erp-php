@@ -82,8 +82,124 @@ class _DashboardListPageState extends State<DashboardListPage> {
     '用户ID': r['user_id'] ?? '',
     '状态': r['status'] ?? '',
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(icon: const Icon(Icons.dashboard_customize, size: 18), tooltip: '图表管理',
+        onPressed: () => _manageWidgets(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),
   };
+
+  /// 图表管理弹窗 — 覆盖 /admin/bi/widget 增删改查
+  Future<void> _manageWidgets(Map<String, dynamic> row) async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _WidgetManagerDialog(
+        dashboardId: '${row['id']}',
+        dashboardName: '${row['name'] ?? ''}',
+      ),
+    );
+  }
+}
+
+/// 看板图表管理弹窗：列表 + 新增/编辑/删除
+class _WidgetManagerDialog extends StatefulWidget {
+  final String dashboardId;
+  final String dashboardName;
+  const _WidgetManagerDialog({required this.dashboardId, required this.dashboardName});
+  @override
+  State<_WidgetManagerDialog> createState() => _WidgetManagerDialogState();
+}
+
+class _WidgetManagerDialogState extends State<_WidgetManagerDialog> {
+  List<Map<String, dynamic>> _widgets = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() { super.initState(); _load(); }
+
+  Future<void> _load() async {
+    setState(() { _loading = true; _error = null; });
+    try {
+      final res = await ApiService.instance.get('/admin/bi/widget', params: {'dashboard_id': widget.dashboardId});
+      setState(() { _widgets = List<Map<String, dynamic>>.from(res['data']['list'] ?? []); _loading = false; });
+    } catch (e) {
+      setState(() { _loading = false; _error = '$e'; });
+    }
+  }
+
+  Future<void> _create() async {
+    await FormDialog.show(context, title: '新增图表', fields: _widgetFields(), onSubmit: (data) async {
+      await ApiService.instance.post('/admin/bi/widget', data: {...data, 'dashboard_id': widget.dashboardId});
+      _load(); return true;
+    });
+  }
+
+  Future<void> _edit(Map<String, dynamic> w) async {
+    await FormDialog.show(context, title: '编辑图表', fields: _widgetFields(), initialData: w, onSubmit: (data) async {
+      await ApiService.instance.put('/admin/bi/widget/${w['id']}', data: data);
+      _load(); return true;
+    });
+  }
+
+  Future<void> _delete(Map<String, dynamic> w) async {
+    await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除图表「${w['name'] ?? ''}」吗？', onConfirm: (password) async {
+      await ApiService.instance.delete('/admin/bi/widget/${w['id']}', data: {'password': password});
+      _load(); return true;
+    });
+  }
+
+  List<FormFieldConfig> _widgetFields() => const [
+    FormFieldConfig(name: 'name', label: '图表名称', required: true),
+    FormFieldConfig(name: 'type', label: '图表类型', required: true, type: FormFieldType.dropdown, options: ['bar', 'line', 'pie', 'table']),
+    FormFieldConfig(name: 'dataset_id', label: '数据集ID', type: FormFieldType.number),
+    FormFieldConfig(name: 'config', label: '配置JSON', type: FormFieldType.multiline),
+    FormFieldConfig(name: 'position_x', label: 'X坐标', type: FormFieldType.number),
+    FormFieldConfig(name: 'position_y', label: 'Y坐标', type: FormFieldType.number),
+    FormFieldConfig(name: 'width', label: '宽度', type: FormFieldType.number),
+    FormFieldConfig(name: 'height', label: '高度', type: FormFieldType.number),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('图表管理 — ${widget.dashboardName}', style: const TextStyle(fontWeight: FontWeight.bold)),
+      content: SizedBox(
+        width: 480,
+        height: 420,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: const Text('新增图表')),
+            const Spacer(),
+            Text('共 ${_widgets.length} 个', style: const TextStyle(color: Colors.grey)),
+          ]),
+          const SizedBox(height: 8),
+          if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+          Expanded(child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _widgets.isEmpty
+              ? const Center(child: Text('暂无图表，点击「新增图表」创建'))
+              : ListView.separated(
+                  itemCount: _widgets.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (_, i) {
+                    final w = _widgets[i];
+                    return ListTile(
+                      dense: true,
+                      title: Text('${w['name'] ?? ''}'),
+                      subtitle: Text('类型: ${w['type'] ?? ''}'),
+                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                        IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(w)),
+                        IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(w)),
+                      ]),
+                    );
+                  },
+                )),
+        ]),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('关闭')),
+      ],
+    );
+  }
 }

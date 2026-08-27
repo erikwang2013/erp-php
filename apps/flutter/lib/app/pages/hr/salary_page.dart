@@ -82,6 +82,38 @@ class _SalaryPageState extends State<SalaryPage> {
     };
   }
 
+  /// 薪资发放：POST /admin/hr/salary/{id}/pay，二次确认 + 失败提示。
+  Future<void> _pay(Map<String, dynamic> row) async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('薪资发放'),
+        content: Text('确认将「${row['period_year'] ?? ''}-${row['period_month'] ?? ''}」的薪资标记为已发放吗？'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('取消')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+            onPressed: () async {
+              try {
+                await ApiService.instance.post('/admin/hr/salary/${row['id']}/pay');
+                if (ctx.mounted) Navigator.of(ctx).pop();
+                _load();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('薪资已发放')));
+                }
+              } catch (e) {
+                if (ctx.mounted) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('发放失败：$e')));
+                }
+              }
+            },
+            child: const Text('确认发放'),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 薪资试算：POST /admin/hr/salary/calculate，结果弹窗展示。
   Future<void> _calculate() async {
     await FormDialog.show(context, title: '薪资试算', fields: const [
@@ -159,6 +191,8 @@ class _SalaryPageState extends State<SalaryPage> {
     '实发工资': r['net_salary'] ?? '',
     '状态': ((r['status'] ?? 0) == 1) ? '已发放' : '未发放',
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      if ((r['status'] ?? 0) != 1)
+        IconButton(icon: const Icon(Icons.paid, size: 18, color: Colors.green), tooltip: '发放', onPressed: () => _pay(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),

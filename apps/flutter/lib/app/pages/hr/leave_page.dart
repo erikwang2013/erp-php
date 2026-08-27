@@ -79,6 +79,41 @@ class _LeavePageState extends State<LeavePage> {
     ],
   );
 
+  /// 请假审批/驳回：POST /admin/hr/leave/{id}/approve，二次确认。
+  Future<void> _approve(Map<String, dynamic> row, {required bool approve}) async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(approve ? '批准请假' : '驳回请假'),
+        content: Text(approve ? '确认批准该请假申请吗？' : '确认驳回该请假申请吗？'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('取消')),
+          ElevatedButton(
+            style: approve
+                ? ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white)
+                : ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () async {
+              try {
+                await ApiService.instance.post('/admin/hr/leave/${row['id']}/approve',
+                    data: {'action': approve ? 'approve' : 'reject'});
+                if (ctx.mounted) Navigator.of(ctx).pop();
+                _load();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(approve ? '已批准' : '已驳回')));
+                }
+              } catch (e) {
+                if (ctx.mounted) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('操作失败：$e')));
+                }
+              }
+            },
+            child: Text(approve ? '批准' : '驳回'),
+          ),
+        ],
+      ),
+    );
+  }
+
   List<String> _columns() => ['名称', '编码', '状态', '操作'];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
@@ -86,10 +121,22 @@ class _LeavePageState extends State<LeavePage> {
     '编码': r['code'] ?? '',
     '状态': _chip(r['status']),
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      if (_pending(r))
+        IconButton(icon: const Icon(Icons.check_circle, size: 18, color: Colors.green),
+          tooltip: '批准', onPressed: () => _approve(r, approve: true)),
+      if (_pending(r))
+        IconButton(icon: const Icon(Icons.cancel, size: 18, color: Colors.red),
+          tooltip: '驳回', onPressed: () => _approve(r, approve: false)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),
   };
+
+  static bool _pending(Map<String, dynamic> r) {
+    final s = r['status'];
+    return (s is int ? s : int.tryParse('$s') ?? 0) == 0;
+  }
+
   Widget _chip(String? s) {
     final color = switch (s) {
       '待审批' || '待审核' || '待收货' || '草稿' || '部分收货' || '部分发货' => Colors.orange,

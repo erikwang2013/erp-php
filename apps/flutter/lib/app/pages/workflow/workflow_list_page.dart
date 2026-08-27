@@ -73,12 +73,35 @@ class _WorkflowListPageState extends State<WorkflowListPage> {
     ],
   );
 
+  /// 提交审批：POST /admin/workflow/{id}/submit，需单据类型与单据ID。
+  Future<void> _submit(Map<String, dynamic> row) async {
+    await FormDialog.show(context, title: '提交审批 — ${row['name'] ?? ''}',
+      fields: const [
+        FormFieldConfig(name: 'target_type', label: '单据类型', required: true, hint: '如 purchase_order / expense'),
+        FormFieldConfig(name: 'target_id', label: '单据ID', required: true, type: FormFieldType.number),
+      ],
+      submitText: '提交审批',
+      onSubmit: (data) async {
+        await ApiService.instance.post('/admin/workflow/${row['id']}/submit', data: {
+          'target_type': data['target_type'],
+          'target_id': int.tryParse(data['target_id'] ?? '') ?? 0,
+        });
+        _load();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('提交成功')));
+        }
+        return true;
+      },
+    );
+  }
+
   List<String> _columns() => ['名称', '编码', '操作'];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     '名称': r['name'] ?? '',
     '编码': r['code'] ?? '',
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(icon: const Icon(Icons.send, size: 18, color: Colors.blue), tooltip: '提交审批', onPressed: () => _submit(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),

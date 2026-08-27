@@ -54,6 +54,70 @@ class _TicketListPageState extends State<TicketListPage> {
     });
   }
 
+  Future<void> _assign(Map<String, dynamic> row) async {
+    final users = await _fetchUsers();
+    if (!mounted) return;
+    if (users.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('暂无可选用户')));
+      return;
+    }
+    var selected = users.first['id'].toString();
+    var submitting = false;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: const Text('指派工单'),
+          content: DropdownButtonFormField<String>(
+            initialValue: selected,
+            decoration: const InputDecoration(labelText: '指派人'),
+            items: [
+              for (final u in users)
+                DropdownMenuItem(value: u['id'].toString(), child: Text('${u['username']}')),
+            ],
+            onChanged: submitting ? null : (v) => setState(() => selected = v ?? ''),
+          ),
+          actions: [
+            TextButton(onPressed: submitting ? null : () => Navigator.pop(ctx), child: const Text('取消')),
+            ElevatedButton(
+              onPressed: submitting ? null : () async {
+                setState(() => submitting = true);
+                try {
+                  await ApiService.instance.post('/admin/crm/ticket/${row['id']}/assign',
+                      data: {'assignee_user_id': int.parse(selected)});
+                  if (ctx.mounted) Navigator.pop(ctx);
+                  _load();
+                } catch (e) {
+                  if (ctx.mounted) {
+                    setState(() => submitting = false);
+                    ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('指派失败：$e')));
+                  }
+                }
+              },
+              child: submitting
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('指派'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchUsers() async {
+    final res = await ApiService.instance.get('/admin/user', params: {'page': '1', 'limit': '200'});
+    return List<Map<String, dynamic>>.from((res['data']['list'] ?? []) as List);
+  }
+
+  Future<void> _resolve(Map<String, dynamic> row) async {
+    await FormDialog.show(context, title: '解决工单', fields: const [
+      FormFieldConfig(name: 'content', label: '解决说明', hint: '选填', type: FormFieldType.multiline),
+    ], submitText: '确认解决', onSubmit: (data) async {
+      await ApiService.instance.post('/admin/crm/ticket/${row['id']}/resolve', data: data);
+      _load(); return true;
+    });
+  }
+
   List<FormFieldConfig> _formFields() => const [
     FormFieldConfig(name: 'name', label: '名称', required: true),
     FormFieldConfig(name: 'code', label: '编码'),
@@ -79,6 +143,8 @@ class _TicketListPageState extends State<TicketListPage> {
     '名称': r['name'] ?? '',
     '编码': r['code'] ?? '',
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(icon: const Icon(Icons.person_add, size: 18), tooltip: '指派', onPressed: () => _assign(r)),
+      IconButton(icon: const Icon(Icons.check_circle, size: 18, color: Colors.green), tooltip: '解决', onPressed: () => _resolve(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),

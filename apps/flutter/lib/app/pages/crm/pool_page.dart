@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
+import '../../widgets/form_dialog.dart';
 
 class PoolPage extends StatefulWidget {
   const PoolPage({super.key});
@@ -31,6 +32,24 @@ class _PoolPageState extends State<PoolPage> {
     } catch (e) { setState(() => _loading = false); }
   }
 
+  Future<void> _claim(Map<String, dynamic> row) async {
+    await FormDialog.show(context, title: '领取客户', fields: const [
+      FormFieldConfig(name: 'remark', label: '备注', hint: '选填'),
+    ], onSubmit: (data) async {
+      await ApiService.instance.post('/admin/crm/pool/claim/${row['id']}', data: data);
+      _load(); return true;
+    });
+  }
+
+  Future<void> _release(Map<String, dynamic> row) async {
+    await FormDialog.show(context, title: '释放回公海', fields: const [
+      FormFieldConfig(name: 'remark', label: '备注', hint: '选填'),
+    ], onSubmit: (data) async {
+      await ApiService.instance.post('/admin/crm/pool/release/${row['id']}', data: data);
+      _load(); return true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
@@ -41,11 +60,15 @@ class _PoolPageState extends State<PoolPage> {
     onPageChanged: (p) { _page = p; _load(); },
   );
 
-  List<String> _columns() => ['名称', '编码'];
+  List<String> _columns() => ['名称', '编码', '操作'];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     '名称': r['name'] ?? '',
     '编码': r['code'] ?? '',
+    '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(icon: const Icon(Icons.person_add, size: 18), tooltip: '领取', onPressed: () => _claim(r)),
+      IconButton(icon: const Icon(Icons.logout, size: 18, color: Colors.orange), tooltip: '释放回公海', onPressed: () => _release(r)),
+    ]),
   };
 
 }

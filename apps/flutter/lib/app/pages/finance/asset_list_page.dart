@@ -73,12 +73,36 @@ class _AssetListPageState extends State<AssetListPage> {
     ],
   );
 
+  /// 计提折旧：POST /admin/finance/asset/{id}/depreciate
+  Future<void> _depreciate(Map<String, dynamic> row) async {
+    final now = DateTime.now();
+    await FormDialog.show(context, title: '计提折旧',
+      fields: [
+        FormFieldConfig(name: 'period_year', label: '折旧年份', type: FormFieldType.number, initialValue: '${now.year}'),
+        FormFieldConfig(name: 'period_month', label: '折旧月份', type: FormFieldType.number, initialValue: '${now.month}'),
+      ],
+      submitText: '确认计提',
+      onSubmit: (data) async {
+        await ApiService.instance.post('/admin/finance/asset/${row['id']}/depreciate', data: {
+          'period_year': int.tryParse(data['period_year'] ?? '') ?? now.year,
+          'period_month': int.tryParse(data['period_month'] ?? '') ?? now.month,
+        });
+        _load();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('折旧计提成功')));
+        }
+        return true;
+      },
+    );
+  }
+
   List<String> _columns() => ['名称', '编码', '操作'];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     '名称': r['name'] ?? '',
     '编码': r['code'] ?? '',
     '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(icon: const Icon(Icons.trending_down, size: 18), tooltip: '计提折旧', onPressed: () => _depreciate(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),

@@ -1,4 +1,5 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 
@@ -9,6 +10,8 @@ import '../../services/api_service.dart';
 /// GET  /admin/finance/report/trial-balance     （试算平衡表）
 /// GET  /admin/finance/report/account-balance   （科目余额）
 /// POST /admin/finance/report/close-period      （期末结转）
+/// POST /admin/finance/report/consolidate       （多币种合并）
+/// POST /admin/finance/report/ratios            （财务比率）
 class FinanceReportPage extends StatefulWidget {
   const FinanceReportPage({super.key});
   @override
@@ -19,7 +22,7 @@ class _FinanceReportPageState extends State<FinanceReportPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 6,
+      length: 8,
       child: Column(children: [
         const TabBar(isScrollable: true, tabs: [
           Tab(text: '利润报表'),
@@ -28,6 +31,8 @@ class _FinanceReportPageState extends State<FinanceReportPage> {
           Tab(text: '试算平衡表'),
           Tab(text: '科目余额'),
           Tab(text: '期末结转'),
+          Tab(text: '合并报表'),
+          Tab(text: '财务比率'),
         ]),
         const SizedBox(height: 8),
         Expanded(child: TabBarView(children: const [
@@ -37,9 +42,208 @@ class _FinanceReportPageState extends State<FinanceReportPage> {
           _TrialBalanceTab(),
           _AccountBalanceTab(),
           _ClosePeriodTab(),
+          _ConsolidateTab(),
+          _RatiosTab(),
         ])),
       ]),
     );
+  }
+}
+
+/// JSON 输入区（textarea + label）。
+class _JsonInput extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  const _JsonInput({required this.controller, required this.label, required this.hint});
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      maxLines: 4,
+      style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        isDense: true,
+        border: const OutlineInputBorder(),
+      ),
+    );
+  }
+}
+
+/// 解析 JSON 输入；空串返回 null，解析失败抛 FormatException。
+Object? _parseJson(String text, String fieldName) {
+  final t = text.trim();
+  if (t.isEmpty) return null;
+  try {
+    return jsonDecode(t);
+  } catch (_) {
+    throw FormatException('$fieldName 不是合法 JSON');
+  }
+}
+
+// ============ Tab 7: 合并报表 ============
+class _ConsolidateTab extends StatefulWidget {
+  const _ConsolidateTab();
+  @override
+  State<_ConsolidateTab> createState() => _ConsolidateTabState();
+}
+
+class _ConsolidateTabState extends State<_ConsolidateTab> {
+  final _reportsCtrl = TextEditingController();
+  final _currencyCtrl = TextEditingController(text: 'CNY');
+  Map<String, dynamic> _result = {};
+  bool _loading = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _reportsCtrl.dispose();
+    _currencyCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _run() async {
+    setState(() { _loading = true; _error = null; _result = {}; });
+    try {
+      final reports = _parseJson(_reportsCtrl.text, 'subsidiary_reports');
+      if (reports != null && reports is! List) {
+        throw const FormatException('subsidiary_reports 必须为 JSON 数组');
+      }
+      final res = await ApiService.instance.post('/admin/finance/report/consolidate', data: {
+        'subsidiary_reports': reports ?? [],
+        'base_currency': _currencyCtrl.text.trim().isEmpty ? 'CNY' : _currencyCtrl.text.trim(),
+      });
+      setState(() { _result = Map<String, dynamic>.from(res['data']); _loading = false; });
+    } catch (e) {
+      setState(() { _loading = false; _error = '$e'; });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final consolidated = _result['consolidated'] is List ? _result['consolidated'] as List : <dynamic>[];
+    return SingleChildScrollView(child: Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(width: 420, child: _JsonInput(
+          controller: _reportsCtrl,
+          label: '子公司报表 JSON 数组 *',
+          hint: '[{"name":"子公司A","currency":"USD","amount":1000}, ...]',
+        )),
+        const SizedBox(height: 12),
+        Row(children: [
+          SizedBox(width: 140, child: TextField(
+            controller: _currencyCtrl,
+            decoration: const InputDecoration(labelText: '本位币', isDense: true, border: OutlineInputBorder()),
+          )),
+          const SizedBox(width: 12),
+          ElevatedButton.icon(
+            onPressed: _loading ? null : _run,
+            icon: const Icon(Icons.merge_type, size: 18),
+            label: Text(_loading ? '合并中...' : '执行合并'),
+          ),
+        ]),
+        const SizedBox(height: 8),
+        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_result.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(children: [
+            _MetricCard(label: '本位币', value: _result['base_currency'], color: Colors.blue),
+            _MetricCard(label: '汇兑损益', value: _result['exchange_gain_loss'], color: Colors.orange),
+          ]),
+          if (_result['message'] != null)
+            Padding(padding: const EdgeInsets.only(top: 4), child: Text('${_result['message']}')),
+          if (consolidated.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            _ItemsTable(consolidated),
+          ],
+        ],
+      ]),
+    ));
+  }
+}
+
+// ============ Tab 8: 财务比率 ============
+class _RatiosTab extends StatefulWidget {
+  const _RatiosTab();
+  @override
+  State<_RatiosTab> createState() => _RatiosTabState();
+}
+
+class _RatiosTabState extends State<_RatiosTab> {
+  final _bsCtrl = TextEditingController(
+    text: '{"current_assets":0,"current_liabilities":0,"total_liabilities":0,"total_assets":0}');
+  final _psCtrl = TextEditingController(
+    text: '{"net_profit":0,"revenue":0}');
+  Map<String, dynamic> _result = {};
+  bool _loading = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _bsCtrl.dispose();
+    _psCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _run() async {
+    setState(() { _loading = true; _error = null; _result = {}; });
+    try {
+      final bs = _parseJson(_bsCtrl.text, 'balance_sheet');
+      if (bs != null && bs is! Map) {
+        throw const FormatException('balance_sheet 必须为 JSON 对象');
+      }
+      final ps = _parseJson(_psCtrl.text, 'profit_statement');
+      if (ps != null && ps is! Map) {
+        throw const FormatException('profit_statement 必须为 JSON 对象');
+      }
+      final res = await ApiService.instance.post('/admin/finance/report/ratios', data: {
+        'balance_sheet': bs ?? {},
+        'profit_statement': ps ?? {},
+      });
+      setState(() { _result = Map<String, dynamic>.from(res['data']); _loading = false; });
+    } catch (e) {
+      setState(() { _loading = false; _error = '$e'; });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(child: Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(width: 420, child: _JsonInput(
+          controller: _bsCtrl,
+          label: '资产负债表 JSON *',
+          hint: '{"current_assets":..,"current_liabilities":..,"total_liabilities":..,"total_assets":..}',
+        )),
+        const SizedBox(height: 12),
+        SizedBox(width: 420, child: _JsonInput(
+          controller: _psCtrl,
+          label: '利润表 JSON *',
+          hint: '{"net_profit":..,"revenue":..}',
+        )),
+        const SizedBox(height: 12),
+        ElevatedButton.icon(
+          onPressed: _loading ? null : _run,
+          icon: const Icon(Icons.calculate, size: 18),
+          label: Text(_loading ? '计算中...' : '计算比率'),
+        ),
+        const SizedBox(height: 8),
+        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_result.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(children: [
+            _MetricCard(label: '流动比率', value: _result['current_ratio'], color: Colors.blue),
+            _MetricCard(label: '资产负债率', value: _result['debt_ratio'], color: Colors.orange),
+            _MetricCard(label: '净利率', value: _result['net_profit_margin'], color: Colors.green),
+            _MetricCard(label: '资产收益率', value: _result['return_on_assets'], color: Colors.teal),
+          ]),
+        ],
+      ]),
+    ));
   }
 }
 
