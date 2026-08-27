@@ -396,12 +396,14 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
             continue;
         }
         $show = httpRequest('GET', "{$base}{$s['path']}/{$firstId}", [], $auth());
-        $name = $show['body']['data']['name'] ?? null;
-        if (!is_string($name) || $name === '') {
-            $results[] = ['name' => $label, 'verdict' => 'SKIP', 'detail' => '详情无 name 字段, 跳过 PUT 幂等回写'];
+        $data = $show['body']['data'] ?? null;
+        if (!is_array($data) || ($data['id'] ?? null) !== $firstId) {
+            $results[] = ['name' => $label, 'verdict' => 'SKIP',
+                'detail' => missingSeedTable($show) ? 'e2e最小种子缺业务表, 跳过' : '详情无有效数据, 跳过 PUT 幂等回写'];
             continue;
         }
-        $put = httpRequest('PUT', "{$base}{$s['path']}/{$firstId}", ['name' => $name], $auth());
+        // 全字段原值回写（id/created_at/updated_at 为 guarded 自动忽略），表结构无关的幂等写入
+        $put = httpRequest('PUT', "{$base}{$s['path']}/{$firstId}", $data, $auth());
         $putOk = bizCode($put) === 0 && ($put['body']['data']['id'] ?? null) === $firstId;
         $results[] = ['name' => "{$label} PUT幂等回写", 'verdict' => $putOk ? 'PASS' : 'FAIL',
             'detail' => sprintf('HTTP %d, code=%d%s', $put['status'], bizCode($put), $putOk ? '' : ', ' . ($put['body']['message'] ?? ''))];

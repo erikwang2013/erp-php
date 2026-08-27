@@ -40,10 +40,8 @@ class SettlementController extends BaseController
 
         $query = PurchaseSettlement::query();
         if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
+            $query->join('erik_supplier', 'erik_supplier.id', '=', 'erik_purchase_settlement.supplier_id')
+                  ->where('erik_supplier.name', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
@@ -65,23 +63,32 @@ class SettlementController extends BaseController
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="name", type="string", default="", desc="结算名称（必填）")
-     * @Apidoc\Param(name="code", type="string", default="", desc="结算单号")
-     * @Apidoc\Param(name="status", type="int", default=1, desc="状态")
+     * @Apidoc\Param(name="supplier_id", type="string", default="", desc="供应商ID hashid（必填）")
+     * @Apidoc\Param(name="receive_id", type="string", default="", desc="收货单ID hashid（必填）")
+     * @Apidoc\Param(name="amount", type="number", default="", desc="应付金额（必填）")
+     * @Apidoc\Param(name="status", type="int", default=0, desc="状态: 0=未结算 1=部分结算 2=已结算")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="采购结算记录")
      */
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        $validator = validator($request->all(), [
+            'supplier_id' => 'required',
+            'receive_id' => 'required',
+            'amount' => 'required|numeric',
+            'status' => 'nullable|integer|between:0,2',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
         $item = new PurchaseSettlement();
         $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
+        $item->supplier_id = $this->decodeId((string) $request->input('supplier_id'));
+        $item->receive_id = $this->decodeId((string) $request->input('receive_id'));
+        $item->amount = (float) $request->input('amount');
+        $item->status = (int) $request->input('status', 0);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -120,9 +127,10 @@ class SettlementController extends BaseController
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
      * @Apidoc\Param(name="id", type="string", default="", desc="采购结算hashid")
-     * @Apidoc\Param(name="name", type="string", default="", desc="结算名称")
-     * @Apidoc\Param(name="code", type="string", default="", desc="结算单号")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态")
+     * @Apidoc\Param(name="supplier_id", type="string", default="", desc="供应商ID hashid")
+     * @Apidoc\Param(name="receive_id", type="string", default="", desc="收货单ID hashid")
+     * @Apidoc\Param(name="amount", type="number", default="", desc="应付金额")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态: 0=未结算 1=部分结算 2=已结算")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的采购结算记录")
@@ -135,7 +143,18 @@ class SettlementController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        $this->fillModelFromRequest($item, $request);
+        if ($request->input('supplier_id')) {
+            $item->supplier_id = $this->decodeId((string) $request->input('supplier_id'));
+        }
+        if ($request->input('receive_id')) {
+            $item->receive_id = $this->decodeId((string) $request->input('receive_id'));
+        }
+        if ($request->input('amount') !== null && $request->input('amount') !== '') {
+            $item->amount = (float) $request->input('amount');
+        }
+        if ($request->input('status') !== null && $request->input('status') !== '') {
+            $item->status = (int) $request->input('status');
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
