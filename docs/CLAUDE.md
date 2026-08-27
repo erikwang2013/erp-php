@@ -27,7 +27,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + 多租户 + DMS + 7新表 | ✅ |
 
-**测试**: 513 tests, 2368 assertions（32 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: <!-- stats:tests=513 --> tests, <!-- stats:assertions=2368 --> assertions（32 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 
@@ -259,6 +259,20 @@ Redis 滑动窗口（Lua 原子化），默认 60 次/分钟/IP/路由：
 - 使用 `@ohos.net.http` 原生 HTTP 客户端
 - Token 无感刷新：401 时自动调用 `/api/auth/refresh`
 - 刷新失败自动重定向登录页
+
+## 已知技术债
+
+> 以下清单由 `grep -rn "new .*Service(" app/controller/` 实测（26 处），与代码事实一致。
+> **P5 不重构**：控制器直建服务为既有模式，仅在新建代码时改走容器注入（`support\Container`），存量代码维持现状。
+
+| 模块 | 直建服务数 | 说明 |
+|------|-----------|------|
+| wms | 8 | 收货/上架/波次/拣货/打包等流程服务 |
+| finance | 6 | 应收应付/核销/日记账/结转等 |
+| tms | 5 | 运单/比价/轨迹/运费发票 |
+| oms | 3 | 履约/预占/RMA |
+| quality | 2 | 检验/不合格品处理 |
+| hr | 2 | 薪资/考勤 |
 
 ## 部署
 

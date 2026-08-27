@@ -1,6 +1,9 @@
 # 测试报告 — 2026-08-26
 
 > 更新：2026-08-27 — 遗留事项 5 项全部闭环；测试数字 505/2342/26 → 513/2368/32；顺带修复 4 → 5 处。旧值见文末「更新记录」。
+>
+> **快照文档**：本报告为 2026-08-26/27 实测快照，统计口径以 `bash scripts/doc-stats.sh` 与 `docs/FUNCTIONS.md` 附录为准
+> （2026-08-27 复核：PHP 单测 513/2368/32 一致；Flutter 实测 101 用例全绿，见下文）。
 
 ## 执行摘要
 
@@ -8,7 +11,7 @@
 |------|----|
 | 报告日期 | 2026-08-26 |
 | PHP 单元测试 | 513 tests / 2368 assertions / 32 skipped |
-| Flutter 页面测试 | 98 tests 全部通过（flutter analyze 0 error） |
+| Flutter 页面测试 | 101 tests 全部通过（flutter analyze 0 error；2026-08-27 实测） |
 | API 自动化 | 104 端点 / ~230 断言（CI e2e 已接入，见 ci.yml「Run E2E API coverage」步骤） |
 | 覆盖率（pcov 实测） | 整体 7.51% / app/service 15.65% / app/controller 3.62% |
 | 静态分析 | PHPStan 0 error ✅ |
@@ -93,7 +96,7 @@
 | tests/NotificationServiceTest.php | 6 | 通知服务 |
 | tests/FinanceRatioServiceTest.php | 2 | 财务比率 |
 
-### Flutter 页面测试：98 tests 全部通过
+### Flutter 页面测试：101 tests 全部通过（2026-08-27 实测复核 98 → 101）
 
 本次新增 8 文件 29 用例（既有 10 文件未改动，全部通过）；`flutter analyze` 0 error（1 条既有 info）：
 

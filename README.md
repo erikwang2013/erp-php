@@ -137,7 +137,7 @@ open-erp/
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（20 个测试文件，137 个测试方法，805 条断言）
+├── tests/                      # PHPUnit 测试（<!-- stats:test_files=60 --> 个测试文件，<!-- stats:tests=513 --> 个测试方法，<!-- stats:assertions=2368 --> 条断言）
 ├── resource/
 │   └── translations/           # 翻译文件 (zh_CN, en)
 │       ├── zh_CN/              # 中文翻译 (127 键)
@@ -218,7 +218,12 @@ cp .env.example .env
 | `SNOWFLAKE_WORKER_ID` | 工作节点 ID (0-31) | `1` |
 | `SCOUT_HOSTS` | ES 地址 | `http://localhost:9200` |
 
-**生产环境务必修改所有密钥为随机字符串。**
+**生产环境务必修改所有密钥为随机字符串**（`JWT_SECRET` / `ENCRYPTION_KEY` / `HASHIDS_SALT` 等占位值会被 `env_required` 拒绝启动）：
+
+```bash
+# 生成随机密钥并写入 .env（幂等，已配置的值不会被覆盖）
+bash scripts/gen-env-keys.sh .env
+```
 
 ### 3. 初始化数据库
 
@@ -270,13 +275,16 @@ flutter run -d chrome    # Web 端（PC 管理后台风格）
 # 1. 配置 Docker 环境变量
 cp .env.docker .env
 
-# 2. 启动所有服务
+# 2. 替换占位密钥为随机值（JWT_SECRET/ENCRYPTION_KEY/HASHIDS_SALT 等，幂等）
+bash scripts/gen-env-keys.sh .env
+
+# 3. 启动所有服务
 docker-compose up -d
 
-# 3. 初始化数据库（进入 app 容器执行）
+# 4. 初始化数据库（进入 app 容器执行）
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. 访问
+# 5. 访问
 # http://localhost:8788  (webman)
 # http://localhost:8080  (Nginx 反向代理)
 ```
@@ -485,6 +493,14 @@ GitHub Actions 持续集成流水线：`.github/workflows/ci.yml`
 - PHP 语法检查 (`php -l`)
 - PHPUnit 单元测试
 - Flutter 静态分析 (`flutter analyze`，CI 已含，启用中 — 见 `.github/workflows/ci.yml` 的 flutter job)
+
+### 发布流程（版本增量）
+
+push 至 `main` 且 php / docs / e2e 检查全部通过后，`ci.yml` 的 `release` 作业自动按最新 tag 的 **patch+1** 创建新版本 tag 并推送（`v1.1.4` → `v1.1.5`），随后创建同名 GitHub Release（`--generate-notes` 自动生成变更说明）。
+
+- **触发**：仅 push 到 `main`（PR 不触发；tag push 不匹配分支过滤器，不会递归触发本工作流）
+- **幂等**：远端已存在同名 tag 或 release（并发 CI / 手动已打）时自动跳过，不报错
+- **本地预演**：`bash scripts/bump-version.sh --check` 打印下一个版本号（只读，不写远端）
 
 ### 数据库备份
 

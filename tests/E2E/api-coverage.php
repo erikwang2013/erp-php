@@ -11,6 +11,7 @@
  * - 每个只读 index 端点: 断言 code=0 + data 契约；
  * - 系统管理额外覆盖: 登录(自动完成点击验证码)/刷新/登出、用户/角色/权限/配置/日志
  *   读操作、个人中心（用自身当前 real_name 回写，幂等无副作用）。
+ * - 采购/销售结算: PUT 原值幂等回写 + DELETE 空密码被拒（验证资源路由存在，无副作用）。
  * 全部读操作为主，不新建/删除任何数据。
  *
  * 用法:
@@ -160,8 +161,8 @@ $MATRIX = [
     ['系统管理', '/admin', ['/user', '/role', '/permission'],
         ['/config', '/log', '/dashboard', '/dashboard/sales', '/dashboard/inventory', '/dashboard/finance', '/dashboard/oms', '/dashboard/wms', '/dashboard/tms']],
     ['商品基础', '/admin', ['/product', '/category', '/brand', '/warehouse', '/location', '/supplier', '/customer'], ['/customer-level']],
-    ['采购', '/admin', ['/purchase/apply', '/purchase/order', '/purchase/receive', '/purchase/return'], ['/purchase/settlement']],
-    ['销售', '/admin', ['/sales/quotation', '/sales/order', '/sales/delivery', '/sales/return'], ['/sales/settlement']],
+    ['采购', '/admin', ['/purchase/apply', '/purchase/order', '/purchase/receive', '/purchase/return', '/purchase/settlement'], []],
+    ['销售', '/admin', ['/sales/quotation', '/sales/order', '/sales/delivery', '/sales/return', '/sales/settlement'], []],
     ['库存', '/admin', ['/inventory/transfer', '/inventory/check', '/inventory/alert'], ['/inventory', '/inventory/flow']],
     ['财务', '/admin', ['/finance/ar-ap', '/finance/voucher', '/finance/receipt', '/finance/payment', '/finance/expense',
         '/finance/bank-account', '/finance/asset', '/finance/currency', '/finance/exchange-rate', '/finance/budget',
@@ -374,17 +375,53 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
         }
     }
 
-    // ---- 8. 登出并验证 token 失效 ----
+    // ---- 8. 结算 PUT/DELETE 路由存在断言（幂等/无副作用，同个人中心回写模式） ----
+    // PUT: 读取当前 name 原值回写 → code=0（路由未注册时 fallback 返回 "404 Not Found"）；
+    // DELETE: 空密码被二次确认拒绝 → code=422（证明路由分发到 destroy，不删除任何数据）。
+    $settlementChecks = [
+        ['name' => '采购结算', 'path' => '/purchase/settlement'],
+        ['name' => '销售结算', 'path' => '/sales/settlement'],
+    ];
+    foreach ($settlementChecks as $s) {
+        $label = "8. PUT/DELETE {$s['path']}/{{id}} {$s['name']}";
+        if ($token === null) {
+            $results[] = ['name' => $label, 'verdict' => 'SKIP', 'detail' => '前置登录失败'];
+            continue;
+        }
+        $list = httpRequest('GET', "{$base}{$s['path']}?page=1&limit=1", [], $auth());
+        $firstId = $list['body']['data']['list'][0]['id'] ?? null;
+        if ($firstId === null) {
+            $results[] = ['name' => $label, 'verdict' => 'SKIP',
+                'detail' => missingSeedTable($list) ? 'e2e最小种子缺业务表, 跳过' : '列表无数据, 跳过'];
+            continue;
+        }
+        $show = httpRequest('GET', "{$base}{$s['path']}/{$firstId}", [], $auth());
+        $name = $show['body']['data']['name'] ?? null;
+        if (!is_string($name) || $name === '') {
+            $results[] = ['name' => $label, 'verdict' => 'SKIP', 'detail' => '详情无 name 字段, 跳过 PUT 幂等回写'];
+            continue;
+        }
+        $put = httpRequest('PUT', "{$base}{$s['path']}/{$firstId}", ['name' => $name], $auth());
+        $putOk = bizCode($put) === 0 && ($put['body']['data']['id'] ?? null) === $firstId;
+        $results[] = ['name' => "{$label} PUT幂等回写", 'verdict' => $putOk ? 'PASS' : 'FAIL',
+            'detail' => sprintf('HTTP %d, code=%d%s', $put['status'], bizCode($put), $putOk ? '' : ', ' . ($put['body']['message'] ?? ''))];
+        $del = httpRequest('DELETE', "{$base}{$s['path']}/{$firstId}", [], $auth());
+        $delOk = bizCode($del) === 422;
+        $results[] = ['name' => "{$label} DELETE空密码被拒", 'verdict' => $delOk ? 'PASS' : 'FAIL',
+            'detail' => sprintf('HTTP %d, code=%d%s', $del['status'], bizCode($del), $delOk ? '' : ', ' . ($del['body']['message'] ?? ''))];
+    }
+
+    // ---- 9. 登出并验证 token 失效 ----
     if ($token !== null) {
         $resp = httpRequest('POST', "{$base}/admin/profile/logout", [], $auth());
         $code = bizCode($resp);
         $probe = httpRequest('GET', "{$base}/admin/user?page=1&limit=1", [], $auth());
         $pCode = bizCode($probe);
         $ok = $code === 0 && ($pCode === 401 || $pCode === 403);
-        $results[] = ['name' => '8. POST /admin/profile/logout', 'verdict' => $ok ? 'PASS' : 'FAIL',
+        $results[] = ['name' => '9. POST /admin/profile/logout', 'verdict' => $ok ? 'PASS' : 'FAIL',
             'detail' => sprintf('登出 code=%d, 登出后访问 code=%d', $code, $pCode)];
     } else {
-        $results[] = ['name' => '8. POST /admin/profile/logout', 'verdict' => 'SKIP', 'detail' => '前置登录失败'];
+        $results[] = ['name' => '9. POST /admin/profile/logout', 'verdict' => 'SKIP', 'detail' => '前置登录失败'];
     }
 
     // ---- 汇总 ----

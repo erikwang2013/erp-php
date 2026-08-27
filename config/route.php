@@ -124,7 +124,7 @@ Route::group('/admin', function () {
     Route::resource('/purchase/order', app\controller\purchase\OrderController::class);
     Route::resource('/purchase/receive', app\controller\purchase\ReceiveController::class);
     Route::resource('/purchase/return', app\controller\purchase\ReturnController::class);
-    Route::any('/purchase/settlement', [app\controller\purchase\SettlementController::class, 'index']);
+    Route::resource('/purchase/settlement', app\controller\purchase\SettlementController::class);
 
     // ============================================================
     // 销售模块
@@ -133,7 +133,7 @@ Route::group('/admin', function () {
     Route::resource('/sales/order', app\controller\sales\OrderController::class);
     Route::resource('/sales/delivery', app\controller\sales\DeliveryController::class);
     Route::resource('/sales/return', app\controller\sales\ReturnController::class);
-    Route::any('/sales/settlement', [app\controller\sales\SettlementController::class, 'index']);
+    Route::resource('/sales/settlement', app\controller\sales\SettlementController::class);
 
     // ============================================================
     // 库存模块

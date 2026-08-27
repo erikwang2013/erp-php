@@ -6,7 +6,7 @@
 #
 # 用途：统计项目代码规模的「真实数字」，供 docs/ 引用与 CI 校验。
 #   - 默认模式：输出稳定 key=value 行（每行一个统计键），供文档与 CI 解析；
-#   - --check 模式：生成当前统计后，扫描 docs/**/*.md 中形如
+#   - --check 模式：生成当前统计后，扫描 docs/**/*.md 与根 README.md 中形如
 #     <!-- stats:key=value --> 的注释标注，逐键比对，漂移即非零退出。
 #
 # 用法：
@@ -133,7 +133,7 @@ check_docs() {
 
   echo "== 文档统计校验 =="
   echo "统计来源: bash scripts/doc-stats.sh（实时采集）"
-  echo "校验目录: $docs_dir"
+  echo "校验范围: $docs_dir + 根目录 README.md"
   echo ""
 
   # grep -rnoE 输出格式: 文件:行号:<!-- stats:key=value -->
@@ -160,7 +160,7 @@ check_docs() {
       echo "✗ $file:$lineno — stats:${key} 标注 ${val} ≠ 实测 ${actual}"
       fail=$((fail + 1))
     fi
-  done < <(grep -rnoE '<!-- stats:[a-zA-Z0-9_]+=[0-9]+ -->' "$docs_dir" --include='*.md' 2>/dev/null || true)
+  done < <(grep -rnoE '<!-- stats:[a-zA-Z0-9_]+=[0-9]+ -->' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null || true)
 
   echo ""
   if [[ $checked -eq 0 ]]; then

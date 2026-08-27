@@ -50,6 +50,8 @@ mysql -u root -p erp < database/install.sql
 ```bash
 cd /home/wwwroot/erp-php/service
 cp .env.example .env
+# 生成随机密钥并写入 .env（JWT_SECRET/ENCRYPTION_KEY/HASHIDS_SALT 等，幂等；占位值会被 env_required 拒绝启动）
+bash scripts/gen-env-keys.sh .env
 ```
 
 编辑 `.env`，修改以下关键配置：
@@ -123,6 +125,8 @@ VALUES (90000000000000001, 10000000000000001);
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# 替换占位密钥为随机值（幂等）
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # 进入容器导入数据库
