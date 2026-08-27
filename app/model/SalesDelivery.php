@@ -15,7 +15,7 @@ class SalesDelivery extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_sales_delivery';
+    protected $table = 'erp_sales_delivery';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -47,7 +47,7 @@ class SettlementController extends BaseController
     }
 
     /**
-     * 创建核销记录（经服务层校验余额并同步 erik_finance_ar_ap.settled_amount）
+     * 创建核销记录（经服务层校验余额并同步 erp_finance_ar_ap.settled_amount）
      * @Apidoc\Title("创建核销记录")
      * @Apidoc\Desc("按应收应付类型走收款/付款核销，超出未核销余额将拒绝")
      * @Apidoc\Url("/admin/finance/settlement")

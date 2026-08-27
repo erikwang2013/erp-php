@@ -349,11 +349,11 @@ try {
 
 **Модель данных**: связь трёх уровней User -> Role -> Permission
 
-- `erik_admin_user` (таблица пользователей)
-- `erik_admin_user_role` (таблица связи пользователь-роль)
-- `erik_admin_role` (таблица ролей)
-- `erik_admin_role_permission` (таблица связи роль-право)
-- `erik_admin_permission` (таблица прав)
+- `erp_admin_user` (таблица пользователей)
+- `erp_admin_user_role` (таблица связи пользователь-роль)
+- `erp_admin_role` (таблица ролей)
+- `erp_admin_role_permission` (таблица связи роль-право)
+- `erp_admin_permission` (таблица прав)
 
 **Типы прав**:
 | type | Смысл | Пример |

@@ -30,8 +30,8 @@ flowchart TB
     end
 
     subgraph "स्टोरेज परत"
-        D1[("MySQL 8.0<br/>मुख्य स्टोरेज<br/>तालिका उपसर्ग erik_")]
-        D2[("Elasticsearch<br/>फुल-टेक्स्ट खोज<br/>इंडेक्स उपसर्ग erik_")]
+        D1[("MySQL 8.0<br/>मुख्य स्टोरेज<br/>तालिका उपसर्ग erp_")]
+        D2[("Elasticsearch<br/>फुल-टेक्स्ट खोज<br/>इंडेक्स उपसर्ग erp_")]
         D3[("Redis<br/>Session / कैश<br/>Captcha स्टोरेज")]
     end
 
@@ -380,7 +380,7 @@ flowchart LR
     end
 
     subgraph "2. स्टोरेज"
-        S1["MySQL erik_* तालिकाएँ<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
+        S1["MySQL erp_* तालिकाएँ<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
         S2["संवेदनशील फ़ील्ड<br/>encryptable cast<br/>AES-128-ECB एन्क्रिप्शन"]
         G3 --> S1
         S1 --> S2
@@ -446,7 +446,7 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake"
         VARCHAR username UK
         VARCHAR password "bcrypt"
@@ -463,7 +463,7 @@ erDiagram
         DATETIME deleted_at "सॉफ्ट डिलीट"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake"
         VARCHAR name
         VARCHAR slug UK
@@ -473,7 +473,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake"
         BIGINT parent_id FK "सेल्फ-रेफरेंस"
         VARCHAR name
@@ -486,17 +486,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK
         BIGINT role_id PK_FK
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK
         BIGINT permission_id PK_FK
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake"
         BIGINT user_id FK
         VARCHAR action
@@ -508,7 +508,7 @@ erDiagram
         DATETIME created_at
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake"
         VARCHAR group
         VARCHAR key
@@ -519,12 +519,12 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : "user_id"
-    erik_admin_role ||--o{ erik_admin_user_role : "role_id"
-    erik_admin_role ||--o{ erik_admin_role_permission : "role_id"
-    erik_admin_permission ||--o{ erik_admin_role_permission : "permission_id"
-    erik_admin_user ||--o{ erik_operation_log : "user_id"
-    erik_admin_permission ||--o{ erik_admin_permission : "parent_id"
+    erp_admin_user ||--o{ erp_admin_user_role : "user_id"
+    erp_admin_role ||--o{ erp_admin_user_role : "role_id"
+    erp_admin_role ||--o{ erp_admin_role_permission : "role_id"
+    erp_admin_permission ||--o{ erp_admin_role_permission : "permission_id"
+    erp_admin_user ||--o{ erp_operation_log : "user_id"
+    erp_admin_permission ||--o{ erp_admin_permission : "parent_id"
 ```
 
 ---
@@ -676,8 +676,8 @@ flowchart TB
     end
 
     subgraph "डेटा परत"
-        MYSQL["MySQL 8.0<br/>मास्टर-स्लेव रेप्लिकेशन<br/>erik_ उपसर्ग"]
-        ES["Elasticsearch 8.x<br/>3 नोड क्लस्टर<br/>erik_ उपसर्ग"]
+        MYSQL["MySQL 8.0<br/>मास्टर-स्लेव रेप्लिकेशन<br/>erp_ उपसर्ग"]
+        ES["Elasticsearch 8.x<br/>3 नोड क्लस्टर<br/>erp_ उपसर्ग"]
         REDIS["Redis 7.x<br/>सेंटिनल मोड<br/>poster:captcha:*"]
     end
 
@@ -918,22 +918,22 @@ class_exists फॉलबैक इंस्टैंशिएशन पर न�
 ## OMS/WMS/TMS विस्तार मॉड्यूल (2026-08)
 
 ### OMS (Order Management System) — 8 तालिकाएँ
-- **ऑर्डर विस्तार** (`erik_oms_order`): मल्टी-चैनल एग्रीगेशन/फ़ुलफ़िलमेंट स्थिति/भुगतान स्थिति/प्राथमिकता
-- **ऑर्डर पता** (`erik_oms_order_address`): डिलीवरी/बिलिंग पता (बहु-देश प्रारूप)
-- **फ़ुलफ़िलमेंट रिकॉर्ड** (`erik_oms_fulfillment`+`_item`): आवंटित/पिक किया/पैक किया/भेजा गया मात्रा ट्रैकिंग
-- **RMA** (`erik_oms_rma`+`_item`): वापसी/अदला-बदली पूर्ण जीवनचक्र
-- **इन्वेंटरी प्री-रिज़र्वेशन** (`erik_oms_inventory_reservation`): ATP = physical - reserved
-- **चैनल** (`erik_channel`): direct/marketplace/edi/pos
+- **ऑर्डर विस्तार** (`erp_oms_order`): मल्टी-चैनल एग्रीगेशन/फ़ुलफ़िलमेंट स्थिति/भुगतान स्थिति/प्राथमिकता
+- **ऑर्डर पता** (`erp_oms_order_address`): डिलीवरी/बिलिंग पता (बहु-देश प्रारूप)
+- **फ़ुलफ़िलमेंट रिकॉर्ड** (`erp_oms_fulfillment`+`_item`): आवंटित/पिक किया/पैक किया/भेजा गया मात्रा ट्रैकिंग
+- **RMA** (`erp_oms_rma`+`_item`): वापसी/अदला-बदली पूर्ण जीवनचक्र
+- **इन्वेंटरी प्री-रिज़र्वेशन** (`erp_oms_inventory_reservation`): ATP = physical - reserved
+- **चैनल** (`erp_channel`): direct/marketplace/edi/pos
 
 ### WMS (Warehouse Management System) — 12 तालिकाएँ
-- **वेयरहाउस ज़ोन/लोकेशन** (`erik_wms_zone`, `erik_wms_location`): zone→aisle→rack→level→bin
-- **इनबाउंड** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
-- **आउटबाउंड** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+- **वेयरहाउस ज़ोन/लोकेशन** (`erp_wms_zone`, `erp_wms_location`): zone→aisle→rack→level→bin
+- **इनबाउंड** (`erp_wms_asn`+`_item`, `erp_wms_receiving`, `erp_wms_putaway_task`+`_item`)
+- **आउटबाउंड** (`erp_wms_wave`+`wave_order`, `erp_wms_pick_task`+`_item`, `erp_wms_pack_task`)
 
 ### TMS (Transport Management System) — 7 तालिकाएँ
-- **कैरियर** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
-- **शिपमेंट** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
-- **इनवॉइस** (`erik_tms_freight_invoice`)
+- **कैरियर** (`erp_tms_carrier`+`carrier_service`, `erp_tms_freight_rate`)
+- **शिपमेंट** (`erp_tms_shipment`+`_package`, `erp_tms_tracking_event`)
+- **इनवॉइस** (`erp_tms_freight_invoice`)
 
 ### डेटा प्रवाह
 ```
@@ -1048,7 +1048,7 @@ SaaS बिलिंग, टेनेंट सेल्फ-सर्विस �
    `app\middleware\TenantScope::class` (AdminAuth के बाद रखें, सुनिश्चित करें कि प्रमाणीकृत है)।
 2. अनुरोधकर्ता अनुरोध हेडर में `X-Tenant-Id` (int टेनेंट ID) भेजे।
 3. आइसोलेशन आवश्यक व्यावसायिक तालिकाओं में `tenant_id` कॉलम (BIGINT + इंडेक्स) जोड़ें और मौजूदा डेटा बैकफ़िल करें;
-   डिक्शनरी/सिस्टम तालिकाएँ (जैसे `erik_admin_user`, `erik_role`, `erik_permission`) आइसोलेट नहीं होतीं।
+   डिक्शनरी/सिस्टम तालिकाएँ (जैसे `erp_admin_user`, `erp_role`, `erp_permission`) आइसोलेट नहीं होतीं।
 4. आइसोलेशन आवश्यक मॉडल वर्गों में `use app\model\concerns\TenantScope;` जोड़ें, स्वचालित रूप से वर्तमान टेनेंट द्वारा फ़िल्टर होगा।
 5. (वैकल्पिक) यदि JWT से टेनेंट लेना हो (अनुरोध हेडर के बजाय): लॉगिन टोकन पेलोड में `tenant_id` दावा जोड़ें,
    और मिडलवेयर में `$payload['tenant_id']` से पढ़ें।

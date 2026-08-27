@@ -60,7 +60,7 @@ DB_PORT=3306
 DB_DATABASE=erp
 DB_USERNAME=erp
 DB_PASSWORD=kata_sandi_anda
-DB_PREFIX=erik_
+DB_PREFIX=erp_
 
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
@@ -104,11 +104,11 @@ Setelah instalasi, peran super admin (`super_admin`) sudah tersedia, memiliki se
 
 ```sql
 -- Buat admin (kata sandi menggunakan hash bcrypt)
-INSERT INTO `erik_admin_user` (`id`, `username`, `password`, `real_name`, `status`)
+INSERT INTO `erp_admin_user` (`id`, `username`, `password`, `real_name`, `status`)
 VALUES (90000000000000001, 'admin', '$2y$10$...', 'System Administrator', 1);
 
 -- Tautkan peran super admin
-INSERT INTO `erik_admin_user_role` (`user_id`, `role_id`)
+INSERT INTO `erp_admin_user_role` (`user_id`, `role_id`)
 VALUES (90000000000000001, 10000000000000001);
 ```
 
@@ -136,7 +136,7 @@ mysql -h mysql -u root -p erp < database/install.sql
 
 | Konvensi | Keterangan |
 |------|------|
-| Prefiks tabel | `erik_` |
+| Prefiks tabel | `erp_` |
 | Primary key | `id` BIGINT UNSIGNED NOT NULL, non-auto-increment, dibuat oleh snowflake-php |
 | Charset | utf8mb4, utf8mb4_unicode_ci |
 | Mesin | InnoDB |

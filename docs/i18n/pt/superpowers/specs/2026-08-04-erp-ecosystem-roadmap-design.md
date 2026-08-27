@@ -377,32 +377,32 @@ Sem novas tabelas; o ecossistema do frontend não envolve mudanças na estrutura
 
 | Nome da tabela | Uso | Fase |
 |------|------|------|
-| `erik_finance_period_close` | Registro de fechamento de período | P1 |
-| `erik_finance_account_balance` | Snapshot de saldos de contas | P1 |
-| `erik_hr_salary_config` | Configuração de cálculo de folha | P1 |
-| `erik_hr_social_insurance_config` | Configuração de base do seguro social | P1 |
-| `erik_hr_housing_fund_config` | Configuração do fundo de habitação | P1 |
-| `erik_mfg_mrp_run_log` | Log de execução do MRP | P1 |
-| `erik_mfg_order_suggestion` | Pedido sugerido | P1 |
-| `erik_quality_inspection_standard` | Padrão de inspeção | P1 |
-| `erik_quality_iqc_record` | Inspeção IQC de entrada | P1 |
-| `erik_quality_ipqc_record` | Inspeção IPQC de processo | P1 |
-| `erik_quality_oqc_record` | Inspeção OQC de saída | P1 |
-| `erik_quality_nonconformity` | Produto não conforme | P1 |
-| `erik_notification_channel_config` | Configuração de canais de notificação | P1 |
-| `erik_notification_template` | Templates de notificação | P1 |
+| `erp_finance_period_close` | Registro de fechamento de período | P1 |
+| `erp_finance_account_balance` | Snapshot de saldos de contas | P1 |
+| `erp_hr_salary_config` | Configuração de cálculo de folha | P1 |
+| `erp_hr_social_insurance_config` | Configuração de base do seguro social | P1 |
+| `erp_hr_housing_fund_config` | Configuração do fundo de habitação | P1 |
+| `erp_mfg_mrp_run_log` | Log de execução do MRP | P1 |
+| `erp_mfg_order_suggestion` | Pedido sugerido | P1 |
+| `erp_quality_inspection_standard` | Padrão de inspeção | P1 |
+| `erp_quality_iqc_record` | Inspeção IQC de entrada | P1 |
+| `erp_quality_ipqc_record` | Inspeção IPQC de processo | P1 |
+| `erp_quality_oqc_record` | Inspeção OQC de saída | P1 |
+| `erp_quality_nonconformity` | Produto não conforme | P1 |
+| `erp_notification_channel_config` | Configuração de canais de notificação | P1 |
+| `erp_notification_template` | Templates de notificação | P1 |
 
 ### Novas tabelas no P3
 
 | Nome da tabela | Uso | Fase |
 |------|------|------|
-| `erik_bi_dashboard` | Dashboard BI | P3 |
-| `erik_bi_widget` | Componente BI | P3 |
-| `erik_eam_equipment` | Ficha de equipamentos | P3 |
-| `erik_eam_maintenance_plan` | Plano de manutenção | P3 |
-| `erik_eam_repair_order` | Ordem de reparo | P3 |
-| `erik_dms_document` | Documento controlado | P3 |
-| `erik_dms_document_version` | Versão de documento | P3 |
+| `erp_bi_dashboard` | Dashboard BI | P3 |
+| `erp_bi_widget` | Componente BI | P3 |
+| `erp_eam_equipment` | Ficha de equipamentos | P3 |
+| `erp_eam_maintenance_plan` | Plano de manutenção | P3 |
+| `erp_eam_repair_order` | Ordem de reparo | P3 |
+| `erp_dms_document` | Documento controlado | P3 |
+| `erp_dms_document_version` | Versão de documento | P3 |
 
 ---
 

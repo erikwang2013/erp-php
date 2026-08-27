@@ -18,8 +18,8 @@ flowchart TB
     end
 
     subgraph data["ডেটা লেয়ার"]
-        mysql[("MySQL 8.0<br/>মাস্টার-স্লেভ রেপ্লিকেশন<br/>erik_ উপসর্গ")]
-        es[("Elasticsearch 8.x<br/>3-নোড ক্লাস্টার<br/>erik_ উপসর্গ")]
+        mysql[("MySQL 8.0<br/>মাস্টার-স্লেভ রেপ্লিকেশন<br/>erp_ উপসর্গ")]
+        es[("Elasticsearch 8.x<br/>3-নোড ক্লাস্টার<br/>erp_ উপসর্গ")]
         redis[("Redis 7.x<br/>সেন্টিনেল মোড<br/>poster:captcha:*")]
     end
 

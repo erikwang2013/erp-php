@@ -24,7 +24,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-          MYSQL_DATABASE: open_admin
+          MYSQL_DATABASE: erp
         ports:
           - 3306:3306
         options: >-
@@ -87,7 +87,7 @@ jobs:
       # 遗留#2：集成测试由 TEST_DB_* 驱动（tests/Integration/IntegrationTestCase.php），
       # 缺表会连接成功但查询失败 —— 先导入全量 install.sql（163 张表 + 全部种子）再跑。
       - name: Initialize database (full seed for integration tests)
-        run: mysql -h 127.0.0.1 -u root open_admin < database/install.sql
+        run: mysql -h 127.0.0.1 -u root erp < database/install.sql
 
       - name: PHPUnit Tests
         # --no-coverage：普通测试步骤不做覆盖率采集（phpunit.xml 已配置报告输出，
@@ -107,7 +107,7 @@ jobs:
           fi
         # 遗留#2：与 e2e job 的 mysql/redis 服务一致，跑起集成测试（缺则 markTestSkipped 跳过）
         env:
-          TEST_DB_DATABASE: open_admin
+          TEST_DB_DATABASE: erp
           TEST_DB_USERNAME: root
           TEST_DB_PASSWORD: ""
           TEST_REDIS_HOST: 127.0.0.1
@@ -132,7 +132,7 @@ jobs:
         env:
           XDEBUG_MODE: coverage
           # 与 PHPUnit Tests 步骤一致，覆盖率采集同样纳入集成测试
-          TEST_DB_DATABASE: open_admin
+          TEST_DB_DATABASE: erp
           TEST_DB_USERNAME: root
           TEST_DB_PASSWORD: ""
           TEST_REDIS_HOST: 127.0.0.1
@@ -278,7 +278,7 @@ jobs:
   #   $hashid 顾虑已过时）。id 经 encodeIds/decodeId 做 hashid 往返，链路自洽。
   # 端口: config/process.php 监听 8788，smoke 与健康检查均用 8788。
   # 本地验证命令（与本 job 等价）:
-  #   mysql -h 127.0.0.1 -u root open_admin < database/install.sql
+  #   mysql -h 127.0.0.1 -u root erp < database/install.sql
   #   php start.php start -d
   #   E2E_USER=admin E2E_PASS=admin123 php tests/E2E/smoke.php --base-url=http://127.0.0.1:8788
   # ============================================================
@@ -294,7 +294,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-          MYSQL_DATABASE: open_admin
+          MYSQL_DATABASE: erp
         ports:
           - 3306:3306
         options: >-
@@ -331,12 +331,12 @@ jobs:
         # NULL 缺陷已于 2026-08-26 修复，本地验证命令见本 job 头注释）。
         # 测试账号 bcrypt 哈希在 CI 运行时生成，避免仓库内提交固定哈希。
         run: |
-          mysql -h 127.0.0.1 -u root open_admin < database/install.sql
+          mysql -h 127.0.0.1 -u root erp < database/install.sql
           HASH=$(php -r "echo password_hash('admin123', PASSWORD_BCRYPT);")
-          mysql -h 127.0.0.1 -u root open_admin -e "
-            INSERT INTO erik_admin_user (id, username, password, real_name, status)
+          mysql -h 127.0.0.1 -u root erp -e "
+            INSERT INTO erp_admin_user (id, username, password, real_name, status)
             VALUES (90000000000000001, 'admin', '$HASH', 'E2E Admin', 1);
-            INSERT INTO erik_admin_user_role (user_id, role_id)
+            INSERT INTO erp_admin_user_role (user_id, role_id)
             VALUES (90000000000000001, 10000000000000001);"
 
       - name: Start webman service

@@ -18,8 +18,8 @@ flowchart TB
     end
 
     subgraph data["طبقة البيانات"]
-        mysql[("MySQL 8.0<br/>نسخ رئيسي-تابع<br/>بادئة erik_")]
-        es[("Elasticsearch 8.x<br/>عنقود من 3 عقد<br/>بادئة erik_")]
+        mysql[("MySQL 8.0<br/>نسخ رئيسي-تابع<br/>بادئة erp_")]
+        es[("Elasticsearch 8.x<br/>عنقود من 3 عقد<br/>بادئة erp_")]
         redis[("Redis 7.x<br/>وضع الحارس<br/>poster:captcha:*")]
     end
 

@@ -15,7 +15,7 @@
 
 ### 1.2 기술 제약
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
-- 테이블 접두사 erik_, 기본키 BIGINT 비자동증가
+- 테이블 접두사 erp_, 기본키 BIGINT 비자동증가
 - API 버전은 요청 헤더 API-Version으로 제어
 - JWT 인증 + RBAC 권한
 - 전역 함수에 \ 접두사 없음

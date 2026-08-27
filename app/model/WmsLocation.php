@@ -12,7 +12,7 @@ use support\Model;
 
 class WmsLocation extends Model
 {
-    protected $table = 'erik_wms_location';
+    protected $table = 'erp_wms_location';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

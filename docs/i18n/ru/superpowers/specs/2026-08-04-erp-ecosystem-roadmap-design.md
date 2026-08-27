@@ -377,32 +377,32 @@ app/controller/dms/
 
 | Имя таблицы | Назначение | Этап |
 |------|------|------|
-| `erik_finance_period_close` | Записи закрытия периода | P1 |
-| `erik_finance_account_balance` | Снимок остатков по счетам | P1 |
-| `erik_hr_salary_config` | Конфигурация расчёта зарплаты | P1 |
-| `erik_hr_social_insurance_config` | Конфигурация базы соцстрахования | P1 |
-| `erik_hr_housing_fund_config` | Конфигурация жилищного фонда | P1 |
-| `erik_mfg_mrp_run_log` | Журнал расчётов MRP | P1 |
-| `erik_mfg_order_suggestion` | Предложения по заказам | P1 |
-| `erik_quality_inspection_standard` | Стандарты проверки | P1 |
-| `erik_quality_iqc_record` | IQC входная проверка материалов | P1 |
-| `erik_quality_ipqc_record` | IPQC процессная проверка | P1 |
-| `erik_quality_oqc_record` | OQC проверка перед отгрузкой | P1 |
-| `erik_quality_nonconformity` | Несоответствующая продукция | P1 |
-| `erik_notification_channel_config` | Конфигурация каналов уведомлений | P1 |
-| `erik_notification_template` | Шаблоны уведомлений | P1 |
+| `erp_finance_period_close` | Записи закрытия периода | P1 |
+| `erp_finance_account_balance` | Снимок остатков по счетам | P1 |
+| `erp_hr_salary_config` | Конфигурация расчёта зарплаты | P1 |
+| `erp_hr_social_insurance_config` | Конфигурация базы соцстрахования | P1 |
+| `erp_hr_housing_fund_config` | Конфигурация жилищного фонда | P1 |
+| `erp_mfg_mrp_run_log` | Журнал расчётов MRP | P1 |
+| `erp_mfg_order_suggestion` | Предложения по заказам | P1 |
+| `erp_quality_inspection_standard` | Стандарты проверки | P1 |
+| `erp_quality_iqc_record` | IQC входная проверка материалов | P1 |
+| `erp_quality_ipqc_record` | IPQC процессная проверка | P1 |
+| `erp_quality_oqc_record` | OQC проверка перед отгрузкой | P1 |
+| `erp_quality_nonconformity` | Несоответствующая продукция | P1 |
+| `erp_notification_channel_config` | Конфигурация каналов уведомлений | P1 |
+| `erp_notification_template` | Шаблоны уведомлений | P1 |
 
 ### Новые таблицы P3
 
 | Имя таблицы | Назначение | Этап |
 |------|------|------|
-| `erik_bi_dashboard` | BI-дашборд | P3 |
-| `erik_bi_widget` | BI-виджеты | P3 |
-| `erik_eam_equipment` | Реестр оборудования | P3 |
-| `erik_eam_maintenance_plan` | Планы ТО | P3 |
-| `erik_eam_repair_order` | Ремонтные заявки | P3 |
-| `erik_dms_document` | Контролируемые документы | P3 |
-| `erik_dms_document_version` | Версии документов | P3 |
+| `erp_bi_dashboard` | BI-дашборд | P3 |
+| `erp_bi_widget` | BI-виджеты | P3 |
+| `erp_eam_equipment` | Реестр оборудования | P3 |
+| `erp_eam_maintenance_plan` | Планы ТО | P3 |
+| `erp_eam_repair_order` | Ремонтные заявки | P3 |
+| `erp_dms_document` | Контролируемые документы | P3 |
+| `erp_dms_document_version` | Версии документов | P3 |
 
 ---
 

@@ -66,7 +66,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 ### Бэкенд
 - PHP 8.3+, webman v2 (workerman/webman)
-- База данных: MySQL 8.0+, префикс таблиц `erik_`
+- База данных: MySQL 8.0+, префикс таблиц `erp_`
 - Первичный ключ: BIGINT без автоинкремента, генерируется `erikwang2013/snowflake-php`
 - Шифрование/дешифрование ID на уровне API: `erikwang2013/hashids`
 - JWT-аутентификация: `erikwang2013/jwt-webman`
@@ -244,7 +244,7 @@ curl -H "API-Version: v1" http://localhost:8787/api/auth/login
 - Все новые файлы `.php` должны начинаться с заявления об авторских правах
 
 ### База данных
-- Префикс таблиц: `erik_`
+- Префикс таблиц: `erp_`
 - Первичный ключ `id`: BIGINT, без автоинкремента, генерируется snowflake
 - Чувствительные поля шифруются/дешифруются автоматически через trait `erikwang2013/encryptable`
 - schema: единственный источник истины — database/install.sql (один файл SQL)

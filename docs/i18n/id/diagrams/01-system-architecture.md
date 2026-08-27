@@ -20,8 +20,8 @@ flowchart TB
     end
 
     subgraph storage["Lapisan penyimpanan"]
-        mysql[("MySQL 8.0<br/>Penyimpanan utama - prefiks erik_")]
-        es[("Elasticsearch<br/>Pencarian teks lengkap - prefiks erik_")]
+        mysql[("MySQL 8.0<br/>Penyimpanan utama - prefiks erp_")]
+        es[("Elasticsearch<br/>Pencarian teks lengkap - prefiks erp_")]
         redis[("Redis<br/>Session/cache/Captcha")]
     end
 

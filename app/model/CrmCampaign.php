@@ -13,7 +13,7 @@ use support\Model;
 class CrmCampaign extends Model
 {
     use SoftDeletes;
-    protected $table = 'erik_crm_campaign';
+    protected $table = 'erp_crm_campaign';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

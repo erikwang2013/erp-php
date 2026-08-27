@@ -15,7 +15,7 @@ class MfgProductionOrder extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_mfg_production_order';
+    protected $table = 'erp_mfg_production_order';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

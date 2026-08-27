@@ -66,7 +66,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 ### Backend
 - PHP 8.3+, webman v2 (workerman/webman)
-- Database: MySQL 8.0+, prefiks tabel `erik_`
+- Database: MySQL 8.0+, prefiks tabel `erp_`
 - Primary key: BIGINT non-auto-increment, dibuat oleh `erikwang2013/snowflake-php`
 - Enkripsi-dekripsi ID lapisan API: `erikwang2013/hashids`
 - Autentikasi JWT: `erikwang2013/jwt-webman`
@@ -244,7 +244,7 @@ Redis sliding window (atomik Lua), default 60 kali/menit/IP/route:
 - Semua file `.php` baru harus memiliki pernyataan hak cipta di header
 
 ### Database
-- Prefiks tabel: `erik_`
+- Prefiks tabel: `erp_`
 - Primary key `id`: tipe BIGINT, non-auto-increment, dibuat snowflake
 - Bidang sensitif menggunakan trait `erikwang2013/encryptable` untuk enkripsi-dekripsi otomatis
 - schema mengacu database/install.sql sebagai satu-satunya sumber kebenaran (SQL file tunggal)

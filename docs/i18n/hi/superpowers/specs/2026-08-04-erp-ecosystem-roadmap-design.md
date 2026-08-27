@@ -377,32 +377,32 @@ app/controller/dms/
 
 | तालिका नाम | उपयोग | चरण |
 |------|------|------|
-| `erik_finance_period_close` | अवधि अंत हस्तांतरण रिकॉर्ड | P1 |
-| `erik_finance_account_balance` | खाता शेष स्नैपशॉट | P1 |
-| `erik_hr_salary_config` | वेतन गणना कॉन्फ़िगरेशन | P1 |
-| `erik_hr_social_insurance_config` | सामाजिक सुरक्षा आधार कॉन्फ़िगरेशन | P1 |
-| `erik_hr_housing_fund_config` | हाउसिंग फंड कॉन्फ़िगरेशन | P1 |
-| `erik_mfg_mrp_run_log` | MRP गणना लॉग | P1 |
-| `erik_mfg_order_suggestion` | सुझावित ऑर्डर | P1 |
-| `erik_quality_inspection_standard` | निरीक्षण मानक | P1 |
-| `erik_quality_iqc_record` | IQC इनकमिंग निरीक्षण | P1 |
-| `erik_quality_ipqc_record` | IPQC प्रक्रिया निरीक्षण | P1 |
-| `erik_quality_oqc_record` | OQC शिपिंग निरीक्षण | P1 |
-| `erik_quality_nonconformity` | असंगत उत्पाद | P1 |
-| `erik_notification_channel_config` | नोटिफिकेशन चैनल कॉन्फ़िगरेशन | P1 |
-| `erik_notification_template` | नोटिफिकेशन टेम्पलेट | P1 |
+| `erp_finance_period_close` | अवधि अंत हस्तांतरण रिकॉर्ड | P1 |
+| `erp_finance_account_balance` | खाता शेष स्नैपशॉट | P1 |
+| `erp_hr_salary_config` | वेतन गणना कॉन्फ़िगरेशन | P1 |
+| `erp_hr_social_insurance_config` | सामाजिक सुरक्षा आधार कॉन्फ़िगरेशन | P1 |
+| `erp_hr_housing_fund_config` | हाउसिंग फंड कॉन्फ़िगरेशन | P1 |
+| `erp_mfg_mrp_run_log` | MRP गणना लॉग | P1 |
+| `erp_mfg_order_suggestion` | सुझावित ऑर्डर | P1 |
+| `erp_quality_inspection_standard` | निरीक्षण मानक | P1 |
+| `erp_quality_iqc_record` | IQC इनकमिंग निरीक्षण | P1 |
+| `erp_quality_ipqc_record` | IPQC प्रक्रिया निरीक्षण | P1 |
+| `erp_quality_oqc_record` | OQC शिपिंग निरीक्षण | P1 |
+| `erp_quality_nonconformity` | असंगत उत्पाद | P1 |
+| `erp_notification_channel_config` | नोटिफिकेशन चैनल कॉन्फ़िगरेशन | P1 |
+| `erp_notification_template` | नोटिफिकेशन टेम्पलेट | P1 |
 
 ### P3 नई तालिकाएँ
 
 | तालिका नाम | उपयोग | चरण |
 |------|------|------|
-| `erik_bi_dashboard` | BI डैशबोर्ड | P3 |
-| `erik_bi_widget` | BI विजेट | P3 |
-| `erik_eam_equipment` | उपकरण रजिस्टर | P3 |
-| `erik_eam_maintenance_plan` | रखरखाव योजना | P3 |
-| `erik_eam_repair_order` | मरम्मत कार्य आदेश | P3 |
-| `erik_dms_document` | नियंत्रित दस्तावेज़ | P3 |
-| `erik_dms_document_version` | दस्तावेज़ संस्करण | P3 |
+| `erp_bi_dashboard` | BI डैशबोर्ड | P3 |
+| `erp_bi_widget` | BI विजेट | P3 |
+| `erp_eam_equipment` | उपकरण रजिस्टर | P3 |
+| `erp_eam_maintenance_plan` | रखरखाव योजना | P3 |
+| `erp_eam_repair_order` | मरम्मत कार्य आदेश | P3 |
+| `erp_dms_document` | नियंत्रित दस्तावेज़ | P3 |
+| `erp_dms_document_version` | दस्तावेज़ संस्करण | P3 |
 
 ---
 

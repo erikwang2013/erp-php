@@ -18,7 +18,7 @@ class Customer extends Model
     use SoftDeletes;
     use Searchable;
 
-    protected $table = 'erik_customer';
+    protected $table = 'erp_customer';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

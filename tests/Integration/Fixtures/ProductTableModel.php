@@ -11,7 +11,7 @@ namespace tests\Integration\Fixtures;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 集成测试专用模型：映射真实业务表 erik_product（结构见
+ * 集成测试专用模型：映射真实业务表 erp_product（结构见
  * database/install.sql）。
  *
  * 不使用 app\model\Product 的原因：
@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ProductTableModel extends Model
 {
-    protected $table = 'erik_product';
+    protected $table = 'erp_product';
 
     protected $primaryKey = 'id';
 
@@ -30,7 +30,7 @@ class ProductTableModel extends Model
 
     protected $keyType = 'int';
 
-    /** erik_product 的 created_at/updated_at 由数据库默认值填充 */
+    /** erp_product 的 created_at/updated_at 由数据库默认值填充 */
     public $timestamps = false;
 
     protected $fillable = [

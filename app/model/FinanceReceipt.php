@@ -12,7 +12,7 @@ use support\Model;
 
 class FinanceReceipt extends Model
 {
-    protected $table = 'erik_finance_receipt';
+    protected $table = 'erp_finance_receipt';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

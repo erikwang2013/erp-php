@@ -66,7 +66,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 ### Backend
 - PHP 8.3+, webman v2 (workerman/webman)
-- Base de données : MySQL 8.0+, préfixe de table `erik_`
+- Base de données : MySQL 8.0+, préfixe de table `erp_`
 - Clé primaire : BIGINT non auto-incrémentée, générée par `erikwang2013/snowflake-php`
 - Chiffrement des ID au niveau API : `erikwang2013/hashids`
 - Authentification JWT : `erikwang2013/jwt-webman`
@@ -244,7 +244,7 @@ Fenêtre glissante Redis (atomique Lua), par défaut 60 requêtes/minute/IP/rout
 - Tout nouveau fichier `.php` doit commencer par l'avis de droit d'auteur
 
 ### Base de données
-- Préfixe de table : `erik_`
+- Préfixe de table : `erp_`
 - Clé primaire `id` : type BIGINT, non auto-incrémentée, générée par snowflake
 - Les champs sensibles utilisent le trait `erikwang2013/encryptable` pour le chiffrement/déchiffrement automatique
 - Le schéma a `database/install.sql` comme unique source de vérité (SQL en un seul fichier)

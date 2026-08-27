@@ -13,7 +13,7 @@ use support\Model;
 class CrmTicket extends Model
 {
     use SoftDeletes;
-    protected $table = 'erik_crm_ticket';
+    protected $table = 'erp_crm_ticket';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

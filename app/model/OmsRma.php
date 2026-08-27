@@ -12,7 +12,7 @@ use support\Model;
 
 class OmsRma extends Model
 {
-    protected $table = 'erik_oms_rma';
+    protected $table = 'erp_oms_rma';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

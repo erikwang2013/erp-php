@@ -11,7 +11,7 @@ use support\Model;
 
 class QualityIpcqRecord extends Model
 {
-    protected $table = 'erik_quality_ipqc_record';
+    protected $table = 'erp_quality_ipqc_record';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

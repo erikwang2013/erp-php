@@ -15,7 +15,7 @@ The Open ERP System (open-erp) is a full-stack enterprise resource planning syst
 
 ### 1.2 Technical Constraints
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
-- Table prefix erik_, BIGINT non-auto-increment primary keys
+- Table prefix erp_, BIGINT non-auto-increment primary keys
 - API versions controlled via the API-Version request header
 - JWT authentication + RBAC permissions
 - Global functions without `\` prefix

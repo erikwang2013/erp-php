@@ -15,7 +15,7 @@ class SalesQuotation extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_sales_quotation';
+    protected $table = 'erp_sales_quotation';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

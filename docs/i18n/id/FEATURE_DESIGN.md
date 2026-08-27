@@ -15,7 +15,7 @@ Sistem ERP Terbuka (open-erp) adalah sistem perencanaan sumber daya perusahaan f
 
 ### 1.2 Batasan Teknis
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
-- Prefiks tabel erik_, primary key BIGINT non-auto-increment
+- Prefiks tabel erp_, primary key BIGINT non-auto-increment
 - Versi API dikontrol melalui header permintaan API-Version
 - Autentikasi JWT + izin RBAC
 - Fungsi global tanpa prefix \

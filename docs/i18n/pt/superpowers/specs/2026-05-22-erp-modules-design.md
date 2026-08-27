@@ -22,7 +22,7 @@ Todo o código é implantado de forma monolítica em `service/app/`, com os mód
 - Chaves primárias BIGINT geradas por snowflake-php
 - IDs na camada de API criptografados/descriptografados com hashids
 - Autenticação JWT, criptografia de dados sensíveis — tudo com os pacotes erikwang2013/*
-- Prefixo de tabelas `erik_`, soft deletes, funções globais sem `\`
+- Prefixo de tabelas `erp_`, soft deletes, funções globais sem `\`
 
 ---
 
@@ -144,91 +144,91 @@ service/app/
 
 ## 4. Design das tabelas do banco de dados
 
-Todas as tabelas com prefixo `erik_`, `id` BIGINT não auto-incrementado, com `created_at`/`updated_at`/`deleted_at`.
+Todas as tabelas com prefixo `erp_`, `id` BIGINT não auto-incrementado, com `created_at`/`updated_at`/`deleted_at`.
 
 ### 4.1 Dados básicos de produtos
 
 ```
-erik_product             商品主表
-erik_product_sku         商品SKU/规格
-erik_product_unit        多单位换算
-erik_product_price       价格策略
-erik_category            商品分类（树形 parent_id）
-erik_brand               品牌
-erik_warehouse           仓库
-erik_location            库位
-erik_supplier            供应商
-erik_customer            客户
-erik_customer_level      客户等级
+erp_product             商品主表
+erp_product_sku         商品SKU/规格
+erp_product_unit        多单位换算
+erp_product_price       价格策略
+erp_category            商品分类（树形 parent_id）
+erp_brand               品牌
+erp_warehouse           仓库
+erp_location            库位
+erp_supplier            供应商
+erp_customer            客户
+erp_customer_level      客户等级
 ```
 
 ### 4.2 Módulo de compras
 
 ```
-erik_purchase_apply       采购申请
-erik_purchase_apply_item  申请明细
-erik_purchase_order       采购订单
-erik_purchase_order_item  订单明细
-erik_purchase_receive     采购收货主表
-erik_purchase_receive_item 收货明细
-erik_purchase_return      采购退货主表
-erik_purchase_return_item 退货明细
-erik_purchase_settlement  供应商结算记录
+erp_purchase_apply       采购申请
+erp_purchase_apply_item  申请明细
+erp_purchase_order       采购订单
+erp_purchase_order_item  订单明细
+erp_purchase_receive     采购收货主表
+erp_purchase_receive_item 收货明细
+erp_purchase_return      采购退货主表
+erp_purchase_return_item 退货明细
+erp_purchase_settlement  供应商结算记录
 ```
 
 ### 4.3 Módulo de vendas
 
 ```
-erik_sales_quotation      报价单主表
-erik_sales_quotation_item 报价明细
-erik_sales_order          销售订单主表
-erik_sales_order_item     订单明细
-erik_sales_delivery       销售发货主表
-erik_sales_delivery_item  发货明细
-erik_sales_return         销售退货主表
-erik_sales_return_item    退货明细
-erik_sales_settlement     客户结算记录
+erp_sales_quotation      报价单主表
+erp_sales_quotation_item 报价明细
+erp_sales_order          销售订单主表
+erp_sales_order_item     订单明细
+erp_sales_delivery       销售发货主表
+erp_sales_delivery_item  发货明细
+erp_sales_return         销售退货主表
+erp_sales_return_item    退货明细
+erp_sales_settlement     客户结算记录
 ```
 
 ### 4.4 Módulo de inventário
 
 ```
-erik_inventory            实时库存
-erik_inventory_batch      批次信息
-erik_inventory_serial     序列号记录
-erik_inventory_flow       出入库流水
-erik_transfer             调拨单主表
-erik_transfer_item        调拨明细
-erik_check_task           盘点任务
-erik_check_detail         盘点明细
-erik_inventory_alert_rule 库存预警规则
-erik_inventory_alert_log  库存预警日志
-erik_cost_record          成本计算记录
+erp_inventory            实时库存
+erp_inventory_batch      批次信息
+erp_inventory_serial     序列号记录
+erp_inventory_flow       出入库流水
+erp_transfer             调拨单主表
+erp_transfer_item        调拨明细
+erp_check_task           盘点任务
+erp_check_detail         盘点明细
+erp_inventory_alert_rule 库存预警规则
+erp_inventory_alert_log  库存预警日志
+erp_cost_record          成本计算记录
 ```
 
 ### 4.5 Módulo financeiro
 
 ```
-erik_finance_account      会计科目
-erik_finance_voucher      记账凭证
-erik_finance_voucher_item 凭证分录
-erik_finance_ar_ap        应收应付明细
-erik_finance_receipt      收款单
-erik_finance_payment      付款单
-erik_finance_cash_journal 现金银行日记账
-erik_finance_expense      费用报销单
-erik_finance_expense_item 报销明细
-erik_finance_profit       利润表快照
-erik_finance_bank_account 银行账户
+erp_finance_account      会计科目
+erp_finance_voucher      记账凭证
+erp_finance_voucher_item 凭证分录
+erp_finance_ar_ap        应收应付明细
+erp_finance_receipt      收款单
+erp_finance_payment      付款单
+erp_finance_cash_journal 现金银行日记账
+erp_finance_expense      费用报销单
+erp_finance_expense_item 报销明细
+erp_finance_profit       利润表快照
+erp_finance_bank_account 银行账户
 ```
 
 ### 4.6 Módulo CRM
 
 ```
-erik_crm_funnel_stage     销售漏斗阶段配置
-erik_crm_opportunity      商机
-erik_crm_follow_record    跟进记录
-erik_crm_contact          联系人
+erp_crm_funnel_stage     销售漏斗阶段配置
+erp_crm_opportunity      商机
+erp_crm_follow_record    跟进记录
+erp_crm_contact          联系人
 ```
 
 ---

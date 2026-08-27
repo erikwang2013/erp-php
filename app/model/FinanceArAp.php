@@ -12,7 +12,7 @@ use support\Model;
 
 class FinanceArAp extends Model
 {
-    protected $table = 'erik_finance_ar_ap';
+    protected $table = 'erp_finance_ar_ap';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

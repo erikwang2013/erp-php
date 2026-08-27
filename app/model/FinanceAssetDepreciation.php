@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceAssetDepreciation extends Model
 {
-    protected $table = 'erik_finance_asset_depreciation';
+    protected $table = 'erp_finance_asset_depreciation';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

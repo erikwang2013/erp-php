@@ -22,7 +22,7 @@ Tout le code est déployé en monolithique sous `service/app/`, les modules sont
 - Clés primaires BIGINT générées par snowflake-php
 - ID chiffrés/déchiffrés au niveau API avec hashids
 - Authentification JWT, chiffrement des données sensibles : tout via les paquets erikwang2013/*
-- Préfixe de table `erik_`, suppression douce, fonctions globales sans `\`
+- Préfixe de table `erp_`, suppression douce, fonctions globales sans `\`
 
 ---
 
@@ -144,91 +144,91 @@ service/app/
 
 ## 4. Conception des tables de base de données
 
-Toutes les tables ont le préfixe `erik_`, `id` BIGINT non auto-incrémenté, avec `created_at`/`updated_at`/`deleted_at`.
+Toutes les tables ont le préfixe `erp_`, `id` BIGINT non auto-incrémenté, avec `created_at`/`updated_at`/`deleted_at`.
 
 ### 4.1 Données de base produits
 
 ```
-erik_product              Table principale des produits
-erik_product_sku         SKU/spécifications des produits
-erik_product_unit        Conversion multi-unités
-erik_product_price       Stratégie de prix
-erik_category            Catégories de produits (arborescente parent_id)
-erik_brand               Marques
-erik_warehouse           Entrepôts
-erik_location            Emplacements
-erik_supplier            Fournisseurs
-erik_customer            Clients
-erik_customer_level      Niveaux clients
+erp_product              Table principale des produits
+erp_product_sku         SKU/spécifications des produits
+erp_product_unit        Conversion multi-unités
+erp_product_price       Stratégie de prix
+erp_category            Catégories de produits (arborescente parent_id)
+erp_brand               Marques
+erp_warehouse           Entrepôts
+erp_location            Emplacements
+erp_supplier            Fournisseurs
+erp_customer            Clients
+erp_customer_level      Niveaux clients
 ```
 
 ### 4.2 Module achats
 
 ```
-erik_purchase_apply       Demande d'achat
-erik_purchase_apply_item  Détails de la demande
-erik_purchase_order       Commande d'achat
-erik_purchase_order_item  Détails de la commande
-erik_purchase_receive     Table principale de réception d'achat
-erik_purchase_receive_item Détails de la réception
-erik_purchase_return      Table principale de retour d'achat
-erik_purchase_return_item Détails du retour
-erik_purchase_settlement  Enregistrements de règlement fournisseur
+erp_purchase_apply       Demande d'achat
+erp_purchase_apply_item  Détails de la demande
+erp_purchase_order       Commande d'achat
+erp_purchase_order_item  Détails de la commande
+erp_purchase_receive     Table principale de réception d'achat
+erp_purchase_receive_item Détails de la réception
+erp_purchase_return      Table principale de retour d'achat
+erp_purchase_return_item Détails du retour
+erp_purchase_settlement  Enregistrements de règlement fournisseur
 ```
 
 ### 4.3 Module ventes
 
 ```
-erik_sales_quotation      Table principale des devis
-erik_sales_quotation_item Détails du devis
-erik_sales_order          Table principale des commandes de vente
-erik_sales_order_item     Détails de la commande
-erik_sales_delivery       Table principale des expéditions de vente
-erik_sales_delivery_item  Détails de l'expédition
-erik_sales_return         Table principale des retours de vente
-erik_sales_return_item    Détails du retour
-erik_sales_settlement     Enregistrements de règlement client
+erp_sales_quotation      Table principale des devis
+erp_sales_quotation_item Détails du devis
+erp_sales_order          Table principale des commandes de vente
+erp_sales_order_item     Détails de la commande
+erp_sales_delivery       Table principale des expéditions de vente
+erp_sales_delivery_item  Détails de l'expédition
+erp_sales_return         Table principale des retours de vente
+erp_sales_return_item    Détails du retour
+erp_sales_settlement     Enregistrements de règlement client
 ```
 
 ### 4.4 Module stocks
 
 ```
-erik_inventory            Stock en temps réel
-erik_inventory_batch      Informations de lot
-erik_inventory_serial     Enregistrements de numéros de série
-erik_inventory_flow       Mouvements d'entrée/sortie
-erik_transfer             Table principale des transferts
-erik_transfer_item        Détails du transfert
-erik_check_task           Tâche d'inventaire
-erik_check_detail         Détails de l'inventaire
-erik_inventory_alert_rule Règles d'alerte de stock
-erik_inventory_alert_log  Journal des alertes de stock
-erik_cost_record          Enregistrements de calcul des coûts
+erp_inventory            Stock en temps réel
+erp_inventory_batch      Informations de lot
+erp_inventory_serial     Enregistrements de numéros de série
+erp_inventory_flow       Mouvements d'entrée/sortie
+erp_transfer             Table principale des transferts
+erp_transfer_item        Détails du transfert
+erp_check_task           Tâche d'inventaire
+erp_check_detail         Détails de l'inventaire
+erp_inventory_alert_rule Règles d'alerte de stock
+erp_inventory_alert_log  Journal des alertes de stock
+erp_cost_record          Enregistrements de calcul des coûts
 ```
 
 ### 4.5 Module finance
 
 ```
-erik_finance_account      Plan comptable
-erik_finance_voucher      Pièces comptables
-erik_finance_voucher_item Écritures de pièce
-erik_finance_ar_ap        Détails des comptes à recevoir/à payer
-erik_finance_receipt      Bon d'encaissement
-erik_finance_payment      Bon de décaissement
-erik_finance_cash_journal Journal de caisse/banque
-erik_finance_expense      Bon de remboursement de frais
-erik_finance_expense_item Détails du remboursement
-erik_finance_profit       Instantané du compte de résultat
-erik_finance_bank_account Compte bancaire
+erp_finance_account      Plan comptable
+erp_finance_voucher      Pièces comptables
+erp_finance_voucher_item Écritures de pièce
+erp_finance_ar_ap        Détails des comptes à recevoir/à payer
+erp_finance_receipt      Bon d'encaissement
+erp_finance_payment      Bon de décaissement
+erp_finance_cash_journal Journal de caisse/banque
+erp_finance_expense      Bon de remboursement de frais
+erp_finance_expense_item Détails du remboursement
+erp_finance_profit       Instantané du compte de résultat
+erp_finance_bank_account Compte bancaire
 ```
 
 ### 4.6 Module CRM
 
 ```
-erik_crm_funnel_stage     Configuration des étapes de l'entonnoir de vente
-erik_crm_opportunity      Opportunités
-erik_crm_follow_record    Enregistrements de suivi
-erik_crm_contact          Contacts
+erp_crm_funnel_stage     Configuration des étapes de l'entonnoir de vente
+erp_crm_opportunity      Opportunités
+erp_crm_follow_record    Enregistrements de suivi
+erp_crm_contact          Contacts
 ```
 
 ---

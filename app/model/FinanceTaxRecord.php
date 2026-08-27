@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceTaxRecord extends Model
 {
-    protected $table = 'erik_finance_tax_record';
+    protected $table = 'erp_finance_tax_record';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

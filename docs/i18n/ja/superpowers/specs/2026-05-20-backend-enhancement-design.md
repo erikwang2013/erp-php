@@ -228,7 +228,7 @@ Redis::setex("jwt_blacklist:" . md5($token), max($ttl, 0), '1');
 
 **ファイル**: `app/model/OperationLog.php`（変更）
 
-テーブル `erik_operation_log` は `created_at` 列のみ（`updated_at` なし）。Eloquent のデフォルト `save()` は `updated_at` への書き込みを試みるため、SQL エラーになる。
+テーブル `erp_operation_log` は `created_at` 列のみ（`updated_at` なし）。Eloquent のデフォルト `save()` は `updated_at` への書き込みを試みるため、SQL エラーになる。
 
 修正：`public $timestamps = false;` + 書き込み時に `created_at` を手動指定。
 

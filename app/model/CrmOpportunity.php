@@ -15,7 +15,7 @@ class CrmOpportunity extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_crm_opportunity';
+    protected $table = 'erp_crm_opportunity';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

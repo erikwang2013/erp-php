@@ -17,7 +17,7 @@ class Product extends Model
     use SoftDeletes;
     use Searchable;
 
-    protected $table = 'erik_product';
+    protected $table = 'erp_product';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

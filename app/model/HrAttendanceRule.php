@@ -12,7 +12,7 @@ use support\Model;
 
 class HrAttendanceRule extends Model
 {
-    protected $table = 'erik_hr_attendance_rule';
+    protected $table = 'erp_hr_attendance_rule';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

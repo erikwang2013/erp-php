@@ -60,7 +60,7 @@ DB_PORT=3306
 DB_DATABASE=erp
 DB_USERNAME=erp
 DB_PASSWORD=ваш_пароль
-DB_PREFIX=erik_
+DB_PREFIX=erp_
 
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
@@ -104,11 +104,11 @@ curl http://localhost:8787/health
 
 ```sql
 -- Создание администратора (пароль — bcrypt-хэш)
-INSERT INTO `erik_admin_user` (`id`, `username`, `password`, `real_name`, `status`)
+INSERT INTO `erp_admin_user` (`id`, `username`, `password`, `real_name`, `status`)
 VALUES (90000000000000001, 'admin', '$2y$10$...', 'Системный администратор', 1);
 
 -- Привязка роли суперадминистратора
-INSERT INTO `erik_admin_user_role` (`user_id`, `role_id`)
+INSERT INTO `erp_admin_user_role` (`user_id`, `role_id`)
 VALUES (90000000000000001, 10000000000000001);
 ```
 
@@ -136,7 +136,7 @@ mysql -h mysql -u root -p erp < database/install.sql
 
 | Соглашение | Описание |
 |------|------|
-| Префикс таблиц | `erik_` |
+| Префикс таблиц | `erp_` |
 | Первичный ключ | `id` BIGINT UNSIGNED NOT NULL, без автоинкремента, генерируется snowflake-php |
 | Кодировка | utf8mb4, utf8mb4_unicode_ci |
 | Движок | InnoDB |

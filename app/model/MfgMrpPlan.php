@@ -12,7 +12,7 @@ use support\Model;
 
 class MfgMrpPlan extends Model
 {
-    protected $table = 'erik_mfg_mrp_plan';
+    protected $table = 'erp_mfg_mrp_plan';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

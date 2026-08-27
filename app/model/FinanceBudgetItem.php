@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceBudgetItem extends Model
 {
-    protected $table = 'erik_finance_budget_item';
+    protected $table = 'erp_finance_budget_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

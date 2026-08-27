@@ -11,7 +11,7 @@ use support\Model;
 
 class DmsCategory extends Model
 {
-    protected $table = 'erik_dms_category';
+    protected $table = 'erp_dms_category';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

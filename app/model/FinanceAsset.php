@@ -13,7 +13,7 @@ use support\Model;
 class FinanceAsset extends Model
 {
     use SoftDeletes;
-    protected $table = 'erik_finance_asset';
+    protected $table = 'erp_finance_asset';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

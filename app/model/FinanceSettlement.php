@@ -12,7 +12,7 @@ use support\Model;
 
 class FinanceSettlement extends Model
 {
-    protected $table = 'erik_finance_settlement';
+    protected $table = 'erp_finance_settlement';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -12,7 +12,7 @@ use support\Model;
 
 class ProjectMember extends Model
 {
-    protected $table = 'erik_project_member';
+    protected $table = 'erp_project_member';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

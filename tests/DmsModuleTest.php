@@ -148,7 +148,7 @@ class DmsModuleTest extends TestCase
     {
         foreach (['DmsDocument', 'DmsDocumentVersion', 'DmsCategory'] as $m) {
             $source = file_get_contents(__DIR__ . "/../app/model/{$m}.php");
-            $this->assertStringContainsString('erik_dms_', $source, "{$m} 表应使用 erik_dms_ 前缀");
+            $this->assertStringContainsString('erp_dms_', $source, "{$m} 表应使用 erp_dms_ 前缀");
             $this->assertStringContainsString('$incrementing = false', $source, "{$m} 应关闭自增主键");
             $this->assertStringContainsString("keyType = 'int'", $source, "{$m} 主键类型应为 int");
         }

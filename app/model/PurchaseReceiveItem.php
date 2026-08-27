@@ -12,7 +12,7 @@ use support\Model;
 
 class PurchaseReceiveItem extends Model
 {
-    protected $table = 'erik_purchase_receive_item';
+    protected $table = 'erp_purchase_receive_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

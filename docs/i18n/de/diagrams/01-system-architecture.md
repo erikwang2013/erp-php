@@ -20,8 +20,8 @@ flowchart TB
     end
 
     subgraph storage["Speicherschicht"]
-        mysql[("MySQL 8.0<br/>Hauptspeicher - erik_-Präfix")]
-        es[("Elasticsearch<br/>Volltextsuche - erik_-Präfix")]
+        mysql[("MySQL 8.0<br/>Hauptspeicher - erp_-Präfix")]
+        es[("Elasticsearch<br/>Volltextsuche - erp_-Präfix")]
         redis[("Redis<br/>Session/Cache/Captcha")]
     end
 

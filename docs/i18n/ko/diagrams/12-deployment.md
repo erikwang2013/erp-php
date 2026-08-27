@@ -18,8 +18,8 @@ flowchart TB
     end
 
     subgraph data["数据层"]
-        mysql[("MySQL 8.0<br/>主从复制<br/>erik_前缀")]
-        es[("Elasticsearch 8.x<br/>3节点集群<br/>erik_前缀")]
+        mysql[("MySQL 8.0<br/>主从复制<br/>erp_前缀")]
+        es[("Elasticsearch 8.x<br/>3节点集群<br/>erp_前缀")]
         redis[("Redis 7.x<br/>哨兵模式<br/>poster:captcha:*")]
     end
 

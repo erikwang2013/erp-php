@@ -377,32 +377,32 @@ Tidak ada tabel baru, ekosistem frontend tidak melibatkan perubahan struktur tab
 
 | Nama tabel | Kegunaan | Tahap |
 |------|------|------|
-| `erik_finance_period_close` | Catatan penutupan akhir periode | P1 |
-| `erik_finance_account_balance` | Snapshot saldo akun | P1 |
-| `erik_hr_salary_config` | Konfigurasi perhitungan gaji | P1 |
-| `erik_hr_social_insurance_config` | Konfigurasi dasar jaminan sosial | P1 |
-| `erik_hr_housing_fund_config` | Konfigurasi dana perumahan | P1 |
-| `erik_mfg_mrp_run_log` | Log kalkulasi MRP | P1 |
-| `erik_mfg_order_suggestion` | Pesanan yang disarankan | P1 |
-| `erik_quality_inspection_standard` | Standar inspeksi | P1 |
-| `erik_quality_iqc_record` | IQC inspeksi bahan masuk | P1 |
-| `erik_quality_ipqc_record` | IPQC inspeksi proses | P1 |
-| `erik_quality_oqc_record` | OQC inspeksi pengiriman | P1 |
-| `erik_quality_nonconformity` | Produk tidak sesuai | P1 |
-| `erik_notification_channel_config` | Konfigurasi kanal notifikasi | P1 |
-| `erik_notification_template` | Template notifikasi | P1 |
+| `erp_finance_period_close` | Catatan penutupan akhir periode | P1 |
+| `erp_finance_account_balance` | Snapshot saldo akun | P1 |
+| `erp_hr_salary_config` | Konfigurasi perhitungan gaji | P1 |
+| `erp_hr_social_insurance_config` | Konfigurasi dasar jaminan sosial | P1 |
+| `erp_hr_housing_fund_config` | Konfigurasi dana perumahan | P1 |
+| `erp_mfg_mrp_run_log` | Log kalkulasi MRP | P1 |
+| `erp_mfg_order_suggestion` | Pesanan yang disarankan | P1 |
+| `erp_quality_inspection_standard` | Standar inspeksi | P1 |
+| `erp_quality_iqc_record` | IQC inspeksi bahan masuk | P1 |
+| `erp_quality_ipqc_record` | IPQC inspeksi proses | P1 |
+| `erp_quality_oqc_record` | OQC inspeksi pengiriman | P1 |
+| `erp_quality_nonconformity` | Produk tidak sesuai | P1 |
+| `erp_notification_channel_config` | Konfigurasi kanal notifikasi | P1 |
+| `erp_notification_template` | Template notifikasi | P1 |
 
 ### Tabel Baru P3
 
 | Nama tabel | Kegunaan | Tahap |
 |------|------|------|
-| `erik_bi_dashboard` | Papan BI | P3 |
-| `erik_bi_widget` | Widget BI | P3 |
-| `erik_eam_equipment` | Buku besar peralatan | P3 |
-| `erik_eam_maintenance_plan` | Rencana perawatan | P3 |
-| `erik_eam_repair_order` | Work order perbaikan | P3 |
-| `erik_dms_document` | Dokumen terkendali | P3 |
-| `erik_dms_document_version` | Versi dokumen | P3 |
+| `erp_bi_dashboard` | Papan BI | P3 |
+| `erp_bi_widget` | Widget BI | P3 |
+| `erp_eam_equipment` | Buku besar peralatan | P3 |
+| `erp_eam_maintenance_plan` | Rencana perawatan | P3 |
+| `erp_eam_repair_order` | Work order perbaikan | P3 |
+| `erp_dms_document` | Dokumen terkendali | P3 |
+| `erp_dms_document_version` | Versi dokumen | P3 |
 
 ---
 

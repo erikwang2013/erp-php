@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceGeneralLedger extends Model
 {
-    protected $table = 'erik_finance_general_ledger';
+    protected $table = 'erp_finance_general_ledger';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

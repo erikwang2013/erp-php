@@ -66,7 +66,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 ### Backend
 - PHP 8.3+, webman v2 (workerman/webman)
-- Base de datos: MySQL 8.0+, prefijo de tablas `erik_`
+- Base de datos: MySQL 8.0+, prefijo de tablas `erp_`
 - Clave primaria: BIGINT no autoincremental, generada por `erikwang2013/snowflake-php`
 - Cifrado de IDs en la capa de API: `erikwang2013/hashids`
 - Autenticación JWT: `erikwang2013/jwt-webman`
@@ -244,7 +244,7 @@ Ventana deslizante en Redis (Lua atómico), por defecto 60 veces/minuto/IP/ruta:
 - Todos los archivos `.php` nuevos deben llevar la declaración de copyright en la cabecera
 
 ### Base de datos
-- Prefijo de tablas: `erik_`
+- Prefijo de tablas: `erp_`
 - Clave primaria `id`: tipo BIGINT, no autoincremental, generada por snowflake
 - Los campos sensibles usan el trait `erikwang2013/encryptable` para cifrar/descifrar automáticamente
 - El schema tiene como única fuente de verdad `database/install.sql` (SQL de un solo archivo)

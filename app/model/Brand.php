@@ -15,7 +15,7 @@ class Brand extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_brand';
+    protected $table = 'erp_brand';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

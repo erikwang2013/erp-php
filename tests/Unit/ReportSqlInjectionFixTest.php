@@ -73,7 +73,7 @@ class ReportSqlInjectionFixTest extends TestCase
     {
         // 非法字段名（函数/表达式）
         $this->assertNull($this->invokeProtected($this->controller, 'buildWhereClause', [
-            'field' => 'status; DROP TABLE erik_user',
+            'field' => 'status; DROP TABLE erp_user',
             'op' => 'eq',
             'value' => 1,
         ]));
@@ -113,7 +113,7 @@ class ReportSqlInjectionFixTest extends TestCase
         $this->assertNotNull($this->invokeProtected($this->controller, 'validateIdentifier', 'a. b', 'ctx'));
         $this->assertNotNull($this->invokeProtected($this->controller, 'validateIdentifier', 'user_id) OR 1=1--', 'ctx'));
         $this->assertNotNull($this->invokeProtected($this->controller, 'validateIdentifier', 'COUNT(*)', 'ctx'));
-        $this->assertNotNull($this->invokeProtected($this->controller, 'validateIdentifier', 'a.b; DROP TABLE erik_user', 'ctx'));
+        $this->assertNotNull($this->invokeProtected($this->controller, 'validateIdentifier', 'a.b; DROP TABLE erp_user', 'ctx'));
     }
 
     public function testQuoteColumnRendersDottedIdentifiersSafely(): void

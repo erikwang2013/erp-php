@@ -224,7 +224,7 @@ class InstallController
         <div class="form-group"><label>数据库名</label><input type="text" name="database" value="{$h('database', 'erp')}" required placeholder="请提前创建数据库"></div>
         <div class="form-group"><label>用户名</label><input type="text" name="username" value="{$h('username', 'root')}" required></div>
         <div class="form-group"><label>密码</label><input type="password" name="password" value="{$h('password')}"></div>
-        <div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="{$h('prefix', 'erik_')}" required></div>
+        <div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="{$h('prefix', 'erp_')}" required></div>
         <div class="form-actions">
             <button type="button" class="btn btn-secondary" onclick="testDb()">测试连接</button>
             <button type="submit" class="btn">下一步：管理员账号</button>
@@ -379,7 +379,7 @@ class InstallController
             'database' => $request->input('database'),
             'username' => $request->input('username'),
             'password' => $request->input('password'),
-            'prefix' => $request->input('prefix', 'erik_'),
+            'prefix' => $request->input('prefix', 'erp_'),
         ];
         $adminUser = trim($request->input('admin_username'));
         $adminPass = $request->input('admin_password');
@@ -428,7 +428,7 @@ class InstallController
         $replacements = [
             'DB_HOST=127.0.0.1' => "DB_HOST={$db['host']}",
             'DB_PORT=3306' => "DB_PORT={$db['port']}",
-            'DB_DATABASE=open_admin' => "DB_DATABASE={$db['database']}",
+            'DB_DATABASE=erp' => "DB_DATABASE={$db['database']}",
             'DB_USERNAME=root' => "DB_USERNAME={$db['username']}",
             'DB_PASSWORD=' => "DB_PASSWORD={$db['password']}",
         ];

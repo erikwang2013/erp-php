@@ -377,32 +377,32 @@ app/controller/dms/
 
 | টেবিল নাম | উদ্দেশ্য | ফেজ |
 |------|------|------|
-| `erik_finance_period_close` | পিরিয়ড-এন্ড ক্যারি-ফরোয়ার্ড রেকর্ড | P1 |
-| `erik_finance_account_balance` | অ্যাকাউন্ট ব্যালেন্স স্ন্যাপশট | P1 |
-| `erik_hr_salary_config` | বেতন গণনা কনফিগ | P1 |
-| `erik_hr_social_insurance_config` | সোশ্যাল ইন্স্যুরেন্স বেস কনফিগ | P1 |
-| `erik_hr_housing_fund_config` | হাউজিং ফান্ড কনফিগ | P1 |
-| `erik_mfg_mrp_run_log` | MRP গণনা লগ | P1 |
-| `erik_mfg_order_suggestion` | প্রস্তাবিত অর্ডার | P1 |
-| `erik_quality_inspection_standard` | পরীক্ষার মান | P1 |
-| `erik_quality_iqc_record` | IQC ইনকামিং পরীক্ষা | P1 |
-| `erik_quality_ipqc_record` | IPQC প্রসেস পরীক্ষা | P1 |
-| `erik_quality_oqc_record` | OQC শিপমেন্ট পরীক্ষা | P1 |
-| `erik_quality_nonconformity` | অ-সম্মত পণ্য | P1 |
-| `erik_notification_channel_config` | নোটিফিকেশন চ্যানেল কনফিগ | P1 |
-| `erik_notification_template` | নোটিফিকেশন টেমপ্লেট | P1 |
+| `erp_finance_period_close` | পিরিয়ড-এন্ড ক্যারি-ফরোয়ার্ড রেকর্ড | P1 |
+| `erp_finance_account_balance` | অ্যাকাউন্ট ব্যালেন্স স্ন্যাপশট | P1 |
+| `erp_hr_salary_config` | বেতন গণনা কনফিগ | P1 |
+| `erp_hr_social_insurance_config` | সোশ্যাল ইন্স্যুরেন্স বেস কনফিগ | P1 |
+| `erp_hr_housing_fund_config` | হাউজিং ফান্ড কনফিগ | P1 |
+| `erp_mfg_mrp_run_log` | MRP গণনা লগ | P1 |
+| `erp_mfg_order_suggestion` | প্রস্তাবিত অর্ডার | P1 |
+| `erp_quality_inspection_standard` | পরীক্ষার মান | P1 |
+| `erp_quality_iqc_record` | IQC ইনকামিং পরীক্ষা | P1 |
+| `erp_quality_ipqc_record` | IPQC প্রসেস পরীক্ষা | P1 |
+| `erp_quality_oqc_record` | OQC শিপমেন্ট পরীক্ষা | P1 |
+| `erp_quality_nonconformity` | অ-সম্মত পণ্য | P1 |
+| `erp_notification_channel_config` | নোটিফিকেশন চ্যানেল কনফিগ | P1 |
+| `erp_notification_template` | নোটিফিকেশন টেমপ্লেট | P1 |
 
 ### P3 নতুন টেবিল
 
 | টেবিল নাম | উদ্দেশ্য | ফেজ |
 |------|------|------|
-| `erik_bi_dashboard` | BI ড্যাশবোর্ড | P3 |
-| `erik_bi_widget` | BI উইজেট | P3 |
-| `erik_eam_equipment` | ইকুইপমেন্ট রেজিস্টার | P3 |
-| `erik_eam_maintenance_plan` | রক্ষণাবেক্ষণ পরিকল্পনা | P3 |
-| `erik_eam_repair_order` | মেরামত অর্ডার | P3 |
-| `erik_dms_document` | নিয়ন্ত্রিত ডকুমেন্ট | P3 |
-| `erik_dms_document_version` | ডকুমেন্ট ভার্সন | P3 |
+| `erp_bi_dashboard` | BI ড্যাশবোর্ড | P3 |
+| `erp_bi_widget` | BI উইজেট | P3 |
+| `erp_eam_equipment` | ইকুইপমেন্ট রেজিস্টার | P3 |
+| `erp_eam_maintenance_plan` | রক্ষণাবেক্ষণ পরিকল্পনা | P3 |
+| `erp_eam_repair_order` | মেরামত অর্ডার | P3 |
+| `erp_dms_document` | নিয়ন্ত্রিত ডকুমেন্ট | P3 |
+| `erp_dms_document_version` | ডকুমেন্ট ভার্সন | P3 |
 
 ---
 

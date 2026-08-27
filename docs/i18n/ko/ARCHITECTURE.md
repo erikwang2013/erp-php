@@ -30,8 +30,8 @@ flowchart TB
     end
 
     subgraph "저장 계층"
-        D1[("MySQL 8.0<br/>주 저장소<br/>테이블 프리픽스 erik_")]
-        D2[("Elasticsearch<br/>전문 검색<br/>인덱스 프리픽스 erik_")]
+        D1[("MySQL 8.0<br/>주 저장소<br/>테이블 프리픽스 erp_")]
+        D2[("Elasticsearch<br/>전문 검색<br/>인덱스 프리픽스 erp_")]
         D3[("Redis<br/>Session / 캐시<br/>Captcha 저장")]
     end
 
@@ -380,7 +380,7 @@ flowchart LR
     end
 
     subgraph "2. 저장"
-        S1["MySQL erik_* 테이블<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
+        S1["MySQL erp_* 테이블<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
         S2["민감 필드<br/>encryptable cast<br/>AES-128-ECB 암호화"]
         G3 --> S1
         S1 --> S2
@@ -446,7 +446,7 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake"
         VARCHAR username UK
         VARCHAR password "bcrypt"
@@ -463,7 +463,7 @@ erDiagram
         DATETIME deleted_at "소프트 삭제"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake"
         VARCHAR name
         VARCHAR slug UK
@@ -473,7 +473,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake"
         BIGINT parent_id FK "자기 참조"
         VARCHAR name
@@ -486,17 +486,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK
         BIGINT role_id PK_FK
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK
         BIGINT permission_id PK_FK
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake"
         BIGINT user_id FK
         VARCHAR action
@@ -508,7 +508,7 @@ erDiagram
         DATETIME created_at
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake"
         VARCHAR group
         VARCHAR key
@@ -519,12 +519,12 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : "user_id"
-    erik_admin_role ||--o{ erik_admin_user_role : "role_id"
-    erik_admin_role ||--o{ erik_admin_role_permission : "role_id"
-    erik_admin_permission ||--o{ erik_admin_role_permission : "permission_id"
-    erik_admin_user ||--o{ erik_operation_log : "user_id"
-    erik_admin_permission ||--o{ erik_admin_permission : "parent_id"
+    erp_admin_user ||--o{ erp_admin_user_role : "user_id"
+    erp_admin_role ||--o{ erp_admin_user_role : "role_id"
+    erp_admin_role ||--o{ erp_admin_role_permission : "role_id"
+    erp_admin_permission ||--o{ erp_admin_role_permission : "permission_id"
+    erp_admin_user ||--o{ erp_operation_log : "user_id"
+    erp_admin_permission ||--o{ erp_admin_permission : "parent_id"
 ```
 
 ---
@@ -676,8 +676,8 @@ flowchart TB
     end
 
     subgraph "데이터 계층"
-        MYSQL["MySQL 8.0<br/>주-종 복제<br/>erik_ 프리픽스"]
-        ES["Elasticsearch 8.x<br/>3 노드 클러스터<br/>erik_ 프리픽스"]
+        MYSQL["MySQL 8.0<br/>주-종 복제<br/>erp_ 프리픽스"]
+        ES["Elasticsearch 8.x<br/>3 노드 클러스터<br/>erp_ 프리픽스"]
         REDIS["Redis 7.x<br/>센티널 모드<br/>poster:captcha:*"]
     end
 
@@ -918,22 +918,22 @@ class_exists 폴백으로 인스턴스화하므로 모든 Service는 무인자 �
 ## OMS/WMS/TMS 확장 모듈 (2026-08)
 
 ### OMS (Order Management System) — 8 tables
-- **주문 확장** (`erik_oms_order`): 다채널 집계/이행 상태/결제 상태/우선순위
-- **주문 주소** (`erik_oms_order_address`): 배송/청구지 주소(다국가 형식)
-- **이행 기록** (`erik_oms_fulfillment`+`_item`): 할당/피킹 완료/포장 완료/출하 수량 추적
-- **RMA** (`erik_oms_rma`+`_item`): 반품/교환 전체 수명 주기
-- **재고 예약** (`erik_oms_inventory_reservation`): ATP = physical - reserved
-- **채널** (`erik_channel`): direct/marketplace/edi/pos
+- **주문 확장** (`erp_oms_order`): 다채널 집계/이행 상태/결제 상태/우선순위
+- **주문 주소** (`erp_oms_order_address`): 배송/청구지 주소(다국가 형식)
+- **이행 기록** (`erp_oms_fulfillment`+`_item`): 할당/피킹 완료/포장 완료/출하 수량 추적
+- **RMA** (`erp_oms_rma`+`_item`): 반품/교환 전체 수명 주기
+- **재고 예약** (`erp_oms_inventory_reservation`): ATP = physical - reserved
+- **채널** (`erp_channel`): direct/marketplace/edi/pos
 
 ### WMS (Warehouse Management System) — 12 tables
-- **구역 및 로케이션** (`erik_wms_zone`, `erik_wms_location`): zone→aisle→rack→level→bin
-- **입고** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
-- **출고** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+- **구역 및 로케이션** (`erp_wms_zone`, `erp_wms_location`): zone→aisle→rack→level→bin
+- **입고** (`erp_wms_asn`+`_item`, `erp_wms_receiving`, `erp_wms_putaway_task`+`_item`)
+- **출고** (`erp_wms_wave`+`wave_order`, `erp_wms_pick_task`+`_item`, `erp_wms_pack_task`)
 
 ### TMS (Transport Management System) — 7 tables
-- **운송사** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
-- **운송장** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
-- **운임 인보이스** (`erik_tms_freight_invoice`)
+- **운송사** (`erp_tms_carrier`+`carrier_service`, `erp_tms_freight_rate`)
+- **운송장** (`erp_tms_shipment`+`_package`, `erp_tms_tracking_event`)
+- **운임 인보이스** (`erp_tms_freight_invoice`)
 
 ### Data Flow
 ```
@@ -1048,7 +1048,7 @@ SaaS 과금, 테넌트 자체 개통 등 "멀티 테넌트 완전 상용화 방�
    `app\middleware\TenantScope::class` 추가(AdminAuth 뒤에 배치하여 인증 완료 보장).
 2. 요청 측이 요청 헤더에 `X-Tenant-Id`(int 테넌트 ID)를 전달.
 3. 격리가 필요한 비즈니스 테이블에 `tenant_id` 컬럼(BIGINT + 인덱스) 추가 및 기존 데이터 백필;
-   사전/시스템 테이블(예: `erik_admin_user`, `erik_role`, `erik_permission`)은 격리하지 않음.
+   사전/시스템 테이블(예: `erp_admin_user`, `erp_role`, `erp_permission`)은 격리하지 않음.
 4. 격리가 필요한 모델 클래스에서 `use app\model\concerns\TenantScope;`를 사용하면 현재 테넌트 기준으로 자동 필터링.
 5. (선택) JWT에서 테넌트를 가져오려면(요청 헤더 대신): 로그인 발급 페이로드에 `tenant_id` 선언을 추가하고,
    미들웨어에서 `$payload['tenant_id']`를 읽습니다.

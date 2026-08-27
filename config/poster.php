@@ -44,7 +44,7 @@ return [
         ],
         // Redis 存储配置（storage=redis 时生效）
         'redis' => [
-            'prefix' => 'poster:captcha:',
+            'prefix' => 'erp:poster:captcha:',
             'connection' => 'default',
         ],
         // 文件存储配置（storage=file 时生效）

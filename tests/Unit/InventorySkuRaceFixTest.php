@@ -41,14 +41,14 @@ class InventorySkuRaceFixTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->invKeys as $key) {
-            Capsule::table('erik_inventory')->where($key)->delete();
+            Capsule::table('erp_inventory')->where($key)->delete();
         }
         if (!empty($this->flowIds)) {
-            Capsule::table('erik_inventory_flow')->whereIn('id', $this->flowIds)->delete();
-            Capsule::table('erik_cost_record')->whereIn('flow_id', $this->flowIds)->delete();
+            Capsule::table('erp_inventory_flow')->whereIn('id', $this->flowIds)->delete();
+            Capsule::table('erp_cost_record')->whereIn('flow_id', $this->flowIds)->delete();
         }
         foreach ($this->batchCodes as $code) {
-            Capsule::table('erik_inventory_batch')->where('batch_code', $code)->delete();
+            Capsule::table('erp_inventory_batch')->where('batch_code', $code)->delete();
         }
         $this->invKeys = [];
         $this->flowIds = [];
@@ -64,15 +64,15 @@ class InventorySkuRaceFixTest extends TestCase
 
         $dup = new PDOException('Duplicate entry', 1062);
         $dup->errorInfo = ['23000', 1062, "Duplicate entry 'x' for key 'uk_product_sku_warehouse_location_batch'"];
-        $e1062 = new QueryException('default', 'insert into erik_inventory ...', [], $dup);
+        $e1062 = new QueryException('default', 'insert into erp_inventory ...', [], $dup);
         $this->assertTrue($method->invoke($service, $e1062), '1062 唯一键冲突应判定为重复');
 
         $deadlock = new PDOException('Deadlock found', 1213);
         $deadlock->errorInfo = ['40001', 1213, 'Deadlock found when trying to get lock'];
-        $e1213 = new QueryException('default', 'insert into erik_inventory ...', [], $deadlock);
+        $e1213 = new QueryException('default', 'insert into erp_inventory ...', [], $deadlock);
         $this->assertFalse($method->invoke($service, $e1213), '死锁等非 1062 错误不应判定为重复');
 
-        $ePlain = new QueryException('default', 'insert into erik_inventory ...', [], new \RuntimeException('boom'));
+        $ePlain = new QueryException('default', 'insert into erp_inventory ...', [], new \RuntimeException('boom'));
         $this->assertFalse($method->invoke($service, $ePlain), '无 PDO errorInfo 的错误不应判定为重复');
     }
 
@@ -88,8 +88,8 @@ class InventorySkuRaceFixTest extends TestCase
         $this->flowIds[] = $service->stockIn(970001, 970002, 970003, 970004, 'race-batch-01', 10, 10.00, 'unit_test', 910001);
         $this->flowIds[] = $service->stockIn(970001, 970002, 970003, 970004, 'race-batch-01', 10, 20.00, 'unit_test', 910002);
 
-        $this->assertSame(1, Capsule::table('erik_inventory')->where($key)->count(), '同一唯一键只应有一条库存行');
-        $row = Capsule::table('erik_inventory')->where($key)->first();
+        $this->assertSame(1, Capsule::table('erp_inventory')->where($key)->count(), '同一唯一键只应有一条库存行');
+        $row = Capsule::table('erp_inventory')->where($key)->first();
         $this->assertNotNull($row);
         $this->assertEquals(20.0, (float) $row->quantity, '数量应累加');
         $this->assertEquals(15.0, (float) $row->cost_price, '加权均价 = (10*10 + 10*20) / 20 = 15');

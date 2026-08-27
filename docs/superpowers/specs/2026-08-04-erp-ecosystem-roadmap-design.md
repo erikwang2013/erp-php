@@ -377,32 +377,32 @@ app/controller/dms/
 
 | 表名 | 用途 | 阶段 |
 |------|------|------|
-| `erik_finance_period_close` | 期末结转记录 | P1 |
-| `erik_finance_account_balance` | 科目余额快照 | P1 |
-| `erik_hr_salary_config` | 薪资计算配置 | P1 |
-| `erik_hr_social_insurance_config` | 社保基数配置 | P1 |
-| `erik_hr_housing_fund_config` | 公积金配置 | P1 |
-| `erik_mfg_mrp_run_log` | MRP 运算日志 | P1 |
-| `erik_mfg_order_suggestion` | 建议订单 | P1 |
-| `erik_quality_inspection_standard` | 检验标准 | P1 |
-| `erik_quality_iqc_record` | IQC 来料检验 | P1 |
-| `erik_quality_ipqc_record` | IPQC 过程检验 | P1 |
-| `erik_quality_oqc_record` | OQC 出货检验 | P1 |
-| `erik_quality_nonconformity` | 不合格品 | P1 |
-| `erik_notification_channel_config` | 通知渠道配置 | P1 |
-| `erik_notification_template` | 通知模板 | P1 |
+| `erp_finance_period_close` | 期末结转记录 | P1 |
+| `erp_finance_account_balance` | 科目余额快照 | P1 |
+| `erp_hr_salary_config` | 薪资计算配置 | P1 |
+| `erp_hr_social_insurance_config` | 社保基数配置 | P1 |
+| `erp_hr_housing_fund_config` | 公积金配置 | P1 |
+| `erp_mfg_mrp_run_log` | MRP 运算日志 | P1 |
+| `erp_mfg_order_suggestion` | 建议订单 | P1 |
+| `erp_quality_inspection_standard` | 检验标准 | P1 |
+| `erp_quality_iqc_record` | IQC 来料检验 | P1 |
+| `erp_quality_ipqc_record` | IPQC 过程检验 | P1 |
+| `erp_quality_oqc_record` | OQC 出货检验 | P1 |
+| `erp_quality_nonconformity` | 不合格品 | P1 |
+| `erp_notification_channel_config` | 通知渠道配置 | P1 |
+| `erp_notification_template` | 通知模板 | P1 |
 
 ### P3 新增表
 
 | 表名 | 用途 | 阶段 |
 |------|------|------|
-| `erik_bi_dashboard` | BI 仪表盘 | P3 |
-| `erik_bi_widget` | BI 小组件 | P3 |
-| `erik_eam_equipment` | 设备台账 | P3 |
-| `erik_eam_maintenance_plan` | 保养计划 | P3 |
-| `erik_eam_repair_order` | 维修工单 | P3 |
-| `erik_dms_document` | 受控文档 | P3 |
-| `erik_dms_document_version` | 文档版本 | P3 |
+| `erp_bi_dashboard` | BI 仪表盘 | P3 |
+| `erp_bi_widget` | BI 小组件 | P3 |
+| `erp_eam_equipment` | 设备台账 | P3 |
+| `erp_eam_maintenance_plan` | 保养计划 | P3 |
+| `erp_eam_repair_order` | 维修工单 | P3 |
+| `erp_dms_document` | 受控文档 | P3 |
+| `erp_dms_document_version` | 文档版本 | P3 |
 
 ---
 

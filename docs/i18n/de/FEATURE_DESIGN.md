@@ -15,7 +15,7 @@ Das Open-ERP-System (open-erp) ist ein Full-Stack-Enterprise-Resource-Planning-S
 
 ### 1.2 Technische Randbedingungen
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
-- Tabellenpräfix erik_, Primärschlüssel BIGINT nicht auto-increment
+- Tabellenpräfix erp_, Primärschlüssel BIGINT nicht auto-increment
 - API-Version über den Request-Header API-Version gesteuert
 - JWT-Authentifizierung + RBAC-Berechtigungen
 - Globale Funktionen ohne \ -Präfix

@@ -15,7 +15,7 @@ class PurchaseReceive extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_purchase_receive';
+    protected $table = 'erp_purchase_receive';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

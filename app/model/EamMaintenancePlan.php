@@ -11,7 +11,7 @@ use support\Model;
 
 class EamMaintenancePlan extends Model
 {
-    protected $table = 'erik_eam_maintenance_plan';
+    protected $table = 'erp_eam_maintenance_plan';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

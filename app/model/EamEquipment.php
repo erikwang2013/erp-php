@@ -11,7 +11,7 @@ use support\Model;
 
 class EamEquipment extends Model
 {
-    protected $table = 'erik_eam_equipment';
+    protected $table = 'erp_eam_equipment';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

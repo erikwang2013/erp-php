@@ -60,7 +60,7 @@ DB_PORT=3306
 DB_DATABASE=erp
 DB_USERNAME=erp
 DB_PASSWORD=sua_senha
-DB_PREFIX=erik_
+DB_PREFIX=erp_
 
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
@@ -104,11 +104,11 @@ Após a instalação, há um papel de super administrador pré-configurado (`sup
 
 ```sql
 -- Criar administrador (a senha usa hash bcrypt)
-INSERT INTO `erik_admin_user` (`id`, `username`, `password`, `real_name`, `status`)
+INSERT INTO `erp_admin_user` (`id`, `username`, `password`, `real_name`, `status`)
 VALUES (90000000000000001, 'admin', '$2y$10$...', 'Administrador do sistema', 1);
 
 -- Vincular o papel de super administrador
-INSERT INTO `erik_admin_user_role` (`user_id`, `role_id`)
+INSERT INTO `erp_admin_user_role` (`user_id`, `role_id`)
 VALUES (90000000000000001, 10000000000000001);
 ```
 
@@ -136,7 +136,7 @@ mysql -h mysql -u root -p erp < database/install.sql
 
 | Convenção | Descrição |
 |------|------|
-| Prefixo de tabela | `erik_` |
+| Prefixo de tabela | `erp_` |
 | Chave primária | `id` BIGINT UNSIGNED NOT NULL, não incremental, gerado por snowflake-php |
 | Charset | utf8mb4, utf8mb4_unicode_ci |
 | Engine | InnoDB |

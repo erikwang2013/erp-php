@@ -13,7 +13,7 @@ use support\Model;
 
 class CrmContact extends Model
 {
-    protected $table = 'erik_crm_contact';
+    protected $table = 'erp_crm_contact';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

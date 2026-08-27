@@ -12,7 +12,7 @@ use support\Model;
 
 class MfgRouting extends Model
 {
-    protected $table = 'erik_mfg_routing';
+    protected $table = 'erp_mfg_routing';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

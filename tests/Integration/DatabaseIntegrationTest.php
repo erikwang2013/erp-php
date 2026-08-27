@@ -22,8 +22,8 @@ use Throwable;
  *   TEST_DB_HOST / TEST_DB_PORT / TEST_DB_DATABASE / TEST_DB_USERNAME / TEST_DB_PASSWORD
  *
  * 覆盖点：
- * 1. 测试临时表 erik_it_crud 上的 Eloquent 模型 增/查/改/删 全链路；
- * 2. 真实业务表 erik_product（迁移建表后存在）的模型读写；
+ * 1. 测试临时表 erp_it_crud 上的 Eloquent 模型 增/查/改/删 全链路；
+ * 2. 真实业务表 erp_product（迁移建表后存在）的模型读写；
  * 3. 事务回滚：beginTransaction → insert → rollBack → 断言数据未落库
  *    （查询构造器与模型两种写入方式）；
  * 4. 事务提交：commit 后数据持久化；
@@ -33,10 +33,10 @@ use Throwable;
 class DatabaseIntegrationTest extends IntegrationTestCase
 {
     /** 测试临时表名（业务前缀保持一致） */
-    private const CRUD_TABLE = 'erik_it_crud';
+    private const CRUD_TABLE = 'erp_it_crud';
 
     /** 真实业务表名（迁移 2026_05_22_000003 创建） */
-    private const REAL_PRODUCT_TABLE = 'erik_product';
+    private const REAL_PRODUCT_TABLE = 'erp_product';
 
     /** 真实表测试数据的 code 前缀，用于 tearDown 兜底清理 */
     private const REAL_TABLE_TEST_CODE_PREFIX = 'IT-TEST-';
@@ -213,14 +213,14 @@ class DatabaseIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * 覆盖点 2：真实业务表 erik_product 的模型读写（表不存在时优雅跳过）。
+     * 覆盖点 2：真实业务表 erp_product 的模型读写（表不存在时优雅跳过）。
      */
     public function testRealBusinessTableProductCrud(): void
     {
         if (!Capsule::schema()->hasTable(self::REAL_PRODUCT_TABLE)) {
             self::markTestSkipped(
-                '测试库中不存在 erik_product 表，请先执行 database/install.sql'
-                . '（CI 中 mysql service 已预建 open_admin 库）'
+                '测试库中不存在 erp_product 表，请先执行 database/install.sql'
+                . '（CI 中 mysql service 已预建 erp 库）'
             );
         }
 

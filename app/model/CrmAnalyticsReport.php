@@ -11,7 +11,7 @@ use support\Model;
 
 class CrmAnalyticsReport extends Model
 {
-    protected $table = 'erik_crm_analytics_report';
+    protected $table = 'erp_crm_analytics_report';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

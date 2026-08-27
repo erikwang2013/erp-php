@@ -15,7 +15,7 @@ class PurchaseApply extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_purchase_apply';
+    protected $table = 'erp_purchase_apply';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

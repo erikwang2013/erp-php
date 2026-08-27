@@ -15,7 +15,7 @@ class HrDepartment extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_hr_department';
+    protected $table = 'erp_hr_department';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

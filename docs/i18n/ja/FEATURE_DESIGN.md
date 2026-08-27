@@ -15,7 +15,7 @@
 
 ### 1.2 技術制約
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
-- テーブルプレフィックス erik_、主キー BIGINT 非オートインクリメント
+- テーブルプレフィックス erp_、主キー BIGINT 非オートインクリメント
 - API バージョンはリクエストヘッダー API-Version で制御
 - JWT 認証 + RBAC 権限
 - グローバル関数に \ プレフィックスを付けない

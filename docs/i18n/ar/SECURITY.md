@@ -349,11 +349,11 @@ try {
 
 **نموذج البيانات**: ربط ثلاثي المستويات User -> Role -> Permission
 
-- `erik_admin_user` (جدول المستخدمين)
-- `erik_admin_user_role` (جدول ربط المستخدم-الدور)
-- `erik_admin_role` (جدول الأدوار)
-- `erik_admin_role_permission` (جدول ربط الدور-الصلاحية)
-- `erik_admin_permission` (جدول الصلاحيات)
+- `erp_admin_user` (جدول المستخدمين)
+- `erp_admin_user_role` (جدول ربط المستخدم-الدور)
+- `erp_admin_role` (جدول الأدوار)
+- `erp_admin_role_permission` (جدول ربط الدور-الصلاحية)
+- `erp_admin_permission` (جدول الصلاحيات)
 
 **أنواع الصلاحيات**:
 | type | المعنى | مثال |

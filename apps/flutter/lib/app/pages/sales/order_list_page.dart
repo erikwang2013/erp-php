@@ -87,7 +87,7 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
     });
   }
 
-  // 后端 erik_sales_order 字段: code/customer_id/warehouse_id/total_amount/
+  // 后端 erp_sales_order 字段: code/customer_id/warehouse_id/total_amount/
   // discount_amount/status/remark/ordered_at（store() 同时校验 name 必填）
   static const List<String> _statusLabels = ['待审核', '已审核', '部分发货', '已发货', '已取消'];
 

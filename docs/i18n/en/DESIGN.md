@@ -128,34 +128,34 @@ Controller::method()
 ### 3.1 ER Relationships
 
 ```
-erik_admin_user ──┬── erik_admin_user_role ──┬── erik_admin_role
+erp_admin_user ──┬── erp_admin_user_role ──┬── erp_admin_role
   (用户)           │    (用户-角色关联)         │     (角色)
                   │                          │
-                  │                    erik_admin_role_permission
+                  │                    erp_admin_role_permission
                   │                     (角色-权限关联)
                   │                          │
                   │                          ▼
-                  │                    erik_admin_permission
+                  │                    erp_admin_permission
                   │                      (权限/菜单)
                   │
                   ▼
-           erik_operation_log
+           erp_operation_log
              (操作日志)
 
-erik_system_config (系统配置) — 独立表
+erp_system_config (系统配置) — 独立表
 ```
 
 ### 3.2 Core Table Structures
 
 | Table | Field Count | Description |
 |------|-------|------|
-| `erik_admin_user` | 14 | Admin users; phone/email/id_card stored encrypted; soft delete supported |
-| `erik_admin_role` | 7 | Roles; slug unique |
-| `erik_admin_permission` | 10 | Permission tree (parent_id self-reference); type: 1=menu 2=button 3=API |
-| `erik_admin_user_role` | 2 | User-role many-to-many pivot table |
-| `erik_admin_role_permission` | 2 | Role-permission many-to-many pivot table |
-| `erik_system_config` | 8 | Key-value config; group+key composite unique |
-| `erik_operation_log` | 9 | Operation audit log (includes source origin) |
+| `erp_admin_user` | 14 | Admin users; phone/email/id_card stored encrypted; soft delete supported |
+| `erp_admin_role` | 7 | Roles; slug unique |
+| `erp_admin_permission` | 10 | Permission tree (parent_id self-reference); type: 1=menu 2=button 3=API |
+| `erp_admin_user_role` | 2 | User-role many-to-many pivot table |
+| `erp_admin_role_permission` | 2 | Role-permission many-to-many pivot table |
+| `erp_system_config` | 8 | Key-value config; group+key composite unique |
+| `erp_operation_log` | 9 | Operation audit log (includes source origin) |
 
 ### 3.3 Primary Key Conventions
 

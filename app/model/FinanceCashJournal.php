@@ -12,12 +12,12 @@ use support\Model;
 
 class FinanceCashJournal extends Model
 {
-    protected $table = 'erik_finance_cash_journal';
+    protected $table = 'erp_finance_cash_journal';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at'];
-    // install.sql 的 erik_finance_cash_journal 无 updated_at 列（仅 created_at），
+    // install.sql 的 erp_finance_cash_journal 无 updated_at 列（仅 created_at），
     // 关闭 updated_at 自动维护，避免插入时生成未知列报错
     public const UPDATED_AT = null;
 }

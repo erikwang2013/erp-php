@@ -37,7 +37,7 @@ class ReceiveOverReceiptFixTest extends TestCase
         $src = $this->receiveSource();
 
         // 超收校验：历史累计实收 + 本次 ≤ 采购数量，否则严格拒绝
-        $this->assertStringContainsString('SUM(erik_purchase_receive_item.quantity)', $src);
+        $this->assertStringContainsString('SUM(erp_purchase_receive_item.quantity)', $src);
         $this->assertStringContainsString('($receivedSoFar + $quantity) > $orderedQty', $src, '应校验累计实收不超过采购数量');
         $this->assertStringContainsString('超收拒绝', $src, '超收应以业务异常拒绝');
     }
@@ -59,8 +59,8 @@ class ReceiveOverReceiptFixTest extends TestCase
         $src = $this->receiveSource();
 
         // 状态判定按明细行聚合比较，而非跨明细总量
-        $this->assertStringContainsString('groupBy(\'erik_purchase_receive_item.order_item_id\')', $src);
-        $this->assertStringContainsString('SUM(erik_purchase_receive_item.quantity) as total_received', $src);
+        $this->assertStringContainsString('groupBy(\'erp_purchase_receive_item.order_item_id\')', $src);
+        $this->assertStringContainsString('SUM(erp_purchase_receive_item.quantity) as total_received', $src);
         $this->assertStringNotContainsString('$totalReceivedQty >= $totalOrderedQty', $src, '应移除跨明细总量比较');
         // 全行完成 → 已收货；有行完成 → 部分收货
         $this->assertStringContainsString('每行实收均达采购量 → 已收货', $src);
@@ -124,7 +124,7 @@ class ReceiveOverReceiptFixTest extends TestCase
         $this->assertStringContainsString("'items.*.order_item_id' => 'required'", $src);
         $this->assertStringContainsString('超发拒绝', $src);
         $this->assertStringContainsString('order_item_id 缺失或不属于该销售订单', $src);
-        $this->assertStringContainsString('SUM(erik_sales_delivery_item.quantity) as total_delivered', $src);
+        $this->assertStringContainsString('SUM(erp_sales_delivery_item.quantity) as total_delivered', $src);
     }
 
     public function testReceiveStoreEndToEndRequiresDatabase(): void

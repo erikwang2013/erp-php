@@ -12,7 +12,7 @@ use app\model\concerns\TenantScope;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 集成测试专用租户模型：使用 TenantScope trait，映射测试表 erik_it_tenant。
+ * 集成测试专用租户模型：使用 TenantScope trait，映射测试表 erp_it_tenant。
  *
  * 用于验证多租户全局作用域的隔离契约：
  * - 经【使用类】调用 TenantAwareModel::setCurrentTenantId() 时，作用域机制应生效
@@ -25,7 +25,7 @@ class TenantAwareModel extends Model
 {
     use TenantScope;
 
-    protected $table = 'erik_it_tenant';
+    protected $table = 'erp_it_tenant';
 
     protected $primaryKey = 'id';
 

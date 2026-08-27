@@ -12,7 +12,7 @@ use support\Model;
 
 class ReportFilter extends Model
 {
-    protected $table = 'erik_report_filter';
+    protected $table = 'erp_report_filter';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

@@ -128,34 +128,34 @@ Controller::method()
 ### 3.1 Relations ER
 
 ```
-erik_admin_user ──┬── erik_admin_user_role ──┬── erik_admin_role
+erp_admin_user ──┬── erp_admin_user_role ──┬── erp_admin_role
   (用户)           │    (用户-角色关联)         │     (角色)
                   │                          │
-                  │                    erik_admin_role_permission
+                  │                    erp_admin_role_permission
                   │                     (角色-权限关联)
                   │                          │
                   │                          ▼
-                  │                    erik_admin_permission
+                  │                    erp_admin_permission
                   │                      (权限/菜单)
                   │
                   ▼
-           erik_operation_log
+           erp_operation_log
              (操作日志)
 
-erik_system_config (系统配置) — 独立表
+erp_system_config (系统配置) — 独立表
 ```
 
 ### 3.2 Structure des tables principales
 
 | Nom de table | Nombre de champs | Description |
 |------|-------|------|
-| `erik_admin_user` | 14 | Utilisateurs administrateurs, phone/email/id_card stockés chiffrés, suppression logique prise en charge |
-| `erik_admin_role` | 7 | Rôles, slug unique |
-| `erik_admin_permission` | 10 | Arbre de permissions (parent_id auto-référence), type : 1=menu 2=bouton 3=API |
-| `erik_admin_user_role` | 2 | Table d'association many-to-many utilisateur-rôle |
-| `erik_admin_role_permission` | 2 | Table d'association many-to-many rôle-permission |
-| `erik_system_config` | 8 | Configuration clé-valeur, unicité conjointe group+key |
-| `erik_operation_log` | 9 | Journal d'audit des opérations (inclut la plateforme source) |
+| `erp_admin_user` | 14 | Utilisateurs administrateurs, phone/email/id_card stockés chiffrés, suppression logique prise en charge |
+| `erp_admin_role` | 7 | Rôles, slug unique |
+| `erp_admin_permission` | 10 | Arbre de permissions (parent_id auto-référence), type : 1=menu 2=bouton 3=API |
+| `erp_admin_user_role` | 2 | Table d'association many-to-many utilisateur-rôle |
+| `erp_admin_role_permission` | 2 | Table d'association many-to-many rôle-permission |
+| `erp_system_config` | 8 | Configuration clé-valeur, unicité conjointe group+key |
+| `erp_operation_log` | 9 | Journal d'audit des opérations (inclut la plateforme source) |
 
 ### 3.3 Norme des clés primaires
 

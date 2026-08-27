@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceSubsidiaryLedger extends Model
 {
-    protected $table = 'erik_finance_subsidiary_ledger';
+    protected $table = 'erp_finance_subsidiary_ledger';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

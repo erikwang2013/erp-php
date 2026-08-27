@@ -201,7 +201,7 @@ class EamModuleTest extends TestCase
         $models = ['EamEquipment', 'EamMaintenancePlan', 'EamRepairOrder'];
         foreach ($models as $m) {
             $source = file_get_contents(__DIR__ . "/../app/model/{$m}.php");
-            $this->assertStringContainsString('erik_eam_', $source, "{$m} 表应使用 erik_eam_ 前缀");
+            $this->assertStringContainsString('erp_eam_', $source, "{$m} 表应使用 erp_eam_ 前缀");
             $this->assertStringContainsString('$incrementing = false', $source, "{$m} 应关闭自增主键");
             $this->assertStringContainsString("keyType = 'int'", $source, "{$m} 主键类型应为 int");
         }
@@ -211,7 +211,7 @@ class EamModuleTest extends TestCase
     {
         // EamSparePart 未声明 $incrementing/keyType（潜在缺陷，已单独上报）
         $source = file_get_contents(__DIR__ . '/../app/model/EamSparePart.php');
-        $this->assertStringContainsString('erik_eam_spare_part', $source);
+        $this->assertStringContainsString('erp_eam_spare_part', $source);
         $this->assertStringContainsString('class EamSparePart extends Model', $source);
         $this->assertStringContainsString('stock_qty', $source, '备件应包含库存字段');
         $this->assertStringContainsString('min_stock', $source, '备件应包含最低库存字段');

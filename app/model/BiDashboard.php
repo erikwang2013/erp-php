@@ -11,7 +11,7 @@ use support\Model;
 
 class BiDashboard extends Model
 {
-    protected $table = 'erik_bi_dashboard';
+    protected $table = 'erp_bi_dashboard';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

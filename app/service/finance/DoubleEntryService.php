@@ -15,7 +15,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 /**
  * 复式记账服务
  *
- * 状态机与 erik_finance_voucher.status 列注释保持一致:
+ * 状态机与 erp_finance_voucher.status 列注释保持一致:
  * 0 = 草稿, 1 = 已审核
  */
 class DoubleEntryService

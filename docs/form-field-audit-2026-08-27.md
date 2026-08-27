@@ -40,7 +40,7 @@
 ## 证据路径
 
 - 后端契约：`app/controller/{purchase,sales,finance,crm,hr,inventory}/*Controller.php` store()（validator + $request->input）
-- 表列：`database/install.sql`（erik_purchase_apply / erik_sales_quotation / erik_finance_voucher / erik_finance_payment / erik_finance_receipt / erik_finance_asset / erik_crm_opportunity / erik_crm_contract / erik_hr_leave / erik_hr_salary / erik_transfer / erik_check_task）
+- 表列：`database/install.sql`（erp_purchase_apply / erp_sales_quotation / erp_finance_voucher / erp_finance_payment / erp_finance_receipt / erp_finance_asset / erp_crm_opportunity / erp_crm_contract / erp_hr_leave / erp_hr_salary / erp_transfer / erp_check_task）
 - 表单字段：`apps/flutter/lib/app/pages/**/*_list_page.dart` 的 `FormFieldConfig` 声明（共享组件 `apps/flutter/lib/app/widgets/form_dialog.dart`）
 - 模型 mass-assign 放开：`app/model/*.php` guarded 仅 id/created_at/updated_at/deleted_at
 

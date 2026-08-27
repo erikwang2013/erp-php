@@ -11,7 +11,7 @@ use support\Model;
 
 class CrmContractItem extends Model
 {
-    protected $table = 'erik_crm_contract_item';
+    protected $table = 'erp_crm_contract_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

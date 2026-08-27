@@ -12,7 +12,7 @@ use support\Model;
 
 class WmsAsn extends Model
 {
-    protected $table = 'erik_wms_asn';
+    protected $table = 'erp_wms_asn';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

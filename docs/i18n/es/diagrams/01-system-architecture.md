@@ -20,8 +20,8 @@ flowchart TB
     end
 
     subgraph storage["Capa de almacenamiento"]
-        mysql[("MySQL 8.0<br/>Almacenamiento principal - prefijo erik_")]
-        es[("Elasticsearch<br/>Búsqueda de texto completo - prefijo erik_")]
+        mysql[("MySQL 8.0<br/>Almacenamiento principal - prefijo erp_")]
+        es[("Elasticsearch<br/>Búsqueda de texto completo - prefijo erp_")]
         redis[("Redis<br/>Session/Caché/Captcha")]
     end
 

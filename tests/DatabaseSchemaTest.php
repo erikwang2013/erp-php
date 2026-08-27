@@ -44,7 +44,7 @@ class DatabaseSchemaTest extends TestCase
     public function testInstallSqlUsesCorrectTablePrefix(): void
     {
         $content = file_get_contents($this->installSql);
-        $this->assertStringContainsString('CREATE TABLE IF NOT EXISTS `erik_', $content);
+        $this->assertStringContainsString('CREATE TABLE IF NOT EXISTS `erp_', $content);
     }
 
     /**
@@ -53,7 +53,7 @@ class DatabaseSchemaTest extends TestCase
     public function testInstallSqlTablesHaveNonAutoIncrementId(): void
     {
         $content = file_get_contents($this->installSql);
-        if (preg_match_all('/CREATE TABLE.*?`erik_(\w+)`/s', $content, $matches)) {
+        if (preg_match_all('/CREATE TABLE.*?`erp_(\w+)`/s', $content, $matches)) {
             foreach ($matches[0] as $match) {
                 $this->assertStringNotContainsString(
                     'AUTO_INCREMENT',

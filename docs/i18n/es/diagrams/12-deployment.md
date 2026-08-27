@@ -18,8 +18,8 @@ flowchart TB
     end
 
     subgraph data["Capa de datos"]
-        mysql[("MySQL 8.0<br/>Réplica maestro-esclavo<br/>prefijo erik_")]
-        es[("Elasticsearch 8.x<br/>Clúster de 3 nodos<br/>prefijo erik_")]
+        mysql[("MySQL 8.0<br/>Réplica maestro-esclavo<br/>prefijo erp_")]
+        es[("Elasticsearch 8.x<br/>Clúster de 3 nodos<br/>prefijo erp_")]
         redis[("Redis 7.x<br/>Modo centinela<br/>poster:captcha:*")]
     end
 

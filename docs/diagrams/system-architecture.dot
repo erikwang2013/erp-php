@@ -74,9 +74,9 @@ digraph SystemArchitecture {
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
         node [shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f", fontsize=10];
-        d1 [label="MySQL 8.0\nPrimary Storage\n163 tables\nerik_ prefix"];
+        d1 [label="MySQL 8.0\nPrimary Storage\n163 tables\nerp_ prefix"];
         d2 [label="Redis 7\nCache/Session\nRate Limit\nBlacklist"];
-        d3 [label="Elasticsearch 8.x\nFull-text Search\nerik_ index prefix"];
+        d3 [label="Elasticsearch 8.x\nFull-text Search\nerp_ index prefix"];
     }
 
     subgraph cluster_devops {

@@ -20,8 +20,8 @@ flowchart TB
     end
 
     subgraph storage["স্টোরেজ লেয়ার"]
-        mysql[("MySQL 8.0<br/>মূল স্টোরেজ - erik_ উপসর্গ")]
-        es[("Elasticsearch<br/>ফুল-টেক্সট সার্চ - erik_ উপসর্গ")]
+        mysql[("MySQL 8.0<br/>মূল স্টোরেজ - erp_ উপসর্গ")]
+        es[("Elasticsearch<br/>ফুল-টেক্সট সার্চ - erp_ উপসর্গ")]
         redis[("Redis<br/>Session/ক্যাশ/Captcha")]
     end
 

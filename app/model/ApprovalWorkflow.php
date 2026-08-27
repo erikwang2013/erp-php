@@ -15,7 +15,7 @@ class ApprovalWorkflow extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_approval_workflow';
+    protected $table = 'erp_approval_workflow';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

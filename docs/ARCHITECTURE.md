@@ -30,8 +30,8 @@ flowchart TB
     end
 
     subgraph "存储层"
-        D1[("MySQL 8.0<br/>主存储<br/>表前缀 erik_")]
-        D2[("Elasticsearch<br/>全文检索<br/>索引前缀 erik_")]
+        D1[("MySQL 8.0<br/>主存储<br/>表前缀 erp_")]
+        D2[("Elasticsearch<br/>全文检索<br/>索引前缀 erp_")]
         D3[("Redis<br/>Session / 缓存<br/>Captcha 存储")]
     end
 
@@ -380,7 +380,7 @@ flowchart LR
     end
 
     subgraph "2. 存储"
-        S1["MySQL erik_* 表<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
+        S1["MySQL erp_* 表<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
         S2["敏感字段<br/>encryptable cast<br/>AES-128-ECB 加密"]
         G3 --> S1
         S1 --> S2
@@ -446,7 +446,7 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake"
         VARCHAR username UK
         VARCHAR password "bcrypt"
@@ -463,7 +463,7 @@ erDiagram
         DATETIME deleted_at "软删除"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake"
         VARCHAR name
         VARCHAR slug UK
@@ -473,7 +473,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake"
         BIGINT parent_id FK "自引用"
         VARCHAR name
@@ -486,17 +486,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK
         BIGINT role_id PK_FK
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK
         BIGINT permission_id PK_FK
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake"
         BIGINT user_id FK
         VARCHAR action
@@ -508,7 +508,7 @@ erDiagram
         DATETIME created_at
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake"
         VARCHAR group
         VARCHAR key
@@ -519,12 +519,12 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : "user_id"
-    erik_admin_role ||--o{ erik_admin_user_role : "role_id"
-    erik_admin_role ||--o{ erik_admin_role_permission : "role_id"
-    erik_admin_permission ||--o{ erik_admin_role_permission : "permission_id"
-    erik_admin_user ||--o{ erik_operation_log : "user_id"
-    erik_admin_permission ||--o{ erik_admin_permission : "parent_id"
+    erp_admin_user ||--o{ erp_admin_user_role : "user_id"
+    erp_admin_role ||--o{ erp_admin_user_role : "role_id"
+    erp_admin_role ||--o{ erp_admin_role_permission : "role_id"
+    erp_admin_permission ||--o{ erp_admin_role_permission : "permission_id"
+    erp_admin_user ||--o{ erp_operation_log : "user_id"
+    erp_admin_permission ||--o{ erp_admin_permission : "parent_id"
 ```
 
 ---
@@ -676,8 +676,8 @@ flowchart TB
     end
 
     subgraph "数据层"
-        MYSQL["MySQL 8.0<br/>主从复制<br/>erik_ 前缀"]
-        ES["Elasticsearch 8.x<br/>3 节点集群<br/>erik_ 前缀"]
+        MYSQL["MySQL 8.0<br/>主从复制<br/>erp_ 前缀"]
+        ES["Elasticsearch 8.x<br/>3 节点集群<br/>erp_ 前缀"]
         REDIS["Redis 7.x<br/>哨兵模式<br/>poster:captcha:*"]
     end
 
@@ -918,22 +918,22 @@ class_exists 回退实例化，故所有 Service 保持无参构造）。
 ## OMS/WMS/TMS 扩展模块 (2026-08)
 
 ### OMS (Order Management System) — 8 tables
-- **订单扩展** (`erik_oms_order`)：多渠道聚合/履约状态/支付状态/优先级
-- **订单地址** (`erik_oms_order_address`)：收货/账单地址(多国格式)
-- **履约记录** (`erik_oms_fulfillment`+`_item`)：分配/已拣/已打包/已发数量追踪
-- **RMA** (`erik_oms_rma`+`_item`)：退换货全生命周期
-- **库存预占** (`erik_oms_inventory_reservation`)：ATP = physical - reserved
-- **渠道** (`erik_channel`)：direct/marketplace/edi/pos
+- **订单扩展** (`erp_oms_order`)：多渠道聚合/履约状态/支付状态/优先级
+- **订单地址** (`erp_oms_order_address`)：收货/账单地址(多国格式)
+- **履约记录** (`erp_oms_fulfillment`+`_item`)：分配/已拣/已打包/已发数量追踪
+- **RMA** (`erp_oms_rma`+`_item`)：退换货全生命周期
+- **库存预占** (`erp_oms_inventory_reservation`)：ATP = physical - reserved
+- **渠道** (`erp_channel`)：direct/marketplace/edi/pos
 
 ### WMS (Warehouse Management System) — 12 tables
-- **库区库位** (`erik_wms_zone`, `erik_wms_location`)：zone→aisle→rack→level→bin
-- **入库** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
-- **出库** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+- **库区库位** (`erp_wms_zone`, `erp_wms_location`)：zone→aisle→rack→level→bin
+- **入库** (`erp_wms_asn`+`_item`, `erp_wms_receiving`, `erp_wms_putaway_task`+`_item`)
+- **出库** (`erp_wms_wave`+`wave_order`, `erp_wms_pick_task`+`_item`, `erp_wms_pack_task`)
 
 ### TMS (Transport Management System) — 7 tables
-- **承运商** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
-- **运单** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
-- **发票** (`erik_tms_freight_invoice`)
+- **承运商** (`erp_tms_carrier`+`carrier_service`, `erp_tms_freight_rate`)
+- **运单** (`erp_tms_shipment`+`_package`, `erp_tms_tracking_event`)
+- **发票** (`erp_tms_freight_invoice`)
 
 ### Data Flow
 ```
@@ -1048,7 +1048,7 @@ SaaS 计费、租户自助开通等"多租户完整商业化方案"不在本项�
    `app\middleware\TenantScope::class`（置于 AdminAuth 之后，确保已认证）。
 2. 请求方在请求头携带 `X-Tenant-Id`（int 租户ID）。
 3. 为需要隔离的业务表增加 `tenant_id` 列（BIGINT + 索引）并回填存量数据；
-   字典/系统表（如 `erik_admin_user`、`erik_role`、`erik_permission`）不隔离。
+   字典/系统表（如 `erp_admin_user`、`erp_role`、`erp_permission`）不隔离。
 4. 在需要隔离的模型类中 `use app\model\concerns\TenantScope;`，自动按当前租户过滤。
 5. （可选）如需从 JWT 而非请求头取租户：扩展登录签发载荷增加 `tenant_id` 声明，
    并在中间件中从 `$payload['tenant_id']` 读取。

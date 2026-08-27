@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceExchangeRate extends Model
 {
-    protected $table = 'erik_finance_exchange_rate';
+    protected $table = 'erp_finance_exchange_rate';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

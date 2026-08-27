@@ -377,32 +377,32 @@ Sin tablas nuevas; el ecosistema frontend no implica cambios en la estructura de
 
 | Nombre de la tabla | Uso | Etapa |
 |------|------|------|
-| `erik_finance_period_close` | Registro de cierres de fin de período | P1 |
-| `erik_finance_account_balance` | Instantánea de saldos de cuentas | P1 |
-| `erik_hr_salary_config` | Configuración del cálculo de nóminas | P1 |
-| `erik_hr_social_insurance_config` | Configuración de la base del seguro social | P1 |
-| `erik_hr_housing_fund_config` | Configuración del fondo de vivienda | P1 |
-| `erik_mfg_mrp_run_log` | Log de ejecución de MRP | P1 |
-| `erik_mfg_order_suggestion` | Pedidos sugeridos | P1 |
-| `erik_quality_inspection_standard` | Estándares de inspección | P1 |
-| `erik_quality_iqc_record` | Inspección de entrada IQC | P1 |
-| `erik_quality_ipqc_record` | Inspección de proceso IPQC | P1 |
-| `erik_quality_oqc_record` | Inspección de salida OQC | P1 |
-| `erik_quality_nonconformity` | No conformidades | P1 |
-| `erik_notification_channel_config` | Configuración de canales de notificación | P1 |
-| `erik_notification_template` | Plantillas de notificación | P1 |
+| `erp_finance_period_close` | Registro de cierres de fin de período | P1 |
+| `erp_finance_account_balance` | Instantánea de saldos de cuentas | P1 |
+| `erp_hr_salary_config` | Configuración del cálculo de nóminas | P1 |
+| `erp_hr_social_insurance_config` | Configuración de la base del seguro social | P1 |
+| `erp_hr_housing_fund_config` | Configuración del fondo de vivienda | P1 |
+| `erp_mfg_mrp_run_log` | Log de ejecución de MRP | P1 |
+| `erp_mfg_order_suggestion` | Pedidos sugeridos | P1 |
+| `erp_quality_inspection_standard` | Estándares de inspección | P1 |
+| `erp_quality_iqc_record` | Inspección de entrada IQC | P1 |
+| `erp_quality_ipqc_record` | Inspección de proceso IPQC | P1 |
+| `erp_quality_oqc_record` | Inspección de salida OQC | P1 |
+| `erp_quality_nonconformity` | No conformidades | P1 |
+| `erp_notification_channel_config` | Configuración de canales de notificación | P1 |
+| `erp_notification_template` | Plantillas de notificación | P1 |
 
 ### Tablas nuevas en P3
 
 | Nombre de la tabla | Uso | Etapa |
 |------|------|------|
-| `erik_bi_dashboard` | Paneles BI | P3 |
-| `erik_bi_widget` | Widgets BI | P3 |
-| `erik_eam_equipment` | Registro de equipos | P3 |
-| `erik_eam_maintenance_plan` | Planes de mantenimiento | P3 |
-| `erik_eam_repair_order` | Órdenes de reparación | P3 |
-| `erik_dms_document` | Documentos controlados | P3 |
-| `erik_dms_document_version` | Versiones de documentos | P3 |
+| `erp_bi_dashboard` | Paneles BI | P3 |
+| `erp_bi_widget` | Widgets BI | P3 |
+| `erp_eam_equipment` | Registro de equipos | P3 |
+| `erp_eam_maintenance_plan` | Planes de mantenimiento | P3 |
+| `erp_eam_repair_order` | Órdenes de reparación | P3 |
+| `erp_dms_document` | Documentos controlados | P3 |
+| `erp_dms_document_version` | Versiones de documentos | P3 |
 
 ---
 

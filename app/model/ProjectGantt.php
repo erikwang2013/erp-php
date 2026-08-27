@@ -12,7 +12,7 @@ use support\Model;
 
 class ProjectGantt extends Model
 {
-    protected $table = 'erik_project_gantt';
+    protected $table = 'erp_project_gantt';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

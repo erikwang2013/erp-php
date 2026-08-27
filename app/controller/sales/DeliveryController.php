@@ -173,11 +173,11 @@ class DeliveryController extends BaseController
                 if (!$orderItem) {
                     throw new \RuntimeException("销售明细不存在: order_item_id={$orderItemId}");
                 }
-                $deliveredSoFar = (float) SalesDeliveryItem::query()->join('erik_sales_delivery', 'erik_sales_delivery.id', '=', 'erik_sales_delivery_item.delivery_id')
-                    ->where('erik_sales_delivery.order_id', $orderId)
-                    ->where('erik_sales_delivery.status', 1)
-                    ->where('erik_sales_delivery_item.order_item_id', $orderItemId)
-                    ->sum('erik_sales_delivery_item.quantity');
+                $deliveredSoFar = (float) SalesDeliveryItem::query()->join('erp_sales_delivery', 'erp_sales_delivery.id', '=', 'erp_sales_delivery_item.delivery_id')
+                    ->where('erp_sales_delivery.order_id', $orderId)
+                    ->where('erp_sales_delivery.status', 1)
+                    ->where('erp_sales_delivery_item.order_item_id', $orderItemId)
+                    ->sum('erp_sales_delivery_item.quantity');
                 $orderedQty = (float) $orderItem->quantity;
                 if (($deliveredSoFar + $quantity) > $orderedQty) {
                     throw new \RuntimeException(
@@ -259,12 +259,12 @@ class DeliveryController extends BaseController
         }
 
         // 各订单明细行的累计实发（跨全部已出库发货单）
-        $deliveredByItem = SalesDeliveryItem::query()->join('erik_sales_delivery', 'erik_sales_delivery.id', '=', 'erik_sales_delivery_item.delivery_id')
-            ->where('erik_sales_delivery.order_id', $order->id)
-            ->where('erik_sales_delivery.status', 1)
-            ->groupBy('erik_sales_delivery_item.order_item_id')
-            ->selectRaw('erik_sales_delivery_item.order_item_id')
-            ->selectRaw('SUM(erik_sales_delivery_item.quantity) as total_delivered')
+        $deliveredByItem = SalesDeliveryItem::query()->join('erp_sales_delivery', 'erp_sales_delivery.id', '=', 'erp_sales_delivery_item.delivery_id')
+            ->where('erp_sales_delivery.order_id', $order->id)
+            ->where('erp_sales_delivery.status', 1)
+            ->groupBy('erp_sales_delivery_item.order_item_id')
+            ->selectRaw('erp_sales_delivery_item.order_item_id')
+            ->selectRaw('SUM(erp_sales_delivery_item.quantity) as total_delivered')
             ->get()
             ->pluck('total_delivered', 'order_item_id');
 

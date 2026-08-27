@@ -12,7 +12,7 @@ use support\Model;
 
 class Channel extends Model
 {
-    protected $table = 'erik_channel';
+    protected $table = 'erp_channel';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

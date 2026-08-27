@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  *  - 调度下次执行时间 calcNextRun()（反射调用真实私有方法：日/周/月/默认回退）
  *  - 频率变更触发下次执行时间重算
  *  - 报表 SQL 构建规则：字段表达式/聚合/反引号转义/默认 * /排序/LIMIT 上限
- *  - 表名白名单（真实读取迁移 SQL 提取 erik_ 表）
+ *  - 表名白名单（真实读取迁移 SQL 提取 erp_ 表）
  *  - 筛选条件构建：text/date_range/number_range/select + 必填校验
  *  - store() 校验规则、控制器/模型结构约定
  *
@@ -178,14 +178,14 @@ class ReportModuleTest extends TestCase
 
     public function testTableWhitelistBuiltFromMigrations(): void
     {
-        // execute() 白名单：从 install.sql 提取 `erik_\w+` 表名
-        preg_match_all('/`(erik_\w+)`/', file_get_contents(base_path('database/install.sql')), $m);
+        // execute() 白名单：从 install.sql 提取 `erp_\w+` 表名
+        preg_match_all('/`(erp_\w+)`/', file_get_contents(base_path('database/install.sql')), $m);
         $allowed = array_unique($m[1]);
-        foreach (['erik_sales_order', 'erik_eam_equipment', 'erik_bi_dashboard', 'erik_approval_instance', 'erik_report_template'] as $t) {
+        foreach (['erp_sales_order', 'erp_eam_equipment', 'erp_bi_dashboard', 'erp_approval_instance', 'erp_report_template'] as $t) {
             $this->assertContains($t, $allowed, "表 {$t} 应出现在白名单");
         }
-        $this->assertNotContains('erik_evil; DROP TABLE x', $allowed, '白名单应拒绝注入式表名');
-        $this->assertNotContains('users', $allowed, '白名单不应包含非 erik_ 表');
+        $this->assertNotContains('erp_evil; DROP TABLE x', $allowed, '白名单应拒绝注入式表名');
+        $this->assertNotContains('users', $allowed, '白名单不应包含非 erp_ 表');
     }
 
     public function testTextFilterBuildsLikeClause(): void

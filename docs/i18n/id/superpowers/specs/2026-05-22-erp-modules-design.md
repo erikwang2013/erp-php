@@ -22,7 +22,7 @@ Semua kode di-deploy monolitik di bawah `service/app/`, modul dibagi per direkto
 - Primary key BIGINT dibuat oleh snowflake-php
 - ID lapisan API dienkripsi-dekripsi dengan hashids
 - Autentikasi JWT, enkripsi data sensitif semuanya menggunakan paket seri erikwang2013/*
-- Prefiks tabel `erik_`, soft delete, fungsi global tanpa `\`
+- Prefiks tabel `erp_`, soft delete, fungsi global tanpa `\`
 
 ---
 
@@ -144,91 +144,91 @@ service/app/
 
 ## 4. Desain Tabel Database
 
-Semua tabel berprefix `erik_`, `id` BIGINT non-auto-increment, berisi `created_at`/`updated_at`/`deleted_at`.
+Semua tabel berprefix `erp_`, `id` BIGINT non-auto-increment, berisi `created_at`/`updated_at`/`deleted_at`.
 
 ### 4.1 Data Dasar Produk
 
 ```
-erik_product              Tabel utama produk
-erik_product_sku         SKU/spesifikasi produk
-erik_product_unit        Konversi multi-unit
-erik_product_price       Strategi harga
-erik_category            Kategori produk (pohon parent_id)
-erik_brand               Merek
-erik_warehouse           Gudang
-erik_location            Lokasi
-erik_supplier            Pemasok
-erik_customer            Pelanggan
-erik_customer_level      Level pelanggan
+erp_product              Tabel utama produk
+erp_product_sku         SKU/spesifikasi produk
+erp_product_unit        Konversi multi-unit
+erp_product_price       Strategi harga
+erp_category            Kategori produk (pohon parent_id)
+erp_brand               Merek
+erp_warehouse           Gudang
+erp_location            Lokasi
+erp_supplier            Pemasok
+erp_customer            Pelanggan
+erp_customer_level      Level pelanggan
 ```
 
 ### 4.2 Modul Pembelian
 
 ```
-erik_purchase_apply       Permintaan pembelian
-erik_purchase_apply_item  Detail permintaan
-erik_purchase_order       Pesanan pembelian
-erik_purchase_order_item  Detail pesanan
-erik_purchase_receive     Tabel utama penerimaan pembelian
-erik_purchase_receive_item Detail penerimaan
-erik_purchase_return      Tabel utama retur pembelian
-erik_purchase_return_item Detail retur
-erik_purchase_settlement  Catatan penyelesaian pemasok
+erp_purchase_apply       Permintaan pembelian
+erp_purchase_apply_item  Detail permintaan
+erp_purchase_order       Pesanan pembelian
+erp_purchase_order_item  Detail pesanan
+erp_purchase_receive     Tabel utama penerimaan pembelian
+erp_purchase_receive_item Detail penerimaan
+erp_purchase_return      Tabel utama retur pembelian
+erp_purchase_return_item Detail retur
+erp_purchase_settlement  Catatan penyelesaian pemasok
 ```
 
 ### 4.3 Modul Penjualan
 
 ```
-erik_sales_quotation      Tabel utama penawaran
-erik_sales_quotation_item Detail penawaran
-erik_sales_order          Tabel utama pesanan penjualan
-erik_sales_order_item     Detail pesanan
-erik_sales_delivery       Tabel utama pengiriman penjualan
-erik_sales_delivery_item  Detail pengiriman
-erik_sales_return         Tabel utama retur penjualan
-erik_sales_return_item    Detail retur
-erik_sales_settlement     Catatan penyelesaian pelanggan
+erp_sales_quotation      Tabel utama penawaran
+erp_sales_quotation_item Detail penawaran
+erp_sales_order          Tabel utama pesanan penjualan
+erp_sales_order_item     Detail pesanan
+erp_sales_delivery       Tabel utama pengiriman penjualan
+erp_sales_delivery_item  Detail pengiriman
+erp_sales_return         Tabel utama retur penjualan
+erp_sales_return_item    Detail retur
+erp_sales_settlement     Catatan penyelesaian pelanggan
 ```
 
 ### 4.4 Modul Stok
 
 ```
-erik_inventory            Stok real-time
-erik_inventory_batch      Informasi batch
-erik_inventory_serial     Catatan nomor seri
-erik_inventory_flow       Transaksi masuk/keluar
-erik_transfer             Tabel utama transfer
-erik_transfer_item        Detail transfer
-erik_check_task           Tugas opname
-erik_check_detail         Detail opname
-erik_inventory_alert_rule Aturan peringatan stok
-erik_inventory_alert_log  Log peringatan stok
-erik_cost_record          Catatan kalkulasi biaya
+erp_inventory            Stok real-time
+erp_inventory_batch      Informasi batch
+erp_inventory_serial     Catatan nomor seri
+erp_inventory_flow       Transaksi masuk/keluar
+erp_transfer             Tabel utama transfer
+erp_transfer_item        Detail transfer
+erp_check_task           Tugas opname
+erp_check_detail         Detail opname
+erp_inventory_alert_rule Aturan peringatan stok
+erp_inventory_alert_log  Log peringatan stok
+erp_cost_record          Catatan kalkulasi biaya
 ```
 
 ### 4.5 Modul Keuangan
 
 ```
-erik_finance_account      Akun akuntansi
-erik_finance_voucher      Voucher pembukuan
-erik_finance_voucher_item Entri voucher
-erik_finance_ar_ap        Detail piutang/hutang
-erik_finance_receipt      Nota penerimaan
-erik_finance_payment      Nota pembayaran
-erik_finance_cash_journal Jurnal kas bank
-erik_finance_expense      Nota reimburse biaya
-erik_finance_expense_item Detail reimburse
-erik_finance_profit       Snapshot laporan laba rugi
-erik_finance_bank_account Rekening bank
+erp_finance_account      Akun akuntansi
+erp_finance_voucher      Voucher pembukuan
+erp_finance_voucher_item Entri voucher
+erp_finance_ar_ap        Detail piutang/hutang
+erp_finance_receipt      Nota penerimaan
+erp_finance_payment      Nota pembayaran
+erp_finance_cash_journal Jurnal kas bank
+erp_finance_expense      Nota reimburse biaya
+erp_finance_expense_item Detail reimburse
+erp_finance_profit       Snapshot laporan laba rugi
+erp_finance_bank_account Rekening bank
 ```
 
 ### 4.6 Modul CRM
 
 ```
-erik_crm_funnel_stage     Konfigurasi tahap funnel penjualan
-erik_crm_opportunity      Peluang
-erik_crm_follow_record    Catatan tindak lanjut
-erik_crm_contact          Kontak
+erp_crm_funnel_stage     Konfigurasi tahap funnel penjualan
+erp_crm_opportunity      Peluang
+erp_crm_follow_record    Catatan tindak lanjut
+erp_crm_contact          Kontak
 ```
 
 ---

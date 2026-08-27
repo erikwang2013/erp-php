@@ -30,8 +30,8 @@ flowchart TB
     end
 
     subgraph "Слой хранения"
-        D1[("MySQL 8.0<br/>Основное хранилище<br/>Префикс таблиц erik_")]
-        D2[("Elasticsearch<br/>Полнотекстовый поиск<br/>Префикс индексов erik_")]
+        D1[("MySQL 8.0<br/>Основное хранилище<br/>Префикс таблиц erp_")]
+        D2[("Elasticsearch<br/>Полнотекстовый поиск<br/>Префикс индексов erp_")]
         D3[("Redis<br/>Сессии / кэш<br/>Хранение Captcha")]
     end
 
@@ -380,7 +380,7 @@ flowchart LR
     end
 
     subgraph "2. Хранение"
-        S1["Таблицы MySQL erik_*<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
+        S1["Таблицы MySQL erp_*<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
         S2["Чувствительные поля<br/>encryptable cast<br/>Шифрование AES-128-ECB"]
         G3 --> S1
         S1 --> S2
@@ -446,7 +446,7 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake"
         VARCHAR username UK
         VARCHAR password "bcrypt"
@@ -463,7 +463,7 @@ erDiagram
         DATETIME deleted_at "мягкое удаление"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake"
         VARCHAR name
         VARCHAR slug UK
@@ -473,7 +473,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake"
         BIGINT parent_id FK "самоссылка"
         VARCHAR name
@@ -486,17 +486,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK
         BIGINT role_id PK_FK
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK
         BIGINT permission_id PK_FK
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake"
         BIGINT user_id FK
         VARCHAR action
@@ -508,7 +508,7 @@ erDiagram
         DATETIME created_at
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake"
         VARCHAR group
         VARCHAR key
@@ -519,12 +519,12 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : "user_id"
-    erik_admin_role ||--o{ erik_admin_user_role : "role_id"
-    erik_admin_role ||--o{ erik_admin_role_permission : "role_id"
-    erik_admin_permission ||--o{ erik_admin_role_permission : "permission_id"
-    erik_admin_user ||--o{ erik_operation_log : "user_id"
-    erik_admin_permission ||--o{ erik_admin_permission : "parent_id"
+    erp_admin_user ||--o{ erp_admin_user_role : "user_id"
+    erp_admin_role ||--o{ erp_admin_user_role : "role_id"
+    erp_admin_role ||--o{ erp_admin_role_permission : "role_id"
+    erp_admin_permission ||--o{ erp_admin_role_permission : "permission_id"
+    erp_admin_user ||--o{ erp_operation_log : "user_id"
+    erp_admin_permission ||--o{ erp_admin_permission : "parent_id"
 ```
 
 ---
@@ -676,8 +676,8 @@ flowchart TB
     end
 
     subgraph "Слой данных"
-        MYSQL["MySQL 8.0<br/>Мастер-реплика<br/>Префикс erik_"]
-        ES["Elasticsearch 8.x<br/>Кластер из 3 узлов<br/>Префикс erik_"]
+        MYSQL["MySQL 8.0<br/>Мастер-реплика<br/>Префикс erp_"]
+        ES["Elasticsearch 8.x<br/>Кластер из 3 узлов<br/>Префикс erp_"]
         REDIS["Redis 7.x<br/>Режим сентинел<br/>poster:captcha:*"]
     end
 
@@ -920,22 +920,22 @@ sequenceDiagram
 ## Расширения OMS/WMS/TMS (2026-08)
 
 ### OMS (Order Management System) — 8 таблиц
-- **Расширение заказов** (`erik_oms_order`): агрегация по каналам/статус исполнения/статус оплаты/приоритет
-- **Адреса заказов** (`erik_oms_order_address`): адреса доставки/оплаты (форматы разных стран)
-- **Записи исполнения** (`erik_oms_fulfillment`+`_item`): отслеживание количеств «распределено/собрано/упаковано/отгружено»
-- **RMA** (`erik_oms_rma`+`_item`): полный жизненный цикл возвратов/обменов
-- **Резервирование остатков** (`erik_oms_inventory_reservation`): ATP = physical − reserved
-- **Каналы** (`erik_channel`): direct/marketplace/edi/pos
+- **Расширение заказов** (`erp_oms_order`): агрегация по каналам/статус исполнения/статус оплаты/приоритет
+- **Адреса заказов** (`erp_oms_order_address`): адреса доставки/оплаты (форматы разных стран)
+- **Записи исполнения** (`erp_oms_fulfillment`+`_item`): отслеживание количеств «распределено/собрано/упаковано/отгружено»
+- **RMA** (`erp_oms_rma`+`_item`): полный жизненный цикл возвратов/обменов
+- **Резервирование остатков** (`erp_oms_inventory_reservation`): ATP = physical − reserved
+- **Каналы** (`erp_channel`): direct/marketplace/edi/pos
 
 ### WMS (Warehouse Management System) — 12 таблиц
-- **Зоны и ячейки** (`erik_wms_zone`, `erik_wms_location`): zone→aisle→rack→level→bin
-- **Приёмка** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
-- **Отгрузка** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+- **Зоны и ячейки** (`erp_wms_zone`, `erp_wms_location`): zone→aisle→rack→level→bin
+- **Приёмка** (`erp_wms_asn`+`_item`, `erp_wms_receiving`, `erp_wms_putaway_task`+`_item`)
+- **Отгрузка** (`erp_wms_wave`+`wave_order`, `erp_wms_pick_task`+`_item`, `erp_wms_pack_task`)
 
 ### TMS (Transport Management System) — 7 таблиц
-- **Перевозчики** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
-- **Накладные** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
-- **Счета** (`erik_tms_freight_invoice`)
+- **Перевозчики** (`erp_tms_carrier`+`carrier_service`, `erp_tms_freight_rate`)
+- **Накладные** (`erp_tms_shipment`+`_package`, `erp_tms_tracking_event`)
+- **Счета** (`erp_tms_freight_invoice`)
 
 ### Поток данных
 ```
@@ -1050,7 +1050,7 @@ SaaS-биллинг, самостоятельное подключение ар�
    `app\middleware\TenantScope::class` (после AdminAuth, чтобы гарантировать аутентификацию).
 2. Запрашивающая сторона передаёт `X-Tenant-Id` в заголовке запроса (int — ID арендатора).
 3. Добавить колонку `tenant_id` (BIGINT + индекс) в бизнес-таблицы, требующие изоляции, и заполнить существующие данные;
-   словарные/системные таблицы (например, `erik_admin_user`, `erik_role`, `erik_permission`) не изолируются.
+   словарные/системные таблицы (например, `erp_admin_user`, `erp_role`, `erp_permission`) не изолируются.
 4. В моделях, требующих изоляции, подключить `use app\model\concerns\TenantScope;` — автоматическая фильтрация по текущему арендатору.
 5. (Опционально) если арендатор должен браться из JWT, а не из заголовка: расширить полезную нагрузку логина, добавив объявление `tenant_id`,
    и в промежуточном ПО читать из `$payload['tenant_id']`.

@@ -173,11 +173,11 @@ class ReceiveController extends BaseController
                 if (!$orderItem) {
                     throw new \RuntimeException("采购明细不存在: order_item_id={$orderItemId}");
                 }
-                $receivedSoFar = (float) PurchaseReceiveItem::query()->join('erik_purchase_receive', 'erik_purchase_receive.id', '=', 'erik_purchase_receive_item.receive_id')
-                    ->where('erik_purchase_receive.order_id', $orderId)
-                    ->where('erik_purchase_receive.status', 1)
-                    ->where('erik_purchase_receive_item.order_item_id', $orderItemId)
-                    ->sum('erik_purchase_receive_item.quantity');
+                $receivedSoFar = (float) PurchaseReceiveItem::query()->join('erp_purchase_receive', 'erp_purchase_receive.id', '=', 'erp_purchase_receive_item.receive_id')
+                    ->where('erp_purchase_receive.order_id', $orderId)
+                    ->where('erp_purchase_receive.status', 1)
+                    ->where('erp_purchase_receive_item.order_item_id', $orderItemId)
+                    ->sum('erp_purchase_receive_item.quantity');
                 $orderedQty = (float) $orderItem->quantity;
                 if (($receivedSoFar + $quantity) > $orderedQty) {
                     throw new \RuntimeException(
@@ -260,12 +260,12 @@ class ReceiveController extends BaseController
         }
 
         // 各订单明细行的累计实收（跨全部已入库收货单）
-        $receivedByItem = PurchaseReceiveItem::query()->join('erik_purchase_receive', 'erik_purchase_receive.id', '=', 'erik_purchase_receive_item.receive_id')
-            ->where('erik_purchase_receive.order_id', $order->id)
-            ->where('erik_purchase_receive.status', 1)
-            ->groupBy('erik_purchase_receive_item.order_item_id')
-            ->selectRaw('erik_purchase_receive_item.order_item_id')
-            ->selectRaw('SUM(erik_purchase_receive_item.quantity) as total_received')
+        $receivedByItem = PurchaseReceiveItem::query()->join('erp_purchase_receive', 'erp_purchase_receive.id', '=', 'erp_purchase_receive_item.receive_id')
+            ->where('erp_purchase_receive.order_id', $order->id)
+            ->where('erp_purchase_receive.status', 1)
+            ->groupBy('erp_purchase_receive_item.order_item_id')
+            ->selectRaw('erp_purchase_receive_item.order_item_id')
+            ->selectRaw('SUM(erp_purchase_receive_item.quantity) as total_received')
             ->get()
             ->pluck('total_received', 'order_item_id');
 

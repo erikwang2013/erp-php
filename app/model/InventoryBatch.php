@@ -12,7 +12,7 @@ use support\Model;
 
 class InventoryBatch extends Model
 {
-    protected $table = 'erik_inventory_batch';
+    protected $table = 'erp_inventory_batch';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

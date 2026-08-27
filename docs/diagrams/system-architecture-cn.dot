@@ -74,9 +74,9 @@ digraph SystemArchitectureCN {
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
         node [shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f", fontsize=10];
-        d1 [label="MySQL 8.0\n主数据库\n163 张表\nerik_ 前缀"];
+        d1 [label="MySQL 8.0\n主数据库\n163 张表\nerp_ 前缀"];
         d2 [label="Redis 7\n缓存/会话\n限流/黑名单"];
-        d3 [label="Elasticsearch 8.x\n全文检索\nerik_ 索引前缀"];
+        d3 [label="Elasticsearch 8.x\n全文检索\nerp_ 索引前缀"];
     }
 
     subgraph cluster_devops {

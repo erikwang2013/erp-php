@@ -11,7 +11,7 @@ use support\Model;
 
 class QualityOqcRecord extends Model
 {
-    protected $table = 'erik_quality_oqc_record';
+    protected $table = 'erp_quality_oqc_record';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -15,7 +15,7 @@ class CustomerLevel extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_customer_level';
+    protected $table = 'erp_customer_level';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

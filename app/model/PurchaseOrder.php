@@ -15,7 +15,7 @@ class PurchaseOrder extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_purchase_order';
+    protected $table = 'erp_purchase_order';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

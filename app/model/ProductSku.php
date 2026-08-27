@@ -12,7 +12,7 @@ use support\Model;
 
 class ProductSku extends Model
 {
-    protected $table = 'erik_product_sku';
+    protected $table = 'erp_product_sku';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

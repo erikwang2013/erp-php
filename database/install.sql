@@ -38,7 +38,7 @@
 --
 -- 重要约定:
 --   - 数据库字符集: utf8mb4 / utf8mb4_unicode_ci
---   - 表前缀: erik_
+--   - 表前缀: erp_
 --   - 主键 id: BIGINT UNSIGNED NOT NULL，由 snowflake-php 在应用层生成
 --   - 存储引擎: InnoDB
 -- ============================================================
@@ -50,7 +50,7 @@
 -- ============================================================
 -- 管理用户表
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_admin_user` (
+CREATE TABLE IF NOT EXISTS `erp_admin_user` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `username` VARCHAR(50) NOT NULL COMMENT '用户名',
     `password` VARCHAR(255) NOT NULL COMMENT '密码（bcrypt哈希）',
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `erik_admin_user` (
 -- ============================================================
 -- 角色表
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_admin_role` (
+CREATE TABLE IF NOT EXISTS `erp_admin_role` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `name` VARCHAR(50) NOT NULL COMMENT '角色名称',
     `slug` VARCHAR(50) NOT NULL COMMENT '角色标识，用于权限判断',
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `erik_admin_role` (
 -- ============================================================
 -- 权限表（菜单/按钮/接口）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_admin_permission` (
+CREATE TABLE IF NOT EXISTS `erp_admin_permission` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '父级权限ID，0表示顶级',
     `name` VARCHAR(50) NOT NULL COMMENT '权限名称',
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `erik_admin_permission` (
 -- ============================================================
 -- 用户角色关联表（多对多中间表）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_admin_user_role` (
+CREATE TABLE IF NOT EXISTS `erp_admin_user_role` (
     `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
     `role_id` BIGINT UNSIGNED NOT NULL COMMENT '角色ID',
     PRIMARY KEY (`user_id`, `role_id`),
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `erik_admin_user_role` (
 -- ============================================================
 -- 角色权限关联表（多对多中间表）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_admin_role_permission` (
+CREATE TABLE IF NOT EXISTS `erp_admin_role_permission` (
     `role_id` BIGINT UNSIGNED NOT NULL COMMENT '角色ID',
     `permission_id` BIGINT UNSIGNED NOT NULL COMMENT '权限ID',
     PRIMARY KEY (`role_id`, `permission_id`),
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `erik_admin_role_permission` (
 -- ============================================================
 -- 系统配置表
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_system_config` (
+CREATE TABLE IF NOT EXISTS `erp_system_config` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `group` VARCHAR(50) NOT NULL DEFAULT 'default' COMMENT '配置分组标识',
     `key` VARCHAR(100) NOT NULL COMMENT '配置键名',
@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `erik_system_config` (
 -- ============================================================
 -- 操作日志表（已合并 source 字段，来自迁移 000002）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_operation_log` (
+CREATE TABLE IF NOT EXISTS `erp_operation_log` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `user_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作用户ID',
     `action` VARCHAR(100) NOT NULL COMMENT '操作动作，如 admin.user.store',
@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `erik_operation_log` (
 -- PART 2: 产品基础数据表
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_category` (
+CREATE TABLE IF NOT EXISTS `erp_category` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '父级分类ID，0表示顶级',
     `name` VARCHAR(50) NOT NULL COMMENT '分类名称',
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS `erik_category` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='产品分类表';
 
-CREATE TABLE IF NOT EXISTS `erik_brand` (
+CREATE TABLE IF NOT EXISTS `erp_brand` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `name` VARCHAR(100) NOT NULL COMMENT '品牌名称',
     `logo` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '品牌Logo URL',
@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS `erik_brand` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='品牌表';
 
-CREATE TABLE IF NOT EXISTS `erik_product` (
+CREATE TABLE IF NOT EXISTS `erp_product` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `category_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '产品分类ID',
     `brand_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '品牌ID',
@@ -224,7 +224,7 @@ CREATE TABLE IF NOT EXISTS `erik_product` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='产品主表';
 
-CREATE TABLE IF NOT EXISTS `erik_product_sku` (
+CREATE TABLE IF NOT EXISTS `erp_product_sku` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `sku_code` VARCHAR(50) NOT NULL COMMENT 'SKU编码',
@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS `erik_product_sku` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='产品SKU表';
 
-CREATE TABLE IF NOT EXISTS `erik_product_unit` (
+CREATE TABLE IF NOT EXISTS `erp_product_unit` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `unit_name` VARCHAR(20) NOT NULL COMMENT '单位名称',
@@ -252,7 +252,7 @@ CREATE TABLE IF NOT EXISTS `erik_product_unit` (
     KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='产品多单位换算表';
 
-CREATE TABLE IF NOT EXISTS `erik_product_price` (
+CREATE TABLE IF NOT EXISTS `erp_product_price` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID，0表示产品级价格',
@@ -268,7 +268,7 @@ CREATE TABLE IF NOT EXISTS `erik_product_price` (
     KEY `idx_customer_level_id` (`customer_level_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='产品价格策略表';
 
-CREATE TABLE IF NOT EXISTS `erik_warehouse` (
+CREATE TABLE IF NOT EXISTS `erp_warehouse` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `name` VARCHAR(100) NOT NULL COMMENT '仓库名称',
     `code` VARCHAR(50) NOT NULL COMMENT '仓库编码',
@@ -285,7 +285,7 @@ CREATE TABLE IF NOT EXISTS `erik_warehouse` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='仓库表';
 
-CREATE TABLE IF NOT EXISTS `erik_location` (
+CREATE TABLE IF NOT EXISTS `erp_location` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
     `code` VARCHAR(50) NOT NULL COMMENT '库位编码',
@@ -299,7 +299,7 @@ CREATE TABLE IF NOT EXISTS `erik_location` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='库位表';
 
-CREATE TABLE IF NOT EXISTS `erik_supplier` (
+CREATE TABLE IF NOT EXISTS `erp_supplier` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '供应商编码',
     `name` VARCHAR(200) NOT NULL COMMENT '供应商名称',
@@ -323,7 +323,7 @@ CREATE TABLE IF NOT EXISTS `erik_supplier` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='供应商表';
 
-CREATE TABLE IF NOT EXISTS `erik_customer_level` (
+CREATE TABLE IF NOT EXISTS `erp_customer_level` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `name` VARCHAR(50) NOT NULL COMMENT '等级名称',
     `discount` DECIMAL(5,2) NOT NULL DEFAULT 100.00 COMMENT '默认折扣(%)',
@@ -336,7 +336,7 @@ CREATE TABLE IF NOT EXISTS `erik_customer_level` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户等级表';
 
-CREATE TABLE IF NOT EXISTS `erik_customer` (
+CREATE TABLE IF NOT EXISTS `erp_customer` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '客户编码',
     `name` VARCHAR(200) NOT NULL COMMENT '客户名称',
@@ -363,7 +363,7 @@ CREATE TABLE IF NOT EXISTS `erik_customer` (
 -- PART 3: 采购模块表
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_apply` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_apply` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '申请单号',
     `apply_user_id` BIGINT UNSIGNED NOT NULL COMMENT '申请人ID',
@@ -382,7 +382,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_apply` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购申请单';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_apply_item` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_apply_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `apply_id` BIGINT UNSIGNED NOT NULL COMMENT '采购申请ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -398,7 +398,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_apply_item` (
     KEY `idx_sku_id` (`sku_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购申请明细';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_order` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_order` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '订单单号',
     `apply_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '采购申请ID',
@@ -420,7 +420,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_order` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购订单';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_order_item` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_order_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `order_id` BIGINT UNSIGNED NOT NULL COMMENT '采购订单ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -438,7 +438,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_order_item` (
     KEY `idx_sku_id` (`sku_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购订单明细';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_receive` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_receive` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '收货单号',
     `order_id` BIGINT UNSIGNED NOT NULL COMMENT '采购订单ID',
@@ -457,7 +457,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_receive` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购收货单';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_receive_item` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_receive_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `receive_id` BIGINT UNSIGNED NOT NULL COMMENT '收货单ID',
     `order_item_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '订单明细ID',
@@ -479,7 +479,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_receive_item` (
     KEY `idx_batch_code` (`batch_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购收货明细';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_return` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_return` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '退货单号',
     `receive_id` BIGINT UNSIGNED NOT NULL COMMENT '收货单ID',
@@ -499,7 +499,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_return` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购退货单';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_return_item` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_return_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `return_id` BIGINT UNSIGNED NOT NULL COMMENT '退货单ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -519,7 +519,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_return_item` (
     KEY `idx_batch_code` (`batch_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购退货明细';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_settlement` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_settlement` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `supplier_id` BIGINT UNSIGNED NOT NULL COMMENT '供应商ID',
     `receive_id` BIGINT UNSIGNED NOT NULL COMMENT '收货单ID',
@@ -539,7 +539,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_settlement` (
 -- PART 4: 销售模块表
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_sales_quotation` (
+CREATE TABLE IF NOT EXISTS `erp_sales_quotation` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '报价单号',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
@@ -557,7 +557,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_quotation` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售报价单';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_quotation_item` (
+CREATE TABLE IF NOT EXISTS `erp_sales_quotation_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `quotation_id` BIGINT UNSIGNED NOT NULL COMMENT '报价单ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -574,7 +574,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_quotation_item` (
     KEY `idx_sku_id` (`sku_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售报价明细';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_order` (
+CREATE TABLE IF NOT EXISTS `erp_sales_order` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '订单单号',
     `quotation_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '报价单ID',
@@ -597,7 +597,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_order` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售订单';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_order_item` (
+CREATE TABLE IF NOT EXISTS `erp_sales_order_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `order_id` BIGINT UNSIGNED NOT NULL COMMENT '销售订单ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -615,7 +615,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_order_item` (
     KEY `idx_sku_id` (`sku_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售订单明细';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_delivery` (
+CREATE TABLE IF NOT EXISTS `erp_sales_delivery` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '发货单号',
     `order_id` BIGINT UNSIGNED NOT NULL COMMENT '销售订单ID',
@@ -634,7 +634,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_delivery` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售发货单';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_delivery_item` (
+CREATE TABLE IF NOT EXISTS `erp_sales_delivery_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `delivery_id` BIGINT UNSIGNED NOT NULL COMMENT '发货单ID',
     `order_item_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '订单明细ID',
@@ -656,7 +656,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_delivery_item` (
     KEY `idx_batch_code` (`batch_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售发货明细';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_return` (
+CREATE TABLE IF NOT EXISTS `erp_sales_return` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '退货单号',
     `delivery_id` BIGINT UNSIGNED NOT NULL COMMENT '发货单ID',
@@ -676,7 +676,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_return` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售退货单';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_return_item` (
+CREATE TABLE IF NOT EXISTS `erp_sales_return_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `return_id` BIGINT UNSIGNED NOT NULL COMMENT '退货单ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -696,7 +696,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_return_item` (
     KEY `idx_batch_code` (`batch_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售退货明细';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_settlement` (
+CREATE TABLE IF NOT EXISTS `erp_sales_settlement` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
     `delivery_id` BIGINT UNSIGNED NOT NULL COMMENT '发货单ID',
@@ -716,7 +716,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_settlement` (
 -- PART 5: 库存管理
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_inventory` (
+CREATE TABLE IF NOT EXISTS `erp_inventory` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
@@ -734,7 +734,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory` (
     KEY `idx_batch_code` (`batch_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='实时库存表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_batch` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_batch` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
@@ -749,7 +749,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_batch` (
     KEY `idx_batch_code` (`batch_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='批次追踪表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_serial` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_serial` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
@@ -765,7 +765,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_serial` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='序列号追踪表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_flow` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_flow` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
@@ -785,7 +785,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_flow` (
     KEY `idx_warehouse_id` (`warehouse_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='库存流水日志表';
 
-CREATE TABLE IF NOT EXISTS `erik_transfer` (
+CREATE TABLE IF NOT EXISTS `erp_transfer` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '调拨单号',
     `from_warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '调出仓库ID',
@@ -802,7 +802,7 @@ CREATE TABLE IF NOT EXISTS `erik_transfer` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='调拨单';
 
-CREATE TABLE IF NOT EXISTS `erik_transfer_item` (
+CREATE TABLE IF NOT EXISTS `erp_transfer_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `transfer_id` BIGINT UNSIGNED NOT NULL COMMENT '调拨单ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -819,7 +819,7 @@ CREATE TABLE IF NOT EXISTS `erik_transfer_item` (
     KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='调拨明细';
 
-CREATE TABLE IF NOT EXISTS `erik_check_task` (
+CREATE TABLE IF NOT EXISTS `erp_check_task` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '盘点单号',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
@@ -837,7 +837,7 @@ CREATE TABLE IF NOT EXISTS `erik_check_task` (
     KEY `idx_check_user_id` (`check_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='盘点任务表';
 
-CREATE TABLE IF NOT EXISTS `erik_check_detail` (
+CREATE TABLE IF NOT EXISTS `erp_check_detail` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `check_id` BIGINT UNSIGNED NOT NULL COMMENT '盘点任务ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -855,7 +855,7 @@ CREATE TABLE IF NOT EXISTS `erik_check_detail` (
     KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='盘点明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_alert_rule` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_alert_rule` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
@@ -870,7 +870,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_alert_rule` (
     KEY `idx_warehouse_id` (`warehouse_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='库存预警规则表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_alert_log` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_alert_log` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `rule_id` BIGINT UNSIGNED NOT NULL COMMENT '预警规则ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -886,7 +886,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_alert_log` (
     KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='库存预警日志表';
 
-CREATE TABLE IF NOT EXISTS `erik_cost_record` (
+CREATE TABLE IF NOT EXISTS `erp_cost_record` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
@@ -907,7 +907,7 @@ CREATE TABLE IF NOT EXISTS `erik_cost_record` (
 -- PART 6: 财务管理基础
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_finance_account` (
+CREATE TABLE IF NOT EXISTS `erp_finance_account` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '上级科目ID，0表示一级科目',
     `code` VARCHAR(50) NOT NULL COMMENT '科目编码',
@@ -926,7 +926,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_account` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会计科目表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_voucher` (
+CREATE TABLE IF NOT EXISTS `erp_finance_voucher` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '凭证号',
     `voucher_date` DATE NOT NULL COMMENT '凭证日期',
@@ -943,7 +943,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_voucher` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='记账凭证表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_voucher_item` (
+CREATE TABLE IF NOT EXISTS `erp_finance_voucher_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `voucher_id` BIGINT UNSIGNED NOT NULL COMMENT '凭证ID',
     `account_id` BIGINT UNSIGNED NOT NULL COMMENT '科目ID',
@@ -957,7 +957,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_voucher_item` (
     KEY `idx_account_id` (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='凭证分录明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_ar_ap` (
+CREATE TABLE IF NOT EXISTS `erp_finance_ar_ap` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `type` TINYINT UNSIGNED NOT NULL COMMENT '类型: 1=应收 2=应付',
     `partner_id` BIGINT UNSIGNED NOT NULL COMMENT '往来对象ID（客户/供应商）',
@@ -977,7 +977,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_ar_ap` (
     KEY `idx_due_date` (`due_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='应收应付明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_bank_account` (
+CREATE TABLE IF NOT EXISTS `erp_finance_bank_account` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `name` VARCHAR(100) NOT NULL COMMENT '账户名称',
     `account_number` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '银行账号（加密存储）',
@@ -991,7 +991,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_bank_account` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='银行账户表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_receipt` (
+CREATE TABLE IF NOT EXISTS `erp_finance_receipt` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '收款单号',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
@@ -1010,7 +1010,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_receipt` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收款单';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_payment` (
+CREATE TABLE IF NOT EXISTS `erp_finance_payment` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '付款单号',
     `supplier_id` BIGINT UNSIGNED NOT NULL COMMENT '供应商ID',
@@ -1029,7 +1029,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_payment` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='付款单';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_settlement` (
+CREATE TABLE IF NOT EXISTS `erp_finance_settlement` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `ar_ap_id` BIGINT UNSIGNED NOT NULL COMMENT '应收应付明细ID',
     `receipt_payment_id` BIGINT UNSIGNED NOT NULL COMMENT '收款/付款单ID',
@@ -1043,7 +1043,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_settlement` (
     KEY `idx_receipt_payment_id` (`receipt_payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='核销记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_cash_journal` (
+CREATE TABLE IF NOT EXISTS `erp_finance_cash_journal` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `bank_account_id` BIGINT UNSIGNED NOT NULL COMMENT '银行账户ID',
     `direction` TINYINT UNSIGNED NOT NULL COMMENT '方向: 1=收入 2=支出',
@@ -1060,7 +1060,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_cash_journal` (
     KEY `idx_direction` (`direction`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='现金日记账表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_expense` (
+CREATE TABLE IF NOT EXISTS `erp_finance_expense` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '报销单号',
     `apply_user_id` BIGINT UNSIGNED NOT NULL COMMENT '申请人ID',
@@ -1082,7 +1082,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_expense` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='费用报销表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_profit` (
+CREATE TABLE IF NOT EXISTS `erp_finance_profit` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `year` SMALLINT UNSIGNED NOT NULL COMMENT '年份',
     `month` TINYINT UNSIGNED NOT NULL COMMENT '月份',
@@ -1100,7 +1100,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_profit` (
 -- PART 7: CRM基础
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_crm_funnel_stage` (
+CREATE TABLE IF NOT EXISTS `erp_crm_funnel_stage` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `name` VARCHAR(50) NOT NULL COMMENT '阶段名称',
     `sort` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序值',
@@ -1113,7 +1113,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_funnel_stage` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售漏斗阶段配置表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_opportunity` (
+CREATE TABLE IF NOT EXISTS `erp_crm_opportunity` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
     `stage_id` BIGINT UNSIGNED NOT NULL COMMENT '漏斗阶段ID',
@@ -1135,7 +1135,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_opportunity` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售机会表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_follow_record` (
+CREATE TABLE IF NOT EXISTS `erp_crm_follow_record` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
     `contact_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '联系人ID',
@@ -1155,7 +1155,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_follow_record` (
     KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='跟进记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_contact` (
+CREATE TABLE IF NOT EXISTS `erp_crm_contact` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
     `name` VARCHAR(50) NOT NULL COMMENT '联系人姓名',
@@ -1176,7 +1176,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_contact` (
 -- PART 8: 财务总账/明细账/三表
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_finance_general_ledger` (
+CREATE TABLE IF NOT EXISTS `erp_finance_general_ledger` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `account_id` BIGINT UNSIGNED NOT NULL COMMENT '科目ID',
     `period_year` SMALLINT UNSIGNED NOT NULL COMMENT '会计年度',
@@ -1194,7 +1194,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_general_ledger` (
     KEY `idx_period` (`period_year`, `period_month`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='总账表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_subsidiary_ledger` (
+CREATE TABLE IF NOT EXISTS `erp_finance_subsidiary_ledger` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `account_id` BIGINT UNSIGNED NOT NULL COMMENT '科目ID',
     `voucher_id` BIGINT UNSIGNED NOT NULL COMMENT '凭证ID',
@@ -1210,7 +1210,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_subsidiary_ledger` (
     KEY `idx_voucher_id` (`voucher_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='明细账表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_balance_sheet` (
+CREATE TABLE IF NOT EXISTS `erp_finance_balance_sheet` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `report_year` SMALLINT UNSIGNED NOT NULL COMMENT '会计年度',
     `report_month` TINYINT UNSIGNED NOT NULL COMMENT '会计月份',
@@ -1227,7 +1227,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_balance_sheet` (
     UNIQUE KEY `uk_report_period` (`report_year`, `report_month`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='资产负债表快照';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_cash_flow` (
+CREATE TABLE IF NOT EXISTS `erp_finance_cash_flow` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `report_year` SMALLINT UNSIGNED NOT NULL COMMENT '会计年度',
     `report_month` TINYINT UNSIGNED NOT NULL COMMENT '会计月份',
@@ -1252,7 +1252,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_cash_flow` (
 -- PART 9: CRM扩展 — 公海池/合同
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_crm_customer_pool_rule` (
+CREATE TABLE IF NOT EXISTS `erp_crm_customer_pool_rule` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `level_id` BIGINT UNSIGNED NOT NULL COMMENT '客户等级ID',
     `reclaim_days` INT UNSIGNED NOT NULL DEFAULT 30 COMMENT '无跟进自动回收天数',
@@ -1264,7 +1264,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_customer_pool_rule` (
     UNIQUE KEY `uk_level_id` (`level_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户公海池规则表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_pool_record` (
+CREATE TABLE IF NOT EXISTS `erp_crm_pool_record` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
     `action` TINYINT UNSIGNED NOT NULL COMMENT '1领取2释放3回收',
@@ -1278,7 +1278,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_pool_record` (
     KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='公海池操作记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_contract` (
+CREATE TABLE IF NOT EXISTS `erp_crm_contract` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '合同编号',
     `name` VARCHAR(200) NOT NULL COMMENT '合同名称',
@@ -1303,7 +1303,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_contract` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='合同表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_contract_item` (
+CREATE TABLE IF NOT EXISTS `erp_crm_contract_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `contract_id` BIGINT UNSIGNED NOT NULL COMMENT '合同ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
@@ -1317,7 +1317,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_contract_item` (
     KEY `idx_contract_id` (`contract_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='合同明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_quotation` (
+CREATE TABLE IF NOT EXISTS `erp_crm_quotation` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '报价单号',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
@@ -1337,7 +1337,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_quotation` (
     KEY `idx_opportunity_id` (`opportunity_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='CRM报价表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_quotation_item` (
+CREATE TABLE IF NOT EXISTS `erp_crm_quotation_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `quotation_id` BIGINT UNSIGNED NOT NULL COMMENT '报价ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
@@ -1355,7 +1355,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_quotation_item` (
 -- PART 10: 财务扩展 — 固定资产/税务/多币种/预算
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_finance_asset` (
+CREATE TABLE IF NOT EXISTS `erp_finance_asset` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '资产编码',
     `name` VARCHAR(200) NOT NULL COMMENT '资产名称',
@@ -1376,7 +1376,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_asset` (
     PRIMARY KEY (`id`), KEY `idx_code` (`code`), KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='固定资产表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_asset_depreciation` (
+CREATE TABLE IF NOT EXISTS `erp_finance_asset_depreciation` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `asset_id` BIGINT UNSIGNED NOT NULL COMMENT '资产ID',
     `period_year` SMALLINT UNSIGNED NOT NULL COMMENT '会计年度',
@@ -1390,7 +1390,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_asset_depreciation` (
     KEY `idx_period` (`period_year`, `period_month`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='资产折旧记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_tax_rate` (
+CREATE TABLE IF NOT EXISTS `erp_finance_tax_rate` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `name` VARCHAR(100) NOT NULL COMMENT '税率名称',
     `rate` DECIMAL(6,4) NOT NULL DEFAULT 0.0000 COMMENT '税率(如0.13=13%)',
@@ -1401,7 +1401,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_tax_rate` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='税率配置表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_tax_record` (
+CREATE TABLE IF NOT EXISTS `erp_finance_tax_record` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `tax_rate_id` BIGINT UNSIGNED NOT NULL COMMENT '税率ID',
     `source_type` VARCHAR(30) NOT NULL COMMENT '来源类型: sales/purchase',
@@ -1417,7 +1417,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_tax_record` (
     KEY `idx_period` (`period_year`, `period_month`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='税务记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_currency` (
+CREATE TABLE IF NOT EXISTS `erp_finance_currency` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(10) NOT NULL COMMENT '币种代码: CNY/USD/EUR/JPY/GBP',
     `name` VARCHAR(50) NOT NULL COMMENT '币种名称',
@@ -1430,7 +1430,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_currency` (
     UNIQUE KEY `uk_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='币种表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_exchange_rate` (
+CREATE TABLE IF NOT EXISTS `erp_finance_exchange_rate` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `from_currency_id` BIGINT UNSIGNED NOT NULL COMMENT '原币ID',
     `to_currency_id` BIGINT UNSIGNED NOT NULL COMMENT '目标币ID',
@@ -1442,7 +1442,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_exchange_rate` (
     KEY `idx_effective_date` (`effective_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='汇率表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_budget` (
+CREATE TABLE IF NOT EXISTS `erp_finance_budget` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '预算编号',
     `name` VARCHAR(200) NOT NULL COMMENT '预算名称',
@@ -1456,7 +1456,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_budget` (
     PRIMARY KEY (`id`), KEY `idx_period` (`period_year`), KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='预算表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_budget_item` (
+CREATE TABLE IF NOT EXISTS `erp_finance_budget_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `budget_id` BIGINT UNSIGNED NOT NULL COMMENT '预算ID',
     `account_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联科目ID',
@@ -1470,7 +1470,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_budget_item` (
     KEY `idx_budget_id` (`budget_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='预算明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_cost_center` (
+CREATE TABLE IF NOT EXISTS `erp_finance_cost_center` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '上级成本中心ID',
     `code` VARCHAR(50) NOT NULL COMMENT '编码',
@@ -1483,7 +1483,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_cost_center` (
     PRIMARY KEY (`id`), UNIQUE KEY `uk_code` (`code`), KEY `idx_parent_id` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='成本中心表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_profit_center` (
+CREATE TABLE IF NOT EXISTS `erp_finance_profit_center` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '上级利润中心ID',
     `code` VARCHAR(50) NOT NULL COMMENT '编码',
@@ -1496,7 +1496,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_profit_center` (
     PRIMARY KEY (`id`), UNIQUE KEY `uk_code` (`code`), KEY `idx_parent_id` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='利润中心表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_allocation` (
+CREATE TABLE IF NOT EXISTS `erp_finance_allocation` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `source_center_id` BIGINT UNSIGNED NOT NULL COMMENT '来源成本中心ID',
     `target_center_id` BIGINT UNSIGNED NOT NULL COMMENT '目标成本中心ID',
@@ -1515,7 +1515,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_allocation` (
 -- PART 11: CRM扩展 — 营销/工单/分析
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_crm_campaign` (
+CREATE TABLE IF NOT EXISTS `erp_crm_campaign` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '活动编号',
     `name` VARCHAR(200) NOT NULL COMMENT '活动名称',
@@ -1535,7 +1535,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_campaign` (
     PRIMARY KEY (`id`), KEY `idx_status` (`status`), KEY `idx_owner` (`owner_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='营销活动表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_campaign_participant` (
+CREATE TABLE IF NOT EXISTS `erp_crm_campaign_participant` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `campaign_id` BIGINT UNSIGNED NOT NULL COMMENT '活动ID',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
@@ -1549,7 +1549,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_campaign_participant` (
     KEY `idx_customer_id` (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='营销活动参与记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_ticket` (
+CREATE TABLE IF NOT EXISTS `erp_crm_ticket` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '工单编号',
     `customer_id` BIGINT UNSIGNED NOT NULL COMMENT '客户ID',
@@ -1572,7 +1572,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_ticket` (
     KEY `idx_assignee` (`assignee_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='服务工单表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_ticket_reply` (
+CREATE TABLE IF NOT EXISTS `erp_crm_ticket_reply` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `ticket_id` BIGINT UNSIGNED NOT NULL COMMENT '工单ID',
     `user_id` BIGINT UNSIGNED NOT NULL COMMENT '回复人ID(0=客户)',
@@ -1583,7 +1583,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_ticket_reply` (
     KEY `idx_ticket_id` (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工单回复表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_analytics_report` (
+CREATE TABLE IF NOT EXISTS `erp_crm_analytics_report` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `name` VARCHAR(100) NOT NULL COMMENT '报表名称',
     `type` VARCHAR(30) NOT NULL COMMENT '类型: customer/order/revenue/activity/retention',
@@ -1598,7 +1598,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_analytics_report` (
     KEY `idx_type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户分析报表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_analytics_metric` (
+CREATE TABLE IF NOT EXISTS `erp_crm_analytics_metric` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `name` VARCHAR(100) NOT NULL COMMENT '指标名称',
     `key` VARCHAR(50) NOT NULL COMMENT '指标键名',
@@ -1615,7 +1615,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_analytics_metric` (
 -- PART 12: 审批工作流引擎
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_approval_workflow` (
+CREATE TABLE IF NOT EXISTS `erp_approval_workflow` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL COMMENT '流程编码',
     `name` VARCHAR(100) NOT NULL COMMENT '流程名称',
@@ -1628,7 +1628,7 @@ CREATE TABLE IF NOT EXISTS `erik_approval_workflow` (
     PRIMARY KEY (`id`), UNIQUE KEY `uk_code` (`code`), KEY `idx_target_type` (`target_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='审批工作流模板表';
 
-CREATE TABLE IF NOT EXISTS `erik_approval_node` (
+CREATE TABLE IF NOT EXISTS `erp_approval_node` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `workflow_id` BIGINT UNSIGNED NOT NULL COMMENT '工作流ID',
     `name` VARCHAR(50) NOT NULL COMMENT '节点名称',
@@ -1644,7 +1644,7 @@ CREATE TABLE IF NOT EXISTS `erik_approval_node` (
     PRIMARY KEY (`id`), KEY `idx_workflow_id` (`workflow_id`), KEY `idx_seq` (`seq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='审批节点表';
 
-CREATE TABLE IF NOT EXISTS `erik_approval_instance` (
+CREATE TABLE IF NOT EXISTS `erp_approval_instance` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `workflow_id` BIGINT UNSIGNED NOT NULL COMMENT '工作流ID',
     `target_type` VARCHAR(30) NOT NULL COMMENT '单据类型',
@@ -1663,7 +1663,7 @@ CREATE TABLE IF NOT EXISTS `erik_approval_instance` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='审批实例表';
 
-CREATE TABLE IF NOT EXISTS `erik_approval_record` (
+CREATE TABLE IF NOT EXISTS `erp_approval_record` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `instance_id` BIGINT UNSIGNED NOT NULL COMMENT '审批实例ID',
     `node_id` BIGINT UNSIGNED NOT NULL COMMENT '审批节点ID',
@@ -1680,7 +1680,7 @@ CREATE TABLE IF NOT EXISTS `erik_approval_record` (
 -- PART 13: 消息通知系统
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_notification` (
+CREATE TABLE IF NOT EXISTS `erp_notification` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `user_id` BIGINT UNSIGNED NOT NULL COMMENT '接收用户ID',
     `title` VARCHAR(200) NOT NULL COMMENT '通知标题',
@@ -1696,7 +1696,7 @@ CREATE TABLE IF NOT EXISTS `erik_notification` (
     KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通知消息表';
 
-CREATE TABLE IF NOT EXISTS `erik_notification_template` (
+CREATE TABLE IF NOT EXISTS `erp_notification_template` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL COMMENT '模板编码',
     `name` VARCHAR(100) NOT NULL COMMENT '模板名称',
@@ -1710,7 +1710,7 @@ CREATE TABLE IF NOT EXISTS `erik_notification_template` (
     UNIQUE KEY `uk_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通知模板表';
 
-CREATE TABLE IF NOT EXISTS `erik_notification_setting` (
+CREATE TABLE IF NOT EXISTS `erp_notification_setting` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
     `notify_type` VARCHAR(30) NOT NULL COMMENT '通知类型',
@@ -1727,7 +1727,7 @@ CREATE TABLE IF NOT EXISTS `erik_notification_setting` (
 -- PART 14: 项目管理
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_project` (
+CREATE TABLE IF NOT EXISTS `erp_project` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '项目编号',
     `name` VARCHAR(200) NOT NULL COMMENT '项目名称',
@@ -1748,7 +1748,7 @@ CREATE TABLE IF NOT EXISTS `erik_project` (
     KEY `idx_status` (`status`), KEY `idx_manager` (`manager_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目表';
 
-CREATE TABLE IF NOT EXISTS `erik_project_task` (
+CREATE TABLE IF NOT EXISTS `erp_project_task` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `project_id` BIGINT UNSIGNED NOT NULL COMMENT '项目ID',
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '父任务ID(WBS)',
@@ -1773,7 +1773,7 @@ CREATE TABLE IF NOT EXISTS `erik_project_task` (
     KEY `idx_assignee` (`assignee_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目任务表(WBS)';
 
-CREATE TABLE IF NOT EXISTS `erik_project_member` (
+CREATE TABLE IF NOT EXISTS `erp_project_member` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `project_id` BIGINT UNSIGNED NOT NULL COMMENT '项目ID',
     `user_id` BIGINT UNSIGNED NOT NULL COMMENT '成员ID',
@@ -1784,7 +1784,7 @@ CREATE TABLE IF NOT EXISTS `erik_project_member` (
     UNIQUE KEY `uk_project_user` (`project_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目成员表';
 
-CREATE TABLE IF NOT EXISTS `erik_project_timesheet` (
+CREATE TABLE IF NOT EXISTS `erp_project_timesheet` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `project_id` BIGINT UNSIGNED NOT NULL COMMENT '项目ID',
     `task_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '任务ID',
@@ -1799,7 +1799,7 @@ CREATE TABLE IF NOT EXISTS `erik_project_timesheet` (
     KEY `idx_user_date` (`user_id`, `work_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目工时记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_project_gantt` (
+CREATE TABLE IF NOT EXISTS `erp_project_gantt` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `project_id` BIGINT UNSIGNED NOT NULL COMMENT '项目ID',
     `task_id` BIGINT UNSIGNED NOT NULL COMMENT '任务ID',
@@ -1816,7 +1816,7 @@ CREATE TABLE IF NOT EXISTS `erik_project_gantt` (
 -- PART 15: 人力资源管理
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_hr_department` (
+CREATE TABLE IF NOT EXISTS `erp_hr_department` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '父级部门ID，0表示顶级',
     `code` VARCHAR(50) NOT NULL COMMENT '部门编码',
@@ -1833,7 +1833,7 @@ CREATE TABLE IF NOT EXISTS `erik_hr_department` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='部门表';
 
-CREATE TABLE IF NOT EXISTS `erik_hr_position` (
+CREATE TABLE IF NOT EXISTS `erp_hr_position` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `department_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '所属部门ID',
     `code` VARCHAR(50) NOT NULL COMMENT '职位编码',
@@ -1848,7 +1848,7 @@ CREATE TABLE IF NOT EXISTS `erik_hr_position` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='职位表';
 
-CREATE TABLE IF NOT EXISTS `erik_hr_employee` (
+CREATE TABLE IF NOT EXISTS `erp_hr_employee` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '员工编码',
     `name` VARCHAR(50) NOT NULL COMMENT '员工姓名',
@@ -1876,7 +1876,7 @@ CREATE TABLE IF NOT EXISTS `erik_hr_employee` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='员工表';
 
-CREATE TABLE IF NOT EXISTS `erik_hr_attendance_rule` (
+CREATE TABLE IF NOT EXISTS `erp_hr_attendance_rule` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `name` VARCHAR(100) NOT NULL COMMENT '规则名称',
     `clock_in_time` TIME NOT NULL COMMENT '上班打卡时间',
@@ -1888,7 +1888,7 @@ CREATE TABLE IF NOT EXISTS `erik_hr_attendance_rule` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='考勤规则表';
 
-CREATE TABLE IF NOT EXISTS `erik_hr_attendance` (
+CREATE TABLE IF NOT EXISTS `erp_hr_attendance` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `employee_id` BIGINT UNSIGNED NOT NULL COMMENT '员工ID',
     `rule_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '考勤规则ID',
@@ -1905,7 +1905,7 @@ CREATE TABLE IF NOT EXISTS `erik_hr_attendance` (
     KEY `idx_employee_date` (`employee_id`, `work_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='考勤记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_hr_leave` (
+CREATE TABLE IF NOT EXISTS `erp_hr_leave` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `employee_id` BIGINT UNSIGNED NOT NULL COMMENT '员工ID',
     `type` TINYINT UNSIGNED NOT NULL COMMENT '请假类型: 1=年假 2=事假 3=病假 4=婚假 5=产假 6=调休',
@@ -1925,7 +1925,7 @@ CREATE TABLE IF NOT EXISTS `erik_hr_leave` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='请假表';
 
-CREATE TABLE IF NOT EXISTS `erik_hr_salary` (
+CREATE TABLE IF NOT EXISTS `erp_hr_salary` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `employee_id` BIGINT UNSIGNED NOT NULL COMMENT '员工ID',
     `period_year` INT UNSIGNED NOT NULL COMMENT '薪资年份',
@@ -1945,7 +1945,7 @@ CREATE TABLE IF NOT EXISTS `erik_hr_salary` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='薪资表';
 
-CREATE TABLE IF NOT EXISTS `erik_hr_salary_item` (
+CREATE TABLE IF NOT EXISTS `erp_hr_salary_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '薪资项编码',
     `name` VARCHAR(100) NOT NULL COMMENT '薪资项名称',
@@ -1962,7 +1962,7 @@ CREATE TABLE IF NOT EXISTS `erik_hr_salary_item` (
 -- PART 16: 生产制造
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_mfg_bom` (
+CREATE TABLE IF NOT EXISTS `erp_mfg_bom` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '成品产品ID',
     `code` VARCHAR(50) NOT NULL COMMENT 'BOM编码',
@@ -1980,7 +1980,7 @@ CREATE TABLE IF NOT EXISTS `erik_mfg_bom` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='BOM主表';
 
-CREATE TABLE IF NOT EXISTS `erik_mfg_bom_item` (
+CREATE TABLE IF NOT EXISTS `erp_mfg_bom_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `bom_id` BIGINT UNSIGNED NOT NULL COMMENT 'BOM ID',
     `component_product_id` BIGINT UNSIGNED NOT NULL COMMENT '组成件产品ID',
@@ -1994,7 +1994,7 @@ CREATE TABLE IF NOT EXISTS `erik_mfg_bom_item` (
     KEY `idx_component_product_id` (`component_product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='BOM明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_mfg_production_order` (
+CREATE TABLE IF NOT EXISTS `erp_mfg_production_order` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '工单编码',
     `bom_id` BIGINT UNSIGNED NOT NULL COMMENT 'BOM ID',
@@ -2018,7 +2018,7 @@ CREATE TABLE IF NOT EXISTS `erik_mfg_production_order` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='生产工单表';
 
-CREATE TABLE IF NOT EXISTS `erik_mfg_production_item` (
+CREATE TABLE IF NOT EXISTS `erp_mfg_production_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `order_id` BIGINT UNSIGNED NOT NULL COMMENT '生产工单ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -2031,7 +2031,7 @@ CREATE TABLE IF NOT EXISTS `erik_mfg_production_item` (
     KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='生产工单明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_mfg_routing` (
+CREATE TABLE IF NOT EXISTS `erp_mfg_routing` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
     `name` VARCHAR(100) NOT NULL COMMENT '工序名称',
@@ -2046,7 +2046,7 @@ CREATE TABLE IF NOT EXISTS `erik_mfg_routing` (
     KEY `idx_seq` (`product_id`, `seq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工艺路线表';
 
-CREATE TABLE IF NOT EXISTS `erik_mfg_workstation` (
+CREATE TABLE IF NOT EXISTS `erp_mfg_workstation` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '工作站编码',
     `name` VARCHAR(100) NOT NULL COMMENT '工作站名称',
@@ -2057,7 +2057,7 @@ CREATE TABLE IF NOT EXISTS `erik_mfg_workstation` (
     UNIQUE KEY `uk_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工作站表';
 
-CREATE TABLE IF NOT EXISTS `erik_mfg_mrp_plan` (
+CREATE TABLE IF NOT EXISTS `erp_mfg_mrp_plan` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '计划编码',
     `period_year` INT UNSIGNED NOT NULL COMMENT '计划年份',
@@ -2071,7 +2071,7 @@ CREATE TABLE IF NOT EXISTS `erik_mfg_mrp_plan` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='MRP计划主表';
 
-CREATE TABLE IF NOT EXISTS `erik_mfg_mrp_item` (
+CREATE TABLE IF NOT EXISTS `erp_mfg_mrp_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `plan_id` BIGINT UNSIGNED NOT NULL COMMENT 'MRP计划ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
@@ -2092,7 +2092,7 @@ CREATE TABLE IF NOT EXISTS `erik_mfg_mrp_item` (
 -- PART 17: 自定义报表构建器
 -- ################################################################
 
-CREATE TABLE IF NOT EXISTS `erik_report_template` (
+CREATE TABLE IF NOT EXISTS `erp_report_template` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '模板编码',
     `name` VARCHAR(200) NOT NULL COMMENT '模板名称',
@@ -2110,7 +2110,7 @@ CREATE TABLE IF NOT EXISTS `erik_report_template` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='报表模板表';
 
-CREATE TABLE IF NOT EXISTS `erik_report_field` (
+CREATE TABLE IF NOT EXISTS `erp_report_field` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `template_id` BIGINT UNSIGNED NOT NULL COMMENT '报表模板ID',
     `name` VARCHAR(100) NOT NULL COMMENT '字段名',
@@ -2127,7 +2127,7 @@ CREATE TABLE IF NOT EXISTS `erik_report_field` (
     KEY `idx_sort_order` (`sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='报表字段配置表';
 
-CREATE TABLE IF NOT EXISTS `erik_report_filter` (
+CREATE TABLE IF NOT EXISTS `erp_report_filter` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `template_id` BIGINT UNSIGNED NOT NULL COMMENT '报表模板ID',
     `name` VARCHAR(100) NOT NULL COMMENT '筛选条件名称',
@@ -2140,7 +2140,7 @@ CREATE TABLE IF NOT EXISTS `erik_report_filter` (
     KEY `idx_template_id` (`template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='报表筛选条件表';
 
-CREATE TABLE IF NOT EXISTS `erik_report_dataset` (
+CREATE TABLE IF NOT EXISTS `erp_report_dataset` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `template_id` BIGINT UNSIGNED NOT NULL COMMENT '报表模板ID',
     `name` VARCHAR(200) NOT NULL COMMENT '数据集名称',
@@ -2155,7 +2155,7 @@ CREATE TABLE IF NOT EXISTS `erik_report_dataset` (
     KEY `idx_generated_at` (`generated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='报表数据集表';
 
-CREATE TABLE IF NOT EXISTS `erik_report_schedule` (
+CREATE TABLE IF NOT EXISTS `erp_report_schedule` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `template_id` BIGINT UNSIGNED NOT NULL COMMENT '报表模板ID',
     `name` VARCHAR(200) NOT NULL COMMENT '调度任务名称',
@@ -2179,13 +2179,13 @@ CREATE TABLE IF NOT EXISTS `erik_report_schedule` (
 -- ============================================================
 -- 默认超级管理员角色
 -- ============================================================
-INSERT INTO `erik_admin_role` (`id`, `name`, `slug`, `description`, `status`) VALUES
+INSERT INTO `erp_admin_role` (`id`, `name`, `slug`, `description`, `status`) VALUES
 (10000000000000001, '超级管理员', 'super_admin', '系统超级管理员，拥有所有权限', 1);
 
 -- ============================================================
 -- 漏斗阶段种子数据
 -- ============================================================
-INSERT INTO `erik_crm_funnel_stage` (`id`, `name`, `sort`, `win_rate`, `status`) VALUES
+INSERT INTO `erp_crm_funnel_stage` (`id`, `name`, `sort`, `win_rate`, `status`) VALUES
 (50000000000000001, '初步接触', 1, 10.00, 1),
 (50000000000000002, '需求确认', 2, 25.00, 1),
 (50000000000000003, '报价方案', 3, 40.00, 1),
@@ -2196,7 +2196,7 @@ INSERT INTO `erik_crm_funnel_stage` (`id`, `name`, `sort`, `win_rate`, `status`)
 -- ============================================================
 -- 税率种子数据
 -- ============================================================
-INSERT INTO `erik_finance_tax_rate` (`id`, `name`, `rate`, `type`) VALUES
+INSERT INTO `erp_finance_tax_rate` (`id`, `name`, `rate`, `type`) VALUES
 (60000000000000001, '增值税-标准税率', 0.1300, 'vat'),
 (60000000000000002, '增值税-低税率', 0.0900, 'vat'),
 (60000000000000003, '增值税-零税率', 0.0000, 'vat'),
@@ -2205,7 +2205,7 @@ INSERT INTO `erik_finance_tax_rate` (`id`, `name`, `rate`, `type`) VALUES
 -- ============================================================
 -- 币种种子数据
 -- ============================================================
-INSERT INTO `erik_finance_currency` (`id`, `code`, `name`, `symbol`, `is_base`) VALUES
+INSERT INTO `erp_finance_currency` (`id`, `code`, `name`, `symbol`, `is_base`) VALUES
 (61000000000000001, 'CNY', '人民币', '¥', 1),
 (61000000000000002, 'USD', '美元', '$', 0),
 (61000000000000003, 'EUR', '欧元', '€', 0),
@@ -2214,7 +2214,7 @@ INSERT INTO `erik_finance_currency` (`id`, `code`, `name`, `symbol`, `is_base`) 
 -- ============================================================
 -- 客户分析指标种子数据
 -- ============================================================
-INSERT INTO `erik_crm_analytics_metric` (`id`, `name`, `key`, `type`) VALUES
+INSERT INTO `erp_crm_analytics_metric` (`id`, `name`, `key`, `type`) VALUES
 (70000000000000001, '新增客户数', 'new_customers', 'count'),
 (70000000000000002, '活跃客户数', 'active_customers', 'count'),
 (70000000000000003, '客户留存率', 'retention_rate', 'ratio'),
@@ -2225,7 +2225,7 @@ INSERT INTO `erik_crm_analytics_metric` (`id`, `name`, `key`, `type`) VALUES
 -- ============================================================
 -- 管理系统权限种子数据 — 菜单 (type=1)
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (21000000000000001, 0, '仪表盘',    'dashboard',     1, 'dashboard', '/dashboard',        1, NOW(), NOW()),
 (21000000000000002, 0, '用户管理',  'user',           1, 'people',    '/admin/user',        2, NOW(), NOW()),
 (21000000000000003, 0, '角色管理',  'role',           1, 'shield',    '/admin/role',        3, NOW(), NOW()),
@@ -2236,7 +2236,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- ERP模块菜单权限 (type=1)
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000001, 0, '商品管理', 'product',    1, 'inventory',     '/admin/product',    7, NOW(), NOW()),
 (31000000000000002, 0, '采购管理', 'purchase',    1, 'shopping_cart', '/admin/purchase',   8, NOW(), NOW()),
 (31000000000000003, 0, '销售管理', 'sales',       1, 'sell',          '/admin/sales',      9, NOW(), NOW()),
@@ -2247,7 +2247,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- 管理系统按钮权限 (type=2)
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (21000000000000011, 21000000000000002, '批量删除',     'batch.destroy', 2, '', '', 1, NOW(), NOW()),
 (21000000000000012, 21000000000000002, '批量启用/禁用', 'batch.status', 2, '', '', 2, NOW(), NOW()),
 (21000000000000013, 21000000000000002, '导入用户',     'import.users', 2, '', '', 3, NOW(), NOW()),
@@ -2258,7 +2258,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- 管理系统API权限 (type=3)
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (21000000000000021, 21000000000000001, '查看仪表盘',   'get.admin/dashboard', 3, '', '', 1, NOW(), NOW()),
 (21000000000000031, 21000000000000002, '查看用户',     'get.admin/user', 3, '', '', 1, NOW(), NOW()),
 (21000000000000032, 21000000000000002, '创建用户',     'post.admin/user', 3, '', '', 2, NOW(), NOW()),
@@ -2290,7 +2290,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- ERP模块API权限 (type=3) — 商品
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000011, 31000000000000001, '商品-查看',   'get.admin/product', 3, '', '', 1, NOW(), NOW()),
 (31000000000000012, 31000000000000001, '商品-创建',   'post.admin/product', 3, '', '', 2, NOW(), NOW()),
 (31000000000000013, 31000000000000001, '商品-更新',   'put.admin/product', 3, '', '', 3, NOW(), NOW()),
@@ -2325,7 +2325,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- ERP模块API权限 (type=3) — 采购
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000081, 31000000000000002, '采购申请-查看', 'get.admin/purchase/apply', 3, '', '', 1, NOW(), NOW()),
 (31000000000000082, 31000000000000002, '采购申请-创建', 'post.admin/purchase/apply', 3, '', '', 2, NOW(), NOW()),
 (31000000000000083, 31000000000000002, '采购申请-更新', 'put.admin/purchase/apply', 3, '', '', 3, NOW(), NOW()),
@@ -2347,7 +2347,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- ERP模块API权限 (type=3) — 销售
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000131, 31000000000000003, '销售报价-查看', 'get.admin/sales/quotation', 3, '', '', 1, NOW(), NOW()),
 (31000000000000132, 31000000000000003, '销售报价-创建', 'post.admin/sales/quotation', 3, '', '', 2, NOW(), NOW()),
 (31000000000000133, 31000000000000003, '销售报价-更新', 'put.admin/sales/quotation', 3, '', '', 3, NOW(), NOW()),
@@ -2369,7 +2369,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- ERP模块API权限 (type=3) — 库存
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000181, 31000000000000004, '库存总览',       'any.admin/inventory', 3, '', '', 1, NOW(), NOW()),
 (31000000000000182, 31000000000000004, '库存流水',       'any.admin/inventory/flow', 3, '', '', 2, NOW(), NOW()),
 (31000000000000183, 31000000000000004, '调拨-查看',      'get.admin/inventory/transfer', 3, '', '', 3, NOW(), NOW()),
@@ -2388,7 +2388,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- ERP模块API权限 (type=3) — 财务
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000201, 31000000000000005, '账户-查看',      'get.admin/finance/account', 3, '', '', 1, NOW(), NOW()),
 (31000000000000202, 31000000000000005, '账户-创建',      'post.admin/finance/account', 3, '', '', 2, NOW(), NOW()),
 (31000000000000203, 31000000000000005, '账户-更新',      'put.admin/finance/account', 3, '', '', 3, NOW(), NOW()),
@@ -2419,7 +2419,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- ERP模块API权限 (type=3) — CRM
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000281, 31000000000000006, '商机-查看',      'get.admin/crm/opportunity', 3, '', '', 1, NOW(), NOW()),
 (31000000000000282, 31000000000000006, '商机-创建',      'post.admin/crm/opportunity', 3, '', '', 2, NOW(), NOW()),
 (31000000000000283, 31000000000000006, '商机-更新',      'put.admin/crm/opportunity', 3, '', '', 3, NOW(), NOW()),
@@ -2440,7 +2440,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- 仪表盘扩展API权限
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000321, 21000000000000001, '销售仪表盘',   'any.admin/dashboard/sales', 3, '', '', 2, NOW(), NOW()),
 (31000000000000322, 21000000000000001, '库存仪表盘',   'any.admin/dashboard/inventory', 3, '', '', 3, NOW(), NOW()),
 (31000000000000323, 21000000000000001, '财务仪表盘',   'any.admin/dashboard/finance', 3, '', '', 4, NOW(), NOW());
@@ -2448,10 +2448,10 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- 超级管理员角色关联所有权限
 -- ============================================================
-INSERT INTO `erik_admin_role_permission` (`role_id`, `permission_id`)
-SELECT 10000000000000001, `id` FROM `erik_admin_permission`
+INSERT INTO `erp_admin_role_permission` (`role_id`, `permission_id`)
+SELECT 10000000000000001, `id` FROM `erp_admin_permission`
 WHERE `id` NOT IN (
-    SELECT `permission_id` FROM `erik_admin_role_permission` WHERE `role_id` = 10000000000000001
+    SELECT `permission_id` FROM `erp_admin_role_permission` WHERE `role_id` = 10000000000000001
 );
 
 -- ============================================================
@@ -2461,11 +2461,11 @@ WHERE `id` NOT IN (
 -- ============================================================
 
 -- ============================================================
--- OMS订单扩展（关联 erik_sales_order）
+-- OMS订单扩展（关联 erp_sales_order）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_oms_order` (
+CREATE TABLE IF NOT EXISTS `erp_oms_order` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
-    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '关联 erik_sales_order.id',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '关联 erp_sales_order.id',
     `channel` VARCHAR(30) NOT NULL DEFAULT 'manual' COMMENT '渠道: manual/web/mobile/api/marketplace/edi/pos',
     `channel_order_no` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '渠道订单号',
     `channel_store` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '渠道店铺名称',
@@ -2490,7 +2490,7 @@ CREATE TABLE IF NOT EXISTS `erik_oms_order` (
 -- ============================================================
 -- OMS订单地址（收货/账单地址，支持多国格式）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_oms_order_address` (
+CREATE TABLE IF NOT EXISTS `erp_oms_order_address` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `order_id` BIGINT UNSIGNED NOT NULL COMMENT 'OMS订单ID',
     `type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '类型: 1=收货地址 2=账单地址',
@@ -2514,7 +2514,7 @@ CREATE TABLE IF NOT EXISTS `erik_oms_order_address` (
 -- ============================================================
 -- OMS履约记录（关联WMS任务 + TMS运单）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_oms_fulfillment` (
+CREATE TABLE IF NOT EXISTS `erp_oms_fulfillment` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `oms_order_id` BIGINT UNSIGNED NOT NULL COMMENT 'OMS订单ID',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '发货仓库ID',
@@ -2533,7 +2533,7 @@ CREATE TABLE IF NOT EXISTS `erik_oms_fulfillment` (
 -- ============================================================
 -- OMS履约明细（行项级别的履约进度追踪）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_oms_fulfillment_item` (
+CREATE TABLE IF NOT EXISTS `erp_oms_fulfillment_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `fulfillment_id` BIGINT UNSIGNED NOT NULL COMMENT '履约记录ID',
     `order_item_id` BIGINT UNSIGNED NOT NULL COMMENT '关联 SalesOrderItem.id',
@@ -2553,7 +2553,7 @@ CREATE TABLE IF NOT EXISTS `erik_oms_fulfillment_item` (
 -- ============================================================
 -- OMS退换货授权(RMA)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_oms_rma` (
+CREATE TABLE IF NOT EXISTS `erp_oms_rma` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT 'RMA单号',
     `order_id` BIGINT UNSIGNED NOT NULL COMMENT '原订单ID',
@@ -2582,7 +2582,7 @@ CREATE TABLE IF NOT EXISTS `erik_oms_rma` (
 -- ============================================================
 -- OMS退换货明细
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_oms_rma_item` (
+CREATE TABLE IF NOT EXISTS `erp_oms_rma_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `rma_id` BIGINT UNSIGNED NOT NULL COMMENT 'RMA ID',
     `order_item_id` BIGINT UNSIGNED NOT NULL COMMENT '订单明细ID',
@@ -2602,7 +2602,7 @@ CREATE TABLE IF NOT EXISTS `erik_oms_rma_item` (
 -- ============================================================
 -- OMS库存预占（逻辑锁层，不改动物理库存）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_oms_inventory_reservation` (
+CREATE TABLE IF NOT EXISTS `erp_oms_inventory_reservation` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID',
@@ -2625,7 +2625,7 @@ CREATE TABLE IF NOT EXISTS `erik_oms_inventory_reservation` (
 -- ============================================================
 -- 销售渠道定义
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_channel` (
+CREATE TABLE IF NOT EXISTS `erp_channel` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(30) NOT NULL COMMENT '渠道编码',
     `name` VARCHAR(100) NOT NULL COMMENT '渠道名称',
@@ -2650,7 +2650,7 @@ CREATE TABLE IF NOT EXISTS `erik_channel` (
 -- ============================================================
 -- WMS库区
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_zone` (
+CREATE TABLE IF NOT EXISTS `erp_wms_zone` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
     `code` VARCHAR(30) NOT NULL COMMENT '库区编码',
@@ -2666,11 +2666,11 @@ CREATE TABLE IF NOT EXISTS `erik_wms_zone` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='WMS库区';
 
 -- ============================================================
--- WMS库位扩展（关联 erik_location，增加层级/容积/承重等WMS属性）
+-- WMS库位扩展（关联 erp_location，增加层级/容积/承重等WMS属性）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_location` (
+CREATE TABLE IF NOT EXISTS `erp_wms_location` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
-    `location_id` BIGINT UNSIGNED NOT NULL COMMENT '关联 erik_location.id',
+    `location_id` BIGINT UNSIGNED NOT NULL COMMENT '关联 erp_location.id',
     `zone_id` BIGINT UNSIGNED NOT NULL COMMENT '库区ID',
     `aisle` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '巷道',
     `rack` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '货架',
@@ -2696,7 +2696,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_location` (
 -- ============================================================
 -- WMS预到货通知(ASN)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_asn` (
+CREATE TABLE IF NOT EXISTS `erp_wms_asn` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT 'ASN单号',
     `supplier_id` BIGINT UNSIGNED NOT NULL COMMENT '供应商ID',
@@ -2723,7 +2723,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_asn` (
 -- ============================================================
 -- WMS预到货明细
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_asn_item` (
+CREATE TABLE IF NOT EXISTS `erp_wms_asn_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `asn_id` BIGINT UNSIGNED NOT NULL COMMENT 'ASN ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
@@ -2740,7 +2740,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_asn_item` (
 -- ============================================================
 -- WMS收货任务
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_receiving` (
+CREATE TABLE IF NOT EXISTS `erp_wms_receiving` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '收货单号',
     `asn_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ASN ID',
@@ -2764,7 +2764,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_receiving` (
 -- ============================================================
 -- WMS上架任务
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_putaway_task` (
+CREATE TABLE IF NOT EXISTS `erp_wms_putaway_task` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '上架任务号',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
@@ -2786,7 +2786,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_putaway_task` (
 -- ============================================================
 -- WMS上架明细
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_putaway_item` (
+CREATE TABLE IF NOT EXISTS `erp_wms_putaway_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `putaway_id` BIGINT UNSIGNED NOT NULL COMMENT '上架任务ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
@@ -2806,7 +2806,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_putaway_item` (
 -- ============================================================
 -- WMS拣货任务
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_pick_task` (
+CREATE TABLE IF NOT EXISTS `erp_wms_pick_task` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '拣货任务号',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
@@ -2830,7 +2830,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_pick_task` (
 -- ============================================================
 -- WMS拣货明细
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_pick_item` (
+CREATE TABLE IF NOT EXISTS `erp_wms_pick_item` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `pick_task_id` BIGINT UNSIGNED NOT NULL COMMENT '拣货任务ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
@@ -2852,7 +2852,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_pick_item` (
 -- ============================================================
 -- WMS打包任务
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_pack_task` (
+CREATE TABLE IF NOT EXISTS `erp_wms_pack_task` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '打包任务号',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
@@ -2875,7 +2875,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_pack_task` (
 -- ============================================================
 -- WMS波次（按波次聚合订单统一拣货）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_wave` (
+CREATE TABLE IF NOT EXISTS `erp_wms_wave` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '波次号',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '仓库ID',
@@ -2896,7 +2896,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_wave` (
 -- ============================================================
 -- WMS波次-订单关联
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_wms_wave_order` (
+CREATE TABLE IF NOT EXISTS `erp_wms_wave_order` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `wave_id` BIGINT UNSIGNED NOT NULL COMMENT '波次ID',
     `oms_order_id` BIGINT UNSIGNED NOT NULL COMMENT 'OMS订单ID',
@@ -2915,7 +2915,7 @@ CREATE TABLE IF NOT EXISTS `erik_wms_wave_order` (
 -- ============================================================
 -- TMS承运商
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_tms_carrier` (
+CREATE TABLE IF NOT EXISTS `erp_tms_carrier` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(30) NOT NULL COMMENT '承运商编码',
     `name` VARCHAR(100) NOT NULL COMMENT '承运商名称',
@@ -2939,7 +2939,7 @@ CREATE TABLE IF NOT EXISTS `erik_tms_carrier` (
 -- ============================================================
 -- TMS承运商服务
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_tms_carrier_service` (
+CREATE TABLE IF NOT EXISTS `erp_tms_carrier_service` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `carrier_id` BIGINT UNSIGNED NOT NULL COMMENT '承运商ID',
     `code` VARCHAR(50) NOT NULL COMMENT '服务编码',
@@ -2958,7 +2958,7 @@ CREATE TABLE IF NOT EXISTS `erik_tms_carrier_service` (
 -- ============================================================
 -- TMS运费费率卡
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_tms_freight_rate` (
+CREATE TABLE IF NOT EXISTS `erp_tms_freight_rate` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `carrier_service_id` BIGINT UNSIGNED NOT NULL COMMENT '承运商服务ID',
     `origin_country` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '始发国ISO代码',
@@ -2985,7 +2985,7 @@ CREATE TABLE IF NOT EXISTS `erik_tms_freight_rate` (
 -- ============================================================
 -- TMS运单
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_tms_shipment` (
+CREATE TABLE IF NOT EXISTS `erp_tms_shipment` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '运单号（内部）',
     `carrier_service_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '承运商服务ID',
@@ -3016,7 +3016,7 @@ CREATE TABLE IF NOT EXISTS `erik_tms_shipment` (
 -- ============================================================
 -- TMS物流轨迹
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_tms_tracking_event` (
+CREATE TABLE IF NOT EXISTS `erp_tms_tracking_event` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `shipment_id` BIGINT UNSIGNED NOT NULL COMMENT '运单ID',
     `status_code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '状态码: picked_up/in_transit/out_for_delivery/delivered/exception',
@@ -3033,7 +3033,7 @@ CREATE TABLE IF NOT EXISTS `erik_tms_tracking_event` (
 -- ============================================================
 -- TMS包裹明细
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_tms_shipment_package` (
+CREATE TABLE IF NOT EXISTS `erp_tms_shipment_package` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `shipment_id` BIGINT UNSIGNED NOT NULL COMMENT '运单ID',
     `pack_task_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联WMS打包任务ID',
@@ -3052,7 +3052,7 @@ CREATE TABLE IF NOT EXISTS `erik_tms_shipment_package` (
 -- ============================================================
 -- TMS运费发票
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_tms_freight_invoice` (
+CREATE TABLE IF NOT EXISTS `erp_tms_freight_invoice` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '运费发票号',
     `carrier_id` BIGINT UNSIGNED NOT NULL COMMENT '承运商ID',
@@ -3082,7 +3082,7 @@ CREATE TABLE IF NOT EXISTS `erik_tms_freight_invoice` (
 -- ============================================================
 -- 菜单权限 (type=1) — OMS / WMS / TMS
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000208, 0, '订单管理(OMS)', 'oms',   1, 'receipt_long',  '/admin/oms',  13, NOW(), NOW()),
 (31000000000000209, 0, '仓储管理(WMS)', 'wms',   1, 'warehouse',     '/admin/wms',  14, NOW(), NOW()),
 (31000000000000210, 0, '运输管理(TMS)', 'tms',   1, 'local_shipping','/admin/tms',  15, NOW(), NOW());
@@ -3090,7 +3090,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — OMS 订单管理
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000341, 31000000000000208, 'OMS订单-查看',   'get.admin/oms/order', 3, '', '', 1, NOW(), NOW()),
 (31000000000000342, 31000000000000208, 'OMS订单-创建',   'post.admin/oms/order', 3, '', '', 2, NOW(), NOW()),
 (31000000000000343, 31000000000000208, 'OMS订单-更新',   'put.admin/oms/order', 3, '', '', 3, NOW(), NOW()),
@@ -3100,12 +3100,12 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 (31000000000000347, 31000000000000208, 'OMS订单-取消',   'post.admin/oms/order/cancel', 3, '', '', 7, NOW(), NOW());
 
 -- OMS 履约管理
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000351, 31000000000000208, '履约-查看',   'get.admin/oms/fulfillment', 3, '', '', 10, NOW(), NOW()),
 (31000000000000352, 31000000000000208, '履约-创建',   'post.admin/oms/fulfillment', 3, '', '', 11, NOW(), NOW());
 
 -- OMS RMA
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000361, 31000000000000208, 'RMA-查看',   'get.admin/oms/rma', 3, '', '', 15, NOW(), NOW()),
 (31000000000000362, 31000000000000208, 'RMA-创建',   'post.admin/oms/rma', 3, '', '', 16, NOW(), NOW()),
 (31000000000000363, 31000000000000208, 'RMA-更新',   'put.admin/oms/rma', 3, '', '', 17, NOW(), NOW()),
@@ -3115,7 +3115,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 (31000000000000367, 31000000000000208, 'RMA-退款',   'post.admin/oms/rma/refund', 3, '', '', 21, NOW(), NOW());
 
 -- OMS 渠道管理
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000371, 31000000000000208, '渠道-查看',   'get.admin/oms/channel', 3, '', '', 25, NOW(), NOW()),
 (31000000000000372, 31000000000000208, '渠道-创建',   'post.admin/oms/channel', 3, '', '', 26, NOW(), NOW()),
 (31000000000000373, 31000000000000208, '渠道-更新',   'put.admin/oms/channel', 3, '', '', 27, NOW(), NOW()),
@@ -3124,45 +3124,45 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — WMS 仓储管理
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000401, 31000000000000209, '库区-查看',   'get.admin/wms/zone', 3, '', '', 1, NOW(), NOW()),
 (31000000000000402, 31000000000000209, '库区-创建',   'post.admin/wms/zone', 3, '', '', 2, NOW(), NOW()),
 (31000000000000403, 31000000000000209, '库区-更新',   'put.admin/wms/zone', 3, '', '', 3, NOW(), NOW()),
 (31000000000000404, 31000000000000209, '库区-删除',   'delete.admin/wms/zone', 3, '', '', 4, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000411, 31000000000000209, 'WMS库位-查看',   'get.admin/wms/location', 3, '', '', 8, NOW(), NOW()),
 (31000000000000412, 31000000000000209, 'WMS库位-创建',   'post.admin/wms/location', 3, '', '', 9, NOW(), NOW()),
 (31000000000000413, 31000000000000209, 'WMS库位-更新',   'put.admin/wms/location', 3, '', '', 10, NOW(), NOW()),
 (31000000000000414, 31000000000000209, 'WMS库位-删除',   'delete.admin/wms/location', 3, '', '', 11, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000421, 31000000000000209, 'ASN-查看',   'get.admin/wms/asn', 3, '', '', 15, NOW(), NOW()),
 (31000000000000422, 31000000000000209, 'ASN-创建',   'post.admin/wms/asn', 3, '', '', 16, NOW(), NOW()),
 (31000000000000423, 31000000000000209, 'ASN-更新',   'put.admin/wms/asn', 3, '', '', 17, NOW(), NOW()),
 (31000000000000424, 31000000000000209, 'ASN-删除',   'delete.admin/wms/asn', 3, '', '', 18, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000431, 31000000000000209, '收货-查看',   'get.admin/wms/receiving', 3, '', '', 22, NOW(), NOW()),
 (31000000000000432, 31000000000000209, '收货-创建',   'post.admin/wms/receiving', 3, '', '', 23, NOW(), NOW()),
 (31000000000000433, 31000000000000209, '收货-完成',   'post.admin/wms/receiving/complete', 3, '', '', 24, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000441, 31000000000000209, '上架-查看',   'get.admin/wms/putaway', 3, '', '', 28, NOW(), NOW()),
 (31000000000000442, 31000000000000209, '上架-创建',   'post.admin/wms/putaway', 3, '', '', 29, NOW(), NOW()),
 (31000000000000443, 31000000000000209, '上架-完成',   'post.admin/wms/putaway/complete', 3, '', '', 30, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000451, 31000000000000209, '波次-查看',   'get.admin/wms/wave', 3, '', '', 35, NOW(), NOW()),
 (31000000000000452, 31000000000000209, '波次-创建',   'post.admin/wms/wave', 3, '', '', 36, NOW(), NOW()),
 (31000000000000453, 31000000000000209, '波次-释放',   'post.admin/wms/wave/release', 3, '', '', 37, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000461, 31000000000000209, '拣货-查看',   'get.admin/wms/pick', 3, '', '', 42, NOW(), NOW()),
 (31000000000000462, 31000000000000209, '拣货-开始',   'post.admin/wms/pick/start', 3, '', '', 43, NOW(), NOW()),
 (31000000000000463, 31000000000000209, '拣货-确认',   'post.admin/wms/pick/confirm', 3, '', '', 44, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000471, 31000000000000209, '打包-查看',   'get.admin/wms/pack', 3, '', '', 48, NOW(), NOW()),
 (31000000000000472, 31000000000000209, '打包-开始',   'post.admin/wms/pack/start', 3, '', '', 49, NOW(), NOW()),
 (31000000000000473, 31000000000000209, '打包-完成',   'post.admin/wms/pack/complete', 3, '', '', 50, NOW(), NOW());
@@ -3170,35 +3170,35 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — TMS 运输管理
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000501, 31000000000000210, '承运商-查看',   'get.admin/tms/carrier', 3, '', '', 1, NOW(), NOW()),
 (31000000000000502, 31000000000000210, '承运商-创建',   'post.admin/tms/carrier', 3, '', '', 2, NOW(), NOW()),
 (31000000000000503, 31000000000000210, '承运商-更新',   'put.admin/tms/carrier', 3, '', '', 3, NOW(), NOW()),
 (31000000000000504, 31000000000000210, '承运商-删除',   'delete.admin/tms/carrier', 3, '', '', 4, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000511, 31000000000000210, '承运商服务-查看',   'get.admin/tms/service', 3, '', '', 8, NOW(), NOW()),
 (31000000000000512, 31000000000000210, '承运商服务-创建',   'post.admin/tms/service', 3, '', '', 9, NOW(), NOW()),
 (31000000000000513, 31000000000000210, '承运商服务-更新',   'put.admin/tms/service', 3, '', '', 10, NOW(), NOW()),
 (31000000000000514, 31000000000000210, '承运商服务-删除',   'delete.admin/tms/service', 3, '', '', 11, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000521, 31000000000000210, '运费费率-查看',   'get.admin/tms/freight-rate', 3, '', '', 15, NOW(), NOW()),
 (31000000000000522, 31000000000000210, '运费费率-创建',   'post.admin/tms/freight-rate', 3, '', '', 16, NOW(), NOW()),
 (31000000000000523, 31000000000000210, '运费费率-更新',   'put.admin/tms/freight-rate', 3, '', '', 17, NOW(), NOW()),
 (31000000000000524, 31000000000000210, '运费费率-删除',   'delete.admin/tms/freight-rate', 3, '', '', 18, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000531, 31000000000000210, '运单-查看',   'get.admin/tms/shipment', 3, '', '', 22, NOW(), NOW()),
 (31000000000000532, 31000000000000210, '运单-创建',   'post.admin/tms/shipment', 3, '', '', 23, NOW(), NOW()),
 (31000000000000533, 31000000000000210, '运单-发货',   'post.admin/tms/shipment/ship', 3, '', '', 24, NOW(), NOW()),
 (31000000000000534, 31000000000000210, '运单-面单',   'post.admin/tms/shipment/get-label',3, '', '', 25, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000541, 31000000000000210, '轨迹-查看',   'get.admin/tms/tracking', 3, '', '', 30, NOW(), NOW()),
 (31000000000000542, 31000000000000210, '轨迹-回调',   'post.admin/tms/tracking/callback', 3, '', '', 31, NOW(), NOW());
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000551, 31000000000000210, '运费发票-查看',   'get.admin/tms/freight-invoice', 3, '', '', 35, NOW(), NOW()),
 (31000000000000552, 31000000000000210, '运费发票-创建',   'post.admin/tms/freight-invoice', 3, '', '', 36, NOW(), NOW()),
 (31000000000000553, 31000000000000210, '运费发票-确认',   'post.admin/tms/freight-invoice/confirm', 3, '', '', 37, NOW(), NOW()),
@@ -3212,7 +3212,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- QMS检验标准
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_quality_inspection_standard` (
+CREATE TABLE IF NOT EXISTS `erp_quality_inspection_standard` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `name` VARCHAR(200) NOT NULL COMMENT '标准名称',
     `code` VARCHAR(50) NOT NULL COMMENT '标准编码',
@@ -3233,7 +3233,7 @@ CREATE TABLE IF NOT EXISTS `erik_quality_inspection_standard` (
 -- ============================================================
 -- QMS来料检验记录 (IQC)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_quality_iqc_record` (
+CREATE TABLE IF NOT EXISTS `erp_quality_iqc_record` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '检验单号',
     `receiving_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联采购收货单ID',
@@ -3259,7 +3259,7 @@ CREATE TABLE IF NOT EXISTS `erik_quality_iqc_record` (
 -- ============================================================
 -- QMS过程检验记录 (IPQC)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_quality_ipqc_record` (
+CREATE TABLE IF NOT EXISTS `erp_quality_ipqc_record` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '检验单号',
     `production_order_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '生产工单ID',
@@ -3287,7 +3287,7 @@ CREATE TABLE IF NOT EXISTS `erik_quality_ipqc_record` (
 -- ============================================================
 -- QMS出货检验记录 (OQC)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_quality_oqc_record` (
+CREATE TABLE IF NOT EXISTS `erp_quality_oqc_record` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '检验单号',
     `delivery_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联销售发货单ID',
@@ -3313,7 +3313,7 @@ CREATE TABLE IF NOT EXISTS `erik_quality_oqc_record` (
 -- ============================================================
 -- QMS不合格品
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `erik_quality_nonconformity` (
+CREATE TABLE IF NOT EXISTS `erp_quality_nonconformity` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '不合格品编号',
     `source_type` VARCHAR(30) NOT NULL DEFAULT 'iqc' COMMENT '来源类型: iqc/ipqc/oqc',
@@ -3339,7 +3339,7 @@ CREATE TABLE IF NOT EXISTS `erik_quality_nonconformity` (
 -- P3 Experience Enhancement Tables
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
-CREATE TABLE IF NOT EXISTS `erik_bi_dashboard` (
+CREATE TABLE IF NOT EXISTS `erp_bi_dashboard` (
     `id` BIGINT UNSIGNED NOT NULL,
     `name` VARCHAR(200) NOT NULL DEFAULT '',
     `layout` JSON DEFAULT NULL,
@@ -3350,7 +3350,7 @@ CREATE TABLE IF NOT EXISTS `erik_bi_dashboard` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `erik_bi_widget` (
+CREATE TABLE IF NOT EXISTS `erp_bi_widget` (
     `id` BIGINT UNSIGNED NOT NULL,
     `dashboard_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
     `name` VARCHAR(200) NOT NULL DEFAULT '',
@@ -3367,7 +3367,7 @@ CREATE TABLE IF NOT EXISTS `erik_bi_widget` (
     INDEX `idx_dashboard_id` (`dashboard_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `erik_eam_equipment` (
+CREATE TABLE IF NOT EXISTS `erp_eam_equipment` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(100) NOT NULL DEFAULT '',
     `name` VARCHAR(200) NOT NULL DEFAULT '',
@@ -3384,7 +3384,7 @@ CREATE TABLE IF NOT EXISTS `erik_eam_equipment` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `erik_eam_maintenance_plan` (
+CREATE TABLE IF NOT EXISTS `erp_eam_maintenance_plan` (
     `id` BIGINT UNSIGNED NOT NULL,
     `equipment_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
     `name` VARCHAR(200) NOT NULL DEFAULT '',
@@ -3399,7 +3399,7 @@ CREATE TABLE IF NOT EXISTS `erik_eam_maintenance_plan` (
     INDEX `idx_equipment_id` (`equipment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `erik_eam_repair_order` (
+CREATE TABLE IF NOT EXISTS `erp_eam_repair_order` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(100) NOT NULL DEFAULT '',
     `equipment_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -3416,7 +3416,7 @@ CREATE TABLE IF NOT EXISTS `erik_eam_repair_order` (
     INDEX `idx_equipment_id` (`equipment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `erik_dms_document` (
+CREATE TABLE IF NOT EXISTS `erp_dms_document` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(100) NOT NULL DEFAULT '',
     `title` VARCHAR(500) NOT NULL DEFAULT '',
@@ -3432,7 +3432,7 @@ CREATE TABLE IF NOT EXISTS `erik_dms_document` (
     INDEX `idx_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `erik_dms_document_version` (
+CREATE TABLE IF NOT EXISTS `erp_dms_document_version` (
     `id` BIGINT UNSIGNED NOT NULL,
     `document_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
     `version` INT NOT NULL DEFAULT 1,
@@ -3455,7 +3455,7 @@ CREATE TABLE IF NOT EXISTS `erik_dms_document_version` (
 -- ============================================================
 -- 菜单权限 (type=1) — BI看板 / 设备管理 / 文档管理
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000205, 0, 'BI看板', 'bi', 1, 'dashboard_customize', '/admin/bi', 17, NOW(), NOW()),
 (31000000000000206, 0, '设备管理(EAM)', 'eam', 1, 'build', '/admin/eam', 18, NOW(), NOW()),
 (31000000000000207, 0, '文档管理(DMS)', 'dms', 1, 'folder', '/admin/dms', 19, NOW(), NOW());
@@ -3463,7 +3463,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — BI 看板
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000701, 31000000000000205, 'BI看板-查看',   'get.admin/bi/dashboard', 3, '', '', 1, NOW(), NOW()),
 (31000000000000702, 31000000000000205, 'BI看板-创建',   'post.admin/bi/dashboard', 3, '', '', 2, NOW(), NOW()),
 (31000000000000703, 31000000000000205, 'BI看板-更新',   'put.admin/bi/dashboard', 3, '', '', 3, NOW(), NOW()),
@@ -3476,7 +3476,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — 设备管理 (EAM)
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000711, 31000000000000206, '设备台账-查看',   'get.admin/eam/equipment', 3, '', '', 1, NOW(), NOW()),
 (31000000000000712, 31000000000000206, '设备台账-创建',   'post.admin/eam/equipment', 3, '', '', 2, NOW(), NOW()),
 (31000000000000713, 31000000000000206, '设备台账-更新',   'put.admin/eam/equipment', 3, '', '', 3, NOW(), NOW()),
@@ -3494,7 +3494,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — 文档管理 (DMS)
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000731, 31000000000000207, '文档-查看',   'get.admin/dms/document', 3, '', '', 1, NOW(), NOW()),
 (31000000000000732, 31000000000000207, '文档-创建',   'post.admin/dms/document', 3, '', '', 2, NOW(), NOW()),
 (31000000000000733, 31000000000000207, '文档-更新',   'put.admin/dms/document', 3, '', '', 3, NOW(), NOW()),
@@ -3504,13 +3504,13 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- 超级管理员角色 (ID=10000000000000001) 关联所有新增权限
 -- ============================================================
-INSERT INTO `erik_admin_role_permission` (`role_id`, `permission_id`)
-SELECT 10000000000000001, `id` FROM `erik_admin_permission`
+INSERT INTO `erp_admin_role_permission` (`role_id`, `permission_id`)
+SELECT 10000000000000001, `id` FROM `erp_admin_permission`
 WHERE `id` NOT IN (
-    SELECT `permission_id` FROM `erik_admin_role_permission` WHERE `role_id` = 10000000000000001
+    SELECT `permission_id` FROM `erp_admin_role_permission` WHERE `role_id` = 10000000000000001
 );
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-CREATE TABLE IF NOT EXISTS `erik_eam_spare_part` (
+CREATE TABLE IF NOT EXISTS `erp_eam_spare_part` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(100) NOT NULL DEFAULT '',
     `name` VARCHAR(200) NOT NULL DEFAULT '',
@@ -3537,13 +3537,13 @@ CREATE TABLE IF NOT EXISTS `erik_eam_spare_part` (
 -- ============================================================
 -- 菜单权限 (type=1) — QMS 质量管理
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000215, 0, '质量管理(QMS)', 'quality', 1, 'verified_user', '/admin/quality', 16, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — 检验标准
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000601, 31000000000000215, '检验标准-查看',   'get.admin/quality/standard', 3, '', '', 1, NOW(), NOW()),
 (31000000000000602, 31000000000000215, '检验标准-创建',   'post.admin/quality/standard', 3, '', '', 2, NOW(), NOW()),
 (31000000000000603, 31000000000000215, '检验标准-更新',   'put.admin/quality/standard', 3, '', '', 3, NOW(), NOW()),
@@ -3552,7 +3552,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — 来料检验 (IQC)
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000611, 31000000000000215, 'IQC-查看',   'get.admin/quality/iqc', 3, '', '', 8, NOW(), NOW()),
 (31000000000000612, 31000000000000215, 'IQC-创建',   'post.admin/quality/iqc', 3, '', '', 9, NOW(), NOW()),
 (31000000000000613, 31000000000000215, 'IQC-更新',   'put.admin/quality/iqc', 3, '', '', 10, NOW(), NOW()),
@@ -3561,7 +3561,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — 过程检验 (IPQC)
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000621, 31000000000000215, 'IPQC-查看',   'get.admin/quality/ipqc', 3, '', '', 15, NOW(), NOW()),
 (31000000000000622, 31000000000000215, 'IPQC-创建',   'post.admin/quality/ipqc', 3, '', '', 16, NOW(), NOW()),
 (31000000000000623, 31000000000000215, 'IPQC-更新',   'put.admin/quality/ipqc', 3, '', '', 17, NOW(), NOW()),
@@ -3570,7 +3570,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — 出货检验 (OQC)
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000631, 31000000000000215, 'OQC-查看',   'get.admin/quality/oqc', 3, '', '', 22, NOW(), NOW()),
 (31000000000000632, 31000000000000215, 'OQC-创建',   'post.admin/quality/oqc', 3, '', '', 23, NOW(), NOW()),
 (31000000000000633, 31000000000000215, 'OQC-更新',   'put.admin/quality/oqc', 3, '', '', 24, NOW(), NOW()),
@@ -3579,7 +3579,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- API 权限 (type=3) — 不合格品
 -- ============================================================
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000641, 31000000000000215, '不合格品-查看',   'get.admin/quality/nonconformity', 3, '', '', 29, NOW(), NOW()),
 (31000000000000642, 31000000000000215, '不合格品-创建',   'post.admin/quality/nonconformity', 3, '', '', 30, NOW(), NOW()),
 (31000000000000643, 31000000000000215, '不合格品-更新',   'put.admin/quality/nonconformity', 3, '', '', 31, NOW(), NOW()),
@@ -3588,7 +3588,7 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- DMS Document Category Table
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
-CREATE TABLE IF NOT EXISTS `erik_dms_category` (
+CREATE TABLE IF NOT EXISTS `erp_dms_category` (
     `id` BIGINT UNSIGNED NOT NULL,
     `name` VARCHAR(100) NOT NULL DEFAULT '',
     `sort` INT NOT NULL DEFAULT 0,
@@ -3598,7 +3598,7 @@ CREATE TABLE IF NOT EXISTS `erik_dms_category` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `erik_dms_category` (`id`, `name`, `sort`, `status`) VALUES
+INSERT INTO `erp_dms_category` (`id`, `name`, `sort`, `status`) VALUES
 (1, '制度规范', 1, 1),
 (2, '流程文档', 2, 1),
 (3, '技术文档', 3, 1),
@@ -3609,7 +3609,7 @@ INSERT INTO `erik_dms_category` (`id`, `name`, `sort`, `status`) VALUES
 -- Service wiring permission seeds
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000740, 31000000000000005, '期末结转-执行',     'post.admin/finance/report/close-period', 3, '', '', 30, NOW(), NOW()),
 (31000000000000741, 31000000000000005, '多币种合并-执行',   'post.admin/finance/report/consolidate', 3, '', '', 31, NOW(), NOW()),
 (31000000000000742, 31000000000000005, '财务指标-计算',     'post.admin/finance/report/ratios', 3, '', '', 32, NOW(), NOW()),
@@ -3626,8 +3626,8 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 -- ============================================================
 -- 超级管理员角色 (ID=10000000000000001) 关联全部权限（含末尾新增的 QMS/服务接线权限）
 -- ============================================================
-INSERT INTO `erik_admin_role_permission` (`role_id`, `permission_id`)
-SELECT 10000000000000001, `id` FROM `erik_admin_permission`
+INSERT INTO `erp_admin_role_permission` (`role_id`, `permission_id`)
+SELECT 10000000000000001, `id` FROM `erp_admin_permission`
 WHERE `id` NOT IN (
-    SELECT `permission_id` FROM `erik_admin_role_permission` WHERE `role_id` = 10000000000000001
+    SELECT `permission_id` FROM `erp_admin_role_permission` WHERE `role_id` = 10000000000000001
 );

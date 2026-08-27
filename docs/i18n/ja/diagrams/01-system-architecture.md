@@ -20,8 +20,8 @@ flowchart TB
     end
 
     subgraph storage["ストレージ層"]
-        mysql[("MySQL 8.0<br/>メインストレージ - erik_プレフィックス")]
-        es[("Elasticsearch<br/>全文検索 - erik_プレフィックス")]
+        mysql[("MySQL 8.0<br/>メインストレージ - erp_プレフィックス")]
+        es[("Elasticsearch<br/>全文検索 - erp_プレフィックス")]
         redis[("Redis<br/>Session/キャッシュ/Captcha")]
     end
 

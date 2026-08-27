@@ -12,7 +12,7 @@ use support\Model;
 
 class SalesOrderItem extends Model
 {
-    protected $table = 'erik_sales_order_item';
+    protected $table = 'erp_sales_order_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

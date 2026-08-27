@@ -11,7 +11,7 @@ use support\Model;
 
 class EamRepairOrder extends Model
 {
-    protected $table = 'erik_eam_repair_order';
+    protected $table = 'erp_eam_repair_order';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

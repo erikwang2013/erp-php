@@ -14,7 +14,7 @@ class CrmContract extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_crm_contract';
+    protected $table = 'erp_crm_contract';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

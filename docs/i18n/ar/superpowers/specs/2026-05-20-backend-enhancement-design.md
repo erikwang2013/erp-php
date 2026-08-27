@@ -228,7 +228,7 @@ Redis::setex("jwt_blacklist:" . md5($token), max($ttl, 0), '1');
 
 **الملف**: `app/model/OperationLog.php` (معدَّل)
 
-جدول `erik_operation_log` يحوي عمود `created_at` فقط (بدون `updated_at`). يحاول `save()` الافتراضي في Eloquent كتابة `updated_at`، ما يسبب خطأ SQL.
+جدول `erp_operation_log` يحوي عمود `created_at` فقط (بدون `updated_at`). يحاول `save()` الافتراضي في Eloquent كتابة `updated_at`، ما يسبب خطأ SQL.
 
 الإصلاح: `public $timestamps = false;` + تحديد `created_at` يدويًا عند الكتابة.
 

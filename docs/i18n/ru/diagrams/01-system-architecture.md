@@ -20,8 +20,8 @@ flowchart TB
     end
 
     subgraph storage["Слой хранения"]
-        mysql[("MySQL 8.0<br/>Основное хранилище - префикс erik_")]
-        es[("Elasticsearch<br/>Полнотекстовый поиск - префикс erik_")]
+        mysql[("MySQL 8.0<br/>Основное хранилище - префикс erp_")]
+        es[("Elasticsearch<br/>Полнотекстовый поиск - префикс erp_")]
         redis[("Redis<br/>Сессии/кэш/Captcha")]
     end
 

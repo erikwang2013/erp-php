@@ -377,32 +377,32 @@ app/controller/dms/
 
 | 테이블명 | 용도 | 단계 |
 |------|------|------|
-| `erik_finance_period_close` | 기말 이월 기록 | P1 |
-| `erik_finance_account_balance` | 과목 잔액 스냅샷 | P1 |
-| `erik_hr_salary_config` | 급여 계산 설정 | P1 |
-| `erik_hr_social_insurance_config` | 사회보험 기준 설정 | P1 |
-| `erik_hr_housing_fund_config` | 주택공제금 설정 | P1 |
-| `erik_mfg_mrp_run_log` | MRP 연산 로그 | P1 |
-| `erik_mfg_order_suggestion` | 제안 오더 | P1 |
-| `erik_quality_inspection_standard` | 검사 기준 | P1 |
-| `erik_quality_iqc_record` | IQC 입고 검사 | P1 |
-| `erik_quality_ipqc_record` | IPQC 공정 검사 | P1 |
-| `erik_quality_oqc_record` | OQC 출하 검사 | P1 |
-| `erik_quality_nonconformity` | 부적합품 | P1 |
-| `erik_notification_channel_config` | 알림 채널 설정 | P1 |
-| `erik_notification_template` | 알림 템플릿 | P1 |
+| `erp_finance_period_close` | 기말 이월 기록 | P1 |
+| `erp_finance_account_balance` | 과목 잔액 스냅샷 | P1 |
+| `erp_hr_salary_config` | 급여 계산 설정 | P1 |
+| `erp_hr_social_insurance_config` | 사회보험 기준 설정 | P1 |
+| `erp_hr_housing_fund_config` | 주택공제금 설정 | P1 |
+| `erp_mfg_mrp_run_log` | MRP 연산 로그 | P1 |
+| `erp_mfg_order_suggestion` | 제안 오더 | P1 |
+| `erp_quality_inspection_standard` | 검사 기준 | P1 |
+| `erp_quality_iqc_record` | IQC 입고 검사 | P1 |
+| `erp_quality_ipqc_record` | IPQC 공정 검사 | P1 |
+| `erp_quality_oqc_record` | OQC 출하 검사 | P1 |
+| `erp_quality_nonconformity` | 부적합품 | P1 |
+| `erp_notification_channel_config` | 알림 채널 설정 | P1 |
+| `erp_notification_template` | 알림 템플릿 | P1 |
 
 ### P3 신규 테이블
 
 | 테이블명 | 용도 | 단계 |
 |------|------|------|
-| `erik_bi_dashboard` | BI 대시보드 | P3 |
-| `erik_bi_widget` | BI 소형 위젯 | P3 |
-| `erik_eam_equipment` | 설비 대장 | P3 |
-| `erik_eam_maintenance_plan` | 보전 계획 | P3 |
-| `erik_eam_repair_order` | 수리 티켓 | P3 |
-| `erik_dms_document` | 관리 문서 | P3 |
-| `erik_dms_document_version` | 문서 버전 | P3 |
+| `erp_bi_dashboard` | BI 대시보드 | P3 |
+| `erp_bi_widget` | BI 소형 위젯 | P3 |
+| `erp_eam_equipment` | 설비 대장 | P3 |
+| `erp_eam_maintenance_plan` | 보전 계획 | P3 |
+| `erp_eam_repair_order` | 수리 티켓 | P3 |
+| `erp_dms_document` | 관리 문서 | P3 |
+| `erp_dms_document_version` | 문서 버전 | P3 |
 
 ---
 

@@ -12,7 +12,7 @@ use support\Model;
 
 class Notification extends Model
 {
-    protected $table = 'erik_notification';
+    protected $table = 'erp_notification';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

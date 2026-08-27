@@ -17,8 +17,8 @@ use Workerman\Worker;
 
 /**
  * Illuminate Database Capsule 引导（webman 标准模板缺失，本仓库补回）。
- * 模型表名已硬编码 erik_ 前缀，addConnection 前必须移除配置中的 prefix，
- * 否则 Eloquent 会拼出 erik_erik_* 双前缀表名。
+ * 模型表名已硬编码 erp_ 前缀，addConnection 前必须移除配置中的 prefix，
+ * 否则 Eloquent 会拼出 erp_erp_* 双前缀表名。
  */
 class LaravelDb implements Bootstrap
 {

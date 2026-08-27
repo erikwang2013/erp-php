@@ -87,7 +87,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     });
   }
 
-  // 后端 erik_purchase_order 字段: code/apply_id/supplier_id/warehouse_id/
+  // 后端 erp_purchase_order 字段: code/apply_id/supplier_id/warehouse_id/
   // total_amount/status/remark/ordered_at（store() 同时校验 name 必填）
   static const List<String> _statusLabels = ['待审核', '已审核', '部分收货', '已收货', '已取消'];
 

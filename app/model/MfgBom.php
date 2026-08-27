@@ -15,7 +15,7 @@ class MfgBom extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_mfg_bom';
+    protected $table = 'erp_mfg_bom';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

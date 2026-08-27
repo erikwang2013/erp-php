@@ -11,7 +11,7 @@ use support\Model;
 
 class QualityNonconformity extends Model
 {
-    protected $table = 'erik_quality_nonconformity';
+    protected $table = 'erp_quality_nonconformity';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -15,7 +15,7 @@ class ReportTemplate extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_report_template';
+    protected $table = 'erp_report_template';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

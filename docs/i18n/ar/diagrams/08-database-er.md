@@ -2,7 +2,7 @@
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "توليد Snowflake"
         VARCHAR username UK "اسم المستخدم"
         VARCHAR password "تجزئة bcrypt"
@@ -19,7 +19,7 @@ erDiagram
         DATETIME deleted_at "حذف ناعم"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "توليد Snowflake"
         VARCHAR name "اسم الدور"
         VARCHAR slug UK "معرف الدور"
@@ -29,7 +29,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "توليد Snowflake"
         BIGINT parent_id FK "معرف الصلاحية الأب"
         VARCHAR name "اسم الصلاحية"
@@ -42,17 +42,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK "معرف المستخدم"
         BIGINT role_id PK_FK "معرف الدور"
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK "معرف الدور"
         BIGINT permission_id PK_FK "معرف الصلاحية"
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "توليد Snowflake"
         BIGINT user_id FK "المستخدم المُنفذ"
         VARCHAR action "إجراء العملية"
@@ -63,7 +63,7 @@ erDiagram
         DATETIME created_at "وقت العملية"
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "توليد Snowflake"
         VARCHAR group_name "مجموعة التكوين"
         VARCHAR key_name "مفتاح التكوين"
@@ -74,10 +74,10 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : user_id
-    erik_admin_role ||--o{ erik_admin_user_role : role_id
-    erik_admin_role ||--o{ erik_admin_role_permission : role_id
-    erik_admin_permission ||--o{ erik_admin_role_permission : permission_id
-    erik_admin_user ||--o{ erik_operation_log : user_id
-    erik_admin_permission ||--o{ erik_admin_permission : parent_id
+    erp_admin_user ||--o{ erp_admin_user_role : user_id
+    erp_admin_role ||--o{ erp_admin_user_role : role_id
+    erp_admin_role ||--o{ erp_admin_role_permission : role_id
+    erp_admin_permission ||--o{ erp_admin_role_permission : permission_id
+    erp_admin_user ||--o{ erp_operation_log : user_id
+    erp_admin_permission ||--o{ erp_admin_permission : parent_id
 ```

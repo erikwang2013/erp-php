@@ -12,7 +12,7 @@ use support\Model;
 
 class Location extends Model
 {
-    protected $table = 'erik_location';
+    protected $table = 'erp_location';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

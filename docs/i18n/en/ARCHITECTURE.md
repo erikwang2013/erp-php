@@ -30,8 +30,8 @@ flowchart TB
     end
 
     subgraph "Storage Layer"
-        D1[("MySQL 8.0<br/>Primary storage<br/>Table prefix erik_")]
-        D2[("Elasticsearch<br/>Full-text search<br/>Index prefix erik_")]
+        D1[("MySQL 8.0<br/>Primary storage<br/>Table prefix erp_")]
+        D2[("Elasticsearch<br/>Full-text search<br/>Index prefix erp_")]
         D3[("Redis<br/>Session / Cache<br/>Captcha storage")]
     end
 
@@ -380,7 +380,7 @@ flowchart LR
     end
 
     subgraph "2. Storage"
-        S1["MySQL erik_* tables<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
+        S1["MySQL erp_* tables<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
         S2["Sensitive fields<br/>encryptable cast<br/>AES-128-ECB encryption"]
         G3 --> S1
         S1 --> S2
@@ -446,7 +446,7 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake"
         VARCHAR username UK
         VARCHAR password "bcrypt"
@@ -463,7 +463,7 @@ erDiagram
         DATETIME deleted_at "soft delete"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake"
         VARCHAR name
         VARCHAR slug UK
@@ -473,7 +473,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake"
         BIGINT parent_id FK "self-reference"
         VARCHAR name
@@ -486,17 +486,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK
         BIGINT role_id PK_FK
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK
         BIGINT permission_id PK_FK
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake"
         BIGINT user_id FK
         VARCHAR action
@@ -508,7 +508,7 @@ erDiagram
         DATETIME created_at
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake"
         VARCHAR group
         VARCHAR key
@@ -519,12 +519,12 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : "user_id"
-    erik_admin_role ||--o{ erik_admin_user_role : "role_id"
-    erik_admin_role ||--o{ erik_admin_role_permission : "role_id"
-    erik_admin_permission ||--o{ erik_admin_role_permission : "permission_id"
-    erik_admin_user ||--o{ erik_operation_log : "user_id"
-    erik_admin_permission ||--o{ erik_admin_permission : "parent_id"
+    erp_admin_user ||--o{ erp_admin_user_role : "user_id"
+    erp_admin_role ||--o{ erp_admin_user_role : "role_id"
+    erp_admin_role ||--o{ erp_admin_role_permission : "role_id"
+    erp_admin_permission ||--o{ erp_admin_role_permission : "permission_id"
+    erp_admin_user ||--o{ erp_operation_log : "user_id"
+    erp_admin_permission ||--o{ erp_admin_permission : "parent_id"
 ```
 
 ---
@@ -675,8 +675,8 @@ flowchart TB
     end
 
     subgraph "Data Layer"
-        MYSQL["MySQL 8.0<br/>master-slave replication<br/>erik_ prefix"]
-        ES["Elasticsearch 8.x<br/>3-node cluster<br/>erik_ prefix"]
+        MYSQL["MySQL 8.0<br/>master-slave replication<br/>erp_ prefix"]
+        ES["Elasticsearch 8.x<br/>3-node cluster<br/>erp_ prefix"]
         REDIS["Redis 7.x<br/>sentinel mode<br/>poster:captcha:*"]
     end
 
@@ -919,22 +919,22 @@ and will be extracted under the same pattern in later iterations.
 ## OMS/WMS/TMS Extension Modules (2026-08)
 
 ### OMS (Order Management System) — 8 tables
-- **Order extension** (`erik_oms_order`): multi-channel aggregation/fulfillment status/payment status/priority
-- **Order address** (`erik_oms_order_address`): shipping/billing addresses (multi-country formats)
-- **Fulfillment records** (`erik_oms_fulfillment`+`_item`): allocated/picked/packed/shipped quantity tracking
-- **RMA** (`erik_oms_rma`+`_item`): return/exchange full lifecycle
-- **Inventory reservation** (`erik_oms_inventory_reservation`): ATP = physical - reserved
-- **Channels** (`erik_channel`): direct/marketplace/edi/pos
+- **Order extension** (`erp_oms_order`): multi-channel aggregation/fulfillment status/payment status/priority
+- **Order address** (`erp_oms_order_address`): shipping/billing addresses (multi-country formats)
+- **Fulfillment records** (`erp_oms_fulfillment`+`_item`): allocated/picked/packed/shipped quantity tracking
+- **RMA** (`erp_oms_rma`+`_item`): return/exchange full lifecycle
+- **Inventory reservation** (`erp_oms_inventory_reservation`): ATP = physical - reserved
+- **Channels** (`erp_channel`): direct/marketplace/edi/pos
 
 ### WMS (Warehouse Management System) — 12 tables
-- **Zones & locations** (`erik_wms_zone`, `erik_wms_location`): zone→aisle→rack→level→bin
-- **Inbound** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
-- **Outbound** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+- **Zones & locations** (`erp_wms_zone`, `erp_wms_location`): zone→aisle→rack→level→bin
+- **Inbound** (`erp_wms_asn`+`_item`, `erp_wms_receiving`, `erp_wms_putaway_task`+`_item`)
+- **Outbound** (`erp_wms_wave`+`wave_order`, `erp_wms_pick_task`+`_item`, `erp_wms_pack_task`)
 
 ### TMS (Transport Management System) — 7 tables
-- **Carriers** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
-- **Shipments** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
-- **Invoices** (`erik_tms_freight_invoice`)
+- **Carriers** (`erp_tms_carrier`+`carrier_service`, `erp_tms_freight_rate`)
+- **Shipments** (`erp_tms_shipment`+`_package`, `erp_tms_tracking_event`)
+- **Invoices** (`erp_tms_freight_invoice`)
 
 ### Data Flow
 ```
@@ -1048,7 +1048,7 @@ Decision basis (2026-08 review):
 1. Register the middleware: append `app\middleware\TenantScope::class` to the `middleware()` of the /admin group in `config/route.php` (place it after AdminAuth to ensure authentication).
 2. Requesters carry `X-Tenant-Id` (int tenant ID) in the request header.
 3. Add a `tenant_id` column (BIGINT + index) to business tables requiring isolation and backfill existing data;
-   dictionary/system tables (e.g. `erik_admin_user`, `erik_role`, `erik_permission`) are not isolated.
+   dictionary/system tables (e.g. `erp_admin_user`, `erp_role`, `erp_permission`) are not isolated.
 4. Add `use app\model\concerns\TenantScope;` in models requiring isolation for automatic filtering by the current tenant.
 5. (Optional) To take the tenant from JWT instead of the header: extend the login issuance payload with a `tenant_id` claim and read from `$payload['tenant_id']` in the middleware.
 

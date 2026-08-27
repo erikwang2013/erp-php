@@ -12,7 +12,7 @@ use support\Model;
 
 class OperationLog extends Model
 {
-    protected $table = 'erik_operation_log';
+    protected $table = 'erp_operation_log';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

@@ -18,8 +18,8 @@ flowchart TB
     end
 
     subgraph data["Datenschicht"]
-        mysql[("MySQL 8.0<br/>Master-Slave-Replikation<br/>erik_-Präfix")]
-        es[("Elasticsearch 8.x<br/>3-Knoten-Cluster<br/>erik_-Präfix")]
+        mysql[("MySQL 8.0<br/>Master-Slave-Replikation<br/>erp_-Präfix")]
+        es[("Elasticsearch 8.x<br/>3-Knoten-Cluster<br/>erp_-Präfix")]
         redis[("Redis 7.x<br/>Sentinel-Modus<br/>poster:captcha:*")]
     end
 

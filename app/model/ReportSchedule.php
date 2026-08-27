@@ -12,7 +12,7 @@ use support\Model;
 
 class ReportSchedule extends Model
 {
-    protected $table = 'erik_report_schedule';
+    protected $table = 'erp_report_schedule';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -12,7 +12,7 @@ use support\Model;
 
 class MfgBomItem extends Model
 {
-    protected $table = 'erik_mfg_bom_item';
+    protected $table = 'erp_mfg_bom_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

@@ -12,7 +12,7 @@ use support\Model;
 
 class ProjectTimesheet extends Model
 {
-    protected $table = 'erik_project_timesheet';
+    protected $table = 'erp_project_timesheet';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

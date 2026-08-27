@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceTaxRate extends Model
 {
-    protected $table = 'erik_finance_tax_rate';
+    protected $table = 'erp_finance_tax_rate';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

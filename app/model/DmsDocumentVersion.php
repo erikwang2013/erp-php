@@ -11,7 +11,7 @@ use support\Model;
 
 class DmsDocumentVersion extends Model
 {
-    protected $table = 'erik_dms_document_version';
+    protected $table = 'erp_dms_document_version';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

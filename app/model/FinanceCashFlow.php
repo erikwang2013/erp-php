@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceCashFlow extends Model
 {
-    protected $table = 'erik_finance_cash_flow';
+    protected $table = 'erp_finance_cash_flow';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

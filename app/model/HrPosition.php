@@ -12,7 +12,7 @@ use support\Model;
 
 class HrPosition extends Model
 {
-    protected $table = 'erik_hr_position';
+    protected $table = 'erp_hr_position';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

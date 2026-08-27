@@ -12,7 +12,7 @@ use support\Model;
 
 class TmsCarrier extends Model
 {
-    protected $table = 'erik_tms_carrier';
+    protected $table = 'erp_tms_carrier';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

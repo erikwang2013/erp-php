@@ -228,7 +228,7 @@ Devuelve el estado de conexión de cada componente:
 
 **Archivo**: `app/model/OperationLog.php` (modificado)
 
-La tabla `erik_operation_log` solo tiene la columna `created_at` (sin `updated_at`). El `save()` por defecto de Eloquent intenta escribir `updated_at`, causando un error SQL.
+La tabla `erp_operation_log` solo tiene la columna `created_at` (sin `updated_at`). El `save()` por defecto de Eloquent intenta escribir `updated_at`, causando un error SQL.
 
 Corrección: `public $timestamps = false;` + especificar `created_at` manualmente al escribir.
 

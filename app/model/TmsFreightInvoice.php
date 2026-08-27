@@ -12,7 +12,7 @@ use support\Model;
 
 class TmsFreightInvoice extends Model
 {
-    protected $table = 'erik_tms_freight_invoice';
+    protected $table = 'erp_tms_freight_invoice';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

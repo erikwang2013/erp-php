@@ -22,7 +22,7 @@ Todo el código se despliega monólitamente en `service/app/`, con los módulos 
 - Claves primarias BIGINT generadas por snowflake-php
 - IDs en la capa API cifrados/descifrados con hashids
 - Autenticación JWT, cifrado de datos sensibles: todo con los paquetes de la serie erikwang2013/*
-- Prefijo de tablas `erik_`, eliminación suave, funciones globales sin `\`
+- Prefijo de tablas `erp_`, eliminación suave, funciones globales sin `\`
 
 ---
 
@@ -144,91 +144,91 @@ service/app/
 
 ## 4. Diseño de tablas de base de datos
 
-Todas las tablas con prefijo `erik_`, `id` BIGINT no autoincremental, con `created_at`/`updated_at`/`deleted_at`.
+Todas las tablas con prefijo `erp_`, `id` BIGINT no autoincremental, con `created_at`/`updated_at`/`deleted_at`.
 
 ### 4.1 Datos básicos de productos
 
 ```
-erik_product              Tabla principal de productos
-erik_product_sku         SKU/especificaciones de producto
-erik_product_unit        Conversión multi-unidad
-erik_product_price       Estrategia de precios
-erik_category            Categoría de producto (árbol parent_id)
-erik_brand               Marca
-erik_warehouse           Almacén
-erik_location            Ubicación
-erik_supplier            Proveedor
-erik_customer            Cliente
-erik_customer_level      Nivel de cliente
+erp_product              Tabla principal de productos
+erp_product_sku         SKU/especificaciones de producto
+erp_product_unit        Conversión multi-unidad
+erp_product_price       Estrategia de precios
+erp_category            Categoría de producto (árbol parent_id)
+erp_brand               Marca
+erp_warehouse           Almacén
+erp_location            Ubicación
+erp_supplier            Proveedor
+erp_customer            Cliente
+erp_customer_level      Nivel de cliente
 ```
 
 ### 4.2 Módulo de compras
 
 ```
-erik_purchase_apply       Solicitud de compra
-erik_purchase_apply_item  Detalle de solicitud
-erik_purchase_order       Pedido de compra
-erik_purchase_order_item  Detalle de pedido
-erik_purchase_receive     Tabla principal de recepción de compras
-erik_purchase_receive_item Detalle de recepción
-erik_purchase_return      Tabla principal de devolución de compras
-erik_purchase_return_item Detalle de devolución
-erik_purchase_settlement  Registro de liquidación con proveedores
+erp_purchase_apply       Solicitud de compra
+erp_purchase_apply_item  Detalle de solicitud
+erp_purchase_order       Pedido de compra
+erp_purchase_order_item  Detalle de pedido
+erp_purchase_receive     Tabla principal de recepción de compras
+erp_purchase_receive_item Detalle de recepción
+erp_purchase_return      Tabla principal de devolución de compras
+erp_purchase_return_item Detalle de devolución
+erp_purchase_settlement  Registro de liquidación con proveedores
 ```
 
 ### 4.3 Módulo de ventas
 
 ```
-erik_sales_quotation      Tabla principal de cotización
-erik_sales_quotation_item Detalle de cotización
-erik_sales_order          Tabla principal de pedido de venta
-erik_sales_order_item     Detalle de pedido
-erik_sales_delivery       Tabla principal de envío de ventas
-erik_sales_delivery_item  Detalle de envío
-erik_sales_return         Tabla principal de devolución de ventas
-erik_sales_return_item    Detalle de devolución
-erik_sales_settlement     Registro de liquidación con clientes
+erp_sales_quotation      Tabla principal de cotización
+erp_sales_quotation_item Detalle de cotización
+erp_sales_order          Tabla principal de pedido de venta
+erp_sales_order_item     Detalle de pedido
+erp_sales_delivery       Tabla principal de envío de ventas
+erp_sales_delivery_item  Detalle de envío
+erp_sales_return         Tabla principal de devolución de ventas
+erp_sales_return_item    Detalle de devolución
+erp_sales_settlement     Registro de liquidación con clientes
 ```
 
 ### 4.4 Módulo de inventario
 
 ```
-erik_inventory            Inventario en tiempo real
-erik_inventory_batch      Información de lotes
-erik_inventory_serial     Registro de números de serie
-erik_inventory_flow       Flujo de entradas/salidas
-erik_transfer             Tabla principal de transferencias
-erik_transfer_item        Detalle de transferencia
-erik_check_task           Tarea de conteo
-erik_check_detail         Detalle de conteo
-erik_inventory_alert_rule Regla de alerta de inventario
-erik_inventory_alert_log  Log de alertas de inventario
-erik_cost_record          Registro de cálculo de costos
+erp_inventory            Inventario en tiempo real
+erp_inventory_batch      Información de lotes
+erp_inventory_serial     Registro de números de serie
+erp_inventory_flow       Flujo de entradas/salidas
+erp_transfer             Tabla principal de transferencias
+erp_transfer_item        Detalle de transferencia
+erp_check_task           Tarea de conteo
+erp_check_detail         Detalle de conteo
+erp_inventory_alert_rule Regla de alerta de inventario
+erp_inventory_alert_log  Log de alertas de inventario
+erp_cost_record          Registro de cálculo de costos
 ```
 
 ### 4.5 Módulo de finanzas
 
 ```
-erik_finance_account      Cuenta contable
-erik_finance_voucher      Voucher de contabilidad
-erik_finance_voucher_item Partida del voucher
-erik_finance_ar_ap        Detalle de cuentas por cobrar/pagar
-erik_finance_receipt      Recibo de cobro
-erik_finance_payment      Recibo de pago
-erik_finance_cash_journal Libro diario de caja y banco
-erik_finance_expense      Documento de reembolso de gastos
-erik_finance_expense_item Detalle de reembolso
-erik_finance_profit       Instantánea de la cuenta de resultados
-erik_finance_bank_account Cuenta bancaria
+erp_finance_account      Cuenta contable
+erp_finance_voucher      Voucher de contabilidad
+erp_finance_voucher_item Partida del voucher
+erp_finance_ar_ap        Detalle de cuentas por cobrar/pagar
+erp_finance_receipt      Recibo de cobro
+erp_finance_payment      Recibo de pago
+erp_finance_cash_journal Libro diario de caja y banco
+erp_finance_expense      Documento de reembolso de gastos
+erp_finance_expense_item Detalle de reembolso
+erp_finance_profit       Instantánea de la cuenta de resultados
+erp_finance_bank_account Cuenta bancaria
 ```
 
 ### 4.6 Módulo CRM
 
 ```
-erik_crm_funnel_stage     Configuración de etapas del embudo de ventas
-erik_crm_opportunity      Oportunidad
-erik_crm_follow_record    Registro de seguimiento
-erik_crm_contact          Contacto
+erp_crm_funnel_stage     Configuración de etapas del embudo de ventas
+erp_crm_opportunity      Oportunidad
+erp_crm_follow_record    Registro de seguimiento
+erp_crm_contact          Contacto
 ```
 
 ---

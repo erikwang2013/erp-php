@@ -10,7 +10,7 @@ flowchart LR
     end
 
     subgraph store["2. স্টোরেজ"]
-        s1["MySQL erik_* টেবিল<br/>id BIGINT UNSIGNED NOT NULL"]
+        s1["MySQL erp_* টেবিল<br/>id BIGINT UNSIGNED NOT NULL"]
         s2["সংবেদনশীল ফিল্ড encryptable cast<br/>AES-128-ECB এনক্রিপ্টেড স্টোরেজ"]
         g3 --> s1 --> s2
     end

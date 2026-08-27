@@ -66,7 +66,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 ### الخلفية
 - PHP 8.3+، webman v2 (workerman/webman)
-- قاعدة البيانات: MySQL 8.0+، بادئة الجداول `erik_`
+- قاعدة البيانات: MySQL 8.0+، بادئة الجداول `erp_`
 - المفتاح الأساسي: BIGINT غير تلقائي التزايد، يولَّد عبر `erikwang2013/snowflake-php`
 - تشفير/فك تشفير معرفات طبقة API: `erikwang2013/hashids`
 - مصادقة JWT: `erikwang2013/jwt-webman`
@@ -244,7 +244,7 @@ curl -H "API-Version: v1" http://localhost:8787/api/auth/login
 - يجب أن يحتوي رأس كل ملف `.php` جديد على إعلان حقوق النشر
 
 ### قاعدة البيانات
-- بادئة الجداول: `erik_`
+- بادئة الجداول: `erp_`
 - المفتاح الأساسي `id`: نوع BIGINT، غير تلقائي التزايد، يولَّد عبر snowflake
 - الحقول الحساسة تشفَّر/فك تشفيرها تلقائيًا عبر trait `erikwang2013/encryptable`
 - schema مصدره الوحيد database/install.sql (SQL في ملف واحد)

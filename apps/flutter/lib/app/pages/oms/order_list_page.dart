@@ -69,7 +69,7 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     });
   }
 
-  // 后端 erik_oms_order 字段: order_id/channel/channel_order_no/channel_store/
+  // 后端 erp_oms_order 字段: order_id/channel/channel_order_no/channel_store/
   // fulfillment_status/payment_status/shipping_method/shipping_fee/
   // buyer_message/seller_note/priority/hold_until（store() 同时校验 code 必填）
   static const List<String> _channelOptions = ['manual', 'web', 'mobile', 'api', 'marketplace', 'edi', 'pos'];

@@ -12,7 +12,7 @@ use support\Model;
 
 class CrmFollowRecord extends Model
 {
-    protected $table = 'erik_crm_follow_record';
+    protected $table = 'erp_crm_follow_record';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

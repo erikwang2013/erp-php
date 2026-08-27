@@ -15,7 +15,7 @@
 
 ### 1.2 技术约束
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
-- 表前缀 erik_, 主键 BIGINT 非自增
+- 表前缀 erp_, 主键 BIGINT 非自增
 - API 版本通过请求头 API-Version 控制
 - JWT 认证 + RBAC 权限
 - 全局函数不加 \ 前缀

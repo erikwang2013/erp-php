@@ -22,7 +22,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - Первичный ключ BIGINT генерируется snowflake-php
 - ID на уровне API шифруются/дешифруются через hashids
 - JWT-аутентификация, шифрование чувствительных данных — всё через пакеты серии erikwang2013/*
-- Префикс таблиц `erik_`, мягкое удаление, глобальные функции без `\`
+- Префикс таблиц `erp_`, мягкое удаление, глобальные функции без `\`
 
 ---
 
@@ -144,91 +144,91 @@ service/app/
 
 ## 4. Проектирование таблиц БД
 
-Все таблицы с префиксом `erik_`, `id` BIGINT без автоинкремента, содержат `created_at`/`updated_at`/`deleted_at`.
+Все таблицы с префиксом `erp_`, `id` BIGINT без автоинкремента, содержат `created_at`/`updated_at`/`deleted_at`.
 
 ### 4.1 Базовые данные товаров
 
 ```
-erik_product              главная таблица товаров
-erik_product_sku          SKU/спецификации товара
-erik_product_unit         перевод единиц
-erik_product_price        ценовые стратегии
-erik_category             категории товаров (дерево parent_id)
-erik_brand                бренды
-erik_warehouse            склады
-erik_location             ячейки
-erik_supplier             поставщики
-erik_customer             клиенты
-erik_customer_level       уровни клиентов
+erp_product              главная таблица товаров
+erp_product_sku          SKU/спецификации товара
+erp_product_unit         перевод единиц
+erp_product_price        ценовые стратегии
+erp_category             категории товаров (дерево parent_id)
+erp_brand                бренды
+erp_warehouse            склады
+erp_location             ячейки
+erp_supplier             поставщики
+erp_customer             клиенты
+erp_customer_level       уровни клиентов
 ```
 
 ### 4.2 Модуль закупок
 
 ```
-erik_purchase_apply       заявка на закупку
-erik_purchase_apply_item  строки заявки
-erik_purchase_order       заказ на закупку
-erik_purchase_order_item  строки заказа
-erik_purchase_receive     главная таблица приёмки закупки
-erik_purchase_receive_item строки приёмки
-erik_purchase_return      главная таблица возврата закупки
-erik_purchase_return_item строки возврата
-erik_purchase_settlement  записи расчётов с поставщиком
+erp_purchase_apply       заявка на закупку
+erp_purchase_apply_item  строки заявки
+erp_purchase_order       заказ на закупку
+erp_purchase_order_item  строки заказа
+erp_purchase_receive     главная таблица приёмки закупки
+erp_purchase_receive_item строки приёмки
+erp_purchase_return      главная таблица возврата закупки
+erp_purchase_return_item строки возврата
+erp_purchase_settlement  записи расчётов с поставщиком
 ```
 
 ### 4.3 Модуль продаж
 
 ```
-erik_sales_quotation      главная таблица предложений
-erik_sales_quotation_item строки предложения
-erik_sales_order          главная таблица заказов на продажу
-erik_sales_order_item     строки заказа
-erik_sales_delivery       главная таблица отгрузки продажи
-erik_sales_delivery_item  строки отгрузки
-erik_sales_return         главная таблица возврата продажи
-erik_sales_return_item    строки возврата
-erik_sales_settlement     записи расчётов с клиентом
+erp_sales_quotation      главная таблица предложений
+erp_sales_quotation_item строки предложения
+erp_sales_order          главная таблица заказов на продажу
+erp_sales_order_item     строки заказа
+erp_sales_delivery       главная таблица отгрузки продажи
+erp_sales_delivery_item  строки отгрузки
+erp_sales_return         главная таблица возврата продажи
+erp_sales_return_item    строки возврата
+erp_sales_settlement     записи расчётов с клиентом
 ```
 
 ### 4.4 Модуль склада
 
 ```
-erik_inventory            реальные остатки
-erik_inventory_batch      информация о партиях
-erik_inventory_serial     записи серийных номеров
-erik_inventory_flow       операции прихода/расхода
-erik_transfer             главная таблица перемещений
-erik_transfer_item        строки перемещения
-erik_check_task           задачи инвентаризации
-erik_check_detail         строки инвентаризации
-erik_inventory_alert_rule правила предупреждений об остатках
-erik_inventory_alert_log  журнал предупреждений об остатках
-erik_cost_record          записи калькуляции себестоимости
+erp_inventory            реальные остатки
+erp_inventory_batch      информация о партиях
+erp_inventory_serial     записи серийных номеров
+erp_inventory_flow       операции прихода/расхода
+erp_transfer             главная таблица перемещений
+erp_transfer_item        строки перемещения
+erp_check_task           задачи инвентаризации
+erp_check_detail         строки инвентаризации
+erp_inventory_alert_rule правила предупреждений об остатках
+erp_inventory_alert_log  журнал предупреждений об остатках
+erp_cost_record          записи калькуляции себестоимости
 ```
 
 ### 4.5 Модуль финансов
 
 ```
-erik_finance_account      счета учёта
-erik_finance_voucher      бухгалтерские документы
-erik_finance_voucher_item проводки документа
-erik_finance_ar_ap        строки дебиторки-кредиторки
-erik_finance_receipt      приходные ордера
-erik_finance_payment      расходные ордера
-erik_finance_cash_journal журнал наличных и банка
-erik_finance_expense      заявки на возмещение расходов
-erik_finance_expense_item строки возмещения
-erik_finance_profit       снимок отчёта о прибылях и убытках
-erik_finance_bank_account банковские счета
+erp_finance_account      счета учёта
+erp_finance_voucher      бухгалтерские документы
+erp_finance_voucher_item проводки документа
+erp_finance_ar_ap        строки дебиторки-кредиторки
+erp_finance_receipt      приходные ордера
+erp_finance_payment      расходные ордера
+erp_finance_cash_journal журнал наличных и банка
+erp_finance_expense      заявки на возмещение расходов
+erp_finance_expense_item строки возмещения
+erp_finance_profit       снимок отчёта о прибылях и убытках
+erp_finance_bank_account банковские счета
 ```
 
 ### 4.6 Модуль CRM
 
 ```
-erik_crm_funnel_stage     настройка этапов воронки продаж
-erik_crm_opportunity      сделки
-erik_crm_follow_record    записи сопровождения
-erik_crm_contact          контакты
+erp_crm_funnel_stage     настройка этапов воронки продаж
+erp_crm_opportunity      сделки
+erp_crm_follow_record    записи сопровождения
+erp_crm_contact          контакты
 ```
 
 ---

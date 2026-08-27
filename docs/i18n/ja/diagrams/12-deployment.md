@@ -18,8 +18,8 @@ flowchart TB
     end
 
     subgraph data["データ層"]
-        mysql[("MySQL 8.0<br/>マスター/スレーブレプリケーション<br/>erik_プレフィックス")]
-        es[("Elasticsearch 8.x<br/>3ノードクラスター<br/>erik_プレフィックス")]
+        mysql[("MySQL 8.0<br/>マスター/スレーブレプリケーション<br/>erp_プレフィックス")]
+        es[("Elasticsearch 8.x<br/>3ノードクラスター<br/>erp_プレフィックス")]
         redis[("Redis 7.x<br/>センチネルモード<br/>poster:captcha:*")]
     end
 

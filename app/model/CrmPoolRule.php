@@ -11,7 +11,7 @@ use support\Model;
 
 class CrmPoolRule extends Model
 {
-    protected $table = 'erik_crm_customer_pool_rule';
+    protected $table = 'erp_crm_customer_pool_rule';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

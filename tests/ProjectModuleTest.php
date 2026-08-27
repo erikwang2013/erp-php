@@ -180,7 +180,7 @@ class ProjectModuleTest extends TestCase
         $models = ['Project', 'ProjectTask', 'ProjectTimesheet'];
         foreach ($models as $name) {
             $source = file_get_contents(__DIR__ . "/../app/model/{$name}.php");
-            $this->assertStringContainsString('erik_project', $source, "{$name} 表必须使用 erik_project 前缀");
+            $this->assertStringContainsString('erp_project', $source, "{$name} 表必须使用 erp_project 前缀");
             $this->assertStringContainsString('public $incrementing = false', $source, "{$name} 必须使用非自增主键");
             $this->assertStringContainsString("protected \$keyType = 'int'", $source, "{$name} 主键类型必须为 int");
         }

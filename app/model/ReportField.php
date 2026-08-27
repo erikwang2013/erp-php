@@ -12,7 +12,7 @@ use support\Model;
 
 class ReportField extends Model
 {
-    protected $table = 'erik_report_field';
+    protected $table = 'erp_report_field';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

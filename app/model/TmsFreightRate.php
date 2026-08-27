@@ -12,7 +12,7 @@ use support\Model;
 
 class TmsFreightRate extends Model
 {
-    protected $table = 'erik_tms_freight_rate';
+    protected $table = 'erp_tms_freight_rate';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

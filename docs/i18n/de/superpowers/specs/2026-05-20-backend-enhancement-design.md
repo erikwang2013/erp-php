@@ -228,7 +228,7 @@ Gibt den Verbindungsstatus der einzelnen Komponenten zurück:
 
 **Datei**: `app/model/OperationLog.php` (geändert)
 
-Die Tabelle `erik_operation_log` hat nur die Spalte `created_at` (kein `updated_at`). Eloquent versucht beim Standard-`save()` `updated_at` zu schreiben, was zu einem SQL-Fehler führt.
+Die Tabelle `erp_operation_log` hat nur die Spalte `created_at` (kein `updated_at`). Eloquent versucht beim Standard-`save()` `updated_at` zu schreiben, was zu einem SQL-Fehler führt.
 
 Fix: `public $timestamps = false;` + beim Schreiben `created_at` manuell angeben.
 

@@ -12,7 +12,7 @@ use support\Model;
 
 class Transfer extends Model
 {
-    protected $table = 'erik_transfer';
+    protected $table = 'erp_transfer';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

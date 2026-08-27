@@ -128,34 +128,34 @@ Controller::method()
 ### 3.1 ER সম্পর্ক
 
 ```
-erik_admin_user ──┬── erik_admin_user_role ──┬── erik_admin_role
+erp_admin_user ──┬── erp_admin_user_role ──┬── erp_admin_role
   (用户)           │    (用户-角色关联)         │     (角色)
                   │                          │
-                  │                    erik_admin_role_permission
+                  │                    erp_admin_role_permission
                   │                     (角色-权限关联)
                   │                          │
                   │                          ▼
-                  │                    erik_admin_permission
+                  │                    erp_admin_permission
                   │                      (权限/菜单)
                   │
                   ▼
-           erik_operation_log
+           erp_operation_log
              (操作日志)
 
-erik_system_config (系统配置) — 独立表
+erp_system_config (系统配置) — 独立表
 ```
 
 ### 3.2 কোর টেবিল স্ট্রাকচার
 
 | টেবিলের নাম | ফিল্ড সংখ্যা | ব্যাখ্যা |
 |------|-------|------|
-| `erik_admin_user` | 14 | অ্যাডমিন ইউজার, phone/email/id_card এনক্রিপ্টেড স্টোরেজ, সফট ডিলিট সাপোর্ট |
-| `erik_admin_role` | 7 | রোল, slug ইউনিক |
-| `erik_admin_permission` | 10 | পারমিশন ট্রি (parent_id সেলফ-রেফারেন্স), type: 1=মেনু 2=বাটন 3=API |
-| `erik_admin_user_role` | 2 | ইউজার-রোল ম্যানি-টু-ম্যানি মিডল টেবিল |
-| `erik_admin_role_permission` | 2 | রোল-পারমিশন ম্যানি-টু-ম্যানি মিডল টেবিল |
-| `erik_system_config` | 8 | কী-ভ্যালু কনফিগ, group+key কম্বিনেশন ইউনিক |
-| `erik_operation_log` | 9 | অপারেশন অডিট লগ (source সোর্স এন্ড সহ) |
+| `erp_admin_user` | 14 | অ্যাডমিন ইউজার, phone/email/id_card এনক্রিপ্টেড স্টোরেজ, সফট ডিলিট সাপোর্ট |
+| `erp_admin_role` | 7 | রোল, slug ইউনিক |
+| `erp_admin_permission` | 10 | পারমিশন ট্রি (parent_id সেলফ-রেফারেন্স), type: 1=মেনু 2=বাটন 3=API |
+| `erp_admin_user_role` | 2 | ইউজার-রোল ম্যানি-টু-ম্যানি মিডল টেবিল |
+| `erp_admin_role_permission` | 2 | রোল-পারমিশন ম্যানি-টু-ম্যানি মিডল টেবিল |
+| `erp_system_config` | 8 | কী-ভ্যালু কনফিগ, group+key কম্বিনেশন ইউনিক |
+| `erp_operation_log` | 9 | অপারেশন অডিট লগ (source সোর্স এন্ড সহ) |
 
 ### 3.3 প্রাইমারি কী কনভেনশন
 

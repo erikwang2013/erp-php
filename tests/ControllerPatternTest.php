@@ -44,7 +44,7 @@ class ControllerPatternTest extends TestCase
         $source = file_get_contents(__DIR__ . '/../app/model/Product.php');
         $this->assertStringContainsString('public $incrementing = false', $source, 'Product must use non-incrementing PK');
         $this->assertStringContainsString("protected \$keyType = 'int'", $source, 'Product keyType must be int');
-        $this->assertStringContainsString('erik_product', $source, 'Product table must use erik_ prefix');
+        $this->assertStringContainsString('erp_product', $source, 'Product table must use erp_ prefix');
     }
 
     public function testInventoryModelUsesSnowflakePrimaryKey(): void

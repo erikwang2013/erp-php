@@ -22,7 +22,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - 主キー BIGINT は snowflake-php で生成
 - API 層の ID は hashids で暗号化/復号
 - JWT 認証、機密データ暗号化はすべて erikwang2013/* 系パッケージを使用
-- テーブルプレフィックス `erik_`、ソフト削除、グローバル関数に `\` を付けない
+- テーブルプレフィックス `erp_`、ソフト削除、グローバル関数に `\` を付けない
 
 ---
 
@@ -144,91 +144,91 @@ service/app/
 
 ## 4. データベーステーブル設計
 
-すべてのテーブルは `erik_` プレフィックス、`id` は BIGINT 非自動採番、`created_at`/`updated_at`/`deleted_at` を含む。
+すべてのテーブルは `erp_` プレフィックス、`id` は BIGINT 非自動採番、`created_at`/`updated_at`/`deleted_at` を含む。
 
 ### 4.1 商品基礎データ
 
 ```
-erik_product             商品マスターテーブル
-erik_product_sku         商品SKU/規格
-erik_product_unit        多単位換算
-erik_product_price       価格戦略
-erik_category            商品分類（ツリー型 parent_id）
-erik_brand               ブランド
-erik_warehouse           倉庫
-erik_location            庫位
-erik_supplier            仕入先
-erik_customer            顧客
-erik_customer_level      顧客ランク
+erp_product             商品マスターテーブル
+erp_product_sku         商品SKU/規格
+erp_product_unit        多単位換算
+erp_product_price       価格戦略
+erp_category            商品分類（ツリー型 parent_id）
+erp_brand               ブランド
+erp_warehouse           倉庫
+erp_location            庫位
+erp_supplier            仕入先
+erp_customer            顧客
+erp_customer_level      顧客ランク
 ```
 
 ### 4.2 購買モジュール
 
 ```
-erik_purchase_apply       購買申請
-erik_purchase_apply_item  申請明細
-erik_purchase_order       購買注文
-erik_purchase_order_item  注文明細
-erik_purchase_receive     購買受入マスターテーブル
-erik_purchase_receive_item 受入明細
-erik_purchase_return      購買返品マスターテーブル
-erik_purchase_return_item 返品明細
-erik_purchase_settlement  仕入先精算記録
+erp_purchase_apply       購買申請
+erp_purchase_apply_item  申請明細
+erp_purchase_order       購買注文
+erp_purchase_order_item  注文明細
+erp_purchase_receive     購買受入マスターテーブル
+erp_purchase_receive_item 受入明細
+erp_purchase_return      購買返品マスターテーブル
+erp_purchase_return_item 返品明細
+erp_purchase_settlement  仕入先精算記録
 ```
 
 ### 4.3 販売モジュール
 
 ```
-erik_sales_quotation      見積書マスターテーブル
-erik_sales_quotation_item 見積明細
-erik_sales_order          販売注文マスターテーブル
-erik_sales_order_item     注文明細
-erik_sales_delivery       販売出荷マスターテーブル
-erik_sales_delivery_item  出荷明細
-erik_sales_return         販売返品マスターテーブル
-erik_sales_return_item    返品明細
-erik_sales_settlement     顧客精算記録
+erp_sales_quotation      見積書マスターテーブル
+erp_sales_quotation_item 見積明細
+erp_sales_order          販売注文マスターテーブル
+erp_sales_order_item     注文明細
+erp_sales_delivery       販売出荷マスターテーブル
+erp_sales_delivery_item  出荷明細
+erp_sales_return         販売返品マスターテーブル
+erp_sales_return_item    返品明細
+erp_sales_settlement     顧客精算記録
 ```
 
 ### 4.4 在庫モジュール
 
 ```
-erik_inventory            リアルタイム在庫
-erik_inventory_batch      ロット情報
-erik_inventory_serial     シリアル番号記録
-erik_inventory_flow       入出庫フロー
-erik_transfer             振替伝票マスターテーブル
-erik_transfer_item        振替明細
-erik_check_task           棚卸タスク
-erik_check_detail         棚卸明細
-erik_inventory_alert_rule 在庫アラートルール
-erik_inventory_alert_log  在庫アラートログ
-erik_cost_record          原価計算記録
+erp_inventory            リアルタイム在庫
+erp_inventory_batch      ロット情報
+erp_inventory_serial     シリアル番号記録
+erp_inventory_flow       入出庫フロー
+erp_transfer             振替伝票マスターテーブル
+erp_transfer_item        振替明細
+erp_check_task           棚卸タスク
+erp_check_detail         棚卸明細
+erp_inventory_alert_rule 在庫アラートルール
+erp_inventory_alert_log  在庫アラートログ
+erp_cost_record          原価計算記録
 ```
 
 ### 4.5 財務モジュール
 
 ```
-erik_finance_account      勘定科目
-erik_finance_voucher      記帳伝票
-erik_finance_voucher_item 伝票仕訳
-erik_finance_ar_ap        売掛買掛明細
-erik_finance_receipt      入金伝票
-erik_finance_payment      出金伝票
-erik_finance_cash_journal 現金銀行日記帳
-erik_finance_expense      経費精算伝票
-erik_finance_expense_item 精算明細
-erik_finance_profit       損益計算書スナップショット
-erik_finance_bank_account 銀行口座
+erp_finance_account      勘定科目
+erp_finance_voucher      記帳伝票
+erp_finance_voucher_item 伝票仕訳
+erp_finance_ar_ap        売掛買掛明細
+erp_finance_receipt      入金伝票
+erp_finance_payment      出金伝票
+erp_finance_cash_journal 現金銀行日記帳
+erp_finance_expense      経費精算伝票
+erp_finance_expense_item 精算明細
+erp_finance_profit       損益計算書スナップショット
+erp_finance_bank_account 銀行口座
 ```
 
 ### 4.6 CRM モジュール
 
 ```
-erik_crm_funnel_stage     販売ファネルステージ設定
-erik_crm_opportunity      商機
-erik_crm_follow_record    フォロー記録
-erik_crm_contact          連絡先
+erp_crm_funnel_stage     販売ファネルステージ設定
+erp_crm_opportunity      商機
+erp_crm_follow_record    フォロー記録
+erp_crm_contact          連絡先
 ```
 
 ---

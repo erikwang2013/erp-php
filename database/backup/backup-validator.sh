@@ -7,7 +7,7 @@
 #   1. gzip -t 校验压缩包完整性；
 #   2. 解压备份 → 恢复到临时校验库 VALIDATE_DB（绝不写入生产库 DB_DATABASE）；
 #   3. 比对表数量：备份内 CREATE TABLE 数 / 恢复库实际表数 / mysqldump --no-data 重导出结构表数，三者一致；
-#   4. 抽样 COUNT 关键表行数（KEY_TABLES，默认 erik_admin_user,erik_product）；
+#   4. 抽样 COUNT 关键表行数（KEY_TABLES，默认 erp_admin_user,erp_product）；
 #   5. 输出校验报告 → 清理临时资源（校验库 + 临时文件）。
 #
 # 用法:
@@ -18,7 +18,7 @@
 #
 # 环境变量（未设置时尝试从项目根 .env 读取 DB_* 配置）:
 #   DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD
-#   VALIDATE_DB  临时校验库名（默认 erik_backup_validate，禁止等于 DB_DATABASE）
+#   VALIDATE_DB  临时校验库名（默认 erp_backup_validate，禁止等于 DB_DATABASE）
 #   KEY_TABLES   抽样行数校验的关键表，逗号分隔
 #   VALIDATE_KEEP 设为 1 时校验通过后保留校验库与临时文件（便于排查，默认清理）
 #
@@ -69,18 +69,18 @@ load_env
 
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-3306}"
-DB_DATABASE="${DB_DATABASE:-open_admin}"
+DB_DATABASE="${DB_DATABASE:-erp}"
 DB_USERNAME="${DB_USERNAME:-root}"
 DB_PASSWORD="${DB_PASSWORD:-}"
-VALIDATE_DB="${VALIDATE_DB:-erik_backup_validate}"
-KEY_TABLES="${KEY_TABLES:-erik_admin_user,erik_product}"
+VALIDATE_DB="${VALIDATE_DB:-erp_backup_validate}"
+KEY_TABLES="${KEY_TABLES:-erp_admin_user,erp_product}"
 BACKUP_DIR="${BACKUP_DIR:-database/backup}"
 VALIDATE_KEEP="${VALIDATE_KEEP:-0}"
 
 # 安全护栏 1: 校验库必须是独立临时 schema，绝不能等于生产库
 if [ "$VALIDATE_DB" = "$DB_DATABASE" ]; then
     echo "错误: VALIDATE_DB（校验库）不能等于 DB_DATABASE（生产库）" >&2
-    echo "      请设置独立的临时校验库，例如: VALIDATE_DB=erik_backup_validate" >&2
+    echo "      请设置独立的临时校验库，例如: VALIDATE_DB=erp_backup_validate" >&2
     exit 1
 fi
 

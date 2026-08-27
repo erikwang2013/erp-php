@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceBalanceSheet extends Model
 {
-    protected $table = 'erik_finance_balance_sheet';
+    protected $table = 'erp_finance_balance_sheet';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

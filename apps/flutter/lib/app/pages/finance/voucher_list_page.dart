@@ -57,7 +57,7 @@ class _VoucherListPageState extends State<VoucherListPage> {
     });
   }
 
-  // 后端 erik_finance_voucher 字段: code/voucher_date/status(0草稿/1已审核)/remark
+  // 后端 erp_finance_voucher 字段: code/voucher_date/status(0草稿/1已审核)/remark
   // store() 同时校验 name 必填；传 items 时走 DoubleEntryService::createVoucher，
   // 接收 items[{account_id|account_subject_id, summary, debit_amount, credit_amount}]
   // 并校验借贷平衡（借方合计 == 贷方合计）。

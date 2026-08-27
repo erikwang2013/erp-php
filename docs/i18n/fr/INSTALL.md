@@ -60,7 +60,7 @@ DB_PORT=3306
 DB_DATABASE=erp
 DB_USERNAME=erp
 DB_PASSWORD=你的密码
-DB_PREFIX=erik_
+DB_PREFIX=erp_
 
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
@@ -104,11 +104,11 @@ Après l'installation, un rôle super administrateur (`super_admin`) est précon
 
 ```sql
 -- 创建管理员（密码使用 bcrypt 哈希）
-INSERT INTO `erik_admin_user` (`id`, `username`, `password`, `real_name`, `status`)
+INSERT INTO `erp_admin_user` (`id`, `username`, `password`, `real_name`, `status`)
 VALUES (90000000000000001, 'admin', '$2y$10$...', '系统管理员', 1);
 
 -- 关联超级管理员角色
-INSERT INTO `erik_admin_user_role` (`user_id`, `role_id`)
+INSERT INTO `erp_admin_user_role` (`user_id`, `role_id`)
 VALUES (90000000000000001, 10000000000000001);
 ```
 
@@ -136,7 +136,7 @@ mysql -h mysql -u root -p erp < database/install.sql
 
 | Convention | Description |
 |------|------|
-| Préfixe de table | `erik_` |
+| Préfixe de table | `erp_` |
 | Clé primaire | `id` BIGINT UNSIGNED NOT NULL, non auto-incrémentée, générée par snowflake-php |
 | Jeu de caractères | utf8mb4, utf8mb4_unicode_ci |
 | Moteur | InnoDB |

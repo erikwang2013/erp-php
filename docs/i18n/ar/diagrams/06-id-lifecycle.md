@@ -10,7 +10,7 @@ flowchart LR
     end
 
     subgraph store["2. التخزين"]
-        s1["جداول MySQL erik_*<br/>id BIGINT UNSIGNED NOT NULL"]
+        s1["جداول MySQL erp_*<br/>id BIGINT UNSIGNED NOT NULL"]
         s2["الحقول الحساسة encryptable cast<br/>تخزين مشفر AES-128-ECB"]
         g3 --> s1 --> s2
     end

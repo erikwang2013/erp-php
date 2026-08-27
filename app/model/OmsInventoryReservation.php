@@ -12,7 +12,7 @@ use support\Model;
 
 class OmsInventoryReservation extends Model
 {
-    protected $table = 'erik_oms_inventory_reservation';
+    protected $table = 'erp_oms_inventory_reservation';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

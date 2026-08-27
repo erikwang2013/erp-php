@@ -12,7 +12,7 @@ use support\Model;
 
 class WmsWave extends Model
 {
-    protected $table = 'erik_wms_wave';
+    protected $table = 'erp_wms_wave';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

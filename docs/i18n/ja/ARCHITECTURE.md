@@ -30,8 +30,8 @@ flowchart TB
     end
 
     subgraph "ストレージ層"
-        D1[("MySQL 8.0<br/>メインストレージ<br/>テーブルプレフィックス erik_")]
-        D2[("Elasticsearch<br/>全文検索<br/>インデックスプレフィックス erik_")]
+        D1[("MySQL 8.0<br/>メインストレージ<br/>テーブルプレフィックス erp_")]
+        D2[("Elasticsearch<br/>全文検索<br/>インデックスプレフィックス erp_")]
         D3[("Redis<br/>Session / キャッシュ<br/>Captcha 保存")]
     end
 
@@ -380,7 +380,7 @@ flowchart LR
     end
 
     subgraph "2. 保存"
-        S1["MySQL erik_* テーブル<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
+        S1["MySQL erp_* テーブル<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
         S2["機密フィールド<br/>encryptable cast<br/>AES-128-ECB 暗号化"]
         G3 --> S1
         S1 --> S2
@@ -446,7 +446,7 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake"
         VARCHAR username UK
         VARCHAR password "bcrypt"
@@ -463,7 +463,7 @@ erDiagram
         DATETIME deleted_at "ソフト削除"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake"
         VARCHAR name
         VARCHAR slug UK
@@ -473,7 +473,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake"
         BIGINT parent_id FK "自己参照"
         VARCHAR name
@@ -486,17 +486,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK
         BIGINT role_id PK_FK
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK
         BIGINT permission_id PK_FK
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake"
         BIGINT user_id FK
         VARCHAR action
@@ -508,7 +508,7 @@ erDiagram
         DATETIME created_at
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake"
         VARCHAR group
         VARCHAR key
@@ -519,12 +519,12 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : "user_id"
-    erik_admin_role ||--o{ erik_admin_user_role : "role_id"
-    erik_admin_role ||--o{ erik_admin_role_permission : "role_id"
-    erik_admin_permission ||--o{ erik_admin_role_permission : "permission_id"
-    erik_admin_user ||--o{ erik_operation_log : "user_id"
-    erik_admin_permission ||--o{ erik_admin_permission : "parent_id"
+    erp_admin_user ||--o{ erp_admin_user_role : "user_id"
+    erp_admin_role ||--o{ erp_admin_user_role : "role_id"
+    erp_admin_role ||--o{ erp_admin_role_permission : "role_id"
+    erp_admin_permission ||--o{ erp_admin_role_permission : "permission_id"
+    erp_admin_user ||--o{ erp_operation_log : "user_id"
+    erp_admin_permission ||--o{ erp_admin_permission : "parent_id"
 ```
 
 ---
@@ -676,8 +676,8 @@ flowchart TB
     end
 
     subgraph "データ層"
-        MYSQL["MySQL 8.0<br/>マスタースレーブレプリケーション<br/>erik_ プレフィックス"]
-        ES["Elasticsearch 8.x<br/>3 ノードクラスタ<br/>erik_ プレフィックス"]
+        MYSQL["MySQL 8.0<br/>マスタースレーブレプリケーション<br/>erp_ プレフィックス"]
+        ES["Elasticsearch 8.x<br/>3 ノードクラスタ<br/>erp_ プレフィックス"]
         REDIS["Redis 7.x<br/>センチネルモード<br/>poster:captcha:*"]
     end
 
@@ -910,22 +910,22 @@ sequenceDiagram
 ## OMS/WMS/TMS 拡張モジュール (2026-08)
 
 ### OMS (Order Management System) — 8 tables
-- **注文拡張** (`erik_oms_order`)：マルチチャネル集約/履行ステータス/支払いステータス/優先度
-- **注文住所** (`erik_oms_order_address`)：受取/請求先住所(多国対応フォーマット)
-- **履行記録** (`erik_oms_fulfillment`+`_item`)：割当/ピッキング済み/梱包済み/出荷済み数量の追跡
-- **RMA** (`erik_oms_rma`+`_item`)：返品交換の全ライフサイクル
-- **在庫予約** (`erik_oms_inventory_reservation`)：ATP = physical - reserved
-- **チャネル** (`erik_channel`)：direct/marketplace/edi/pos
+- **注文拡張** (`erp_oms_order`)：マルチチャネル集約/履行ステータス/支払いステータス/優先度
+- **注文住所** (`erp_oms_order_address`)：受取/請求先住所(多国対応フォーマット)
+- **履行記録** (`erp_oms_fulfillment`+`_item`)：割当/ピッキング済み/梱包済み/出荷済み数量の追跡
+- **RMA** (`erp_oms_rma`+`_item`)：返品交換の全ライフサイクル
+- **在庫予約** (`erp_oms_inventory_reservation`)：ATP = physical - reserved
+- **チャネル** (`erp_channel`)：direct/marketplace/edi/pos
 
 ### WMS (Warehouse Management System) — 12 tables
-- **エリア・ロケーション** (`erik_wms_zone`, `erik_wms_location`)：zone→aisle→rack→level→bin
-- **入庫** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
-- **出庫** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+- **エリア・ロケーション** (`erp_wms_zone`, `erp_wms_location`)：zone→aisle→rack→level→bin
+- **入庫** (`erp_wms_asn`+`_item`, `erp_wms_receiving`, `erp_wms_putaway_task`+`_item`)
+- **出庫** (`erp_wms_wave`+`wave_order`, `erp_wms_pick_task`+`_item`, `erp_wms_pack_task`)
 
 ### TMS (Transport Management System) — 7 tables
-- **運送会社** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
-- **運送伝票** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
-- **請求書** (`erik_tms_freight_invoice`)
+- **運送会社** (`erp_tms_carrier`+`carrier_service`, `erp_tms_freight_rate`)
+- **運送伝票** (`erp_tms_shipment`+`_package`, `erp_tms_tracking_event`)
+- **請求書** (`erp_tms_freight_invoice`)
 
 ### Data Flow
 ```
@@ -1035,7 +1035,7 @@ P3 後:  Locale → Cors → SecurityFilter → RateLimit → TracingId → Tena
 
 1. ミドルウェアを登録：`config/route.php` の /admin グループの `middleware()` に `app\middleware\TenantScope::class` を追加（AdminAuth の後に配置し、認証済みであることを保証）。
 2. リクエスト側はリクエストヘッダーに `X-Tenant-Id`（int テナントID）を付与。
-3. 分離が必要な業務テーブルに `tenant_id` カラム（BIGINT + インデックス）を追加し、既存データをバックフィル；辞書/システムテーブル（例：`erik_admin_user`、`erik_role`、`erik_permission`）は分離しない。
+3. 分離が必要な業務テーブルに `tenant_id` カラム（BIGINT + インデックス）を追加し、既存データをバックフィル；辞書/システムテーブル（例：`erp_admin_user`、`erp_role`、`erp_permission`）は分離しない。
 4. 分離が必要なモデルクラスで `use app\model\concerns\TenantScope;` を記述し、現在のテナントで自動フィルタリング。
 5. （任意）リクエストヘッダーではなく JWT からテナントを取得する場合：ログイン発行ペイロードを拡張して `tenant_id` クレームを追加し、ミドルウェアで `$payload['tenant_id']` から読み取る。
 

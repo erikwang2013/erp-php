@@ -20,7 +20,7 @@ use Throwable;
  *   create() 头+明细同事务，任一明细写入失败时表头一并回滚；
  *   refund() 翻状态并同步订单支付状态为已退款。
  *   注: 数据库断言统一走 Capsule::table 显式表名，规避模型魔术方法的
- *   phpstan 基线差异与 erik_ 前缀双重叠加问题。
+ *   phpstan 基线差异与 erp_ 前缀双重叠加问题。
  */
 class RmaFixTest extends TestCase
 {
@@ -30,10 +30,10 @@ class RmaFixTest extends TestCase
     protected function tearDown(): void
     {
         if (!empty($this->rmaCodes)) {
-            $rmaIds = Capsule::table('erik_oms_rma')->whereIn('code', $this->rmaCodes)->pluck('id')->all();
+            $rmaIds = Capsule::table('erp_oms_rma')->whereIn('code', $this->rmaCodes)->pluck('id')->all();
             if (!empty($rmaIds)) {
-                Capsule::table('erik_oms_rma_item')->whereIn('rma_id', $rmaIds)->delete();
-                Capsule::table('erik_oms_rma')->whereIn('id', $rmaIds)->delete();
+                Capsule::table('erp_oms_rma_item')->whereIn('rma_id', $rmaIds)->delete();
+                Capsule::table('erp_oms_rma')->whereIn('id', $rmaIds)->delete();
             }
             $this->rmaCodes = [];
         }
@@ -67,7 +67,7 @@ class RmaFixTest extends TestCase
         }
 
         $this->assertNull(
-            Capsule::table('erik_oms_rma')->where('code', $code)->first(),
+            Capsule::table('erp_oms_rma')->where('code', $code)->first(),
             '明细失败时表头应随事务一并回滚'
         );
     }
@@ -84,10 +84,10 @@ class RmaFixTest extends TestCase
             ['order_item_id' => 1, 'product_id' => 1, 'quantity' => 1, 'price' => 20],
         ], ['code' => $code, 'refund_amount' => 20.0]);
 
-        $rmaId = (int) Capsule::table('erik_oms_rma')->where('code', $code)->value('id');
+        $rmaId = (int) Capsule::table('erp_oms_rma')->where('code', $code)->value('id');
         $service->refund($rmaId);
 
-        $status = (int) Capsule::table('erik_oms_rma')->where('id', $rmaId)->value('status');
+        $status = (int) Capsule::table('erp_oms_rma')->where('id', $rmaId)->value('status');
         $this->assertEquals(4, $status, '退款后 RMA 状态应为 4=已退款');
     }
 

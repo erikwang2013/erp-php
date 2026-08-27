@@ -12,7 +12,7 @@ use support\Model;
 
 class WmsZone extends Model
 {
-    protected $table = 'erik_wms_zone';
+    protected $table = 'erp_wms_zone';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

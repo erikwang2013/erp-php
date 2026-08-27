@@ -129,7 +129,7 @@ E2E_USER=admin E2E_PASS=admin123 php tests/E2E/api-coverage.php --base-url=http:
 
 覆盖 19 组模块：系统管理（用户/角色/权限/配置/健康/指标）、财务（合并/余额/结转/比率）、库存、销售、商品、采购、项目、审批、CRM、BI、通知、报表。
 
-> 勘误：api-tester 曾疑 `erik_admin_config` 表缺失 —— **非缺陷**。真实表名 `erik_system_config`（install.sql:133 已建，SystemConfig 模型指向正确），报告予以纠正。
+> 勘误：api-tester 曾疑 `erp_admin_config` 表缺失 —— **非缺陷**。真实表名 `erp_system_config`（install.sql:133 已建，SystemConfig 模型指向正确），报告予以纠正。
 
 ## 覆盖率
 

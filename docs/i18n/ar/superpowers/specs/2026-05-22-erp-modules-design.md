@@ -22,7 +22,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - المفتاح الأساسي BIGINT يولَّد عبر snowflake-php
 - تشفير/فك تشفير معرفات طبقة API عبر hashids
 - مصادقة JWT وتشفير البيانات الحساسة كلها عبر سلسلة حزم erikwang2013/*
-- بادئة الجداول `erik_`، حذف ناعم، الدوال العامة بدون `\`
+- بادئة الجداول `erp_`، حذف ناعم، الدوال العامة بدون `\`
 
 ---
 
@@ -144,91 +144,91 @@ service/app/
 
 ## 4. تصميم جداول قاعدة البيانات
 
-جميع الجداول ببادئة `erik_`، `id` من نوع BIGINT غير تلقائي التزايد، تحوي `created_at`/`updated_at`/`deleted_at`.
+جميع الجداول ببادئة `erp_`، `id` من نوع BIGINT غير تلقائي التزايد، تحوي `created_at`/`updated_at`/`deleted_at`.
 
 ### 4.1 البيانات الأساسية للمنتج
 
 ```
-erik_product              الجدول الرئيسي للمنتج
-erik_product_sku         SKU/مواصفات المنتج
-erik_product_unit        تحويل الوحدات المتعدد
-erik_product_price       استراتيجيات الأسعار
-erik_category            تصنيف المنتج (شجري parent_id)
-erik_brand               العلامات التجارية
-erik_warehouse           المستودعات
-erik_location            المواقع
-erik_supplier            الموردون
-erik_customer            العملاء
-erik_customer_level      مستويات العملاء
+erp_product              الجدول الرئيسي للمنتج
+erp_product_sku         SKU/مواصفات المنتج
+erp_product_unit        تحويل الوحدات المتعدد
+erp_product_price       استراتيجيات الأسعار
+erp_category            تصنيف المنتج (شجري parent_id)
+erp_brand               العلامات التجارية
+erp_warehouse           المستودعات
+erp_location            المواقع
+erp_supplier            الموردون
+erp_customer            العملاء
+erp_customer_level      مستويات العملاء
 ```
 
 ### 4.2 وحدة المشتريات
 
 ```
-erik_purchase_apply       طلب الشراء
-erik_purchase_apply_item  تفاصيل الطلب
-erik_purchase_order       أمر الشراء
-erik_purchase_order_item  تفاصيل الأمر
-erik_purchase_receive     الجدول الرئيسي لاستلام الشراء
-erik_purchase_receive_item تفاصيل الاستلام
-erik_purchase_return      الجدول الرئيسي لإرجاع الشراء
-erik_purchase_return_item تفاصيل الإرجاع
-erik_purchase_settlement  سجلات تسوية المورد
+erp_purchase_apply       طلب الشراء
+erp_purchase_apply_item  تفاصيل الطلب
+erp_purchase_order       أمر الشراء
+erp_purchase_order_item  تفاصيل الأمر
+erp_purchase_receive     الجدول الرئيسي لاستلام الشراء
+erp_purchase_receive_item تفاصيل الاستلام
+erp_purchase_return      الجدول الرئيسي لإرجاع الشراء
+erp_purchase_return_item تفاصيل الإرجاع
+erp_purchase_settlement  سجلات تسوية المورد
 ```
 
 ### 4.3 وحدة المبيعات
 
 ```
-erik_sales_quotation      الجدول الرئيسي لعرض الأسعار
-erik_sales_quotation_item تفاصيل العرض
-erik_sales_order          الجدول الرئيسي لأمر المبيعات
-erik_sales_order_item     تفاصيل الأمر
-erik_sales_delivery       الجدول الرئيسي لشحن المبيعات
-erik_sales_delivery_item  تفاصيل الشحن
-erik_sales_return         الجدول الرئيسي لإرجاع المبيعات
-erik_sales_return_item    تفاصيل الإرجاع
-erik_sales_settlement     سجلات تسوية العميل
+erp_sales_quotation      الجدول الرئيسي لعرض الأسعار
+erp_sales_quotation_item تفاصيل العرض
+erp_sales_order          الجدول الرئيسي لأمر المبيعات
+erp_sales_order_item     تفاصيل الأمر
+erp_sales_delivery       الجدول الرئيسي لشحن المبيعات
+erp_sales_delivery_item  تفاصيل الشحن
+erp_sales_return         الجدول الرئيسي لإرجاع المبيعات
+erp_sales_return_item    تفاصيل الإرجاع
+erp_sales_settlement     سجلات تسوية العميل
 ```
 
 ### 4.4 وحدة المخزون
 
 ```
-erik_inventory            المخزون الفوري
-erik_inventory_batch      معلومات الدفعات
-erik_inventory_serial     سجلات الأرقام التسلسلية
-erik_inventory_flow       سجلات الإدخال/الإخراج
-erik_transfer             الجدول الرئيسي للتحويل
-erik_transfer_item        تفاصيل التحويل
-erik_check_task           مهام الجرد
-erik_check_detail         تفاصيل الجرد
-erik_inventory_alert_rule قواعد تنبيه المخزون
-erik_inventory_alert_log  سجلات تنبيه المخزون
-erik_cost_record          سجلات احتساب التكلفة
+erp_inventory            المخزون الفوري
+erp_inventory_batch      معلومات الدفعات
+erp_inventory_serial     سجلات الأرقام التسلسلية
+erp_inventory_flow       سجلات الإدخال/الإخراج
+erp_transfer             الجدول الرئيسي للتحويل
+erp_transfer_item        تفاصيل التحويل
+erp_check_task           مهام الجرد
+erp_check_detail         تفاصيل الجرد
+erp_inventory_alert_rule قواعد تنبيه المخزون
+erp_inventory_alert_log  سجلات تنبيه المخزون
+erp_cost_record          سجلات احتساب التكلفة
 ```
 
 ### 4.5 وحدة المالية
 
 ```
-erik_finance_account      الحسابات المحاسبية
-erik_finance_voucher      سندات القيد
-erik_finance_voucher_item قيود السندات
-erik_finance_ar_ap        تفاصيل المستحقات والمطلوبات
-erik_finance_receipt      سندات المقبوضات
-erik_finance_payment      سندات المدفوعات
-erik_finance_cash_journal دفتر يومي النقد والبنك
-erik_finance_expense      سندات مصاريف السفر والخدمات
-erik_finance_expense_item تفاصيل المصاريف
-erik_finance_profit       لقطة بيان الأرباح
-erik_finance_bank_account الحسابات البنكية
+erp_finance_account      الحسابات المحاسبية
+erp_finance_voucher      سندات القيد
+erp_finance_voucher_item قيود السندات
+erp_finance_ar_ap        تفاصيل المستحقات والمطلوبات
+erp_finance_receipt      سندات المقبوضات
+erp_finance_payment      سندات المدفوعات
+erp_finance_cash_journal دفتر يومي النقد والبنك
+erp_finance_expense      سندات مصاريف السفر والخدمات
+erp_finance_expense_item تفاصيل المصاريف
+erp_finance_profit       لقطة بيان الأرباح
+erp_finance_bank_account الحسابات البنكية
 ```
 
 ### 4.6 وحدة CRM
 
 ```
-erik_crm_funnel_stage     تكوين مراحل قمع المبيعات
-erik_crm_opportunity      الفرص
-erik_crm_follow_record    سجلات المتابعة
-erik_crm_contact          جهات الاتصال
+erp_crm_funnel_stage     تكوين مراحل قمع المبيعات
+erp_crm_opportunity      الفرص
+erp_crm_follow_record    سجلات المتابعة
+erp_crm_contact          جهات الاتصال
 ```
 
 ---

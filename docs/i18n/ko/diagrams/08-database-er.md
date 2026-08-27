@@ -2,7 +2,7 @@
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake生成"
         VARCHAR username UK "用户名"
         VARCHAR password "bcrypt哈希"
@@ -19,7 +19,7 @@ erDiagram
         DATETIME deleted_at "软删除"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake生成"
         VARCHAR name "角色名称"
         VARCHAR slug UK "角色标识"
@@ -29,7 +29,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake生成"
         BIGINT parent_id FK "父级权限ID"
         VARCHAR name "权限名称"
@@ -42,17 +42,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK "用户ID"
         BIGINT role_id PK_FK "角色ID"
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK "角色ID"
         BIGINT permission_id PK_FK "权限ID"
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake生成"
         BIGINT user_id FK "操作用户"
         VARCHAR action "操作动作"
@@ -63,7 +63,7 @@ erDiagram
         DATETIME created_at "操作时间"
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake生成"
         VARCHAR group_name "配置分组"
         VARCHAR key_name "配置键"
@@ -74,10 +74,10 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : user_id
-    erik_admin_role ||--o{ erik_admin_user_role : role_id
-    erik_admin_role ||--o{ erik_admin_role_permission : role_id
-    erik_admin_permission ||--o{ erik_admin_role_permission : permission_id
-    erik_admin_user ||--o{ erik_operation_log : user_id
-    erik_admin_permission ||--o{ erik_admin_permission : parent_id
+    erp_admin_user ||--o{ erp_admin_user_role : user_id
+    erp_admin_role ||--o{ erp_admin_user_role : role_id
+    erp_admin_role ||--o{ erp_admin_role_permission : role_id
+    erp_admin_permission ||--o{ erp_admin_role_permission : permission_id
+    erp_admin_user ||--o{ erp_operation_log : user_id
+    erp_admin_permission ||--o{ erp_admin_permission : parent_id
 ```

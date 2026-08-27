@@ -6,7 +6,7 @@
 set -e
 BACKUP_DIR="${BACKUP_DIR:-database/backup}"
 RETENTION_DAYS="${RETENTION_DAYS:-30}"
-DB_NAME="${DB_DATABASE:-open_admin}"
+DB_NAME="${DB_DATABASE:-erp}"
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-3306}"
 DB_USER="${DB_USERNAME:-root}"

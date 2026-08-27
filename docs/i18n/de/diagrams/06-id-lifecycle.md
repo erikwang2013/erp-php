@@ -10,7 +10,7 @@ flowchart LR
     end
 
     subgraph store["2. Speicherung"]
-        s1["MySQL erik_*-Tabellen<br/>id BIGINT UNSIGNED NOT NULL"]
+        s1["MySQL erp_*-Tabellen<br/>id BIGINT UNSIGNED NOT NULL"]
         s2["Sensible Felder encryptable cast<br/>AES-128-ECB verschlüsselt gespeichert"]
         g3 --> s1 --> s2
     end

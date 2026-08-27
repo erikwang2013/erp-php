@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceCurrency extends Model
 {
-    protected $table = 'erik_finance_currency';
+    protected $table = 'erp_finance_currency';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

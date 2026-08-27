@@ -12,7 +12,7 @@ use support\Model;
 
 class ProductUnit extends Model
 {
-    protected $table = 'erik_product_unit';
+    protected $table = 'erp_product_unit';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

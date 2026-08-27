@@ -11,7 +11,7 @@ use support\Model;
 
 class EamSparePart extends Model
 {
-    protected $table = 'erik_eam_spare_part';
+    protected $table = 'erp_eam_spare_part';
     protected $fillable = ['code', 'name', 'equipment_id', 'spec', 'unit', 'stock_qty', 'min_stock', 'location', 'status'];
     public $timestamps = true;
 }

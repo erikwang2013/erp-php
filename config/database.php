@@ -9,7 +9,7 @@ declare(strict_types=1);
 /**
  * 数据库连接配置
  * 使用 illuminate/database (Laravel Eloquent)
- * 表前缀统一为 erik_
+ * 表前缀统一为 erp_
  */
 return [
     // 默认连接
@@ -24,7 +24,7 @@ return [
             // 数据库端口
             'port' => (int)(getenv('DB_PORT') ?: 3306),
             // 数据库名
-            'database' => getenv('DB_DATABASE') ?: 'open_admin',
+            'database' => getenv('DB_DATABASE') ?: 'erp',
             // 用户名
             'username' => getenv('DB_USERNAME') ?: 'root',
             // 密码：生产环境（APP_ENV=production）禁止空口令，缺失/为空一律拒绝启动；
@@ -35,7 +35,7 @@ return [
             // 排序规则
             'collation' => 'utf8mb4_unicode_ci',
             // 表前缀
-            'prefix' => 'erik_',
+            'prefix' => 'erp_',
             // 严格模式
             'strict' => true,
             // 引擎

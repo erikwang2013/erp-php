@@ -16,7 +16,7 @@ class Warehouse extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_warehouse';
+    protected $table = 'erp_warehouse';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

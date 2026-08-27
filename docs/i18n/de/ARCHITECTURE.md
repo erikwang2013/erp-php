@@ -30,8 +30,8 @@ flowchart TB
     end
 
     subgraph "Speicherschicht"
-        D1[("MySQL 8.0<br/>Hauptspeicher<br/>Tabellenpräfix erik_")]
-        D2[("Elasticsearch<br/>Volltextsuche<br/>Indexpräfix erik_")]
+        D1[("MySQL 8.0<br/>Hauptspeicher<br/>Tabellenpräfix erp_")]
+        D2[("Elasticsearch<br/>Volltextsuche<br/>Indexpräfix erp_")]
         D3[("Redis<br/>Session / Cache<br/>Captcha-Speicher")]
     end
 
@@ -380,7 +380,7 @@ flowchart LR
     end
 
     subgraph "2. Speicherung"
-        S1["MySQL erik_*-Tabellen<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
+        S1["MySQL erp_*-Tabellen<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
         S2["Sensible Felder<br/>encryptable cast<br/>AES-128-ECB-Verschlüsselung"]
         G3 --> S1
         S1 --> S2
@@ -446,7 +446,7 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake"
         VARCHAR username UK
         VARCHAR password "bcrypt"
@@ -463,7 +463,7 @@ erDiagram
         DATETIME deleted_at "Soft Delete"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake"
         VARCHAR name
         VARCHAR slug UK
@@ -473,7 +473,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake"
         BIGINT parent_id FK "Selbstreferenz"
         VARCHAR name
@@ -486,17 +486,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK
         BIGINT role_id PK_FK
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK
         BIGINT permission_id PK_FK
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake"
         BIGINT user_id FK
         VARCHAR action
@@ -508,7 +508,7 @@ erDiagram
         DATETIME created_at
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake"
         VARCHAR group
         VARCHAR key
@@ -519,12 +519,12 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : "user_id"
-    erik_admin_role ||--o{ erik_admin_user_role : "role_id"
-    erik_admin_role ||--o{ erik_admin_role_permission : "role_id"
-    erik_admin_permission ||--o{ erik_admin_role_permission : "permission_id"
-    erik_admin_user ||--o{ erik_operation_log : "user_id"
-    erik_admin_permission ||--o{ erik_admin_permission : "parent_id"
+    erp_admin_user ||--o{ erp_admin_user_role : "user_id"
+    erp_admin_role ||--o{ erp_admin_user_role : "role_id"
+    erp_admin_role ||--o{ erp_admin_role_permission : "role_id"
+    erp_admin_permission ||--o{ erp_admin_role_permission : "permission_id"
+    erp_admin_user ||--o{ erp_operation_log : "user_id"
+    erp_admin_permission ||--o{ erp_admin_permission : "parent_id"
 ```
 
 ---
@@ -676,8 +676,8 @@ flowchart TB
     end
 
     subgraph "Datenschicht"
-        MYSQL["MySQL 8.0<br/>Master-Replica-Replikation<br/>erik_-Präfix"]
-        ES["Elasticsearch 8.x<br/>3-Knoten-Cluster<br/>erik_-Präfix"]
+        MYSQL["MySQL 8.0<br/>Master-Replica-Replikation<br/>erp_-Präfix"]
+        ES["Elasticsearch 8.x<br/>3-Knoten-Cluster<br/>erp_-Präfix"]
         REDIS["Redis 7.x<br/>Sentinel-Modus<br/>poster:captcha:*"]
     end
 
@@ -918,22 +918,22 @@ mit "Controller greift direkt auf Model zu, bekannter Tech-Schuldposten" gekennz
 ## OMS/WMS/TMS-Erweiterungsmodule (2026-08)
 
 ### OMS (Order Management System) — 8 Tabellen
-- **Auftragserweiterung** (`erik_oms_order`): Multi-Kanal-Aggregation/Erfüllungsstatus/Zahlungsstatus/Priorität
-- **Auftragsadresse** (`erik_oms_order_address`): Liefer-/Rechnungsadresse (Länderformate)
-- **Erfüllungsaufzeichnungen** (`erik_oms_fulfillment`+`_item`): Zuordnung/kommissioniert/verpackt/versendet Mengenverfolgung
-- **RMA** (`erik_oms_rma`+`_item`): vollständiger Lebenszyklus von Rückgabe/Umtausch
-- **Bestandsreservierung** (`erik_oms_inventory_reservation`): ATP = physical - reserved
-- **Kanäle** (`erik_channel`): direct/marketplace/edi/pos
+- **Auftragserweiterung** (`erp_oms_order`): Multi-Kanal-Aggregation/Erfüllungsstatus/Zahlungsstatus/Priorität
+- **Auftragsadresse** (`erp_oms_order_address`): Liefer-/Rechnungsadresse (Länderformate)
+- **Erfüllungsaufzeichnungen** (`erp_oms_fulfillment`+`_item`): Zuordnung/kommissioniert/verpackt/versendet Mengenverfolgung
+- **RMA** (`erp_oms_rma`+`_item`): vollständiger Lebenszyklus von Rückgabe/Umtausch
+- **Bestandsreservierung** (`erp_oms_inventory_reservation`): ATP = physical - reserved
+- **Kanäle** (`erp_channel`): direct/marketplace/edi/pos
 
 ### WMS (Warehouse Management System) — 12 Tabellen
-- **Zonen/Lagerplätze** (`erik_wms_zone`, `erik_wms_location`): zone→aisle→rack→level→bin
-- **Wareneingang** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
-- **Warenausgang** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+- **Zonen/Lagerplätze** (`erp_wms_zone`, `erp_wms_location`): zone→aisle→rack→level→bin
+- **Wareneingang** (`erp_wms_asn`+`_item`, `erp_wms_receiving`, `erp_wms_putaway_task`+`_item`)
+- **Warenausgang** (`erp_wms_wave`+`wave_order`, `erp_wms_pick_task`+`_item`, `erp_wms_pack_task`)
 
 ### TMS (Transport Management System) — 7 Tabellen
-- **Spediteure** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
-- **Sendungen** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
-- **Rechnungen** (`erik_tms_freight_invoice`)
+- **Spediteure** (`erp_tms_carrier`+`carrier_service`, `erp_tms_freight_rate`)
+- **Sendungen** (`erp_tms_shipment`+`_package`, `erp_tms_tracking_event`)
+- **Rechnungen** (`erp_tms_freight_invoice`)
 
 ### Datenflüsse
 ```
@@ -1048,7 +1048,7 @@ Entscheidungsgrundlage (Review 2026-08):
    `app\middleware\TenantScope::class` anhängen (nach AdminAuth, um authentifizierte Anfragen sicherzustellen).
 2. Der Anfragesteller trägt im Request-Header `X-Tenant-Id` (int Tenant-ID) ein.
 3. Für zu isolierende Geschäftstabellen die Spalte `tenant_id` hinzufügen (BIGINT + Index) und Bestandsdaten nachtragen;
-   Wörterbuch-/Systemtabellen (z. B. `erik_admin_user`, `erik_role`, `erik_permission`) werden nicht isoliert.
+   Wörterbuch-/Systemtabellen (z. B. `erp_admin_user`, `erp_role`, `erp_permission`) werden nicht isoliert.
 4. In den zu isolierenden Model-Klassen `use app\model\concerns\TenantScope;` einbinden — automatische Filterung nach aktuellem Tenant.
 5. (Optional) Falls der Tenant aus dem JWT statt aus dem Header kommen soll: das Login-Signierungs-Payload um den Claim `tenant_id` erweitern
    und in der Middleware aus `$payload['tenant_id']` lesen.

@@ -15,7 +15,7 @@ class FinanceAccount extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_finance_account';
+    protected $table = 'erp_finance_account';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

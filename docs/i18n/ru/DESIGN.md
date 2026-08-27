@@ -132,34 +132,34 @@ Controller::method()
 ### 3.1 ER-связи
 
 ```
-erik_admin_user ──┬── erik_admin_user_role ──┬── erik_admin_role
+erp_admin_user ──┬── erp_admin_user_role ──┬── erp_admin_role
   (пользователи)   │    (связь пользователь-роль)  │     (роли)
                   │                          │
-                  │                    erik_admin_role_permission
+                  │                    erp_admin_role_permission
                   │                     (связь роль-право)
                   │                          │
                   │                          ▼
-                  │                    erik_admin_permission
+                  │                    erp_admin_permission
                   │                      (права/меню)
                   │
                   ▼
-           erik_operation_log
+           erp_operation_log
              (журнал операций)
 
-erik_system_config (системная конфигурация) — отдельная таблица
+erp_system_config (системная конфигурация) — отдельная таблица
 ```
 
 ### 3.2 Структура ключевых таблиц
 
 | Имя таблицы | Число полей | Описание |
 |------|-------|------|
-| `erik_admin_user` | 14 | пользователи админки, phone/email/id_card хранятся в шифрованном виде, поддержка мягкого удаления |
-| `erik_admin_role` | 7 | роли, slug уникален |
-| `erik_admin_permission` | 10 | дерево прав (parent_id самоссылка), type: 1=меню 2=кнопка 3=API |
-| `erik_admin_user_role` | 2 | промежуточная таблица «многие ко многим» пользователь-роль |
-| `erik_admin_role_permission` | 2 | промежуточная таблица «многие ко многим» роль-право |
-| `erik_system_config` | 8 | конфигурация пар «ключ-значение», group+key совместно уникальны |
-| `erik_operation_log` | 9 | журнал аудита операций (включая источник source) |
+| `erp_admin_user` | 14 | пользователи админки, phone/email/id_card хранятся в шифрованном виде, поддержка мягкого удаления |
+| `erp_admin_role` | 7 | роли, slug уникален |
+| `erp_admin_permission` | 10 | дерево прав (parent_id самоссылка), type: 1=меню 2=кнопка 3=API |
+| `erp_admin_user_role` | 2 | промежуточная таблица «многие ко многим» пользователь-роль |
+| `erp_admin_role_permission` | 2 | промежуточная таблица «многие ко многим» роль-право |
+| `erp_system_config` | 8 | конфигурация пар «ключ-значение», group+key совместно уникальны |
+| `erp_operation_log` | 9 | журнал аудита операций (включая источник source) |
 
 ### 3.3 Спецификация первичного ключа
 

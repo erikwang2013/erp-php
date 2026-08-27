@@ -12,7 +12,7 @@ use support\Model;
 
 class TmsTrackingEvent extends Model
 {
-    protected $table = 'erik_tms_tracking_event';
+    protected $table = 'erp_tms_tracking_event';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

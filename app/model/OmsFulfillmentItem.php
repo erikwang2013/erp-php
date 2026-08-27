@@ -12,7 +12,7 @@ use support\Model;
 
 class OmsFulfillmentItem extends Model
 {
-    protected $table = 'erik_oms_fulfillment_item';
+    protected $table = 'erp_oms_fulfillment_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

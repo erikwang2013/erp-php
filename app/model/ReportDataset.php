@@ -12,7 +12,7 @@ use support\Model;
 
 class ReportDataset extends Model
 {
-    protected $table = 'erik_report_dataset';
+    protected $table = 'erp_report_dataset';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

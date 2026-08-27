@@ -15,7 +15,7 @@ Le système Open ERP (open-erp) est un système de planification des ressources 
 
 ### 1.2 Contraintes techniques
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
-- Préfixe de table erik_, clé primaire BIGINT non auto-incrémentée
+- Préfixe de table erp_, clé primaire BIGINT non auto-incrémentée
 - Version d'API contrôlée par l'en-tête de requête API-Version
 - Authentification JWT + permissions RBAC
 - Pas de préfixe `\` pour les fonctions globales

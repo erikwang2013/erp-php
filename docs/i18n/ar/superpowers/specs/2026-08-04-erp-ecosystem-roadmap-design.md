@@ -377,32 +377,32 @@ app/controller/dms/
 
 | اسم الجدول | الاستخدام | المرحلة |
 |------|------|------|
-| `erik_finance_period_close` | سجلات إقفال نهاية الفترة | P1 |
-| `erik_finance_account_balance` | لقطة أرصدة الحسابات | P1 |
-| `erik_hr_salary_config` | تكوين حساب الرواتب | P1 |
-| `erik_hr_social_insurance_config` | تكوين أساس التأمين الاجتماعي | P1 |
-| `erik_hr_housing_fund_config` | تكوين صندوق الإسكان | P1 |
-| `erik_mfg_mrp_run_log` | سجلات عمليات MRP | P1 |
-| `erik_mfg_order_suggestion` | الأوامر المقترحة | P1 |
-| `erik_quality_inspection_standard` | معايير الفحص | P1 |
-| `erik_quality_iqc_record` | فحص IQC للمواد الواردة | P1 |
-| `erik_quality_ipqc_record` | فحص IPQC للعملية | P1 |
-| `erik_quality_oqc_record` | فحص OQC للشحن | P1 |
-| `erik_quality_nonconformity` | غير المطابق | P1 |
-| `erik_notification_channel_config` | تكوين قنوات الإشعارات | P1 |
-| `erik_notification_template` | قوالب الإشعارات | P1 |
+| `erp_finance_period_close` | سجلات إقفال نهاية الفترة | P1 |
+| `erp_finance_account_balance` | لقطة أرصدة الحسابات | P1 |
+| `erp_hr_salary_config` | تكوين حساب الرواتب | P1 |
+| `erp_hr_social_insurance_config` | تكوين أساس التأمين الاجتماعي | P1 |
+| `erp_hr_housing_fund_config` | تكوين صندوق الإسكان | P1 |
+| `erp_mfg_mrp_run_log` | سجلات عمليات MRP | P1 |
+| `erp_mfg_order_suggestion` | الأوامر المقترحة | P1 |
+| `erp_quality_inspection_standard` | معايير الفحص | P1 |
+| `erp_quality_iqc_record` | فحص IQC للمواد الواردة | P1 |
+| `erp_quality_ipqc_record` | فحص IPQC للعملية | P1 |
+| `erp_quality_oqc_record` | فحص OQC للشحن | P1 |
+| `erp_quality_nonconformity` | غير المطابق | P1 |
+| `erp_notification_channel_config` | تكوين قنوات الإشعارات | P1 |
+| `erp_notification_template` | قوالب الإشعارات | P1 |
 
 ### جداول P3 الجديدة
 
 | اسم الجدول | الاستخدام | المرحلة |
 |------|------|------|
-| `erik_bi_dashboard` | لوحات BI | P3 |
-| `erik_bi_widget` | مكونات BI | P3 |
-| `erik_eam_equipment` | سجل المعدات | P3 |
-| `erik_eam_maintenance_plan` | خطط الصيانة | P3 |
-| `erik_eam_repair_order` | أوامر الإصلاح | P3 |
-| `erik_dms_document` | المستندات الخاضعة للرقابة | P3 |
-| `erik_dms_document_version` | إصدارات المستندات | P3 |
+| `erp_bi_dashboard` | لوحات BI | P3 |
+| `erp_bi_widget` | مكونات BI | P3 |
+| `erp_eam_equipment` | سجل المعدات | P3 |
+| `erp_eam_maintenance_plan` | خطط الصيانة | P3 |
+| `erp_eam_repair_order` | أوامر الإصلاح | P3 |
+| `erp_dms_document` | المستندات الخاضعة للرقابة | P3 |
+| `erp_dms_document_version` | إصدارات المستندات | P3 |
 
 ---
 

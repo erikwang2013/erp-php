@@ -12,7 +12,7 @@ use support\Model;
 
 class WmsPutawayItem extends Model
 {
-    protected $table = 'erik_wms_putaway_item';
+    protected $table = 'erp_wms_putaway_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

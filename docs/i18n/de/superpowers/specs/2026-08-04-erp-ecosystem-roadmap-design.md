@@ -377,32 +377,32 @@ Keine neuen Tabellen, das Frontend-Ökosystem beinhaltet keine Backend-Tabellens
 
 | Tabellenname | Verwendungszweck | Phase |
 |------|------|------|
-| `erik_finance_period_close` | Periodenabschluss-Protokoll | P1 |
-| `erik_finance_account_balance` | Kontosaldo-Snapshot | P1 |
-| `erik_hr_salary_config` | Gehaltsberechnungskonfiguration | P1 |
-| `erik_hr_social_insurance_config` | Sozialversicherungs-Bemessungsgrundlagenkonfiguration | P1 |
-| `erik_hr_housing_fund_config` | Housing-Fund-Konfiguration | P1 |
-| `erik_mfg_mrp_run_log` | MRP-Berechnungsprotokoll | P1 |
-| `erik_mfg_order_suggestion` | Empfohlene Bestellungen | P1 |
-| `erik_quality_inspection_standard` | Prüfstandard | P1 |
-| `erik_quality_iqc_record` | IQC-Eingangsprüfung | P1 |
-| `erik_quality_ipqc_record` | IPQC-Prozessprüfung | P1 |
-| `erik_quality_oqc_record` | OQC-Ausgangsprüfung | P1 |
-| `erik_quality_nonconformity` | Nichtkonforme Produkte | P1 |
-| `erik_notification_channel_config` | Benachrichtigungskanal-Konfiguration | P1 |
-| `erik_notification_template` | Benachrichtigungsvorlagen | P1 |
+| `erp_finance_period_close` | Periodenabschluss-Protokoll | P1 |
+| `erp_finance_account_balance` | Kontosaldo-Snapshot | P1 |
+| `erp_hr_salary_config` | Gehaltsberechnungskonfiguration | P1 |
+| `erp_hr_social_insurance_config` | Sozialversicherungs-Bemessungsgrundlagenkonfiguration | P1 |
+| `erp_hr_housing_fund_config` | Housing-Fund-Konfiguration | P1 |
+| `erp_mfg_mrp_run_log` | MRP-Berechnungsprotokoll | P1 |
+| `erp_mfg_order_suggestion` | Empfohlene Bestellungen | P1 |
+| `erp_quality_inspection_standard` | Prüfstandard | P1 |
+| `erp_quality_iqc_record` | IQC-Eingangsprüfung | P1 |
+| `erp_quality_ipqc_record` | IPQC-Prozessprüfung | P1 |
+| `erp_quality_oqc_record` | OQC-Ausgangsprüfung | P1 |
+| `erp_quality_nonconformity` | Nichtkonforme Produkte | P1 |
+| `erp_notification_channel_config` | Benachrichtigungskanal-Konfiguration | P1 |
+| `erp_notification_template` | Benachrichtigungsvorlagen | P1 |
 
 ### Neue Tabellen in P3
 
 | Tabellenname | Verwendungszweck | Phase |
 |------|------|------|
-| `erik_bi_dashboard` | BI-Dashboard | P3 |
-| `erik_bi_widget` | BI-Widgets | P3 |
-| `erik_eam_equipment` | Anlagenstamm | P3 |
-| `erik_eam_maintenance_plan` | Wartungspläne | P3 |
-| `erik_eam_repair_order` | Reparaturaufträge | P3 |
-| `erik_dms_document` | Kontrollierte Dokumente | P3 |
-| `erik_dms_document_version` | Dokumentversionen | P3 |
+| `erp_bi_dashboard` | BI-Dashboard | P3 |
+| `erp_bi_widget` | BI-Widgets | P3 |
+| `erp_eam_equipment` | Anlagenstamm | P3 |
+| `erp_eam_maintenance_plan` | Wartungspläne | P3 |
+| `erp_eam_repair_order` | Reparaturaufträge | P3 |
+| `erp_dms_document` | Kontrollierte Dokumente | P3 |
+| `erp_dms_document_version` | Dokumentversionen | P3 |
 
 ---
 

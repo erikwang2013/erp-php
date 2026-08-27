@@ -12,7 +12,7 @@ use support\Model;
 
 class OmsOrder extends Model
 {
-    protected $table = 'erik_oms_order';
+    protected $table = 'erp_oms_order';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

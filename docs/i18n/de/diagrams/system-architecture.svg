@@ -358,7 +358,7 @@
 <text text-anchor="middle" x="375" y="-153.75" font-family="Arial" font-size="10.00">MySQL 8.0</text>
 <text text-anchor="middle" x="375" y="-142.75" font-family="Arial" font-size="10.00">Primary Storage</text>
 <text text-anchor="middle" x="375" y="-131.75" font-family="Arial" font-size="10.00">163 tables</text>
-<text text-anchor="middle" x="375" y="-120.75" font-family="Arial" font-size="10.00">erik_ prefix</text>
+<text text-anchor="middle" x="375" y="-120.75" font-family="Arial" font-size="10.00">erp_ prefix</text>
 </g>
 <!-- s1&#45;&gt;d1 -->
 <g id="edge21" class="edge">
@@ -373,7 +373,7 @@
 <path fill="none" stroke="#d32f2f" stroke-width="1.5" d="M302,-162.97C302,-160.12 281.38,-157.81 256,-157.81 230.62,-157.81 210,-160.12 210,-162.97"/>
 <text text-anchor="middle" x="256" y="-148.25" font-family="Arial" font-size="10.00">Elasticsearch 8.x</text>
 <text text-anchor="middle" x="256" y="-137.25" font-family="Arial" font-size="10.00">Full&#45;text Search</text>
-<text text-anchor="middle" x="256" y="-126.25" font-family="Arial" font-size="10.00">erik_ index prefix</text>
+<text text-anchor="middle" x="256" y="-126.25" font-family="Arial" font-size="10.00">erp_ index prefix</text>
 </g>
 <!-- s1&#45;&gt;d3 -->
 <g id="edge24" class="edge">

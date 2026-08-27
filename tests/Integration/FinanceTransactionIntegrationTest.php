@@ -41,11 +41,11 @@ use Throwable;
 class FinanceTransactionIntegrationTest extends IntegrationTestCase
 {
     private const TABLES = [
-        'erik_finance_ar_ap',
-        'erik_finance_receipt',
-        'erik_finance_settlement',
-        'erik_finance_bank_account',
-        'erik_finance_cash_journal',
+        'erp_finance_ar_ap',
+        'erp_finance_receipt',
+        'erp_finance_settlement',
+        'erp_finance_bank_account',
+        'erp_finance_cash_journal',
     ];
 
     /** 本类创建的表（tearDown 需删除）；预存在表只清理测试行 */
@@ -81,8 +81,8 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
             }
             // 服务内部经 Snowflake 生成的行 id 未纳入 testIds，按外键列兜底清理
             foreach ([
-                'erik_finance_settlement' => 'ar_ap_id',
-                'erik_finance_cash_journal' => 'bank_account_id',
+                'erp_finance_settlement' => 'ar_ap_id',
+                'erp_finance_cash_journal' => 'bank_account_id',
             ] as $table => $column) {
                 if (in_array($table, $this->createdTables, true)) {
                     continue;
@@ -103,7 +103,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
     {
         $schema = Capsule::schema();
         $defs = [
-            'erik_finance_ar_ap' => static function (Blueprint $t): void {
+            'erp_finance_ar_ap' => static function (Blueprint $t): void {
                 $t->unsignedBigInteger('id')->primary();
                 $t->tinyInteger('type');
                 $t->unsignedBigInteger('partner_id');
@@ -116,7 +116,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
                 $t->timestamps();
                 $t->unique(['source_type', 'source_id'], 'uk_source');
             },
-            'erik_finance_receipt' => static function (Blueprint $t): void {
+            'erp_finance_receipt' => static function (Blueprint $t): void {
                 $t->unsignedBigInteger('id')->primary();
                 $t->string('code', 50);
                 $t->unsignedBigInteger('customer_id');
@@ -129,7 +129,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
                 $t->timestamps();
                 $t->unique('code', 'uk_code');
             },
-            'erik_finance_settlement' => static function (Blueprint $t): void {
+            'erp_finance_settlement' => static function (Blueprint $t): void {
                 $t->unsignedBigInteger('id')->primary();
                 $t->unsignedBigInteger('ar_ap_id');
                 $t->unsignedBigInteger('receipt_payment_id');
@@ -138,7 +138,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
                 $t->dateTime('settled_at')->nullable();
                 $t->timestamps();
             },
-            'erik_finance_bank_account' => static function (Blueprint $t): void {
+            'erp_finance_bank_account' => static function (Blueprint $t): void {
                 $t->unsignedBigInteger('id')->primary();
                 $t->string('name', 100);
                 $t->string('account_number', 500)->default('');
@@ -147,7 +147,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
                 $t->tinyInteger('status')->default(1);
                 $t->timestamps();
             },
-            'erik_finance_cash_journal' => static function (Blueprint $t): void {
+            'erp_finance_cash_journal' => static function (Blueprint $t): void {
                 $t->unsignedBigInteger('id')->primary();
                 $t->unsignedBigInteger('bank_account_id');
                 $t->tinyInteger('direction');

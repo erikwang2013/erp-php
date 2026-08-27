@@ -12,7 +12,7 @@ use support\Model;
 
 class ApprovalInstance extends Model
 {
-    protected $table = 'erik_approval_instance';
+    protected $table = 'erp_approval_instance';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

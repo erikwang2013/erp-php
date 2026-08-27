@@ -12,7 +12,7 @@ use support\Model;
 
 class InventoryAlertRule extends Model
 {
-    protected $table = 'erik_inventory_alert_rule';
+    protected $table = 'erp_inventory_alert_rule';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

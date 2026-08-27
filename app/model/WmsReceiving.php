@@ -12,7 +12,7 @@ use support\Model;
 
 class WmsReceiving extends Model
 {
-    protected $table = 'erik_wms_receiving';
+    protected $table = 'erp_wms_receiving';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

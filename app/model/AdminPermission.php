@@ -12,7 +12,7 @@ use support\Model;
 
 class AdminPermission extends Model
 {
-    protected $table = 'erik_admin_permission';
+    protected $table = 'erp_admin_permission';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -36,6 +36,6 @@ class AdminPermission extends Model
 
     public function roles()
     {
-        return $this->belongsToMany(AdminRole::class, 'erik_admin_role_permission', 'permission_id', 'role_id');
+        return $this->belongsToMany(AdminRole::class, 'erp_admin_role_permission', 'permission_id', 'role_id');
     }
 }

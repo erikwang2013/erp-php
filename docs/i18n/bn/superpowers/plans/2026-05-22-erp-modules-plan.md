@@ -4,7 +4,7 @@
 
 **Goal:** বিদ্যমান webman v2 সিস্টেম ম্যানেজমেন্ট বেসে পণ্য-বিক্রয়-স্টক + ফাইন্যান্স + CRM সম্পূর্ণ ERP ব্যবসায়িক মডিউল বাস্তবায়ন
 
-**Architecture:** Controller → Service → Model তিন স্তর। সব মডেল `app/model/` শেয়ার করে, কন্ট্রোলার মডিউল অনুযায়ী আলাদা ডিরেক্টরিতে `app/controller/{module}/`, ব্যবসায়িক লজিক `app/service/{module}/`-এ। ডাটাবেসে প্রায় 50টি টেবিল সবই `erik_` প্রিফিক্স, BIGINT snowflake প্রাইমারি কি। API সংস্করণ `API-Version` হেডার + `ApiVersion` মিডলওয়্যারের মাধ্যমে পরিচালিত হয়।
+**Architecture:** Controller → Service → Model তিন স্তর। সব মডেল `app/model/` শেয়ার করে, কন্ট্রোলার মডিউল অনুযায়ী আলাদা ডিরেক্টরিতে `app/controller/{module}/`, ব্যবসায়িক লজিক `app/service/{module}/`-এ। ডাটাবেসে প্রায় 50টি টেবিল সবই `erp_` প্রিফিক্স, BIGINT snowflake প্রাইমারি কি। API সংস্করণ `API-Version` হেডার + `ApiVersion` মিডলওয়্যারের মাধ্যমে পরিচালিত হয়।
 
 **Tech Stack:** PHP 8.3+ / webman v2 / MySQL 8.0+ / Eloquent ORM / erikwang2013/* সিরিজ প্যাকেজ
 
@@ -31,7 +31,7 @@
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 迁移: 商品与基础数据模块（11张表）
 
-CREATE TABLE IF NOT EXISTS `erik_category` (
+CREATE TABLE IF NOT EXISTS `erp_category` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '父级分类ID',
     `name` VARCHAR(100) NOT NULL COMMENT '分类名称',
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `erik_category` (
     PRIMARY KEY (`id`), KEY `idx_parent_id` (`parent_id`), KEY `idx_sort` (`sort`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品分类表';
 
-CREATE TABLE IF NOT EXISTS `erik_brand` (
+CREATE TABLE IF NOT EXISTS `erp_brand` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `name` VARCHAR(100) NOT NULL COMMENT '品牌名称',
     `logo` VARCHAR(255) NOT NULL DEFAULT '',
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `erik_brand` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='品牌表';
 
-CREATE TABLE IF NOT EXISTS `erik_product` (
+CREATE TABLE IF NOT EXISTS `erp_product` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `category_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '分类ID',
     `brand_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '品牌ID',
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `erik_product` (
     KEY `idx_barcode` (`barcode`), KEY `idx_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品主表';
 
-CREATE TABLE IF NOT EXISTS `erik_product_sku` (
+CREATE TABLE IF NOT EXISTS `erp_product_sku` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
     `sku_code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT 'SKU编码',
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `erik_product_sku` (
     PRIMARY KEY (`id`), KEY `idx_product_id` (`product_id`), UNIQUE KEY `uk_sku_code` (`sku_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品SKU表';
 
-CREATE TABLE IF NOT EXISTS `erik_product_unit` (
+CREATE TABLE IF NOT EXISTS `erp_product_unit` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
     `unit_name` VARCHAR(20) NOT NULL COMMENT '单位名称',
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `erik_product_unit` (
     PRIMARY KEY (`id`), KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品多单位换算表';
 
-CREATE TABLE IF NOT EXISTS `erik_product_price` (
+CREATE TABLE IF NOT EXISTS `erp_product_price` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'SKU ID，0表示商品级',
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `erik_product_price` (
     KEY `idx_price_type` (`price_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品价格策略表';
 
-CREATE TABLE IF NOT EXISTS `erik_warehouse` (
+CREATE TABLE IF NOT EXISTS `erp_warehouse` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `name` VARCHAR(100) NOT NULL COMMENT '仓库名称',
     `code` VARCHAR(50) NOT NULL COMMENT '仓库编码',
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `erik_warehouse` (
     PRIMARY KEY (`id`), UNIQUE KEY `uk_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='仓库表';
 
-CREATE TABLE IF NOT EXISTS `erik_location` (
+CREATE TABLE IF NOT EXISTS `erp_location` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '所属仓库ID',
     `code` VARCHAR(50) NOT NULL COMMENT '库位编码',
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `erik_location` (
     KEY `idx_warehouse_id` (`warehouse_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='库位表';
 
-CREATE TABLE IF NOT EXISTS `erik_supplier` (
+CREATE TABLE IF NOT EXISTS `erp_supplier` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '供应商编码',
     `name` VARCHAR(200) NOT NULL COMMENT '供应商名称',
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS `erik_supplier` (
     PRIMARY KEY (`id`), UNIQUE KEY `uk_code` (`code`), KEY `idx_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='供应商表';
 
-CREATE TABLE IF NOT EXISTS `erik_customer_level` (
+CREATE TABLE IF NOT EXISTS `erp_customer_level` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `name` VARCHAR(50) NOT NULL COMMENT '等级名称',
     `discount` DECIMAL(5,2) NOT NULL DEFAULT 100.00 COMMENT '默认折扣(%)',
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `erik_customer_level` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户等级表';
 
-CREATE TABLE IF NOT EXISTS `erik_customer` (
+CREATE TABLE IF NOT EXISTS `erp_customer` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '客户编码',
     `name` VARCHAR(200) NOT NULL COMMENT '客户名称',
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `erik_customer` (
 - [ ] **ধাপ 2: এক্সিকিউট ও যাচাই করুন**
 
 ```bash
-mysql -u root -p open_admin < database/migrations/2026_05_22_000003_product_base_tables.sql && echo "Tables: $(mysql -u root -p open_admin -N -e 'SHOW TABLES LIKE "erik_%"' | wc -l)"
+mysql -u root -p open_admin < database/migrations/2026_05_22_000003_product_base_tables.sql && echo "Tables: $(mysql -u root -p open_admin -N -e 'SHOW TABLES LIKE "erp_%"' | wc -l)"
 ```
 
 - [ ] **Step 3: Commit**
@@ -216,7 +216,7 @@ git commit -m "feat: add product base data tables (11 tables: category, brand, p
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 迁移: 采购模块
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_apply` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_apply` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '申请单号',
     `apply_user_id` BIGINT UNSIGNED NOT NULL COMMENT '申请人ID',
@@ -231,7 +231,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_apply` (
     PRIMARY KEY (`id`), KEY `idx_status` (`status`), KEY `idx_apply_user_id` (`apply_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购申请表';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_apply_item` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_apply_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `apply_id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_apply_item` (
     PRIMARY KEY (`id`), KEY `idx_apply_id` (`apply_id`), KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购申请明细';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_order` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_order` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '订单单号',
     `apply_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_order` (
     KEY `idx_apply_id` (`apply_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购订单表';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_order_item` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_order_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `order_id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
@@ -275,7 +275,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_order_item` (
     PRIMARY KEY (`id`), KEY `idx_order_id` (`order_id`), KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购订单明细';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_receive` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_receive` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '收货单号',
     `order_id` BIGINT UNSIGNED NOT NULL,
@@ -289,7 +289,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_receive` (
     PRIMARY KEY (`id`), KEY `idx_order_id` (`order_id`), KEY `idx_supplier_id` (`supplier_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购收货表';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_receive_item` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_receive_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `receive_id` BIGINT UNSIGNED NOT NULL,
     `order_item_id` BIGINT UNSIGNED NOT NULL,
@@ -305,7 +305,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_receive_item` (
     PRIMARY KEY (`id`), KEY `idx_receive_id` (`receive_id`), KEY `idx_order_item_id` (`order_item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购收货明细';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_return` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_return` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '退货单号',
     `receive_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -320,7 +320,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_return` (
     PRIMARY KEY (`id`), KEY `idx_receive_id` (`receive_id`), KEY `idx_supplier_id` (`supplier_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购退货表';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_return_item` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_return_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `return_id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
@@ -335,7 +335,7 @@ CREATE TABLE IF NOT EXISTS `erik_purchase_return_item` (
     PRIMARY KEY (`id`), KEY `idx_return_id` (`return_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购退货明细';
 
-CREATE TABLE IF NOT EXISTS `erik_purchase_settlement` (
+CREATE TABLE IF NOT EXISTS `erp_purchase_settlement` (
     `id` BIGINT UNSIGNED NOT NULL,
     `supplier_id` BIGINT UNSIGNED NOT NULL,
     `receive_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -375,7 +375,7 @@ git commit -m "feat: add purchase module tables (9 tables: apply, order, receive
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 迁移: 销售模块
 
-CREATE TABLE IF NOT EXISTS `erik_sales_quotation` (
+CREATE TABLE IF NOT EXISTS `erp_sales_quotation` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '报价单号',
     `customer_id` BIGINT UNSIGNED NOT NULL,
@@ -389,7 +389,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_quotation` (
     PRIMARY KEY (`id`), KEY `idx_customer_id` (`customer_id`), KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售报价单表';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_quotation_item` (
+CREATE TABLE IF NOT EXISTS `erp_sales_quotation_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `quotation_id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
@@ -402,7 +402,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_quotation_item` (
     PRIMARY KEY (`id`), KEY `idx_quotation_id` (`quotation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='报价明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_order` (
+CREATE TABLE IF NOT EXISTS `erp_sales_order` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '订单单号',
     `quotation_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联报价单ID',
@@ -420,7 +420,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_order` (
     KEY `idx_quotation_id` (`quotation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售订单表';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_order_item` (
+CREATE TABLE IF NOT EXISTS `erp_sales_order_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `order_id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
@@ -435,7 +435,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_order_item` (
     PRIMARY KEY (`id`), KEY `idx_order_id` (`order_id`), KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售订单明细';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_delivery` (
+CREATE TABLE IF NOT EXISTS `erp_sales_delivery` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '发货单号',
     `order_id` BIGINT UNSIGNED NOT NULL,
@@ -449,7 +449,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_delivery` (
     PRIMARY KEY (`id`), KEY `idx_order_id` (`order_id`), KEY `idx_customer_id` (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售发货表';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_delivery_item` (
+CREATE TABLE IF NOT EXISTS `erp_sales_delivery_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `delivery_id` BIGINT UNSIGNED NOT NULL,
     `order_item_id` BIGINT UNSIGNED NOT NULL,
@@ -465,7 +465,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_delivery_item` (
     PRIMARY KEY (`id`), KEY `idx_delivery_id` (`delivery_id`), KEY `idx_order_item_id` (`order_item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售发货明细';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_return` (
+CREATE TABLE IF NOT EXISTS `erp_sales_return` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '退货单号',
     `delivery_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -480,7 +480,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_return` (
     PRIMARY KEY (`id`), KEY `idx_delivery_id` (`delivery_id`), KEY `idx_customer_id` (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售退货表';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_return_item` (
+CREATE TABLE IF NOT EXISTS `erp_sales_return_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `return_id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
@@ -495,7 +495,7 @@ CREATE TABLE IF NOT EXISTS `erik_sales_return_item` (
     PRIMARY KEY (`id`), KEY `idx_return_id` (`return_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售退货明细';
 
-CREATE TABLE IF NOT EXISTS `erik_sales_settlement` (
+CREATE TABLE IF NOT EXISTS `erp_sales_settlement` (
     `id` BIGINT UNSIGNED NOT NULL,
     `customer_id` BIGINT UNSIGNED NOT NULL,
     `delivery_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -537,7 +537,7 @@ git commit -m "feat: add sales module tables (9 tables: quotation, order, delive
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 迁移: 库存模块
 
-CREATE TABLE IF NOT EXISTS `erik_inventory` (
+CREATE TABLE IF NOT EXISTS `erp_inventory` (
     `id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -553,7 +553,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory` (
     KEY `idx_warehouse_id` (`warehouse_id`), KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='实时库存表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_batch` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_batch` (
     `id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -565,7 +565,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_batch` (
     UNIQUE KEY `uk_batch` (`product_id`, `sku_id`, `batch_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='批次信息表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_serial` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_serial` (
     `id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -580,7 +580,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_serial` (
     KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='序列号记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_flow` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_flow` (
     `id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -600,7 +600,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_flow` (
     KEY `idx_warehouse_id` (`warehouse_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='出入库流水表';
 
-CREATE TABLE IF NOT EXISTS `erik_transfer` (
+CREATE TABLE IF NOT EXISTS `erp_transfer` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '调拨单号',
     `from_warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '调出仓库',
@@ -615,7 +615,7 @@ CREATE TABLE IF NOT EXISTS `erik_transfer` (
     KEY `idx_to_warehouse` (`to_warehouse_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='调拨单表';
 
-CREATE TABLE IF NOT EXISTS `erik_transfer_item` (
+CREATE TABLE IF NOT EXISTS `erp_transfer_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `transfer_id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
@@ -629,7 +629,7 @@ CREATE TABLE IF NOT EXISTS `erik_transfer_item` (
     PRIMARY KEY (`id`), KEY `idx_transfer_id` (`transfer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='调拨明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_check_task` (
+CREATE TABLE IF NOT EXISTS `erp_check_task` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '盘点单号',
     `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '盘点仓库',
@@ -643,7 +643,7 @@ CREATE TABLE IF NOT EXISTS `erik_check_task` (
     PRIMARY KEY (`id`), KEY `idx_warehouse_id` (`warehouse_id`), KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='盘点任务表';
 
-CREATE TABLE IF NOT EXISTS `erik_check_detail` (
+CREATE TABLE IF NOT EXISTS `erp_check_detail` (
     `id` BIGINT UNSIGNED NOT NULL,
     `check_id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
@@ -658,7 +658,7 @@ CREATE TABLE IF NOT EXISTS `erik_check_detail` (
     PRIMARY KEY (`id`), KEY `idx_check_id` (`check_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='盘点明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_alert_rule` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_alert_rule` (
     `id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -671,7 +671,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_alert_rule` (
     PRIMARY KEY (`id`), KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='库存预警规则表';
 
-CREATE TABLE IF NOT EXISTS `erik_inventory_alert_log` (
+CREATE TABLE IF NOT EXISTS `erp_inventory_alert_log` (
     `id` BIGINT UNSIGNED NOT NULL,
     `rule_id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
@@ -683,7 +683,7 @@ CREATE TABLE IF NOT EXISTS `erik_inventory_alert_log` (
     PRIMARY KEY (`id`), KEY `idx_rule_id` (`rule_id`), KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='库存预警日志表';
 
-CREATE TABLE IF NOT EXISTS `erik_cost_record` (
+CREATE TABLE IF NOT EXISTS `erp_cost_record` (
     `id` BIGINT UNSIGNED NOT NULL,
     `product_id` BIGINT UNSIGNED NOT NULL,
     `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -707,7 +707,7 @@ CREATE TABLE IF NOT EXISTS `erik_cost_record` (
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 迁移: 财务模块
 
-CREATE TABLE IF NOT EXISTS `erik_finance_account` (
+CREATE TABLE IF NOT EXISTS `erp_finance_account` (
     `id` BIGINT UNSIGNED NOT NULL,
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '父级科目ID',
     `code` VARCHAR(50) NOT NULL COMMENT '科目编码',
@@ -720,7 +720,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_account` (
     PRIMARY KEY (`id`), UNIQUE KEY `uk_code` (`code`), KEY `idx_parent_id` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会计科目表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_voucher` (
+CREATE TABLE IF NOT EXISTS `erp_finance_voucher` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '凭证编号',
     `voucher_date` DATE NOT NULL COMMENT '凭证日期',
@@ -732,7 +732,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_voucher` (
     PRIMARY KEY (`id`), KEY `idx_voucher_date` (`voucher_date`), KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='记账凭证表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_voucher_item` (
+CREATE TABLE IF NOT EXISTS `erp_finance_voucher_item` (
     `id` BIGINT UNSIGNED NOT NULL,
     `voucher_id` BIGINT UNSIGNED NOT NULL,
     `account_id` BIGINT UNSIGNED NOT NULL COMMENT '科目ID',
@@ -743,7 +743,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_voucher_item` (
     PRIMARY KEY (`id`), KEY `idx_voucher_id` (`voucher_id`), KEY `idx_account_id` (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='凭证分录表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_ar_ap` (
+CREATE TABLE IF NOT EXISTS `erp_finance_ar_ap` (
     `id` BIGINT UNSIGNED NOT NULL,
     `type` TINYINT UNSIGNED NOT NULL COMMENT '1应收2应付',
     `partner_id` BIGINT UNSIGNED NOT NULL COMMENT '客户/供应商ID',
@@ -761,7 +761,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_ar_ap` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='应收应付明细表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_bank_account` (
+CREATE TABLE IF NOT EXISTS `erp_finance_bank_account` (
     `id` BIGINT UNSIGNED NOT NULL,
     `name` VARCHAR(100) NOT NULL COMMENT '账户名称',
     `account_number` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '账号（加密存储）',
@@ -773,7 +773,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_bank_account` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='银行账户表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_receipt` (
+CREATE TABLE IF NOT EXISTS `erp_finance_receipt` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '收款单号',
     `customer_id` BIGINT UNSIGNED NOT NULL,
@@ -788,7 +788,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_receipt` (
     PRIMARY KEY (`id`), KEY `idx_customer_id` (`customer_id`), KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收款单表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_payment` (
+CREATE TABLE IF NOT EXISTS `erp_finance_payment` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '付款单号',
     `supplier_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '供应商ID',
@@ -803,7 +803,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_payment` (
     PRIMARY KEY (`id`), KEY `idx_supplier_id` (`supplier_id`), KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='付款单表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_settlement` (
+CREATE TABLE IF NOT EXISTS `erp_finance_settlement` (
     `id` BIGINT UNSIGNED NOT NULL,
     `ar_ap_id` BIGINT UNSIGNED NOT NULL COMMENT '应收应付明细ID',
     `receipt_payment_id` BIGINT UNSIGNED NOT NULL COMMENT '收/付款单ID',
@@ -816,7 +816,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_settlement` (
     KEY `idx_receipt_payment_id` (`receipt_payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收付款核销表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_cash_journal` (
+CREATE TABLE IF NOT EXISTS `erp_finance_cash_journal` (
     `id` BIGINT UNSIGNED NOT NULL,
     `bank_account_id` BIGINT UNSIGNED NOT NULL,
     `direction` TINYINT UNSIGNED NOT NULL COMMENT '1收入2支出',
@@ -832,7 +832,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_cash_journal` (
     KEY `idx_journal_date` (`journal_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='现金银行日记账';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_expense` (
+CREATE TABLE IF NOT EXISTS `erp_finance_expense` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '报销单号',
     `apply_user_id` BIGINT UNSIGNED NOT NULL COMMENT '申请人ID',
@@ -848,7 +848,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_expense` (
     PRIMARY KEY (`id`), KEY `idx_apply_user_id` (`apply_user_id`), KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='费用报销表';
 
-CREATE TABLE IF NOT EXISTS `erik_finance_profit` (
+CREATE TABLE IF NOT EXISTS `erp_finance_profit` (
     `id` BIGINT UNSIGNED NOT NULL,
     `year` SMALLINT UNSIGNED NOT NULL COMMENT '年份',
     `month` TINYINT UNSIGNED NOT NULL COMMENT '月份',
@@ -869,7 +869,7 @@ CREATE TABLE IF NOT EXISTS `erik_finance_profit` (
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 迁移: CRM模块
 
-CREATE TABLE IF NOT EXISTS `erik_crm_funnel_stage` (
+CREATE TABLE IF NOT EXISTS `erp_crm_funnel_stage` (
     `id` BIGINT UNSIGNED NOT NULL,
     `name` VARCHAR(50) NOT NULL COMMENT '阶段名称',
     `sort` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序',
@@ -880,7 +880,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_funnel_stage` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售漏斗阶段配置';
 
-INSERT INTO `erik_crm_funnel_stage` (`id`, `name`, `sort`, `win_rate`) VALUES
+INSERT INTO `erp_crm_funnel_stage` (`id`, `name`, `sort`, `win_rate`) VALUES
 (50000000000000001, '初步接触', 1, 10.00),
 (50000000000000002, '需求确认', 2, 30.00),
 (50000000000000003, '报价/方案', 3, 50.00),
@@ -888,7 +888,7 @@ INSERT INTO `erik_crm_funnel_stage` (`id`, `name`, `sort`, `win_rate`) VALUES
 (50000000000000005, '成交', 5, 100.00),
 (50000000000000006, '输单', 6, 0.00);
 
-CREATE TABLE IF NOT EXISTS `erik_crm_opportunity` (
+CREATE TABLE IF NOT EXISTS `erp_crm_opportunity` (
     `id` BIGINT UNSIGNED NOT NULL,
     `customer_id` BIGINT UNSIGNED NOT NULL,
     `stage_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '当前阶段ID',
@@ -906,7 +906,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_opportunity` (
     KEY `idx_owner_user_id` (`owner_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商机表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_follow_record` (
+CREATE TABLE IF NOT EXISTS `erp_crm_follow_record` (
     `id` BIGINT UNSIGNED NOT NULL,
     `customer_id` BIGINT UNSIGNED NOT NULL,
     `contact_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '联系人ID',
@@ -924,7 +924,7 @@ CREATE TABLE IF NOT EXISTS `erik_crm_follow_record` (
     KEY `idx_follow_user_id` (`follow_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='跟进记录表';
 
-CREATE TABLE IF NOT EXISTS `erik_crm_contact` (
+CREATE TABLE IF NOT EXISTS `erp_crm_contact` (
     `id` BIGINT UNSIGNED NOT NULL,
     `customer_id` BIGINT UNSIGNED NOT NULL,
     `name` VARCHAR(50) NOT NULL COMMENT '联系人姓名',
@@ -997,7 +997,7 @@ class Product extends Model
     use SoftDeletes;
     use Searchable;
 
-    protected $table = 'erik_product';
+    protected $table = 'erp_product';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1066,7 +1066,7 @@ use support\Model;
 class Category extends Model
 {
     use SoftDeletes;
-    protected $table = 'erik_category';
+    protected $table = 'erp_category';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1096,7 +1096,7 @@ use support\Model;
 class Brand extends Model
 {
     use SoftDeletes;
-    protected $table = 'erik_brand';
+    protected $table = 'erp_brand';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1114,7 +1114,7 @@ use support\Model;
 
 class ProductSku extends Model
 {
-    protected $table = 'erik_product_sku';
+    protected $table = 'erp_product_sku';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1139,7 +1139,7 @@ use support\Model;
 
 class ProductUnit extends Model
 {
-    protected $table = 'erik_product_unit';
+    protected $table = 'erp_product_unit';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1158,7 +1158,7 @@ use support\Model;
 
 class ProductPrice extends Model
 {
-    protected $table = 'erik_product_price';
+    protected $table = 'erp_product_price';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1182,7 +1182,7 @@ use support\Model;
 class Warehouse extends Model
 {
     use SoftDeletes;
-    protected $table = 'erik_warehouse';
+    protected $table = 'erp_warehouse';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1208,7 +1208,7 @@ use support\Model;
 
 class Location extends Model
 {
-    protected $table = 'erik_location';
+    protected $table = 'erp_location';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1236,7 +1236,7 @@ class Supplier extends Model
 {
     use SoftDeletes;
     use Searchable;
-    protected $table = 'erik_supplier';
+    protected $table = 'erp_supplier';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1269,7 +1269,7 @@ use support\Model;
 class CustomerLevel extends Model
 {
     use SoftDeletes;
-    protected $table = 'erik_customer_level';
+    protected $table = 'erp_customer_level';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1292,7 +1292,7 @@ class Customer extends Model
 {
     use SoftDeletes;
     use Searchable;
-    protected $table = 'erik_customer';
+    protected $table = 'erp_customer';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1370,7 +1370,7 @@ use support\Model;
 class PurchaseOrder extends Model
 {
     use SoftDeletes;
-    protected $table = 'erik_purchase_order';
+    protected $table = 'erp_purchase_order';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1420,7 +1420,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ${model} extends Model
 {
     use SoftDeletes;
-    protected \$table = 'erik_' . strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', '${model}'));
+    protected \$table = 'erp_' . strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', '${model}'));
     protected \$primaryKey = 'id';
     public \$incrementing = false;
     protected \$keyType = 'int';
@@ -1485,7 +1485,7 @@ class ${class} extends Model
         \$code .= '    use SoftDeletes;
 ';
     }
-    \$code .= \"    protected \\\$table = 'erik_' . strtolower(preg_replace('/([a-z])([A-Z])/', '\\\$1_\\\$2', '${class}'));
+    \$code .= \"    protected \\\$table = 'erp_' . strtolower(preg_replace('/([a-z])([A-Z])/', '\\\$1_\\\$2', '${class}'));
     protected \\\$primaryKey = 'id';
     public \\\$incrementing = false;
     protected \\\$keyType = 'int';
@@ -1517,7 +1517,7 @@ class ${class} extends Model
         \$code .= '    use SoftDeletes;
 ';
     }
-    \$code .= \"    protected \\\$table = 'erik_'.strtolower(preg_replace('/([a-z])([A-Z])/', '\\\$1_\\\$2', '${class}'));
+    \$code .= \"    protected \\\$table = 'erp_'.strtolower(preg_replace('/([a-z])([A-Z])/', '\\\$1_\\\$2', '${class}'));
     protected \\\$primaryKey = 'id';
     public \\\$incrementing = false;
     protected \\\$keyType = 'int';
@@ -1547,7 +1547,7 @@ class ${class} extends Model
         \$code .= '    use SoftDeletes;
 ';
     }
-    \$code .= \"    protected \\\$table = 'erik_'.strtolower(preg_replace('/([a-z])([A-Z])/', '\\\$1_\\\$2', '${class}'));
+    \$code .= \"    protected \\\$table = 'erp_'.strtolower(preg_replace('/([a-z])([A-Z])/', '\\\$1_\\\$2', '${class}'));
     protected \\\$primaryKey = 'id';
     public \\\$incrementing = false;
     protected \\\$keyType = 'int';
@@ -1569,7 +1569,7 @@ use support\Model;
 
 class Inventory extends Model
 {
-    protected $table = 'erik_inventory';
+    protected $table = 'erp_inventory';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1606,7 +1606,7 @@ use support\Model;
 
 class FinanceArAp extends Model
 {
-    protected $table = 'erik_finance_ar_ap';
+    protected $table = 'erp_finance_ar_ap';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -1634,7 +1634,7 @@ use support\Model;
 
 class CrmContact extends Model
 {
-    protected $table = 'erik_crm_contact';
+    protected $table = 'erp_crm_contact';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -2628,7 +2628,7 @@ Route::get('/dashboard/finance', [app\admin\controller\DashboardController::clas
 -- 种子: ERP 业务模块菜单 + API 权限
 
 -- 菜单权限
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`) VALUES
 (31000000000000001, NULL, '商品管理', 'product', 1, 'inventory', '/admin/product', 7),
 (31000000000000002, NULL, '采购管理', 'purchase', 1, 'shopping_cart', '/admin/purchase', 8),
 (31000000000000003, NULL, '销售管理', 'sales', 1, 'sell', '/admin/sales', 9),
@@ -2637,40 +2637,40 @@ INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, 
 (31000000000000006, NULL, 'CRM', 'crm', 1, 'people', '/admin/crm', 12);
 
 -- API 权限 — 商品
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
 (31000000000000011, 31000000000000001, '查看商品', 'get.admin/product', 3),
 (31000000000000012, 31000000000000001, '创建商品', 'post.admin/product', 3),
 (31000000000000013, 31000000000000001, '更新商品', 'put.admin/product', 3),
 (31000000000000014, 31000000000000001, '删除商品', 'delete.admin/product', 3);
 
 -- API 权限 — 采购
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
 (31000000000000021, 31000000000000002, '采购收货', 'post.admin/purchase/receive', 3),
 (31000000000000022, 31000000000000002, '采购申请审批', 'post.admin/purchase/apply/approve', 3);
 
 -- API 权限 — 销售
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
 (31000000000000031, 31000000000000003, '销售发货', 'post.admin/sales/delivery', 3),
 (31000000000000032, 31000000000000003, '报价转订单', 'post.admin/sales/quotation/to-order', 3);
 
 -- API 权限 — 库存
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
 (31000000000000041, 31000000000000004, '盘点处理', 'post.admin/inventory/check/process', 3),
 (31000000000000042, 31000000000000004, '执行调拨', 'post.admin/inventory/transfer/execute', 3);
 
 -- API 权限 — 财务
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
 (31000000000000051, 31000000000000005, '收款核销', 'post.admin/finance/receipt/settle', 3),
 (31000000000000052, 31000000000000005, '付款核销', 'post.admin/finance/payment/settle', 3),
 (31000000000000053, 31000000000000005, '报销打款', 'post.admin/finance/expense/pay', 3);
 
 -- API 权限 — CRM
-INSERT INTO `erik_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`) VALUES
 (31000000000000061, 31000000000000006, '移动商机阶段', 'post.admin/crm/opportunity/move-stage', 3);
 
 -- 超级管理员授权
-INSERT INTO `erik_admin_role_permission` (`role_id`, `permission_id`)
-SELECT 10000000000000001, `id` FROM `erik_admin_permission`
+INSERT INTO `erp_admin_role_permission` (`role_id`, `permission_id`)
+SELECT 10000000000000001, `id` FROM `erp_admin_permission`
 WHERE `id` >= 31000000000000001;
 ```
 
@@ -3052,7 +3052,7 @@ echo 'Routes configured OK' . PHP_EOL;
 mysql -u root -p open_admin -e "
 SELECT COUNT(*) AS erp_table_count
 FROM information_schema.tables
-WHERE table_schema = 'open_admin' AND table_name LIKE 'erik_%';
+WHERE table_schema = 'open_admin' AND table_name LIKE 'erp_%';
 "
 # 预期: 约 55 张表（5张系统表 + 50张业务表）
 ```

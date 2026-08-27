@@ -12,7 +12,7 @@ use support\Model;
 
 class ProductPrice extends Model
 {
-    protected $table = 'erik_product_price';
+    protected $table = 'erp_product_price';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

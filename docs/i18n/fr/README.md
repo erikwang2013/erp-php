@@ -67,7 +67,7 @@ Flux de données entre les modules métier :
 |---|------|------|
 | Framework backend | webman v2 (workerman) | Framework PHP haute performance à processus résidents |
 | Version PHP | 8.3+ | |
-| Base de données | MySQL 8.0+ | Préfixe de table `erik_`, clés primaires BIGINT non auto-incrémentées |
+| Base de données | MySQL 8.0+ | Préfixe de table `erp_`, clés primaires BIGINT non auto-incrémentées |
 | Moteur de recherche | Elasticsearch | Synchronisation et recherche via `webman-scout` |
 | Frontend d'administration | Flutter 3.x | Style console d'administration PC sur le Web (`apps/flutter/`) |
 | Application mobile | HarmonyOS ArkTS | Client natif HarmonyOS (`apps/harmonyos/`), prend en charge téléphone / tablette / 2-en-1 |
@@ -286,7 +286,7 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 - `.env.docker` : variables d'environnement dédiées à Docker
 ## Règles de base de données
 
-- **Préfixe de table** : `erik_`
+- **Préfixe de table** : `erp_`
 - **Clé primaire** : la clé primaire de toutes les tables est `id BIGINT UNSIGNED NOT NULL`, **AUTO_INCREMENT interdit**
 - **Génération des ID** : les clés primaires sont générées par `SnowflakeService::generate()` au niveau applicatif, uniques en environnement distribué
 - **Champs obligatoires** : chaque table doit contenir `id`, `created_at`, `updated_at`

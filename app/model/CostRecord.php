@@ -12,7 +12,7 @@ use support\Model;
 
 class CostRecord extends Model
 {
-    protected $table = 'erik_cost_record';
+    protected $table = 'erp_cost_record';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

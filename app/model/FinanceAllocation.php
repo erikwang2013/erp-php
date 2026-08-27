@@ -11,7 +11,7 @@ use support\Model;
 
 class FinanceAllocation extends Model
 {
-    protected $table = 'erik_finance_allocation';
+    protected $table = 'erp_finance_allocation';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

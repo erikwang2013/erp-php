@@ -11,7 +11,7 @@ use support\Model;
 
 class QualityInspectionStandard extends Model
 {
-    protected $table = 'erik_quality_inspection_standard';
+    protected $table = 'erp_quality_inspection_standard';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

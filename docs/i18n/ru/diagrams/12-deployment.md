@@ -18,8 +18,8 @@ flowchart TB
     end
 
     subgraph data["Слой данных"]
-        mysql[("MySQL 8.0<br/>репликация мастер-реплика<br/>префикс erik_")]
-        es[("Elasticsearch 8.x<br/>кластер из 3 узлов<br/>префикс erik_")]
+        mysql[("MySQL 8.0<br/>репликация мастер-реплика<br/>префикс erp_")]
+        es[("Elasticsearch 8.x<br/>кластер из 3 узлов<br/>префикс erp_")]
         redis[("Redis 7.x<br/>режим Sentinel<br/>poster:captcha:*")]
     end
 

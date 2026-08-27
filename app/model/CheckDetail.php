@@ -12,7 +12,7 @@ use support\Model;
 
 class CheckDetail extends Model
 {
-    protected $table = 'erik_check_detail';
+    protected $table = 'erp_check_detail';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

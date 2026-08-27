@@ -227,15 +227,15 @@ class SalesModuleTest extends TestCase
     public function testSalesModelsInstantiateWithExpectedTables(): void
     {
         $models = [
-            SalesQuotation::class => 'erik_sales_quotation',
-            SalesQuotationItem::class => 'erik_sales_quotation_item',
-            SalesOrder::class => 'erik_sales_order',
-            SalesOrderItem::class => 'erik_sales_order_item',
-            SalesDelivery::class => 'erik_sales_delivery',
-            SalesDeliveryItem::class => 'erik_sales_delivery_item',
-            SalesReturn::class => 'erik_sales_return',
-            SalesReturnItem::class => 'erik_sales_return_item',
-            SalesSettlement::class => 'erik_sales_settlement',
+            SalesQuotation::class => 'erp_sales_quotation',
+            SalesQuotationItem::class => 'erp_sales_quotation_item',
+            SalesOrder::class => 'erp_sales_order',
+            SalesOrderItem::class => 'erp_sales_order_item',
+            SalesDelivery::class => 'erp_sales_delivery',
+            SalesDeliveryItem::class => 'erp_sales_delivery_item',
+            SalesReturn::class => 'erp_sales_return',
+            SalesReturnItem::class => 'erp_sales_return_item',
+            SalesSettlement::class => 'erp_sales_settlement',
         ];
         foreach ($models as $class => $table) {
             $this->assertTrue(class_exists($class), "模型 {$class} 应存在");

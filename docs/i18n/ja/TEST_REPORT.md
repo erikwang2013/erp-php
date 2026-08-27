@@ -126,7 +126,7 @@ E2E_USER=admin E2E_PASS=admin123 php tests/E2E/api-coverage.php --base-url=http:
 
 19 グループのモジュールをカバー: システム管理（ユーザー/ロール/権限/設定/ヘルス/指標）、財務（連結/残高/振替/比率）、在庫、販売、商品、購買、プロジェクト、承認、CRM、BI、通知、レポート。
 
-> 訂正: api-tester は `erik_admin_config` テーブル欠落を疑っていましたが —— **欠陥ではありません**。実際のテーブル名は `erik_system_config`（install.sql:133 で作成済み、SystemConfig モデルも正しい方を指しています）。本報告で訂正します。
+> 訂正: api-tester は `erp_admin_config` テーブル欠落を疑っていましたが —— **欠陥ではありません**。実際のテーブル名は `erp_system_config`（install.sql:133 で作成済み、SystemConfig モデルも正しい方を指しています）。本報告で訂正します。
 
 ## カバレッジ
 

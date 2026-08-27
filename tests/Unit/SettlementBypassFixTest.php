@@ -18,9 +18,9 @@ use Throwable;
  * - 纯逻辑断言（无需数据库）: SettlementController 不再暴露 update/destroy，
  *   已核销记录不可被随意修改/删除。
  * - 数据库断言（TEST_DB_* 契约，与 tests/Integration 一致，未配置时优雅跳过）:
- *   核销经服务层后 erik_finance_ar_ap.settled_amount/status 同步、超余额拒绝。
+ *   核销经服务层后 erp_finance_ar_ap.settled_amount/status 同步、超余额拒绝。
  *   注: 数据库断言统一走 Capsule::table 显式表名，规避模型魔术方法的
- *   phpstan 基线差异与 erik_ 前缀双重叠加问题。
+ *   phpstan 基线差异与 erp_ 前缀双重叠加问题。
  */
 class SettlementBypassFixTest extends TestCase
 {
@@ -33,11 +33,11 @@ class SettlementBypassFixTest extends TestCase
     protected function tearDown(): void
     {
         if (!empty($this->settlementIds)) {
-            Capsule::table('erik_finance_settlement')->whereIn('id', $this->settlementIds)->delete();
+            Capsule::table('erp_finance_settlement')->whereIn('id', $this->settlementIds)->delete();
             $this->settlementIds = [];
         }
         if (!empty($this->arApIds)) {
-            Capsule::table('erik_finance_ar_ap')->whereIn('id', $this->arApIds)->delete();
+            Capsule::table('erp_finance_ar_ap')->whereIn('id', $this->arApIds)->delete();
             $this->arApIds = [];
         }
         parent::tearDown();
@@ -65,12 +65,12 @@ class SettlementBypassFixTest extends TestCase
 
         $service->settleReceipt(888001, $arApId, 600.00);
 
-        $arAp = Capsule::table('erik_finance_ar_ap')->where('id', $arApId)->first();
+        $arAp = Capsule::table('erp_finance_ar_ap')->where('id', $arApId)->first();
         $this->assertNotNull($arAp);
         $this->assertEquals(600.00, (float) $arAp->settled_amount, 'settled_amount 应同步为已核销金额');
         $this->assertEquals(1, (int) $arAp->status, '部分核销状态应为 1');
 
-        $settlement = Capsule::table('erik_finance_settlement')
+        $settlement = Capsule::table('erp_finance_settlement')
             ->where('ar_ap_id', $arApId)->where('type', 1)->first();
         $this->assertNotNull($settlement, '服务层应生成核销记录');
         $this->assertEquals(600.00, (float) $settlement->amount);

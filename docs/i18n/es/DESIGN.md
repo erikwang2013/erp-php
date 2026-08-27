@@ -132,34 +132,34 @@ Capa de presentación (mask)          — teléfono: 138****1234, correo: a***@e
 ### 3.1 Relaciones ER
 
 ```
-erik_admin_user ──┬── erik_admin_user_role ──┬── erik_admin_role
+erp_admin_user ──┬── erp_admin_user_role ──┬── erp_admin_role
   (usuarios)      │    (relación usuario-rol)  │     (roles)
                   │                          │
-                  │                    erik_admin_role_permission
+                  │                    erp_admin_role_permission
                   │                     (relación rol-permiso)
                   │                          │
                   │                          ▼
-                  │                    erik_admin_permission
+                  │                    erp_admin_permission
                   │                      (permisos/menús)
                   │
                   ▼
-           erik_operation_log
+           erp_operation_log
              (log de operaciones)
 
-erik_system_config (configuración del sistema) — tabla independiente
+erp_system_config (configuración del sistema) — tabla independiente
 ```
 
 ### 3.2 Estructura de tablas principales
 
 | Nombre de tabla | N.º de campos | Descripción |
 |------|-------|------|
-| `erik_admin_user` | 14 | Usuario administrador; phone/email/id_card almacenados cifrados; soporte de borrado suave |
-| `erik_admin_role` | 7 | Roles, slug único |
-| `erik_admin_permission` | 10 | Árbol de permisos (parent_id autorreferenciado), type: 1=menú 2=botón 3=API |
-| `erik_admin_user_role` | 2 | Tabla intermedia muchos a muchos usuario-rol |
-| `erik_admin_role_permission` | 2 | Tabla intermedia muchos a muchos rol-permiso |
-| `erik_system_config` | 8 | Configuración de pares clave-valor, group+key único conjunto |
-| `erik_operation_log` | 9 | Log de auditoría de operaciones (incluye la plataforma de origen source) |
+| `erp_admin_user` | 14 | Usuario administrador; phone/email/id_card almacenados cifrados; soporte de borrado suave |
+| `erp_admin_role` | 7 | Roles, slug único |
+| `erp_admin_permission` | 10 | Árbol de permisos (parent_id autorreferenciado), type: 1=menú 2=botón 3=API |
+| `erp_admin_user_role` | 2 | Tabla intermedia muchos a muchos usuario-rol |
+| `erp_admin_role_permission` | 2 | Tabla intermedia muchos a muchos rol-permiso |
+| `erp_system_config` | 8 | Configuración de pares clave-valor, group+key único conjunto |
+| `erp_operation_log` | 9 | Log de auditoría de operaciones (incluye la plataforma de origen source) |
 
 ### 3.3 Norma de clave primaria
 

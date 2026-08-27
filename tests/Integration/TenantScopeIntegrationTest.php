@@ -48,7 +48,7 @@ use Webman\Http\Request;
 class TenantScopeIntegrationTest extends IntegrationTestCase
 {
     /** 租户隔离测试表名 */
-    private const TENANT_TABLE = 'erik_it_tenant';
+    private const TENANT_TABLE = 'erp_it_tenant';
 
     protected function setUp(): void
     {

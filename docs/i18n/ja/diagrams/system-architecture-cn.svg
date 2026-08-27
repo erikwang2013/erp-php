@@ -358,7 +358,7 @@
 <text text-anchor="middle" x="291" y="-153.75" font-family="Arial" font-size="10.00">MySQL 8.0</text>
 <text text-anchor="middle" x="291" y="-142.75" font-family="Arial" font-size="10.00">主数据库</text>
 <text text-anchor="middle" x="291" y="-131.75" font-family="Arial" font-size="10.00">163 张表</text>
-<text text-anchor="middle" x="291" y="-120.75" font-family="Arial" font-size="10.00">erik_ 前缀</text>
+<text text-anchor="middle" x="291" y="-120.75" font-family="Arial" font-size="10.00">erp_ 前缀</text>
 </g>
 <!-- s1&#45;&gt;d1 -->
 <g id="edge21" class="edge">
@@ -373,7 +373,7 @@
 <path fill="none" stroke="#d32f2f" stroke-width="1.5" d="M229,-162.97C229,-160.12 208.38,-157.81 183,-157.81 157.62,-157.81 137,-160.12 137,-162.97"/>
 <text text-anchor="middle" x="183" y="-148.25" font-family="Arial" font-size="10.00">Elasticsearch 8.x</text>
 <text text-anchor="middle" x="183" y="-137.25" font-family="Arial" font-size="10.00">全文检索</text>
-<text text-anchor="middle" x="183" y="-126.25" font-family="Arial" font-size="10.00">erik_ 索引前缀</text>
+<text text-anchor="middle" x="183" y="-126.25" font-family="Arial" font-size="10.00">erp_ 索引前缀</text>
 </g>
 <!-- s1&#45;&gt;d3 -->
 <g id="edge24" class="edge">

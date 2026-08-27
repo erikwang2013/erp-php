@@ -67,7 +67,7 @@ Data flow between business modules:
 |---|------|------|
 | Backend framework | webman v2 (workerman) | Ultra-high-performance PHP resident-process framework |
 | PHP version | 8.3+ | |
-| Database | MySQL 8.0+ | Table prefix `erik_`, BIGINT non-auto-increment primary keys |
+| Database | MySQL 8.0+ | Table prefix `erp_`, BIGINT non-auto-increment primary keys |
 | Search engine | Elasticsearch | Synced and queried via `webman-scout` |
 | Admin frontend | Flutter 3.x | Web is a PC admin console style (`apps/flutter/`) |
 | Mobile | HarmonyOS ArkTS | HarmonyOS native client (`apps/harmonyos/`), supports phone/tablet/2in1 |
@@ -287,7 +287,7 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 ## Database Conventions
 
-- **Table prefix**: `erik_`
+- **Table prefix**: `erp_`
 - **Primary key**: all tables use `id BIGINT UNSIGNED NOT NULL`, **AUTO_INCREMENT is forbidden**
 - **ID generation**: primary key IDs are generated at the application layer by `SnowflakeService::generate()`, globally unique across distributed nodes
 - **Mandatory fields**: every table must include `id`, `created_at`, `updated_at`

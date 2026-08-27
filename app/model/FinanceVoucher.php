@@ -15,7 +15,7 @@ class FinanceVoucher extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_finance_voucher';
+    protected $table = 'erp_finance_voucher';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

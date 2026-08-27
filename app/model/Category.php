@@ -15,7 +15,7 @@ class Category extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_category';
+    protected $table = 'erp_category';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -67,7 +67,7 @@ webman v2 + Flutter によるフルスタック ERP システム。
 |---|------|------|
 | バックエンドフレームワーク | webman v2 (workerman) | 超高性能 PHP 常駐プロセスフレームワーク |
 | PHP バージョン | 8.3+ | |
-| データベース | MySQL 8.0+ | テーブルプレフィックス `erik_`、BIGINT 非自動採番主キー |
+| データベース | MySQL 8.0+ | テーブルプレフィックス `erp_`、BIGINT 非自動採番主キー |
 | 検索エンジン | Elasticsearch | `webman-scout` で同期と検索 |
 | 管理画面フロントエンド | Flutter 3.x | Web 版は PC 管理画面スタイル（`apps/flutter/`） |
 | モバイル端末 | HarmonyOS ArkTS | 鴻蒙ネイティブクライアント（`apps/harmonyos/`）、スマホ/タブレット/2in1 対応 |
@@ -287,7 +287,7 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 ## データベース規約
 
-- **テーブルプレフィックス**: `erik_`
+- **テーブルプレフィックス**: `erp_`
 - **主キー**: 全テーブルの主キーは `id BIGINT UNSIGNED NOT NULL`、**AUTO_INCREMENT 禁止**
 - **ID 生成**: 主キー ID はアプリケーション層の `SnowflakeService::generate()` で生成、分散一意
 - **必須フィールド**: 各テーブルには `id`, `created_at`, `updated_at` を含めること

@@ -11,14 +11,14 @@ namespace tests\Integration\Fixtures;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 集成测试专用 CRUD 模型：映射测试临时表 erik_it_crud。
+ * 集成测试专用 CRUD 模型：映射测试临时表 erp_it_crud。
  *
  * 与业务模型保持一致的约定（snowflake 风格主键、非自增、bigint），
  * 但不依赖任何业务 trait（SoftDeletes/Searchable），保证测试自包含。
  */
 class CrudTestModel extends Model
 {
-    protected $table = 'erik_it_crud';
+    protected $table = 'erp_it_crud';
 
     protected $primaryKey = 'id';
 

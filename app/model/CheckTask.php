@@ -12,7 +12,7 @@ use support\Model;
 
 class CheckTask extends Model
 {
-    protected $table = 'erik_check_task';
+    protected $table = 'erp_check_task';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

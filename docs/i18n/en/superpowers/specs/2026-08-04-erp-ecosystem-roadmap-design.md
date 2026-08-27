@@ -377,32 +377,32 @@ No new tables; the frontend ecosystem does not involve backend table structure c
 
 | Table | Purpose | Phase |
 |-------|---------|-------|
-| `erik_finance_period_close` | Period-end closing records | P1 |
-| `erik_finance_account_balance` | Subject balance snapshots | P1 |
-| `erik_hr_salary_config` | Payroll calculation config | P1 |
-| `erik_hr_social_insurance_config` | Social insurance base config | P1 |
-| `erik_hr_housing_fund_config` | Housing fund config | P1 |
-| `erik_mfg_mrp_run_log` | MRP run logs | P1 |
-| `erik_mfg_order_suggestion` | Suggested orders | P1 |
-| `erik_quality_inspection_standard` | Inspection standards | P1 |
-| `erik_quality_iqc_record` | IQC incoming inspection | P1 |
-| `erik_quality_ipqc_record` | IPQC in-process inspection | P1 |
-| `erik_quality_oqc_record` | OQC outgoing inspection | P1 |
-| `erik_quality_nonconformity` | Nonconforming products | P1 |
-| `erik_notification_channel_config` | Notification channel config | P1 |
-| `erik_notification_template` | Notification templates | P1 |
+| `erp_finance_period_close` | Period-end closing records | P1 |
+| `erp_finance_account_balance` | Subject balance snapshots | P1 |
+| `erp_hr_salary_config` | Payroll calculation config | P1 |
+| `erp_hr_social_insurance_config` | Social insurance base config | P1 |
+| `erp_hr_housing_fund_config` | Housing fund config | P1 |
+| `erp_mfg_mrp_run_log` | MRP run logs | P1 |
+| `erp_mfg_order_suggestion` | Suggested orders | P1 |
+| `erp_quality_inspection_standard` | Inspection standards | P1 |
+| `erp_quality_iqc_record` | IQC incoming inspection | P1 |
+| `erp_quality_ipqc_record` | IPQC in-process inspection | P1 |
+| `erp_quality_oqc_record` | OQC outgoing inspection | P1 |
+| `erp_quality_nonconformity` | Nonconforming products | P1 |
+| `erp_notification_channel_config` | Notification channel config | P1 |
+| `erp_notification_template` | Notification templates | P1 |
 
 ### P3 New Tables
 
 | Table | Purpose | Phase |
 |-------|---------|-------|
-| `erik_bi_dashboard` | BI dashboards | P3 |
-| `erik_bi_widget` | BI widgets | P3 |
-| `erik_eam_equipment` | Equipment register | P3 |
-| `erik_eam_maintenance_plan` | Maintenance plans | P3 |
-| `erik_eam_repair_order` | Repair work orders | P3 |
-| `erik_dms_document` | Controlled documents | P3 |
-| `erik_dms_document_version` | Document versions | P3 |
+| `erp_bi_dashboard` | BI dashboards | P3 |
+| `erp_bi_widget` | BI widgets | P3 |
+| `erp_eam_equipment` | Equipment register | P3 |
+| `erp_eam_maintenance_plan` | Maintenance plans | P3 |
+| `erp_eam_repair_order` | Repair work orders | P3 |
+| `erp_dms_document` | Controlled documents | P3 |
+| `erp_dms_document_version` | Document versions | P3 |
 
 ---
 

@@ -126,7 +126,7 @@ E2E_USER=admin E2E_PASS=admin123 php tests/E2E/api-coverage.php --base-url=http:
 
 19개 그룹 모듈 커버: 시스템 관리(사용자/역할/권한/설정/헬스/메트릭), 재무(합병/잔액/이월/비율), 재고, 판매, 상품, 구매, 프로젝트, 승인, CRM, BI, 알림, 리포트.
 
-> 정정: api-tester가 `erik_admin_config` 테이블 부재를 의심했으나 — **결함 아님**. 실제 테이블명은 `erik_system_config`(install.sql:133에 생성, SystemConfig 모델도 정확히 가리킴), 리포트에서 정정함.
+> 정정: api-tester가 `erp_admin_config` 테이블 부재를 의심했으나 — **결함 아님**. 실제 테이블명은 `erp_system_config`(install.sql:133에 생성, SystemConfig 모델도 정확히 가리킴), 리포트에서 정정함.
 
 ## 커버리지
 

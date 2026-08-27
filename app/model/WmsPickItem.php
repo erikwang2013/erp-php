@@ -12,7 +12,7 @@ use support\Model;
 
 class WmsPickItem extends Model
 {
-    protected $table = 'erik_wms_pick_item';
+    protected $table = 'erp_wms_pick_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

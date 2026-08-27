@@ -30,8 +30,8 @@ flowchart TB
     end
 
     subgraph "Lapisan Penyimpanan"
-        D1[("MySQL 8.0<br/>Penyimpanan Utama<br/>Prefiks Tabel erik_")]
-        D2[("Elasticsearch<br/>Pencarian Teks Lengkap<br/>Prefiks Indeks erik_")]
+        D1[("MySQL 8.0<br/>Penyimpanan Utama<br/>Prefiks Tabel erp_")]
+        D2[("Elasticsearch<br/>Pencarian Teks Lengkap<br/>Prefiks Indeks erp_")]
         D3[("Redis<br/>Session / Cache<br/>Penyimpanan Captcha")]
     end
 
@@ -380,7 +380,7 @@ flowchart LR
     end
 
     subgraph "2. Penyimpanan"
-        S1["Tabel MySQL erik_*<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
+        S1["Tabel MySQL erp_*<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
         S2["Bidang sensitif<br/>cast encryptable<br/>Enkripsi AES-128-ECB"]
         G3 --> S1
         S1 --> S2
@@ -446,7 +446,7 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake"
         VARCHAR username UK
         VARCHAR password "bcrypt"
@@ -463,7 +463,7 @@ erDiagram
         DATETIME deleted_at "Soft Delete"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake"
         VARCHAR name
         VARCHAR slug UK
@@ -473,7 +473,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake"
         BIGINT parent_id FK "Referensi diri"
         VARCHAR name
@@ -486,17 +486,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK
         BIGINT role_id PK_FK
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK
         BIGINT permission_id PK_FK
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake"
         BIGINT user_id FK
         VARCHAR action
@@ -508,7 +508,7 @@ erDiagram
         DATETIME created_at
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake"
         VARCHAR group
         VARCHAR key
@@ -519,12 +519,12 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : "user_id"
-    erik_admin_role ||--o{ erik_admin_user_role : "role_id"
-    erik_admin_role ||--o{ erik_admin_role_permission : "role_id"
-    erik_admin_permission ||--o{ erik_admin_role_permission : "permission_id"
-    erik_admin_user ||--o{ erik_operation_log : "user_id"
-    erik_admin_permission ||--o{ erik_admin_permission : "parent_id"
+    erp_admin_user ||--o{ erp_admin_user_role : "user_id"
+    erp_admin_role ||--o{ erp_admin_user_role : "role_id"
+    erp_admin_role ||--o{ erp_admin_role_permission : "role_id"
+    erp_admin_permission ||--o{ erp_admin_role_permission : "permission_id"
+    erp_admin_user ||--o{ erp_operation_log : "user_id"
+    erp_admin_permission ||--o{ erp_admin_permission : "parent_id"
 ```
 
 ---
@@ -676,8 +676,8 @@ flowchart TB
     end
 
     subgraph "Lapisan Data"
-        MYSQL["MySQL 8.0<br/>Replikasi master-slave<br/>Prefiks erik_"]
-        ES["Elasticsearch 8.x<br/>Klaster 3 node<br/>Prefiks erik_"]
+        MYSQL["MySQL 8.0<br/>Replikasi master-slave<br/>Prefiks erp_"]
+        ES["Elasticsearch 8.x<br/>Klaster 3 node<br/>Prefiks erp_"]
         REDIS["Redis 7.x<br/>Mode sentinel<br/>poster:captcha:*"]
     end
 
@@ -918,22 +918,22 @@ Modul yang belum diekstrak (Manajemen Proyek 18 kali, Laporan Kustom 18 kali, Pe
 ## Modul Ekstensi OMS/WMS/TMS (2026-08)
 
 ### OMS (Order Management System) — 8 tabel
-- **Ekstensi Pesanan** (`erik_oms_order`): Agregasi multi-kanal/status pemenuhan/status pembayaran/prioritas
-- **Alamat Pesanan** (`erik_oms_order_address`): Alamat pengiriman/penagihan (format multinegara)
-- **Catatan Pemenuhan** (`erik_oms_fulfillment`+`_item`): Pelacakan jumlah dialokasikan/dipetik/dikemas/dikirim
-- **RMA** (`erik_oms_rma`+`_item`): Siklus hidup lengkap retur/tukar
-- **Pre-reservasi Stok** (`erik_oms_inventory_reservation`): ATP = fisik - reserved
-- **Kanal** (`erik_channel`): direct/marketplace/edi/pos
+- **Ekstensi Pesanan** (`erp_oms_order`): Agregasi multi-kanal/status pemenuhan/status pembayaran/prioritas
+- **Alamat Pesanan** (`erp_oms_order_address`): Alamat pengiriman/penagihan (format multinegara)
+- **Catatan Pemenuhan** (`erp_oms_fulfillment`+`_item`): Pelacakan jumlah dialokasikan/dipetik/dikemas/dikirim
+- **RMA** (`erp_oms_rma`+`_item`): Siklus hidup lengkap retur/tukar
+- **Pre-reservasi Stok** (`erp_oms_inventory_reservation`): ATP = fisik - reserved
+- **Kanal** (`erp_channel`): direct/marketplace/edi/pos
 
 ### WMS (Warehouse Management System) — 12 tabel
-- **Zona dan Lokasi Gudang** (`erik_wms_zone`, `erik_wms_location`): zone→aisle→rack→level→bin
-- **Inbound** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
-- **Outbound** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+- **Zona dan Lokasi Gudang** (`erp_wms_zone`, `erp_wms_location`): zone→aisle→rack→level→bin
+- **Inbound** (`erp_wms_asn`+`_item`, `erp_wms_receiving`, `erp_wms_putaway_task`+`_item`)
+- **Outbound** (`erp_wms_wave`+`wave_order`, `erp_wms_pick_task`+`_item`, `erp_wms_pack_task`)
 
 ### TMS (Transport Management System) — 7 tabel
-- **Operator Pengiriman** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
-- **Waybill** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
-- **Invoice** (`erik_tms_freight_invoice`)
+- **Operator Pengiriman** (`erp_tms_carrier`+`carrier_service`, `erp_tms_freight_rate`)
+- **Waybill** (`erp_tms_shipment`+`_package`, `erp_tms_tracking_event`)
+- **Invoice** (`erp_tms_freight_invoice`)
 
 ### Alur Data
 ```
@@ -1048,7 +1048,7 @@ Dasar keputusan (tinjauan 2026-08):
    `app\middleware\TenantScope::class` pada `middleware()` (ditempatkan setelah AdminAuth, memastikan telah terautentikasi).
 2. Peminta membawa `X-Tenant-Id` (int ID tenant) pada header permintaan.
 3. Tambahkan kolom `tenant_id` (BIGINT + indeks) pada tabel bisnis yang perlu diisolasi dan isi ulang data yang ada;
-   tabel kamus/sistem (seperti `erik_admin_user`, `erik_role`, `erik_permission`) tidak diisolasi.
+   tabel kamus/sistem (seperti `erp_admin_user`, `erp_role`, `erp_permission`) tidak diisolasi.
 4. Gunakan `use app\model\concerns\TenantScope;` pada kelas model yang perlu diisolasi, otomatis memfilter sesuai tenant saat ini.
 5. (Opsional) Jika ingin mengambil tenant dari JWT daripada header permintaan: perluas payload penandatanganan login dengan klaim `tenant_id`,
    dan baca dari `$payload['tenant_id']` di middleware.

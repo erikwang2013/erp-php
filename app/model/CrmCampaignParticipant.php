@@ -11,7 +11,7 @@ use support\Model;
 
 class CrmCampaignParticipant extends Model
 {
-    protected $table = 'erik_crm_campaign_participant';
+    protected $table = 'erp_crm_campaign_participant';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

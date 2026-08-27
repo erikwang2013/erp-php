@@ -11,7 +11,7 @@ use support\Model;
 
 class CrmTicketReply extends Model
 {
-    protected $table = 'erik_crm_ticket_reply';
+    protected $table = 'erp_crm_ticket_reply';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

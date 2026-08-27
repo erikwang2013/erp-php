@@ -12,7 +12,7 @@ use support\Model;
 
 class CrmFunnelStage extends Model
 {
-    protected $table = 'erik_crm_funnel_stage';
+    protected $table = 'erp_crm_funnel_stage';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -67,7 +67,7 @@
 |---|------|------|
 | Бэкенд-фреймворк | webman v2 (workerman) | Высокопроизводительный PHP-фреймворк с резидентными процессами |
 | Версия PHP | 8.3+ | |
-| База данных | MySQL 8.0+ | Префикс таблиц `erik_`, BIGINT-ключи без AUTO_INCREMENT |
+| База данных | MySQL 8.0+ | Префикс таблиц `erp_`, BIGINT-ключи без AUTO_INCREMENT |
 | Поиск | Elasticsearch | Синхронизация и поиск через `webman-scout` |
 | Веб-интерфейс админки | Flutter 3.x | PC-стиль админки (`apps/flutter/`) |
 | Мобильный клиент | HarmonyOS ArkTS | Нативный клиент HarmonyOS (`apps/harmonyos/`), телефоны/планшеты/2in1 |
@@ -287,7 +287,7 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 ## Стандарты базы данных
 
-- **Префикс таблиц**: `erik_`
+- **Префикс таблиц**: `erp_`
 - **Первичные ключи**: все таблицы используют `id BIGINT UNSIGNED NOT NULL`, **AUTO_INCREMENT запрещён**
 - **Генерация ID**: ключи генерируются на прикладном уровне через `SnowflakeService::generate()`, распределённо уникальны
 - **Обязательные поля**: каждая таблица должна содержать `id`, `created_at`, `updated_at`

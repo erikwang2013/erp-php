@@ -349,11 +349,11 @@ Implementiert in der AdminPermission-Middleware.
 
 **Datenmodell**: Drei-Ebenen-Verknüpfung User -> Role -> Permission
 
-- `erik_admin_user` (Benutzertabelle)
-- `erik_admin_user_role` (Benutzer-Rollen-Verknüpfungstabelle)
-- `erik_admin_role` (Rollentabelle)
-- `erik_admin_role_permission` (Rollen-Berechtigungs-Verknüpfungstabelle)
-- `erik_admin_permission` (Berechtigungstabelle)
+- `erp_admin_user` (Benutzertabelle)
+- `erp_admin_user_role` (Benutzer-Rollen-Verknüpfungstabelle)
+- `erp_admin_role` (Rollentabelle)
+- `erp_admin_role_permission` (Rollen-Berechtigungs-Verknüpfungstabelle)
+- `erp_admin_permission` (Berechtigungstabelle)
 
 **Berechtigungstypen**:
 | type | Bedeutung | Beispiel |

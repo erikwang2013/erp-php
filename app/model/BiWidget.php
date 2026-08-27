@@ -11,7 +11,7 @@ use support\Model;
 
 class BiWidget extends Model
 {
-    protected $table = 'erik_bi_widget';
+    protected $table = 'erp_bi_widget';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

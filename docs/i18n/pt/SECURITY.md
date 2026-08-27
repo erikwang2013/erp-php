@@ -349,11 +349,11 @@ Implementado pelo middleware AdminPermission.
 
 **Modelo de dados**: associação em três níveis User -> Role -> Permission
 
-- `erik_admin_user` (tabela de usuários)
-- `erik_admin_user_role` (tabela de associação usuário-papel)
-- `erik_admin_role` (tabela de papéis)
-- `erik_admin_role_permission` (tabela de associação papel-permissão)
-- `erik_admin_permission` (tabela de permissões)
+- `erp_admin_user` (tabela de usuários)
+- `erp_admin_user_role` (tabela de associação usuário-papel)
+- `erp_admin_role` (tabela de papéis)
+- `erp_admin_role_permission` (tabela de associação papel-permissão)
+- `erp_admin_permission` (tabela de permissões)
 
 **Tipos de permissão**:
 | type | Significado | Exemplo |

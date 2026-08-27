@@ -14,7 +14,7 @@ class CrmQuotation extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_crm_quotation';
+    protected $table = 'erp_crm_quotation';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

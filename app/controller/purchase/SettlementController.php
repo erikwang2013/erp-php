@@ -40,8 +40,8 @@ class SettlementController extends BaseController
 
         $query = PurchaseSettlement::query();
         if ($keyword) {
-            $query->join('erik_supplier', 'erik_supplier.id', '=', 'erik_purchase_settlement.supplier_id')
-                  ->where('erik_supplier.name', 'like', "%{$keyword}%");
+            $query->join('erp_supplier', 'erp_supplier.id', '=', 'erp_purchase_settlement.supplier_id')
+                  ->where('erp_supplier.name', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);

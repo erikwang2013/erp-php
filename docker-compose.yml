@@ -53,7 +53,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-open_admin}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-erp}
     ports:
       - "${MYSQL_PORT:-3306}:3306"
     volumes:

@@ -12,7 +12,7 @@ use support\Model;
 
 class WmsPackTask extends Model
 {
-    protected $table = 'erik_wms_pack_task';
+    protected $table = 'erp_wms_pack_task';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -12,7 +12,7 @@ use support\Model;
 
 class FinanceVoucherItem extends Model
 {
-    protected $table = 'erik_finance_voucher_item';
+    protected $table = 'erp_finance_voucher_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

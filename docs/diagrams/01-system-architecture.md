@@ -20,8 +20,8 @@ flowchart TB
     end
 
     subgraph storage["存储层"]
-        mysql[("MySQL 8.0<br/>主存储 - erik_前缀")]
-        es[("Elasticsearch<br/>全文检索 - erik_前缀")]
+        mysql[("MySQL 8.0<br/>主存储 - erp_前缀")]
+        es[("Elasticsearch<br/>全文检索 - erp_前缀")]
         redis[("Redis<br/>Session/缓存/Captcha")]
     end
 

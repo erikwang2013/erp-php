@@ -45,7 +45,7 @@ class RateLimit implements MiddlewareInterface
         }
 
         $safePath = preg_replace('/[^a-zA-Z0-9_-]/', '_', $path);
-        $key = "rate_limit:{$ip}:{$safePath}";
+        $key = "erp:rate_limit:{$ip}:{$safePath}";
         $now = (int) (microtime(true) * 1000);
         $windowStart = $now - $window * 1000;
 

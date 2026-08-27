@@ -126,7 +126,7 @@ E2E_USER=admin E2E_PASS=admin123 php tests/E2E/api-coverage.php --base-url=http:
 
 Cobre 19 grupos de módulos: administração do sistema (usuários/papéis/permissões/configurações/health/métricas), finanças (consolidação/saldo/fechamento/índices), estoque, vendas, produtos, compras, projetos, aprovação, CRM, BI, notificações, relatórios.
 
-> Errata: o api-tester suspeitou que a tabela `erik_admin_config` estivesse ausente — **não é defeito**. O nome real da tabela é `erik_system_config` (criada em install.sql:133, o modelo SystemConfig aponta corretamente), e o relatório foi corrigido.
+> Errata: o api-tester suspeitou que a tabela `erp_admin_config` estivesse ausente — **não é defeito**. O nome real da tabela é `erp_system_config` (criada em install.sql:133, o modelo SystemConfig aponta corretamente), e o relatório foi corrigido.
 
 ## Cobertura
 

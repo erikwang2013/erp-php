@@ -15,7 +15,7 @@ class Project extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'erik_project';
+    protected $table = 'erp_project';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

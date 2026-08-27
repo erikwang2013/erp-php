@@ -30,8 +30,8 @@ flowchart TB
     end
 
     subgraph "طبقة التخزين"
-        D1[("MySQL 8.0<br/>التخزين الرئيسي<br/>بادئة الجداول erik_")]
-        D2[("Elasticsearch<br/>البحث النصي الكامل<br/>بادئة الفهارس erik_")]
+        D1[("MySQL 8.0<br/>التخزين الرئيسي<br/>بادئة الجداول erp_")]
+        D2[("Elasticsearch<br/>البحث النصي الكامل<br/>بادئة الفهارس erp_")]
         D3[("Redis<br/>الجلسة / التخزين المؤقت<br/>تخزين كابتشا")]
     end
 
@@ -380,7 +380,7 @@ flowchart LR
     end
 
     subgraph "2. التخزين"
-        S1["جداول MySQL erik_*<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
+        S1["جداول MySQL erp_*<br/>id BIGINT UNSIGNED<br/>NOT NULL"]
         S2["الحقول الحساسة<br/>encryptable cast<br/>تشفير AES-128-ECB"]
         G3 --> S1
         S1 --> S2
@@ -446,7 +446,7 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    erik_admin_user {
+    erp_admin_user {
         BIGINT id PK "Snowflake"
         VARCHAR username UK
         VARCHAR password "bcrypt"
@@ -463,7 +463,7 @@ erDiagram
         DATETIME deleted_at "حذف ناعم"
     }
 
-    erik_admin_role {
+    erp_admin_role {
         BIGINT id PK "Snowflake"
         VARCHAR name
         VARCHAR slug UK
@@ -473,7 +473,7 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_permission {
+    erp_admin_permission {
         BIGINT id PK "Snowflake"
         BIGINT parent_id FK "مرجع ذاتي"
         VARCHAR name
@@ -486,17 +486,17 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user_role {
+    erp_admin_user_role {
         BIGINT user_id PK_FK
         BIGINT role_id PK_FK
     }
 
-    erik_admin_role_permission {
+    erp_admin_role_permission {
         BIGINT role_id PK_FK
         BIGINT permission_id PK_FK
     }
 
-    erik_operation_log {
+    erp_operation_log {
         BIGINT id PK "Snowflake"
         BIGINT user_id FK
         VARCHAR action
@@ -508,7 +508,7 @@ erDiagram
         DATETIME created_at
     }
 
-    erik_system_config {
+    erp_system_config {
         BIGINT id PK "Snowflake"
         VARCHAR group
         VARCHAR key
@@ -519,12 +519,12 @@ erDiagram
         DATETIME updated_at
     }
 
-    erik_admin_user ||--o{ erik_admin_user_role : "user_id"
-    erik_admin_role ||--o{ erik_admin_user_role : "role_id"
-    erik_admin_role ||--o{ erik_admin_role_permission : "role_id"
-    erik_admin_permission ||--o{ erik_admin_role_permission : "permission_id"
-    erik_admin_user ||--o{ erik_operation_log : "user_id"
-    erik_admin_permission ||--o{ erik_admin_permission : "parent_id"
+    erp_admin_user ||--o{ erp_admin_user_role : "user_id"
+    erp_admin_role ||--o{ erp_admin_user_role : "role_id"
+    erp_admin_role ||--o{ erp_admin_role_permission : "role_id"
+    erp_admin_permission ||--o{ erp_admin_role_permission : "permission_id"
+    erp_admin_user ||--o{ erp_operation_log : "user_id"
+    erp_admin_permission ||--o{ erp_admin_permission : "parent_id"
 ```
 
 ---
@@ -676,8 +676,8 @@ flowchart TB
     end
 
     subgraph "طبقة البيانات"
-        MYSQL["MySQL 8.0<br/>نسخ رئيسي-تبعي<br/>بادئة erik_"]
-        ES["Elasticsearch 8.x<br/>عنقود من 3 عقد<br/>بادئة erik_"]
+        MYSQL["MySQL 8.0<br/>نسخ رئيسي-تبعي<br/>بادئة erp_"]
+        ES["Elasticsearch 8.x<br/>عنقود من 3 عقد<br/>بادئة erp_"]
         REDIS["Redis 7.x<br/>وضع الحارس<br/>poster:captcha:*"]
     end
 
@@ -918,22 +918,22 @@ sequenceDiagram
 ## وحدات التوسعة OMS/WMS/TMS (2026-08)
 
 ### OMS (نظام إدارة الطلبات) — 8 جداول
-- **توسعة الطلبات** (`erik_oms_order`): تجميع متعدد القنوات/حالة التنفيذ/حالة الدفع/الأولوية
-- **عناوين الطلبات** (`erik_oms_order_address`): عناوين الاستلام/الفوترة (تنسيقات متعددة الدول)
-- **سجلات التنفيذ** (`erik_oms_fulfillment`+`_item`): تتبع كميات التخصيص/الانتقاء/التغليف/الشحن
-- **RMA** (`erik_oms_rma`+`_item`): دورة حياة كاملة للإرجاع والاستبدال
-- **حجز المخزون** (`erik_oms_inventory_reservation`): ATP = physical - reserved
-- **القنوات** (`erik_channel`): direct/marketplace/edi/pos
+- **توسعة الطلبات** (`erp_oms_order`): تجميع متعدد القنوات/حالة التنفيذ/حالة الدفع/الأولوية
+- **عناوين الطلبات** (`erp_oms_order_address`): عناوين الاستلام/الفوترة (تنسيقات متعددة الدول)
+- **سجلات التنفيذ** (`erp_oms_fulfillment`+`_item`): تتبع كميات التخصيص/الانتقاء/التغليف/الشحن
+- **RMA** (`erp_oms_rma`+`_item`): دورة حياة كاملة للإرجاع والاستبدال
+- **حجز المخزون** (`erp_oms_inventory_reservation`): ATP = physical - reserved
+- **القنوات** (`erp_channel`): direct/marketplace/edi/pos
 
 ### WMS (نظام إدارة المستودعات) — 12 جدولًا
-- **المناطق والمواقع** (`erik_wms_zone`, `erik_wms_location`): zone→aisle→rack→level→bin
-- **الإدخال** (`erik_wms_asn`+`_item`, `erik_wms_receiving`, `erik_wms_putaway_task`+`_item`)
-- **الإخراج** (`erik_wms_wave`+`wave_order`, `erik_wms_pick_task`+`_item`, `erik_wms_pack_task`)
+- **المناطق والمواقع** (`erp_wms_zone`, `erp_wms_location`): zone→aisle→rack→level→bin
+- **الإدخال** (`erp_wms_asn`+`_item`, `erp_wms_receiving`, `erp_wms_putaway_task`+`_item`)
+- **الإخراج** (`erp_wms_wave`+`wave_order`, `erp_wms_pick_task`+`_item`, `erp_wms_pack_task`)
 
 ### TMS (نظام إدارة النقل) — 7 جداول
-- **الناقلون** (`erik_tms_carrier`+`carrier_service`, `erik_tms_freight_rate`)
-- **بوليصة الشحن** (`erik_tms_shipment`+`_package`, `erik_tms_tracking_event`)
-- **الفواتير** (`erik_tms_freight_invoice`)
+- **الناقلون** (`erp_tms_carrier`+`carrier_service`, `erp_tms_freight_rate`)
+- **بوليصة الشحن** (`erp_tms_shipment`+`_package`, `erp_tms_tracking_event`)
+- **الفواتير** (`erp_tms_freight_invoice`)
 
 ### تدفق البيانات
 ```
@@ -1048,7 +1048,7 @@ P0(3-4 أسابيع) → P1(4-6 أسابيع) → P2(1-2 أسبوعين) → P3(
    (وضعه بعد AdminAuth، لضمان المصادقة).
 2. يحمل الطالب رأس `X-Tenant-Id` (int معرف المستأجر) في ترويسة الطلب.
 3. إضافة عمود `tenant_id` (BIGINT + فهرس) لجداول الأعمال التي تحتاج العزل وإعادة ملء البيانات القائمة؛
-   جداول القواميس/النظام (مثل `erik_admin_user` و`erik_role` و`erik_permission`) لا تُعزل.
+   جداول القواميس/النظام (مثل `erp_admin_user` و`erp_role` و`erp_permission`) لا تُعزل.
 4. في فئات النماذج التي تحتاج العزل: `use app\model\concerns\TenantScope;`، فيتم الفلترة تلقائيًا حسب المستأجر الحالي.
 5. (اختياري) إذا أردت أخذ المستأجر من JWT بدل الترويسة: توسيع حمولة إصدار تسجيل الدخول بإضافة ادعاء `tenant_id`،
    والقراءة من `$payload['tenant_id']` في الوسيط.

@@ -12,7 +12,7 @@ use support\Model;
 
 class TmsShipment extends Model
 {
-    protected $table = 'erik_tms_shipment';
+    protected $table = 'erp_tms_shipment';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

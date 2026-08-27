@@ -126,7 +126,7 @@ E2E_USER=admin E2E_PASS=admin123 php tests/E2E/api-coverage.php --base-url=http:
 
 Mencakup 19 grup modul: Manajemen Sistem (pengguna/peran/izin/konfigurasi/health/metrik), Keuangan (penggabungan/saldo/penutupan/rasio), Stok, Penjualan, Produk, Pembelian, Proyek, Persetujuan, CRM, BI, Notifikasi, Pelaporan.
 
-> Koreksi: api-tester pernah menduga tabel `erik_admin_config` hilang — **bukan defek**. Nama tabel sebenarnya `erik_system_config` (install.sql:133 sudah dibuat, model SystemConfig mengarah dengan benar), laporan mengoreksinya.
+> Koreksi: api-tester pernah menduga tabel `erp_admin_config` hilang — **bukan defek**. Nama tabel sebenarnya `erp_system_config` (install.sql:133 sudah dibuat, model SystemConfig mengarah dengan benar), laporan mengoreksinya.
 
 ## Cakupan
 

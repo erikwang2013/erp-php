@@ -12,7 +12,7 @@ use support\Model;
 
 class MfgWorkstation extends Model
 {
-    protected $table = 'erik_mfg_workstation';
+    protected $table = 'erp_mfg_workstation';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

@@ -377,32 +377,32 @@ app/controller/dms/
 
 | テーブル名 | 用途 | フェーズ |
 |------|------|------|
-| `erik_finance_period_close` | 期末振替記録 | P1 |
-| `erik_finance_account_balance` | 科目残高スナップショット | P1 |
-| `erik_hr_salary_config` | 給与計算設定 | P1 |
-| `erik_hr_social_insurance_config` | 社会保険基数設定 | P1 |
-| `erik_hr_housing_fund_config` | 積立金設定 | P1 |
-| `erik_mfg_mrp_run_log` | MRP 演算ログ | P1 |
-| `erik_mfg_order_suggestion` | 推奨注文 | P1 |
-| `erik_quality_inspection_standard` | 検査標準 | P1 |
-| `erik_quality_iqc_record` | IQC 来料検査 | P1 |
-| `erik_quality_ipqc_record` | IPQC 工程検査 | P1 |
-| `erik_quality_oqc_record` | OQC 出荷検査 | P1 |
-| `erik_quality_nonconformity` | 不合格品 | P1 |
-| `erik_notification_channel_config` | 通知チャネル設定 | P1 |
-| `erik_notification_template` | 通知テンプレート | P1 |
+| `erp_finance_period_close` | 期末振替記録 | P1 |
+| `erp_finance_account_balance` | 科目残高スナップショット | P1 |
+| `erp_hr_salary_config` | 給与計算設定 | P1 |
+| `erp_hr_social_insurance_config` | 社会保険基数設定 | P1 |
+| `erp_hr_housing_fund_config` | 積立金設定 | P1 |
+| `erp_mfg_mrp_run_log` | MRP 演算ログ | P1 |
+| `erp_mfg_order_suggestion` | 推奨注文 | P1 |
+| `erp_quality_inspection_standard` | 検査標準 | P1 |
+| `erp_quality_iqc_record` | IQC 来料検査 | P1 |
+| `erp_quality_ipqc_record` | IPQC 工程検査 | P1 |
+| `erp_quality_oqc_record` | OQC 出荷検査 | P1 |
+| `erp_quality_nonconformity` | 不合格品 | P1 |
+| `erp_notification_channel_config` | 通知チャネル設定 | P1 |
+| `erp_notification_template` | 通知テンプレート | P1 |
 
 ### P3 新規テーブル
 
 | テーブル名 | 用途 | フェーズ |
 |------|------|------|
-| `erik_bi_dashboard` | BI ダッシュボード | P3 |
-| `erik_bi_widget` | BI ウィジェット | P3 |
-| `erik_eam_equipment` | 設備台帳 | P3 |
-| `erik_eam_maintenance_plan` | 保守計画 | P3 |
-| `erik_eam_repair_order` | 修理作業指示書 | P3 |
-| `erik_dms_document` | 管理対象ドキュメント | P3 |
-| `erik_dms_document_version` | ドキュメントバージョン | P3 |
+| `erp_bi_dashboard` | BI ダッシュボード | P3 |
+| `erp_bi_widget` | BI ウィジェット | P3 |
+| `erp_eam_equipment` | 設備台帳 | P3 |
+| `erp_eam_maintenance_plan` | 保守計画 | P3 |
+| `erp_eam_repair_order` | 修理作業指示書 | P3 |
+| `erp_dms_document` | 管理対象ドキュメント | P3 |
+| `erp_dms_document_version` | ドキュメントバージョン | P3 |
 
 ---
 

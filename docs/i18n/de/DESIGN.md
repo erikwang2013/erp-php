@@ -128,34 +128,34 @@ Controller::method()
 ### 3.1 ER-Beziehungen
 
 ```
-erik_admin_user ──┬── erik_admin_user_role ──┬── erik_admin_role
+erp_admin_user ──┬── erp_admin_user_role ──┬── erp_admin_role
   (用户)           │    (用户-角色关联)         │     (角色)
                   │                          │
-                  │                    erik_admin_role_permission
+                  │                    erp_admin_role_permission
                   │                     (角色-权限关联)
                   │                          │
                   │                          ▼
-                  │                    erik_admin_permission
+                  │                    erp_admin_permission
                   │                      (权限/菜单)
                   │
                   ▼
-           erik_operation_log
+           erp_operation_log
              (操作日志)
 
-erik_system_config (系统配置) — 独立表
+erp_system_config (系统配置) — 独立表
 ```
 
 ### 3.2 Kern-Tabellenstruktur
 
 | Tabellenname | Feldanzahl | Beschreibung |
 |------|-------|------|
-| `erik_admin_user` | 14 | Verwaltungsbenutzer, phone/email/id_card verschlüsselt gespeichert, Soft-Delete unterstützt |
-| `erik_admin_role` | 7 | Rollen, slug eindeutig |
-| `erik_admin_permission` | 10 | Berechtigungsbaum (parent_id Selbstreferenz), type: 1=Menü 2=Button 3=API |
-| `erik_admin_user_role` | 2 | viele-zu-viele-Zwischentabelle Benutzer-Rolle |
-| `erik_admin_role_permission` | 2 | viele-zu-viele-Zwischentabelle Rolle-Berechtigung |
-| `erik_system_config` | 8 | Schlüssel-Wert-Konfiguration, group+key kombiniert eindeutig |
-| `erik_operation_log` | 9 | Betriebsprüfprotokoll (einschließlich source-Quellgerät) |
+| `erp_admin_user` | 14 | Verwaltungsbenutzer, phone/email/id_card verschlüsselt gespeichert, Soft-Delete unterstützt |
+| `erp_admin_role` | 7 | Rollen, slug eindeutig |
+| `erp_admin_permission` | 10 | Berechtigungsbaum (parent_id Selbstreferenz), type: 1=Menü 2=Button 3=API |
+| `erp_admin_user_role` | 2 | viele-zu-viele-Zwischentabelle Benutzer-Rolle |
+| `erp_admin_role_permission` | 2 | viele-zu-viele-Zwischentabelle Rolle-Berechtigung |
+| `erp_system_config` | 8 | Schlüssel-Wert-Konfiguration, group+key kombiniert eindeutig |
+| `erp_operation_log` | 9 | Betriebsprüfprotokoll (einschließlich source-Quellgerät) |
 
 ### 3.3 Primärschlüssel-Konvention
 

@@ -12,7 +12,7 @@ use support\Model;
 
 class ApprovalRecord extends Model
 {
-    protected $table = 'erik_approval_record';
+    protected $table = 'erp_approval_record';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

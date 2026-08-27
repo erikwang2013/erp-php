@@ -134,35 +134,35 @@ Camada de exibição (mask)            — telefone: 138****1234, e-mail: a***@e
 ### 3.1 Relação ER
 
 ```
-erik_admin_user ──┬── erik_admin_user_role ──┬── erik_admin_role
+erp_admin_user ──┬── erp_admin_user_role ──┬── erp_admin_role
   (usuário)       │    (associação            │     (papel)
                   │     usuário-papel)        │
                   │                          │
-                  │                    erik_admin_role_permission
+                  │                    erp_admin_role_permission
                   │                     (associação papel-permissão)
                   │                          │
                   │                          ▼
-                  │                    erik_admin_permission
+                  │                    erp_admin_permission
                   │                      (permissão/menu)
                   │
                   ▼
-           erik_operation_log
+           erp_operation_log
              (log de operações)
 
-erik_system_config (configuração do sistema) — tabela independente
+erp_system_config (configuração do sistema) — tabela independente
 ```
 
 ### 3.2 Estrutura das tabelas principais
 
 | Tabela | Nº de campos | Observação |
 |------|-------|------|
-| `erik_admin_user` | 14 | Usuário administrador; phone/email/id_card armazenados criptografados; suporte a soft delete |
-| `erik_admin_role` | 7 | Papel, slug único |
-| `erik_admin_permission` | 10 | Árvore de permissões (parent_id autorreferente), type: 1=menu 2=botão 3=API |
-| `erik_admin_user_role` | 2 | Tabela intermediária muitos-para-muitos usuário-papel |
-| `erik_admin_role_permission` | 2 | Tabela intermediária muitos-para-muitos papel-permissão |
-| `erik_system_config` | 8 | Configurações chave-valor, group+key com unicidade conjunta |
-| `erik_operation_log` | 9 | Log de auditoria de operações (inclui origem source) |
+| `erp_admin_user` | 14 | Usuário administrador; phone/email/id_card armazenados criptografados; suporte a soft delete |
+| `erp_admin_role` | 7 | Papel, slug único |
+| `erp_admin_permission` | 10 | Árvore de permissões (parent_id autorreferente), type: 1=menu 2=botão 3=API |
+| `erp_admin_user_role` | 2 | Tabela intermediária muitos-para-muitos usuário-papel |
+| `erp_admin_role_permission` | 2 | Tabela intermediária muitos-para-muitos papel-permissão |
+| `erp_system_config` | 8 | Configurações chave-valor, group+key com unicidade conjunta |
+| `erp_operation_log` | 9 | Log de auditoria de operações (inclui origem source) |
 
 ### 3.3 Convenção da chave primária
 

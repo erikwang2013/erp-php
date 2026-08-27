@@ -67,7 +67,7 @@ Aliran data antar modul bisnis:
 |---|------|------|
 | Framework Backend | webman v2 (workerman) | Framework PHP resident proses berkinerja ultra-tinggi |
 | Versi PHP | 8.3+ | |
-| Database | MySQL 8.0+ | Prefiks tabel `erik_`, primary key BIGINT non-auto-increment |
+| Database | MySQL 8.0+ | Prefiks tabel `erp_`, primary key BIGINT non-auto-increment |
 | Mesin pencari | Elasticsearch | Sinkronisasi & kueri melalui `webman-scout` |
 | Frontend Admin | Flutter 3.x | Sisi Web bergaya dashboard admin PC (`apps/flutter/`) |
 | Seluler | HarmonyOS ArkTS | Klien asli HarmonyOS (`apps/harmonyos/`), mendukung ponsel/tablet/2in1 |
@@ -286,7 +286,7 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 - `.env.docker`: variabel lingkungan khusus lingkungan Docker
 ## Konvensi Database
 
-- **Prefiks tabel**: `erik_`
+- **Prefiks tabel**: `erp_`
 - **Primary key**: semua tabel ber-primary key `id BIGINT UNSIGNED NOT NULL`, **AUTO_INCREMENT dilarang**
 - **Pembuatan ID**: ID primary key dibuat oleh `SnowflakeService::generate()` di lapisan aplikasi, unik terdistribusi
 - **Field wajib**: setiap tabel harus berisi `id`, `created_at`, `updated_at`

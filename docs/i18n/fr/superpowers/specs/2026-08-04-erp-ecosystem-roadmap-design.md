@@ -377,32 +377,32 @@ Aucune nouvelle table ; l'écosystème frontend n'implique pas de modification d
 
 | Nom de table | Utilisation | Phase |
 |------|------|------|
-| `erik_finance_period_close` | Enregistrements de clôture de période | P1 |
-| `erik_finance_account_balance` | Instantanés des soldes de comptes | P1 |
-| `erik_hr_salary_config` | Configuration du calcul de paie | P1 |
-| `erik_hr_social_insurance_config` | Configuration des assiettes de cotisations sociales | P1 |
-| `erik_hr_housing_fund_config` | Configuration du fonds de logement | P1 |
-| `erik_mfg_mrp_run_log` | Journaux d'exécution MRP | P1 |
-| `erik_mfg_order_suggestion` | Commandes suggérées | P1 |
-| `erik_quality_inspection_standard` | Normes de contrôle | P1 |
-| `erik_quality_iqc_record` | Contrôle à la réception IQC | P1 |
-| `erik_quality_ipqc_record` | Contrôle en cours de fabrication IPQC | P1 |
-| `erik_quality_oqc_record` | Contrôle à la sortie OQC | P1 |
-| `erik_quality_nonconformity` | Produits non conformes | P1 |
-| `erik_notification_channel_config` | Configuration des canaux de notification | P1 |
-| `erik_notification_template` | Modèles de notification | P1 |
+| `erp_finance_period_close` | Enregistrements de clôture de période | P1 |
+| `erp_finance_account_balance` | Instantanés des soldes de comptes | P1 |
+| `erp_hr_salary_config` | Configuration du calcul de paie | P1 |
+| `erp_hr_social_insurance_config` | Configuration des assiettes de cotisations sociales | P1 |
+| `erp_hr_housing_fund_config` | Configuration du fonds de logement | P1 |
+| `erp_mfg_mrp_run_log` | Journaux d'exécution MRP | P1 |
+| `erp_mfg_order_suggestion` | Commandes suggérées | P1 |
+| `erp_quality_inspection_standard` | Normes de contrôle | P1 |
+| `erp_quality_iqc_record` | Contrôle à la réception IQC | P1 |
+| `erp_quality_ipqc_record` | Contrôle en cours de fabrication IPQC | P1 |
+| `erp_quality_oqc_record` | Contrôle à la sortie OQC | P1 |
+| `erp_quality_nonconformity` | Produits non conformes | P1 |
+| `erp_notification_channel_config` | Configuration des canaux de notification | P1 |
+| `erp_notification_template` | Modèles de notification | P1 |
 
 ### Nouvelles tables P3
 
 | Nom de table | Utilisation | Phase |
 |------|------|------|
-| `erik_bi_dashboard` | Tableaux de bord BI | P3 |
-| `erik_bi_widget` | Composants BI | P3 |
-| `erik_eam_equipment` | Registre des équipements | P3 |
-| `erik_eam_maintenance_plan` | Plans de maintenance | P3 |
-| `erik_eam_repair_order` | Bons de réparation | P3 |
-| `erik_dms_document` | Documents contrôlés | P3 |
-| `erik_dms_document_version` | Versions de documents | P3 |
+| `erp_bi_dashboard` | Tableaux de bord BI | P3 |
+| `erp_bi_widget` | Composants BI | P3 |
+| `erp_eam_equipment` | Registre des équipements | P3 |
+| `erp_eam_maintenance_plan` | Plans de maintenance | P3 |
+| `erp_eam_repair_order` | Bons de réparation | P3 |
+| `erp_dms_document` | Documents contrôlés | P3 |
+| `erp_dms_document_version` | Versions de documents | P3 |
 
 ---
 

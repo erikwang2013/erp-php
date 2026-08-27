@@ -349,11 +349,11 @@ AdminPermission 中間ウェアで実装されています。
 
 **データモデル**：User -> Role -> Permission の 3 層関連
 
-- `erik_admin_user` (ユーザーテーブル)
-- `erik_admin_user_role` (ユーザー-ロール関連テーブル)
-- `erik_admin_role` (ロールテーブル)
-- `erik_admin_role_permission` (ロール-権限関連テーブル)
-- `erik_admin_permission` (権限テーブル)
+- `erp_admin_user` (ユーザーテーブル)
+- `erp_admin_user_role` (ユーザー-ロール関連テーブル)
+- `erp_admin_role` (ロールテーブル)
+- `erp_admin_role_permission` (ロール-権限関連テーブル)
+- `erp_admin_permission` (権限テーブル)
 
 **権限タイプ**：
 | type | 意味 | 例 |
