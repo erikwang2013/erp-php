@@ -1,0 +1,50 @@
+# Anfrage-Lebenszyklus
+
+```mermaid
+sequenceDiagram
+    actor C as Client
+    participant N as Nginx
+    participant MW1 as AdminAuth
+    participant MW2 as AdminPermission
+    participant CTL as Controller
+    participant SVC as Service
+    participant MDL as Model
+    participant DB as MySQL
+
+    C->>N: HTTPS-Anfrage
+    N->>MW1: Anfrage weiterleiten
+
+    alt Token fehlt oder ungültig
+        MW1-->>C: 401 Unauthorized
+    else Token gültig
+        MW1->>MW1: jwt()->verify(token)
+        MW1->>MW2: $request->adminId setzen
+    end
+
+    alt keine Berechtigung
+        MW2-->>C: 403 Forbidden
+    else Berechtigung vorhanden
+        MW2->>CTL: Controller betreten
+    end
+
+    CTL->>CTL: Parameter validieren
+    CTL->>CTL: decodeId(hashid)
+
+    opt sensible Operation
+        CTL->>CTL: confirmPassword()
+        alt Passwort falsch
+            CTL-->>C: 422
+        end
+    end
+
+    CTL->>MDL: AdminUser::find(id)
+    MDL->>MDL: encryptable automatische Entschlüsselung
+    MDL->>DB: SELECT
+    DB-->>MDL: Row
+    MDL-->>CTL: Model
+
+    CTL->>SVC: encodeId()
+    SVC-->>CTL: hashid-Zeichenkette
+
+    CTL-->>C: 200 JSON
+```

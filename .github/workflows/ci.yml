@@ -167,7 +167,7 @@ jobs:
   # 说明：当前以 continue-on-error: true 接入（不阻断主 CI），
   # 待 GitHub Actions 环境装 Flutter / 构建耗时稳定后，移除该行收紧为硬性检查。
   flutter:
-    name: Flutter — Analyze & Test & Build
+    name: Flutter — Analyze & Test
     runs-on: ubuntu-latest
     continue-on-error: true # 待环境稳定后收紧（见上方注释）
     defaults:
@@ -415,4 +415,14 @@ jobs:
           if [ $code -ne 0 ]; then
             echo "::error::$(printf '%s' "$out" | tail -15 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
             exit $code
+          fi
+      - name: Create GitHub Release
+        # 推送规则：tag 创建后按同一最新版本增量创建 GitHub Release。
+        # 幂等：bump-version.sh 跳过已存在 tag 时 release 通常也已存在 → 跳过；
+        # 并发/手动先建了 release → gh release view 命中 → 跳过，不会报错。
+        # gh 用自动 token（permissions: contents: write 已声明）。
+        run: |
+          NEW="$(bash scripts/bump-version.sh --create 2>&1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | tail -1)"
+          if [ -n "$NEW" ] && ! gh release view "$NEW" >/dev/null 2>&1; then
+            gh release create "$NEW" --generate-notes
           fi

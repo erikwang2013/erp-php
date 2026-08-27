@@ -4,7 +4,9 @@
 
 <div align="center"><img src="docs/mascot.svg" alt="open-erp 章鱼吉祥物 小八爪" width="150"></div>
 
-> [English version](README_EN.md) |[版本对比](docs/EDITIONS.md) | [架构设计图](docs/ARCHITECTURE.md) | [系统架构图](#系统架构图) | [设计文档](docs/DESIGN.md) | [安全架构](docs/SECURITY.md) | [API 参考](docs/API.md) | [功能手册](docs/FUNCTIONS.md)
+<div align="center">🌐 中文 | [English](docs/i18n/en/README.md) | [한국어](docs/i18n/ko/README.md) | [Русский](docs/i18n/ru/README.md) | [Deutsch](docs/i18n/de/README.md) | [Français](docs/i18n/fr/README.md) | [Español](docs/i18n/es/README.md) | [Português](docs/i18n/pt/README.md) | [हिन्दी](docs/i18n/hi/README.md) | [العربية](docs/i18n/ar/README.md) | [বাংলা](docs/i18n/bn/README.md) | [Bahasa Indonesia](docs/i18n/id/README.md) | [日本語](docs/i18n/ja/README.md)</div>
+
+> [English version](docs/i18n/en/README.md) |[版本对比](docs/EDITIONS.md) | [架构设计图](docs/ARCHITECTURE.md) | [系统架构图](#系统架构图) | [设计文档](docs/DESIGN.md) | [安全架构](docs/SECURITY.md) | [API 参考](docs/API.md) | [功能手册](docs/FUNCTIONS.md)
 
 ## 功能清单
 
@@ -424,161 +426,9 @@ Authorization: Bearer <token>
 
 ## API 列表
 
-> 所有 `/api/*` 接口需要在请求头中携带 `API-Version: v1`（不传则默认 v1）。
+完整接口列表（公开接口 / 管理端接口 / 业务接口 / 客端接口）已移至独立文档：
 
-### 公开接口
-
-| 方法 | 路径 | 说明 |
-|-----|------|------|
-| `GET` | `/health` | 健康检查（DB/Redis/ES 状态） |
-| `GET` | `/api/docs` | OpenAPI 3.0 规范文档 |
-| `POST` | `/api/captcha/generate` | 生成点击验证码 |
-| `POST` | `/api/captcha/verify` | 校验点击验证码 |
-| `POST` | `/api/auth/login` | 登录（需 captcha） |
-| `POST` | `/api/auth/register` | 注册（需 captcha，默认关闭需 `REGISTRATION_ENABLED=1`） |
-| `POST` | `/api/auth/refresh` | 刷新令牌 |
-| `GET` | `/metrics` | Prometheus 监控指标 |
-
-### 管理端接口（需 JWT + RBAC）
-
-| 方法 | 路径 | 说明 |
-|-----|------|------|
-| `GET` | `/admin/dashboard` | 仪表盘数据（Redis 缓存 5 分钟） |
-| `GET` | `/admin/user` | 用户列表（分页 + 搜索） |
-| `POST` | `/admin/user` | 创建用户 |
-| `GET` | `/admin/user/{id}` | 用户详情 |
-| `PUT` | `/admin/user/{id}` | 更新用户 |
-| `DELETE` | `/admin/user/{id}` | 删除用户（软删除，需密码确认） |
-| `POST` | `/admin/user/batch/destroy` | 批量删除用户（需密码确认） |
-| `POST` | `/admin/user/batch/status` | 批量启用/禁用用户 |
-| `GET` | `/admin/role` | 角色列表 |
-| `POST` | `/admin/role` | 创建角色 |
-| `PUT` | `/admin/role/{id}` | 更新角色 |
-| `DELETE` | `/admin/role/{id}` | 删除角色（需密码确认） |
-| `GET` | `/admin/permission` | 权限树 |
-| `POST` | `/admin/permission` | 创建权限 |
-| `PUT` | `/admin/permission/{id}` | 更新权限 |
-| `DELETE` | `/admin/permission/{id}` | 删除权限（级联子权限，需密码确认） |
-| `GET` | `/admin/config` | 系统配置列表 |
-| `POST` | `/admin/config` | 创建配置项 |
-| `PUT` | `/admin/config/{id}` | 更新配置项 |
-| `DELETE` | `/admin/config/{id}` | 删除配置项（需密码确认） |
-| `GET` | `/admin/log` | 操作日志（分页 + 筛选） |
-| `PUT` | `/admin/profile` | 更新个人信息 |
-| `PUT` | `/admin/profile/password` | 修改密码 |
-| `POST` | `/admin/profile/logout` | 登出（JWT 黑名单） |
-| `POST` | `/admin/export/excel` | 导出 Excel |
-| `POST` | `/admin/export/pdf` | 导出 PDF |
-| `POST` | `/admin/import/users` | Excel 导入用户 |
-| `POST` | `/admin/upload` | 文件上传（图片/文档，最大 10MB） |
-
-### 业务接口（需 JWT + RBAC）
-
-| 方法 | 路径 | 说明 |
-|-----|------|------|
-| `GET/POST/PUT/DELETE` | `/admin/product` | 商品 CRUD（含 SKU、价格） |
-| `GET/POST/PUT/DELETE` | `/admin/category` | 商品分类 CRUD（树形） |
-| `GET/POST/PUT/DELETE` | `/admin/brand` | 品牌 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/warehouse` | 仓库 CRUD |
-| `GET` | `/admin/warehouse/{id}/locations` | 仓库下库位列表 |
-| `GET/POST/PUT/DELETE` | `/admin/location` | 库位 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/supplier` | 供应商 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/customer` | 客户 CRUD |
-| `ANY` | `/admin/customer-level` | 客户等级管理 |
-| `GET/POST/PUT/DELETE` | `/admin/purchase/apply` | 采购申请 |
-| `GET/POST/PUT/DELETE` | `/admin/purchase/order` | 采购订单 |
-| `GET/POST/PUT/DELETE` | `/admin/purchase/receive` | 采购收货（自动入库+生成应付） |
-| `GET/POST/PUT/DELETE` | `/admin/purchase/return` | 采购退货 |
-| `ANY` | `/admin/purchase/settlement` | 供应商结算 |
-| `GET/POST/PUT/DELETE` | `/admin/sales/quotation` | 销售报价 |
-| `GET/POST/PUT/DELETE` | `/admin/sales/order` | 销售订单 |
-| `GET/POST/PUT/DELETE` | `/admin/sales/delivery` | 销售发货（自动出库+生成应收） |
-| `GET/POST/PUT/DELETE` | `/admin/sales/return` | 销售退货 |
-| `ANY` | `/admin/sales/settlement` | 客户结算 |
-| `ANY` | `/admin/inventory` | 实时库存查询 |
-| `ANY` | `/admin/inventory/flow` | 出入库流水 |
-| `GET/POST/PUT/DELETE` | `/admin/inventory/transfer` | 库存调拨 |
-| `GET/POST/PUT/DELETE` | `/admin/inventory/check` | 盘点任务 |
-| `GET/POST/PUT/DELETE` | `/admin/inventory/alert` | 库存预警规则 |
-| `GET/POST/PUT/DELETE` | `/admin/finance/ar-ap` | 应收应付 |
-| `GET/POST/PUT/DELETE` | `/admin/finance/voucher` | 记账凭证 |
-| `GET/POST/PUT/DELETE` | `/admin/finance/receipt` | 收款单 |
-| `GET/POST/PUT/DELETE` | `/admin/finance/payment` | 付款单 |
-| `ANY` | `/admin/finance/cash-journal` | 现金银行日记账 |
-| `GET/POST/PUT/DELETE` | `/admin/finance/expense` | 费用报销 |
-| `ANY` | `/admin/finance/report/profit` | 利润表 |
-| `GET/POST/PUT/DELETE` | `/admin/finance/bank-account` | 银行账户 |
-| `ANY` | `/admin/finance/general-ledger` | 总账（按科目+期间汇总） |
-| `ANY` | `/admin/finance/subsidiary-ledger` | 明细账（科目逐笔明细） |
-| `ANY` | `/admin/finance/report/balance-sheet` | 资产负债表 |
-| `ANY` | `/admin/finance/report/cash-flow` | 现金流量表（经营/投资/筹资） |
-| `GET/POST/PUT/DELETE` | `/admin/finance/asset` | 固定资产 CRUD + 计提折旧 |
-| `GET/POST/DELETE` | `/admin/finance/tax-rate` | 税率配置 |
-| `ANY` | `/admin/finance/tax-record` | 税务记录 |
-| `GET/POST/PUT/DELETE` | `/admin/finance/currency` | 币种管理 |
-| `GET/POST/PUT/DELETE` | `/admin/finance/exchange-rate` | 汇率管理 |
-| `GET/POST/PUT/DELETE` | `/admin/finance/budget` | 预算管理（含预算vs实际对比） |
-| `GET/POST/PUT/DELETE` | `/admin/finance/cost-center` | 成本中心（树形结构） |
-| `GET/POST/PUT/DELETE` | `/admin/finance/profit-center` | 利润中心（树形结构） |
-| `GET/POST/PUT/DELETE` | `/admin/crm/opportunity` | 商机管理 |
-| `GET/POST/PUT/DELETE` | `/admin/crm/follow` | 跟进记录 |
-| `GET/POST/PUT/DELETE` | `/admin/crm/funnel` | 销售漏斗阶段配置 |
-| `GET/POST/PUT/DELETE` | `/admin/crm/contact` | 联系人 |
-| `ANY` | `/admin/crm/pool` | 公海池（客户列表） |
-| `POST` | `/admin/crm/pool/claim/{id}` | 领取公海客户 |
-| `POST` | `/admin/crm/pool/release/{id}` | 释放客户到公海 |
-| `GET/POST/PUT/DELETE` | `/admin/crm/pool/rules` | 公海池规则 |
-| `GET/POST/PUT/DELETE` | `/admin/crm/contract` | 合同 CRUD |
-| `POST` | `/admin/crm/contract/{id}/transition` | 合同状态流转 |
-| `GET/POST/PUT/DELETE` | `/admin/crm/quotation` | CRM报价 |
-| `POST` | `/admin/crm/quotation/{id}/to-contract` | 报价转合同 |
-| `GET/POST/PUT/DELETE` | `/admin/crm/campaign` | 营销活动 |
-| `GET/POST/PUT/DELETE` | `/admin/crm/ticket` | 服务工单 |
-| `POST` | `/admin/crm/ticket/{id}/assign` | 分配工单 |
-| `POST` | `/admin/crm/ticket/{id}/resolve` | 解决工单 |
-| `POST` | `/admin/crm/ticket/{id}/reply` | 回复工单 |
-| `ANY` | `/admin/crm/analytics/report` | 客户分析报表 |
-| `POST` | `/admin/crm/analytics/generate` | 生成分析报表 |
-| `ANY/POST` | `/admin/crm/analytics/metric` | 分析指标 |
-| `ANY` | `/admin/dashboard/sales` | 销售面板 |
-| `ANY` | `/admin/dashboard/inventory` | 库存面板 |
-| `ANY` | `/admin/dashboard/finance` | 财务面板 |
-| `GET/POST/PUT/DELETE` | `/admin/workflow` | 工作流定义 CRUD |
-| `POST` | `/admin/workflow/{id}/submit` | 提交审批 |
-| `POST` | `/admin/approval/{id}/approve` | 批准 |
-| `POST` | `/admin/approval/{id}/reject` | 拒绝 |
-| `POST` | `/admin/approval/{id}/withdraw` | 撤回 |
-| `ANY` | `/admin/approval/my` | 我的审批列表 |
-| `ANY` | `/admin/notification/my` | 我的通知 |
-| `POST` | `/admin/notification/{id}/read` | 标记已读 |
-| `POST` | `/admin/notification/read-all` | 全部已读 |
-| `ANY` | `/admin/notification/unread-count` | 未读计数 |
-| `GET/POST/PUT/DELETE` | `/admin/project` | 项目 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/project/task` | 项目任务 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/project/timesheet` | 工时记录 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/hr/department` | 部门 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/hr/employee` | 员工 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/hr/position` | 职位 CRUD |
-| `ANY/POST` | `/admin/hr/attendance` | 考勤/打卡 |
-| `GET/POST/PUT/DELETE` | `/admin/hr/leave` | 请假 CRUD + 审批 |
-| `GET/POST/PUT/DELETE` | `/admin/hr/salary` | 薪资 CRUD + 发放 |
-| `ANY/POST` | `/admin/hr/salary-item` | 薪资项目 |
-| `GET/POST/PUT/DELETE` | `/admin/mfg/bom` | BOM CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/mfg/production` | 生产订单 + 开工/完工 |
-| `GET/POST/PUT/DELETE` | `/admin/mfg/routing` | 工艺路线 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/mfg/workstation` | 工作站 CRUD |
-| `GET/POST/PUT/DELETE` | `/admin/mfg/mrp` | MRP 计划 + 生成 |
-| `GET/POST/PUT/DELETE` | `/admin/report` | 报表模板 CRUD |
-| `POST` | `/admin/report/{id}/execute` | 执行报表 |
-| `ANY` | `/admin/report/{id}/result` | 报表结果 |
-| `GET/POST/PUT/DELETE` | `/admin/report/schedule` | 报表定时调度 |
-
-### 客端接口（需 API-Version 头）
-
-| 方法 | 路径 | 说明 |
-|-----|------|------|
-| `GET` | `/api/product` | 商品列表（不含进价） |
-| `GET` | `/api/product/{hashid}` | 商品详情（含零售/批发价） |
+→ [API 参考文档](docs/API.md)
 
 ## 前端说明
 
@@ -652,6 +502,27 @@ GitHub Actions 持续集成流水线：`.github/workflows/ci.yml`
 | 微信 | 支付宝 |
 |:---:|:---:|
 | ![微信](./docs/weixinpay.png "微信") | ![支付宝](./docs/alipay.png "支付宝") |
+
+### 全球转账（银行汇款 / Global Bank Transfer）
+
+**收款人信息**
+
+- 收款人姓名：WANG KEXUN
+- 收款账户号码：881015918251
+
+**收款银行**
+
+- ZA Bank SWIFT Code：AABLHKHHXXX
+- 银行名称：ZA Bank Limited
+- 银行编号：387
+- 银行地址：Core F, Cyberport 3, 100 Cyberport Road, Hong Kong
+
+**跨境汇款代理银行（如需）**
+
+> 此为代理银行（中转银行）信息，非收款银行信息。请向汇款银行查询是否需要提供。
+
+- 汇入港元、人民币及美元：Citibank N.A. Hong Kong — SWIFT `CITIHKHXXXX`，银行编号 006，分行 Hong Kong Branch，分行编号 391，Citibank Tower, Citibank Plaza, 3 Garden Road, Central, Hong Kong
+- 汇入其他币种：THE BANK OF NEW YORK MELLON — SWIFT `IRVTUS3NXXX`，240 GREENWICH STREET, NEW YORK, United States
 
 ---
 
