@@ -45,14 +45,14 @@ class AccountBalanceService
         [$start, $end] = $this->periodRange($period);
 
         $rows = Db::select(
-            "SELECT vi.account_id, a.parent_id, a.code, a.name, a.direction,
+            'SELECT vi.account_id, a.parent_id, a.code, a.name, a.direction,
                     ROUND(SUM(vi.debit_amount), 2) AS debit, ROUND(SUM(vi.credit_amount), 2) AS credit
              FROM erp_finance_voucher_item vi
              JOIN erp_finance_voucher v ON v.id = vi.voucher_id AND v.status = 1 AND v.deleted_at IS NULL
              JOIN erp_finance_account a ON a.id = vi.account_id AND a.deleted_at IS NULL AND a.status = 1
              WHERE v.voucher_date BETWEEN ? AND ?
              GROUP BY vi.account_id, a.parent_id, a.code, a.name, a.direction
-             ORDER BY a.code",
+             ORDER BY a.code',
             [$start, $end]
         );
 
@@ -77,10 +77,10 @@ class AccountBalanceService
     /** 已审核凭证在某科目的借贷发生额合计；$end 为 null 时统计 $start 之前 */
     private function aggregate(int $accountId, string $start, ?string $end): array
     {
-        $sql = "SELECT COALESCE(SUM(vi.debit_amount), 0) AS debit, COALESCE(SUM(vi.credit_amount), 0) AS credit
+        $sql = 'SELECT COALESCE(SUM(vi.debit_amount), 0) AS debit, COALESCE(SUM(vi.credit_amount), 0) AS credit
                 FROM erp_finance_voucher_item vi
                 JOIN erp_finance_voucher v ON v.id = vi.voucher_id AND v.status = 1 AND v.deleted_at IS NULL
-                WHERE vi.account_id = ?";
+                WHERE vi.account_id = ?';
         $params = [$accountId];
         if ($end === null) {
             $sql .= ' AND v.voucher_date < ?';

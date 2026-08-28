@@ -35,6 +35,7 @@ class CaptchaTest extends TestCase
         $stored = $storage->get($key);
         $this->assertIsArray($stored, '存储中应存在该验证码数据');
         $this->assertArrayHasKey('targets', $stored);
+
         return $stored['targets'];
     }
 

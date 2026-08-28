@@ -76,7 +76,7 @@ jobs:
 
       # C1 强校验拒绝 CHANGE_ME_ 占位值启动，CI 需模拟真实部署生成随机密钥
       - name: Generate random secrets for placeholder check
-        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 32)/g" .env
+        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 16)/g" .env
 
       - name: PHPStan Static Analysis
         run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
@@ -244,7 +244,7 @@ jobs:
         run: cp .env.example .env
 
       - name: Generate random secrets for placeholder check
-        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 32)/g" .env
+        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 16)/g" .env
 
       - name: Docs stats check
         # 单元测试无需 MySQL/Redis：集成用例在缺少 TEST_DB_* / TEST_REDIS_* 时
@@ -322,7 +322,7 @@ jobs:
       # C1 强校验拒绝 CHANGE_ME_ 占位值启动，CI 需模拟真实部署生成随机密钥
       # （与 php job 的 sed 做法一致，避免为每个 CHANGE_ME_ 单独写一条替换）
       - name: Generate random secrets for placeholder check
-        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 32)/g" .env
+        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 16)/g" .env
 
       - name: Initialize database (full seed + test account)
         # 遗留#2：已由最小种子升级为全量 database/install.sql（163 张表 + 全部种子），

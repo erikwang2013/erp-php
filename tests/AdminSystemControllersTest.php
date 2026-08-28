@@ -39,7 +39,8 @@ class AdminSystemControllersTest extends TestCase
         $this->assertSame('1.1', $data['version']);
         $this->assertContains($data['database'], ['ok', 'unavailable']);
         $this->assertContains($data['redis'], ['ok', 'unavailable']);
-        $this->assertContains($data['elasticsearch'], ['ok', 'unavailable', 'unknown']);
+        // yellow：单节点 ES 集群无副本分片时的合法健康状态（见 checkES 直接透传 /_cluster/health 的 status）
+        $this->assertContains($data['elasticsearch'], ['ok', 'yellow', 'unavailable', 'unknown']);
         $this->assertIsInt($data['timestamp']);
     }
 

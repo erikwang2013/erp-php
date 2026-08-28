@@ -369,7 +369,7 @@ parameters:
 		-
 			message: '#^Call to an undefined static method app\\model\\AdminPermission\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 2
+			count: 3
 			path: app/admin/controller/PermissionController.php
 
 		-
@@ -429,8 +429,14 @@ parameters:
 		-
 			message: '#^Call to an undefined static method app\\model\\AdminRole\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 2
+			count: 3
 			path: app/admin/controller/RoleController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CustomerLevel\:\:orderBy\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/product/CustomerController.php
 
 		-
 			message: '#^Call to an undefined static method app\\model\\AdminRole\:\:withCount\(\)\.$#'

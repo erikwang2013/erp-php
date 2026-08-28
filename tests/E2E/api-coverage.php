@@ -169,7 +169,7 @@ $MATRIX = [
         '/finance/cost-center', '/finance/profit-center'],
         ['/finance/cash-journal', '/finance/general-ledger', '/finance/subsidiary-ledger', '/finance/tax-rate',
             '/finance/tax-record', '/finance/report/balance-sheet', '/finance/report/cash-flow',
-            '/finance/report/trial-balance', '/finance/report/account-balance', '/finance/report/profit']],
+            '/finance/report/trial-balance', '/finance/report/account-balance?account_subject_id=1', '/finance/report/profit']],
     ['CRM', '/admin', ['/crm/opportunity', '/crm/follow', '/crm/funnel', '/crm/contact', '/crm/contract',
         '/crm/quotation', '/crm/campaign', '/crm/ticket'],
         ['/crm/pool', '/crm/pool/rules', '/crm/analytics/report', '/crm/analytics/metric']],
@@ -184,7 +184,7 @@ $MATRIX = [
     ['WMS', '/admin', ['/wms/zone', '/wms/location', '/wms/asn', '/wms/receiving', '/wms/putaway',
         '/wms/wave', '/wms/pick', '/wms/pack'], []],
     ['TMS', '/admin', ['/tms/carrier', '/tms/service', '/tms/freight-rate', '/tms/shipment',
-        '/tms/tracking', '/tms/freight-invoice'], ['/tms/freight-rate/rate-shop']],
+        '/tms/tracking', '/tms/freight-invoice'], ['/tms/freight-rate/rate-shop?weight_kg=1']],
     ['质量管理', '/admin', ['/quality/standard', '/quality/iqc', '/quality/ipqc', '/quality/oqc',
         '/quality/nonconformity'], []],
     ['设备管理', '/admin', ['/eam/equipment', '/eam/maintenance', '/eam/repair', '/eam/spare-part'], []],
@@ -266,7 +266,9 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
         }
         $resp = httpRequest('GET', "{$base}{$e['path']}?page=1&limit=5", [], $auth());
         $code = bizCode($resp);
-        $list = $resp['body']['data']['list'] ?? null;
+        $data = $resp['body']['data'] ?? null;
+        // permission 返回权限树、dashboard 返回统计对象（见 docs/API.md），无 list 键时以 data 本身判定
+        $list = is_array($data) ? ($data['list'] ?? $data) : null;
         $ok = $code === 0 && is_array($list);
         $verdict = $ok ? 'PASS' : (missingSeedTable($resp) ? 'SKIP' : 'FAIL');
         if ($ok && isset($firstIds[$e['path']]) && $list !== []) {
@@ -341,7 +343,9 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
             }
             $resp = httpRequest('GET', "{$base}{$prefix}{$path}?page=1&limit=5", [], $auth());
             $code = bizCode($resp);
-            $list = $resp['body']['data']['list'] ?? null;
+            $data = $resp['body']['data'] ?? null;
+            // 权限列表为树形 data（docs/API.md），无 list 键时以 data 本身判定
+            $list = is_array($data) ? ($data['list'] ?? $data) : null;
             $ok = $code === 0 && is_array($list);
             $verdict = $ok ? 'PASS' : (missingSeedTable($resp) ? 'SKIP' : 'FAIL');
             $detail = sprintf('HTTP %d, code=%d, list=%s', $resp['status'], $code, is_array($list) ? count($list) . ' 条' : '非数组');

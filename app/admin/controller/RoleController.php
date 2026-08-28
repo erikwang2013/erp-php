@@ -51,6 +51,30 @@ class RoleController extends BaseController
     }
 
     /**
+     * 角色详情
+     * @Apidoc\Title("角色详情")
+     * @Apidoc\Desc("按 ID 查询单个角色")
+     * @Apidoc\Url("/admin/role/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("角色管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="角色ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="角色信息")
+     */
+    public function show(Request $request, string $id): Response
+    {
+        $id = $this->decodeId($id);
+        $role = AdminRole::find($id);
+        if (!$role) {
+            return $this->fail('角色不存在', 404);
+        }
+
+        return $this->success($this->encodeIds($role->toArray()));
+    }
+
+    /**
      * 创建角色
      * @Apidoc\Title("创建角色")
      * @Apidoc\Desc("创建一个新角色并同步关联权限")

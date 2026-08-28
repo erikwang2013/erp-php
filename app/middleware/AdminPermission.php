@@ -55,6 +55,19 @@ class AdminPermission
             return true;
         }
 
+        // Route::any 兼容: 用户权限含 any.admin/x 时命中任意方法请求（含动态段回退）
+        $dotPos = strpos($required, '.');
+        $path = $dotPos !== false ? substr($required, $dotPos + 1) : $required;
+        while ($path !== '') {
+            if (in_array("any.{$path}", $permissions, true)) {
+                return true;
+            }
+            if (!str_contains($path, '/')) {
+                break;
+            }
+            $path = substr($path, 0, strrpos($path, '/'));
+        }
+
         if (str_contains($required, '/')) {
             $prefix = substr($required, 0, strrpos($required, '/'));
             while ($prefix !== '') {
@@ -65,22 +78,6 @@ class AdminPermission
                     break;
                 }
                 $prefix = substr($prefix, 0, strrpos($prefix, '/'));
-            }
-        }
-
-        if (str_starts_with($required, 'any.')) {
-            $path = substr($required, 4);
-            foreach (['get', 'post', 'put', 'delete', 'patch'] as $m) {
-                if (in_array("{$m}.{$path}", $permissions, true)) {
-                    return true;
-                }
-                $seg = $path;
-                while (str_contains($seg, '/')) {
-                    $seg = substr($seg, 0, strrpos($seg, '/'));
-                    if (in_array("{$m}.{$seg}", $permissions, true)) {
-                        return true;
-                    }
-                }
             }
         }
 

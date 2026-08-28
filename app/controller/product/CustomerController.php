@@ -10,6 +10,7 @@ namespace app\controller\product;
 
 use app\admin\controller\BaseController;
 use app\model\Customer;
+use app\model\CustomerLevel;
 use app\service\product\ProductService;
 use support\Container;
 use support\Request;
@@ -40,7 +41,7 @@ class CustomerController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $result = $this->product()->list(CrmContact::class, [
+        $result = $this->product()->list(Customer::class, [
             'keyword' => $keyword,
             'status' => $status,
         ], $page, $limit, [
@@ -72,7 +73,7 @@ class CustomerController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->product()->create(CrmContact::class, $request->all());
+        $item = $this->product()->create(Customer::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -93,7 +94,7 @@ class CustomerController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->product()->find(CrmContact::class, $id);
+        $item = $this->product()->find(Customer::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -117,7 +118,7 @@ class CustomerController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->product()->update(CrmContact::class, $id, $request->all());
+        $item = $this->product()->update(Customer::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -142,7 +143,7 @@ class CustomerController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->product()->find(CrmContact::class, $id);
+        $item = $this->product()->find(Customer::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -153,9 +154,31 @@ class CustomerController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $this->product()->delete(CrmContact::class, $id);
+        $this->product()->delete(Customer::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * 客户等级列表
+     * @Apidoc\Title("客户等级列表")
+     * @Apidoc\Desc("查询全部客户等级，供前端下拉选择")
+     * @Apidoc\Url("/admin/customer-level")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("CRM")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
+     */
+    public function levels(Request $request): Response
+    {
+        $list = CustomerLevel::orderBy('sort', 'asc')
+            ->orderBy('id', 'asc')
+            ->get()
+            ->map(fn ($level) => $this->encodeIds($level->toArray()));
+
+        return $this->success(['list' => $list, 'total' => $list->count(), 'page' => 1, 'limit' => $list->count()]);
     }
 
     /**

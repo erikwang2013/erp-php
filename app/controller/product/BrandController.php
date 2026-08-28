@@ -40,7 +40,7 @@ class BrandController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $result = $this->product()->list(CrmContact::class, [
+        $result = $this->product()->list(Brand::class, [
             'keyword' => $keyword,
             'status' => $status,
         ], $page, $limit, [
@@ -72,7 +72,7 @@ class BrandController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->product()->create(CrmContact::class, $request->all());
+        $item = $this->product()->create(Brand::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -93,7 +93,7 @@ class BrandController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->product()->find(CrmContact::class, $id);
+        $item = $this->product()->find(Brand::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -117,7 +117,7 @@ class BrandController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->product()->update(CrmContact::class, $id, $request->all());
+        $item = $this->product()->update(Brand::class, $id, $request->all());
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -142,7 +142,7 @@ class BrandController extends BaseController
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->product()->find(CrmContact::class, $id);
+        $item = $this->product()->find(Brand::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -153,7 +153,7 @@ class BrandController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $this->product()->delete(CrmContact::class, $id);
+        $this->product()->delete(Brand::class, $id);
 
         return $this->success([], '删除成功');
     }

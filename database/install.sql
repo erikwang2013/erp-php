@@ -347,6 +347,7 @@ CREATE TABLE IF NOT EXISTS `erp_customer` (
     `address` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '地址',
     `credit_limit` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '信用额度',
     `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `owner_user_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '归属用户ID（0=未认领，公海客户）',
     `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -447,6 +448,7 @@ CREATE TABLE IF NOT EXISTS `erp_purchase_receive` (
     `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待入库 1=已入库',
     `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
     `received_at` DATETIME DEFAULT NULL COMMENT '收货时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除时间',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
@@ -624,6 +626,7 @@ CREATE TABLE IF NOT EXISTS `erp_sales_delivery` (
     `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待出库 1=已出库',
     `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
     `delivered_at` DATETIME DEFAULT NULL COMMENT '发货时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除时间',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
@@ -3618,7 +3621,9 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000745, 31000000000000210, '运费-计算',         'post.admin/tms/freight-rate/calculate', 3, '', '', 19, NOW(), NOW()),
 (31000000000000746, 31000000000000210, '运费-比价',         'get.admin/tms/freight-rate/rate-shop', 3, '', '', 20, NOW(), NOW()),
 (31000000000000747, 31000000000000215, '检验-登记',         'post.admin/quality/inspection/record', 3, '', '', 33, NOW(), NOW()),
-(31000000000000748, 31000000000000215, '检验-合格率',       'post.admin/quality/inspection/pass-rate', 3, '', '', 34, NOW(), NOW());
+(31000000000000748, 31000000000000215, '检验-合格率',       'post.admin/quality/inspection/pass-rate', 3, '', '', 34, NOW(), NOW()),
+-- 超级管理员通配权限：角色描述即"拥有所有权限"，后续新增端点无需逐条补种子
+(31000000000000749, 0, '全部权限',           '*', 3, '', '', 0, NOW(), NOW());
 
 -- ============================================================
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz

@@ -163,6 +163,8 @@ function runAll(array $config): int
     $base = $config['base_url'];
     $user = $config['user'];
     $pass = $config['pass'];
+    // 函数作用域内重新读取（顶层同名变量不可见）；CI 经步骤 env 注入
+    $E2E_CAPTCHA_CODE = getenv('E2E_CAPTCHA_CODE') ?: ($config['e2e_captcha_code'] ?? '');
     $results = []; // ['name'=>, 'ok'=>bool, 'detail'=>]
     $shared = ['token' => null, 'refresh_token' => null, 'created_id' => null];
 
@@ -423,4 +425,5 @@ exit(runAll([
     'base_url' => $BASE_URL,
     'user' => $E2E_USER,
     'pass' => $E2E_PASS,
+    'e2e_captcha_code' => $E2E_CAPTCHA_CODE,
 ]));

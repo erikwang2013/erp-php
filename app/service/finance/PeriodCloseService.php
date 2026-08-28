@@ -25,12 +25,12 @@ class PeriodCloseService
         $end = date('Y-m-t', strtotime($start));
 
         $rows = Db::select(
-            "SELECT a.type, ROUND(SUM(vi.debit_amount), 2) AS debit, ROUND(SUM(vi.credit_amount), 2) AS credit
+            'SELECT a.type, ROUND(SUM(vi.debit_amount), 2) AS debit, ROUND(SUM(vi.credit_amount), 2) AS credit
              FROM erp_finance_voucher_item vi
              JOIN erp_finance_voucher v ON v.id = vi.voucher_id AND v.status = 1 AND v.deleted_at IS NULL
              JOIN erp_finance_account a ON a.id = vi.account_id AND a.deleted_at IS NULL AND a.status = 1
              WHERE v.voucher_date BETWEEN ? AND ? AND a.type IN (4, 5)
-             GROUP BY a.type",
+             GROUP BY a.type',
             [$start, $end]
         );
 

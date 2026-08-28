@@ -40,6 +40,30 @@ class PermissionController extends BaseController
     }
 
     /**
+     * 权限详情
+     * @Apidoc\Title("权限详情")
+     * @Apidoc\Desc("按 ID 查询单个权限节点")
+     * @Apidoc\Url("/admin/permission/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("权限管理")
+     * @Apidoc\Param(name="id", type="string", require=true, desc="权限ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="权限信息")
+     */
+    public function show(Request $request, string $id): Response
+    {
+        $id = $this->decodeId($id);
+        $permission = AdminPermission::find($id);
+        if (!$permission) {
+            return $this->fail('权限不存在', 404);
+        }
+
+        return $this->success($this->encodeIds($permission->toArray()));
+    }
+
+    /**
      * 创建权限
      * @Apidoc\Title("创建权限")
      * @Apidoc\Desc("创建一个新的权限节点，支持目录、菜单、按钮三种类型")

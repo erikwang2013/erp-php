@@ -48,10 +48,10 @@ class RbacBehaviorTest extends TestCase
 
     public function testMethodPrefixIsPartOfPermission(): void
     {
-        // 方法前缀参与匹配：get 权限不放行 post 请求（种子中无 any.* 通配 slug，
-        // 且请求侧 required 恒为 method.path，any.* 分支对真实请求不可达）
+        // 方法前缀参与匹配：get 权限不放行 post 请求
         $this->assertFalse($this->invokeHasPermission(['get.admin/user'], 'post.admin/user'));
-        $this->assertFalse($this->invokeHasPermission(['any.admin/user'], 'post.admin/user/123'));
+        // Route::any 兼容：any.* 权限对任意方法请求放行（含动态段回退）
+        $this->assertTrue($this->invokeHasPermission(['any.admin/user'], 'post.admin/user/123'));
     }
 
     public function testPassThroughWhenNoAdminId(): void

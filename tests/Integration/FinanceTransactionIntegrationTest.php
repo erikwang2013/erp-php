@@ -175,6 +175,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
         $base = random_int(1, PHP_INT_MAX - 1000);
         $id = $base + $this->idCursor++;
         $this->testIds[] = $id;
+
         return $id;
     }
 
@@ -190,6 +191,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
         $ar->settled_amount = 0;
         $ar->status = 0;
         $ar->save();
+
         return (int) $ar->id;
     }
 
@@ -203,6 +205,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
         $receipt->amount = $amount;
         $receipt->status = 1;
         $receipt->save();
+
         return (int) $receipt->id;
     }
 
@@ -213,6 +216,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
         $account->name = 'IT测试账户';
         $account->balance = $balance;
         $account->save();
+
         return (int) $account->id;
     }
 
