@@ -85,6 +85,8 @@ class RmaFixTest extends TestCase
         ], ['code' => $code, 'refund_amount' => 20.0]);
 
         $rmaId = (int) Capsule::table('erp_oms_rma')->where('code', $code)->value('id');
+        // 状态机：create(0) → approve(1) → refund(4)；refund 仅受理 [1,3]，须先批准
+        $service->approve($rmaId, 700002);
         $service->refund($rmaId);
 
         $status = (int) Capsule::table('erp_oms_rma')->where('id', $rmaId)->value('status');

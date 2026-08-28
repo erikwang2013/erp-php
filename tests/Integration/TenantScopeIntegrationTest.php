@@ -125,9 +125,14 @@ class TenantScopeIntegrationTest extends IntegrationTestCase
         $request = new Request($buffer);
         $middleware = new TenantScopeMiddleware();
 
-        $handled = $middleware->process($request, static fn ($req) => $req);
+        $handledRequest = null;
+        $middleware->process($request, static function ($req) use (&$handledRequest) {
+            $handledRequest = $req;
 
-        $this->assertSame(7, $handled->tenantId ?? null, '中间件应把 X-Tenant-Id 注入 request->tenantId');
+            return response('ok');
+        });
+
+        $this->assertSame(7, $handledRequest->tenantId ?? null, '中间件应把 X-Tenant-Id 注入 request->tenantId');
         $this->assertSame(7, TenantScope::getCurrentTenantId(), '中间件应写入 trait 静态（trait 自身拷贝）');
     }
 
@@ -139,9 +144,14 @@ class TenantScopeIntegrationTest extends IntegrationTestCase
         $request = new Request("GET /admin HTTP/1.1\r\nHost: localhost\r\n\r\n");
         $middleware = new TenantScopeMiddleware();
 
-        $handled = $middleware->process($request, static fn ($req) => $req);
+        $handledRequest = null;
+        $middleware->process($request, static function ($req) use (&$handledRequest) {
+            $handledRequest = $req;
 
-        $this->assertNull($handled->tenantId ?? null, '无 X-Tenant-Id 请求头时不应注入 tenantId');
+            return response('ok');
+        });
+
+        $this->assertNull($handledRequest->tenantId ?? null, '无 X-Tenant-Id 请求头时不应注入 tenantId');
         $this->assertNull(TenantScope::getCurrentTenantId(), '无请求头时 trait 静态应保持 null');
     }
 

@@ -16,5 +16,7 @@ class CostRecord extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
+    // 成本记录为追加日志：表仅有 created_at（DB 默认填充），无 updated_at，禁 Eloquent 时间戳
+    public $timestamps = false;
     protected $guarded = ['id', 'created_at', 'updated_at'];
 }

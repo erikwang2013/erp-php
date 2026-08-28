@@ -113,12 +113,21 @@ class InventoryService
             $inv->cost_price = $afterAvg;
             $inv->save();
 
-            // 4. 记录批次
+            // 4. 记录批次（id 在 $guarded 中，firstOrCreate 的 values 会被批量赋值保护剥离，
+            // 无法携带雪花 id，须显式赋值，否则插入缺 id 报 1364）
             if (!empty($batchCode)) {
-                InventoryBatch::firstOrCreate(
-                    ['product_id' => $productId, 'sku_id' => $skuId, 'batch_code' => $batchCode],
-                    ['id' => SnowflakeService::generate()]
-                );
+                $batch = InventoryBatch::where('product_id', $productId)
+                    ->where('sku_id', $skuId)
+                    ->where('batch_code', $batchCode)
+                    ->first();
+                if (!$batch) {
+                    $batch = new InventoryBatch();
+                    $batch->id = SnowflakeService::generate();
+                    $batch->product_id = $productId;
+                    $batch->sku_id = $skuId;
+                    $batch->batch_code = $batchCode;
+                    $batch->save();
+                }
             }
 
             // 5. 记录序列号（可选）

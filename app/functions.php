@@ -145,4 +145,12 @@ function jwt_instance(): \Erikwang2013\Jwt\JWT
 
 // poster-php 配置挂载：PosterConfig 默认只读包内 vendor config（driver 硬编码 auto），
 // 项目 config/poster.php 需在此显式加载才生效（生产与测试共用此引导路径）。
-\Erikwang2013\Poster\PosterConfig::load(dirname(__DIR__) . '/config/poster.php');
+// PosterConfig::load(null) 会按包内默认路径重载并因 mtime 不等而覆盖已挂载配置
+// （findProjectConfig 定位偏差，详见 vendor/erikwang2013/poster-php/src/PosterConfig.php），
+// 故同步包配置 mtime 使缓存命中，保证项目配置（driver=gd）恒生效。
+$posterPkgConfig = dirname(__DIR__) . '/vendor/erikwang2013/poster-php/config/poster.php';
+$posterAppConfig = dirname(__DIR__) . '/config/poster.php';
+if (is_file($posterPkgConfig) && is_file($posterAppConfig)) {
+    @touch($posterPkgConfig, (int) filemtime($posterAppConfig));
+}
+\Erikwang2013\Poster\PosterConfig::load($posterAppConfig);

@@ -30,6 +30,9 @@ class SettlementBypassFixTest extends TestCase
     /** @var int[] 测试中创建的核销记录 id，tearDown 清理 */
     private array $settlementIds = [];
 
+    /** @var int[] 测试中创建的收款单 id，tearDown 清理 */
+    private array $receiptIds = [];
+
     protected function tearDown(): void
     {
         if (!empty($this->settlementIds)) {
@@ -39,6 +42,10 @@ class SettlementBypassFixTest extends TestCase
         if (!empty($this->arApIds)) {
             Capsule::table('erp_finance_ar_ap')->whereIn('id', $this->arApIds)->delete();
             $this->arApIds = [];
+        }
+        if (!empty($this->receiptIds)) {
+            Capsule::table('erp_finance_receipt')->whereIn('id', $this->receiptIds)->delete();
+            $this->receiptIds = [];
         }
         parent::tearDown();
     }
@@ -63,6 +70,17 @@ class SettlementBypassFixTest extends TestCase
         $arApId = $service->createAr(999001, 'unit_test', 900001, 1000.00);
         $this->arApIds[] = $arApId;
 
+        // 收款单须先存在（settleReceipt 单据侧守卫：不存在/未审核/归属不一致均先行拒绝）
+        Capsule::table('erp_finance_receipt')->insert([
+            'id' => 888001,
+            'code' => 'UNIT-888001',
+            'customer_id' => 999001,
+            'bank_account_id' => 0,
+            'amount' => 1000.00,
+            'status' => 1,
+        ]);
+        $this->receiptIds[] = 888001;
+
         $service->settleReceipt(888001, $arApId, 600.00);
 
         $arAp = Capsule::table('erp_finance_ar_ap')->where('id', $arApId)->first();
@@ -84,6 +102,18 @@ class SettlementBypassFixTest extends TestCase
         $service = new FinanceService();
         $arApId = $service->createAr(999002, 'unit_test', 900002, 500.00);
         $this->arApIds[] = $arApId;
+
+        // 收款单须存在且余额充足（700≥600），否则单据侧守卫先行抛出
+        // "收款单不存在/核销金额超出收款单剩余可核销额"，无法命中应收侧守卫
+        Capsule::table('erp_finance_receipt')->insert([
+            'id' => 888002,
+            'code' => 'UNIT-888002',
+            'customer_id' => 999002,
+            'bank_account_id' => 0,
+            'amount' => 700.00,
+            'status' => 1,
+        ]);
+        $this->receiptIds[] = 888002;
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('超出未核销余额');

@@ -224,7 +224,9 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
     {
         $partner = $this->nextId();
         $arId = $this->createAr(100.0, $partner);
-        $receiptId = $this->createReceipt(100.0, $partner);
+        // 收款单余额须大于核销金额：先过单据侧校验（未超收款单剩余可核销额），
+        // 才能命中应收侧"超出未核销余额"守卫（FinanceService 校验顺序：单据先于应收）
+        $receiptId = $this->createReceipt(200.0, $partner);
 
         try {
             (new FinanceService())->settleReceipt($receiptId, $arId, 150.0);
