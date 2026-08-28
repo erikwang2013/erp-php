@@ -348,9 +348,12 @@ jobs:
         # 随机 hex，而 CI MySQL 是 MYSQL_ALLOW_EMPTY_PASSWORD（root 空口令）—— 不置空则
         # webman 带随机密码连接必 Access denied（health 仍 200，db=unavailable，登录 500）。
         # 开发环境 env_secret 允许空口令（env_is_production() 门控），此改动仅影响 E2E 场景。
+        # E2E_CAPTCHA_CODE：AuthController 的 E2E 旁路口令（登录时 captcha_key 与之相等则跳过点击验证），
+        # 验证码目标坐标属服务端秘密，E2E 脚本无法自行求解，故由 CI 注入测试口令。
         run: |
           sed -i 's/^SCOUT_DRIVER=elasticsearch/SCOUT_DRIVER=null/' .env
           sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=/' .env
+          echo 'E2E_CAPTCHA_CODE=e2e-test-code' >> .env
           php start.php start -d
 
       - name: Wait for health check
@@ -368,6 +371,7 @@ jobs:
         env:
           E2E_USER: admin
           E2E_PASS: admin123 # 与 Initialize database 步骤插入的测试账号一致
+          E2E_CAPTCHA_CODE: e2e-test-code # 与 Start webman service 写入服务端 .env 的口令一致
 
       - name: Run E2E API coverage
         # 遗留#2：api-coverage 全模块只读遍历（25 业务模块 + 系统管理，全读操作）。
@@ -376,6 +380,7 @@ jobs:
         env:
           E2E_USER: admin
           E2E_PASS: admin123 # 与 Initialize database 步骤插入的测试账号一致
+          E2E_CAPTCHA_CODE: e2e-test-code # 与 Start webman service 写入服务端 .env 的口令一致
 
   # ============================================================
   # 版本增量发布（推送规则）

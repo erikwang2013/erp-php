@@ -17,8 +17,8 @@
  * 说明:
  * - 登录需点击验证码（captcha_key + clicks），脚本自动调用
  *   POST /api/captcha/generate 获取 targets 坐标并回填，无需人工预置；
- *   若验证码服务不可用（generate 失败），脚本会 FAIL 并提示
- *   使用 E2E_CAPTCHA_CODE（预留：将来若切换为文本验证码，可在此注入）。
+ * - 服务端 .env 设置 E2E_CAPTCHA_CODE 时（CI 专用），脚本用该口令直通
+ *   AuthController 的 E2E 旁路，跳过点击验证。
  * - 10 条链路相互独立执行，任一失败不中断后续；全部通过 exit 0，有失败 exit 1。
  * - 注意: 本项目 webman 的 json() 始终返回 HTTP 200，业务码在 body.code，
  *   因此"未授权被拒"以 body.code ∈ {401,403} 判定，HTTP 状态码仅作参考输出。
@@ -186,11 +186,16 @@ function runAll(array $config): int
     $detail = '';
     // 2a. 生成验证码
     $cap = httpRequest('POST', "{$base}/api/captcha/generate", ['difficulty' => 'easy']);
-    if (bizCode($cap) === 0 && isset($cap['body']['data']['key'], $cap['body']['data']['extra']['targets'])) {
-        $capKey = $cap['body']['data']['key'];
+    // extra.targets 仅含 order+text（目标坐标属服务端秘密）；E2E 用测试口令跳过点击验证
+    $capKey = $E2E_CAPTCHA_CODE !== '' ? $E2E_CAPTCHA_CODE : ($cap['body']['data']['key'] ?? '');
+    if (($E2E_CAPTCHA_CODE !== '' || (bizCode($cap) === 0 && isset($cap['body']['data']['key']))) && $capKey !== '') {
         $clicks = [];
-        foreach ($cap['body']['data']['extra']['targets'] as $t) {
-            $clicks[] = ['x' => (int) $t['x'], 'y' => (int) $t['y']];
+        if ($E2E_CAPTCHA_CODE !== '') {
+            $clicks = [['x' => 0, 'y' => 0], ['x' => 0, 'y' => 0]]; // 登录校验要求 clicks min:2
+        } else {
+            foreach ($cap['body']['data']['extra']['targets'] as $t) {
+                $clicks[] = ['x' => (int) ($t['x'] ?? 0), 'y' => (int) ($t['y'] ?? 0)];
+            }
         }
         $loginBody = [
             'username' => $user,

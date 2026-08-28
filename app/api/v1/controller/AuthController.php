@@ -44,9 +44,16 @@ class AuthController
         }
 
         // 验证点击验证码
-        $clicks = array_map(fn ($c) => [(int)$c['x'], (int)$c['y']], $request->input('clicks'));
-        if (!captcha_verify($request->input('captcha_key'), 'click', $clicks)) {
-            return json(['code' => 422, 'message' => '验证码错误，请重试', 'data' => []]);
+        // E2E 测试口令：仅当服务端 .env 显式设置 E2E_CAPTCHA_CODE 且请求携带相同口令时放行
+        // （CI 专用；生产 .env 无此变量，旁路不生效）
+        $bypass = getenv('E2E_CAPTCHA_CODE');
+        if ($bypass !== false && $bypass !== '' && $request->input('captcha_key') === $bypass) {
+            $clicks = [];
+        } else {
+            $clicks = array_map(fn ($c) => [(int)$c['x'], (int)$c['y']], $request->input('clicks'));
+            if (!captcha_verify($request->input('captcha_key'), 'click', $clicks)) {
+                return json(['code' => 422, 'message' => '验证码错误，请重试', 'data' => []]);
+            }
         }
 
         // 校验用户凭证

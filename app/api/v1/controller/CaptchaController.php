@@ -35,8 +35,9 @@ class CaptchaController
                 'data' => [
                     'key' => $result['key'],
                     'image' => base64_encode($result['image']), // base64 PNG
+                    // 目标坐标属服务端秘密，仅下发 texts（order+text）供客户端提示点击目标
                     'extra' => [
-                        'targets' => $result['extra']['targets'],
+                        'targets' => $result['extra']['texts'] ?? [],
                     ],
                 ],
             ]);

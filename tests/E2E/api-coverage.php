@@ -216,16 +216,23 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
         'detail' => sprintf('HTTP %d, code=%d', $resp['status'], $code)];
 
     // ---- 3. 登录（自动完成点击验证码） ----
+    // extra.targets 仅含 order+text（目标坐标属服务端秘密）；E2E 用测试口令跳过点击验证
+    $E2E_CAPTCHA_CODE = getenv('E2E_CAPTCHA_CODE') ?: '';
     $cap = httpRequest('POST', "{$base}/api/captcha/generate", ['difficulty' => 'easy']);
     $detail = '';
-    if (bizCode($cap) === 0 && isset($cap['body']['data']['key'], $cap['body']['data']['extra']['targets'])) {
+    $capKey = $E2E_CAPTCHA_CODE !== '' ? $E2E_CAPTCHA_CODE : ($cap['body']['data']['key'] ?? '');
+    if (($E2E_CAPTCHA_CODE !== '' || (bizCode($cap) === 0 && isset($cap['body']['data']['key']))) && $capKey !== '') {
         $clicks = [];
-        foreach ($cap['body']['data']['extra']['targets'] as $t) {
-            $clicks[] = ['x' => (int) $t['x'], 'y' => (int) $t['y']];
+        if ($E2E_CAPTCHA_CODE === '') {
+            foreach ($cap['body']['data']['extra']['targets'] ?? [] as $t) {
+                $clicks[] = ['x' => (int) ($t['x'] ?? 0), 'y' => (int) ($t['y'] ?? 0)];
+            }
+        } else {
+            $clicks = [['x' => 0, 'y' => 0], ['x' => 0, 'y' => 0]]; // 登录校验要求 clicks min:2
         }
         $login = httpRequest('POST', "{$base}/api/auth/login", [
             'username' => $user, 'password' => $pass,
-            'captcha_key' => $cap['body']['data']['key'], 'clicks' => $clicks,
+            'captcha_key' => $capKey, 'clicks' => $clicks,
         ]);
         $code = bizCode($login);
         if ($code === 0 && !empty($login['body']['data']['access_token'])) {
