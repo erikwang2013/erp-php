@@ -497,14 +497,14 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 데이터베이스 테이블 | 163 <!-- stats:tables=163 --> |
 | 데이터 모델 | 161 <!-- stats:models=161 --> |
 | 컨트롤러 | 123 <!-- stats:controllers=122 --> |
-| 업무 서비스 | 29 <!-- stats:services=29 --> |
+| 업무 서비스 | 27 <!-- stats:services=27 --> |
 | API 라우트 | 198(동적 생성, `scripts/check-endpoints.php` 참고, doc-stats 검증 미포함) |
-| 미들웨어 | 12 <!-- stats:middleware=12 --> |
-| PHP 소스 파일 | 343 <!-- stats:php_files=342 --> |
+| 미들웨어 | 11 <!-- stats:middleware=11 --> |
+| PHP 소스 파일 | 343 <!-- stats:php_files=339 --> |
 | 데이터베이스 설치 스크립트 | 단일 파일 `database/install.sql`(163개 테이블, 전체 마이그레이션 병합 완료) |
 | 프론트엔드 페이지 (Flutter) | 7(프론트엔드 통계, doc-stats 검증 미포함) |
 | 프론트엔드 페이지 (HarmonyOS) | 4(프론트엔드 통계, doc-stats 검증 미포함) |
-| 단위 테스트 | 50개 테스트 파일 <!-- stats:test_files=60 --> / 442개 테스트 케이스 / 2238개 assertion(tests/assertions는 PHP 패치 버전과 확장에 따라 변동, stats 정밀 검증 미참여) |
+| 단위 테스트 | 50개 테스트 파일 <!-- stats:test_files=59 --> / 442개 테스트 케이스 / 2238개 assertion(tests/assertions는 PHP 패치 버전과 확장에 따라 변동, stats 정밀 검증 미참여) |
 
 > 위 숫자는 `bash scripts/doc-stats.sh`가 실측한 값입니다. `<!-- stats:key=value -->`로 표기된 항목은 CI
 > (`.github/workflows/ci.yml` docs 작업)가 코드 사실과의 일치를 자동 검증하며, 어긋나면 빨간불이 켜집니다.

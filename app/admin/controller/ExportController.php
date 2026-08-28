@@ -107,7 +107,7 @@ class ExportController extends BaseController
             $row++;
         }
         if ($row > 2) {
-            $lastCol = \PhpOffice\PhpSpreadsheet\Coordinate::stringFromColumnIndex(count($columns));
+            $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($columns));
             $sheet->getStyle("A2:{$lastCol}" . ($row - 1))->applyFromArray($dataStyle);
         }
 

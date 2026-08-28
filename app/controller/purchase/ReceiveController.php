@@ -83,7 +83,7 @@ class ReceiveController extends BaseController
                 return $this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']);
             });
 
-        $this->successPage($list, $total, $page, $limit);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**

@@ -54,7 +54,7 @@ class QuotationController extends BaseController
             ->limit($limit)->orderBy('id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        $this->successPage($list, $total, $page, $limit);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**

@@ -497,14 +497,14 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Database tables | 163 <!-- stats:tables=163 --> |
 | Data models | 161 <!-- stats:models=161 --> |
 | Controllers | 123 <!-- stats:controllers=122 --> |
-| Business services | 29 <!-- stats:services=29 --> |
+| Business services | 27 <!-- stats:services=27 --> |
 | API routes | 198 (dynamically generated, see `scripts/check-endpoints.php`, not subject to doc-stats validation) |
-| Middleware | 12 <!-- stats:middleware=12 --> |
-| PHP source files | 343 <!-- stats:php_files=342 --> |
+| Middleware | 11 <!-- stats:middleware=11 --> |
+| PHP source files | 343 <!-- stats:php_files=339 --> |
 | Database install script | Single file `database/install.sql` (163 tables, all migrations merged in) |
 | Frontend pages (Flutter) | 7 (frontend statistics, not included in doc-stats validation) |
 | Frontend pages (HarmonyOS) | 4 (frontend statistics, not included in doc-stats validation) |
-| Unit tests | 50 test files <!-- stats:test_files=60 --> / 442 test cases / 2238 assertions (tests/assertions fluctuate with PHP patch versions and extensions, not subject to precise stats validation) |
+| Unit tests | 50 test files <!-- stats:test_files=59 --> / 442 test cases / 2238 assertions (tests/assertions fluctuate with PHP patch versions and extensions, not subject to precise stats validation) |
 
 > The numbers above are measured by `bash scripts/doc-stats.sh`; items marked `<!-- stats:key=value -->` are automatically
 > validated by CI (the docs job in `.github/workflows/ci.yml`) against code facts; drift turns red.

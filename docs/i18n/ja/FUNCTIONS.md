@@ -497,14 +497,14 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | データベーステーブル | 163 <!-- stats:tables=163 --> |
 | データモデル | 161 <!-- stats:models=161 --> |
 | コントローラー | 123 <!-- stats:controllers=122 --> |
-| 業務サービス | 29 <!-- stats:services=29 --> |
+| 業務サービス | 27 <!-- stats:services=27 --> |
 | API ルート | 198（動的生成、`scripts/check-endpoints.php` を参照、doc-stats 検証対象外）|
-| ミドルウェア | 12 <!-- stats:middleware=12 --> |
-| PHP ソースファイル | 343 <!-- stats:php_files=342 --> |
+| ミドルウェア | 11 <!-- stats:middleware=11 --> |
+| PHP ソースファイル | 343 <!-- stats:php_files=339 --> |
 | データベースインストールスクリプト | 単一ファイル `database/install.sql`（163 テーブル、全マイグレーション統合済み）|
 | フロントエンドページ (Flutter) | 7（フロントエンド統計、doc-stats 検証対象外）|
 | フロントエンドページ (HarmonyOS) | 4（フロントエンド統計、doc-stats 検証対象外）|
-| ユニットテスト | 50 テストファイル <!-- stats:test_files=60 --> / 442 テストケース / 2238 アサーション（tests/assertions は PHP パッチバージョンと拡張により変動、stats の厳密検証対象外）|
+| ユニットテスト | 50 テストファイル <!-- stats:test_files=59 --> / 442 テストケース / 2238 アサーション（tests/assertions は PHP パッチバージョンと拡張により変動、stats の厳密検証対象外）|
 
 > 上記の数字は `bash scripts/doc-stats.sh` による実測値です。`<!-- stats:key=value -->` で注記された項目は CI
 > （`.github/workflows/ci.yml` の docs ジョブ）がコードの事実との一致を自動検証し、乖離があれば即レッドになります。

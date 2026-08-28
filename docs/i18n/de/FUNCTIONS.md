@@ -497,14 +497,14 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Datenbanktabellen | 163 <!-- stats:tables=163 --> |
 | Datenmodelle | 161 <!-- stats:models=161 --> |
 | Controller | 123 <!-- stats:controllers=122 --> |
-| Business-Services | 29 <!-- stats:services=29 --> |
+| Business-Services | 27 <!-- stats:services=27 --> |
 | API-Routen | 198 (dynamisch erzeugt, siehe `scripts/check-endpoints.php`, nimmt nicht an der doc-stats-Prüfung teil) |
-| Middleware | 12 <!-- stats:middleware=12 --> |
-| PHP-Quelldateien | 343 <!-- stats:php_files=342 --> |
+| Middleware | 11 <!-- stats:middleware=11 --> |
+| PHP-Quelldateien | 343 <!-- stats:php_files=339 --> |
 | Datenbank-Installationsskript | Einzeldatei `database/install.sql` (163 Tabellen, alle Migrationen bereits integriert) |
 | Frontend-Seiten (Flutter) | 7 (Frontend-Statistik, nicht in der doc-stats-Prüfung enthalten) |
 | Frontend-Seiten (HarmonyOS) | 4 (Frontend-Statistik, nicht in der doc-stats-Prüfung enthalten) |
-| Unit-Tests | 50 Testdateien <!-- stats:test_files=60 --> / 442 Testfälle / 2238 Assertions (tests/assertions schwanken mit PHP-Patchversionen und Erweiterungen, nehmen nicht an der exakten stats-Prüfung teil) |
+| Unit-Tests | 50 Testdateien <!-- stats:test_files=59 --> / 442 Testfälle / 2238 Assertions (tests/assertions schwanken mit PHP-Patchversionen und Erweiterungen, nehmen nicht an der exakten stats-Prüfung teil) |
 
 > Die obigen Zahlen werden real von `bash scripts/doc-stats.sh` gemessen; mit `<!-- stats:key=value -->` markierte Einträge werden von CI
 > (docs-Job in `.github/workflows/ci.yml`) automatisch auf Übereinstimmung mit den Code-Fakten geprüft — Abweichungen werden rot.

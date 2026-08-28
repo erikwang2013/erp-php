@@ -497,14 +497,14 @@ Registro de horas → agregación a la tarea → acumulación en el coste del pr
 | Tablas de base de datos | 163 <!-- stats:tables=163 --> |
 | Modelos de datos | 161 <!-- stats:models=161 --> |
 | Controladores | 123 <!-- stats:controllers=122 --> |
-| Servicios de negocio | 29 <!-- stats:services=29 --> |
+| Servicios de negocio | 27 <!-- stats:services=27 --> |
 | Rutas de API | 198 (generadas dinámicamente; ver `scripts/check-endpoints.php`, no participan en la verificación de doc-stats) |
-| Middlewares | 12 <!-- stats:middleware=12 --> |
-| Archivos fuente PHP | 343 <!-- stats:php_files=342 --> |
+| Middlewares | 11 <!-- stats:middleware=11 --> |
+| Archivos fuente PHP | 343 <!-- stats:php_files=339 --> |
 | Script de instalación de base de datos | Archivo único `database/install.sql` (163 tablas, todas las migraciones consolidadas) |
 | Páginas frontend (Flutter) | 7 (estadísticas del frontend, no incluidas en la verificación de doc-stats) |
 | Páginas frontend (HarmonyOS) | 4 (estadísticas del frontend, no incluidas en la verificación de doc-stats) |
-| Pruebas unitarias | 50 archivos de prueba <!-- stats:test_files=60 --> / 442 casos de prueba / 2238 aserciones (tests/assertions varían con la versión de parche de PHP y las extensiones; no participan en la verificación exacta de stats) |
+| Pruebas unitarias | 50 archivos de prueba <!-- stats:test_files=59 --> / 442 casos de prueba / 2238 aserciones (tests/assertions varían con la versión de parche de PHP y las extensiones; no participan en la verificación exacta de stats) |
 
 > Las cifras anteriores se generan midiendo con `bash scripts/doc-stats.sh`; los elementos marcados con `<!-- stats:key=value -->`
 > los verifica automáticamente el CI (el job de docs en `.github/workflows/ci.yml`) contra los hechos del código; si hay desviación, se marca en rojo.

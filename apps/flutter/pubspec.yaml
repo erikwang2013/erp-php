@@ -34,7 +34,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   # 国际化：intl（与 flutter_localizations 锁定版本一致）
-  intl: 0.20.2
+  intl: 0.20.3
   cupertino_icons: ^1.0.8
   # 状态管理
   get: ^4.6.6

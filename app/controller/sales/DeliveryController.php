@@ -83,7 +83,7 @@ class DeliveryController extends BaseController
                 return $this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']);
             });
 
-        $this->successPage($list, $total, $page, $limit);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**
