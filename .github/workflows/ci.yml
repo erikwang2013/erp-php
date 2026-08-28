@@ -76,7 +76,11 @@ jobs:
 
       # C1 强校验拒绝 CHANGE_ME_ 占位值启动，CI 需模拟真实部署生成随机密钥
       - name: Generate random secrets for placeholder check
-        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 16)/g" .env
+        run: |
+          sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 16)/g" .env
+          # DB_PASSWORD 置空：本 job 的 mysql service 为 root 空口令（与 e2e job 同款处理），
+          # 不置空则 app config 连接（CrmModuleTest/CrmServiceTest 分析报表走此路径）必 1045 access denied
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=/' .env
 
       - name: PHPStan Static Analysis
         run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
@@ -106,6 +110,8 @@ jobs:
             exit $code
           fi
         # 遗留#2：与 e2e job 的 mysql/redis 服务一致，跑起集成测试（缺则 markTestSkipped 跳过）
+        # 注：.env 的 DB_PASSWORD 已在 Generate random secrets 步骤置空，
+        # 使走 app config 的模块测试（CrmModuleTest 分析报表等）能连上 mysql 服务
         env:
           TEST_DB_DATABASE: erp
           TEST_DB_USERNAME: root

@@ -504,7 +504,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 数据库安装脚本 | 单文件 `database/install.sql`（163 张表，已并入全部迁移）|
 | 前端页面 (Flutter) | 107（2026-08-27 实测 `apps/flutter/lib/app/pages/` 页面文件数，未纳入 doc-stats 校验）|
 | 前端页面 (HarmonyOS) | 35（2026-08-27 实测 `apps/harmonyos/entry/src/main/ets/pages/` 页面文件数，未纳入 doc-stats 校验）|
-| 单元测试 | 59 个测试文件 <!-- stats:test_files=59 --> / 500 个测试用例 <!-- stats:tests=500 --> / 2226 条断言 <!-- stats:assertions=2226 -->（32 skipped）|
+| 单元测试 | 59 个测试文件 <!-- stats:test_files=59 --> / 500 个测试用例 <!-- stats:tests=500 --> / 2171 条断言 <!-- stats:assertions=2171 -->（51 skipped）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。

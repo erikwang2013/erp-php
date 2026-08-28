@@ -86,10 +86,11 @@ class QueueIntegrationTest extends IntegrationTestCase
 
     /**
      * 模拟消费进程取出一条消息，并交给 QueueConsumer 的私有单条处理逻辑执行。
+     * 端到端测试已预先 lPop 校验消息体契约，须把已取出的消息回传，否则二次弹出为空。
      */
-    private function consumeOne(QueueConsumer $consumer): void
+    private function consumeOne(QueueConsumer $consumer, ?string $raw = null): void
     {
-        $raw = Redis::lPop(RedisQueue::key());
+        $raw ??= Redis::lPop(RedisQueue::key());
         if ($raw === false || $raw === null) {
             return;
         }
@@ -129,7 +130,7 @@ class QueueIntegrationTest extends IntegrationTestCase
 
         // 消费者：模拟消费进程处理这条消息（真实白名单校验 + 任务分发）
         $consumer = $this->buildConsumer();
-        $this->consumeOne($consumer);
+        $this->consumeOne($consumer, $raw);
 
         // 副作用 1：Redis 冒烟计数器 +1
         $this->assertSame(
