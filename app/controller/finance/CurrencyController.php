@@ -54,7 +54,7 @@ class CurrencyController extends BaseController
             ->limit($limit)->orderBy('is_base', 'desc')->orderBy('id', 'asc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**

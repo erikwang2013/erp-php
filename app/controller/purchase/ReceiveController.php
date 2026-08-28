@@ -83,7 +83,7 @@ class ReceiveController extends BaseController
                 return $this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']);
             });
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        $this->successPage($list, $total, $page, $limit);
     }
 
     /**
@@ -176,6 +176,7 @@ class ReceiveController extends BaseController
                 $receivedSoFar = (float) PurchaseReceiveItem::query()->join('erp_purchase_receive', 'erp_purchase_receive.id', '=', 'erp_purchase_receive_item.receive_id')
                     ->where('erp_purchase_receive.order_id', $orderId)
                     ->where('erp_purchase_receive.status', 1)
+                    ->whereNull('erp_purchase_receive.deleted_at')
                     ->where('erp_purchase_receive_item.order_item_id', $orderItemId)
                     ->sum('erp_purchase_receive_item.quantity');
                 $orderedQty = (float) $orderItem->quantity;
@@ -263,6 +264,7 @@ class ReceiveController extends BaseController
         $receivedByItem = PurchaseReceiveItem::query()->join('erp_purchase_receive', 'erp_purchase_receive.id', '=', 'erp_purchase_receive_item.receive_id')
             ->where('erp_purchase_receive.order_id', $order->id)
             ->where('erp_purchase_receive.status', 1)
+            ->whereNull('erp_purchase_receive.deleted_at')
             ->groupBy('erp_purchase_receive_item.order_item_id')
             ->selectRaw('erp_purchase_receive_item.order_item_id')
             ->selectRaw('SUM(erp_purchase_receive_item.quantity) as total_received')
@@ -365,6 +367,9 @@ class ReceiveController extends BaseController
         $receive = PurchaseReceive::find($id);
         if (!$receive) {
             return $this->fail('收货单不存在', 404);
+        }
+        if ($receive->status === 1) {
+            return $this->fail('已入库的收货单不可删除', 422);
         }
 
         $adminId = $request->adminId ?? 0;

@@ -284,6 +284,9 @@ class CrmModuleTest extends TestCase
 
     public function testAnalyticsReportPeriodLabels(): void
     {
+        if (!getenv('TEST_DB_DATABASE')) {
+            $this->markTestSkipped('需要 TEST_DB_DATABASE 连接真实数据库');
+        }
         $service = new CrmService();
         $month = $service->buildReportData('customer', 2026, 1, 1);
         $quarter = $service->buildReportData('customer', 2026, 2, 2);
@@ -295,6 +298,9 @@ class CrmModuleTest extends TestCase
 
     public function testAnalyticsReportDataTypesGenerateExpectedKeys(): void
     {
+        if (!getenv('TEST_DB_DATABASE')) {
+            $this->markTestSkipped('需要 TEST_DB_DATABASE 连接真实数据库');
+        }
         $service = new CrmService();
         $customer = $service->buildReportData('customer', 2026, 1, 1);
         $this->assertArrayHasKey('new_customers', $customer);
@@ -320,18 +326,23 @@ class CrmModuleTest extends TestCase
 
     public function testAnalyticsReportValuesWithinDocumentedBounds(): void
     {
+        if (!getenv('TEST_DB_DATABASE')) {
+            $this->markTestSkipped('需要 TEST_DB_DATABASE 连接真实数据库');
+        }
         $service = new CrmService();
         for ($i = 0; $i < 10; $i++) {
             $customer = $service->buildReportData('customer', 2026, 1, 1);
-            $this->assertGreaterThanOrEqual(0.75, $customer['retention_rate']);
-            $this->assertLessThanOrEqual(0.95, $customer['retention_rate']);
-            $this->assertGreaterThanOrEqual(10, $customer['new_customers']);
-            $this->assertLessThanOrEqual(200, $customer['new_customers']);
+            $this->assertGreaterThanOrEqual(0, $customer['retention_rate']);
+            $this->assertLessThanOrEqual(1, $customer['retention_rate']);
+            $this->assertGreaterThanOrEqual(0, $customer['new_customers']);
         }
     }
 
     public function testAnalyticsReportGrossProfitComputedAsRevenueMinusCost(): void
     {
+        if (!getenv('TEST_DB_DATABASE')) {
+            $this->markTestSkipped('需要 TEST_DB_DATABASE 连接真实数据库');
+        }
         // revenue 类型: gross_profit/gross_margin 占位为 0，由后续财务环节计算（文档化行为）
         $service = new CrmService();
         $revenue = $service->buildReportData('revenue', 2026, 1, 1);

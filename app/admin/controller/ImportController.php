@@ -71,6 +71,20 @@ class ImportController extends BaseController
         $failed = 0;
         $errors = [];
 
+        // 一次取回全部已存在的用户名（与原逐行 exists() 一致：不含软删除）
+        $usernames = [];
+        foreach ($rows as $idx => $row) {
+            if ($idx === 0) {
+                continue;
+            }
+            $username = trim((string) ($row[$colMap['username']] ?? ''));
+            if ($username !== '') {
+                $usernames[] = $username;
+            }
+        }
+        $existing = AdminUser::whereIn('username', array_unique($usernames))->pluck('username')->flip();
+
+        $seen = [];
         foreach ($rows as $idx => $row) {
             if ($idx === 0) {
                 continue;
@@ -90,11 +104,12 @@ class ImportController extends BaseController
                 continue;
             }
 
-            if (AdminUser::where('username', $username)->exists()) {
+            if (isset($existing[$username]) || isset($seen[$username])) {
                 $failed++;
                 $errors[] = ['row' => $idx + 1, 'reason' => "用户名 {$username} 已存在"];
                 continue;
             }
+            $seen[$username] = true;
 
             try {
                 $user = new AdminUser();

@@ -220,31 +220,20 @@ class DashboardController extends BaseController
         }
 
         $today = date('Y-m-d');
+        $topCustomers = SalesOrder::selectRaw('customer_id, sum(total_amount) as total')
+            ->whereBetween('ordered_at', [date('Y-m-01'), $today])
+            ->where('status', '!=', 4)
+            ->groupBy('customer_id')->orderByDesc('total')->limit(10)
+            ->get();
+        $customerNames = Customer::whereIn('id', $topCustomers->pluck('customer_id'))->pluck('name', 'id');
         $data = [
             'today_sales' => SalesOrder::whereDate('ordered_at', $today)->where('status', '!=', 4)->sum('total_amount') ?? 0,
             'month_sales' => SalesOrder::whereBetween('ordered_at', [date('Y-m-01'), $today])->where('status', '!=', 4)->sum('total_amount') ?? 0,
-            'top_customers' => SalesOrder::selectRaw('customer_id, sum(total_amount) as total')
-                ->whereBetween('ordered_at', [date('Y-m-01'), $today])
-                ->where('status', '!=', 4)
-                ->groupBy('customer_id')->orderByDesc('total')->limit(10)
-                ->get()
-                ->map(function ($row) {
-                    static $customers = null;
-                    if ($customers === null) {
-                        $ids = SalesOrder::selectRaw('customer_id, sum(total_amount) as total')
-                            ->whereBetween('ordered_at', [date('Y-m-01'), $today])
-                            ->where('status', '!=', 4)
-                            ->groupBy('customer_id')->orderByDesc('total')->limit(10)
-                            ->pluck('customer_id');
-                        $customers = Customer::whereIn('id', $ids)->pluck('name', 'id');
-                    }
-
-                    return [
-                        'customer_id' => $this->encodeId($row->customer_id),
-                        'customer_name' => $customers[$row->customer_id] ?? '',
-                        'total' => $row->total,
-                    ];
-                }),
+            'top_customers' => $topCustomers->map(fn ($row) => [
+                'customer_id' => $this->encodeId($row->customer_id),
+                'customer_name' => $customerNames[$row->customer_id] ?? '',
+                'total' => $row->total,
+            ]),
             'funnel' => CrmOpportunity::selectRaw('stage_id, count(*) as count, sum(estimated_amount) as amount')
                 ->where('status', 1)->groupBy('stage_id')->get(),
         ];

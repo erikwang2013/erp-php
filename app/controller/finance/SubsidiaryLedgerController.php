@@ -56,6 +56,6 @@ class SubsidiaryLedgerController extends BaseController
             ->limit($limit)->orderBy('entry_date', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->successPage($list, $total, $page, $limit);
     }
 }

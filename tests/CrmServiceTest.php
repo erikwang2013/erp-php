@@ -66,6 +66,9 @@ class CrmServiceTest extends TestCase
      */
     public function testBuildReportDataStructurePerType(): void
     {
+        if (!getenv('TEST_DB_DATABASE')) {
+            $this->markTestSkipped('需要 TEST_DB_DATABASE 连接真实数据库');
+        }
         $service = new CrmService();
 
         $customer = $service->buildReportData('customer', 2026, 3, 1);
@@ -98,6 +101,9 @@ class CrmServiceTest extends TestCase
      */
     public function testBuildReportDataPeriodLabel(): void
     {
+        if (!getenv('TEST_DB_DATABASE')) {
+            $this->markTestSkipped('需要 TEST_DB_DATABASE 连接真实数据库');
+        }
         $service = new CrmService();
         $this->assertSame('2026年3月', $service->buildReportData('customer', 2026, 3, 1)['period']);
         $this->assertSame('2026年Q2', $service->buildReportData('customer', 2026, 2, 2)['period']);
@@ -132,5 +138,28 @@ class CrmServiceTest extends TestCase
         $this->assertFalse($service->canTransition(0, 2, $flow));
         $this->assertFalse($service->canTransition(2, 1, $flow));
         $this->assertFalse($service->canTransition(9, 1, $flow));
+    }
+
+    /**
+     * 期间起止日期（periodRange 反射调用，纯逻辑）：
+     * 月=当月首末日、季=季度首末月、年=全年，含闰年 2 月
+     */
+    public function testPeriodRangeBoundaries(): void
+    {
+        $service = new CrmService();
+        $method = new \ReflectionMethod(CrmService::class, 'periodRange');
+        $method->setAccessible(true);
+
+        // 月：2026 年 2 月 → 02-01 ~ 02-28
+        $this->assertSame(['2026-02-01', '2026-02-28'], $method->invoke($service, 2026, 2, 1));
+        // 闰年 2 月：2024 → 02-29
+        $this->assertSame(['2024-02-01', '2024-02-29'], $method->invoke($service, 2024, 2, 1));
+        // 季：2026 年 Q1 → 01-01 ~ 03-31；2024 Q2 → 04-01 ~ 06-30
+        $this->assertSame(['2026-01-01', '2026-03-31'], $method->invoke($service, 2026, 1, 2));
+        $this->assertSame(['2024-04-01', '2024-06-30'], $method->invoke($service, 2024, 2, 2));
+        // 年：全年边界
+        $this->assertSame(['2026-01-01', '2026-12-31'], $method->invoke($service, 2026, 1, 3));
+        // 月份越界钳制
+        $this->assertSame(['2026-12-01', '2026-12-31'], $method->invoke($service, 2026, 13, 1));
     }
 }

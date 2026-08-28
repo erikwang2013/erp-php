@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\service\wms;
 
 use app\common\SnowflakeService;
+use app\model\PurchaseOrderItem;
 use app\model\WmsAsn;
 use app\model\WmsAsnItem;
 use app\model\WmsPutawayItem;
@@ -153,7 +154,30 @@ class WmsInboundService
             }
 
             $items = WmsPutawayItem::where('putaway_id', $putawayId)->get();
+
+            // 入库成本取自 ASN 关联采购单的明细单价；无采购单的入库流程以 0 成本计
+            // （无采购价可依），有采购单但行缺失时拒绝上架，避免静默用错价格
+            $receiving = WmsReceiving::find($putaway->receiving_id);
+            $asn = $receiving ? WmsAsn::find($receiving->asn_id) : null;
+            $purchaseOrderId = $asn ? (int) $asn->purchase_order_id : 0;
+            $purchaseItems = $purchaseOrderId > 0
+                ? PurchaseOrderItem::where('order_id', $purchaseOrderId)
+                    ->get(['product_id', 'sku_id', 'price'])
+                    ->keyBy(fn ($row) => (int) $row->product_id . ':' . (int) $row->sku_id)
+                : [];
+
             foreach ($items as $item) {
+                // 行缺失才拒绝：0 单价（赠品/样品）是合法业务，与缺单价区分
+                $unitCost = 0.0;
+                if ($purchaseOrderId > 0) {
+                    $purchaseItem = $purchaseItems->get((int) $item->product_id . ':' . (int) $item->sku_id);
+                    if ($purchaseItem === null) {
+                        throw new \RuntimeException(
+                            "采购明细缺少单价，无法确定入库成本: 产品{$item->product_id} SKU{$item->sku_id}，请先维护采购单价"
+                        );
+                    }
+                    $unitCost = (float) $purchaseItem->price;
+                }
                 $this->inventory->stockIn(
                     $item->product_id,
                     $item->sku_id,
@@ -161,7 +185,7 @@ class WmsInboundService
                     $item->to_location_id,
                     $item->batch_code,
                     $item->quantity,
-                    0,
+                    $unitCost,
                     'wms_putaway',
                     $putawayId
                 );

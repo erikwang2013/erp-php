@@ -11,15 +11,10 @@ namespace app\service\finance;
 class ConsolidationService
 {
     /**
-     * 多币种合并：按期末汇率将外币报表折算为本位币
+     * 多币种报表合并：尚未实现（缺汇率折算与子公司间抵销规则），显式拒绝而非返回占位数据。
      */
     public function consolidate(array $subsidiaryReports, string $baseCurrency = 'CNY'): array
     {
-        return [
-            'base_currency' => $baseCurrency,
-            'exchange_gain_loss' => 0,
-            'consolidated' => [],
-            'message' => '多币种合并需连接汇率表与科目余额表运行',
-        ];
+        throw new \RuntimeException('多币种报表合并尚未实现：缺少汇率折算与子公司间抵销规则');
     }
 }

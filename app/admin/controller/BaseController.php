@@ -40,6 +40,14 @@ class BaseController
     }
 
     /**
+     * 分页成功响应（规范形状：list/total/page/limit）
+     */
+    protected function successPage(array $list, int $total, int $page, int $limit): Response
+    {
+        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+    }
+
+    /**
      * 将模型 ID 编码为 hashid 字符串
      */
     protected function encodeId(int $id): string

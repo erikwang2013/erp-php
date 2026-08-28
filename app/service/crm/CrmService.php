@@ -21,8 +21,11 @@ use app\model\CrmQuotationItem;
 use app\model\CrmTicket;
 use app\model\CrmTicketReply;
 use app\model\Customer;
+use app\model\SalesOrder;
 use app\service\AbstractCrudService;
+use Illuminate\Database\Capsule\Manager as DB;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * CRM 模块薄服务层（P2-F2）
@@ -99,38 +102,46 @@ class CrmService extends AbstractCrudService
      */
     public function convertQuotationToContract(CrmQuotation $quotation, string $code, string $name, string $remark): array
     {
-        $contract = new CrmContract();
-        $contract->id = $this->generateId();
-        $contract->code = $code !== '' ? $code : 'CT' . $this->generateId();
-        $contract->name = $name !== '' ? $name : '合同-' . $quotation->code;
-        $contract->customer_id = $quotation->customer_id;
-        $contract->opportunity_id = $quotation->opportunity_id;
-        $contract->quotation_id = $quotation->id;
-        $contract->total_amount = $quotation->total_amount;
-        $contract->status = 0;
-        $contract->owner_user_id = $quotation->owner_user_id;
-        $contract->remark = $remark;
-        $contract->save();
+        DB::beginTransaction();
+        try {
+            $contract = new CrmContract();
+            $contract->id = $this->generateId();
+            $contract->code = $code !== '' ? $code : 'CT' . $this->generateId();
+            $contract->name = $name !== '' ? $name : '合同-' . $quotation->code;
+            $contract->customer_id = $quotation->customer_id;
+            $contract->opportunity_id = $quotation->opportunity_id;
+            $contract->quotation_id = $quotation->id;
+            $contract->total_amount = $quotation->total_amount;
+            $contract->status = 0;
+            $contract->owner_user_id = $quotation->owner_user_id;
+            $contract->remark = $remark;
+            $contract->save();
 
-        // 复制报价明细到合同明细
-        $quotationItems = CrmQuotationItem::where('quotation_id', $quotation->id)->get();
-        foreach ($quotationItems as $qItem) {
-            $cItem = new CrmContractItem();
-            $cItem->id = $this->generateId();
-            $cItem->contract_id = $contract->id;
-            $cItem->product_id = $qItem->product_id;
-            $cItem->sku_id = $qItem->sku_id;
-            $cItem->quantity = $qItem->quantity;
-            $cItem->price = $qItem->price;
-            $cItem->amount = $qItem->amount;
-            $cItem->unit = $qItem->unit;
-            $cItem->save();
+            // 复制报价明细到合同明细
+            $quotationItems = CrmQuotationItem::where('quotation_id', $quotation->id)->get();
+            foreach ($quotationItems as $qItem) {
+                $cItem = new CrmContractItem();
+                $cItem->id = $this->generateId();
+                $cItem->contract_id = $contract->id;
+                $cItem->product_id = $qItem->product_id;
+                $cItem->sku_id = $qItem->sku_id;
+                $cItem->quantity = $qItem->quantity;
+                $cItem->price = $qItem->price;
+                $cItem->amount = $qItem->amount;
+                $cItem->unit = $qItem->unit;
+                $cItem->save();
+            }
+
+            $quotation->status = 3;
+            $quotation->save();
+
+            DB::commit();
+
+            return ['quotation' => $quotation, 'contract' => $contract];
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
         }
-
-        $quotation->status = 3;
-        $quotation->save();
-
-        return ['quotation' => $quotation, 'contract' => $contract];
     }
 
     /**
@@ -171,23 +182,31 @@ class CrmService extends AbstractCrudService
      */
     public function replaceItems(string $itemModel, string $fkField, int $parentId, array $items): int
     {
-        $this->deleteWhere($itemModel, [$fkField => $parentId]);
+        DB::beginTransaction();
+        try {
+            $this->deleteWhere($itemModel, [$fkField => $parentId]);
 
-        $count = 0;
-        foreach ($items as $itemData) {
-            $detail = new $itemModel();
-            $detail->id = $this->generateId();
-            $detail->$fkField = $parentId;
-            foreach ($itemData as $key => $value) {
-                if ($key !== 'id') {
-                    $detail->$key = $value;
+            $count = 0;
+            foreach ($items as $itemData) {
+                $detail = new $itemModel();
+                $detail->id = $this->generateId();
+                $detail->$fkField = $parentId;
+                foreach ($itemData as $key => $value) {
+                    if ($key !== 'id') {
+                        $detail->$key = $value;
+                    }
                 }
+                $detail->save();
+                $count++;
             }
-            $detail->save();
-            $count++;
-        }
 
-        return $count;
+            DB::commit();
+
+            return $count;
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -372,8 +391,8 @@ class CrmService extends AbstractCrudService
     }
 
     /**
-     * 构建分析报表模拟数据（纯逻辑，可单测）
-     * 按报表类型生成对应的模拟指标结构。
+     * 构建分析报表数据（纯逻辑，可单测）
+     * 有数据源的指标从真实表聚合；无统计口径的指标返回 0，不生成模拟值冒充真实。
      */
     public function buildReportData(string $type, int $year, int $period, int $periodType): array
     {
@@ -382,44 +401,65 @@ class CrmService extends AbstractCrudService
             3 => "{$year}年度",
             default => "{$year}年{$period}月",
         };
+        [$from, $to] = $this->periodRange($year, $period, $periodType);
+
+        $totalOrders = SalesOrder::whereBetween('ordered_at', [$from, $to])->count();
+        $totalAmount = (float) SalesOrder::whereBetween('ordered_at', [$from, $to])->sum('total_amount');
 
         return match ($type) {
             'customer' => [
-                'new_customers' => rand(10, 200),
-                'active_customers' => rand(50, 500),
-                'churn_customers' => rand(1, 30),
-                'retention_rate' => round(mt_rand(750, 950) / 1000, 4),
+                'new_customers' => Customer::whereBetween('created_at', [$from, $to])->count(),
+                'active_customers' => 0,
+                'churn_customers' => 0,
+                'retention_rate' => 0,
                 'period' => $periodLabel,
             ],
             'order' => [
-                'total_orders' => rand(50, 500),
-                'total_amount' => round(mt_rand(10000, 500000) / 100, 2),
-                'avg_order_value' => round(mt_rand(5000, 50000) / 100, 2),
+                'total_orders' => $totalOrders,
+                'total_amount' => $totalAmount,
+                'avg_order_value' => $totalOrders > 0 ? round($totalAmount / $totalOrders, 2) : 0,
                 'period' => $periodLabel,
             ],
             'revenue' => [
-                'total_revenue' => round(mt_rand(50000, 1000000) / 100, 2),
-                'total_cost' => round(mt_rand(30000, 700000) / 100, 2),
+                'total_revenue' => $totalAmount,
+                'total_cost' => 0,
                 'gross_profit' => 0,
                 'gross_margin' => 0,
                 'period' => $periodLabel,
             ],
             'activity' => [
-                'total_campaigns' => rand(1, 10),
-                'total_participants' => rand(50, 500),
-                'conversion_count' => rand(5, 50),
-                'conversion_rate' => round(mt_rand(20, 150) / 1000, 4),
+                'total_campaigns' => CrmCampaign::whereBetween('created_at', [$from, $to])->count(),
+                'total_participants' => CrmCampaignParticipant::whereBetween('created_at', [$from, $to])->count(),
+                'conversion_count' => 0,
+                'conversion_rate' => 0,
                 'period' => $periodLabel,
             ],
             'retention' => [
-                'cohort_size' => rand(100, 1000),
-                'month1_retention' => round(mt_rand(500, 850) / 1000, 4),
-                'month3_retention' => round(mt_rand(350, 650) / 1000, 4),
-                'month6_retention' => round(mt_rand(200, 500) / 1000, 4),
+                'cohort_size' => 0,
+                'month1_retention' => 0,
+                'month3_retention' => 0,
+                'month6_retention' => 0,
                 'period' => $periodLabel,
             ],
             default => ['period' => $periodLabel],
         };
+    }
+
+    /**
+     * 期间起止日期边界：月=当月、季=季度首末月、年=全年
+     */
+    private function periodRange(int $year, int $period, int $periodType): array
+    {
+        if ($periodType === 3) {
+            return ["{$year}-01-01", "{$year}-12-31"];
+        }
+        $startMonth = max(1, min(12, $periodType === 2 ? ($period - 1) * 3 + 1 : $period));
+        $endMonth = $periodType === 2 ? min(12, $startMonth + 2) : $startMonth;
+
+        return [
+            sprintf('%04d-%02d-01', $year, $startMonth),
+            date('Y-m-t', mktime(0, 0, 0, $endMonth, 1, $year)),
+        ];
     }
 
     /**
@@ -443,8 +483,7 @@ class CrmService extends AbstractCrudService
 
     /**
      * 创建或更新分析指标：传 id 则更新（不存在返回 null），否则创建。
-     * 注：CrmAnalyticsMetric 未声明 $fillable，请求字段不会持久化，
-     * 与旧控制器行为保持一致（已知技术债，见 ARCHITECTURE.md）。
+     * 请求字段经 CrmAnalyticsMetric::$fillable 过滤后持久化。
      *
      * @return CrmAnalyticsMetric|null
      */

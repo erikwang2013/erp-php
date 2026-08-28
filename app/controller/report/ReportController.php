@@ -70,7 +70,7 @@ class ReportController extends BaseController
             ->limit($limit)->orderBy('id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**
@@ -122,7 +122,10 @@ class ReportController extends BaseController
      */
     public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail('无效ID', 400);
+        }
         $item = ReportTemplate::with(['fields', 'filters'])->find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -154,7 +157,10 @@ class ReportController extends BaseController
      */
     public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail('无效ID', 400);
+        }
         $item = ReportTemplate::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -182,7 +188,10 @@ class ReportController extends BaseController
      */
     public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail('无效ID', 400);
+        }
         $item = ReportTemplate::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -225,7 +234,10 @@ class ReportController extends BaseController
      */
     public function fields(Request $request, string $id): Response
     {
-        $templateId = $this->decodeId($id);
+        $templateId = $this->decodeIdSafe($id);
+        if (!$templateId) {
+            return $this->fail('无效ID', 400);
+        }
         $fields = ReportField::where('template_id', $templateId)
             ->orderBy('sort_order', 'asc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
@@ -285,7 +297,10 @@ class ReportController extends BaseController
      */
     public function deleteField(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail('无效ID', 400);
+        }
         $item = ReportField::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -316,7 +331,10 @@ class ReportController extends BaseController
      */
     public function filters(Request $request, string $id): Response
     {
-        $templateId = $this->decodeId($id);
+        $templateId = $this->decodeIdSafe($id);
+        if (!$templateId) {
+            return $this->fail('无效ID', 400);
+        }
         $filters = ReportFilter::where('template_id', $templateId)
             ->orderBy('id', 'asc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
@@ -374,7 +392,10 @@ class ReportController extends BaseController
      */
     public function deleteFilter(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail('无效ID', 400);
+        }
         $item = ReportFilter::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -407,7 +428,10 @@ class ReportController extends BaseController
      */
     public function execute(Request $request, string $id): Response
     {
-        $templateId = $this->decodeId($id);
+        $templateId = $this->decodeIdSafe($id);
+        if (!$templateId) {
+            return $this->fail('无效ID', 400);
+        }
         $template = ReportTemplate::with(['fields', 'filters'])->find($templateId);
         if (!$template) {
             return $this->fail('报表模板不存在', 404);
@@ -688,12 +712,19 @@ class ReportController extends BaseController
     public function result(Request $request, string $id): Response
     {
         // 支持按模板ID或数据集ID查看
-        $id = $this->decodeId($id);
+        $id = $this->decodeIdSafe($id);
         $datasetId = $request->input('dataset_id');
 
         if ($datasetId) {
-            $dataset = ReportDataset::find($this->decodeId($datasetId));
+            $datasetId = $this->decodeIdSafe($datasetId);
+            if (!$datasetId) {
+                return $this->fail('无效ID', 400);
+            }
+            $dataset = ReportDataset::find($datasetId);
         } else {
+            if (!$id) {
+                return $this->fail('无效ID', 400);
+            }
             // 获取该模板最新的数据集
             $dataset = ReportDataset::where('template_id', $id)
                 ->orderBy('id', 'desc')->first();

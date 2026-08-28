@@ -96,7 +96,11 @@ class ReportController extends BaseController
         }
         $baseCurrency = (string) $request->input('base_currency', 'CNY');
 
-        return $this->success((new ConsolidationService())->consolidate($subsidiaryReports, $baseCurrency));
+        try {
+            return $this->success((new ConsolidationService())->consolidate($subsidiaryReports, $baseCurrency));
+        } catch (\RuntimeException $e) {
+            return $this->fail($e->getMessage(), 501);
+        }
     }
 
     /**
@@ -135,7 +139,11 @@ class ReportController extends BaseController
     {
         $period = (string) $request->input('period', date('Y-m'));
 
-        return $this->success((new AccountBalanceService())->getTrialBalance($period));
+        try {
+            return $this->success((new AccountBalanceService())->getTrialBalance($period));
+        } catch (\InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
     }
 
     /**
@@ -157,6 +165,10 @@ class ReportController extends BaseController
         }
         $period = (string) $request->input('period', '');
 
-        return $this->success((new AccountBalanceService())->getBalance($accountSubjectId, $period));
+        try {
+            return $this->success((new AccountBalanceService())->getBalance($accountSubjectId, $period));
+        } catch (\InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
     }
 }

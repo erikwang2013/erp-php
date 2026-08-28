@@ -3,6 +3,7 @@
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
+
 declare(strict_types=1);
 
 namespace tests;
@@ -11,41 +12,20 @@ use app\service\finance\ConsolidationService;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 合并报表服务：多币种合并（当前为预留结构，返回空合并结果）
+ * 合并报表服务：多币种合并尚未实现（缺汇率折算与子公司间抵销规则），
+ * 显式抛业务异常拒绝，绝不返回占位数据冒充成功。
  */
 class ConsolidationServiceTest extends TestCase
 {
-    public function testDefaultBaseCurrencyIsCny(): void
+    public function testConsolidateThrowsNotImplemented(): void
     {
-        $result = (new ConsolidationService())->consolidate([['currency' => 'USD']]);
-        $this->assertSame('CNY', $result['base_currency']);
+        $this->expectException(\RuntimeException::class);
+        (new ConsolidationService())->consolidate([['currency' => 'USD']]);
     }
 
-    public function testCustomBaseCurrencyHonored(): void
+    public function testErrorMessageMentionsUnimplemented(): void
     {
-        $result = (new ConsolidationService())->consolidate([], 'EUR');
-        $this->assertSame('EUR', $result['base_currency']);
-    }
-
-    public function testExchangeGainLossStartsAtZero(): void
-    {
-        $result = (new ConsolidationService())->consolidate([]);
-        $this->assertSame(0, $result['exchange_gain_loss']);
-        $this->assertSame([], $result['consolidated']);
-    }
-
-    public function testEmptySubsidiaryReportsAccepted(): void
-    {
-        $result = (new ConsolidationService())->consolidate([]);
-        $this->assertIsArray($result['consolidated']);
-        $this->assertArrayHasKey('message', $result);
-    }
-
-    public function testResultContainsRequiredKeys(): void
-    {
-        $result = (new ConsolidationService())->consolidate([['currency' => 'USD']], 'CNY');
-        foreach (['base_currency', 'exchange_gain_loss', 'consolidated', 'message'] as $key) {
-            $this->assertArrayHasKey($key, $result);
-        }
+        $this->expectExceptionMessage('未实现');
+        (new ConsolidationService())->consolidate([]);
     }
 }

@@ -100,6 +100,12 @@ class OmsOrderService
                 $this->allocation->release($omsOrderId);
             }
 
+            // 级联取消进行中的履约单（status<5），否则订单重置后 createFulfillment
+            // 会被"已有进行中的履约单"永久拦截；履约单不持有库存，预占已由上方 release 释放
+            OmsFulfillment::where('oms_order_id', $omsOrderId)
+                ->where('status', '<', 5)
+                ->update(['status' => 6]);
+
             $oms->fulfillment_status = 0;
             $oms->save();
         });

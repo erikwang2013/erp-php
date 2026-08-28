@@ -80,6 +80,7 @@ abstract class AbstractCrudService
      */
     public function list(string $model, array $filters = [], int $page = 1, int $limit = 15, array $options = []): array
     {
+        [$page, $limit] = $this->normalizePageParams($page, $limit);
         $query = $model::query();
         if (!empty($options['with'])) {
             $query->with($options['with']);

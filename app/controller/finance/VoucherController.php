@@ -2,7 +2,7 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("财务管理")
+ * @Apidoc\Tag("财务管理")
  */
 declare(strict_types=1);
 
@@ -55,7 +55,7 @@ class VoucherController extends BaseController
             ->limit($limit)->orderBy('id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**
@@ -94,6 +94,7 @@ class VoucherController extends BaseController
         $item = new FinanceVoucher();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        $item->status = 0; // 草稿创建；审核仅可经 update 0→1
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -143,8 +144,13 @@ class VoucherController extends BaseController
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
+        if ((int) $item->status === 1) {
+            return $this->fail('已审核凭证不可修改', 422);
+        }
 
         $this->fillModelFromRequest($item, $request);
+        // status 仅可 0→1（审核动作），禁止通过请求写入其他状态
+        $item->status = (int) $request->input('status', 0) === 1 ? 1 : 0;
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
@@ -170,6 +176,9 @@ class VoucherController extends BaseController
         $item = FinanceVoucher::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
+        }
+        if ((int) $item->status === 1) {
+            return $this->fail('已审核凭证不可删除', 422);
         }
 
         $adminId = $request->adminId ?? 0;

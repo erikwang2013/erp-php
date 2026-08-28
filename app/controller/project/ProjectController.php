@@ -75,7 +75,7 @@ class ProjectController extends BaseController
                 return $data;
             });
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**

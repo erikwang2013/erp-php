@@ -10,6 +10,7 @@ namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
 use app\model\FinanceArAp;
+use app\service\finance\FinanceService;
 use support\Request;
 use support\Response;
 
@@ -51,7 +52,7 @@ class ArApController extends BaseController
             ->limit($limit)->orderBy('id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**
@@ -74,22 +75,33 @@ class ArApController extends BaseController
      */
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['type' => 'required|integer', 'partner_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
+        $validator = validator($request->all(), ['type' => 'required|integer|in:1,2', 'partner_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new FinanceArAp();
-        $item->id = $this->generateId();
-        $item->type = (int) $request->input('type');
-        $item->partner_id = $this->decodeId($request->input('partner_id'));
-        $item->source_type = $request->input('source_type', '');
-        $item->source_id = $this->decodeId($request->input('source_id', '0'));
-        $item->amount = (float) $request->input('amount');
-        $item->settled_amount = 0;
-        $item->status = 0;
-        $item->due_date = $request->input('due_date');
-        $item->save();
+        try {
+            $service = new FinanceService();
+            $id = (int) $request->input('type') === 1
+                ? $service->createAr(
+                    $this->decodeId($request->input('partner_id')),
+                    $request->input('source_type', ''),
+                    $this->decodeId($request->input('source_id', '0')),
+                    (float) $request->input('amount'),
+                    $request->input('due_date')
+                )
+                : $service->createAp(
+                    $this->decodeId($request->input('partner_id')),
+                    $request->input('source_type', ''),
+                    $this->decodeId($request->input('source_id', '0')),
+                    (float) $request->input('amount'),
+                    $request->input('due_date')
+                );
+        } catch (\RuntimeException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $item = FinanceArAp::find($id);
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -142,6 +154,9 @@ class ArApController extends BaseController
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
+        if ((float) $item->settled_amount > 0 || (int) $item->status >= 1) {
+            return $this->fail('已核销记录不可修改', 422);
+        }
 
         if ($request->input('partner_id') !== null) {
             $item->partner_id = $this->decodeId($request->input('partner_id'));
@@ -149,9 +164,7 @@ class ArApController extends BaseController
         if ($request->input('amount') !== null) {
             $item->amount = (float) $request->input('amount');
         }
-        if ($request->input('status') !== null) {
-            $item->status = (int) $request->input('status');
-        }
+        // status 由核销流程(FinanceService)维护，客户端传值一律忽略
         if ($request->input('due_date') !== null) {
             $item->due_date = $request->input('due_date');
         }
@@ -180,6 +193,9 @@ class ArApController extends BaseController
         $item = FinanceArAp::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
+        }
+        if ((float) $item->settled_amount > 0 || (int) $item->status >= 1) {
+            return $this->fail('已核销记录不可删除', 422);
         }
 
         $adminId = $request->adminId ?? 0;

@@ -15,7 +15,9 @@ use app\model\HrEmployee;
 use app\model\HrLeave;
 use app\model\HrSalary;
 use app\service\AbstractCrudService;
+use Illuminate\Database\Capsule\Manager as DB;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * 人力资源模块薄服务层（P2-F2）
@@ -256,29 +258,50 @@ class HrService extends AbstractCrudService
             throw new InvalidArgumentException('该请假申请已审批');
         }
 
-        $leave->status = $action === 'reject' ? 2 : 1;
-        $leave->save();
+        DB::beginTransaction();
+        try {
+            $leave->status = $action === 'reject' ? 2 : 1;
+            $leave->save();
 
-        if ($leave->status === 1) {
-            foreach ($this->leaveDays((string) $leave->start_date, (string) $leave->end_date) as $dateStr) {
-                $existing = HrAttendance::where('employee_id', $leave->employee_id)
-                    ->where('work_date', $dateStr)->first();
-                if (!$existing) {
-                    $att = new HrAttendance();
-                    $att->id = $this->generateId();
-                    $att->employee_id = $leave->employee_id;
-                    $att->work_date = $dateStr;
-                    $att->status = 5;
-                    $att->created_at = date('Y-m-d H:i:s');
-                    $att->save();
-                } elseif ($existing->status == 4) {
-                    $existing->status = 5;
-                    $existing->save();
+            if ($leave->status === 1) {
+                $days = $this->leaveDays((string) $leave->start_date, (string) $leave->end_date);
+
+                // 一次取回区间内全部考勤记录，按日期索引
+                $existingByDate = [];
+                foreach (HrAttendance::where('employee_id', $leave->employee_id)
+                    ->whereIn('work_date', $days)->get() as $att) {
+                    $existingByDate[$att->work_date] = $att;
+                }
+
+                $now = date('Y-m-d H:i:s');
+                $attendanceRows = [];
+                foreach ($days as $dateStr) {
+                    $existing = $existingByDate[$dateStr] ?? null;
+                    if (!$existing) {
+                        $attendanceRows[] = [
+                            'id' => $this->generateId(),
+                            'employee_id' => $leave->employee_id,
+                            'work_date' => $dateStr,
+                            'status' => 5,
+                            'created_at' => $now,
+                        ];
+                    } elseif ($existing->status == 4) {
+                        $existing->status = 5;
+                        $existing->save();
+                    }
+                }
+                if ($attendanceRows) {
+                    HrAttendance::insert($attendanceRows);
                 }
             }
-        }
 
-        return $leave;
+            DB::commit();
+
+            return $leave;
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -361,24 +384,36 @@ class HrService extends AbstractCrudService
             $employees->where('department_id', $departmentId);
         }
 
-        $created = 0;
-        foreach ($employees->get() as $emp) {
-            if ($this->salaryExists((int) $emp->id, $periodYear, $periodMonth)) {
+        $employees = $employees->get();
+
+        // 一次取回该期间已有薪资的员工集合，缺失的批量写入
+        $existing = HrSalary::whereIn('employee_id', $employees->pluck('id'))
+            ->where('period_year', $periodYear)
+            ->where('period_month', $periodMonth)
+            ->pluck('employee_id')->flip();
+
+        $now = date('Y-m-d H:i:s');
+        $rows = [];
+        foreach ($employees as $emp) {
+            if (isset($existing[$emp->id])) {
                 continue;
             }
-
-            $salary = new HrSalary();
-            $salary->id = $this->generateId();
-            $salary->employee_id = $emp->id;
-            $salary->period_year = $periodYear;
-            $salary->period_month = $periodMonth;
-            $salary->status = 0;
-            $salary->net_salary = 0;
-            $salary->save();
-            $created++;
+            $rows[] = [
+                'id' => $this->generateId(),
+                'employee_id' => $emp->id,
+                'period_year' => $periodYear,
+                'period_month' => $periodMonth,
+                'status' => 0,
+                'net_salary' => 0,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+        if ($rows) {
+            HrSalary::insert($rows);
         }
 
-        return $created;
+        return count($rows);
     }
 
     /**

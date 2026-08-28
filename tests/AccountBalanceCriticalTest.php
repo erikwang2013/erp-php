@@ -9,17 +9,29 @@ declare(strict_types=1);
 namespace tests;
 
 use PHPUnit\Framework\TestCase;
+use support\Db;
+use Throwable;
 
 /**
- * 资金余额关键路径：AccountBalanceService 当前为结构占位实现（无 DB），
- * 此处固化其返回契约；真正的加/减余额与锁（lockForUpdate）路径在
- * FinanceService::recordJournal / settleReceipt / settlePayment，
- * 强依赖 DB 事务，无法纯单测，见 testMutationPathRequiresDatabase。
+ * 资金余额关键路径：AccountBalanceService 已接入真实聚合（已审核凭证分录
+ * 按科目汇总），查询依赖数据库连接；无可用连接时优雅跳过（契约与
+ * IntegrationTestCase 一致）。本类固化返回契约：字段齐全、数值合法、
+ * 科目与期间回显正确。
  */
 class AccountBalanceCriticalTest extends TestCase
 {
+    private function requireDatabase(): void
+    {
+        try {
+            Db::select('SELECT 1');
+        } catch (Throwable $e) {
+            self::markTestSkipped('无可用数据库连接，跳过真实聚合断言: ' . $e->getMessage());
+        }
+    }
+
     public function testGetBalanceStructureInvariants(): void
     {
+        $this->requireDatabase();
         $result = (new \app\service\finance\AccountBalanceService())->getBalance(42);
 
         foreach (['opening_debit', 'opening_credit', 'current_debit', 'current_credit', 'closing_debit', 'closing_credit'] as $key) {
@@ -27,24 +39,35 @@ class AccountBalanceCriticalTest extends TestCase
             $this->assertIsNumeric($result[$key]);
         }
         $this->assertSame(42, $result['account_subject_id']);
+        $this->assertSame(date('Y-m'), $result['period']);
     }
 
-    public function testGetBalanceDefaultsPeriodToCurrentMonth(): void
+    public function testGetBalanceHonorsCustomPeriod(): void
     {
-        $result = (new \app\service\finance\AccountBalanceService())->getBalance(1);
-        $this->assertSame(date('Y-m'), $result['period']);
-
-        $custom = (new \app\service\finance\AccountBalanceService())->getBalance(1, '2026-01');
-        $this->assertSame('2026-01', $custom['period']);
+        $this->requireDatabase();
+        $result = (new \app\service\finance\AccountBalanceService())->getBalance(1, '2026-01');
+        $this->assertSame('2026-01', $result['period']);
     }
 
     public function testGetTrialBalanceStructure(): void
     {
+        $this->requireDatabase();
         $result = (new \app\service\finance\AccountBalanceService())->getTrialBalance('2026-08');
         $this->assertSame('2026-08', $result['period']);
         $this->assertIsNumeric($result['total_debit']);
         $this->assertIsNumeric($result['total_credit']);
         $this->assertIsArray($result['items']);
+        foreach ($result['items'] as $item) {
+            $this->assertArrayHasKey('account_id', $item);
+            $this->assertArrayHasKey('debit', $item);
+            $this->assertArrayHasKey('credit', $item);
+        }
+    }
+
+    public function testGetTrialBalanceRejectsMalformedPeriod(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        (new \app\service\finance\AccountBalanceService())->getTrialBalance('2026/08');
     }
 
     public function testMutationPathRequiresDatabase(): void

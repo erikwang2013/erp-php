@@ -24,7 +24,6 @@ class OrderController extends BaseController
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
-        $status = $request->input('status');
 
         $query = OmsOrder::query();
 
@@ -35,16 +34,12 @@ class OrderController extends BaseController
             });
         }
 
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
-        }
-
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**

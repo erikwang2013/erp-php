@@ -9,24 +9,34 @@ declare(strict_types=1);
 namespace app\controller\purchase;
 
 use app\admin\controller\BaseController;
-use app\model\PurchaseSettlement;
+use app\model\FinanceArAp;
+use app\model\FinanceSettlement;
+use app\service\finance\FinanceService;
+use support\Container;
 use support\Request;
 use support\Response;
 
+/**
+ * 采购结算 = erp_finance_ar_ap（source_type=purchase_receive）的薄视图，
+ * 状态由 settled_amount/amount 推导；核销走 FinanceService::settlePayment。
+ */
 class SettlementController extends BaseController
 {
+    private const AP_TYPE = 2;
+    private const SOURCE_TYPE = 'purchase_receive';
+
     /**
      * 采购结算列表（分页）
      * @Apidoc\Title("采购结算列表")
-     * @Apidoc\Desc("获取采购结算列表，支持分页、关键词搜索和状态筛选")
+     * @Apidoc\Desc("基于应付记录查询采购结算，状态按已核销金额推导")
      * @Apidoc\Url("/admin/purchase/settlement")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
      * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
      * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（名称/编码）")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（供应商名称）")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态: 0=未结算 1=部分结算 2=已结算（服务端推导）")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
@@ -38,137 +48,161 @@ class SettlementController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $query = PurchaseSettlement::query();
+        $query = FinanceArAp::query()->where('type', self::AP_TYPE)->where('source_type', self::SOURCE_TYPE);
         if ($keyword) {
-            $query->join('erp_supplier', 'erp_supplier.id', '=', 'erp_purchase_settlement.supplier_id')
+            $query->join('erp_supplier', 'erp_supplier.id', '=', 'erp_finance_ar_ap.partner_id')
+                  ->select('erp_finance_ar_ap.*')
                   ->where('erp_supplier.name', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+            $query->whereRaw(match ((int) $status) {
+                0 => 'settled_amount <= 0',
+                1 => 'settled_amount > 0 AND settled_amount < amount',
+                2 => 'settled_amount >= amount',
+                default => '1 = 0',
+            });
         }
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->limit($limit)->orderBy('erp_finance_ar_ap.id', 'desc')->get();
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        $settledAtMap = [];
+        if (!$list->isEmpty()) {
+            // 先 get() 取分组行再 Collection::pluck：Query::pluck 会替换 select 导致 MAX 聚合丢失
+            $settledAtMap = FinanceSettlement::whereIn('ar_ap_id', $list->pluck('id'))
+                ->selectRaw('ar_ap_id, MAX(settled_at) AS settled_at')
+                ->groupBy('ar_ap_id')
+                ->get()
+                ->pluck('settled_at', 'ar_ap_id')
+                ->all();
+        }
+
+        $rows = $list->map(fn (FinanceArAp $item) => $this->format($item, $settledAtMap[$item->id] ?? null))->values();
+
+        return $this->success(['list' => $rows, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
 
     /**
-     * 创建采购结算
-     * @Apidoc\Title("创建采购结算")
-     * @Apidoc\Desc("新增一个采购结算记录")
+     * 采购结算核销（经服务层）
+     * @Apidoc\Title("创建采购结算核销")
+     * @Apidoc\Desc("对收货单应付记录执行付款核销，状态由服务层推导，客户端传 status 一律忽略")
      * @Apidoc\Url("/admin/purchase/settlement")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="supplier_id", type="string", default="", desc="供应商ID hashid（必填）")
      * @Apidoc\Param(name="receive_id", type="string", default="", desc="收货单ID hashid（必填）")
-     * @Apidoc\Param(name="amount", type="number", default="", desc="应付金额（必填）")
-     * @Apidoc\Param(name="status", type="int", default=0, desc="状态: 0=未结算 1=部分结算 2=已结算")
+     * @Apidoc\Param(name="receipt_payment_id", type="string", default="", desc="付款单ID hashid（必填，需已审核）")
+     * @Apidoc\Param(name="amount", type="number", default="", desc="核销金额（必填）")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="采购结算记录")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'supplier_id' => 'required',
             'receive_id' => 'required',
+            'receipt_payment_id' => 'required',
             'amount' => 'required|numeric',
-            'status' => 'nullable|integer|between:0,2',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new PurchaseSettlement();
-        $item->id = $this->generateId();
-        $item->supplier_id = $this->decodeId((string) $request->input('supplier_id'));
-        $item->receive_id = $this->decodeId((string) $request->input('receive_id'));
-        $item->amount = (float) $request->input('amount');
-        $item->status = (int) $request->input('status', 0);
-        $item->save();
+        $receiveId = $this->decodeId((string) $request->input('receive_id'));
+        $arAp = FinanceArAp::where('type', self::AP_TYPE)->where('source_type', self::SOURCE_TYPE)
+            ->where('source_id', $receiveId)->first();
+        if (!$arAp) {
+            return $this->fail('收货单应付记录不存在，请先确认收货已审核', 404);
+        }
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        try {
+            /** @var FinanceService $service */
+            $service = Container::get(FinanceService::class);
+            $service->settlePayment(
+                $this->decodeId((string) $request->input('receipt_payment_id')),
+                (int) $arAp->id,
+                (float) $request->input('amount')
+            );
+        } catch (\Throwable $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        return $this->success([], '核销成功');
     }
 
     /**
      * 采购结算详情
      * @Apidoc\Title("采购结算详情")
-     * @Apidoc\Desc("根据ID获取采购结算详细信息")
+     * @Apidoc\Desc("根据应付记录ID获取采购结算详细信息")
      * @Apidoc\Url("/admin/purchase/settlement/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="采购结算hashid")
+     * @Apidoc\Param(name="id", type="string", default="", desc="应付记录hashid")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="采购结算详情")
      */
     public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
-        $item = PurchaseSettlement::find($id);
+        $item = FinanceArAp::where('id', $this->decodeId($id))
+            ->where('type', self::AP_TYPE)->where('source_type', self::SOURCE_TYPE)->first();
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        $settledAt = FinanceSettlement::where('ar_ap_id', $item->id)->max('settled_at');
+
+        return $this->success($this->format($item, $settledAt));
     }
 
     /**
-     * 更新采购结算
+     * 更新采购结算（仅应付金额）
      * @Apidoc\Title("更新采购结算")
-     * @Apidoc\Desc("根据ID更新采购结算信息")
+     * @Apidoc\Desc("仅允许调整应付金额，且不得小于已核销金额；状态由服务端推导")
      * @Apidoc\Url("/admin/purchase/settlement/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="采购结算hashid")
-     * @Apidoc\Param(name="supplier_id", type="string", default="", desc="供应商ID hashid")
-     * @Apidoc\Param(name="receive_id", type="string", default="", desc="收货单ID hashid")
+     * @Apidoc\Param(name="id", type="string", default="", desc="应付记录hashid")
      * @Apidoc\Param(name="amount", type="number", default="", desc="应付金额")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态: 0=未结算 1=部分结算 2=已结算")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的采购结算记录")
      */
     public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
-        $item = PurchaseSettlement::find($id);
+        $item = FinanceArAp::where('id', $this->decodeId($id))
+            ->where('type', self::AP_TYPE)->where('source_type', self::SOURCE_TYPE)->first();
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
-        if ($request->input('supplier_id')) {
-            $item->supplier_id = $this->decodeId((string) $request->input('supplier_id'));
-        }
-        if ($request->input('receive_id')) {
-            $item->receive_id = $this->decodeId((string) $request->input('receive_id'));
-        }
         if ($request->input('amount') !== null && $request->input('amount') !== '') {
-            $item->amount = (float) $request->input('amount');
+            $amount = (float) $request->input('amount');
+            if ($amount < (float) $item->settled_amount) {
+                return $this->fail('金额不能小于已核销金额', 422);
+            }
+            $item->amount = $amount;
+            // status 由核销流程(FinanceService)维护、format() 推导，此处不写避免双源
+            $item->save();
         }
-        if ($request->input('status') !== null && $request->input('status') !== '') {
-            $item->status = (int) $request->input('status');
-        }
-        $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        $settledAt = FinanceSettlement::where('ar_ap_id', $item->id)->max('settled_at');
+
+        return $this->success($this->format($item, $settledAt), '更新成功');
     }
 
     /**
-     * 删除采购结算（软删除）
+     * 删除采购结算（仅未核销记录）
      * @Apidoc\Title("删除采购结算")
-     * @Apidoc\Desc("根据ID软删除采购结算，需管理员密码二次确认")
+     * @Apidoc\Desc("删除未核销的应付记录，需管理员密码二次确认；已核销记录不可删除")
      * @Apidoc\Url("/admin/purchase/settlement/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="采购结算hashid")
+     * @Apidoc\Param(name="id", type="string", default="", desc="应付记录hashid")
      * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
@@ -176,10 +210,13 @@ class SettlementController extends BaseController
      */
     public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
-        $item = PurchaseSettlement::find($id);
+        $item = FinanceArAp::where('id', $this->decodeId($id))
+            ->where('type', self::AP_TYPE)->where('source_type', self::SOURCE_TYPE)->first();
         if (!$item) {
             return $this->fail('记录不存在', 404);
+        }
+        if ((float) $item->settled_amount > 0) {
+            return $this->fail('已核销记录不可删除', 422);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -191,5 +228,18 @@ class SettlementController extends BaseController
         $item->delete();
 
         return $this->success([], '删除成功');
+    }
+
+    private function format(FinanceArAp $item, ?string $settledAt): array
+    {
+        $data = $item->toArray();
+        $data['supplier_id'] = $item->partner_id;
+        $data['receive_id'] = $item->source_id;
+        $data['paid_amount'] = $item->settled_amount;
+        $data['status'] = (float) $item->settled_amount >= (float) $item->amount ? 2 : ((float) $item->settled_amount > 0 ? 1 : 0);
+        $data['settled_at'] = $settledAt;
+        unset($data['partner_id'], $data['source_id'], $data['source_type'], $data['settled_amount']);
+
+        return $this->encodeIds($data, ['id', 'supplier_id', 'receive_id']);
     }
 }

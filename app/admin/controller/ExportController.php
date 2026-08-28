@@ -102,10 +102,13 @@ class ExportController extends BaseController
                     }
                 }
                 $sheet->getCell($colIndex . $row)->setValue($value);
-                $sheet->getStyle($colIndex . $row)->applyFromArray($dataStyle);
                 $colIndex++;
             }
             $row++;
+        }
+        if ($row > 2) {
+            $lastCol = \PhpOffice\PhpSpreadsheet\Coordinate::stringFromColumnIndex(count($columns));
+            $sheet->getStyle("A2:{$lastCol}" . ($row - 1))->applyFromArray($dataStyle);
         }
 
         // 冻结首行

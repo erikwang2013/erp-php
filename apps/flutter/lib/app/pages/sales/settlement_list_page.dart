@@ -6,7 +6,8 @@ import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
 
 /// 销售结算管理页 — 覆盖 POST/GET/PUT/DELETE /admin/sales/settlement
-/// 后端字段: customer_id / delivery_id / amount / received_amount / status / settled_at
+/// 列表为应收记录薄视图；新增即收款核销（delivery_id + receipt_payment_id + amount），
+/// 编辑仅调应收金额，status/received_amount/settled_at 由服务端推导返回
 class SalesSettlementListPage extends StatefulWidget {
   const SalesSettlementListPage({super.key});
   @override
@@ -37,47 +38,32 @@ class _SalesSettlementListPageState extends State<SalesSettlementListPage> {
     } catch (e) { setState(() => _loading = false); }
   }
 
-  /// 结算表单（金额/日期/方式 → 后端字段 amount/received_amount/settled_at/status）
-  List<FormFieldConfig> _formFields({Map<String, dynamic>? prefill}) {
-    final now = DateTime.now();
-    String pad(int v) => v.toString().padLeft(2, '0');
-    final defaultSettledAt =
-        '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
-    return [
-      FormFieldConfig(name: 'customer_id', label: '客户ID', required: true,
-        initialValue: '${prefill?['customer_id'] ?? ''}'),
-      FormFieldConfig(name: 'delivery_id', label: '发货单ID', required: true),
-      FormFieldConfig(name: 'amount', label: '应收金额', type: FormFieldType.number, hint: '如 1000.00'),
-      FormFieldConfig(name: 'received_amount', label: '已收金额', type: FormFieldType.number, hint: '默认 0'),
-      FormFieldConfig(name: 'status', label: '结算状态', type: FormFieldType.dropdown,
-        options: ['0 - 未结算', '1 - 部分结算', '2 - 已结算'], initialValue: '0 - 未结算'),
-      FormFieldConfig(name: 'settled_at', label: '结算时间', initialValue: defaultSettledAt,
-        hint: '格式 YYYY-MM-DD HH:mm:ss'),
-    ];
-  }
+  /// 结算表单: 新增=核销登记（发货单+收款单+金额），编辑=仅调应收金额
+  List<FormFieldConfig> _formFields({bool forCreate = true}) => [
+    FormFieldConfig(name: 'delivery_id', label: '发货单ID', required: true),
+    if (forCreate) FormFieldConfig(name: 'receipt_payment_id', label: '收款单ID', required: true,
+      hint: '需已审核的收款单 hashid'),
+    FormFieldConfig(name: 'amount', label: forCreate ? '核销金额' : '应收金额', type: FormFieldType.number, hint: '如 1000.00'),
+  ];
 
-  Map<String, dynamic> _buildPayload(Map<String, String> data) {
-    final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
+  Map<String, dynamic> _buildPayload(Map<String, String> data, {bool forCreate = true}) {
     return {
-      'customer_id': data['customer_id']?.trim(),
       'delivery_id': data['delivery_id']?.trim(),
+      if (forCreate) 'receipt_payment_id': data['receipt_payment_id']?.trim(),
       'amount': (data['amount']?.trim().isEmpty ?? true) ? '0' : data['amount']!.trim(),
-      'received_amount': (data['received_amount']?.trim().isEmpty ?? true) ? '0' : data['received_amount']!.trim(),
-      'status': statusRaw,
-      'settled_at': data['settled_at']?.trim(),
     };
   }
 
   Future<void> _create() async {
-    await FormDialog.show(context, title: '新增销售结算', fields: _formFields(), onSubmit: (data) async {
+    await FormDialog.show(context, title: '新增销售结算（收款核销）', fields: _formFields(forCreate: true), onSubmit: (data) async {
       await ApiService.instance.post('/admin/sales/settlement', data: _buildPayload(data));
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: '编辑销售结算', fields: _formFields(), initialData: _toEditData(row), onSubmit: (data) async {
-      await ApiService.instance.put('/admin/sales/settlement/${row['id']}', data: _buildPayload(data));
+    await FormDialog.show(context, title: '编辑销售结算', fields: _formFields(forCreate: false), initialData: _toEditData(row), onSubmit: (data) async {
+      await ApiService.instance.put('/admin/sales/settlement/${row['id']}', data: _buildPayload(data, forCreate: false));
       _load(); return true;
     });
   }
@@ -89,15 +75,7 @@ class _SalesSettlementListPageState extends State<SalesSettlementListPage> {
     });
   }
 
-  /// 编辑回填：把后端数字 status 转回下拉选项文案。
-  Map<String, dynamic> _toEditData(Map<String, dynamic> row) {
-    final d = Map<String, dynamic>.from(row);
-    final s = d['status'];
-    if (s is int && s >= 0 && s < _statusLabels.length) {
-      d['status'] = '$s - ${_statusLabels[s]}';
-    }
-    return d;
-  }
+  Map<String, dynamic> _toEditData(Map<String, dynamic> row) => Map<String, dynamic>.from(row);
 
   static String _statusText(dynamic s) {
     final i = s is int ? s : int.tryParse('$s') ?? 0;

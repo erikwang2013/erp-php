@@ -16,8 +16,10 @@ use app\model\MfgMrpPlan;
 use app\model\MfgProductionItem;
 use app\model\MfgProductionOrder;
 use app\service\AbstractCrudService;
+use Illuminate\Database\Capsule\Manager as DB;
 use InvalidArgumentException;
 use support\Container;
+use Throwable;
 
 /**
  * 生产制造模块薄服务层（P2-F2）
@@ -160,36 +162,44 @@ class ManufacturingService extends AbstractCrudService
             throw new InvalidArgumentException('版本号不能为空');
         }
 
-        // 创建新 BOM
-        $bom = new MfgBom();
-        $bom->id = $this->generateId();
-        $bom->product_id = $source->product_id;
-        $bom->code = $source->code;
-        $bom->name = $source->name;
-        $bom->version = $version;
-        $bom->status = 0;
-        $bom->effective_date = $effectiveDate;
-        $bom->save();
+        DB::beginTransaction();
+        try {
+            // 创建新 BOM
+            $bom = new MfgBom();
+            $bom->id = $this->generateId();
+            $bom->product_id = $source->product_id;
+            $bom->code = $source->code;
+            $bom->name = $source->name;
+            $bom->version = $version;
+            $bom->status = 0;
+            $bom->effective_date = $effectiveDate;
+            $bom->save();
 
-        // 复制明细
-        foreach ($source->items as $srcItem) {
-            $item = new MfgBomItem();
-            $item->id = $this->generateId();
-            $item->bom_id = $bom->id;
-            $item->component_product_id = $srcItem->component_product_id;
-            $item->quantity = $srcItem->quantity;
-            $item->unit = $srcItem->unit;
-            $item->scrap_rate = $srcItem->scrap_rate;
-            $item->seq = $srcItem->seq;
-            $item->created_at = date('Y-m-d H:i:s');
-            $item->save();
+            // 复制明细
+            foreach ($source->items as $srcItem) {
+                $item = new MfgBomItem();
+                $item->id = $this->generateId();
+                $item->bom_id = $bom->id;
+                $item->component_product_id = $srcItem->component_product_id;
+                $item->quantity = $srcItem->quantity;
+                $item->unit = $srcItem->unit;
+                $item->scrap_rate = $srcItem->scrap_rate;
+                $item->seq = $srcItem->seq;
+                $item->created_at = date('Y-m-d H:i:s');
+                $item->save();
+            }
+
+            // 将旧版本设为失效
+            $source->status = 2;
+            $source->save();
+
+            DB::commit();
+
+            return $bom;
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
         }
-
-        // 将旧版本设为失效
-        $source->status = 2;
-        $source->save();
-
-        return $bom;
     }
 
     /**
@@ -208,17 +218,25 @@ class ManufacturingService extends AbstractCrudService
             throw new InvalidArgumentException('BOM已经生效');
         }
 
-        // 将同一产品的其他已生效 BOM 设为失效
-        MfgBom::where('product_id', $bom->product_id)
-            ->where('status', 1)
-            ->where('id', '!=', $id)
-            ->update(['status' => 2]);
+        DB::beginTransaction();
+        try {
+            // 将同一产品的其他已生效 BOM 设为失效
+            MfgBom::where('product_id', $bom->product_id)
+                ->where('status', 1)
+                ->where('id', '!=', $id)
+                ->update(['status' => 2]);
 
-        $bom->status = 1;
-        $bom->effective_date = date('Y-m-d');
-        $bom->save();
+            $bom->status = 1;
+            $bom->effective_date = date('Y-m-d');
+            $bom->save();
 
-        return $bom;
+            DB::commit();
+
+            return $bom;
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -237,41 +255,69 @@ class ManufacturingService extends AbstractCrudService
             throw new InvalidArgumentException('已确认的计划不可重新生成');
         }
 
-        $this->deleteWhere(MfgMrpItem::class, ['plan_id' => $planId]);
-
         $mrpEngine = Container::get(MrpEngineService::class);
         $boms = MfgBom::where('status', 1)->with(['items'])->get();
 
+        // 一次取回全部相关库存，按 product_id 索引（同产品多库存行时与原逐行 first() 语义一致：取第一行）
+        $componentIds = [];
         foreach ($boms as $bom) {
             foreach ($bom->items as $bomItem) {
-                $grossRequirement = (float) $bomItem->quantity;
-
-                $inventory = Inventory::where('product_id', $bomItem->component_product_id)->first();
-                $onHand = $inventory ? (float) $inventory->quantity : 0.00;
-
-                $netRequirement = $mrpEngine->calculateNetRequirement($grossRequirement, $onHand);
-
-                $item = new MfgMrpItem();
-                $item->id = $this->generateId();
-                $item->plan_id = $planId;
-                $item->product_id = $bomItem->component_product_id;
-                $item->gross_requirement = $grossRequirement;
-                $item->scheduled_receipt = 0;
-                $item->on_hand = $onHand;
-                $item->net_requirement = $netRequirement;
-                $item->planned_order_qty = $netRequirement;
-                $item->planned_start = date('Y-m-d');
-                $item->planned_end = date('Y-m-d', strtotime('+7 days'));
-                $item->created_at = date('Y-m-d H:i:s');
-                $item->save();
+                $componentIds[] = $bomItem->component_product_id;
+            }
+        }
+        $inventoryByProduct = [];
+        if ($componentIds) {
+            foreach (Inventory::whereIn('product_id', array_unique($componentIds))->get() as $inv) {
+                if (!isset($inventoryByProduct[(int) $inv->product_id])) {
+                    $inventoryByProduct[(int) $inv->product_id] = $inv;
+                }
             }
         }
 
-        $plan->status = 1;
-        $plan->generated_at = date('Y-m-d H:i:s');
-        $plan->save();
+        DB::beginTransaction();
+        try {
+            $this->deleteWhere(MfgMrpItem::class, ['plan_id' => $planId]);
 
-        return MfgMrpItem::where('plan_id', $planId)->count();
+            $rows = [];
+            foreach ($boms as $bom) {
+                foreach ($bom->items as $bomItem) {
+                    $grossRequirement = (float) $bomItem->quantity;
+
+                    $inventory = $inventoryByProduct[(int) $bomItem->component_product_id] ?? null;
+                    $onHand = $inventory ? (float) $inventory->quantity : 0.00;
+
+                    $netRequirement = $mrpEngine->calculateNetRequirement($grossRequirement, $onHand);
+
+                    $rows[] = [
+                        'id' => $this->generateId(),
+                        'plan_id' => $planId,
+                        'product_id' => $bomItem->component_product_id,
+                        'gross_requirement' => $grossRequirement,
+                        'scheduled_receipt' => 0,
+                        'on_hand' => $onHand,
+                        'net_requirement' => $netRequirement,
+                        'planned_order_qty' => $netRequirement,
+                        'planned_start' => date('Y-m-d'),
+                        'planned_end' => date('Y-m-d', strtotime('+7 days')),
+                        'created_at' => date('Y-m-d H:i:s'),
+                    ];
+                }
+            }
+            if ($rows) {
+                MfgMrpItem::insert($rows);
+            }
+
+            $plan->status = 1;
+            $plan->generated_at = date('Y-m-d H:i:s');
+            $plan->save();
+
+            DB::commit();
+
+            return count($rows);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**

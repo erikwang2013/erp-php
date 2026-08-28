@@ -30,13 +30,6 @@ class FinanceService
         float $amount,
         ?string $dueDate = null
     ): int {
-        $existing = FinanceArAp::where('source_type', $sourceType)
-            ->where('source_id', $sourceId)
-            ->exists();
-        if ($existing) {
-            throw new \RuntimeException("应收记录已存在: {$sourceType}#{$sourceId}");
-        }
-
         $ar = new FinanceArAp();
         $ar->id = SnowflakeService::generate();
         $ar->type = 1;
@@ -62,13 +55,6 @@ class FinanceService
         float $amount,
         ?string $dueDate = null
     ): int {
-        $existing = FinanceArAp::where('source_type', $sourceType)
-            ->where('source_id', $sourceId)
-            ->exists();
-        if ($existing) {
-            throw new \RuntimeException("应付记录已存在: {$sourceType}#{$sourceId}");
-        }
-
         $ap = new FinanceArAp();
         $ap->id = SnowflakeService::generate();
         $ap->type = 2;
@@ -140,7 +126,9 @@ class FinanceService
      */
     private function assertReceiptPaymentUsable(int $type, int $id, int $partnerId, float $amount): void
     {
-        $doc = $type === 1 ? FinanceReceipt::find($id) : FinancePayment::find($id);
+        $doc = $type === 1
+            ? FinanceReceipt::where('id', $id)->lockForUpdate()->first()
+            : FinancePayment::where('id', $id)->lockForUpdate()->first();
         $label = $type === 1 ? '收款单' : '付款单';
         if (!$doc) {
             throw new \RuntimeException("{$label}不存在");

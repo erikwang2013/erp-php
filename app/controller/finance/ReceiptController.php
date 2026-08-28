@@ -59,7 +59,7 @@ class ReceiptController extends BaseController
             ->limit($limit)->orderBy('id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**
@@ -155,6 +155,9 @@ class ReceiptController extends BaseController
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
+        if ((int) $item->status === 1) {
+            return $this->fail('已审核记录不可修改', 422);
+        }
 
         if ($request->input('code') !== null) {
             $item->code = $request->input('code');
@@ -174,8 +177,12 @@ class ReceiptController extends BaseController
         if ($request->input('remark') !== null) {
             $item->remark = $request->input('remark');
         }
+        // status 仅可 0→1（审核动作），客户端传其他值一律拒绝
         if ($request->input('status') !== null) {
-            $item->status = (int) $request->input('status');
+            if ((int) $request->input('status') !== 1) {
+                return $this->fail('状态仅支持审核(1)', 422);
+            }
+            $item->status = 1;
         }
         if ($request->input('received_at') !== null) {
             $item->received_at = $request->input('received_at');

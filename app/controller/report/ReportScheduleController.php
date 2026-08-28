@@ -54,7 +54,7 @@ class ReportScheduleController extends BaseController
             ->limit($limit)->orderBy('id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        return $this->successPage($list, $total, $page, $limit);
     }
 
     /**
@@ -110,7 +110,10 @@ class ReportScheduleController extends BaseController
      */
     public function show(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail('无效ID', 400);
+        }
         $item = ReportSchedule::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -134,7 +137,10 @@ class ReportScheduleController extends BaseController
      */
     public function update(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail('无效ID', 400);
+        }
         $item = ReportSchedule::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
@@ -168,7 +174,10 @@ class ReportScheduleController extends BaseController
      */
     public function destroy(Request $request, string $id): Response
     {
-        $id = $this->decodeId($id);
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail('无效ID', 400);
+        }
         $item = ReportSchedule::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);

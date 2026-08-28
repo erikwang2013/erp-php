@@ -54,7 +54,7 @@ class ReturnController extends BaseController
             ->limit($limit)->orderBy('id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        $this->successPage($list, $total, $page, $limit);
     }
 
     /**

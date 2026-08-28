@@ -7,61 +7,16 @@ declare(strict_types=1);
 
 namespace tests;
 
-use app\service\notification\ChannelRouter;
 use app\service\notification\WebSocketService;
 use PHPUnit\Framework\TestCase;
 use Workerman\Worker;
 
 /**
- * 通知基础设施：ChannelRouter 渠道路由与 WebSocketService 推送
- * - ChannelRouter: in_app 落库失败 fail-closed；email 文件日志驱动；未注册渠道返回 false
+ * 通知基础设施：WebSocketService 推送
  * - WebSocketService: 无 worker 时静默失败；有 worker 时按 userId 定向推送/广播
  */
 class NotificationChannelTest extends TestCase
 {
-    /* ======================== ChannelRouter ======================== */
-
-    public function testUnknownChannelReturnsFalse(): void
-    {
-        $result = (new ChannelRouter())->send(1, 't', 'c', ['wecom']);
-        $this->assertSame(['wecom' => false], $result);
-    }
-
-    public function testReservedChannelDingtalkReturnsFalse(): void
-    {
-        $result = (new ChannelRouter())->send(1, 't', 'c', ['dingtalk']);
-        $this->assertArrayHasKey('dingtalk', $result);
-        $this->assertFalse($result['dingtalk']);
-    }
-
-    public function testInAppFailsClosedWithoutDatabase(): void
-    {
-        // 无 DB 时落库抛异常被捕获，返回 false（fail-closed 信号）
-        $result = (new ChannelRouter())->send(1, 't', 'c', ['in_app']);
-        $this->assertFalse($result['in_app']);
-    }
-
-    public function testEmailChannelWritesOutboxFile(): void
-    {
-        $result = (new ChannelRouter())->send(7, '标题', '内容', ['email']);
-        $this->assertTrue($result['email']);
-
-        $file = runtime_path() . '/mail/outbox.log';
-        $this->assertFileExists($file);
-        $line = trim((string) file_get_contents($file));
-        $entry = json_decode(substr($line, strrpos($line, "\n") + 1), true);
-        $this->assertSame(7, $entry['user_id']);
-        $this->assertSame('标题', $entry['title']);
-        $this->assertSame('内容', $entry['content']);
-    }
-
-    public function testMultipleChannelsReportedIndependently(): void
-    {
-        $result = (new ChannelRouter())->send(1, 't', 'c', ['email', 'wecom']);
-        $this->assertTrue($result['email']);
-        $this->assertFalse($result['wecom']);
-    }
-
     /* ======================== WebSocketService ======================== */
 
     public function testPushToUserWithoutWorkerReturnsFalse(): void

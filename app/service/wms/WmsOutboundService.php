@@ -48,12 +48,19 @@ class WmsOutboundService
                 throw new \RuntimeException('请先开始拣货');
             }
 
+            // 一次取回任务全部明细，按 (product_id, location_id) 内存索引
+            // （同键多明细时与原逐行 first() 语义一致：取第一行）
+            $itemsByKey = [];
+            foreach (WmsPickItem::where('pick_task_id', $pickTaskId)->get() as $pi) {
+                $key = $pi->product_id . ':' . $pi->location_id;
+                if (!isset($itemsByKey[$key])) {
+                    $itemsByKey[$key] = $pi;
+                }
+            }
+
             foreach ($actuals as $item) {
                 // 明细行归属校验：必须属于该拣货任务（pick_task_id 唯一界定）
-                $pickItem = WmsPickItem::where('pick_task_id', $pickTaskId)
-                    ->where('product_id', $item['product_id'])
-                    ->where('location_id', $item['location_id'])
-                    ->first();
+                $pickItem = $itemsByKey[$item['product_id'] . ':' . $item['location_id']] ?? null;
                 if (!$pickItem) {
                     throw new \RuntimeException('拣货明细不存在或不属于该拣货任务: product_id=' . $item['product_id']);
                 }

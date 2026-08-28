@@ -9,30 +9,41 @@ declare(strict_types=1);
 namespace tests;
 
 use PHPUnit\Framework\TestCase;
+use support\Db;
+use Throwable;
 
 /**
- * PeriodCloseService 关账冒烟：当前为结构占位实现（"期末结转需连接科目
- * 余额表运行"），固化其返回契约（期间格式、数值字段、状态机占位）。
- * 真实结转（查询 account_balances 生成凭证）依赖 DB，待服务接入数据层后
- * 由集成测试覆盖。
+ * PeriodCloseService 关账冒烟：已接入真实损益发生额聚合（依赖数据库连接，
+ * 无连接时跳过）。status=calculated 表示仅完成计算、未生成结转凭证。
  */
 class PeriodCloseSmokeTest extends TestCase
 {
+    private function requireDatabase(): void
+    {
+        try {
+            Db::select('SELECT 1');
+        } catch (Throwable $e) {
+            self::markTestSkipped('无可用数据库连接，跳过真实聚合断言: ' . $e->getMessage());
+        }
+    }
+
     public function testCloseProfitAndLossReturnsExpectedStructure(): void
     {
+        $this->requireDatabase();
         $result = (new \app\service\finance\PeriodCloseService())->closeProfitAndLoss(2026, 8);
 
-        $this->assertSame('2026-8', $result['period']);
+        $this->assertSame('2026-08', $result['period']);
         $this->assertIsNumeric($result['revenue_total']);
         $this->assertIsNumeric($result['expense_total']);
         $this->assertIsNumeric($result['net_profit']);
         $this->assertArrayHasKey('voucher_id', $result);
-        $this->assertSame('pending', $result['status']);
+        $this->assertSame('calculated', $result['status']);
         $this->assertNotEmpty($result['message']);
     }
 
     public function testPeriodFormatMatchesMonthPadding(): void
     {
+        $this->requireDatabase();
         $result = (new \app\service\finance\PeriodCloseService())->closeProfitAndLoss(2026, 12);
         $this->assertSame('2026-12', $result['period']);
     }

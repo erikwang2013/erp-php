@@ -83,7 +83,7 @@ class DeliveryController extends BaseController
                 return $this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']);
             });
 
-        return $this->success(['list' => $list, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+        $this->successPage($list, $total, $page, $limit);
     }
 
     /**
@@ -176,6 +176,7 @@ class DeliveryController extends BaseController
                 $deliveredSoFar = (float) SalesDeliveryItem::query()->join('erp_sales_delivery', 'erp_sales_delivery.id', '=', 'erp_sales_delivery_item.delivery_id')
                     ->where('erp_sales_delivery.order_id', $orderId)
                     ->where('erp_sales_delivery.status', 1)
+                    ->whereNull('erp_sales_delivery.deleted_at')
                     ->where('erp_sales_delivery_item.order_item_id', $orderItemId)
                     ->sum('erp_sales_delivery_item.quantity');
                 $orderedQty = (float) $orderItem->quantity;
@@ -262,6 +263,7 @@ class DeliveryController extends BaseController
         $deliveredByItem = SalesDeliveryItem::query()->join('erp_sales_delivery', 'erp_sales_delivery.id', '=', 'erp_sales_delivery_item.delivery_id')
             ->where('erp_sales_delivery.order_id', $order->id)
             ->where('erp_sales_delivery.status', 1)
+            ->whereNull('erp_sales_delivery.deleted_at')
             ->groupBy('erp_sales_delivery_item.order_item_id')
             ->selectRaw('erp_sales_delivery_item.order_item_id')
             ->selectRaw('SUM(erp_sales_delivery_item.quantity) as total_delivered')
@@ -364,6 +366,9 @@ class DeliveryController extends BaseController
         $delivery = SalesDelivery::find($id);
         if (!$delivery) {
             return $this->fail('发货单不存在', 404);
+        }
+        if ($delivery->status === 1) {
+            return $this->fail('已发货的发货单不可删除', 422);
         }
 
         $adminId = $request->adminId ?? 0;
