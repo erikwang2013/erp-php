@@ -185,7 +185,7 @@ void main() {
       await pumpLogin(tester, const MaterialApp(home: LoginPage()));
 
       expect(find.text('验证码加载失败'), findsNothing);
-      expect(find.byType(Image), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is Image && w.image is MemoryImage), findsOneWidget);
       expect(find.byType(FilledButton), findsOneWidget);
     });
   });

@@ -16,6 +16,11 @@ struct SplashPage {
     Column() {
       Blank()
 
+      Image($r('app.media.mascot'))
+        .width(120)
+        .height(120)
+        .margin({ bottom: 16 })
+
       Text('开放管理后台')
         .fontSize(24)
         .fontWeight(FontWeight.Bold)

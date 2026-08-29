@@ -138,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.admin_panel_settings, size: 64, color: Color(0xFF1677FF)),
+                Image.asset('assets/mascot.png', width: 110, height: 110),
                 const SizedBox(height: 12),
                 Text(l10n.loginTitle, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1677FF))),
                 const SizedBox(height: 32),

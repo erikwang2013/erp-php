@@ -139,7 +139,7 @@ class _AdminLayoutState extends State<AdminLayout> {
               alignment: Alignment.centerLeft,
               child: Row(
                 children: [
-                  const Icon(Icons.admin_panel_settings, size: 24),
+                  Image.asset('assets/mascot.png', width: 28, height: 28),
                   const SizedBox(width: 8),
                   Text(l10n.navAdminTitle,
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -199,10 +199,10 @@ class _AdminLayoutState extends State<AdminLayout> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: _sidebarCollapsed
-                ? const Icon(Icons.admin_panel_settings, size: 28)
+                ? Image.asset('assets/mascot.png', width: 32, height: 32)
                 : Row(
                     children: [
-                      const Icon(Icons.admin_panel_settings, size: 24),
+                      Image.asset('assets/mascot.png', width: 28, height: 28),
                       const SizedBox(width: 8),
                       Text(l10n.navAdminTitle,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
