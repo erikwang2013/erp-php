@@ -38,9 +38,9 @@
     "barryvdh/laravel-dompdf": "^3.1",
     "erikwang2013/poster-php": "^1.0",
     "vlucas/phpdotenv": "^5.6",
-    "hg/apidoc": "^5.3",
     "webman/redis": "^2.0",
-    "illuminate/validation": "^11.0"
+    "illuminate/validation": "^11.0",
+    "erikwang2013/apidoc-php": "^1.0"
   },
   "suggest": {
     "ext-event": "For better performance. "
