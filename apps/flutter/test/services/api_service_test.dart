@@ -181,26 +181,26 @@ void main() {
   });
 
   group('ApiService.friendlyError — 错误消息 i18n 映射', () {
-    DioException _err(DioExceptionType type) =>
+    DioException err(DioExceptionType type) =>
         DioException(requestOptions: RequestOptions(path: '/x'), type: type);
 
     test('默认中文：网络错误 / 超时 / 401 映射到对应 key', () {
       AppL10n.setLocale(const Locale('zh', 'CN'));
-      expect(ApiService.friendlyError(_err(DioExceptionType.connectionError)),
+      expect(ApiService.friendlyError(err(DioExceptionType.connectionError)),
           '网络连接失败，请检查网络');
-      expect(ApiService.friendlyError(_err(DioExceptionType.connectionTimeout)),
+      expect(ApiService.friendlyError(err(DioExceptionType.connectionTimeout)),
           '请求超时，请稍后重试');
-      expect(ApiService.friendlyError(_err(DioExceptionType.receiveTimeout)),
+      expect(ApiService.friendlyError(err(DioExceptionType.receiveTimeout)),
           '请求超时，请稍后重试');
-      expect(ApiService.friendlyError(_err(DioExceptionType.badResponse)),
+      expect(ApiService.friendlyError(err(DioExceptionType.badResponse)),
           '请求失败');
     });
 
     test('切到英文后错误消息随语言切换', () {
       AppL10n.setLocale(const Locale('en'));
-      expect(ApiService.friendlyError(_err(DioExceptionType.connectionError)),
+      expect(ApiService.friendlyError(err(DioExceptionType.connectionError)),
           'Network connection failed, please check your network');
-      expect(ApiService.friendlyError(_err(DioExceptionType.badResponse)),
+      expect(ApiService.friendlyError(err(DioExceptionType.badResponse)),
           'Request failed');
       AppL10n.setLocale(const Locale('zh', 'CN')); // 恢复默认，避免影响其他用例
     });

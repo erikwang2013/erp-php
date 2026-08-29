@@ -137,7 +137,7 @@ open-erp/
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（<!-- stats:test_files=59 --> 个测试文件，<!-- stats:tests=500 --> 个测试方法，<!-- stats:assertions=2226 --> 条断言）
+├── tests/                      # PHPUnit 测试（<!-- stats:test_files=59 --> 个测试文件，<!-- stats:tests=500 --> 个测试方法，<!-- stats:assertions=2171 --> 条断言）
 ├── resource/
 │   └── translations/           # 翻译文件 (zh_CN, en)
 │       ├── zh_CN/              # 中文翻译 (127 键)
