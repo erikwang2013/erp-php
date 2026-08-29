@@ -4,7 +4,7 @@ webman v2 + Flutter によるフルスタック ERP システム。
 
 <div align="center"><img src="images/mascot.svg" alt="open-erp 章鱼吉祥物 小八爪" width="150"></div>
 
-<div align="center">🌐 [中文](../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | 日本語</div>
+<div align="center">🌐 [中文](../../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | 日本語</div>
 
 > [English version](../en/README.md) |[エディション比較](EDITIONS.md) | [アーキテクチャ設計図](ARCHITECTURE.md) | [システムアーキテクチャ図](#システムアーキテクチャ図) | [設計ドキュメント](DESIGN.md) | [セキュリティアーキテクチャ](SECURITY.md) | [API リファレンス](API.md) | [機能マニュアル](FUNCTIONS.md)
 

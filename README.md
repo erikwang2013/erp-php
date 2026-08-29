@@ -4,7 +4,7 @@
 
 <div align="center"><img src="docs/mascot.svg" alt="open-erp 章鱼吉祥物 小八爪" width="150"></div>
 
-<div align="center">🌐 中文 | [English](docs/i18n/en/README.md) | [한국어](docs/i18n/ko/README.md) | [Русский](docs/i18n/ru/README.md) | [Deutsch](docs/i18n/de/README.md) | [Français](docs/i18n/fr/README.md) | [Español](docs/i18n/es/README.md) | [Português](docs/i18n/pt/README.md) | [हिन्दी](docs/i18n/hi/README.md) | [العربية](docs/i18n/ar/README.md) | [বাংলা](docs/i18n/bn/README.md) | [Bahasa Indonesia](docs/i18n/id/README.md) | [日本語](docs/i18n/ja/README.md)</div>
+> 🌐 中文 | [English](docs/i18n/en/README.md) | [한국어](docs/i18n/ko/README.md) | [Русский](docs/i18n/ru/README.md) | [Deutsch](docs/i18n/de/README.md) | [Français](docs/i18n/fr/README.md) | [Español](docs/i18n/es/README.md) | [Português](docs/i18n/pt/README.md) | [हिन्दी](docs/i18n/hi/README.md) | [العربية](docs/i18n/ar/README.md) | [বাংলা](docs/i18n/bn/README.md) | [Bahasa Indonesia](docs/i18n/id/README.md) | [日本語](docs/i18n/ja/README.md)
 
 > [English version](docs/i18n/en/README.md) |[版本对比](docs/EDITIONS.md) | [架构设计图](docs/ARCHITECTURE.md) | [系统架构图](#系统架构图) | [设计文档](docs/DESIGN.md) | [安全架构](docs/SECURITY.md) | [API 参考](docs/API.md) | [功能手册](docs/FUNCTIONS.md)
 
@@ -137,7 +137,7 @@ open-erp/
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（<!-- stats:test_files=59 --> 个测试文件，<!-- stats:tests=500 --> 个测试方法，<!-- stats:assertions=2171 --> 条断言）
+├── tests/                      # PHPUnit 测试（<!-- stats:test_files=59 --> 个测试文件，<!-- stats:tests=500 --> 个测试方法，<!-- stats:assertions=2226 --> 条断言）
 ├── resource/
 │   └── translations/           # 翻译文件 (zh_CN, en)
 │       ├── zh_CN/              # 中文翻译 (127 键)

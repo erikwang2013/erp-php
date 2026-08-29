@@ -4,7 +4,7 @@ webman v2 + Flutter 기반의 풀스택 ERP 시스템.
 
 <div align="center"><img src="images/mascot.svg" alt="open-erp 문어 마스코트" width="150"></div>
 
-<div align="center">🌐 [中文](../../README.md) | [English](../en/README.md) | 한국어 | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
+<div align="center">🌐 [中文](../../../README.md) | [English](../en/README.md) | 한국어 | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
 
 > [English version](../en/README.md) | [버전 비교](EDITIONS.md) | [아키텍처 설계도](ARCHITECTURE.md) | [시스템 아키텍처](#시스템-아키텍처) | [설계 문서](DESIGN.md) | [보안 아키텍처](SECURITY.md) | [API 참조](API.md) | [기능 매뉴얼](FUNCTIONS.md)
 

@@ -27,7 +27,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + 多租户 + DMS + 7新表 | ✅ |
 
-**测试**: <!-- stats:tests=500 --> tests, <!-- stats:assertions=2171 --> assertions（51 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: <!-- stats:tests=500 --> tests, <!-- stats:assertions=2226 --> assertions（51 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 
@@ -74,7 +74,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - 数据库敏感字段加解密: `erikwang2013/encryptable`
 - ES 同步与查询: `erikwang2013/webman-scout`
 - 国家旗帜: `erikwang2013/season`
-- API 文档生成: `hg/apidoc` | 注解式，访问 /apidoc
+- API 文档生成: `erikwang2013/apidoc-php` | 注解式，访问 /apidoc
 
 ### 前端
 - Flutter 3.x，源码目录 `apps/flutter/`
@@ -164,7 +164,7 @@ open-erp/
 │   ├── route.php               # 路由 + API 版本策略
 │   ├── middleware.php           # 全局中间件注册
 │   ├── translation.php          # 语言配置
-│   └── plugin/hg/apidoc/        # API 文档配置（管理端25模块+客户端3模块）
+│   └── plugin/                  # 插件配置（erikwang2013/* + hg/*）
 ├── database/
 │   ├── install.sql              # 完整安装SQL（163张表 + 种子数据，全部迁移已并入）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子

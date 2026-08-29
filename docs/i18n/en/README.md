@@ -4,9 +4,9 @@ A full-stack ERP system built on webman v2 + Flutter.
 
 <div align="center"><img src="images/mascot.svg" alt="open-erp octopus mascot Little Octopus" width="150"></div>
 
-<div align="center">🌐 [中文](../../README.md) | English | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
+<div align="center">🌐 [中文](../../../README.md) | English | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
 
-> [中文版](../../README.md) | [版本对比](EDITIONS.md) | [架构设计图](ARCHITECTURE.md) | [系统架构图](#system-architecture-diagram) | [设计文档](DESIGN.md) | [安全架构](SECURITY.md) | [API Reference](API.md) | [功能手册](FUNCTIONS.md)
+> [中文版](../../../README.md) | [版本对比](EDITIONS.md) | [架构设计图](ARCHITECTURE.md) | [系统架构图](#system-architecture-diagram) | [设计文档](DESIGN.md) | [安全架构](SECURITY.md) | [API Reference](API.md) | [功能手册](FUNCTIONS.md)
 
 ## Feature List
 

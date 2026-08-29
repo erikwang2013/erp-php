@@ -2,7 +2,7 @@
 
 webman v2 + Flutter ベースのフルスタック管理后台システム。
 
-![章鱼吉祥物](mascot.svg)
+![章鱼吉祥物](images/mascot.svg)
 
 ## 著作権声明
 

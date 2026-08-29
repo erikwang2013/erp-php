@@ -4,7 +4,7 @@ Vollständiges ERP-System auf Basis von webman v2 + Flutter.
 
 <div align="center"><img src="images/mascot.svg" alt="open-erp Maskottchen Oktopus" width="150"></div>
 
-<div align="center">🌐 [中文](../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | Deutsch | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
+<div align="center">🌐 [中文](../../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | Deutsch | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
 
 > [English version](../en/README.md) | [Versionsvergleich](EDITIONS.md) | [Architekturdiagramme](ARCHITECTURE.md) | [Systemarchitektur](#systemarchitektur) | [Designdokument](DESIGN.md) | [Sicherheitsarchitektur](SECURITY.md) | [API-Referenz](API.md) | [Funktionshandbuch](FUNCTIONS.md)
 

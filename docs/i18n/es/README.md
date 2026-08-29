@@ -4,7 +4,7 @@ Sistema ERP full-stack basado en webman v2 + Flutter.
 
 <div align="center"><img src="images/mascot.svg" alt="Mascota pulpo de open-erp, Pequeño Pulpo" width="150"></div>
 
-<div align="center">🌐 [中文](../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | Español | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
+<div align="center">🌐 [中文](../../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | Español | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
 
 > [Versión en inglés](../en/README.md) | [Comparación de ediciones](EDITIONS.md) | [Diagrama de diseño de arquitectura](ARCHITECTURE.md) | [Diagrama de arquitectura del sistema](#diagrama-de-arquitectura-del-sistema) | [Documento de diseño](DESIGN.md) | [Arquitectura de seguridad](SECURITY.md) | [Referencia de API](API.md) | [Manual de funciones](FUNCTIONS.md)
 

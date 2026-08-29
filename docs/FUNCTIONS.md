@@ -6,7 +6,7 @@
 
 开放ERP系统 (open-erp) 覆盖 19 个业务域 <!-- stats:modules=19 -->，163 张数据表 <!-- stats:tables=163 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 中文/English 双语支持，Accept-Language 请求头自动切换。
 
-> API 文档: 启动服务后访问 `http://localhost:8787/apidoc` 查看交互式接口文档（hg/apidoc 自动生成）
+> API 文档: 启动服务后访问 `http://localhost:8787/apidoc` 查看交互式接口文档（erikwang2013/apidoc-php 自动生成）
 
 ---
 
@@ -223,6 +223,13 @@
 - 成本归集 + 费用分摊
 - 利润中心独立核算
 
+### 6.12 期末结转/报表合并
+- 期末损益结转：按期间汇总损益类科目发生额（收入类-费用类=净利，status=calculated）
+- 结转不生成凭证（缺本年利润科目配置与防重复结转规则）；无控制器端点
+- 报表合并：`POST /admin/finance/report/consolidate` 端点已落地（ReportController）
+- 合并引擎主体未实现（缺汇率折算与子公司间抵销规则，显式拒绝）
+- 测试：PeriodCloseServiceTest 4 例 + ConsolidationServiceTest 2 例
+
 ---
 
 ## 7. CRM
@@ -251,7 +258,8 @@
 
 ### 7.5 客户分析报表
 - 6 大核心指标：新增客户/活跃客户/留存率/客单价/CLV/工单解决率
-- 报表自动生成（JSON 数据快照）
+- 报表自动生成（JSON 数据快照，快照表 CrmAnalyticsReport/CrmAnalyticsMetric）
+- 5 端点：reports/generate/reportShow/metrics/storeMetric（AnalyticsController）
 - 支持月度/季度/年度
 
 ---
@@ -504,14 +512,14 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 数据库安装脚本 | 单文件 `database/install.sql`（163 张表，已并入全部迁移）|
 | 前端页面 (Flutter) | 107（2026-08-27 实测 `apps/flutter/lib/app/pages/` 页面文件数，未纳入 doc-stats 校验）|
 | 前端页面 (HarmonyOS) | 35（2026-08-27 实测 `apps/harmonyos/entry/src/main/ets/pages/` 页面文件数，未纳入 doc-stats 校验）|
-| 单元测试 | 59 个测试文件 <!-- stats:test_files=59 --> / 500 个测试用例 <!-- stats:tests=500 --> / 2171 条断言 <!-- stats:assertions=2171 -->（51 skipped）|
+| 单元测试 | 59 个测试文件 <!-- stats:test_files=59 --> / 500 个测试用例 <!-- stats:tests=500 --> / 2226 条断言 <!-- stats:assertions=2226 -->（51 skipped）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。
 
 ---
 
-## 19. 模块完成度矩阵 (2026-08-16 校正)
+## 19. 模块完成度矩阵 (2026-08-29 校正)
 
 ### 状态图例
 
@@ -537,7 +545,8 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 库存管理 | ✅ | ✅ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
 | 财务 — 凭证/应收应付 | ✅ | ⚠️ | ✅ 16 页 | 🔴 | 🔵 P0 |
 | 财务 — 总账/三表 | ⚠️ | 🔴 | ⚠️ 3 页（动作深度待核） | 🔴 | 🟢 P1 |
-| 财务 — 期末结转/合并 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 P1 |
+| 财务 — 报表合并 | ✅ | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
+| 财务 — 期末结转 | 🔴 | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
 | CRM 全模块 | ✅ | ✅ | ✅ 10/10 | 🔴 | 🔵 P0 |
 | OMS 订单管理 | ✅ | ✅ | ✅ 4/4 | ⚠️ 4 页 | 🔵 P0 |
 | WMS 仓储管理 | ✅ | ✅ | ⚠️ 7/8 | ⚠️ 7 页 | 🔵 P0 |
@@ -561,11 +570,11 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 维度 | ✅ 完成 | ⚠️ 骨架 | 🔴 缺失 | N/A | 完成率 |
 |------|---------|----------|---------|-----|--------|
-| 模块 (27) | 14 | 12 | 1 | 0 | 52% |
-| 后端 API | 19 | 7 | 1 | 0 | 70% |
-| 业务逻辑 | 14 | 7 | 6 | 0 | 52% |
-| Flutter 前端 | 16 | 7 | 2 | 2 | 64% |
-| HarmonyOS | 0 | 12 | 13 | 2 | 0%（✅ 计；12 行已有页面 ⚠️）|
+| 模块 (28) | 14 | 14 | 0 | 0 | 50% |
+| 后端 API | 20 | 7 | 1 | 0 | 71% |
+| 业务逻辑 | 14 | 9 | 5 | 0 | 50% |
+| Flutter 前端 | 16 | 7 | 3 | 2 | 62% |
+| HarmonyOS | 0 | 12 | 14 | 2 | 0%（✅ 计；12 行已有页面 ⚠️）|
 
 > **统计口径（2026-08-27 校正）**：模块行按「后端 API 与业务逻辑均实现」计；
 > 后端 API / 业务逻辑 两行按矩阵对应列统计（2026-08-16 已按代码现状将 QMS/EAM/DMS/BI 校正为 ✅、
@@ -576,7 +585,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 > `apps/flutter/lib/app/pages/<模块>/` 与 `apps/harmonyos/entry/src/main/ets/pages/**` 文件数（Flutter 107 页、HarmonyOS 35 页），
 > 未纳入后端 doc-stats 校验；HarmonyOS 完成率 0% 系 ✅ 计数（0/25），实际 12 行已有页面（⚠️ 部分覆盖），非整列缺失。
 
-### 代码证据（2026-08-16 校正）
+### 代码证据（2026-08-29 校正）
 
 本次完成度校正依据（文件存在性可由 `bash scripts/doc-stats.sh` 与 `find` 佐证）：
 
@@ -587,5 +596,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 设备管理 EAM | 🔴 → ✅ | `app/controller/eam/`（4 控制器）+ `tests/EamModuleTest.php` |
 | 文档管理 DMS | 🔴 → ✅ | `app/controller/dms/`（2 控制器）+ `tests/DmsModuleTest.php` |
 | 多租户 | 🔴 → ⚠️ | `app/middleware/TenantScope.php` + `app/model/concerns/TenantScope.php` + `tests/Integration/TenantScopeIntegrationTest.php`（已知缺陷：静态租户 ID 未随模型传播，故为骨架而非完成） |
+| 报表合并 | 🔴 → ⚠️ | `app/controller/finance/ReportController.php:91`（`POST /admin/finance/report/consolidate`，route.php:158）+ `app/service/finance/ConsolidationService.php` + `tests/ConsolidationServiceTest.php`（2 例；服务主体显式抛异常：缺汇率折算与抵销规则，故为骨架） |
+| 期末结转 | 🔴 → ⚠️ | `app/service/finance/PeriodCloseService.php:21` `closeProfitAndLoss()`（损益类科目汇总已实现，不生成结转凭证、无控制器端点）+ `tests/PeriodCloseServiceTest.php`（4 例） |
 
 > 详细路线图设计规范: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`

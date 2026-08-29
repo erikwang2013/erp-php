@@ -2,7 +2,7 @@
 
 Sistema de painel de administração full-stack baseado em webman v2 + Flutter.
 
-![Mascote polvo](mascot.svg)
+![Mascote polvo](images/mascot.svg)
 
 ## Declaração de copyright
 

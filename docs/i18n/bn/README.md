@@ -4,7 +4,7 @@ webman v2 + Flutter ভিত্তিক ফুল-স্ট্যাক ERP �
 
 <div align="center"><img src="images/mascot.svg" alt="open-erp অক্টোপাস মাসকট (ছোট অক্টোপাস)" width="150"></div>
 
-<div align="center">🌐 [中文](../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | বাংলা | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
+<div align="center">🌐 [中文](../../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | বাংলা | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
 
 > [English সংস্করণ](../en/README.md) | [সংস্করণ তুলনা](EDITIONS.md) | [আর্কিটেকচার ডায়াগ্রাম](ARCHITECTURE.md) | [সিস্টেম আর্কিটেকচার](#সিস্টেম-আর্কিটেকচার) | [ডিজাইন ডকুমেন্টেশন](DESIGN.md) | [নিরাপত্তা আর্কিটেকচার](SECURITY.md) | [API রেফারেন্স](API.md) | [ফাংশন ম্যানুয়াল](FUNCTIONS.md)
 

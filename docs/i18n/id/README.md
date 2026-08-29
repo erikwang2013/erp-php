@@ -4,7 +4,7 @@ Sistem ERP full-stack berbasis webman v2 + Flutter.
 
 <div align="center"><img src="images/mascot.svg" alt="Maskot gurita open-erp" width="150"></div>
 
-<div align="center">🌐 [中文](../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | Bahasa Indonesia | [日本語](../ja/README.md)</div>
+<div align="center">🌐 [中文](../../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | Bahasa Indonesia | [日本語](../ja/README.md)</div>
 
 > [English version](../en/README.md) | [Perbandingan Edisi](EDITIONS.md) | [Diagram Arsitektur](ARCHITECTURE.md) | [Diagram Sistem](#diagram-arsitektur-sistem) | [Dokumen Desain](DESIGN.md) | [Arsitektur Keamanan](SECURITY.md) | [Referensi API](API.md) | [Manual Fitur](FUNCTIONS.md)
 

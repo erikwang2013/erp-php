@@ -4,7 +4,7 @@
 
 ## API 文档
 
-项目使用 [hg/apidoc](https://github.com/hg-code/apidoc) 自动生成交互式 API 文档。
+项目使用 [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php) 自动生成交互式 API 文档。
 
 **访问方式：** 启动服务后访问 `http://localhost:8787/apidoc`
 

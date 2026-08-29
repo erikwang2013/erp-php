@@ -4,7 +4,7 @@
 
 <div align="center"><img src="images/mascot.svg" alt="تميمة open-erp الأخطبوط" width="150"></div>
 
-<div align="center">🌐 [中文](../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | العربية | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
+<div align="center">🌐 [中文](../../../README.md) | [English](../en/README.md) | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | العربية | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
 
 > [English version](../en/README.md) | [مقارنة الإصدارات](EDITIONS.md) | [مخطط التصميم المعماري](ARCHITECTURE.md) | [نظام البنية المعمارية](#نظام-البنية-المعمارية) | [وثيقة التصميم](DESIGN.md) | [بنية الأمان](SECURITY.md) | [مرجع API](API.md) | [دليل الوظائف](FUNCTIONS.md)
 
