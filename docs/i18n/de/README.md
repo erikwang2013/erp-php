@@ -15,7 +15,7 @@ Vollständiges ERP-System auf Basis von webman v2 + Flutter.
 | 🔐 Authentifizierung | Login/Registrierung/Token-Refresh/Logout | Klick-Captcha + JWT + Blacklist |
 | | Kontosperrung | 5 Fehlversuche sperren für 15 Minuten |
 | | Begrenzung paralleler Sitzungen | Maximal 3 gültige Token pro Benutzer |
-| 📊 Dashboard | Geschäftsübersicht/Vertriebs-/Bestands-/Finanz-Dashboard | Redis-Cache 5 Minuten |
+| 📊 Dashboard | Geschäftsübersicht/Vertriebs-/Bestands-/Finanz-Dashboard | 30-Tage-Umsatztrend/Top5-Verkaufsschlager/Auftragsstatus-Verteilung/Forderungs-Verbindlichkeiten-Fälligkeiten + Redis-Cache 5 Minuten |
 | 👥 Benutzerverwaltung | CRUD + Massenlöschung/Aktivieren-Deaktivieren | Soft Delete + Passwort-Bestätigung |
 | | Excel-Massenimport | Zeilenweise Validierung + Fehlerbericht |
 | 🔒 Rollen & Berechtigungen | Rollen-CRUD + Berechtigungsbaum | RBAC-Autorisierung auf method.path-Ebene |
@@ -284,6 +284,26 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 - `Dockerfile`: PHP 8.3 + OPcache + Composer, basierend auf `php:8.3-cli`
 - `docker-compose.yml`: Orchestrierung von 5 Diensten, Netzwerk-Isolation, persistente Datenvolumes
 - `.env.docker`: Umgebungsvariablen speziell für Docker
+
+## Bedienung
+
+### 1. Anmelden
+
+Beim ersten Einsatz die Web-Installation `http://localhost:8788/install` aufrufen, um die Installation abzuschließen und ein Administratorkonto anzulegen. Nach der Installation die Konsole öffnen, Zugangsdaten eingeben und das Klick-Captcha lösen.
+
+### 2. Navigation
+
+Nach der Anmeldung über die Seitenleiste in die Module wechseln: Dashboard, Produkte, Einkauf, Verkauf, Lager, Finanzen, CRM, Genehmigungsworkflows, Benachrichtigungen, Projekte, Personal, Fertigung, benutzerdefinierte Berichte, OMS/WMS/TMS, BI-Dashboards und Systemverwaltung (Benutzer/Rollen/Konfiguration/Protokolle). Die Seitenleiste ist am Desktop fixiert und klappt am Handy als Drawer ein.
+
+### 3. Berechtigungen und Sicherheit
+
+- Funktionen und APIs sind über RBAC gesteuert; Menüs und Schnittstellen ohne Berechtigung sind nicht zugänglich (403)
+- Sensible Aktionen wie das Löschen von Benutzern/Rollen erfordern die erneute Eingabe des aktuellen Passworts im Request-Body
+- Nach dem Abmelden wird das Token sofort auf die Blacklist gesetzt
+
+### 4. Mehrsprachigkeit
+
+Automatische Umschaltung über den `Accept-Language`-Header (zh-CN / en), Standard ist Chinesisch.
 
 ## Datenbank-Konventionen
 

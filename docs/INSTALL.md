@@ -88,15 +88,15 @@ composer install --no-dev --optimize-autoloader
 php start.php start
 ```
 
-默认监听 `http://0.0.0.0:8787`。
+默认监听 `http://0.0.0.0:8788`。
 
 ### 6. 验证安装
 
 ```bash
-curl http://localhost:8787/health
+curl http://localhost:8788/health
 ```
 
-浏览器访问 `http://localhost:8787/apidoc` 查看 API 文档。
+浏览器访问 `http://localhost:8788/apidoc` 查看 API 文档。
 
 ---
 
@@ -196,7 +196,7 @@ redis-cli ping    # 应返回 PONG
 
 ### 端口被占用
 ```bash
-ss -tlnp | grep 8787
+ss -tlnp | grep 8788
 # 修改监听端口: config/server.php
 ```
 

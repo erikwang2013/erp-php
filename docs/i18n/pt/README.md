@@ -15,7 +15,7 @@ Sistema ERP full-stack baseado em webman v2 + Flutter.
 | 🔐 Autenticação | Login/Registro/Refresh token/Logout | Captcha de clique + JWT + lista negra |
 | | Bloqueio de conta | 5 falhas bloqueiam por 15 minutos |
 | | Limite de sessões simultâneas | Máximo de 3 Tokens válidos por usuário |
-| 📊 Dashboard | Visão geral de negócio/Painel de vendas/Painel de estoque/Painel financeiro | Cache Redis por 5 minutos |
+| 📊 Dashboard | Visão geral de negócio/Painel de vendas/Painel de estoque/Painel financeiro | Tendência de vendas 30 dias/Top5 produtos mais vendidos/Distribuição de status de pedidos/Idade de contas a receber e pagar + Cache Redis por 5 minutos |
 | 👥 Gerenciamento de usuários | CRUD + exclusão em lote/ativar-desativar | Soft delete + confirmação secundária de senha |
 | | Importação em lote via Excel | Validação linha a linha + relatório de erros |
 | 🔒 Papéis e permissões | CRUD de papéis + árvore de permissões | Autenticação RBAC na granularidade method.path |
@@ -284,6 +284,26 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 - `Dockerfile`: PHP 8.3 + OPcache + Composer, baseado em `php:8.3-cli`
 - `docker-compose.yml`: orquestração de 5 serviços, isolamento de rede, persistência de dados via volumes
 - `.env.docker`: variáveis de ambiente específicas para Docker
+
+## Uso
+
+### 1. Login
+
+No primeiro uso, acesse o instalador web `http://localhost:8788/install` para concluir a instalação e criar uma conta de administrador. Já instalado, abra o console, insira suas credenciais e passe no captcha de clique para entrar.
+
+### 2. Navegação
+
+Após o login, acesse os módulos pela barra lateral: painel, produtos, compras, vendas, estoque, finanças, CRM, fluxos de aprovação, notificações, projetos, RH, fabricação, relatórios personalizados, OMS/WMS/TMS, painéis BI e administração do sistema (usuários/papéis/configuração/logs). A barra lateral é fixa no desktop e vira uma gaveta no mobile.
+
+### 3. Permissões e segurança
+
+- Funções e APIs são controladas por RBAC; menus e interfaces sem permissão são inacessíveis (403)
+- Operações sensíveis, como excluir usuários/papéis, exigem confirmar a senha atual no corpo da requisição
+- Após o logout, o token é imediatamente incluído na lista negra
+
+### 4. Multilíngue
+
+Troca automática pelo cabeçalho `Accept-Language` (zh-CN / en), com chinês por padrão.
 
 ## Convenções do banco de dados
 

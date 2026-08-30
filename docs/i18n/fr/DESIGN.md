@@ -419,7 +419,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 8.1 Topologie recommandée
 
 ```
-Nginx (:443 HTTPS) → webman worker × N (:8787) → MySQL + ES + Redis
+Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
                     静态文件: Flutter Web build/
 ```
 
@@ -430,7 +430,7 @@ Le `docker-compose.yml` à la racine du projet orchestre tous les services de la
 | Service | Image/build | Ports | Description |
 |------|----------|------|------|
 | `nginx` | nginx:alpine | 80, 443 | Proxy inverse + fichiers statiques + Gzip |
-| `app` | build via `Dockerfile` local | 8787 | PHP 8.3 + OPcache + webman |
+| `app` | build via `Dockerfile` local | 8788 | PHP 8.3 + OPcache + webman |
 | `mysql` | mysql:8.0 | 3306 | Base de données principale, persistance par volume |
 | `redis` | redis:7-alpine | 6379 | Cache / limitation de débit / captcha |
 | `elasticsearch` | elasticsearch:8.x | 9200 | Recherche plein texte |

@@ -6,7 +6,7 @@
 
 परियोजना [hg/apidoc](https://github.com/hg-code/apidoc) से इंटरैक्टिव API दस्तावेज़ स्वतः उत्पन्न करती है।
 
-**पहुंच विधि:** सेवा प्रारंभ करने के बाद `http://localhost:8787/apidoc` पर जाएँ
+**पहुंच विधि:** सेवा प्रारंभ करने के बाद `http://localhost:8788/apidoc` पर जाएँ
 
 **दस्तावेज़ समूह:**
 | समूह | विवरण | मॉड्यूल संख्या |
@@ -27,7 +27,7 @@
 
 ओपन एडमिन बैकएंड (open-admin) webman v2 पर आधारित है, RESTful JSON API प्रदान करता है। सभी प्रशासन एंड इंटरफ़ेसों को JWT प्रमाणीकरण और RBAC अनुमति सत्यापन की आवश्यकता होती है, सार्वजनिक इंटरफ़ेस API संस्करण हेडर के माध्यम से संस्करणित कंट्रोलर में रूट होते हैं।
 
-- **आधार URL**: `http://localhost:8787`
+- **आधार URL**: `http://localhost:8788`
 - **API संस्करण**: अनुरोध हेडर `API-Version: v1` से नियंत्रित (अनुपस्थित होने पर डिफ़ॉल्ट v1)
 
 > **एंडपॉइंट अवलोकन**: प्रमाणीकरण (5) | डैशबोर्ड (1) | उपयोगकर्ता (7) | भूमिका (4) | अनुमति (4) | कॉन्फ़िगरेशन (4) | लॉग (1) | व्यक्तिगत केंद्र (3) | आयात-निर्यात (3) | अपलोड (1) | संचालन (4: health/metrics/docs/security.txt) | कुल 37 एंडपॉइंट
@@ -46,10 +46,10 @@ API अनुरोध हेडर `Accept-Language` से भाषा स्
 
 ```bash
 # 英文响应
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # 中文响应（默认）
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 प्रतिक्रिया का `message` फ़ील्ड संबंधित भाषा में लौटाया जाएगा।

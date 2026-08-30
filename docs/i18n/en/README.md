@@ -15,7 +15,7 @@ A full-stack ERP system built on webman v2 + Flutter.
 | 🔐 Authentication | Login/Register/Refresh token/Logout | Click captcha + JWT + blacklist |
 | | Account lockout | Locked for 15 minutes after 5 failed attempts |
 | | Concurrent session limit | Max 3 valid tokens per user |
-| 📊 Dashboard | Business overview/Sales board/Inventory board/Finance board | Redis cache 5 minutes |
+| 📊 Dashboard | Business overview/Sales board/Inventory board/Finance board | 30-day sales trend/Top5 hot products/order status distribution/AR-AP aging + Redis cache 5 minutes |
 | 👥 User Management | CRUD + batch delete/enable-disable | Soft delete + password re-confirmation |
 | | Excel bulk import | Row-by-row validation + error report |
 | 🔒 Roles & Permissions | Role CRUD + permission tree | RBAC method.path granular authorization |
@@ -284,6 +284,26 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 - `Dockerfile`: PHP 8.3 + OPcache + Composer, based on `php:8.3-cli`
 - `docker-compose.yml`: 5-service orchestration, network isolation, data volume persistence
 - `.env.docker`: environment variables for the Docker environment
+
+## Usage
+
+### 1. Login
+
+On first use, visit the web installer `http://localhost:8788/install` to complete the installation and create an admin account. If already installed, open the console, enter your credentials and pass the click captcha to log in.
+
+### 2. Feature navigation
+
+After login, enter each business module from the sidebar: dashboard, products, purchasing, sales, inventory, finance, CRM, approval workflows, notifications, projects, HR, manufacturing, custom reports, OMS/WMS/TMS, BI dashboards and system management (users/roles/config/logs). The sidebar is fixed on desktop and collapses into a drawer on mobile.
+
+### 3. Permissions and security
+
+- Features and APIs are controlled by RBAC; menus and endpoints without permission are inaccessible (403)
+- Sensitive operations such as deleting a user/role require re-entering the current password in the request body
+- After logout the token is immediately blacklisted and cannot be reused
+
+### 4. Multi-language
+
+Switched automatically via the `Accept-Language` request header (zh-CN / en), defaulting to Chinese.
 
 ## Database Conventions
 

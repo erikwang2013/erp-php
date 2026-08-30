@@ -284,6 +284,26 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 - `Dockerfile`: PHP 8.3 + OPcache + Composer, berbasis `php:8.3-cli`
 - `docker-compose.yml`: orkestrasi 5 layanan, isolasi jaringan, persistensi volume data
 - `.env.docker`: variabel lingkungan khusus lingkungan Docker
+## Penggunaan
+
+### 1. Login
+
+Pada penggunaan pertama, buka penginstal web `http://localhost:8788/install` untuk menyelesaikan instalasi dan membuat akun admin. Jika sudah terinstal, buka konsol, masukkan kredensial, dan lewati captcha klik untuk masuk.
+
+### 2. Navigasi
+
+Setelah login, masuk ke setiap modul dari sidebar: dashboard, produk, pembelian, penjualan, inventaris, keuangan, CRM, alur persetujuan, notifikasi, proyek, SDM, manufaktur, laporan kustom, OMS/WMS/TMS, dashboard BI, dan administrasi sistem (pengguna/peran/konfigurasi/log). Sidebar tetap di desktop dan terlipat menjadi laci di ponsel.
+
+### 3. Izin dan keamanan
+
+- Fitur dan API dikendalikan oleh RBAC; menu dan antarmuka tanpa izin tidak dapat diakses (403)
+- Operasi sensitif seperti menghapus pengguna/peran memerlukan konfirmasi kata sandi saat ini di badan permintaan
+- Setelah logout, token langsung masuk daftar hitam
+
+### 4. Multibahasa
+
+Peralihan otomatis melalui header `Accept-Language` (zh-CN / en), default bahasa Mandarin.
+
 ## Konvensi Database
 
 - **Prefiks tabel**: `erp_`

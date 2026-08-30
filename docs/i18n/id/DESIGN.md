@@ -419,7 +419,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 8.1 Topologi Rekomendasi
 
 ```
-Nginx (:443 HTTPS) → webman worker × N (:8787) → MySQL + ES + Redis
+Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
                     静态文件: Flutter Web build/
 ```
 
@@ -430,7 +430,7 @@ Nginx (:443 HTTPS) → webman worker × N (:8787) → MySQL + ES + Redis
 | Layanan | Image/Build | Port | Keterangan |
 |------|----------|------|------|
 | `nginx` | nginx:alpine | 80, 443 | Reverse proxy + file statis + Gzip |
-| `app` | build `Dockerfile` lokal | 8787 | PHP 8.3 + OPcache + webman |
+| `app` | build `Dockerfile` lokal | 8788 | PHP 8.3 + OPcache + webman |
 | `mysql` | mysql:8.0 | 3306 | Database utama, persistensi volume data |
 | `redis` | redis:7-alpine | 6379 | Cache / rate limit / captcha |
 | `elasticsearch` | elasticsearch:8.x | 9200 | Pencarian teks lengkap |

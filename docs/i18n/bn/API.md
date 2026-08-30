@@ -6,7 +6,7 @@
 
 প্রজেক্টটি [hg/apidoc](https://github.com/hg-code/apidoc) দিয়ে স্বয়ংক্রিয়ভাবে ইন্টারঅ্যাক্টিভ API ডকুমেন্টেশন তৈরি করে।
 
-**অ্যাক্সেস পদ্ধতি:** সার্ভিস চালু হওয়ার পর `http://localhost:8787/apidoc` দেখুন
+**অ্যাক্সেস পদ্ধতি:** সার্ভিস চালু হওয়ার পর `http://localhost:8788/apidoc` দেখুন
 
 **ডকুমেন্টেশন গ্রুপ:**
 | গ্রুপ | বিবরণ | মডিউল সংখ্যা |
@@ -27,7 +27,7 @@
 
 ওপেন অ্যাডমিন ব্যাকএন্ড (open-admin) webman v2 ভিত্তিক, RESTful JSON API প্রদান করে। সব অ্যাডমিন ইন্টারফেসে JWT প্রমাণীকরণ ও RBAC অনুমোদন যাচাই প্রয়োজন, পাবলিক ইন্টারফেস API ভার্সন হেডারের মাধ্যমে ভার্সনযুক্ত কন্ট্রোলারে রাউট হয়।
 
-- **বেস URL**: `http://localhost:8787`
+- **বেস URL**: `http://localhost:8788`
 - **API ভার্সন**: রিকোয়েস্ট হেডার `API-Version: v1` দিয়ে নিয়ন্ত্রিত (না থাকলে ডিফল্ট v1)
 
 > **এন্ডপয়েন্ট ওভারভিউ**: প্রমাণীকরণ(5) | ড্যাশবোর্ড(1) | ইউজার(7) | রোল(4) | পারমিশন(4) | কনফিগ(4) | লগ(1) | প্রোফাইল(3) | ইমপোর্ট-এক্সপোর্ট(3) | আপলোড(1) | অপারেশন(4: health/metrics/docs/security.txt) | মোট 37 এন্ডপয়েন্ট
@@ -46,10 +46,10 @@ API রিকোয়েস্ট হেডার `Accept-Language` দিয�
 
 ```bash
 # 英文响应
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # 中文响应（默认）
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 রেসপন্সের `message` ফিল্ড সংশ্লিষ্ট ভাষায় রিটার্ন হয়।

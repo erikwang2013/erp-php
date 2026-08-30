@@ -224,7 +224,7 @@ open-erp/
 ভার্সন রিকোয়েস্ট হেডার `API-Version` দিয়ে নিয়ন্ত্রিত (ডিফল্ট `v1`), URL-এ প্রকাশিত হয় না:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8787/api/auth/login
+curl -H "API-Version: v1" http://localhost:8788/api/auth/login
 ```
 
 নতুন ভার্সন যোগ করতে শুধু `app/api/{version}/controller/` ডিরেক্টরি তৈরি করে `ApiVersion` মিডলওয়্যারে রেজিস্টার করুন।

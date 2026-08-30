@@ -12,9 +12,9 @@ flowchart TB
     end
 
     subgraph app["Application Server (horizontally scalable)"]
-        wm1["webman worker 1 :8787"]
-        wm2["webman worker 2 :8787"]
-        wm3["webman worker N :8787"]
+        wm1["webman worker 1 :8788"]
+        wm2["webman worker 2 :8788"]
+        wm3["webman worker N :8788"]
     end
 
     subgraph data["Data Layer"]

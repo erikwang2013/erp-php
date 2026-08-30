@@ -6,7 +6,7 @@
 
 El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:modules=19 --> y 163 tablas de datos <!-- stats:tables=163 -->, y ofrece un sistema de gestión empresarial full-stack que va desde compra-venta-inventario hasta producción y fabricación, y desde contabilidad financiera hasta recursos humanos. Internacionalización: soporte bilingüe chino/inglés, con cambio automático de idioma mediante el encabezado de solicitud Accept-Language.
 
-> Documentación de API: tras iniciar el servicio, visite `http://localhost:8787/apidoc` para consultar la documentación interactiva de interfaces (generada automáticamente por hg/apidoc)
+> Documentación de API: tras iniciar el servicio, visite `http://localhost:8788/apidoc` para consultar la documentación interactiva de interfaces (generada automáticamente por hg/apidoc)
 
 ---
 

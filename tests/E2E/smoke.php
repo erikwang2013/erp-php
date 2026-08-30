@@ -10,7 +10,7 @@
  *   php tests/E2E/smoke.php --base-url=http://127.0.0.1:8788
  *
  * 环境变量（优先级: 命令行参数 > 环境变量 > .env 文件 > 内置默认）:
- *   BASE_URL      服务地址，默认 http://127.0.0.1:8787
+ *   BASE_URL      服务地址，默认 http://127.0.0.1:8788
  *   E2E_USER      测试账号用户名，默认 admin（需预先在数据库中创建）
  *   E2E_PASS      测试账号密码，默认 admin123（需与预置账号一致）
  *
@@ -36,7 +36,7 @@ const EXIT_FAIL = 1;
 $argvList = $argv ?? [];
 $opts = [
     'list' => false,
-    'base-url' => getenv('BASE_URL') ?: 'http://127.0.0.1:8787',
+    'base-url' => getenv('BASE_URL') ?: 'http://127.0.0.1:8788',
 ];
 for ($i = 1; $i < count($argvList); $i++) {
     $arg = $argvList[$i];
@@ -408,7 +408,7 @@ function listChains(): void
     foreach ($chains as $c) {
         echo "  {$c}\n";
     }
-    echo "\n用法: php tests/E2E/smoke.php [--base-url=http://127.0.0.1:8787] [--list]\n";
+    echo "\n用法: php tests/E2E/smoke.php [--base-url=http://127.0.0.1:8788] [--list]\n";
     echo "环境变量: BASE_URL / E2E_USER / E2E_PASS / E2E_CAPTCHA_CODE (预留)\n";
 }
 

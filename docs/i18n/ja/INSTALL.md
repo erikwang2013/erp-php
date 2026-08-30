@@ -86,15 +86,15 @@ composer install --no-dev --optimize-autoloader
 php start.php start
 ```
 
-デフォルトでは `http://0.0.0.0:8787` で待ち受けます。
+デフォルトでは `http://0.0.0.0:8788` で待ち受けます。
 
 ### 6. インストールの確認
 
 ```bash
-curl http://localhost:8787/health
+curl http://localhost:8788/health
 ```
 
-ブラウザで `http://localhost:8787/apidoc` にアクセスして API ドキュメントを確認します。
+ブラウザで `http://localhost:8788/apidoc` にアクセスして API ドキュメントを確認します。
 
 ---
 
@@ -192,7 +192,7 @@ redis-cli ping    # 应返回 PONG
 
 ### ポートが占有されている
 ```bash
-ss -tlnp | grep 8787
+ss -tlnp | grep 8788
 # 修改监听端口: config/server.php
 ```
 

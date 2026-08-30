@@ -86,15 +86,15 @@ composer install --no-dev --optimize-autoloader
 php start.php start
 ```
 
-يستمع افتراضيًا على `http://0.0.0.0:8787`.
+يستمع افتراضيًا على `http://0.0.0.0:8788`.
 
 ### 6. التحقق من التثبيت
 
 ```bash
-curl http://localhost:8787/health
+curl http://localhost:8788/health
 ```
 
-افتح `http://localhost:8787/apidoc` في المتصفح لعرض وثائق API.
+افتح `http://localhost:8788/apidoc` في المتصفح لعرض وثائق API.
 
 ---
 
@@ -192,7 +192,7 @@ redis-cli ping    # 应返回 PONG
 
 ### المنفذ مشغول
 ```bash
-ss -tlnp | grep 8787
+ss -tlnp | grep 8788
 # 修改监听端口: config/server.php
 ```
 

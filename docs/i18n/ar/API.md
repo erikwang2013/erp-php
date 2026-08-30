@@ -6,7 +6,7 @@
 
 يستخدم المشروع [hg/apidoc](https://github.com/hg-code/apidoc) لتوليد وثائق API تفاعلية تلقائيًا.
 
-**طريقة الوصول:** بعد بدء الخدمة افتح `http://localhost:8787/apidoc`
+**طريقة الوصول:** بعد بدء الخدمة افتح `http://localhost:8788/apidoc`
 
 **مجموعات الوثائق:**
 | المجموعة | الوصف | عدد الوحدات |
@@ -27,7 +27,7 @@
 
 نظام إدارة الخلفية المفتوح (open-admin) مبني على webman v2 ويوفر RESTful JSON API. تتطلب جميع واجهات الإدارة مصادقة JWT وتحقق صلاحيات RBAC، بينما تُوجَّه الواجهات العامة عبر رأس إصدار API إلى وحدات التحكم المصنفة بالإصدار.
 
-- **عنوان URL الأساسي**: `http://localhost:8787`
+- **عنوان URL الأساسي**: `http://localhost:8788`
 - **إصدار API**: يُتحكم فيه عبر رأس الطلب `API-Version: v1` (عند غيابه يكون v1 افتراضيًا)
 
 > **نظرة عامة على النقاط**: المصادقة(5) | لوحة المعلومات(1) | المستخدمون(7) | الأدوار(4) | الصلاحيات(4) | الإعدادات(4) | السجلات(1) | الملف الشخصي(3) | الاستيراد والتصدير(3) | الرفع(1) | التشغيل(4: health/metrics/docs/security.txt) | المجموع 37 نقطة
@@ -46,10 +46,10 @@
 
 ```bash
 # 英文响应
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # 中文响应（默认）
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 يُرجع حقل `message` في الاستجابة باللغة المقابلة.

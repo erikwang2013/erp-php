@@ -86,15 +86,15 @@ composer install --no-dev --optimize-autoloader
 php start.php start
 ```
 
-기본적으로 `http://0.0.0.0:8787`에서 수신합니다.
+기본적으로 `http://0.0.0.0:8788`에서 수신합니다.
 
 ### 6. 설치 확인
 
 ```bash
-curl http://localhost:8787/health
+curl http://localhost:8788/health
 ```
 
-브라우저에서 `http://localhost:8787/apidoc`에 접속하여 API 문서를 확인합니다.
+브라우저에서 `http://localhost:8788/apidoc`에 접속하여 API 문서를 확인합니다.
 
 ---
 
@@ -192,7 +192,7 @@ redis-cli ping    # PONG이 반환되어야 함
 
 ### 포트 점유
 ```bash
-ss -tlnp | grep 8787
+ss -tlnp | grep 8788
 # 수신 포트 수정: config/server.php
 ```
 

@@ -285,6 +285,26 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 - `docker-compose.yml`: orquestación de 5 servicios, aislamiento de red, volúmenes de datos persistentes
 - `.env.docker`: variables de entorno específicas del entorno Docker
 
+## Uso
+
+### 1. Inicio de sesión
+
+En el primer uso, visite el instalador web `http://localhost:8788/install` para completar la instalación y crear una cuenta de administrador. Ya instalado, abra la consola, introduzca sus credenciales y supere el captcha de clic para iniciar sesión.
+
+### 2. Navegación
+
+Tras iniciar sesión, entre a cada módulo desde la barra lateral: panel, productos, compras, ventas, inventario, finanzas, CRM, flujos de aprobación, notificaciones, proyectos, RR. HH., fabricación, informes personalizados, OMS/WMS/TMS, paneles BI y administración del sistema (usuarios/roles/configuración/registros). La barra lateral es fija en escritorio y se pliega en un cajón en móvil.
+
+### 3. Permisos y seguridad
+
+- Las funciones y API se controlan por RBAC; los menús e interfaces sin permiso no son accesibles (403)
+- Las operaciones sensibles, como eliminar usuarios/roles, requieren confirmar la contraseña actual en el cuerpo de la petición
+- Tras cerrar sesión, el token se incluye inmediatamente en la lista negra
+
+### 4. Multilingüe
+
+Cambio automático mediante la cabecera `Accept-Language` (zh-CN / en), con el chino por defecto.
+
 ## Convenciones de base de datos
 
 - **Prefijo de tablas**: `erp_`

@@ -6,7 +6,7 @@
 
 プロジェクトは [hg/apidoc](https://github.com/hg-code/apidoc) で対話型 API ドキュメントを自動生成します。
 
-**アクセス方法：** サービス起動後に `http://localhost:8787/apidoc` へアクセス
+**アクセス方法：** サービス起動後に `http://localhost:8788/apidoc` へアクセス
 
 **ドキュメントのグループ：**
 | グループ | 説明 | モジュール数 |
@@ -27,7 +27,7 @@
 
 オープン管理画面 (open-admin) は webman v2 で構築され、RESTful JSON API を提供します。すべての管理画面インターフェースには JWT 認証と RBAC 権限チェックが必要で、公開インターフェースは API バージョンヘッダーでバージョン管理されたコントローラーにルーティングされます。
 
-- **ベース URL**: `http://localhost:8787`
+- **ベース URL**: `http://localhost:8788`
 - **API バージョン**: リクエストヘッダー `API-Version: v1` で制御（省略時はデフォルト v1）
 
 > **エンドポイント総覧**: 認証(5) | ダッシュボード(1) | ユーザー(7) | ロール(4) | 権限(4) | 設定(4) | ログ(1) | 個人センター(3) | インポート・エクスポート(3) | アップロード(1) | 運用(4: health/metrics/docs/security.txt) | 合計 37 エンドポイント
@@ -46,10 +46,10 @@ API はリクエストヘッダー `Accept-Language` で言語を自動切替し
 
 ```bash
 # 英語レスポンス
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # 中国語レスポンス（デフォルト）
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 レスポンス内の `message` フィールドは対応する言語で返されます。

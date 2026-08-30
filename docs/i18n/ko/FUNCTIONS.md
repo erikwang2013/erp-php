@@ -6,7 +6,7 @@
 
 오픈ERP 시스템(open-erp)은 19개 업무 도메인 <!-- stats:modules=19 -->, 163개 데이터 테이블 <!-- stats:tables=163 -->을 포괄하며, 매입·판매·재고부터 생산 제조, 재무 회계부터 인사 관리까지의 풀스택 기업 관리 시스템을 제공합니다. 국제화: 중문/English 이중 언어 지원, Accept-Language 요청 헤더로 자동 전환됩니다.
 
-> API 문서: 서비스 시작 후 `http://localhost:8787/apidoc`에 접속하면 인터랙티브 인터페이스 문서를 볼 수 있습니다(hg/apidoc 자동 생성)
+> API 문서: 서비스 시작 후 `http://localhost:8788/apidoc`에 접속하면 인터랙티브 인터페이스 문서를 볼 수 있습니다(hg/apidoc 자동 생성)
 
 ---
 

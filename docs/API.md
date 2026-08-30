@@ -6,7 +6,7 @@
 
 项目使用 [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php) 自动生成交互式 API 文档。
 
-**访问方式：** 启动服务后访问 `http://localhost:8787/apidoc`
+**访问方式：** 启动服务后访问 `http://localhost:8788/apidoc`
 
 **文档分组：**
 | 分组 | 说明 | 模块数 |
@@ -27,7 +27,7 @@
 
 开放管理后台 (open-admin) 基于 webman v2 构建，提供 RESTful JSON API。所有管理端接口需要 JWT 认证与 RBAC 权限校验，公开接口通过 API 版本头路由到版本化控制器。
 
-- **基础 URL**: `http://localhost:8787`
+- **基础 URL**: `http://localhost:8788`
 - **API 版本**: 通过请求头 `API-Version: v1` 控制（缺失时默认 v1）
 
 > **端点总览**: 认证(5) | 仪表盘(1) | 用户(7) | 角色(4) | 权限(4) | 配置(4) | 日志(1) | 个人中心(3) | 导入导出(3) | 上传(1) | 运维(4: health/metrics/docs/security.txt) | 共 37 端点
@@ -46,10 +46,10 @@ API 通过请求头 `Accept-Language` 自动切换语言：
 
 ```bash
 # 英文响应
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # 中文响应（默认）
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 响应中的 `message` 字段会使用对应语言返回。

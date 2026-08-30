@@ -670,9 +670,9 @@ flowchart TB
     end
 
     subgraph "एप्लिकेशन सर्वर (क्षैतिज रूप से स्केलेबल)"
-        WM1["webman worker 1<br/>:8787"]
-        WM2["webman worker 2<br/>:8787"]
-        WM3["webman worker N<br/>:8787"]
+        WM1["webman worker 1<br/>:8788"]
+        WM2["webman worker 2<br/>:8788"]
+        WM3["webman worker N<br/>:8788"]
     end
 
     subgraph "डेटा परत"

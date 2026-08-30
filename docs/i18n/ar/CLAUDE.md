@@ -224,7 +224,7 @@ open-erp/
 يتحكم الإصدار عبر رأس الطلب `API-Version` (الافتراضي `v1`)، ولا يظهر في عنوان URL:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8787/api/auth/login
+curl -H "API-Version: v1" http://localhost:8788/api/auth/login
 ```
 
 لإضافة إصدار جديد يكفي إنشاء دليل `app/api/{version}/controller/` وتسجيله في وسيط `ApiVersion`.

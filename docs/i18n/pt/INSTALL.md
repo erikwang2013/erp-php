@@ -86,15 +86,15 @@ composer install --no-dev --optimize-autoloader
 php start.php start
 ```
 
-Por padrão, escuta em `http://0.0.0.0:8787`.
+Por padrão, escuta em `http://0.0.0.0:8788`.
 
 ### 6. Verificar a instalação
 
 ```bash
-curl http://localhost:8787/health
+curl http://localhost:8788/health
 ```
 
-Acesse `http://localhost:8787/apidoc` no navegador para ver a documentação da API.
+Acesse `http://localhost:8788/apidoc` no navegador para ver a documentação da API.
 
 ---
 
@@ -192,7 +192,7 @@ redis-cli ping    # deve retornar PONG
 
 ### Porta em uso
 ```bash
-ss -tlnp | grep 8787
+ss -tlnp | grep 8788
 # Alterar a porta de escuta: config/server.php
 ```
 

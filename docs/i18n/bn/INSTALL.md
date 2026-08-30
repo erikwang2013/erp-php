@@ -86,15 +86,15 @@ composer install --no-dev --optimize-autoloader
 php start.php start
 ```
 
-ডিফল্টভাবে `http://0.0.0.0:8787` শোনে।
+ডিফল্টভাবে `http://0.0.0.0:8788` শোনে।
 
 ### 6. ইনস্টলেশন যাচাই করুন
 
 ```bash
-curl http://localhost:8787/health
+curl http://localhost:8788/health
 ```
 
-ব্রাউজারে `http://localhost:8787/apidoc` দেখে API ডকুমেন্টেশন দেখুন।
+ব্রাউজারে `http://localhost:8788/apidoc` দেখে API ডকুমেন্টেশন দেখুন।
 
 ---
 
@@ -195,7 +195,7 @@ redis-cli ping    # 应返回 PONG
 ### পোর্ট ব্যবহার হয়ে গেছে
 
 ```bash
-ss -tlnp | grep 8787
+ss -tlnp | grep 8788
 # 修改监听端口: config/server.php
 ```
 

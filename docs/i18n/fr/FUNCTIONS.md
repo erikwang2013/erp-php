@@ -6,7 +6,7 @@
 
 Le système ERP Open (open-erp) couvre 19 domaines métier <!-- stats:modules=19 --> et 163 tables de données <!-- stats:tables=163 -->, et fournit un système de gestion d'entreprise full-stack, des achats-stocks-ventes à la production, de la comptabilité aux ressources humaines. Internationalisation : prise en charge bilingue chinois / anglais, bascule automatique via l'en-tête de requête Accept-Language.
 
-> Documentation API : après le démarrage du service, accédez à `http://localhost:8787/apidoc` pour consulter la documentation interactive des interfaces (générée automatiquement par hg/apidoc)
+> Documentation API : après le démarrage du service, accédez à `http://localhost:8788/apidoc` pour consulter la documentation interactive des interfaces (générée automatiquement par hg/apidoc)
 
 ---
 

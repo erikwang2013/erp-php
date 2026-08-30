@@ -224,7 +224,7 @@ open-erp/
 版本通过请求头 `API-Version` 控制（默认 `v1`），不在 URL 中体现：
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8787/api/auth/login
+curl -H "API-Version: v1" http://localhost:8788/api/auth/login
 ```
 
 新增版本只需创建 `app/api/{version}/controller/` 目录并注册到 `ApiVersion` 中间件。

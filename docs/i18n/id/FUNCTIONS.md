@@ -6,7 +6,7 @@
 
 Sistem ERP Terbuka (open-erp) mencakup 19 domain bisnis <!-- stats:modules=19 -->, 163 tabel data <!-- stats:tables=163 -->, menyediakan sistem manajemen perusahaan full-stack mulai dari pembelian-penjualan-stok hingga manufaktur produksi, dari pembukuan keuangan hingga sumber daya manusia. Internasionalisasi: dukungan bilingual 中文/English, peralihan otomatis melalui header permintaan Accept-Language.
 
-> Dokumen API: setelah layanan dimulai, akses `http://localhost:8787/apidoc` untuk melihat dokumen antarmuka interaktif (dihasilkan otomatis oleh hg/apidoc)
+> Dokumen API: setelah layanan dimulai, akses `http://localhost:8788/apidoc` untuk melihat dokumen antarmuka interaktif (dihasilkan otomatis oleh hg/apidoc)
 
 ---
 

@@ -86,15 +86,15 @@ composer install --no-dev --optimize-autoloader
 php start.php start
 ```
 
-Standardmäßig lauscht der Dienst auf `http://0.0.0.0:8787`.
+Standardmäßig lauscht der Dienst auf `http://0.0.0.0:8788`.
 
 ### 6. Installation verifizieren
 
 ```bash
-curl http://localhost:8787/health
+curl http://localhost:8788/health
 ```
 
-Die API-Dokumentation ist im Browser unter `http://localhost:8787/apidoc` abrufbar.
+Die API-Dokumentation ist im Browser unter `http://localhost:8788/apidoc` abrufbar.
 
 ---
 
@@ -192,7 +192,7 @@ redis-cli ping    # sollte PONG zurückgeben
 
 ### Port bereits belegt
 ```bash
-ss -tlnp | grep 8787
+ss -tlnp | grep 8788
 # 修改监听端口: config/server.php
 ```
 

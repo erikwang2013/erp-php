@@ -670,9 +670,9 @@ flowchart TB
     end
 
     subgraph "애플리케이션 서버 (수평 확장 가능)"
-        WM1["webman worker 1<br/>:8787"]
-        WM2["webman worker 2<br/>:8787"]
-        WM3["webman worker N<br/>:8787"]
+        WM1["webman worker 1<br/>:8788"]
+        WM2["webman worker 2<br/>:8788"]
+        WM3["webman worker N<br/>:8788"]
     end
 
     subgraph "데이터 계층"

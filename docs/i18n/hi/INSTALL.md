@@ -86,15 +86,15 @@ composer install --no-dev --optimize-autoloader
 php start.php start
 ```
 
-डिफ़ॉल्ट रूप से `http://0.0.0.0:8787` पर सुनता है।
+डिफ़ॉल्ट रूप से `http://0.0.0.0:8788` पर सुनता है।
 
 ### 6. इंस्टॉलेशन सत्यापित करें
 
 ```bash
-curl http://localhost:8787/health
+curl http://localhost:8788/health
 ```
 
-ब्राउज़र में `http://localhost:8787/apidoc` खोलकर API दस्तावेज़ देखें।
+ब्राउज़र में `http://localhost:8788/apidoc` खोलकर API दस्तावेज़ देखें।
 
 ---
 
@@ -192,7 +192,7 @@ redis-cli ping    # 应返回 PONG
 
 ### पोर्ट व्यस्त
 ```bash
-ss -tlnp | grep 8787
+ss -tlnp | grep 8788
 # 修改监听端口: config/server.php
 ```
 

@@ -6,7 +6,7 @@
 
 El proyecto usa [hg/apidoc](https://github.com/hg-code/apidoc) para generar automáticamente documentación de API interactiva.
 
-**Forma de acceso:** después de iniciar el servicio, visite `http://localhost:8787/apidoc`
+**Forma de acceso:** después de iniciar el servicio, visite `http://localhost:8788/apidoc`
 
 **Agrupación de documentos:**
 | Grupo | Descripción | N.º de módulos |
@@ -27,7 +27,7 @@ El proyecto usa [hg/apidoc](https://github.com/hg-code/apidoc) para generar auto
 
 El panel de administración abierto (open-admin) se basa en webman v2 y ofrece una API JSON RESTful. Todas las interfaces de administración requieren autenticación JWT y verificación de permisos RBAC; las interfaces públicas se enrutan a controladores versionados mediante el encabezado de versión de API.
 
-- **URL base**: `http://localhost:8787`
+- **URL base**: `http://localhost:8788`
 - **Versión de API**: se controla mediante el encabezado de solicitud `API-Version: v1` (por defecto v1 si falta)
 
 > **Resumen de endpoints**: autenticación (5) | panel de control (1) | usuarios (7) | roles (4) | permisos (4) | configuración (4) | registros (1) | centro personal (3) | importación/exportación (3) | subida (1) | operaciones (4: health/metrics/docs/security.txt) | 37 endpoints en total
@@ -46,10 +46,10 @@ La API cambia automáticamente de idioma mediante el encabezado de solicitud `Ac
 
 ```bash
 # Respuesta en inglés
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # Respuesta en chino (por defecto)
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 El campo `message` de la respuesta se devuelve en el idioma correspondiente.

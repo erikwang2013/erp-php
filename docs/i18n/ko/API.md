@@ -6,7 +6,7 @@
 
 프로젝트는 [hg/apidoc](https://github.com/hg-code/apidoc)으로 인터랙티브 API 문서를 자동 생성합니다.
 
-**접속 방법:** 서비스 시작 후 `http://localhost:8787/apidoc` 접속
+**접속 방법:** 서비스 시작 후 `http://localhost:8788/apidoc` 접속
 
 **문서 그룹:**
 | 그룹 | 설명 | 모듈 수 |
@@ -27,7 +27,7 @@
 
 오픈 관리 백오피스 (open-admin)는 webman v2 기반으로 구축되었으며 RESTful JSON API를 제공합니다. 모든 관리단 인터페이스는 JWT 인증과 RBAC 권한 검증이 필요하며, 공개 인터페이스는 API 버전 헤더를 통해 버전별 컨트롤러로 라우팅됩니다.
 
-- **기본 URL**: `http://localhost:8787`
+- **기본 URL**: `http://localhost:8788`
 - **API 버전**: 요청 헤더 `API-Version: v1`로 제어(누락 시 기본 v1)
 
 > **엔드포인트 총람**: 인증(5) | 대시보드(1) | 사용자(7) | 역할(4) | 권한(4) | 설정(4) | 로그(1) | 개인 센터(3) | 가져오기·내보내기(3) | 업로드(1) | 운영(4: health/metrics/docs/security.txt) | 총 37개 엔드포인트
@@ -46,10 +46,10 @@ API는 요청 헤더 `Accept-Language`로 언어를 자동 전환합니다:
 
 ```bash
 # 영어 응답
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # 중국어 응답(기본)
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 응답의 `message` 필드는 해당 언어로 반환됩니다.

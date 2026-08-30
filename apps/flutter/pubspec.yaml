@@ -33,8 +33,8 @@ dependencies:
   # 国际化：Material 组件本地化（日期/对话框等系统文案）
   flutter_localizations:
     sdk: flutter
-  # 国际化：intl（与 flutter_localizations 锁定版本一致）
-  intl: 0.20.3
+  # 国际化：intl（flutter_localizations 固定 0.20.2）
+  intl: ^0.20.2
   cupertino_icons: ^1.0.8
   # 状态管理
   get: ^4.6.6

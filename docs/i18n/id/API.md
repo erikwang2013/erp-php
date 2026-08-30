@@ -6,7 +6,7 @@
 
 Proyek menggunakan [hg/apidoc](https://github.com/hg-code/apidoc) untuk menghasilkan dokumen API interaktif secara otomatis.
 
-**Cara akses:** Setelah layanan dimulai, akses `http://localhost:8787/apidoc`
+**Cara akses:** Setelah layanan dimulai, akses `http://localhost:8788/apidoc`
 
 **Pengelompokan dokumen:**
 | Grup | Keterangan | Jumlah Modul |
@@ -27,7 +27,7 @@ Proyek menggunakan [hg/apidoc](https://github.com/hg-code/apidoc) untuk menghasi
 
 Sistem Manajemen Terbuka (open-admin) dibangun di atas webman v2, menyediakan RESTful JSON API. Semua antarmuka admin memerlukan autentikasi JWT dan validasi izin RBAC, antarmuka publik dirutekan ke controller ber-versioning melalui header versi API.
 
-- **URL Dasar**: `http://localhost:8787`
+- **URL Dasar**: `http://localhost:8788`
 - **Versi API**: dikontrol melalui header `API-Version: v1` (default v1 saat tidak ada)
 
 > **Ikhtisar endpoint**: Autentikasi(5) | Dasbor(1) | Pengguna(7) | Peran(4) | Izin(4) | Konfigurasi(4) | Log(1) | Pusat Pribadi(3) | Impor-Ekspor(3) | Unggah(1) | Operasi(4: health/metrics/docs/security.txt) | Total 37 endpoint
@@ -46,10 +46,10 @@ API otomatis mengganti bahasa melalui header `Accept-Language`:
 
 ```bash
 # Respons bahasa Inggris
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # Respons 中文 (default)
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 Field `message` dalam respons akan dikembalikan dalam bahasa yang sesuai.

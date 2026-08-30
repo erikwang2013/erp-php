@@ -6,7 +6,7 @@
 
 Le projet utilise [hg/apidoc](https://github.com/hg-code/apidoc) pour générer automatiquement une documentation API interactive.
 
-**Accès :** après le démarrage du service, accédez à `http://localhost:8787/apidoc`
+**Accès :** après le démarrage du service, accédez à `http://localhost:8788/apidoc`
 
 **Groupes de documentation :**
 | Groupe | Description | Nombre de modules |
@@ -27,7 +27,7 @@ Le projet utilise [hg/apidoc](https://github.com/hg-code/apidoc) pour générer 
 
 La console d'administration ouverte (open-admin), construite sur webman v2, fournit une API JSON RESTful. Toutes les interfaces d'administration exigent l'authentification JWT et la validation des permissions RBAC ; les interfaces publiques sont routées vers des contrôleurs versionnés via l'en-tête de version API.
 
-- **URL de base** : `http://localhost:8787`
+- **URL de base** : `http://localhost:8788`
 - **Version API** : contrôlée par l'en-tête de requête `API-Version: v1` (v1 par défaut si absent)
 
 > **Aperçu des points de terminaison** : Authentification (5) | Tableau de bord (1) | Utilisateurs (7) | Rôles (4) | Permissions (4) | Configuration (4) | Journaux (1) | Espace personnel (3) | Import-export (3) | Téléversement (1) | Exploitation (4 : health/metrics/docs/security.txt) | Total 37 points de terminaison
@@ -46,10 +46,10 @@ L'API bascule automatiquement de langue via l'en-tête de requête `Accept-Langu
 
 ```bash
 # 英文响应
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # 中文响应（默认）
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 Le champ `message` de la réponse est renvoyé dans la langue correspondante.

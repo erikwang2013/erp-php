@@ -6,7 +6,7 @@
 
 The project uses [hg/apidoc](https://github.com/hg-code/apidoc) to auto-generate interactive API documentation.
 
-**Access:** after starting the service, visit `http://localhost:8787/apidoc`
+**Access:** after starting the service, visit `http://localhost:8788/apidoc`
 
 **Documentation groups:**
 | Group | Description | Module Count |
@@ -27,7 +27,7 @@ The project uses [hg/apidoc](https://github.com/hg-code/apidoc) to auto-generate
 
 The Open Admin Console (open-admin) is built on webman v2 and provides RESTful JSON APIs. All admin endpoints require JWT authentication and RBAC permission checks; public endpoints are routed to versioned controllers via the API version header.
 
-- **Base URL**: `http://localhost:8787`
+- **Base URL**: `http://localhost:8788`
 - **API version**: controlled via the `API-Version: v1` request header (defaults to v1 when missing)
 
 > **Endpoint overview**: Auth(5) | Dashboard(1) | User(7) | Role(4) | Permission(4) | Config(4) | Log(1) | Profile(3) | Import/Export(3) | Upload(1) | Operations(4: health/metrics/docs/security.txt) | 37 endpoints total
@@ -46,10 +46,10 @@ The API switches language automatically via the `Accept-Language` request header
 
 ```bash
 # English response
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # Chinese response (default)
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 The `message` field in responses is returned in the corresponding language.

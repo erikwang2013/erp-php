@@ -6,7 +6,7 @@
 
 Das Open-ERP-System (open-erp) deckt 19 Geschäftsdomänen <!-- stats:modules=19 --> und 163 Datentabellen <!-- stats:tables=163 --> ab und bietet ein Full-Stack-Unternehmensverwaltungssystem von Einkauf/Verkauf/Lager bis Produktion und Fertigung, von Finanzbuchhaltung bis Personalwesen. Internationalisierung: zweisprachige Unterstützung Chinesisch/English, automatischer Sprachwechsel über den Accept-Language-Request-Header.
 
-> API-Dokumentation: Nach dem Start des Dienstes `http://localhost:8787/apidoc` aufrufen, um die interaktive Schnittstellendokumentation anzusehen (automatisch von hg/apidoc erzeugt)
+> API-Dokumentation: Nach dem Start des Dienstes `http://localhost:8788/apidoc` aufrufen, um die interaktive Schnittstellendokumentation anzusehen (automatisch von hg/apidoc erzeugt)
 
 ---
 

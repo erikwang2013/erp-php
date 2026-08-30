@@ -224,7 +224,7 @@ open-erp/
 Versi dikontrol melalui header permintaan `API-Version` (default `v1`), tidak tercermin di URL:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8787/api/auth/login
+curl -H "API-Version: v1" http://localhost:8788/api/auth/login
 ```
 
 Menambah versi baru cukup membuat direktori `app/api/{version}/controller/` dan mendaftarkan ke middleware `ApiVersion`.

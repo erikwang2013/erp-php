@@ -224,7 +224,7 @@ Global:  Locale → Cors → SecurityFilter(verificación de método→405) → 
 La versión se controla mediante la cabecera de solicitud `API-Version` (por defecto `v1`), no se refleja en la URL:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8787/api/auth/login
+curl -H "API-Version: v1" http://localhost:8788/api/auth/login
 ```
 
 Para añadir una versión nueva basta con crear el directorio `app/api/{version}/controller/` y registrarlo en el middleware `ApiVersion`.

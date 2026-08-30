@@ -224,7 +224,7 @@ open-erp/
 Versions are controlled by the `API-Version` request header (default `v1`), not reflected in the URL:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8787/api/auth/login
+curl -H "API-Version: v1" http://localhost:8788/api/auth/login
 ```
 
 Adding a version only requires creating the `app/api/{version}/controller/` directory and registering it in the `ApiVersion` middleware.

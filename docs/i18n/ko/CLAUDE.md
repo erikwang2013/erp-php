@@ -224,7 +224,7 @@ open-erp/
 버전은 요청 헤더 `API-Version`로 제어(기본 `v1`), URL에는 반영하지 않습니다:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8787/api/auth/login
+curl -H "API-Version: v1" http://localhost:8788/api/auth/login
 ```
 
 새 버전은 `app/api/{version}/controller/` 디렉토리를 만들고 `ApiVersion` 미들웨어에 등록하면 됩니다.

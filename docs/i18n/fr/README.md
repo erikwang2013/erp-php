@@ -284,6 +284,26 @@ docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 - `Dockerfile` : PHP 8.3 + OPcache + Composer, basé sur `php:8.3-cli`
 - `docker-compose.yml` : orchestration des 5 services, isolation réseau, volumes de données persistants
 - `.env.docker` : variables d'environnement dédiées à Docker
+## Utilisation
+
+### 1. Connexion
+
+Lors de la première utilisation, ouvrez l'installeur web `http://localhost:8788/install` pour terminer l'installation et créer un compte administrateur. Une fois installé, ouvrez la console, saisissez vos identifiants et validez le captcha à clic pour vous connecter.
+
+### 2. Navigation
+
+Après connexion, accédez aux modules via la barre latérale : tableau de bord, produits, achats, ventes, stocks, finances, CRM, flux d'approbation, notifications, projets, RH, fabrication, rapports personnalisés, OMS/WMS/TMS, tableaux de bord BI et administration système (utilisateurs/rôles/config/journaux). La barre latérale est fixe sur ordinateur et se replie en tiroir sur mobile.
+
+### 3. Permissions et sécurité
+
+- Les fonctions et API sont contrôlées par RBAC ; les menus et interfaces sans permission sont inaccessibles (403)
+- Les opérations sensibles (suppression d'utilisateur/rôle) nécessitent de confirmer le mot de passe courant dans le corps de la requête
+- Après déconnexion, le jeton est immédiatement mis sur liste noire
+
+### 4. Multilingue
+
+Bascule automatique via l'en-tête `Accept-Language` (zh-CN / en), le chinois par défaut.
+
 ## Règles de base de données
 
 - **Préfixe de table** : `erp_`

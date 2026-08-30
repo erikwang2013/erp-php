@@ -419,7 +419,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 8.1 الطوبولوجيا الموصى بها
 
 ```
-Nginx (:443 HTTPS) → webman worker × N (:8787) → MySQL + ES + Redis
+Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
                     静态文件: Flutter Web build/
 ```
 
@@ -430,7 +430,7 @@ Nginx (:443 HTTPS) → webman worker × N (:8787) → MySQL + ES + Redis
 | الخدمة | الصورة/البناء | المنفذ | الشرح |
 |------|----------|------|------|
 | `nginx` | nginx:alpine | 80, 443 | وكيل عكسي + ملفات ثابتة + Gzip |
-| `app` | بناء محلي عبر `Dockerfile` | 8787 | PHP 8.3 + OPcache + webman |
+| `app` | بناء محلي عبر `Dockerfile` | 8788 | PHP 8.3 + OPcache + webman |
 | `mysql` | mysql:8.0 | 3306 | قاعدة البيانات الرئيسية، استمرار عبر وحدات تخزين البيانات |
 | `redis` | redis:7-alpine | 6379 | تخزين مؤقت / تحديد معدل / كابتشا |
 | `elasticsearch` | elasticsearch:8.x | 9200 | بحث نصي كامل |

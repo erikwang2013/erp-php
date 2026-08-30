@@ -6,7 +6,7 @@
 
 Das Projekt erzeugt mit [hg/apidoc](https://github.com/hg-code/apidoc) automatisch eine interaktive API-Dokumentation.
 
-**Zugriff:** Nach dem Start des Dienstes `http://localhost:8787/apidoc` aufrufen
+**Zugriff:** Nach dem Start des Dienstes `http://localhost:8788/apidoc` aufrufen
 
 **Dokumentationsgruppen:**
 | Gruppe | Beschreibung | Anzahl Module |
@@ -27,7 +27,7 @@ Das Projekt erzeugt mit [hg/apidoc](https://github.com/hg-code/apidoc) automatis
 
 Das Open-Admin-Backend (open-admin) basiert auf webman v2 und bietet RESTful-JSON-APIs. Alle Admin-Schnittstellen erfordern JWT-Authentifizierung und RBAC-Berechtigungsprüfung; öffentliche Schnittstellen werden über den API-Versionsheader an versionierte Controller geroutet.
 
-- **Basis-URL**: `http://localhost:8787`
+- **Basis-URL**: `http://localhost:8788`
 - **API-Version**: über den Request-Header `API-Version: v1` gesteuert (ohne Angabe Standard v1)
 
 > **Endpunktübersicht**: Authentifizierung(5) | Dashboard(1) | Benutzer(7) | Rollen(4) | Berechtigungen(4) | Konfiguration(4) | Protokolle(1) | persönlicher Bereich(3) | Import/Export(3) | Upload(1) | Betrieb(4: health/metrics/docs/security.txt) | insgesamt 37 Endpunkte
@@ -46,10 +46,10 @@ Die API wechselt die Sprache automatisch über den Request-Header `Accept-Langua
 
 ```bash
 # Englische Antwort
-curl -H "Accept-Language: en" http://localhost:8787/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/product
 
 # Chinesische Antwort (Standard)
-curl http://localhost:8787/admin/product
+curl http://localhost:8788/admin/product
 ```
 
 Das Feld `message` in der Antwort wird in der entsprechenden Sprache zurückgegeben.

@@ -419,7 +419,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 8.1 推奨トポロジー
 
 ```
-Nginx (:443 HTTPS) → webman worker × N (:8787) → MySQL + ES + Redis
+Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
                     静态文件: Flutter Web build/
 ```
 
@@ -430,7 +430,7 @@ Nginx (:443 HTTPS) → webman worker × N (:8787) → MySQL + ES + Redis
 | サービス | イメージ/ビルド | ポート | 説明 |
 |------|----------|------|------|
 | `nginx` | nginx:alpine | 80, 443 | リバースプロキシ + 静的ファイル + Gzip |
-| `app` | ローカル `Dockerfile` ビルド | 8787 | PHP 8.3 + OPcache + webman |
+| `app` | ローカル `Dockerfile` ビルド | 8788 | PHP 8.3 + OPcache + webman |
 | `mysql` | mysql:8.0 | 3306 | メインデータベース、データボリュームで永続化 |
 | `redis` | redis:7-alpine | 6379 | キャッシュ / レート制限 / 検証コード |
 | `elasticsearch` | elasticsearch:8.x | 9200 | 全文検索 |
