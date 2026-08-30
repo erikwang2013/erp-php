@@ -21,6 +21,30 @@ class DashboardController extends GetxController {
   final wmsStats = <Map<String, dynamic>>[].obs;
   final tmsStats = <Map<String, dynamic>>[].obs;
 
+  /// 经营看板（销售/财务/库存），来自 /admin/dashboard/sales|finance|inventory。
+  final bizSales = <String, dynamic>{}.obs;
+  final bizFinance = <String, dynamic>{}.obs;
+  final bizInventory = <String, dynamic>{}.obs;
+
+  List<FlSpot> get salesTrendSpots {
+    final amounts = bizSales['trend']?['amounts'] as List<dynamic>? ?? [];
+    return amounts.asMap().entries.map((e) => FlSpot(e.key.toDouble(), (e.value as num).toDouble())).toList();
+  }
+
+  List<PieChartSectionData> get orderStatusSections {
+    const colors = [Color(0xFF1677FF), Color(0xFF52C41A), Color(0xFFFA8C16), Color(0xFF722ED1), Color(0xFFEB2F96)];
+    final list = bizSales['status_distribution'] as List<dynamic>? ?? [];
+    return List.generate(list.length, (i) {
+      final item = list[i] as Map<String, dynamic>;
+      return PieChartSectionData(
+        color: colors[i % colors.length],
+        value: ((item['value'] as num?) ?? 0).toDouble(),
+        title: '',
+        radius: 30,
+      );
+    });
+  }
+
   List<List<FlSpot>> get trendSpots {
     final allSeries = trends['series'] as List<dynamic>? ?? [];
     return allSeries.map((s) {
@@ -48,6 +72,23 @@ class DashboardController extends GetxController {
     super.onInit();
     loadData();
     loadOpsStats();
+    loadBizStats();
+  }
+
+  /// 经营看板：销售趋势/热销商品/订单状态 + 账龄 + 库存预警。
+  Future<void> loadBizStats() async {
+    try {
+      final results = await Future.wait([
+        ApiService.instance.get('/admin/dashboard/sales'),
+        ApiService.instance.get('/admin/dashboard/finance'),
+        ApiService.instance.get('/admin/dashboard/inventory'),
+      ]);
+      bizSales.value = Map<String, dynamic>.from(results[0]['data'] ?? {});
+      bizFinance.value = Map<String, dynamic>.from(results[1]['data'] ?? {});
+      bizInventory.value = Map<String, dynamic>.from(results[2]['data'] ?? {});
+    } catch (e) {
+      debugPrint('加载经营看板失败: $e');
+    }
   }
 
   /// 总览：/admin/dashboard（用户统计、趋势、分布、最近操作日志）

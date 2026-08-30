@@ -20,7 +20,9 @@ use app\model\InventoryAlertLog;
 use app\model\InventoryFlow;
 use app\model\OmsOrder;
 use app\model\OperationLog;
+use app\model\Product;
 use app\model\SalesOrder;
+use app\model\SalesOrderItem;
 use app\model\TmsShipment;
 use app\model\WmsPickTask;
 use app\model\WmsReceiving;
@@ -209,6 +211,9 @@ class DashboardController extends BaseController
      *     @Apidoc\Returned("month_sales", type="float", desc="本月销售额"),
      *     @Apidoc\Returned("top_customers", type="array", desc="客户排行"),
      *     @Apidoc\Returned("funnel", type="array", desc="商机漏斗"),
+     *     @Apidoc\Returned("trend", type="array", desc="30日销售趋势"),
+     *     @Apidoc\Returned("top_products", type="array", desc="Top5热销商品"),
+     *     @Apidoc\Returned("status_distribution", type="array", desc="订单状态分布"),
      * })
      */
     public function sales(Request $request): Response
@@ -220,6 +225,7 @@ class DashboardController extends BaseController
         }
 
         $today = date('Y-m-d');
+        $startOfRange = date('Y-m-d', strtotime('-29 days'));
         $topCustomers = SalesOrder::selectRaw('customer_id, sum(total_amount) as total')
             ->whereBetween('ordered_at', [date('Y-m-01'), $today])
             ->where('status', '!=', 4)
@@ -236,10 +242,67 @@ class DashboardController extends BaseController
             ]),
             'funnel' => CrmOpportunity::selectRaw('stage_id, count(*) as count, sum(estimated_amount) as amount')
                 ->where('status', 1)->groupBy('stage_id')->get(),
+            'trend' => $this->getSalesTrend($startOfRange),
+            'top_products' => $this->getTopProducts($startOfRange),
+            'status_distribution' => $this->getOrderStatusDistribution($startOfRange),
         ];
         Redis::setex($cacheKey, 300, json_encode($data));
 
         return $this->success($data);
+    }
+
+    /** 近30日每日销售额（含0值补全） */
+    private function getSalesTrend(string $startOfRange): array
+    {
+        $dailySales = SalesOrder::whereDate('ordered_at', '>=', $startOfRange)
+            ->where('status', '!=', 4)
+            ->selectRaw('DATE(ordered_at) as date, SUM(total_amount) as total')
+            ->groupBy('date')->pluck('total', 'date')->toArray();
+
+        $dates = [];
+        $amounts = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("+{$i} days", strtotime($startOfRange)));
+            $dates[] = $date;
+            $amounts[] = (float) ($dailySales[$date] ?? 0);
+        }
+
+        return ['dates' => $dates, 'amounts' => $amounts];
+    }
+
+    /** Top5 热销商品（近30日订购数量） */
+    private function getTopProducts(string $startOfRange): array
+    {
+        $top = SalesOrderItem::query()
+            ->join('erp_sales_order', 'erp_sales_order.id', '=', 'erp_sales_order_item.order_id')
+            ->whereNull('erp_sales_order.deleted_at')
+            ->whereDate('erp_sales_order.ordered_at', '>=', $startOfRange)
+            ->where('erp_sales_order.status', '!=', 4)
+            ->selectRaw('erp_sales_order_item.product_id, SUM(erp_sales_order_item.quantity) as qty')
+            ->groupBy('erp_sales_order_item.product_id')->orderByDesc('qty')->limit(5)
+            ->get();
+        $productNames = Product::whereIn('id', $top->pluck('product_id'))->pluck('name', 'id');
+
+        return $top->map(fn ($row) => [
+            'product_id' => $this->encodeId($row->product_id),
+            'name' => $productNames[$row->product_id] ?? '',
+            'quantity' => (float) $row->qty,
+        ])->values()->toArray();
+    }
+
+    /** 订单状态分布（近30日，状态: 0待审核 1已审核 2部分发货 3已发货 4已取消） */
+    private function getOrderStatusDistribution(string $startOfRange): array
+    {
+        $statusNames = [0 => '待审核', 1 => '已审核', 2 => '部分发货', 3 => '已发货', 4 => '已取消'];
+        $counts = SalesOrder::whereDate('ordered_at', '>=', $startOfRange)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')->pluck('count', 'status')->toArray();
+
+        return array_map(fn ($status, $name) => [
+            'status' => $status,
+            'name' => $name,
+            'value' => (int) ($counts[$status] ?? 0),
+        ], array_keys($statusNames), $statusNames);
     }
 
     /**
@@ -295,6 +358,8 @@ class DashboardController extends BaseController
      *     @Apidoc\Returned("month_receipt", type="float", desc="本月收款"),
      *     @Apidoc\Returned("month_payment", type="float", desc="本月付款"),
      *     @Apidoc\Returned("cash_balance", type="float", desc="现金余额"),
+     *     @Apidoc\Returned("ar_aging", type="array", desc="应收账龄汇总"),
+     *     @Apidoc\Returned("ap_aging", type="array", desc="应付账龄汇总"),
      * })
      */
     public function finance(Request $request): Response
@@ -311,10 +376,47 @@ class DashboardController extends BaseController
             'month_receipt' => FinanceReceipt::whereDate('received_at', '>=', date('Y-m-01'))->sum('amount') ?? 0,
             'month_payment' => FinancePayment::whereDate('paid_at', '>=', date('Y-m-01'))->sum('amount') ?? 0,
             'cash_balance' => FinanceBankAccount::sum('balance') ?? 0,
+            'ar_aging' => $this->getAging(1),
+            'ap_aging' => $this->getAging(2),
         ];
         Redis::setex($cacheKey, 300, json_encode($data));
 
         return $this->success($data);
+    }
+
+    /** 应收/应付账龄汇总（按未核销余额分桶；无到期日视为未到期） */
+    private function getAging(int $type): array
+    {
+        $rows = FinanceArAp::where('type', $type)->where('status', '!=', 2)
+            ->selectRaw('due_date, amount - settled_amount as outstanding')
+            ->get();
+
+        $buckets = ['未到期' => 0, '逾期1-30天' => 0, '逾期31-60天' => 0, '逾期61-90天' => 0, '逾期90+天' => 0];
+        $today = strtotime(date('Y-m-d'));
+        foreach ($rows as $row) {
+            if ($row->outstanding <= 0) {
+                continue;
+            }
+            // due_date 为空视为未到期；模型 cast 为 date，取 Y-m-d 再转时间戳
+            $days = $row->due_date === null ? 0 : (int) floor(($today - strtotime($row->due_date->toDateString())) / 86400);
+            if ($days <= 0) {
+                $buckets['未到期'] += $row->outstanding;
+            } elseif ($days <= 30) {
+                $buckets['逾期1-30天'] += $row->outstanding;
+            } elseif ($days <= 60) {
+                $buckets['逾期31-60天'] += $row->outstanding;
+            } elseif ($days <= 90) {
+                $buckets['逾期61-90天'] += $row->outstanding;
+            } else {
+                $buckets['逾期90+天'] += $row->outstanding;
+            }
+        }
+
+        return array_map(
+            fn ($name, $value) => ['name' => $name, 'value' => round($value, 2)],
+            array_keys($buckets),
+            array_values($buckets)
+        );
     }
 
     /** OMS KPI */

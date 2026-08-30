@@ -349,6 +349,66 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'最近操作'**
   String get dashboardRecentOps;
+
+  /// No description provided for @dashboardBiz.
+  ///
+  /// In zh, this message translates to:
+  /// **'经营'**
+  String get dashboardBiz;
+
+  /// No description provided for @dashboardSalesTrend.
+  ///
+  /// In zh, this message translates to:
+  /// **'销售趋势（近30天）'**
+  String get dashboardSalesTrend;
+
+  /// No description provided for @dashboardTopProducts.
+  ///
+  /// In zh, this message translates to:
+  /// **'热销商品 TOP 5'**
+  String get dashboardTopProducts;
+
+  /// No description provided for @dashboardOrderStatus.
+  ///
+  /// In zh, this message translates to:
+  /// **'订单状态分布'**
+  String get dashboardOrderStatus;
+
+  /// No description provided for @dashboardArAging.
+  ///
+  /// In zh, this message translates to:
+  /// **'应收账龄'**
+  String get dashboardArAging;
+
+  /// No description provided for @dashboardApAging.
+  ///
+  /// In zh, this message translates to:
+  /// **'应付账龄'**
+  String get dashboardApAging;
+
+  /// No description provided for @dashboardInvValue.
+  ///
+  /// In zh, this message translates to:
+  /// **'库存总值'**
+  String get dashboardInvValue;
+
+  /// No description provided for @dashboardInvLowAlert.
+  ///
+  /// In zh, this message translates to:
+  /// **'低库存预警'**
+  String get dashboardInvLowAlert;
+
+  /// No description provided for @dashboardInvHighAlert.
+  ///
+  /// In zh, this message translates to:
+  /// **'高库存预警'**
+  String get dashboardInvHighAlert;
+
+  /// No description provided for @dashboardNoData.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无数据'**
+  String get dashboardNoData;
 }
 
 class _AppLocalizationsDelegate

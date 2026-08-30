@@ -140,4 +140,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardRecentOps => 'Recent Operations';
+
+  @override
+  String get dashboardBiz => 'Business';
+
+  @override
+  String get dashboardSalesTrend => 'Sales Trend (Last 30 Days)';
+
+  @override
+  String get dashboardTopProducts => 'Top 5 Products';
+
+  @override
+  String get dashboardOrderStatus => 'Order Status Distribution';
+
+  @override
+  String get dashboardArAging => 'AR Aging';
+
+  @override
+  String get dashboardApAging => 'AP Aging';
+
+  @override
+  String get dashboardInvValue => 'Inventory Value';
+
+  @override
+  String get dashboardInvLowAlert => 'Low Stock Alerts';
+
+  @override
+  String get dashboardInvHighAlert => 'Overstock Alerts';
+
+  @override
+  String get dashboardNoData => 'No data';
 }

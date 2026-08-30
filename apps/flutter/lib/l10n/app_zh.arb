@@ -47,6 +47,16 @@
   "dashboardEnabled": "启用",
   "dashboardDisabled": "禁用",
   "dashboardRecentOps": "最近操作",
+  "dashboardBiz": "经营",
+  "dashboardSalesTrend": "销售趋势（近30天）",
+  "dashboardTopProducts": "热销商品 TOP 5",
+  "dashboardOrderStatus": "订单状态分布",
+  "dashboardArAging": "应收账龄",
+  "dashboardApAging": "应付账龄",
+  "dashboardInvValue": "库存总值",
+  "dashboardInvLowAlert": "低库存预警",
+  "dashboardInvHighAlert": "高库存预警",
+  "dashboardNoData": "暂无数据",
 
   "@loginCaptchaPrompt": {
     "placeholders": {

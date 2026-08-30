@@ -47,6 +47,16 @@
   "dashboardEnabled": "Enabled",
   "dashboardDisabled": "Disabled",
   "dashboardRecentOps": "Recent Operations",
+  "dashboardBiz": "Business",
+  "dashboardSalesTrend": "Sales Trend (Last 30 Days)",
+  "dashboardTopProducts": "Top 5 Products",
+  "dashboardOrderStatus": "Order Status Distribution",
+  "dashboardArAging": "AR Aging",
+  "dashboardApAging": "AP Aging",
+  "dashboardInvValue": "Inventory Value",
+  "dashboardInvLowAlert": "Low Stock Alerts",
+  "dashboardInvHighAlert": "Overstock Alerts",
+  "dashboardNoData": "No data",
 
   "@loginCaptchaPrompt": {
     "placeholders": {

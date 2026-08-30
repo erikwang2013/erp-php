@@ -139,4 +139,34 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get dashboardRecentOps => '最近操作';
+
+  @override
+  String get dashboardBiz => '经营';
+
+  @override
+  String get dashboardSalesTrend => '销售趋势（近30天）';
+
+  @override
+  String get dashboardTopProducts => '热销商品 TOP 5';
+
+  @override
+  String get dashboardOrderStatus => '订单状态分布';
+
+  @override
+  String get dashboardArAging => '应收账龄';
+
+  @override
+  String get dashboardApAging => '应付账龄';
+
+  @override
+  String get dashboardInvValue => '库存总值';
+
+  @override
+  String get dashboardInvLowAlert => '低库存预警';
+
+  @override
+  String get dashboardInvHighAlert => '高库存预警';
+
+  @override
+  String get dashboardNoData => '暂无数据';
 }
