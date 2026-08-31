@@ -237,7 +237,6 @@ O `install.sql` é a fusão de 29 arquivos de migração e contém a estrutura c
 **Opção 3: Ambiente Docker**
 
 ```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. Iniciar o serviço
@@ -273,10 +272,9 @@ cp .env.docker .env
 bash scripts/gen-env-keys.sh .env
 
 # 3. Iniciar todos os serviços
-docker-compose up -d
+docker compose up -d
 
 # 4. Inicializar o banco de dados (executar dentro do contêiner app)
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 5. Acessar
 # http://localhost:8788  (webman)
@@ -500,7 +498,7 @@ A imagem PHP é construída via `Dockerfile`, imagem base `php:8.3-cli`, com OPc
 cp .env.docker .env
 # Substituir chaves por valores aleatorios (idempotent)
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD

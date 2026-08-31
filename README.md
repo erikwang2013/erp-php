@@ -276,17 +276,17 @@ cp .env.docker .env
 # 2. 替换占位密钥为随机值（JWT_SECRET/ENCRYPTION_KEY/HASHIDS_SALT 等，幂等）
 bash scripts/gen-env-keys.sh .env
 
-# 3. 启动所有服务
-docker-compose up -d
+# 3. 启动所有服务（需 Docker Compose v2：`docker compose`，v1 已弃用且不兼容 http+docker 协议）
+docker compose up -d
 
 # 4. 验证服务状态（MySQL 首次启动自动导入 database/install.sql，无需手动初始化）
-docker-compose ps --format "table {{.Name}}\t{{.Status}}"
+docker compose ps --format "table {{.Name}}\t{{.Status}}"
 
 # 5. 访问（Nginx 发布 ${NGINX_PORT:-80}；webman 8788 仅在容器内网，由 Nginx 反代）
 # http://localhost
 
 # 重置提示：曾用旧 .env 启动过的（数据卷已固化旧口令/旧表结构），需先清卷再启动：
-# docker-compose down -v   （⚠️ 会删除 MySQL/Redis/ES 数据，仅首次排障时使用）
+# docker compose down -v   （⚠️ 会删除 MySQL/Redis/ES 数据，仅首次排障时使用）
 ```
 
 - `Dockerfile`: PHP 8.3 + OPcache + Composer，基于 `php:8.3-cli`
@@ -506,7 +506,7 @@ PHP 镜像通过 `Dockerfile` 构建，基础镜像 `php:8.3-cli`，启用 OPcac
 cp .env.docker .env
 # 替换占位密钥为随机值（幂等，C1 强校验拒绝 CHANGE_ME_ 占位启动）
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD

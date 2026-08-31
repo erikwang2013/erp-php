@@ -237,7 +237,6 @@ mysql -u root -p 데이터베이스명 < database/install.sql
 **방식 3: Docker 환경**
 
 ```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. 서비스 시작
@@ -273,10 +272,9 @@ cp .env.docker .env
 bash scripts/gen-env-keys.sh .env
 
 # 3. 모든 서비스 시작
-docker-compose up -d
+docker compose up -d
 
 # 4. 데이터베이스 초기화(app 컨테이너에서 실행)
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 5. 접속
 # http://localhost:8788  (webman)
@@ -500,7 +498,7 @@ PHP 이미지는 `Dockerfile`로 빌드, 기본 이미지 `php:8.3-cli`, OPcache
 cp .env.docker .env
 # 플레이스홀더 키를 랜덤 값으로 대체 (idempotent)
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD

@@ -237,7 +237,6 @@ mysql -u root -p 数据库名 < database/install.sql
 **方法 3：Docker 環境**
 
 ```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. サービスの起動
@@ -273,10 +272,9 @@ cp .env.docker .env
 bash scripts/gen-env-keys.sh .env
 
 # 3. 全サービスの起動
-docker-compose up -d
+docker compose up -d
 
 # 4. データベースの初期化（app コンテナ内で実行）
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 5. アクセス
 # http://localhost:8788  (webman)
@@ -500,7 +498,7 @@ PHP イメージは `Dockerfile` でビルド、ベースイメージ `php:8.3-c
 cp .env.docker .env
 # プレースホルダ鍵をランダム値に置換（idempotent）
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD

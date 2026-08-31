@@ -237,7 +237,6 @@ mysql -u root -p имя_базы < database/install.sql
 **Способ 3: окружение Docker**
 
 ```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. Запуск сервиса
@@ -273,10 +272,9 @@ cp .env.docker .env
 bash scripts/gen-env-keys.sh .env
 
 # 3. Запуск всех сервисов
-docker-compose up -d
+docker compose up -d
 
 # 4. Инициализация БД (выполнить внутри контейнера app)
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 5. Доступ
 # http://localhost:8788  (webman)
@@ -500,7 +498,7 @@ PHP-образ собирается через `Dockerfile` на базе `php:8
 cp .env.docker .env
 # Заменить ключи-заглушки случайными значениями (idempotent)
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD

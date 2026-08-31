@@ -237,7 +237,6 @@ mysql -u root -p 数据库名 < database/install.sql
 **Méthode 3 : Environnement Docker**
 
 ```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. Démarrer le service
@@ -273,10 +272,9 @@ cp .env.docker .env
 bash scripts/gen-env-keys.sh .env
 
 # 3. Démarrer tous les services
-docker-compose up -d
+docker compose up -d
 
 # 4. Initialiser la base de données (exécuter dans le conteneur app)
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 5. Accéder
 # http://localhost:8788  (webman)
@@ -499,7 +497,7 @@ L'image PHP est construite via le `Dockerfile`, image de base `php:8.3-cli`, OPc
 cp .env.docker .env
 # Remplacer les cles par des valeurs aleatoires (idempotent)
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD

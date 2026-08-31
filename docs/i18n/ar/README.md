@@ -237,7 +237,6 @@ mysql -u root -p اسم_قاعدة_البيانات < database/install.sql
 **الطريقة الثالثة: بيئة Docker**
 
 ```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. بدء الخدمة
@@ -273,10 +272,9 @@ cp .env.docker .env
 bash scripts/gen-env-keys.sh .env
 
 # 3. تشغيل جميع الخدمات
-docker-compose up -d
+docker compose up -d
 
 # 4. تهيئة قاعدة البيانات (نفذ داخل حاوية app)
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 5. الوصول
 # http://localhost:8788  (webman)
@@ -500,7 +498,7 @@ Authorization: Bearer <token>
 cp .env.docker .env
 # استبدال المفاتيح المبدئية بقيم عشوائية (idempotent)
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD

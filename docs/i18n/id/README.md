@@ -237,7 +237,6 @@ mysql -u root -p nama_database < database/install.sql
 **Cara 3: Lingkungan Docker**
 
 ```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. Mulai Layanan
@@ -273,10 +272,9 @@ cp .env.docker .env
 bash scripts/gen-env-keys.sh .env
 
 # 3. Mulai semua layanan
-docker-compose up -d
+docker compose up -d
 
 # 4. Inisialisasi database (jalankan di dalam container app)
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 5. Akses
 # http://localhost:8788  (webman)
@@ -499,7 +497,7 @@ Image PHP dibangun melalui `Dockerfile`, base image `php:8.3-cli`, dengan OPcach
 cp .env.docker .env
 # Ganti kunci placeholder dengan nilai acak (idempotent)
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD

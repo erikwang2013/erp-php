@@ -237,7 +237,6 @@ mysql -u root -p 数据库名 < database/install.sql
 **विधि तीन: Docker वातावरण**
 
 ```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. सेवा शुरू करें
@@ -273,10 +272,9 @@ cp .env.docker .env
 bash scripts/gen-env-keys.sh .env
 
 # 3. सभी सेवाएँ शुरू करें
-docker-compose up -d
+docker compose up -d
 
 # 4. डेटाबेस आरंभ करें (app कंटेनर में प्रवेश करके निष्पादित करें)
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 5. एक्सेस करें
 # http://localhost:8788  (webman)
@@ -499,7 +497,7 @@ PHP इमेज `Dockerfile` से निर्मित होती है, 
 cp .env.docker .env
 # स्ररूप कूंजियों को यदृचछिक मानों से बदलें (idempotent)
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD

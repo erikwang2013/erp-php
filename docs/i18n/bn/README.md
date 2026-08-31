@@ -237,7 +237,6 @@ mysql -u root -p 数据库名 < database/install.sql
 **পদ্ধতি ৩: Docker পরিবেশ**
 
 ```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 ```
 
 ### 4. সার্ভিস চালু করুন
@@ -273,10 +272,9 @@ cp .env.docker .env
 bash scripts/gen-env-keys.sh .env
 
 # 3. 启动所有服务
-docker-compose up -d
+docker compose up -d
 
 # 4. 初始化数据库（进入 app 容器执行）
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
 # 5. 访问
 # http://localhost:8788  (webman)
@@ -500,7 +498,7 @@ PHP ইমেজ `Dockerfile` দিয়ে তৈরি, বেস ইমে�
 cp .env.docker .env
 # প্লেসহোল্ডার কীকো র‍্য়াণ্ডম মান দিয্যে প্রতিস্থাপন করুন (idempotent)
 bash scripts/gen-env-keys.sh .env
-docker-compose up -d
+docker compose up -d
 ```
 
 ### CI/CD
