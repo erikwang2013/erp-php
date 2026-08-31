@@ -282,9 +282,11 @@ docker-compose up -d
 # 4. 验证服务状态（MySQL 首次启动自动导入 database/install.sql，无需手动初始化）
 docker-compose ps --format "table {{.Name}}\t{{.Status}}"
 
-# 5. 访问
-# http://localhost:8788  (webman)
-# http://localhost:8080  (Nginx 反向代理)
+# 5. 访问（Nginx 发布 ${NGINX_PORT:-80}；webman 8788 仅在容器内网，由 Nginx 反代）
+# http://localhost
+
+# 重置提示：曾用旧 .env 启动过的（数据卷已固化旧口令/旧表结构），需先清卷再启动：
+# docker-compose down -v   （⚠️ 会删除 MySQL/Redis/ES 数据，仅首次排障时使用）
 ```
 
 - `Dockerfile`: PHP 8.3 + OPcache + Composer，基于 `php:8.3-cli`
@@ -295,7 +297,7 @@ docker-compose ps --format "table {{.Name}}\t{{.Status}}"
 
 ### 1. 登录
 
-首次使用先访问 Web 安装向导 `http://localhost:8788/install` 完成安装并创建管理员账号；已安装则直接打开管理端，输入账号密码，按提示完成点击验证码校验后登录。
+首次使用先访问 Web 安装向导完成安装并创建管理员账号（Docker 部署 `http://localhost/install`；裸机运行 `http://localhost:8788/install`）；已安装则直接打开管理端，输入账号密码，按提示完成点击验证码校验后登录。
 
 ### 2. 功能导航
 

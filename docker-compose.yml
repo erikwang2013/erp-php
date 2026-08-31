@@ -30,8 +30,9 @@ services:
     container_name: open-admin-app
     restart: unless-stopped
     working_dir: /app
+    # 不挂载 .:/app：宿主整根覆盖会遮蔽镜像内 composer install 的 vendor/（全新 clone 必现
+    # fatal + restart 循环）。开发热重载需要时再挂载 ./app:/app/app ./config:/app/config 等子目录
     volumes:
-      - .:/app
       - app-runtime:/app/runtime
     command: ["php", "start.php", "start"]
     # .env 为 gen-env-keys.sh 生成的正式配置（后置优先）；.env.docker 为占位兜底（仅用于指引 fail-fast）

@@ -19,10 +19,11 @@ if [[ -z "$ENV_FILE" || ! -f "$ENV_FILE" ]]; then
   exit 1
 fi
 
-# 占位判定与 app/functions.php 拒绝规则一致（KEY= 值含 CHANGE_ME_ 即视为占位；
+# 占位判定与 app/functions.php:100 的 /(change[-_]me|xxx)/i 一致（大小写不敏感；
 # 注释行/空行不参与，避免误替换注释中的占位字样）
-if ! grep -qE '^[A-Za-z_][A-Za-z0-9_]*=.*CHANGE_ME_' "$ENV_FILE"; then
-  echo "无占位值（CHANGE_ME_*），未做改动: $ENV_FILE"
+shopt -s nocasematch
+if ! grep -qiE '^[A-Za-z_][A-Za-z0-9_]*=.*(change[-_]me|xxx)' "$ENV_FILE"; then
+  echo "无占位值（change-me/CHANGE_ME/xxx），未做改动: $ENV_FILE"
   exit 0
 fi
 
@@ -32,12 +33,16 @@ trap 'rm -f "$TMP"' EXIT
 count=0
 root_pw=""
 while IFS= read -r line; do
-  if [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*=.*CHANGE_ME_ ]]; then
+  if [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*=.*(change[-_]me|xxx) ]]; then
     key="${line%%=*}"
     if [[ "$key" == "DB_PASSWORD" || "$key" == "MYSQL_ROOT_PASSWORD" ]]; then
       # app 以 root 连接 MySQL，两值必须一致（否则一键启动必现 Access denied）
       if [[ -z "$root_pw" ]]; then root_pw="$(openssl rand -hex 32)"; fi
       echo "$key=$root_pw"
+    elif [[ "$key" == "ENCRYPTION_KEY" || "$key" == "ENCRYPTABLE_KEY" ]]; then
+      # 密钥须恰好 32 字节（AES-256；EncryptionService.php:30 与 vendor encryptable
+      # Encrypter.php:71 均硬校验 32 字节）→ hex 16 即 32 字符=32 字节，不能 hex 32
+      echo "$key=$(openssl rand -hex 16)"
     else
       echo "$key=$(openssl rand -hex 32)"
     fi
