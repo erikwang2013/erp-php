@@ -25,7 +25,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🔵 **P0** 前端生态 | 3-4 周 | 97 Flutter 页 + 34 HarmonyOS 页 + 4 通用组件 | ✅ |
 | 🟢 **P1** 业务深度 | 4-6 周 | 财务引擎 + 薪资引擎 + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
-| 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + 多租户 + DMS + 7新表 | ✅ |
+| 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + 多租户（预留未启用）+ DMS + 7新表 | ✅ |
 
 **测试**: <!-- stats:tests=500 --> tests, <!-- stats:assertions=2226 --> assertions（51 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
@@ -126,7 +126,7 @@ open-erp/
 │   │   ├── eam/                 # 设备/保养计划/维修工单/备件 (4个)
 │   │   ├── dms/                 # 文档分类/文档/版本 (2个)
 │   │   └── bi/                  # BI看板/图表组件 (3个)
-│   ├── service/                 # 业务逻辑层（容器注册，24 个）
+│   ├── service/                 # 业务逻辑层（容器注册，27 个）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
 │   │   ├── notification/        # NotificationService: 通知发送
@@ -136,8 +136,7 @@ open-erp/
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
 │   │   ├── EncryptionService.php# 数据加解密 + 脱敏
 │   │   └── I18n.php             # 国际化翻译
-│   ├── middleware/              # 中间件（12 个）
-│   │   ├── Locale.php           # Accept-Language 语言自动检测
+│   ├── middleware/              # 中间件（11 个）
 │   │   ├── Cors.php             # 跨域
 │   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
 │   │   ├── RateLimit.php        # Redis 滑动窗口限流
@@ -145,7 +144,7 @@ open-erp/
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   ├── OperationLog.php     # 操作日志自动记录
-│   │   ├── TenantScope.php      # 多租户隔离（静态调用）
+│   │   ├── TenantScope.php      # 多租户隔离（预留未注册，见 ARCHITECTURE.md §22）
 │   │   ├── TracingId.php        # 全链路 TraceId
 │   │   ├── TrackingSignature.php# 请求签名校验
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
@@ -203,11 +202,11 @@ open-erp/
 ## 中间件执行链
 
 ```
-全局:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
-/health:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
-/install: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
-/admin:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
-/api:     Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → ApiVersion → Controller
+全局:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
+/health:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/install: Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/admin:   Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
+/api:     Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → ApiVersion → Controller
 ```
 
 ## 安全增强
@@ -262,13 +261,13 @@ Redis 滑动窗口（Lua 原子化），默认 60 次/分钟/IP/路由：
 
 ## 已知技术债
 
-> 以下清单由 `grep -rn "new .*Service(" app/controller/` 实测（26 处），与代码事实一致。
+> 以下清单由 `grep -rn "new .*Service(" app/controller/` 实测（27 处），与代码事实一致。
 > **P5 不重构**：控制器直建服务为既有模式，仅在新建代码时改走容器注入（`support\Container`），存量代码维持现状。
 
 | 模块 | 直建服务数 | 说明 |
 |------|-----------|------|
 | wms | 8 | 收货/上架/波次/拣货/打包等流程服务 |
-| finance | 6 | 应收应付/核销/日记账/结转等 |
+| finance | 7 | 应收应付/核销/日记账/结转/合并报表 |
 | tms | 5 | 运单/比价/轨迹/运费发票 |
 | oms | 3 | 履约/预占/RMA |
 | quality | 2 | 检验/不合格品处理 |
@@ -290,6 +289,7 @@ Redis 滑动窗口（Lua 原子化），默认 60 次/分钟/IP/路由：
 
 ```bash
 cp .env.docker .env
+bash scripts/gen-env-keys.sh .env   # 生成真实密钥（占位密钥会被拒绝启动）
 docker-compose up -d
 ```
 

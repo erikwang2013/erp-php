@@ -22,8 +22,10 @@
 > （对应分支已归档冻结，见下文「分支策略」），不参与 doc-stats 校验。
 > Full 列数字由 `scripts/doc-stats.sh` 实测（163 表 / 122 控制器 / 19 业务模块），
 > 与 `docs/FUNCTIONS.md` 附录口径一致。
-> **分支事实**（2026-08-27 实测 `git branch -a`）：`lite` / `standard` / `full` 三分支均存在，
-> 停在 2026-08-17 提交 `eea90c0`，落后 `main` 20 个提交且无独有提交——分支仅归档不维护。
+> **分支事实**（2026-08-31 实测 `git rev-list --left-right --count main...lite|standard|full`）：
+> `lite` / `standard` / `full` 三分支均存在，停在 2026-08-17 提交 `eea90c0`，三分支 merge-base 同为
+> `eea90c0`（即三分支彼此无任何差异），各自落后 `main` 38 个提交且无独有提交——分支仅归档不维护，
+> 与 `main` 无分叉、无需 cherry-pick 历史差异。
 
 ---
 
