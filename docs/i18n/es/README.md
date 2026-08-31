@@ -269,14 +269,16 @@ El proyecto ofrece una solución completa de orquestación Docker con 5 servicio
 ```bash
 # 1. Configurar variables de entorno Docker
 cp .env.docker .env
+# 2. Reemplazar claves por valores aleatorios (idempotent)
+bash scripts/gen-env-keys.sh .env
 
-# 2. Iniciar todos los servicios
+# 3. Iniciar todos los servicios
 docker-compose up -d
 
-# 3. Inicializar la base de datos (ejecutar dentro del contenedor app)
+# 4. Inicializar la base de datos (ejecutar dentro del contenedor app)
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. Acceso
+# 5. Acceso
 # http://localhost:8788  (webman)
 # http://localhost:8080  (proxy inverso Nginx)
 ```
@@ -496,6 +498,8 @@ La imagen PHP se construye con el `Dockerfile`, imagen base `php:8.3-cli`, con O
 
 ```bash
 cp .env.docker .env
+# Reemplazar claves por valores aleatorios (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

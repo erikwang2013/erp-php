@@ -269,14 +269,16 @@ Das Projekt enthält eine vollständige Docker-Orchestrierung mit 5 Diensten: Ng
 ```bash
 # 1. Docker-Umgebungsvariablen konfigurieren
 cp .env.docker .env
+# 2. Platzhalter-Schluessel durch Zufallswerte ersetzen (idempotent)
+bash scripts/gen-env-keys.sh .env
 
-# 2. Alle Dienste starten
+# 3. Alle Dienste starten
 docker-compose up -d
 
-# 3. Datenbank initialisieren (im app-Container ausführen)
+# 4. Datenbank initialisieren (im app-Container ausführen)
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. Zugriff
+# 5. Zugriff
 # http://localhost:8788  (webman)
 # http://localhost:8080  (Nginx-Reverse-Proxy)
 ```
@@ -496,6 +498,8 @@ Das PHP-Image wird über `Dockerfile` auf Basis von `php:8.3-cli` gebaut, mit ak
 
 ```bash
 cp .env.docker .env
+# Platzhalter-Schluessel durch Zufallswerte ersetzen (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

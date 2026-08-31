@@ -123,6 +123,8 @@ VALUES (90000000000000001, 10000000000000001);
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# Заменить ключи-заглушки случайными значениями (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # Войти в контейнер и импортировать БД

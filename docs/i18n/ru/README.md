@@ -269,14 +269,16 @@ flutter run -d chrome    # Web (PC-стиль админки)
 ```bash
 # 1. Настройка переменных окружения Docker
 cp .env.docker .env
+# 2. Заменить ключи-заглушки случайными значениями (idempotent)
+bash scripts/gen-env-keys.sh .env
 
-# 2. Запуск всех сервисов
+# 3. Запуск всех сервисов
 docker-compose up -d
 
-# 3. Инициализация БД (выполнить внутри контейнера app)
+# 4. Инициализация БД (выполнить внутри контейнера app)
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. Доступ
+# 5. Доступ
 # http://localhost:8788  (webman)
 # http://localhost:8080  (обратный прокси Nginx)
 ```
@@ -496,6 +498,8 @@ PHP-образ собирается через `Dockerfile` на базе `php:8
 
 ```bash
 cp .env.docker .env
+# Заменить ключи-заглушки случайными значениями (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

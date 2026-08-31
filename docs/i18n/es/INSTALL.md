@@ -123,6 +123,8 @@ La raíz del proyecto orquesta 5 servicios: `nginx`, `app` (PHP 8.3), `mysql` (8
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# Reemplazar claves por valores aleatorios (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # Entrar al contenedor para importar la base de datos

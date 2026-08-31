@@ -27,7 +27,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + 多租户 + DMS + 7新表 | ✅ |
 
-**测试**: <!-- stats:tests=500 --> tests, <!-- stats:assertions=2171 --> assertions（51 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: <!-- stats:tests=500 --> tests, <!-- stats:assertions=2226 --> assertions（51 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 

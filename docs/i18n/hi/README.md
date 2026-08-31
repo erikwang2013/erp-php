@@ -269,14 +269,16 @@ flutter run -d chrome    # Web 端（PC 管理后台风格）
 ```bash
 # 1. Docker पर्यावरण चर कॉन्फ़िगर करें
 cp .env.docker .env
+# 2. स्ररूप कूंजियों को यदृचछिक मानों से बदलें (idempotent)
+bash scripts/gen-env-keys.sh .env
 
-# 2. सभी सेवाएँ शुरू करें
+# 3. सभी सेवाएँ शुरू करें
 docker-compose up -d
 
-# 3. डेटाबेस आरंभ करें (app कंटेनर में प्रवेश करके निष्पादित करें)
+# 4. डेटाबेस आरंभ करें (app कंटेनर में प्रवेश करके निष्पादित करें)
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. एक्सेस करें
+# 5. एक्सेस करें
 # http://localhost:8788  (webman)
 # http://localhost:8080  (Nginx 反向代理)
 ```
@@ -495,6 +497,8 @@ PHP इमेज `Dockerfile` से निर्मित होती है, 
 
 ```bash
 cp .env.docker .env
+# स्ररूप कूंजियों को यदृचछिक मानों से बदलें (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

@@ -269,14 +269,16 @@ Proyek menyediakan solusi orkestrasi Docker lengkap, berisi 5 layanan: Nginx, PH
 ```bash
 # 1. Konfigurasi variabel lingkungan Docker
 cp .env.docker .env
+# 2. Ganti kunci placeholder dengan nilai acak (idempotent)
+bash scripts/gen-env-keys.sh .env
 
-# 2. Mulai semua layanan
+# 3. Mulai semua layanan
 docker-compose up -d
 
-# 3. Inisialisasi database (jalankan di dalam container app)
+# 4. Inisialisasi database (jalankan di dalam container app)
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. Akses
+# 5. Akses
 # http://localhost:8788  (webman)
 # http://localhost:8080  (reverse proxy Nginx)
 ```
@@ -495,6 +497,8 @@ Image PHP dibangun melalui `Dockerfile`, base image `php:8.3-cli`, dengan OPcach
 
 ```bash
 cp .env.docker .env
+# Ganti kunci placeholder dengan nilai acak (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

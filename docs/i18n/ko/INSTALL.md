@@ -123,6 +123,8 @@ VALUES (90000000000000001, 10000000000000001);
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# 플레이스홀더 키를 랜덤 값으로 대체 (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # 컨테이너에 들어가 데이터베이스 가져오기

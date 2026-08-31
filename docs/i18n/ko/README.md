@@ -269,14 +269,16 @@ DevEco Studio로 `apps/harmonyos/` 디렉터리를 열고 실기기 또는 에�
 ```bash
 # 1. Docker 환경 변수 설정
 cp .env.docker .env
+# 2. 플레이스홀더 키를 랜덤 값으로 대체 (idempotent)
+bash scripts/gen-env-keys.sh .env
 
-# 2. 모든 서비스 시작
+# 3. 모든 서비스 시작
 docker-compose up -d
 
-# 3. 데이터베이스 초기화(app 컨테이너에서 실행)
+# 4. 데이터베이스 초기화(app 컨테이너에서 실행)
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. 접속
+# 5. 접속
 # http://localhost:8788  (webman)
 # http://localhost:8080  (Nginx 리버스 프록시)
 ```
@@ -496,6 +498,8 @@ PHP 이미지는 `Dockerfile`로 빌드, 기본 이미지 `php:8.3-cli`, OPcache
 
 ```bash
 cp .env.docker .env
+# 플레이스홀더 키를 랜덤 값으로 대체 (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

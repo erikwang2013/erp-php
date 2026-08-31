@@ -269,14 +269,16 @@ DevEco Studio で `apps/harmonyos/` ディレクトリを開き、実機また�
 ```bash
 # 1. Docker 環境変数の設定
 cp .env.docker .env
+# 2. プレースホルダ鍵をランダム値に置換（idempotent）
+bash scripts/gen-env-keys.sh .env
 
-# 2. 全サービスの起動
+# 3. 全サービスの起動
 docker-compose up -d
 
-# 3. データベースの初期化（app コンテナ内で実行）
+# 4. データベースの初期化（app コンテナ内で実行）
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. アクセス
+# 5. アクセス
 # http://localhost:8788  (webman)
 # http://localhost:8080  (Nginx リバースプロキシ)
 ```
@@ -496,6 +498,8 @@ PHP イメージは `Dockerfile` でビルド、ベースイメージ `php:8.3-c
 
 ```bash
 cp .env.docker .env
+# プレースホルダ鍵をランダム値に置換（idempotent）
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

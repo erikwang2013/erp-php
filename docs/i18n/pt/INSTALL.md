@@ -123,6 +123,8 @@ A raiz do projeto orquestra 5 serviços: `nginx`, `app` (PHP 8.3), `mysql` (8.0)
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# Substituir chaves por valores aleatorios (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # Entrar no contêiner e importar o banco de dados

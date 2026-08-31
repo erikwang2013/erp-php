@@ -123,6 +123,8 @@ La racine du projet orchestre 5 services : `nginx`, `app` (PHP 8.3), `mysql` (8.
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# Remplacer les cles par des valeurs aleatoires (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # 进入容器导入数据库

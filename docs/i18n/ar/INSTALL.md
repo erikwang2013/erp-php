@@ -123,6 +123,8 @@ VALUES (90000000000000001, 10000000000000001);
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# استبدال المفاتيح المبدئية بقيم عشوائية (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # 进入容器导入数据库

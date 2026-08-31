@@ -269,14 +269,16 @@ flutter run -d chrome    # Web 端（PC 管理后台风格）
 ```bash
 # 1. ضبط متغيرات بيئة Docker
 cp .env.docker .env
+# 2. استبدال المفاتيح المبدئية بقيم عشوائية (idempotent)
+bash scripts/gen-env-keys.sh .env
 
-# 2. تشغيل جميع الخدمات
+# 3. تشغيل جميع الخدمات
 docker-compose up -d
 
-# 3. تهيئة قاعدة البيانات (نفذ داخل حاوية app)
+# 4. تهيئة قاعدة البيانات (نفذ داخل حاوية app)
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. الوصول
+# 5. الوصول
 # http://localhost:8788  (webman)
 # http://localhost:8080  (Nginx 反向代理)
 ```
@@ -496,6 +498,8 @@ Authorization: Bearer <token>
 
 ```bash
 cp .env.docker .env
+# استبدال المفاتيح المبدئية بقيم عشوائية (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

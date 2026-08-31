@@ -269,14 +269,16 @@ DevEco Studio দিয়ে `apps/harmonyos/` ডিরেক্টরি খ�
 ```bash
 # 1. Docker 环境变量配置
 cp .env.docker .env
+# 2. প্লেসহোল্ডার কীকো র‍্য়াণ্ডম মান দিয্যে প্রতিস্থাপন করুন (idempotent)
+bash scripts/gen-env-keys.sh .env
 
-# 2. 启动所有服务
+# 3. 启动所有服务
 docker-compose up -d
 
-# 3. 初始化数据库（进入 app 容器执行）
+# 4. 初始化数据库（进入 app 容器执行）
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. 访问
+# 5. 访问
 # http://localhost:8788  (webman)
 # http://localhost:8080  (Nginx 反向代理)
 ```
@@ -496,6 +498,8 @@ PHP ইমেজ `Dockerfile` দিয়ে তৈরি, বেস ইমে�
 
 ```bash
 cp .env.docker .env
+# প্লেসহোল্ডার কীকো র‍্য়াণ্ডম মান দিয্যে প্রতিস্থাপন করুন (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

@@ -269,14 +269,16 @@ The project provides a complete Docker orchestration with 5 services: Nginx, PHP
 ```bash
 # 1. Configure Docker environment variables
 cp .env.docker .env
+# 2. Replace placeholder keys with random values (idempotent)
+bash scripts/gen-env-keys.sh .env
 
-# 2. Start all services
+# 3. Start all services
 docker-compose up -d
 
-# 3. Initialize the database (run inside the app container)
+# 4. Initialize the database (run inside the app container)
 docker-compose exec app mysql -h mysql -u root -p < database/install.sql
 
-# 4. Access
+# 5. Access
 # http://localhost:8788  (webman)
 # http://localhost:8080  (Nginx reverse proxy)
 ```
@@ -496,6 +498,8 @@ The PHP image is built from the `Dockerfile`, base image `php:8.3-cli`, with OPc
 
 ```bash
 cp .env.docker .env
+# Replace placeholder keys with random values (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 ```
 

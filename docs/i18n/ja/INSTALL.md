@@ -123,6 +123,8 @@ VALUES (90000000000000001, 10000000000000001);
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# プレースホルダ鍵をランダム値に置換（idempotent）
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # 进入容器导入数据库

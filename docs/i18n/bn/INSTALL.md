@@ -123,6 +123,8 @@ VALUES (90000000000000001, 10000000000000001);
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# প্লেসহোল্ডার কীকো র‍্য়াণ্ডম মান দিয্যে প্রতিস্থাপন করুন (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # 进入容器导入数据库

@@ -123,6 +123,8 @@ Direktori root proyek mengorkestrasi 5 layanan: `nginx`, `app` (PHP 8.3), `mysql
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# Ganti kunci placeholder dengan nilai acak (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # Masuk ke container untuk impor database

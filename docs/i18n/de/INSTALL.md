@@ -123,6 +123,8 @@ Im Projektstamm werden 5 Dienste orchestriert: `nginx`, `app` (PHP 8.3), `mysql`
 ```bash
 cd /home/wwwroot/erp-php
 cp .env.docker .env
+# Platzhalter-Schluessel durch Zufallswerte ersetzen (idempotent)
+bash scripts/gen-env-keys.sh .env
 docker-compose up -d
 
 # In den Container wechseln und Datenbank importieren
