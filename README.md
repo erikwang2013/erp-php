@@ -241,9 +241,7 @@ mysql -u root -p 数据库名 < database/install.sql
 
 **方式三：Docker 环境**
 
-```bash
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
-```
+无需手动导入：`install.sql` 已挂载到 MySQL 容器的 `/docker-entrypoint-initdb.d`，首次启动自动初始化。
 
 ### 4. 启动服务
 
@@ -281,8 +279,8 @@ bash scripts/gen-env-keys.sh .env
 # 3. 启动所有服务
 docker-compose up -d
 
-# 4. 初始化数据库（进入 app 容器执行）
-docker-compose exec app mysql -h mysql -u root -p < database/install.sql
+# 4. 验证服务状态（MySQL 首次启动自动导入 database/install.sql，无需手动初始化）
+docker-compose ps --format "table {{.Name}}\t{{.Status}}"
 
 # 5. 访问
 # http://localhost:8788  (webman)

@@ -30,9 +30,17 @@ TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
 
 count=0
+root_pw=""
 while IFS= read -r line; do
   if [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*=.*CHANGE_ME_ ]]; then
-    echo "${line%%=*}=$(openssl rand -hex 32)"
+    key="${line%%=*}"
+    if [[ "$key" == "DB_PASSWORD" || "$key" == "MYSQL_ROOT_PASSWORD" ]]; then
+      # app 以 root 连接 MySQL，两值必须一致（否则一键启动必现 Access denied）
+      if [[ -z "$root_pw" ]]; then root_pw="$(openssl rand -hex 32)"; fi
+      echo "$key=$root_pw"
+    else
+      echo "$key=$(openssl rand -hex 32)"
+    fi
     count=$((count + 1))
   else
     echo "$line"

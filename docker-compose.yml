@@ -34,8 +34,10 @@ services:
       - .:/app
       - app-runtime:/app/runtime
     command: ["php", "start.php", "start"]
+    # .env 为 gen-env-keys.sh 生成的正式配置（后置优先）；.env.docker 为占位兜底（仅用于指引 fail-fast）
     env_file:
       - .env.docker
+      - .env
     depends_on:
       mysql:
         condition: service_healthy

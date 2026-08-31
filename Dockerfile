@@ -19,6 +19,14 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
         curl \
         git \
         unzip \
+        autoconf \
+        gcc \
+        g++ \
+        make \
+        libc-dev \
+        libevent-dev \
+        libevent \
+        openssl-dev \
     && docker-php-source extract
 
 # PHP 扩展
@@ -30,6 +38,7 @@ RUN docker-php-ext-install -j$(nproc) \
         xml \
         dom \
         xmlwriter \
+    && pecl channel-update pecl.php.net \
     && pecl install event redis \
     && docker-php-ext-enable opcache pcntl event redis
 
@@ -42,7 +51,10 @@ RUN echo "opcache.enable=1" >> "$PHP_INI_DIR/php.ini" \
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
-RUN docker-php-source delete && rm -rf /var/cache/apk/*
+# 编译工具链仅在 pecl 构建期需要，装完即删保持镜像精简
+RUN apk del autoconf gcc g++ make libc-dev \
+    && docker-php-source delete \
+    && rm -rf /var/cache/apk/*
 
 RUN mkdir -p /app
 WORKDIR /app
@@ -53,5 +65,5 @@ RUN composer install --no-dev --no-interaction --optimize-autoloader
 
 COPY . .
 
-EXPOSE 8787
+EXPOSE 8788
 CMD ["php", "start.php", "start"]
