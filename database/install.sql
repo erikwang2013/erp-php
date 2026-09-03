@@ -3769,6 +3769,79 @@ CREATE TABLE IF NOT EXISTS `erp_finance_invoice_match_log` (
     KEY `idx_source` (`source_type`, `source_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='三单匹配校验日志';
 
+-- ============================================================
+-- P0 OpenAPI 平台：第三方应用 + Webhook 订阅与投递
+-- ============================================================
+-- ------------------------------------------------------------
+-- 第三方开放平台应用表
+-- 认证：请求头 X-API-Key=app_key + X-Timestamp + X-Signature(HMAC-SHA256)
+-- 说明：app_secret 必须可解密（HMAC 校验需要原始密钥），故使用模型
+-- Encryptable 加密存储（AES-256-CBC，密钥 ENCRYPTABLE_KEY）；
+-- app_secret_hash 仅作密钥一致性/完整性校验（sha256 hex），不可用于签名验证。
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `erp_openapi_app` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `app_name` VARCHAR(100) NOT NULL COMMENT '应用名称',
+    `app_key` VARCHAR(64) NOT NULL COMMENT 'API Key（ak_ 前缀，公开标识，客户端明文携带）',
+    `app_secret` VARCHAR(500) NOT NULL DEFAULT '' COMMENT 'API Secret（加密存储，创建/重置时仅明文展示一次）',
+    `app_secret_hash` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'API Secret 的 sha256 hex（完整性校验，不可逆推密钥）',
+    `scopes` JSON DEFAULT NULL COMMENT '允许访问的路径前缀数组；NULL/空数组=不限制（示例：["/open/v1/orders"]）',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `created_by` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建人ID',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_app_key` (`app_key`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='第三方开放平台应用表';
+
+-- ------------------------------------------------------------
+-- Webhook 订阅表（归属于某个开放平台应用）
+-- event 为事件名数组，支持通配 "*"（订阅全部事件）
+-- secret 用于生成 X-Webhook-Signature = HMAC-SHA256(secret, payload) 供接收方验签
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `erp_webhook_subscription` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `app_id` BIGINT UNSIGNED NOT NULL COMMENT '所属开放平台应用ID（erp_openapi_app.id）',
+    `event` JSON NOT NULL COMMENT '订阅事件名数组，支持 "*" 通配（如 ["order.created"]）',
+    `target_url` VARCHAR(500) NOT NULL COMMENT '接收方回调 URL（POST）',
+    `secret` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '签名密钥（加密存储，接收方侧需自行留存）',
+    `enabled` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '订阅状态: 0=停用 1=启用',
+    `last_status` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '最近一次投递结果: success/failed/空=未投递',
+    `last_delivered_at` DATETIME DEFAULT NULL COMMENT '最近一次成功投递时间',
+    `failed_count` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '连续失败计数（成功后归零）',
+    `created_by` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建人ID',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_app_id` (`app_id`),
+    KEY `idx_enabled` (`enabled`),
+    KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Webhook订阅表';
+
+-- ------------------------------------------------------------
+-- Webhook 投递日志表（一次事件投递一条记录，重试在 attempts/next_retry_at 上累积）
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `erp_webhook_delivery_log` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `subscription_id` BIGINT UNSIGNED NOT NULL COMMENT '订阅ID（erp_webhook_subscription.id）',
+    `event` VARCHAR(100) NOT NULL COMMENT '事件名',
+    `payload` JSON NOT NULL COMMENT '事件载荷',
+    `status` VARCHAR(20) NOT NULL DEFAULT 'pending' COMMENT '投递状态: pending/success/failed',
+    `attempts` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '已尝试次数（首次=1）',
+    `next_retry_at` DATETIME DEFAULT NULL COMMENT '下次重试时间（指数退避；达到最大次数后置 NULL=放弃）',
+    `http_code` SMALLINT UNSIGNED DEFAULT NULL COMMENT '最近一次投递的 HTTP 状态码',
+    `response_summary` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '响应体/错误信息摘要（截断前 500 字符）',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_subscription_id` (`subscription_id`),
+    KEY `idx_retry` (`status`, `next_retry_at`),
+    KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Webhook投递日志表';
+
 -- Service wiring permission seeds
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 

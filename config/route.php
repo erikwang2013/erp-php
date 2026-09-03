@@ -404,6 +404,14 @@ Route::group('/admin', function () {
     Route::resource('/dms/document', app\controller\dms\DocumentController::class);
     Route::get('/dms/categories', [app\controller\dms\CategoryController::class, 'index']);
     Route::get('/dms/document/{id}/versions', [app\controller\dms\DocumentController::class, 'versions']);
+
+    // P0 openapi：开放平台应用与 Webhook 订阅管理（静态动作先于 Route::resource 注册，避免 FastRoute 冲突）
+    Route::post('/openapi/app/{id}/reset-secret', [app\admin\controller\OpenApiController::class, 'resetSecret']);
+    Route::post('/openapi/app/{id}/toggle-status', [app\admin\controller\OpenApiController::class, 'toggleStatus']);
+    Route::resource('/openapi/app', app\admin\controller\OpenApiController::class);
+    Route::post('/openapi/webhook/{id}/test', [app\admin\controller\WebhookController::class, 'test']);
+    Route::get('/openapi/webhook/{id}/logs', [app\admin\controller\WebhookController::class, 'logs']);
+    Route::resource('/openapi/webhook', app\admin\controller\WebhookController::class);
 })->middleware([
     app\middleware\AdminAuth::class,
     app\middleware\AdminPermission::class,
@@ -433,6 +441,14 @@ Route::group('/api', function () {
 // TMS 物流轨迹回调（承运商 webhook，无需 JWT，HMAC 签名验证）
 Route::post('/api/tms/tracking/callback', [app\controller\tms\TrackingController::class, 'callbackWebhook'])
     ->middleware([app\middleware\TrackingSignature::class]);
+
+// P0 openapi：第三方开放接口（独立认证：X-API-Key + 签名，挂 OpenApiAuth 限流，不经过 /admin 与 /api 认证体系）
+Route::get('/open/v1/ping', [app\controller\open\OpenController::class, 'ping']);
+Route::group('/open/v1', function () {
+    Route::get('/apps/{id}', [app\controller\open\OpenController::class, 'apps']);
+})->middleware([
+    app\middleware\OpenApiAuth::class,
+]);
 
 // CORS 预检兜底（fallback 对未匹配请求生效，需自行附加跨域头）
 Route::fallback(function (support\Request $request) {
