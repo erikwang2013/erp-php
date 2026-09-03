@@ -10,7 +10,9 @@ namespace app\controller\manufacturing;
 use app\admin\controller\BaseController;
 use app\model\MfgProductionOrder;
 use app\service\manufacturing\ManufacturingService;
+use app\service\manufacturing\MfgCostService;
 use InvalidArgumentException;
+use RuntimeException;
 use support\Container;
 use support\Request;
 use support\Response;
@@ -221,15 +223,16 @@ class ProductionController extends BaseController
     }
 
     /**
-     * 完成生产
+     * 完成生产（完工结算：入库 + 成本结转凭证，同事务）
      * @Apidoc\Title("完成生产")
-     * @Apidoc\Desc("将工单状态变更为已完成，记录完成数量")
+     * @Apidoc\Desc("完工结算并入库产成品，归集成本结转为财务凭证")
      * @Apidoc\Url("/admin/mfg/production/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="工单ID")
-     * @Apidoc\Param(name="completed_quantity", type="float", desc="完成数量")
+     * @Apidoc\Param(name="completed_quantity", type="float", desc="完成数量，缺省取计划数量")
+     * @Apidoc\Param(name="warehouse_id", type="int", desc="完工入库仓库ID，缺省取工单仓库")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
@@ -237,14 +240,12 @@ class ProductionController extends BaseController
     public function complete(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
+        $warehouseId = (int) ($request->input('warehouse_id') ?? 0);
 
         try {
-            $item = $this->mfg()->completeProduction($id, $request->input('completed_quantity') !== null ? (float) $request->input('completed_quantity') : null);
-        } catch (InvalidArgumentException $e) {
+            $item = $this->cost()->completeWithCost($id, $request->input('completed_quantity') !== null ? (float) $request->input('completed_quantity') : null, $warehouseId);
+        } catch (InvalidArgumentException|RuntimeException $e) {
             return $this->fail($e->getMessage(), 422);
-        }
-        if (!$item) {
-            return $this->fail('记录不存在', 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()), '生产已完成');
@@ -256,5 +257,11 @@ class ProductionController extends BaseController
     private function mfg(): ManufacturingService
     {
         return Container::get(ManufacturingService::class);
+    }
+
+    /** 成本核算服务（完工结算走成本口径） */
+    private function cost(): MfgCostService
+    {
+        return Container::get(MfgCostService::class);
     }
 }
