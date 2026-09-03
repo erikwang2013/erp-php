@@ -329,6 +329,14 @@ Route::group('/admin', function () {
     Route::resource('/mfg/material-issue', app\controller\manufacturing\MaterialIssueController::class);
     Route::post('/mfg/cost-entry/{id}/audit', [app\controller\manufacturing\CostEntryController::class, 'audit']);
     Route::resource('/mfg/cost-entry', app\controller\manufacturing\CostEntryController::class);
+    // ---- P1 M1+M2：工序报工/计件工资 + 委外订单核销（审核驱动） ----
+    Route::post('/mfg/work-report/{id}/audit', [app\controller\manufacturing\WorkReportController::class, 'audit']);
+    Route::resource('/mfg/work-report', app\controller\manufacturing\WorkReportController::class);
+    Route::resource('/mfg/subcontract', app\controller\manufacturing\SubcontractController::class);
+    Route::post('/mfg/subcontract-issue/{id}/audit', [app\controller\manufacturing\SubcontractIssueController::class, 'audit']);
+    Route::resource('/mfg/subcontract-issue', app\controller\manufacturing\SubcontractIssueController::class);
+    Route::post('/mfg/subcontract-receive/{id}/audit', [app\controller\manufacturing\SubcontractReceiveController::class, 'audit']);
+    Route::resource('/mfg/subcontract-receive', app\controller\manufacturing\SubcontractReceiveController::class);
 
     // ============================================================
     // 自定义报表

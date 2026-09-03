@@ -8251,3 +8251,501 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 4
 			path: app/service/finance/LedgerService.php
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$supplier\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$unit_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$subcontract\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssue\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssue\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssue\:\:\$issue_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssue\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssue\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssue\:\:\$subcontract_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssue\:\:\$total_cost\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssue\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssueItem\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssueItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssueItem\:\:\$issue_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssueItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssueItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssueItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractIssueItem\:\:\$unit_cost\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$subcontract\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontract\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractReceive\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractReceive\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractReceive\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractReceive\:\:\$receive_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractReceive\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractReceive\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractReceive\:\:\$subcontract_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgSubcontractReceive\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$employee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$order\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$routing\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$workstation\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgProductionOrder\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgRouting\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgRouting\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$employee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$employee_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$order\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$piece_rate\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$qualified_qty\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$report_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$routing\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$routing_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$workstation_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Method app\\model\\MfgSubcontract\:\:issues\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany but returns Illuminate\\Database\\Query\\Builder\.$#'
+			identifier: return.type
+			count: 1
+			path: app/model/MfgSubcontract.php
+
+		-
+			message: '#^Method app\\model\\MfgSubcontract\:\:receives\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany but returns Illuminate\\Database\\Query\\Builder\.$#'
+			identifier: return.type
+			count: 1
+			path: app/model/MfgSubcontract.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:statement\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/manufacturing/PieceWageService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProductSku\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/SubcontractService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:beginTransaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/manufacturing/SubcontractService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:commit\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/manufacturing/SubcontractService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:rollBack\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/manufacturing/SubcontractService.php
+
+		-
+			message: '#^Cannot call method save\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/service/manufacturing/SubcontractService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgRouting\:\:\$piece_rate\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$audit_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$employee_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$piece_rate\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$qualified_qty\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$report_date\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$routing_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MfgWorkReport\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/manufacturing/WorkReportService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/manufacturing/WorkReportService.php
+

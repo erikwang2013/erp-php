@@ -2044,6 +2044,7 @@ CREATE TABLE IF NOT EXISTS `erp_hr_salary` (
     `period_month` TINYINT UNSIGNED NOT NULL COMMENT '薪资月份',
     `base_salary` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '基本工资',
     `performance` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '绩效工资',
+    `piece_wage` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '计件工资(自动归集)',
     `overtime` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '加班工资',
     `deduction` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '扣款合计',
     `tax` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '个人所得税',
@@ -2150,6 +2151,7 @@ CREATE TABLE IF NOT EXISTS `erp_mfg_routing` (
     `seq` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '工序号',
     `workstation_id` BIGINT UNSIGNED NOT NULL COMMENT '工作站ID',
     `standard_hours` DECIMAL(8,2) NOT NULL DEFAULT 0.00 COMMENT '标准工时（小时）',
+    `piece_rate` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '计件单价(元/合格件, 0=无计件)',
     `description` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '工艺描述',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
@@ -2305,6 +2307,122 @@ CREATE TABLE IF NOT EXISTS `erp_mfg_order_cost` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_order_id` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工单完工成本结算表';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_work_report` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '报工单编码',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '生产工单ID(erp_mfg_production_order)',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID(须与工序所属产品一致)',
+    `routing_id` BIGINT UNSIGNED NOT NULL COMMENT '工序ID(erp_mfg_routing)',
+    `workstation_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '工作站ID(erp_mfg_workstation)',
+    `employee_id` BIGINT UNSIGNED NOT NULL COMMENT '报工员工ID(erp_hr_employee)',
+    `report_date` DATE NOT NULL COMMENT '报工日期(计件归集期间依据)',
+    `quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '报工数量',
+    `qualified_qty` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '合格数量(计件工资与人工成本依据)',
+    `piece_rate` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '计件单价(审核快照, 源 erp_mfg_routing.piece_rate)',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '计件金额(审核快照=合格数量×单价)',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=草稿 1=已审核',
+    `audit_at` DATETIME DEFAULT NULL COMMENT '审核时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_order_id` (`order_id`),
+    KEY `idx_employee_date` (`employee_id`, `report_date`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工序报工单(P1-M1)';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_piece_wage` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `employee_id` BIGINT UNSIGNED NOT NULL COMMENT '员工ID(erp_hr_employee)',
+    `period_year` INT UNSIGNED NOT NULL COMMENT '计件年度',
+    `period_month` TINYINT UNSIGNED NOT NULL COMMENT '计件月份 1-12',
+    `quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '计件合格数量合计',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '计件工资合计',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_employee_period` (`employee_id`, `period_year`, `period_month`),
+    KEY `idx_period` (`period_year`, `period_month`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='计件工资月累计表(P1-M1)';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_subcontract` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '委外订单编码',
+    `supplier_id` BIGINT UNSIGNED NOT NULL COMMENT '供应商ID(erp_supplier)',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '委外加工产品ID(erp_product_sku.product_id)',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '收料仓库ID',
+    `quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '委外数量',
+    `unit_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '委外加工单价',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '加工费快照(数量×单价, 发料审核时写入)',
+    `issued_amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '已发料金额累计(发料单审核成本快照)',
+    `received_qty` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '累计收货数量',
+    `consumed_amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '核销成本快照(=核销时 issued_amount, v1 全额冲抵)',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=草稿 1=已发料 2=已收货 3=已核销',
+    `audit_at` DATETIME DEFAULT NULL COMMENT '发料审核时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_supplier_id` (`supplier_id`),
+    KEY `idx_product_id` (`product_id`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='委外订单(P1-M2)';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_subcontract_issue` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '发料单编码',
+    `subcontract_id` BIGINT UNSIGNED NOT NULL COMMENT '委外订单ID(erp_mfg_subcontract)',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '出库仓库ID',
+    `issue_date` DATE NOT NULL COMMENT '发料日期',
+    `total_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '发料成本快照(审核时累计各行金额)',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=草稿 1=已审核',
+    `audit_at` DATETIME DEFAULT NULL COMMENT '审核时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_subcontract_id` (`subcontract_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='委外发料单(P1-M2)';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_subcontract_issue_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `issue_id` BIGINT UNSIGNED NOT NULL COMMENT '发料单ID',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '材料产品ID',
+    `sku_id` BIGINT UNSIGNED NOT NULL COMMENT '材料SKU ID',
+    `quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '发料数量',
+    `unit_cost` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '出库成本单价(审核快照, 移动加权)',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '发料金额(审核快照=数量×单价)',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_issue_sku` (`issue_id`, `sku_id`),
+    KEY `idx_issue_id` (`issue_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='委外发料单明细(P1-M2)';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_subcontract_receive` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '收料单编码',
+    `subcontract_id` BIGINT UNSIGNED NOT NULL COMMENT '委外订单ID(erp_mfg_subcontract)',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '收料仓库ID(入库)',
+    `receive_date` DATE NOT NULL COMMENT '收料日期',
+    `quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '收料数量(≤委外单未收数量)',
+    `unit_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '入库成本单价(审核快照=委外单加工单价)',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=草稿 1=已审核',
+    `audit_at` DATETIME DEFAULT NULL COMMENT '审核时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_subcontract_id` (`subcontract_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='委外收料单(P1-M2)';
 
 -- ################################################################
 -- PART 17: 自定义报表构建器
