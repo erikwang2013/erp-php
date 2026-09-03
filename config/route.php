@@ -161,6 +161,13 @@ Route::group('/admin', function () {
     Route::resource('/finance/voucher', app\controller\finance\VoucherController::class);
     Route::resource('/finance/receipt', app\controller\finance\ReceiptController::class);
     Route::resource('/finance/payment', app\controller\finance\PaymentController::class);
+    // P0 invoice：发票(应收/应付)+开票申请状态流+三单匹配(采购收货/销售发货)
+    // 静态 action 路由先于 resource 注册，避免 {id} 动态段抢占 match-check
+    Route::post('/finance/invoice/{id}/submit', [app\controller\finance\InvoiceController::class, 'submit']);
+    Route::post('/finance/invoice/{id}/audit', [app\controller\finance\InvoiceController::class, 'audit']);
+    Route::post('/finance/invoice/{id}/void', [app\controller\finance\InvoiceController::class, 'void']);
+    Route::any('/finance/invoice/match-check', [app\controller\finance\InvoiceController::class, 'matchCheck']);
+    Route::resource('/finance/invoice', app\controller\finance\InvoiceController::class);
     Route::any('/finance/cash-journal', [app\controller\finance\CashJournalController::class, 'index']);
     Route::resource('/finance/expense', app\controller\finance\ExpenseController::class);
     Route::any('/finance/report/profit', [app\controller\finance\ReportController::class, 'profit']);

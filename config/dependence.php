@@ -26,6 +26,7 @@ return [
 
     // ── 业务服务层 ──
     \app\service\finance\FinanceService::class => \app\service\finance\FinanceService::class,
+    \app\service\finance\InvoiceService::class => \app\service\finance\InvoiceService::class,
     \app\service\inventory\InventoryService::class => \app\service\inventory\InventoryService::class,
     \app\service\notification\NotificationService::class => \app\service\notification\NotificationService::class,
 

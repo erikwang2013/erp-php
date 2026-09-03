@@ -3703,6 +3703,72 @@ CREATE TABLE IF NOT EXISTS `erp_supplier_assessment` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='供应商准入评分';
 
+-- ============================================================
+-- P0 发票管理：应收/应付发票 + 开票申请状态流 + 三单匹配（防超开）
+-- 边界说明：发票为税务票据追踪单据，不新增 ARAP 分录、不联动收付款/核销/结算。
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erp_finance_invoice` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `invoice_no` VARCHAR(50) NOT NULL COMMENT '发票号(唯一)',
+    `type` VARCHAR(10) NOT NULL DEFAULT 'ar' COMMENT '类型: ar=应收发票 ap=应付发票',
+    `customer_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '客户ID(应收，type=ar 时必填)',
+    `supplier_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '供应商ID(应付，type=ap 时必填)',
+    `biz_type` VARCHAR(30) NOT NULL DEFAULT 'manual' COMMENT '来源类型: purchase_receive=收货单 sales_delivery=发货单 manual=手工',
+    `source_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源单据ID(收货单/发货单ID，manual 为 0)',
+    `invoice_date` DATE DEFAULT NULL COMMENT '发票日期',
+    `untaxed_amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '不含税金额(=Σ行金额，服务端计算)',
+    `tax_amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '税额(=Σ行税额，服务端计算)',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '价税合计(=不含税+税额)',
+    `currency` VARCHAR(10) NOT NULL DEFAULT 'CNY' COMMENT '币种',
+    `status` VARCHAR(20) NOT NULL DEFAULT 'draft' COMMENT '状态: draft=开票申请 submitted=已提交审核 audited=已审核入账 voided=已作废',
+    `void_reason` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '作废原因',
+    `audited_by` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '审核人ID',
+    `audited_at` DATETIME DEFAULT NULL COMMENT '审核时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_invoice_no` (`invoice_no`),
+    KEY `idx_source` (`biz_type`, `source_id`, `status`),
+    KEY `idx_customer_id` (`customer_id`),
+    KEY `idx_supplier_id` (`supplier_id`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='发票(应收/应付)';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_invoice_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `invoice_id` BIGINT UNSIGNED NOT NULL COMMENT '发票ID',
+    `product_id` BIGINT UNSIGNED DEFAULT NULL COMMENT '产品ID(可空)',
+    `source_item_id` BIGINT UNSIGNED DEFAULT NULL COMMENT '来源单据行ID(收货/发货明细ID，可空)',
+    `quantity` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '数量',
+    `price` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '单价',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '不含税金额(服务端计算)',
+    `tax_rate` DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '税率(小数，如 0.13=13%)',
+    `tax_amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '税额(服务端计算)',
+    `line_total` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '含税金额(行小计=金额+税额)',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_invoice_id` (`invoice_id`),
+    KEY `idx_source_item_id` (`source_item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='发票明细';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_invoice_match_log` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `invoice_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '发票ID(0=校验未通过的拟开票尝试)',
+    `source_type` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '来源类型: purchase_receive/sales_delivery',
+    `source_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源单据ID',
+    `invoiced_total` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '已开票金额累计(status!=voided，不含本次)',
+    `result` VARCHAR(10) NOT NULL DEFAULT '' COMMENT '校验结果: ok=恰好=余额 under=小于余额 over=超开(拦截)',
+    `detail` JSON COMMENT '明细(来源总额/未开票余额/本次金额/供应商或客户一致性等)',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_invoice_id` (`invoice_id`),
+    KEY `idx_source` (`source_type`, `source_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='三单匹配校验日志';
+
 -- Service wiring permission seeds
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
