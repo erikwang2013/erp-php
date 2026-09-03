@@ -3609,6 +3609,100 @@ INSERT INTO `erp_dms_category` (`id`, `name`, `sort`, `status`) VALUES
 (5, '培训材料', 5, 1),
 (6, '其他', 99, 1);
 
+-- ============================================================
+-- P0 寻源采购：询比价单 → 供应商报价 → 比价 → 中标 → 转采购订单 + 供应商准入评分
+-- 金额列一律 DECIMAL，禁止 float；snowflake 主键 + 软删 deleted_at 双时间戳
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `erp_purchase_rfq` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `rfq_no` VARCHAR(50) NOT NULL COMMENT '询价单号',
+    `buyer_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '采购员ID',
+    `supplier_range` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '供应商范围（逗号分隔供应商ID或说明）',
+    `require_date` DATETIME DEFAULT NULL COMMENT '需求日期',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=草稿 1=已发布(询价中) 2=已中标 3=已关闭 4=已取消',
+    `awarded_quote_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '中标报价ID，0=未中标（防重复中标）',
+    `auditor_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '审核人ID',
+    `audited_at` DATETIME DEFAULT NULL COMMENT '审核时间',
+    `audit_remark` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '审核意见',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_rfq_no` (`rfq_no`),
+    KEY `idx_buyer_id` (`buyer_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_require_date` (`require_date`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购询价单';
+
+CREATE TABLE IF NOT EXISTS `erp_purchase_rfq_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `rfq_id` BIGINT UNSIGNED NOT NULL COMMENT '询价单ID',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
+    `quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '需求数量',
+    `unit` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '单位',
+    `target_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '目标单价',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_rfq_id` (`rfq_id`),
+    KEY `idx_product_id` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购询价单明细';
+
+CREATE TABLE IF NOT EXISTS `erp_purchase_rfq_quote` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `rfq_id` BIGINT UNSIGNED NOT NULL COMMENT '询价单ID',
+    `supplier_id` BIGINT UNSIGNED NOT NULL COMMENT '供应商ID',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '报价总额（冗余，由明细bcmath汇总）',
+    `quote_date` DATETIME DEFAULT NULL COMMENT '报价日期',
+    `valid_until` DATE DEFAULT NULL COMMENT '报价有效期截止日',
+    `awarded` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '中标标记: 0=未中标 1=中标',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=有效 1=已作废',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    KEY `idx_rfq_id` (`rfq_id`),
+    KEY `idx_supplier_id` (`supplier_id`),
+    KEY `idx_awarded` (`awarded`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='供应商报价';
+
+CREATE TABLE IF NOT EXISTS `erp_purchase_rfq_quote_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `quote_id` BIGINT UNSIGNED NOT NULL COMMENT '报价ID',
+    `rfq_item_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '询价单明细ID（取需求数量/单位）',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
+    `unit_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '报价单价',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '行金额 = 单价×需求数量（bcmath）',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_quote_id` (`quote_id`),
+    KEY `idx_rfq_item_id` (`rfq_item_id`),
+    KEY `idx_product_id` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='供应商报价明细';
+
+CREATE TABLE IF NOT EXISTS `erp_supplier_assessment` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `supplier_id` BIGINT UNSIGNED NOT NULL COMMENT '供应商ID',
+    `total_score` DECIMAL(5,1) NOT NULL DEFAULT 0.0 COMMENT '总分（0-100）',
+    `grade` CHAR(1) NOT NULL DEFAULT 'C' COMMENT '等级: A/B/C（A≥90, B≥70, 其余C）',
+    `dimensions` JSON DEFAULT NULL COMMENT '评分维度json（如质量/价格/交期/服务各分）',
+    `assessor_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '评估人ID',
+    `assessed_at` DATETIME DEFAULT NULL COMMENT '评估日期',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    KEY `idx_supplier_id` (`supplier_id`),
+    KEY `idx_assessed_at` (`assessed_at`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='供应商准入评分';
+
 -- Service wiring permission seeds
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 

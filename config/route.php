@@ -126,6 +126,16 @@ Route::group('/admin', function () {
     Route::resource('/purchase/return', app\controller\purchase\ReturnController::class);
     Route::resource('/purchase/settlement', app\controller\purchase\SettlementController::class);
 
+    // ---- P0 sourcing：询比价 → 供应商报价 → 比价 → 中标转采购订单 + 供应商准入评分 ----
+    // 静态 action 路由先于 resource 注册，避免 {id} 动态段抢占
+    Route::post('/purchase/rfq/{id}/submit', [app\controller\purchase\RfqController::class, 'submit']);
+    Route::get('/purchase/rfq/{id}/compare', [app\controller\purchase\RfqController::class, 'compare']);
+    Route::post('/purchase/rfq/{id}/award', [app\controller\purchase\RfqController::class, 'award']);
+    Route::post('/purchase/rfq/{id}/close', [app\controller\purchase\RfqController::class, 'close']);
+    Route::resource('/purchase/rfq', app\controller\purchase\RfqController::class);
+    Route::resource('/purchase/rfq-quote', app\controller\purchase\RfqQuoteController::class);
+    Route::resource('/purchase/supplier-assessment', app\controller\purchase\SupplierAssessmentController::class);
+
     // ============================================================
     // 销售模块
     // ============================================================
