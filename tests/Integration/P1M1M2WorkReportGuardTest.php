@@ -161,6 +161,50 @@ class P1M1M2WorkReportGuardTest extends P1M1M2CostingScaffold
         $this->assertRowCount('erp_mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '不得追加流水');
     }
 
+    /**
+     * 缺陷 #1 回归（806937f 修复）：DB 直写非正报工数量绕过控制器 → 服务层拒绝
+     * '报工数量必须大于0'；quantity=0 与 -5 同守。单据保持草稿、金额不冻结、
+     * 无工资行、无 WIP。
+     */
+    public function testAuditRejectsNonPositiveQuantity(): void
+    {
+        foreach (['0', '-5'] as $qty) {
+            $fixture = $this->makeInProductionOrder('2.50');
+            $reportId = $this->createWorkReport($fixture['order_id'], $fixture['product_id'], $fixture['routing_id'], $fixture['employee_id'], $qty);
+
+            $this->assertThrowsMessage(
+                fn () => $this->workReportService()->audit($reportId),
+                '报工数量必须大于0'
+            );
+
+            $row = $this->workReportRow($reportId);
+            $this->assertSame(0, (int) $row->status, "qty={$qty} 单据保持草稿");
+            $this->assertBcEquals('0.00', (string) $row->amount, '金额未冻结');
+            $this->assertNull($this->pieceWageRow($fixture['employee_id']), '不得产生计件工资行');
+            $this->assertNull($this->wipRow($fixture['order_id']), '不得产生 WIP');
+        }
+    }
+
+    /**
+     * 缺陷 #1 回归（806937f 修复）：DB 直写合格数量为负（绕过控制器）→ 服务层
+     * 拒绝 '合格数量不能为负数'。单据保持草稿、无工资行、无 WIP。
+     */
+    public function testAuditRejectsNegativeQualifiedQuantity(): void
+    {
+        $fixture = $this->makeInProductionOrder('2.50');
+        $reportId = $this->createWorkReport($fixture['order_id'], $fixture['product_id'], $fixture['routing_id'], $fixture['employee_id'], '5', '-1');
+
+        $this->assertThrowsMessage(
+            fn () => $this->workReportService()->audit($reportId),
+            '合格数量不能为负数'
+        );
+
+        $row = $this->workReportRow($reportId);
+        $this->assertSame(0, (int) $row->status, '单据保持草稿');
+        $this->assertNull($this->pieceWageRow($fixture['employee_id']), '不得产生计件工资行');
+        $this->assertNull($this->wipRow($fixture['order_id']), '不得产生 WIP');
+    }
+
     // ---------- 夹具 ----------
 
     /** 生产中工单（已开工）+ 计件工序 + 员工；返回各主档 id */
