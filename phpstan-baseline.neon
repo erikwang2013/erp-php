@@ -8749,3 +8749,14 @@ parameters:
 			count: 1
 			path: app/service/manufacturing/WorkReportService.php
 
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/sales/CreditControlService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/sales/CreditControlService.php
