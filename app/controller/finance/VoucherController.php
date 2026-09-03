@@ -80,9 +80,11 @@ class VoucherController extends BaseController
 
         if ($request->input('items')) {
             try {
+                $ledgerId = $request->input('ledger_id');
                 $voucher = (new DoubleEntryService())->createVoucher(
                     $request->all(),
-                    (array) $request->input('items')
+                    (array) $request->input('items'),
+                    $ledgerId ? $this->decodeIdSafe((string) $ledgerId) : null
                 );
 
                 return $this->success($this->encodeIds($voucher->toArray()), '创建成功');
@@ -94,6 +96,7 @@ class VoucherController extends BaseController
         $item = new FinanceVoucher();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        $this->decodeLedgerId($request, $item);
         $item->status = 0; // 草稿创建；审核仅可经 update 0→1
         $item->save();
 
@@ -149,8 +152,17 @@ class VoucherController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
+        $this->decodeLedgerId($request, $item);
         // status 仅可 0→1（审核动作），禁止通过请求写入其他状态
         $item->status = (int) $request->input('status', 0) === 1 ? 1 : 0;
+        if ((int) $item->status === 1 && $item->ledger_id !== null) {
+            try {
+                (new \app\service\finance\LedgerService())
+                    ->assertPeriodOpen((int) $item->ledger_id, (string) $item->voucher_date);
+            } catch (\RuntimeException $e) {
+                return $this->fail($e->getMessage(), 422);
+            }
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
@@ -190,5 +202,14 @@ class VoucherController extends BaseController
         $item->delete();
 
         return $this->success([], '删除成功');
+    }
+
+    /** ledger_id 入参为 hashid 编码串；通用 fill 会直写原串污染 BIGINT 列，这里统一解码（无效=默认账套） */
+    private function decodeLedgerId(Request $request, FinanceVoucher $item): void
+    {
+        $raw = $request->input('ledger_id');
+        if ($raw !== null && $raw !== '') {
+            $item->ledger_id = $this->decodeIdSafe((string) $raw);
+        }
     }
 }

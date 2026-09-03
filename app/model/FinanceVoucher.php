@@ -11,6 +11,9 @@ namespace app\model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
+/**
+ * @property int|null $ledger_id 账套维度（F1 加列；NULL = 旧数据历史全局账）
+ */
 class FinanceVoucher extends Model
 {
     use SoftDeletes;

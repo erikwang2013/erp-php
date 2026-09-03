@@ -17,9 +17,19 @@ use Illuminate\Database\Capsule\Manager as DB;
  *
  * 状态机与 erp_finance_voucher.status 列注释保持一致:
  * 0 = 草稿, 1 = 已审核
+ *
+ * 账套维度（F1）：ledger_id 为空 = 旧数据默认账套（宽松：不做期间校验）；
+ * ledger_id 非空 = 写入/审核前校验账套期间未关账（assertPeriodOpen）。
  */
 class DoubleEntryService
 {
+    private ?LedgerService $ledgerService = null;
+
+    private function ledgerService(): LedgerService
+    {
+        return $this->ledgerService ??= new LedgerService();
+    }
+
     public function validateBalance(array $items): void
     {
         $totalDebit = '0';
@@ -39,13 +49,17 @@ class DoubleEntryService
         }
     }
 
-    public function createVoucher(array $data, array $items): FinanceVoucher
+    public function createVoucher(array $data, array $items, ?int $ledgerId = null): FinanceVoucher
     {
         $this->validateBalance($items);
+        if ($ledgerId !== null) {
+            $this->ledgerService()->assertPeriodOpen($ledgerId, (string) ($data['voucher_date'] ?? date('Y-m-d')));
+        }
 
-        return DB::transaction(function () use ($data, $items) {
+        return DB::transaction(function () use ($data, $items, $ledgerId) {
             $voucher = new FinanceVoucher();
             $voucher->id = SnowflakeService::generate();
+            $voucher->ledger_id = $ledgerId;
             $voucher->code = $data['code'] ?? ('VCH' . SnowflakeService::generate());
             $voucher->voucher_date = $data['voucher_date'] ?? date('Y-m-d');
             $voucher->remark = (string)($data['remark'] ?? $data['name'] ?? '');
@@ -74,6 +88,9 @@ class DoubleEntryService
         }
         if ($voucher->status !== 0) {
             throw new \RuntimeException('仅草稿状态的凭证可审核');
+        }
+        if ($voucher->ledger_id !== null) {
+            $this->ledgerService()->assertPeriodOpen((int) $voucher->ledger_id, (string) $voucher->voucher_date);
         }
         $items = FinanceVoucherItem::where('voucher_id', $voucherId)->get()->toArray();
         $this->validateBalance($items);
@@ -106,6 +123,6 @@ class DoubleEntryService
             'remark' => '冲销-' . ($original->remark ?? $original->code),
             'code' => 'REV-' . $original->code,
             'voucher_date' => date('Y-m-d'),
-        ], $reversedItems);
+        ], $reversedItems, $original->ledger_id !== null ? (int) $original->ledger_id : null);
     }
 }

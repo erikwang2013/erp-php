@@ -10,7 +10,8 @@ namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
 use app\model\FinanceBalanceSheet;
-use app\model\FinanceGeneralLedger;
+use app\service\finance\LedgerBalanceService;
+use app\service\finance\LedgerService;
 use support\Request;
 use support\Response;
 
@@ -35,8 +36,20 @@ class BalanceSheetController extends BaseController
         $year = (int) $request->input('report_year', (int) date('Y'));
         $month = (int) $request->input('report_month', (int) date('m'));
 
-        // 先查找已有快照
-        $snapshot = FinanceBalanceSheet::where('report_year', $year)
+        // 作用域：company_id/ledger_id 可选（hashid 编码），缺省回落到默认公司/账套
+        try {
+            $scope = (new LedgerService())->resolveScope(
+                $request->input('company_id') ? $this->decodeIdSafe((string) $request->input('company_id')) : null,
+                $request->input('ledger_id') ? $this->decodeIdSafe((string) $request->input('ledger_id')) : null
+            );
+        } catch (\RuntimeException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        // 先查找已有快照（账套维度）
+        $snapshot = FinanceBalanceSheet::where('company_id', $scope['company_id'])
+            ->where('ledger_id', $scope['ledger_id'])
+            ->where('report_year', $year)
             ->where('report_month', $month)
             ->first();
 
@@ -44,61 +57,12 @@ class BalanceSheetController extends BaseController
             return $this->success($this->encodeIds($snapshot->toArray()));
         }
 
-        // 从总账数据生成资产负债表
-        $ledgers = FinanceGeneralLedger::where('period_year', $year)
-            ->where('period_month', $month)
-            ->get();
+        // 无快照：从已审核凭证按账套实时重算（科目类型为权威口径，见 LedgerBalanceService）
+        $report = (new LedgerBalanceService())->computeBalanceSheet($scope['ledger_id'], $year, $month);
+        $reportData = $report;
+        $reportData['report_data'] = json_encode($report['report_data'], JSON_UNESCAPED_UNICODE);
 
-        $totalAssets = '0';
-        $totalLiabilities = '0';
-        $totalEquity = '0';
-        $currentAssets = '0';
-        $nonCurrentAssets = '0';
-        $currentLiabilities = '0';
-        $nonCurrentLiabilities = '0';
-
-        foreach ($ledgers as $ledger) {
-            $net = bcsub(bc_norm($ledger->closing_debit ?? 0), bc_norm($ledger->closing_credit ?? 0), 6);
-            // 根据科目类别聚合（资产类1，负债类2，权益类3）
-            $accountId = $ledger->account_id;
-            // 简化处理：account_id 1000-1999 资产，2000-2999 负债，3000-3999 权益
-            if ($accountId >= 1000 && $accountId < 2000) {
-                $totalAssets = bcadd($totalAssets, $net, 6);
-                if ($accountId >= 1000 && $accountId < 1500) {
-                    $currentAssets = bcadd($currentAssets, $net, 6);
-                } else {
-                    $nonCurrentAssets = bcadd($nonCurrentAssets, $net, 6);
-                }
-            } elseif ($accountId >= 2000 && $accountId < 3000) {
-                $absNet = bc_abs($net);
-                $totalLiabilities = bcadd($totalLiabilities, $absNet, 6);
-                if ($accountId >= 2000 && $accountId < 2500) {
-                    $currentLiabilities = bcadd($currentLiabilities, $absNet, 6);
-                } else {
-                    $nonCurrentLiabilities = bcadd($nonCurrentLiabilities, $absNet, 6);
-                }
-            } elseif ($accountId >= 3000 && $accountId < 4000) {
-                $totalEquity = bcadd($totalEquity, $net, 6);
-            }
-        }
-
-        $reportData = [
-            'report_year' => $year,
-            'report_month' => $month,
-            'total_assets' => (float) bc_round($totalAssets, 2),
-            'total_liabilities' => (float) bc_round($totalLiabilities, 2),
-            'total_equity' => (float) bc_round($totalEquity, 2),
-            'current_assets' => (float) bc_round($currentAssets, 2),
-            'non_current_assets' => (float) bc_round($nonCurrentAssets, 2),
-            'current_liabilities' => (float) bc_round($currentLiabilities, 2),
-            'non_current_liabilities' => (float) bc_round($nonCurrentLiabilities, 2),
-            'report_data' => json_encode([
-                'generated_from' => 'general_ledger',
-                'ledger_count' => $ledgers->count(),
-            ]),
-        ];
-
-        return $this->success($reportData, '报表已从总账生成（未保存为快照）');
+        return $this->success($reportData, '报表已从凭证实时生成（未保存为快照）');
     }
 
     /**
