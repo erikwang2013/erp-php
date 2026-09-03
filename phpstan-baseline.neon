@@ -93,7 +93,7 @@ parameters:
 		-
 			message: '#^Call to an undefined static method app\\model\\FinanceArAp\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 2
+			count: 3
 			path: app/admin/controller/DashboardController.php
 
 		-
@@ -169,9 +169,14 @@ parameters:
 			path: app/admin/controller/DashboardController.php
 
 		-
-			message: '#^Call to an undefined static method app\\model\\SalesOrder\:\:whereDate\(\)\.$#'
+			message: '#^Call to an undefined static method app\\model\\Product\:\:whereIn\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
+			path: app/admin/controller/DashboardController.php
+		-
+			message: '#^Call to an undefined static method app\\model\\SalesOrder\:\:whereDate\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
 			path: app/admin/controller/DashboardController.php
 
 		-
@@ -5964,3 +5969,1315 @@ parameters:
 			count: 1
 			path: app/service/wms/WmsOutboundService.php
 
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$app_key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$app_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$app_secret\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$app_secret_hash\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$scopes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OpenApiApp\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 5
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array, Closure\(app\\model\\OpenApiApp\)\: array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/admin/controller/OpenApiController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$app_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$enabled\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$event\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$secret\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$target_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OpenApiApp\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WebhookSubscription\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array, Closure\(app\\model\\WebhookDeliveryLog\)\: array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array, Closure\(app\\model\\WebhookSubscription\)\: array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/admin/controller/WebhookController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/finance/InvoiceController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceInvoice\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/controller/finance/InvoiceController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceInvoiceItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/InvoiceController.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/controller/finance/InvoiceController.php
+
+		-
+			message: '#^Access to an undefined property support\\Request\:\:\$openapiApp\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/open/OpenController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseApply\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ApplyController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PurchaseApply\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/purchase/ApplyController.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/controller/purchase/ApplyController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PurchaseOrder\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$received_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceive\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$batch_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$location_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$order_item_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$receive_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReceiveItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:beginTransaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:commit\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:rollBack\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PurchaseOrder\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PurchaseReceive\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReturn\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PurchaseReturn\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$buyer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$require_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$rfq_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$supplier_range\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$rfq_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$target_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$awarded\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PurchaseRfq\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,app\\model\\PurchaseRfqQuote\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/controller/purchase/RfqController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$awarded\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$quote_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$rfq_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$valid_until\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuoteItem\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuoteItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuoteItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuoteItem\:\:\$quote_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuoteItem\:\:\$rfq_item_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuoteItem\:\:\$unit_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PurchaseRfq\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PurchaseRfqQuote\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<int\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/controller/purchase/RfqQuoteController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceArAp\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SettlementController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceArAp\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SettlementController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceArAp\:\:\$partner_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SettlementController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceArAp\:\:\$settled_amount\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/controller/purchase/SettlementController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceArAp\:\:\$source_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SettlementController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceArAp\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/controller/purchase/SettlementController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceSettlement\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/controller/purchase/SettlementController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceSettlement\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/purchase/SettlementController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array, Closure\(app\\model\\FinanceArAp\)\: array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/controller/purchase/SettlementController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SupplierAssessment\:\:\$assessed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SupplierAssessmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SupplierAssessment\:\:\$assessor_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SupplierAssessmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SupplierAssessment\:\:\$dimensions\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SupplierAssessmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SupplierAssessment\:\:\$grade\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SupplierAssessmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SupplierAssessment\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SupplierAssessmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SupplierAssessment\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SupplierAssessmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SupplierAssessment\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SupplierAssessmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SupplierAssessment\:\:\$total_score\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/SupplierAssessmentController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\SupplierAssessment\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/purchase/SupplierAssessmentController.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/controller/purchase/SupplierAssessmentController.php
+		-
+			message: '#^Access to an undefined property Webman\\Http\\Request\:\:\$openapiApp\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/middleware/OpenApiAuth.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$app_key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/middleware/OpenApiAuth.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$app_secret\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/middleware/OpenApiAuth.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OpenApiApp\:\:\$scopes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/middleware/OpenApiAuth.php
+
+		-
+			message: '#^Static method support\\Redis\:\:eval\(\) invoked with 8 parameters, 2\-4 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: app/middleware/OpenApiAuth.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$biz_type\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$currency\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$invoice_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$invoice_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$source_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$tax_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$untaxed_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$invoice_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$line_total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$source_item_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$tax_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceItem\:\:\$tax_rate\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceMatchLog\:\:\$detail\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceMatchLog\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceMatchLog\:\:\$invoice_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceMatchLog\:\:\$invoiced_total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceMatchLog\:\:\$result\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceMatchLog\:\:\$source_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoiceMatchLog\:\:\$source_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceInvoice\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceInvoice\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceInvoiceItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/finance/InvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookDeliveryLog\:\:\$attempts\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookDeliveryLog\:\:\$event\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookDeliveryLog\:\:\$http_code\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookDeliveryLog\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookDeliveryLog\:\:\$next_retry_at\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookDeliveryLog\:\:\$payload\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookDeliveryLog\:\:\$response_summary\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookDeliveryLog\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookDeliveryLog\:\:\$subscription_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$event\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$failed_count\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$last_delivered_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$last_status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$secret\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\WebhookSubscription\:\:\$target_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\WebhookSubscription\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Offset ''code'' on array\{code\: int, body\: string, error\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Offset ''code'' on array\{code\: int\<200, max\>, body\: string, error\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:filter\(\) expects \(callable\(stdClass, int\)\: bool\)\|null, Closure\(app\\model\\WebhookSubscription\)\: bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Parameter \#1 \$log of method app\\service\\notification\\WebhookService\:\:attempt\(\) expects app\\model\\WebhookDeliveryLog, stdClass given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Parameter \#1 \$sub of method app\\service\\notification\\WebhookService\:\:deliverEvent\(\) expects app\\model\\WebhookSubscription, stdClass given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>response_summary" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/service/notification/WebhookService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$apply_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$ordered_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$total_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$received_quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$audited_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$auditor_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$awarded_quote_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$rfq_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfq\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$awarded\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuote\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuoteItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuoteItem\:\:\$rfq_item_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/purchase/RfqService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseRfqQuoteItem\:\:\$unit_price\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/purchase/RfqService.php

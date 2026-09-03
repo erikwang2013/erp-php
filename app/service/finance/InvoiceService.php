@@ -85,7 +85,7 @@ class InvoiceService
         foreach ($rows as $i => $row) {
             $no = (int) $i + 1;
             foreach (['quantity' => '数量', 'price' => '单价', 'tax_rate' => '税率'] as $k => $label) {
-                if (!isset($row[$k]) || !is_numeric($row[$k]) || $row[$k] === '') {
+                if (!isset($row[$k]) || !is_numeric($row[$k])) {
                     return [null, "第 {$no} 行{$label}非法"];
                 }
             }
