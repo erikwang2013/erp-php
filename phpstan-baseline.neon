@@ -8760,3 +8760,9 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/service/sales/CreditControlService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/manufacturing/MfgCapacityService.php
