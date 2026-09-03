@@ -52,8 +52,15 @@ class WorkReportService extends AbstractCrudService
             if (!$routing) {
                 throw new InvalidArgumentException('工序不存在');
             }
+            $quantity = bc_norm($report->quantity);
+            if (bccomp($quantity, '0', 4) <= 0) {
+                throw new InvalidArgumentException('报工数量必须大于0');
+            }
             $qualified = bc_norm($report->qualified_qty);
-            if (bccomp($qualified, bc_norm($report->quantity), 4) > 0) {
+            if (bccomp($qualified, '0', 4) < 0) {
+                throw new InvalidArgumentException('合格数量不能为负数');
+            }
+            if (bccomp($qualified, $quantity, 4) > 0) {
                 throw new InvalidArgumentException('合格数量不能大于报工数量');
             }
             $rate = bc_norm($routing->piece_rate);
