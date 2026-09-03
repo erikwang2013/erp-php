@@ -910,6 +910,51 @@ CREATE TABLE IF NOT EXISTS `erp_cost_record` (
 -- PART 6: 财务管理基础
 -- ################################################################
 
+CREATE TABLE IF NOT EXISTS `erp_company` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '组织编码',
+    `name` VARCHAR(200) NOT NULL COMMENT '组织名称',
+    `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '上级组织ID, 0=顶级(集团)',
+    `base_currency` VARCHAR(10) NOT NULL DEFAULT 'CNY' COMMENT '本位币',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=停用 1=启用',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_parent_id` (`parent_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='组织/公司(多组织)';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_ledger` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `company_id` BIGINT UNSIGNED NOT NULL COMMENT '组织ID',
+    `code` VARCHAR(50) NOT NULL COMMENT '账套编码(组织内唯一)',
+    `name` VARCHAR(200) NOT NULL COMMENT '账套名称',
+    `currency` VARCHAR(10) NOT NULL DEFAULT 'CNY' COMMENT '记账币种',
+    `is_default` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '是否默认账套: 0=否 1=是',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=停用 1=启用',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_company_code` (`company_id`, `code`),
+    KEY `idx_company_id` (`company_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='财务账套(F1)';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_period` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `ledger_id` BIGINT UNSIGNED NOT NULL COMMENT '账套ID',
+    `period` VARCHAR(7) NOT NULL COMMENT '会计期间 YYYY-MM',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=开 1=关',
+    `opened_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开账时间',
+    `closed_at` DATETIME DEFAULT NULL COMMENT '关账时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_ledger_period` (`ledger_id`, `period`),
+    KEY `idx_ledger_id` (`ledger_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会计期间(F1)';
+
 CREATE TABLE IF NOT EXISTS `erp_finance_account` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '上级科目ID，0表示一级科目',
@@ -932,6 +977,7 @@ CREATE TABLE IF NOT EXISTS `erp_finance_account` (
 CREATE TABLE IF NOT EXISTS `erp_finance_voucher` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '凭证号',
+    `ledger_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT '账套ID, NULL=旧数据(默认账套)',
     `voucher_date` DATE NOT NULL COMMENT '凭证日期',
     `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=草稿 1=已审核',
     `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
@@ -941,6 +987,7 @@ CREATE TABLE IF NOT EXISTS `erp_finance_voucher` (
     `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_ledger_id` (`ledger_id`),
     KEY `idx_voucher_date` (`voucher_date`),
     KEY `idx_status` (`status`),
     KEY `idx_deleted_at` (`deleted_at`)
@@ -1087,6 +1134,8 @@ CREATE TABLE IF NOT EXISTS `erp_finance_expense` (
 
 CREATE TABLE IF NOT EXISTS `erp_finance_profit` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `company_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT '组织ID, NULL=旧数据(默认公司)',
+    `ledger_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT '账套ID, NULL=旧数据(默认账套)',
     `year` SMALLINT UNSIGNED NOT NULL COMMENT '年份',
     `month` TINYINT UNSIGNED NOT NULL COMMENT '月份',
     `revenue` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '营业收入',
@@ -1096,7 +1145,7 @@ CREATE TABLE IF NOT EXISTS `erp_finance_profit` (
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_year_month` (`year`, `month`)
+    UNIQUE KEY `uk_ledger_period` (`ledger_id`, `year`, `month`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='利润快照表';
 
 -- ################################################################
@@ -1215,6 +1264,8 @@ CREATE TABLE IF NOT EXISTS `erp_finance_subsidiary_ledger` (
 
 CREATE TABLE IF NOT EXISTS `erp_finance_balance_sheet` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `company_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT '组织ID, NULL=旧数据(默认公司)',
+    `ledger_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT '账套ID, NULL=旧数据(默认账套)',
     `report_year` SMALLINT UNSIGNED NOT NULL COMMENT '会计年度',
     `report_month` TINYINT UNSIGNED NOT NULL COMMENT '会计月份',
     `total_assets` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '资产总计',
@@ -1227,11 +1278,13 @@ CREATE TABLE IF NOT EXISTS `erp_finance_balance_sheet` (
     `report_data` JSON COMMENT '完整报表数据JSON',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_report_period` (`report_year`, `report_month`)
+    UNIQUE KEY `uk_ledger_report` (`ledger_id`, `report_year`, `report_month`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='资产负债表快照';
 
 CREATE TABLE IF NOT EXISTS `erp_finance_cash_flow` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `company_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT '组织ID, NULL=旧数据(默认公司)',
+    `ledger_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT '账套ID, NULL=旧数据(默认账套)',
     `report_year` SMALLINT UNSIGNED NOT NULL COMMENT '会计年度',
     `report_month` TINYINT UNSIGNED NOT NULL COMMENT '会计月份',
     `operating_inflow` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '经营活动现金流入',
@@ -1248,8 +1301,64 @@ CREATE TABLE IF NOT EXISTS `erp_finance_cash_flow` (
     `report_data` JSON COMMENT '完整报表数据JSON',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_report_period` (`report_year`, `report_month`)
+    UNIQUE KEY `uk_ledger_report` (`ledger_id`, `report_year`, `report_month`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='现金流量表快照';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_consolidation_report` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `company_id` BIGINT UNSIGNED NOT NULL COMMENT '合并主体(集团)组织ID',
+    `report_year` SMALLINT UNSIGNED NOT NULL COMMENT '报表年度',
+    `report_month` TINYINT UNSIGNED NOT NULL COMMENT '报表月份 1-12',
+    `base_currency` VARCHAR(10) NOT NULL DEFAULT 'CNY' COMMENT '合并币种',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=草稿 1=已出',
+    `total_assets` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '资产合计',
+    `total_liabilities` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '负债合计',
+    `total_equity` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '权益合计',
+    `revenue` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '营业收入',
+    `net_profit` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '净利润',
+    `report_data` JSON COMMENT '合并底稿明细(子公司贡献+抵销分录)',
+    `issued_at` DATETIME DEFAULT NULL COMMENT '出表时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_company_period` (`company_id`, `report_year`, `report_month`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='集团合并报表(F2)';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_elimination_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `report_id` BIGINT UNSIGNED NOT NULL COMMENT '合并报表ID',
+    `account_code` VARCHAR(50) NOT NULL COMMENT '科目编码(须存在于 erp_finance_account)',
+    `summary` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '抵销说明',
+    `debit_amount` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '借方金额',
+    `credit_amount` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '贷方金额',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_report_id` (`report_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='合并抵销分录行(F2)';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_voucher_source` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `voucher_id` BIGINT UNSIGNED NOT NULL COMMENT '凭证ID',
+    `source_type` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '来源单据类型',
+    `source_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源单据ID',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_voucher` (`voucher_id`),
+    UNIQUE KEY `uk_source` (`source_type`, `source_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='凭证来源防重轨';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_cost_account_config` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `cost_type` TINYINT UNSIGNED NOT NULL COMMENT '成本类型: 1=材料 2=人工 3=制费 4=存货/产成品 5=差异',
+    `account_id` BIGINT UNSIGNED NOT NULL COMMENT '会计科目ID',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=停用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_cost_type` (`cost_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='成本结转科目映射配置';
 
 -- ################################################################
 -- PART 9: CRM扩展 — 公海池/合同
@@ -2090,6 +2199,112 @@ CREATE TABLE IF NOT EXISTS `erp_mfg_mrp_item` (
     KEY `idx_plan_id` (`plan_id`),
     KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='MRP计划明细表';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_material_issue` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '领料单编码',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '生产工单ID',
+    `warehouse_id` BIGINT UNSIGNED NOT NULL COMMENT '领料仓库ID',
+    `issue_date` DATE NOT NULL COMMENT '领料日期',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=草稿 1=已审核',
+    `total_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '领料总成本（审核时快照）',
+    `audit_at` DATETIME DEFAULT NULL COMMENT '审核时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_order_id` (`order_id`),
+    KEY `idx_warehouse_id` (`warehouse_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='生产领料单';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_material_issue_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `issue_id` BIGINT UNSIGNED NOT NULL COMMENT '领料单ID',
+    `product_id` BIGINT UNSIGNED NOT NULL COMMENT '物料产品ID',
+    `sku_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '物料SKU ID',
+    `quantity` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '领料数量',
+    `unit_cost` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '审核时点移动加权均价快照',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '金额=数量×均价快照',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_issue_sku` (`issue_id`, `sku_id`),
+    KEY `idx_product_id` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='生产领料单明细';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_cost_entry` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '费用单编码',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '生产工单ID',
+    `entry_type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '类型: 1=人工 2=制费 3=其他',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '金额',
+    `entry_date` DATE NOT NULL COMMENT '费用发生日期',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=草稿 1=已审核',
+    `audit_at` DATETIME DEFAULT NULL COMMENT '审核时间',
+    `summary` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '摘要',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_order_id` (`order_id`),
+    KEY `idx_entry_type` (`entry_type`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='生产成本归集单';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_wip` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '生产工单ID',
+    `material_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '材料成本(实领)',
+    `labor_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '人工成本',
+    `overhead_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '制造费用',
+    `other_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '其他成本',
+    `total_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '成本合计',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=在制 1=已完工结转 2=已生成结转凭证',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_order_id` (`order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工单生产成本台账';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_wip_flow` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `wip_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'WIP台账ID',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '生产工单ID',
+    `source_type` TINYINT UNSIGNED NOT NULL COMMENT '来源类型: 1=领料 2=人工 3=制费 4=其他 5=完工转出',
+    `source_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源单据ID',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '金额',
+    `direction` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '方向: 1=归集加 2=转出减',
+    `flow_date` DATE NOT NULL COMMENT '发生日期',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_wip_id` (`wip_id`),
+    KEY `idx_order_id` (`order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工单成本归集流水';
+
+CREATE TABLE IF NOT EXISTS `erp_mfg_order_cost` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `order_id` BIGINT UNSIGNED NOT NULL COMMENT '生产工单ID',
+    `finished_qty` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '完工数量',
+    `standard_material_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '标准材料成本',
+    `actual_material_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '实际材料成本',
+    `labor_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '实际人工成本',
+    `overhead_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '实际制造费用',
+    `other_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '实际其他成本',
+    `material_diff` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '材料成本差异(实际-标准)',
+    `total_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '完工成本合计(实际)',
+    `unit_cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '单位成本=合计/完工数量',
+    `voucher_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '结转凭证ID，0=未生成',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=已结算 1=已生成凭证',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_order_id` (`order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工单完工成本结算表';
 
 -- ################################################################
 -- PART 17: 自定义报表构建器

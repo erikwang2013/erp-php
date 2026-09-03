@@ -205,6 +205,19 @@ Route::group('/admin', function () {
     Route::resource('/finance/cost-center', app\controller\finance\CostCenterController::class);
     Route::resource('/finance/profit-center', app\controller\finance\ProfitCenterController::class);
 
+    // ---- P0 F1/F2：多组织/账套/会计期间 + 集团合并报表 ----
+    Route::get('/finance/company/list', [app\controller\finance\CompanyController::class, 'list']);
+    Route::post('/finance/company/create', [app\controller\finance\CompanyController::class, 'create']);
+    Route::post('/finance/company/toggle', [app\controller\finance\CompanyController::class, 'toggle']);
+    Route::get('/finance/ledger/period-list', [app\controller\finance\LedgerPeriodController::class, 'list']);
+    Route::post('/finance/ledger/period-open', [app\controller\finance\LedgerPeriodController::class, 'open']);
+    Route::post('/finance/ledger/period-close', [app\controller\finance\LedgerPeriodController::class, 'close']);
+    Route::post('/finance/consolidation/draft', [app\controller\finance\ConsolidationController::class, 'draft']);
+    Route::get('/finance/consolidation/latest', [app\controller\finance\ConsolidationController::class, 'latest']);
+    Route::get('/finance/consolidation/list', [app\controller\finance\ConsolidationController::class, 'list']);
+    Route::post('/finance/consolidation/eliminations', [app\controller\finance\ConsolidationController::class, 'eliminations']);
+    Route::post('/finance/consolidation/issue', [app\controller\finance\ConsolidationController::class, 'issue']);
+
     // ============================================================
     // CRM模块
     // ============================================================
@@ -311,6 +324,11 @@ Route::group('/admin', function () {
     Route::resource('/mfg/workstation', app\controller\manufacturing\WorkstationController::class);
     Route::resource('/mfg/mrp', app\controller\manufacturing\MrpController::class);
     Route::post('/mfg/mrp/{id}/generate', [app\controller\manufacturing\MrpController::class, 'generate']);
+    // ---- P0 F3：存货/成本核算（领料单 + 费用归集单，审核驱动） ----
+    Route::post('/mfg/material-issue/{id}/audit', [app\controller\manufacturing\MaterialIssueController::class, 'audit']);
+    Route::resource('/mfg/material-issue', app\controller\manufacturing\MaterialIssueController::class);
+    Route::post('/mfg/cost-entry/{id}/audit', [app\controller\manufacturing\CostEntryController::class, 'audit']);
+    Route::resource('/mfg/cost-entry', app\controller\manufacturing\CostEntryController::class);
 
     // ============================================================
     // 自定义报表
