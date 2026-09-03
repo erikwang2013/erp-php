@@ -14,6 +14,8 @@ use app\model\SalesOrder;
 use app\model\SalesOrderItem;
 use app\service\finance\FinanceService;
 use app\service\inventory\InventoryService;
+use app\service\sales\CreditControlException;
+use app\service\sales\CreditControlService;
 use Illuminate\Database\Capsule\Manager as DB;
 use support\Container;
 use support\Request;
@@ -130,6 +132,16 @@ class DeliveryController extends BaseController
         // 预取订单明细（按 id 索引），供归属校验与超发校验使用
         $orderItems = SalesOrderItem::query()->where('order_id', $orderId)->get()->keyBy('id');
 
+        // 信用控制前置拦截（事务外）：冻结/额度/账期超期任一不过即 422 业务拒绝
+        // 发货为在途占用→应收 1:1 平移，额度占用已含本次实发，无需额外累加；
+        // 通过时返回客户账期到期日（credit_days>0），用于写入应收 due_date
+        $creditService = Container::get(CreditControlService::class);
+        try {
+            $dueDate = $creditService->assertDeliveryCreate((int) $order->customer_id);
+        } catch (CreditControlException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
         DB::beginTransaction();
         try {
             // 1. 创建发货单头
@@ -223,7 +235,8 @@ class DeliveryController extends BaseController
                 $delivery->customer_id,
                 'sales_delivery',
                 $delivery->id,
-                (float) $totalDeliveryAmount
+                (float) $totalDeliveryAmount,
+                $dueDate
             );
 
             // 5. 更新销售订单状态

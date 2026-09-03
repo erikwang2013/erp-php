@@ -10,6 +10,9 @@ namespace app\controller\sales;
 
 use app\admin\controller\BaseController;
 use app\model\SalesOrder;
+use app\service\sales\CreditControlException;
+use app\service\sales\CreditControlService;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -77,6 +80,17 @@ class OrderController extends BaseController
         $validator = validator($request->all(), ['name' => 'required|string|max:200']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+
+        // 信用控制前置拦截：带客户且金额可识别时校验（冻结恒生效；额度未启用自动放行）
+        $customerId = $this->decodeIdSafe((string) $request->input('customer_id', ''));
+        $totalAmount = $request->input('total_amount', '0');
+        if ($customerId !== null && $customerId > 0 && is_numeric($totalAmount)) {
+            try {
+                Container::get(CreditControlService::class)->assertOrderCreate($customerId, (string) $totalAmount);
+            } catch (CreditControlException $e) {
+                return $this->fail($e->getMessage(), 422);
+            }
         }
 
         $item = new SalesOrder();

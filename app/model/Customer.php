@@ -23,8 +23,8 @@ class Customer extends Model
     public $incrementing = false;
     protected $keyType = 'int';
 
-    protected $fillable = ['code', 'name', 'level_id', 'contact_person', 'phone', 'email', 'address', 'credit_limit', 'status', 'remark'];
-    protected $casts = ['level_id' => 'integer', 'credit_limit' => 'float', 'status' => 'integer', 'phone' => Encryptable::class, 'email' => Encryptable::class];
+    protected $fillable = ['code', 'name', 'level_id', 'contact_person', 'phone', 'email', 'address', 'credit_limit', 'credit_days', 'credit_frozen', 'credit_over_ratio', 'credit_overdue_limit_amount', 'status', 'remark'];
+    protected $casts = ['level_id' => 'integer', 'credit_limit' => 'float', 'credit_days' => 'integer', 'credit_frozen' => 'integer', 'credit_over_ratio' => 'float', 'credit_overdue_limit_amount' => 'float', 'status' => 'integer', 'phone' => Encryptable::class, 'email' => Encryptable::class];
 
     public function level()
     {
