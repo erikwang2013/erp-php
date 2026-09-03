@@ -7808,3 +7808,446 @@ parameters:
 			identifier: method.nonObject
 			count: 1
 			path: app/service/manufacturing/MfgCostService.php
+		-
+			message: '#^Access to an undefined property app\\model\\Company\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/finance/CompanyController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Company\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/CompanyController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Company\:\:orderByDesc\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/CompanyController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceLedger\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/controller/finance/CompanyController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinancePeriod\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/LedgerPeriodController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$base_currency\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$company_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$net_profit\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$report_data\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$report_month\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$report_year\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$revenue\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$total_assets\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$total_equity\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceConsolidationReport\:\:\$total_liabilities\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceEliminationItem\:\:\$account_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceEliminationItem\:\:\$credit_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceEliminationItem\:\:\$debit_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceEliminationItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceEliminationItem\:\:\$report_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceEliminationItem\:\:\$summary\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$company_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$currency\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Company\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Company\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceAccount\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceAccount\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBalanceSheet\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceConsolidationReport\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceConsolidationReport\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceCurrency\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceEliminationItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceExchangeRate\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceLedger\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceLedger\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceProfit\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{account_code\: string, summary\?\: string, debit_amount\?\: string, credit_amount\?\: string\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{ledger_id\?\: int, company_id\?\: int, report_year\: int, report_month\: int\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Offset ''account_code'' on array\{account_code\: string, summary\?\: string, debit_amount\?\: string, credit_amount\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Offset ''report_month'' on array\{ledger_id\?\: int, company_id\?\: int, report_year\: int, report_month\: int\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Offset ''report_year'' on array\{ledger_id\?\: int, company_id\?\: int, report_year\: int, report_month\: int\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/finance/ConsolidationService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:select\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 5
+			path: app/service/finance/LedgerBalanceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceCashFlow\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/LedgerBalanceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Company\:\:\$base_currency\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Company\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Company\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Company\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Company\:\:\$parent_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Company\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Company\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$company_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$currency\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$is_default\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceLedger\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinancePeriod\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinancePeriod\:\:\$ledger_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinancePeriod\:\:\$opened_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinancePeriod\:\:\$period\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinancePeriod\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Company\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Company\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceLedger\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceLedger\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/finance/LedgerService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinancePeriod\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/finance/LedgerService.php

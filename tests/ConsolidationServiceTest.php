@@ -12,20 +12,30 @@ use app\service\finance\ConsolidationService;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 合并报表服务：多币种合并尚未实现（缺汇率折算与子公司间抵销规则），
- * 显式抛业务异常拒绝，绝不返回占位数据冒充成功。
+ * 合并报表服务 consolidate()：入参契约（纯内存校验，不触库）。
+ * 金额/报表取数口径由集成测试（F12MultiCompanyConsolidationTest）覆盖。
  */
 class ConsolidationServiceTest extends TestCase
 {
-    public function testConsolidateThrowsNotImplemented(): void
+    public function testConsolidateEmptyRejected(): void
     {
         $this->expectException(\RuntimeException::class);
-        (new ConsolidationService())->consolidate([['currency' => 'USD']]);
+        $this->expectExceptionMessage('subsidiary_reports 不能为空');
+        (new ConsolidationService())->consolidate([]);
     }
 
-    public function testErrorMessageMentionsUnimplemented(): void
+    public function testConsolidateNonArrayItemRejected(): void
     {
-        $this->expectExceptionMessage('未实现');
-        (new ConsolidationService())->consolidate([]);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('subsidiary_reports[0] 必须为对象');
+        (new ConsolidationService())->consolidate(['x']);
+    }
+
+    public function testConsolidateUnknownLedgerRejected(): void
+    {
+        // ledger_id 缺省 0、company_id 缺省 → 无库查询即拒绝
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('subsidiary_reports[0] 指向的账套不存在或已停用');
+        (new ConsolidationService())->consolidate([['currency' => 'USD']]);
     }
 }

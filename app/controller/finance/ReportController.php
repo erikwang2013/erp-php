@@ -13,6 +13,7 @@ use app\model\FinanceProfit;
 use app\service\finance\AccountBalanceService;
 use app\service\finance\ConsolidationService;
 use app\service\finance\FinancialRatioService;
+use app\service\finance\LedgerService;
 use app\service\finance\PeriodCloseService;
 use support\Request;
 use support\Response;
@@ -38,7 +39,19 @@ class ReportController extends BaseController
         $year = (int) $request->input('year', (int) date('Y'));
         $month = $request->input('month');
 
-        $query = FinanceProfit::where('year', $year);
+        // 作用域：company_id/ledger_id 可选（hashid 编码），缺省回落到默认公司/账套
+        try {
+            $scope = (new LedgerService())->resolveScope(
+                $request->input('company_id') ? $this->decodeIdSafe((string) $request->input('company_id')) : null,
+                $request->input('ledger_id') ? $this->decodeIdSafe((string) $request->input('ledger_id')) : null
+            );
+        } catch (\RuntimeException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $query = FinanceProfit::where('company_id', $scope['company_id'])
+            ->where('ledger_id', $scope['ledger_id'])
+            ->where('year', $year);
         if ($month !== null && $month !== '') {
             $query->where('month', (int) $month);
         }
