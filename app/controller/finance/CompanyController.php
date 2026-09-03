@@ -1,0 +1,130 @@
+<?php
+
+/*
+ * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ */
+declare(strict_types=1);
+
+namespace app\controller\finance;
+
+use app\admin\controller\BaseController;
+use app\model\Company;
+use app\model\FinanceLedger;
+use app\service\finance\LedgerService;
+use support\Request;
+use support\Response;
+
+/**
+ * 组织/公司管理（F1）——多组织与账套的入口。
+ */
+class CompanyController extends BaseController
+{
+    /**
+     * 公司列表
+     * @Apidoc\Title("公司列表")
+     * @Apidoc\Desc("全量公司列表，含各自默认账套摘要")
+     * @Apidoc\Url("/admin/finance/company/list")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="公司列表")
+     */
+    public function list(Request $request): Response
+    {
+        $companies = Company::orderByDesc('id')->get();
+        $items = [];
+        foreach ($companies as $company) {
+            $row = $this->encodeIds($company->toArray(), ['id', 'parent_id']);
+            $ledger = FinanceLedger::where('company_id', (int) $company->id)
+                ->where('is_default', 1)->first();
+            if ($ledger) {
+                $row['default_ledger'] = $this->encodeIds($ledger->toArray(), ['id', 'company_id']);
+            } else {
+                $row['default_ledger'] = null;
+            }
+            $items[] = $row;
+        }
+
+        return $this->success(['list' => $items, 'total' => count($items)]);
+    }
+
+    /**
+     * 新增公司（含默认账套与当期开账，一事务）
+     * @Apidoc\Title("新增公司")
+     * @Apidoc\Desc("创建组织并自动创建默认账套、开启当前自然月期间")
+     * @Apidoc\Url("/admin/finance/company/create")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="name", type="string", desc="公司名称，必填")
+     * @Apidoc\Param(name="code", type="string", desc="公司编码(2-50位字母/数字/_-)，必填且全局唯一")
+     * @Apidoc\Param(name="base_currency", type="string", desc="本位币，默认CNY")
+     * @Apidoc\Param(name="parent_id", type="string", desc="上级组织ID(hashid或数字)，0=顶级")
+     * @Apidoc\Param(name="remark", type="string", desc="备注")
+     */
+    public function create(Request $request): Response
+    {
+        $name = trim((string) $request->input('name', ''));
+        $code = trim((string) $request->input('code', ''));
+        if ($name === '' || $code === '') {
+            return $this->fail('name/code 必填', 422);
+        }
+        $parentInput = $request->input('parent_id', 0);
+        $parentId = is_numeric($parentInput)
+            ? (int) $parentInput
+            : (int) ($this->decodeIdSafe((string) $parentInput) ?? 0);
+
+        try {
+            $company = (new LedgerService())->createCompany([
+                'name' => $name,
+                'code' => $code,
+                'base_currency' => (string) $request->input('base_currency', 'CNY'),
+                'parent_id' => $parentId,
+                'remark' => (string) $request->input('remark', ''),
+            ]);
+        } catch (\RuntimeException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $row = $this->encodeIds($company->toArray(), ['id', 'parent_id']);
+        $ledger = FinanceLedger::where('company_id', (int) $company->id)->where('is_default', 1)->first();
+        if ($ledger) {
+            $row['default_ledger'] = $this->encodeIds($ledger->toArray(), ['id', 'company_id']);
+        }
+
+        return $this->success($row, '公司创建成功');
+    }
+
+    /**
+     * 启用/停用公司
+     * @Apidoc\Title("启用/停用公司")
+     * @Apidoc\Desc("status 0=停用 1=启用")
+     * @Apidoc\Url("/admin/finance/company/toggle")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("财务管理")
+     * @Apidoc\Param(name="id", type="string", desc="公司ID(hashid)，必填")
+     * @Apidoc\Param(name="status", type="int", desc="0=停用 1=启用")
+     */
+    public function toggle(Request $request): Response
+    {
+        $id = $this->decodeIdSafe((string) $request->input('id', ''));
+        $status = (int) $request->input('status', -1);
+        if ($id === null || $status < 0 || $status > 1) {
+            return $this->fail('id 与 status(0/1) 必填', 422);
+        }
+        $company = Company::find($id);
+        if (!$company) {
+            return $this->fail('公司不存在', 404);
+        }
+        $company->status = $status;
+        $company->save();
+
+        return $this->success(
+            $this->encodeIds($company->toArray(), ['id', 'parent_id']),
+            $status === 1 ? '公司已启用' : '公司已停用'
+        );
+    }
+}
