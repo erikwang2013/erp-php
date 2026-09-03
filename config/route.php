@@ -337,6 +337,10 @@ Route::group('/admin', function () {
     Route::resource('/mfg/subcontract-issue', app\controller\manufacturing\SubcontractIssueController::class);
     Route::post('/mfg/subcontract-receive/{id}/audit', [app\controller\manufacturing\SubcontractReceiveController::class, 'audit']);
     Route::resource('/mfg/subcontract-receive', app\controller\manufacturing\SubcontractReceiveController::class);
+    Route::get('/mfg/capacity/calendar', [app\controller\manufacturing\CapacityController::class, 'calendar']);
+    Route::put('/mfg/capacity/calendar', [app\controller\manufacturing\CapacityController::class, 'setException']);
+    Route::delete('/mfg/capacity/calendar', [app\controller\manufacturing\CapacityController::class, 'removeException']);
+    Route::get('/mfg/capacity/report', [app\controller\manufacturing\CapacityController::class, 'report']);
 
     // ============================================================
     // 自定义报表

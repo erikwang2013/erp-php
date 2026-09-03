@@ -2175,6 +2175,19 @@ CREATE TABLE IF NOT EXISTS `erp_mfg_workstation` (
     UNIQUE KEY `uk_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工作站表';
 
+CREATE TABLE IF NOT EXISTS `erp_mfg_capacity_calendar` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `workstation_id` BIGINT UNSIGNED NOT NULL COMMENT '工作站ID(erp_mfg_workstation.id)',
+    `work_date` DATE NOT NULL COMMENT '日期',
+    `available_hours` DECIMAL(5,2) NOT NULL DEFAULT 8.00 COMMENT '可用工时(小时, 0=闭厂)',
+    `remark` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '备注(停机/检修/班次调整等)',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_ws_date` (`workstation_id`, `work_date`),
+    KEY `idx_work_date` (`work_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工作站日历例外表(默认周一~五8小时, 仅存覆盖日)';
+
 CREATE TABLE IF NOT EXISTS `erp_mfg_mrp_plan` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `code` VARCHAR(50) NOT NULL COMMENT '计划编码',
