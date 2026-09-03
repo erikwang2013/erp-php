@@ -18,8 +18,8 @@ class MfgRouting extends Model
     public $timestamps = false;
     protected $keyType = 'int';
 
-    protected $fillable = ['product_id', 'name', 'seq', 'workstation_id', 'standard_hours', 'description'];
-    protected $casts = ['product_id' => 'integer', 'seq' => 'integer', 'workstation_id' => 'integer', 'standard_hours' => 'float'];
+    protected $fillable = ['product_id', 'name', 'seq', 'workstation_id', 'standard_hours', 'piece_rate', 'description'];
+    protected $casts = ['product_id' => 'integer', 'seq' => 'integer', 'workstation_id' => 'integer', 'standard_hours' => 'float', 'piece_rate' => 'float'];
 
     public function product()
     {

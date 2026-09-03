@@ -325,8 +325,8 @@ class MfgCostService extends AbstractCrudService
         return $standard;
     }
 
-    /** WIP 归集（含首建台账与流水）；调用方须已持有工单行锁串行化 */
-    private function wipAccumulate(MfgProductionOrder $order, int $sourceType, int $sourceId, string $amount, string $flowDate): void
+    /** WIP 归集（含首建台账与流水）；调用方须已持有工单行锁串行化（工序报工审核复用：sourceType=2 人工） */
+    public function wipAccumulate(MfgProductionOrder $order, int $sourceType, int $sourceId, string $amount, string $flowDate): void
     {
         if (bccomp($amount, '0', 4) <= 0) {
             return;
@@ -440,8 +440,8 @@ class MfgCostService extends AbstractCrudService
         return $voucher;
     }
 
-    /** 锁定工单行并校验生产中状态（audit 与结算先取工单锁，串行化同单并发归集） */
-    private function lockOrderInProduction(int $orderId, string $action): MfgProductionOrder
+    /** 锁定工单行并校验生产中状态（audit 与结算先取工单锁，串行化同单并发归集；工序报工审核复用） */
+    public function lockOrderInProduction(int $orderId, string $action): MfgProductionOrder
     {
         /** @var MfgProductionOrder|null $order */
         $order = MfgProductionOrder::query()->where('id', $orderId)->lockForUpdate()->first();
