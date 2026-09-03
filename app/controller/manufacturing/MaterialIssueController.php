@@ -90,11 +90,11 @@ class MaterialIssueController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        // 数量>0 与 SKU 归属前置校验（出库前不允许负数/不存在物料）
+        // 数量>0 与 SKU 归属前置校验（bcmath，出库前不允许负数/不存在物料）
         $items = [];
         foreach ((array) $request->input('items', []) as $i => $row) {
-            $qty = (float) ($row['quantity'] ?? 0);
-            if ($qty <= 0) {
+            $qty = bc_norm((string) ($row['quantity'] ?? '0'));
+            if (bccomp($qty, '0', 4) <= 0) {
                 return $this->fail('明细第' . ($i + 1) . '行领料数量必须大于0', 422);
             }
             $sku = ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->first();
@@ -135,7 +135,7 @@ class MaterialIssueController extends BaseController
                 }
             });
         } catch (QueryException $e) {
-            if ($this->isDuplicateKey($e)) {
+            if ($this->cost()->isDuplicateKey($e)) {
                 return $this->fail('领料单号已存在', 422);
             }
             throw $e;
@@ -192,17 +192,16 @@ class MaterialIssueController extends BaseController
         if ((int) $doc->status !== 0) {
             return $this->fail('已审核的领料单不可修改', 422);
         }
-        $request->offsetUnset('code');
-        $request->offsetUnset('order_id');
-        $request->offsetUnset('status');
-        $item = $this->cost()->update(MfgMaterialIssue::class, $id, $request->all(), ['status', 'total_cost', 'audit_at']);
+        $data = $request->all();
+        unset($data['code'], $data['order_id'], $data['status']);
+        $item = $this->cost()->update(MfgMaterialIssue::class, $id, $data, ['status', 'total_cost', 'audit_at']);
 
         $rawItems = $request->input('items');
         if (is_array($rawItems)) {
             $rows = [];
             foreach ($rawItems as $i => $row) {
-                $qty = (float) ($row['quantity'] ?? 0);
-                if ($qty <= 0) {
+                $qty = bc_norm((string) ($row['quantity'] ?? '0'));
+                if (bccomp($qty, '0', 4) <= 0) {
                     return $this->fail('明细第' . ($i + 1) . '行领料数量必须大于0', 422);
                 }
                 $sku = ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->first();

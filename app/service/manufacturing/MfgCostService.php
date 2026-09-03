@@ -411,7 +411,7 @@ class MfgCostService extends AbstractCrudService
         }
         $order = MfgProductionOrder::query()->find((int) $oc->order_id);
         $voucher = Container::get(DoubleEntryService::class)->createVoucher([
-            'remark' => '工单完工成本结转-' . ($order?->code ?? $oc->order_id) . '(成本单#' . $oc->id . ')',
+            'remark' => '工单完工成本结转-' . ($order->code ?? $oc->order_id) . '(成本单#' . $oc->id . ')',
         ], $lines);
 
         try {
@@ -470,8 +470,8 @@ class MfgCostService extends AbstractCrudService
         return Container::get(InventoryService::class);
     }
 
-    /** MySQL 唯一键冲突(1062)判定，与 InventoryService 一致 */
-    private function isDuplicateKey(QueryException $e): bool
+    /** MySQL 唯一键冲突(1062)判定，与 InventoryService 一致；控制器经 cost() 复用 */
+    public function isDuplicateKey(QueryException $e): bool
     {
         return ($e->errorInfo[1] ?? 0) === 1062;
     }

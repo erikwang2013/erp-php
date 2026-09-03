@@ -107,7 +107,7 @@ class CostEntryController extends BaseController
                 $doc->save();
             });
         } catch (QueryException $e) {
-            if ($this->isDuplicateKey($e)) {
+            if ($this->cost()->isDuplicateKey($e)) {
                 return $this->fail('费用归集单号已存在', 422);
             }
             throw $e;
@@ -161,9 +161,9 @@ class CostEntryController extends BaseController
         if ((int) $doc->status !== 0) {
             return $this->fail('已审核的费用归集单不可修改', 422);
         }
-        $request->offsetUnset('code');
-        $request->offsetUnset('status');
-        $item = $this->cost()->update(MfgCostEntry::class, $id, $request->all(), ['status', 'audit_at']);
+        $data = $request->all();
+        unset($data['code'], $data['status']);
+        $item = $this->cost()->update(MfgCostEntry::class, $id, $data, ['status', 'audit_at']);
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
