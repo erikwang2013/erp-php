@@ -180,8 +180,8 @@ class SettlementController extends BaseController
         }
 
         if ($request->input('amount') !== null && $request->input('amount') !== '') {
-            $amount = (float) $request->input('amount');
-            if ($amount < (float) $item->settled_amount) {
+            $amount = bc_norm($request->input('amount'));
+            if (bccomp($amount, bc_norm($item->settled_amount), 4) < 0) {
                 return $this->fail('金额不能小于已核销金额', 422);
             }
             $item->amount = $amount;
@@ -215,7 +215,7 @@ class SettlementController extends BaseController
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-        if ((float) $item->settled_amount > 0) {
+        if (bccomp(bc_norm($item->settled_amount), '0', 4) > 0) {
             return $this->fail('已核销记录不可删除', 422);
         }
 
@@ -236,7 +236,8 @@ class SettlementController extends BaseController
         $data['customer_id'] = $item->partner_id;
         $data['delivery_id'] = $item->source_id;
         $data['received_amount'] = $item->settled_amount;
-        $data['status'] = (float) $item->settled_amount >= (float) $item->amount ? 2 : ((float) $item->settled_amount > 0 ? 1 : 0);
+        $settled = bc_norm($item->settled_amount);
+        $data['status'] = bccomp($settled, bc_norm($item->amount), 4) >= 0 ? 2 : (bccomp($settled, '0', 4) > 0 ? 1 : 0);
         $data['settled_at'] = $settledAt;
         unset($data['partner_id'], $data['source_id'], $data['source_type'], $data['settled_amount']);
 

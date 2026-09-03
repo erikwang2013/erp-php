@@ -417,7 +417,7 @@ class CrmService extends AbstractCrudService
             'order' => [
                 'total_orders' => $totalOrders,
                 'total_amount' => $totalAmount,
-                'avg_order_value' => $totalOrders > 0 ? round($totalAmount / $totalOrders, 2) : 0,
+                'avg_order_value' => $totalOrders > 0 ? (float) bc_round(bcdiv(bc_norm($totalAmount), bc_norm($totalOrders), 6), 2) : 0,
                 'period' => $periodLabel,
             ],
             'revenue' => [

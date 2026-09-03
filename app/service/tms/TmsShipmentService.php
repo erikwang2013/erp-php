@@ -29,7 +29,7 @@ class TmsShipmentService
             $shipment->tracking_no = $options['tracking_no'] ?? '';
             $shipment->status = 0;
             $shipment->total_weight_kg = $pack ? $pack->weight_kg : 0;
-            $shipment->total_volume_cm3 = $pack ? round($pack->length_cm * $pack->width_cm * $pack->height_cm, 2) : 0;
+            $shipment->total_volume_cm3 = $pack ? bc_round(bcmul(bc_norm($pack->length_cm), bcmul(bc_norm($pack->width_cm), bc_norm($pack->height_cm), 6), 6), 2) : 0;
             $shipment->package_count = 1;
             $shipment->freight_charge = $options['freight_charge'] ?? 0;
             $shipment->insurance_charge = $options['insurance_charge'] ?? 0;

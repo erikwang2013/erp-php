@@ -238,9 +238,9 @@ class AssetController extends BaseController
             return $this->fail('该期间已计提折旧', 422);
         }
 
-        $amount = (float) $asset->monthly_depreciation;
-        $newAccumulated = bcadd((string) $asset->accumulated_depreciation, (string) $amount, 2);
-        $newNet = bcsub((string) $asset->purchase_amount, $newAccumulated, 2);
+        $amount = bc_norm($asset->monthly_depreciation ?? '0');
+        $newAccumulated = bcadd(bc_norm($asset->accumulated_depreciation ?? '0'), $amount, 2);
+        $newNet = bcsub(bc_norm($asset->purchase_amount ?? '0'), $newAccumulated, 2);
 
         $depr = new FinanceAssetDepreciation();
         $depr->id = $this->generateId();
@@ -249,7 +249,9 @@ class AssetController extends BaseController
         $depr->period_month = $month;
         $depr->depreciation_amount = $amount;
         $depr->accumulated_amount = $newAccumulated;
-        $depr->net_value = max((float) $newNet, (float) $asset->salvage_value);
+        $depr->net_value = bccomp($newNet, bc_norm($asset->salvage_value ?? '0'), 4) >= 0
+            ? $newNet
+            : bc_norm($asset->salvage_value ?? '0');
         $depr->save();
 
         $asset->accumulated_depreciation = $newAccumulated;

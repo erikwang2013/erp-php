@@ -256,9 +256,9 @@ class BudgetController extends BaseController
         foreach ($items as $it) {
             $row = $this->encodeIds($it->toArray());
             $variance = bcsub((string) $it->actual_amount, (string) $it->budget_amount, 2);
-            $percent = $it->budget_amount > 0
-                ? round(bcdiv((string) $it->actual_amount, (string) $it->budget_amount, 4) * 100, 2)
-                : 0;
+            $percent = bccomp(bc_norm($it->budget_amount), '0', 4) > 0
+                ? bc_round(bcmul(bcdiv(bc_norm($it->actual_amount), bc_norm($it->budget_amount), 4), '100', 6), 2)
+                : '0';
             $row['variance'] = $variance;
             $row['execution_rate'] = $percent;
             $rows[] = $row;
@@ -268,9 +268,9 @@ class BudgetController extends BaseController
         }
 
         $totalVariance = bcsub($totalActual, $totalBudget, 2);
-        $totalRate = (float) $totalBudget > 0
-            ? round(bcdiv($totalActual, $totalBudget, 4) * 100, 2)
-            : 0;
+        $totalRate = bccomp($totalBudget, '0', 4) > 0
+            ? bc_round(bcmul(bcdiv($totalActual, $totalBudget, 4), '100', 6), 2)
+            : '0';
 
         return $this->success([
             'budget' => $this->encodeIds($budget->toArray()),

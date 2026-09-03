@@ -107,8 +107,9 @@ class SecurityPatternTest extends TestCase
     {
         $ref = new \ReflectionClass('app\\service\\inventory\\InventoryService');
         $stockInSource = $this->getMethodSource($ref, $ref->getMethod('stockIn'));
-        $this->assertStringContainsString('$quantity <= 0', $stockInSource, 'stockIn should validate quantity > 0');
-        $this->assertStringContainsString('$unitCost < 0', $stockInSource, 'stockIn should validate unitCost >= 0');
+        // bc 化后：float 直接比较改为 bccomp(bc_norm(...), '0', 4) 形式（语义不变：仍拒绝 qty<=0 与 cost<0）
+        $this->assertStringContainsString("bccomp(bc_norm(\$quantity), '0', 4) <= 0", $stockInSource, 'stockIn should validate quantity > 0');
+        $this->assertStringContainsString("bccomp(bc_norm(\$unitCost), '0', 4) < 0", $stockInSource, 'stockIn should validate unitCost >= 0');
     }
 
     private function getProjectPhpFiles(): array

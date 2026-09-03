@@ -143,6 +143,56 @@ function jwt_instance(): \Erikwang2013\Jwt\JWT
     return $jwt;
 }
 
+/**
+ * 规范化数值为 bcmath 可用的十进制字符串。
+ *
+ * bcmath 只接受十进制串（科学计数法如 "1.0E-5" 会抛 ValueError）；
+ * float 经 10 位小数展开再掐尾零，避免二进制尾噪与科学计数法进入 bc 运算
+ * （0.105→"0.105"、1e-5→"0.00001"）；字符串原样返回。
+ *
+ * 命名用 bc_ 前缀：PHP 8.4 起 bcmath 自带 bcround()/bcceil()/bcfloor()，
+ * symfony/polyfill-php84 亦已定义同名函数（composer autoload_files），不可重名。
+ */
+function bc_norm(string|int|float $v): string
+{
+    if (is_float($v)) {
+        $v = rtrim(rtrim(sprintf('%.10F', $v), '0'), '.');
+    }
+    $v = (string) $v;
+
+    return $v === '-0' ? '0' : $v;
+}
+
+/**
+ * 四舍五入（half-up，远离零——与 PHP round() 默认及中文财会一致）。
+ *
+ * 原理：末位加 0.5×10^-scale 后按 scale 截断——恰半值必在 scale 位产生 10 进位，
+ * 余下低位置截断安全。负数对称（bcsub），-1.005→"-1.01"。
+ */
+function bc_round(string|int|float $value, int $scale = 2): string
+{
+    $n = bc_norm($value);
+    $half = '0.' . str_repeat('0', $scale) . '5';
+
+    return str_starts_with($n, '-') ? bcsub($n, $half, $scale) : bcadd($n, $half, $scale);
+}
+
+/**
+ * 绝对值（bc 域内取符号位，避免 abs() 把金额串转回 float）。
+ *
+ * 负值经 bcsub 固定 scale=6 会产生尾零（-1.2→"1.200000"），与正数直通
+ * （"1.2"）不对称，出口前掐掉尾零统一为规范十进制串。
+ */
+function bc_abs(string|int|float $value): string
+{
+    $n = bc_norm($value);
+    if (!str_starts_with($n, '-')) {
+        return $n;
+    }
+
+    return rtrim(rtrim(bcsub('0', $n, 6), '0'), '.');
+}
+
 // poster-php 配置挂载：PosterConfig 默认只读包内 vendor config（driver 硬编码 auto），
 // 项目 config/poster.php 需在此显式加载才生效（生产与测试共用此引导路径）。
 // PosterConfig::load(null) 会按包内默认路径重载并因 mtime 不等而覆盖已挂载配置

@@ -204,6 +204,11 @@ class ProjectController extends BaseController
             return 0;
         }
 
-        return (int) round($tasks->avg('progress'));
+        $sum = '0';
+        foreach ($tasks as $task) {
+            $sum = bcadd($sum, bc_norm($task->progress), 6);
+        }
+
+        return (int) bc_round(bcdiv($sum, (string) count($tasks), 6), 0);
     }
 }

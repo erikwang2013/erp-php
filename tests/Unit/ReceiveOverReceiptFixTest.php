@@ -38,7 +38,7 @@ class ReceiveOverReceiptFixTest extends TestCase
 
         // 超收校验：历史累计实收 + 本次 ≤ 采购数量，否则严格拒绝
         $this->assertStringContainsString('SUM(erp_purchase_receive_item.quantity)', $src);
-        $this->assertStringContainsString('($receivedSoFar + $quantity) > $orderedQty', $src, '应校验累计实收不超过采购数量');
+        $this->assertStringContainsString('bccomp(bcadd($receivedSoFar, $quantity, 4), $orderedQty, 4) > 0', $src, '应校验累计实收不超过采购数量');
         $this->assertStringContainsString('超收拒绝', $src, '超收应以业务异常拒绝');
     }
 

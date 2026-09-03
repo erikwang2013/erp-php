@@ -22,18 +22,19 @@ class DoubleEntryService
 {
     public function validateBalance(array $items): void
     {
-        $totalDebit = 0.0;
-        $totalCredit = 0.0;
+        $totalDebit = '0';
+        $totalCredit = '0';
         foreach ($items as $item) {
-            $totalDebit += (float)($item['debit_amount'] ?? 0);
-            $totalCredit += (float)($item['credit_amount'] ?? 0);
+            $totalDebit = bcadd($totalDebit, bc_norm($item['debit_amount'] ?? 0), 6);
+            $totalCredit = bcadd($totalCredit, bc_norm($item['credit_amount'] ?? 0), 6);
         }
-        if (abs($totalDebit - $totalCredit) > 0.001) {
+        $diff = bc_abs(bcsub($totalDebit, $totalCredit, 6));
+        if (bccomp($diff, '0.001', 4) > 0) {
             throw new \RuntimeException(sprintf(
                 '借贷不平衡: 借方合计=%.2f, 贷方合计=%.2f, 差额=%.2f',
                 $totalDebit,
                 $totalCredit,
-                abs($totalDebit - $totalCredit)
+                $diff
             ));
         }
     }

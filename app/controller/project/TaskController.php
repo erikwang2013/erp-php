@@ -206,7 +206,14 @@ class TaskController extends BaseController
     protected function updateProjectProgress(int $projectId): void
     {
         $tasks = ProjectTask::where('project_id', $projectId)->get();
-        $avgProgress = $tasks->isEmpty() ? 0 : (int) round($tasks->avg('progress'));
+        $avgProgress = 0;
+        if (!$tasks->isEmpty()) {
+            $sum = '0';
+            foreach ($tasks as $task) {
+                $sum = bcadd($sum, bc_norm($task->progress), 6);
+            }
+            $avgProgress = (int) bc_round(bcdiv($sum, (string) count($tasks), 6), 0);
+        }
 
         \app\model\Project::where('id', $projectId)->update(['progress' => $avgProgress]);
     }

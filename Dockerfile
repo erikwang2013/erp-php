@@ -44,6 +44,7 @@ RUN docker-php-ext-install -j$(nproc) \
         xmlwriter \
         sockets \
         zip \
+        bcmath \
     && pecl channel-update pecl.php.net \
     # event 的 sockets 支持需链接 PHP sockets 的 C 符号（扩展间不做符号导出，运行时必现
     # "socket_import_file_descriptor: symbol not found"）；Workerman 只用 event 事件循环，禁用之

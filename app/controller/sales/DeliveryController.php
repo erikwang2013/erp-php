@@ -147,7 +147,7 @@ class DeliveryController extends BaseController
             // 从容器获取服务实例（便于测试时替换/注入 mock）
             $inventoryService = Container::get(InventoryService::class);
             $financeService = Container::get(FinanceService::class);
-            $totalDeliveryAmount = 0;
+            $totalDeliveryAmount = '0';
 
             // 2. 创建发货明细 + 执行出库
             foreach ($request->input('items') as $itemData) {
@@ -155,12 +155,12 @@ class DeliveryController extends BaseController
                 $skuId = ($itemData['sku_id'] ?? '') ? $this->decodeId($itemData['sku_id']) : 0;
                 $locationId = ($itemData['location_id'] ?? '') ? $this->decodeId($itemData['location_id']) : 0;
                 $orderItemId = ($itemData['order_item_id'] ?? '') ? $this->decodeId($itemData['order_item_id']) : 0;
-                $quantity = (float) $itemData['quantity'];
-                $price = (float) $itemData['price'];
-                $amount = round($quantity * $price, 2);
+                $quantity = bc_norm($itemData['quantity']);
+                $price = bc_norm($itemData['price']);
+                $amount = bc_round(bcmul($quantity, $price, 6), 2);
                 $batchCode = $itemData['batch_code'] ?? '';
                 $unit = $itemData['unit'] ?? '';
-                $totalDeliveryAmount += $amount;
+                $totalDeliveryAmount = bcadd($totalDeliveryAmount, $amount, 6);
 
                 // 归属校验：order_item_id 必须属于该销售单
                 if ($orderItemId <= 0 || !isset($orderItems[$orderItemId])) {
@@ -173,16 +173,16 @@ class DeliveryController extends BaseController
                 if (!$orderItem) {
                     throw new \RuntimeException("销售明细不存在: order_item_id={$orderItemId}");
                 }
-                $deliveredSoFar = (float) SalesDeliveryItem::query()->join('erp_sales_delivery', 'erp_sales_delivery.id', '=', 'erp_sales_delivery_item.delivery_id')
+                $deliveredSoFar = bc_norm(SalesDeliveryItem::query()->join('erp_sales_delivery', 'erp_sales_delivery.id', '=', 'erp_sales_delivery_item.delivery_id')
                     ->where('erp_sales_delivery.order_id', $orderId)
                     ->where('erp_sales_delivery.status', 1)
                     ->whereNull('erp_sales_delivery.deleted_at')
                     ->where('erp_sales_delivery_item.order_item_id', $orderItemId)
-                    ->sum('erp_sales_delivery_item.quantity');
-                $orderedQty = (float) $orderItem->quantity;
-                if (($deliveredSoFar + $quantity) > $orderedQty) {
+                    ->sum('erp_sales_delivery_item.quantity'));
+                $orderedQty = bc_norm($orderItem->quantity);
+                if (bccomp(bcadd($deliveredSoFar, $quantity, 4), $orderedQty, 4) > 0) {
                     throw new \RuntimeException(
-                        "超发拒绝: 行{$orderItemId} 订购{$orderedQty}, 累计实发" . round($deliveredSoFar + $quantity, 2)
+                        "超发拒绝: 行{$orderItemId} 订购{$orderedQty}, 累计实发" . bc_round(bcadd($deliveredSoFar, $quantity, 6), 2)
                     );
                 }
 
@@ -208,7 +208,7 @@ class DeliveryController extends BaseController
                     $delivery->warehouse_id,
                     $locationId,
                     $batchCode,
-                    $quantity,
+                    (float) $quantity,
                     'sales_delivery',
                     $delivery->id
                 );
@@ -223,7 +223,7 @@ class DeliveryController extends BaseController
                 $delivery->customer_id,
                 'sales_delivery',
                 $delivery->id,
-                $totalDeliveryAmount
+                (float) $totalDeliveryAmount
             );
 
             // 5. 更新销售订单状态
@@ -273,13 +273,13 @@ class DeliveryController extends BaseController
         $allComplete = true;
         $anyDelivered = false;
         foreach ($orderItems as $item) {
-            $delivered = (float) ($deliveredByItem[$item->id] ?? 0);
-            if ($delivered <= 0) {
+            $delivered = bc_norm($deliveredByItem[$item->id] ?? 0);
+            if (bccomp($delivered, '0', 4) <= 0) {
                 $allComplete = false;
                 continue;
             }
             $anyDelivered = true;
-            if ($delivered < (float) $item->quantity) {
+            if (bccomp($delivered, bc_norm($item->quantity), 4) < 0) {
                 $allComplete = false;
             }
         }

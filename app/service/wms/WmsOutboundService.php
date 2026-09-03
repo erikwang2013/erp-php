@@ -67,7 +67,7 @@ class WmsOutboundService
 
                 // 超拣拒绝：实拣数量不得超过该行应拣（预占）数量
                 $picked = (float)$item['picked_quantity'];
-                if ($picked < 0 || $picked > (float)$pickItem->ordered_quantity) {
+                if (bccomp(bc_norm($picked), '0', 4) < 0 || bccomp(bc_norm($picked), bc_norm($pickItem->ordered_quantity), 4) > 0) {
                     throw new \RuntimeException(
                         "实拣数量超限: product_id={$item['product_id']}, 应拣{$pickItem->ordered_quantity}, 实拣{$picked}"
                     );
@@ -180,7 +180,7 @@ class WmsOutboundService
                 (int)$pi->location_id,
                 (string)$pi->batch_code
             );
-            $pickedByKey[$key] = ((float)($pickedByKey[$key] ?? 0)) + (float)$pi->picked_quantity;
+            $pickedByKey[$key] = bcadd($pickedByKey[$key] ?? '0', bc_norm($pi->picked_quantity), 6);
         }
 
         $inventory = new InventoryService();
@@ -197,18 +197,18 @@ class WmsOutboundService
                 (int)$r->location_id,
                 (string)$r->batch_code
             );
-            $picked = (float)($pickedByKey[$key] ?? 0);
-            $reserved = (float)$r->reserved_quantity;
+            $picked = $pickedByKey[$key] ?? '0';
+            $reserved = bc_norm($r->reserved_quantity);
 
-            if ($picked >= $reserved) {
-                $inventory->stockOut($r->product_id, $r->sku_id, $r->warehouse_id, $r->location_id, $r->batch_code, $reserved, 'oms_order', $omsOrderId);
+            if (bccomp($picked, $reserved, 4) >= 0) {
+                $inventory->stockOut($r->product_id, $r->sku_id, $r->warehouse_id, $r->location_id, $r->batch_code, (float) $reserved, 'oms_order', $omsOrderId);
                 $r->status = 3; // 全部实拣 → 预占消耗
-                $pickedByKey[$key] = $picked - $reserved;
-            } elseif ($picked > 0) {
-                $inventory->stockOut($r->product_id, $r->sku_id, $r->warehouse_id, $r->location_id, $r->batch_code, $picked, 'oms_order', $omsOrderId);
-                $r->reserved_quantity = round($reserved - $picked, 2); // 保留未拣部分记录
+                $pickedByKey[$key] = bcsub($picked, $reserved, 6);
+            } elseif (bccomp($picked, '0', 4) > 0) {
+                $inventory->stockOut($r->product_id, $r->sku_id, $r->warehouse_id, $r->location_id, $r->batch_code, (float) $picked, 'oms_order', $omsOrderId);
+                $r->reserved_quantity = bc_round(bcsub($reserved, $picked, 6), 2); // 保留未拣部分记录
                 $r->status = 2; // 部分实拣 → 未拣部分释放
-                $pickedByKey[$key] = 0;
+                $pickedByKey[$key] = '0';
             } else {
                 $r->status = 2; // 未实拣 → 整行释放
             }

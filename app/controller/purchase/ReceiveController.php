@@ -147,7 +147,7 @@ class ReceiveController extends BaseController
             // 从容器获取服务实例（便于测试时替换/注入 mock）
             $inventoryService = Container::get(InventoryService::class);
             $financeService = Container::get(FinanceService::class);
-            $totalReceiveAmount = 0;
+            $totalReceiveAmount = '0';
 
             // 2. 创建收货明细 + 执行入库
             foreach ($request->input('items') as $itemData) {
@@ -155,12 +155,12 @@ class ReceiveController extends BaseController
                 $skuId = ($itemData['sku_id'] ?? '') ? $this->decodeId($itemData['sku_id']) : 0;
                 $locationId = ($itemData['location_id'] ?? '') ? $this->decodeId($itemData['location_id']) : 0;
                 $orderItemId = ($itemData['order_item_id'] ?? '') ? $this->decodeId($itemData['order_item_id']) : 0;
-                $quantity = (float) $itemData['quantity'];
-                $price = (float) $itemData['price'];
-                $amount = round($quantity * $price, 2);
+                $quantity = bc_norm($itemData['quantity']);
+                $price = bc_norm($itemData['price']);
+                $amount = bc_round(bcmul($quantity, $price, 6), 2);
                 $batchCode = $itemData['batch_code'] ?? '';
                 $unit = $itemData['unit'] ?? '';
-                $totalReceiveAmount += $amount;
+                $totalReceiveAmount = bcadd($totalReceiveAmount, $amount, 6);
 
                 // 归属校验：order_item_id 必须属于该采购单
                 if ($orderItemId <= 0 || !isset($orderItems[$orderItemId])) {
@@ -173,16 +173,16 @@ class ReceiveController extends BaseController
                 if (!$orderItem) {
                     throw new \RuntimeException("采购明细不存在: order_item_id={$orderItemId}");
                 }
-                $receivedSoFar = (float) PurchaseReceiveItem::query()->join('erp_purchase_receive', 'erp_purchase_receive.id', '=', 'erp_purchase_receive_item.receive_id')
+                $receivedSoFar = bc_norm(PurchaseReceiveItem::query()->join('erp_purchase_receive', 'erp_purchase_receive.id', '=', 'erp_purchase_receive_item.receive_id')
                     ->where('erp_purchase_receive.order_id', $orderId)
                     ->where('erp_purchase_receive.status', 1)
                     ->whereNull('erp_purchase_receive.deleted_at')
                     ->where('erp_purchase_receive_item.order_item_id', $orderItemId)
-                    ->sum('erp_purchase_receive_item.quantity');
-                $orderedQty = (float) $orderItem->quantity;
-                if (($receivedSoFar + $quantity) > $orderedQty) {
+                    ->sum('erp_purchase_receive_item.quantity'));
+                $orderedQty = bc_norm($orderItem->quantity);
+                if (bccomp(bcadd($receivedSoFar, $quantity, 4), $orderedQty, 4) > 0) {
                     throw new \RuntimeException(
-                        "超收拒绝: 行{$orderItemId} 采购{$orderedQty}, 累计实收" . round($receivedSoFar + $quantity, 2)
+                        "超收拒绝: 行{$orderItemId} 采购{$orderedQty}, 累计实收" . bc_round(bcadd($receivedSoFar, $quantity, 6), 2)
                     );
                 }
 
@@ -208,8 +208,8 @@ class ReceiveController extends BaseController
                     $receive->warehouse_id,
                     $locationId,
                     $batchCode,
-                    $quantity,
-                    $price,
+                    (float) $quantity,
+                    (float) $price,
                     'purchase_receive',
                     $receive->id
                 );
@@ -224,7 +224,7 @@ class ReceiveController extends BaseController
                 $receive->supplier_id,
                 'purchase_receive',
                 $receive->id,
-                $totalReceiveAmount
+                (float) $totalReceiveAmount
             );
 
             // 5. 更新采购订单状态
@@ -274,13 +274,13 @@ class ReceiveController extends BaseController
         $allComplete = true;
         $anyReceived = false;
         foreach ($orderItems as $item) {
-            $received = (float) ($receivedByItem[$item->id] ?? 0);
-            if ($received <= 0) {
+            $received = bc_norm($receivedByItem[$item->id] ?? 0);
+            if (bccomp($received, '0', 4) <= 0) {
                 $allComplete = false;
                 continue;
             }
             $anyReceived = true;
-            if ($received < (float) $item->quantity) {
+            if (bccomp($received, bc_norm($item->quantity), 4) < 0) {
                 $allComplete = false;
             }
         }

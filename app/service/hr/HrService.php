@@ -131,11 +131,9 @@ class HrService extends AbstractCrudService
      */
     public function salaryNetSalary(array $data): float
     {
-        return (float) ($data['base_salary'] ?? 0)
-            + (float) ($data['performance'] ?? 0)
-            + (float) ($data['overtime'] ?? 0)
-            - (float) ($data['deduction'] ?? 0)
-            - (float) ($data['tax'] ?? 0);
+        $gross = bcadd(bcadd(bc_norm($data['base_salary'] ?? 0), bc_norm($data['performance'] ?? 0), 6), bc_norm($data['overtime'] ?? 0), 6);
+
+        return (float) bcsub(bcsub($gross, bc_norm($data['deduction'] ?? 0), 6), bc_norm($data['tax'] ?? 0), 6);
     }
 
     /**

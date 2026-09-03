@@ -49,35 +49,35 @@ class CashFlowController extends BaseController
             ->whereMonth('journal_date', $month)
             ->get();
 
-        $operatingInflow = 0;
-        $operatingOutflow = 0;
-        $investingInflow = 0;
-        $investingOutflow = 0;
-        $financingInflow = 0;
-        $financingOutflow = 0;
+        $operatingInflow = '0';
+        $operatingOutflow = '0';
+        $investingInflow = '0';
+        $investingOutflow = '0';
+        $financingInflow = '0';
+        $financingOutflow = '0';
 
         foreach ($journals as $journal) {
-            $amount = $journal->amount ?? 0;
+            $amount = bc_norm($journal->amount ?? 0);
             $direction = $journal->direction ?? 1;
             $category = $journal->category_id ?? 0;
 
             if ($direction === 1) {
                 // 收入
                 if ($category >= 10 && $category < 20) {
-                    $operatingInflow += $amount;
+                    $operatingInflow = bcadd($operatingInflow, $amount, 6);
                 } elseif ($category >= 20 && $category < 30) {
-                    $investingInflow += $amount;
+                    $investingInflow = bcadd($investingInflow, $amount, 6);
                 } elseif ($category >= 30 && $category < 40) {
-                    $financingInflow += $amount;
+                    $financingInflow = bcadd($financingInflow, $amount, 6);
                 }
             } else {
                 // 支出
                 if ($category >= 10 && $category < 20) {
-                    $operatingOutflow += $amount;
+                    $operatingOutflow = bcadd($operatingOutflow, $amount, 6);
                 } elseif ($category >= 20 && $category < 30) {
-                    $investingOutflow += $amount;
+                    $investingOutflow = bcadd($investingOutflow, $amount, 6);
                 } elseif ($category >= 30 && $category < 40) {
-                    $financingOutflow += $amount;
+                    $financingOutflow = bcadd($financingOutflow, $amount, 6);
                 }
             }
         }
@@ -92,23 +92,25 @@ class CashFlowController extends BaseController
         $prevSnapshot = FinanceCashFlow::where('report_year', $prevYear)
             ->where('report_month', $prevMonth)
             ->first();
-        $beginningCash = $prevSnapshot ? (float) $prevSnapshot->ending_cash : 0;
-        $endingCash = $beginningCash + ($operatingInflow - $operatingOutflow) + ($investingInflow - $investingOutflow) + ($financingInflow - $financingOutflow);
+        $beginningCash = $prevSnapshot ? bc_norm($prevSnapshot->ending_cash ?? 0) : '0';
+        $endingCash = bcadd($beginningCash, bcsub($operatingInflow, $operatingOutflow, 6), 6);
+        $endingCash = bcadd($endingCash, bcsub($investingInflow, $investingOutflow, 6), 6);
+        $endingCash = bcadd($endingCash, bcsub($financingInflow, $financingOutflow, 6), 6);
 
         $reportData = [
             'report_year' => $year,
             'report_month' => $month,
-            'operating_inflow' => round($operatingInflow, 2),
-            'operating_outflow' => round($operatingOutflow, 2),
-            'operating_net' => round($operatingInflow - $operatingOutflow, 2),
-            'investing_inflow' => round($investingInflow, 2),
-            'investing_outflow' => round($investingOutflow, 2),
-            'investing_net' => round($investingInflow - $investingOutflow, 2),
-            'financing_inflow' => round($financingInflow, 2),
-            'financing_outflow' => round($financingOutflow, 2),
-            'financing_net' => round($financingInflow - $financingOutflow, 2),
-            'beginning_cash' => round($beginningCash, 2),
-            'ending_cash' => round($endingCash, 2),
+            'operating_inflow' => (float) bc_round($operatingInflow, 2),
+            'operating_outflow' => (float) bc_round($operatingOutflow, 2),
+            'operating_net' => (float) bc_round(bcsub($operatingInflow, $operatingOutflow, 6), 2),
+            'investing_inflow' => (float) bc_round($investingInflow, 2),
+            'investing_outflow' => (float) bc_round($investingOutflow, 2),
+            'investing_net' => (float) bc_round(bcsub($investingInflow, $investingOutflow, 6), 2),
+            'financing_inflow' => (float) bc_round($financingInflow, 2),
+            'financing_outflow' => (float) bc_round($financingOutflow, 2),
+            'financing_net' => (float) bc_round(bcsub($financingInflow, $financingOutflow, 6), 2),
+            'beginning_cash' => (float) bc_round($beginningCash, 2),
+            'ending_cash' => (float) bc_round($endingCash, 2),
             'report_data' => json_encode([
                 'generated_from' => 'cash_journal',
                 'journal_count' => $journals->count(),

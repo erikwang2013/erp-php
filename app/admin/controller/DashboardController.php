@@ -193,7 +193,13 @@ class DashboardController extends BaseController
             return $today > 0 ? 100.0 : 0.0;
         }
 
-        return round(($today - $yesterday) / $yesterday * 100, 1);
+        $growth = bcdiv(
+            bcmul(bcsub(bc_norm($today), bc_norm($yesterday), 6), '100', 6),
+            bc_norm($yesterday),
+            6
+        );
+
+        return (float) bc_round($growth, 1);
     }
 
     /**
@@ -391,29 +397,30 @@ class DashboardController extends BaseController
             ->selectRaw('due_date, amount - settled_amount as outstanding')
             ->get();
 
-        $buckets = ['未到期' => 0, '逾期1-30天' => 0, '逾期31-60天' => 0, '逾期61-90天' => 0, '逾期90+天' => 0];
+        $buckets = ['未到期' => '0', '逾期1-30天' => '0', '逾期31-60天' => '0', '逾期61-90天' => '0', '逾期90+天' => '0'];
         $today = strtotime(date('Y-m-d'));
         foreach ($rows as $row) {
-            if ($row->outstanding <= 0) {
+            $outstanding = bc_norm($row->outstanding);
+            if (bccomp($outstanding, '0', 4) <= 0) {
                 continue;
             }
             // due_date 为空视为未到期；模型 cast 为 date，取 Y-m-d 再转时间戳
             $days = $row->due_date === null ? 0 : (int) floor(($today - strtotime($row->due_date->toDateString())) / 86400);
             if ($days <= 0) {
-                $buckets['未到期'] += $row->outstanding;
+                $buckets['未到期'] = bcadd($buckets['未到期'], $outstanding, 6);
             } elseif ($days <= 30) {
-                $buckets['逾期1-30天'] += $row->outstanding;
+                $buckets['逾期1-30天'] = bcadd($buckets['逾期1-30天'], $outstanding, 6);
             } elseif ($days <= 60) {
-                $buckets['逾期31-60天'] += $row->outstanding;
+                $buckets['逾期31-60天'] = bcadd($buckets['逾期31-60天'], $outstanding, 6);
             } elseif ($days <= 90) {
-                $buckets['逾期61-90天'] += $row->outstanding;
+                $buckets['逾期61-90天'] = bcadd($buckets['逾期61-90天'], $outstanding, 6);
             } else {
-                $buckets['逾期90+天'] += $row->outstanding;
+                $buckets['逾期90+天'] = bcadd($buckets['逾期90+天'], $outstanding, 6);
             }
         }
 
         return array_map(
-            fn ($name, $value) => ['name' => $name, 'value' => round($value, 2)],
+            fn ($name, $value) => ['name' => $name, 'value' => (float) bc_round($value, 2)],
             array_keys($buckets),
             array_values($buckets)
         );

@@ -35,12 +35,14 @@ class InventoryService
         int $sourceId,
         array $serials = []
     ): int {
-        if ($quantity <= 0) {
+        if (bccomp(bc_norm($quantity), '0', 4) <= 0) {
             throw new \InvalidArgumentException('数量必须大于0');
         }
-        if ($unitCost < 0) {
+        if (bccomp(bc_norm($unitCost), '0', 4) < 0) {
             throw new \InvalidArgumentException('单价不能为负数');
         }
+        $qty = bc_norm($quantity);
+        $cost = bc_norm($unitCost);
 
         return DB::transaction(function () use (
             $productId,
@@ -48,8 +50,8 @@ class InventoryService
             $warehouseId,
             $locationId,
             $batchCode,
-            $quantity,
-            $unitCost,
+            $qty,
+            $cost,
             $sourceType,
             $sourceId,
             $serials
@@ -63,8 +65,8 @@ class InventoryService
             $flow->location_id = $locationId;
             $flow->batch_code = $batchCode;
             $flow->direction = 1;
-            $flow->quantity = $quantity;
-            $flow->cost_price = $unitCost;
+            $flow->quantity = $qty;
+            $flow->cost_price = $cost;
             $flow->source_type = $sourceType;
             $flow->source_id = $sourceId;
             $flow->save();
@@ -106,10 +108,10 @@ class InventoryService
                     ])->lockForUpdate()->firstOrFail();
                 }
             }
-            $inv->quantity += $quantity;
+            $inv->quantity = bcadd(bc_norm($inv->quantity), $qty, 6);
 
             // 3. 移动加权平均成本重算（必须在save之前，把加权均价写回库存记录）
-            $afterAvg = $this->recalcMovingAverageCost($productId, $skuId, $quantity, $unitCost, 1, $flow->id);
+            $afterAvg = $this->recalcMovingAverageCost($productId, $skuId, $qty, $cost, 1, $flow->id);
             $inv->cost_price = $afterAvg;
             $inv->save();
 
@@ -151,9 +153,10 @@ class InventoryService
         int $sourceId,
         array $serials = []
     ): int {
-        if ($quantity <= 0) {
+        if (bccomp(bc_norm($quantity), '0', 4) <= 0) {
             throw new \InvalidArgumentException('数量必须大于0');
         }
+        $qty = bc_norm($quantity);
 
         return DB::transaction(function () use (
             $productId,
@@ -161,7 +164,7 @@ class InventoryService
             $warehouseId,
             $locationId,
             $batchCode,
-            $quantity,
+            $qty,
             $sourceType,
             $sourceId,
             $serials
@@ -175,11 +178,11 @@ class InventoryService
                 'batch_code' => $batchCode,
             ])->lockForUpdate()->first();
 
-            if (!$inv || $inv->quantity < $quantity) {
-                throw new \RuntimeException("库存不足: product_id={$productId}, sku_id={$skuId}, 需要{$quantity}, 可用" . ($inv->quantity ?? 0));
+            if (!$inv || bccomp(bc_norm($inv->quantity), $qty, 4) < 0) {
+                throw new \RuntimeException("库存不足: product_id={$productId}, sku_id={$skuId}, 需要{$qty}, 可用" . ($inv->quantity ?? 0));
             }
 
-            $currentCost = $inv->cost_price;
+            $currentCost = bc_norm($inv->cost_price);
 
             // 2. 创建流水
             $flow = new InventoryFlow();
@@ -190,18 +193,18 @@ class InventoryService
             $flow->location_id = $locationId;
             $flow->batch_code = $batchCode;
             $flow->direction = 2;
-            $flow->quantity = $quantity;
+            $flow->quantity = $qty;
             $flow->cost_price = $currentCost;
             $flow->source_type = $sourceType;
             $flow->source_id = $sourceId;
             $flow->save();
 
             // 3. 扣减库存
-            $inv->quantity -= $quantity;
+            $inv->quantity = bcsub(bc_norm($inv->quantity), $qty, 6);
             $inv->save();
 
             // 4. 记录出库成本（出库不改变加权均价）
-            $this->recordCostRecord($productId, $skuId, $flow->id, 2, $quantity, $currentCost, $currentCost, $currentCost);
+            $this->recordCostRecord($productId, $skuId, $flow->id, 2, $qty, $currentCost, $currentCost, $currentCost);
 
             // 5. 序列号出库标记（可选）
             $this->recordSerialsOut($serials, $flow->id);
@@ -224,38 +227,42 @@ class InventoryService
     private function recalcMovingAverageCost(
         int $productId,
         int $skuId,
-        float $quantity,
-        float $unitCost,
+        string|int|float $quantity,
+        string|int|float $unitCost,
         int $type,
         int $flowId
-    ): float {
+    ): string {
         // 按SKU聚合全部库存行的数量与成本，避免跨仓加权成本串算
         // 悲观行锁：锁住该 SKU 全部库存行，串行化聚合读与批量成本更新，防止并发入库丢失更新
         // 首次入库无行可锁的竞态由唯一索引 uk_product_sku_warehouse_location_batch 兜底：
         // 后到事务在 stockIn 创建路径捕获 1062 后重读既有行再重算（见 stockIn）。
+        $inQty = bc_norm($quantity);
+        $inCost = bc_norm($unitCost);
         $rows = Inventory::where('product_id', $productId)
             ->where('sku_id', $skuId)
             ->lockForUpdate()
             ->get(['quantity', 'cost_price']);
-        $totalQty = 0;
-        $totalValue = 0.0;
+        $totalQty = '0';
+        $totalValue = '0';
         foreach ($rows as $row) {
-            $qty = (float)$row->quantity;
-            $totalQty += $qty;
-            $totalValue += $qty * (float)($row->cost_price ?? 0);
+            $qty = bc_norm($row->quantity);
+            $totalQty = bcadd($totalQty, $qty, 6);
+            $totalValue = bcadd($totalValue, bcmul($qty, bc_norm($row->cost_price ?? 0), 6), 6);
         }
 
-        $beforeAvg = $totalQty > 0 ? round($totalValue / $totalQty, 2) : $unitCost;
-        $afterAvg = ($totalQty + $quantity) > 0
-            ? round(($totalValue + $quantity * $unitCost) / ($totalQty + $quantity), 2)
-            : $unitCost;
+        // 移动加权平均：bc 域内高 scale 相除，避免 float 除法尾噪进入成本列，再舍入到列精度
+        $beforeAvg = bccomp($totalQty, '0', 4) > 0 ? bc_round(bcdiv($totalValue, $totalQty, 10), 2) : $inCost;
+        $newTotalQty = bcadd($totalQty, $inQty, 6);
+        $afterAvg = bccomp($newTotalQty, '0', 4) > 0
+            ? bc_round(bcdiv(bcadd($totalValue, bcmul($inQty, $inCost, 6), 6), $newTotalQty, 10), 2)
+            : $inCost;
 
         // 同步该SKU所有库存行的成本价，保证出库成本一致
         Inventory::where('product_id', $productId)
             ->where('sku_id', $skuId)
             ->update(['cost_price' => $afterAvg]);
 
-        $this->recordCostRecord($productId, $skuId, $flowId, 1, $quantity, $unitCost, $beforeAvg, $afterAvg);
+        $this->recordCostRecord($productId, $skuId, $flowId, 1, $inQty, $inCost, $beforeAvg, $afterAvg);
 
         return $afterAvg;
     }
@@ -274,9 +281,10 @@ class InventoryService
         int $sourceId,
         int $sourceItemId = 0
     ): int {
-        if ($quantity <= 0) {
+        if (bccomp(bc_norm($quantity), '0', 4) <= 0) {
             throw new \InvalidArgumentException('预占数量必须大于0');
         }
+        $qty = bc_norm($quantity);
 
         return DB::transaction(function () use (
             $productId,
@@ -284,7 +292,7 @@ class InventoryService
             $warehouseId,
             $locationId,
             $batchCode,
-            $quantity,
+            $qty,
             $sourceType,
             $sourceId,
             $sourceItemId
@@ -297,18 +305,19 @@ class InventoryService
                 'batch_code' => $batchCode,
             ])->lockForUpdate()->first();
 
-            $physicalQty = $inv ? $inv->quantity : 0;
-            $reserved = OmsInventoryReservation::where([
+            $physicalQty = bc_norm($inv ? $inv->quantity : 0);
+            $reserved = bc_norm(OmsInventoryReservation::where([
                 'product_id' => $productId,
                 'sku_id' => $skuId,
                 'warehouse_id' => $warehouseId,
                 'location_id' => $locationId,
                 'batch_code' => $batchCode,
                 'status' => 1,
-            ])->sum('reserved_quantity');
+            ])->sum('reserved_quantity'));
+            $available = bcsub($physicalQty, $reserved, 6);
 
-            if (($physicalQty - $reserved) < $quantity) {
-                throw new \RuntimeException("库存不足: 需要{$quantity}, 可用" . ($physicalQty - $reserved));
+            if (bccomp($available, $qty, 4) < 0) {
+                throw new \RuntimeException("库存不足: 需要{$qty}, 可用" . rtrim(rtrim($available, '0'), '.'));
             }
 
             $reservation = new OmsInventoryReservation();
@@ -321,7 +330,7 @@ class InventoryService
             $reservation->source_type = $sourceType;
             $reservation->source_id = $sourceId;
             $reservation->source_item_id = $sourceItemId;
-            $reservation->reserved_quantity = $quantity;
+            $reservation->reserved_quantity = $qty;
             $reservation->status = 1;
             $reservation->save();
 
@@ -394,7 +403,7 @@ class InventoryService
         }
         $reserved = $resQuery->sum('reserved_quantity');
 
-        return round($physicalQty - $reserved, 2);
+        return (float) bc_round(bcsub(bc_norm($physicalQty), bc_norm($reserved), 6), 2);
     }
 
     private function recordSerialsIn(int $productId, int $skuId, array $serials, int $flowId): void
@@ -437,10 +446,10 @@ class InventoryService
         int $skuId,
         int $flowId,
         int $type,
-        float $quantity,
-        float $unitCost,
-        float $beforeAvg,
-        float $afterAvg
+        string|int|float $quantity,
+        string|int|float $unitCost,
+        string|int|float $beforeAvg,
+        string|int|float $afterAvg
     ): void {
         $cost = new CostRecord();
         $cost->id = SnowflakeService::generate();
@@ -448,10 +457,10 @@ class InventoryService
         $cost->sku_id = $skuId;
         $cost->flow_id = $flowId;
         $cost->type = $type;
-        $cost->quantity = $quantity;
-        $cost->unit_cost = $unitCost;
-        $cost->before_avg_cost = $beforeAvg;
-        $cost->after_avg_cost = $afterAvg;
+        $cost->quantity = bc_norm($quantity);
+        $cost->unit_cost = bc_norm($unitCost);
+        $cost->before_avg_cost = bc_norm($beforeAvg);
+        $cost->after_avg_cost = bc_norm($afterAvg);
         $cost->save();
     }
 }

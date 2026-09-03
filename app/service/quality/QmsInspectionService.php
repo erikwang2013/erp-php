@@ -65,6 +65,6 @@ class QmsInspectionService
             $totalPassed += (int)($r['passed_qty'] ?? 0);
         }
 
-        return $totalInspected > 0 ? round(($totalPassed / $totalInspected) * 100, 2) : 0;
+        return $totalInspected > 0 ? (float) bc_round(bcmul(bcdiv(bc_norm($totalPassed), bc_norm($totalInspected), 6), '100', 6), 2) : 0;
     }
 }

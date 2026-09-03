@@ -56,7 +56,7 @@ class RmaService
                 $ri->sku_id = $item['sku_id'] ?? 0;
                 $ri->quantity = $item['quantity'];
                 $ri->price = $item['price'] ?? 0;
-                $ri->amount = $item['amount'] ?? ($item['quantity'] * ($item['price'] ?? 0));
+                $ri->amount = $item['amount'] ?? bcmul(bc_norm($item['quantity']), bc_norm($item['price'] ?? 0), 6);
                 $ri->unit = $item['unit'] ?? '';
                 $ri->save();
             }
@@ -163,7 +163,7 @@ class RmaService
             // 累计已退款 vs 订单总额：不足为部分退款(2)，补足为全额退款(3)
             $refundedTotal = (float) OmsRma::where('order_id', $rma->order_id)->where('status', 4)->sum('refund_amount');
             $orderTotal = (float) SalesOrder::where('id', $rma->order_id)->value('total_amount');
-            $paymentStatus = ($orderTotal > 0 && $refundedTotal >= $orderTotal) ? 3 : 2;
+            $paymentStatus = (bccomp(bc_norm($orderTotal), '0', 4) > 0 && bccomp(bc_norm($refundedTotal), bc_norm($orderTotal), 4) >= 0) ? 3 : 2;
             OmsOrder::where('id', $rma->order_id)->update(['payment_status' => $paymentStatus]);
             Log::info('RMA退款', [
                 'rma_id' => $rmaId,

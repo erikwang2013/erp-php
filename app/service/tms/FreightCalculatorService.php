@@ -28,12 +28,13 @@ class FreightCalculatorService
             return ['charge' => 0, 'currency' => 'CNY', 'rate_id' => null];
         }
 
-        $charge = (float) $rate->base_rate + ($weightKg * (float) $rate->per_kg_rate);
+        // 原语义：先算基础运费，再按未取整金额叠加燃油附加费，最后一次性 round 2
+        $charge = bcadd(bc_norm($rate->base_rate), bcmul(bc_norm($weightKg), bc_norm($rate->per_kg_rate), 6), 6);
         if ((float) $rate->fuel_surcharge_pct > 0) {
-            $charge += $charge * ((float) $rate->fuel_surcharge_pct / 100);
+            $charge = bcadd($charge, bcmul($charge, bcdiv(bc_norm($rate->fuel_surcharge_pct), '100', 6), 6), 6);
         }
 
-        return ['charge' => round($charge, 2), 'currency' => $rate->currency, 'rate_id' => $rate->id];
+        return ['charge' => (float) bc_round($charge, 2), 'currency' => $rate->currency, 'rate_id' => $rate->id];
     }
 
     /** 比价 — 按目的国/重量查找所有可用费率 */
@@ -48,14 +49,14 @@ class FreightCalculatorService
 
         $results = [];
         foreach ($rates as $rate) {
-            $charge = (float) $rate->base_rate + ($weightKg * (float) $rate->per_kg_rate);
+            $charge = bcadd(bc_norm($rate->base_rate), bcmul(bc_norm($weightKg), bc_norm($rate->per_kg_rate), 6), 6);
             if ((float) $rate->fuel_surcharge_pct > 0) {
-                $charge += $charge * ((float) $rate->fuel_surcharge_pct / 100);
+                $charge = bcadd($charge, bcmul($charge, bcdiv(bc_norm($rate->fuel_surcharge_pct), '100', 6), 6), 6);
             }
             $results[] = [
                 'rate_id' => $rate->id,
                 'carrier_service_id' => $rate->carrier_service_id,
-                'charge' => round($charge, 2),
+                'charge' => (float) bc_round($charge, 2),
                 'currency' => $rate->currency,
             ];
         }

@@ -154,7 +154,7 @@ class ArApController extends BaseController
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-        if ((float) $item->settled_amount > 0 || (int) $item->status >= 1) {
+        if (bccomp(bc_norm($item->settled_amount ?? 0), '0', 4) > 0 || (int) $item->status >= 1) {
             return $this->fail('已核销记录不可修改', 422);
         }
 
@@ -194,7 +194,7 @@ class ArApController extends BaseController
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
-        if ((float) $item->settled_amount > 0 || (int) $item->status >= 1) {
+        if (bccomp(bc_norm($item->settled_amount ?? 0), '0', 4) > 0 || (int) $item->status >= 1) {
             return $this->fail('已核销记录不可删除', 422);
         }
 

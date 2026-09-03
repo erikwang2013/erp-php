@@ -30,7 +30,7 @@ class WmsShortPickFixTest extends TestCase
         $src = $this->serviceSource();
 
         // 实拣数量与应拣（ordered_quantity = 预占数量）逐行比较，超限拒绝
-        $this->assertStringContainsString('$picked > (float)$pickItem->ordered_quantity', $src, '应校验实拣 ≤ 应拣数量');
+        $this->assertStringContainsString('bccomp(bc_norm($picked), bc_norm($pickItem->ordered_quantity), 4) > 0', $src, '应校验实拣 ≤ 应拣数量');
         $this->assertStringContainsString('实拣数量超限', $src, '超拣应抛出业务异常');
         $this->assertStringContainsString('throw new \\RuntimeException(', $src, '超拣应以异常拒绝');
     }

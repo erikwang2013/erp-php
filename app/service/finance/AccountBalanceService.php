@@ -25,18 +25,18 @@ class AccountBalanceService
         [$priorDebit, $priorCredit] = $this->aggregate($accountSubjectId, $start, null);
         [$curDebit, $curCredit] = $this->aggregate($accountSubjectId, $start, $end);
 
-        $openingNet = $priorDebit - $priorCredit;
-        $closingNet = $openingNet + $curDebit - $curCredit;
+        $openingNet = bcsub($priorDebit, $priorCredit, 6);
+        $closingNet = bcadd($openingNet, bcsub($curDebit, $curCredit, 6), 6);
 
         return [
             'account_subject_id' => $accountSubjectId,
             'period' => $period,
-            'opening_debit' => round(max($openingNet, 0), 2),
-            'opening_credit' => round(max(-$openingNet, 0), 2),
-            'current_debit' => round($curDebit, 2),
-            'current_credit' => round($curCredit, 2),
-            'closing_debit' => round(max($closingNet, 0), 2),
-            'closing_credit' => round(max(-$closingNet, 0), 2),
+            'opening_debit' => (float) $this->debitSplit($openingNet),
+            'opening_credit' => (float) $this->creditSplit($openingNet),
+            'current_debit' => (float) bc_round($curDebit, 2),
+            'current_credit' => (float) bc_round($curCredit, 2),
+            'closing_debit' => (float) $this->debitSplit($closingNet),
+            'closing_credit' => (float) $this->creditSplit($closingNet),
         ];
     }
 
@@ -66,10 +66,17 @@ class AccountBalanceService
             'credit' => (float) $r->credit,
         ], $rows);
 
+        $totalDebit = '0';
+        $totalCredit = '0';
+        foreach ($items as $item) {
+            $totalDebit = bcadd($totalDebit, bc_norm($item['debit']), 6);
+            $totalCredit = bcadd($totalCredit, bc_norm($item['credit']), 6);
+        }
+
         return [
             'period' => $period,
-            'total_debit' => round(array_sum(array_column($items, 'debit')), 2),
-            'total_credit' => round(array_sum(array_column($items, 'credit')), 2),
+            'total_debit' => (float) bc_round($totalDebit, 2),
+            'total_credit' => (float) bc_round($totalCredit, 2),
             'items' => $items,
         ];
     }
@@ -92,7 +99,18 @@ class AccountBalanceService
         }
         $row = Db::selectOne($sql, $params);
 
-        return [(float) $row->debit, (float) $row->credit];
+        return [bc_norm($row->debit), bc_norm($row->credit)];
+    }
+
+    /** bc 净额拆分：非负归入借方（贷方记 0），负值归入贷方（绝对值） */
+    private function debitSplit(string $net): string
+    {
+        return bccomp($net, '0', 4) >= 0 ? bc_round($net, 2) : '0';
+    }
+
+    private function creditSplit(string $net): string
+    {
+        return bccomp($net, '0', 4) < 0 ? bc_round(bc_abs($net), 2) : '0';
     }
 
     /** @return array{string, string} 期间起止日期 [start, end] */

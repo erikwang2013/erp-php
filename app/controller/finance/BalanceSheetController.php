@@ -49,48 +49,49 @@ class BalanceSheetController extends BaseController
             ->where('period_month', $month)
             ->get();
 
-        $totalAssets = 0;
-        $totalLiabilities = 0;
-        $totalEquity = 0;
-        $currentAssets = 0;
-        $nonCurrentAssets = 0;
-        $currentLiabilities = 0;
-        $nonCurrentLiabilities = 0;
+        $totalAssets = '0';
+        $totalLiabilities = '0';
+        $totalEquity = '0';
+        $currentAssets = '0';
+        $nonCurrentAssets = '0';
+        $currentLiabilities = '0';
+        $nonCurrentLiabilities = '0';
 
         foreach ($ledgers as $ledger) {
-            $net = $ledger->closing_debit - $ledger->closing_credit;
+            $net = bcsub(bc_norm($ledger->closing_debit ?? 0), bc_norm($ledger->closing_credit ?? 0), 6);
             // 根据科目类别聚合（资产类1，负债类2，权益类3）
             $accountId = $ledger->account_id;
             // 简化处理：account_id 1000-1999 资产，2000-2999 负债，3000-3999 权益
             if ($accountId >= 1000 && $accountId < 2000) {
-                $totalAssets += $net;
+                $totalAssets = bcadd($totalAssets, $net, 6);
                 if ($accountId >= 1000 && $accountId < 1500) {
-                    $currentAssets += $net;
+                    $currentAssets = bcadd($currentAssets, $net, 6);
                 } else {
-                    $nonCurrentAssets += $net;
+                    $nonCurrentAssets = bcadd($nonCurrentAssets, $net, 6);
                 }
             } elseif ($accountId >= 2000 && $accountId < 3000) {
-                $totalLiabilities += abs($net);
+                $absNet = bc_abs($net);
+                $totalLiabilities = bcadd($totalLiabilities, $absNet, 6);
                 if ($accountId >= 2000 && $accountId < 2500) {
-                    $currentLiabilities += abs($net);
+                    $currentLiabilities = bcadd($currentLiabilities, $absNet, 6);
                 } else {
-                    $nonCurrentLiabilities += abs($net);
+                    $nonCurrentLiabilities = bcadd($nonCurrentLiabilities, $absNet, 6);
                 }
             } elseif ($accountId >= 3000 && $accountId < 4000) {
-                $totalEquity += $net;
+                $totalEquity = bcadd($totalEquity, $net, 6);
             }
         }
 
         $reportData = [
             'report_year' => $year,
             'report_month' => $month,
-            'total_assets' => round($totalAssets, 2),
-            'total_liabilities' => round($totalLiabilities, 2),
-            'total_equity' => round($totalEquity, 2),
-            'current_assets' => round($currentAssets, 2),
-            'non_current_assets' => round($nonCurrentAssets, 2),
-            'current_liabilities' => round($currentLiabilities, 2),
-            'non_current_liabilities' => round($nonCurrentLiabilities, 2),
+            'total_assets' => (float) bc_round($totalAssets, 2),
+            'total_liabilities' => (float) bc_round($totalLiabilities, 2),
+            'total_equity' => (float) bc_round($totalEquity, 2),
+            'current_assets' => (float) bc_round($currentAssets, 2),
+            'non_current_assets' => (float) bc_round($nonCurrentAssets, 2),
+            'current_liabilities' => (float) bc_round($currentLiabilities, 2),
+            'non_current_liabilities' => (float) bc_round($nonCurrentLiabilities, 2),
             'report_data' => json_encode([
                 'generated_from' => 'general_ledger',
                 'ledger_count' => $ledgers->count(),

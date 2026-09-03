@@ -100,13 +100,14 @@ class FinanceService
             }
             $this->assertReceiptPaymentUsable(1, $receiptId, $arAp->partner_id, $amount);
 
-            $remain = $arAp->amount - $arAp->settled_amount;
-            if ($amount > $remain) {
-                throw new \RuntimeException("核销金额({$amount})超出未核销余额({$remain})");
+            $remain = bcsub(bc_norm($arAp->amount), bc_norm($arAp->settled_amount), 6);
+            if (bccomp(bc_norm($amount), $remain, 4) > 0) {
+                throw new \RuntimeException('核销金额(' . $this->moneyText($amount) . ')超出未核销余额(' . $this->moneyText($remain) . ')');
             }
 
-            $arAp->settled_amount += $amount;
-            $arAp->status = ($arAp->settled_amount >= $arAp->amount) ? 2 : 1;
+            $newSettled = bcadd(bc_norm($arAp->settled_amount), bc_norm($amount), 6);
+            $arAp->settled_amount = $newSettled;
+            $arAp->status = bccomp($newSettled, bc_norm($arAp->amount), 4) >= 0 ? 2 : 1;
             $arAp->save();
 
             $settlement = new FinanceSettlement();
@@ -118,6 +119,12 @@ class FinanceService
             $settlement->settled_at = date('Y-m-d H:i:s');
             $settlement->save();
         });
+    }
+
+    /** bc 金额展示文本：去尾零（bc 按 scale 补齐的 0 不进入界面/消息） */
+    private function moneyText(string|int|float $value): string
+    {
+        return rtrim(rtrim(bc_norm($value), '0'), '.');
     }
 
     /**
@@ -139,8 +146,8 @@ class FinanceService
         if ((int) ($type === 1 ? $doc->customer_id : $doc->supplier_id) !== $partnerId) {
             throw new \RuntimeException("{$label}与核销对象归属不一致");
         }
-        $used = (float) FinanceSettlement::where('receipt_payment_id', $id)->sum('amount');
-        if (($used + $amount) > (float) $doc->amount) {
+        $used = bc_norm(FinanceSettlement::where('receipt_payment_id', $id)->sum('amount'));
+        if (bccomp(bcadd($used, bc_norm($amount), 6), bc_norm($doc->amount), 4) > 0) {
             throw new \RuntimeException("核销金额超出{$label}剩余可核销额");
         }
     }
@@ -160,13 +167,14 @@ class FinanceService
             }
             $this->assertReceiptPaymentUsable(2, $paymentId, $arAp->partner_id, $amount);
 
-            $remain = $arAp->amount - $arAp->settled_amount;
-            if ($amount > $remain) {
-                throw new \RuntimeException("核销金额({$amount})超出未核销余额({$remain})");
+            $remain = bcsub(bc_norm($arAp->amount), bc_norm($arAp->settled_amount), 6);
+            if (bccomp(bc_norm($amount), $remain, 4) > 0) {
+                throw new \RuntimeException('核销金额(' . $this->moneyText($amount) . ')超出未核销余额(' . $this->moneyText($remain) . ')');
             }
 
-            $arAp->settled_amount += $amount;
-            $arAp->status = ($arAp->settled_amount >= $arAp->amount) ? 2 : 1;
+            $newSettled = bcadd(bc_norm($arAp->settled_amount), bc_norm($amount), 6);
+            $arAp->settled_amount = $newSettled;
+            $arAp->status = bccomp($newSettled, bc_norm($arAp->amount), 4) >= 0 ? 2 : 1;
             $arAp->save();
 
             $settlement = new FinanceSettlement();
@@ -204,14 +212,17 @@ class FinanceService
             if (!in_array($direction, [1, 2], true)) {
                 throw new \InvalidArgumentException('direction 非法: 仅支持 1=收入, 2=支出');
             }
+            $balance = bc_norm($account->balance);
+            $amountStr = bc_norm($amount);
             if ($direction === 1) {
-                $account->balance += $amount;
+                $balance = bcadd($balance, $amountStr, 6);
             } else {
-                if ($account->balance < $amount) {
+                if (bccomp($balance, $amountStr, 4) < 0) {
                     throw new \RuntimeException('账户余额不足');
                 }
-                $account->balance -= $amount;
+                $balance = bcsub($balance, $amountStr, 6);
             }
+            $account->balance = $this->moneyText($balance);
             $account->save();
 
             $journal = new FinanceCashJournal();

@@ -34,21 +34,21 @@ class PeriodCloseService
             [$start, $end]
         );
 
-        $revenue = 0.0;
-        $expense = 0.0;
+        $revenue = '0';
+        $expense = '0';
         foreach ($rows as $r) {
             if ((int) $r->type === 4) {
-                $revenue += (float) $r->credit - (float) $r->debit;
+                $revenue = bcadd($revenue, bcsub(bc_norm($r->credit), bc_norm($r->debit), 6), 6);
             } else {
-                $expense += (float) $r->debit - (float) $r->credit;
+                $expense = bcadd($expense, bcsub(bc_norm($r->debit), bc_norm($r->credit), 6), 6);
             }
         }
 
         return [
             'period' => $period,
-            'revenue_total' => round($revenue, 2),
-            'expense_total' => round($expense, 2),
-            'net_profit' => round($revenue - $expense, 2),
+            'revenue_total' => (float) bc_round($revenue, 2),
+            'expense_total' => (float) bc_round($expense, 2),
+            'net_profit' => (float) bc_round(bcsub($revenue, $expense, 6), 2),
             'voucher_id' => null,
             'status' => 'calculated',
             'message' => '已按期间汇总损益类科目发生额；结转凭证生成尚未实现（缺本年利润科目与防重复结转规则）',
