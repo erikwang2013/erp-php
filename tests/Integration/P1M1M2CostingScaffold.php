@@ -9,9 +9,11 @@ declare(strict_types=1);
 namespace tests\Integration;
 
 use app\common\SnowflakeService;
+use app\service\hr\HrService;
 use app\service\inventory\InventoryService;
 use app\service\manufacturing\ManufacturingService;
 use app\service\manufacturing\MfgCostService;
+use app\service\manufacturing\PieceWageService;
 use app\service\manufacturing\WorkReportService;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
@@ -240,6 +242,16 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
         return Capsule::table('erp_mfg_work_report')->where('id', $id)->first();
     }
 
+    protected function pieceWageRow(int $employeeId): ?object
+    {
+        return Capsule::table('erp_mfg_piece_wage')->where('employee_id', $employeeId)->first();
+    }
+
+    protected function salaryRows(int $employeeId): array
+    {
+        return array_values(Capsule::table('erp_hr_salary')->where('employee_id', $employeeId)->get()->all());
+    }
+
     // ---------- 造数 ----------
 
     protected function nextId(): int
@@ -385,16 +397,20 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
         return $id;
     }
 
-    /** 建在职员工（erp_hr_employee code/name NOT NULL，其余走默认值） */
-    protected function createEmployee(): int
+    /** 建在职员工（erp_hr_employee code/name NOT NULL，其余走默认值；departmentId>0 时写入部门用于批量薪资按部门隔离） */
+    protected function createEmployee(int $departmentId = 0): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_hr_employee')->insert([
+        $row = [
             'id' => $id,
             'code' => 'EMP-' . $id,
             'name' => 'P1测试员工',
             'status' => 1,
-        ]);
+        ];
+        if ($departmentId > 0) {
+            $row['department_id'] = $departmentId;
+        }
+        Capsule::table('erp_hr_employee')->insert($row);
         $this->employeeIds[] = $id;
 
         return $id;
@@ -489,5 +505,15 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
     protected function mfgService(): ManufacturingService
     {
         return Container::get(ManufacturingService::class);
+    }
+
+    protected function wageService(): PieceWageService
+    {
+        return Container::get(PieceWageService::class);
+    }
+
+    protected function hrService(): HrService
+    {
+        return Container::get(HrService::class);
     }
 }

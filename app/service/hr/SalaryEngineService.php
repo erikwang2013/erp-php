@@ -46,9 +46,14 @@ class SalaryEngineService
         }
     }
 
-    public function calculate(float $baseSalary, float $performance = 0, float $overtime = 0, float $deduction = 0): array
+    /**
+     * 薪资试算（应发=基本+绩效+加班+计件，社保/公积金基数按应发钳位后逐级扣减）。
+     *
+     * @param string $pieceWage 计件工资（十进制串，报工审核自动归集后随行传入）
+     */
+    public function calculate(float $baseSalary, float $performance = 0, float $overtime = 0, float $deduction = 0, string $pieceWage = '0'): array
     {
-        $gross = bcadd(bcadd(bc_norm($baseSalary), bc_norm($performance), 6), bc_norm($overtime), 6);
+        $gross = bcadd(bcadd(bcadd(bc_norm($baseSalary), bc_norm($performance), 6), bc_norm($overtime), 6), bc_norm($pieceWage), 6);
         // 社保/公积金基数钳位：max/min 纯取值（恒等于三输入之一，无算术误差），结果 bc_norm 后入 bc 运算
         $siBase = bc_norm(max($this->siBaseMin, min((float) $gross, $this->siBaseMax)));
         $hfBase = bc_norm(max($this->hfBaseMin, min((float) $gross, $this->hfBaseMax)));

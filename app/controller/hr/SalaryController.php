@@ -265,7 +265,7 @@ class SalaryController extends BaseController
     /**
      * 薪资试算
      * @Apidoc\Title("薪资试算")
-     * @Apidoc\Desc("按基本工资/绩效/加班/扣款试算个税与实发金额")
+     * @Apidoc\Desc("按基本工资/绩效/加班/计件/扣款试算个税与实发金额")
      * @Apidoc\Url("/admin/hr/salary/calculate")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
@@ -273,6 +273,7 @@ class SalaryController extends BaseController
      * @Apidoc\Param(name="base_salary", type="float", desc="基本工资")
      * @Apidoc\Param(name="performance", type="float", desc="绩效工资")
      * @Apidoc\Param(name="overtime", type="float", desc="加班费")
+     * @Apidoc\Param(name="piece_wage", type="float", desc="计件工资（报工审核自动归集，P1-M1b）")
      * @Apidoc\Param(name="deduction", type="float", desc="扣款")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
@@ -284,11 +285,16 @@ class SalaryController extends BaseController
         if ($baseSalary < 0) {
             return $this->fail('base_salary 不能为负数', 422);
         }
+        $pieceWage = bc_norm((string) $request->input('piece_wage', '0'));
+        if (bccomp($pieceWage, '0', 2) < 0) {
+            return $this->fail('piece_wage 不能为负数', 422);
+        }
         $result = (new SalaryEngineService())->calculate(
             $baseSalary,
             (float) $request->input('performance', 0),
             (float) $request->input('overtime', 0),
-            (float) $request->input('deduction', 0)
+            (float) $request->input('deduction', 0),
+            $pieceWage
         );
 
         return $this->success($result, '试算完成');

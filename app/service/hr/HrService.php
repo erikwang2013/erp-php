@@ -15,8 +15,10 @@ use app\model\HrEmployee;
 use app\model\HrLeave;
 use app\model\HrSalary;
 use app\service\AbstractCrudService;
+use app\service\manufacturing\PieceWageService;
 use Illuminate\Database\Capsule\Manager as DB;
 use InvalidArgumentException;
+use support\Container;
 use Throwable;
 
 /**
@@ -125,13 +127,13 @@ class HrService extends AbstractCrudService
 
     /**
      * 实发金额计算（纯逻辑，可单测）
-     * 实发 = 基本工资 + 绩效 + 加班 - 扣款 - 个税。
+     * 实发 = 基本工资 + 绩效 + 加班 + 计件 - 扣款 - 个税。
      *
      * @param array<string, mixed> $data
      */
     public function salaryNetSalary(array $data): float
     {
-        $gross = bcadd(bcadd(bc_norm($data['base_salary'] ?? 0), bc_norm($data['performance'] ?? 0), 6), bc_norm($data['overtime'] ?? 0), 6);
+        $gross = bcadd(bcadd(bcadd(bc_norm($data['base_salary'] ?? 0), bc_norm($data['performance'] ?? 0), 6), bc_norm($data['overtime'] ?? 0), 6), bc_norm($data['piece_wage'] ?? 0), 6);
 
         return (float) bcsub(bcsub($gross, bc_norm($data['deduction'] ?? 0), 6), bc_norm($data['tax'] ?? 0), 6);
     }
@@ -371,7 +373,8 @@ class HrService extends AbstractCrudService
     }
 
     /**
-     * 批量生成薪资：按部门（可选）为在职员工生成初始薪资记录，跳过已存在的期间
+     * 批量生成薪资：按部门（可选）为在职员工生成初始薪资记录，跳过已存在的期间；
+     * 有计件归集的员工（P1-M1b）一并带出当月 piece_wage（net_salary 同步该额）。
      *
      * @return int 新生成的记录数
      */
@@ -390,19 +393,24 @@ class HrService extends AbstractCrudService
             ->where('period_month', $periodMonth)
             ->pluck('employee_id')->flip();
 
+        // 计件工资汇总（employee_id => 金额十进制串），并入生成行
+        $wageMap = $this->wage()->periodSummary($periodYear, $periodMonth);
+
         $now = date('Y-m-d H:i:s');
         $rows = [];
         foreach ($employees as $emp) {
             if (isset($existing[$emp->id])) {
                 continue;
             }
+            $piece = $wageMap[(int) $emp->id] ?? '0';
             $rows[] = [
                 'id' => $this->generateId(),
                 'employee_id' => $emp->id,
                 'period_year' => $periodYear,
                 'period_month' => $periodMonth,
+                'piece_wage' => (float) $piece,
                 'status' => 0,
-                'net_salary' => 0,
+                'net_salary' => (float) bc_round($piece, 2),
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
@@ -431,5 +439,11 @@ class HrService extends AbstractCrudService
     public function hasChildDepartments(int $id): bool
     {
         return HrDepartment::where('parent_id', $id)->exists();
+    }
+
+    /** 计件工资服务（P1-M1b：月度归集读取） */
+    private function wage(): PieceWageService
+    {
+        return Container::get(PieceWageService::class);
     }
 }

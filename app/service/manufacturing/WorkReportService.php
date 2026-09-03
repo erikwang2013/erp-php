@@ -17,19 +17,21 @@ use RuntimeException;
 use support\Container;
 
 /**
- * 工序报工服务（P1-M1a）
+ * 工序报工服务（P1-M1）
  *
  * 审核语义：
  *  - 金额 = 合格数量 × 工序计件单价（工艺路线快照落单，之后调价不影响已审核单据）；
  *  - 审核要求工单处于生产中（status=1），通过 MfgCostService 锁定工单行串行化
  *    同单并发归集；工单已完工结转则整体回滚拒绝；
  *  - WIP 人工成本归集 sourceType=2（labor_cost），金额 >0 才写流水（成本服务约定）；
+ *  - 计件工资按员工+报工年月 upsert 归集（PieceWageService，HR 薪资来源），
+ *    与 WIP 同事务提交，任一步失败整体回滚；
  *  - 已审核单据不可修改/删除（状态机在控制器层同步拦截）。
  */
 class WorkReportService extends AbstractCrudService
 {
     /**
-     * 审核报工单：状态 0→1，快照计件单价/金额并归集 WIP 人工成本。
+     * 审核报工单：状态 0→1，快照计件单价/金额，归集 WIP 人工成本并累计计件工资。
      *
      * @throws InvalidArgumentException 单据不存在/非草稿/工单非生产中/工序无计件单价/数量非法
      * @throws RuntimeException 工单已完工结转
@@ -67,6 +69,7 @@ class WorkReportService extends AbstractCrudService
             $report->audit_at = date('Y-m-d H:i:s');
             $report->save();
             $this->cost()->wipAccumulate($order, 2, (int) $report->id, $amount, (string) $report->report_date);
+            $this->wage()->accumulate((int) $report->employee_id, (string) $report->report_date, $qualified, $amount);
 
             return $report;
         });
@@ -76,5 +79,11 @@ class WorkReportService extends AbstractCrudService
     private function cost(): MfgCostService
     {
         return Container::get(MfgCostService::class);
+    }
+
+    /** 计件工资服务（HR 联动：员工+报工年月累计） */
+    private function wage(): PieceWageService
+    {
+        return Container::get(PieceWageService::class);
     }
 }
