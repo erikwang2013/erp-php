@@ -17,8 +17,9 @@ use Workerman\Worker;
 
 /**
  * Illuminate Database Capsule 引导（webman 标准模板缺失，本仓库补回）。
- * 模型表名已硬编码 erp_ 前缀，addConnection 前必须移除配置中的 prefix，
- * 否则 Eloquent 会拼出 erp_erp_* 双前缀表名。
+ * 表名约定：模型 $table 与所有 DB::table/原生 SQL 均硬编码 erp_ 前缀，
+ * config/database.php 不再声明连接 prefix（曾致双前缀遗留，erp_erp_*）。
+ * 后续新增连接（如多组织账套）直接拷贝连接数组即可，天然安全。
  */
 class LaravelDb implements Bootstrap
 {
@@ -26,7 +27,6 @@ class LaravelDb implements Bootstrap
     {
         $config = Config::get('database', []);
         $connection = $config['connections'][$config['default']] ?? [];
-        unset($connection['prefix']);
 
         $capsule = new Capsule();
         $capsule->addConnection($connection);

@@ -34,8 +34,8 @@ return [
             'charset' => 'utf8mb4',
             // 排序规则
             'collation' => 'utf8mb4_unicode_ci',
-            // 表前缀
-            'prefix' => 'erp_',
+            // 表前缀：不在此声明——全库模型 $table 与 DB::table/原生 SQL 均硬编码 erp_ 前缀，
+            // 若此处再设 prefix 会让新连接（如多组织账套）拼出 erp_erp_* 双前缀（见 support/bootstrap/LaravelDb.php）
             // 严格模式
             'strict' => true,
             // 引擎
