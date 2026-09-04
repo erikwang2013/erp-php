@@ -4311,6 +4311,8 @@ CREATE TABLE IF NOT EXISTS `erp_supplier_assessment` (
 CREATE TABLE IF NOT EXISTS `erp_finance_invoice` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `invoice_no` VARCHAR(50) NOT NULL COMMENT '发票号(唯一)',
+    `electronic_no` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '数电票号码(平台回写，空=未开具)',
+    `issue_status` VARCHAR(20) NOT NULL DEFAULT 'none' COMMENT '数电出口状态: none=未开具 issued=已开具 voided=已红冲',
     `type` VARCHAR(10) NOT NULL DEFAULT 'ar' COMMENT '类型: ar=应收发票 ap=应付发票',
     `customer_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '客户ID(应收，type=ar 时必填)',
     `supplier_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '供应商ID(应付，type=ap 时必填)',
@@ -4354,6 +4356,49 @@ CREATE TABLE IF NOT EXISTS `erp_finance_invoice_item` (
     KEY `idx_invoice_id` (`invoice_id`),
     KEY `idx_source_item_id` (`source_item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='发票明细';
+
+CREATE TABLE IF NOT EXISTS `erp_tax_input_invoice` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `invoice_code` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '发票代码(数电票无代码，为空)',
+    `invoice_no` VARCHAR(50) NOT NULL COMMENT '发票号码',
+    `issue_date` DATE NOT NULL COMMENT '开票日期',
+    `seller_name` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '销售方名称',
+    `seller_tax_no` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '销售方税号(验真规则入参)',
+    `buyer_name` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '购买方名称',
+    `buyer_tax_no` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '购买方税号',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '价税合计(发票总额)',
+    `untaxed_amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '不含税金额',
+    `tax_amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '税额',
+    `verify_status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '验真状态: 0=待验真 1=验真通过 2=验真失败',
+    `verify_at` DATETIME DEFAULT NULL COMMENT '验真时间',
+    `deduct_status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '抵扣状态: 0=未勾选 1=已勾选待抵扣 2=已抵扣',
+    `deduct_period` VARCHAR(7) NOT NULL DEFAULT '' COMMENT '抵扣期间(YYYY-MM，抵扣时记录，空=未抵扣)',
+    `source` VARCHAR(20) NOT NULL DEFAULT 'manual' COMMENT '登记来源: manual=手工 excel=批量导入',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code_no` (`invoice_code`, `invoice_no`),
+    KEY `idx_verify_status` (`verify_status`),
+    KEY `idx_deduct` (`deduct_status`, `deduct_period`),
+    KEY `idx_issue_date` (`issue_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='进项发票池(P2-F5)';
+
+CREATE TABLE IF NOT EXISTS `erp_tax_issue_log` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `invoice_id` BIGINT UNSIGNED NOT NULL COMMENT '发票ID(erp_finance_invoice.id)',
+    `action` VARCHAR(10) NOT NULL COMMENT '动作: issue=开票 void=红冲',
+    `bill_no` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '数电票号码(平台回写，失败为空)',
+    `platform` VARCHAR(30) NOT NULL DEFAULT 'mock' COMMENT '平台适配器标识(platform())',
+    `request` JSON DEFAULT NULL COMMENT '请求报文(适配器入参)',
+    `response` JSON DEFAULT NULL COMMENT '响应报文(适配器返回值)',
+    `success` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '是否成功: 0=失败 1=成功',
+    `error` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '失败原因',
+    `operator_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作人ID',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_invoice_id` (`invoice_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数电票开票/红冲日志(P2-F5)';
 
 CREATE TABLE IF NOT EXISTS `erp_finance_invoice_match_log` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',

@@ -167,6 +167,18 @@ Route::group('/admin', function () {
     Route::post('/finance/bank-recon/unreconcile', [app\controller\finance\BankReconController::class, 'unreconcile']);
     Route::get('/finance/bank-recon/report', [app\controller\finance\BankReconController::class, 'report']);
     Route::get('/finance/bank-statement', [app\controller\finance\BankReconController::class, 'statementIndex']);
+    // 进项发票池（P2-F5）：静态子路径先于 {id} 变量路径
+    Route::post('/finance/tax-input-invoice/batch', [app\controller\finance\TaxInvoicePoolController::class, 'batch']);
+    Route::get('/finance/tax-input-invoice/deduct-stats', [app\controller\finance\TaxInvoicePoolController::class, 'deductStats']);
+    Route::get('/finance/tax-input-invoice', [app\controller\finance\TaxInvoicePoolController::class, 'index']);
+    Route::post('/finance/tax-input-invoice', [app\controller\finance\TaxInvoicePoolController::class, 'store']);
+    Route::post('/finance/tax-input-invoice/{id}/verify', [app\controller\finance\TaxInvoicePoolController::class, 'verify']);
+    Route::post('/finance/tax-input-invoice/{id}/check', [app\controller\finance\TaxInvoicePoolController::class, 'check']);
+    Route::post('/finance/tax-input-invoice/{id}/deduct', [app\controller\finance\TaxInvoicePoolController::class, 'deduct']);
+    // 数电票出口（P2-F5）
+    Route::post('/finance/e-invoice/{id}/issue', [app\controller\finance\EInvoiceController::class, 'issue']);
+    Route::post('/finance/e-invoice/{id}/void', [app\controller\finance\EInvoiceController::class, 'void']);
+    Route::get('/finance/e-invoice/{id}/logs', [app\controller\finance\EInvoiceController::class, 'logs']);
     // P0 invoice：发票(应收/应付)+开票申请状态流+三单匹配(采购收货/销售发货)
     // 静态 action 路由先于 resource 注册，避免 {id} 动态段抢占 match-check
     Route::post('/finance/invoice/{id}/submit', [app\controller\finance\InvoiceController::class, 'submit']);
