@@ -9960,3 +9960,279 @@ parameters:
 			count: 1
 			path: app/service/finance/FinanceBillService.php
 
+		-
+			message: '#^Offset ''success'' on array\{success\: bool, bill_no\?\: string, error\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Offset ''success'' on array\{success\: bool, error\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$electronic_no\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$invoice_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$invoice_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$issue_status\.$#'
+			identifier: property.notFound
+			count: 7
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$tax_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceInvoice\:\:\$untaxed_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$buyer_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$buyer_tax_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$deduct_period\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$deduct_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$invoice_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$invoice_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$issue_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$seller_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$seller_tax_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$source\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$tax_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$untaxed_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxInputInvoice\:\:\$verify_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$action\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$bill_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$error\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$invoice_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$operator_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$platform\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$request\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$response\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TaxIssueLog\:\:\$success\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/tax/EInvoiceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceInvoice\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/finance/EInvoiceController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TaxInputInvoice\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/controller/finance/TaxInvoicePoolController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TaxInputInvoice\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TaxInputInvoice\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/tax/TaxInvoicePoolService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TaxIssueLog\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/tax/EInvoiceService.php
+
