@@ -61,6 +61,10 @@ class C1MemberTest extends C1MemberScaffold
             [['name' => str_repeat('名', 51)], '姓名超长(50)'],
             [['level' => 4], '会员等级非法'],
             [['level' => -1], '会员等级非法'],
+            [['level' => '2.5'], '会员等级非法'], // 浮点字符串拒静默 (int) 强转落 2
+            [['level' => 'abc'], '会员等级非法'],
+            [['customer_id' => '12.5'], '客户ID非法（须为纯数字）'],
+            [['customer_id' => 'abc'], '客户ID非法（须为纯数字）'],
             [['customer_id' => 999999999], '关联客户不存在'],
             [['source' => 'wechat'], '开卡来源非法'],
             [['remark' => str_repeat('备', 501)], '备注超长(500)'],

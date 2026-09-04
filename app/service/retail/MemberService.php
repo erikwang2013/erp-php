@@ -72,11 +72,17 @@ class MemberService
         if (mb_strlen($name) > 50) {
             return [null, '姓名超长(50)'];
         }
-        $level = isset($input['level']) ? (int) $input['level'] : 0;
-        if ($level < 0 || $level > 3) {
+        // 等级/客户ID 严格数字串校验（拒 '2.5'/'abc'/'-1' 等被 (int) 静默强转的载荷，与 phone/source 同严）
+        $levelStr = isset($input['level']) ? trim((string) $input['level']) : '0';
+        if (!preg_match('/^\d+$/', $levelStr) || (int) $levelStr > 3) {
             return [null, '会员等级非法'];
         }
-        $customerId = isset($input['customer_id']) ? (int) $input['customer_id'] : 0;
+        $level = (int) $levelStr;
+        $customerIdStr = isset($input['customer_id']) ? trim((string) $input['customer_id']) : '0';
+        if (!preg_match('/^\d+$/', $customerIdStr)) {
+            return [null, '客户ID非法（须为纯数字）'];
+        }
+        $customerId = (int) $customerIdStr;
         if ($customerId > 0 && Customer::find($customerId) === null) {
             return [null, '关联客户不存在'];
         }
