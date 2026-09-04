@@ -8766,3 +8766,117 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/service/manufacturing/MfgCapacityService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\InventoryFlow\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\InventoryBatch\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\InventorySerial\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\InventoryFlow\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\InventoryBatch\:\:whereNotNull\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Inventory\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Inventory\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$location_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$batch_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$direction\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$cost_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$source_type\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$source_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryFlow\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/inventory/TraceService.php

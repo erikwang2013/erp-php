@@ -1,0 +1,26 @@
+-- =====================================================================
+-- M6 追溯链报表 — 零 DDL 说明（review 专用，勿 git add）
+-- =====================================================================
+-- 本文件仅用于评审记录，不包含任何可执行 DDL。
+--
+-- 1. 无新增表/列：
+--    追溯链报表（正向/反向/序列号/近效期预警）全部复用既有表：
+--      erp_inventory_flow    追溯骨干（direction 1=入库 2=出库，source_type/source_id）
+--      erp_inventory_batch   批次主档（production_date/expiry_date 已存在于 install.sql）
+--      erp_inventory_serial  序列号链（in_flow_id/out_flow_id 已存在）
+--      erp_inventory         在库数量口径（quantity 按批次聚合）
+--    故 database/install.sql 无需任何变更。
+--
+-- 2. 唯一代码改动（app/service/inventory/InventoryService.php::stockIn）：
+--    追加两个可选参数 ?string $productionDate = null, ?string $expiryDate = null，
+--    仅当批次不存在或对应日期列当前为空时写入；不覆盖既有值。纯增量，向后兼容，
+--    bcmath 移动加权平均逻辑零改动。
+--
+-- 交付物：app/service/inventory/TraceService.php
+--          app/controller/inventory/TraceController.php
+--          tests/Integration/M6TraceTest.php
+-- 路由（lead 注册）：GET /trace/forward/{batchCode}
+--                    GET /trace/backward/{batchCode}
+--                    GET /trace/serial/{serialCode}
+--                    GET /trace/expiry?days=N
+-- =====================================================================

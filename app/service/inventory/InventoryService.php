@@ -33,7 +33,9 @@ class InventoryService
         float $unitCost,
         string $sourceType,
         int $sourceId,
-        array $serials = []
+        array $serials = [],
+        ?string $productionDate = null,
+        ?string $expiryDate = null
     ): int {
         if (bccomp(bc_norm($quantity), '0', 4) <= 0) {
             throw new \InvalidArgumentException('数量必须大于0');
@@ -41,6 +43,8 @@ class InventoryService
         if (bccomp(bc_norm($unitCost), '0', 4) < 0) {
             throw new \InvalidArgumentException('单价不能为负数');
         }
+        $this->assertValidDate($productionDate, 'production_date');
+        $this->assertValidDate($expiryDate, 'expiry_date');
         $qty = bc_norm($quantity);
         $cost = bc_norm($unitCost);
 
@@ -54,7 +58,9 @@ class InventoryService
             $cost,
             $sourceType,
             $sourceId,
-            $serials
+            $serials,
+            $productionDate,
+            $expiryDate
         ) {
             // 1. 创建出入库流水
             $flow = new InventoryFlow();
@@ -117,17 +123,30 @@ class InventoryService
 
             // 4. 记录批次（id 在 $guarded 中，firstOrCreate 的 values 会被批量赋值保护剥离，
             // 无法携带雪花 id，须显式赋值，否则插入缺 id 报 1364）
+            // 生产/效期日期为可选（P1-M6）：创建时写入；已有批次仅在值为空时补写，不覆盖既有效期数据
             if (!empty($batchCode)) {
                 $batch = InventoryBatch::where('product_id', $productId)
                     ->where('sku_id', $skuId)
                     ->where('batch_code', $batchCode)
                     ->first();
+                $batchDirty = false;
                 if (!$batch) {
                     $batch = new InventoryBatch();
                     $batch->id = SnowflakeService::generate();
                     $batch->product_id = $productId;
                     $batch->sku_id = $skuId;
                     $batch->batch_code = $batchCode;
+                    $batchDirty = true;
+                }
+                if ($productionDate !== null && empty($batch->getAttributes()['production_date'] ?? null)) {
+                    $batch->production_date = $productionDate;
+                    $batchDirty = true;
+                }
+                if ($expiryDate !== null && empty($batch->getAttributes()['expiry_date'] ?? null)) {
+                    $batch->expiry_date = $expiryDate;
+                    $batchDirty = true;
+                }
+                if ($batchDirty) {
                     $batch->save();
                 }
             }
@@ -219,6 +238,20 @@ class InventoryService
     private function isDuplicateKey(QueryException $e): bool
     {
         return ($e->errorInfo[1] ?? 0) === 1062;
+    }
+
+    /**
+     * 可选日期参数校验（P1-M6 追溯效期）：仅 YYYY-MM-DD 合法日期放行，null 放行
+     */
+    private function assertValidDate(?string $date, string $label): void
+    {
+        if ($date === null) {
+            return;
+        }
+        $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', $date);
+        if ($parsed === false || $parsed->format('Y-m-d') !== $date) {
+            throw new \InvalidArgumentException("{$label} 须为合法日期 YYYY-MM-DD");
+        }
     }
 
     /**
