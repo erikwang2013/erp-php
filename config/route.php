@@ -209,6 +209,27 @@ Route::group('/admin/v1', function () {
     Route::post('/platform/custom-field/schema', [app\controller\platform\CustomFieldController::class, 'schema']);
     Route::put('/platform/custom-field/{id}', [app\controller\platform\CustomFieldController::class, 'update']);
     Route::delete('/platform/custom-field/{id}', [app\controller\platform\CustomFieldController::class, 'destroy']);
+    // 培训课程 + 社保（P2-H3+H4，静态子路径先序）
+    Route::post('/hr/course/{id}/enroll', [app\controller\hr\TrainingController::class, 'enroll']);
+    Route::post('/hr/course/{id}/cancel', [app\controller\hr\TrainingController::class, 'cancel']);
+    Route::post('/hr/course/{id}/complete', [app\controller\hr\TrainingController::class, 'complete']);
+    Route::get('/hr/employee-credits/{id}', [app\controller\hr\TrainingController::class, 'employeeCredits']);
+    Route::get('/hr/course', [app\controller\hr\TrainingController::class, 'listCourses']);
+    Route::post('/hr/course', [app\controller\hr\TrainingController::class, 'createCourse']);
+    Route::put('/hr/course/{id}', [app\controller\hr\TrainingController::class, 'updateCourse']);
+    Route::delete('/hr/course/{id}', [app\controller\hr\TrainingController::class, 'destroyCourse']);
+    Route::post('/hr/social-rule/{id}/rate', [app\controller\hr\SocialSecurityController::class, 'setRate']);
+    Route::delete('/hr/social-rule/{id}/rate', [app\controller\hr\SocialSecurityController::class, 'removeRate']);
+    Route::get('/hr/social-rule', [app\controller\hr\SocialSecurityController::class, 'ruleList']);
+    Route::post('/hr/social-rule', [app\controller\hr\SocialSecurityController::class, 'createRule']);
+    Route::get('/hr/social-rule/{id}', [app\controller\hr\SocialSecurityController::class, 'ruleShow']);
+    Route::put('/hr/social-rule/{id}', [app\controller\hr\SocialSecurityController::class, 'updateRule']);
+    Route::delete('/hr/social-rule/{id}', [app\controller\hr\SocialSecurityController::class, 'destroyRule']);
+    Route::post('/hr/employee-social', [app\controller\hr\SocialSecurityController::class, 'bind']);
+    Route::delete('/hr/employee-social', [app\controller\hr\SocialSecurityController::class, 'unbind']);
+    Route::get('/hr/employee-social/{id}/calculate', [app\controller\hr\SocialSecurityController::class, 'calculate']);
+    Route::get('/hr/employee-social/{id}', [app\controller\hr\SocialSecurityController::class, 'employeeSocialDetail']);
+    Route::post('/hr/salary/{id}/payslip', [app\controller\hr\SalaryController::class, 'payslipView']);
     // P0 invoice：发票(应收/应付)+开票申请状态流+三单匹配(采购收货/销售发货)
     // 静态 action 路由先于 resource 注册，避免 {id} 动态段抢占 match-check
     Route::post('/finance/invoice/{id}/submit', [app\controller\finance\InvoiceController::class, 'submit']);

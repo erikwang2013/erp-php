@@ -2469,6 +2469,76 @@ CREATE TABLE IF NOT EXISTS `erp_hr_perf_score` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='考核评分记录(P1-H2, 同人同指标重复提交=覆盖)';
 
 -- ################################################################
+CREATE TABLE IF NOT EXISTS `erp_hr_course` (
+    `id`             BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `title`          VARCHAR(100)    NOT NULL COMMENT '课程标题',
+    `course_type`    VARCHAR(20)     NOT NULL COMMENT '课程类型: internal内训/external外训/online线上',
+    `lecturer`       VARCHAR(100)    NOT NULL DEFAULT '' COMMENT '讲师姓名',
+    `credits`        INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '学分（完成后计入员工学分）',
+    `duration_hours` DECIMAL(6,2)    NOT NULL DEFAULT 0.00 COMMENT '课时时长(小时)',
+    `status`         TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0草稿/1上架/2下架',
+    `deleted_at`     DATETIME        NULL COMMENT '软删除时间',
+    `created_at`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_type_status` (`course_type`, `status`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='课程(H3)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_course_enrollment` (
+    `id`           BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `course_id`    BIGINT UNSIGNED NOT NULL COMMENT '课程ID(erp_hr_course.id)',
+    `employee_id`  BIGINT UNSIGNED NOT NULL COMMENT '员工ID(erp_hr_employee.id)',
+    `status`       TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0已报名/1已完成/2已取消',
+    `completed_at` DATETIME        NULL COMMENT '完成时间',
+    `created_by`   BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作人ID(admin/employee)',
+    `created_at`   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_course_employee` (`course_id`, `employee_id`),
+    KEY `idx_employee` (`employee_id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='课程选课(H3)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_social_rule` (
+    `id`              BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `city`            VARCHAR(50)     NOT NULL COMMENT '城市',
+    `rule_name`       VARCHAR(50)     NOT NULL COMMENT '规则名称（如 2026年度标准）',
+    `social_base_min` DECIMAL(14,2)   NOT NULL DEFAULT 0.00 COMMENT '缴费基数下限，0.00=不设限',
+    `social_base_max` DECIMAL(14,2)   NOT NULL DEFAULT 0.00 COMMENT '缴费基数上限，0.00=不设限',
+    `created_at`      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_city_name` (`city`, `rule_name`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='社保基数规则(H4)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_social_rate` (
+    `id`             BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `rule_id`        BIGINT UNSIGNED NOT NULL COMMENT '规则ID(erp_hr_social_rule.id)',
+    `insurance_type` VARCHAR(20)    NOT NULL COMMENT '险种: pension养老/medical医疗/unemployment失业/injury工伤/maternity生育/housing公积金',
+    `personal_rate`  DECIMAL(5,2)    NOT NULL DEFAULT 0.00 COMMENT '个人比例(百分比, 8.00=8%, 0=无个人缴)',
+    `company_rate`   DECIMAL(5,2)    NOT NULL DEFAULT 0.00 COMMENT '公司比例(百分比, 8.00=8%)',
+    `created_at`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_rule_type` (`rule_id`, `insurance_type`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='社保缴费比例行(H4)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_employee_social` (
+    `id`          BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `employee_id` BIGINT UNSIGNED NOT NULL COMMENT '员工ID(erp_hr_employee.id)',
+    `rule_id`     BIGINT UNSIGNED NOT NULL COMMENT '社保规则ID(erp_hr_social_rule.id)',
+    `base_amount` DECIMAL(14,2)   NOT NULL DEFAULT 0.00 COMMENT '缴费基数: 0.00=自动按下限(规则未设下限则按0)',
+    `created_at`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_employee` (`employee_id`),
+    KEY `idx_rule` (`rule_id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='员工社保绑定(H4)';
+
 -- PART 16: 生产制造
 -- ################################################################
 
