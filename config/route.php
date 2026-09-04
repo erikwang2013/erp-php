@@ -152,6 +152,21 @@ Route::group('/admin', function () {
     Route::resource('/finance/voucher', app\controller\finance\VoucherController::class);
     Route::resource('/finance/receipt', app\controller\finance\ReceiptController::class);
     Route::resource('/finance/payment', app\controller\finance\PaymentController::class);
+    // 承兑汇票票据台账（P2-F6）：静态子路径先于 resource
+    Route::get('/finance/bill/due-warnings', [app\controller\finance\FinanceBillController::class, 'dueWarnings']);
+    Route::post('/finance/bill/{id}/endorse', [app\controller\finance\FinanceBillController::class, 'endorse']);
+    Route::post('/finance/bill/{id}/discount', [app\controller\finance\FinanceBillController::class, 'discount']);
+    Route::post('/finance/bill/{id}/collect', [app\controller\finance\FinanceBillController::class, 'collect']);
+    Route::post('/finance/bill/{id}/cash', [app\controller\finance\FinanceBillController::class, 'cash']);
+    Route::post('/finance/bill/{id}/reject', [app\controller\finance\FinanceBillController::class, 'reject']);
+    Route::resource('/finance/bill', app\controller\finance\FinanceBillController::class);
+    // 银企对账（P2-F6）
+    Route::post('/finance/bank-statement/import', [app\controller\finance\BankReconController::class, 'import']);
+    Route::post('/finance/bank-recon/auto', [app\controller\finance\BankReconController::class, 'auto']);
+    Route::post('/finance/bank-recon/manual', [app\controller\finance\BankReconController::class, 'manual']);
+    Route::post('/finance/bank-recon/unreconcile', [app\controller\finance\BankReconController::class, 'unreconcile']);
+    Route::get('/finance/bank-recon/report', [app\controller\finance\BankReconController::class, 'report']);
+    Route::get('/finance/bank-statement', [app\controller\finance\BankReconController::class, 'statementIndex']);
     // P0 invoice：发票(应收/应付)+开票申请状态流+三单匹配(采购收货/销售发货)
     // 静态 action 路由先于 resource 注册，避免 {id} 动态段抢占 match-check
     Route::post('/finance/invoice/{id}/submit', [app\controller\finance\InvoiceController::class, 'submit']);

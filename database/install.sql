@@ -1136,6 +1136,72 @@ CREATE TABLE IF NOT EXISTS `erp_finance_expense` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='费用报销表';
 
+CREATE TABLE IF NOT EXISTS `erp_finance_bill` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `bill_no` VARCHAR(50) NOT NULL COMMENT '票号(唯一)',
+    `type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '票据类型: 1=银行承兑 2=商业承兑',
+    `direction` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '方向: 1=收票(应收) 2=开票(应付)',
+    `drawer` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '出票人',
+    `payee` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '收款人',
+    `acceptor` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '承兑人',
+    `endorsee` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '被背书人(已背书时)',
+    `issue_date` DATE DEFAULT NULL COMMENT '出票日期',
+    `due_date` DATE NOT NULL COMMENT '到期日',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '票面金额',
+    `discount_fee` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '贴现息(已贴现时记录)',
+    `bank_account_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '托收银行账户ID，0=未指定',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=在库 1=已背书 2=已贴现 3=托收中 4=已到期兑付 5=已退票',
+    `source_type` VARCHAR(30) NOT NULL DEFAULT 'manual' COMMENT '来源类型: manual=手工 receipt=关联收款单',
+    `source_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源单据ID(关联收款单时)',
+    `endorsed_at` DATETIME DEFAULT NULL COMMENT '背书时间',
+    `discounted_at` DATETIME DEFAULT NULL COMMENT '贴现时间',
+    `collected_at` DATETIME DEFAULT NULL COMMENT '托收时间',
+    `cashed_at` DATETIME DEFAULT NULL COMMENT '兑付/解付时间',
+    `returned_at` DATETIME DEFAULT NULL COMMENT '退票时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_bill_no` (`bill_no`),
+    KEY `idx_direction_status` (`direction`, `status`),
+    KEY `idx_due_date` (`due_date`),
+    KEY `idx_bank_account_id` (`bank_account_id`),
+    KEY `idx_source` (`source_type`, `source_id`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='承兑汇票票据台账(P2-F6)';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_bank_statement` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `bank_account_id` BIGINT UNSIGNED NOT NULL COMMENT '银行账户ID',
+    `stmt_date` DATE NOT NULL COMMENT '交易日期',
+    `direction` TINYINT UNSIGNED NOT NULL COMMENT '方向: 1=收入 2=支出',
+    `amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '发生额',
+    `counterparty` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '对方户名',
+    `reference` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '摘要/流水号',
+    `balance_after` DECIMAL(14,2) DEFAULT NULL COMMENT '交易后余额(银行流水可空)',
+    `import_batch` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '导入批次号',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_account_date` (`bank_account_id`, `stmt_date`),
+    KEY `idx_import_batch` (`import_batch`),
+    KEY `idx_direction` (`direction`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='银企对账单行(P2-F6)';
+
+CREATE TABLE IF NOT EXISTS `erp_finance_bank_recon_match` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `bank_account_id` BIGINT UNSIGNED NOT NULL COMMENT '银行账户ID(与两侧一致)',
+    `statement_id` BIGINT UNSIGNED NOT NULL COMMENT '对账单行ID',
+    `cash_journal_id` BIGINT UNSIGNED NOT NULL COMMENT '日记账行ID',
+    `match_type` TINYINT UNSIGNED NOT NULL DEFAULT 3 COMMENT '匹配方式: 1=自动(金额+日期窗口+方向) 2=自动(摘要命中) 3=手工',
+    `created_by` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作人ID',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_statement` (`bank_account_id`, `statement_id`),
+    UNIQUE KEY `uk_journal` (`bank_account_id`, `cash_journal_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='银企对账核销匹配(P2-F6)';
+
 CREATE TABLE IF NOT EXISTS `erp_finance_profit` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `company_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT '组织ID, NULL=旧数据(默认公司)',
