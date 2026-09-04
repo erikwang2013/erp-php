@@ -9588,3 +9588,375 @@ parameters:
 			identifier: nullCoalesce.offset
 			count: 1
 			path: app/service/project/ProjectCostService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/FinanceBillController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/FinanceBillController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/FinanceBillController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/FinanceBillController.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankStatement\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankStatement\:\:\$bank_account_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankStatement\:\:\$stmt_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankStatement\:\:\$direction\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankStatement\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankStatement\:\:\$counterparty\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankStatement\:\:\$reference\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankStatement\:\:\$balance_after\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankStatement\:\:\$import_batch\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankStatement\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankStatement\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankStatement\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankReconMatch\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankReconMatch\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankReconMatch\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankStatement\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankReconMatch\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankReconMatch\:\:\$bank_account_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankReconMatch\:\:\$statement_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankReconMatch\:\:\$cash_journal_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankReconMatch\:\:\$match_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBankReconMatch\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankAccount\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankStatement\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/BankReconService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$bill_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$direction\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$drawer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$payee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$acceptor\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$issue_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$due_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$bank_account_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$source_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$source_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceBill\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankAccount\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankAccount\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBill\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceBankAccount\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/finance/FinanceBillService.php
+
