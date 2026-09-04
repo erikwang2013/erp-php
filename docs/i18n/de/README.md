@@ -384,7 +384,7 @@ Der Request-Header `Accept-Language` schaltet die Sprache automatisch um (zh-CN 
 Die API-Version wird über den Request-Header gesteuert, **nicht über die URL**:
 
 ```http
-API-Version: v1
+Path /api/v1
 ```
 
 - Ohne Version wird standardmäßig `v1` verwendet

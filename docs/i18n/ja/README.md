@@ -384,7 +384,7 @@ docker compose up -d
 API バージョンはリクエストヘッダーで制御し、**URL には表れません**：
 
 ```http
-API-Version: v1
+Path /api/v1
 ```
 
 - バージョン未指定時はデフォルトで `v1` を使用

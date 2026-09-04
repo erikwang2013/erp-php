@@ -99,8 +99,8 @@ Internationalization | Automatic detection via `Accept-Language` header | Chines
 open-erp/
 ├── app/
 │   ├── admin/controller/       # 系统管理控制器 (14 个)
-│   ├── api/v1/controller/      # 客户端 API（版本由 API-Version 请求头控制）
-│   ├── controller/             # 业务模块控制器 (88 个)
+│   ├── api/v1/controller/      # 客户端 API（版本由 /api/v1 路径控制）
+│   ├── controller/             # Business module controllers (136, 23 domains + admin 18)
 │   │   ├── product/            # 商品/分类/品牌/仓库/库位/供应商/客户 (7 个)
 │   │   ├── purchase/           # 采购申请/订单/收货/退货/结算 (5 个)
 │   │   ├── sales/              # 销售报价/订单/发货/退货/结算 (5 个)
@@ -123,8 +123,8 @@ open-erp/
 │   │   ├── oms/                # 订单编排/库存分配/RMA生命周期
 │   │   ├── wms/                # 入库流程(ASN→收货→上架) / 出库流程(波次→拣货→打包)
 │   │   └── tms/                # 运单管理/运费比价/物流轨迹
-│   ├── model/                  # 161 个 Eloquent 模型（多模块共用）
-│   ├── middleware/             # 12 个中间件
+│   ├── model/                  # 223 个 Eloquent 模型（多模块共用）
+│   ├── middleware/             # 11 个中间件
 │   ├── common/                 # Hashids/Snowflake/Encryption 服务
 │   └── queue/                  # 队列任务
 ├── apps/
@@ -133,7 +133,7 @@ open-erp/
 ├── config/                     # 配置文件（含中文注释）
 │   ├── plugin/hg/apidoc/        # API 文档配置
 ├── database/
-│   ├── install.sql              # 完整安装SQL（163张表 + 种子数据）
+│   ├── install.sql              # 完整安装SQL（226 + 种子数据）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
@@ -167,7 +167,7 @@ open-erp/
 
 ![Functional Modules](./diagrams/functional-modules-cn.svg)
 
-**19 business domains, 163 data tables, 121 controllers**: Covering authentication & security, dashboard, system management, security protection, operations monitoring, product management, purchase, sales, inventory, finance (14 sub-modules), CRM (10 sub-modules), approval workflow, message notifications, project management, human resources, manufacturing (MRP), custom reports, order management (OMS), warehouse management (WMS), transportation management (TMS), quality management (QMS), equipment management (EAM), document management (DMS), BI dashboards.
+**19 business domains, 226 data tables, 121 controllers**: Covering authentication & security, dashboard, system management, security protection, operations monitoring, product management, purchase, sales, inventory, finance (14 sub-modules), CRM (10 sub-modules), approval workflow, message notifications, project management, human resources, manufacturing (MRP), custom reports, order management (OMS), warehouse management (WMS), transportation management (TMS), quality management (QMS), equipment management (EAM), document management (DMS), BI dashboards.
 
 ### Request Lifecycle
 
@@ -232,7 +232,7 @@ After starting the service, visit `http://localhost:8788/install` and follow the
 mysql -u root -p 数据库名 < database/install.sql
 ```
 
-`install.sql` is merged from 29 migration files and contains all 163 table structures and seed data.
+`install.sql` is merged from 29 migration files and contains all 226 table structures and seed data.
 
 **Option 3: Docker environment**
 
@@ -362,14 +362,7 @@ The `Accept-Language` request header switches language automatically (zh-CN → 
 
 ### API Versioning
 
-API versions are controlled via request header, **not reflected in the URL**:
-
-```http
-API-Version: v1
-```
-
-- Defaults to `v1` when no version header is sent
-- Unsupported versions return `400 Bad Request`
+API versions are placed in the URL path — `/api/v1/*`, `/admin/v1/*`, `/open/v1/*` — no version request headers are used.
 - To add a version, just create the `app/api/{version}/controller/` directory and register the new version in the middleware
 
 ### Rate Limiting

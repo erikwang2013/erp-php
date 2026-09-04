@@ -148,7 +148,7 @@ open-erp/
 │   │   ├── TracingId.php        # 全链路 TraceId
 │   │   ├── TrackingSignature.php# 请求签名校验
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
-│   ├── model/                   # 数据模型（161 个）
+│   ├── model/                   # 数据模型（223 个）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, Monitor)
 ├── apps/
@@ -165,7 +165,7 @@ open-erp/
 │   ├── translation.php          # 语言配置
 │   └── plugin/                  # 插件配置（erikwang2013/* + hg/*）
 ├── database/
-│   ├── install.sql              # 完整安装SQL（163张表 + 种子数据，全部迁移已并入）
+│   ├── install.sql              # 完整安装SQL（226 + 种子数据，全部迁移已并入）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
@@ -220,10 +220,10 @@ open-erp/
 
 ## API 版本策略
 
-版本通过请求头 `API-Version` 控制（默认 `v1`），不在 URL 中体现：
+版本置于 URL 路径（`/admin/v1`、`/api/v1`、`/open/v1`），无版本请求头：
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8788/api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 ```
 
 新增版本只需创建 `app/api/{version}/controller/` 目录并注册到 `ApiVersion` 中间件。

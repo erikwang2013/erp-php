@@ -384,7 +384,7 @@ O cabeçalho `Accept-Language` troca automaticamente o idioma (zh-CN → chinês
 A versão da API é controlada pelo cabeçalho da requisição, **não aparece na URL**:
 
 ```http
-API-Version: v1
+Path /api/v1
 ```
 
 - Sem o cabeçalho de versão, o padrão é `v1`

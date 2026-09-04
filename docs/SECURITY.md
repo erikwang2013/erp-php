@@ -174,7 +174,7 @@ POST/PUT 请求**必须**声明 `Content-Type` 为 `application/json` 或 `appli
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | 允许任意源跨域（内网管理后台场景） |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | 允许的方法集合 |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | 允许的自定义头 |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | 允许的自定义头 |
 | Access-Control-Max-Age | `86400` | 预检请求缓存 24 小时 |
 | X-Content-Type-Options | `nosniff` | 禁止浏览器 MIME 嗅探 |
 | X-Frame-Options | `DENY` | 禁止所有 iframe 嵌入，防点击劫持 |

@@ -383,7 +383,7 @@ L'en-tête de requête `Accept-Language` change automatiquement la langue (zh-CN
 La version API est contrôlée par l'en-tête de requête, **non reflétée dans l'URL** :
 
 ```http
-API-Version: v1
+Path /api/v1
 ```
 
 - Si aucune version n'est fournie, `v1` est utilisée par défaut

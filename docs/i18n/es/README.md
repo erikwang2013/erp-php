@@ -384,7 +384,7 @@ El encabezado de solicitud `Accept-Language` cambia automáticamente el idioma (
 La versión de API se controla mediante el encabezado de solicitud, **no se refleja en la URL**:
 
 ```http
-API-Version: v1
+Path /api/v1
 ```
 
 - Si no se incluye la versión, se usa `v1` por defecto

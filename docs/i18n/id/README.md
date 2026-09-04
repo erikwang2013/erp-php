@@ -383,7 +383,7 @@ Header permintaan `Accept-Language` otomatis mengganti bahasa (zh-CN → 中文,
 Versi API dikontrol melalui header permintaan, **tidak tercermin di URL**:
 
 ```http
-API-Version: v1
+Path /api/v1
 ```
 
 - Saat tidak membawa nomor versi, default menggunakan `v1`

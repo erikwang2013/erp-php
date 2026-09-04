@@ -21,7 +21,7 @@ flowchart TB
 
     subgraph "应用层 (webman v2)"
         C_LOC["Locale 中间件<br/>Accept-Language 自动检测"]
-        C0["ApiVersion 中间件<br/>API-Version 头校验"]
+        C0["路径版本化<br/>/api/v1 · /admin/v1（无版本头）"]
         C1["AdminAuth 中间件<br/>JWT 验证"]
         C2["AdminPermission 中间件<br/>RBAC 权限校验"]
         C3["管理端 Controller<br/>Dashboard / User / Role / Permission"]
@@ -170,7 +170,7 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: HTTPS 请求<br/>Header: API-Version: v1
+    C->>N: HTTPS 请求<br/>路径 /api/v1 或 /admin/v1（无版本头）
     N->>MW_LOC: 转发
     MW_LOC->>MW_LOC: 解析 Accept-Language<br/>设置 locale
     MW_LOC->>MW_SF: 通过
@@ -742,7 +742,7 @@ graph TB
     end
 
     subgraph Data["数据层"]
-        MySQL["MySQL 8.0<br/>163张业务表"]
+        MySQL["MySQL 8.0<br/>226张业务表"]
         Redis["Redis 7<br/>缓存/限流/Session"]
         ES["Elasticsearch 8<br/>全文检索"]
     end
@@ -1028,7 +1028,7 @@ SaaS 计费、租户自助开通等"多租户完整商业化方案"不在本项�
 决策依据（2026-08 评审）：
 - 现有部署几乎全部为单租户，接线会引入不必要的隔离复杂度与回归风险；
 - 当前骨架存在技术缺陷（见 22.4），"接线即隔离"不成立，需先完成设计修正；
-- 隔离需为 163 张表中的业务表逐表加列、逐模型启用，成本远超"最小接线"。
+- 隔离需为 226中的业务表逐表加列、逐模型启用，成本远超"最小接线"。
 
 ### 22.2 现状事实（代码与配置核对）
 
