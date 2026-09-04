@@ -334,7 +334,7 @@ class H34AdversarialIntegrationTest extends IntegrationTestCase
         $this->assertServiceThrows(fn () => $svc->bind(self::nextId(), $rule, '6000.00'), '员工不存在'); $this->assertServiceThrows(fn () => $svc->bind($e, self::nextId(), '6000.00'), '社保规则不存在');
         $this->assertServiceThrows(fn () => $svc->bind($e, $rule, 'abc'), '缴费基数格式应为数字（最多两位小数）'); $this->assertServiceThrows(fn () => $svc->bind($e, $rule, '6000.001'), '缴费基数格式应为数字（最多两位小数）');
         $this->assertServiceThrows(fn () => $svc->bind($e, $rule, '4000'), '缴费基数低于社保规则下限 5000.00'); $this->assertServiceThrows(fn () => $svc->bind($e, $rule, '31000'), '缴费基数高于社保规则上限 30000.00');
-        $binding = $svc->bind($e, $rule, '5000'); self::assertSame($e, $binding['employee_id']); self::assertSame($rule, $binding['rule_id']); self::assertSame('5000.00', $binding['base_amount']);
+        $binding = $svc->bind($e, $rule, '5000'); self::assertSame($e, $binding['employee_id']); self::assertSame($rule, $binding['rule_id']); self::assertSame('5000', $binding['base_amount']); self::assertSame('5000.00', (string) Capsule::table(self::T_EMP_SOCIAL)->where('employee_id', $e)->value('base_amount'));
         $this->assertServiceThrows(fn () => $svc->bind($e, $rule, 'bad'), '该员工已绑定社保规则');
     }
 
