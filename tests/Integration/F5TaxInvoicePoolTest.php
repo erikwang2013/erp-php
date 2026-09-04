@@ -74,11 +74,12 @@ class F5TaxInvoicePoolTest extends F5TaxScaffold
             $this->assertSame($expected, $err, '断言失败: ' . $expected);
         }
 
-        // 3 位小数合法入参：scale 4 勾稽通过，落库 bc_round 半进位到 2 位
-        $fine = $this->registerPool(['untaxed_amount' => '100.005', 'tax_amount' => '13.005', 'amount' => '113.01']);
-        $this->assertSame('113.01', $fine->amount);
-        $this->assertSame('100.01', $fine->untaxed_amount);
-        $this->assertSame('13.01', $fine->tax_amount);
+        // 3 位小数入参：拒绝（列契约 DECIMAL(14,2)，防分存 half-up 勾稽漂移）
+        [$row3, $err3] = $this->poolService()->registerOne($this->poolData([
+            'untaxed_amount' => '100.005', 'tax_amount' => '13.005', 'amount' => '113.01',
+        ]));
+        $this->assertNull($row3);
+        $this->assertStringContainsString('金额非法', (string) $err3);
     }
 
     public function testVerifyStateMachine(): void

@@ -93,7 +93,7 @@ class TaxInvoicePoolService
         if ($amount === null) {
             return [null, '价税合计必填'];
         }
-        if (!preg_match('/^-?\d+(\.\d+)?$/', $amount)) {
+        if (!preg_match('/^-?\d+(\.\d{1,2})?$/', $amount)) {
             return [null, '价税合计非法'];
         }
         $amount = bc_norm($amount);
@@ -104,7 +104,7 @@ class TaxInvoicePoolService
         if ($untaxed === null) {
             return [null, '不含税金额必填'];
         }
-        if (!preg_match('/^-?\d+(\.\d+)?$/', $untaxed)) {
+        if (!preg_match('/^-?\d+(\.\d{1,2})?$/', $untaxed)) {
             return [null, '不含税金额非法'];
         }
         $untaxed = bc_norm($untaxed);
@@ -115,7 +115,7 @@ class TaxInvoicePoolService
         if ($tax === null) {
             return [null, '税额必填'];
         }
-        if (!preg_match('/^-?\d+(\.\d+)?$/', $tax)) {
+        if (!preg_match('/^-?\d+(\.\d{1,2})?$/', $tax)) {
             return [null, '税额非法'];
         }
         $tax = bc_norm($tax);

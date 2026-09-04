@@ -260,24 +260,28 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         $this->assertSame(0, Capsule::table('erp_tax_input_invoice')->whereIn('invoice_no', $nos)->count());
     }
 
-    #[TestDox('缺陷锚点 KNOWN-DRIFT：3 位小数 half-up 分存后价税勾稽被破坏（当前行为如实锁定）')]
+    #[TestDox('回归 KNOWN-DRIFT(已修复)：3 位小数入参整单拒绝 —— 不再分存半进位致勾稽漂移')]
     public function testThirdDecimalHalfUpRoundingDrift(): void
     {
-        // scale-4 勾稽通过（0.015+0.015=0.030=0.03），但各栏独立 bc_round 到 2dp：
-        // 0.02+0.02=0.04 ≠ 落库 amount 0.03 —— 存储行自相矛盾（缺陷，仅锚点当前行为）
-        $row = $this->registerPool(['amount' => '0.03', 'untaxed_amount' => '0.015', 'tax_amount' => '0.015']);
-        $this->assertSame('0.03', $row->amount);
-        $this->assertSame('0.02', $row->untaxed_amount, 'half-up: 0.015 → 0.02');
-        $this->assertSame('0.02', $row->tax_amount);
-        $storedSum = bcadd((string) $row->untaxed_amount, (string) $row->tax_amount, 2);
-        $this->assertSame('0.04', $storedSum);
-        $this->assertSame(1, bccomp($storedSum, (string) $row->amount, 2), 'KNOWN-DRIFT: 存储后不含税+税额 0.04 ≠ 价税合计 0.03（缺陷上报，预期校验或分存同尺度化）');
+        // 原缺陷：scale-4 勾稽通过（0.015+0.015=0.03），各栏独立 bc_round 后
+        // 0.02+0.02=0.04 ≠ amount 0.03，存储行自相矛盾。修复：金额输入收严为
+        // ≤2 位小数（与 DECIMAL(14,2) 列契约一致），3 位小数入参整体拒绝。
+        foreach ([
+            ['amount' => '0.03', 'untaxed_amount' => '0.015', 'tax_amount' => '0.015'],
+            ['amount' => '0.001', 'untaxed_amount' => '0.001', 'tax_amount' => '0.000'],
+        ] as $data) {
+            [$row, $err] = $this->poolService()->registerOne($this->poolData($data));
+            $this->assertNull($row, '3 位小数入参应整单拒绝');
+            $this->assertNotNull($err, '应给出明确错误');
+            // 被拒栏目标签随校验顺序不同（价税合计/不含税金额/税额），统一断言含「非法」
+            $this->assertStringContainsString('非法', (string) $err);
+        }
 
-        // 同类：0.001 合法(>0)却被 round 成 0.00 落库 —— 违反正数不变式
-        $tiny = $this->registerPool(['amount' => '0.001', 'untaxed_amount' => '0.001', 'tax_amount' => '0.000']);
-        $this->assertSame('0.00', $tiny->amount);
-        $this->assertSame('0.00', $tiny->untaxed_amount);
-        $this->assertSame('0.00', $tiny->tax_amount);
+        // 2 位小数正常路径不受影响：勾稽一致且列间自洽
+        $fine = $this->registerPool(['amount' => '113.01', 'untaxed_amount' => '100.00', 'tax_amount' => '13.01']);
+        $this->assertSame('113.01', $fine->amount);
+        $sum = bcadd((string) $fine->untaxed_amount, (string) $fine->tax_amount, 2);
+        $this->assertSame('113.01', $sum, '2 位小数落库后勾稽保持');
     }
 
     // ---------- 唯一性：组合键语义 ----------
