@@ -9042,3 +9042,268 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/service/print/PrintTemplateService.php
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/hr/RecruitController.php
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplate\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplate\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplate\:\:\$period_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplate\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrKpiTemplate\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 5
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrPerfPlan\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrKpiTemplateItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 5
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrKpiTemplate\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfPlan\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfPlan\:\:\$template_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfPlan\:\:\$period_start\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfPlan\:\:\$period_end\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfPlan\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfPlan\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrPerfPlan\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrPerfScore\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfScore\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfScore\:\:\$plan_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfScore\:\:\$employee_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfScore\:\:\$rater_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfScore\:\:\$rater_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfScore\:\:\$indicator\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfScore\:\:\$score\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrPerfScore\:\:\$comment\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplateItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplateItem\:\:\$template_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplateItem\:\:\$indicator\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplateItem\:\:\$weight\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplateItem\:\:\$target_value\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplateItem\:\:\$rater_type\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrKpiTemplateItem\:\:\$sort\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PerformanceService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrCandidate\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 8
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Offset int<0, 5> on array\{''新简历'', ''初筛通过'', ''面试中'', ''已发Offer'', ''已入职'', ''已淘汰''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrInterview\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrInterview\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrInterview\:\:\$candidate_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrInterview\:\:\$round_no\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrInterview\:\:\$interviewer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrInterview\:\:\$interview_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrInterview\:\:\$result\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrInterview\:\:\$comment\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrInterview\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrOffer\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrOffer\:\:\$candidate_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrOffer\:\:\$offered_salary\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrOffer\:\:\$onboard_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrOffer\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrOffer\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Offset 3\|4 on array\{''新简历'', ''初筛通过'', ''面试中'', ''已发Offer'', ''已入职'', ''已淘汰''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Call to an undefined static method app\\model\\HrCandidate\:\:whereBetween\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/RecruitService.php
