@@ -24,7 +24,7 @@ class AnalyticsController extends BaseController
      * 报表列表
      * @Apidoc\Title("分析报表列表")
      * @Apidoc\Desc("分页查询分析报表记录")
-     * @Apidoc\Url("/admin/crm/analytics")
+     * @Apidoc\Url("/admin/v1/crm/analytics")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -59,7 +59,7 @@ class AnalyticsController extends BaseController
      * 生成分析报表
      * @Apidoc\Title("生成分析报表")
      * @Apidoc\Desc("根据类型生成模拟分析报表数据并保存")
-     * @Apidoc\Url("/admin/crm/analytics")
+     * @Apidoc\Url("/admin/v1/crm/analytics")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -108,7 +108,7 @@ class AnalyticsController extends BaseController
      * 报表详情
      * @Apidoc\Title("报表详情")
      * @Apidoc\Desc("查看分析报表详细信息")
-     * @Apidoc\Url("/admin/crm/analytics/{id}")
+     * @Apidoc\Url("/admin/v1/crm/analytics/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -137,7 +137,7 @@ class AnalyticsController extends BaseController
      * 指标列表
      * @Apidoc\Title("分析指标列表")
      * @Apidoc\Desc("查询全部分析指标配置")
-     * @Apidoc\Url("/admin/crm/analytics")
+     * @Apidoc\Url("/admin/v1/crm/analytics")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -157,7 +157,7 @@ class AnalyticsController extends BaseController
      * 创建/更新指标
      * @Apidoc\Title("创建或更新分析指标")
      * @Apidoc\Desc("有id则更新，无id则创建分析指标")
-     * @Apidoc\Url("/admin/crm/analytics")
+     * @Apidoc\Url("/admin/v1/crm/analytics")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

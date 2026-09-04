@@ -30,7 +30,7 @@ class SalaryController extends BaseController
      * 薪资列表（分页）
      * @Apidoc\Title("薪资列表")
      * @Apidoc\Desc("分页查询薪资记录")
-     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Url("/admin/v1/hr/salary")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -77,7 +77,7 @@ class SalaryController extends BaseController
      * 创建薪资记录
      * @Apidoc\Title("创建薪资记录")
      * @Apidoc\Desc("新增薪资记录，自动计算实发金额")
-     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Url("/admin/v1/hr/salary")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -117,7 +117,7 @@ class SalaryController extends BaseController
      * 薪资详情
      * @Apidoc\Title("薪资详情")
      * @Apidoc\Desc("查看薪资记录详细信息")
-     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -146,7 +146,7 @@ class SalaryController extends BaseController
      * 更新薪资
      * @Apidoc\Title("更新薪资")
      * @Apidoc\Desc("修改薪资记录，自动重新计算实发，已发放不可修改")
-     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -175,7 +175,7 @@ class SalaryController extends BaseController
      * 删除薪资记录
      * @Apidoc\Title("删除薪资记录")
      * @Apidoc\Desc("删除薪资记录，已发放不可删除，需密码确认")
-     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -211,7 +211,7 @@ class SalaryController extends BaseController
      * 薪资发放确认
      * @Apidoc\Title("薪资发放")
      * @Apidoc\Desc("确认薪资已发放，将状态更新为已发放")
-     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -240,7 +240,7 @@ class SalaryController extends BaseController
      * 批量生成薪资
      * @Apidoc\Title("批量生成薪资")
      * @Apidoc\Desc("按部门和期间为所有在职员工批量生成初始薪资记录")
-     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Url("/admin/v1/hr/salary")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -266,7 +266,7 @@ class SalaryController extends BaseController
      * 薪资试算
      * @Apidoc\Title("薪资试算")
      * @Apidoc\Desc("按基本工资/绩效/加班/计件/扣款试算个税与实发金额")
-     * @Apidoc\Url("/admin/hr/salary/calculate")
+     * @Apidoc\Url("/admin/v1/hr/salary/calculate")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -304,7 +304,7 @@ class SalaryController extends BaseController
      * 银行代发文件
      * @Apidoc\Title("银行代发文件")
      * @Apidoc\Desc("校验员工银行账号并生成代发CSV")
-     * @Apidoc\Url("/admin/hr/salary/payroll-file")
+     * @Apidoc\Url("/admin/v1/hr/salary/payroll-file")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -336,7 +336,7 @@ class SalaryController extends BaseController
      * 薪资项列表
      * @Apidoc\Title("薪资项列表")
      * @Apidoc\Desc("查询全部薪资项配置")
-     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Url("/admin/v1/hr/salary")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -356,7 +356,7 @@ class SalaryController extends BaseController
      * 创建薪资项
      * @Apidoc\Title("创建薪资项")
      * @Apidoc\Desc("新增薪资项配置")
-     * @Apidoc\Url("/admin/hr/salary")
+     * @Apidoc\Url("/admin/v1/hr/salary")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -385,7 +385,7 @@ class SalaryController extends BaseController
      * 薪资项详情
      * @Apidoc\Title("薪资项详情")
      * @Apidoc\Desc("查看薪资项详细信息")
-     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -409,7 +409,7 @@ class SalaryController extends BaseController
      * 更新薪资项
      * @Apidoc\Title("更新薪资项")
      * @Apidoc\Desc("修改薪资项配置")
-     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -433,7 +433,7 @@ class SalaryController extends BaseController
      * 删除薪资项
      * @Apidoc\Title("删除薪资项")
      * @Apidoc\Desc("删除薪资项配置，需密码确认")
-     * @Apidoc\Url("/admin/hr/salary/{id}")
+     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")

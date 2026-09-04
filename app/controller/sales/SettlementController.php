@@ -29,7 +29,7 @@ class SettlementController extends BaseController
      * 销售结算列表（分页）
      * @Apidoc\Title("销售结算列表")
      * @Apidoc\Desc("基于应收记录查询销售结算，状态按已核销金额推导")
-     * @Apidoc\Url("/admin/sales/settlement")
+     * @Apidoc\Url("/admin/v1/sales/settlement")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -87,7 +87,7 @@ class SettlementController extends BaseController
      * 销售结算核销（经服务层）
      * @Apidoc\Title("创建销售结算核销")
      * @Apidoc\Desc("对发货单应收记录执行收款核销，状态由服务层推导，客户端传 status 一律忽略")
-     * @Apidoc\Url("/admin/sales/settlement")
+     * @Apidoc\Url("/admin/v1/sales/settlement")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -135,7 +135,7 @@ class SettlementController extends BaseController
      * 销售结算详情
      * @Apidoc\Title("销售结算详情")
      * @Apidoc\Desc("根据应收记录ID获取销售结算详细信息")
-     * @Apidoc\Url("/admin/sales/settlement/{id}")
+     * @Apidoc\Url("/admin/v1/sales/settlement/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -161,7 +161,7 @@ class SettlementController extends BaseController
      * 更新销售结算（仅应收金额）
      * @Apidoc\Title("更新销售结算")
      * @Apidoc\Desc("仅允许调整应收金额，且不得小于已核销金额；状态由服务端推导")
-     * @Apidoc\Url("/admin/sales/settlement/{id}")
+     * @Apidoc\Url("/admin/v1/sales/settlement/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -198,7 +198,7 @@ class SettlementController extends BaseController
      * 删除销售结算（仅未核销记录）
      * @Apidoc\Title("删除销售结算")
      * @Apidoc\Desc("删除未核销的应收记录，需管理员密码二次确认；已核销记录不可删除")
-     * @Apidoc\Url("/admin/sales/settlement/{id}")
+     * @Apidoc\Url("/admin/v1/sales/settlement/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")

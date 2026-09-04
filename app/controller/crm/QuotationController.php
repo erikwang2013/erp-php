@@ -22,7 +22,7 @@ class QuotationController extends BaseController
      * CRM报价列表（分页）
      * @Apidoc\Title("报价列表")
      * @Apidoc\Desc("分页查询CRM报价记录")
-     * @Apidoc\Url("/admin/crm/quotation")
+     * @Apidoc\Url("/admin/v1/crm/quotation")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -60,7 +60,7 @@ class QuotationController extends BaseController
      * 创建CRM报价
      * @Apidoc\Title("创建报价")
      * @Apidoc\Desc("新增CRM报价记录，含报价明细")
-     * @Apidoc\Url("/admin/crm/quotation")
+     * @Apidoc\Url("/admin/v1/crm/quotation")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -91,7 +91,7 @@ class QuotationController extends BaseController
      * CRM报价详情
      * @Apidoc\Title("报价详情")
      * @Apidoc\Desc("查看CRM报价详细信息")
-     * @Apidoc\Url("/admin/crm/quotation/{id}")
+     * @Apidoc\Url("/admin/v1/crm/quotation/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -115,7 +115,7 @@ class QuotationController extends BaseController
      * 更新CRM报价
      * @Apidoc\Title("更新报价")
      * @Apidoc\Desc("修改CRM报价信息，仅草稿状态可编辑")
-     * @Apidoc\Url("/admin/crm/quotation/{id}")
+     * @Apidoc\Url("/admin/v1/crm/quotation/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -151,7 +151,7 @@ class QuotationController extends BaseController
      * 删除CRM报价
      * @Apidoc\Title("删除报价")
      * @Apidoc\Desc("删除CRM报价记录，需密码确认")
-     * @Apidoc\Url("/admin/crm/quotation/{id}")
+     * @Apidoc\Url("/admin/v1/crm/quotation/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -184,7 +184,7 @@ class QuotationController extends BaseController
      * 报价转合同
      * @Apidoc\Title("报价转合同")
      * @Apidoc\Desc("将CRM报价转为正式合同，复制报价明细到合同明细")
-     * @Apidoc\Url("/admin/crm/quotation/{id}")
+     * @Apidoc\Url("/admin/v1/crm/quotation/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

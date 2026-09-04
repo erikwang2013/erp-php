@@ -25,7 +25,7 @@ class ProductController extends BaseController
      * 商品列表（分页）
      * @Apidoc\Title("商品列表")
      * @Apidoc\Desc("获取商品分页列表，支持关键字/分类/状态筛选")
-     * @Apidoc\Url("/admin/product")
+     * @Apidoc\Url("/admin/v1/product")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")
@@ -73,7 +73,7 @@ class ProductController extends BaseController
      * 创建商品
      * @Apidoc\Title("创建商品")
      * @Apidoc\Desc("创建新商品，可同时创建SKU和价格")
-     * @Apidoc\Url("/admin/product")
+     * @Apidoc\Url("/admin/v1/product")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")
@@ -131,7 +131,7 @@ class ProductController extends BaseController
      * 商品详情
      * @Apidoc\Title("商品详情")
      * @Apidoc\Desc("获取指定商品的详细信息，包含分类、品牌、SKU、价格和单位")
-     * @Apidoc\Url("/admin/product/{id}")
+     * @Apidoc\Url("/admin/v1/product/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")
@@ -155,7 +155,7 @@ class ProductController extends BaseController
      * 更新商品
      * @Apidoc\Title("更新商品")
      * @Apidoc\Desc("更新指定商品的信息")
-     * @Apidoc\Url("/admin/product/{id}")
+     * @Apidoc\Url("/admin/v1/product/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")
@@ -199,7 +199,7 @@ class ProductController extends BaseController
      * 删除商品
      * @Apidoc\Title("删除商品")
      * @Apidoc\Desc("软删除指定商品，需要密码二次确认")
-     * @Apidoc\Url("/admin/product/{id}")
+     * @Apidoc\Url("/admin/v1/product/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")

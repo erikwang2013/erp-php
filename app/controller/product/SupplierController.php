@@ -21,7 +21,7 @@ class SupplierController extends BaseController
      * 供应商列表（分页）
      * @Apidoc\Title("供应商列表")
      * @Apidoc\Desc("分页查询供应商记录")
-     * @Apidoc\Url("/admin/supplier")
+     * @Apidoc\Url("/admin/v1/supplier")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -56,7 +56,7 @@ class SupplierController extends BaseController
      * 创建供应商
      * @Apidoc\Title("创建供应商")
      * @Apidoc\Desc("新增供应商记录")
-     * @Apidoc\Url("/admin/supplier")
+     * @Apidoc\Url("/admin/v1/supplier")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -81,7 +81,7 @@ class SupplierController extends BaseController
      * 供应商详情
      * @Apidoc\Title("供应商详情")
      * @Apidoc\Desc("查看供应商详细信息")
-     * @Apidoc\Url("/admin/supplier/{id}")
+     * @Apidoc\Url("/admin/v1/supplier/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -105,7 +105,7 @@ class SupplierController extends BaseController
      * 更新供应商
      * @Apidoc\Title("更新供应商")
      * @Apidoc\Desc("修改供应商信息")
-     * @Apidoc\Url("/admin/supplier/{id}")
+     * @Apidoc\Url("/admin/v1/supplier/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -129,7 +129,7 @@ class SupplierController extends BaseController
      * 删除供应商
      * @Apidoc\Title("删除供应商")
      * @Apidoc\Desc("删除供应商记录，需密码确认")
-     * @Apidoc\Url("/admin/supplier/{id}")
+     * @Apidoc\Url("/admin/v1/supplier/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

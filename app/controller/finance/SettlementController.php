@@ -22,7 +22,7 @@ class SettlementController extends BaseController
      * 核销记录列表（分页）
      * @Apidoc\Title("核销记录列表")
      * @Apidoc\Desc("分页查询核销记录")
-     * @Apidoc\Url("/admin/finance/settlement")
+     * @Apidoc\Url("/admin/v1/finance/settlement")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -50,7 +50,7 @@ class SettlementController extends BaseController
      * 创建核销记录（经服务层校验余额并同步 erp_finance_ar_ap.settled_amount）
      * @Apidoc\Title("创建核销记录")
      * @Apidoc\Desc("按应收应付类型走收款/付款核销，超出未核销余额将拒绝")
-     * @Apidoc\Url("/admin/finance/settlement")
+     * @Apidoc\Url("/admin/v1/finance/settlement")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -98,7 +98,7 @@ class SettlementController extends BaseController
      * 核销记录详情
      * @Apidoc\Title("核销记录详情")
      * @Apidoc\Desc("查看核销记录详细信息")
-     * @Apidoc\Url("/admin/finance/settlement/{id}")
+     * @Apidoc\Url("/admin/v1/finance/settlement/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

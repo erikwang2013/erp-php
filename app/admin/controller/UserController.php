@@ -22,7 +22,7 @@ class UserController extends BaseController
      * 用户列表（分页）
      * @Apidoc\Title("用户列表")
      * @Apidoc\Desc("获取用户分页列表，支持关键字搜索和状态筛选")
-     * @Apidoc\Url("/admin/user")
+     * @Apidoc\Url("/admin/v1/user")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("用户管理")
@@ -89,7 +89,7 @@ class UserController extends BaseController
      * 创建用户
      * @Apidoc\Title("创建用户")
      * @Apidoc\Desc("创建一个新的管理后台用户")
-     * @Apidoc\Url("/admin/user")
+     * @Apidoc\Url("/admin/v1/user")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("用户管理")
@@ -141,7 +141,7 @@ class UserController extends BaseController
      * 用户详情
      * @Apidoc\Title("用户详情")
      * @Apidoc\Desc("获取指定用户的详细信息")
-     * @Apidoc\Url("/admin/user/{id}")
+     * @Apidoc\Url("/admin/v1/user/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("用户管理")
@@ -169,7 +169,7 @@ class UserController extends BaseController
      * 更新用户
      * @Apidoc\Title("更新用户")
      * @Apidoc\Desc("更新指定用户的信息")
-     * @Apidoc\Url("/admin/user/{id}")
+     * @Apidoc\Url("/admin/v1/user/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("用户管理")
@@ -216,7 +216,7 @@ class UserController extends BaseController
      * 删除用户（软删除，需密码二次确认）
      * @Apidoc\Title("删除用户")
      * @Apidoc\Desc("软删除指定用户，需要密码二次确认")
-     * @Apidoc\Url("/admin/user/{id}")
+     * @Apidoc\Url("/admin/v1/user/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("用户管理")
@@ -249,7 +249,7 @@ class UserController extends BaseController
      * 批量删除
      * @Apidoc\Title("批量删除用户")
      * @Apidoc\Desc("批量软删除多个用户，需要密码二次确认")
-     * @Apidoc\Url("/admin/user/batch/destroy")
+     * @Apidoc\Url("/admin/v1/user/batch/destroy")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("用户管理")
@@ -298,7 +298,7 @@ class UserController extends BaseController
      * 批量启用/禁用
      * @Apidoc\Title("批量启用/禁用用户")
      * @Apidoc\Desc("批量修改用户启用/禁用状态")
-     * @Apidoc\Url("/admin/user/batch/status")
+     * @Apidoc\Url("/admin/v1/user/batch/status")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("用户管理")

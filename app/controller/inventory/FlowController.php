@@ -19,7 +19,7 @@ class FlowController extends BaseController
      * 库存流水列表（分页）
      * @Apidoc\Title("库存流水列表")
      * @Apidoc\Desc("获取库存流水列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/inventory/flow")
+     * @Apidoc\Url("/admin/v1/inventory/flow")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -61,7 +61,7 @@ class FlowController extends BaseController
      * 创建库存流水
      * @Apidoc\Title("创建库存流水")
      * @Apidoc\Desc("新增一个库存流水记录")
-     * @Apidoc\Url("/admin/inventory/flow")
+     * @Apidoc\Url("/admin/v1/inventory/flow")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -91,7 +91,7 @@ class FlowController extends BaseController
      * 库存流水详情
      * @Apidoc\Title("库存流水详情")
      * @Apidoc\Desc("根据ID获取库存流水详细信息")
-     * @Apidoc\Url("/admin/inventory/flow/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/flow/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -115,7 +115,7 @@ class FlowController extends BaseController
      * 更新库存流水
      * @Apidoc\Title("更新库存流水")
      * @Apidoc\Desc("根据ID更新库存流水信息")
-     * @Apidoc\Url("/admin/inventory/flow/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/flow/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -145,7 +145,7 @@ class FlowController extends BaseController
      * 删除库存流水（软删除）
      * @Apidoc\Title("删除库存流水")
      * @Apidoc\Desc("根据ID软删除库存流水，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/inventory/flow/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/flow/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")

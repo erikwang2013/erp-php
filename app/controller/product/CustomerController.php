@@ -22,7 +22,7 @@ class CustomerController extends BaseController
      * 客户列表（分页）
      * @Apidoc\Title("客户列表")
      * @Apidoc\Desc("分页查询客户记录")
-     * @Apidoc\Url("/admin/customer")
+     * @Apidoc\Url("/admin/v1/customer")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -57,7 +57,7 @@ class CustomerController extends BaseController
      * 创建客户
      * @Apidoc\Title("创建客户")
      * @Apidoc\Desc("新增客户记录")
-     * @Apidoc\Url("/admin/customer")
+     * @Apidoc\Url("/admin/v1/customer")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -82,7 +82,7 @@ class CustomerController extends BaseController
      * 客户详情
      * @Apidoc\Title("客户详情")
      * @Apidoc\Desc("查看客户详细信息")
-     * @Apidoc\Url("/admin/customer/{id}")
+     * @Apidoc\Url("/admin/v1/customer/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -106,7 +106,7 @@ class CustomerController extends BaseController
      * 更新客户
      * @Apidoc\Title("更新客户")
      * @Apidoc\Desc("修改客户信息")
-     * @Apidoc\Url("/admin/customer/{id}")
+     * @Apidoc\Url("/admin/v1/customer/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -130,7 +130,7 @@ class CustomerController extends BaseController
      * 删除客户
      * @Apidoc\Title("删除客户")
      * @Apidoc\Desc("删除客户记录，需密码确认")
-     * @Apidoc\Url("/admin/customer/{id}")
+     * @Apidoc\Url("/admin/v1/customer/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -163,7 +163,7 @@ class CustomerController extends BaseController
      * 客户等级列表
      * @Apidoc\Title("客户等级列表")
      * @Apidoc\Desc("查询全部客户等级，供前端下拉选择")
-     * @Apidoc\Url("/admin/customer-level")
+     * @Apidoc\Url("/admin/v1/customer-level")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

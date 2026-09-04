@@ -27,7 +27,7 @@ class PrintTemplateController extends BaseController
      * 模板列表（分页）
      * @Apidoc\Title("打印模板列表")
      * @Apidoc\Desc("分页查询打印模板，支持关键词与单据类型过滤")
-     * @Apidoc\Url("/admin/print/template")
+     * @Apidoc\Url("/admin/v1/print/template")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")
@@ -60,7 +60,7 @@ class PrintTemplateController extends BaseController
      * 新建模板
      * @Apidoc\Title("新建打印模板")
      * @Apidoc\Desc("code/name/content 必填；code 全局唯一（含软删）")
-     * @Apidoc\Url("/admin/print/template")
+     * @Apidoc\Url("/admin/v1/print/template")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")
@@ -95,7 +95,7 @@ class PrintTemplateController extends BaseController
      * 模板详情（含占位符清单）
      * @Apidoc\Title("打印模板详情")
      * @Apidoc\Desc("返回模板字段与 content 中的占位符 token 清单，供前端设计器提示")
-     * @Apidoc\Url("/admin/print/template/{id}")
+     * @Apidoc\Url("/admin/v1/print/template/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")
@@ -118,7 +118,7 @@ class PrintTemplateController extends BaseController
      * 更新模板
      * @Apidoc\Title("更新打印模板")
      * @Apidoc\Desc("部分更新：仅提交的字段生效")
-     * @Apidoc\Url("/admin/print/template/{id}")
+     * @Apidoc\Url("/admin/v1/print/template/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")
@@ -139,7 +139,7 @@ class PrintTemplateController extends BaseController
      * 删除模板（需密码确认）
      * @Apidoc\Title("删除打印模板")
      * @Apidoc\Desc("软删除；uk_code 唯一性保留，删除后同编码需换码")
-     * @Apidoc\Url("/admin/print/template/{id}")
+     * @Apidoc\Url("/admin/v1/print/template/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")
@@ -166,7 +166,7 @@ class PrintTemplateController extends BaseController
      * 渲染模板为 HTML（预览）
      * @Apidoc\Title("渲染打印模板")
      * @Apidoc\Desc("按模板 code 渲染：占位符替换 + 缺失键清单；不落盘不生成 PDF")
-     * @Apidoc\Url("/admin/print/template/render")
+     * @Apidoc\Url("/admin/v1/print/template/render")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")
@@ -197,7 +197,7 @@ class PrintTemplateController extends BaseController
      * 渲染并下载 PDF
      * @Apidoc\Title("下载打印 PDF")
      * @Apidoc\Desc("按模板 code 渲染并输出 PDF 文件（纸张/方向取模板配置）")
-     * @Apidoc\Url("/admin/print/template/pdf")
+     * @Apidoc\Url("/admin/v1/print/template/pdf")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")

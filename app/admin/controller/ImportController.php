@@ -21,7 +21,7 @@ class ImportController extends BaseController
      * Excel导入用户
      * @Apidoc\Title("Excel导入用户")
      * @Apidoc\Desc("上传Excel文件批量导入用户，支持xlsx/xls格式，必需列为username/password/real_name")
-     * @Apidoc\Url("/admin/import/users")
+     * @Apidoc\Url("/admin/v1/import/users")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("导入管理")

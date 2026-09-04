@@ -36,7 +36,7 @@ class TenantController extends BaseController
      * 租户列表
      * @Apidoc\Title("租户列表")
      * @Apidoc\Desc("按状态/公司过滤的租户列表，倒序")
-     * @Apidoc\Url("/admin/platform/tenant/list")
+     * @Apidoc\Url("/admin/v1/platform/tenant/list")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")
@@ -72,7 +72,7 @@ class TenantController extends BaseController
      * 开通租户（创建即启用）
      * @Apidoc\Title("开通租户")
      * @Apidoc\Desc("公司 1:1 开通租户：plan/套餐 + 到期日，创建即 status=1 启用")
-     * @Apidoc\Url("/admin/platform/tenant/provision")
+     * @Apidoc\Url("/admin/v1/platform/tenant/provision")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")
@@ -108,7 +108,7 @@ class TenantController extends BaseController
      * 停用租户
      * @Apidoc\Title("停用租户")
      * @Apidoc\Desc("仅 1启用 → 2停用")
-     * @Apidoc\Url("/admin/platform/tenant/suspend")
+     * @Apidoc\Url("/admin/v1/platform/tenant/suspend")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")
@@ -128,7 +128,7 @@ class TenantController extends BaseController
      * 恢复启用租户
      * @Apidoc\Title("恢复启用租户")
      * @Apidoc\Desc("仅 2停用 → 1启用；到期(3)恢复须走续费(renew)")
-     * @Apidoc\Url("/admin/platform/tenant/resume")
+     * @Apidoc\Url("/admin/v1/platform/tenant/resume")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")
@@ -148,7 +148,7 @@ class TenantController extends BaseController
      * 标记租户到期
      * @Apidoc\Title("标记租户到期")
      * @Apidoc\Desc("1启用/2停用 → 3到期（重复标记拒绝）")
-     * @Apidoc\Url("/admin/platform/tenant/expire-mark")
+     * @Apidoc\Url("/admin/v1/platform/tenant/expire-mark")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")
@@ -168,7 +168,7 @@ class TenantController extends BaseController
      * 租户续费（叠加天数）
      * @Apidoc\Title("租户续费")
      * @Apidoc\Desc("到期日向后叠加 N 天；已到期(3)续费自动恢复启用，停用(2)续费仅延长期限")
-     * @Apidoc\Url("/admin/platform/tenant/renew")
+     * @Apidoc\Url("/admin/v1/platform/tenant/renew")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")
@@ -192,7 +192,7 @@ class TenantController extends BaseController
      * 到期预警列表
      * @Apidoc\Title("到期预警")
      * @Apidoc\Desc("启用中且 N 天内到期的租户（含今天与边界日），到期日升序")
-     * @Apidoc\Url("/admin/platform/tenant/expiry-warnings")
+     * @Apidoc\Url("/admin/v1/platform/tenant/expiry-warnings")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")

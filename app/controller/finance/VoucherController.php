@@ -20,7 +20,7 @@ class VoucherController extends BaseController
      * 记账凭证列表（分页）
      * @Apidoc\Title("记账凭证列表")
      * @Apidoc\Desc("分页查询记账凭证记录")
-     * @Apidoc\Url("/admin/finance/voucher")
+     * @Apidoc\Url("/admin/v1/finance/voucher")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -62,7 +62,7 @@ class VoucherController extends BaseController
      * 创建记账凭证
      * @Apidoc\Title("创建记账凭证")
      * @Apidoc\Desc("新增记账凭证记录")
-     * @Apidoc\Url("/admin/finance/voucher")
+     * @Apidoc\Url("/admin/v1/finance/voucher")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -107,7 +107,7 @@ class VoucherController extends BaseController
      * 记账凭证详情
      * @Apidoc\Title("记账凭证详情")
      * @Apidoc\Desc("查看记账凭证详细信息")
-     * @Apidoc\Url("/admin/finance/voucher/{id}")
+     * @Apidoc\Url("/admin/v1/finance/voucher/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -131,7 +131,7 @@ class VoucherController extends BaseController
      * 更新记账凭证
      * @Apidoc\Title("更新记账凭证")
      * @Apidoc\Desc("修改记账凭证信息")
-     * @Apidoc\Url("/admin/finance/voucher/{id}")
+     * @Apidoc\Url("/admin/v1/finance/voucher/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -172,7 +172,7 @@ class VoucherController extends BaseController
      * 删除记账凭证
      * @Apidoc\Title("删除记账凭证")
      * @Apidoc\Desc("删除记账凭证记录，需密码确认")
-     * @Apidoc\Url("/admin/finance/voucher/{id}")
+     * @Apidoc\Url("/admin/v1/finance/voucher/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

@@ -19,7 +19,7 @@ class CheckTaskController extends BaseController
      * 盘点任务列表（分页）
      * @Apidoc\Title("盘点任务列表")
      * @Apidoc\Desc("获取盘点任务列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/inventory/check")
+     * @Apidoc\Url("/admin/v1/inventory/check")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -61,7 +61,7 @@ class CheckTaskController extends BaseController
      * 创建盘点任务
      * @Apidoc\Title("创建盘点任务")
      * @Apidoc\Desc("新增一个盘点任务记录")
-     * @Apidoc\Url("/admin/inventory/check")
+     * @Apidoc\Url("/admin/v1/inventory/check")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -91,7 +91,7 @@ class CheckTaskController extends BaseController
      * 盘点任务详情
      * @Apidoc\Title("盘点任务详情")
      * @Apidoc\Desc("根据ID获取盘点任务详细信息")
-     * @Apidoc\Url("/admin/inventory/check/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/check/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -115,7 +115,7 @@ class CheckTaskController extends BaseController
      * 更新盘点任务
      * @Apidoc\Title("更新盘点任务")
      * @Apidoc\Desc("根据ID更新盘点任务信息")
-     * @Apidoc\Url("/admin/inventory/check/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/check/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -145,7 +145,7 @@ class CheckTaskController extends BaseController
      * 删除盘点任务（软删除）
      * @Apidoc\Title("删除盘点任务")
      * @Apidoc\Desc("根据ID软删除盘点任务，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/inventory/check/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/check/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")

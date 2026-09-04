@@ -29,7 +29,7 @@ class AttendanceController extends BaseController
      * 考勤记录列表（分页）
      * @Apidoc\Title("考勤记录列表")
      * @Apidoc\Desc("分页查询考勤记录")
-     * @Apidoc\Url("/admin/hr/attendance")
+     * @Apidoc\Url("/admin/v1/hr/attendance")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -73,7 +73,7 @@ class AttendanceController extends BaseController
      * 上班打卡
      * @Apidoc\Title("上班打卡")
      * @Apidoc\Desc("员工上班打卡，根据考勤规则自动判定迟到")
-     * @Apidoc\Url("/admin/hr/attendance/clock-in")
+     * @Apidoc\Url("/admin/v1/hr/attendance/clock-in")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -102,7 +102,7 @@ class AttendanceController extends BaseController
      * 下班打卡
      * @Apidoc\Title("下班打卡")
      * @Apidoc\Desc("员工下班打卡，根据考勤规则自动判定早退")
-     * @Apidoc\Url("/admin/hr/attendance/clock-out")
+     * @Apidoc\Url("/admin/v1/hr/attendance/clock-out")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -133,7 +133,7 @@ class AttendanceController extends BaseController
      * 请假列表（分页）
      * @Apidoc\Title("请假列表")
      * @Apidoc\Desc("分页查询请假记录")
-     * @Apidoc\Url("/admin/hr/attendance")
+     * @Apidoc\Url("/admin/v1/hr/attendance")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -176,7 +176,7 @@ class AttendanceController extends BaseController
      * 创建请假
      * @Apidoc\Title("创建请假")
      * @Apidoc\Desc("提交请假申请")
-     * @Apidoc\Url("/admin/hr/attendance")
+     * @Apidoc\Url("/admin/v1/hr/attendance")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -211,7 +211,7 @@ class AttendanceController extends BaseController
      * 请假详情
      * @Apidoc\Title("请假详情")
      * @Apidoc\Desc("查看请假记录详细信息")
-     * @Apidoc\Url("/admin/hr/attendance/{id}")
+     * @Apidoc\Url("/admin/v1/hr/attendance/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -240,7 +240,7 @@ class AttendanceController extends BaseController
      * 更新请假
      * @Apidoc\Title("更新请假")
      * @Apidoc\Desc("修改请假申请，仅待审批状态可修改")
-     * @Apidoc\Url("/admin/hr/attendance/{id}")
+     * @Apidoc\Url("/admin/v1/hr/attendance/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -269,7 +269,7 @@ class AttendanceController extends BaseController
      * 删除请假
      * @Apidoc\Title("删除请假")
      * @Apidoc\Desc("删除请假记录，需密码确认")
-     * @Apidoc\Url("/admin/hr/attendance/{id}")
+     * @Apidoc\Url("/admin/v1/hr/attendance/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -302,7 +302,7 @@ class AttendanceController extends BaseController
      * 审批请假
      * @Apidoc\Title("审批请假")
      * @Apidoc\Desc("批准或驳回请假申请，批准后自动标记考勤为请假状态")
-     * @Apidoc\Url("/admin/hr/attendance/{id}")
+     * @Apidoc\Url("/admin/v1/hr/attendance/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")

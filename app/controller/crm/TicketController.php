@@ -22,7 +22,7 @@ class TicketController extends BaseController
      * 工单列表（分页）
      * @Apidoc\Title("服务工单列表")
      * @Apidoc\Desc("分页查询服务工单记录")
-     * @Apidoc\Url("/admin/crm/ticket")
+     * @Apidoc\Url("/admin/v1/crm/ticket")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -71,7 +71,7 @@ class TicketController extends BaseController
      * 创建工单
      * @Apidoc\Title("创建服务工单")
      * @Apidoc\Desc("新增服务工单记录")
-     * @Apidoc\Url("/admin/crm/ticket")
+     * @Apidoc\Url("/admin/v1/crm/ticket")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -100,7 +100,7 @@ class TicketController extends BaseController
      * 工单详情
      * @Apidoc\Title("服务工单详情")
      * @Apidoc\Desc("查看服务工单详细信息，含回复列表")
-     * @Apidoc\Url("/admin/crm/ticket/{id}")
+     * @Apidoc\Url("/admin/v1/crm/ticket/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -129,7 +129,7 @@ class TicketController extends BaseController
      * 更新工单
      * @Apidoc\Title("更新服务工单")
      * @Apidoc\Desc("修改服务工单信息")
-     * @Apidoc\Url("/admin/crm/ticket/{id}")
+     * @Apidoc\Url("/admin/v1/crm/ticket/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -153,7 +153,7 @@ class TicketController extends BaseController
      * 删除工单
      * @Apidoc\Title("删除服务工单")
      * @Apidoc\Desc("删除服务工单，连回复记录一起删除，需密码确认")
-     * @Apidoc\Url("/admin/crm/ticket/{id}")
+     * @Apidoc\Url("/admin/v1/crm/ticket/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -186,7 +186,7 @@ class TicketController extends BaseController
      * 指派工单
      * @Apidoc\Title("指派工单")
      * @Apidoc\Desc("将工单指派给指定处理人")
-     * @Apidoc\Url("/admin/crm/ticket/{id}")
+     * @Apidoc\Url("/admin/v1/crm/ticket/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -217,7 +217,7 @@ class TicketController extends BaseController
      * 解决工单
      * @Apidoc\Title("解决工单")
      * @Apidoc\Desc("将工单标记为已解决，可附带解决回复")
-     * @Apidoc\Url("/admin/crm/ticket/{id}")
+     * @Apidoc\Url("/admin/v1/crm/ticket/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -248,7 +248,7 @@ class TicketController extends BaseController
      * 添加工单回复
      * @Apidoc\Title("添加工单回复")
      * @Apidoc\Desc("为工单添加回复记录")
-     * @Apidoc\Url("/admin/crm/ticket/{id}")
+     * @Apidoc\Url("/admin/v1/crm/ticket/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

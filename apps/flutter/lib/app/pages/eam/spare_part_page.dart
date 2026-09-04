@@ -27,7 +27,7 @@ class _SparePartPageState extends State<SparePartPage> {
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
 
-      final res = await ApiService.instance.get('/admin/eam/spare-part', params: params);
+      final res = await ApiService.instance.get('/admin/v1/eam/spare-part', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -35,21 +35,21 @@ class _SparePartPageState extends State<SparePartPage> {
 
   Future<void> _create() async {
     await FormDialog.show(context, title: '新增', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/eam/spare-part', data: data);
+      await ApiService.instance.post('/admin/v1/eam/spare-part', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
     await FormDialog.show(context, title: '编辑', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/eam/spare-part/${row['id']}', data: data);
+      await ApiService.instance.put('/admin/v1/eam/spare-part/${row['id']}', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['name'] ?? row['code'] ?? ''}」吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/eam/spare-part/${row['id']}', data: {'password': password});
+      await ApiService.instance.delete('/admin/v1/eam/spare-part/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }

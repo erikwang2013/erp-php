@@ -52,7 +52,8 @@ Route::get('/api/docs', [app\admin\controller\DocsController::class, 'index']);
 // ============================================================
 // 管理端路由
 // ============================================================
-Route::group('/admin', function () {
+// 全站接口版本化：管理端 v1（权限匹配由 AdminPermission 剥离版本段，RBAC 数据路径不变）
+Route::group('/admin/v1', function () {
     // 仪表盘
     Route::get('/dashboard', [app\admin\controller\DashboardController::class, 'index']);
 

@@ -31,7 +31,7 @@ class SubcontractReceiveController extends BaseController
     /**
      * 委外收料单列表（分页，按单号/状态/委外单筛选）
      * @Apidoc\Title("委外收料单列表")
-     * @Apidoc\Url("/admin/mfg/subcontract-receive")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -64,7 +64,7 @@ class SubcontractReceiveController extends BaseController
     /**
      * 创建委外收料单（草稿；仓库缺省取委外单收料仓库）
      * @Apidoc\Title("创建委外收料单")
-     * @Apidoc\Url("/admin/mfg/subcontract-receive")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -126,7 +126,7 @@ class SubcontractReceiveController extends BaseController
     /**
      * 委外收料单详情（含委外单）
      * @Apidoc\Title("委外收料单详情")
-     * @Apidoc\Url("/admin/mfg/subcontract-receive/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -151,7 +151,7 @@ class SubcontractReceiveController extends BaseController
     /**
      * 更新委外收料单（仅草稿）
      * @Apidoc\Title("更新委外收料单")
-     * @Apidoc\Url("/admin/mfg/subcontract-receive/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -190,7 +190,7 @@ class SubcontractReceiveController extends BaseController
     /**
      * 删除委外收料单（仅草稿，需密码确认）
      * @Apidoc\Title("删除委外收料单")
-     * @Apidoc\Url("/admin/mfg/subcontract-receive/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -222,7 +222,7 @@ class SubcontractReceiveController extends BaseController
     /**
      * 审核委外收料单（按加工单价入库，收满自动核销委外单）
      * @Apidoc\Title("审核委外收料单")
-     * @Apidoc\Url("/admin/mfg/subcontract-receive/{id}/audit")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive/{id}/audit")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

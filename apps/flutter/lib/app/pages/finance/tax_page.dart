@@ -27,7 +27,7 @@ class _TaxPageState extends State<TaxPage> {
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       
-      final res = await ApiService.instance.get('/admin/finance/tax-rate', params: params);
+      final res = await ApiService.instance.get('/admin/v1/finance/tax-rate', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -35,14 +35,14 @@ class _TaxPageState extends State<TaxPage> {
 
   Future<void> _create() async {
     await FormDialog.show(context, title: '新增', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/finance/tax-rate', data: data);
+      await ApiService.instance.post('/admin/v1/finance/tax-rate', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['name'] ?? row['code'] ?? ''}」吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/finance/tax-rate/${row['id']}', data: {'password': password});
+      await ApiService.instance.delete('/admin/v1/finance/tax-rate/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }

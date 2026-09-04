@@ -21,7 +21,7 @@ class CashFlowController extends BaseController
      * 现金流量表
      * @Apidoc\Title("现金流量表")
      * @Apidoc\Desc("查询快照或从已审核凭证实时生成现金流量表")
-     * @Apidoc\Url("/admin/finance/report/cash-flow")
+     * @Apidoc\Url("/admin/v1/finance/report/cash-flow")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -75,7 +75,7 @@ class CashFlowController extends BaseController
      * 保存现金流量表快照
      * @Apidoc\Title("保存现金流量表快照")
      * @Apidoc\Desc("将现金流量表数据保存为快照记录")
-     * @Apidoc\Url("/admin/finance/report/cash-flow")
+     * @Apidoc\Url("/admin/v1/finance/report/cash-flow")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

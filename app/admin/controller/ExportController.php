@@ -29,7 +29,7 @@ class ExportController extends BaseController
      * 导出Excel
      * @Apidoc\Title("导出Excel")
      * @Apidoc\Desc("根据指定的表名、字段和筛选条件导出Excel文件，敏感字段自动脱敏处理")
-     * @Apidoc\Url("/admin/export/excel")
+     * @Apidoc\Url("/admin/v1/export/excel")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("文件管理")
@@ -134,7 +134,7 @@ class ExportController extends BaseController
      * 导出PDF
      * @Apidoc\Title("导出PDF")
      * @Apidoc\Desc("根据指定的数据类型生成PDF文件，支持表格和仪表盘两种类型")
-     * @Apidoc\Url("/admin/export/pdf")
+     * @Apidoc\Url("/admin/v1/export/pdf")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("文件管理")

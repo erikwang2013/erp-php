@@ -32,7 +32,7 @@ class _SalesSettlementListPageState extends State<SalesSettlementListPage> {
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       if (_statusFilter != null) params['status'] = _statusFilter!;
-      final res = await ApiService.instance.get('/admin/sales/settlement', params: params);
+      final res = await ApiService.instance.get('/admin/v1/sales/settlement', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -56,21 +56,21 @@ class _SalesSettlementListPageState extends State<SalesSettlementListPage> {
 
   Future<void> _create() async {
     await FormDialog.show(context, title: '新增销售结算（收款核销）', fields: _formFields(forCreate: true), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/sales/settlement', data: _buildPayload(data));
+      await ApiService.instance.post('/admin/v1/sales/settlement', data: _buildPayload(data));
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
     await FormDialog.show(context, title: '编辑销售结算', fields: _formFields(forCreate: false), initialData: _toEditData(row), onSubmit: (data) async {
-      await ApiService.instance.put('/admin/sales/settlement/${row['id']}', data: _buildPayload(data, forCreate: false));
+      await ApiService.instance.put('/admin/v1/sales/settlement/${row['id']}', data: _buildPayload(data, forCreate: false));
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除该销售结算记录吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/sales/settlement/${row['id']}', data: {'password': password});
+      await ApiService.instance.delete('/admin/v1/sales/settlement/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }

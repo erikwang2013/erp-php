@@ -24,7 +24,7 @@ class ReportController extends BaseController
      * 财务利润报表
      * @Apidoc\Title("财务利润报表")
      * @Apidoc\Desc("按年度和月份查询利润数据，含汇总统计")
-     * @Apidoc\Url("/admin/finance/report/profit")
+     * @Apidoc\Url("/admin/v1/finance/report/profit")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -72,7 +72,7 @@ class ReportController extends BaseController
      * 期末损益结转
      * @Apidoc\Title("期末损益结转")
      * @Apidoc\Desc("将损益类科目余额结转至本年利润")
-     * @Apidoc\Url("/admin/finance/report/close-period")
+     * @Apidoc\Url("/admin/v1/finance/report/close-period")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -94,7 +94,7 @@ class ReportController extends BaseController
      * 多币种报表合并
      * @Apidoc\Title("多币种合并")
      * @Apidoc\Desc("按期末汇率将外币报表折算为本位币")
-     * @Apidoc\Url("/admin/finance/report/consolidate")
+     * @Apidoc\Url("/admin/v1/finance/report/consolidate")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -120,7 +120,7 @@ class ReportController extends BaseController
      * 财务指标计算
      * @Apidoc\Title("财务指标计算")
      * @Apidoc\Desc("由资产负债表与利润表计算流动比率/负债率/净利率/资产收益率")
-     * @Apidoc\Url("/admin/finance/report/ratios")
+     * @Apidoc\Url("/admin/v1/finance/report/ratios")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -142,7 +142,7 @@ class ReportController extends BaseController
      * 试算平衡表
      * @Apidoc\Title("试算平衡表")
      * @Apidoc\Desc("按期间汇总科目借贷方发生额与余额")
-     * @Apidoc\Url("/admin/finance/report/trial-balance")
+     * @Apidoc\Url("/admin/v1/finance/report/trial-balance")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -163,7 +163,7 @@ class ReportController extends BaseController
      * 科目余额查询
      * @Apidoc\Title("科目余额查询")
      * @Apidoc\Desc("查询指定会计科目在期间的期初/本期/期末余额")
-     * @Apidoc\Url("/admin/finance/report/account-balance")
+     * @Apidoc\Url("/admin/v1/finance/report/account-balance")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

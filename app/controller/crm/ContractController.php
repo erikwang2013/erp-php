@@ -23,7 +23,7 @@ class ContractController extends BaseController
      * 合同列表（分页）
      * @Apidoc\Title("合同列表")
      * @Apidoc\Desc("分页查询合同记录")
-     * @Apidoc\Url("/admin/crm/contract")
+     * @Apidoc\Url("/admin/v1/crm/contract")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -62,7 +62,7 @@ class ContractController extends BaseController
      * 创建合同
      * @Apidoc\Title("创建合同")
      * @Apidoc\Desc("新增合同记录，含合同明细")
-     * @Apidoc\Url("/admin/crm/contract")
+     * @Apidoc\Url("/admin/v1/crm/contract")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -94,7 +94,7 @@ class ContractController extends BaseController
      * 合同详情
      * @Apidoc\Title("合同详情")
      * @Apidoc\Desc("查看合同详细信息，含合同明细")
-     * @Apidoc\Url("/admin/crm/contract/{id}")
+     * @Apidoc\Url("/admin/v1/crm/contract/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -118,7 +118,7 @@ class ContractController extends BaseController
      * 更新合同
      * @Apidoc\Title("更新合同")
      * @Apidoc\Desc("修改合同信息，仅草稿状态可编辑")
-     * @Apidoc\Url("/admin/crm/contract/{id}")
+     * @Apidoc\Url("/admin/v1/crm/contract/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -154,7 +154,7 @@ class ContractController extends BaseController
      * 删除合同
      * @Apidoc\Title("删除合同")
      * @Apidoc\Desc("删除合同记录，需密码确认")
-     * @Apidoc\Url("/admin/crm/contract/{id}")
+     * @Apidoc\Url("/admin/v1/crm/contract/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -187,7 +187,7 @@ class ContractController extends BaseController
      * 合同状态流转
      * @Apidoc\Title("合同状态流转")
      * @Apidoc\Desc("推进合同状态: 0草稿 1待审批 2已审批 3执行中 4已完成 5已终止")
-     * @Apidoc\Url("/admin/crm/contract/{id}")
+     * @Apidoc\Url("/admin/v1/crm/contract/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

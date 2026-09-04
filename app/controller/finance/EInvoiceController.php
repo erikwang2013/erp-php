@@ -27,7 +27,7 @@ class EInvoiceController extends BaseController
     /**
      * 开具数电票（幂等：已开具重复调用直接返回既有数电票号码，绝不重复开票）
      * @Apidoc\Title("开具数电票")
-     * @Apidoc\Url("/admin/finance/e-invoice/{id}/issue")
+     * @Apidoc\Url("/admin/v1/finance/e-invoice/{id}/issue")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -58,7 +58,7 @@ class EInvoiceController extends BaseController
     /**
      * 数电票红冲（仅已开具可冲；冲后不可再开/再冲，electronic_no 保留供对账）
      * @Apidoc\Title("数电票红冲")
-     * @Apidoc\Url("/admin/finance/e-invoice/{id}/void")
+     * @Apidoc\Url("/admin/v1/finance/e-invoice/{id}/void")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -89,7 +89,7 @@ class EInvoiceController extends BaseController
     /**
      * 开票/红冲日志（平台调用轨迹，新→旧）
      * @Apidoc\Title("数电票操作日志")
-     * @Apidoc\Url("/admin/finance/e-invoice/{id}/logs")
+     * @Apidoc\Url("/admin/v1/finance/e-invoice/{id}/logs")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

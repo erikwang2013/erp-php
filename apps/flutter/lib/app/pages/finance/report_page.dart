@@ -111,7 +111,7 @@ class _ConsolidateTabState extends State<_ConsolidateTab> {
       if (reports != null && reports is! List) {
         throw const FormatException('subsidiary_reports 必须为 JSON 数组');
       }
-      final res = await ApiService.instance.post('/admin/finance/report/consolidate', data: {
+      final res = await ApiService.instance.post('/admin/v1/finance/report/consolidate', data: {
         'subsidiary_reports': reports ?? [],
         'base_currency': _currencyCtrl.text.trim().isEmpty ? 'CNY' : _currencyCtrl.text.trim(),
       });
@@ -199,7 +199,7 @@ class _RatiosTabState extends State<_RatiosTab> {
       if (ps != null && ps is! Map) {
         throw const FormatException('profit_statement 必须为 JSON 对象');
       }
-      final res = await ApiService.instance.post('/admin/finance/report/ratios', data: {
+      final res = await ApiService.instance.post('/admin/v1/finance/report/ratios', data: {
         'balance_sheet': bs ?? {},
         'profit_statement': ps ?? {},
       });
@@ -379,7 +379,7 @@ class _ProfitTabState extends State<_ProfitTab> {
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
-      final res = await ApiService.instance.get('/admin/finance/report/profit', params: {
+      final res = await ApiService.instance.get('/admin/v1/finance/report/profit', params: {
         'year': _yearCtrl.text.trim(),
         'month': _monthCtrl.text.trim(),
       });
@@ -462,7 +462,7 @@ class _BalanceSheetTabState extends State<_BalanceSheetTab> {
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
-      final res = await ApiService.instance.get('/admin/finance/report/balance-sheet', params: {
+      final res = await ApiService.instance.get('/admin/v1/finance/report/balance-sheet', params: {
         'report_year': _yearCtrl.text.trim(),
         'report_month': _monthCtrl.text.trim(),
       });
@@ -525,7 +525,7 @@ class _CashFlowTabState extends State<_CashFlowTab> {
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
-      final res = await ApiService.instance.get('/admin/finance/report/cash-flow', params: {
+      final res = await ApiService.instance.get('/admin/v1/finance/report/cash-flow', params: {
         'report_year': _yearCtrl.text.trim(),
         'report_month': _monthCtrl.text.trim(),
       });
@@ -595,7 +595,7 @@ class _TrialBalanceTabState extends State<_TrialBalanceTab> {
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
-      final res = await ApiService.instance.get('/admin/finance/report/trial-balance', params: {
+      final res = await ApiService.instance.get('/admin/v1/finance/report/trial-balance', params: {
         'period': _periodCtrl.text.trim(),
       });
       setState(() { _data = Map<String, dynamic>.from(res['data']); _loading = false; });
@@ -667,7 +667,7 @@ class _AccountBalanceTabState extends State<_AccountBalanceTab> {
     }
     setState(() { _loading = true; _error = null; });
     try {
-      final res = await ApiService.instance.get('/admin/finance/report/account-balance', params: {
+      final res = await ApiService.instance.get('/admin/v1/finance/report/account-balance', params: {
         'account_subject_id': subjectId,
         'period': _periodCtrl.text.trim(),
       });
@@ -741,7 +741,7 @@ class _ClosePeriodTabState extends State<_ClosePeriodTab> {
   Future<void> _close() async {
     setState(() { _loading = true; _error = null; _result = {}; });
     try {
-      final res = await ApiService.instance.post('/admin/finance/report/close-period', data: {
+      final res = await ApiService.instance.post('/admin/v1/finance/report/close-period', data: {
         'year': int.tryParse(_yearCtrl.text.trim()) ?? DateTime.now().year,
         'month': int.tryParse(_monthCtrl.text.trim()) ?? DateTime.now().month,
       });

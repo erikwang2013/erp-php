@@ -29,7 +29,7 @@ class TaxInvoicePoolController extends BaseController
     /**
      * 进项发票列表（分页筛选：关键词/销售方/状态/来源/期间/日期区间）
      * @Apidoc\Title("进项发票列表")
-     * @Apidoc\Url("/admin/finance/tax-input-invoice")
+     * @Apidoc\Url("/admin/v1/finance/tax-input-invoice")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -72,7 +72,7 @@ class TaxInvoicePoolController extends BaseController
     /**
      * 手工登记进项发票
      * @Apidoc\Title("进项发票登记")
-     * @Apidoc\Url("/admin/finance/tax-input-invoice")
+     * @Apidoc\Url("/admin/v1/finance/tax-input-invoice")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -102,7 +102,7 @@ class TaxInvoicePoolController extends BaseController
     /**
      * 批量登记（excel 导入语义：行级错误不阻断；返回成功/失败行数与逐行错误）
      * @Apidoc\Title("进项发票批量登记")
-     * @Apidoc\Url("/admin/finance/tax-input-invoice/batch")
+     * @Apidoc\Url("/admin/v1/finance/tax-input-invoice/batch")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -126,7 +126,7 @@ class TaxInvoicePoolController extends BaseController
     /**
      * 发票验真（0待验真 → 1通过/2失败，Mock 验真器；幂等：已验真拒绝重复）
      * @Apidoc\Title("进项发票验真")
-     * @Apidoc\Url("/admin/finance/tax-input-invoice/{id}/verify")
+     * @Apidoc\Url("/admin/v1/finance/tax-input-invoice/{id}/verify")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -148,7 +148,7 @@ class TaxInvoicePoolController extends BaseController
     /**
      * 勾选抵扣（0未勾选 → 1已勾选待抵扣，须验真通过）
      * @Apidoc\Title("进项发票勾选")
-     * @Apidoc\Url("/admin/finance/tax-input-invoice/{id}/check")
+     * @Apidoc\Url("/admin/v1/finance/tax-input-invoice/{id}/check")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -170,7 +170,7 @@ class TaxInvoicePoolController extends BaseController
     /**
      * 确认抵扣（1已勾选 → 2已抵扣，记录抵扣期间）
      * @Apidoc\Title("进项发票抵扣")
-     * @Apidoc\Url("/admin/finance/tax-input-invoice/{id}/deduct")
+     * @Apidoc\Url("/admin/v1/finance/tax-input-invoice/{id}/deduct")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -194,7 +194,7 @@ class TaxInvoicePoolController extends BaseController
     /**
      * 抵扣统计（按抵扣期间分组：张数/价税合计，bcmath 累加）
      * @Apidoc\Title("抵扣统计")
-     * @Apidoc\Url("/admin/finance/tax-input-invoice/deduct-stats")
+     * @Apidoc\Url("/admin/v1/finance/tax-input-invoice/deduct-stats")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

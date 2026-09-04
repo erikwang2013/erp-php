@@ -27,7 +27,7 @@ class _DashboardListPageState extends State<DashboardListPage> {
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
 
-      final res = await ApiService.instance.get('/admin/bi/dashboard', params: params);
+      final res = await ApiService.instance.get('/admin/v1/bi/dashboard', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -35,21 +35,21 @@ class _DashboardListPageState extends State<DashboardListPage> {
 
   Future<void> _create() async {
     await FormDialog.show(context, title: '新增', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/bi/dashboard', data: data);
+      await ApiService.instance.post('/admin/v1/bi/dashboard', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
     await FormDialog.show(context, title: '编辑', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/bi/dashboard/${row['id']}', data: data);
+      await ApiService.instance.put('/admin/v1/bi/dashboard/${row['id']}', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['name'] ?? ''}」吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/bi/dashboard/${row['id']}', data: {'password': password});
+      await ApiService.instance.delete('/admin/v1/bi/dashboard/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
@@ -121,7 +121,7 @@ class _WidgetManagerDialogState extends State<_WidgetManagerDialog> {
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
-      final res = await ApiService.instance.get('/admin/bi/widget', params: {'dashboard_id': widget.dashboardId});
+      final res = await ApiService.instance.get('/admin/v1/bi/widget', params: {'dashboard_id': widget.dashboardId});
       setState(() { _widgets = List<Map<String, dynamic>>.from(res['data']['list'] ?? []); _loading = false; });
     } catch (e) {
       setState(() { _loading = false; _error = '$e'; });
@@ -130,21 +130,21 @@ class _WidgetManagerDialogState extends State<_WidgetManagerDialog> {
 
   Future<void> _create() async {
     await FormDialog.show(context, title: '新增图表', fields: _widgetFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/bi/widget', data: {...data, 'dashboard_id': widget.dashboardId});
+      await ApiService.instance.post('/admin/v1/bi/widget', data: {...data, 'dashboard_id': widget.dashboardId});
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> w) async {
     await FormDialog.show(context, title: '编辑图表', fields: _widgetFields(), initialData: w, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/bi/widget/${w['id']}', data: data);
+      await ApiService.instance.put('/admin/v1/bi/widget/${w['id']}', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> w) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除图表「${w['name'] ?? ''}」吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/bi/widget/${w['id']}', data: {'password': password});
+      await ApiService.instance.delete('/admin/v1/bi/widget/${w['id']}', data: {'password': password});
       _load(); return true;
     });
   }

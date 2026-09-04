@@ -19,7 +19,7 @@ class RoleController extends BaseController
      * 角色列表
      * @Apidoc\Title("角色列表")
      * @Apidoc\Desc("获取角色分页列表，包含用户数量统计")
-     * @Apidoc\Url("/admin/role")
+     * @Apidoc\Url("/admin/v1/role")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("角色管理")
@@ -54,7 +54,7 @@ class RoleController extends BaseController
      * 角色详情
      * @Apidoc\Title("角色详情")
      * @Apidoc\Desc("按 ID 查询单个角色")
-     * @Apidoc\Url("/admin/role/{id}")
+     * @Apidoc\Url("/admin/v1/role/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("角色管理")
@@ -78,7 +78,7 @@ class RoleController extends BaseController
      * 创建角色
      * @Apidoc\Title("创建角色")
      * @Apidoc\Desc("创建一个新角色并同步关联权限")
-     * @Apidoc\Url("/admin/role")
+     * @Apidoc\Url("/admin/v1/role")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("角色管理")
@@ -121,7 +121,7 @@ class RoleController extends BaseController
      * 更新角色
      * @Apidoc\Title("更新角色")
      * @Apidoc\Desc("更新指定角色的信息并同步权限")
-     * @Apidoc\Url("/admin/role/{id}")
+     * @Apidoc\Url("/admin/v1/role/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("角色管理")
@@ -157,7 +157,7 @@ class RoleController extends BaseController
      * 删除角色（需密码二次确认）
      * @Apidoc\Title("删除角色")
      * @Apidoc\Desc("删除指定角色，需当前管理员密码进行二次确认，同时清理关联的权限和用户")
-     * @Apidoc\Url("/admin/role/{id}")
+     * @Apidoc\Url("/admin/v1/role/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("角色管理")

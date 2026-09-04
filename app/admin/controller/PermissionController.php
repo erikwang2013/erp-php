@@ -19,7 +19,7 @@ class PermissionController extends BaseController
      * 权限树列表
      * @Apidoc\Title("权限树列表")
      * @Apidoc\Desc("获取完整的权限树结构，按排序字段升序排列")
-     * @Apidoc\Url("/admin/permission")
+     * @Apidoc\Url("/admin/v1/permission")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("权限管理")
@@ -43,7 +43,7 @@ class PermissionController extends BaseController
      * 权限详情
      * @Apidoc\Title("权限详情")
      * @Apidoc\Desc("按 ID 查询单个权限节点")
-     * @Apidoc\Url("/admin/permission/{id}")
+     * @Apidoc\Url("/admin/v1/permission/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("权限管理")
@@ -67,7 +67,7 @@ class PermissionController extends BaseController
      * 创建权限
      * @Apidoc\Title("创建权限")
      * @Apidoc\Desc("创建一个新的权限节点，支持目录、菜单、按钮三种类型")
-     * @Apidoc\Url("/admin/permission")
+     * @Apidoc\Url("/admin/v1/permission")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("权限管理")
@@ -112,7 +112,7 @@ class PermissionController extends BaseController
      * 更新权限
      * @Apidoc\Title("更新权限")
      * @Apidoc\Desc("更新指定权限节点的基本信息")
-     * @Apidoc\Url("/admin/permission/{id}")
+     * @Apidoc\Url("/admin/v1/permission/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("权限管理")
@@ -146,7 +146,7 @@ class PermissionController extends BaseController
      * 删除权限（需密码二次确认）
      * @Apidoc\Title("删除权限")
      * @Apidoc\Desc("删除指定权限节点，级联删除所有子权限，需当前管理员密码二次确认")
-     * @Apidoc\Url("/admin/permission/{id}")
+     * @Apidoc\Url("/admin/v1/permission/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("权限管理")

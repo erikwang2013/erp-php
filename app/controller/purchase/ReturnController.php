@@ -19,7 +19,7 @@ class ReturnController extends BaseController
      * 采购退货列表（分页）
      * @Apidoc\Title("采购退货列表")
      * @Apidoc\Desc("获取采购退货列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/purchase/return")
+     * @Apidoc\Url("/admin/v1/purchase/return")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -61,7 +61,7 @@ class ReturnController extends BaseController
      * 创建采购退货
      * @Apidoc\Title("创建采购退货")
      * @Apidoc\Desc("新增一个采购退货记录")
-     * @Apidoc\Url("/admin/purchase/return")
+     * @Apidoc\Url("/admin/v1/purchase/return")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -91,7 +91,7 @@ class ReturnController extends BaseController
      * 采购退货详情
      * @Apidoc\Title("采购退货详情")
      * @Apidoc\Desc("根据ID获取采购退货详细信息")
-     * @Apidoc\Url("/admin/purchase/return/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/return/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -115,7 +115,7 @@ class ReturnController extends BaseController
      * 更新采购退货
      * @Apidoc\Title("更新采购退货")
      * @Apidoc\Desc("根据ID更新采购退货信息")
-     * @Apidoc\Url("/admin/purchase/return/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/return/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -145,7 +145,7 @@ class ReturnController extends BaseController
      * 删除采购退货（软删除）
      * @Apidoc\Title("删除采购退货")
      * @Apidoc\Desc("根据ID软删除采购退货，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/purchase/return/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/return/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")

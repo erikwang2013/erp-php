@@ -21,7 +21,7 @@ class OpportunityController extends BaseController
      * 商机列表（分页）
      * @Apidoc\Title("商机列表")
      * @Apidoc\Desc("分页查询商机记录")
-     * @Apidoc\Url("/admin/crm/opportunity")
+     * @Apidoc\Url("/admin/v1/crm/opportunity")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -56,7 +56,7 @@ class OpportunityController extends BaseController
      * 创建商机
      * @Apidoc\Title("创建商机")
      * @Apidoc\Desc("新增商机记录")
-     * @Apidoc\Url("/admin/crm/opportunity")
+     * @Apidoc\Url("/admin/v1/crm/opportunity")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -81,7 +81,7 @@ class OpportunityController extends BaseController
      * 商机详情
      * @Apidoc\Title("商机详情")
      * @Apidoc\Desc("查看商机详细信息")
-     * @Apidoc\Url("/admin/crm/opportunity/{id}")
+     * @Apidoc\Url("/admin/v1/crm/opportunity/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -105,7 +105,7 @@ class OpportunityController extends BaseController
      * 更新商机
      * @Apidoc\Title("更新商机")
      * @Apidoc\Desc("修改商机信息")
-     * @Apidoc\Url("/admin/crm/opportunity/{id}")
+     * @Apidoc\Url("/admin/v1/crm/opportunity/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -129,7 +129,7 @@ class OpportunityController extends BaseController
      * 删除商机
      * @Apidoc\Title("删除商机")
      * @Apidoc\Desc("删除商机记录，需密码确认")
-     * @Apidoc\Url("/admin/crm/opportunity/{id}")
+     * @Apidoc\Url("/admin/v1/crm/opportunity/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

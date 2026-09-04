@@ -19,7 +19,7 @@ class CostCenterController extends BaseController
      * 成本中心树形列表
      * @Apidoc\Title("成本中心列表")
      * @Apidoc\Desc("查询成本中心树形结构列表")
-     * @Apidoc\Url("/admin/finance/cost-center")
+     * @Apidoc\Url("/admin/v1/finance/cost-center")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -57,7 +57,7 @@ class CostCenterController extends BaseController
      * 创建成本中心
      * @Apidoc\Title("创建成本中心")
      * @Apidoc\Desc("新增成本中心节点")
-     * @Apidoc\Url("/admin/finance/cost-center")
+     * @Apidoc\Url("/admin/v1/finance/cost-center")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -89,7 +89,7 @@ class CostCenterController extends BaseController
      * 成本中心详情
      * @Apidoc\Title("成本中心详情")
      * @Apidoc\Desc("查看成本中心详细信息，含子级")
-     * @Apidoc\Url("/admin/finance/cost-center/{id}")
+     * @Apidoc\Url("/admin/v1/finance/cost-center/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -120,7 +120,7 @@ class CostCenterController extends BaseController
      * 更新成本中心
      * @Apidoc\Title("更新成本中心")
      * @Apidoc\Desc("修改成本中心信息")
-     * @Apidoc\Url("/admin/finance/cost-center/{id}")
+     * @Apidoc\Url("/admin/v1/finance/cost-center/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -147,7 +147,7 @@ class CostCenterController extends BaseController
      * 删除成本中心
      * @Apidoc\Title("删除成本中心")
      * @Apidoc\Desc("删除成本中心，需先删除子级，需密码确认")
-     * @Apidoc\Url("/admin/finance/cost-center/{id}")
+     * @Apidoc\Url("/admin/v1/finance/cost-center/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

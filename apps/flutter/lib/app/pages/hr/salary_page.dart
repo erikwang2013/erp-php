@@ -29,7 +29,7 @@ class _SalaryPageState extends State<SalaryPage> {
     setState(() => _loading = true);
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit'};
-      final res = await ApiService.instance.get('/admin/hr/salary', params: params);
+      final res = await ApiService.instance.get('/admin/v1/hr/salary', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -37,21 +37,21 @@ class _SalaryPageState extends State<SalaryPage> {
 
   Future<void> _create() async {
     await FormDialog.show(context, title: '新增薪资记录', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/hr/salary', data: _buildPayload(data));
+      await ApiService.instance.post('/admin/v1/hr/salary', data: _buildPayload(data));
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
     await FormDialog.show(context, title: '编辑薪资', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/hr/salary/${row['id']}', data: _buildPayload(data));
+      await ApiService.instance.put('/admin/v1/hr/salary/${row['id']}', data: _buildPayload(data));
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除该薪资记录吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/hr/salary/${row['id']}', data: {'password': password});
+      await ApiService.instance.delete('/admin/v1/hr/salary/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
@@ -95,7 +95,7 @@ class _SalaryPageState extends State<SalaryPage> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
             onPressed: () async {
               try {
-                await ApiService.instance.post('/admin/hr/salary/${row['id']}/pay');
+                await ApiService.instance.post('/admin/v1/hr/salary/${row['id']}/pay');
                 if (ctx.mounted) Navigator.of(ctx).pop();
                 _load();
                 if (mounted) {
@@ -124,7 +124,7 @@ class _SalaryPageState extends State<SalaryPage> {
     ], onSubmit: (data) async {
       String num(String key) =>
           (data[key]?.trim().isEmpty ?? true) ? '0' : data[key]!.trim();
-      final res = await ApiService.instance.post('/admin/hr/salary/calculate', data: {
+      final res = await ApiService.instance.post('/admin/v1/hr/salary/calculate', data: {
         'base_salary': num('base_salary'),
         'performance': num('performance'),
         'overtime': num('overtime'),

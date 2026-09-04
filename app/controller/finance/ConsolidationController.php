@@ -21,7 +21,7 @@ class ConsolidationController extends BaseController
      * 生成合并草稿（集团=公司及其直接子公司，全部经默认账套）
      * @Apidoc\Title("生成合并草稿")
      * @Apidoc\Desc("以报表期间内各子公司默认账套的单体报表（快照优先/实时兜底）合并；外币经期末汇率折算")
-     * @Apidoc\Url("/admin/finance/consolidation/draft")
+     * @Apidoc\Url("/admin/v1/finance/consolidation/draft")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -57,7 +57,7 @@ class ConsolidationController extends BaseController
      * 最新版本（当前草稿）
      * @Apidoc\Title("最新合并报表")
      * @Apidoc\Desc("同一集团+期间的当前版本（最新 created_at，可含已出表历史）")
-     * @Apidoc\Url("/admin/finance/consolidation/latest")
+     * @Apidoc\Url("/admin/v1/finance/consolidation/latest")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -85,7 +85,7 @@ class ConsolidationController extends BaseController
      * 版本列表（含历史已出表）
      * @Apidoc\Title("合并报表版本列表")
      * @Apidoc\Desc("同一集团+期间的全部历史版本，新→旧")
-     * @Apidoc\Url("/admin/finance/consolidation/list")
+     * @Apidoc\Url("/admin/v1/finance/consolidation/list")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -114,7 +114,7 @@ class ConsolidationController extends BaseController
      * 抵销分录（仅作用最新草稿）
      * @Apidoc\Title("合并抵销分录")
      * @Apidoc\Desc("新增一组抵销行到当前草稿并重算合计；行=account_code+debit/credit（bcmath字符串）")
-     * @Apidoc\Url("/admin/finance/consolidation/eliminations")
+     * @Apidoc\Url("/admin/v1/finance/consolidation/eliminations")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -141,7 +141,7 @@ class ConsolidationController extends BaseController
      * 出表（草稿 → 已出）
      * @Apidoc\Title("合并报表出表")
      * @Apidoc\Desc("status 0→1 并落 issued_at；仅未出表草稿可出，已出不可重复")
-     * @Apidoc\Url("/admin/finance/consolidation/issue")
+     * @Apidoc\Url("/admin/v1/finance/consolidation/issue")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

@@ -21,7 +21,7 @@ class BrandController extends BaseController
      * 品牌列表（分页）
      * @Apidoc\Title("品牌列表")
      * @Apidoc\Desc("分页查询品牌记录")
-     * @Apidoc\Url("/admin/brand")
+     * @Apidoc\Url("/admin/v1/brand")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -56,7 +56,7 @@ class BrandController extends BaseController
      * 创建品牌
      * @Apidoc\Title("创建品牌")
      * @Apidoc\Desc("新增品牌记录")
-     * @Apidoc\Url("/admin/brand")
+     * @Apidoc\Url("/admin/v1/brand")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -81,7 +81,7 @@ class BrandController extends BaseController
      * 品牌详情
      * @Apidoc\Title("品牌详情")
      * @Apidoc\Desc("查看品牌详细信息")
-     * @Apidoc\Url("/admin/brand/{id}")
+     * @Apidoc\Url("/admin/v1/brand/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -105,7 +105,7 @@ class BrandController extends BaseController
      * 更新品牌
      * @Apidoc\Title("更新品牌")
      * @Apidoc\Desc("修改品牌信息")
-     * @Apidoc\Url("/admin/brand/{id}")
+     * @Apidoc\Url("/admin/v1/brand/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -129,7 +129,7 @@ class BrandController extends BaseController
      * 删除品牌
      * @Apidoc\Title("删除品牌")
      * @Apidoc\Desc("删除品牌记录，需密码确认")
-     * @Apidoc\Url("/admin/brand/{id}")
+     * @Apidoc\Url("/admin/v1/brand/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

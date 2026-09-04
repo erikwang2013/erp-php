@@ -24,7 +24,7 @@ class WorkstationController extends BaseController
      * 工作站列表
      * @Apidoc\Title("工作站列表")
      * @Apidoc\Desc("查询工作站记录")
-     * @Apidoc\Url("/admin/mfg/workstation")
+     * @Apidoc\Url("/admin/v1/mfg/workstation")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -57,7 +57,7 @@ class WorkstationController extends BaseController
      * 创建工作站
      * @Apidoc\Title("创建工作站")
      * @Apidoc\Desc("新增工作站记录")
-     * @Apidoc\Url("/admin/mfg/workstation")
+     * @Apidoc\Url("/admin/v1/mfg/workstation")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -86,7 +86,7 @@ class WorkstationController extends BaseController
      * 工作站详情
      * @Apidoc\Title("工作站详情")
      * @Apidoc\Desc("查看工作站详细信息")
-     * @Apidoc\Url("/admin/mfg/workstation/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/workstation/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -110,7 +110,7 @@ class WorkstationController extends BaseController
      * 更新工作站
      * @Apidoc\Title("更新工作站")
      * @Apidoc\Desc("修改工作站信息")
-     * @Apidoc\Url("/admin/mfg/workstation/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/workstation/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -134,7 +134,7 @@ class WorkstationController extends BaseController
      * 删除工作站
      * @Apidoc\Title("删除工作站")
      * @Apidoc\Desc("删除工作站记录，需密码确认")
-     * @Apidoc\Url("/admin/mfg/workstation/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/workstation/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

@@ -25,7 +25,7 @@ class BomController extends BaseController
      * BOM列表（分页）
      * @Apidoc\Title("BOM列表")
      * @Apidoc\Desc("获取BOM分页列表，支持关键字/状态/产品筛选")
-     * @Apidoc\Url("/admin/mfg/bom")
+     * @Apidoc\Url("/admin/v1/mfg/bom")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -69,7 +69,7 @@ class BomController extends BaseController
      * 创建BOM
      * @Apidoc\Title("创建BOM")
      * @Apidoc\Desc("创建一个新的BOM，状态默认为草稿")
-     * @Apidoc\Url("/admin/mfg/bom")
+     * @Apidoc\Url("/admin/v1/mfg/bom")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -100,7 +100,7 @@ class BomController extends BaseController
      * BOM详情
      * @Apidoc\Title("BOM详情")
      * @Apidoc\Desc("获取指定BOM的详细信息，包含物料明细")
-     * @Apidoc\Url("/admin/mfg/bom/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/bom/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -129,7 +129,7 @@ class BomController extends BaseController
      * 更新BOM
      * @Apidoc\Title("更新BOM")
      * @Apidoc\Desc("更新BOM信息，已生效的BOM不可直接修改")
-     * @Apidoc\Url("/admin/mfg/bom/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/bom/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -158,7 +158,7 @@ class BomController extends BaseController
      * 删除BOM
      * @Apidoc\Title("删除BOM")
      * @Apidoc\Desc("软删除指定BOM及其关联明细，需要密码二次确认")
-     * @Apidoc\Url("/admin/mfg/bom/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/bom/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -192,7 +192,7 @@ class BomController extends BaseController
      * 新增BOM版本
      * @Apidoc\Title("新增BOM版本")
      * @Apidoc\Desc("基于源BOM创建新版本，复制所有明细，旧版本自动设为失效")
-     * @Apidoc\Url("/admin/mfg/bom/new-version")
+     * @Apidoc\Url("/admin/v1/mfg/bom/new-version")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -224,7 +224,7 @@ class BomController extends BaseController
      * 生效BOM
      * @Apidoc\Title("生效BOM")
      * @Apidoc\Desc("将指定BOM设为生效状态，同一产品的其他已生效BOM自动设为失效")
-     * @Apidoc\Url("/admin/mfg/bom/{id}/activate")
+     * @Apidoc\Url("/admin/v1/mfg/bom/{id}/activate")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

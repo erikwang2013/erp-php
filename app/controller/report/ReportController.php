@@ -30,7 +30,7 @@ class ReportController extends BaseController
      * 报表模板列表（分页）
      * @Apidoc\Title("报表模板列表")
      * @Apidoc\Desc("获取报表模板分页列表，支持关键字和模块筛选")
-     * @Apidoc\Url("/admin/report")
+     * @Apidoc\Url("/admin/v1/report")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -77,7 +77,7 @@ class ReportController extends BaseController
      * 创建报表模板
      * @Apidoc\Title("创建报表模板")
      * @Apidoc\Desc("创建一个新的报表模板")
-     * @Apidoc\Url("/admin/report")
+     * @Apidoc\Url("/admin/v1/report")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -111,7 +111,7 @@ class ReportController extends BaseController
      * 报表模板详情
      * @Apidoc\Title("报表模板详情")
      * @Apidoc\Desc("获取指定报表模板的详细信息，包含字段和筛选条件")
-     * @Apidoc\Url("/admin/report/{id}")
+     * @Apidoc\Url("/admin/v1/report/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -146,7 +146,7 @@ class ReportController extends BaseController
      * 更新报表模板
      * @Apidoc\Title("更新报表模板")
      * @Apidoc\Desc("更新指定报表模板的信息")
-     * @Apidoc\Url("/admin/report/{id}")
+     * @Apidoc\Url("/admin/v1/report/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -176,7 +176,7 @@ class ReportController extends BaseController
      * 删除报表模板
      * @Apidoc\Title("删除报表模板")
      * @Apidoc\Desc("软删除指定报表模板及其关联字段、筛选条件和数据集，需要密码二次确认")
-     * @Apidoc\Url("/admin/report/{id}")
+     * @Apidoc\Url("/admin/v1/report/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -221,7 +221,7 @@ class ReportController extends BaseController
      * 获取模板字段列表
      * @Apidoc\Title("模板字段列表")
      * @Apidoc\Desc("获取指定报表模板的所有字段")
-     * @Apidoc\Url("/admin/report/{id}/fields")
+     * @Apidoc\Url("/admin/v1/report/{id}/fields")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -249,7 +249,7 @@ class ReportController extends BaseController
      * 添加字段
      * @Apidoc\Title("添加报表字段")
      * @Apidoc\Desc("向指定模板添加一个报表字段")
-     * @Apidoc\Url("/admin/report/field")
+     * @Apidoc\Url("/admin/v1/report/field")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -286,7 +286,7 @@ class ReportController extends BaseController
      * 删除字段
      * @Apidoc\Title("删除报表字段")
      * @Apidoc\Desc("删除指定的报表字段")
-     * @Apidoc\Url("/admin/report/field/{id}")
+     * @Apidoc\Url("/admin/v1/report/field/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -318,7 +318,7 @@ class ReportController extends BaseController
      * 获取模板筛选条件列表
      * @Apidoc\Title("模板筛选条件列表")
      * @Apidoc\Desc("获取指定报表模板的所有筛选条件")
-     * @Apidoc\Url("/admin/report/{id}/filters")
+     * @Apidoc\Url("/admin/v1/report/{id}/filters")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -346,7 +346,7 @@ class ReportController extends BaseController
      * 添加筛选条件
      * @Apidoc\Title("添加筛选条件")
      * @Apidoc\Desc("向指定模板添加一个筛选条件")
-     * @Apidoc\Url("/admin/report/filter")
+     * @Apidoc\Url("/admin/v1/report/filter")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -381,7 +381,7 @@ class ReportController extends BaseController
      * 删除筛选条件
      * @Apidoc\Title("删除筛选条件")
      * @Apidoc\Desc("删除指定的报表筛选条件")
-     * @Apidoc\Url("/admin/report/filter/{id}")
+     * @Apidoc\Url("/admin/v1/report/filter/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -413,7 +413,7 @@ class ReportController extends BaseController
      * 执行报表查询
      * @Apidoc\Title("执行报表查询")
      * @Apidoc\Desc("根据模板配置和筛选参数执行SQL查询，结果保存为数据集。支持text/date_range/number_range/select筛选类型。最多返回1000行。")
-     * @Apidoc\Url("/admin/report/{id}/execute")
+     * @Apidoc\Url("/admin/v1/report/{id}/execute")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -699,7 +699,7 @@ class ReportController extends BaseController
      * 查看报表执行结果
      * @Apidoc\Title("查看报表结果")
      * @Apidoc\Desc("查看最近一次执行结果，或通过dataset_id查看指定数据集")
-     * @Apidoc\Url("/admin/report/{id}/result")
+     * @Apidoc\Url("/admin/v1/report/{id}/result")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")

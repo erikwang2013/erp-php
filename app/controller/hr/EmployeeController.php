@@ -24,7 +24,7 @@ class EmployeeController extends BaseController
      * 员工列表（分页）
      * @Apidoc\Title("员工列表")
      * @Apidoc\Desc("获取员工分页列表，支持关键字/状态/部门筛选")
-     * @Apidoc\Url("/admin/hr/employee")
+     * @Apidoc\Url("/admin/v1/hr/employee")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -74,7 +74,7 @@ class EmployeeController extends BaseController
      * 创建员工
      * @Apidoc\Title("创建员工")
      * @Apidoc\Desc("创建一名新员工")
-     * @Apidoc\Url("/admin/hr/employee")
+     * @Apidoc\Url("/admin/v1/hr/employee")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -103,7 +103,7 @@ class EmployeeController extends BaseController
      * 员工详情
      * @Apidoc\Title("员工详情")
      * @Apidoc\Desc("获取指定员工的详细信息，包含部门和职位")
-     * @Apidoc\Url("/admin/hr/employee/{id}")
+     * @Apidoc\Url("/admin/v1/hr/employee/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -133,7 +133,7 @@ class EmployeeController extends BaseController
      * 更新员工
      * @Apidoc\Title("更新员工")
      * @Apidoc\Desc("更新指定员工的信息")
-     * @Apidoc\Url("/admin/hr/employee/{id}")
+     * @Apidoc\Url("/admin/v1/hr/employee/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -157,7 +157,7 @@ class EmployeeController extends BaseController
      * 删除员工
      * @Apidoc\Title("删除员工")
      * @Apidoc\Desc("软删除指定员工，需要密码二次确认")
-     * @Apidoc\Url("/admin/hr/employee/{id}")
+     * @Apidoc\Url("/admin/v1/hr/employee/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")

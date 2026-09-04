@@ -31,7 +31,7 @@ class DeliveryController extends BaseController
      * 发货单列表（分页）
      * @Apidoc\Title("发货单列表")
      * @Apidoc\Desc("获取销售发货单分页列表，支持关键字/状态/订单/客户筛选")
-     * @Apidoc\Url("/admin/sales/delivery")
+     * @Apidoc\Url("/admin/v1/sales/delivery")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -92,7 +92,7 @@ class DeliveryController extends BaseController
      * 创建发货单并执行出库
      * @Apidoc\Title("创建发货单")
      * @Apidoc\Desc("创建发货单并自动执行出库操作，同时生成应收记录并更新销售订单状态")
-     * @Apidoc\Url("/admin/sales/delivery")
+     * @Apidoc\Url("/admin/v1/sales/delivery")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -309,7 +309,7 @@ class DeliveryController extends BaseController
      * 发货单详情
      * @Apidoc\Title("发货单详情")
      * @Apidoc\Desc("获取指定发货单的详细信息，包含明细、订单、客户和仓库")
-     * @Apidoc\Url("/admin/sales/delivery/{id}")
+     * @Apidoc\Url("/admin/v1/sales/delivery/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -333,7 +333,7 @@ class DeliveryController extends BaseController
      * 更新发货单
      * @Apidoc\Title("更新发货单")
      * @Apidoc\Desc("更新发货单备注等信息，不修改核心数据")
-     * @Apidoc\Url("/admin/sales/delivery/{id}")
+     * @Apidoc\Url("/admin/v1/sales/delivery/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -363,7 +363,7 @@ class DeliveryController extends BaseController
      * 删除发货单
      * @Apidoc\Title("删除发货单")
      * @Apidoc\Desc("软删除指定发货单，需要密码二次确认")
-     * @Apidoc\Url("/admin/sales/delivery/{id}")
+     * @Apidoc\Url("/admin/v1/sales/delivery/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")

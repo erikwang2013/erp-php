@@ -19,7 +19,7 @@ class ExchangeRateController extends BaseController
      * 汇率列表（分页）
      * @Apidoc\Title("汇率列表")
      * @Apidoc\Desc("分页查询汇率记录")
-     * @Apidoc\Url("/admin/finance/exchange-rate")
+     * @Apidoc\Url("/admin/v1/finance/exchange-rate")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -63,7 +63,7 @@ class ExchangeRateController extends BaseController
      * 创建汇率
      * @Apidoc\Title("创建汇率")
      * @Apidoc\Desc("新增汇率记录")
-     * @Apidoc\Url("/admin/finance/exchange-rate")
+     * @Apidoc\Url("/admin/v1/finance/exchange-rate")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -99,7 +99,7 @@ class ExchangeRateController extends BaseController
      * 汇率详情
      * @Apidoc\Title("汇率详情")
      * @Apidoc\Desc("查看汇率详细信息")
-     * @Apidoc\Url("/admin/finance/exchange-rate/{id}")
+     * @Apidoc\Url("/admin/v1/finance/exchange-rate/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -123,7 +123,7 @@ class ExchangeRateController extends BaseController
      * 更新汇率
      * @Apidoc\Title("更新汇率")
      * @Apidoc\Desc("修改汇率信息")
-     * @Apidoc\Url("/admin/finance/exchange-rate/{id}")
+     * @Apidoc\Url("/admin/v1/finance/exchange-rate/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -150,7 +150,7 @@ class ExchangeRateController extends BaseController
      * 删除汇率
      * @Apidoc\Title("删除汇率")
      * @Apidoc\Desc("删除汇率记录，需密码确认")
-     * @Apidoc\Url("/admin/finance/exchange-rate/{id}")
+     * @Apidoc\Url("/admin/v1/finance/exchange-rate/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

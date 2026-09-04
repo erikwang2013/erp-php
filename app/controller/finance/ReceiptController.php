@@ -22,7 +22,7 @@ class ReceiptController extends BaseController
      * 收款列表（分页）
      * @Apidoc\Title("收款列表")
      * @Apidoc\Desc("获取收款记录分页列表，支持关键字搜索和状态筛选")
-     * @Apidoc\Url("/admin/finance/receipt")
+     * @Apidoc\Url("/admin/v1/finance/receipt")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -66,7 +66,7 @@ class ReceiptController extends BaseController
      * 创建收款记录
      * @Apidoc\Title("创建收款记录")
      * @Apidoc\Desc("创建一条新的收款记录，状态默认为待确认")
-     * @Apidoc\Url("/admin/finance/receipt")
+     * @Apidoc\Url("/admin/v1/finance/receipt")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -107,7 +107,7 @@ class ReceiptController extends BaseController
      * 收款详情
      * @Apidoc\Title("收款详情")
      * @Apidoc\Desc("获取指定收款记录的详细信息")
-     * @Apidoc\Url("/admin/finance/receipt/{id}")
+     * @Apidoc\Url("/admin/v1/finance/receipt/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -131,7 +131,7 @@ class ReceiptController extends BaseController
      * 更新收款记录
      * @Apidoc\Title("更新收款记录")
      * @Apidoc\Desc("更新指定收款记录的信息")
-     * @Apidoc\Url("/admin/finance/receipt/{id}")
+     * @Apidoc\Url("/admin/v1/finance/receipt/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -196,7 +196,7 @@ class ReceiptController extends BaseController
      * 删除收款记录
      * @Apidoc\Title("删除收款记录")
      * @Apidoc\Desc("软删除指定收款记录，需要密码二次确认")
-     * @Apidoc\Url("/admin/finance/receipt/{id}")
+     * @Apidoc\Url("/admin/v1/finance/receipt/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

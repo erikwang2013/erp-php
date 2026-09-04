@@ -40,6 +40,13 @@ class BackendEnhancementTest extends TestCase
     // 2. HealthController — 运行时测试
     // ============================================================
 
+    public function test_admin_group_is_versioned_in_path(): void
+    {
+        $source = file_get_contents(__DIR__ . '/../config/route.php');
+        $this->assertStringContainsString("Route::group('/admin/v1'", $source, '管理端接口应注册在 /admin/v1 路径下');
+        $this->assertStringNotContainsString("Route::group('/admin', function", $source, '不应存在无版本 /admin 分组');
+    }
+
     public function test_health_controller_returns_correct_structure(): void
     {
         $controller = new \app\admin\controller\HealthController();

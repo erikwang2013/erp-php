@@ -21,7 +21,7 @@ class WarehouseController extends BaseController
      * 仓库列表（分页）
      * @Apidoc\Title("仓库列表")
      * @Apidoc\Desc("分页查询仓库记录")
-     * @Apidoc\Url("/admin/warehouse")
+     * @Apidoc\Url("/admin/v1/warehouse")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -56,7 +56,7 @@ class WarehouseController extends BaseController
      * 创建仓库
      * @Apidoc\Title("创建仓库")
      * @Apidoc\Desc("新增仓库记录")
-     * @Apidoc\Url("/admin/warehouse")
+     * @Apidoc\Url("/admin/v1/warehouse")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -81,7 +81,7 @@ class WarehouseController extends BaseController
      * 仓库详情
      * @Apidoc\Title("仓库详情")
      * @Apidoc\Desc("查看仓库详细信息")
-     * @Apidoc\Url("/admin/warehouse/{id}")
+     * @Apidoc\Url("/admin/v1/warehouse/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -105,7 +105,7 @@ class WarehouseController extends BaseController
      * 更新仓库
      * @Apidoc\Title("更新仓库")
      * @Apidoc\Desc("修改仓库信息")
-     * @Apidoc\Url("/admin/warehouse/{id}")
+     * @Apidoc\Url("/admin/v1/warehouse/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -129,7 +129,7 @@ class WarehouseController extends BaseController
      * 删除仓库
      * @Apidoc\Title("删除仓库")
      * @Apidoc\Desc("删除仓库记录，需密码确认")
-     * @Apidoc\Url("/admin/warehouse/{id}")
+     * @Apidoc\Url("/admin/v1/warehouse/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

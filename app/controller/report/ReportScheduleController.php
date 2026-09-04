@@ -22,7 +22,7 @@ class ReportScheduleController extends BaseController
      * 调度列表（分页）
      * @Apidoc\Title("报表调度列表")
      * @Apidoc\Desc("分页查询报表调度记录")
-     * @Apidoc\Url("/admin/report/schedule")
+     * @Apidoc\Url("/admin/v1/report/schedule")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -61,7 +61,7 @@ class ReportScheduleController extends BaseController
      * 创建调度
      * @Apidoc\Title("创建报表调度")
      * @Apidoc\Desc("新增报表调度记录，自动计算下次执行时间")
-     * @Apidoc\Url("/admin/report/schedule")
+     * @Apidoc\Url("/admin/v1/report/schedule")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -99,7 +99,7 @@ class ReportScheduleController extends BaseController
      * 调度详情
      * @Apidoc\Title("报表调度详情")
      * @Apidoc\Desc("查看报表调度详细信息")
-     * @Apidoc\Url("/admin/report/schedule/{id}")
+     * @Apidoc\Url("/admin/v1/report/schedule/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -126,7 +126,7 @@ class ReportScheduleController extends BaseController
      * 更新调度
      * @Apidoc\Title("更新报表调度")
      * @Apidoc\Desc("修改报表调度信息，频率变更时重新计算下次执行时间")
-     * @Apidoc\Url("/admin/report/schedule/{id}")
+     * @Apidoc\Url("/admin/v1/report/schedule/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")
@@ -162,7 +162,7 @@ class ReportScheduleController extends BaseController
      * 删除调度
      * @Apidoc\Title("删除报表调度")
      * @Apidoc\Desc("删除报表调度记录，需密码确认")
-     * @Apidoc\Url("/admin/report/schedule/{id}")
+     * @Apidoc\Url("/admin/v1/report/schedule/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("自定义报表")

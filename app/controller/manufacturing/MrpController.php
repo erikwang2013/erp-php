@@ -25,7 +25,7 @@ class MrpController extends BaseController
      * MRP计划列表（分页）
      * @Apidoc\Title("MRP计划列表")
      * @Apidoc\Desc("分页查询MRP计划记录")
-     * @Apidoc\Url("/admin/mfg/mrp")
+     * @Apidoc\Url("/admin/v1/mfg/mrp")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -63,7 +63,7 @@ class MrpController extends BaseController
      * 创建MRP计划头
      * @Apidoc\Title("创建MRP计划")
      * @Apidoc\Desc("新增MRP计划头记录")
-     * @Apidoc\Url("/admin/mfg/mrp")
+     * @Apidoc\Url("/admin/v1/mfg/mrp")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -94,7 +94,7 @@ class MrpController extends BaseController
      * MRP计划详情
      * @Apidoc\Title("MRP计划详情")
      * @Apidoc\Desc("查看MRP计划详细信息，含明细")
-     * @Apidoc\Url("/admin/mfg/mrp/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/mrp/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -123,7 +123,7 @@ class MrpController extends BaseController
      * 更新MRP计划
      * @Apidoc\Title("更新MRP计划")
      * @Apidoc\Desc("修改MRP计划，已确认不可修改")
-     * @Apidoc\Url("/admin/mfg/mrp/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/mrp/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -152,7 +152,7 @@ class MrpController extends BaseController
      * 删除MRP计划
      * @Apidoc\Title("删除MRP计划")
      * @Apidoc\Desc("删除MRP计划，连明细一起删除，需密码确认")
-     * @Apidoc\Url("/admin/mfg/mrp/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/mrp/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -185,7 +185,7 @@ class MrpController extends BaseController
      * 生成MRP计划明细
      * @Apidoc\Title("生成MRP明细")
      * @Apidoc\Desc("基于各产品BOM与库存计算净需求，生成MRP计划明细")
-     * @Apidoc\Url("/admin/mfg/mrp/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/mrp/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

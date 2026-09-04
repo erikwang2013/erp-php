@@ -119,7 +119,7 @@ class RepairOrderController extends BaseController
     /**
      * 状态流转
      * @Apidoc\Title("维修工单状态流转")
-     * @Apidoc\Url("/admin/eam/repair/{id}/transition")
+     * @Apidoc\Url("/admin/v1/eam/repair/{id}/transition")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="status", type="string", require=true, desc="目标状态: in_progress/completed/cancelled")
      */

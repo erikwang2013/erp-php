@@ -19,7 +19,7 @@ class CurrencyController extends BaseController
      * 币种列表（分页）
      * @Apidoc\Title("币种列表")
      * @Apidoc\Desc("分页查询币种记录，本位币在前")
-     * @Apidoc\Url("/admin/finance/currency")
+     * @Apidoc\Url("/admin/v1/finance/currency")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -61,7 +61,7 @@ class CurrencyController extends BaseController
      * 创建币种
      * @Apidoc\Title("创建币种")
      * @Apidoc\Desc("新增币种记录")
-     * @Apidoc\Url("/admin/finance/currency")
+     * @Apidoc\Url("/admin/v1/finance/currency")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -93,7 +93,7 @@ class CurrencyController extends BaseController
      * 币种详情
      * @Apidoc\Title("币种详情")
      * @Apidoc\Desc("查看币种详细信息")
-     * @Apidoc\Url("/admin/finance/currency/{id}")
+     * @Apidoc\Url("/admin/v1/finance/currency/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -117,7 +117,7 @@ class CurrencyController extends BaseController
      * 更新币种
      * @Apidoc\Title("更新币种")
      * @Apidoc\Desc("修改币种信息")
-     * @Apidoc\Url("/admin/finance/currency/{id}")
+     * @Apidoc\Url("/admin/v1/finance/currency/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -144,7 +144,7 @@ class CurrencyController extends BaseController
      * 删除币种
      * @Apidoc\Title("删除币种")
      * @Apidoc\Desc("删除币种记录，需密码确认")
-     * @Apidoc\Url("/admin/finance/currency/{id}")
+     * @Apidoc\Url("/admin/v1/finance/currency/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

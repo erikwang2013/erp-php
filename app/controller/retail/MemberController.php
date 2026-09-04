@@ -25,7 +25,7 @@ class MemberController extends BaseController
     /**
      * 会员开卡（手机号唯一，软删号码拒重开；含储值 0.00 + 积分 0 建档）
      * @Apidoc\Title("会员开卡")
-     * @Apidoc\Url("/admin/member/open")
+     * @Apidoc\Url("/admin/v1/member/open")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")
@@ -53,7 +53,7 @@ class MemberController extends BaseController
     /**
      * 会员总览（主档 + 储值/积分余额 + 可用卡券数 + 累计充值/消费）
      * @Apidoc\Title("会员总览")
-     * @Apidoc\Url("/admin/member/overview")
+     * @Apidoc\Url("/admin/v1/member/overview")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")
@@ -74,7 +74,7 @@ class MemberController extends BaseController
     /**
      * 储值充值
      * @Apidoc\Title("储值充值")
-     * @Apidoc\Url("/admin/member/recharge")
+     * @Apidoc\Url("/admin/v1/member/recharge")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")
@@ -101,7 +101,7 @@ class MemberController extends BaseController
     /**
      * 储值消费（biz_id 为调用方业务单号，同号重复消费由服务幂等判拒）
      * @Apidoc\Title("储值消费")
-     * @Apidoc\Url("/admin/member/consume")
+     * @Apidoc\Url("/admin/v1/member/consume")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")
@@ -128,7 +128,7 @@ class MemberController extends BaseController
     /**
      * 储值退款（冲正原消费；同 biz_id 已退 → 拒绝，部分退款由调用方控累计上限）
      * @Apidoc\Title("储值退款")
-     * @Apidoc\Url("/admin/member/refund")
+     * @Apidoc\Url("/admin/v1/member/refund")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")
@@ -155,7 +155,7 @@ class MemberController extends BaseController
     /**
      * 积分入账（赚取）
      * @Apidoc\Title("积分入账")
-     * @Apidoc\Url("/admin/member/points-earn")
+     * @Apidoc\Url("/admin/v1/member/points-earn")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")
@@ -182,7 +182,7 @@ class MemberController extends BaseController
     /**
      * 积分抵扣（管理端手工扣减；不足整笔拒绝）
      * @Apidoc\Title("积分抵扣")
-     * @Apidoc\Url("/admin/member/points-consume")
+     * @Apidoc\Url("/admin/v1/member/points-consume")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")
@@ -209,7 +209,7 @@ class MemberController extends BaseController
     /**
      * 积分作废（手工调过期积分）
      * @Apidoc\Title("积分作废")
-     * @Apidoc\Url("/admin/member/points-expire")
+     * @Apidoc\Url("/admin/v1/member/points-expire")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")

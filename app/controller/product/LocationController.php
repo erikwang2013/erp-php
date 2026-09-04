@@ -21,7 +21,7 @@ class LocationController extends BaseController
      * 库位列表（分页）
      * @Apidoc\Title("库位列表")
      * @Apidoc\Desc("获取库位列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/location")
+     * @Apidoc\Url("/admin/v1/location")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")
@@ -56,7 +56,7 @@ class LocationController extends BaseController
      * 按仓库获取库位列表
      * @Apidoc\Title("按仓库获取库位")
      * @Apidoc\Desc("根据仓库ID获取该仓库下的所有库位列表")
-     * @Apidoc\Url("/admin/warehouse/{id}/locations")
+     * @Apidoc\Url("/admin/v1/warehouse/{id}/locations")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")
@@ -84,7 +84,7 @@ class LocationController extends BaseController
      * 创建库位
      * @Apidoc\Title("创建库位")
      * @Apidoc\Desc("新增一个库位记录")
-     * @Apidoc\Url("/admin/location")
+     * @Apidoc\Url("/admin/v1/location")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")
@@ -112,7 +112,7 @@ class LocationController extends BaseController
      * 库位详情
      * @Apidoc\Title("库位详情")
      * @Apidoc\Desc("根据ID获取库位详细信息")
-     * @Apidoc\Url("/admin/location/{id}")
+     * @Apidoc\Url("/admin/v1/location/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")
@@ -136,7 +136,7 @@ class LocationController extends BaseController
      * 更新库位
      * @Apidoc\Title("更新库位")
      * @Apidoc\Desc("根据ID更新库位信息")
-     * @Apidoc\Url("/admin/location/{id}")
+     * @Apidoc\Url("/admin/v1/location/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")
@@ -164,7 +164,7 @@ class LocationController extends BaseController
      * 删除库位（软删除）
      * @Apidoc\Title("删除库位")
      * @Apidoc\Desc("根据ID软删除库位，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/location/{id}")
+     * @Apidoc\Url("/admin/v1/location/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("商品管理")

@@ -134,7 +134,7 @@ class DocumentController extends BaseController
     /**
      * 文档版本历史
      * @Apidoc\Title("文档版本历史")
-     * @Apidoc\Url("/admin/dms/document/{id}/versions")
+     * @Apidoc\Url("/admin/v1/dms/document/{id}/versions")
      * @Apidoc\Method("GET")
      */
     public function versions(Request $request, string $id): Response
@@ -148,7 +148,7 @@ class DocumentController extends BaseController
     /**
      * 文档分类列表
      * @Apidoc\Title("文档分类列表")
-     * @Apidoc\Url("/admin/dms/categories")
+     * @Apidoc\Url("/admin/v1/dms/categories")
      * @Apidoc\Method("GET")
      */
     public function categories(Request $request): Response

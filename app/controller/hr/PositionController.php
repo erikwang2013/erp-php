@@ -24,7 +24,7 @@ class PositionController extends BaseController
      * 职位列表（分页）
      * @Apidoc\Title("职位列表")
      * @Apidoc\Desc("分页查询职位记录")
-     * @Apidoc\Url("/admin/hr/position")
+     * @Apidoc\Url("/admin/v1/hr/position")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -63,7 +63,7 @@ class PositionController extends BaseController
      * 创建职位
      * @Apidoc\Title("创建职位")
      * @Apidoc\Desc("新增职位记录")
-     * @Apidoc\Url("/admin/hr/position")
+     * @Apidoc\Url("/admin/v1/hr/position")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -93,7 +93,7 @@ class PositionController extends BaseController
      * 职位详情
      * @Apidoc\Title("职位详情")
      * @Apidoc\Desc("查看职位详细信息")
-     * @Apidoc\Url("/admin/hr/position/{id}")
+     * @Apidoc\Url("/admin/v1/hr/position/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -117,7 +117,7 @@ class PositionController extends BaseController
      * 更新职位
      * @Apidoc\Title("更新职位")
      * @Apidoc\Desc("修改职位信息")
-     * @Apidoc\Url("/admin/hr/position/{id}")
+     * @Apidoc\Url("/admin/v1/hr/position/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")
@@ -141,7 +141,7 @@ class PositionController extends BaseController
      * 删除职位
      * @Apidoc\Title("删除职位")
      * @Apidoc\Desc("删除职位记录，需密码确认")
-     * @Apidoc\Url("/admin/hr/position/{id}")
+     * @Apidoc\Url("/admin/v1/hr/position/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("人力资源")

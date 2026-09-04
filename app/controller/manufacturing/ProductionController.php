@@ -27,7 +27,7 @@ class ProductionController extends BaseController
      * 生产工单列表（分页）
      * @Apidoc\Title("生产工单列表")
      * @Apidoc\Desc("分页查询生产工单记录")
-     * @Apidoc\Url("/admin/mfg/production")
+     * @Apidoc\Url("/admin/v1/mfg/production")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -66,7 +66,7 @@ class ProductionController extends BaseController
      * 创建生产工单
      * @Apidoc\Title("创建生产工单")
      * @Apidoc\Desc("新增生产工单记录")
-     * @Apidoc\Url("/admin/mfg/production")
+     * @Apidoc\Url("/admin/v1/mfg/production")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -100,7 +100,7 @@ class ProductionController extends BaseController
      * 工单详情
      * @Apidoc\Title("生产工单详情")
      * @Apidoc\Desc("查看生产工单详细信息，含明细和BOM")
-     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/production/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -132,7 +132,7 @@ class ProductionController extends BaseController
      * 更新工单
      * @Apidoc\Title("更新生产工单")
      * @Apidoc\Desc("修改生产工单，仅待生产状态可修改")
-     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/production/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -161,7 +161,7 @@ class ProductionController extends BaseController
      * 删除工单
      * @Apidoc\Title("删除生产工单")
      * @Apidoc\Desc("删除生产工单，生产中或已完成不可删除，需密码确认")
-     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/production/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -197,7 +197,7 @@ class ProductionController extends BaseController
      * 开始生产
      * @Apidoc\Title("开始生产")
      * @Apidoc\Desc("将工单状态变更为生产中")
-     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/production/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -226,7 +226,7 @@ class ProductionController extends BaseController
      * 完成生产（完工结算：入库 + 成本结转凭证，同事务）
      * @Apidoc\Title("完成生产")
      * @Apidoc\Desc("完工结算并入库产成品，归集成本结转为财务凭证")
-     * @Apidoc\Url("/admin/mfg/production/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/production/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

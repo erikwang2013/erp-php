@@ -129,34 +129,34 @@ class DocsController
                 '/api/v1/auth/register' => $this->path('注册', 'POST', null, 'object', ['username' => 'string', 'password' => 'string', 'real_name' => 'string', 'captcha_key' => 'string', 'clicks' => 'array']),
                 '/api/v1/auth/refresh' => $this->path('刷新令牌', 'POST', null, 'object', ['refresh_token' => 'string']),
 
-                '/admin/dashboard' => $this->path('仪表盘数据', 'GET', ['JWT 认证']),
+                '/admin/v1/dashboard' => $this->path('仪表盘数据', 'GET', ['JWT 认证']),
 
-                '/admin/user' => $this->path('用户列表', 'GET', ['JWT', 'RBAC'], 'object', ['page' => 'int', 'limit' => 'int', 'keyword' => 'string?', 'status' => 'int?']),
-                '/admin/user/{id}' => $this->path('用户详情/更新/删除', 'GET|PUT|DELETE', ['JWT', 'RBAC']),
-                '/admin/user/batch/destroy' => $this->path('批量删除用户', 'POST', ['JWT', 'RBAC', '需要密码确认'], null, ['ids' => 'string[]', 'password' => 'string']),
-                '/admin/user/batch/status' => $this->path('批量启用/禁用用户', 'POST', ['JWT', 'RBAC'], null, ['ids' => 'string[]', 'status' => '0|1']),
+                '/admin/v1/user' => $this->path('用户列表', 'GET', ['JWT', 'RBAC'], 'object', ['page' => 'int', 'limit' => 'int', 'keyword' => 'string?', 'status' => 'int?']),
+                '/admin/v1/user/{id}' => $this->path('用户详情/更新/删除', 'GET|PUT|DELETE', ['JWT', 'RBAC']),
+                '/admin/v1/user/batch/destroy' => $this->path('批量删除用户', 'POST', ['JWT', 'RBAC', '需要密码确认'], null, ['ids' => 'string[]', 'password' => 'string']),
+                '/admin/v1/user/batch/status' => $this->path('批量启用/禁用用户', 'POST', ['JWT', 'RBAC'], null, ['ids' => 'string[]', 'status' => '0|1']),
 
-                '/admin/role' => $this->path('角色列表/创建', 'GET|POST', ['JWT', 'RBAC']),
-                '/admin/role/{id}' => $this->path('角色更新/删除', 'PUT|DELETE', ['JWT', 'RBAC', '删除需密码确认']),
+                '/admin/v1/role' => $this->path('角色列表/创建', 'GET|POST', ['JWT', 'RBAC']),
+                '/admin/v1/role/{id}' => $this->path('角色更新/删除', 'PUT|DELETE', ['JWT', 'RBAC', '删除需密码确认']),
 
-                '/admin/permission' => $this->path('权限树/创建', 'GET|POST', ['JWT', 'RBAC']),
-                '/admin/permission/{id}' => $this->path('权限更新/删除', 'PUT|DELETE', ['JWT', 'RBAC', '删除需密码确认']),
+                '/admin/v1/permission' => $this->path('权限树/创建', 'GET|POST', ['JWT', 'RBAC']),
+                '/admin/v1/permission/{id}' => $this->path('权限更新/删除', 'PUT|DELETE', ['JWT', 'RBAC', '删除需密码确认']),
 
-                '/admin/config' => $this->path('配置列表/创建', 'GET|POST', ['JWT', 'RBAC']),
-                '/admin/config/{id}' => $this->path('配置更新/删除', 'PUT|DELETE', ['JWT', 'RBAC', '删除需密码确认']),
+                '/admin/v1/config' => $this->path('配置列表/创建', 'GET|POST', ['JWT', 'RBAC']),
+                '/admin/v1/config/{id}' => $this->path('配置更新/删除', 'PUT|DELETE', ['JWT', 'RBAC', '删除需密码确认']),
 
-                '/admin/log' => $this->path('操作日志查询', 'GET', ['JWT', 'RBAC'], 'array', ['user_id' => 'int?', 'action' => 'string?', 'path' => 'string?', 'start_date' => 'date?', 'end_date' => 'date?']),
+                '/admin/v1/log' => $this->path('操作日志查询', 'GET', ['JWT', 'RBAC'], 'array', ['user_id' => 'int?', 'action' => 'string?', 'path' => 'string?', 'start_date' => 'date?', 'end_date' => 'date?']),
 
-                '/admin/profile' => $this->path('更新个人信息', 'PUT', ['JWT'], null, ['real_name' => 'string?', 'phone' => 'string?', 'email' => 'string?']),
-                '/admin/profile/password' => $this->path('修改密码', 'PUT', ['JWT'], null, ['old_password' => 'string', 'new_password' => 'string']),
-                '/admin/profile/logout' => $this->path('登出', 'POST', ['JWT']),
+                '/admin/v1/profile' => $this->path('更新个人信息', 'PUT', ['JWT'], null, ['real_name' => 'string?', 'phone' => 'string?', 'email' => 'string?']),
+                '/admin/v1/profile/password' => $this->path('修改密码', 'PUT', ['JWT'], null, ['old_password' => 'string', 'new_password' => 'string']),
+                '/admin/v1/profile/logout' => $this->path('登出', 'POST', ['JWT']),
 
-                '/admin/export/excel' => $this->path('导出Excel', 'POST', ['JWT', 'RBAC'], 'binary', ['table' => 'string', 'columns' => 'string[]', 'conditions' => 'object?', 'title' => 'string?']),
-                '/admin/export/pdf' => $this->path('导出PDF', 'POST', ['JWT', 'RBAC'], 'binary', ['type' => 'string', 'title' => 'string?', 'data' => 'object?']),
+                '/admin/v1/export/excel' => $this->path('导出Excel', 'POST', ['JWT', 'RBAC'], 'binary', ['table' => 'string', 'columns' => 'string[]', 'conditions' => 'object?', 'title' => 'string?']),
+                '/admin/v1/export/pdf' => $this->path('导出PDF', 'POST', ['JWT', 'RBAC'], 'binary', ['type' => 'string', 'title' => 'string?', 'data' => 'object?']),
 
-                '/admin/import/users' => $this->path('导入用户(Excel)', 'POST', ['JWT', 'RBAC'], 'object', ['file' => 'file(.xlsx)']),
+                '/admin/v1/import/users' => $this->path('导入用户(Excel)', 'POST', ['JWT', 'RBAC'], 'object', ['file' => 'file(.xlsx)']),
 
-                '/admin/upload' => $this->path('文件上传', 'POST', ['JWT', 'RBAC'], 'object', ['file' => 'file(jpg/png/pdf/xlsx/docx, max 10MB)']),
+                '/admin/v1/upload' => $this->path('文件上传', 'POST', ['JWT', 'RBAC'], 'object', ['file' => 'file(jpg/png/pdf/xlsx/docx, max 10MB)']),
             ],
         ];
     }

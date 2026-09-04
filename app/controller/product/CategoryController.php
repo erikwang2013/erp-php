@@ -21,7 +21,7 @@ class CategoryController extends BaseController
      * 分类列表（分页）
      * @Apidoc\Title("分类列表")
      * @Apidoc\Desc("分页查询分类记录")
-     * @Apidoc\Url("/admin/category")
+     * @Apidoc\Url("/admin/v1/category")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -56,7 +56,7 @@ class CategoryController extends BaseController
      * 创建分类
      * @Apidoc\Title("创建分类")
      * @Apidoc\Desc("新增分类记录")
-     * @Apidoc\Url("/admin/category")
+     * @Apidoc\Url("/admin/v1/category")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -81,7 +81,7 @@ class CategoryController extends BaseController
      * 分类详情
      * @Apidoc\Title("分类详情")
      * @Apidoc\Desc("查看分类详细信息")
-     * @Apidoc\Url("/admin/category/{id}")
+     * @Apidoc\Url("/admin/v1/category/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -105,7 +105,7 @@ class CategoryController extends BaseController
      * 更新分类
      * @Apidoc\Title("更新分类")
      * @Apidoc\Desc("修改分类信息")
-     * @Apidoc\Url("/admin/category/{id}")
+     * @Apidoc\Url("/admin/v1/category/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -129,7 +129,7 @@ class CategoryController extends BaseController
      * 删除分类
      * @Apidoc\Title("删除分类")
      * @Apidoc\Desc("删除分类记录，需密码确认")
-     * @Apidoc\Url("/admin/category/{id}")
+     * @Apidoc\Url("/admin/v1/category/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

@@ -21,7 +21,7 @@ class BalanceSheetController extends BaseController
      * 资产负债表
      * @Apidoc\Title("资产负债表")
      * @Apidoc\Desc("查询或从总账生成资产负债表")
-     * @Apidoc\Url("/admin/finance/report/balance-sheet")
+     * @Apidoc\Url("/admin/v1/finance/report/balance-sheet")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -69,7 +69,7 @@ class BalanceSheetController extends BaseController
      * 保存资产负债表快照
      * @Apidoc\Title("保存资产负债表快照")
      * @Apidoc\Desc("将资产负债表数据保存为快照记录")
-     * @Apidoc\Url("/admin/finance/report/balance-sheet")
+     * @Apidoc\Url("/admin/v1/finance/report/balance-sheet")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

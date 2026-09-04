@@ -32,7 +32,7 @@ class InvoiceController extends BaseController
      * 发票列表（分页）
      * @Apidoc\Title("发票列表")
      * @Apidoc\Desc("发票分页列表，支持类型/来源/状态筛选")
-     * @Apidoc\Url("/admin/finance/invoice")
+     * @Apidoc\Url("/admin/v1/finance/invoice")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -74,7 +74,7 @@ class InvoiceController extends BaseController
      * 创建开票申请(draft)
      * @Apidoc\Title("创建开票申请")
      * @Apidoc\Desc("金额由服务端 bcmath 计算；来源关联单超开将被拦截")
-     * @Apidoc\Url("/admin/finance/invoice")
+     * @Apidoc\Url("/admin/v1/finance/invoice")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -106,7 +106,7 @@ class InvoiceController extends BaseController
     /**
      * 发票详情（含明细）
      * @Apidoc\Title("发票详情")
-     * @Apidoc\Url("/admin/finance/invoice/{id}")
+     * @Apidoc\Url("/admin/v1/finance/invoice/{id}")
      * @Apidoc\Method("GET")
      */
     public function show(Request $request, string $id): Response
@@ -122,7 +122,7 @@ class InvoiceController extends BaseController
     /**
      * 更新开票申请（仅 draft 可改金额明细/日期/币种/备注，金额整体重算并复检余额）
      * @Apidoc\Title("更新开票申请")
-     * @Apidoc\Url("/admin/finance/invoice/{id}")
+     * @Apidoc\Url("/admin/v1/finance/invoice/{id}")
      * @Apidoc\Method("PUT")
      */
     public function update(Request $request, string $id): Response
@@ -169,7 +169,7 @@ class InvoiceController extends BaseController
     /**
      * 删除开票申请（仅 draft，需管理员密码；软删头+硬删明细）
      * @Apidoc\Title("删除开票申请")
-     * @Apidoc\Url("/admin/finance/invoice/{id}")
+     * @Apidoc\Url("/admin/v1/finance/invoice/{id}")
      * @Apidoc\Method("DELETE")
      */
     public function destroy(Request $request, string $id): Response
@@ -195,7 +195,7 @@ class InvoiceController extends BaseController
     /**
      * 提交开票申请(draft→submitted，复检余额)
      * @Apidoc\Title("提交开票申请")
-     * @Apidoc\Url("/admin/finance/invoice/{id}/submit")
+     * @Apidoc\Url("/admin/v1/finance/invoice/{id}/submit")
      * @Apidoc\Method("POST")
      */
     public function submit(Request $request, string $id): Response
@@ -210,7 +210,7 @@ class InvoiceController extends BaseController
     /**
      * 审核入账(submitted→audited，写三单匹配日志)
      * @Apidoc\Title("审核发票")
-     * @Apidoc\Url("/admin/finance/invoice/{id}/audit")
+     * @Apidoc\Url("/admin/v1/finance/invoice/{id}/audit")
      * @Apidoc\Method("POST")
      */
     public function audit(Request $request, string $id): Response
@@ -226,7 +226,7 @@ class InvoiceController extends BaseController
     /**
      * 作废发票(任意非 voided 状态，需原因；作废后未开票余额自动回补)
      * @Apidoc\Title("作废发票")
-     * @Apidoc\Url("/admin/finance/invoice/{id}/void")
+     * @Apidoc\Url("/admin/v1/finance/invoice/{id}/void")
      * @Apidoc\Method("POST")
      */
     public function void(Request $request, string $id): Response
@@ -243,7 +243,7 @@ class InvoiceController extends BaseController
      * 三单匹配预检（不落库）：拟开票明细金额 vs 来源单未开票余额
      * @Apidoc\Title("三单匹配预检")
      * @Apidoc\Desc("返回 来源总额/已开票累计/未开票余额/本次金额/校验结果(result: ok=恰好 under=小于 over=超开)")
-     * @Apidoc\Url("/admin/finance/invoice/match-check")
+     * @Apidoc\Url("/admin/v1/finance/invoice/match-check")
      * @Apidoc\Method("POST")
      */
     public function matchCheck(Request $request): Response

@@ -30,7 +30,7 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
     setState(() => _loading = true);
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit'};
-      final res = await ApiService.instance.get('/admin/approval/my', params: params);
+      final res = await ApiService.instance.get('/admin/v1/approval/my', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -97,12 +97,12 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
 
   Future<void> _approve(Map<String, dynamic> row) => _commentDialog(
     title: '审批通过', commentRequired: false,
-    onConfirm: (comment) => ApiService.instance.post('/admin/approval/${row['id']}/approve', data: {'comment': comment}),
+    onConfirm: (comment) => ApiService.instance.post('/admin/v1/approval/${row['id']}/approve', data: {'comment': comment}),
   );
 
   Future<void> _reject(Map<String, dynamic> row) => _commentDialog(
     title: '驳回审批', commentRequired: true,
-    onConfirm: (comment) => ApiService.instance.post('/admin/approval/${row['id']}/reject', data: {'comment': comment}),
+    onConfirm: (comment) => ApiService.instance.post('/admin/v1/approval/${row['id']}/reject', data: {'comment': comment}),
   );
 
   Future<void> _withdraw(Map<String, dynamic> row) async {
@@ -116,7 +116,7 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
           ElevatedButton(
             onPressed: () async {
               try {
-                await ApiService.instance.post('/admin/approval/${row['id']}/withdraw');
+                await ApiService.instance.post('/admin/v1/approval/${row['id']}/withdraw');
                 if (ctx.mounted) Navigator.of(ctx).pop();
                 _load();
                 if (mounted) {

@@ -32,7 +32,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("模板列表")
-     * @Apidoc\Url("/admin/hr/perf/template")
+     * @Apidoc\Url("/admin/v1/hr/perf/template")
      * @Apidoc\Method("GET")
      * @Apidoc\Param(name="status", type="int", desc="状态:0草稿1启用")
      * @Apidoc\Param(name="name", type="string", desc="模板名称（等值）")
@@ -55,7 +55,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("新建模板")
-     * @Apidoc\Url("/admin/hr/perf/template")
+     * @Apidoc\Url("/admin/v1/hr/perf/template")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="name", type="string", desc="模板名称，必填")
      * @Apidoc\Param(name="period_type", type="string", desc="周期类型:monthly/quarterly/yearly，默认monthly")
@@ -79,7 +79,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("模板详情")
-     * @Apidoc\Url("/admin/hr/perf/template/{id}")
+     * @Apidoc\Url("/admin/v1/hr/perf/template/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
@@ -96,7 +96,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("更新模板")
-     * @Apidoc\Url("/admin/hr/perf/template/{id}")
+     * @Apidoc\Url("/admin/v1/hr/perf/template/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Param(name="name", type="string", desc="模板名称")
      * @Apidoc\Param(name="period_type", type="string", desc="周期类型:monthly/quarterly/yearly")
@@ -120,7 +120,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("启用模板")
-     * @Apidoc\Url("/admin/hr/perf/template/{id}/enable")
+     * @Apidoc\Url("/admin/v1/hr/perf/template/{id}/enable")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
@@ -137,7 +137,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("删除模板")
-     * @Apidoc\Url("/admin/hr/perf/template/{id}")
+     * @Apidoc\Url("/admin/v1/hr/perf/template/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Param(name="password", type="string", desc="管理员密码")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
@@ -166,7 +166,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("考核批次列表")
-     * @Apidoc\Url("/admin/hr/perf/plan")
+     * @Apidoc\Url("/admin/v1/hr/perf/plan")
      * @Apidoc\Method("GET")
      * @Apidoc\Param(name="status", type="int", desc="状态:0草稿1进行中2已归档")
      * @Apidoc\Param(name="template_id", type="int", desc="模板ID")
@@ -188,7 +188,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("新建考核批次")
-     * @Apidoc\Url("/admin/hr/perf/plan")
+     * @Apidoc\Url("/admin/v1/hr/perf/plan")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="template_id", type="int", desc="模板ID（须已启用），必填")
      * @Apidoc\Param(name="period_start", type="string", desc="周期开始 Y-m-d，必填")
@@ -219,7 +219,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("启动考核批次")
-     * @Apidoc\Url("/admin/hr/perf/plan/{id}/start")
+     * @Apidoc\Url("/admin/v1/hr/perf/plan/{id}/start")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
@@ -236,7 +236,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("归档考核批次")
-     * @Apidoc\Url("/admin/hr/perf/plan/{id}/archive")
+     * @Apidoc\Url("/admin/v1/hr/perf/plan/{id}/archive")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
@@ -255,7 +255,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("提交评分")
-     * @Apidoc\Url("/admin/hr/perf/score")
+     * @Apidoc\Url("/admin/v1/hr/perf/score")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="plan_id", type="int", desc="考核批次ID（进行中），必填")
      * @Apidoc\Param(name="employee_id", type="int", desc="被考核员工ID，必填")
@@ -292,7 +292,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("评分记录列表")
-     * @Apidoc\Url("/admin/hr/perf/score")
+     * @Apidoc\Url("/admin/v1/hr/perf/score")
      * @Apidoc\Method("GET")
      * @Apidoc\Param(name="plan_id", type="int", desc="考核批次ID")
      * @Apidoc\Param(name="employee_id", type="int", desc="被考核员工ID")
@@ -316,7 +316,7 @@ class PerformanceController extends BaseController
 
     /**
      * @Apidoc\Title("员工考核汇总")
-     * @Apidoc\Url("/admin/hr/perf/score/summary")
+     * @Apidoc\Url("/admin/v1/hr/perf/score/summary")
      * @Apidoc\Method("GET")
      * @Apidoc\Param(name="plan_id", type="int", desc="考核批次ID，必填")
      * @Apidoc\Param(name="employee_id", type="int", desc="被考核员工ID，必填")

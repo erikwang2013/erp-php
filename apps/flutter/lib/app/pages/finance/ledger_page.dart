@@ -25,7 +25,7 @@ class _LedgerPageState extends State<LedgerPage> {
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       
-      final res = await ApiService.instance.get('/admin/finance/general-ledger', params: params);
+      final res = await ApiService.instance.get('/admin/v1/finance/general-ledger', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }

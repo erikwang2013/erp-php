@@ -21,7 +21,7 @@ class FunnelStageController extends BaseController
      * 漏斗阶段列表（分页）
      * @Apidoc\Title("漏斗阶段列表")
      * @Apidoc\Desc("分页查询漏斗阶段记录")
-     * @Apidoc\Url("/admin/crm/funnel")
+     * @Apidoc\Url("/admin/v1/crm/funnel")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -56,7 +56,7 @@ class FunnelStageController extends BaseController
      * 创建漏斗阶段
      * @Apidoc\Title("创建漏斗阶段")
      * @Apidoc\Desc("新增漏斗阶段记录")
-     * @Apidoc\Url("/admin/crm/funnel")
+     * @Apidoc\Url("/admin/v1/crm/funnel")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -81,7 +81,7 @@ class FunnelStageController extends BaseController
      * 漏斗阶段详情
      * @Apidoc\Title("漏斗阶段详情")
      * @Apidoc\Desc("查看漏斗阶段详细信息")
-     * @Apidoc\Url("/admin/crm/funnel/{id}")
+     * @Apidoc\Url("/admin/v1/crm/funnel/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -105,7 +105,7 @@ class FunnelStageController extends BaseController
      * 更新漏斗阶段
      * @Apidoc\Title("更新漏斗阶段")
      * @Apidoc\Desc("修改漏斗阶段信息")
-     * @Apidoc\Url("/admin/crm/funnel/{id}")
+     * @Apidoc\Url("/admin/v1/crm/funnel/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -129,7 +129,7 @@ class FunnelStageController extends BaseController
      * 删除漏斗阶段
      * @Apidoc\Title("删除漏斗阶段")
      * @Apidoc\Desc("删除漏斗阶段记录，需密码确认")
-     * @Apidoc\Url("/admin/crm/funnel/{id}")
+     * @Apidoc\Url("/admin/v1/crm/funnel/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

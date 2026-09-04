@@ -25,7 +25,7 @@ class CouponController extends BaseController
     /**
      * 发券（模板须启用且有余量；valid_days=0 的券长期有效 expire_at=null）
      * @Apidoc\Title("会员发券")
-     * @Apidoc\Url("/admin/coupon/issue")
+     * @Apidoc\Url("/admin/v1/coupon/issue")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")
@@ -51,7 +51,7 @@ class CouponController extends BaseController
     /**
      * 核销卡券（管理端代核销；过期判拒时惰性置 2，已核销/已过期不可再核销）
      * @Apidoc\Title("卡券核销")
-     * @Apidoc\Url("/admin/coupon/redeem")
+     * @Apidoc\Url("/admin/v1/coupon/redeem")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")

@@ -33,7 +33,7 @@ class SubcontractController extends BaseController
     /**
      * 委外订单列表（分页，按单号/供应商/产品/状态筛选）
      * @Apidoc\Title("委外订单列表")
-     * @Apidoc\Url("/admin/mfg/subcontract")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -68,7 +68,7 @@ class SubcontractController extends BaseController
     /**
      * 创建委外订单（草稿）
      * @Apidoc\Title("创建委外订单")
-     * @Apidoc\Url("/admin/mfg/subcontract")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -136,7 +136,7 @@ class SubcontractController extends BaseController
     /**
      * 委外订单详情（含供应商与发料/收料单）
      * @Apidoc\Title("委外订单详情")
-     * @Apidoc\Url("/admin/mfg/subcontract/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -166,7 +166,7 @@ class SubcontractController extends BaseController
     /**
      * 更新委外订单（仅草稿）
      * @Apidoc\Title("更新委外订单")
-     * @Apidoc\Url("/admin/mfg/subcontract/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -208,7 +208,7 @@ class SubcontractController extends BaseController
     /**
      * 删除委外订单（仅草稿且无关联单据，需密码确认）
      * @Apidoc\Title("删除委外订单")
-     * @Apidoc\Url("/admin/mfg/subcontract/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

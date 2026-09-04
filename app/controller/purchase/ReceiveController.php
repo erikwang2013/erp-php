@@ -29,7 +29,7 @@ class ReceiveController extends BaseController
      * 收货单列表（分页）
      * @Apidoc\Title("收货单列表")
      * @Apidoc\Desc("获取采购收货单分页列表，支持关键字/状态/订单/供应商筛选")
-     * @Apidoc\Url("/admin/purchase/receive")
+     * @Apidoc\Url("/admin/v1/purchase/receive")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -90,7 +90,7 @@ class ReceiveController extends BaseController
      * 创建收货单并执行入库
      * @Apidoc\Title("创建收货单")
      * @Apidoc\Desc("创建收货单并自动执行入库操作，同时生成应付记录并更新采购订单状态")
-     * @Apidoc\Url("/admin/purchase/receive")
+     * @Apidoc\Url("/admin/v1/purchase/receive")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -297,7 +297,7 @@ class ReceiveController extends BaseController
      * 收货单详情
      * @Apidoc\Title("收货单详情")
      * @Apidoc\Desc("获取指定收货单的详细信息，包含明细、订单、供应商和仓库")
-     * @Apidoc\Url("/admin/purchase/receive/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/receive/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -321,7 +321,7 @@ class ReceiveController extends BaseController
      * 更新收货单
      * @Apidoc\Title("更新收货单")
      * @Apidoc\Desc("更新收货单备注等信息，不修改核心数据")
-     * @Apidoc\Url("/admin/purchase/receive/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/receive/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -351,7 +351,7 @@ class ReceiveController extends BaseController
      * 删除收货单
      * @Apidoc\Title("删除收货单")
      * @Apidoc\Desc("软删除指定收货单，需要密码二次确认")
-     * @Apidoc\Url("/admin/purchase/receive/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/receive/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")

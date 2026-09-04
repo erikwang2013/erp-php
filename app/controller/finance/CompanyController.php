@@ -23,7 +23,7 @@ class CompanyController extends BaseController
      * 公司列表
      * @Apidoc\Title("公司列表")
      * @Apidoc\Desc("全量公司列表，含各自默认账套摘要")
-     * @Apidoc\Url("/admin/finance/company/list")
+     * @Apidoc\Url("/admin/v1/finance/company/list")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -54,7 +54,7 @@ class CompanyController extends BaseController
      * 新增公司（含默认账套与当期开账，一事务）
      * @Apidoc\Title("新增公司")
      * @Apidoc\Desc("创建组织并自动创建默认账套、开启当前自然月期间")
-     * @Apidoc\Url("/admin/finance/company/create")
+     * @Apidoc\Url("/admin/v1/finance/company/create")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -101,7 +101,7 @@ class CompanyController extends BaseController
      * 启用/停用公司
      * @Apidoc\Title("启用/停用公司")
      * @Apidoc\Desc("status 0=停用 1=启用")
-     * @Apidoc\Url("/admin/finance/company/toggle")
+     * @Apidoc\Url("/admin/v1/finance/company/toggle")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

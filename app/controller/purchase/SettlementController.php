@@ -29,7 +29,7 @@ class SettlementController extends BaseController
      * 采购结算列表（分页）
      * @Apidoc\Title("采购结算列表")
      * @Apidoc\Desc("基于应付记录查询采购结算，状态按已核销金额推导")
-     * @Apidoc\Url("/admin/purchase/settlement")
+     * @Apidoc\Url("/admin/v1/purchase/settlement")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -87,7 +87,7 @@ class SettlementController extends BaseController
      * 采购结算核销（经服务层）
      * @Apidoc\Title("创建采购结算核销")
      * @Apidoc\Desc("对收货单应付记录执行付款核销，状态由服务层推导，客户端传 status 一律忽略")
-     * @Apidoc\Url("/admin/purchase/settlement")
+     * @Apidoc\Url("/admin/v1/purchase/settlement")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -135,7 +135,7 @@ class SettlementController extends BaseController
      * 采购结算详情
      * @Apidoc\Title("采购结算详情")
      * @Apidoc\Desc("根据应付记录ID获取采购结算详细信息")
-     * @Apidoc\Url("/admin/purchase/settlement/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/settlement/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -161,7 +161,7 @@ class SettlementController extends BaseController
      * 更新采购结算（仅应付金额）
      * @Apidoc\Title("更新采购结算")
      * @Apidoc\Desc("仅允许调整应付金额，且不得小于已核销金额；状态由服务端推导")
-     * @Apidoc\Url("/admin/purchase/settlement/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/settlement/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -198,7 +198,7 @@ class SettlementController extends BaseController
      * 删除采购结算（仅未核销记录）
      * @Apidoc\Title("删除采购结算")
      * @Apidoc\Desc("删除未核销的应付记录，需管理员密码二次确认；已核销记录不可删除")
-     * @Apidoc\Url("/admin/purchase/settlement/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/settlement/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")

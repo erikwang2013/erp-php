@@ -19,7 +19,7 @@ class OrderController extends BaseController
      * 采购订单列表（分页）
      * @Apidoc\Title("采购订单列表")
      * @Apidoc\Desc("获取采购订单列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/purchase/order")
+     * @Apidoc\Url("/admin/v1/purchase/order")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -61,7 +61,7 @@ class OrderController extends BaseController
      * 创建采购订单
      * @Apidoc\Title("创建采购订单")
      * @Apidoc\Desc("新增一个采购订单记录")
-     * @Apidoc\Url("/admin/purchase/order")
+     * @Apidoc\Url("/admin/v1/purchase/order")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -91,7 +91,7 @@ class OrderController extends BaseController
      * 采购订单详情
      * @Apidoc\Title("采购订单详情")
      * @Apidoc\Desc("根据ID获取采购订单详细信息")
-     * @Apidoc\Url("/admin/purchase/order/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/order/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -115,7 +115,7 @@ class OrderController extends BaseController
      * 更新采购订单
      * @Apidoc\Title("更新采购订单")
      * @Apidoc\Desc("根据ID更新采购订单信息")
-     * @Apidoc\Url("/admin/purchase/order/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/order/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")
@@ -145,7 +145,7 @@ class OrderController extends BaseController
      * 删除采购订单（软删除）
      * @Apidoc\Title("删除采购订单")
      * @Apidoc\Desc("根据ID软删除采购订单，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/purchase/order/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/order/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("采购管理")

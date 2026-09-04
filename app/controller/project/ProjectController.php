@@ -23,7 +23,7 @@ class ProjectController extends BaseController
      * 项目列表（分页）
      * @Apidoc\Title("项目列表")
      * @Apidoc\Desc("获取项目分页列表，支持关键字/状态/负责人筛选")
-     * @Apidoc\Url("/admin/project")
+     * @Apidoc\Url("/admin/v1/project")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -82,7 +82,7 @@ class ProjectController extends BaseController
      * 创建项目
      * @Apidoc\Title("创建项目")
      * @Apidoc\Desc("创建一个新项目")
-     * @Apidoc\Url("/admin/project")
+     * @Apidoc\Url("/admin/v1/project")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -111,7 +111,7 @@ class ProjectController extends BaseController
      * 项目详情
      * @Apidoc\Title("项目详情")
      * @Apidoc\Desc("获取指定项目的详细信息，包含计算后的进度")
-     * @Apidoc\Url("/admin/project/{id}")
+     * @Apidoc\Url("/admin/v1/project/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -138,7 +138,7 @@ class ProjectController extends BaseController
      * 更新项目
      * @Apidoc\Title("更新项目")
      * @Apidoc\Desc("更新指定项目的信息")
-     * @Apidoc\Url("/admin/project/{id}")
+     * @Apidoc\Url("/admin/v1/project/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -165,7 +165,7 @@ class ProjectController extends BaseController
      * 删除项目
      * @Apidoc\Title("删除项目")
      * @Apidoc\Desc("软删除指定项目，需要密码二次确认")
-     * @Apidoc\Url("/admin/project/{id}")
+     * @Apidoc\Url("/admin/v1/project/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")

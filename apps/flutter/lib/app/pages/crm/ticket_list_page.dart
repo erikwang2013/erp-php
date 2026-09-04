@@ -27,7 +27,7 @@ class _TicketListPageState extends State<TicketListPage> {
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       
-      final res = await ApiService.instance.get('/admin/crm/ticket', params: params);
+      final res = await ApiService.instance.get('/admin/v1/crm/ticket', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -35,21 +35,21 @@ class _TicketListPageState extends State<TicketListPage> {
 
   Future<void> _create() async {
     await FormDialog.show(context, title: '新增', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/crm/ticket', data: data);
+      await ApiService.instance.post('/admin/v1/crm/ticket', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
     await FormDialog.show(context, title: '编辑', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/crm/ticket/${row['id']}', data: data);
+      await ApiService.instance.put('/admin/v1/crm/ticket/${row['id']}', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['name'] ?? row['code'] ?? ''}」吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/crm/ticket/${row['id']}', data: {'password': password});
+      await ApiService.instance.delete('/admin/v1/crm/ticket/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
@@ -83,7 +83,7 @@ class _TicketListPageState extends State<TicketListPage> {
               onPressed: submitting ? null : () async {
                 setState(() => submitting = true);
                 try {
-                  await ApiService.instance.post('/admin/crm/ticket/${row['id']}/assign',
+                  await ApiService.instance.post('/admin/v1/crm/ticket/${row['id']}/assign',
                       data: {'assignee_user_id': int.parse(selected)});
                   if (ctx.mounted) Navigator.pop(ctx);
                   _load();
@@ -105,7 +105,7 @@ class _TicketListPageState extends State<TicketListPage> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchUsers() async {
-    final res = await ApiService.instance.get('/admin/user', params: {'page': '1', 'limit': '200'});
+    final res = await ApiService.instance.get('/admin/v1/user', params: {'page': '1', 'limit': '200'});
     return List<Map<String, dynamic>>.from((res['data']['list'] ?? []) as List);
   }
 
@@ -113,7 +113,7 @@ class _TicketListPageState extends State<TicketListPage> {
     await FormDialog.show(context, title: '解决工单', fields: const [
       FormFieldConfig(name: 'content', label: '解决说明', hint: '选填', type: FormFieldType.multiline),
     ], submitText: '确认解决', onSubmit: (data) async {
-      await ApiService.instance.post('/admin/crm/ticket/${row['id']}/resolve', data: data);
+      await ApiService.instance.post('/admin/v1/crm/ticket/${row['id']}/resolve', data: data);
       _load(); return true;
     });
   }

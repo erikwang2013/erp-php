@@ -31,7 +31,7 @@ class WorkReportController extends BaseController
     /**
      * 报工单列表（分页）
      * @Apidoc\Title("报工单列表")
-     * @Apidoc\Url("/admin/mfg/work-report")
+     * @Apidoc\Url("/admin/v1/mfg/work-report")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -66,7 +66,7 @@ class WorkReportController extends BaseController
     /**
      * 创建报工单（草稿）
      * @Apidoc\Title("创建报工单")
-     * @Apidoc\Url("/admin/mfg/work-report")
+     * @Apidoc\Url("/admin/v1/mfg/work-report")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -158,7 +158,7 @@ class WorkReportController extends BaseController
     /**
      * 报工单详情
      * @Apidoc\Title("报工单详情")
-     * @Apidoc\Url("/admin/mfg/work-report/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/work-report/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -185,7 +185,7 @@ class WorkReportController extends BaseController
     /**
      * 更新报工单（仅草稿：数量/合格数/日期等，工单产品工序员工不可改）
      * @Apidoc\Title("更新报工单")
-     * @Apidoc\Url("/admin/mfg/work-report/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/work-report/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -228,7 +228,7 @@ class WorkReportController extends BaseController
     /**
      * 删除报工单（仅草稿，需密码确认）
      * @Apidoc\Title("删除报工单")
-     * @Apidoc\Url("/admin/mfg/work-report/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/work-report/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -259,7 +259,7 @@ class WorkReportController extends BaseController
     /**
      * 审核报工单（快照计件金额并归集 WIP 人工成本）
      * @Apidoc\Title("审核报工单")
-     * @Apidoc\Url("/admin/mfg/work-report/{id}/audit")
+     * @Apidoc\Url("/admin/v1/mfg/work-report/{id}/audit")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

@@ -19,7 +19,7 @@ class GeneralLedgerController extends BaseController
      * 总账查询
      * @Apidoc\Title("总账查询")
      * @Apidoc\Desc("按科目+会计期间汇总查询总账")
-     * @Apidoc\Url("/admin/finance/general-ledger")
+     * @Apidoc\Url("/admin/v1/finance/general-ledger")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

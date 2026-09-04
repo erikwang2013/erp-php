@@ -27,7 +27,7 @@ class _ReportListPageState extends State<ReportListPage> {
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       
-      final res = await ApiService.instance.get('/admin/report', params: params);
+      final res = await ApiService.instance.get('/admin/v1/report', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -35,21 +35,21 @@ class _ReportListPageState extends State<ReportListPage> {
 
   Future<void> _create() async {
     await FormDialog.show(context, title: '新增', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/report', data: data);
+      await ApiService.instance.post('/admin/v1/report', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
     await FormDialog.show(context, title: '编辑', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/report/${row['id']}', data: data);
+      await ApiService.instance.put('/admin/v1/report/${row['id']}', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['name'] ?? row['code'] ?? ''}」吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/report/${row['id']}', data: {'password': password});
+      await ApiService.instance.delete('/admin/v1/report/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
@@ -57,10 +57,10 @@ class _ReportListPageState extends State<ReportListPage> {
   /// 执行报表：POST /admin/report/{id}/execute，再 GET /admin/report/{id}/result 展示结果。
   Future<void> _execute(Map<String, dynamic> row) async {
     try {
-      final exec = await ApiService.instance.post('/admin/report/${row['id']}/execute');
+      final exec = await ApiService.instance.post('/admin/v1/report/${row['id']}/execute');
       final execData = Map<String, dynamic>.from(exec['data'] ?? {});
       final datasetId = execData['dataset_id'];
-      final res = await ApiService.instance.get('/admin/report/${row['id']}/result', params: {
+      final res = await ApiService.instance.get('/admin/v1/report/${row['id']}/result', params: {
         if (datasetId != null) 'dataset_id': '$datasetId',
       });
       final d = Map<String, dynamic>.from(res['data'] ?? {});

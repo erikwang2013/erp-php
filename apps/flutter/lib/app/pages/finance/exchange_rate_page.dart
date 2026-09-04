@@ -27,7 +27,7 @@ class _ExchangeRatePageState extends State<ExchangeRatePage> {
     setState(() => _loading = true);
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit'};
-      final res = await ApiService.instance.get('/admin/finance/exchange-rate', params: params);
+      final res = await ApiService.instance.get('/admin/v1/finance/exchange-rate', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -48,21 +48,21 @@ class _ExchangeRatePageState extends State<ExchangeRatePage> {
 
   Future<void> _create() async {
     await FormDialog.show(context, title: '新增汇率', fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/finance/exchange-rate', data: data);
+      await ApiService.instance.post('/admin/v1/finance/exchange-rate', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
     await FormDialog.show(context, title: '编辑汇率', fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/finance/exchange-rate/${row['id']}', data: data);
+      await ApiService.instance.put('/admin/v1/finance/exchange-rate/${row['id']}', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
     await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除该汇率记录吗？', onConfirm: (password) async {
-      await ApiService.instance.delete('/admin/finance/exchange-rate/${row['id']}', data: {'password': password});
+      await ApiService.instance.delete('/admin/v1/finance/exchange-rate/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }

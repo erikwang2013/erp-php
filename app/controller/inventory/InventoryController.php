@@ -22,7 +22,7 @@ class InventoryController extends BaseController
      * 库存列表（分页）
      * @Apidoc\Title("库存列表")
      * @Apidoc\Desc("获取库存分页列表，支持关键字搜索和状态筛选")
-     * @Apidoc\Url("/admin/inventory")
+     * @Apidoc\Url("/admin/v1/inventory")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -69,7 +69,7 @@ class InventoryController extends BaseController
      * 创建库存记录
      * @Apidoc\Title("创建库存记录")
      * @Apidoc\Desc("手动创建一条库存记录")
-     * @Apidoc\Url("/admin/inventory")
+     * @Apidoc\Url("/admin/v1/inventory")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -97,7 +97,7 @@ class InventoryController extends BaseController
      * 库存详情
      * @Apidoc\Title("库存详情")
      * @Apidoc\Desc("获取指定库存记录的详细信息")
-     * @Apidoc\Url("/admin/inventory/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -121,7 +121,7 @@ class InventoryController extends BaseController
      * 更新库存记录
      * @Apidoc\Title("更新库存记录")
      * @Apidoc\Desc("更新指定库存记录的信息")
-     * @Apidoc\Url("/admin/inventory/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -148,7 +148,7 @@ class InventoryController extends BaseController
      * 删除库存记录
      * @Apidoc\Title("删除库存记录")
      * @Apidoc\Desc("软删除指定库存记录，需要密码二次确认")
-     * @Apidoc\Url("/admin/inventory/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")

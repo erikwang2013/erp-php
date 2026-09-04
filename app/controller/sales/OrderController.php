@@ -22,7 +22,7 @@ class OrderController extends BaseController
      * 销售订单列表（分页）
      * @Apidoc\Title("销售订单列表")
      * @Apidoc\Desc("获取销售订单列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/sales/order")
+     * @Apidoc\Url("/admin/v1/sales/order")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -64,7 +64,7 @@ class OrderController extends BaseController
      * 创建销售订单
      * @Apidoc\Title("创建销售订单")
      * @Apidoc\Desc("新增一个销售订单记录")
-     * @Apidoc\Url("/admin/sales/order")
+     * @Apidoc\Url("/admin/v1/sales/order")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -105,7 +105,7 @@ class OrderController extends BaseController
      * 销售订单详情
      * @Apidoc\Title("销售订单详情")
      * @Apidoc\Desc("根据ID获取销售订单详细信息")
-     * @Apidoc\Url("/admin/sales/order/{id}")
+     * @Apidoc\Url("/admin/v1/sales/order/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -129,7 +129,7 @@ class OrderController extends BaseController
      * 更新销售订单
      * @Apidoc\Title("更新销售订单")
      * @Apidoc\Desc("根据ID更新销售订单信息")
-     * @Apidoc\Url("/admin/sales/order/{id}")
+     * @Apidoc\Url("/admin/v1/sales/order/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")
@@ -159,7 +159,7 @@ class OrderController extends BaseController
      * 删除销售订单（软删除）
      * @Apidoc\Title("删除销售订单")
      * @Apidoc\Desc("根据ID软删除销售订单，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/sales/order/{id}")
+     * @Apidoc\Url("/admin/v1/sales/order/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("销售管理")

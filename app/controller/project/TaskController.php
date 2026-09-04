@@ -19,7 +19,7 @@ class TaskController extends BaseController
      * 项目任务列表（分页）
      * @Apidoc\Title("项目任务列表")
      * @Apidoc\Desc("分页查询项目任务，支持按项目筛选")
-     * @Apidoc\Url("/admin/project/task")
+     * @Apidoc\Url("/admin/v1/project/task")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -74,7 +74,7 @@ class TaskController extends BaseController
      * 创建项目任务
      * @Apidoc\Title("创建项目任务")
      * @Apidoc\Desc("新增项目任务记录，自动更新上级项目进度")
-     * @Apidoc\Url("/admin/project/task")
+     * @Apidoc\Url("/admin/v1/project/task")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -110,7 +110,7 @@ class TaskController extends BaseController
      * 任务详情
      * @Apidoc\Title("项目任务详情")
      * @Apidoc\Desc("查看项目任务详细信息，含子任务列表")
-     * @Apidoc\Url("/admin/project/task/{id}")
+     * @Apidoc\Url("/admin/v1/project/task/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -140,7 +140,7 @@ class TaskController extends BaseController
      * 更新任务
      * @Apidoc\Title("更新项目任务")
      * @Apidoc\Desc("修改项目任务信息，自动更新上级项目进度")
-     * @Apidoc\Url("/admin/project/task/{id}")
+     * @Apidoc\Url("/admin/v1/project/task/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -169,7 +169,7 @@ class TaskController extends BaseController
      * 删除任务
      * @Apidoc\Title("删除项目任务")
      * @Apidoc\Desc("删除项目任务，自动更新上级项目进度，需密码确认")
-     * @Apidoc\Url("/admin/project/task/{id}")
+     * @Apidoc\Url("/admin/v1/project/task/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")

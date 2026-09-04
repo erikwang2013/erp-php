@@ -34,7 +34,7 @@ class SubcontractIssueController extends BaseController
     /**
      * 委外发料单列表（分页，按单号/状态/委外单筛选）
      * @Apidoc\Title("委外发料单列表")
-     * @Apidoc\Url("/admin/mfg/subcontract-issue")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-issue")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -67,7 +67,7 @@ class SubcontractIssueController extends BaseController
     /**
      * 创建委外发料单（草稿）
      * @Apidoc\Title("创建委外发料单")
-     * @Apidoc\Url("/admin/mfg/subcontract-issue")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-issue")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -151,7 +151,7 @@ class SubcontractIssueController extends BaseController
     /**
      * 委外发料单详情（含明细与委外单）
      * @Apidoc\Title("委外发料单详情")
-     * @Apidoc\Url("/admin/mfg/subcontract-issue/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-issue/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -179,7 +179,7 @@ class SubcontractIssueController extends BaseController
     /**
      * 更新委外发料单（仅草稿，明细全量替换）
      * @Apidoc\Title("更新委外发料单")
-     * @Apidoc\Url("/admin/mfg/subcontract-issue/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-issue/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -242,7 +242,7 @@ class SubcontractIssueController extends BaseController
     /**
      * 删除委外发料单（仅草稿，需密码确认）
      * @Apidoc\Title("删除委外发料单")
-     * @Apidoc\Url("/admin/mfg/subcontract-issue/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-issue/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -277,7 +277,7 @@ class SubcontractIssueController extends BaseController
     /**
      * 审核委外发料单（逐行出库，联动委外单）
      * @Apidoc\Title("审核委外发料单")
-     * @Apidoc\Url("/admin/mfg/subcontract-issue/{id}/audit")
+     * @Apidoc\Url("/admin/v1/mfg/subcontract-issue/{id}/audit")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

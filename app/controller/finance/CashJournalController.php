@@ -19,7 +19,7 @@ class CashJournalController extends BaseController
      * 现金日记账列表（分页）
      * @Apidoc\Title("现金日记账列表")
      * @Apidoc\Desc("分页查询现金日记账记录")
-     * @Apidoc\Url("/admin/finance/cash-journal")
+     * @Apidoc\Url("/admin/v1/finance/cash-journal")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -61,7 +61,7 @@ class CashJournalController extends BaseController
      * 创建现金日记账
      * @Apidoc\Title("创建现金日记账")
      * @Apidoc\Desc("新增现金日记账记录")
-     * @Apidoc\Url("/admin/finance/cash-journal")
+     * @Apidoc\Url("/admin/v1/finance/cash-journal")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -89,7 +89,7 @@ class CashJournalController extends BaseController
      * 现金日记账详情
      * @Apidoc\Title("现金日记账详情")
      * @Apidoc\Desc("查看现金日记账记录详情")
-     * @Apidoc\Url("/admin/finance/cash-journal/{id}")
+     * @Apidoc\Url("/admin/v1/finance/cash-journal/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -113,7 +113,7 @@ class CashJournalController extends BaseController
      * 更新现金日记账
      * @Apidoc\Title("更新现金日记账")
      * @Apidoc\Desc("修改现金日记账记录")
-     * @Apidoc\Url("/admin/finance/cash-journal/{id}")
+     * @Apidoc\Url("/admin/v1/finance/cash-journal/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -140,7 +140,7 @@ class CashJournalController extends BaseController
      * 删除现金日记账
      * @Apidoc\Title("删除现金日记账")
      * @Apidoc\Desc("删除现金日记账记录，需密码确认")
-     * @Apidoc\Url("/admin/finance/cash-journal/{id}")
+     * @Apidoc\Url("/admin/v1/finance/cash-journal/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

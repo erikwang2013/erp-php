@@ -98,7 +98,7 @@ class IncomingCheckController extends BaseController
      * 检验登记（自动生成不合格品单）
      * @Apidoc\Title("检验登记")
      * @Apidoc\Desc("按检验类型(iqc/ipqc/oqc)登记结果，reject时自动创建不合格品单")
-     * @Apidoc\Url("/admin/quality/inspection/record")
+     * @Apidoc\Url("/admin/v1/quality/inspection/record")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("质量管理")
@@ -128,7 +128,7 @@ class IncomingCheckController extends BaseController
      * 检验合格率
      * @Apidoc\Title("检验合格率")
      * @Apidoc\Desc("按检验明细汇总计算合格率")
-     * @Apidoc\Url("/admin/quality/inspection/pass-rate")
+     * @Apidoc\Url("/admin/v1/quality/inspection/pass-rate")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("质量管理")

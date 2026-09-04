@@ -22,7 +22,7 @@ class PoolController extends BaseController
      * 公海池入口
      * @Apidoc\Title("公海池客户列表")
      * @Apidoc\Desc("分页查询公海池客户记录(status=0或无归属人)")
-     * @Apidoc\Url("/admin/crm/pool")
+     * @Apidoc\Url("/admin/v1/crm/pool")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -67,7 +67,7 @@ class PoolController extends BaseController
      * 领取客户
      * @Apidoc\Title("领取客户")
      * @Apidoc\Desc("从公海池领取客户到当前用户名下")
-     * @Apidoc\Url("/admin/crm/pool/{id}")
+     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -98,7 +98,7 @@ class PoolController extends BaseController
      * 释放客户到公海池
      * @Apidoc\Title("释放客户")
      * @Apidoc\Desc("将客户释放回公海池")
-     * @Apidoc\Url("/admin/crm/pool/{id}")
+     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -139,7 +139,7 @@ class PoolController extends BaseController
      * 创建公海池规则
      * @Apidoc\Title("创建公海池规则")
      * @Apidoc\Desc("新增公海池规则记录")
-     * @Apidoc\Url("/admin/crm/pool")
+     * @Apidoc\Url("/admin/v1/crm/pool")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -164,7 +164,7 @@ class PoolController extends BaseController
      * 公海池规则详情
      * @Apidoc\Title("公海池规则详情")
      * @Apidoc\Desc("查看公海池规则详细信息")
-     * @Apidoc\Url("/admin/crm/pool/{id}")
+     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -188,7 +188,7 @@ class PoolController extends BaseController
      * 更新公海池规则
      * @Apidoc\Title("更新公海池规则")
      * @Apidoc\Desc("修改公海池规则信息")
-     * @Apidoc\Url("/admin/crm/pool/{id}")
+     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -212,7 +212,7 @@ class PoolController extends BaseController
      * 删除公海池规则
      * @Apidoc\Title("删除公海池规则")
      * @Apidoc\Desc("删除公海池规则记录，需密码确认")
-     * @Apidoc\Url("/admin/crm/pool/{id}")
+     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

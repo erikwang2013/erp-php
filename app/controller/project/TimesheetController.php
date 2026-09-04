@@ -19,7 +19,7 @@ class TimesheetController extends BaseController
      * 工时记录列表（分页）
      * @Apidoc\Title("工时记录列表")
      * @Apidoc\Desc("分页查询工时记录")
-     * @Apidoc\Url("/admin/project/timesheet")
+     * @Apidoc\Url("/admin/v1/project/timesheet")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -69,7 +69,7 @@ class TimesheetController extends BaseController
      * 记录工时
      * @Apidoc\Title("记录工时")
      * @Apidoc\Desc("新增工时记录，自动聚合更新任务实际工时")
-     * @Apidoc\Url("/admin/project/timesheet")
+     * @Apidoc\Url("/admin/v1/project/timesheet")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -107,7 +107,7 @@ class TimesheetController extends BaseController
      * 工时详情
      * @Apidoc\Title("工时详情")
      * @Apidoc\Desc("查看工时记录详细信息")
-     * @Apidoc\Url("/admin/project/timesheet/{id}")
+     * @Apidoc\Url("/admin/v1/project/timesheet/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -131,7 +131,7 @@ class TimesheetController extends BaseController
      * 更新工时
      * @Apidoc\Title("更新工时")
      * @Apidoc\Desc("修改工时记录，自动更新任务实际工时")
-     * @Apidoc\Url("/admin/project/timesheet/{id}")
+     * @Apidoc\Url("/admin/v1/project/timesheet/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")
@@ -160,7 +160,7 @@ class TimesheetController extends BaseController
      * 删除工时
      * @Apidoc\Title("删除工时")
      * @Apidoc\Desc("删除工时记录，自动更新任务实际工时，需密码确认")
-     * @Apidoc\Url("/admin/project/timesheet/{id}")
+     * @Apidoc\Url("/admin/v1/project/timesheet/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("项目管理")

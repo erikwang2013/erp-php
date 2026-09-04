@@ -26,7 +26,7 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       
-      final res = await ApiService.instance.get('/admin/crm/analytics/report', params: params);
+      final res = await ApiService.instance.get('/admin/v1/crm/analytics/report', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -42,7 +42,7 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
       FormFieldConfig(name: 'period_type', label: '期间类型', required: true, type: FormFieldType.dropdown,
           options: ['1=月', '2=季', '3=年']),
     ], onSubmit: (data) async {
-      await ApiService.instance.post('/admin/crm/analytics/generate', data: {
+      await ApiService.instance.post('/admin/v1/crm/analytics/generate', data: {
         'name': data['name'] ?? '',
         'type': data['type'] ?? '',
         'period_year': int.parse(data['period_year']!),
@@ -60,7 +60,7 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
       FormFieldConfig(name: 'type', label: '指标类型', required: true, type: FormFieldType.dropdown,
           options: ['count', 'ratio', 'average', 'sum']),
     ], onSubmit: (data) async {
-      await ApiService.instance.post('/admin/crm/analytics/metric', data: data);
+      await ApiService.instance.post('/admin/v1/crm/analytics/metric', data: data);
       _load(); return true;
     });
   }

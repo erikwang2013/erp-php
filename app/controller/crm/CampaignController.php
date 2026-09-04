@@ -21,7 +21,7 @@ class CampaignController extends BaseController
      * 营销活动列表（分页）
      * @Apidoc\Title("营销活动列表")
      * @Apidoc\Desc("分页查询营销活动记录")
-     * @Apidoc\Url("/admin/crm/campaign")
+     * @Apidoc\Url("/admin/v1/crm/campaign")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -60,7 +60,7 @@ class CampaignController extends BaseController
      * 创建营销活动
      * @Apidoc\Title("创建营销活动")
      * @Apidoc\Desc("新增营销活动记录")
-     * @Apidoc\Url("/admin/crm/campaign")
+     * @Apidoc\Url("/admin/v1/crm/campaign")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -89,7 +89,7 @@ class CampaignController extends BaseController
      * 活动详情
      * @Apidoc\Title("营销活动详情")
      * @Apidoc\Desc("查看营销活动详细信息，含参与统计")
-     * @Apidoc\Url("/admin/crm/campaign/{id}")
+     * @Apidoc\Url("/admin/v1/crm/campaign/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -120,7 +120,7 @@ class CampaignController extends BaseController
      * 更新活动
      * @Apidoc\Title("更新营销活动")
      * @Apidoc\Desc("修改营销活动信息，仅计划中或进行中可编辑")
-     * @Apidoc\Url("/admin/crm/campaign/{id}")
+     * @Apidoc\Url("/admin/v1/crm/campaign/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -150,7 +150,7 @@ class CampaignController extends BaseController
      * 删除活动
      * @Apidoc\Title("删除营销活动")
      * @Apidoc\Desc("删除营销活动，连参与记录一起删除，需密码确认")
-     * @Apidoc\Url("/admin/crm/campaign/{id}")
+     * @Apidoc\Url("/admin/v1/crm/campaign/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

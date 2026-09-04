@@ -24,7 +24,7 @@ class RoutingController extends BaseController
      * 工艺路线列表
      * @Apidoc\Title("工艺路线列表")
      * @Apidoc\Desc("按产品分组查询工艺路线，按seq排序")
-     * @Apidoc\Url("/admin/mfg/routing")
+     * @Apidoc\Url("/admin/v1/mfg/routing")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -52,7 +52,7 @@ class RoutingController extends BaseController
      * 添加工序
      * @Apidoc\Title("添加工艺工序")
      * @Apidoc\Desc("新增工艺路线工序记录")
-     * @Apidoc\Url("/admin/mfg/routing")
+     * @Apidoc\Url("/admin/v1/mfg/routing")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -85,7 +85,7 @@ class RoutingController extends BaseController
      * 工序详情
      * @Apidoc\Title("工艺工序详情")
      * @Apidoc\Desc("查看工艺路线工序详细信息")
-     * @Apidoc\Url("/admin/mfg/routing/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/routing/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -109,7 +109,7 @@ class RoutingController extends BaseController
      * 更新工序
      * @Apidoc\Title("更新工艺工序")
      * @Apidoc\Desc("修改工艺路线工序信息")
-     * @Apidoc\Url("/admin/mfg/routing/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/routing/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -133,7 +133,7 @@ class RoutingController extends BaseController
      * 删除工序
      * @Apidoc\Title("删除工艺工序")
      * @Apidoc\Desc("删除工艺路线工序记录，需密码确认")
-     * @Apidoc\Url("/admin/mfg/routing/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/routing/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

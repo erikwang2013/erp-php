@@ -123,7 +123,7 @@ class FreightRateController extends BaseController
      * 运费试算
      * @Apidoc\Title("运费试算")
      * @Apidoc\Desc("按承运商服务/目的国/重量匹配费率卡计算运费")
-     * @Apidoc\Url("/admin/tms/freight-rate/calculate")
+     * @Apidoc\Url("/admin/v1/tms/freight-rate/calculate")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("运费费率")
@@ -149,7 +149,7 @@ class FreightRateController extends BaseController
      * 运费比价
      * @Apidoc\Title("运费比价")
      * @Apidoc\Desc("按目的国/重量列出所有可用费率并按价格升序")
-     * @Apidoc\Url("/admin/tms/freight-rate/rate-shop")
+     * @Apidoc\Url("/admin/v1/tms/freight-rate/rate-shop")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("运费费率")

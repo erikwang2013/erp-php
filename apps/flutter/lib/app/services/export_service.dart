@@ -13,7 +13,7 @@ class ExportService {
     Map<String, dynamic>? conditions,
   }) async {
     final response = await _dio.post(
-      '/admin/export/excel',
+      '/admin/v1/export/excel',
       data: {
         'table': table,
         'columns': columns,
@@ -32,7 +32,7 @@ class ExportService {
     required Map<String, dynamic> data,
   }) async {
     final response = await _dio.post(
-      '/admin/export/pdf',
+      '/admin/v1/export/pdf',
       data: {
         'type': type,
         'title': title,

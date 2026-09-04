@@ -25,7 +25,7 @@ class ApprovalController extends BaseController
      * 提交审批
      * @Apidoc\Title("提交审批")
      * @Apidoc\Desc("将指定单据提交到工作流审批，创建审批实例并进入第一个审批节点")
-     * @Apidoc\Url("/admin/workflow/{id}/submit")
+     * @Apidoc\Url("/admin/v1/workflow/{id}/submit")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")
@@ -79,7 +79,7 @@ class ApprovalController extends BaseController
      * 审批通过
      * @Apidoc\Title("审批通过")
      * @Apidoc\Desc("通过当前节点的审批，流转到下一个节点或完成审批")
-     * @Apidoc\Url("/admin/approval/{id}/approve")
+     * @Apidoc\Url("/admin/v1/approval/{id}/approve")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")
@@ -134,7 +134,7 @@ class ApprovalController extends BaseController
      * 驳回
      * @Apidoc\Title("驳回审批")
      * @Apidoc\Desc("驳回当前审批实例，需要填写驳回意见")
-     * @Apidoc\Url("/admin/approval/{id}/reject")
+     * @Apidoc\Url("/admin/v1/approval/{id}/reject")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")
@@ -183,7 +183,7 @@ class ApprovalController extends BaseController
      * 撤回审批
      * @Apidoc\Title("撤回审批")
      * @Apidoc\Desc("撤回由当前用户提交的审批实例，仅提交人可操作")
-     * @Apidoc\Url("/admin/approval/{id}/withdraw")
+     * @Apidoc\Url("/admin/v1/approval/{id}/withdraw")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")
@@ -219,7 +219,7 @@ class ApprovalController extends BaseController
      * 我的审批列表
      * @Apidoc\Title("我的审批列表")
      * @Apidoc\Desc("获取当前用户待审批的审批实例分页列表")
-     * @Apidoc\Url("/admin/approval/my")
+     * @Apidoc\Url("/admin/v1/approval/my")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")

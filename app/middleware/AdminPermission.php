@@ -26,6 +26,11 @@ class AdminPermission
         }
 
         $path = $request->path();
+        // 全站接口版本化（路由 /admin/v1/*）：RBAC 权限路径保持 unversioned 规范
+        // （种子数据 erp_admin_permission.path = '/admin/...'），此处剥离版本段匹配
+        if (str_starts_with($path, 'admin/v1')) {
+            $path = 'admin' . substr($path, strlen('admin/v1'));
+        }
         $method = $request->method();
 
         $permissions = $this->getUserPermissions($adminId);

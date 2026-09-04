@@ -20,7 +20,7 @@ class AssetController extends BaseController
      * 固定资产列表（分页）
      * @Apidoc\Title("固定资产列表")
      * @Apidoc\Desc("分页查询固定资产记录")
-     * @Apidoc\Url("/admin/finance/asset")
+     * @Apidoc\Url("/admin/v1/finance/asset")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -67,7 +67,7 @@ class AssetController extends BaseController
      * 创建固定资产
      * @Apidoc\Title("创建固定资产")
      * @Apidoc\Desc("新增固定资产，支持直线法自动计算月折旧额")
-     * @Apidoc\Url("/admin/finance/asset")
+     * @Apidoc\Url("/admin/v1/finance/asset")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -109,7 +109,7 @@ class AssetController extends BaseController
      * 固定资产详情
      * @Apidoc\Title("固定资产详情")
      * @Apidoc\Desc("查看固定资产详细信息")
-     * @Apidoc\Url("/admin/finance/asset/{id}")
+     * @Apidoc\Url("/admin/v1/finance/asset/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -133,7 +133,7 @@ class AssetController extends BaseController
      * 更新固定资产
      * @Apidoc\Title("更新固定资产")
      * @Apidoc\Desc("修改固定资产信息，自动重新计算净值和月折旧额")
-     * @Apidoc\Url("/admin/finance/asset/{id}")
+     * @Apidoc\Url("/admin/v1/finance/asset/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -172,7 +172,7 @@ class AssetController extends BaseController
      * 删除固定资产
      * @Apidoc\Title("删除固定资产")
      * @Apidoc\Desc("删除固定资产，需密码确认")
-     * @Apidoc\Url("/admin/finance/asset/{id}")
+     * @Apidoc\Url("/admin/v1/finance/asset/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -205,7 +205,7 @@ class AssetController extends BaseController
      * 计提折旧
      * @Apidoc\Title("计提折旧")
      * @Apidoc\Desc("为指定资产创建一条折旧记录")
-     * @Apidoc\Url("/admin/finance/asset/{id}/depreciate")
+     * @Apidoc\Url("/admin/v1/finance/asset/{id}/depreciate")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -265,7 +265,7 @@ class AssetController extends BaseController
      * 折旧记录列表
      * @Apidoc\Title("折旧记录列表")
      * @Apidoc\Desc("查看指定资产的折旧记录")
-     * @Apidoc\Url("/admin/finance/asset/{id}/depreciation")
+     * @Apidoc\Url("/admin/v1/finance/asset/{id}/depreciation")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

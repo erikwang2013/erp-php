@@ -26,7 +26,7 @@ class PieceWageController extends BaseController
     /**
      * 计件工资台账（分页，按员工/期间筛选）
      * @Apidoc\Title("计件工资台账")
-     * @Apidoc\Url("/admin/mfg/piece-wage")
+     * @Apidoc\Url("/admin/v1/mfg/piece-wage")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

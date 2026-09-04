@@ -21,7 +21,7 @@ class FollowRecordController extends BaseController
      * 跟进记录列表（分页）
      * @Apidoc\Title("跟进记录列表")
      * @Apidoc\Desc("分页查询跟进记录记录")
-     * @Apidoc\Url("/admin/crm/follow")
+     * @Apidoc\Url("/admin/v1/crm/follow")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -56,7 +56,7 @@ class FollowRecordController extends BaseController
      * 创建跟进记录
      * @Apidoc\Title("创建跟进记录")
      * @Apidoc\Desc("新增跟进记录记录")
-     * @Apidoc\Url("/admin/crm/follow")
+     * @Apidoc\Url("/admin/v1/crm/follow")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -81,7 +81,7 @@ class FollowRecordController extends BaseController
      * 跟进记录详情
      * @Apidoc\Title("跟进记录详情")
      * @Apidoc\Desc("查看跟进记录详细信息")
-     * @Apidoc\Url("/admin/crm/follow/{id}")
+     * @Apidoc\Url("/admin/v1/crm/follow/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -105,7 +105,7 @@ class FollowRecordController extends BaseController
      * 更新跟进记录
      * @Apidoc\Title("更新跟进记录")
      * @Apidoc\Desc("修改跟进记录信息")
-     * @Apidoc\Url("/admin/crm/follow/{id}")
+     * @Apidoc\Url("/admin/v1/crm/follow/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -129,7 +129,7 @@ class FollowRecordController extends BaseController
      * 删除跟进记录
      * @Apidoc\Title("删除跟进记录")
      * @Apidoc\Desc("删除跟进记录记录，需密码确认")
-     * @Apidoc\Url("/admin/crm/follow/{id}")
+     * @Apidoc\Url("/admin/v1/crm/follow/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

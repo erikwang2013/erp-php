@@ -20,7 +20,7 @@ class BudgetController extends BaseController
      * 预算列表（分页）
      * @Apidoc\Title("预算列表")
      * @Apidoc\Desc("分页查询预算记录")
-     * @Apidoc\Url("/admin/finance/budget")
+     * @Apidoc\Url("/admin/v1/finance/budget")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -67,7 +67,7 @@ class BudgetController extends BaseController
      * 创建预算
      * @Apidoc\Title("创建预算")
      * @Apidoc\Desc("新增预算记录，含预算明细")
-     * @Apidoc\Url("/admin/finance/budget")
+     * @Apidoc\Url("/admin/v1/finance/budget")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -115,7 +115,7 @@ class BudgetController extends BaseController
      * 预算详情
      * @Apidoc\Title("预算详情")
      * @Apidoc\Desc("查看预算详细信息，含预算明细")
-     * @Apidoc\Url("/admin/finance/budget/{id}")
+     * @Apidoc\Url("/admin/v1/finance/budget/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -144,7 +144,7 @@ class BudgetController extends BaseController
      * 更新预算
      * @Apidoc\Title("更新预算")
      * @Apidoc\Desc("修改预算记录，仅草稿状态可编辑")
-     * @Apidoc\Url("/admin/finance/budget/{id}")
+     * @Apidoc\Url("/admin/v1/finance/budget/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -194,7 +194,7 @@ class BudgetController extends BaseController
      * 删除预算
      * @Apidoc\Title("删除预算")
      * @Apidoc\Desc("删除预算记录，需密码确认，连明细一起删除")
-     * @Apidoc\Url("/admin/finance/budget/{id}")
+     * @Apidoc\Url("/admin/v1/finance/budget/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -228,7 +228,7 @@ class BudgetController extends BaseController
      * 预算执行对比
      * @Apidoc\Title("预算执行对比")
      * @Apidoc\Desc("预算 vs 实际执行对比分析")
-     * @Apidoc\Url("/admin/finance/budget/{id}/comparison")
+     * @Apidoc\Url("/admin/v1/finance/budget/{id}/comparison")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

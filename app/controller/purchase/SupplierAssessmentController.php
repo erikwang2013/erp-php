@@ -30,7 +30,7 @@ class SupplierAssessmentController extends BaseController
     /**
      * 供应商评分列表（分页）
      * @Apidoc\Title("供应商评分列表")
-     * @Apidoc\Url("/admin/purchase/supplier-assessment")
+     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment")
      * @Apidoc\Method("GET")
      * @Apidoc\Tag("寻源采购")
      */
@@ -60,7 +60,7 @@ class SupplierAssessmentController extends BaseController
      * 新增供应商评分（等级由服务端按总分推导）
      * @Apidoc\Title("新增供应商评分")
      * @Apidoc\Desc("total_score 0-100；等级规则 A ≥ 90 / B ≥ 70 / C；dimensions 为评估维度 JSON")
-     * @Apidoc\Url("/admin/purchase/supplier-assessment")
+     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment")
      * @Apidoc\Method("POST")
      * @Apidoc\Tag("寻源采购")
      */
@@ -91,7 +91,7 @@ class SupplierAssessmentController extends BaseController
     /**
      * 评分详情
      * @Apidoc\Title("评分详情")
-     * @Apidoc\Url("/admin/purchase/supplier-assessment/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Tag("寻源采购")
      */
@@ -108,7 +108,7 @@ class SupplierAssessmentController extends BaseController
     /**
      * 更新评分（等级随总分重新推导）
      * @Apidoc\Title("更新评分")
-     * @Apidoc\Url("/admin/purchase/supplier-assessment/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Tag("寻源采购")
      */
@@ -144,7 +144,7 @@ class SupplierAssessmentController extends BaseController
     /**
      * 删除评分（软删除，需管理员密码二次确认）
      * @Apidoc\Title("删除评分")
-     * @Apidoc\Url("/admin/purchase/supplier-assessment/{id}")
+     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Tag("寻源采购")
      */

@@ -71,7 +71,7 @@ class AdminSystemControllersTest extends TestCase
         $this->assertSame('开放管理后台 API', $body['info']['title']);
         $this->assertArrayHasKey('paths', $body);
         $this->assertArrayHasKey('/health', $body['paths']);
-        $this->assertArrayHasKey('/admin/user', $body['paths']);
+        $this->assertArrayHasKey('/admin/v1/user', $body['paths']);
         $this->assertArrayHasKey('bearerAuth', $body['components']['securitySchemes']);
     }
 

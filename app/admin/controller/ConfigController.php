@@ -19,7 +19,7 @@ class ConfigController extends BaseController
      * 系统配置列表
      * @Apidoc\Title("系统配置列表")
      * @Apidoc\Desc("获取系统配置分页列表，支持按分组筛选")
-     * @Apidoc\Url("/admin/config")
+     * @Apidoc\Url("/admin/v1/config")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("系统配置")
@@ -61,7 +61,7 @@ class ConfigController extends BaseController
      * 创建配置
      * @Apidoc\Title("创建配置")
      * @Apidoc\Desc("创建一个新的系统配置项，group+key 组合必须唯一")
-     * @Apidoc\Url("/admin/config")
+     * @Apidoc\Url("/admin/v1/config")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("系统配置")
@@ -109,7 +109,7 @@ class ConfigController extends BaseController
      * 更新配置
      * @Apidoc\Title("更新配置")
      * @Apidoc\Desc("更新指定配置项的值、类型或说明")
-     * @Apidoc\Url("/admin/config/{id}")
+     * @Apidoc\Url("/admin/v1/config/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("系统配置")
@@ -148,7 +148,7 @@ class ConfigController extends BaseController
      * 删除配置（需密码二次确认）
      * @Apidoc\Title("删除配置")
      * @Apidoc\Desc("删除指定配置项，需当前管理员密码进行二次确认")
-     * @Apidoc\Url("/admin/config/{id}")
+     * @Apidoc\Url("/admin/v1/config/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("系统配置")

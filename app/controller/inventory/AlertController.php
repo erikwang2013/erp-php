@@ -19,7 +19,7 @@ class AlertController extends BaseController
      * 库存预警规则列表（分页）
      * @Apidoc\Title("库存预警规则列表")
      * @Apidoc\Desc("获取库存预警规则列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/inventory/alert")
+     * @Apidoc\Url("/admin/v1/inventory/alert")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -61,7 +61,7 @@ class AlertController extends BaseController
      * 创建库存预警规则
      * @Apidoc\Title("创建库存预警规则")
      * @Apidoc\Desc("新增一个库存预警规则记录")
-     * @Apidoc\Url("/admin/inventory/alert")
+     * @Apidoc\Url("/admin/v1/inventory/alert")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -91,7 +91,7 @@ class AlertController extends BaseController
      * 库存预警规则详情
      * @Apidoc\Title("库存预警规则详情")
      * @Apidoc\Desc("根据ID获取库存预警规则详细信息")
-     * @Apidoc\Url("/admin/inventory/alert/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/alert/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -115,7 +115,7 @@ class AlertController extends BaseController
      * 更新库存预警规则
      * @Apidoc\Title("更新库存预警规则")
      * @Apidoc\Desc("根据ID更新库存预警规则信息")
-     * @Apidoc\Url("/admin/inventory/alert/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/alert/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -145,7 +145,7 @@ class AlertController extends BaseController
      * 删除库存预警规则（软删除）
      * @Apidoc\Title("删除库存预警规则")
      * @Apidoc\Desc("根据ID软删除库存预警规则，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/inventory/alert/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/alert/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")

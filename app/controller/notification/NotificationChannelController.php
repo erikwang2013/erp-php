@@ -37,7 +37,7 @@ class NotificationChannelController extends BaseController
      * 发送渠道通知
      * @Apidoc\Title("发送渠道通知")
      * @Apidoc\Desc("同步外发 sms/mail（Mock 网关），成功/失败均落 erp_notification_channel_log；同 (channel,to,内容) 5 分钟成功窗口内幂等去重，dedup=true 返回既有记录")
-     * @Apidoc\Url("/admin/platform/notification-channel/send")
+     * @Apidoc\Url("/admin/v1/platform/notification-channel/send")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")
@@ -76,7 +76,7 @@ class NotificationChannelController extends BaseController
      * 发送日志列表
      * @Apidoc\Title("发送日志列表")
      * @Apidoc\Desc("渠道通知发送日志分页查询，倒序")
-     * @Apidoc\Url("/admin/platform/notification-channel/logs")
+     * @Apidoc\Url("/admin/v1/platform/notification-channel/logs")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")
@@ -108,7 +108,7 @@ class NotificationChannelController extends BaseController
      * 重试失败记录
      * @Apidoc\Title("重试失败记录")
      * @Apidoc\Desc("重试 status=2 且冷却(上次尝试≥60秒前)的失败记录，id 升序取前 limit 条")
-     * @Apidoc\Url("/admin/platform/notification-channel/retry")
+     * @Apidoc\Url("/admin/v1/platform/notification-channel/retry")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("平台管理")

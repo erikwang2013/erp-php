@@ -20,7 +20,7 @@ class WorkflowController extends BaseController
      * 工作流模板列表（分页）
      * @Apidoc\Title("工作流模板列表")
      * @Apidoc\Desc("分页查询工作流模板记录")
-     * @Apidoc\Url("/admin/workflow")
+     * @Apidoc\Url("/admin/v1/workflow")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")
@@ -62,7 +62,7 @@ class WorkflowController extends BaseController
      * 创建工作流模板
      * @Apidoc\Title("创建工作流模板")
      * @Apidoc\Desc("新增工作流模板记录，含审批节点")
-     * @Apidoc\Url("/admin/workflow")
+     * @Apidoc\Url("/admin/v1/workflow")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")
@@ -114,7 +114,7 @@ class WorkflowController extends BaseController
      * 工作流详情
      * @Apidoc\Title("工作流模板详情")
      * @Apidoc\Desc("查看工作流模板详细信息，含审批节点")
-     * @Apidoc\Url("/admin/workflow/{id}")
+     * @Apidoc\Url("/admin/v1/workflow/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")
@@ -144,7 +144,7 @@ class WorkflowController extends BaseController
      * 更新工作流
      * @Apidoc\Title("更新工作流模板")
      * @Apidoc\Desc("修改工作流模板信息，含节点替换")
-     * @Apidoc\Url("/admin/workflow/{id}")
+     * @Apidoc\Url("/admin/v1/workflow/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")
@@ -196,7 +196,7 @@ class WorkflowController extends BaseController
      * 删除工作流
      * @Apidoc\Title("删除工作流模板")
      * @Apidoc\Desc("删除工作流模板记录，需密码确认")
-     * @Apidoc\Url("/admin/workflow/{id}")
+     * @Apidoc\Url("/admin/v1/workflow/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("审批工作流")

@@ -29,7 +29,7 @@ class _SubsidiaryLedgerPageState extends State<SubsidiaryLedgerPage> {
         if (_startDate.isNotEmpty) 'start_date': _startDate,
         if (_endDate.isNotEmpty) 'end_date': _endDate,
       };
-      final res = await ApiService.instance.get('/admin/finance/subsidiary-ledger', params: params);
+      final res = await ApiService.instance.get('/admin/v1/finance/subsidiary-ledger', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }

@@ -27,7 +27,7 @@ class EamInspectionController extends BaseController
      * 点检任务列表（分页）
      * @Apidoc\Title("点检任务列表")
      * @Apidoc\Desc("按设备/日期/状态分页查询点检任务")
-     * @Apidoc\Url("/admin/eam/inspection")
+     * @Apidoc\Url("/admin/v1/eam/inspection")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("设备管理")
@@ -71,7 +71,7 @@ class EamInspectionController extends BaseController
      * 生成点检任务
      * @Apidoc\Title("生成点检任务")
      * @Apidoc\Desc("按计划或人工补单生成点检任务；扫码自动生成请走扫码执行接口")
-     * @Apidoc\Url("/admin/eam/inspection")
+     * @Apidoc\Url("/admin/v1/eam/inspection")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("设备管理")
@@ -113,7 +113,7 @@ class EamInspectionController extends BaseController
      * 点检任务详情（含结果明细）
      * @Apidoc\Title("点检任务详情")
      * @Apidoc\Desc("查看点检任务及扫码结果明细")
-     * @Apidoc\Url("/admin/eam/inspection/{id}")
+     * @Apidoc\Url("/admin/v1/eam/inspection/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("设备管理")
@@ -141,7 +141,7 @@ class EamInspectionController extends BaseController
      * 改期/改派/改备注（仅待执行任务可改）
      * @Apidoc\Title("修改点检任务")
      * @Apidoc\Desc("改期、更换负责人或备注；仅待执行任务可修改")
-     * @Apidoc\Url("/admin/eam/inspection/{id}")
+     * @Apidoc\Url("/admin/v1/eam/inspection/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("设备管理")
@@ -172,7 +172,7 @@ class EamInspectionController extends BaseController
      * 取消点检任务
      * @Apidoc\Title("取消点检任务")
      * @Apidoc\Desc("仅待执行任务可取消；已完成的点检不可取消")
-     * @Apidoc\Url("/admin/eam/inspection/{id}/cancel")
+     * @Apidoc\Url("/admin/v1/eam/inspection/{id}/cancel")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("设备管理")
@@ -196,7 +196,7 @@ class EamInspectionController extends BaseController
      * 扫码点检执行
      * @Apidoc\Title("扫码点检执行")
      * @Apidoc\Desc("扫码提交当日点检结果；无任务自动生成，异常项自动创建维修单")
-     * @Apidoc\Url("/admin/eam/inspection/scan-execute")
+     * @Apidoc\Url("/admin/v1/eam/inspection/scan-execute")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("设备管理")

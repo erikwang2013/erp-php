@@ -40,7 +40,7 @@ class DashboardController extends BaseController
      * 仪表盘总览数据
      * @Apidoc\Title("仪表盘总览")
      * @Apidoc\Desc("获取经营总览数据，包含用户统计、趋势、分布和最近操作日志。数据缓存5分钟。")
-     * @Apidoc\Url("/admin/dashboard")
+     * @Apidoc\Url("/admin/v1/dashboard")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("仪表盘")
@@ -206,7 +206,7 @@ class DashboardController extends BaseController
      * 销售看板
      * @Apidoc\Title("销售看板")
      * @Apidoc\Desc("获取销售看板数据，包含今日/本月销售额、客户排行、商机漏斗。数据缓存5分钟。")
-     * @Apidoc\Url("/admin/dashboard/sales")
+     * @Apidoc\Url("/admin/v1/dashboard/sales")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("仪表盘")
@@ -315,7 +315,7 @@ class DashboardController extends BaseController
      * 库存看板
      * @Apidoc\Title("库存看板")
      * @Apidoc\Desc("获取库存看板数据，包含库存总值、预警统计和出入库趋势。数据缓存5分钟。")
-     * @Apidoc\Url("/admin/dashboard/inventory")
+     * @Apidoc\Url("/admin/v1/dashboard/inventory")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("仪表盘")
@@ -352,7 +352,7 @@ class DashboardController extends BaseController
      * 财务看板
      * @Apidoc\Title("财务看板")
      * @Apidoc\Desc("获取财务看板数据，包含应收应付、本月收付款和现金余额。数据缓存5分钟。")
-     * @Apidoc\Url("/admin/dashboard/finance")
+     * @Apidoc\Url("/admin/v1/dashboard/finance")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("仪表盘")

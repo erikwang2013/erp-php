@@ -19,7 +19,7 @@ class LogController extends BaseController
      * 操作日志列表
      * @Apidoc\Title("操作日志列表")
      * @Apidoc\Desc("获取操作日志分页列表，支持按用户、操作动作、请求路径、日期范围筛选")
-     * @Apidoc\Url("/admin/log")
+     * @Apidoc\Url("/admin/v1/log")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("操作日志")

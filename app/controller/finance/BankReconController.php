@@ -30,7 +30,7 @@ class BankReconController extends BaseController
     /**
      * 对账单行列表（日期范围必填；批次/对账状态筛选）
      * @Apidoc\Title("对账单行列表")
-     * @Apidoc\Url("/admin/finance/bank-statement")
+     * @Apidoc\Url("/admin/v1/finance/bank-statement")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -68,7 +68,7 @@ class BankReconController extends BaseController
     /**
      * 导入对账单行（整批原子；同账户同批次重复导入整批跳过）
      * @Apidoc\Title("导入对账单")
-     * @Apidoc\Url("/admin/finance/bank-statement/import")
+     * @Apidoc\Url("/admin/v1/finance/bank-statement/import")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="bank_account_id", type="string", required=true, desc="银行账户(hashid)")
      * @Apidoc\Param(name="batch", type="string", required=true, desc="导入批次号(幂等键)")
@@ -102,7 +102,7 @@ class BankReconController extends BaseController
     /**
      * 自动核销（金额+日期窗口±N 天 → 摘要，候选唯一才落库；返回匹配/人工候选/未达清单）
      * @Apidoc\Title("自动核销")
-     * @Apidoc\Url("/admin/finance/bank-recon/auto")
+     * @Apidoc\Url("/admin/v1/finance/bank-recon/auto")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="bank_account_id", type="string", required=true, desc="银行账户(hashid)")
      * @Apidoc\Param(name="from", type="string", required=true, desc="流水起始日期 Y-m-d")
@@ -143,7 +143,7 @@ class BankReconController extends BaseController
     /**
      * 手工核销（金额与方向必须一致）
      * @Apidoc\Title("手工核销")
-     * @Apidoc\Url("/admin/finance/bank-recon/manual")
+     * @Apidoc\Url("/admin/v1/finance/bank-recon/manual")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="bank_account_id", type="string", required=true, desc="银行账户(hashid)")
      * @Apidoc\Param(name="statement_id", type="string", required=true, desc="对账单行(hashid)")
@@ -176,7 +176,7 @@ class BankReconController extends BaseController
     /**
      * 取消核销
      * @Apidoc\Title("取消核销")
-     * @Apidoc\Url("/admin/finance/bank-recon/unreconcile")
+     * @Apidoc\Url("/admin/v1/finance/bank-recon/unreconcile")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="bank_account_id", type="string", required=true, desc="银行账户(hashid)")
      * @Apidoc\Param(name="statement_id", type="string", required=true, desc="对账单行(hashid)")
@@ -204,7 +204,7 @@ class BankReconController extends BaseController
     /**
      * 对账报告（已对清单 + 双方未达清单 + 分向汇总）
      * @Apidoc\Title("对账报告")
-     * @Apidoc\Url("/admin/finance/bank-recon/report")
+     * @Apidoc\Url("/admin/v1/finance/bank-recon/report")
      * @Apidoc\Method("GET")
      * @Apidoc\Param(name="bank_account_id", type="string", required=true, desc="银行账户(hashid)")
      * @Apidoc\Param(name="from", type="string", required=true, desc="起始日期 Y-m-d")

@@ -21,7 +21,7 @@ class ContactController extends BaseController
      * 联系人列表（分页）
      * @Apidoc\Title("联系人列表")
      * @Apidoc\Desc("分页查询联系人记录")
-     * @Apidoc\Url("/admin/crm/contact")
+     * @Apidoc\Url("/admin/v1/crm/contact")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -56,7 +56,7 @@ class ContactController extends BaseController
      * 创建联系人
      * @Apidoc\Title("创建联系人")
      * @Apidoc\Desc("新增联系人记录")
-     * @Apidoc\Url("/admin/crm/contact")
+     * @Apidoc\Url("/admin/v1/crm/contact")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -81,7 +81,7 @@ class ContactController extends BaseController
      * 联系人详情
      * @Apidoc\Title("联系人详情")
      * @Apidoc\Desc("查看联系人详细信息")
-     * @Apidoc\Url("/admin/crm/contact/{id}")
+     * @Apidoc\Url("/admin/v1/crm/contact/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -105,7 +105,7 @@ class ContactController extends BaseController
      * 更新联系人
      * @Apidoc\Title("更新联系人")
      * @Apidoc\Desc("修改联系人信息")
-     * @Apidoc\Url("/admin/crm/contact/{id}")
+     * @Apidoc\Url("/admin/v1/crm/contact/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")
@@ -129,7 +129,7 @@ class ContactController extends BaseController
      * 删除联系人
      * @Apidoc\Title("删除联系人")
      * @Apidoc\Desc("删除联系人记录，需密码确认")
-     * @Apidoc\Url("/admin/crm/contact/{id}")
+     * @Apidoc\Url("/admin/v1/crm/contact/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("CRM")

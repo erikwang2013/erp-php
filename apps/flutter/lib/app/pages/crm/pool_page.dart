@@ -26,7 +26,7 @@ class _PoolPageState extends State<PoolPage> {
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       
-      final res = await ApiService.instance.get('/admin/crm/pool', params: params);
+      final res = await ApiService.instance.get('/admin/v1/crm/pool', params: params);
       final d = res['data'];
       setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
@@ -36,7 +36,7 @@ class _PoolPageState extends State<PoolPage> {
     await FormDialog.show(context, title: '领取客户', fields: const [
       FormFieldConfig(name: 'remark', label: '备注', hint: '选填'),
     ], onSubmit: (data) async {
-      await ApiService.instance.post('/admin/crm/pool/claim/${row['id']}', data: data);
+      await ApiService.instance.post('/admin/v1/crm/pool/claim/${row['id']}', data: data);
       _load(); return true;
     });
   }
@@ -45,7 +45,7 @@ class _PoolPageState extends State<PoolPage> {
     await FormDialog.show(context, title: '释放回公海', fields: const [
       FormFieldConfig(name: 'remark', label: '备注', hint: '选填'),
     ], onSubmit: (data) async {
-      await ApiService.instance.post('/admin/crm/pool/release/${row['id']}', data: data);
+      await ApiService.instance.post('/admin/v1/crm/pool/release/${row['id']}', data: data);
       _load(); return true;
     });
   }

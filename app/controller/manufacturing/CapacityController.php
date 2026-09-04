@@ -24,7 +24,7 @@ class CapacityController extends BaseController
      * 工作站日历（默认周一~五 8 小时 + 例外覆盖，逐日材料化）
      * @Apidoc\Title("工作站日历")
      * @Apidoc\Desc("查询工作站逐日可用工时；无例外记录按默认规则(周一~五8小时)返回")
-     * @Apidoc\Url("/admin/mfg/capacity/calendar")
+     * @Apidoc\Url("/admin/v1/mfg/capacity/calendar")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -55,7 +55,7 @@ class CapacityController extends BaseController
      * 设置日历例外日（工作站+日期 唯一键 upsert；hours=0 表示闭厂）
      * @Apidoc\Title("设置日历例外")
      * @Apidoc\Desc("覆盖默认日历规则；同一工作站同一天重复设置即更新")
-     * @Apidoc\Url("/admin/mfg/capacity/calendar")
+     * @Apidoc\Url("/admin/v1/mfg/capacity/calendar")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -94,7 +94,7 @@ class CapacityController extends BaseController
      * 删除日历例外日（恢复默认规则）
      * @Apidoc\Title("删除日历例外")
      * @Apidoc\Desc("删除指定工作站指定日期的例外记录，需密码确认；无记录时幂等成功")
-     * @Apidoc\Url("/admin/mfg/capacity/calendar")
+     * @Apidoc\Url("/admin/v1/mfg/capacity/calendar")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -133,7 +133,7 @@ class CapacityController extends BaseController
      * 粗能力负荷报表（工作站×日期 负荷/产能/负荷率）
      * @Apidoc\Title("产能负荷报表")
      * @Apidoc\Desc("未结工单剩余数量×工艺标准工时折算需求，按计划窗口产能日均摊；缺省统计全部启用工作站")
-     * @Apidoc\Url("/admin/mfg/capacity/report")
+     * @Apidoc\Url("/admin/v1/mfg/capacity/report")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

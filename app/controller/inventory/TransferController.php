@@ -19,7 +19,7 @@ class TransferController extends BaseController
      * 库存调拨列表（分页）
      * @Apidoc\Title("库存调拨列表")
      * @Apidoc\Desc("获取库存调拨列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/inventory/transfer")
+     * @Apidoc\Url("/admin/v1/inventory/transfer")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -61,7 +61,7 @@ class TransferController extends BaseController
      * 创建库存调拨
      * @Apidoc\Title("创建库存调拨")
      * @Apidoc\Desc("新增一个库存调拨记录")
-     * @Apidoc\Url("/admin/inventory/transfer")
+     * @Apidoc\Url("/admin/v1/inventory/transfer")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -91,7 +91,7 @@ class TransferController extends BaseController
      * 库存调拨详情
      * @Apidoc\Title("库存调拨详情")
      * @Apidoc\Desc("根据ID获取库存调拨详细信息")
-     * @Apidoc\Url("/admin/inventory/transfer/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/transfer/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -115,7 +115,7 @@ class TransferController extends BaseController
      * 更新库存调拨
      * @Apidoc\Title("更新库存调拨")
      * @Apidoc\Desc("根据ID更新库存调拨信息")
-     * @Apidoc\Url("/admin/inventory/transfer/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/transfer/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")
@@ -145,7 +145,7 @@ class TransferController extends BaseController
      * 删除库存调拨（软删除）
      * @Apidoc\Title("删除库存调拨")
      * @Apidoc\Desc("根据ID软删除库存调拨，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/inventory/transfer/{id}")
+     * @Apidoc\Url("/admin/v1/inventory/transfer/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("库存管理")

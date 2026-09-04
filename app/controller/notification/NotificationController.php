@@ -20,7 +20,7 @@ class NotificationController extends BaseController
      * 我的通知列表
      * @Apidoc\Title("我的通知列表")
      * @Apidoc\Desc("分页查询当前用户的通知记录")
-     * @Apidoc\Url("/admin/notification/my")
+     * @Apidoc\Url("/admin/v1/notification/my")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("通知系统")
@@ -61,7 +61,7 @@ class NotificationController extends BaseController
      * 标记单条已读
      * @Apidoc\Title("标记已读")
      * @Apidoc\Desc("将指定通知标记为已读")
-     * @Apidoc\Url("/admin/notification/{id}/read")
+     * @Apidoc\Url("/admin/v1/notification/{id}/read")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("通知系统")
@@ -83,7 +83,7 @@ class NotificationController extends BaseController
      * 标记全部已读
      * @Apidoc\Title("全部标记已读")
      * @Apidoc\Desc("将当前用户所有通知标记为已读")
-     * @Apidoc\Url("/admin/notification/read-all")
+     * @Apidoc\Url("/admin/v1/notification/read-all")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("通知系统")
@@ -103,7 +103,7 @@ class NotificationController extends BaseController
      * 未读数量
      * @Apidoc\Title("未读通知数量")
      * @Apidoc\Desc("获取当前用户的未读通知数量")
-     * @Apidoc\Url("/admin/notification/unread-count")
+     * @Apidoc\Url("/admin/v1/notification/unread-count")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("通知系统")

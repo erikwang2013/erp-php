@@ -20,7 +20,7 @@ class ArApController extends BaseController
      * 应收应付列表（分页）
      * @Apidoc\Title("应收应付列表")
      * @Apidoc\Desc("分页查询应收应付记录")
-     * @Apidoc\Url("/admin/finance/ar-ap")
+     * @Apidoc\Url("/admin/v1/finance/ar-ap")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -59,7 +59,7 @@ class ArApController extends BaseController
      * 创建应收应付
      * @Apidoc\Title("创建应收应付")
      * @Apidoc\Desc("新增应收应付记录")
-     * @Apidoc\Url("/admin/finance/ar-ap")
+     * @Apidoc\Url("/admin/v1/finance/ar-ap")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -110,7 +110,7 @@ class ArApController extends BaseController
      * 应收应付详情
      * @Apidoc\Title("应收应付详情")
      * @Apidoc\Desc("查看应收应付记录详情")
-     * @Apidoc\Url("/admin/finance/ar-ap/{id}")
+     * @Apidoc\Url("/admin/v1/finance/ar-ap/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -134,7 +134,7 @@ class ArApController extends BaseController
      * 更新应收应付
      * @Apidoc\Title("更新应收应付")
      * @Apidoc\Desc("修改应收应付记录")
-     * @Apidoc\Url("/admin/finance/ar-ap/{id}")
+     * @Apidoc\Url("/admin/v1/finance/ar-ap/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -177,7 +177,7 @@ class ArApController extends BaseController
      * 删除应收应付
      * @Apidoc\Title("删除应收应付")
      * @Apidoc\Desc("删除应收应付记录，需密码确认")
-     * @Apidoc\Url("/admin/finance/ar-ap/{id}")
+     * @Apidoc\Url("/admin/v1/finance/ar-ap/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

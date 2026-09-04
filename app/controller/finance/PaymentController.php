@@ -19,7 +19,7 @@ class PaymentController extends BaseController
      * 付款单列表（分页）
      * @Apidoc\Title("付款单列表")
      * @Apidoc\Desc("分页查询付款单记录")
-     * @Apidoc\Url("/admin/finance/payment")
+     * @Apidoc\Url("/admin/v1/finance/payment")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -58,7 +58,7 @@ class PaymentController extends BaseController
      * 创建付款单
      * @Apidoc\Title("创建付款单")
      * @Apidoc\Desc("新增付款单记录，状态默认为待付款")
-     * @Apidoc\Url("/admin/finance/payment")
+     * @Apidoc\Url("/admin/v1/finance/payment")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -98,7 +98,7 @@ class PaymentController extends BaseController
      * 付款单详情
      * @Apidoc\Title("付款单详情")
      * @Apidoc\Desc("查看付款单详细信息")
-     * @Apidoc\Url("/admin/finance/payment/{id}")
+     * @Apidoc\Url("/admin/v1/finance/payment/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -122,7 +122,7 @@ class PaymentController extends BaseController
      * 更新付款单
      * @Apidoc\Title("更新付款单")
      * @Apidoc\Desc("修改付款单信息")
-     * @Apidoc\Url("/admin/finance/payment/{id}")
+     * @Apidoc\Url("/admin/v1/finance/payment/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -182,7 +182,7 @@ class PaymentController extends BaseController
      * 删除付款单
      * @Apidoc\Title("删除付款单")
      * @Apidoc\Desc("删除付款单记录，需密码确认")
-     * @Apidoc\Url("/admin/finance/payment/{id}")
+     * @Apidoc\Url("/admin/v1/finance/payment/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

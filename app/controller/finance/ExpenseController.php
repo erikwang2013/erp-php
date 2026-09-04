@@ -22,7 +22,7 @@ class ExpenseController extends BaseController
      * 费用列表（分页）
      * @Apidoc\Title("费用列表")
      * @Apidoc\Desc("获取费用支出分页列表，支持关键字搜索和状态筛选")
-     * @Apidoc\Url("/admin/finance/expense")
+     * @Apidoc\Url("/admin/v1/finance/expense")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -69,7 +69,7 @@ class ExpenseController extends BaseController
      * 创建费用记录
      * @Apidoc\Title("创建费用记录")
      * @Apidoc\Desc("创建一条新的费用支出记录")
-     * @Apidoc\Url("/admin/finance/expense")
+     * @Apidoc\Url("/admin/v1/finance/expense")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -97,7 +97,7 @@ class ExpenseController extends BaseController
      * 费用详情
      * @Apidoc\Title("费用详情")
      * @Apidoc\Desc("获取指定费用记录的详细信息")
-     * @Apidoc\Url("/admin/finance/expense/{id}")
+     * @Apidoc\Url("/admin/v1/finance/expense/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -121,7 +121,7 @@ class ExpenseController extends BaseController
      * 更新费用记录
      * @Apidoc\Title("更新费用记录")
      * @Apidoc\Desc("更新指定费用记录的信息")
-     * @Apidoc\Url("/admin/finance/expense/{id}")
+     * @Apidoc\Url("/admin/v1/finance/expense/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -148,7 +148,7 @@ class ExpenseController extends BaseController
      * 删除费用记录
      * @Apidoc\Title("删除费用记录")
      * @Apidoc\Desc("软删除指定费用记录，需要密码二次确认")
-     * @Apidoc\Url("/admin/finance/expense/{id}")
+     * @Apidoc\Url("/admin/v1/finance/expense/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

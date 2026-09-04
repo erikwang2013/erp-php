@@ -29,7 +29,7 @@ class FinanceBillController extends BaseController
     /**
      * 票据台账列表（分页，方向/类型/状态/关键词筛选）
      * @Apidoc\Title("票据台账列表")
-     * @Apidoc\Url("/admin/finance/bill")
+     * @Apidoc\Url("/admin/v1/finance/bill")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -74,7 +74,7 @@ class FinanceBillController extends BaseController
     /**
      * 到期预警清单（未兑付且到期日 ≤ 今天+days，上限 200）
      * @Apidoc\Title("到期预警清单")
-     * @Apidoc\Url("/admin/finance/bill/due-warnings")
+     * @Apidoc\Url("/admin/v1/finance/bill/due-warnings")
      * @Apidoc\Method("GET")
      * @Apidoc\Param(name="days", type="int", default=7, desc="预警天数")
      * @Apidoc\Param(name="direction", type="int", default=0, desc="方向(0全部 1收票 2开票)")
@@ -94,7 +94,7 @@ class FinanceBillController extends BaseController
     /**
      * 票据登记
      * @Apidoc\Title("票据登记")
-     * @Apidoc\Url("/admin/finance/bill")
+     * @Apidoc\Url("/admin/v1/finance/bill")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="bill_no", type="string", required=true, desc="票号(唯一)")
      * @Apidoc\Param(name="type", type="int", required=true, desc="类型(1银行承兑 2商业承兑)")
@@ -136,7 +136,7 @@ class FinanceBillController extends BaseController
     /**
      * 票据详情
      * @Apidoc\Title("票据详情")
-     * @Apidoc\Url("/admin/finance/bill/{id}")
+     * @Apidoc\Url("/admin/v1/finance/bill/{id}")
      * @Apidoc\Method("GET")
      */
     public function show(Request $request, string $id): Response
@@ -152,7 +152,7 @@ class FinanceBillController extends BaseController
     /**
      * 更新票据（仅 在库 可改；票号/方向/来源不可改）
      * @Apidoc\Title("更新票据")
-     * @Apidoc\Url("/admin/finance/bill/{id}")
+     * @Apidoc\Url("/admin/v1/finance/bill/{id}")
      * @Apidoc\Method("PUT")
      */
     public function update(Request $request, string $id): Response
@@ -173,7 +173,7 @@ class FinanceBillController extends BaseController
     /**
      * 删除票据（仅 在库，需管理员密码；软删）
      * @Apidoc\Title("删除票据")
-     * @Apidoc\Url("/admin/finance/bill/{id}")
+     * @Apidoc\Url("/admin/v1/finance/bill/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Param(name="password", type="string", required=true, desc="管理员密码")
      */
@@ -199,7 +199,7 @@ class FinanceBillController extends BaseController
     /**
      * 背书转让（在库→已背书，被背书人必填；应收票、未到期）
      * @Apidoc\Title("背书转让")
-     * @Apidoc\Url("/admin/finance/bill/{id}/endorse")
+     * @Apidoc\Url("/admin/v1/finance/bill/{id}/endorse")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="endorsee", type="string", required=true, desc="被背书人")
      */
@@ -215,7 +215,7 @@ class FinanceBillController extends BaseController
     /**
      * 贴现（在库→已贴现；记录贴现息）
      * @Apidoc\Title("票据贴现")
-     * @Apidoc\Url("/admin/finance/bill/{id}/discount")
+     * @Apidoc\Url("/admin/v1/finance/bill/{id}/discount")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="fee", type="string", required=true, desc="贴现息(0~票面金额)")
      */
@@ -231,7 +231,7 @@ class FinanceBillController extends BaseController
     /**
      * 托收（在库→托收中；指定托收账户）
      * @Apidoc\Title("票据托收")
-     * @Apidoc\Url("/admin/finance/bill/{id}/collect")
+     * @Apidoc\Url("/admin/v1/finance/bill/{id}/collect")
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="bank_account_id", type="string", default="", desc="托收账户(hashid，留空用登记账户)")
      */
@@ -249,7 +249,7 @@ class FinanceBillController extends BaseController
     /**
      * 到期确认兑付/解付（收票：托收中→已到期兑付；开票：在库→已到期兑付）
      * @Apidoc\Title("确认到期兑付")
-     * @Apidoc\Url("/admin/finance/bill/{id}/cash")
+     * @Apidoc\Url("/admin/v1/finance/bill/{id}/cash")
      * @Apidoc\Method("POST")
      */
     public function cash(Request $request, string $id): Response
@@ -264,7 +264,7 @@ class FinanceBillController extends BaseController
     /**
      * 退票（在库/托收中→已退票；托收被拒付退回）
      * @Apidoc\Title("退票")
-     * @Apidoc\Url("/admin/finance/bill/{id}/reject")
+     * @Apidoc\Url("/admin/v1/finance/bill/{id}/reject")
      * @Apidoc\Method("POST")
      */
     public function reject(Request $request, string $id): Response

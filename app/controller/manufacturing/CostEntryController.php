@@ -28,7 +28,7 @@ class CostEntryController extends BaseController
     /**
      * 费用归集单列表（分页）
      * @Apidoc\Title("费用归集单列表")
-     * @Apidoc\Url("/admin/mfg/cost-entry")
+     * @Apidoc\Url("/admin/v1/mfg/cost-entry")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -63,7 +63,7 @@ class CostEntryController extends BaseController
     /**
      * 创建费用归集单（草稿）
      * @Apidoc\Title("创建费用归集单")
-     * @Apidoc\Url("/admin/mfg/cost-entry")
+     * @Apidoc\Url("/admin/v1/mfg/cost-entry")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -119,7 +119,7 @@ class CostEntryController extends BaseController
     /**
      * 费用归集单详情
      * @Apidoc\Title("费用归集单详情")
-     * @Apidoc\Url("/admin/mfg/cost-entry/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/cost-entry/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -144,7 +144,7 @@ class CostEntryController extends BaseController
     /**
      * 更新费用归集单（仅草稿）
      * @Apidoc\Title("更新费用归集单")
-     * @Apidoc\Url("/admin/mfg/cost-entry/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/cost-entry/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -171,7 +171,7 @@ class CostEntryController extends BaseController
     /**
      * 删除费用归集单（仅草稿，需密码确认）
      * @Apidoc\Title("删除费用归集单")
-     * @Apidoc\Url("/admin/mfg/cost-entry/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/cost-entry/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -202,7 +202,7 @@ class CostEntryController extends BaseController
     /**
      * 审核费用归集单（计入 WIP 对应成本桶）
      * @Apidoc\Title("审核费用归集单")
-     * @Apidoc\Url("/admin/mfg/cost-entry/{id}/audit")
+     * @Apidoc\Url("/admin/v1/mfg/cost-entry/{id}/audit")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

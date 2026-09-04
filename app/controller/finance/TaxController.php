@@ -22,7 +22,7 @@ class TaxController extends BaseController
      * 税率列表
      * @Apidoc\Title("税率列表")
      * @Apidoc\Desc("查询全部税率配置")
-     * @Apidoc\Url("/admin/finance/tax-rate")
+     * @Apidoc\Url("/admin/v1/finance/tax-rate")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -42,7 +42,7 @@ class TaxController extends BaseController
      * 创建/更新税率
      * @Apidoc\Title("创建或更新税率")
      * @Apidoc\Desc("有id则更新，无id则创建税率记录")
-     * @Apidoc\Url("/admin/finance/tax-rate")
+     * @Apidoc\Url("/admin/v1/finance/tax-rate")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -87,7 +87,7 @@ class TaxController extends BaseController
      * 删除税率
      * @Apidoc\Title("删除税率")
      * @Apidoc\Desc("删除税率配置记录")
-     * @Apidoc\Url("/admin/finance/tax-rate/{id}")
+     * @Apidoc\Url("/admin/v1/finance/tax-rate/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -114,7 +114,7 @@ class TaxController extends BaseController
      * 税务记录列表
      * @Apidoc\Title("税务记录列表")
      * @Apidoc\Desc("分页查询税务记录")
-     * @Apidoc\Url("/admin/finance/tax-rate")
+     * @Apidoc\Url("/admin/v1/finance/tax-rate")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

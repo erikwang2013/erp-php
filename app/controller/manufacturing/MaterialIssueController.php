@@ -30,7 +30,7 @@ class MaterialIssueController extends BaseController
     /**
      * 领料单列表（分页）
      * @Apidoc\Title("领料单列表")
-     * @Apidoc\Url("/admin/mfg/material-issue")
+     * @Apidoc\Url("/admin/v1/mfg/material-issue")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -63,7 +63,7 @@ class MaterialIssueController extends BaseController
     /**
      * 创建领料单（草稿，含明细）
      * @Apidoc\Title("创建领料单")
-     * @Apidoc\Url("/admin/mfg/material-issue")
+     * @Apidoc\Url("/admin/v1/mfg/material-issue")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -147,7 +147,7 @@ class MaterialIssueController extends BaseController
     /**
      * 领料单详情
      * @Apidoc\Title("领料单详情")
-     * @Apidoc\Url("/admin/mfg/material-issue/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/material-issue/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -175,7 +175,7 @@ class MaterialIssueController extends BaseController
     /**
      * 更新领料单（仅草稿：表头字段 + 整单替换明细）
      * @Apidoc\Title("更新领料单")
-     * @Apidoc\Url("/admin/mfg/material-issue/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/material-issue/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -239,7 +239,7 @@ class MaterialIssueController extends BaseController
     /**
      * 删除领料单（仅草稿，需密码确认）
      * @Apidoc\Title("删除领料单")
-     * @Apidoc\Url("/admin/mfg/material-issue/{id}")
+     * @Apidoc\Url("/admin/v1/mfg/material-issue/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")
@@ -274,7 +274,7 @@ class MaterialIssueController extends BaseController
     /**
      * 审核领料单（出库扣减库存并归集 WIP 材料成本）
      * @Apidoc\Title("审核领料单")
-     * @Apidoc\Url("/admin/mfg/material-issue/{id}/audit")
+     * @Apidoc\Url("/admin/v1/mfg/material-issue/{id}/audit")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("生产制造")

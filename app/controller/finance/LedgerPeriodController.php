@@ -22,7 +22,7 @@ class LedgerPeriodController extends BaseController
      * 期间列表
      * @Apidoc\Title("期间列表")
      * @Apidoc\Desc("指定账套（缺省回落到公司默认/存量默认账套）的会计期间，倒序")
-     * @Apidoc\Url("/admin/finance/ledger/period-list")
+     * @Apidoc\Url("/admin/v1/finance/ledger/period-list")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -53,7 +53,7 @@ class LedgerPeriodController extends BaseController
      * 开账
      * @Apidoc\Title("开账")
      * @Apidoc\Desc("账套下开一个会计期间 YYYY-MM（重复开账 → 业务异常）")
-     * @Apidoc\Url("/admin/finance/ledger/period-open")
+     * @Apidoc\Url("/admin/v1/finance/ledger/period-open")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
@@ -78,7 +78,7 @@ class LedgerPeriodController extends BaseController
      * 关账
      * @Apidoc\Title("关账")
      * @Apidoc\Desc("实时重算三张单体快照并落库，期间置为已关；前置拒绝期间内未审核凭证")
-     * @Apidoc\Url("/admin/finance/ledger/period-close")
+     * @Apidoc\Url("/admin/v1/finance/ledger/period-close")
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")

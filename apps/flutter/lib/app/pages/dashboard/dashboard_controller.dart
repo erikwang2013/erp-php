@@ -79,9 +79,9 @@ class DashboardController extends GetxController {
   Future<void> loadBizStats() async {
     try {
       final results = await Future.wait([
-        ApiService.instance.get('/admin/dashboard/sales'),
-        ApiService.instance.get('/admin/dashboard/finance'),
-        ApiService.instance.get('/admin/dashboard/inventory'),
+        ApiService.instance.get('/admin/v1/dashboard/sales'),
+        ApiService.instance.get('/admin/v1/dashboard/finance'),
+        ApiService.instance.get('/admin/v1/dashboard/inventory'),
       ]);
       bizSales.value = Map<String, dynamic>.from(results[0]['data'] ?? {});
       bizFinance.value = Map<String, dynamic>.from(results[1]['data'] ?? {});
@@ -95,7 +95,7 @@ class DashboardController extends GetxController {
   Future<void> loadData() async {
     try {
       isLoading.value = true;
-      final res = await ApiService.instance.get('/admin/dashboard');
+      final res = await ApiService.instance.get('/admin/v1/dashboard');
       final data = res['data'] ?? <String, dynamic>{};
       stats.value = List<Map<String, dynamic>>.from(data['stats'] ?? []);
       trends.value = Map<String, dynamic>.from(data['trends'] ?? {});
@@ -112,9 +112,9 @@ class DashboardController extends GetxController {
   Future<void> loadOpsStats() async {
     try {
       final results = await Future.wait([
-        ApiService.instance.get('/admin/dashboard/oms'),
-        ApiService.instance.get('/admin/dashboard/wms'),
-        ApiService.instance.get('/admin/dashboard/tms'),
+        ApiService.instance.get('/admin/v1/dashboard/oms'),
+        ApiService.instance.get('/admin/v1/dashboard/wms'),
+        ApiService.instance.get('/admin/v1/dashboard/tms'),
       ]);
       omsStats.value = _omsCards(results[0]['data'] as Map<String, dynamic>? ?? <String, dynamic>{});
       wmsStats.value = _wmsCards(results[1]['data'] as Map<String, dynamic>? ?? <String, dynamic>{});

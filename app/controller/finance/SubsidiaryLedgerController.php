@@ -19,7 +19,7 @@ class SubsidiaryLedgerController extends BaseController
      * 明细账查询
      * @Apidoc\Title("明细账查询")
      * @Apidoc\Desc("按科目列出每笔凭证分录明细，支持日期范围筛选")
-     * @Apidoc\Url("/admin/finance/subsidiary-ledger")
+     * @Apidoc\Url("/admin/v1/finance/subsidiary-ledger")
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
