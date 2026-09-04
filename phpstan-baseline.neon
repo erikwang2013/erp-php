@@ -10511,3 +10511,14 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 2
 			path: app/service/retail/MemberService.php
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection<int,stdClass>::map\(\) expects callable\(stdClass, int\): array, Closure\(app\\model\\Tenant\): array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/controller/platform/TenantController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection<int,stdClass>::map\(\) expects callable\(stdClass, int\): array\{id: int, tenant_code: string, company_id: int, plan: int, status: int, expire_at: string\}, Closure\(app\\model\\Tenant\): array\{id: int, tenant_code: string, company_id: int, plan: int, status: int, expire_at: string\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/service/platform/TenantService.php

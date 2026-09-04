@@ -7,10 +7,21 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use app\model\concerns\TenantScope;
 use support\Model;
 
+/**
+ * 资产负债表快照（公司族多租户试点模型：tenant 上下文下按 company_id 过滤）
+ */
 class FinanceBalanceSheet extends Model
 {
+    use TenantScope;
+
+    protected static function tenantScopeByCompany(): bool
+    {
+        return true;
+    }
+
     protected $table = 'erp_finance_balance_sheet';
     protected $primaryKey = 'id';
     public $incrementing = false;
