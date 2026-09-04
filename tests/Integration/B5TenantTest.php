@@ -166,7 +166,7 @@ class B5TenantTest extends IntegrationTestCase
         return [
             '公司缺失' => [[
                 'tenant_code' => 'no-company', 'plan' => 1, 'expire_at' => self::day(30),
-            ], '公司不能为空'],
+            ], '公司ID非法（须为纯数字）'],
             '公司为0' => [['company_id' => 0] + $base, '公司不能为空'],
             '编码为空' => [['tenant_code' => ''] + $base, '租户编码不能为空'],
             '编码过短' => [['tenant_code' => 'a'] + $base, '租户编码只能包含字母、数字、_、-（2-50位）'],
@@ -262,7 +262,11 @@ class B5TenantTest extends IntegrationTestCase
         $this->assertNull($error);
         $tenantId = (int) $tenant->id;
 
-        // 1 → 3
+        // 未到期不可提前标记（修复：expireMark 仅处理已到期行）
+        $this->assertFailed($this->service->expireMark($tenantId), '租户尚未到期，不能标记');
+
+        // 到期日拨到过去后 1 → 3
+        Capsule::table(self::REGISTRY_TABLE)->where('id', $tenantId)->update(['expire_at' => self::day(-1)]);
         [$marked, $markError] = $this->service->expireMark($tenantId);
         $this->assertNull($markError);
         $this->assertSame(TenantService::STATUS_EXPIRED, (int) $marked->status);
@@ -271,7 +275,7 @@ class B5TenantTest extends IntegrationTestCase
         $this->assertFailed($this->service->expireMark($tenantId), '租户已到期，无需重复标记');
 
         // 停用行可标记到期（2 → 3）
-        $this->createTenantRow(911, 9110, 'suspended-exp', TenantService::STATUS_SUSPENDED, self::day(365));
+        $this->createTenantRow(911, 9110, 'suspended-exp', TenantService::STATUS_SUSPENDED, self::day(-1));
         [$marked, $error] = $this->service->expireMark(911);
         $this->assertNull($error);
         $this->assertSame(TenantService::STATUS_EXPIRED, (int) $marked->status);

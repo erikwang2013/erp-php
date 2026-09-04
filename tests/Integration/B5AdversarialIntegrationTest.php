@@ -138,11 +138,11 @@ class B5AdversarialIntegrationTest extends IntegrationTestCase
         Capsule::table(self::REGISTRY_TABLE)->where('id', $t->id)->update(['expire_at' => $this->day(-5)]);
 
         [$t2, $err] = $svc->resume((int) $t->id);
-        $this->assertNull($err, '现状：resume 不校验到期日，2→1 放行（缺陷候选：期望拒绝并提示先续费）');
-        $this->assertSame(1, (int) $t2->status);
+        $this->assertNull($t2, '停用期间已过期 → resume 应拒绝');
+        $this->assertSame('租户已过期，请先续费', $err, '提示先续费');
 
-        // 中间件入口兜底：已恢复但已过到期日 → 数据访问被拒
-        $this->assertMiddlewareRejects($this->tenantCodeRequest('co-a'), '租户已到期');
+        // 中间件入口兜底：resume 被拒后租户保持停用态 → 数据访问被拒
+        $this->assertMiddlewareRejects($this->tenantCodeRequest('co-a'), '租户已停用');
     }
 
     /** expireMark 现状可提前标记未来到期租户（缺陷候选：期望校验 expire_at <= 今天）。 */
@@ -155,10 +155,11 @@ class B5AdversarialIntegrationTest extends IntegrationTestCase
         $svc = new TenantService();
 
         [$t, $err] = $svc->expireMark($tenantId);
-        $this->assertNull($err, '现状：+370 天未到期也可标记到期（缺陷候选：状态被任意提前）');
-        $this->assertSame(3, (int) $t->status);
+        $this->assertNull($t, '未到期租户不可标记');
+        $this->assertSame('租户尚未到期，不能标记', $err);
 
-        $this->assertFailed($svc->expireMark($tenantId), '租户已到期，无需重复标记');
+        // 首次被拒后状态未变，二次标记仍报「尚未到期」而非重复标记
+        $this->assertFailed($svc->expireMark($tenantId), '租户尚未到期，不能标记');
         $this->assertFailed($svc->expireMark(9999999), '租户不存在');
     }
 
@@ -171,6 +172,8 @@ class B5AdversarialIntegrationTest extends IntegrationTestCase
         $tenantId = (int) Capsule::table(self::REGISTRY_TABLE)->where('company_id', 3001)->value('id');
         $svc = new TenantService();
         $this->assertNull($svc->suspend($tenantId)[1]);
+        // 到期日拨到过去（模拟停用期间到期），方可标记
+        Capsule::table(self::REGISTRY_TABLE)->where('id', $tenantId)->update(['expire_at' => $this->day(-1)]);
         [$t, $err] = $svc->expireMark($tenantId);
         $this->assertNull($err);
         $this->assertSame(3, (int) $t->status);
@@ -178,7 +181,7 @@ class B5AdversarialIntegrationTest extends IntegrationTestCase
         [$t2, $err] = $svc->renew($tenantId, 30);
         $this->assertNull($err);
         $this->assertSame(1, (int) $t2->status, '到期续费即复活（SaaS 语义）');
-        $this->assertSame($this->day(400), (string) $t2->expire_at, '到期日从原 +370 叠加 +30');
+        $this->assertSame($this->day(30), (string) $t2->expire_at, '到期日拨回过去后 renew 从今天起重计 +30');
     }
 
     /**
@@ -249,9 +252,8 @@ class B5AdversarialIntegrationTest extends IntegrationTestCase
             'company_id' => 5201, 'tenant_code' => 'floaty-plan',
             'plan' => '2.9', 'expire_at' => $this->day(400),
         ]);
-        $this->assertNull($err, '现状：(int)"2.9"=2 混入白名单（缺陷候选：期望对非数字串按'
-            . '套餐参数错误拒绝，或做严格整数归一化后比对原值）');
-        $this->assertSame(2, (int) $tenant->plan, '存储为强转后的 2');
+        $this->assertNull($tenant, "'2.9' 应被拒绝（(int) 静默强转缺陷已修）");
+        $this->assertSame('套餐参数错误（1=标准 2=专业 3=旗舰）', $err);
     }
 
     /**

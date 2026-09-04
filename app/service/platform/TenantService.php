@@ -53,7 +53,12 @@ class TenantService
      */
     public function provision(array $data): array
     {
-        $companyId = isset($data['company_id']) ? (int) $data['company_id'] : 0;
+        // 严格数字串（C1 d510bc4 前例：防 '2.9'/'1e3' 被 (int) 静默强转收编）
+        $rawCompany = (string) ($data['company_id'] ?? '');
+        if (!preg_match('/^\d+$/', $rawCompany)) {
+            return [null, '公司ID非法（须为纯数字）'];
+        }
+        $companyId = (int) $rawCompany;
         if ($companyId <= 0) {
             return [null, '公司不能为空'];
         }
@@ -64,7 +69,11 @@ class TenantService
         if (!preg_match('/^[A-Za-z0-9_-]{2,50}$/', $tenantCode)) {
             return [null, '租户编码只能包含字母、数字、_、-（2-50位）'];
         }
-        $plan = isset($data['plan']) ? (int) $data['plan'] : 0;
+        $rawPlan = (string) ($data['plan'] ?? '');
+        if (!preg_match('/^\d+$/', $rawPlan)) {
+            return [null, '套餐参数错误（1=标准 2=专业 3=旗舰）'];
+        }
+        $plan = (int) $rawPlan;
         if (!in_array($plan, self::PLANS, true)) {
             return [null, '套餐参数错误（1=标准 2=专业 3=旗舰）'];
         }
@@ -146,6 +155,9 @@ class TenantService
         if ((int) $tenant->status !== self::STATUS_SUSPENDED) {
             return [null, '仅停用状态可恢复'];
         }
+        if ((string) $tenant->expire_at < date('Y-m-d')) {
+            return [null, '租户已过期，请先续费'];
+        }
         $tenant->status = self::STATUS_ENABLED;
         $tenant->save();
 
@@ -169,6 +181,9 @@ class TenantService
         }
         if ($status === self::STATUS_EXPIRED) {
             return [null, '租户已到期，无需重复标记'];
+        }
+        if ((string) $tenant->expire_at > date('Y-m-d')) {
+            return [null, '租户尚未到期，不能标记'];
         }
         $tenant->status = self::STATUS_EXPIRED;
         $tenant->save();
