@@ -10522,3 +10522,21 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/service/platform/TenantService.php
+
+		-
+			message: '#^Cannot call method save\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/service/notification/ChannelService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection<int,stdClass>::map\(\) expects callable\(stdClass, int\): array, Closure\(app\\model\\NotificationChannelLog\): array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/service/notification/ChannelService.php
+
+		-
+			message: '#^Method app\\service\\platform\\CustomFieldService\:\:list\(\) should return array<app\\model\\CustomFieldDefinition> but returns array<int, stdClass>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/service/platform/CustomFieldService.php
