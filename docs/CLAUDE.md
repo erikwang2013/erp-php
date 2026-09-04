@@ -25,7 +25,8 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🔵 **P0** 前端生态 | 3-4 周 | 97 Flutter 页 + 34 HarmonyOS 页 + 4 通用组件 | ✅ |
 | 🟢 **P1** 业务深度 | 4-6 周 | 财务引擎 + 薪资引擎 + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
-| 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + 多租户（预留未启用）+ DMS + 7新表 | ✅ |
+| 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + DMS | ✅ |
+（多租户 B5 已提前于 P2 交付：TenantScope 请求上下文 + erp_tenant，隔离中间件 seam 未注册）
 
 **测试**: <!-- stats:tests=500 --> tests, <!-- stats:assertions=2226 --> assertions（51 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
@@ -87,7 +88,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # 系统管理控制器 (14 个)
+│   ├── admin/controller/       # 系统管理控制器 (16 个)
 │   │   ├── BaseController.php      # 基础控制器
 │   │   ├── DashboardController.php # 仪表盘 + 销售/库存/财务面板
 │   │   ├── UserController.php      # 用户 CRUD + 批量操作
@@ -140,7 +141,6 @@ open-erp/
 │   │   ├── Cors.php             # 跨域
 │   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
 │   │   ├── RateLimit.php        # Redis 滑动窗口限流
-│   │   ├── ApiVersion.php       # API 版本校验
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   ├── OperationLog.php     # 操作日志自动记录

@@ -132,7 +132,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # 系统管理控制器 (14 个)
+│   ├── admin/controller/       # 系统管理控制器 (16 个)
 │   ├── api/v1/controller/      # 客户端 API（版本置于路径 /api/v1，无版本请求头）
 │   ├── controller/             # 业务模块控制器 (136 个，23 域)
 │   │   ├── product/            # 商品/分类/品牌/仓库/库位/供应商/客户 (7 个)
