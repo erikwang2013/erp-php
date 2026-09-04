@@ -1036,6 +1036,27 @@ CREATE TABLE IF NOT EXISTS `erp_company` (
     KEY `idx_parent_id` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='组织/公司(多组织)';
 
+CREATE TABLE IF NOT EXISTS `erp_tenant` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `company_id` BIGINT UNSIGNED NOT NULL COMMENT '公司ID(erp_company.id)，1:1唯一',
+    `tenant_code` VARCHAR(50) NOT NULL COMMENT '租户编码(对外标识，X-Tenant-Code请求头查表来源)',
+    `plan` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '套餐: 1=标准 2=专业 3=旗舰',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待开通 1=启用 2=停用 3=到期',
+    `expire_at` DATE NOT NULL COMMENT '到期日(含当日有效，Y-m-d)',
+    `opened_at` DATETIME DEFAULT NULL COMMENT '开通时间',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_by` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建人(erp_admin_user.id)，0=系统',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_company` (`company_id`),
+    UNIQUE KEY `uk_tenant_code` (`tenant_code`),
+    KEY `idx_status` (`status`),
+    KEY `idx_expire_at` (`expire_at`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='租户表(公司与租户1:1, P2-4 B5多租户)';
+
 CREATE TABLE IF NOT EXISTS `erp_finance_ledger` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `company_id` BIGINT UNSIGNED NOT NULL COMMENT '组织ID',

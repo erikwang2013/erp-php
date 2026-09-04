@@ -190,6 +190,14 @@ Route::group('/admin', function () {
     Route::post('/member/points-expire', [app\controller\retail\MemberController::class, 'pointsExpire']);
     Route::post('/coupon/issue', [app\controller\retail\CouponController::class, 'issue']);
     Route::post('/coupon/redeem', [app\controller\retail\CouponController::class, 'redeem']);
+    // 多租户（P2-B5）
+    Route::get('/platform/tenant/list', [app\controller\platform\TenantController::class, 'list']);
+    Route::get('/platform/tenant/expiry-warnings', [app\controller\platform\TenantController::class, 'expiryWarnings']);
+    Route::post('/platform/tenant/provision', [app\controller\platform\TenantController::class, 'provision']);
+    Route::post('/platform/tenant/suspend', [app\controller\platform\TenantController::class, 'suspend']);
+    Route::post('/platform/tenant/resume', [app\controller\platform\TenantController::class, 'resume']);
+    Route::post('/platform/tenant/expire-mark', [app\controller\platform\TenantController::class, 'expireMark']);
+    Route::post('/platform/tenant/renew', [app\controller\platform\TenantController::class, 'renew']);
     // P0 invoice：发票(应收/应付)+开票申请状态流+三单匹配(采购收货/销售发货)
     // 静态 action 路由先于 resource 注册，避免 {id} 动态段抢占 match-check
     Route::post('/finance/invoice/{id}/submit', [app\controller\finance\InvoiceController::class, 'submit']);
