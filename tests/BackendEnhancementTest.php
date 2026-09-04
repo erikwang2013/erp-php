@@ -14,16 +14,26 @@ use support\Request;
 class BackendEnhancementTest extends TestCase
 {
     // ============================================================
-    // 1. v() 辅助函数 — 逐源码验证（避免触发 webman 运行时）
+    // 1. API 版本置于 URL 路径（逐源码验证，避免触发 webman 运行时）
     // ============================================================
 
-    public function test_v_helper_function_exists_in_route_file(): void
+    public function test_api_version_in_route_path_not_header(): void
     {
         $source = file_get_contents(__DIR__ . '/../config/route.php');
-        $this->assertStringContainsString('function v(', $source, 'route.php 应定义 v() 函数');
-        $this->assertStringContainsString('$request->apiVersion', $source, 'v() 应读取 apiVersion');
-        $this->assertStringContainsString('apiVersion ??', $source, 'v() 应有 apiVersion 默认值回退');
-        $this->assertStringContainsString('return (new $class', $source, 'v() 应实例化并调用控制器');
+        $this->assertStringContainsString("Route::group('/api/v1'", $source, '版本化公开接口应注册在 /api/v1 路径下');
+        $this->assertStringNotContainsString('function v(', $source, '基于请求头的 v() 动态解析闭包应已移除');
+        $this->assertStringNotContainsString('apiVersion', $source, 'route.php 不应再读取 apiVersion 请求头');
+        $this->assertStringNotContainsString('API-Version', $source, 'route.php 不应再引用 API-Version 头');
+
+        $this->assertFileDoesNotExist(
+            __DIR__ . '/../app/middleware/ApiVersion.php',
+            '基于 API-Version 请求头的中间件应已删除'
+        );
+        $this->assertStringContainsString(
+            "app\\api\\v1\\controller\\AuthController::class",
+            $source,
+            '/api/v1 路由应直接绑定 v1 控制器（无需版本头）'
+        );
     }
 
     // ============================================================
@@ -181,10 +191,10 @@ class BackendEnhancementTest extends TestCase
         }
     }
 
-    public function test_route_file_has_api_version_middleware(): void
+    public function test_route_file_no_api_version_middleware(): void
     {
         $content = file_get_contents(__DIR__ . '/../config/route.php');
-        $this->assertStringContainsString('ApiVersion::class', $content);
+        $this->assertStringNotContainsString('ApiVersion::class', $content, '基于 API-Version 头的中间件引用应已移除');
     }
 
     public function test_route_file_has_sensitive_batch_routes_after_resource(): void

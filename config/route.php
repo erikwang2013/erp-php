@@ -16,23 +16,10 @@ use Webman\Route;
  * - /health   健康检查（无需认证）
  *
  * API 版本策略:
- * - 版本号通过请求头 API-Version 携带（如 "v1"、"v2"），不在 URL 中体现
- * - 缺失时默认使用 v1
- * - 由 ApiVersion 中间件校验，路由闭包按版本解析对应控制器
+ * - 版本号置于 URL 路径（如 /api/v1/auth/login），客户端无需任何版本请求头
+ * - 新版本发布时注册新的 /api/vN 分组，控制器按版本存放于 app/api/vN/
+ * - 版本化公开接口直接绑定对应版本控制器类（历史 v() 动态解析与 ApiVersion 头中间件已移除）
  */
-
-/**
- * 创建版本化 API 路由闭包
- */
-function v(string $controller, string $action): \Closure
-{
-    return function (Request $request) use ($controller, $action) {
-        $version = $request->apiVersion ?? 'v1';
-        $class = "\\app\\api\\{$version}\\controller\\{$controller}";
-
-        return (new $class())->{$action}($request);
-    };
-}
 
 // ============================================================
 // 安装向导（全局，无需认证）
@@ -497,24 +484,22 @@ Route::group('/admin', function () {
 ]);
 
 // ============================================================
-// 公开接口（通过 API-Version 头路由到版本化控制器）
+// 公开接口 v1（版本置于 URL 路径 /api/v1/*，控制器直绑，无需版本头）
 // ============================================================
-Route::group('/api', function () {
+Route::group('/api/v1', function () {
     // 点击验证码
-    Route::post('/captcha/generate', v('CaptchaController', 'generate'));
-    Route::post('/captcha/verify', v('CaptchaController', 'verify'));
+    Route::post('/captcha/generate', [app\api\v1\controller\CaptchaController::class, 'generate']);
+    Route::post('/captcha/verify', [app\api\v1\controller\CaptchaController::class, 'verify']);
 
     // 认证
-    Route::post('/auth/login', v('AuthController', 'login'));
-    Route::post('/auth/register', v('AuthController', 'register'));
-    Route::post('/auth/refresh', v('AuthController', 'refresh'));
+    Route::post('/auth/login', [app\api\v1\controller\AuthController::class, 'login']);
+    Route::post('/auth/register', [app\api\v1\controller\AuthController::class, 'register']);
+    Route::post('/auth/refresh', [app\api\v1\controller\AuthController::class, 'refresh']);
 
     // 客户端商品接口
-    Route::any('/product', v('ProductController', 'index'));
-    Route::any('/product/{hashid}', v('ProductController', 'show'));
-})->middleware([
-    app\middleware\ApiVersion::class,
-]);
+    Route::any('/product', [app\api\v1\controller\ProductController::class, 'index']);
+    Route::any('/product/{hashid}', [app\api\v1\controller\ProductController::class, 'show']);
+});
 
 // TMS 物流轨迹回调（承运商 webhook，无需 JWT，HMAC 签名验证）
 Route::post('/api/tms/tracking/callback', [app\controller\tms\TrackingController::class, 'callbackWebhook'])

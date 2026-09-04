@@ -8,7 +8,8 @@
  * 全局中间件配置
  *
  * 以下中间件对所有请求生效，按注册顺序依次执行。
- * 执行顺序: Cors → SecurityFilter → RateLimit → TracingId → ApiVersion → {路由组中间件} → Controller
+ * 执行顺序: Cors → SecurityFilter → RateLimit → TracingId → {路由组中间件} → Controller
+ * （API 版本已移入 URL 路径 /api/vN/*，原 ApiVersion 头中间件已删除）
  */
 
 return [

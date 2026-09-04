@@ -17,7 +17,7 @@ use Webman\Http\Request;
 class CorsPolicy
 {
     private const ALLOWED_METHODS = 'GET,POST,PUT,DELETE,OPTIONS';
-    private const ALLOWED_HEADERS = 'Authorization,Content-Type,API-Version';
+    private const ALLOWED_HEADERS = 'Authorization,Content-Type';
 
     public static function allowedOrigin(Request $request): ?string
     {
