@@ -2094,6 +2094,122 @@ CREATE TABLE IF NOT EXISTS `erp_hr_salary_item` (
     UNIQUE KEY `uk_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='薪资项表';
 
+CREATE TABLE IF NOT EXISTS `erp_hr_job` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `job_title` VARCHAR(100) NOT NULL COMMENT '职位名称',
+    `department_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '部门ID（erp_hr_department.id）',
+    `headcount` INT UNSIGNED NOT NULL DEFAULT 1 COMMENT '招聘人数',
+    `requirement` TEXT NULL COMMENT '任职要求',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态：0草稿/1发布中/2已关闭',
+    `publish_at` DATETIME NULL COMMENT '发布时间',
+    `close_at` DATETIME NULL COMMENT '关闭时间',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '删除时间（软删除）',
+    PRIMARY KEY (`id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_department` (`department_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='招聘职位(P1-H1)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_candidate` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `name` VARCHAR(50) NOT NULL COMMENT '姓名',
+    `phone` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '联系电话（普通索引，允许重复，防假唯一）',
+    `source` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '来源：自主/猎头/内推/招聘网站',
+    `job_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '应聘职位ID（erp_hr_job.id）',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态：0新简历/1初筛通过/2面试中/3已发Offer/4已入职/5已淘汰',
+    `expected_salary` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '期望薪资（元）',
+    `resume_summary` TEXT NULL COMMENT '简历摘要',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_phone` (`phone`),
+    KEY `idx_job` (`job_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='候选人(P1-H1)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_interview` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `candidate_id` BIGINT UNSIGNED NOT NULL COMMENT '候选人ID（erp_hr_candidate.id）',
+    `round_no` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '面试轮次（同候选人自动递增）',
+    `interviewer_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '面试官ID（erp_hr_employee.id）',
+    `interview_date` DATE NOT NULL COMMENT '面试日期',
+    `result` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '结果：0待定/1通过/2不通过',
+    `comment` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '面试评价',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_candidate` (`candidate_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='面试记录(P1-H1)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_offer` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `candidate_id` BIGINT UNSIGNED NOT NULL COMMENT '候选人ID（erp_hr_candidate.id）',
+    `offered_salary` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT 'Offer薪资（元）',
+    `onboard_date` DATE NULL COMMENT '预计入职日期',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态：0草稿/1已发出/2已接受/3已拒绝',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_candidate` (`candidate_id`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Offer记录(P1-H1)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_kpi_template` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `name` VARCHAR(100) NOT NULL COMMENT '模板名称',
+    `period_type` VARCHAR(20) NOT NULL DEFAULT 'monthly' COMMENT '考核周期类型：monthly月度/quarterly季度/yearly年度',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态：0草稿/1启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='KPI考核模板(P1-H2)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_kpi_template_item` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `template_id` BIGINT UNSIGNED NOT NULL COMMENT '模板ID（erp_hr_kpi_template.id）',
+    `indicator` VARCHAR(100) NOT NULL COMMENT '指标名称',
+    `weight` DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '权重（%，合计须=100.00）',
+    `target_value` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '目标值描述',
+    `rater_type` TINYINT UNSIGNED NOT NULL DEFAULT 2 COMMENT '评分人类型：1自评/2上级/3同事360',
+    `sort` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序（升序）',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_template` (`template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='KPI模板指标项(P1-H2, 整存整替)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_perf_plan` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `template_id` BIGINT UNSIGNED NOT NULL COMMENT '模板ID（erp_hr_kpi_template.id）',
+    `period_start` DATE NOT NULL COMMENT '考核周期开始（含）',
+    `period_end` DATE NOT NULL COMMENT '考核周期结束（含）',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态：0草稿/1进行中/2已归档',
+    `created_by` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建人ID（erp_hr_employee.id）',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_template` (`template_id`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='考核批次(P1-H2)';
+
+CREATE TABLE IF NOT EXISTS `erp_hr_perf_score` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `plan_id` BIGINT UNSIGNED NOT NULL COMMENT '考核批次ID（erp_hr_perf_plan.id）',
+    `employee_id` BIGINT UNSIGNED NOT NULL COMMENT '被考核员工ID（erp_hr_employee.id）',
+    `rater_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '评分人ID（erp_hr_employee.id，自评=被考核人）',
+    `rater_type` TINYINT UNSIGNED NOT NULL COMMENT '评分人类型快照：1自评/2上级/3同事360',
+    `indicator` VARCHAR(100) NOT NULL COMMENT '指标名称（快照）',
+    `score` DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '得分（0.00~100.00）',
+    `comment` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '评分评语',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_plan_emp_rater_indicator` (`plan_id`, `employee_id`, `rater_id`, `indicator`),
+    KEY `idx_plan_employee` (`plan_id`, `employee_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='考核评分记录(P1-H2, 同人同指标重复提交=覆盖)';
+
 -- ################################################################
 -- PART 16: 生产制造
 -- ################################################################

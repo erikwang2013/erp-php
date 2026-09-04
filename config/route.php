@@ -323,6 +323,43 @@ Route::group('/admin', function () {
     Route::get('/hr/salary-item/{id}', [app\controller\hr\SalaryController::class, 'itemShow']);
     Route::put('/hr/salary-item/{id}', [app\controller\hr\SalaryController::class, 'itemUpdate']);
     Route::delete('/hr/salary-item/{id}', [app\controller\hr\SalaryController::class, 'itemDestroy']);
+    // 招聘（P1-H1）：静态子路径在 resource 之前注册，避免被 {id} 变量路由遮蔽
+    Route::post('/hr/recruit/job/{id}/publish', [app\controller\hr\RecruitController::class, 'jobPublish']);
+    Route::post('/hr/recruit/job/{id}/close', [app\controller\hr\RecruitController::class, 'jobClose']);
+    Route::get('/hr/recruit/funnel', [app\controller\hr\RecruitController::class, 'funnel']);
+    Route::post('/hr/recruit/candidate/{id}/advance', [app\controller\hr\RecruitController::class, 'candidateAdvance']);
+    Route::get('/hr/recruit/interview', [app\controller\hr\RecruitController::class, 'interviewIndex']);
+    Route::post('/hr/recruit/interview', [app\controller\hr\RecruitController::class, 'interviewStore']);
+    Route::put('/hr/recruit/interview/{id}', [app\controller\hr\RecruitController::class, 'interviewUpdate']);
+    Route::get('/hr/recruit/offer', [app\controller\hr\RecruitController::class, 'offerIndex']);
+    Route::post('/hr/recruit/offer', [app\controller\hr\RecruitController::class, 'offerStore']);
+    Route::post('/hr/recruit/offer/{id}/send', [app\controller\hr\RecruitController::class, 'offerSend']);
+    Route::post('/hr/recruit/offer/{id}/accept', [app\controller\hr\RecruitController::class, 'offerAccept']);
+    Route::post('/hr/recruit/offer/{id}/reject', [app\controller\hr\RecruitController::class, 'offerReject']);
+    Route::get('/hr/recruit/job', [app\controller\hr\RecruitController::class, 'jobIndex']);
+    Route::post('/hr/recruit/job', [app\controller\hr\RecruitController::class, 'jobStore']);
+    Route::get('/hr/recruit/job/{id}', [app\controller\hr\RecruitController::class, 'jobShow']);
+    Route::put('/hr/recruit/job/{id}', [app\controller\hr\RecruitController::class, 'jobUpdate']);
+    Route::delete('/hr/recruit/job/{id}', [app\controller\hr\RecruitController::class, 'jobDestroy']);
+    Route::get('/hr/recruit/candidate', [app\controller\hr\RecruitController::class, 'candidateIndex']);
+    Route::post('/hr/recruit/candidate', [app\controller\hr\RecruitController::class, 'candidateStore']);
+    Route::get('/hr/recruit/candidate/{id}', [app\controller\hr\RecruitController::class, 'candidateShow']);
+    Route::put('/hr/recruit/candidate/{id}', [app\controller\hr\RecruitController::class, 'candidateUpdate']);
+    Route::delete('/hr/recruit/candidate/{id}', [app\controller\hr\RecruitController::class, 'candidateDestroy']);
+    // 绩效考核（P1-H2）
+    Route::post('/hr/perf/template/{id}/enable', [app\controller\hr\PerformanceController::class, 'templateEnable']);
+    Route::get('/hr/perf/template', [app\controller\hr\PerformanceController::class, 'templateIndex']);
+    Route::post('/hr/perf/template', [app\controller\hr\PerformanceController::class, 'templateStore']);
+    Route::get('/hr/perf/template/{id}', [app\controller\hr\PerformanceController::class, 'templateShow']);
+    Route::put('/hr/perf/template/{id}', [app\controller\hr\PerformanceController::class, 'templateUpdate']);
+    Route::delete('/hr/perf/template/{id}', [app\controller\hr\PerformanceController::class, 'templateDestroy']);
+    Route::post('/hr/perf/plan/{id}/start', [app\controller\hr\PerformanceController::class, 'planStart']);
+    Route::post('/hr/perf/plan/{id}/archive', [app\controller\hr\PerformanceController::class, 'planArchive']);
+    Route::get('/hr/perf/plan', [app\controller\hr\PerformanceController::class, 'planIndex']);
+    Route::post('/hr/perf/plan', [app\controller\hr\PerformanceController::class, 'planStore']);
+    Route::get('/hr/perf/score/summary', [app\controller\hr\PerformanceController::class, 'summary']);
+    Route::get('/hr/perf/score', [app\controller\hr\PerformanceController::class, 'scoreIndex']);
+    Route::post('/hr/perf/score', [app\controller\hr\PerformanceController::class, 'scoreSubmit']);
 
     // ============================================================
     // 生产制造
