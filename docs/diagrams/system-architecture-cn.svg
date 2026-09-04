@@ -101,18 +101,18 @@
 <path fill="none" stroke="#1565c0" stroke-width="1.5" d="M328.04,-1226.42C353.31,-1211.4 389.3,-1189.99 417.62,-1173.15"/>
 <polygon fill="#1565c0" stroke="#1565c0" stroke-width="1.5" points="419.71,-1175.98 426.52,-1167.86 416.14,-1169.96 419.71,-1175.98"/>
 </g>
-<!-- m1 -->
-<g id="node5" class="node">
-<title>m1</title>
-<ellipse fill="#ffffff" stroke="#78909c" stroke-width="1.5" cx="344" cy="-1026.55" rx="39.7" ry="21.43"/>
-<text text-anchor="middle" x="344" y="-1029.55" font-family="Arial" font-size="10.00">语言检测</text>
-<text text-anchor="middle" x="344" y="-1018.55" font-family="Arial" font-size="10.00">国际化</text>
+<!-- 路径版本化：/admin/v1 /api/v1 /open/v1（无版本请求头） -->
+<g id="mwver">
+<text text-anchor="middle" x="344" y="-1044" font-family="Arial" font-size="8.50" fill="#546e7a">路径版本化</text>
+<text text-anchor="middle" x="344" y="-1033" font-family="Arial" font-size="8.50" fill="#546e7a">/admin/v1</text>
+<text text-anchor="middle" x="344" y="-1022" font-family="Arial" font-size="8.50" fill="#546e7a">/api/v1</text>
+<text text-anchor="middle" x="344" y="-1011" font-family="Arial" font-size="8.50" fill="#546e7a">/open/v1</text>
 </g>
-<!-- b1&#45;&gt;m1 -->
+<!-- b1&#45;&gt;m2 -->
 <g id="edge20" class="edge">
-<title>b1&#45;&gt;m1</title>
-<path fill="none" stroke="#e65100" stroke-width="1.5" d="M440.63,-1123.54C420.55,-1103.59 390.49,-1073.73 369.24,-1052.62"/>
-<polygon fill="#e65100" stroke="#e65100" stroke-width="1.5" points="371.68,-1050.11 362.12,-1045.55 366.75,-1055.08 371.68,-1050.11"/>
+<title>b1&#45;&gt;m2</title>
+<path fill="none" stroke="#e65100" stroke-width="1.5" d="M378,-1123.76C378,-1106.5 378,-1091.6 378,-1076.76C378,-1058.5 378,-1010.5 378,-961.95"/>
+<polygon fill="#e65100" stroke="#e65100" stroke-width="1.5" points="381.5,-962.18 378,-952.18 374.5,-962.18 381.5,-962.18"/>
 </g>
 <!-- e1 -->
 <g id="node23" class="node">
@@ -149,12 +149,6 @@
 <text text-anchor="middle" x="344" y="-944.12" font-family="Arial" font-size="10.00">跨域处理</text>
 <text text-anchor="middle" x="344" y="-933.12" font-family="Arial" font-size="10.00">CORS</text>
 </g>
-<!-- m1&#45;&gt;m2 -->
-<g id="edge1" class="edge">
-<title>m1&#45;&gt;m2</title>
-<path fill="none" stroke="#90a4ae" d="M344,-1004.93C344,-995.23 344,-983.47 344,-972.76"/>
-<polygon fill="#90a4ae" stroke="#90a4ae" points="347.5,-972.51 344,-962.51 340.5,-972.51 347.5,-972.51"/>
-</g>
 <!-- m3 -->
 <g id="node7" class="node">
 <title>m3</title>
@@ -185,8 +179,8 @@
 <g id="node9" class="node">
 <title>m5</title>
 <ellipse fill="#ffffff" stroke="#78909c" stroke-width="1.5" cx="335" cy="-684.85" rx="27" ry="21.43"/>
-<text text-anchor="middle" x="335" y="-687.85" font-family="Arial" font-size="10.00">API</text>
-<text text-anchor="middle" x="335" y="-676.85" font-family="Arial" font-size="10.00">版本</text>
+<text text-anchor="middle" x="335" y="-687.85" font-family="Arial" font-size="10.00">链路</text>
+<text text-anchor="middle" x="335" y="-676.85" font-family="Arial" font-size="10.00">追踪</text>
 </g>
 <!-- m4&#45;&gt;m5 -->
 <g id="edge4" class="edge">
@@ -225,7 +219,7 @@
 <title>c1</title>
 <ellipse fill="#ffffff" stroke="#78909c" stroke-width="1.5" cx="365" cy="-424.57" rx="53.07" ry="21.43"/>
 <text text-anchor="middle" x="365" y="-427.57" font-family="Arial" font-size="10.00">管理端控制器</text>
-<text text-anchor="middle" x="365" y="-416.57" font-family="Arial" font-size="10.00">(14 个文件)</text>
+<text text-anchor="middle" x="365" y="-416.57" font-family="Arial" font-size="10.00">(16 个文件)</text>
 </g>
 <!-- m7&#45;&gt;c1 -->
 <g id="edge7" class="edge">
@@ -238,7 +232,7 @@
 <title>c2</title>
 <ellipse fill="#ffffff" stroke="#78909c" stroke-width="1.5" cx="237" cy="-424.57" rx="45.92" ry="21.43"/>
 <text text-anchor="middle" x="237" y="-427.57" font-family="Arial" font-size="10.00">业务控制器</text>
-<text text-anchor="middle" x="237" y="-416.57" font-family="Arial" font-size="10.00">(104 个)</text>
+<text text-anchor="middle" x="237" y="-416.57" font-family="Arial" font-size="10.00">(138 个)</text>
 </g>
 <!-- m7&#45;&gt;c2 -->
 <g id="edge8" class="edge">
@@ -264,7 +258,7 @@
 <title>c3</title>
 <ellipse fill="#ffffff" stroke="#78909c" stroke-width="1.5" cx="251" cy="-339.14" rx="45.92" ry="21.43"/>
 <text text-anchor="middle" x="251" y="-342.14" font-family="Arial" font-size="10.00">服务层</text>
-<text text-anchor="middle" x="251" y="-331.14" font-family="Arial" font-size="10.00">(24 个服务)</text>
+<text text-anchor="middle" x="251" y="-331.14" font-family="Arial" font-size="10.00">(56 个服务)</text>
 </g>
 <!-- c1&#45;&gt;c3 -->
 <g id="edge10" class="edge">
