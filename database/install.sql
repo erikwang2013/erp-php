@@ -1793,6 +1793,24 @@ CREATE TABLE IF NOT EXISTS `erp_approval_record` (
     KEY `idx_approver_id` (`approver_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='审批记录表';
 
+CREATE TABLE IF NOT EXISTS `erp_print_template` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `code` VARCHAR(50) NOT NULL COMMENT '模板编码',
+    `name` VARCHAR(100) NOT NULL COMMENT '模板名称',
+    `target_type` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '适用单据类型(如 sales_order/purchase_order), 空=通用',
+    `content` MEDIUMTEXT NOT NULL COMMENT 'HTML模板体(含{{占位符}}; 中文需@font-face声明CJK字体)',
+    `paper_size` VARCHAR(20) NOT NULL DEFAULT 'A4' COMMENT '纸张规格: A4/A5/Letter/Legal',
+    `orientation` VARCHAR(10) NOT NULL DEFAULT 'portrait' COMMENT '页面方向: portrait/landscape',
+    `enabled` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '启用: 0=停用 1=启用',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_target_type` (`target_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='单据打印模板表';
+
 -- ################################################################
 -- PART 13: 消息通知系统
 -- ################################################################

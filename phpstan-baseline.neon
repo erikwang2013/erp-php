@@ -8970,3 +8970,75 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$content\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/print/PrintTemplateController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PrintTemplate\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PrintTemplate\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$content\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$orientation\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$paper_size\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$target_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$enabled\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/print/PrintTemplateService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PrintTemplate\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/print/PrintTemplateService.php

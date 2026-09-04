@@ -279,6 +279,9 @@ Route::group('/admin', function () {
     Route::put('/workflow/designer/{workflowId}', [app\controller\workflow\WorkflowDesignerController::class, 'save']);
     Route::post('/workflow/designer/{workflowId}/validate', [app\controller\workflow\WorkflowDesignerController::class, 'validate']);
     Route::post('/workflow/designer/{workflowId}/route', [app\controller\workflow\WorkflowDesignerController::class, 'route']);
+    Route::post('/print/template/render', [app\controller\print\PrintTemplateController::class, 'render']);
+    Route::post('/print/template/pdf', [app\controller\print\PrintTemplateController::class, 'pdf']);
+    Route::resource('/print/template', app\controller\print\PrintTemplateController::class);
 
     // ============================================================
     // 通知系统
