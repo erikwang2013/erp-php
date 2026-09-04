@@ -57,7 +57,7 @@ class H34AdversarialIntegrationTest extends IntegrationTestCase
             $t->dateTime('created_at')->nullable(); $t->dateTime('updated_at')->nullable(); $t->unique(['city', 'rule_name'], 'uk_city_name');
         });
         static::createTableIfMissing(self::T_RATE, function (Blueprint $t): void {
-            $t->unsignedBigInteger('id')->primary(); $t->unsignedBigInteger('rule_id'); $t->string('insurance_type', 10); $t->decimal('personal_rate', 5, 2)->default(0); $t->decimal('company_rate', 5, 2)->default(0);
+            $t->unsignedBigInteger('id')->primary(); $t->unsignedBigInteger('rule_id'); $t->string('insurance_type', 20); $t->decimal('personal_rate', 5, 2)->default(0); $t->decimal('company_rate', 5, 2)->default(0);
             $t->dateTime('created_at')->nullable(); $t->dateTime('updated_at')->nullable(); $t->unique(['rule_id', 'insurance_type'], 'uk_rule_type');
         });
         static::createTableIfMissing(self::T_EMP_SOCIAL, function (Blueprint $t): void {

@@ -348,7 +348,8 @@ class SocialSecurityService extends AbstractCrudService
         $check = static fn (string $field): bool => isset($data[$field]) || array_key_exists($field, $data);
         $city = trim((string) ($data['city'] ?? ($rule ? (string) $rule->city : '')));
         $name = trim((string) ($data['rule_name'] ?? ($rule ? (string) $rule->rule_name : '')));
-        if ($check('city')) {
+        // 新建(rule=null)时 city/rule_name 必填：缺失即按空串校验（防 assertCityNameUnique 缺键 TypeError）
+        if ($check('city') || $rule === null) {
             if ($city === '') {
                 throw new InvalidArgumentException('城市不能为空');
             }
@@ -356,7 +357,7 @@ class SocialSecurityService extends AbstractCrudService
                 throw new InvalidArgumentException('城市不能超过 50 字');
             }
         }
-        if ($check('rule_name')) {
+        if ($check('rule_name') || $rule === null) {
             if ($name === '') {
                 throw new InvalidArgumentException('规则名称不能为空');
             }
