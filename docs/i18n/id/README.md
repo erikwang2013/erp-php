@@ -29,18 +29,37 @@ Sistem ERP full-stack berbasis webman v2 + Flutter.
 | | Arsip pemasok/pelanggan | Kontak/akun bank/plafon kredit |
 | 📥 Manajemen Pembelian | Permintaan→Pesanan→Penerimaan→Retur→Penyelesaian | Proses pembelian lengkap + persetujuan |
 | 📤 Manajemen Penjualan | Penawaran→Pesanan→Pengiriman→Retur→Penyelesaian | Penawaran jadi pesanan + margin kotor penjualan |
+| | Kontrol kredit pelanggan | Manajemen plafon/jangka waktu/pembekuan + intersepsi pesanan/pengiriman melebihi batas/lewat jatuh tempo |
 | 🏗 Manajemen Stok | Stok real-time/batch/nomor seri/transfer/stok opname/peringatan | Perhitungan biaya rata-rata tertimbang bergerak |
 | 💰 Manajemen Keuangan | Piutang-hutang/Penerimaan-pembayaran/Jurnal/Reimbursement/Laporan laba/Aset tetap/Pajak/Multi-mata uang/Anggaran/Pusat biaya & laba | Pembuatan otomatis piutang-hutang + penutupan (write-off) + manajemen keuangan menyeluruh |
+| | Multi-organisasi + laporan konsolidasi | Akuntansi multi-perusahaan/pembukuan + jurnal eliminasi (metode ekuitas/biaya) |
+| | Akuntansi biaya persediaan/produksi | Pengeluaran bahan produksi→pengumpulan tenaga kerja/biaya overhead pabrik→biaya produk jadi→penutupan selisih biaya |
+| | Wesel akseptasi + rekonsiliasi bank | Daftar wesel + impor laporan bank dengan pencocokan otomatis |
+| | Kumpulan faktur masukan + e-faktur digital | Manajemen faktur masukan + saluran penerbitan faktur (adaptor + saluran Mock) |
 | 🤝 CRM | Pelanggan/Kontak/Catatan tindak lanjut/Kampanye pemasaran/Tiket layanan/Laporan analisis/Coroong penjualan/Kolam bersama/Penawaran/Kontrak | Manajemen siklus hidup pelanggan menyeluruh |
+| | Mesin nilai member | Operasional member saldo/poin/kupon |
 | ✅ Alur Persetujuan | Definisi alur kerja/Submit persetujuan/Setujui/Tolak/Tarik/Persetujuan saya | Mesin alur persetujuan multi-node |
+| | Perancang alur visual | Konfigurasi node/cabang/edge penolakan pada kanvas + penggunaan ulang mesin alur persetujuan |
 | 🔔 Notifikasi Pesan | Daftar notifikasi/Tandai dibaca/Jumlah belum dibaca/Semua dibaca | Push pesan real-time & pelacakan status |
+| | Notifikasi multi-kanal | Driver kanal SMS/email (saluran Mock + log + retry) |
 | 📐 Manajemen Proyek | Proyek/Tugas/Catatan jam kerja | Pelacakan progres proyek & manajemen sumber daya |
+| | Biaya proyek & anggaran | Jam kerja×tarif→akumulasi biaya proyek + deviasi anggaran |
 | 👤 Sumber Daya Manusia | Departemen/Karyawan/Posisi/Absensi/Cuti/Gaji | Manajemen personalia menyeluruh |
+| | Rekrutmen/Kinerja/Pelatihan/Jamsos | Corong rekrutmen + penilaian KPI/360 + kredit kursus + aturan dasar Jamsos & slip gaji |
 | 🏭 Manufaktur | BOM/Pesanan produksi/Rute proses/Stasiun kerja/MRP | Perencanaan kebutuhan material & eksekusi produksi |
+| | Pelaporan kerja operasi/upah per potong/rekonsiliasi subkontrak | Lapisan eksekusi operasi MES + rekonsiliasi pengeluaran material pesanan subkontrak |
+| | Analisis beban kapasitas | Kalender stasiun kerja + laporan beban kapasitas kasar |
+| | Penelusuran batch/nomor seri | Rantai pelacakan maju & mundur + peringatan mendekati kedaluwarsa |
 | 📈 Laporan Kustom | Template laporan/Set data/Field/Filter/Eksekusi/Jadwal terjadwal | Pembangun laporan visual |
 | 📋 Manajemen Pesanan (OMS) | Pesanan multi-kanal/Orkestrasi pemenuhan/Pre-alokasi stok/Alokasi/Pembatalan/Retur RMA | Manajemen siklus hidup pesanan menyeluruh |
 | 🏗 Manajemen Gudang (WMS) | Zona lokasi/ASN/Penerimaan/Putaway/Gelombang/Picking/Packing/Pengiriman | Proses operasi gudang lengkap |
 | 🚚 Manajemen Transportasi (TMS) | Kurir/Layanan/Tarif/Resi/Lacak logistik/Invoice biaya kirim | Perbandingan tarif multi-kurir + pelacakan |
+| 🛠 Manajemen Peralatan (EAM) | Buku besar peralatan/rencana perawatan/work order perbaikan/suku cadang | Manajemen siklus hidup peralatan menyeluruh |
+| | Inspeksi scan loop tertutup | Scan kode untuk inspeksi, anomali otomatis membuat work order perbaikan |
+| 🌐 Platform & Terbuka | Versioning jalur API | Admin /admin/v1, klien /api/v1, terbuka /open/v1 (tanpa header versi) |
+| | Mesin template cetak dokumen | Render placeholder + PDF dompdf + label QR |
+| | Bidang kustom formulir | Ekstensi JSON custom_fields di tabel master + validasi |
+| | Arsitektur multi-tenant | Tenant erp_tenant + konteks permintaan TenantScope + penagihan kedaluwarsa (seam middleware dicadangkan, belum terdaftar) |
 
 ## Modul ERP
 

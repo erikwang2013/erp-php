@@ -29,18 +29,37 @@ Vollständiges ERP-System auf Basis von webman v2 + Flutter.
 | | Lieferanten-/Kundenstamm | Ansprechpartner/Bankkonten/Kreditlimits |
 | 📥 Einkaufsverwaltung | Anfrage→Bestellung→Wareneingang→Retoure→Abrechnung | Vollständiger Einkaufsprozess + Genehmigung |
 | 📤 Vertriebsverwaltung | Angebot→Auftrag→Versand→Retoure→Abrechnung | Angebot-zu-Auftrag + Verkaufsrohertrag |
+| | Kundenkreditkontrolle | Limit/Zahlungsziel/Sperre verwalten + Überschreitungsblockade bei Auftrag und Versand |
 | 🏗 Bestandsverwaltung | Echtzeitbestand/Chargen/Seriennummern/Umlagerung/Inventur/Warnungen | Gleitende Durchschnittskostenrechnung |
-| 💰 Finanzverwaltung | Forderungen/Verbindlichkeiten/Ein-/Ausgänge/Tagebuch/Spesen/GuV/Anlagevermögen/Steuern/Multi-Währung/Budget/Kosten- und Profit-Center | Automatische Forderungen/Verbindlichkeiten + Verrechnung + umfassende Finanzverwaltung |
+| 💰 Finanzverwaltung |
+| | Multi-Organisation + konsolidierte Berichte | Mehrere Unternehmen/Buchungskreise + Eliminierungsbuchungen (Equity-/Anschaffungskostenmethode) |
+| | Bestands-/Produktionskostenrechnung | Fertigungsentnahme → Arbeits-/Gemeinkostensammlung → Herstellkosten → Kostenabweichungsübertrag |
+| | Wechsel + Bankabstimmung | Wechselregister + automatische Abstimmung per Bankkontoauszug-Import |
+| | Eingangsrechnungspool + E-Rechnung | Eingangsrechnungsverwaltung + Ausgangskanal (Adapter + Mock-Kanal) | Forderungen/Verbindlichkeiten/Ein-/Ausgänge/Tagebuch/Spesen/GuV/Anlagevermögen/Steuern/Multi-Währung/Budget/Kosten- und Profit-Center | Automatische Forderungen/Verbindlichkeiten + Verrechnung + umfassende Finanzverwaltung |
 | 🤝 CRM | Kunden/Kontakte/Follow-up-Records/Marketingkampagnen/Service-Tickets/Analyseberichte/Sales-Funnel/Shared-Pool/Angebote/Verträge | Verwaltung des gesamten Kundenlebenszyklus |
+| | Kundenwert-Engine | Guthaben-/Punkte-/Kartenprogramm-Mitgliedschaft |
 | ✅ Genehmigungsworkflow | Workflow-Definition/Einreichung/Genehmigen/Ablehnen/Zurückziehen/Meine Genehmigungen | Mehrstufige Genehmigungs-Engine |
+| | Visueller Workflow-Designer | Knoten/Verzweigungen/Rücksprung-Kanten auf der Leinwand, nutzt Genehmigungs-Engine |
 | 🔔 Benachrichtigungen | Benachrichtigungsliste/Gelesen-Markierung/Ungelesen-Zähler/Alles gelesen | Echtzeit-Push und Statusverfolgung |
+| | Multikanal-Benachrichtigungen | SMS/E-Mail-Kanaltreiber (Mock-Kanal + Logging + Retries) |
 | 📐 Projektmanagement | Projekte/Aufgaben/Zeiterfassung | Projektfortschritt & Ressourcenverwaltung |
+| | Projektkosten & Budget | Stunden × Satz → Projektkostenerfassung + Budgetabweichung |
 | 👤 Personalwesen | Abteilungen/Mitarbeiter/Positionen/Anwesenheit/Urlaub/Gehälter | Umfassende Personalverwaltung |
+| | Rekrutierung/Leistung/Schulung/Sozialversicherung | Recruiting-Trichter + KPI/360-Bewertung + Kurs-Credits + Beitragsbemessungsregeln & Gehaltsabrechnung |
 | 🏭 Produktion | BOM/Produktionsaufträge/Arbeitspläne/Arbeitsplätze/MRP | Materialbedarfsplanung und Produktionsausführung |
+| | Arbeitsrückmeldung/Akkordlohn/Subunternehmer-Verrechnung | MES-Arbeitsschrittausführung + Materialausgabe und Verrechnung bei Fremdfertigungsaufträgen |
+| | Kapazitätslast-Analyse | Arbeitsplatzkalender + Grobkapazitätsbericht |
+| | Chargen-/Seriennummern-Rückverfolgung | Vorwärts-/Rückwärts-Rückverfolgungskette + Ablaufwarnung |
 | 📈 Benutzerdefinierte Berichte | Berichtsvorlagen/Datensätze/Felder/Filter/Ausführung/Zeitplanung | Visueller Berichts-Builder |
 | 📋 Auftragsverwaltung (OMS) | Multi-Kanal-Aufträge/Fulfillment-Orchestrierung/Reservierung/Zuordnung/Stornierung/RMA-Retouren | Verwaltung des gesamten Auftragslebenszyklus |
 | 🏗 Lagerverwaltung (WMS) | Zonen/Lagerplätze/ASN/Wareneingang/Einlagerung/Wellen/Kommissionierung/Verpackung/Versand | Vollständiger Lagerablauf |
 | 🚚 Transportverwaltung (TMS) | Spediteure/Dienste/Tarife/Frachtscheine/Tracking/Frachtrechnungen | Multi-Spediteur-Tarifvergleich + Sendungsverfolgung |
+| 🛠 Anlagenverwaltung (EAM) | Anlagenstamm/Wartungspläne/Reparaturaufträge/Ersatzteile | Verwaltung des gesamten Anlagenlebenszyklus |
+| | QR-Prüf-Regelkreis | Scan-Prüfung, Störungen lösen automatisch Reparaturauftrag aus |
+| 🌐 Plattform & Offenheit | API-Pfadversionierung | Admin /admin/v1, Client /api/v1, Open /open/v1 (kein Versions-Header) |
+| | Druckvorlagen-Engine | Platzhalter-Rendering + dompdf PDF + QR-Code-Etiketten |
+| | Benutzerdefinierte Formularfelder | Mastertabellen-Erweiterung per custom_fields JSON + Validierung |
+| | Multi-Tenant-Architektur | erp_tenant-Mandant + TenantScope-Anforderungskontext + Ablauf-Abrechnung (Middleware-Seam reserviert, nicht registriert) |
 
 ## ERP-Module
 

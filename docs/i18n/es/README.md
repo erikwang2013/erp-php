@@ -29,18 +29,37 @@ Sistema ERP full-stack basado en webman v2 + Flutter.
 | | Fichas de proveedores/clientes | Contactos/cuentas bancarias/límites de crédito |
 | 📥 Gestión de compras | Solicitud→Pedido→Recepción→Devolución→Liquidación | Proceso de compra completo + aprobación |
 | 📤 Gestión de ventas | Cotización→Pedido→Envío→Devolución→Liquidación | Cotización a pedido + margen bruto de ventas |
+| | Control de crédito del cliente | Gestión de límites/plazos de pago/congelación + bloqueo de pedidos y envíos fuera de límite o vencidos |
 | 🏗 Gestión de inventario | Inventario en tiempo real/Lotes/Números de serie/Transferencias/Conteos/Alertas | Costeo de promedio ponderado móvil |
-| 💰 Gestión financiera | Cuentas por cobrar y por pagar/Cobros y pagos/Diario/Reembolsos/Estado de resultados/Activos fijos/Impuestos/Multidivisa/Presupuestos/Centros de costo y de beneficio | Generación automática de cuentas por cobrar y pagar + compensación + gestión financiera integral |
+| 💰 Gestión financiera |
+| | Multi-organización + informes consolidados | Contabilidad multiempresa + asientos de eliminación (método de participación/costo) |
+| | Costeo de inventario/producción | Salida de materiales → acumulación de mano de obra/gastos de fabricación → costo de productos terminados → traslado de variaciones de costo |
+| | Letras de cambio + conciliación bancaria | Registro de letras + conciliación automática con importación de extractos bancarios |
+| | Pool de facturas de compra + factura electrónica | Gestión de facturas de compra + canal de emisión (adaptador + canal Mock) | Cuentas por cobrar y por pagar/Cobros y pagos/Diario/Reembolsos/Estado de resultados/Activos fijos/Impuestos/Multidivisa/Presupuestos/Centros de costo y de beneficio | Generación automática de cuentas por cobrar y pagar + compensación + gestión financiera integral |
 | 🤝 CRM | Clientes/Contactos/Registros de seguimiento/Campañas de marketing/Tickets de servicio/Informes analíticos/Embudo de ventas/Pool compartido/Cotizaciones/Contratos | Gestión del ciclo de vida completo del cliente |
+| | Motor de valor del cliente | Operación de membresía con recargas/puntos/cupones |
 | ✅ Flujo de aprobación | Definición de flujos/Envío de aprobación/Aprobar/Rechazar/Retirar/Mis aprobaciones | Motor de flujos de aprobación de múltiples nodos |
+| | Diseñador visual de flujos | Configuración en lienzo de nodos/ramas/aristas de rechazo, reutiliza el motor de aprobación |
 | 🔔 Notificaciones | Lista de notificaciones/Marcar como leído/Conteo de no leídos/Marcar todo como leído | Push de mensajes en tiempo real y seguimiento de estado |
+| | Notificaciones multicanal | Canales SMS/correo (canal Mock + registros + reintentos) |
 | 📐 Gestión de proyectos | Proyectos/Tareas/Registros de horas | Seguimiento del progreso del proyecto y gestión de recursos |
+| | Costo y presupuesto de proyecto | Horas × tarifa → acumulación de costo de proyecto + desviación de presupuesto |
 | 👤 Recursos humanos | Departamentos/Empleados/Puestos/Asistencia/Permisos/Salarios | Gestión integral de personal |
+| | Reclutamiento/Desempeño/Capacitación/Seguridad social | Embudo de reclutamiento + evaluación KPI/360 + créditos de cursos + reglas de base de cotización y nómina |
 | 🏭 Manufactura | BOM/Órdenes de producción/Rutas de proceso/Estaciones de trabajo/MRP | Planificación de necesidades de materiales y ejecución de producción |
+| | Reporte de operaciones/Salario a destajo/Liquidación de subcontratación | Capa de ejecución de operaciones MES + salida y liquidación de materiales en órdenes de subcontratación |
+| | Análisis de carga de capacidad | Calendario de estaciones de trabajo + informe de carga de capacidad gruesa |
+| | Trazabilidad de lotes/números de serie | Cadena de trazabilidad directa e inversa + alerta de vencimiento próximo |
 | 📈 Informes personalizados | Plantillas de informes/Conjuntos de datos/Campos/Filtros/Ejecución/Programación | Constructor visual de informes |
 | 📋 Gestión de pedidos (OMS) | Pedidos multicanal/Orquestación de cumplimiento/Reserva de inventario/Asignación/Cancelación/RMA | Gestión del ciclo de vida completo del pedido |
 | 🏗 Gestión de almacén (WMS) | Zonas y ubicaciones/ASN/Recepción/Ubicación en estantes/Olas/Picking/Embalaje/Envío | Proceso completo de operaciones de almacén |
 | 🚚 Gestión de transporte (TMS) | Transportistas/Servicios/Tarifas/Guías de envío/Rastreo logístico/Facturas de flete | Comparación de tarifas multi-transportista + rastreo de envíos |
+| 🛠 Gestión de equipos (EAM) | Fichas de equipos/Planes de mantenimiento/Órdenes de reparación/Repuestos | Gestión del ciclo de vida completo del equipo |
+| | Bucle cerrado de inspección por escaneo | Inspección por escaneo, las anomalías activan automáticamente una orden de reparación |
+| 🌐 Plataforma y apertura | Versionado de rutas API | Administración /admin/v1, cliente /api/v1, abierto /open/v1 (sin cabecera de versión) |
+| | Motor de plantillas de impresión de documentos | Renderizado por marcadores + PDF dompdf + etiquetas QR |
+| | Campos personalizados de formularios | Extensión JSON custom_fields en tablas maestras + validación |
+| | Arquitectura multiinquilino | Inquilino erp_tenant + contexto de solicitud TenantScope + facturación por vencimiento (seam de middleware reservado, no registrado) |
 
 ## Módulos del ERP
 
