@@ -198,6 +198,16 @@ Route::group('/admin', function () {
     Route::post('/platform/tenant/resume', [app\controller\platform\TenantController::class, 'resume']);
     Route::post('/platform/tenant/expire-mark', [app\controller\platform\TenantController::class, 'expireMark']);
     Route::post('/platform/tenant/renew', [app\controller\platform\TenantController::class, 'renew']);
+    // 通知渠道 + 自定义字段（P2-B4+B7）
+    Route::post('/platform/notification-channel/send', [app\controller\notification\NotificationChannelController::class, 'send']);
+    Route::get('/platform/notification-channel/logs', [app\controller\notification\NotificationChannelController::class, 'logs']);
+    Route::post('/platform/notification-channel/retry', [app\controller\notification\NotificationChannelController::class, 'retry']);
+    Route::get('/platform/custom-field', [app\controller\platform\CustomFieldController::class, 'list']);
+    Route::post('/platform/custom-field', [app\controller\platform\CustomFieldController::class, 'create']);
+    Route::post('/platform/custom-field/validate', [app\controller\platform\CustomFieldController::class, 'validate']);
+    Route::post('/platform/custom-field/schema', [app\controller\platform\CustomFieldController::class, 'schema']);
+    Route::put('/platform/custom-field/{id}', [app\controller\platform\CustomFieldController::class, 'update']);
+    Route::delete('/platform/custom-field/{id}', [app\controller\platform\CustomFieldController::class, 'destroy']);
     // P0 invoice：发票(应收/应付)+开票申请状态流+三单匹配(采购收货/销售发货)
     // 静态 action 路由先于 resource 注册，避免 {id} 动态段抢占 match-check
     Route::post('/finance/invoice/{id}/submit', [app\controller\finance\InvoiceController::class, 'submit']);

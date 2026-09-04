@@ -316,6 +316,7 @@ CREATE TABLE IF NOT EXISTS `erp_supplier` (
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    `custom_fields` JSON DEFAULT NULL COMMENT '自定义字段(json, P2-B7)',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_code` (`code`),
     KEY `idx_name` (`name`),
@@ -356,6 +357,7 @@ CREATE TABLE IF NOT EXISTS `erp_customer` (
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    `custom_fields` JSON DEFAULT NULL COMMENT '自定义字段(json, P2-B7)',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_code` (`code`),
     KEY `idx_level_id` (`level_id`),
@@ -523,6 +525,7 @@ CREATE TABLE IF NOT EXISTS `erp_purchase_order` (
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    `custom_fields` JSON DEFAULT NULL COMMENT '自定义字段(json, P2-B7)',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_code` (`code`),
     KEY `idx_apply_id` (`apply_id`),
@@ -701,6 +704,7 @@ CREATE TABLE IF NOT EXISTS `erp_sales_order` (
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    `custom_fields` JSON DEFAULT NULL COMMENT '自定义字段(json, P2-B7)',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_code` (`code`),
     KEY `idx_quotation_id` (`quotation_id`),
@@ -2004,6 +2008,44 @@ CREATE TABLE IF NOT EXISTS `erp_print_template` (
     UNIQUE KEY `uk_code` (`code`),
     KEY `idx_target_type` (`target_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='单据打印模板表';
+
+CREATE TABLE IF NOT EXISTS `erp_custom_field_definition` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `entity_type` VARCHAR(30) NOT NULL COMMENT '实体类型: sales_order/purchase_order/customer/supplier',
+    `field_key` VARCHAR(50) NOT NULL COMMENT '字段标识(小写字母/数字/下划线，如 ext_delivery_note)',
+    `label` VARCHAR(100) NOT NULL COMMENT '字段名称(展示用)',
+    `field_type` VARCHAR(20) NOT NULL COMMENT '字段类型: text/number/date/select/textarea',
+    `options` JSON DEFAULT NULL COMMENT '选项(select 用): [{"value":"v","label":"标签"}]',
+    `is_required` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '必填: 0=否 1=是',
+    `sort` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序值(升序)',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=停用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_entity_field` (`entity_type`, `field_key`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='自定义字段定义(B7, P2-5)';
+
+CREATE TABLE IF NOT EXISTS `erp_notification_channel_log` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `channel` VARCHAR(20) NOT NULL COMMENT '渠道: sms=短信 mail=邮件(枚举含 inapp=站内，站内走erp_notification不入本表)',
+    `to` VARCHAR(200) NOT NULL COMMENT '接收方(手机号/邮箱)',
+    `subject` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '主题/标题',
+    `content` TEXT NOT NULL COMMENT '内容',
+    `content_hash` CHAR(64) NOT NULL DEFAULT '' COMMENT '内容sha256(幂等键，与channel+to+成功时间窗组合判重)',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=发送中 1=成功 2=失败',
+    `message_id` VARCHAR(80) NOT NULL DEFAULT '' COMMENT '渠道返回消息ID(失败为空)',
+    `error` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '失败原因(成功为空)',
+    `sent_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送(尝试)时间，重试与幂等窗口均以其为准',
+    `operator_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作人(erp_admin_user.id)，0=系统',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_channel_status` (`channel`, `status`),
+    KEY `idx_to` (`to`),
+    KEY `idx_content_hash` (`content_hash`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通知渠道发送日志(B4, P2-5)';
 
 -- ################################################################
 -- PART 13: 消息通知系统
