@@ -12,6 +12,7 @@ use app\model\HrEmployee;
 use app\model\HrSalary;
 use app\model\HrSalaryItem;
 use app\service\AbstractCrudService;
+use InvalidArgumentException;
 
 /**
  * 工资条视图（P2-H3/H4 补充展示，只读，不改动任何薪资数据）
@@ -85,10 +86,15 @@ class PayslipService extends AbstractCrudService
             ];
         }
 
-        // 员工在职才附社保补充（calculate 对不存在员工会抛异常，先守卫）
+        // 员工在职才附社保补充；社保域业务异常（孤儿规则绑定/规则费率缺失等）
+        // 不得阻断工资条主体 —— docblock 契约：social 降级 null，主体恒完整
         $social = null;
         if (HrEmployee::find($employeeId) !== null) {
-            $social = (new SocialSecurityService())->calculate($employeeId)[0];
+            try {
+                $social = (new SocialSecurityService())->calculate($employeeId)[0];
+            } catch (InvalidArgumentException) {
+                // 计算类业务异常 → social 保持 null（与未绑定语义一致，见类注释）
+            }
         }
         $header['employee'] = $salary->employee ? $salary->employee->toArray() : null;
 
