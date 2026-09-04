@@ -229,7 +229,7 @@ Route::group('/admin/v1', function () {
     Route::delete('/hr/employee-social', [app\controller\hr\SocialSecurityController::class, 'unbind']);
     Route::get('/hr/employee-social/{id}/calculate', [app\controller\hr\SocialSecurityController::class, 'calculate']);
     Route::get('/hr/employee-social/{id}', [app\controller\hr\SocialSecurityController::class, 'employeeSocialDetail']);
-    Route::post('/hr/salary/{id}/payslip', [app\controller\hr\SalaryController::class, 'payslipView']);
+    Route::get('/hr/salary/{id}/payslip', [app\controller\hr\SalaryController::class, 'payslipView']);
     // P0 invoice：发票(应收/应付)+开票申请状态流+三单匹配(采购收货/销售发货)
     // 静态 action 路由先于 resource 注册，避免 {id} 动态段抢占 match-check
     Route::post('/finance/invoice/{id}/submit', [app\controller\finance\InvoiceController::class, 'submit']);
