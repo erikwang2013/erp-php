@@ -9313,3 +9313,278 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 3
 			path: app/service/hr/RecruitService.php
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/controller/eam/EamInspectionController.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/controller/project/ProjectCostController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionResult\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionResult\:\:\$item_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionResult\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionResult\:\:\$result\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionResult\:\:\$task_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionTask\:\:\$assignee_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionTask\:\:\$equipment_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionTask\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionTask\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionTask\:\:\$source_plan_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionTask\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamInspectionTask\:\:\$task_date\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamMaintenancePlan\:\:\$equipment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$assignee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$cost\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$equipment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$fault_description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$repair_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$start_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\EamRepairOrder\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{item_name\: string, result\: int, remark\?\: string\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Offset ''item_name'' on array\{item_name\: string, result\: int, remark\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Offset ''result'' on array\{item_name\: string, result\: int, remark\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/eam/EamInspectionService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Project\:\:\$budget_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$category\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$cost\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$employee_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$hours\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$rate\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$source_type\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$task_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$timesheet_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectCost\:\:\$work_date\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectMember\:\:\$hourly_rate\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ProjectMember\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Offset ''category'' on array\{task_id\?\: int, employee_id\?\: int, work_date\: string, category\: int, hours\?\: string, rate\?\: string, cost\?\: string, remark\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/project/ProjectCostService.php
+
+		-
+			message: '#^Offset ''work_date'' on array\{task_id\?\: int, employee_id\?\: int, work_date\: string, category\: int, hours\?\: string, rate\?\: string, cost\?\: string, remark\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/service/project/ProjectCostService.php
