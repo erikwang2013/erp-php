@@ -72,6 +72,8 @@ class BankReconService
                 return [null, "第 {$no} 行方向非法: 仅支持 1=收入 2=支出"];
             }
             $rawAmount = (string) ($row['amount'] ?? '0');
+            // 金额一律严格十进制正则（不用 is_numeric：其接受 1e3/INF 等 bcmath 无法解析
+            // 的形态，直接落入 bcadd/bc_round 会抛未捕获 ValueError）
             if (!preg_match('/^-?\d+(\.\d+)?$/', $rawAmount)) {
                 return [null, "第 {$no} 行发生额非法"];
             }
@@ -85,7 +87,8 @@ class BankReconService
                 return [null, "第 {$no} 行对方户名/摘要超长(200)"];
             }
             $balanceAfter = $row['balance_after'] ?? null;
-            if ($balanceAfter !== null && $balanceAfter !== '' && !is_numeric($balanceAfter)) {
+            // 同上：禁止 is_numeric 宽松判定（'1e3' 会让 bcadd 抛 ValueError），与发生额同正则
+            if ($balanceAfter !== null && $balanceAfter !== '' && !preg_match('/^-?\d+(\.\d+)?$/', (string) $balanceAfter)) {
                 return [null, "第 {$no} 行交易后余额非法"];
             }
             $normalized[] = [
