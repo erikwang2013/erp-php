@@ -1914,10 +1914,32 @@ CREATE TABLE IF NOT EXISTS `erp_project_member` (
     `user_id` BIGINT UNSIGNED NOT NULL COMMENT '成员ID',
     `role` VARCHAR(30) NOT NULL DEFAULT 'member' COMMENT '角色: manager/developer/tester/designer/viewer',
     `joined_at` DATETIME DEFAULT NULL,
+    `hourly_rate` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '费率(元/小时), 0=未配置',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_project_user` (`project_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目成员表';
+
+CREATE TABLE IF NOT EXISTS `erp_project_cost` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
+    `project_id` BIGINT UNSIGNED NOT NULL COMMENT '项目ID',
+    `task_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '任务ID, 0=无',
+    `employee_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '员工ID(项目成员user_id), 0=无',
+    `work_date` DATE NOT NULL COMMENT '发生日期',
+    `source_type` VARCHAR(20) NOT NULL DEFAULT 'manual' COMMENT '来源: timesheet=工时归集 manual=手工录入',
+    `timesheet_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源工时记录ID, 0=非工时来源',
+    `category` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '类别: 1=人工 2=材料 3=其他',
+    `hours` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '工时数(非工时来源=0)',
+    `rate` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '费率快照(元/小时)',
+    `cost` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '成本(bcmath hours×rate, half-up 2位)',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_project_id` (`project_id`),
+    KEY `idx_work_date` (`work_date`),
+    KEY `idx_timesheet_id` (`timesheet_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目成本归集台账(P1, 工时归集幂等+手工录入)';
 
 CREATE TABLE IF NOT EXISTS `erp_project_timesheet` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID',
@@ -4014,6 +4036,34 @@ CREATE TABLE IF NOT EXISTS `erp_eam_spare_part` (
     PRIMARY KEY (`id`),
     INDEX `idx_equipment_id` (`equipment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `erp_eam_inspection_task` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键(雪花ID)',
+    `equipment_id` BIGINT UNSIGNED NOT NULL COMMENT '设备ID',
+    `source_plan_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '来源保养计划ID, 0=临时点检',
+    `task_date` DATE NOT NULL COMMENT '点检日期',
+    `assignee_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '负责人ID(用户ID), 0=未指定',
+    `status` TINYINT NOT NULL DEFAULT 0 COMMENT '状态: 0=待执行 1=已完成 2=异常待维修 3=已取消',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_equipment_date` (`equipment_id`, `task_date`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='设备点检任务(E1)';
+
+CREATE TABLE IF NOT EXISTS `erp_eam_inspection_result` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键(雪花ID)',
+    `task_id` BIGINT UNSIGNED NOT NULL COMMENT '点检任务ID',
+    `item_name` VARCHAR(100) NOT NULL COMMENT '点检项名称',
+    `result` TINYINT NOT NULL DEFAULT 0 COMMENT '结果: 0=正常 1=异常',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '结果备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_task_id` (`task_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='设备点检结果明细(E1)';
+
 -- ============================================================
 -- QMS质量管理模块权限种子数据
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz

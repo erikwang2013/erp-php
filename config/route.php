@@ -284,6 +284,12 @@ Route::group('/admin', function () {
     Route::resource('/project/task', app\controller\project\TaskController::class);
     Route::resource('/project/timesheet', app\controller\project\TimesheetController::class);
     Route::resource('/project', app\controller\project\ProjectController::class);
+    // 项目成本（P1）：静态子路径先于 DELETE {id} 注册
+    Route::get('/project/cost/pnl', [app\controller\project\ProjectCostController::class, 'pnl']);
+    Route::post('/project/cost/generate', [app\controller\project\ProjectCostController::class, 'generate']);
+    Route::get('/project/cost', [app\controller\project\ProjectCostController::class, 'index']);
+    Route::post('/project/cost', [app\controller\project\ProjectCostController::class, 'store']);
+    Route::delete('/project/cost/{id}', [app\controller\project\ProjectCostController::class, 'destroy']);
 
     // ============================================================
     // 人力资源管理
@@ -462,6 +468,10 @@ Route::group('/admin', function () {
     Route::resource('/eam/repair', app\controller\eam\RepairOrderController::class);
     Route::post('/eam/repair/{id}/transition', [app\controller\eam\RepairOrderController::class, 'transition']);
     Route::resource('/eam/spare-part', app\controller\eam\SparePartController::class);
+    // 设备点检（E1）：静态子路径先于 resource 注册
+    Route::post('/eam/inspection/scan-execute', [app\controller\eam\EamInspectionController::class, 'scanExecute']);
+    Route::post('/eam/inspection/{id}/cancel', [app\controller\eam\EamInspectionController::class, 'cancel']);
+    Route::resource('/eam/inspection', app\controller\eam\EamInspectionController::class);
 
     // ============================================================
     // 文档管理
