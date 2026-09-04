@@ -357,7 +357,7 @@
 <path fill="none" stroke="#d32f2f" stroke-width="1.5" d="M324,-168.8C324,-165.24 309.21,-162.34 291,-162.34 272.79,-162.34 258,-165.24 258,-168.8"/>
 <text text-anchor="middle" x="291" y="-153.75" font-family="Arial" font-size="10.00">MySQL 8.0</text>
 <text text-anchor="middle" x="291" y="-142.75" font-family="Arial" font-size="10.00">主数据库</text>
-<text text-anchor="middle" x="291" y="-131.75" font-family="Arial" font-size="10.00">163 张表</text>
+<text text-anchor="middle" x="291" y="-131.75" font-family="Arial" font-size="10.00">226 张表</text>
 <text text-anchor="middle" x="291" y="-120.75" font-family="Arial" font-size="10.00">erp_ 前缀</text>
 </g>
 <!-- s1&#45;&gt;d1 -->

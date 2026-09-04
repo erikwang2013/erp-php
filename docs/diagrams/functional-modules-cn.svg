@@ -144,8 +144,8 @@
 <path fill="#1a237e" stroke="#0d47a1" stroke-width="2" d="M9526.5,-166.6C9526.5,-166.6 9377.5,-166.6 9377.5,-166.6 9371.5,-166.6 9365.5,-160.6 9365.5,-154.6 9365.5,-154.6 9365.5,-110.6 9365.5,-110.6 9365.5,-104.6 9371.5,-98.6 9377.5,-98.6 9377.5,-98.6 9526.5,-98.6 9526.5,-98.6 9532.5,-98.6 9538.5,-104.6 9538.5,-110.6 9538.5,-110.6 9538.5,-154.6 9538.5,-154.6 9538.5,-160.6 9532.5,-166.6 9526.5,-166.6"/>
 <text text-anchor="middle" x="9452" y="-151.4" font-family="Arial Bold" font-size="14.00" fill="white">开放ERP系统</text>
 <text text-anchor="middle" x="9452" y="-136.4" font-family="Arial Bold" font-size="14.00" fill="white">功能模块总览</text>
-<text text-anchor="middle" x="9452" y="-121.4" font-family="Arial Bold" font-size="14.00" fill="white">19 个业务领域 / 163 张表</text>
-<text text-anchor="middle" x="9452" y="-106.4" font-family="Arial Bold" font-size="14.00" fill="white">121 个控制器</text>
+<text text-anchor="middle" x="9452" y="-121.4" font-family="Arial Bold" font-size="14.00" fill="white">23 个业务领域 / 226 张表</text>
+<text text-anchor="middle" x="9452" y="-106.4" font-family="Arial Bold" font-size="14.00" fill="white">154 个控制器</text>
 </g>
 <!-- a1 -->
 <g id="node2" class="node">

@@ -9,6 +9,22 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 1681.5)">
 <title>RequestLifecycleCN</title>
 <text text-anchor="middle" x="234.87" y="-1660.7" font-family="Arial Bold" font-size="16.00">请求生命周期 — 从客户端到数据库的完整路径</text>
+<!-- middleware inventory (11 classes, per app/middleware + config registration) -->
+<g id="mwlegend">
+<rect x="4" y="-1655" width="186" height="184" rx="8" fill="#fcfcfc" stroke="#9e9e9e" stroke-width="1" stroke-dasharray="4,3"/>
+<text text-anchor="start" x="14" y="-1639" font-family="Arial" font-size="10.50" font-weight="bold" fill="#37474f">中间件链 — 11 个注册类</text>
+<text text-anchor="start" x="14" y="-1624" font-family="Arial" font-size="10.00" fill="#3949ab">全局(4): 跨域 → 安全过滤</text>
+<text text-anchor="start" x="14" y="-1612" font-family="Arial" font-size="10.00" fill="#3949ab">→ 限流 → TracingId</text>
+<text text-anchor="start" x="14" y="-1597" font-family="Arial" font-size="10.00" fill="#2e7d32">/admin/v1(3): JWT认证 →</text>
+<text text-anchor="start" x="14" y="-1585" font-family="Arial" font-size="10.00" fill="#2e7d32">RBAC 权限 → 操作日志</text>
+<text text-anchor="start" x="14" y="-1570" font-family="Arial" font-size="10.00" fill="#00695c">/open/v1(1): OpenApiAuth</text>
+<text text-anchor="start" x="14" y="-1558" font-family="Arial" font-size="10.00" fill="#00695c">密钥 + 签名校验</text>
+<text text-anchor="start" x="14" y="-1543" font-family="Arial" font-size="10.00" fill="#b26a00">TMS(1): TrackingSignature</text>
+<text text-anchor="start" x="14" y="-1528" font-family="Arial" font-size="10.00" fill="#90a4ae">静态(1): StaticFile</text>
+<text text-anchor="start" x="14" y="-1513" font-family="Arial" font-size="10.00" fill="#90a4ae">预留(1): TenantScope(未注册)</text>
+<text text-anchor="start" x="14" y="-1494" font-family="Arial" font-size="10.00" fill="#6a1b9a">路径版本化: /admin/v1 /api/v1</text>
+<text text-anchor="start" x="14" y="-1482" font-family="Arial" font-size="10.00" fill="#6a1b9a">/open/v1（无版本请求头）</text>
+</g>
 <!-- client -->
 <g id="node1" class="node">
 <title>client</title>
@@ -35,19 +51,11 @@
 <text text-anchor="middle" x="328.5" y="-1583.3" font-family="Times,serif" font-size="9.00">Authorization: Bearer JWT</text>
 <text text-anchor="middle" x="328.5" y="-1573.3" font-family="Times,serif" font-size="9.00">Accept&#45;Language: zh&#45;CN</text>
 </g>
-<!-- locale -->
-<g id="node3" class="node">
-<title>locale</title>
-<ellipse fill="#e8eaf6" stroke="#3949ab" stroke-width="1.5" cx="267" cy="-1423.5" rx="90.52" ry="28.98"/>
-<text text-anchor="middle" x="267" y="-1432" font-family="Arial" font-size="10.00">语言中间件</text>
-<text text-anchor="middle" x="267" y="-1421" font-family="Arial" font-size="10.00">检测 Accept&#45;Language</text>
-<text text-anchor="middle" x="267" y="-1410" font-family="Arial" font-size="10.00">设置语言环境 (zh_CN/en)</text>
-</g>
-<!-- nginx&#45;&gt;locale -->
+<!-- nginx&#45;&gt;cors -->
 <g id="edge2" class="edge">
-<title>nginx&#45;&gt;locale</title>
-<path fill="none" stroke="#e65100" stroke-width="1.5" d="M267,-1492.37C267,-1483.08 267,-1472.76 267,-1463.02"/>
-<polygon fill="#e65100" stroke="#e65100" stroke-width="1.5" points="270.5,-1462.76 267,-1452.76 263.5,-1462.76 270.5,-1462.76"/>
+<title>nginx&#45;&gt;cors</title>
+<path fill="none" stroke="#e65100" stroke-width="1.5" d="M267,-1492.37C267,-1480 267,-1440 267,-1374.3"/>
+<polygon fill="#e65100" stroke="#e65100" stroke-width="1.5" points="270.5,-1374.22 267,-1364.22 263.5,-1374.22 270.5,-1374.22"/>
 <text text-anchor="middle" x="316.5" y="-1470.3" font-family="Times,serif" font-size="9.00">转发到 webman :8787</text>
 </g>
 <!-- cors -->
@@ -57,12 +65,6 @@
 <text text-anchor="middle" x="267" y="-1343.02" font-family="Arial" font-size="10.00">跨域中间件</text>
 <text text-anchor="middle" x="267" y="-1332.02" font-family="Arial" font-size="10.00">处理 OPTIONS 预检</text>
 <text text-anchor="middle" x="267" y="-1321.02" font-family="Arial" font-size="10.00">添加 CORS 响应头</text>
-</g>
-<!-- locale&#45;&gt;cors -->
-<g id="edge3" class="edge">
-<title>locale&#45;&gt;cors</title>
-<path fill="none" stroke="#3949ab" d="M267,-1394.5C267,-1387.9 267,-1380.74 267,-1373.77"/>
-<polygon fill="#3949ab" stroke="#3949ab" points="270.5,-1373.77 267,-1363.77 263.5,-1373.77 270.5,-1373.77"/>
 </g>
 <!-- secfilter -->
 <g id="node5" class="node">
@@ -98,18 +100,18 @@
 <path fill="none" stroke="#c62828" d="M267,-1169.53C267,-1162.98 267,-1156.21 267,-1149.52"/>
 <polygon fill="#c62828" stroke="#c62828" points="270.5,-1149.09 267,-1139.09 263.5,-1149.09 270.5,-1149.09"/>
 </g>
-<!-- apiversion -->
+<!-- tracingid -->
 <g id="node7" class="node">
-<title>apiversion</title>
-<ellipse fill="#e0f2f1" stroke="#00695c" stroke-width="1.5" cx="267" cy="-966.46" rx="86.95" ry="36.54"/>
-<text text-anchor="middle" x="267" y="-980.46" font-family="Arial" font-size="10.00">API 版本</text>
-<text text-anchor="middle" x="267" y="-969.46" font-family="Arial" font-size="10.00">校验 API&#45;Version 请求头</text>
-<text text-anchor="middle" x="267" y="-958.46" font-family="Arial" font-size="10.00">默认: v1</text>
-<text text-anchor="middle" x="267" y="-947.46" font-family="Arial" font-size="10.00">未知版本 → 400</text>
+<title>tracingid</title>
+<ellipse fill="#e8eaf6" stroke="#3949ab" stroke-width="1.5" cx="267" cy="-966.46" rx="86.95" ry="36.54"/>
+<text text-anchor="middle" x="267" y="-980.46" font-family="Arial" font-size="10.00">TracingId 中间件</text>
+<text text-anchor="middle" x="267" y="-969.46" font-family="Arial" font-size="10.00">读取或生成 TraceId</text>
+<text text-anchor="middle" x="267" y="-958.46" font-family="Arial" font-size="10.00">注入 X-Trace-Id 响应头</text>
+<text text-anchor="middle" x="267" y="-947.46" font-family="Arial" font-size="10.00">关联全链路日志</text>
 </g>
-<!-- ratelimit&#45;&gt;apiversion -->
+<!-- ratelimit&#45;&gt;tracingid -->
 <g id="edge6" class="edge">
-<title>ratelimit&#45;&gt;apiversion</title>
+<title>ratelimit&#45;&gt;tracingid</title>
 <path fill="none" stroke="#4527a0" d="M267,-1034.1C267,-1027.33 267,-1020.42 267,-1013.74"/>
 <polygon fill="#4527a0" stroke="#4527a0" points="270.5,-1013.49 267,-1003.49 263.5,-1013.49 270.5,-1013.49"/>
 </g>
@@ -123,13 +125,13 @@
 <text text-anchor="middle" x="162" y="-821.64" font-family="Arial" font-size="10.00">检查过期时间</text>
 <text text-anchor="middle" x="162" y="-810.64" font-family="Arial" font-size="10.00">设置认证上下文</text>
 </g>
-<!-- apiversion&#45;&gt;adminauth -->
+<!-- tracingid&#45;&gt;adminauth -->
 <g id="edge11" class="edge">
-<title>apiversion&#45;&gt;adminauth</title>
+<title>tracingid&#45;&gt;adminauth</title>
 <path fill="none" stroke="#2e7d32" stroke-width="1.5" d="M216.58,-936.22C208.3,-929.87 200.37,-922.64 194,-914.69 187.79,-906.93 182.63,-897.8 178.4,-888.56"/>
 <polygon fill="#2e7d32" stroke="#2e7d32" stroke-width="1.5" points="181.61,-887.17 174.47,-879.34 175.17,-889.91 181.61,-887.17"/>
 <text text-anchor="middle" x="217" y="-907.49" font-family="Times,serif" font-size="9.00">管理端端点</text>
-<text text-anchor="middle" x="217" y="-897.49" font-family="Times,serif" font-size="9.00">/admin/*</text>
+<text text-anchor="middle" x="217" y="-897.49" font-family="Times,serif" font-size="9.00">/admin/v1</text>
 </g>
 <!-- pubctrl -->
 <g id="node11" class="node">
@@ -139,9 +141,9 @@
 <text text-anchor="middle" x="272" y="-744.1" font-family="Arial" font-size="10.00">/health /api/docs /install</text>
 <text text-anchor="middle" x="272" y="-733.1" font-family="Arial" font-size="10.00">执行业务逻辑并返回</text>
 </g>
-<!-- apiversion&#45;&gt;pubctrl -->
+<!-- tracingid&#45;&gt;pubctrl -->
 <g id="edge7" class="edge">
-<title>apiversion&#45;&gt;pubctrl</title>
+<title>tracingid&#45;&gt;pubctrl</title>
 <path fill="none" stroke="#f9a825" d="M266.76,-929.45C266.75,-918.31 266.81,-905.99 267,-894.69 267.63,-857.83 269.13,-815.8 270.33,-786.13"/>
 <polygon fill="#f9a825" stroke="#f9a825" points="273.84,-785.93 270.76,-775.79 266.85,-785.64 273.84,-785.93"/>
 <text text-anchor="middle" x="323" y="-907.49" font-family="Times,serif" font-size="9.00">公开端点</text>
@@ -155,13 +157,13 @@
 <text text-anchor="middle" x="387" y="-551.47" font-family="Arial" font-size="10.00">/captcha /auth /product</text>
 <text text-anchor="middle" x="387" y="-540.47" font-family="Arial" font-size="10.00">执行业务逻辑</text>
 </g>
-<!-- apiversion&#45;&gt;apictrl -->
+<!-- tracingid&#45;&gt;apictrl -->
 <g id="edge9" class="edge">
-<title>apiversion&#45;&gt;apictrl</title>
+<title>tracingid&#45;&gt;apictrl</title>
 <path fill="none" stroke="#f9a825" d="M340.63,-946.68C356.1,-939.25 370.57,-928.95 380,-914.69 445.98,-814.85 417.13,-662.99 398.43,-592.87"/>
 <polygon fill="#f9a825" stroke="#f9a825" points="401.78,-591.86 395.76,-583.14 395.03,-593.71 401.78,-591.86"/>
 <text text-anchor="middle" x="438" y="-837.94" font-family="Times,serif" font-size="9.00">API 端点</text>
-<text text-anchor="middle" x="438" y="-827.94" font-family="Times,serif" font-size="9.00">/api/*</text>
+<text text-anchor="middle" x="438" y="-827.94" font-family="Times,serif" font-size="9.00">/api/v1</text>
 </g>
 <!-- adminperm -->
 <g id="node9" class="node">
@@ -308,7 +310,7 @@
 <path fill="none" stroke="#d32f2f" stroke-width="1.5" d="M151,-51.4C151,-48.56 136.21,-46.25 118,-46.25 99.79,-46.25 85,-48.56 85,-51.4"/>
 <text text-anchor="middle" x="118" y="-36.69" font-family="Arial" font-size="10.00">MySQL 8.0</text>
 <text text-anchor="middle" x="118" y="-25.69" font-family="Arial" font-size="10.00">主数据库</text>
-<text text-anchor="middle" x="118" y="-14.69" font-family="Arial" font-size="10.00">163 张表</text>
+<text text-anchor="middle" x="118" y="-14.69" font-family="Arial" font-size="10.00">226 张表</text>
 </g>
 <!-- model&#45;&gt;mysql -->
 <g id="edge19" class="edge">
