@@ -128,6 +128,11 @@
 - 按客户汇总：销售金额、已收、应收
 - 按订单/商品/客户维度计算毛利
 
+### 4.6 客户信用控制（v1.4.0 交付）
+
+- 信用额度管理：按客户维护授信额度、占用与拦截规则
+- 下单/发货前拦截：CreditControlService assertOrderCreate / assertDeliveryCreate / guard 拒绝超限订单并返回原因
+
 ---
 
 ## 5. 库存管理
@@ -166,6 +171,11 @@
 ### 5.8 库存预警
 - 按 SKU+仓库 设置上下限
 - 低于下限/高于上限自动记录预警日志
+
+### 5.9 批次/序列号追溯与效期预警（v1.4.0 交付）
+
+- 追溯链：TraceService forward/backward 正反向追踪批次去向/来源，serial 序列号台账
+- 效期预警：expiryAlert 近效期与过期批次提醒
 
 ---
 
@@ -223,12 +233,28 @@
 - 成本归集 + 费用分摊
 - 利润中心独立核算
 
-### 6.12 期末结转/报表合并
+### 6.12 期末结转 / 多组织核算 / 报表合并（v1.4.0 交付）
+
 - 期末损益结转：按期间汇总损益类科目发生额（收入类-费用类=净利，status=calculated）
-- 结转不生成凭证（缺本年利润科目配置与防重复结转规则）；无控制器端点
-- 报表合并：`POST /admin/finance/report/consolidate` 端点已落地（ReportController）
-- 合并引擎主体未实现（缺汇率折算与子公司间抵销规则，显式拒绝）
-- 测试：PeriodCloseServiceTest 4 例 + ConsolidationServiceTest 2 例
+- 结转不生成凭证（缺本年利润科目配置与防重复结转规则）、无控制器端点 —— 未列入 v1.4.0 交付，保留待办
+- 多组织核算：CompanyController / LedgerPeriodController 独立核算主体与会计期间（v1.4.0 交付）
+- 合并报表引擎（v1.4.0 交付）：ConsolidationService rateToBase/translateLedger 期末汇率折算（缺汇率即拒绝）、addElimination 子公司间抵销（借贷平衡校验）、generateDraft 出表（已出具期间读快照，无快照按已审核凭证实时重算）、issue 防重复出具、latest/list；结果落 FinanceConsolidationReport
+- 测试：PeriodCloseServiceTest 4 例 + ConsolidationServiceTest 3 例
+
+### 6.13 存货与生产成本核算（v1.4.0 交付）
+
+- 生产发料与成本归集：MaterialIssueController 领料出库入账，CostEntryController + MfgCostService 按工单归集材料/人工/制造费用
+- 凭证规则：MfgCostVoucherRule 完工成本与差异结转凭证（联动 §12 生产工单）
+
+### 6.14 票据与银企对账（v1.4.0 交付）
+
+- 票据全生命周期：FinanceBillService store/update/endorse（背书）/discount（贴现）/collect（托收）/cash（兑现）/reject + dueWarnings 到期预警
+- 银企对账：BankReconService importStatement 流水导入、autoReconcile/manualReconcile/unreconcile 核销、reconReport 对账报告
+
+### 6.15 进项发票池与数电票（v1.4.0 交付）
+
+- 进项池：TaxInvoicePoolService registerOne/registerBatch/verify/check/deduct/deductStats；查验走 MockTaxVerifier（真实税局通道为适配点）
+- 数电票：EInvoiceService issueInvoice/voidInvoice/issueLogs，经 EInvoiceAdapter/MockEInvoiceAdapter（真实税局通道为适配点）
 
 ---
 
@@ -262,6 +288,11 @@
 - 5 端点：reports/generate/reportShow/metrics/storeMetric（AnalyticsController）
 - 支持月度/季度/年度
 
+### 7.6 会员价值引擎（v1.4.0 交付）
+
+- 会员与储值：MemberService openMember/recharge/consume/refund
+- 积分与券：earnPoints/consumePoints/expirePoints 积分流水 + issueCoupon/redeemCoupon 券核销（MemberController / CouponController）
+
 ---
 
 ## 8. 审批工作流引擎
@@ -277,6 +308,11 @@
 - 我的审批列表（待审批 + 已审批）
 - 审批记录完整追踪
 
+### 8.3 可视化流程设计器（v1.4.0 交付）
+
+- 画布编排：WorkflowDesignerController 读写节点/连线定义（canvas_json 持久化）
+- 与审批引擎同源：发布后按画布定义驱动审批链流转
+
 ---
 
 ## 9. 消息通知系统
@@ -284,7 +320,7 @@
 ### 9.1 通知管理
 - 站内消息：未读/已读状态
 - 通知模板：支持变量替换（如"您有一个来自{申请人}的审批待处理"）
-- 多通道：站内通知（已落地）→ 邮件（文件日志驱动已落地，SMTP 待接入）→ 企业微信/钉钉（预留适配点）
+- 多通道（v1.4.0 渠道驱动交付）：ChannelDriver 抽象 + MockChannelDriver/MailMockChannelDriver，ChannelService 统一分发，NotificationChannelController send/logs/retry 失败重试；企业微信/钉钉仍为预留适配点
 - 用户通知偏好设置
 
 ### 9.2 自动通知
@@ -315,6 +351,11 @@
 - 自动汇总任务实际工时
 - 支持项目成本核算
 
+### 10.4 项目成本与预算偏差（v1.4.0 交付）
+
+- 成本入账：ProjectCostService createManual 手工补录 + generateFromTimesheet 按工时×员工费率折算
+- 盈亏视图：projectPnl 项目毛利与预算对比
+
 ---
 
 ## 11. 人力资源管理
@@ -336,6 +377,17 @@
 - 薪资核算：基本工资 + 绩效 + 加班 - 扣除 - 个税 = 实发
 - 支持批量生成月度薪资
 - 薪资发放确认
+
+### 11.4 招聘与绩效（v1.4.0 交付）
+
+- 招聘：RecruitService 职位发布/关闭、候选人漏斗推进、面试记录、Offer 发送/接受/拒绝
+- 绩效：PerformanceService 指标模板与考核计划、360 评分（submitScore 多评价人）、汇总
+
+### 11.5 培训、社保与工资条（v1.4.0 交付）
+
+- 培训：TrainingService 课程/报名/完成/学分台账（employeeCredits）
+- 社保：SocialSecurityService 基数规则（createRule/setRate）、员工绑定 bind/unbind、试算 calculate 与员工明细 employeeSocialDetail
+- 工资条：PayslipService view 只读展开薪资项（收入/扣除/实发，附社保补充）
 
 ---
 
@@ -365,6 +417,19 @@
 - 净需求计算：总需求 - 计划接收 - 现有库存 = 净需求
 - 按期间（年度+月份）生成计划
 - 状态：草稿 → 已生成 → 已确认
+
+### 12.6 工序报工与计件工资（v1.4.0 交付）
+
+- 报工：WorkReportService audit 审核工序报工
+- 计件：PieceWageService accumulate 计件台账 / periodSummary 按期间汇总
+
+### 12.7 委外加工与核销（v1.4.0 交付）
+
+- SubcontractService：auditIssue 委外发料审核 → auditReceive 收货核销闭环
+
+### 12.8 产能负荷（v1.4.0 交付）
+
+- MfgCapacityService：calendar 工作站产能日历、setException/removeException 产能异常、report 负荷分析
 
 ---
 
@@ -547,37 +612,39 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 库存管理 | ✅ | ✅ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
 | 财务 — 凭证/应收应付 | ✅ | ⚠️ | ✅ 16 页 | 🔴 | 🔵 P0 |
 | 财务 — 总账/三表 | ⚠️ | 🔴 | ⚠️ 3 页（动作深度待核） | 🔴 | 🟢 P1 |
-| 财务 — 报表合并 | ✅ | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
+| 财务 — 报表合并 | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 财务 — 多组织核算 (F1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 财务 — 期末结转 | 🔴 | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
+| 财务 — 存货成本核算 (F3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | CRM 全模块 | ✅ | ✅ | ✅ 10/10 | 🔴 | 🔵 P0 |
 | OMS 订单管理 | ✅ | ✅ | ✅ 4/4 | ⚠️ 4 页 | 🔵 P0 |
 | WMS 仓储管理 | ✅ | ✅ | ⚠️ 7/8 | ⚠️ 7 页 | 🔵 P0 |
 | TMS 运输管理 | ✅ | ✅ | ⚠️ 5/6 | ⚠️ 5 页 | 🔵 P0 |
-| 审批工作流 | ✅ | ✅ | ✅ 2/2 | ⚠️ 1 页 | 🔵 P0 |
-| 通知系统 | ⚠️ | ⚠️ | ✅ 1/1 | 🔴 | 🟢 P1 |
-| 信用控制 (F7) | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 追溯链/近效期 (M6) | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 产能负荷 (M3) | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 工序报工/计件/委外核销 (M1+M2) | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 流程设计器 (B3) | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 打印模板 (B1) | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 招聘/绩效/培训/社保 (H1-H4) | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 点检扫码 (E1) | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 项目成本/预算 (P1) | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 票据/银企对账 (F6) | ✅ | ✅ | 🔴 | 🔴 | 🟡 P2 |
-| 进项池/数电票 (F5) | ✅ | ✅ | 🔴 | 🔴 | 🟡 P2 |
-| 会员价值 (C1) | ✅ | ✅ | 🔴 | 🔴 | 🟡 P2 |
-| 多租户 (B5) | ✅ | ✅ | 🔴 | 🔴 | 🟡 P2 |
-| 渠道通知/自定义字段 (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | 🟡 P2 |
+| 审批工作流 | ✅ | ✅ | ⚠️ 2/3 | ⚠️ 1 页 | v1.4.0 |
+| 通知系统 | ✅ | ✅ | ⚠️ 1/2 | 🔴 | v1.4.0 |
+| 信用控制 (F7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 追溯链/近效期 (M6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 产能负荷 (M3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 工序报工/计件/委外核销 (M1+M2) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 流程设计器 (B3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 打印模板 (B1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 招聘/绩效/培训/社保 (H1-H4) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 点检扫码 (E1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 项目成本/预算 (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 票据/银企对账 (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 进项池/数电票 (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 会员价值 (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 多租户 (B5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 部分启用 |
+| 渠道通知/自定义字段 (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 项目管理 | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
 | HR — 组织/考勤/请假 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 3 页 | 🔵 P0 |
 | HR — 薪资引擎 | ⚠️ | 🔴 | ⚠️ 2 页 | 🔴 | 🟢 P1 |
-| 制造 — BOM/生产/MRP | ⚠️ | 🔴 | ✅ 5/5 | ⚠️ 5 页 | 🟢 P1 |
+| 制造 — BOM/生产/MRP | ✅ | ✅ | ⚠️ 5/13 | ⚠️ 5 页 | v1.4.0 |
 | 质量管理 | ✅ | ✅ | ✅ 5/5 | 🔴 | 🟢 P1 |
 | 自定义报表 | ✅ | ⚠️ | ✅ 2/2 | 🔴 | 🔵 P0 |
 | BI 看板 | ✅ | ✅ | ⚠️ 2/3 | 🔴 | 🟣 P3 |
-| 设备管理 EAM | ✅ | ✅ | ✅ 4/4 | 🔴 | 🟣 P3 |
-| 多租户 | ⚠️ | ⚠️ | 🔴 | 🔴 | 🟣 P3 |
+| 设备管理 EAM | ✅ | ✅ | ⚠️ 4/5 | 🔴 | v1.4.0 |
+| 多租户 | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 部分启用 |
 | 文档管理 DMS | ✅ | ✅ | ⚠️ 1/2 | 🔴 | 🟣 P3 |
 | 可观测性 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 | 迁移回滚/备份 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
@@ -586,22 +653,25 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 维度 | ✅ 完成 | ⚠️ 骨架 | 🔴 缺失 | N/A | 完成率 |
 |------|---------|----------|---------|-----|--------|
-| 模块 (28) | 14 | 14 | 0 | 0 | 50% |
-| 后端 API | 20 | 7 | 1 | 0 | 71% |
-| 业务逻辑 | 14 | 9 | 5 | 0 | 50% |
-| Flutter 前端 | 16 | 7 | 3 | 2 | 62% |
-| HarmonyOS | 0 | 12 | 14 | 2 | 0%（✅ 计；12 行已有页面 ⚠️）|
+| 模块 (44) | 33 | 11 | 0 | 0 | 75% |
+| 后端 API | 39 | 4 | 1 | 0 | 89% |
+| 业务逻辑 | 33 | 7 | 4 | 0 | 75% |
+| Flutter 前端 | 12 | 11 | 19 | 2 | 29% |
+| HarmonyOS | 0 | 12 | 30 | 2 | 0%（✅ 计；12 行已有页面 ⚠️）|
 
-> **统计口径（2026-08-27 校正）**：模块行按「后端 API 与业务逻辑均实现」计；
-> 后端 API / 业务逻辑 两行按矩阵对应列统计（2026-08-16 已按代码现状将 QMS/EAM/DMS/BI 校正为 ✅、
-> 多租户校正为 ⚠️，证据见下方「代码证据」）。
+> **统计口径（2026-09-05 校正）**：模块行按「后端 API 与业务逻辑均实现」计——双 ✅=完成，
+> 未达双 ✅ 即计骨架 ⚠️（含「部分启用」行：多租户 B5 隔离中间件未注册等历史待补项，见代码证据）；
+> 后端 API / 业务逻辑 两行按矩阵对应列统计，完成率分母扣除 N/A 行（可观测性、迁移回滚无前端）。
 > **Flutter / HarmonyOS 列（2026-08-27 起改为「页面动作覆盖」口径）**：✅=该模块存在页面且页面文件数 ≥ 后端控制器数
 > （`n/n` 或页数标注）；⚠️=有页面但页面文件数 < 后端控制器数（部分覆盖）；🔴=无页面；**待核**=页面存在但
 > 动作深度（增删改查闭环）未逐页核验。页面数 = 2026-08-27 实测
 > `apps/flutter/lib/app/pages/<模块>/` 与 `apps/harmonyos/entry/src/main/ets/pages/**` 文件数（Flutter 107 页、HarmonyOS 35 页），
-> 未纳入后端 doc-stats 校验；HarmonyOS 完成率 0% 系 ✅ 计数（0/25），实际 12 行已有页面（⚠️ 部分覆盖），非整列缺失。
+> 未纳入后端 doc-stats 校验；HarmonyOS 完成率 0% 系 ✅ 计数（0/42），实际 12 行已有页面（⚠️ 部分覆盖），非整列缺失。
+> **v1.4.0 批次（2026-09-05）**：44 行中 22 行标注 v1.4.0（含 2 行「部分启用」= 多租户 B5 与多租户行），
+> 覆盖多组织/合并报表/存货成本（F1-F3）、制造 M1/M2/M3/M6、信用 F7、票据/银企/进项池/数电票 F6/F5、
+> HR H1-H4、会员 C1、平台 B1-B5/B7、点检 E1、项目成本 P1；证据见下方「代码证据」。
 
-### 代码证据（2026-08-29 校正）
+### 代码证据（2026-09-05 校正）
 
 本次完成度校正依据（文件存在性可由 `bash scripts/doc-stats.sh` 与 `find` 佐证）：
 
@@ -609,10 +679,16 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 |------|------|----------|
 | 质量管理 | 🔴 → ✅ | `app/controller/quality/`（5 控制器）+ `app/service/quality/QmsInspectionService.php` + `tests/QualityModuleTest.php` |
 | BI 看板 | 🔴 → ✅ | `app/controller/bi/`（3 控制器：Dashboard/Dataset/Widget）+ `tests/BiModuleTest.php` |
-| 设备管理 EAM | 🔴 → ✅ | `app/controller/eam/`（4 控制器）+ `tests/EamModuleTest.php` |
+| 设备管理 EAM | 🔴 → ✅（+E1 点检） | `app/controller/eam/`（5 控制器，含 `EamInspectionController.php`）+ `app/service/eam/EamInspectionService.php` + `tests/EamModuleTest.php` |
 | 文档管理 DMS | 🔴 → ✅ | `app/controller/dms/`（2 控制器）+ `tests/DmsModuleTest.php` |
-| 多租户 | 🔴 → ⚠️ | `app/middleware/TenantScope.php` + `app/model/concerns/TenantScope.php` + `tests/Integration/TenantScopeIntegrationTest.php`（已知缺陷：静态租户 ID 未随模型传播，故为骨架而非完成） |
-| 报表合并 | 🔴 → ⚠️ | `app/controller/finance/ReportController.php:91`（`POST /admin/finance/report/consolidate`，route.php:158）+ `app/service/finance/ConsolidationService.php` + `tests/ConsolidationServiceTest.php`（2 例；服务主体显式抛异常：缺汇率折算与抵销规则，故为骨架） |
+| 多租户 | ⚠️ → ⚠️（v1.4.0 部分启用） | `app/controller/platform/TenantController.php` + `app/service/platform/TenantService.php`（provision/suspend/resume/expireMark/renew/expiryWarnings 到期计费已交付）+ `tests/Integration/TenantScopeIntegrationTest.php`；隔离中间件 `app/middleware/TenantScope.php` 仍未注册（隔离未生效），故为部分启用 |
+| 报表合并 | ⚠️ → ✅（v1.4.0 交付） | `app/service/finance/ConsolidationService.php`（rateToBase/translateLedger 期末汇率折算、addElimination 子公司间抵销且借贷平衡校验、generateDraft 快照优先/无快照实时重算、issue 防重、latest/list；缺汇率即拒绝）+ 结果落 `app/model/FinanceConsolidationReport.php` + `tests/ConsolidationServiceTest.php`（3 例） |
 | 期末结转 | 🔴 → ⚠️ | `app/service/finance/PeriodCloseService.php:21` `closeProfitAndLoss()`（损益类科目汇总已实现，不生成结转凭证、无控制器端点）+ `tests/PeriodCloseServiceTest.php`（4 例） |
+| v1.4.0 — 多组织核算 (F1) | 新增 | `app/controller/finance/CompanyController.php` + `LedgerPeriodController.php`（独立核算主体与会计期间） |
+| v1.4.0 — 存货与生产成本 (F3) | 新增 | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
+| v1.4.0 — 制造执行 M1/M2/M3/M6 | 新增 | `app/service/manufacturing/`（WorkReportService/PieceWageService/SubcontractService/MfgCapacityService）+ `app/service/inventory/TraceService.php`（批次/序列号追溯与效期预警）+ 对应控制器 WorkReport/PieceWage/Subcontract/Capacity |
+| v1.4.0 — 财务资金/税务 F6/F5 + F7 | 新增 | `app/service/finance/FinanceBillService.php` + `BankReconService.php`（对账单导入/自动与手工核销）+ `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php`（EInvoiceAdapter/MockEInvoiceAdapter，真实税局为预留适配点）+ `app/service/sales/CreditControlService.php`（超限订单断言拦截） |
+| v1.4.0 — 会员/HR/项目 C1/H1-H4/P1 | 新增 | `app/service/retail/MemberService.php` + `app/controller/retail/`（MemberController/CouponController）+ `app/service/hr/`（RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService）+ `app/service/project/ProjectCostService.php` |
+| v1.4.0 — 平台/渠道 B3/B4/B7/E1 | 新增 | `app/controller/workflow/WorkflowDesignerController.php`（canvas_json 持久化）+ `app/service/notification/`（ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver，失败重试）+ `app/controller/notification/NotificationChannelController.php`（`tests/NotificationChannelTest.php` 5 例）+ `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php`（点检扫码） |
 
 > 详细路线图设计规范: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`
