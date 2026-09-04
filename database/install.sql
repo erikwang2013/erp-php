@@ -1738,6 +1738,7 @@ CREATE TABLE IF NOT EXISTS `erp_approval_workflow` (
     `target_type` VARCHAR(30) NOT NULL COMMENT '适用单据: purchase_apply/purchase_order/expense/leave/other',
     `enabled` TINYINT UNSIGNED NOT NULL DEFAULT 1,
     `remark` VARCHAR(500) NOT NULL DEFAULT '',
+    `canvas_json` TEXT NOT NULL DEFAULT ('') COMMENT '画布快照(节点坐标+边+条件, P1-B3 设计器; 执行真相源仍是 erp_approval_node; 需 MySQL 8.0.13+ 表达式默认值语法)',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `deleted_at` DATETIME DEFAULT NULL,

@@ -8880,3 +8880,93 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/service/inventory/TraceService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\ApprovalWorkflow\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\ApprovalNode\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\ApprovalNode\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$workflow_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$approver_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$approver_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$role_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$seq\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$condition_field\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$condition_op\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$condition_value\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\ApprovalNode\:\:\$can_reject\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/workflow/WorkflowDesignerService.php

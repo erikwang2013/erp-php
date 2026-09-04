@@ -275,6 +275,10 @@ Route::group('/admin', function () {
     Route::post('/approval/{id}/reject', [app\controller\workflow\ApprovalController::class, 'reject']);
     Route::post('/approval/{id}/withdraw', [app\controller\workflow\ApprovalController::class, 'withdraw']);
     Route::any('/approval/my', [app\controller\workflow\ApprovalController::class, 'myApprovals']);
+    Route::get('/workflow/designer/{workflowId}', [app\controller\workflow\WorkflowDesignerController::class, 'load']);
+    Route::put('/workflow/designer/{workflowId}', [app\controller\workflow\WorkflowDesignerController::class, 'save']);
+    Route::post('/workflow/designer/{workflowId}/validate', [app\controller\workflow\WorkflowDesignerController::class, 'validate']);
+    Route::post('/workflow/designer/{workflowId}/route', [app\controller\workflow\WorkflowDesignerController::class, 'route']);
 
     // ============================================================
     // 通知系统
