@@ -18,17 +18,20 @@
 | 请求头 | 说明 |
 |--------|------|
 | `Authorization` | JWT Bearer Token |
-| `API-Version` | API 版本号 (v1) |
 | `Accept-Language` | 国际化语言 (zh-CN/en) |
+
+> **版本说明**：全站路径版本化——管理端 `/admin/v1`、客户端 `/api/v1`、开放接口 `/open/v1`，
+> 版本号置于 URL 路径中，**无需任何版本请求头**；例外：`GET /api/docs`（OpenAPI 文档）与
+> 承运商轨迹回调 `/api/tms/tracking/callback`（HMAC 签名，不带版本）。
 
 **注解规范：** 所有控制器方法使用 `@Apidoc\*` 系列注解标注了接口名称、描述、URL、请求方法、参数和返回值结构。
 
 ## 1. 概述
 
-开放管理后台 (open-admin) 基于 webman v2 构建，提供 RESTful JSON API。所有管理端接口需要 JWT 认证与 RBAC 权限校验，公开接口通过 API 版本头路由到版本化控制器。
+开放管理后台 (open-admin) 基于 webman v2 构建，提供 RESTful JSON API。全站路径版本化：管理端接口挂载在 `/admin/v1` 下（JWT 认证 + RBAC 权限校验），客户端接口挂载在 `/api/v1` 下，开放接口挂载在 `/open/v1` 下；版本号并入 URL 路径，无版本请求头。
 
 - **基础 URL**: `http://localhost:8788`
-- **API 版本**: 通过请求头 `API-Version: v1` 控制（缺失时默认 v1）
+- **API 版本**: 全站路径版本化，版本号置于 URL 路径（管理端 `/admin/v1`、客户端 `/api/v1`、开放接口 `/open/v1`），无需版本请求头
 
 > **端点总览**: 认证(5) | 仪表盘(1) | 用户(7) | 角色(4) | 权限(4) | 配置(4) | 日志(1) | 个人中心(3) | 导入导出(3) | 上传(1) | 运维(4: health/metrics/docs/security.txt) | 共 37 端点
 - **认证**: `Authorization: Bearer <token>`（JWT）
@@ -46,10 +49,10 @@ API 通过请求头 `Accept-Language` 自动切换语言：
 
 ```bash
 # 英文响应
-curl -H "Accept-Language: en" http://localhost:8788/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
 
 # 中文响应（默认）
-curl http://localhost:8788/admin/product
+curl http://localhost:8788/admin/v1/product
 ```
 
 响应中的 `message` 字段会使用对应语言返回。
@@ -81,7 +84,7 @@ curl http://localhost:8788/admin/product
 
 ## 3. 公开端点
 
-所有公开端点挂载在 `/api` 分组下，通过 `ApiVersion` 中间件按 `API-Version` 头分发到对应的版本化控制器（如 `app\api\v1\controller\AuthController`）。
+所有公开端点挂载在 `/api/v1` 分组下（版本号并入 URL 路径，无版本请求头），由 `ApiVersion` 中间件校验后分发到对应的版本化控制器（如 `app\api\v1\controller\AuthController`）。
 
 ### 3.1 健康检查
 
@@ -124,11 +127,11 @@ GET /api/docs
 ### 3.3 生成点击验证码
 
 ```
-POST /api/captcha/generate
+POST /api/v1/captcha/generate
 ```
 
 - **认证**: 无需
-- **请求头**: `API-Version: v1`（必须）
+- **版本**: URL 路径含 /api/v1，无版本请求头
 - **限流**: 全局默认 (60次/分钟)
 
 **请求体**:
@@ -170,11 +173,11 @@ POST /api/captcha/generate
 ### 3.4 校验点击验证码
 
 ```
-POST /api/captcha/verify
+POST /api/v1/captcha/verify
 ```
 
 - **认证**: 无需
-- **请求头**: `API-Version: v1`（必须）
+- **版本**: URL 路径含 /api/v1，无版本请求头
 - **限流**: 全局默认 (60次/分钟)
 
 **请求体**:
@@ -207,11 +210,11 @@ POST /api/captcha/verify
 ### 3.5 登录
 
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 - **认证**: 无需
-- **请求头**: `API-Version: v1`（必须）
+- **版本**: URL 路径含 /api/v1，无版本请求头
 - **限流**: 10 次/分钟（按 IP + 路径）
 
 **请求体**:
@@ -271,11 +274,11 @@ POST /api/auth/login
 ### 3.6 注册
 
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 ```
 
 - **认证**: 无需
-- **请求头**: `API-Version: v1`（必须）
+- **版本**: URL 路径含 /api/v1，无版本请求头
 - **限流**: 5 次/分钟（按 IP + 路径）
 - **开关**: 默认关闭（`REGISTRATION_ENABLED=0`），关闭时返回 403；需在 `.env` 显式开启（`REGISTRATION_ENABLED=1`）
 
@@ -324,11 +327,11 @@ POST /api/auth/register
 ### 3.7 刷新令牌
 
 ```
-POST /api/auth/refresh
+POST /api/v1/auth/refresh
 ```
 
 - **认证**: 无需
-- **请求头**: `API-Version: v1`（必须）
+- **版本**: URL 路径含 /api/v1，无版本请求头
 - **限流**: 全局默认 (60次/分钟)
 
 **请求体**:
@@ -411,7 +414,7 @@ openadmin_memory_usage_bytes 18874368
 ### 4.1 仪表盘数据
 
 ```
-GET /admin/dashboard
+GET /admin/v1/dashboard
 ```
 
 - **认证**: JWT + RBAC
@@ -468,7 +471,7 @@ GET /admin/dashboard
         "id": "hashid...",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "user_name": "admin",
         "created_at": "2026-05-21 10:30:00"
@@ -498,7 +501,7 @@ GET /admin/dashboard
 ### 5.1 用户列表
 
 ```
-GET /admin/user
+GET /admin/v1/user
 ```
 
 - **认证**: JWT + RBAC
@@ -551,7 +554,7 @@ GET /admin/user
 ### 5.2 创建用户
 
 ```
-POST /admin/user
+POST /admin/v1/user
 ```
 
 - **认证**: JWT + RBAC
@@ -601,7 +604,7 @@ POST /admin/user
 ### 5.3 用户详情
 
 ```
-GET /admin/user/{id}
+GET /admin/v1/user/{id}
 ```
 
 - **认证**: JWT + RBAC
@@ -635,7 +638,7 @@ GET /admin/user/{id}
 ### 5.4 更新用户
 
 ```
-PUT /admin/user/{id}
+PUT /admin/v1/user/{id}
 ```
 
 - **认证**: JWT + RBAC
@@ -683,7 +686,7 @@ PUT /admin/user/{id}
 ### 5.5 删除用户
 
 ```
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 ```
 
 - **认证**: JWT + RBAC
@@ -720,7 +723,7 @@ DELETE /admin/user/{id}
 ### 5.6 批量删除用户
 
 ```
-POST /admin/user/batch/destroy
+POST /admin/v1/user/batch/destroy
 ```
 
 - **认证**: JWT + RBAC
@@ -760,7 +763,7 @@ POST /admin/user/batch/destroy
 ### 5.7 批量启用/禁用用户
 
 ```
-POST /admin/user/batch/status
+POST /admin/v1/user/batch/status
 ```
 
 - **认证**: JWT + RBAC
@@ -800,7 +803,7 @@ message 根据 status 值动态变化为 `"批量启用成功"` 或 `"批量禁�
 ### 6.1 角色列表
 
 ```
-GET /admin/role
+GET /admin/v1/role
 ```
 
 - **认证**: JWT + RBAC
@@ -848,7 +851,7 @@ GET /admin/role
 ### 6.2 创建角色
 
 ```
-POST /admin/role
+POST /admin/v1/role
 ```
 
 - **认证**: JWT + RBAC
@@ -890,7 +893,7 @@ POST /admin/role
 ### 6.3 更新角色
 
 ```
-PUT /admin/role/{id}
+PUT /admin/v1/role/{id}
 ```
 
 - **认证**: JWT + RBAC
@@ -930,7 +933,7 @@ PUT /admin/role/{id}
 ### 6.4 删除角色
 
 ```
-DELETE /admin/role/{id}
+DELETE /admin/v1/role/{id}
 ```
 
 - **认证**: JWT + RBAC
@@ -961,7 +964,7 @@ DELETE /admin/role/{id}
 ### 7.1 权限树
 
 ```
-GET /admin/permission
+GET /admin/v1/permission
 ```
 
 - **认证**: JWT + RBAC
@@ -976,7 +979,7 @@ GET /admin/permission
       "id": "p1p2p3p4",
       "parent_id": "0",
       "name": "用户管理",
-      "slug": "/admin/user",
+      "slug": "/admin/v1/user",
       "type": 1,
       "icon": "people",
       "path": "/user",
@@ -987,7 +990,7 @@ GET /admin/permission
           "id": "p5p6p7p8",
           "parent_id": "p1p2p3p4",
           "name": "用户列表",
-          "slug": "/admin/user/index",
+          "slug": "/admin/v1/user/index",
           "type": 2,
           "icon": "",
           "path": "/user/index",
@@ -1014,7 +1017,7 @@ GET /admin/permission
 ### 7.2 创建权限
 
 ```
-POST /admin/permission
+POST /admin/v1/permission
 ```
 
 - **认证**: JWT + RBAC
@@ -1024,7 +1027,7 @@ POST /admin/permission
 {
   "parent_id": 0,
   "name": "系统设置",
-  "slug": "/admin/config",
+  "slug": "/admin/v1/config",
   "type": 1,
   "icon": "settings",
   "path": "/config",
@@ -1051,7 +1054,7 @@ POST /admin/permission
     "id": "p9p0a1b2",
     "parent_id": "0",
     "name": "系统设置",
-    "slug": "/admin/config",
+    "slug": "/admin/v1/config",
     "type": 1,
     "icon": "settings",
     "path": "/config",
@@ -1063,7 +1066,7 @@ POST /admin/permission
 ### 7.3 更新权限
 
 ```
-PUT /admin/permission/{id}
+PUT /admin/v1/permission/{id}
 ```
 
 - **认证**: JWT + RBAC
@@ -1088,7 +1091,7 @@ PUT /admin/permission/{id}
 ### 7.4 删除权限
 
 ```
-DELETE /admin/permission/{id}
+DELETE /admin/v1/permission/{id}
 ```
 
 - **认证**: JWT + RBAC
@@ -1119,7 +1122,7 @@ DELETE /admin/permission/{id}
 ### 8.1 配置列表
 
 ```
-GET /admin/config
+GET /admin/v1/config
 ```
 
 - **认证**: JWT + RBAC
@@ -1168,7 +1171,7 @@ GET /admin/config
 ### 8.2 创建配置
 
 ```
-POST /admin/config
+POST /admin/v1/config
 ```
 
 - **认证**: JWT + RBAC
@@ -1214,7 +1217,7 @@ POST /admin/config
 ### 8.3 更新配置
 
 ```
-PUT /admin/config/{id}
+PUT /admin/v1/config/{id}
 ```
 
 - **认证**: JWT + RBAC
@@ -1237,7 +1240,7 @@ PUT /admin/config/{id}
 ### 8.4 删除配置
 
 ```
-DELETE /admin/config/{id}
+DELETE /admin/v1/config/{id}
 ```
 
 - **认证**: JWT + RBAC
@@ -1259,7 +1262,7 @@ DELETE /admin/config/{id}
 ### 9.1 操作日志列表
 
 ```
-GET /admin/log
+GET /admin/v1/log
 ```
 
 - **认证**: JWT + RBAC
@@ -1288,7 +1291,7 @@ GET /admin/log
         "user_name": "admin",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "source": "web",
         "input": "{\"username\":\"admin\"}",
@@ -1321,7 +1324,7 @@ GET /admin/log
 ### 10.1 更新个人信息
 
 ```
-PUT /admin/profile
+PUT /admin/v1/profile
 ```
 
 - **认证**: JWT
@@ -1363,7 +1366,7 @@ PUT /admin/profile
 ### 10.2 修改密码
 
 ```
-PUT /admin/profile/password
+PUT /admin/v1/profile/password
 ```
 
 - **认证**: JWT
@@ -1398,7 +1401,7 @@ PUT /admin/profile/password
 ### 10.3 登出
 
 ```
-POST /admin/profile/logout
+POST /admin/v1/profile/logout
 ```
 
 - **认证**: JWT
@@ -1423,7 +1426,7 @@ POST /admin/profile/logout
 ### 11.1 导出 Excel
 
 ```
-POST /admin/export/excel
+POST /admin/v1/export/excel
 ```
 
 - **认证**: JWT + RBAC
@@ -1462,7 +1465,7 @@ POST /admin/export/excel
 ### 11.2 导出 PDF
 
 ```
-POST /admin/export/pdf
+POST /admin/v1/export/pdf
 ```
 
 - **认证**: JWT + RBAC
@@ -1509,7 +1512,7 @@ PDF 模板包含版权信息和导出时间戳。
 ### 11.3 导入用户 (Excel)
 
 ```
-POST /admin/import/users
+POST /admin/v1/import/users
 ```
 
 - **认证**: JWT + RBAC
@@ -1561,7 +1564,7 @@ POST /admin/import/users
 ## 12. 文件上传
 
 ```
-POST /admin/upload
+POST /admin/v1/upload
 ```
 
 - **认证**: JWT + RBAC
@@ -1610,8 +1613,8 @@ POST /admin/upload
 
 限流详情:
 - 默认全局限制: 60 次/分钟 / IP+路径
-- 登录端点 `/api/auth/login`: 10 次/分钟
-- 注册端点 `/api/auth/register`: 5 次/分钟
+- 登录端点 `/api/v1/auth/login`: 10 次/分钟
+- 注册端点 `/api/v1/auth/register`: 5 次/分钟
 - 使用 Redis 原子化滑动窗口算法（Lua ZSET），避免 TOCTOU 竞态
 - Redis 不可用时 fail open（放行），不阻塞请求
 
@@ -1620,15 +1623,15 @@ POST /admin/upload
 完整的认证时序：
 
 ```
-1. 客户端请求 POST /api/captcha/generate
-   (请求头: API-Version: v1)
+1. 客户端请求 POST /api/v1/captcha/generate
+   (URL 路径含 /api/v1，无版本请求头)
     ↓
    服务端返回: key + base64 图片 + 点击目标提示
    
 2. 用户点击图片目标位置，前/客户端收集点击坐标
    
-3. 客户端请求 POST /api/auth/login
-   (请求头: API-Version: v1, Content-Type: application/json)
+3. 客户端请求 POST /api/v1/auth/login
+   (URL 路径含 /api/v1, Content-Type: application/json)
    请求体: { username, password, captcha_key, clicks: [{x,y}, ...] }
     ↓
    服务端:
@@ -1660,7 +1663,7 @@ POST /admin/upload
    Response + X-RateLimit-* 头
 
 5. Access Token 过期前刷新
-   客户端请求 POST /api/auth/refresh
+   客户端请求 POST /api/v1/auth/refresh
    请求体: { refresh_token: "..." }
     ↓
    服务端解码 refresh_token → 签发新 access + refresh
@@ -1668,7 +1671,7 @@ POST /admin/upload
    客户端更新本地令牌
 
 6. 登出
-   客户端请求 POST /admin/profile/logout
+   客户端请求 POST /admin/v1/profile/logout
    请求头: Authorization: Bearer <access_token>
     ↓
    服务端:
@@ -1732,304 +1735,304 @@ docker-compose up -d
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/product | 商品列表（分页+搜索+分类/状态筛选） |
-| POST | /admin/product | 创建商品（含SKU和价格） |
-| GET | /admin/product/{id} | 商品详情（含分类/品牌/SKU/价格/单位） |
-| PUT | /admin/product/{id} | 更新商品 |
-| DELETE | /admin/product/{id} | 删除商品（软删除，需密码确认） |
-| GET | /admin/category | 分类列表（树形） |
-| POST | /admin/category | 创建分类 |
-| PUT | /admin/category/{id} | 更新分类 |
-| DELETE | /admin/category/{id} | 删除分类 |
-| GET | /admin/brand | 品牌列表 |
-| POST | /admin/brand | 创建品牌 |
-| GET | /admin/warehouse | 仓库列表 |
-| POST | /admin/warehouse | 创建仓库 |
-| GET | /admin/location | 库位列表 |
-| GET | /admin/warehouse/{id}/locations | 仓库下库位列表 |
-| GET | /admin/supplier | 供应商列表（ES搜索） |
-| POST | /admin/supplier | 创建供应商 |
-| GET | /admin/customer | 客户列表（ES搜索） |
-| POST | /admin/customer | 创建客户 |
+| GET | /admin/v1/product | 商品列表（分页+搜索+分类/状态筛选） |
+| POST | /admin/v1/product | 创建商品（含SKU和价格） |
+| GET | /admin/v1/product/{id} | 商品详情（含分类/品牌/SKU/价格/单位） |
+| PUT | /admin/v1/product/{id} | 更新商品 |
+| DELETE | /admin/v1/product/{id} | 删除商品（软删除，需密码确认） |
+| GET | /admin/v1/category | 分类列表（树形） |
+| POST | /admin/v1/category | 创建分类 |
+| PUT | /admin/v1/category/{id} | 更新分类 |
+| DELETE | /admin/v1/category/{id} | 删除分类 |
+| GET | /admin/v1/brand | 品牌列表 |
+| POST | /admin/v1/brand | 创建品牌 |
+| GET | /admin/v1/warehouse | 仓库列表 |
+| POST | /admin/v1/warehouse | 创建仓库 |
+| GET | /admin/v1/location | 库位列表 |
+| GET | /admin/v1/warehouse/{id}/locations | 仓库下库位列表 |
+| GET | /admin/v1/supplier | 供应商列表（ES搜索） |
+| POST | /admin/v1/supplier | 创建供应商 |
+| GET | /admin/v1/customer | 客户列表（ES搜索） |
+| POST | /admin/v1/customer | 创建客户 |
 
 ### 16.2 采购管理 (Purchase)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/purchase/apply | 采购申请列表 |
-| POST | /admin/purchase/apply | 创建采购申请 |
-| GET | /admin/purchase/order | 采购订单列表 |
-| POST | /admin/purchase/order | 创建采购订单 |
-| 🔗 POST | /admin/purchase/receive | 创建收货单（自动入库+生成应付） |
-| GET | /admin/purchase/receive | 收货单列表 |
-| GET | /admin/purchase/receive/{id} | 收货单详情 |
-| POST | /admin/purchase/return | 创建退货单 |
-| GET | /admin/purchase/settlement | 供应商结算列表 |
+| GET | /admin/v1/purchase/apply | 采购申请列表 |
+| POST | /admin/v1/purchase/apply | 创建采购申请 |
+| GET | /admin/v1/purchase/order | 采购订单列表 |
+| POST | /admin/v1/purchase/order | 创建采购订单 |
+| 🔗 POST | /admin/v1/purchase/receive | 创建收货单（自动入库+生成应付） |
+| GET | /admin/v1/purchase/receive | 收货单列表 |
+| GET | /admin/v1/purchase/receive/{id} | 收货单详情 |
+| POST | /admin/v1/purchase/return | 创建退货单 |
+| GET | /admin/v1/purchase/settlement | 供应商结算列表 |
 
 ### 16.3 销售管理 (Sales)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/sales/quotation | 报价单列表 |
-| POST | /admin/sales/quotation | 创建报价单 |
-| GET | /admin/sales/order | 销售订单列表 |
-| POST | /admin/sales/order | 创建销售订单 |
-| 🔗 POST | /admin/sales/delivery | 创建发货单（自动出库+生成应收） |
-| GET | /admin/sales/delivery | 发货单列表 |
-| GET | /admin/sales/settlement | 客户结算列表 |
+| GET | /admin/v1/sales/quotation | 报价单列表 |
+| POST | /admin/v1/sales/quotation | 创建报价单 |
+| GET | /admin/v1/sales/order | 销售订单列表 |
+| POST | /admin/v1/sales/order | 创建销售订单 |
+| 🔗 POST | /admin/v1/sales/delivery | 创建发货单（自动出库+生成应收） |
+| GET | /admin/v1/sales/delivery | 发货单列表 |
+| GET | /admin/v1/sales/settlement | 客户结算列表 |
 
 ### 16.4 库存管理 (Inventory)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/inventory | 实时库存（仓库/库位/批次/SKU维度） |
-| GET | /admin/inventory/flow | 出入库流水 |
-| GET | /admin/inventory/transfer | 调拨单列表 |
-| POST | /admin/inventory/transfer | 创建调拨单 |
-| GET | /admin/inventory/check | 盘点任务列表 |
-| POST | /admin/inventory/check | 创建盘点任务 |
-| GET | /admin/inventory/alert | 库存预警规则 |
+| GET | /admin/v1/inventory | 实时库存（仓库/库位/批次/SKU维度） |
+| GET | /admin/v1/inventory/flow | 出入库流水 |
+| GET | /admin/v1/inventory/transfer | 调拨单列表 |
+| POST | /admin/v1/inventory/transfer | 创建调拨单 |
+| GET | /admin/v1/inventory/check | 盘点任务列表 |
+| POST | /admin/v1/inventory/check | 创建盘点任务 |
+| GET | /admin/v1/inventory/alert | 库存预警规则 |
 
 ### 16.5 财务管理 (Finance)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | /admin/finance/voucher | 创建记账凭证 |
-| GET | /admin/finance/ar-ap | 应收应付列表 |
-| POST | /admin/finance/receipt | 创建收款单 |
-| POST | /admin/finance/payment | 创建付款单 |
-| GET | /admin/finance/cash-journal | 现金银行日记账 |
-| GET | /admin/finance/expense | 费用报销列表 |
-| POST | /admin/finance/expense | 提交报销申请 |
-| GET | /admin/finance/report/profit | 利润表 |
-| GET | /admin/finance/general-ledger | 总账（按科目+期间汇总） |
-| GET | /admin/finance/subsidiary-ledger | 明细账（科目逐笔明细） |
-| GET | /admin/finance/report/balance-sheet | 资产负债表（含自动生成） |
-| GET | /admin/finance/report/cash-flow | 现金流量表（经营/投资/筹资） |
-| GET | /admin/finance/bank-account | 银行账户列表 |
-| GET/POST/PUT/DELETE | /admin/finance/asset | 固定资产 CRUD + 计提折旧 |
-| GET/POST | /admin/finance/tax-rate | 税率配置 |
-| GET | /admin/finance/tax-record | 税务记录 |
-| GET/POST/PUT/DELETE | /admin/finance/currency | 币种管理 |
-| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | 汇率管理 |
-| GET/POST/PUT/DELETE | /admin/finance/budget | 预算管理（含预算vs实际对比） |
-| GET/POST/PUT/DELETE | /admin/finance/cost-center | 成本中心（树形结构） |
-| GET/POST/PUT/DELETE | /admin/finance/profit-center | 利润中心（树形结构） |
+| POST | /admin/v1/finance/voucher | 创建记账凭证 |
+| GET | /admin/v1/finance/ar-ap | 应收应付列表 |
+| POST | /admin/v1/finance/receipt | 创建收款单 |
+| POST | /admin/v1/finance/payment | 创建付款单 |
+| GET | /admin/v1/finance/cash-journal | 现金银行日记账 |
+| GET | /admin/v1/finance/expense | 费用报销列表 |
+| POST | /admin/v1/finance/expense | 提交报销申请 |
+| GET | /admin/v1/finance/report/profit | 利润表 |
+| GET | /admin/v1/finance/general-ledger | 总账（按科目+期间汇总） |
+| GET | /admin/v1/finance/subsidiary-ledger | 明细账（科目逐笔明细） |
+| GET | /admin/v1/finance/report/balance-sheet | 资产负债表（含自动生成） |
+| GET | /admin/v1/finance/report/cash-flow | 现金流量表（经营/投资/筹资） |
+| GET | /admin/v1/finance/bank-account | 银行账户列表 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/asset | 固定资产 CRUD + 计提折旧 |
+| GET/POST | /admin/v1/finance/tax-rate | 税率配置 |
+| GET | /admin/v1/finance/tax-record | 税务记录 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/currency | 币种管理 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/exchange-rate | 汇率管理 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/budget | 预算管理（含预算vs实际对比） |
+| GET/POST/PUT/DELETE | /admin/v1/finance/cost-center | 成本中心（树形结构） |
+| GET/POST/PUT/DELETE | /admin/v1/finance/profit-center | 利润中心（树形结构） |
 
 ### 16.6 CRM
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/crm/opportunity | 商机列表 |
-| POST | /admin/crm/opportunity | 创建商机 |
-| GET | /admin/crm/follow | 跟进记录列表 |
-| POST | /admin/crm/follow | 创建跟进记录 |
-| GET | /admin/crm/funnel | 漏斗阶段配置 |
-| GET | /admin/crm/contact | 联系人列表 |
-| POST | /admin/crm/contact | 创建联系人 |
-| GET | /admin/crm/pool | 公海池客户列表 |
-| POST | /admin/crm/pool/claim/{id} | 领取公海客户 |
-| POST | /admin/crm/pool/release/{id} | 释放客户到公海 |
-| GET/POST | /admin/crm/pool/rules | 公海池规则 CRUD |
-| GET | /admin/crm/contract | 合同列表 |
-| POST | /admin/crm/contract | 创建合同 |
-| GET | /admin/crm/contract/{id} | 合同详情 |
-| PUT | /admin/crm/contract/{id} | 更新合同 |
-| DELETE | /admin/crm/contract/{id} | 删除合同 |
-| GET | /admin/crm/quotation | CRM报价列表 |
-| POST | /admin/crm/quotation | 创建CRM报价 |
-| POST | /admin/crm/quotation/{id}/to-contract | 🔗 报价转合同 |
-| GET/POST/PUT/DELETE | /admin/crm/campaign | 营销活动 |
-| GET/POST/PUT/DELETE | /admin/crm/ticket | 服务工单 |
-| POST | /admin/crm/ticket/{id}/assign | 分配工单 |
-| POST | /admin/crm/ticket/{id}/resolve | 解决工单 |
-| GET/POST | /admin/crm/analytics/report | 客户分析报表 |
-| GET/POST | /admin/crm/analytics/metric | 分析指标 |
+| GET | /admin/v1/crm/opportunity | 商机列表 |
+| POST | /admin/v1/crm/opportunity | 创建商机 |
+| GET | /admin/v1/crm/follow | 跟进记录列表 |
+| POST | /admin/v1/crm/follow | 创建跟进记录 |
+| GET | /admin/v1/crm/funnel | 漏斗阶段配置 |
+| GET | /admin/v1/crm/contact | 联系人列表 |
+| POST | /admin/v1/crm/contact | 创建联系人 |
+| GET | /admin/v1/crm/pool | 公海池客户列表 |
+| POST | /admin/v1/crm/pool/claim/{id} | 领取公海客户 |
+| POST | /admin/v1/crm/pool/release/{id} | 释放客户到公海 |
+| GET/POST | /admin/v1/crm/pool/rules | 公海池规则 CRUD |
+| GET | /admin/v1/crm/contract | 合同列表 |
+| POST | /admin/v1/crm/contract | 创建合同 |
+| GET | /admin/v1/crm/contract/{id} | 合同详情 |
+| PUT | /admin/v1/crm/contract/{id} | 更新合同 |
+| DELETE | /admin/v1/crm/contract/{id} | 删除合同 |
+| GET | /admin/v1/crm/quotation | CRM报价列表 |
+| POST | /admin/v1/crm/quotation | 创建CRM报价 |
+| POST | /admin/v1/crm/quotation/{id}/to-contract | 🔗 报价转合同 |
+| GET/POST/PUT/DELETE | /admin/v1/crm/campaign | 营销活动 |
+| GET/POST/PUT/DELETE | /admin/v1/crm/ticket | 服务工单 |
+| POST | /admin/v1/crm/ticket/{id}/assign | 分配工单 |
+| POST | /admin/v1/crm/ticket/{id}/resolve | 解决工单 |
+| GET/POST | /admin/v1/crm/analytics/report | 客户分析报表 |
+| GET/POST | /admin/v1/crm/analytics/metric | 分析指标 |
 
 ### 16.7 审批工作流 (Workflow)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/workflow | 工作流定义列表 |
-| POST | /admin/workflow | 创建工作流定义 |
-| GET | /admin/workflow/{id} | 工作流详情 |
-| PUT | /admin/workflow/{id} | 更新工作流 |
-| DELETE | /admin/workflow/{id} | 删除工作流 |
-| POST | /admin/workflow/{id}/submit | 🔗 提交审批（创建审批实例） |
-| POST | /admin/approval/{id}/approve | 批准 |
-| POST | /admin/approval/{id}/reject | 拒绝 |
-| POST | /admin/approval/{id}/withdraw | 撤回 |
-| ANY | /admin/approval/my | 我的审批列表（待审批/已审批） |
+| GET | /admin/v1/workflow | 工作流定义列表 |
+| POST | /admin/v1/workflow | 创建工作流定义 |
+| GET | /admin/v1/workflow/{id} | 工作流详情 |
+| PUT | /admin/v1/workflow/{id} | 更新工作流 |
+| DELETE | /admin/v1/workflow/{id} | 删除工作流 |
+| POST | /admin/v1/workflow/{id}/submit | 🔗 提交审批（创建审批实例） |
+| POST | /admin/v1/approval/{id}/approve | 批准 |
+| POST | /admin/v1/approval/{id}/reject | 拒绝 |
+| POST | /admin/v1/approval/{id}/withdraw | 撤回 |
+| ANY | /admin/v1/approval/my | 我的审批列表（待审批/已审批） |
 
 ### 16.8 消息通知 (Notification)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| ANY | /admin/notification/my | 我的通知列表（分页，按时间倒序） |
-| POST | /admin/notification/{id}/read | 标记单条已读 |
-| POST | /admin/notification/read-all | 标记全部已读 |
-| ANY | /admin/notification/unread-count | 未读消息数量 |
+| ANY | /admin/v1/notification/my | 我的通知列表（分页，按时间倒序） |
+| POST | /admin/v1/notification/{id}/read | 标记单条已读 |
+| POST | /admin/v1/notification/read-all | 标记全部已读 |
+| ANY | /admin/v1/notification/unread-count | 未读消息数量 |
 
 ### 16.9 项目管理 (Project)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/project | 项目列表 |
-| POST | /admin/project | 创建项目 |
-| GET | /admin/project/{id} | 项目详情 |
-| PUT | /admin/project/{id} | 更新项目 |
-| DELETE | /admin/project/{id} | 删除项目 |
-| GET | /admin/project/task | 任务列表 |
-| POST | /admin/project/task | 创建任务 |
-| PUT | /admin/project/task/{id} | 更新任务 |
-| DELETE | /admin/project/task/{id} | 删除任务 |
-| GET | /admin/project/timesheet | 工时记录列表 |
-| POST | /admin/project/timesheet | 录入工时 |
-| PUT | /admin/project/timesheet/{id} | 更新工时 |
-| DELETE | /admin/project/timesheet/{id} | 删除工时 |
+| GET | /admin/v1/project | 项目列表 |
+| POST | /admin/v1/project | 创建项目 |
+| GET | /admin/v1/project/{id} | 项目详情 |
+| PUT | /admin/v1/project/{id} | 更新项目 |
+| DELETE | /admin/v1/project/{id} | 删除项目 |
+| GET | /admin/v1/project/task | 任务列表 |
+| POST | /admin/v1/project/task | 创建任务 |
+| PUT | /admin/v1/project/task/{id} | 更新任务 |
+| DELETE | /admin/v1/project/task/{id} | 删除任务 |
+| GET | /admin/v1/project/timesheet | 工时记录列表 |
+| POST | /admin/v1/project/timesheet | 录入工时 |
+| PUT | /admin/v1/project/timesheet/{id} | 更新工时 |
+| DELETE | /admin/v1/project/timesheet/{id} | 删除工时 |
 
 ### 16.10 人力资源管理 (HR)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/hr/department | 部门列表（树形） |
-| POST | /admin/hr/department | 创建部门 |
-| PUT | /admin/hr/department/{id} | 更新部门 |
-| DELETE | /admin/hr/department/{id} | 删除部门 |
-| GET | /admin/hr/employee | 员工列表 |
-| POST | /admin/hr/employee | 创建员工 |
-| PUT | /admin/hr/employee/{id} | 更新员工 |
-| DELETE | /admin/hr/employee/{id} | 删除员工 |
-| GET | /admin/hr/position | 职位列表 |
-| POST | /admin/hr/position | 创建职位 |
-| PUT | /admin/hr/position/{id} | 更新职位 |
-| DELETE | /admin/hr/position/{id} | 删除职位 |
-| ANY | /admin/hr/attendance | 考勤记录查询 |
-| POST | /admin/hr/attendance/clock-in | 上班打卡 |
-| POST | /admin/hr/attendance/clock-out | 下班打卡 |
-| ANY | /admin/hr/leave | 请假列表 |
-| POST | /admin/hr/leave | 提交请假申请 |
-| GET | /admin/hr/leave/{id} | 请假详情 |
-| PUT | /admin/hr/leave/{id} | 更新请假 |
-| DELETE | /admin/hr/leave/{id} | 删除请假 |
-| POST | /admin/hr/leave/{id}/approve | 🔗 审批请假 |
-| GET | /admin/hr/salary | 薪资列表 |
-| POST | /admin/hr/salary | 生成薪资单 |
-| PUT | /admin/hr/salary/{id} | 更新薪资 |
-| DELETE | /admin/hr/salary/{id} | 删除薪资 |
-| POST | /admin/hr/salary/{id}/pay | 发放薪资 |
-| ANY | /admin/hr/salary-item | 薪资项目列表 |
-| POST | /admin/hr/salary-item | 创建薪资项目 |
-| GET | /admin/hr/salary-item/{id} | 薪资项目详情 |
-| PUT | /admin/hr/salary-item/{id} | 更新薪资项目 |
-| DELETE | /admin/hr/salary-item/{id} | 删除薪资项目 |
+| GET | /admin/v1/hr/department | 部门列表（树形） |
+| POST | /admin/v1/hr/department | 创建部门 |
+| PUT | /admin/v1/hr/department/{id} | 更新部门 |
+| DELETE | /admin/v1/hr/department/{id} | 删除部门 |
+| GET | /admin/v1/hr/employee | 员工列表 |
+| POST | /admin/v1/hr/employee | 创建员工 |
+| PUT | /admin/v1/hr/employee/{id} | 更新员工 |
+| DELETE | /admin/v1/hr/employee/{id} | 删除员工 |
+| GET | /admin/v1/hr/position | 职位列表 |
+| POST | /admin/v1/hr/position | 创建职位 |
+| PUT | /admin/v1/hr/position/{id} | 更新职位 |
+| DELETE | /admin/v1/hr/position/{id} | 删除职位 |
+| ANY | /admin/v1/hr/attendance | 考勤记录查询 |
+| POST | /admin/v1/hr/attendance/clock-in | 上班打卡 |
+| POST | /admin/v1/hr/attendance/clock-out | 下班打卡 |
+| ANY | /admin/v1/hr/leave | 请假列表 |
+| POST | /admin/v1/hr/leave | 提交请假申请 |
+| GET | /admin/v1/hr/leave/{id} | 请假详情 |
+| PUT | /admin/v1/hr/leave/{id} | 更新请假 |
+| DELETE | /admin/v1/hr/leave/{id} | 删除请假 |
+| POST | /admin/v1/hr/leave/{id}/approve | 🔗 审批请假 |
+| GET | /admin/v1/hr/salary | 薪资列表 |
+| POST | /admin/v1/hr/salary | 生成薪资单 |
+| PUT | /admin/v1/hr/salary/{id} | 更新薪资 |
+| DELETE | /admin/v1/hr/salary/{id} | 删除薪资 |
+| POST | /admin/v1/hr/salary/{id}/pay | 发放薪资 |
+| ANY | /admin/v1/hr/salary-item | 薪资项目列表 |
+| POST | /admin/v1/hr/salary-item | 创建薪资项目 |
+| GET | /admin/v1/hr/salary-item/{id} | 薪资项目详情 |
+| PUT | /admin/v1/hr/salary-item/{id} | 更新薪资项目 |
+| DELETE | /admin/v1/hr/salary-item/{id} | 删除薪资项目 |
 
 ### 16.11 生产制造 (Manufacturing)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/mfg/bom | BOM 列表 |
-| POST | /admin/mfg/bom | 创建 BOM |
-| PUT | /admin/mfg/bom/{id} | 更新 BOM |
-| DELETE | /admin/mfg/bom/{id} | 删除 BOM |
-| GET | /admin/mfg/production | 生产订单列表 |
-| POST | /admin/mfg/production | 创建生产订单 |
-| PUT | /admin/mfg/production/{id} | 更新生产订单 |
-| DELETE | /admin/mfg/production/{id} | 删除生产订单 |
-| POST | /admin/mfg/production/{id}/start | 开工 |
-| POST | /admin/mfg/production/{id}/complete | 完工 |
-| GET | /admin/mfg/routing | 工艺路线列表 |
-| POST | /admin/mfg/routing | 创建工艺路线 |
-| PUT | /admin/mfg/routing/{id} | 更新工艺路线 |
-| DELETE | /admin/mfg/routing/{id} | 删除工艺路线 |
-| GET | /admin/mfg/workstation | 工作站列表 |
-| POST | /admin/mfg/workstation | 创建工作站 |
-| PUT | /admin/mfg/workstation/{id} | 更新工作站 |
-| DELETE | /admin/mfg/workstation/{id} | 删除工作站 |
-| GET | /admin/mfg/mrp | MRP 计划列表 |
-| POST | /admin/mfg/mrp | 创建 MRP 计划 |
-| PUT | /admin/mfg/mrp/{id} | 更新 MRP 计划 |
-| DELETE | /admin/mfg/mrp/{id} | 删除 MRP 计划 |
-| POST | /admin/mfg/mrp/{id}/generate | 🔗 运行 MRP 生成采购/生产建议 |
+| GET | /admin/v1/mfg/bom | BOM 列表 |
+| POST | /admin/v1/mfg/bom | 创建 BOM |
+| PUT | /admin/v1/mfg/bom/{id} | 更新 BOM |
+| DELETE | /admin/v1/mfg/bom/{id} | 删除 BOM |
+| GET | /admin/v1/mfg/production | 生产订单列表 |
+| POST | /admin/v1/mfg/production | 创建生产订单 |
+| PUT | /admin/v1/mfg/production/{id} | 更新生产订单 |
+| DELETE | /admin/v1/mfg/production/{id} | 删除生产订单 |
+| POST | /admin/v1/mfg/production/{id}/start | 开工 |
+| POST | /admin/v1/mfg/production/{id}/complete | 完工 |
+| GET | /admin/v1/mfg/routing | 工艺路线列表 |
+| POST | /admin/v1/mfg/routing | 创建工艺路线 |
+| PUT | /admin/v1/mfg/routing/{id} | 更新工艺路线 |
+| DELETE | /admin/v1/mfg/routing/{id} | 删除工艺路线 |
+| GET | /admin/v1/mfg/workstation | 工作站列表 |
+| POST | /admin/v1/mfg/workstation | 创建工作站 |
+| PUT | /admin/v1/mfg/workstation/{id} | 更新工作站 |
+| DELETE | /admin/v1/mfg/workstation/{id} | 删除工作站 |
+| GET | /admin/v1/mfg/mrp | MRP 计划列表 |
+| POST | /admin/v1/mfg/mrp | 创建 MRP 计划 |
+| PUT | /admin/v1/mfg/mrp/{id} | 更新 MRP 计划 |
+| DELETE | /admin/v1/mfg/mrp/{id} | 删除 MRP 计划 |
+| POST | /admin/v1/mfg/mrp/{id}/generate | 🔗 运行 MRP 生成采购/生产建议 |
 
 ### 16.12 自定义报表 (Report Builder)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/report | 报表模板列表 |
-| POST | /admin/report | 创建报表模板 |
-| GET | /admin/report/{id} | 报表模板详情 |
-| PUT | /admin/report/{id} | 更新报表模板 |
-| DELETE | /admin/report/{id} | 删除报表模板 |
-| POST | /admin/report/{id}/execute | 执行报表生成数据 |
-| ANY | /admin/report/{id}/result | 报表执行结果 |
-| GET | /admin/report/schedule | 定时调度列表 |
-| POST | /admin/report/schedule | 创建定时调度 |
-| PUT | /admin/report/schedule/{id} | 更新定时调度 |
-| DELETE | /admin/report/schedule/{id} | 删除定时调度 |
+| GET | /admin/v1/report | 报表模板列表 |
+| POST | /admin/v1/report | 创建报表模板 |
+| GET | /admin/v1/report/{id} | 报表模板详情 |
+| PUT | /admin/v1/report/{id} | 更新报表模板 |
+| DELETE | /admin/v1/report/{id} | 删除报表模板 |
+| POST | /admin/v1/report/{id}/execute | 执行报表生成数据 |
+| ANY | /admin/v1/report/{id}/result | 报表执行结果 |
+| GET | /admin/v1/report/schedule | 定时调度列表 |
+| POST | /admin/v1/report/schedule | 创建定时调度 |
+| PUT | /admin/v1/report/schedule/{id} | 更新定时调度 |
+| DELETE | /admin/v1/report/schedule/{id} | 删除定时调度 |
 
 ### 16.13 仪表盘 (Dashboard)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/dashboard/sales | 销售面板 |
-| GET | /admin/dashboard/inventory | 库存面板 |
-| GET | /admin/dashboard/finance | 财务面板 |
+| GET | /admin/v1/dashboard/sales | 销售面板 |
+| GET | /admin/v1/dashboard/inventory | 库存面板 |
+| GET | /admin/v1/dashboard/finance | 财务面板 |
 
 ### 16.14 客户端 API (Client API)
 
-客户端接口挂载在 `/api` 分组下，需要 `API-Version` 请求头。商品信息不包含进价。
+客户端接口挂载在 `/api/v1` 分组下（版本号并入 URL 路径，无版本请求头）。商品信息不包含进价。
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/product | 商品列表（不含进价） |
-| GET | /api/product/{hashid} | 商品详情（含零售/批发价，不含进价） |
+| GET | /api/v1/product | 商品列表（不含进价） |
+| GET | /api/v1/product/{hashid} | 商品详情（含零售/批发价，不含进价） |
 
 ### 16.15 OMS 订单管理
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/oms/order | OMS订单列表 |
-| POST | /admin/oms/order | 创建OMS订单 |
-| 🔗 POST | /admin/oms/order/{id}/allocate | 库存分配(预占) |
-| 🔗 POST | /admin/oms/order/{id}/fulfill | 创建履约 |
-| POST | /admin/oms/order/{id}/cancel | 取消订单(释放预留) |
-| POST | /admin/oms/rma/{id}/approve | 审批RMA |
-| POST | /admin/oms/rma/{id}/refund | RMA退款 |
+| GET | /admin/v1/oms/order | OMS订单列表 |
+| POST | /admin/v1/oms/order | 创建OMS订单 |
+| 🔗 POST | /admin/v1/oms/order/{id}/allocate | 库存分配(预占) |
+| 🔗 POST | /admin/v1/oms/order/{id}/fulfill | 创建履约 |
+| POST | /admin/v1/oms/order/{id}/cancel | 取消订单(释放预留) |
+| POST | /admin/v1/oms/rma/{id}/approve | 审批RMA |
+| POST | /admin/v1/oms/rma/{id}/refund | RMA退款 |
 
 ### 16.16 WMS 仓储管理
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/wms/zone | 库区列表(CURD) |
-| GET | /admin/wms/location | WMS库位列表(CRUD) |
-| GET | /admin/wms/asn | ASN列表(CRUD) |
-| POST | /admin/wms/receiving/{id}/complete | 完成收货→自动生成上架任务 |
-| POST | /admin/wms/putaway/{id}/complete | 确认上架→触发stockIn |
-| POST | /admin/wms/wave/{id}/release | 释放波次→生成拣货任务 |
-| POST | /admin/wms/pick/{id}/start | 开始拣货 |
-| POST | /admin/wms/pick/{id}/confirm | 拣货确认 |
-| POST | /admin/wms/pack/{id}/complete | 打包完成 |
+| GET | /admin/v1/wms/zone | 库区列表(CURD) |
+| GET | /admin/v1/wms/location | WMS库位列表(CRUD) |
+| GET | /admin/v1/wms/asn | ASN列表(CRUD) |
+| POST | /admin/v1/wms/receiving/{id}/complete | 完成收货→自动生成上架任务 |
+| POST | /admin/v1/wms/putaway/{id}/complete | 确认上架→触发stockIn |
+| POST | /admin/v1/wms/wave/{id}/release | 释放波次→生成拣货任务 |
+| POST | /admin/v1/wms/pick/{id}/start | 开始拣货 |
+| POST | /admin/v1/wms/pick/{id}/confirm | 拣货确认 |
+| POST | /admin/v1/wms/pack/{id}/complete | 打包完成 |
 
 ### 16.17 TMS 运输管理
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/tms/carrier | 承运商列表(CRUD) |
-| GET | /admin/tms/service | 承运商服务(CRUD) |
-| GET | /admin/tms/freight-rate | 运费费率(CRUD) |
-| GET | /admin/tms/shipment | 运单列表(CRUD) |
-| 🔗 POST | /admin/tms/shipment/{id}/ship | 确认发货(stockOut+AR) |
-| POST | /admin/tms/tracking/callback | 承运商轨迹webhook |
-| POST | /admin/tms/freight-invoice/{id}/pay | 运费发票付款(生成AP) |
+| GET | /admin/v1/tms/carrier | 承运商列表(CRUD) |
+| GET | /admin/v1/tms/service | 承运商服务(CRUD) |
+| GET | /admin/v1/tms/freight-rate | 运费费率(CRUD) |
+| GET | /admin/v1/tms/shipment | 运单列表(CRUD) |
+| 🔗 POST | /admin/v1/tms/shipment/{id}/ship | 确认发货(stockOut+AR) |
+| POST | /api/tms/tracking/callback | 承运商轨迹webhook |
+| POST | /admin/v1/tms/freight-invoice/{id}/pay | 运费发票付款(生成AP) |
 
 ### 16.18 仪表盘扩展
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /admin/dashboard/oms | OMS KPI(待处理/拣货中/今日发货/RMA) |
-| GET | /admin/dashboard/wms | WMS KPI(待收货/待上架/待拣货/待打包) |
-| GET | /admin/dashboard/tms | TMS KPI(待发货/运输中/签收/异常) |
+| GET | /admin/v1/dashboard/oms | OMS KPI(待处理/拣货中/今日发货/RMA) |
+| GET | /admin/v1/dashboard/wms | WMS KPI(待收货/待上架/待拣货/待打包) |
+| GET | /admin/v1/dashboard/tms | TMS KPI(待发货/运输中/签收/异常) |
 
 ### 16.19 跨模块联动说明
 
@@ -2037,5 +2040,5 @@ docker-compose up -d
 
 | 端点 | 联动动作 |
 |------|---------|
-| 🔗 POST /admin/purchase/receive | 自动调用 InventoryService.stockIn() 更新库存+重算移动加权平均成本；调用 FinanceService.createAp() 生成应付记录 |
-| 🔗 POST /admin/sales/delivery | 自动调用 InventoryService.stockOut() 扣减库存（按移动加权平均成本）；调用 FinanceService.createAr() 生成应收记录 |
+| 🔗 POST /admin/v1/purchase/receive | 自动调用 InventoryService.stockIn() 更新库存+重算移动加权平均成本；调用 FinanceService.createAp() 生成应付记录 |
+| 🔗 POST /admin/v1/sales/delivery | 自动调用 InventoryService.stockOut() 扣减库存（按移动加权平均成本）；调用 FinanceService.createAr() 生成应收记录 |
