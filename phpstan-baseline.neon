@@ -10236,3 +10236,278 @@ parameters:
 			count: 1
 			path: app/service/tax/EInvoiceService.php
 
+		-
+			message: '#^Access to an undefined property app\\model\\Member\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Member\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Member\:\:\$level\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Member\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Member\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Member\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Member\:\:\$source\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Member\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceAccount\:\:\$balance\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceAccount\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceAccount\:\:\$member_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceLog\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceLog\:\:\$balance_after\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceLog\:\:\$biz_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceLog\:\:\$biz_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceLog\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceLog\:\:\$member_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceLog\:\:\$operator_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberBalanceLog\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberCoupon\:\:\$expire_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberCoupon\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberCoupon\:\:\$member_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberCoupon\:\:\$order_source\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberCoupon\:\:\$received_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberCoupon\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberCoupon\:\:\$template_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointAccount\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointAccount\:\:\$member_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointAccount\:\:\$points\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointLog\:\:\$biz_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointLog\:\:\$biz_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointLog\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointLog\:\:\$member_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointLog\:\:\$operator_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointLog\:\:\$points\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointLog\:\:\$points_after\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\MemberPointLog\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$operatorId\.$#'
+			identifier: closure.unusedUse
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 7
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Member\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MemberBalanceAccount\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MemberBalanceLog\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MemberCoupon\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MemberCouponTemplate\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/retail/MemberService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\MemberPointAccount\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/retail/MemberService.php
