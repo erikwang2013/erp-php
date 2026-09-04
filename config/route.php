@@ -153,6 +153,10 @@ Route::group('/admin', function () {
     Route::resource('/inventory/transfer', app\controller\inventory\TransferController::class);
     Route::resource('/inventory/check', app\controller\inventory\CheckTaskController::class);
     Route::resource('/inventory/alert', app\controller\inventory\AlertController::class);
+    Route::get('/trace/forward/{batchCode}', [app\controller\inventory\TraceController::class, 'forward']);
+    Route::get('/trace/backward/{batchCode}', [app\controller\inventory\TraceController::class, 'backward']);
+    Route::get('/trace/serial/{serialCode}', [app\controller\inventory\TraceController::class, 'serial']);
+    Route::get('/trace/expiry', [app\controller\inventory\TraceController::class, 'expiry']);
 
     // ============================================================
     // 财务模块
