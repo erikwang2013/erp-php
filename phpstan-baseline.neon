@@ -9307,3 +9307,9 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/service/hr/RecruitService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrJob\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/hr/RecruitService.php

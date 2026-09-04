@@ -10,6 +10,7 @@ namespace app\service\hr;
 
 use app\model\HrCandidate;
 use app\model\HrInterview;
+use app\model\HrJob;
 use app\model\HrOffer;
 use app\service\AbstractCrudService;
 use Illuminate\Database\Capsule\Manager as DB;
@@ -43,6 +44,10 @@ use InvalidArgumentException;
  *     淘汰(5)前已过初筛但从未产生任何面试/Offer 事件的候选人无法回溯区分
  *     （0→5 与 1→5 事件等价），按保守口径不计入任何 stage_reached。
  *   rates 为逐级转化率（%），分母为 0 时对应值为 null；字符串一律 'xx.xx'。
+ *
+ * 职位状态机（erp_hr_job.status）：0 草稿 → 1 发布中 → 2 已关闭；
+ *   publishJob 仅草稿可发布；closeJob 允许随时关闭（草稿可直关 0→2），不级联
+ *   在途候选人——阻断面仅在关闭后拒收新简历（submitCandidate 职位守卫）。
  */
 class RecruitService extends AbstractCrudService
 {
@@ -51,6 +56,9 @@ class RecruitService extends AbstractCrudService
 
     /** Offer 状态中文名（异常消息用） */
     public const OFFER_STATUS_TEXT = [0 => '草稿', 1 => '已发出', 2 => '已接受', 3 => '已拒绝'];
+
+    /** 职位状态中文名（异常消息用） */
+    public const JOB_STATUS_TEXT = [0 => '草稿', 1 => '发布中', 2 => '已关闭'];
 
     private const DATE_PATTERN = '/^\d{4}-\d{2}-\d{2}$/';
 
@@ -397,6 +405,72 @@ class RecruitService extends AbstractCrudService
                 'offer_to_hired' => $this->convertRate($reachedHired, $reachedOffer),
             ],
         ];
+    }
+
+    /**
+     * 投递候选人（候选人入库唯一入口，controller 校验后调用）。
+     * 职位守卫：job_id 必须存在且职位未关闭（已关闭拒收新简历，含草稿直关的 0→2）；
+     * 字段语义与 AbstractCrudService::create 一致（仅落 $fillable，status 强制 0）。
+     */
+    public function submitCandidate(array $data): array
+    {
+        $job = HrJob::find((int) ($data['job_id'] ?? 0));
+        if ($job === null) {
+            throw new InvalidArgumentException('职位不存在');
+        }
+        if ((int) $job->status === 2) {
+            throw new InvalidArgumentException('该职位已关闭，暂不接受投递');
+        }
+
+        return $this->create(HrCandidate::class, $data, ['status' => 0])->toArray();
+    }
+
+    /** 发布职位：草稿(0) → 发布中(1)，记录发布时间。仅草稿可发布。 */
+    public function publishJob(int $jobId): array
+    {
+        $job = HrJob::find($jobId);
+        if ($job === null) {
+            throw new InvalidArgumentException('职位不存在');
+        }
+        $status = (int) $job->status;
+        if ($status !== 0) {
+            throw new InvalidArgumentException(sprintf(
+                '仅草稿状态的职位可发布，当前状态：%s',
+                self::JOB_STATUS_TEXT[$status] ?? (string) $status
+            ));
+        }
+        $job->status = 1;
+        $job->publish_at = date('Y-m-d H:i:s');
+        $job->save();
+
+        return $job->toArray();
+    }
+
+    /**
+     * 关闭职位：草稿(0)/发布中(1) → 已关闭(2)，记录关闭时间。
+     *
+     * 关闭策略：允许随时关闭，不级联处理在途候选人 —— 阻断面仅在「关闭后拒收
+     * 新简历」（与 submitCandidate 守卫对称）；状态 1~3 的在途候选人面试/Offer
+     * 流程不受影响。已关闭(2) 重复关闭拒绝。
+     */
+    public function closeJob(int $jobId): array
+    {
+        $job = HrJob::find($jobId);
+        if ($job === null) {
+            throw new InvalidArgumentException('职位不存在');
+        }
+        $status = (int) $job->status;
+        if ($status !== 0 && $status !== 1) {
+            throw new InvalidArgumentException(sprintf(
+                '仅草稿/发布中的职位可关闭，当前状态：%s',
+                self::JOB_STATUS_TEXT[$status] ?? (string) $status
+            ));
+        }
+        $job->status = 2;
+        $job->close_at = date('Y-m-d H:i:s');
+        $job->save();
+
+        return $job->toArray();
     }
 
     /** 转化率：numerator/denominator*100，保留两位（'xx.xx'）；分母为 0 返回 null。 */

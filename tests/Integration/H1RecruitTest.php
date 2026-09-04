@@ -10,6 +10,7 @@ namespace tests\Integration;
 
 use app\model\HrCandidate;
 use app\model\HrInterview;
+use app\model\HrJob;
 use app\service\hr\RecruitService;
 use PHPUnit\Framework\Attributes\Group;
 use support\Container;
@@ -49,6 +50,19 @@ class H1RecruitTest extends H1H2Scaffold
     {
         $payload = $this->recruit()->advanceCandidate($candidateId, $to);
         $this->assertSame($to, (int) $payload['status']);
+    }
+
+    /** 直接落库一个职位（默认草稿 0），返回主键。 */
+    private function createJob(string $title, int $status = 0): int
+    {
+        $job = new HrJob();
+        $job->id = self::nextId();
+        $job->job_title = $title;
+        $job->headcount = 1;
+        $job->status = $status;
+        $job->save();
+
+        return (int) $job->id;
     }
 
     public function testCandidateStatusMachine(): void
@@ -306,5 +320,89 @@ class H1RecruitTest extends H1H2Scaffold
 
         $this->assertServiceThrows(fn () => $svc->funnel('2024-02-01', '2024-01-01'), '结束日期不能早于开始日期');
         $this->assertServiceThrows(fn () => $svc->funnel('2024-1-01', '2024-02-01'), '起止日期格式应为 Y-m-d');
+    }
+
+    public function testJobLifecycle(): void
+    {
+        $svc = $this->recruit();
+
+        // 职位不存在：发布/关闭均给出明确异常
+        $this->assertServiceThrows(fn () => $svc->publishJob(999999999999), '职位不存在');
+        $this->assertServiceThrows(fn () => $svc->closeJob(999999999999), '职位不存在');
+
+        // 草稿(0) → 发布中(1)：记录发布时间；重复发布拒绝
+        $jobId = $this->createJob('职位-生命周期');
+        $published = $svc->publishJob($jobId);
+        $this->assertSame(1, (int) $published['status']);
+        $this->assertNotNull($published['publish_at']);
+        $this->assertServiceThrows(
+            fn () => $svc->publishJob($jobId),
+            '仅草稿状态的职位可发布，当前状态：发布中'
+        );
+
+        // 发布中(1) → 已关闭(2)：记录关闭时间；重复关闭拒绝
+        $closed = $svc->closeJob($jobId);
+        $this->assertSame(2, (int) $closed['status']);
+        $this->assertNotNull($closed['close_at']);
+        $this->assertServiceThrows(
+            fn () => $svc->closeJob($jobId),
+            '仅草稿/发布中的职位可关闭，当前状态：已关闭'
+        );
+
+        // 草稿(0) 可直接关闭 0→2；已关闭职位不可再发布
+        $draftId = $this->createJob('职位-草稿直关');
+        $this->assertSame(2, (int) $svc->closeJob($draftId)['status']);
+        $this->assertServiceThrows(
+            fn () => $svc->publishJob($draftId),
+            '仅草稿状态的职位可发布，当前状态：已关闭'
+        );
+    }
+
+    public function testCandidateSubmitJobGuard(): void
+    {
+        $svc = $this->recruit();
+
+        // 不存在的职位：投递被拒
+        $this->assertServiceThrows(
+            fn () => $svc->submitCandidate(['name' => '投递-无职位', 'job_id' => 999999999999]),
+            '职位不存在'
+        );
+
+        // 发布中职位正常投递（status 0 落库、job_id 关联）
+        $jobId = $this->createJob('职位-投递守卫');
+        $svc->publishJob($jobId);
+        $candidate = $svc->submitCandidate([
+            'name' => '投递-成功',
+            'phone' => '13900001111',
+            'source' => '招聘网站',
+            'job_id' => $jobId,
+            'expected_salary' => '15000.00',
+        ]);
+        $this->assertSame(0, (int) $candidate['status']);
+        $this->assertSame($jobId, (int) $candidate['job_id']);
+        $candidateId = (int) $candidate['id'];
+
+        // 关闭后：新投递被拒，在途候选人面试/Offer 流程不受影响
+        $svc->closeJob($jobId);
+        $this->assertServiceThrows(
+            fn () => $svc->submitCandidate(['name' => '投递-关闭后', 'job_id' => $jobId]),
+            '该职位已关闭，暂不接受投递'
+        );
+        $this->advance($candidateId, 1);
+        $this->advance($candidateId, 2);
+        $interview = $svc->recordInterview($candidateId, ['interview_date' => self::TODAY, 'result' => 0]);
+        $this->assertSame(2, (int) $interview['candidate_status']);
+        $offerId = (int) $svc->applyOffer($candidateId, ['offered_salary' => '18000.00'])['id'];
+        $svc->sendOffer($offerId);
+        $accepted = $svc->acceptOffer($offerId);
+        $this->assertSame(4, (int) $accepted['candidate_status']);
+
+        // 草稿(0) 即关闭（0→2）同样拒收新简历
+        $draftClosedId = $this->createJob('职位-直关拒收');
+        $svc->closeJob($draftClosedId);
+        $this->assertServiceThrows(
+            fn () => $svc->submitCandidate(['name' => '投递-直关后', 'job_id' => $draftClosedId]),
+            '该职位已关闭，暂不接受投递'
+        );
     }
 }

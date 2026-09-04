@@ -138,6 +138,40 @@ class RecruitController extends BaseController
         return $this->success([], '删除成功');
     }
 
+    /**
+     * @Apidoc\Title("发布职位")
+     * @Apidoc\Url("/admin/hr/recruit/job/{id}/publish")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
+     */
+    public function jobPublish(Request $request, string $id): Response
+    {
+        try {
+            $job = $this->recruit()->publishJob($this->decodeId($id));
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        return $this->success($this->encodeIds($job), '职位已发布');
+    }
+
+    /**
+     * @Apidoc\Title("关闭职位")
+     * @Apidoc\Url("/admin/hr/recruit/job/{id}/close")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
+     */
+    public function jobClose(Request $request, string $id): Response
+    {
+        try {
+            $job = $this->recruit()->closeJob($this->decodeId($id));
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        return $this->success($this->encodeIds($job), '职位已关闭');
+    }
+
     // ---------- 候选人（erp_hr_candidate） ----------
 
     /**
@@ -188,9 +222,13 @@ class RecruitController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $candidate = $this->recruit()->create(HrCandidate::class, $request->all(), ['status' => 0]);
+        try {
+            $candidate = $this->recruit()->submitCandidate($request->all());
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
 
-        return $this->success($this->encodeIds($candidate->toArray(), ['id', 'job_id']), '创建成功');
+        return $this->success($this->encodeIds($candidate, ['id', 'job_id']), '创建成功');
     }
 
     /**
