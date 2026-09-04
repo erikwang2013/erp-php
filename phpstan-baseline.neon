@@ -10540,3 +10540,206 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/service/platform/CustomFieldService.php
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$base_salary\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$deduction\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$employee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$employee_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$net_salary\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$overtime\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$performance\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$piece_wage\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSalary\:\:\$tax\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrSalaryItem\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/PayslipService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSocialRate\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSocialRate\:\:\$insurance_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSocialRate\:\:\$rule_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSocialRule\:\:\$city\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrSocialRule\:\:\$rule_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:beginTransaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:commit\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:rollBack\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrEmployeeSocial\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrSocialRate\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrSocialRule\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 7
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrSocialRule\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/SocialSecurityService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrCourse\:\:\$course_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/TrainingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrCourse\:\:\$credits\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/service/hr/TrainingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrCourse\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/TrainingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrCourseEnrollment\:\:\$completed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/TrainingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrCourseEnrollment\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/service/hr/TrainingService.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\HrCourseEnrollment\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/service/hr/TrainingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrCourse\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/TrainingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrCourseEnrollment\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: app/service/hr/TrainingService.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/hr/TrainingService.php

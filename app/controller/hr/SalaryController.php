@@ -12,6 +12,7 @@ use app\model\HrSalary;
 use app\model\HrSalaryItem;
 use app\service\hr\BankPayrollService;
 use app\service\hr\HrService;
+use app\service\hr\PayslipService;
 use app\service\hr\SalaryEngineService;
 use InvalidArgumentException;
 use support\Container;
@@ -460,6 +461,32 @@ class SalaryController extends BaseController
         $this->hr()->delete(HrSalaryItem::class, $id);
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * 工资条视图
+     * @Apidoc\Title("工资条视图")
+     * @Apidoc\Desc("头行+薪资项行+社保补充（只读，不改动薪资数据）")
+     * @Apidoc\Url("/admin/v1/hr/salary/{id}/payslip")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("人力资源")
+     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="salary/items/social")
+     */
+    public function payslipView(Request $request, string $id): Response
+    {
+        $id = $this->decodeId($id);
+        $payload = Container::get(PayslipService::class)->view($id);
+        if ($payload === null) {
+            return $this->fail('记录不存在', 404);
+        }
+        $payload['salary'] = $this->encodeIds($payload['salary']);
+        $payload['salary']['employee'] = !empty($payload['salary']['employee']) ? $this->encodeIds($payload['salary']['employee']) : null;
+
+        return $this->success($payload);
     }
 
     /**
