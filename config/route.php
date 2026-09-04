@@ -179,6 +179,17 @@ Route::group('/admin', function () {
     Route::post('/finance/e-invoice/{id}/issue', [app\controller\finance\EInvoiceController::class, 'issue']);
     Route::post('/finance/e-invoice/{id}/void', [app\controller\finance\EInvoiceController::class, 'void']);
     Route::get('/finance/e-invoice/{id}/logs', [app\controller\finance\EInvoiceController::class, 'logs']);
+    // 会员零售（P2-C1）
+    Route::post('/member/open', [app\controller\retail\MemberController::class, 'open']);
+    Route::get('/member/overview', [app\controller\retail\MemberController::class, 'overview']);
+    Route::post('/member/recharge', [app\controller\retail\MemberController::class, 'recharge']);
+    Route::post('/member/consume', [app\controller\retail\MemberController::class, 'consume']);
+    Route::post('/member/refund', [app\controller\retail\MemberController::class, 'refund']);
+    Route::post('/member/points-earn', [app\controller\retail\MemberController::class, 'pointsEarn']);
+    Route::post('/member/points-consume', [app\controller\retail\MemberController::class, 'pointsConsume']);
+    Route::post('/member/points-expire', [app\controller\retail\MemberController::class, 'pointsExpire']);
+    Route::post('/coupon/issue', [app\controller\retail\CouponController::class, 'issue']);
+    Route::post('/coupon/redeem', [app\controller\retail\CouponController::class, 'redeem']);
     // P0 invoice：发票(应收/应付)+开票申请状态流+三单匹配(采购收货/销售发货)
     // 静态 action 路由先于 resource 注册，避免 {id} 动态段抢占 match-check
     Route::post('/finance/invoice/{id}/submit', [app\controller\finance\InvoiceController::class, 'submit']);

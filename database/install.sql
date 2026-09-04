@@ -364,6 +364,113 @@ CREATE TABLE IF NOT EXISTS `erp_customer` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户表';
 
+CREATE TABLE IF NOT EXISTS `erp_member` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `phone` VARCHAR(20) NOT NULL COMMENT '手机号(开卡唯一标识)',
+    `name` VARCHAR(50) NOT NULL COMMENT '会员姓名',
+    `level` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '会员等级: 0=普通 1=银卡 2=金卡 3=铂金',
+    `customer_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联客户ID(erp_customer)，0=纯零售会员',
+    `source` VARCHAR(20) NOT NULL DEFAULT 'manual' COMMENT '开卡来源: pos=POS收银 miniapp=小程序 manual=后台手工',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_phone` (`phone`),
+    KEY `idx_customer_id` (`customer_id`),
+    KEY `idx_deleted_at` (`deleted_at`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员主档';
+
+CREATE TABLE IF NOT EXISTS `erp_member_balance_account` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `member_id` BIGINT UNSIGNED NOT NULL COMMENT '会员ID',
+    `balance` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '当前储值余额',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_member_id` (`member_id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员储值账户';
+
+CREATE TABLE IF NOT EXISTS `erp_member_balance_log` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `member_id` BIGINT UNSIGNED NOT NULL COMMENT '会员ID',
+    `biz_type` VARCHAR(20) NOT NULL COMMENT '业务类型: recharge=充值 consume=消费 refund=退款 adjust=调整',
+    `biz_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '外部单据ID(如POS单号/OMS订单)，0=无',
+    `amount` DECIMAL(14,2) NOT NULL COMMENT '变动金额(带符号: 入正出负，余额=Σamount)',
+    `balance_after` DECIMAL(14,2) NOT NULL COMMENT '流水后余额快照',
+    `operator_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作人ID(0=系统/自助)',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_member_id` (`member_id`),
+    KEY `idx_biz` (`biz_type`, `biz_id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员储值流水';
+
+CREATE TABLE IF NOT EXISTS `erp_member_point_account` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `member_id` BIGINT UNSIGNED NOT NULL COMMENT '会员ID',
+    `points` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '当前可用积分',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_member_id` (`member_id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员积分账户';
+
+CREATE TABLE IF NOT EXISTS `erp_member_point_log` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `member_id` BIGINT UNSIGNED NOT NULL COMMENT '会员ID',
+    `biz_type` VARCHAR(20) NOT NULL COMMENT '业务类型: earn=赚取 consume=抵扣 expire=作废 adjust=调整',
+    `biz_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '外部单据ID(如订单/规则批次)，0=无',
+    `points` INT NOT NULL COMMENT '变动积分(带符号: earn正 consume/expire/adjust负，Σ=账户积分)',
+    `points_after` INT NOT NULL COMMENT '流水后积分快照',
+    `operator_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作人ID(0=系统/自助)',
+    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_member_id` (`member_id`),
+    KEY `idx_biz` (`biz_type`, `biz_id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员积分流水';
+
+CREATE TABLE IF NOT EXISTS `erp_member_coupon_template` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `name` VARCHAR(100) NOT NULL COMMENT '券模板名称',
+    `coupon_type` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '券类型: 1=满减 2=折扣',
+    `threshold_amount` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '满 X 可用(0=无门槛，满减/折扣共用)',
+    `discount_value` DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT '满减=减免额；折扣=折扣率如8.8表示88折(须>0)',
+    `valid_days` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '发放后有效天数',
+    `total_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '发放总量, 0=不限',
+    `issued_qty` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '已发放数量',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=停用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员卡券模板';
+
+CREATE TABLE IF NOT EXISTS `erp_member_coupon` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `member_id` BIGINT UNSIGNED NOT NULL COMMENT '会员ID(领券人)',
+    `template_id` BIGINT UNSIGNED NOT NULL COMMENT '券模板ID',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=未使用 1=已核销 2=已过期',
+    `received_at` DATETIME NOT NULL COMMENT '领取时间',
+    `expire_at` DATETIME DEFAULT NULL COMMENT '过期时间(=领取时间+模板有效天数，NULL=长期有效)',
+    `used_at` DATETIME DEFAULT NULL COMMENT '核销时间',
+    `order_source` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '核销来源(POS/小程序/OMS单号)，空=未核销',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_member_status` (`member_id`, `status`),
+    KEY `idx_template_id` (`template_id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员卡券实例';
+
+
 -- ################################################################
 -- PART 3: 采购模块表
 -- ################################################################
