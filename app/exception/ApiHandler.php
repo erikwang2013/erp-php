@@ -28,7 +28,10 @@ class ApiHandler extends Handler
             return parent::render($request, $exception);
         }
 
+        // getCode() 某些异常实现返回 numeric-string（strict_types 下不会强转），
+        // 统一归 int 再判 HTTP 状态区间，否则 withStatus(int) 抛 TypeError
         $code = $exception->getCode();
+        $code = is_numeric($code) ? (int) $code : 0;
         $statusCode = ($code >= 400 && $code < 600) ? $code : 500;
 
         $debug = method_exists($this, 'debug') && !$this->debug;
