@@ -7,6 +7,8 @@ import promptAction from '@ohos.promptAction';
 import { UserService } from '../service/DataService';
 import { User } from '../model/DataModels';
 import { LoadingView, ErrorView } from '../common/Components';
+import { TopBar, TopBarAction } from '../common/TopBar';
+import { ConfirmDialog } from '../common/FormDialog';
 
 @Entry
 @Component
@@ -103,68 +105,51 @@ struct UserDetailPage {
     }
   }
 
-  async deleteUser(): Promise<void> {
-    AlertDialog.show({
-      title: '确认删除',
-      message: '确定要删除该用户吗？删除后不可恢复。',
-      autoCancel: true,
+  private dialogController?: CustomDialogController;
+
+  /**
+   * 删除入口：顶栏删除钮先经 ConfirmDialog 确认（骨架收敛）
+   */
+  confirmDelete(): void {
+    this.dialogController = new CustomDialogController({
+      builder: ConfirmDialog({
+        title: '确认删除',
+        message: '确定要删除该用户吗？删除后不可恢复。',
+        onConfirm: () => {
+          this.deleteUser();
+        },
+      }),
       alignment: DialogAlignment.Center,
-      primaryButton: {
-        value: '确定',
-        fontColor: $r('app.color.danger_text'),
-        action: async () => {
-          try {
-            await UserService.delete(this.userId);
-            promptAction.showToast({ message: '删除成功' });
-            router.back();
-          } catch (e) {
-            if (e instanceof Error && e.message === 'UNAUTHORIZED') {
-              router.replaceUrl({ url: 'pages/LoginPage' });
-              return;
-            }
-            promptAction.showToast({ message: '删除失败' });
-          }
-        }
-      },
-      secondaryButton: {
-        value: '取消',
-        action: () => {}
-      }
+      autoCancel: true,
     });
+    this.dialogController.open();
+  }
+
+  /**
+   * 删除：DELETE 用户后返回列表
+   */
+  async deleteUser(): Promise<void> {
+    try {
+      await UserService.delete(this.userId);
+      promptAction.showToast({ message: '删除成功' });
+      router.back();
+    } catch (e) {
+      if (e instanceof Error && e.message === 'UNAUTHORIZED') {
+        router.replaceUrl({ url: 'pages/LoginPage' });
+        return;
+      }
+      promptAction.showToast({ message: '删除失败' });
+    }
   }
 
   build() {
     Column() {
-      // 顶栏
-      Row() {
-        Button({ type: ButtonType.Circle }) {
-          Image($rawfile('back.png')).width(24).height(24)
-        }
-        .width(36).height(36)
-        .backgroundColor($r('app.color.surface'))
-        .onClick(() => router.back())
-
-        Text(this.mode === 'create' ? '新增用户' : '用户详情')
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .margin({ left: 8 })
-
-        Blank()
-
-        if (this.mode !== 'create') {
-          Button('删除')
-            .fontSize(13)
-            .fontColor($r('app.color.danger_text'))
-            .backgroundColor($r('app.color.danger_bg'))
-            .borderRadius(4)
-            .height(32)
-            .onClick(() => this.deleteUser())
-        }
-      }
-      .width('100%')
-      .height(56)
-      .padding({ left: 16, right: 16 })
-      .backgroundColor($r('app.color.surface'))
+      // 顶栏（骨架收敛：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
+      TopBar({
+        title: this.mode === 'create' ? '新增用户' : '用户详情',
+        actions: this.mode !== 'create' ? [new TopBarAction('删除', 'danger')] : [],
+        onAction: () => this.confirmDelete(),
+      })
 
       if (this.isLoading) {
         LoadingView();

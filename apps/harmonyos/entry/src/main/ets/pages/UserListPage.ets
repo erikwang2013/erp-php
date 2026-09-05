@@ -7,6 +7,7 @@ import promptAction from '@ohos.promptAction';
 import { UserService } from '../service/DataService';
 import { User } from '../model/DataModels';
 import { LoadingView, ErrorView, EmptyView } from '../common/Components';
+import { TopBar, TopBarAction } from '../common/TopBar';
 
 @Entry
 @Component
@@ -73,36 +74,14 @@ struct UserListPage {
 
   build() {
     Column() {
-      // 顶栏
-      Row() {
-        Button({ type: ButtonType.Circle }) {
-          Image($rawfile('back.png')).width(24).height(24)
-        }
-        .width(36).height(36)
-        .backgroundColor($r('app.color.surface'))
-        .onClick(() => router.back())
-
-        Text('用户管理')
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .margin({ left: 8 })
-
-        Blank()
-
-        Button('+ 新增')
-          .fontSize(13)
-          .fontColor($r('app.color.text_on_primary'))
-          .backgroundColor($r('app.color.primary'))
-          .borderRadius(4)
-          .height(32)
-          .onClick(() => {
-            router.pushUrl({ url: 'pages/UserDetailPage', params: { mode: 'create' } });
-          })
-      }
-      .width('100%')
-      .height(56)
-      .padding({ left: 16, right: 16 })
-      .backgroundColor($r('app.color.surface'))
+      // 顶栏（骨架收敛：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
+      TopBar({
+        title: '用户管理',
+        actions: [new TopBarAction('+ 新增')],
+        onAction: () => {
+          router.pushUrl({ url: 'pages/UserDetailPage', params: { mode: 'create' } });
+        },
+      })
 
       // 搜索栏
       Row() {

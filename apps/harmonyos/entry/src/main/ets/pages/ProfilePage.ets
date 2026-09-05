@@ -5,6 +5,8 @@
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { TokenManager } from '../utils/TokenManager';
+import { TopBar } from '../common/TopBar';
+import { ConfirmDialog } from '../common/FormDialog';
 
 @Entry
 @Component
@@ -18,51 +20,45 @@ struct ProfilePage {
     this.username = (AppStorage.get('adminUsername') as string) ?? '管理员';
   }
 
-  // 债务：服务端 refresh_token(14d) 吊销需后端 logout 接口，不在客户端范围内；当前仅清本地凭据
-  logout(): void {
-    AlertDialog.show({
-      title: '确认退出',
-      message: '确定要退出登录吗？',
-      autoCancel: true,
+  private dialogController?: CustomDialogController;
+
+  /**
+   * 退出入口：先经 ConfirmDialog 确认（骨架收敛）
+   */
+  confirmLogout(): void {
+    this.dialogController = new CustomDialogController({
+      builder: ConfirmDialog({
+        title: '确认退出',
+        message: '确定要退出登录吗？',
+        confirmText: '确定退出',
+        onConfirm: () => {
+          this.logout();
+        },
+      }),
       alignment: DialogAlignment.Center,
-      primaryButton: {
-        value: '确定退出',
-        fontColor: $r('app.color.danger_text'),
-        action: () => {
-          // clearTokens 为 async：链式等待 Preferences 落盘完成再跳转，避免磁盘残留旧凭据复活登录态
-          TokenManager.clearTokens().then(() => {
-            promptAction.showToast({ message: '已退出登录' });
-            router.replaceUrl({ url: 'pages/LoginPage' });
-          });
-        }
-      },
-      secondaryButton: {
-        value: '取消',
-        action: () => {}
-      }
+      autoCancel: true,
+    });
+    this.dialogController.open();
+  }
+
+  // 债务：服务端 refresh_token(14d) 吊销需后端 logout 接口，不在客户端范围内；当前仅清本地凭据
+  /**
+   * 退出登录：清本地凭据后回登录页
+   */
+  logout(): void {
+    // clearTokens 为 async：链式等待 Preferences 落盘完成再跳转，避免磁盘残留旧凭据复活登录态
+    TokenManager.clearTokens().then(() => {
+      promptAction.showToast({ message: '已退出登录' });
+      router.replaceUrl({ url: 'pages/LoginPage' });
     });
   }
 
   build() {
     Column() {
-      // 顶栏
-      Row() {
-        Button({ type: ButtonType.Circle }) {
-          Image($rawfile('back.png')).width(24).height(24)
-        }
-        .width(36).height(36)
-        .backgroundColor($r('app.color.surface'))
-        .onClick(() => router.back())
-
-        Text('个人中心')
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .margin({ left: 8 })
-      }
-      .width('100%')
-      .height(56)
-      .padding({ left: 16, right: 16 })
-      .backgroundColor($r('app.color.surface'))
+      // 顶栏（骨架收敛：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
+      TopBar({
+        title: '个人中心',
+      })
 
       Scroll() {
         Column() {
@@ -116,7 +112,7 @@ struct ProfilePage {
             .borderRadius(8)
             .margin({ top: 32, left: 16, right: 16 })
             .onClick(() => {
-              this.logout();
+              this.confirmLogout();
             })
 
           // 版权
