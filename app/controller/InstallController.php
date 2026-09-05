@@ -267,7 +267,7 @@ class InstallController
     private function renderStep1(array $old): string
     {
         $esc = static fn (mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES);
-        $adv = '<details open class="adv-box" id="adv-box"><summary>🔐 密钥与启动端口（高级）—— 留空则安装时自动生成</summary>'
+        $adv = '<div class="adv-box" id="adv-box"><div class="adv-head">🔐 密钥与启动端口（高级）—— 留空则安装时自动生成</div>'
             . '<div class="form-row"><div class="form-group"><label>JWT 签名密钥 JWT_SECRET_KEY</label><input name="jwt_secret" value="' . $esc($old['jwt_secret'] ?? '') . '" placeholder="留空自动生成（推荐）"><div class="hint">令牌签名，泄露可伪造登录态</div></div>'
             . '<div class="form-group"><label>接口传输密钥 ENCRYPTION_KEY</label><input name="encryption_key" value="' . $esc($old['encryption_key'] ?? '') . '" placeholder="留空自动生成（推荐）"></div></div>'
             . '<div class="form-row"><div class="form-group"><label>存储加密密钥 ENCRYPTABLE_KEY</label><input name="encryptable_key" value="' . $esc($old['encryptable_key'] ?? '') . '" placeholder="留空自动生成（推荐）"></div>'
@@ -774,9 +774,7 @@ class InstallController
         .pm-err{margin-top:10px;font-size:13px;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;text-align:left;line-height:1.6;word-break:break-all}
         #pm-retry{margin-top:14px}
         .adv-box{margin:18px 0;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;padding:4px 18px 14px}
-        .adv-box summary{cursor:pointer;font-size:14px;font-weight:600;color:#4338ca;padding:10px 0;list-style:none}
-        .adv-box summary::before{content:'▸ ';transition:transform .15s}
-        .adv-box[open] summary::before{transform:rotate(90deg)}
+        .adv-box .adv-head{font-size:14px;font-weight:700;color:#4338ca;padding:12px 0 6px}
         @media(max-width:720px){body{padding:28px 14px 40px}.card{padding:24px 20px}.form-row{flex-direction:column;gap:0}.step-label{display:none}.step-line{max-width:26px}}
         </style>
         </head>
