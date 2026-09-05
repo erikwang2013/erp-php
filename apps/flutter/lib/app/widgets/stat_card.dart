@@ -1,8 +1,9 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+// 统计卡(主文档 §5.3):图标 40×40 r8 + 标签 + 数值(20/24 tabular)+ 趋势。
+// 卡容器走全局 cardTheme(elevation 1 / r8 / 无色染);签名保持对外不变。
 import 'package:flutter/material.dart';
+import '../theme/app_tokens.dart';
 
-/// Statistics card used on dashboard pages: icon, title, value and an
-/// optional trend (percentage with up/down arrow).
 class StatCard extends StatelessWidget {
   final String title;
   final String value;
@@ -28,40 +29,35 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
+    final compact = MediaQuery.sizeOf(context).width < 768;
     return Card(
-      elevation: 0,
-      color: scheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.4)),
-      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: color, size: 26),
+              child: Icon(icon, color: color, size: 20),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: TextStyle(
-                          fontSize: 13, color: scheme.onSurfaceVariant),
-                      overflow: TextOverflow.ellipsis),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                   const SizedBox(height: 4),
                   Text(value,
-                      style: const TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.bold)),
+                      style: (compact ? AppText.stat20 : AppText.stat24)
+                          .copyWith(color: cs.onSurface)),
                 ],
               ),
             ),
@@ -73,24 +69,22 @@ class StatCard extends StatelessWidget {
   }
 
   Widget _buildTrend(BuildContext context) {
+    final tokens = AppColors.of(context);
     final up = trend! >= 0;
     final good = trendIsGood ?? true;
-    final isPositive = good ? up : !up;
-    final color = isPositive ? Colors.green : Colors.red;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
+    final positive = good ? up : !up;
+    final color = positive ? tokens.successText : tokens.dangerText;
+    return Padding(
+      padding: const EdgeInsets.only(left: 12),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(up ? Icons.arrow_upward : Icons.arrow_downward,
-              size: 14, color: color),
+              size: 12, color: color),
           const SizedBox(width: 2),
           Text('${trend!.abs().toStringAsFixed(1)}%',
-              style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
+              style: TextStyle(
+                  fontSize: 12, color: color, fontWeight: FontWeight.w600)),
         ],
       ),
     );

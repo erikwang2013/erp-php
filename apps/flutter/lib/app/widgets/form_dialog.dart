@@ -142,10 +142,12 @@ class _FormDialogState extends State<FormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    // 桌面居中弹窗 480 宽;窄屏(<500)不限制宽度避免溢出(§5.4)
+    final wide = MediaQuery.sizeOf(context).width >= 500;
     return AlertDialog(
-      title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      title: Text(widget.title),
       content: SizedBox(
-        width: 420,
+        width: wide ? 480 : double.infinity,
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -154,7 +156,7 @@ class _FormDialogState extends State<FormDialog> {
               children: [
                 for (final f in widget.fields) ...[
                   _buildField(f),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
                 ],
               ],
             ),
@@ -162,17 +164,20 @@ class _FormDialogState extends State<FormDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        OutlinedButton(
           onPressed: _loading ? null : () => Navigator.of(context).pop(false),
           child: Text(AppL10n.of(context).commonCancel),
         ),
         ElevatedButton(
+          // 提交:主按钮,宽≥88;提交中主按钮禁用态由主题填充(§5.4/§5.6)
           onPressed: _loading ? null : _submit,
+          style: ElevatedButton.styleFrom(minimumSize: const Size(88, 36)),
           child: _loading
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.white),
                 )
               : Text(widget.submitText),
         ),

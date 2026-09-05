@@ -165,11 +165,11 @@ export struct CaptchaVerifyDialog {
         Text('安全验证')
           .fontSize(16)
           .fontWeight(FontWeight.Bold)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
         Blank()
         Text('取消')
           .fontSize(14)
-          .fontColor('#1677FF')
+          .fontColor($r('app.color.primary'))
           .onClick(() => { this.cancel(); })
       }
       .width('100%')
@@ -180,10 +180,10 @@ export struct CaptchaVerifyDialog {
           LoadingProgress()
             .width(36)
             .height(36)
-            .color('#1677FF')
+            .color($r('app.color.primary'))
           Text('验证码加载中…')
             .fontSize(12)
-            .fontColor('#999999')
+            .fontColor($r('app.color.text_hint'))
             .margin({ top: 8 })
         }
         .width('100%')
@@ -193,10 +193,10 @@ export struct CaptchaVerifyDialog {
         Column() {
           Text('验证码加载失败，请检查网络')
             .fontSize(13)
-            .fontColor('#999999')
+            .fontColor($r('app.color.text_hint'))
           Button('重试')
             .fontSize(13)
-            .fontColor('#1677FF')
+            .fontColor($r('app.color.primary'))
             .backgroundColor(Color.Transparent)
             .margin({ top: 4 })
             .onClick(() => { this.load(); })
@@ -208,7 +208,7 @@ export struct CaptchaVerifyDialog {
         // 目标提示
         Text(this.promptText())
           .fontSize(13)
-          .fontColor('#666666')
+          .fontColor($r('app.color.text_secondary'))
           .width('100%')
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -221,7 +221,7 @@ export struct CaptchaVerifyDialog {
             .height(VIEW_H)
             .objectFit(ImageFit.Fill)
             .borderRadius(8)
-            .border({ width: 1, color: '#EEEEEE' })
+            .border({ width: 1, color: $r('app.color.divider') })
             .onClick((event: ClickEvent) => { this.onImageClick(event); })
 
           ForEach(this.markers, (m: ClickMarker) => {
@@ -243,11 +243,11 @@ export struct CaptchaVerifyDialog {
         Row() {
           Text(`已点击 ${this.clicks.length}/${this.targets.length}`)
             .fontSize(12)
-            .fontColor('#999999')
+            .fontColor($r('app.color.text_hint'))
           Blank()
           Button('换一张')
             .fontSize(12)
-            .fontColor('#1677FF')
+            .fontColor($r('app.color.primary'))
             .backgroundColor(Color.Transparent)
             .onClick(() => { this.load(); })
         }

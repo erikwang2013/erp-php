@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_l10n.dart';
 import '../services/api_service.dart';
+import '../theme/app_tokens.dart';
 
 /// 详情页通用骨架：GET 拉取 → 加载/错误/重试 → 内容区。
 class DetailPage extends StatefulWidget {
@@ -68,7 +69,12 @@ class DetailCard extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        // 区块标题 14/600 + divider(§5.5)
+        Text(title,
+            style: const TextStyle(
+                fontSize: 14, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 12),
+        const Divider(),
         const SizedBox(height: 12),
         ...children,
       ]),
@@ -84,13 +90,22 @@ class DetailRow extends StatelessWidget {
   const DetailRow({super.key, required this.label, required this.value});
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4),
-    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      SizedBox(width: 140, child: Text(label, style: TextStyle(color: Colors.grey[600]))),
-      Expanded(child: Text(value.isEmpty ? '-' : value)),
-    ]),
-  );
+  Widget build(BuildContext context) {
+    final hint = AppColors.of(context).textHint;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        // label 12/hint、值 14/primary;空值「-」用 hint(§5.5)
+        SizedBox(
+            width: 140,
+            child: Text(label,
+                style: TextStyle(fontSize: 12, color: hint))),
+        Expanded(
+            child: Text(value.isEmpty ? '-' : value,
+                style: value.isEmpty ? TextStyle(color: hint) : null)),
+      ]),
+    );
+  }
 }
 
 /// 明细表格：columns 为（表头, 数据 key）列表，rows 内以 key 取值。
@@ -107,12 +122,20 @@ class DetailItemsTable extends StatelessWidget {
       width: double.infinity,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: [for (final c in columns) DataColumn(label: Text(c.$1))],
-          rows: [
-            for (final r in rows)
-              DataRow(cells: [for (final c in columns) DataCell(Text('${r[c.$2] ?? ''}'))]),
-          ],
+        // 明细子表密集档:行 40、表头 36(§5.5)
+        child: DataTableTheme(
+          data: const DataTableThemeData(
+            dataRowMinHeight: 40,
+            dataRowMaxHeight: 40,
+            headingRowHeight: 36,
+          ),
+          child: DataTable(
+            columns: [for (final c in columns) DataColumn(label: Text(c.$1))],
+            rows: [
+              for (final r in rows)
+                DataRow(cells: [for (final c in columns) DataCell(Text('${r[c.$2] ?? ''}'))]),
+            ],
+          ),
         ),
       ),
     );

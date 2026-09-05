@@ -1,52 +1,35 @@
 {
   "color": [
-    {
-      "name": "start_window_background",
-      "value": "#FFFFFF"
-    },
-    {
-      "name": "primary",
-      "value": "#1677FF"
-    },
-    {
-      "name": "primary_light",
-      "value": "#E6F0FF"
-    },
-    {
-      "name": "success",
-      "value": "#52C41A"
-    },
-    {
-      "name": "warning",
-      "value": "#FA8C16"
-    },
-    {
-      "name": "danger",
-      "value": "#FF4D4F"
-    },
-    {
-      "name": "text_primary",
-      "value": "#333333"
-    },
-    {
-      "name": "text_secondary",
-      "value": "#666666"
-    },
-    {
-      "name": "text_hint",
-      "value": "#999999"
-    },
-    {
-      "name": "background",
-      "value": "#F5F5F5"
-    },
-    {
-      "name": "white",
-      "value": "#FFFFFF"
-    },
-    {
-      "name": "divider",
-      "value": "#EEEEEE"
-    }
+    { "name": "start_window_background", "value": "#FFFFFF" },
+    { "name": "primary", "value": "#1677FF" },
+    { "name": "primary_pressed", "value": "#0958D9" },
+    { "name": "primary_disabled", "value": "#99BBFF" },
+    { "name": "primary_bg", "value": "#E6F0FF" },
+    { "name": "success", "value": "#52C41A" },
+    { "name": "success_text", "value": "#389E0D" },
+    { "name": "success_bg", "value": "#E6FFF0" },
+    { "name": "warning", "value": "#FA8C16" },
+    { "name": "warning_text", "value": "#D46B08" },
+    { "name": "warning_bg", "value": "#FFFBE6" },
+    { "name": "danger", "value": "#FF4D4F" },
+    { "name": "danger_text", "value": "#CF1322" },
+    { "name": "danger_bg", "value": "#FFE6E6" },
+    { "name": "text_primary", "value": "#333333" },
+    { "name": "text_secondary", "value": "#666666" },
+    { "name": "text_hint", "value": "#999999" },
+    { "name": "text_disabled", "value": "#CCCCCC" },
+    { "name": "text_on_primary", "value": "#FFFFFF" },
+    { "name": "bg_page", "value": "#F5F5F5" },
+    { "name": "surface", "value": "#FFFFFF" },
+    { "name": "surface_alt", "value": "#F0F0F0" },
+    { "name": "divider", "value": "#EEEEEE" },
+    { "name": "border", "value": "#D9D9D9" },
+    { "name": "white", "value": "#FFFFFF" },
+    { "name": "chart_1", "value": "#1677FF" },
+    { "name": "chart_2", "value": "#52C41A" },
+    { "name": "chart_3", "value": "#FA8C16" },
+    { "name": "chart_4", "value": "#FF4D4F" },
+    { "name": "chart_5", "value": "#722ED1" },
+    { "name": "chart_6", "value": "#13C2C2" }
   ]
 }

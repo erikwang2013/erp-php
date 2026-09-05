@@ -86,39 +86,49 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    // 桌面居中卡 360 宽;窄屏(<420)不限制宽度避免溢出(§5.7)
+    final fixedWidth = MediaQuery.sizeOf(context).width >= 420;
     return AlertDialog(
-      title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (widget.content != null) ...[
-            Text(widget.content!),
-            const SizedBox(height: 12),
-          ],
-          TextField(
-            controller: _passwordCtrl,
-            obscureText: true,
-            enabled: !_loading,
-            decoration: InputDecoration(
-              labelText: widget.passwordLabel,
-              isDense: true,
-              errorText: _error,
+      title: Text(widget.title),
+      content: SizedBox(
+        width: fixedWidth ? 360 : double.infinity,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.content != null) ...[
+              Text(widget.content!,
+                  style: TextStyle(
+                      fontSize: 14, color: scheme.onSurfaceVariant)),
+              const SizedBox(height: 12),
+            ],
+            TextField(
+              controller: _passwordCtrl,
+              obscureText: true,
+              enabled: !_loading,
+              decoration: InputDecoration(
+                labelText: widget.passwordLabel,
+                isDense: true,
+                errorText: _error,
+              ),
+              onSubmitted: (_) => _confirm(),
             ),
-            onSubmitted: (_) => _confirm(),
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
-        TextButton(
+        OutlinedButton(
           onPressed: _loading ? null : () => Navigator.of(context).pop(false),
           child: Text(AppL10n.of(context).commonCancel),
         ),
+        // 危险实心(error 槽=2.2 danger 表):确认弹窗主操作,宽≥88(§5.7)
         ElevatedButton(
           onPressed: _loading ? null : _confirm,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+            backgroundColor: scheme.error,
+            foregroundColor: scheme.onError,
+            minimumSize: const Size(88, 36),
           ),
           child: _loading
               ? const SizedBox(
