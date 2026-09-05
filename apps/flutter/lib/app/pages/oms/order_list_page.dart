@@ -1,6 +1,7 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -363,10 +364,10 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.local_shipping,
               size: 18,
-              color: Colors.teal,
+              color: AppColors.of(context).primary,
             ),
             tooltip: l.omsFulfill,
             onPressed: () => _fulfill(r),
@@ -376,7 +377,7 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
             onPressed: () => _edit(r),
           ),
           IconButton(
-            icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+            icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger),
             onPressed: () => _delete(r),
           ),
         ],
@@ -386,25 +387,34 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
 
   Widget _chip(String s) {
     final l = AppL10n.of(context);
-    final Color color;
-    if (s == l.omsFulShipped || s == l.omsFulSigned || s == l.omsPayPaid) {
-      color = Colors.green;
+    final c = AppColors.of(context);
+    // §2.4：待支付/未分配=待办(warning)，拣货中/已打包/已分配/部分退款=进行中(primary)，
+    // 已发货/已签收/已支付=终态(success)，已退款=失败(danger)
+    var bg = c.primaryBg;
+    var fg = c.primaryPressed;
+    if (s == l.omsPayPending || s == l.omsFulUnassigned) {
+      bg = c.warningBg;
+      fg = c.warningText;
     } else if (s == l.omsFulPicking ||
         s == l.omsFulPacked ||
+        s == l.omsFulAssigned ||
         s == l.omsPayPartialRefund) {
-      color = Colors.orange;
+      bg = c.primaryBg;
+      fg = c.primaryPressed;
+    } else if (s == l.omsFulShipped || s == l.omsFulSigned || s == l.omsPayPaid) {
+      bg = c.successBg;
+      fg = c.successText;
     } else if (s == l.omsPayRefunded) {
-      color = Colors.red;
-    } else {
-      color = Colors.blue;
+      bg = c.dangerBg;
+      fg = c.dangerText;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(s, style: TextStyle(color: color, fontSize: 12)),
+      child: Text(s, style: TextStyle(color: fg, fontSize: 12)),
     );
   }
 }
