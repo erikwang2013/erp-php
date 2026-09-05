@@ -1,6 +1,7 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -102,7 +103,7 @@ class _DashboardListPageState extends State<DashboardListPage> {
         IconButton(icon: const Icon(Icons.dashboard_customize, size: 18), tooltip: l10n.biChartManage,
           onPressed: () => _manageWidgets(r)),
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-        IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
+        IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
       ]),
     };
   }
@@ -197,10 +198,10 @@ class _WidgetManagerDialogState extends State<_WidgetManagerDialog> {
           Row(children: [
             ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(l10n.biChartAdd)),
             const Spacer(),
-            Text(l10n.biChartCount(_widgets.length), style: const TextStyle(color: Colors.grey)),
+            Text(l10n.biChartCount(_widgets.length), style: TextStyle(color: AppColors.of(context).textHint)),
           ]),
           const SizedBox(height: 8),
-          if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+          if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
           Expanded(child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _widgets.isEmpty
@@ -216,7 +217,7 @@ class _WidgetManagerDialogState extends State<_WidgetManagerDialog> {
                       subtitle: Text(l10n.biChartTypeLabel('${w['type'] ?? ''}')),
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(w)),
-                        IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(w)),
+                        IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(w)),
                       ]),
                     );
                   },

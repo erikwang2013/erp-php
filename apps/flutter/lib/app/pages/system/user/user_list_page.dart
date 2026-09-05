@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../theme/app_tokens.dart';
 import '../../../widgets/confirm_dialog.dart';
 import '../../../l10n/app_l10n.dart';
 import 'user_controller.dart';
@@ -41,9 +42,9 @@ class UserListPage extends GetView<UserController> {
               return Row(mainAxisSize: MainAxisSize.min, children: [
                 ElevatedButton.icon(
                   onPressed: () => _confirmBatchDelete(context, ctrl),
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  icon: Icon(Icons.delete, color: AppColors.of(context).danger),
                   label: Text(l10n.systemUserBatchDelLabel(ctrl.selectedIds.length)),
-                  style: ElevatedButton.styleFrom(foregroundColor: Colors.red),
+                  style: ElevatedButton.styleFrom(foregroundColor: AppColors.of(context).danger),
                 ),
                 const SizedBox(width: 8),
                 PopupMenuButton<String>(
@@ -118,11 +119,14 @@ class UserListPage extends GetView<UserController> {
                       DataCell(Text(u['email'] ?? '')),
                       DataCell(u['status'] == null
                           ? Chip(label: Text('-')) // 状态缺失显式占位，避免误判为「禁用」
-                          : Chip(label: Text(u['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled), color: WidgetStatePropertyAll(u['status'] == 1 ? Colors.green.shade50 : Colors.red.shade50))),
+                          : Chip(label: Text(u['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled), // §2.4：启用 success/停用 danger
+                              color: WidgetStatePropertyAll(u['status'] == 1 ? AppColors.of(context).successBg : AppColors.of(context).dangerBg),
+                              labelStyle: TextStyle(color: u['status'] == 1 ? AppColors.of(context).successText : AppColors.of(context).dangerText, fontSize: 12),
+                              side: BorderSide.none)),
                       DataCell(Text(u['last_login_at'] ?? '-')),
                       DataCell(Row(mainAxisSize: MainAxisSize.min, children: [
                         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => Get.to(() => UserFormPage(userData: u))?.then((_) => ctrl.loadUsers())),
-                        IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _confirmDelete(context, ctrl, u)),
+                        IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _confirmDelete(context, ctrl, u)),
                       ])),
                     ],
                   );

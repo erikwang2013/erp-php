@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../theme/app_tokens.dart';
 import '../../../widgets/confirm_dialog.dart';
 import '../../../l10n/app_l10n.dart';
 import 'role_controller.dart';
@@ -47,9 +48,12 @@ class RoleListPage extends GetView<RoleController> {
                   title: Text(r['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(l10n.systemRoleSubtitle('${r['slug']}', int.tryParse('${r['users_count'] ?? 0}') ?? 0, '${r['description'] ?? ''}')),
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Chip(label: Text(r['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled)),
+                    Chip(label: Text(r['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled), // §2.4：启用 success/停用 danger
+                        color: WidgetStatePropertyAll(r['status'] == 1 ? AppColors.of(context).successBg : AppColors.of(context).dangerBg),
+                        labelStyle: TextStyle(color: r['status'] == 1 ? AppColors.of(context).successText : AppColors.of(context).dangerText, fontSize: 12),
+                        side: BorderSide.none),
                     IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _showRoleDialog(context, ctrl, role: r)),
-                    IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () {
+                    IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () {
                       // 复用 ConfirmDialog（密码确认 + 内部 loading/失败态，controller 自管生命周期）
                       ConfirmDialog.show(
                         context,

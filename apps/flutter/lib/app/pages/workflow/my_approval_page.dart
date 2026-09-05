@@ -1,6 +1,7 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../l10n/app_l10n.dart';
 
@@ -179,11 +180,11 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
       l10n.fieldSubmitTime: r['submitted_at'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         if (pending) ...[
-          IconButton(icon: const Icon(Icons.check_circle, size: 18, color: Colors.green),
+          IconButton(icon: Icon(Icons.check_circle, size: 18, color: AppColors.of(context).success),
             tooltip: l10n.workflowApprove, onPressed: () => _approve(r)),
-          IconButton(icon: const Icon(Icons.cancel, size: 18, color: Colors.red),
+          IconButton(icon: Icon(Icons.cancel, size: 18, color: AppColors.of(context).danger),
             tooltip: l10n.workflowReject, onPressed: () => _reject(r)),
-          IconButton(icon: const Icon(Icons.undo, size: 18, color: Colors.orange),
+          IconButton(icon: Icon(Icons.undo, size: 18, color: AppColors.of(context).warning),
             tooltip: l10n.workflowWithdraw, onPressed: () => _withdraw(r)),
         ] else
           const Text('—'),
@@ -193,20 +194,22 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
 
   Widget _chip(dynamic s) {
     final i = s is int ? s : int.tryParse('$s');
+    final c = AppColors.of(context);
+    // §2.4：0审批中=待办(warning)，1已通过=终态(success)，2已驳回/3已撤回=失败(danger)；
     // 颜色按状态枚举匹配，标签走 l10n，避免按译文字符串判色
-    final color = switch (i) {
-      0 => Colors.orange,
-      1 => Colors.green,
-      2 || 3 => Colors.red,
-      _ => Colors.blue,
+    final (bg, fg) = switch (i) {
+      0 => (c.warningBg, c.warningText),
+      1 => (c.successBg, c.successText),
+      2 || 3 => (c.dangerBg, c.dangerText),
+      _ => (c.primaryBg, c.primaryPressed),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(_statusText(s), style: TextStyle(color: color, fontSize: 12)),
+      child: Text(_statusText(s), style: TextStyle(color: fg, fontSize: 12)),
     );
   }
 }

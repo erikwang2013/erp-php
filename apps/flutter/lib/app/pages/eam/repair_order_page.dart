@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -119,13 +120,13 @@ class _RepairOrderPageState extends State<RepairOrderPage> {
     AppL10n.current.commonStatus: r['status'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       if ((r['status'] ?? 'open') == 'open')
-        IconButton(icon: const Icon(Icons.play_arrow, size: 18, color: Colors.orange), tooltip: AppL10n.current.eamRepairStart,
+        IconButton(icon: Icon(Icons.play_arrow, size: 18, color: AppColors.of(context).warning), tooltip: AppL10n.current.eamRepairStart,
             onPressed: () => _transition(r, 'in_progress', AppL10n.current.eamRepairStart)),
       if ((r['status'] ?? 'open') == 'in_progress')
-        IconButton(icon: const Icon(Icons.check, size: 18, color: Colors.green), tooltip: AppL10n.current.eamRepairFinish,
+        IconButton(icon: Icon(Icons.check, size: 18, color: AppColors.of(context).success), tooltip: AppL10n.current.eamRepairFinish,
             onPressed: () => _transition(r, 'completed', AppL10n.current.eamRepairFinish)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-      IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
+      IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
   };
 }

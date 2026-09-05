@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../l10n/app_l10n.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -100,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
         content: Text(l10n.navLogoutConfirmMessage),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.commonCancel)),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white), child: Text(l10n.navLogoutConfirm)),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), style: ElevatedButton.styleFrom(backgroundColor: AppColors.of(context).danger, foregroundColor: AppColors.of(context).textOnPrimary), child: Text(l10n.navLogoutConfirm)),
         ],
       ),
     );
@@ -134,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
       const SizedBox(height: 32),
       const Divider(),
       ListTile(leading: const Icon(Icons.lock), title: Text(l10n.profileChangePassword), trailing: const Icon(Icons.chevron_right), onTap: _changePassword),
-      ListTile(leading: const Icon(Icons.logout, color: Colors.red), title: Text(l10n.navLogout, style: const TextStyle(color: Colors.red)), onTap: _logout),
+      ListTile(leading: Icon(Icons.logout, color: AppColors.of(context).danger), title: Text(l10n.navLogout, style: TextStyle(color: AppColors.of(context).danger)), onTap: _logout),
     ])));
   }
 }

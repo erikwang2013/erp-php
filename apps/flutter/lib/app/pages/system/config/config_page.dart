@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../services/api_service.dart';
+import '../../../theme/app_tokens.dart';
 import '../../../widgets/confirm_dialog.dart';
 import '../../../l10n/app_l10n.dart';
 
@@ -104,9 +105,9 @@ class ConfigPage extends GetView<ConfigController> {
               trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                 Chip(label: Text(c['type'] ?? 'string')), // type 为后端存储值，原样展示不翻译
                 const SizedBox(width: 8),
-                Text(c['value'] ?? '', style: const TextStyle(color: Colors.blue)),
+                Text(c['value'] ?? '', style: TextStyle(color: AppColors.of(context).primary)),
                 IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _showDialog(context, ctrl, item: c)),
-                IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () {
+                IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () {
                   ConfirmDialog.show(
                     context,
                     content: l10n.systemConfigDeleteContent('${c['group']}.${c['key']}'),

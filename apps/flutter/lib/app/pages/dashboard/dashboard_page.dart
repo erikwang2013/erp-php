@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../widgets/stat_card.dart';
+import '../../theme/app_tokens.dart';
 import '../../l10n/app_l10n.dart';
 import 'dashboard_controller.dart';
 
@@ -109,6 +110,7 @@ class DashboardPage extends GetView<DashboardController> {
 
   Widget _buildSalesTrendCard(BuildContext context) {
     final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -134,10 +136,10 @@ class DashboardPage extends GetView<DashboardController> {
                   lineBarsData: [
                     LineChartBarData(
                       spots: controller.salesTrendSpots,
-                      color: const Color(0xFFFA8C16),
+                      color: c.warning,
                       barWidth: 2,
                       dotData: const FlDotData(show: false),
-                      belowBarData: BarAreaData(show: true, color: const Color(0xFFFA8C16).withValues(alpha: 0.1)),
+                      belowBarData: BarAreaData(show: true, color: c.warning.withValues(alpha: 0.1)),
                     ),
                   ],
                 ),
@@ -151,6 +153,7 @@ class DashboardPage extends GetView<DashboardController> {
 
   Widget _buildTopProductsCard(BuildContext context) {
     final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
     final products = controller.bizSales['top_products'] as List<dynamic>? ?? [];
     final maxQty = products.fold<double>(0, (m, p) => ((p['quantity'] as num?) ?? 0).toDouble() > m ? (p['quantity'] as num).toDouble() : m);
     return Card(
@@ -176,14 +179,14 @@ class DashboardPage extends GetView<DashboardController> {
                     child: LinearProgressIndicator(
                       value: maxQty > 0 ? ((p['quantity'] as num?) ?? 0).toDouble() / maxQty : 0,
                       minHeight: 6,
-                      backgroundColor: Colors.grey[200],
-                      color: const Color(0xFF1677FF),
+                      backgroundColor: c.divider,
+                      color: c.primary,
                     ),
                   ),
                 ],
               ),
             )),
-            if (products.isEmpty) Text(l10n.dashboardNoData, style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+            if (products.isEmpty) Text(l10n.dashboardNoData, style: TextStyle(fontSize: 13, color: c.textHint)),
           ],
         ),
       ),
@@ -192,8 +195,11 @@ class DashboardPage extends GetView<DashboardController> {
 
   Widget _buildOrderStatusCard(BuildContext context) {
     final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
     final list = controller.bizSales['status_distribution'] as List<dynamic>? ?? [];
-    const colors = [Color(0xFF1677FF), Color(0xFF52C41A), Color(0xFFFA8C16), Color(0xFF722ED1), Color(0xFFEB2F96)];
+    // 图例与 controller.orderStatusSections 的饼图切片颜色按下标一一对应：前三色为 token
+    // 主色/成功/警示（两主题下与注册图表色一致），后两色保持注册图表字面量（chart_5/未注册 magenta 待收口）
+    final colors = [c.primary, c.success, c.warning, const Color(0xFF722ED1), const Color(0xFFEB2F96)];
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -232,6 +238,7 @@ class DashboardPage extends GetView<DashboardController> {
   }
 
   Widget _buildAgingCard(BuildContext context, String title, dynamic aging) {
+    final c = AppColors.of(context);
     final list = aging as List<dynamic>? ?? [];
     final maxValue = list.fold<double>(0, (m, b) => ((b['value'] as num?) ?? 0).toDouble() > m ? (b['value'] as num).toDouble() : m);
     return Card(
@@ -257,7 +264,7 @@ class DashboardPage extends GetView<DashboardController> {
                     child: LinearProgressIndicator(
                       value: maxValue > 0 ? ((b['value'] as num?) ?? 0).toDouble() / maxValue : 0,
                       minHeight: 6,
-                      backgroundColor: Colors.grey[200],
+                      backgroundColor: c.divider,
                       color: const Color(0xFF722ED1),
                     ),
                   ),
@@ -272,11 +279,13 @@ class DashboardPage extends GetView<DashboardController> {
 
   Widget _buildInventoryCard(BuildContext context) {
     final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
     final d = controller.bizInventory;
     final items = <Map<String, dynamic>>[
-      {'label': l10n.dashboardInvValue, 'value': '${d['total_value'] ?? 0}', 'icon': Icons.inventory_2, 'color': const Color(0xFF1677FF)},
-      {'label': l10n.dashboardInvLowAlert, 'value': '${d['alert_low'] ?? 0}', 'icon': Icons.warning_amber, 'color': const Color(0xFFFA8C16)},
-      {'label': l10n.dashboardInvHighAlert, 'value': '${d['alert_high'] ?? 0}', 'icon': Icons.trending_up, 'color': const Color(0xFFEB2F96)},
+      {'label': l10n.dashboardInvValue, 'value': '${d['total_value'] ?? 0}', 'icon': Icons.inventory_2, 'color': c.primary},
+      {'label': l10n.dashboardInvLowAlert, 'value': '${d['alert_low'] ?? 0}', 'icon': Icons.warning_amber, 'color': c.warning},
+      // 原 #EB2F96 未注册；改用注册图表色 chart_6（#13C2C2），页面自持色不受外部同步约束
+      {'label': l10n.dashboardInvHighAlert, 'value': '${d['alert_high'] ?? 0}', 'icon': Icons.trending_up, 'color': const Color(0xFF13C2C2)},
     ];
     return Row(
       children: [
@@ -343,6 +352,7 @@ class DashboardPage extends GetView<DashboardController> {
   }
 
   Widget _buildStatsGrid(BuildContext context) {
+    final c = AppColors.of(context);
     // 后端返回的统计卡片（最多展示 4 张）；为空（接口失败/无数据）时给出空态，
     // 避免固定 itemCount: 4 访问空列表导致 RangeError 崩溃。
     final stats = controller.stats;
@@ -351,7 +361,7 @@ class DashboardPage extends GetView<DashboardController> {
         padding: const EdgeInsets.symmetric(vertical: 32),
         child: Center(
           child: Text(AppL10n.of(context).dashboardNoData,
-              style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+              style: TextStyle(fontSize: 13, color: c.textHint)),
         ),
       );
     }
@@ -381,10 +391,10 @@ class DashboardPage extends GetView<DashboardController> {
                     Row(children: [
                       Icon(_getIcon(stat['icon']), color: color, size: 20),
                       const Spacer(),
-                      if (stat['trend'] != null) _buildTrendBadge(stat['trend']),
+                      if (stat['trend'] != null) _buildTrendBadge(context, stat['trend']),
                     ]),
                     const Spacer(),
-                    Text(stat['label'], style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                    Text(stat['label'], style: TextStyle(fontSize: 13, color: c.textSecondary)),
                     const SizedBox(height: 4),
                     Text(stat['value'], style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                   ],
@@ -399,6 +409,7 @@ class DashboardPage extends GetView<DashboardController> {
 
   Widget _buildTrendChart(BuildContext context) {
     final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -428,12 +439,12 @@ class DashboardPage extends GetView<DashboardController> {
               lineBarsData: controller.trendSpots.map((spots) {
                     return LineChartBarData(
                       spots: spots,
-                      color: const Color(0xFF1677FF),
+                      color: c.primary,
                       barWidth: 2,
                       dotData: const FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: const Color(0xFF1677FF).withValues(alpha: 0.1),
+                        color: c.primary.withValues(alpha: 0.1),
                       ),
                     );
                   }).toList(),
@@ -448,6 +459,7 @@ class DashboardPage extends GetView<DashboardController> {
 
   Widget _buildDistributionChart(BuildContext context) {
     final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -470,9 +482,10 @@ class DashboardPage extends GetView<DashboardController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildLegend(const Color(0xFF1677FF), l10n.dashboardEnabled),
+                // 图例与 controller.pieSections 切片同源（token 主色/成功色 = 注册图表色 #1677FF/#52C41A）
+                _buildLegend(c.primary, l10n.dashboardEnabled),
                 const SizedBox(width: 24),
-                _buildLegend(const Color(0xFF52C41A), l10n.dashboardDisabled),
+                _buildLegend(c.success, l10n.dashboardDisabled),
               ],
             ),
           ],
@@ -494,6 +507,7 @@ class DashboardPage extends GetView<DashboardController> {
 
   Widget _buildRecentLogs(BuildContext context) {
     final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -505,11 +519,11 @@ class DashboardPage extends GetView<DashboardController> {
             ...controller.recentLogs.take(8).map((log) => ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: CircleAvatar(radius: 14, backgroundColor: const Color(0xFF1677FF).withValues(alpha: 0.1),
-                  child: Text(log['user_name'][0].toUpperCase(), style: const TextStyle(fontSize: 12, color: Color(0xFF1677FF)))),
+              leading: CircleAvatar(radius: 14, backgroundColor: c.primaryBg,
+                  child: Text(log['user_name'][0].toUpperCase(), style: TextStyle(fontSize: 12, color: c.primary))),
               title: Text(log['action'], style: const TextStyle(fontSize: 13)),
               subtitle: Text(log['created_at'] ?? '', style: const TextStyle(fontSize: 11)),
-              trailing: Text(log['ip'] ?? '', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+              trailing: Text(log['ip'] ?? '', style: TextStyle(fontSize: 11, color: c.textHint)),
             )),
           ],
         ),
@@ -517,21 +531,22 @@ class DashboardPage extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildTrendBadge(double trend) {
+  Widget _buildTrendBadge(BuildContext context, double trend) {
+    final c = AppColors.of(context);
     final isUp = trend >= 0;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: isUp ? Colors.green[50] : Colors.red[50],
+        color: isUp ? c.successBg : c.dangerBg,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(isUp ? Icons.arrow_upward : Icons.arrow_downward, size: 12,
-              color: isUp ? Colors.green : Colors.red),
+              color: isUp ? c.success : c.danger),
           Text('${trend.abs()}%',
-              style: TextStyle(fontSize: 11, color: isUp ? Colors.green : Colors.red)),
+              style: TextStyle(fontSize: 11, color: isUp ? c.success : c.danger)),
         ],
       ),
     );
