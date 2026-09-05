@@ -270,12 +270,15 @@ class InstallController
         <div class="form-group"><label>密码</label><input type="password" name="password" value="{$h('password')}"></div>
         <div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="{$h('prefix', 'erp_')}" required></div>
         <div class="form-actions">
-            <button type="button" class="btn btn-secondary" onclick="testDb()">测试连接</button>
+            <button type="button" id="test-db-btn" class="btn btn-secondary">测试连接</button>
             <button type="submit" class="btn">下一步：管理员账号</button>
         </div>
         <div id="test-result" style="margin-top:12px;"></div>
         </form>
         <script>
+        // CSP 严格模式：事件属性级 handler 不在 nonce 覆盖范围，用 addEventListener 绑定
+        document.getElementById('test-db-btn')?.addEventListener('click', testDb);
+
         async function testDb() {
             const r = document.getElementById('test-result');
             r.innerHTML = '<span style="color:#999;">⏳ 测试中...</span>';
