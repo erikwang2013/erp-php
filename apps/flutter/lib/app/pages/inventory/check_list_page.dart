@@ -1,6 +1,7 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -171,7 +172,7 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
             onPressed: () => _edit(r),
           ),
           IconButton(
-            icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+            icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger),
             onPressed: () => _delete(r),
           ),
         ],

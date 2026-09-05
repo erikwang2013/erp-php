@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -126,27 +127,30 @@ class _PurchaseSettlementListPageState extends State<PurchaseSettlementListPage>
     AppL10n.current.purchaseSettledAt: r['settled_at'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-      IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
+      IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
   };
 
-  /// 状态徽标：0未结算 蓝，1部分结算 橙，2已结算 绿。
+  /// 状态徽标（§2.4）：0未结算=待付款待办(warning)，1部分结算=进行中(primary)，2已结算=终态(success)。
   Widget _statusChip(dynamic s) {
     final i = s is int ? s : int.tryParse('$s') ?? 0;
     final labels = _statusLabels;
     final text = (i >= 0 && i < labels.length) ? labels[i] : '$s';
-    final color = switch (i) {
-      1 => Colors.orange,
-      2 => Colors.green,
-      _ => Colors.blue,
+    final c = AppColors.of(context);
+    // §2.4: 0未结算=待付款待办(warning)，1部分结算=进行中(primary)，2已结算=终态(success)
+    final (bg, fg) = switch (i) {
+      0 => (c.warningBg, c.warningText),
+      1 => (c.primaryBg, c.primaryPressed),
+      2 => (c.successBg, c.successText),
+      _ => (c.primaryBg, c.primaryPressed),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(text, style: TextStyle(color: color, fontSize: 12)),
+      child: Text(text, style: TextStyle(color: fg, fontSize: 12)),
     );
   }
 }

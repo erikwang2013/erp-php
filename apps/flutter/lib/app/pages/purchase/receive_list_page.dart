@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -94,7 +95,7 @@ class _PurchaseReceiveListPageState extends State<PurchaseReceiveListPage> {
     AppL10n.current.commonStatus: _statusChip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-      IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
+      IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
   };
 
@@ -112,18 +113,20 @@ class _PurchaseReceiveListPageState extends State<PurchaseReceiveListPage> {
     final i = s is int ? s : int.tryParse('$s') ?? 0;
     final labels = _statusLabels;
     final text = (i >= 0 && i < labels.length) ? labels[i] : '$s';
-    final color = switch (i) {
-      0 => Colors.orange,
-      1 => Colors.green,
-      _ => Colors.blue,
+    final c = AppColors.of(context);
+    // §2.4: 0待入库=待办(warning)，1已入库=终态(success)
+    final (bg, fg) = switch (i) {
+      0 => (c.warningBg, c.warningText),
+      1 => (c.successBg, c.successText),
+      _ => (c.primaryBg, c.primaryPressed),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(text, style: TextStyle(color: color, fontSize: 12)),
+      child: Text(text, style: TextStyle(color: fg, fontSize: 12)),
     );
   }
 }
