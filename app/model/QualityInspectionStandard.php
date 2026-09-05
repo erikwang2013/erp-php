@@ -7,11 +7,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class QualityInspectionStandard extends Model
 {
-    protected $table = 'erp_quality_inspection_standard';
+    use Searchable;
+    protected $table = 'quality_inspection_standard';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

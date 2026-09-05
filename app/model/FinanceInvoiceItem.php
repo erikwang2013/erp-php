@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class FinanceInvoiceItem extends Model
 {
-    protected $table = 'erp_finance_invoice_item';
+    use Searchable;
+    protected $table = 'finance_invoice_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

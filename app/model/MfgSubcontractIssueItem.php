@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,7 +20,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class MfgSubcontractIssueItem extends Model
 {
-    protected $table = 'erp_mfg_subcontract_issue_item';
+    use Searchable;
+    protected $table = 'mfg_subcontract_issue_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

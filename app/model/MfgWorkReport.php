@@ -9,13 +9,15 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class MfgWorkReport extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_mfg_work_report';
+    protected $table = 'mfg_work_report';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

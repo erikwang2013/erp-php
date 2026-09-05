@@ -9,11 +9,13 @@ declare(strict_types=1);
 namespace app\model;
 
 use Erikwang2013\Encryptable\Encryptable;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class CrmContact extends Model
 {
-    protected $table = 'erp_crm_contact';
+    use Searchable;
+    protected $table = 'crm_contact';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

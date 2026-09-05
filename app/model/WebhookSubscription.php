@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\model;
 
 use Erikwang2013\Encryptable\Encryptable;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -20,7 +21,8 @@ use support\Model;
  */
 class WebhookSubscription extends Model
 {
-    protected $table = 'erp_webhook_subscription';
+    use Searchable;
+    protected $table = 'webhook_subscription';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

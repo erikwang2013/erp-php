@@ -16,6 +16,7 @@ struct UserListPage {
   @State total: number = 0;
   @State isLoading: boolean = true;
   @State hasError: boolean = false;
+  @State errMsg: string = ''; // M4：真实错误文案（catch 不再吞 message）
   @State keyword: string = '';
   @State isRefreshing: boolean = false;
   private readonly limit: number = 15;
@@ -50,8 +51,9 @@ struct UserListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
+      this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      promptAction.showToast({ message: this.errMsg });
     } finally {
       this.isLoading = false;
       this.isRefreshing = false;
@@ -138,7 +140,7 @@ struct UserListPage {
       if (this.isLoading) {
         LoadingView();
       } else if (this.hasError) {
-        ErrorView({ onRetry: () => this.loadData(true) });
+        ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
       } else if (this.users.length === 0) {
         EmptyView({ message: '暂无用户数据' });
       } else {

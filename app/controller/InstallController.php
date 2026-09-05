@@ -35,7 +35,7 @@ class InstallController
      * 安装向导页
      */
 #[\erikwang2013\apidoc\annotation\Title("安装向导")]
-#[\erikwang2013\apidoc\annotation\Desc("四步安装向导(环境检查/数据库配置/管理员账号/确认安装)，GET 展示表单，POST 提交步骤；已安装时返回完成提示页(HTML)")]
+#[\erikwang2013\apidoc\annotation\Desc("六步安装向导(环境检查/数据库配置/密钥与端口/搜索引擎可选/管理员账号/确认安装)，GET 展示表单，POST 提交步骤；已安装时返回完成提示页(HTML)")]
 #[\erikwang2013\apidoc\annotation\Url("/install")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -67,7 +67,7 @@ class InstallController
         if ($request->method() === 'POST') {
             $errors = $this->processStep($step, $request);
             if (empty($errors)) {
-                if ($step === 3) {
+                if ($step === 5) {
                     return $this->renderSuccess();
                 }
                 $step++;
@@ -145,7 +145,8 @@ class InstallController
         $envMarked = false;
         if (file_exists($this->envPath)) {
             $env = file_get_contents($this->envPath);
-            $envMarked = str_contains($env, 'APP_INSTALLED=true');
+            // 按赋值行精确匹配（^...$ 行锚定），注释掉的 #APP_INSTALLED=true 不算已安装
+            $envMarked = preg_match('/^[ \t]*APP_INSTALLED=true[ \t]*$/m', $env) === 1;
         }
 
         return $lockExists || $envMarked;
@@ -201,7 +202,7 @@ class InstallController
 
     private function renderStep(int $step, array $errors, \support\Request $request): Response
     {
-        $steps = ['环境检查', '数据库配置', '管理员账号', '确认安装'];
+        $steps = ['环境检查', '数据库配置', '密钥与启动端口', '搜索引擎（可选）', '管理员账号', '确认安装'];
         $old = $request->post();   // 表单回填（原签名 $old 参数在改 $request 传递时并入）
         $html = $this->htmlHeader('安装向导 — ' . $steps[$step]);
 
@@ -215,7 +216,7 @@ class InstallController
             };
             $num = $i < $step ? '✓' : ($i + 1);
             $html .= "<div class=\"step {$cls}\"><span class=\"step-num\">{$num}</span><span class=\"step-label\">{$label}</span></div>";
-            if ($i < 3) {
+            if ($i < count($steps) - 1) {
                 $html .= '<div class="step-line"></div>';
             }
         }
@@ -236,6 +237,8 @@ class InstallController
             1 => $this->renderStep1($old),
             2 => $this->renderStep2($old),
             3 => $this->renderStep3($old),
+            4 => $this->renderStep4($old),
+            5 => $this->renderStep5($old),
             default => '<p>未知步骤</p>',
         };
         $html .= '</div>';
@@ -278,11 +281,29 @@ class InstallController
 
     private function renderStep3(array $old): string
     {
+        return $this->view('step3', ['old' => $old]);
+    }
+
+    private function renderStep4(array $old): string
+    {
+        return $this->view('step4', ['old' => $old]);
+    }
+
+    private function renderStep5(array $old): string
+    {
         $summary = [];
+        $engineNames = ['elasticsearch' => 'Elasticsearch', 'opensearch' => 'OpenSearch', 'none' => '不启用'];
+        $engineDriver = (string) ($old['engine_driver'] ?? 'none');
+        $summary[] = ['搜索引擎', $engineNames[$engineDriver] ?? '不启用'];
+        if ($engineDriver !== 'none' && ($old['engine_host'] ?? '') !== '') {
+            $summary[] = ['搜索服务地址', (string) $old['engine_host']];
+        }
+
         $labels = [
             ['host', '数据库主机'], ['port', '端口'], ['database', '数据库名'],
-            ['username', '数据库用户'], ['prefix', '表前缀'], ['admin_username', '管理员账号'],
+            ['username', '数据库用户'], ['prefix', '表前缀'],
             ['http_port', '启动端口'], ['ws_port', 'WebSocket 端口'],
+            ['admin_username', '管理员账号'],
         ];
         foreach ($labels as [$k, $label]) {
             $v = $old[$k] ?? '';
@@ -292,7 +313,7 @@ class InstallController
             $summary[] = [$label, (string) $v];
         }
 
-        return $this->view('step3', ['old' => $old, 'summary' => $summary]);
+        return $this->view('step5', ['old' => $old, 'summary' => $summary]);
     }
 
     private function processStep(int $step, Request $request): array
@@ -300,8 +321,10 @@ class InstallController
         return match ($step) {
             0 => [],
             1 => $this->validateStep1($request),
-            2 => $this->validateStep2($request),
-            3 => $this->executeInstall($request),
+            2 => $this->validateSecrets($request),
+            3 => $this->validateEngine($request),
+            4 => $this->validateAdmin($request),
+            5 => $this->executeInstall($request),
             default => ['无效的步骤'],
         };
     }
@@ -330,7 +353,68 @@ class InstallController
         return $errors;
     }
 
-    private function validateStep2(Request $request): array
+    /**
+     * 密钥与启动端口步骤：仅格式校验；留空项安装时自动生成
+     */
+    private function validateSecrets(Request $request): array
+    {
+        $errors = [];
+        $hexFields = [
+            'jwt_secret' => 'JWT 签名密钥',
+            'encryption_key' => '接口传输密钥',
+            'encryptable_key' => '存储加密密钥',
+            'hashids_salt' => 'ID 混淆盐',
+            'hashids_alt_salt' => 'ID 混淆盐（备用）',
+        ];
+        foreach ($hexFields as $field => $label) {
+            $raw = trim((string) $request->input($field, ''));
+            if ($raw !== '' && !preg_match('/^[A-Za-z0-9]{16,128}$/', $raw)) {
+                $errors[] = $label . ' 必须是 16-128 位字母数字（留空自动生成）';
+            }
+        }
+        foreach (['http_port' => '启动端口', 'ws_port' => 'WebSocket 端口'] as $field => $label) {
+            $raw = trim((string) $request->input($field, ''));
+            if ($raw !== '' && !preg_match('/^\d{2,5}$/', $raw)) {
+                $errors[] = $label . ' 必须是 2-5 位数字（留空取默认）';
+            }
+        }
+        $raw = trim((string) $request->input('rabbitmq_password', ''));
+        if ($raw !== '' && !self::isEnvPasswordSafe($raw)) {
+            $errors[] = 'RABBITMQ_PASSWORD 只能包含可见字符，且不能含 $ 与反斜杠（可留空沿用 .env.example 原值）';
+        }
+
+        return $errors;
+    }
+
+    /**
+     * 搜索引擎步骤（webman-scout，可选）：none 之外需补齐连接参数
+     */
+    private function validateEngine(Request $request): array
+    {
+        $errors = [];
+        $driver = (string) $request->input('engine_driver', 'none');
+        if (!in_array($driver, ['none', 'elasticsearch', 'opensearch'], true)) {
+            return ['搜索引擎仅支持: 不启用 / elasticsearch / opensearch'];
+        }
+        if ($driver === 'none') {
+            return $errors;
+        }
+        $host = trim((string) $request->input('engine_host', ''));
+        if (!preg_match('#^https?://[A-Za-z0-9._\-:]+$#', $host)) {
+            $errors[] = '搜索服务地址需形如 http(s)://host:port';
+        }
+        if (!trim((string) $request->input('engine_username', ''))) {
+            $errors[] = '请输入搜索服务用户名';
+        }
+        $raw = (string) $request->input('engine_password', '');
+        if ($raw === '' || !self::isEnvPasswordSafe($raw)) {
+            $errors[] = '请输入搜索服务密码（仅可见字符，不能含 $ 与反斜杠）';
+        }
+
+        return $errors;
+    }
+
+    private function validateAdmin(Request $request): array
     {
         $errors = [];
         $username = trim($request->input('admin_username', ''));
@@ -418,9 +502,23 @@ class InstallController
             'encryption_key' => 'ENCRYPTION_KEY',
             'encryptable_key' => 'ENCRYPTABLE_KEY',
             'hashids_salt' => 'HASHIDS_SALT',
+            'hashids_alt_salt' => 'HASHIDS_ALT_SALT',
             'http_port' => 'APP_HTTP_PORT',
             'ws_port' => 'APP_WS_PORT',
         ];
+
+        // 服务账号密码：留空跳过（保持 .env.example 原值），不自动生成 —— 随机值无法匹配部署环境真实口令
+        foreach (['rabbitmq_password' => 'RABBITMQ_PASSWORD'] as $field => $envKey) {
+            $raw = trim((string) $request->input($field, ''));
+            if ($raw === '') {
+                continue;
+            }
+            if (!self::isEnvPasswordSafe($raw)) {
+                throw new \InvalidArgumentException($envKey . ' 只能包含可见字符，且不能含 $ 与反斜杠');
+            }
+            $adv[$envKey] = $raw;
+        }
+
         foreach ($map as $field => $envKey) {
             $raw = trim((string) $request->input($field, ''));
             if ($raw === '') {
@@ -441,7 +539,31 @@ class InstallController
             }
         }
 
+        // 搜索引擎（webman-scout，可选）: 不启用 => 写 SCOUT_DRIVER=null 走空引擎（默认值 opensearch，不显式禁用会误连）
+        $engineDriver = (string) $request->input('engine_driver', 'none');
+        if (in_array($engineDriver, ['', 'none'], true)) {
+            $adv['SCOUT_DRIVER'] = 'null';
+        } elseif ($engineDriver === 'elasticsearch') {
+            $adv['SCOUT_DRIVER'] = 'elasticsearch';
+            $adv['SCOUT_HOSTS'] = trim((string) $request->input('engine_host', ''));
+            $adv['ES_USERNAME'] = trim((string) $request->input('engine_username', ''));
+            $adv['ES_PASSWORD'] = (string) $request->input('engine_password', '');
+        } elseif ($engineDriver === 'opensearch') {
+            $adv['SCOUT_DRIVER'] = 'opensearch';
+            $adv['SCOUT_OPENSEARCH_HOST'] = trim((string) $request->input('engine_host', ''));
+            $adv['SCOUT_OPENSEARCH_USERNAME'] = trim((string) $request->input('engine_username', ''));
+            $adv['SCOUT_OPENSEARCH_PASSWORD'] = (string) $request->input('engine_password', '');
+        }
+
         return $adv;
+    }
+
+    /**
+     * .env 单行值安全校验：仅可见字符，禁止 $ 与反斜杠（防写环境变量注入/破坏行格式）
+     */
+    private static function isEnvPasswordSafe(string $raw): bool
+    {
+        return strlen($raw) <= 128 && preg_match('/^[^\\\\$\\x00-\\x1F\\x7F]+$/u', $raw) === 1;
     }
 
     private function writeEnv(array $db, array $extra = []): void

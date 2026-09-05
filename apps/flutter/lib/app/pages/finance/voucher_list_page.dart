@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
@@ -18,23 +19,29 @@ class _VoucherListPageState extends State<VoucherListPage> {
   String _keyword = '';
   
   bool _loading = true;
+  String? _error;
+  int _reqSeq = 0;
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
+    final seq = ++_reqSeq;
     setState(() => _loading = true);
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       
       final res = await ApiService.instance.get('/admin/v1/finance/voucher', params: params);
       final d = res['data'];
-      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
-    } catch (e) { setState(() => _loading = false); }
+      if (seq != _reqSeq || !mounted) return;
+      final list = List<Map<String, dynamic>>.from(d['list'] ?? []);
+      setState(() { _rows = list; _total = d['total'] ?? 0; _loading = false; _error = null; });
+      if (list.isEmpty && _page > 1) { _page--; _load(); }
+    } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
   Future<void> _create() async {
-    await FormDialog.show(context, title: '新增记账凭证', fields: _formFields(), onSubmit: (data) async {
+    await FormDialog.show(context, title: AppL10n.of(context).financeVoucherAdd, fields: _formFields(), onSubmit: (data) async {
       final payload = _buildPayload(data);
       await ApiService.instance.post('/admin/v1/finance/voucher', data: payload);
       _load(); return true;
@@ -42,7 +49,7 @@ class _VoucherListPageState extends State<VoucherListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: '编辑记账凭证', fields: _formFields(),
+    await FormDialog.show(context, title: AppL10n.of(context).financeVoucherEdit, fields: _formFields(),
       initialData: _toEditData(row), onSubmit: (data) async {
       final payload = _buildPayload(data);
       await ApiService.instance.put('/admin/v1/finance/voucher/${row['id']}', data: payload);
@@ -51,7 +58,7 @@ class _VoucherListPageState extends State<VoucherListPage> {
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
-    await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['code'] ?? ''}」吗？', onConfirm: (password) async {
+    await ConfirmDialog.show(context, title: AppL10n.of(context).commonDeleteConfirm, content: AppL10n.of(context).commonDeleteMsg(row['code'] ?? '${row['id']}'), onConfirm: (password) async {
       await ApiService.instance.delete('/admin/v1/finance/voucher/${row['id']}', data: {'password': password});
       _load(); return true;
     });
@@ -61,26 +68,26 @@ class _VoucherListPageState extends State<VoucherListPage> {
   // store() 同时校验 name 必填；传 items 时走 DoubleEntryService::createVoucher，
   // 接收 items[{account_id|account_subject_id, summary, debit_amount, credit_amount}]
   // 并校验借贷平衡（借方合计 == 贷方合计）。
-  static const List<String> _statusLabels = ['草稿', '已审核'];
+  static List<String> get _statusLabels => [AppL10n.current.financeVoucherDraft, AppL10n.current.financeVoucherReviewed];
 
   List<FormFieldConfig> _formFields() {
     final now = DateTime.now();
     String pad(int v) => v.toString().padLeft(2, '0');
     final defaultDate = '${now.year}-${pad(now.month)}-${pad(now.day)}';
     return [
-      FormFieldConfig(name: 'name', label: '凭证名称', required: true, hint: '必填（后端校验）'),
-      FormFieldConfig(name: 'code', label: '凭证号', hint: '留空自动生成 VCH+时间戳'),
-      FormFieldConfig(name: 'voucher_date', label: '凭证日期', required: true, initialValue: defaultDate,
-        hint: '格式 YYYY-MM-DD'),
-      FormFieldConfig(name: 'status', label: '状态', type: FormFieldType.dropdown,
-        options: ['0 - 草稿', '1 - 已审核'], initialValue: '0 - 草稿'),
-      FormFieldConfig(name: 'remark', label: '备注', type: FormFieldType.multiline),
+      FormFieldConfig(name: 'name', label: AppL10n.of(context).financeVoucherName, required: true, hint: AppL10n.of(context).commonRequiredBackend),
+      FormFieldConfig(name: 'code', label: AppL10n.of(context).financeVoucherCode, hint: AppL10n.of(context).financeVoucherCodeHint),
+      FormFieldConfig(name: 'voucher_date', label: AppL10n.of(context).financeVoucherDate, required: true, initialValue: defaultDate,
+        hint: AppL10n.of(context).commonDateFormat),
+      FormFieldConfig(name: 'status', label: AppL10n.of(context).commonStatus, type: FormFieldType.dropdown,
+        options: ['0 - ${_statusLabels[0]}', '1 - ${_statusLabels[1]}'], initialValue: '0 - ${_statusLabels[0]}'),
+      FormFieldConfig(name: 'remark', label: AppL10n.of(context).commonRemark, type: FormFieldType.multiline),
       // 简单明细项（至少一行）：科目ID、摘要、借方金额、贷方金额。
       // 提交时若科目ID非空则组装为 items 列表，由后端 DoubleEntryService 校验借贷平衡。
-      FormFieldConfig(name: 'item_account_id', label: '明细-科目ID', hint: '从科目列表获取数字ID，填了则按明细创建'),
-      FormFieldConfig(name: 'item_summary', label: '明细-摘要'),
-      FormFieldConfig(name: 'item_debit_amount', label: '明细-借方金额', type: FormFieldType.number, hint: '如 100.00'),
-      FormFieldConfig(name: 'item_credit_amount', label: '明细-贷方金额', type: FormFieldType.number, hint: '如 100.00'),
+      FormFieldConfig(name: 'item_account_id', label: AppL10n.of(context).financeVoucherItemSubject, hint: AppL10n.of(context).financeVoucherItemSubjectHint),
+      FormFieldConfig(name: 'item_summary', label: AppL10n.of(context).financeVoucherItemSummary),
+      FormFieldConfig(name: 'item_debit_amount', label: AppL10n.of(context).financeVoucherItemDebit, type: FormFieldType.number, hint: AppL10n.of(context).commonExampleAmount('100.00')),
+      FormFieldConfig(name: 'item_credit_amount', label: AppL10n.of(context).financeVoucherItemCredit, type: FormFieldType.number, hint: AppL10n.of(context).commonExampleAmount('100.00')),
     ];
   }
 
@@ -135,37 +142,41 @@ class _VoucherListPageState extends State<VoucherListPage> {
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
     rows: _rows.map((r) => _rowToMap(r)).toList(),
-    total: _total, page: _page, limit: _limit, loading: _loading,
+    total: _total, page: _page, limit: _limit, loading: _loading, error: _error, onRetry: _load,
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
     
     actions: [
-      ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: const Text('新增')),
+      ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(AppL10n.of(context).commonAdd)),
     ],
   );
 
-  List<String> _columns() => ['凭证号', '凭证日期', '状态', '操作'];
+  List<String> _columns() => [AppL10n.current.financeVoucherCode, AppL10n.current.financeVoucherDate, AppL10n.current.commonStatus, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    '凭证号': r['code'] ?? '',
-    '凭证日期': r['voucher_date'] ?? '',
-    '状态': _chip(_statusText(r['status'])),
-    '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+    AppL10n.current.financeVoucherCode: r['code'] ?? '',
+    AppL10n.current.financeVoucherDate: r['voucher_date'] ?? '',
+    AppL10n.current.commonStatus: _chip(r['status']),
+    AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),
   };
 
-  Widget _chip(String s) {
-    final color = s == '已审核' ? Colors.green : Colors.orange;
+  Widget _chip(dynamic s) {
+    final i = s is int ? s : int.tryParse('$s');
+    final color = (i == null || i < 0 || i >= _statusLabels.length)
+        ? Colors.blue
+        : (i == 1 ? Colors.green : Colors.orange);
+    final label = _statusText(s);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(s, style: TextStyle(color: color, fontSize: 12)),
+      child: Text(label, style: TextStyle(color: color, fontSize: 12)),
     );
   }
 

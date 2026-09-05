@@ -4,6 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../widgets/confirm_dialog.dart';
+import '../../../l10n/app_l10n.dart';
 import 'user_controller.dart';
 import 'user_form_page.dart';
 
@@ -16,6 +18,7 @@ class UserListPage extends GetView<UserController> {
       Get.put(UserController(), permanent: false);
     }
     final ctrl = controller;
+    final l10n = AppL10n.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,22 +26,23 @@ class UserListPage extends GetView<UserController> {
         // Header
         Row(
           children: [
-            const Text('用户管理', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(l10n.systemUserTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const Spacer(),
             ElevatedButton.icon(
               onPressed: () => Get.to(() => const UserFormPage())?.then((_) => ctrl.loadUsers(reset: true)),
               icon: const Icon(Icons.add),
-              label: const Text('新增用户'),
+              label: Text(l10n.systemUserAdd),
             ),
             const SizedBox(width: 8),
             // selectedIds 是响应式的，批量操作按钮需包裹在 Obx 中，否则勾选后不会出现
             Obx(() {
+              final l10n = AppL10n.current;
               if (ctrl.selectedIds.isEmpty) return const SizedBox.shrink();
               return Row(mainAxisSize: MainAxisSize.min, children: [
                 ElevatedButton.icon(
                   onPressed: () => _confirmBatchDelete(context, ctrl),
                   icon: const Icon(Icons.delete, color: Colors.red),
-                  label: Text('删除(${ctrl.selectedIds.length})'),
+                  label: Text(l10n.systemUserBatchDelLabel(ctrl.selectedIds.length)),
                   style: ElevatedButton.styleFrom(foregroundColor: Colors.red),
                 ),
                 const SizedBox(width: 8),
@@ -47,9 +51,9 @@ class UserListPage extends GetView<UserController> {
                     if (v == 'enable') ctrl.batchSetStatus(1);
                     if (v == 'disable') ctrl.batchSetStatus(0);
                   },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'enable', child: Text('批量启用')),
-                    PopupMenuItem(value: 'disable', child: Text('批量禁用')),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'enable', child: Text(l10n.systemUserBatchEnable)),
+                    PopupMenuItem(value: 'disable', child: Text(l10n.systemUserBatchDisable)),
                   ],
                 ),
               ]);
@@ -63,36 +67,43 @@ class UserListPage extends GetView<UserController> {
             SizedBox(
               width: 250,
               child: TextField(
-                decoration: const InputDecoration(hintText: '搜索用户名/姓名', prefixIcon: Icon(Icons.search), isDense: true),
+                decoration: InputDecoration(hintText: l10n.systemUserSearchHint, prefixIcon: const Icon(Icons.search), isDense: true),
                 onSubmitted: (v) => ctrl.search(v),
               ),
             ),
             const SizedBox(width: 12),
-            ChoiceChip(label: const Text('全部'), selected: ctrl.statusFilter.value == null, onSelected: (_) => ctrl.filterByStatus(null)),
-            const SizedBox(width: 4),
-            ChoiceChip(label: const Text('启用'), selected: ctrl.statusFilter.value == 1, onSelected: (_) => ctrl.filterByStatus(1)),
-            const SizedBox(width: 4),
-            ChoiceChip(label: const Text('禁用'), selected: ctrl.statusFilter.value == 0, onSelected: (_) => ctrl.filterByStatus(0)),
+            // 筛选 chips 需随 statusFilter 响应式刷新，否则点击后高亮不更新
+            Obx(() {
+              final l10n = AppL10n.current;
+              return Row(children: [
+                ChoiceChip(label: Text(l10n.commonAll), selected: ctrl.statusFilter.value == null, onSelected: (_) => ctrl.filterByStatus(null)),
+                const SizedBox(width: 4),
+                ChoiceChip(label: Text(l10n.commonEnabled), selected: ctrl.statusFilter.value == 1, onSelected: (_) => ctrl.filterByStatus(1)),
+                const SizedBox(width: 4),
+                ChoiceChip(label: Text(l10n.commonDisabled), selected: ctrl.statusFilter.value == 0, onSelected: (_) => ctrl.filterByStatus(0)),
+              ]);
+            }),
           ],
         ),
         const SizedBox(height: 12),
         // Table
         Expanded(
           child: Obx(() {
+            final l10n = AppL10n.current;
             if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
-            if (ctrl.users.isEmpty) return const Center(child: Text('暂无数据'));
+            if (ctrl.users.isEmpty) return Center(child: Text(l10n.commonNoData));
 
             return SingleChildScrollView(
               child: DataTable(
                 columns: [
                   DataColumn(label: Checkbox(value: ctrl.selectedIds.length == ctrl.users.length && ctrl.users.isNotEmpty, onChanged: (_) => ctrl.toggleSelectAll())),
-                  const DataColumn(label: Text('用户名')),
-                  const DataColumn(label: Text('姓名')),
-                  const DataColumn(label: Text('手机号')),
-                  const DataColumn(label: Text('邮箱')),
-                  const DataColumn(label: Text('状态')),
-                  const DataColumn(label: Text('最后登录')),
-                  const DataColumn(label: Text('操作')),
+                  DataColumn(label: Text(l10n.fieldUsername)),
+                  DataColumn(label: Text(l10n.fieldRealName)),
+                  DataColumn(label: Text(l10n.fieldPhone)),
+                  DataColumn(label: Text(l10n.fieldEmail)),
+                  DataColumn(label: Text(l10n.commonStatus)),
+                  DataColumn(label: Text(l10n.fieldLastLogin)),
+                  DataColumn(label: Text(l10n.commonAction)),
                 ],
                 rows: ctrl.users.map((u) {
                   final id = u['id'].toString();
@@ -105,7 +116,9 @@ class UserListPage extends GetView<UserController> {
                       DataCell(Text(u['real_name'] ?? '')),
                       DataCell(Text(u['phone'] ?? '')),
                       DataCell(Text(u['email'] ?? '')),
-                      DataCell(Chip(label: Text(u['status'] == 1 ? '启用' : '禁用'), color: WidgetStatePropertyAll(u['status'] == 1 ? Colors.green.shade50 : Colors.red.shade50))),
+                      DataCell(u['status'] == null
+                          ? Chip(label: Text('-')) // 状态缺失显式占位，避免误判为「禁用」
+                          : Chip(label: Text(u['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled), color: WidgetStatePropertyAll(u['status'] == 1 ? Colors.green.shade50 : Colors.red.shade50))),
                       DataCell(Text(u['last_login_at'] ?? '-')),
                       DataCell(Row(mainAxisSize: MainAxisSize.min, children: [
                         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => Get.to(() => UserFormPage(userData: u))?.then((_) => ctrl.loadUsers())),
@@ -120,53 +133,40 @@ class UserListPage extends GetView<UserController> {
         ),
         // Pagination
         const SizedBox(height: 8),
-        Obx(() => Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(onPressed: ctrl.prevPage, icon: const Icon(Icons.chevron_left)),
-            Text('第 ${ctrl.page.value} 页 / 共 ${(ctrl.total.value / ctrl.limit.value).ceil()} 页 (${ctrl.total.value} 条)'),
-            IconButton(onPressed: ctrl.nextPage, icon: const Icon(Icons.chevron_right)),
-          ],
-        )),
+        Obx(() {
+          final l10n = AppL10n.current;
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(onPressed: ctrl.prevPage, icon: const Icon(Icons.chevron_left)),
+              Text(l10n.commonPageInfo(ctrl.page.value, (ctrl.total.value / ctrl.limit.value).ceil(), ctrl.total.value)),
+              IconButton(onPressed: ctrl.nextPage, icon: const Icon(Icons.chevron_right)),
+            ],
+          );
+        }),
       ],
     );
   }
 
   void _confirmDelete(BuildContext context, UserController ctrl, dynamic user) {
-    final pwdCtrl = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('确认删除'),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text('确定要删除用户「${user['username']}」吗？'),
-          const SizedBox(height: 8),
-          TextField(controller: pwdCtrl, obscureText: true, decoration: const InputDecoration(labelText: '请输入您的密码确认')),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
-          ElevatedButton(onPressed: () { ctrl.deleteUser(user['id'], pwdCtrl.text); Navigator.pop(context); }, style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white), child: const Text('删除')),
-        ],
-      ),
+    final l10n = AppL10n.of(context);
+    // 复用 ConfirmDialog：密码确认 + loading/失败态，临时 controller 由其自管（dispose）
+    ConfirmDialog.show(
+      context,
+      content: l10n.systemUserDeleteContent('${user['username']}'),
+      confirmText: l10n.commonDelete,
+      onConfirm: (pwd) => ctrl.deleteUser(user['id'], pwd),
     );
   }
 
   void _confirmBatchDelete(BuildContext context, UserController ctrl) {
-    final pwdCtrl = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('确认批量删除'),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text('确定要删除选中的 ${ctrl.selectedIds.length} 个用户吗？'),
-          const SizedBox(height: 8),
-          TextField(controller: pwdCtrl, obscureText: true, decoration: const InputDecoration(labelText: '请输入您的密码确认')),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
-          ElevatedButton(onPressed: () { ctrl.batchDelete(pwdCtrl.text); Navigator.pop(context); }, style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white), child: const Text('删除')),
-        ],
-      ),
+    final l10n = AppL10n.of(context);
+    ConfirmDialog.show(
+      context,
+      title: l10n.systemUserBatchDeleteTitle,
+      content: l10n.systemUserBatchDeleteContent(ctrl.selectedIds.length),
+      confirmText: l10n.commonDelete,
+      onConfirm: (pwd) => ctrl.batchDelete(pwd),
     );
   }
 }

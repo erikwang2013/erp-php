@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class OmsOrderAddress extends Model
 {
-    protected $table = 'erp_oms_order_address';
+    use Searchable;
+    protected $table = 'oms_order_address';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

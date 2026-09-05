@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class ProjectGantt extends Model
 {
-    protected $table = 'erp_project_gantt';
+    use Searchable;
+    protected $table = 'project_gantt';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -66,7 +66,7 @@ class SecurityFilter implements MiddlewareInterface
     public function process(Request $request, callable $handler): Response
     {
         // 安装向导（/install*）放行：引导阶段无会话/无数据可护，且表单含密码等字段不应被规则扫描
-        if (str_starts_with($request->path(), 'install')) {
+        if (str_starts_with($request->path(), '/install')) {
             return $handler($request);
         }
 
@@ -220,6 +220,12 @@ class SecurityFilter implements MiddlewareInterface
         }
         if ($origin !== '') {
             $originHost = parse_url($origin, PHP_URL_HOST);
+            // 本地回环源（localhost/127.0.0.1 任意端口）视为可信同机来源：
+            // 开发场景 Origin(localhost:随机端口) 与 API Host(erp.test/127.0.0.1) 必然不同名，
+            // 且凭据走 JWT 无 cookie 自动携带，远程恶意页面的 Origin 不会是回环地址
+            if ($originHost === 'localhost' || $originHost === '127.0.0.1') {
+                return false;
+            }
             $hostOnly = ltrim(parse_url('http://' . $host, PHP_URL_HOST) ?: $host, 'www.');
             if ($originHost && $originHost !== $hostOnly && !str_contains($originHost, '.' . $hostOnly)) {
                 return true;

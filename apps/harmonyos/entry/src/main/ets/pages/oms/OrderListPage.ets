@@ -27,6 +27,23 @@ interface OmsOrderItem {
   hold_until: string;
 }
 
+/** 表单保存请求体（与后端 fillable 对齐） */
+interface SaveBody {
+  code: string | number;
+  order_id: string | number;
+  channel: string | number;
+  channel_order_no: string | number;
+  channel_store: string | number;
+  fulfillment_status: string | number;
+  payment_status: string | number;
+  shipping_method: string | number;
+  shipping_fee: string | number;
+  buyer_message: string | number;
+  seller_note: string | number;
+  priority: string | number;
+  hold_until: string | number;
+}
+
 @Entry
 @Component
 struct OrderListPage {
@@ -36,6 +53,7 @@ struct OrderListPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
+  @State errMsg: string = '加载失败'; // M4: 错误展示文案（取后端/网络 message，空则保底）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -75,8 +93,8 @@ struct OrderListPage {
     this.hasError = false;
 
     try {
-      const res = await this.api.get(`/admin/oms/order?page=${this.page}&limit=${this.limit}`);
-      const data = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/oms/order?page=${this.page}&limit=${this.limit}`);
+      const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as OmsOrderItem);
       if (isRefresh || this.page === 1) {
@@ -91,7 +109,9 @@ struct OrderListPage {
         return;
       }
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      // M4: 不吞错误，把 message 传给错误位与 toast；UNAUTHORIZED/空 message 显示友好文案（§0.8）
+      this.errMsg = e instanceof Error && e.message.length > 0 && e.message !== 'UNAUTHORIZED' ? e.message : '登录已过期，请重新登录';
+      promptAction.showToast({ message: this.errMsg });
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -135,8 +155,8 @@ struct OrderListPage {
     this.showForm = true;
     this.loading = true;
     try {
-      const res = await this.api.get(`/admin/oms/order/${id}`);
-      const row = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/oms/order/${id}`);
+      const row = res.data as Record<string, Object>;
       this.formCode = (row['code'] as string) ?? '';
       this.formOrderId = row['order_id'] != null ? String(row['order_id']) : '';
       this.formChannel = (row['channel'] as string) ?? 'manual';
@@ -175,7 +195,7 @@ struct OrderListPage {
     }
 
     this.isSubmitting = true;
-    const body: Record<string, Object> = {
+    const body: SaveBody = {
       code: this.formCode,
       order_id: this.formOrderId ? Number(this.formOrderId) : 0,
       channel: this.formChannel,
@@ -193,10 +213,10 @@ struct OrderListPage {
 
     try {
       if (this.formMode === 'create') {
-        await this.api.post('/admin/oms/order', body);
+        await this.api.post<Object>('/admin/oms/order', body);
         promptAction.showToast({ message: '创建成功' });
       } else {
-        await this.api.put(`/admin/oms/order/${this.formId}`, body);
+        await this.api.put<Object>(`/admin/oms/order/${this.formId}`, body);
         promptAction.showToast({ message: '更新成功' });
       }
       this.showForm = false;
@@ -227,7 +247,7 @@ struct OrderListPage {
         fontColor: '#FF4D4F',
         action: async () => {
           try {
-            await this.api.delete(`/admin/oms/order/${id}`);
+            await this.api.delete<Object>(`/admin/oms/order/${id}`);
             promptAction.showToast({ message: '删除成功' });
             this.loadData(true);
           } catch (e) {
@@ -296,7 +316,7 @@ struct OrderListPage {
     if (this.loading && this.items.length === 0) {
       LoadingView();
     } else if (this.hasError) {
-      ErrorView({ onRetry: () => this.loadData(true) });
+      ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
       EmptyView({ message: '暂无订单数据' });
     } else {
@@ -401,88 +421,244 @@ struct OrderListPage {
           .textAlign(TextAlign.Center)
           .padding({ top: 16, bottom: 16 })
 
-        this.buildFormItem('订单编码', () => {
+        Row() {
+          Text('订单编码')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '订单编码，如 OM+时间戳（必填）', text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('销售订单ID', () => {
+        Row() {
+          Text('销售订单ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入销售订单ID（必填）', text: this.formOrderId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formOrderId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('渠道', () => {
+        Row() {
+          Text('渠道')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '渠道，默认 manual', text: this.formChannel })
             .fontSize(15)
             .onChange((v: string) => { this.formChannel = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('渠道订单号', () => {
+        Row() {
+          Text('渠道订单号')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入渠道订单号', text: this.formChannelOrderNo })
             .fontSize(15)
             .onChange((v: string) => { this.formChannelOrderNo = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('渠道店铺', () => {
+        Row() {
+          Text('渠道店铺')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入渠道店铺', text: this.formChannelStore })
             .fontSize(15)
             .onChange((v: string) => { this.formChannelStore = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('履约状态', () => {
+        Row() {
+          Text('履约状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '0-3，留空为0', text: this.formFulfillmentStatus })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formFulfillmentStatus = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('支付状态', () => {
+        Row() {
+          Text('支付状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '0-3，留空为0', text: this.formPaymentStatus })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formPaymentStatus = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('配送方式', () => {
+        Row() {
+          Text('配送方式')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入配送方式', text: this.formShippingMethod })
             .fontSize(15)
             .onChange((v: string) => { this.formShippingMethod = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('运费', () => {
+        Row() {
+          Text('运费')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '数字，留空为0', text: this.formShippingFee })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formShippingFee = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('买家备注', () => {
+        Row() {
+          Text('买家备注')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入买家备注', text: this.formBuyerMessage })
             .fontSize(15)
             .onChange((v: string) => { this.formBuyerMessage = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('卖家备注', () => {
+        Row() {
+          Text('卖家备注')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入卖家备注', text: this.formSellerNote })
             .fontSize(15)
             .onChange((v: string) => { this.formSellerNote = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('优先级', () => {
+        Row() {
+          Text('优先级')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '默认5', text: this.formPriority })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formPriority = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('冻结时间', () => {
+        Row() {
+          Text('冻结时间')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: 'YYYY-MM-DD HH:mm:ss，可留空', text: this.formHoldUntil })
             .fontSize(15)
             .onChange((v: string) => { this.formHoldUntil = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -514,27 +690,5 @@ struct OrderListPage {
     .width('100%')
     .layoutWeight(1)
     .backgroundColor('#F5F5F5')
-  }
-
-  /**
-   * 表单项：标签 + 输入控件
-   */
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .minHeight(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

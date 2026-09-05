@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
@@ -18,23 +19,29 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
   String _keyword = '';
   String? _statusFilter;
   bool _loading = true;
+  String? _error;
+  int _reqSeq = 0;
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
+    final seq = ++_reqSeq;
     setState(() => _loading = true);
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       if (_statusFilter != null) params['status'] = _statusFilter!;
       final res = await ApiService.instance.get('/admin/v1/sales/order', params: params);
       final d = res['data'];
-      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
-    } catch (e) { setState(() => _loading = false); }
+      if (seq != _reqSeq || !mounted) return;
+      final list = List<Map<String, dynamic>>.from(d['list'] ?? []);
+      setState(() { _rows = list; _total = d['total'] ?? 0; _loading = false; _error = null; });
+      if (list.isEmpty && _page > 1) { _page--; _load(); }
+    } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
   Future<void> _create() async {
-    await FormDialog.show(context, title: '新增销售订单', fields: _formFields(), onSubmit: (data) async {
+    await FormDialog.show(context, title: AppL10n.of(context).salesOrderAdd, fields: _formFields(), onSubmit: (data) async {
       final payload = _buildPayload(data);
       await ApiService.instance.post('/admin/v1/sales/order', data: payload);
       _load(); return true;
@@ -42,7 +49,7 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: '编辑销售订单', fields: _formFields(),
+    await FormDialog.show(context, title: AppL10n.of(context).salesOrderEdit, fields: _formFields(),
       initialData: _toEditData(row), onSubmit: (data) async {
       final payload = _buildPayload(data);
       await ApiService.instance.put('/admin/v1/sales/order/${row['id']}', data: payload);
@@ -51,7 +58,7 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
-    await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除「${row['code'] ?? ''}」吗？', onConfirm: (password) async {
+    await ConfirmDialog.show(context, title: AppL10n.of(context).commonDeleteConfirm, content: AppL10n.of(context).commonDeleteMsg(row['code'] ?? '${row['id']}'), onConfirm: (password) async {
       await ApiService.instance.delete('/admin/v1/sales/order/${row['id']}', data: {'password': password});
       _load(); return true;
     });
@@ -64,15 +71,15 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
     String pad(int v) => v.toString().padLeft(2, '0');
     final defaultSettledAt =
         '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
-    await FormDialog.show(context, title: '销售结算', fields: [
-      FormFieldConfig(name: 'customer_id', label: '客户ID', required: true, initialValue: '${row['customer_id'] ?? ''}'),
-      FormFieldConfig(name: 'delivery_id', label: '发货单ID', required: true),
-      FormFieldConfig(name: 'amount', label: '应收金额', type: FormFieldType.number, hint: '如 1000.00'),
-      FormFieldConfig(name: 'received_amount', label: '已收金额', type: FormFieldType.number, hint: '默认 0'),
-      FormFieldConfig(name: 'status', label: '结算状态', type: FormFieldType.dropdown,
-        options: ['0 - 未结算', '1 - 部分结算', '2 - 已结算'], initialValue: '0 - 未结算'),
-      FormFieldConfig(name: 'settled_at', label: '结算时间', initialValue: defaultSettledAt,
-        hint: '格式 YYYY-MM-DD HH:mm:ss'),
+    await FormDialog.show(context, title: AppL10n.of(context).salesSettleTitle, fields: [
+      FormFieldConfig(name: 'customer_id', label: AppL10n.of(context).salesCustomerId, required: true, initialValue: '${row['customer_id'] ?? ''}'),
+      FormFieldConfig(name: 'delivery_id', label: AppL10n.of(context).salesDeliveryId, required: true),
+      FormFieldConfig(name: 'amount', label: AppL10n.of(context).salesReceivableAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonExampleAmount('1000.00')),
+      FormFieldConfig(name: 'received_amount', label: AppL10n.of(context).salesReceivedAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonDefaultZero),
+      FormFieldConfig(name: 'status', label: AppL10n.of(context).salesSettleStatus, type: FormFieldType.dropdown,
+        options: ['0 - ${AppL10n.of(context).salesSettlementUnsettled}', '1 - ${AppL10n.of(context).salesSettlementPartSettled}', '2 - ${AppL10n.of(context).salesSettlementSettled}'], initialValue: '0 - ${AppL10n.of(context).salesSettlementUnsettled}'),
+      FormFieldConfig(name: 'settled_at', label: AppL10n.of(context).salesSettledAt, initialValue: defaultSettledAt,
+        hint: AppL10n.of(context).commonDateTimeFormat),
     ], onSubmit: (data) async {
       final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
       await ApiService.instance.post('/admin/v1/sales/settlement', data: {
@@ -89,7 +96,7 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
 
   // 后端 erp_sales_order 字段: code/customer_id/warehouse_id/total_amount/
   // discount_amount/status/remark/ordered_at（store() 同时校验 name 必填）
-  static const List<String> _statusLabels = ['待审核', '已审核', '部分发货', '已发货', '已取消'];
+  static List<String> get _statusLabels => [AppL10n.current.salesOrderPending, AppL10n.current.salesOrderReviewed, AppL10n.current.salesOrderPartShipped, AppL10n.current.salesOrderShipped, AppL10n.current.salesOrderCancelled];
 
   List<FormFieldConfig> _formFields() {
     final now = DateTime.now();
@@ -97,17 +104,17 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
     final defaultOrderedAt =
         '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
     return [
-      FormFieldConfig(name: 'name', label: '订单名称', required: true, hint: '必填（后端校验）'),
-      FormFieldConfig(name: 'code', label: '订单编号', hint: '留空自动生成 SO+时间戳'),
-      FormFieldConfig(name: 'customer_id', label: '客户ID', required: true, hint: '从客户列表页获取数字ID'),
-      FormFieldConfig(name: 'warehouse_id', label: '发货仓库ID', hint: '留空为0'),
-      FormFieldConfig(name: 'total_amount', label: '订单总金额', type: FormFieldType.number, hint: '如 100.00'),
-      FormFieldConfig(name: 'discount_amount', label: '优惠金额', type: FormFieldType.number, hint: '默认0'),
-      FormFieldConfig(name: 'status', label: '状态', type: FormFieldType.dropdown,
-        options: ['0 - 待审核', '1 - 已审核', '2 - 部分发货', '3 - 已发货', '4 - 已取消'], initialValue: '0 - 待审核'),
-      FormFieldConfig(name: 'ordered_at', label: '下单时间', initialValue: defaultOrderedAt,
-        hint: '格式 YYYY-MM-DD HH:mm:ss'),
-      FormFieldConfig(name: 'remark', label: '备注', type: FormFieldType.multiline),
+      FormFieldConfig(name: 'name', label: AppL10n.of(context).salesOrderName, required: true, hint: AppL10n.of(context).commonRequiredBackend),
+      FormFieldConfig(name: 'code', label: AppL10n.of(context).salesOrderNo, hint: AppL10n.of(context).salesOrderCodeHint),
+      FormFieldConfig(name: 'customer_id', label: AppL10n.of(context).salesCustomerId, required: true, hint: AppL10n.of(context).salesCustomerIdHint),
+      FormFieldConfig(name: 'warehouse_id', label: AppL10n.of(context).salesWarehouseId, hint: AppL10n.of(context).salesWarehouseIdHint),
+      FormFieldConfig(name: 'total_amount', label: AppL10n.of(context).salesOrderTotalAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonExampleAmount('100.00')),
+      FormFieldConfig(name: 'discount_amount', label: AppL10n.of(context).salesDiscountAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonDefaultZero),
+      FormFieldConfig(name: 'status', label: AppL10n.of(context).commonStatus, type: FormFieldType.dropdown,
+        options: [for (var i = 0; i < _statusLabels.length; i++) '$i - ${_statusLabels[i]}'], initialValue: '0 - ${_statusLabels[0]}'),
+      FormFieldConfig(name: 'ordered_at', label: AppL10n.of(context).salesOrderedAt, initialValue: defaultOrderedAt,
+        hint: AppL10n.of(context).commonDateTimeFormat),
+      FormFieldConfig(name: 'remark', label: AppL10n.of(context).commonRemark, type: FormFieldType.multiline),
     ];
   }
 
@@ -153,49 +160,47 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
     rows: _rows.map((r) => _rowToMap(r)).toList(),
-    total: _total, page: _page, limit: _limit, loading: _loading,
+    total: _total, page: _page, limit: _limit, loading: _loading, error: _error, onRetry: _load,
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
     filterBar: DropdownButton<String>(
       value: _statusFilter,
-      hint: const Text('状态'),
+      hint: Text(AppL10n.of(context).commonStatus),
       items: [for (var i = 0; i < _statusLabels.length; i++) DropdownMenuItem(value: '$i', child: Text(_statusLabels[i]))],
       onChanged: (v) { _statusFilter = v; _page = 1; _load(); },
     ),
     actions: [
-      ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: const Text('新增')),
+      ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(AppL10n.of(context).commonAdd)),
     ],
   );
 
-  List<String> _columns() => ['订单编号', '客户ID', '总金额', '状态', '操作'];
+  List<String> _columns() => [AppL10n.current.salesOrderNo, AppL10n.current.salesCustomerId, AppL10n.current.salesTotalAmount, AppL10n.current.commonStatus, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    '订单编号': r['code'] ?? '',
-    '客户ID': r['customer_id'] ?? '',
-    '总金额': r['total_amount'] ?? '',
-    '状态': _chip(_statusText(r['status'])),
-    '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+    AppL10n.current.salesOrderNo: r['code'] ?? '',
+    AppL10n.current.salesCustomerId: r['customer_id'] ?? '',
+    AppL10n.current.salesTotalAmount: r['total_amount'] ?? '',
+    AppL10n.current.commonStatus: _chip(r['status']),
+    AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.paid, size: 18, color: Colors.teal),
-        tooltip: '结算', onPressed: () => _settle(r)),
+        tooltip: AppL10n.current.salesSettleTooltip, onPressed: () => _settle(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),
   };
-  Widget _chip(String? s) {
-    final color = switch (s) {
-      '待审批' || '待审核' || '待收货' || '草稿' || '部分收货' || '部分发货' => Colors.orange,
-      '已批准' || '已审核' || '已收货' || '已发货' || '已报价' || '已转订单' || '已完成' => Colors.green,
-      '已驳回' || '已拒绝' || '已取消' || '已失效' => Colors.red,
-      _ => Colors.blue,
-    };
+  Widget _chip(dynamic s) {
+    const colors = [Colors.orange, Colors.green, Colors.orange, Colors.green, Colors.red];
+    final i = s is int ? s : int.tryParse('$s');
+    final color = (i == null || i < 0 || i >= colors.length) ? Colors.blue : colors[i];
+    final label = _statusText(s);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(s ?? '', style: TextStyle(color: color, fontSize: 12)),
+      child: Text(label, style: TextStyle(color: color, fontSize: 12)),
     );
   }
 }

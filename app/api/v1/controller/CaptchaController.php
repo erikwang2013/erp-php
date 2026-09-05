@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\api\v1\controller;
 
 use support\Log;
+use support\Redis;
 use support\Request;
 use support\Response;
 use Throwable;
@@ -46,7 +47,12 @@ class CaptchaController
                 'message' => 'success',
                 'data' => [
                     'key' => $result['key'],
-                    'image' => base64_encode($result['image']), // base64 PNG
+                    // driver 返回 data URI（data:image/png;base64,...）→ 还原为单层 base64 PNG，
+                    // 客户端按「base64 PNG」解码（不再二次编码）
+                    'image' => (static function (string $raw): string {
+                        $pos = strpos($raw, ';base64,');
+                        return $pos !== false ? substr($raw, $pos + 8) : $raw;
+                    })($result['image']),
                     // 目标坐标属服务端秘密，仅下发 texts（order+text）供客户端提示点击目标
                     'extra' => [
                         'targets' => $result['extra']['texts'] ?? [],
@@ -70,7 +76,7 @@ class CaptchaController
      * })
      */
 #[\erikwang2013\apidoc\annotation\Title("校验点击验证码")]
-#[\erikwang2013\apidoc\annotation\Desc("提交 key 与点击坐标进行校验，供登录/注册等流程预校验或重试")]
+#[\erikwang2013\apidoc\annotation\Desc("点击坐标的唯一校验点：通过即消费验证码挑战并写入一次性放行凭证（captcha_pass:<key>，5 分钟有效），登录/注册接口凭 captcha_key 消费放行，不再重复比对坐标")]
 #[\erikwang2013\apidoc\annotation\Url("/api/v1/captcha/verify")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -92,6 +98,19 @@ class CaptchaController
         // 前/后端传递 {x, y} 格式，captcha_verify 内部期望 [x, y]
         $clicks = array_map(fn ($c) => [(int)$c['x'], (int)$c['y']], $clicks);
         $valid = captcha_verify($key, 'click', $clicks);
+
+        if ($valid) {
+            // 验证成功：插件挑战已被一次性消费（见 CaptchaManager::verify 成功即 del），
+            // 改记业务侧放行凭证，登录/注册凭 captcha_key 消费放行、不再重复比对坐标
+            try {
+                Redis::setex("captcha_pass:{$key}", 300, '1');
+            } catch (\Throwable $e) {
+                // 凭证写失败 = 放行链断裂，fail-closed 拒绝并记录根因
+                Log::error('验证码放行凭证写入失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+
+                return json(['code' => 500, 'message' => '验证码校验失败，请重试', 'data' => []]);
+            }
+        }
 
         return json([
             'code' => $valid ? 0 : 422,

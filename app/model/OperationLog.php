@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class OperationLog extends Model
 {
-    protected $table = 'erp_operation_log';
+    use Searchable;
+    protected $table = 'operation_log';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

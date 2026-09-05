@@ -21,7 +21,7 @@ void main() {
     Get.reset();
     SharedPreferences.setMockInitialValues({});
     adapter = FakeHttpClientAdapter(routes: {
-      '/admin/log': (o) async => FakeHttpClientAdapter.jsonResponse({
+'/admin/v1/log': (o) async => FakeHttpClientAdapter.jsonResponse({
         'code': 0,
         'data': {
           'list': [

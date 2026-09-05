@@ -36,13 +36,21 @@ class RoleController extends BaseController
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
 
-        $query = AdminRole::withCount('users');
+        $query = AdminRole::withCount('users')->with('permissions');
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
                       ->limit($limit)
                       ->orderBy('id', 'asc')
                       ->get()
-                      ->map(fn ($role) => $this->encodeIds($role->toArray()));
+                      ->map(function ($role) {
+                          $data = $role->toArray();
+                          // 客户端编辑弹框按 role['permissions'] 预选权限；
+                          // 不加载该关系时字段恒缺 → 保存 sync([]) 会静默清空角色全部权限。
+                          $data['permissions'] = $role->permissions
+                              ->map(fn ($p) => $this->encodeIds($p->toArray()))
+                              ->values();
+                          return $this->encodeIds($data);
+                      });
 
         return $this->success([
             'list' => $list,

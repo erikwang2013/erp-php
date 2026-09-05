@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class AdminRole extends Model
 {
-    protected $table = 'erp_admin_role';
+    use Searchable;
+    protected $table = 'admin_role';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

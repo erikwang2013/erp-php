@@ -22,15 +22,21 @@ const _kPng1x1 =
 /// 按路径返回 JSON 的假 HttpClient（覆盖 dart:io 网络层）。
 class FakeHttpOverrides extends HttpOverrides {
   final Map<String, Map<String, dynamic>> routes;
+
+  /// 已请求的路径（按调用顺序），用于断言独立校验先于登录请求。
+  final List<String> log = [];
+
   FakeHttpOverrides(this.routes);
 
   @override
-  HttpClient createHttpClient(SecurityContext? context) => FakeHttpClient(routes);
+  HttpClient createHttpClient(SecurityContext? context) =>
+      FakeHttpClient(routes, log);
 }
 
 class FakeHttpClient implements HttpClient {
   final Map<String, Map<String, dynamic>> routes;
-  FakeHttpClient(this.routes);
+  final List<String> log;
+  FakeHttpClient(this.routes, this.log);
 
   @override
   bool get autoUncompress => false;
@@ -45,7 +51,9 @@ class FakeHttpClient implements HttpClient {
 
   @override
   Future<HttpClientRequest> openUrl(String method, Uri url) async {
-    final body = routes[url.path] ?? {'code': 400, 'message': '未 mock 的路径: ${url.path}'};
+    log.add(url.path);
+    final body =
+        routes[url.path] ?? {'code': 400, 'message': '未 mock 的路径: ${url.path}'};
     return FakeHttpClientRequest(jsonEncode(body));
   }
 
@@ -66,10 +74,12 @@ class FakeHttpClientRequest implements HttpClientRequest {
   HttpHeaders get headers => _headers;
 
   @override
-  Future<HttpClientResponse> get done async => FakeHttpClientResponse(200, 'OK', body);
+  Future<HttpClientResponse> get done async =>
+      FakeHttpClientResponse(200, 'OK', body);
 
   @override
-  Future<HttpClientResponse> close() async => FakeHttpClientResponse(200, 'OK', body);
+  Future<HttpClientResponse> close() async =>
+      FakeHttpClientResponse(200, 'OK', body);
 
   @override
   void add(List<int> data) {}
@@ -90,13 +100,15 @@ class FakeHttpClientRequest implements HttpClientRequest {
   set persistentConnection(bool value) {}
 
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError('FakeHttpClientRequest.${invocation.memberName}');
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError(
+    'FakeHttpClientRequest.${invocation.memberName}',
+  );
 }
 
 class FakeHttpHeaders implements HttpHeaders {
   @override
-  String value(String name) => name.toLowerCase() == 'content-type' ? 'application/json' : '';
+  String value(String name) =>
+      name.toLowerCase() == 'content-type' ? 'application/json' : '';
 
   @override
   void add(String name, Object value, {bool preserveHeaderCase = false}) {}
@@ -114,7 +126,8 @@ class FakeHttpHeaders implements HttpHeaders {
       throw UnimplementedError('FakeHttpHeaders.${invocation.memberName}');
 }
 
-class FakeHttpClientResponse extends StreamView<List<int>> implements HttpClientResponse {
+class FakeHttpClientResponse extends StreamView<List<int>>
+    implements HttpClientResponse {
   @override
   final int statusCode;
   @override
@@ -123,7 +136,7 @@ class FakeHttpClientResponse extends StreamView<List<int>> implements HttpClient
   final HttpHeaders headers = FakeHttpHeaders();
 
   FakeHttpClientResponse(this.statusCode, this.reasonPhrase, String body)
-      : super(Stream.value(utf8.encode(body)));
+    : super(Stream.value(utf8.encode(body)));
 
   @override
   bool get isRedirect => false;
@@ -138,8 +151,9 @@ class FakeHttpClientResponse extends StreamView<List<int>> implements HttpClient
   List<RedirectInfo> get redirects => const [];
 
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError('FakeHttpClientResponse.${invocation.memberName}');
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError(
+    'FakeHttpClientResponse.${invocation.memberName}',
+  );
 }
 
 void main() {
@@ -161,62 +175,113 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
   }
 
-  FakeHttpOverrides overridesWith({
-    Map<String, Map<String, dynamic>>? extra,
-  }) {
+  FakeHttpOverrides overridesWith({Map<String, Map<String, dynamic>>? extra}) {
     return FakeHttpOverrides({
-      '/api/captcha/generate': {
+      // 与 captcha_service.dart 实际请求路径一致（/api/v1/*）
+      '/api/v1/captcha/generate': {
         'code': 0,
         'data': {
           'key': 'captcha-key-1',
           'image': _kPng1x1,
-          'extra': {'targets': <Map<String, dynamic>>[]},
+          // 弹框需目标非空才会收集点击并自动提交
+          'extra': {
+            'targets': <Map<String, dynamic>>[
+              {'order': 1, 'text': '云'},
+            ],
+          },
         },
       },
       ...?extra,
     });
   }
 
-  group('LoginPage — 验证码成功链路', () {
-    testWidgets('验证码加载成功后展示图片与刷新按钮，无错误提示', (tester) async {
+  group('LoginPage — 验证码弹框成功链路', () {
+    testWidgets('填写账号点登录弹出弹框，验证码加载成功后展示图片无错误提示', (tester) async {
       HttpOverrides.global = overridesWith();
       addTearDown(() => HttpOverrides.global = null);
 
       await pumpLogin(tester, const MaterialApp(home: LoginPage()));
 
+      await tester.enterText(find.byType(TextField).at(0), 'admin');
+      await tester.enterText(find.byType(TextField).at(1), 'secret');
+      await tester.tap(find.byType(FilledButton));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150)); // 弹框转场
+      await tester.pump(const Duration(milliseconds: 100)); // generate 异步完成
+
       expect(find.text('验证码加载失败'), findsNothing);
-      expect(find.byWidgetPredicate((w) => w is Image && w.image is MemoryImage), findsOneWidget);
-      expect(find.byType(FilledButton), findsOneWidget);
+      // 弹框内渲染出验证码图（MemoryImage 解码成功）
+      expect(
+        find.byWidgetPredicate((w) => w is Image && w.image is MemoryImage),
+        findsOneWidget,
+      );
+      // 提示目标字来自 generate 响应
+      expect(find.textContaining('"云"'), findsOneWidget);
     });
   });
 
   group('LoginPage — 完整登录成功', () {
-    testWidgets('填写用户名密码后登录成功，保存会话并跳转仪表盘', (tester) async {
-      HttpOverrides.global = overridesWith(extra: {
-        '/api/auth/login': {
-          'code': 0,
-          'data': {
-            'access_token': 'test-token',
-            'refresh_token': 'test-refresh',
-            'user': {'username': 'admin'},
+    testWidgets('点满目标后先经独立 /captcha/verify 校验，再凭 key 登录，保存会话并跳转仪表盘', (
+      tester,
+    ) async {
+      final overrides = overridesWith(
+        extra: {
+          // 独立校验端点：通过（登录页先于 /auth/login 调它）
+          '/api/v1/captcha/verify': {
+            'code': 0,
+            'message': '验证通过',
+            'data': {'valid': true},
+          },
+          '/api/v1/auth/login': {
+            'code': 0,
+            'data': {
+              'access_token': 'test-token',
+              'refresh_token': 'test-refresh',
+              'user': {'username': 'admin'},
+            },
           },
         },
-      });
+      );
+      HttpOverrides.global = overrides;
       addTearDown(() => HttpOverrides.global = null);
 
-      await pumpLogin(tester, MaterialApp(
-        home: const LoginPage(),
-        routes: {'/dashboard': (_) => const Scaffold(body: Text('登录成功，已进入仪表盘'))},
-      ));
+      await pumpLogin(
+        tester,
+        MaterialApp(
+          home: const LoginPage(),
+          routes: {
+            '/dashboard': (_) => const Scaffold(body: Text('登录成功，已进入仪表盘')),
+          },
+        ),
+      );
 
       await tester.enterText(find.byType(TextField).at(0), 'admin');
       await tester.enterText(find.byType(TextField).at(1), 'secret');
       await tester.tap(find.byType(FilledButton));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100)); // 等待登录请求完成并保存会话
-      await tester.pump(const Duration(milliseconds: 300)); // 等待 pushReplacementNamed 转场结束
+      await tester.pump(const Duration(milliseconds: 150)); // 弹框转场
+      await tester.pump(const Duration(milliseconds: 100)); // 图片渲染完成
+
+      // 点击验证码图（仅 1 个目标，点一次即点满）→ 300ms 后自动 pop 带回结果
+      final imgRect = tester.getRect(
+        find.byWidgetPredicate((w) => w is Image && w.image is MemoryImage),
+      );
+      await tester.tapAt(imgRect.center);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400)); // 自动关闭延迟
+      await tester.pump(); // pop 后登录请求发出
+      await tester.pump(const Duration(milliseconds: 100)); // 登录请求完成并保存会话
+      await tester.pump(
+        const Duration(milliseconds: 300),
+      ); // 等待 pushReplacementNamed 转场结束
       await tester.pump();
 
+      // 独立校验先于登录请求（登录接口不再比对坐标，只消费放行凭证）
+      final verifyIdx = overrides.log.indexOf('/api/v1/captcha/verify');
+      final loginIdx = overrides.log.indexOf('/api/v1/auth/login');
+      expect(verifyIdx, isNot(-1));
+      expect(loginIdx, isNot(-1));
+      expect(verifyIdx, lessThan(loginIdx));
       // 会话已保存
       expect(await AuthService.getToken(), 'test-token');
       expect(await AuthService.getRefreshToken(), 'test-refresh');

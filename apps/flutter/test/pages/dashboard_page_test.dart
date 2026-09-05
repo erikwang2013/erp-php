@@ -22,7 +22,7 @@ void main() {
     Get.reset();
     SharedPreferences.setMockInitialValues({});
     adapter = FakeHttpClientAdapter(routes: {
-      '/admin/dashboard': (o) async => FakeHttpClientAdapter.jsonResponse({
+      '/admin/v1/dashboard': (o) async => FakeHttpClientAdapter.jsonResponse({
         'code': 0,
         'data': {
           'stats': [
@@ -47,15 +47,15 @@ void main() {
           ],
         },
       }),
-      '/admin/dashboard/oms': (o) async => FakeHttpClientAdapter.jsonResponse({
+      '/admin/v1/dashboard/oms': (o) async => FakeHttpClientAdapter.jsonResponse({
         'code': 0,
         'data': {'pending_orders': 3, 'picking_orders': 2, 'shipped_today': 9, 'pending_rma': 1},
       }),
-      '/admin/dashboard/wms': (o) async => FakeHttpClientAdapter.jsonResponse({
+      '/admin/v1/dashboard/wms': (o) async => FakeHttpClientAdapter.jsonResponse({
         'code': 0,
         'data': {'pending_receiving': 4, 'pending_putaway': 1, 'pending_picks': 6, 'pending_packs': 2},
       }),
-      '/admin/dashboard/tms': (o) async => FakeHttpClientAdapter.jsonResponse({
+      '/admin/v1/dashboard/tms': (o) async => FakeHttpClientAdapter.jsonResponse({
         'code': 0,
         'data': {'pending_shipments': 7, 'in_transit': 3, 'delivered_today': 5, 'exception_shipments': 0},
       }),

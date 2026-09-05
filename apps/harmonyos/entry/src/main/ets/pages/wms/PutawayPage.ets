@@ -18,6 +18,17 @@ interface WmsPutawayItem {
   strategy: string;
 }
 
+/** 表单保存请求体（与后端 fillable 对齐） */
+interface SaveBody {
+  code: string | number;
+  warehouse_id: string | number;
+  receiving_id: string | number;
+  status: string | number;
+  strategy: string | number;
+  assigned_to: string | number;
+  completed_at: string | number;
+}
+
 @Entry
 @Component
 struct PutawayPage {
@@ -27,6 +38,7 @@ struct PutawayPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
+  @State errMsg: string = ''; // M4：加载失败时的可用 message（交 ErrorView 展示）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -60,8 +72,8 @@ struct PutawayPage {
     this.hasError = false;
 
     try {
-      const res = await this.api.get(`/admin/wms/putaway?page=${this.page}&limit=${this.limit}`);
-      const data = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/wms/putaway?page=${this.page}&limit=${this.limit}`);
+      const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as WmsPutawayItem);
       if (isRefresh || this.page === 1) {
@@ -75,8 +87,10 @@ struct PutawayPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
+      // M4：错误不吞——可用 message 交 ErrorView 展示（toast 与其重复故移除）；空消息回退原文案
+      const msg = e instanceof Error ? e.message : '';
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      this.errMsg = msg !== '' ? msg : '加载失败';
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -114,8 +128,8 @@ struct PutawayPage {
     this.showForm = true;
     this.loading = true;
     try {
-      const res = await this.api.get(`/admin/wms/putaway/${id}`);
-      const row = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/wms/putaway/${id}`);
+      const row = res.data as Record<string, Object>;
       this.formCode = (row['code'] as string) ?? '';
       this.formWarehouseId = row['warehouse_id'] != null ? String(row['warehouse_id']) : '';
       this.formReceivingId = row['receiving_id'] != null ? String(row['receiving_id']) : '';
@@ -128,7 +142,9 @@ struct PutawayPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '加载详情失败' });
+      // M4：详情加载失败展示可用 message，空消息回退原文案
+      const msg = e instanceof Error ? e.message : '';
+      promptAction.showToast({ message: msg !== '' ? msg : '加载详情失败' });
     } finally {
       this.loading = false;
     }
@@ -148,7 +164,7 @@ struct PutawayPage {
     }
 
     this.isSubmitting = true;
-    const body: Record<string, Object> = {
+    const body: SaveBody = {
       code: this.formCode,
       warehouse_id: this.formWarehouseId ? Number(this.formWarehouseId) : 0,
       receiving_id: this.formReceivingId ? Number(this.formReceivingId) : 0,
@@ -160,10 +176,10 @@ struct PutawayPage {
 
     try {
       if (this.formMode === 'create') {
-        await this.api.post('/admin/wms/putaway', body);
+        await this.api.post<Object>('/admin/wms/putaway', body);
         promptAction.showToast({ message: '创建成功' });
       } else {
-        await this.api.put(`/admin/wms/putaway/${this.formId}`, body);
+        await this.api.put<Object>(`/admin/wms/putaway/${this.formId}`, body);
         promptAction.showToast({ message: '更新成功' });
       }
       this.showForm = false;
@@ -174,7 +190,9 @@ struct PutawayPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '保存失败' });
+      // M4：保存失败展示可用 message，空消息回退原文案
+      const msg = e instanceof Error ? e.message : '';
+      promptAction.showToast({ message: msg !== '' ? msg : '保存失败' });
     } finally {
       this.isSubmitting = false;
     }
@@ -194,7 +212,7 @@ struct PutawayPage {
         fontColor: '#FF4D4F',
         action: async () => {
           try {
-            await this.api.delete(`/admin/wms/putaway/${id}`);
+            await this.api.delete<Object>(`/admin/wms/putaway/${id}`);
             promptAction.showToast({ message: '删除成功' });
             this.loadData(true);
           } catch (e) {
@@ -202,7 +220,9 @@ struct PutawayPage {
               router.replaceUrl({ url: 'pages/LoginPage' });
               return;
             }
-            promptAction.showToast({ message: '删除失败' });
+            // M4：删除失败展示可用 message，空消息回退原文案
+            const msg = e instanceof Error ? e.message : '';
+            promptAction.showToast({ message: msg !== '' ? msg : '删除失败' });
           }
         }
       },
@@ -263,7 +283,7 @@ struct PutawayPage {
     if (this.loading && this.items.length === 0) {
       LoadingView();
     } else if (this.hasError) {
-      ErrorView({ onRetry: () => this.loadData(true) });
+      ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
       EmptyView({ message: '暂无上架数据' });
     } else {
@@ -368,27 +388,68 @@ struct PutawayPage {
           .textAlign(TextAlign.Center)
           .padding({ top: 16, bottom: 16 })
 
-        this.buildFormItem('上架单号', () => {
+        Row() {
+          Text('上架单号')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入上架单号（必填）', text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('仓库ID', () => {
+        Row() {
+          Text('仓库ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '仓库数字ID（必填）', text: this.formWarehouseId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formWarehouseId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('收货单ID', () => {
+        Row() {
+          Text('收货单ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '收货单数字ID，留空为0', text: this.formReceivingId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formReceivingId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('状态', () => {
+        Row() {
+          Text('状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           Row() {
             Button('启用')
               .fontSize(13)
@@ -407,26 +468,69 @@ struct PutawayPage {
               .margin({ left: 12 })
               .onClick(() => { this.formStatus = 0; })
           }
-        });
+          .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('上架策略', () => {
+        Row() {
+          Text('上架策略')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '如: fifo / lifo / fefo', text: this.formStrategy })
             .fontSize(15)
             .onChange((v: string) => { this.formStrategy = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('指派人员ID', () => {
+        Row() {
+          Text('指派人员ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '指派人员数字ID，留空为0', text: this.formAssignedTo })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formAssignedTo = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('完成时间', () => {
+        Row() {
+          Text('完成时间')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss，可留空', text: this.formCompletedAt })
             .fontSize(15)
             .onChange((v: string) => { this.formCompletedAt = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -458,27 +562,5 @@ struct PutawayPage {
     .width('100%')
     .layoutWeight(1)
     .backgroundColor('#F5F5F5')
-  }
-
-  /**
-   * 表单项：标签 + 输入控件
-   */
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .minHeight(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

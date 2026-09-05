@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -18,7 +19,8 @@ use support\Model;
  */
 class FinanceBankStatement extends Model
 {
-    protected $table = 'erp_finance_bank_statement';
+    use Searchable;
+    protected $table = 'finance_bank_statement';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
 
@@ -15,37 +16,48 @@ class _AttendancePageState extends State<AttendancePage> {
   final int _limit = 20;
   String _keyword = '';
   bool _loading = true;
+  String? _error;
+  int _reqSeq = 0;
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
+    final seq = ++_reqSeq;
     setState(() => _loading = true);
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
       final res = await ApiService.instance.get('/admin/v1/hr/attendance', params: params);
       final d = res['data'];
-      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
-    } catch (e) { setState(() => _loading = false); }
+      if (seq != _reqSeq || !mounted) return;
+      final list = List<Map<String, dynamic>>.from(d['list'] ?? []);
+      setState(() { _rows = list; _total = d['total'] ?? 0; _loading = false; _error = null; });
+      if (list.isEmpty && _page > 1) { _page--; _load(); }
+    } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
     rows: _rows.map((r) => _rowToMap(r)).toList(),
-    total: _total, page: _page, limit: _limit, loading: _loading,
+    total: _total, page: _page, limit: _limit, loading: _loading, error: _error, onRetry: _load,
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
     actions: const [],
   );
 
-  List<String> _columns() => ['姓名', '日期', '状态', '说明'];
+  List<String> _columns() => [
+    AppL10n.current.hrEmpName,
+    AppL10n.current.hrDate,
+    AppL10n.current.commonStatus,
+    AppL10n.current.hrRemark,
+  ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    '姓名': r['name'] ?? '',
-    '日期': r['date'] ?? '',
-    '状态': r['status'] ?? '',
-    '说明': r['remark'] ?? '',
+    AppL10n.current.hrEmpName: r['name'] ?? '',
+    AppL10n.current.hrDate: r['date'] ?? '',
+    AppL10n.current.commonStatus: r['status'] ?? '',
+    AppL10n.current.hrRemark: r['remark'] ?? '',
   };
 }

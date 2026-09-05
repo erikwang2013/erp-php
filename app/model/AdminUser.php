@@ -18,7 +18,7 @@ class AdminUser extends Model
     use SoftDeletes;
     use Searchable;
 
-    protected $table = 'erp_admin_user';
+    protected $table = 'admin_user';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

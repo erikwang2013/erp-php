@@ -10,6 +10,7 @@ namespace app\model;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -20,9 +21,10 @@ use support\Model;
  */
 class HrCourse extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_hr_course';
+    protected $table = 'hr_course';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

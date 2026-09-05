@@ -1,11 +1,10 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/captcha_service.dart';
+import '../../widgets/captcha_verify_dialog.dart';
 import '../../l10n/app_l10n.dart';
 
 class LoginPage extends StatefulWidget {
@@ -20,55 +19,16 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordCtrl = TextEditingController();
   // API 版本置于 URL 路径（/api/v1/*），无需版本请求头
   final _dio = Dio(BaseOptions(baseUrl: ApiService.baseUrl));
-  final _captcha = CaptchaService(Dio(BaseOptions(baseUrl: ApiService.baseUrl)));
 
   bool _loading = false;
+  bool _showPassword = false;
   String? _error;
 
-  // Captcha state
-  CaptchaData? _captchaData;
-  Uint8List? _captchaImage;
-  final List<Offset> _clicks = [];
-  final List<String> _clickLabels = [];
-
   @override
-  void initState() {
-    super.initState();
-    _loadCaptcha();
-  }
-
-  Future<void> _loadCaptcha() async {
-    try {
-      _captchaData = await _captcha.generate();
-      setState(() {
-        _captchaImage = base64Decode(_captchaData!.imageBase64.replaceFirst(RegExp(r'^data:image/\w+;base64,'), ''));
-        _clicks.clear();
-        _clickLabels.clear();
-      });
-    } catch (_) {
-      // 用 context 的 Localizations 翻译（异步回调中安全；无 delegates 时回退中文）
-      setState(() => _error = AppL10n.of(context).loginCaptchaLoadFailed);
-    }
-  }
-
-  void _onCaptchaTap(TapUpDetails detail, BoxConstraints constraints) {
-    if (_captchaData == null || _clicks.length >= _captchaData!.targets.length) return;
-
-    final dx = detail.localPosition.dx;
-    final dy = detail.localPosition.dy;
-
-    // Convert from widget coordinates to image coordinates
-    final scaleX = 400.0 / constraints.maxWidth;
-    final scaleY = 250.0 / constraints.maxHeight;
-    final imgX = (dx * scaleX).round();
-    final imgY = (dy * scaleY).round();
-
-    final target = _captchaData!.targets[_clicks.length];
-    setState(() {
-      _clicks.add(Offset(imgX.toDouble(), imgY.toDouble()));
-      _clickLabels.add('${target.order}');
-      _error = null;
-    });
+  void dispose() {
+    _usernameCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _login() async {
@@ -79,24 +39,32 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _error = AppL10n.of(context).loginRequired);
       return;
     }
-    if (_captchaData == null) {
-      setState(() => _error = AppL10n.of(context).loginCaptchaRequired);
-      return;
-    }
-    if (_clicks.length < _captchaData!.targets.length) {
-      setState(() => _error = AppL10n.of(context).loginClickTarget(_captchaData!.targets[_clicks.length].text));
-      return;
-    }
+    setState(() => _error = null);
+
+    // 点「登录」才弹验证码（通用模块），点完自动关闭并带回 key+clicks。
+    // 坐标比对只在独立接口 /api/v1/captcha/verify 做一次；登录不再回传 clicks，
+    // 仅凭 captcha_key 消费服务端写好的放行凭证。
+    final result = await showCaptchaVerifyDialog(context);
+    if (result == null || !mounted) return; // 用户关闭弹窗 = 取消登录
 
     setState(() => _loading = true);
-
     try {
-      final resp = await _dio.post('/api/v1/auth/login', data: {
-        'username': username,
-        'password': password,
-        'captcha_key': _captchaData!.key,
-        'clicks': _clicks.map((c) => {'x': c.dx.round(), 'y': c.dy.round()}).toList(),
-      });
+      final verified = await CaptchaService(
+        _dio,
+      ).verify(result.key, result.clicks);
+      if (!verified) {
+        setState(() => _error = AppL10n.of(context).loginCaptchaFailed);
+        return;
+      }
+
+      final resp = await _dio.post(
+        '/api/v1/auth/login',
+        data: {
+          'username': username,
+          'password': password,
+          'captcha_key': result.key,
+        },
+      );
 
       if (resp.data['code'] == 0) {
         final data = resp.data['data'];
@@ -107,22 +75,18 @@ class _LoginPageState extends State<LoginPage> {
         );
         if (mounted) Navigator.of(context).pushReplacementNamed('/dashboard');
       } else {
-        setState(() => _error = resp.data['message'] ?? AppL10n.of(context).loginLoginFailed);
-        _loadCaptcha();
+        setState(
+          () => _error =
+              resp.data['message'] ?? AppL10n.of(context).loginLoginFailed,
+        );
       }
     } catch (e) {
       setState(() => _error = AppL10n.of(context).loginNetworkError);
-      _loadCaptcha();
     } finally {
-      setState(() => _loading = false);
+      // pushReplacementNamed 的 future 要等目标路由被 pop 才 resolve（登出回到登录页时），
+      // 彼时本 State 早已 dispose，必须 mounted 保护避免 setState-after-dispose。
+      if (mounted) setState(() => _loading = false);
     }
-  }
-
-  @override
-  void dispose() {
-    _usernameCtrl.dispose();
-    _passwordCtrl.dispose();
-    super.dispose();
   }
 
   @override
@@ -140,7 +104,14 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 Image.asset('assets/mascot.png', width: 110, height: 110),
                 const SizedBox(height: 12),
-                Text(l10n.loginTitle, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1677FF))),
+                Text(
+                  l10n.loginTitle,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1677FF),
+                  ),
+                ),
                 const SizedBox(height: 32),
 
                 // Username
@@ -157,84 +128,53 @@ class _LoginPageState extends State<LoginPage> {
                 // Password
                 TextField(
                   controller: _passwordCtrl,
-                  obscureText: true,
+                  obscureText: !_showPassword,
                   decoration: InputDecoration(
                     labelText: l10n.loginPassword,
                     prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _showPassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                      tooltip: _showPassword ? '隐藏密码' : '显示密码',
+                      onPressed: () =>
+                          setState(() => _showPassword = !_showPassword),
+                    ),
                     border: const OutlineInputBorder(),
                   ),
                   onSubmitted: (_) => _login(),
                 ),
                 const SizedBox(height: 20),
 
-                // Click Captcha
-                if (_captchaImage != null && _captchaData != null) ...[
-                  Text(l10n.loginCaptchaPrompt(_captchaData!.targets.map((t) => '"${t.text}"').join(' → ')),
-                      style: const TextStyle(fontSize: 13, color: Colors.black87)),
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: GestureDetector(
-                      onTapUp: (d) => _onCaptchaTap(d, BoxConstraints.tightFor(width: 400, height: 250)),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return Stack(
-                            children: [
-                              Image.memory(_captchaImage!, width: 400, height: 250, fit: BoxFit.contain),
-                              // Click markers
-                              ..._clicks.asMap().entries.map((entry) {
-                                final idx = entry.key;
-                                final c = entry.value;
-                                final widgetX = (c.dx / 400) * constraints.maxWidth;
-                                final widgetY = (c.dy / 250) * constraints.maxHeight;
-                                return Positioned(
-                                  left: widgetX - 14,
-                                  top: widgetY - 14,
-                                  child: Container(
-                                    width: 28,
-                                    height: 28,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF1677FF).withValues(alpha: 0.8),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Text('${idx + 1}', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(l10n.loginCaptchaClicked(_clicks.length, _captchaData!.targets.length), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                      TextButton.icon(
-                        icon: const Icon(Icons.refresh, size: 16),
-                        label: Text(l10n.loginRefresh),
-                        onPressed: _loadCaptcha,
-                      ),
-                    ],
-                  ),
-                ] else
-                  const CircularProgressIndicator(),
-                const SizedBox(height: 16),
-
                 // Error
                 if (_error != null) ...[
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(6)),
-                    child: Row(children: [
-                      const Icon(Icons.error_outline, color: Colors.red, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13))),
-                    ]),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          color: Colors.red,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _error!,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -246,14 +186,26 @@ class _LoginPageState extends State<LoginPage> {
                   child: FilledButton(
                     onPressed: _loading ? null : _login,
                     child: _loading
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(l10n.loginButton, style: const TextStyle(fontSize: 16)),
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            l10n.loginButton,
+                            style: const TextStyle(fontSize: 16),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),
 
-                Text('Copyright (c) 2026 erik — https://erik.xyz',
-                    style: TextStyle(fontSize: 11, color: Colors.grey[400])),
+                Text(
+                  'Copyright (c) 2026 erik — https://erik.xyz',
+                  style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+                ),
               ],
             ),
           ),

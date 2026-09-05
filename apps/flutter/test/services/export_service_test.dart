@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:admin_app/app/services/api_service.dart';
 import 'package:admin_app/app/services/export_service.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
@@ -27,7 +28,7 @@ void main() {
 
   group('ExportService — 请求构造', () {
     test('exportExcel 发出正确的请求（路径/请求体/bytes 响应）', () async {
-      adapter.routes['/admin/export/excel'] = (options) async =>
+      adapter.routes['/admin/v1/export/excel'] = (options) async =>
           FakeHttpClientAdapter.bytesResponse(Uint8List.fromList([1, 2, 3]));
 
       // FileSaver 落盘依赖宿主平台，可能成功或抛异常，这里宽容处理，
@@ -44,7 +45,7 @@ void main() {
 
       expect(adapter.requests, hasLength(1));
       final req = adapter.requests.single;
-      expect(req.path, '/admin/export/excel');
+      expect(req.path, '/admin/v1/export/excel');
       expect(req.responseType, ResponseType.bytes);
 
       final data = req.data as Map<String, dynamic>;
@@ -54,7 +55,7 @@ void main() {
     });
 
     test('exportExcel 未传 conditions 时默认空对象', () async {
-      adapter.routes['/admin/export/excel'] = (options) async =>
+      adapter.routes['/admin/v1/export/excel'] = (options) async =>
           FakeHttpClientAdapter.bytesResponse(Uint8List.fromList([1]));
 
       try {
@@ -68,7 +69,7 @@ void main() {
     });
 
     test('exportPdf 发出正确的请求（类型/标题/数据/bytes 响应）', () async {
-      adapter.routes['/admin/export/pdf'] = (options) async =>
+      adapter.routes['/admin/v1/export/pdf'] = (options) async =>
           FakeHttpClientAdapter.bytesResponse(Uint8List.fromList([9, 9]));
 
       try {
@@ -82,12 +83,40 @@ void main() {
       }
 
       final req = adapter.requests.single;
-      expect(req.path, '/admin/export/pdf');
+      expect(req.path, '/admin/v1/export/pdf');
       expect(req.responseType, ResponseType.bytes);
       final data = req.data as Map<String, dynamic>;
       expect(data['type'], 'dashboard');
       expect(data['title'], '仪表盘报表');
       expect(data['data'], {'month': '2026-01'});
+    });
+
+    test('业务错误 JSON（HTTP 200）不被保存，抛出带服务端 message 的 ApiException', () async {
+      adapter.routes['/admin/v1/export/excel'] = (options) async =>
+          FakeHttpClientAdapter.jsonResponse({
+            'code': 500,
+            'message': '数据表不存在',
+          });
+
+      // 错误 JSON 以 200 返回且不带文件头：应被 magic 校验拦下，绝不触达 FileSaver
+      await expectLater(
+        service.exportExcel(table: 'user', columns: ['id']),
+        throwsA(isA<ApiException>().having((e) => e.message, 'message', '数据表不存在')),
+      );
+    });
+
+    test('HTML 错误页（HTTP 200）不被保存，抛通用翻译 ApiException', () async {
+      adapter.routes['/admin/v1/export/pdf'] = (options) async =>
+          ResponseBody.fromString(
+            '<html><body>502 Gateway Error</body></html>',
+            200,
+            headers: {Headers.contentTypeHeader: ['text/html']},
+          );
+
+      await expectLater(
+        service.exportPdf(type: 'dashboard', title: 't', data: {}),
+        throwsA(isA<ApiException>()),
+      );
     });
 
     test('导出请求网络失败时异常向上抛出', () async {

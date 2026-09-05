@@ -89,8 +89,11 @@ class _AdminLayoutState extends State<AdminLayout> {
   }
 
   void _goTo(String route, {bool closeDrawer = false}) {
-    setState(() => _selectedRoute = route);
     if (closeDrawer) Navigator.of(context).pop(); // close the phone drawer
+    // 目标路由已在栈顶（当前页）时不重复压栈，避免反复点击同菜单叠页。
+    // 抽屉不是独立路由，先 pop 再比较仍指向上层页面的路由。
+    if (Get.currentRoute == route) return;
+    setState(() => _selectedRoute = route);
     Get.toNamed(route);
   }
 

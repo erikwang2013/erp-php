@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class HrPerfScore extends Model
 {
-    protected $table = 'erp_hr_perf_score';
+    use Searchable;
+    protected $table = 'hr_perf_score';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -2,6 +2,13 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
+// M5：后端下发的 icon 名 → rawfile 文件名静态映射（avatar.png 为单色人形图标，
+// fillColor 染色后 20×20 下与 people/person_add 语义近似；临时映射，待设计资源）
+const STAT_ICON_MAP: Record<string, string> = {
+  'people': 'avatar.png',
+  'person_add': 'avatar.png',
+};
+
 /**
  * 统计卡片组件
  */
@@ -16,10 +23,13 @@ export struct StatCard {
   build() {
     Column() {
       Row() {
-        Image($rawfile(`${this.icon}.png`))
-          .width(20)
-          .height(20)
-          .fillColor(this.color)
+        if (STAT_ICON_MAP[this.icon]) {
+          Image($rawfile(STAT_ICON_MAP[this.icon]))
+            .width(20)
+            .height(20)
+            .fillColor(this.color)
+        }
+        // 债务：未命中映射（bolt/description 等）暂无设计资源，图标留空，待补充后加映射
       }
       .justifyContent(FlexAlign.Start)
 

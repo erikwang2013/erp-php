@@ -31,6 +31,15 @@ class CorsPolicy
             return $origin;
         }
 
+        // 本地回环源放行（localhost/127.0.0.1 任意 http(s) 端口，如 flutter web 开发调试的随机端口）：
+        // 凭据走 JWT（内存/localStorage），无 cookie 自动携带，回环放行不构成凭据泄露面
+        $parts = parse_url($origin);
+        $host = $parts['host'] ?? '';
+        $scheme = $parts['scheme'] ?? '';
+        if (($host === 'localhost' || $host === '127.0.0.1') && in_array($scheme, ['http', 'https'], true)) {
+            return $origin;
+        }
+
         return null;
     }
 

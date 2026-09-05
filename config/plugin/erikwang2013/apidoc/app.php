@@ -8,7 +8,9 @@ return [
         'apps'    => [
             [
                 'title'  => 'Api接口',
-                'path'   => 'app\controller',
+                // 单字符串路径只扫 app\controller（24 业务域树）；客户端认证（app\api\v1）与
+                // 系统管理（app\admin\controller）控制器在其外导致两组文档恒空 → 扩为多路径数组
+                'path'   => ['app\controller', 'app\admin\controller', 'app\api\v1\controller'],
                 'key'    => 'erik.xyz',
                 'groups' => [['title'=>'商品基础数据','name'=>'商品基础数据'],['title'=>'采购管理','name'=>'采购管理'],['title'=>'销售管理','name'=>'销售管理'],['title'=>'库存管理','name'=>'库存管理'],['title'=>'财务管理','name'=>'财务管理'],['title'=>'CRM','name'=>'CRM'],['title'=>'生产制造','name'=>'生产制造'],['title'=>'订单管理OMS','name'=>'订单管理OMS'],['title'=>'仓储管理WMS','name'=>'仓储管理WMS'],['title'=>'运输管理TMS','name'=>'运输管理TMS'],['title'=>'设备管理EAM','name'=>'设备管理EAM'],['title'=>'质量管理QMS','name'=>'质量管理QMS'],['title'=>'人力资源','name'=>'人力资源'],['title'=>'会员零售','name'=>'会员零售'],['title'=>'审批工作流','name'=>'审批工作流'],['title'=>'消息通知','name'=>'消息通知'],['title'=>'项目管理','name'=>'项目管理'],['title'=>'自定义报表','name'=>'自定义报表'],['title'=>'BI看板','name'=>'BI看板'],['title'=>'文档管理DMS','name'=>'文档管理DMS'],['title'=>'打印模板','name'=>'打印模板'],['title'=>'平台管理','name'=>'平台管理'],['title'=>'开放接口','name'=>'开放接口'],['title'=>'客户端认证','name'=>'客户端认证'],['title'=>'系统管理','name'=>'系统管理']],
             ]

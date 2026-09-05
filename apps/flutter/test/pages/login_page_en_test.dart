@@ -1,13 +1,14 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 //
-// 登录页国际化渲染测试：en locale 下登录页关键文案渲染为英文。
+// 登录页国际化渲染测试：en locale 下登录页与验证码弹框关键文案渲染为英文。
 // 通过配置 localizationsDelegates + supportedLocales 验证 arb 与页面接入生效；
-// 网络请求在 flutter_test 环境默认被拦截（400），验证码加载走失败路径，天然离线。
+// 网络请求在 flutter_test 环境默认被拦截（400），验证码弹框走失败路径，天然离线。
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:admin_app/app/pages/login/login_page.dart';
+import 'package:admin_app/app/widgets/captcha_verify_dialog.dart';
 import 'package:admin_app/l10n/app_localizations.dart';
 
 void main() {
@@ -25,7 +26,6 @@ void main() {
 
   Future<void> pumpLogin(WidgetTester tester) async {
     await tester.pumpWidget(wrap());
-    // 等待 _loadCaptcha 的网络失败回调完成
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -42,9 +42,20 @@ void main() {
     expect(find.text('登 录'), findsNothing);
   });
 
-  testWidgets('en locale 下验证码加载失败提示为英文', (tester) async {
+  testWidgets('en locale 下验证码弹框加载失败提示为英文', (tester) async {
     await pumpLogin(tester);
 
+    await tester.enterText(find.byType(TextField).at(0), 'admin');
+    await tester.enterText(find.byType(TextField).at(1), 'secret');
+    await tester.tap(find.byType(FilledButton));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 150)); // 弹框转场
+    await tester.pump(const Duration(milliseconds: 100)); // generate 失败回调
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.byType(CaptchaVerifyDialog), findsOneWidget);
     expect(find.text('Failed to load captcha'), findsOneWidget);
+    // 失败态中央与底部栏各有一个 Refresh 按钮
+    expect(find.text('Refresh'), findsNWidgets(2));
   });
 }

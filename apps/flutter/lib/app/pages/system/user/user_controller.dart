@@ -4,6 +4,7 @@
 
 import 'package:get/get.dart';
 import '../../../services/api_service.dart';
+import '../../../l10n/app_l10n.dart';
 
 class UserController extends GetxController {
   final api = ApiService();
@@ -38,7 +39,8 @@ class UserController extends GetxController {
       users.value = resp['data']['list'] as List<dynamic>;
       total.value = resp['data']['total'] as int;
     } catch (e) {
-      Get.snackbar('错误', '加载用户列表失败: $e');
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackError, l10n.systemUserLoadFailedMsg('$e'));
     } finally {
       isLoading.value = false;
     }
@@ -74,14 +76,16 @@ class UserController extends GetxController {
       await loadUsers();
       return true;
     } catch (e) {
-      Get.snackbar('错误', '删除失败: $e');
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackError, l10n.commonDeleteFailedMsg('$e'));
       return false;
     }
   }
 
   Future<bool> batchDelete(String password) async {
+    final l10n = AppL10n.current;
     if (selectedIds.isEmpty) {
-      Get.snackbar('提示', '请先选择用户');
+      Get.snackbar(l10n.commonSnackInfo, l10n.systemUserSelectFirst);
       return false;
     }
     try {
@@ -91,17 +95,18 @@ class UserController extends GetxController {
       });
       selectedIds.clear();
       await loadUsers();
-      Get.snackbar('成功', '批量删除完成');
+      Get.snackbar(l10n.commonSnackSuccess, l10n.systemUserBatchDeleteDone);
       return true;
     } catch (e) {
-      Get.snackbar('错误', '批量删除失败: $e');
+      Get.snackbar(l10n.commonSnackError, l10n.systemUserBatchDeleteFailedMsg('$e'));
       return false;
     }
   }
 
   Future<bool> batchSetStatus(int status) async {
+    final l10n = AppL10n.current;
     if (selectedIds.isEmpty) {
-      Get.snackbar('提示', '请先选择用户');
+      Get.snackbar(l10n.commonSnackInfo, l10n.systemUserSelectFirst);
       return false;
     }
     try {
@@ -111,10 +116,10 @@ class UserController extends GetxController {
       });
       selectedIds.clear();
       await loadUsers();
-      Get.snackbar('成功', status == 1 ? '批量启用完成' : '批量禁用完成');
+      Get.snackbar(l10n.commonSnackSuccess, status == 1 ? l10n.systemUserBatchEnabled : l10n.systemUserBatchDisabled);
       return true;
     } catch (e) {
-      Get.snackbar('错误', '操作失败: $e');
+      Get.snackbar(l10n.commonSnackError, l10n.commonOpFailedMsg('$e'));
       return false;
     }
   }

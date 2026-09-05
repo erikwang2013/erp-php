@@ -9,13 +9,15 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class MfgCostEntry extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_mfg_cost_entry';
+    protected $table = 'mfg_cost_entry';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

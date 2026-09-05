@@ -4,6 +4,7 @@
 
 import 'package:get/get.dart';
 import '../../../services/api_service.dart';
+import '../../../l10n/app_l10n.dart';
 
 class RoleController extends GetxController {
   final api = ApiService();
@@ -28,9 +29,24 @@ class RoleController extends GetxController {
       roles.value = resp['data']['list'] as List<dynamic>;
       total.value = resp['data']['total'] as int;
     } catch (e) {
-      Get.snackbar('错误', '加载角色列表失败: $e');
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackError, l10n.systemRoleLoadFailedMsg('$e'));
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> nextPage() async {
+    if (page.value * limit.value < total.value) {
+      page.value++;
+      await loadRoles();
+    }
+  }
+
+  Future<void> prevPage() async {
+    if (page.value > 1) {
+      page.value--;
+      await loadRoles();
     }
   }
 
@@ -38,7 +54,11 @@ class RoleController extends GetxController {
     try {
       final resp = await api.get('/admin/v1/permission');
       permissions.value = resp['data'] as List<dynamic>? ?? [];
-    } catch (_) {}
+    } catch (e) {
+      final l10n = AppL10n.current;
+      // 权限树是弹框勾选唯一来源，失败静默会导致新建/编辑角色零权限
+      Get.snackbar(l10n.commonSnackError, l10n.systemPermLoadFailedMsg('$e'));
+    }
   }
 
   Future<bool> createRole(String name, String slug, String desc, List<String> permIds) async {
@@ -47,10 +67,12 @@ class RoleController extends GetxController {
         'name': name, 'slug': slug, 'description': desc, 'permission_ids': permIds,
       });
       await loadRoles();
-      Get.snackbar('成功', '角色创建成功');
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackSuccess, l10n.systemRoleCreated);
       return true;
     } catch (e) {
-      Get.snackbar('错误', '创建失败: $e');
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackError, l10n.systemRoleCreateFailedMsg('$e'));
       return false;
     }
   }
@@ -63,10 +85,12 @@ class RoleController extends GetxController {
       if (permIds != null) data['permission_ids'] = permIds;
       await api.put('/admin/v1/role/$id', data: data);
       await loadRoles();
-      Get.snackbar('成功', '角色更新成功');
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackSuccess, l10n.systemRoleUpdated);
       return true;
     } catch (e) {
-      Get.snackbar('错误', '更新失败: $e');
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackError, l10n.systemRoleUpdateFailedMsg('$e'));
       return false;
     }
   }
@@ -75,10 +99,12 @@ class RoleController extends GetxController {
     try {
       await api.delete('/admin/v1/role/$id', data: {'password': password});
       await loadRoles();
-      Get.snackbar('成功', '角色删除成功');
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackSuccess, l10n.systemRoleDeleted);
       return true;
     } catch (e) {
-      Get.snackbar('错误', '删除失败: $e');
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackError, l10n.commonDeleteFailedMsg('$e'));
       return false;
     }
   }

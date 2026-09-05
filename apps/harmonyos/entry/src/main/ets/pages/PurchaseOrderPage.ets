@@ -4,7 +4,7 @@
 
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
-import { ApiService } from '../../service/ApiService';
+import { ApiService } from '../service/ApiService';
 import { LoadingView, ErrorView, EmptyView } from '../common/Components';
 
 /**
@@ -23,6 +23,19 @@ interface PurchaseOrderItem {
   remark: string;
 }
 
+/** 表单保存请求体（与后端 fillable 对齐） */
+interface SaveBody {
+  code: string | number;
+  name: string | number;
+  supplier_id: string | number;
+  apply_id: string | number;
+  warehouse_id: string | number;
+  total_amount: string | number;
+  status: string | number;
+  ordered_at: string | number;
+  remark: string | number;
+}
+
 @Entry
 @Component
 struct PurchaseOrderPage {
@@ -32,6 +45,7 @@ struct PurchaseOrderPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
+  @State errMsg: string = ''; // M4：真实错误文案（catch 不再吞 message）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -67,8 +81,8 @@ struct PurchaseOrderPage {
     this.hasError = false;
 
     try {
-      const res = await this.api.get(`/admin/purchase/order?page=${this.page}&limit=${this.limit}`);
-      const data = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/purchase/order?page=${this.page}&limit=${this.limit}`);
+      const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as PurchaseOrderItem);
       if (isRefresh || this.page === 1) {
@@ -82,8 +96,9 @@ struct PurchaseOrderPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
+      this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      promptAction.showToast({ message: this.errMsg });
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -123,8 +138,8 @@ struct PurchaseOrderPage {
     this.showForm = true;
     this.loading = true;
     try {
-      const res = await this.api.get(`/admin/purchase/order/${id}`);
-      const row = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/purchase/order/${id}`);
+      const row = res.data as Record<string, Object>;
       this.formCode = (row['code'] as string) ?? '';
       this.formName = (row['name'] as string) ?? '';
       this.formSupplierId = row['supplier_id'] != null ? String(row['supplier_id']) : '';
@@ -159,7 +174,7 @@ struct PurchaseOrderPage {
     }
 
     this.isSubmitting = true;
-    const body: Record<string, Object> = {
+    const body: SaveBody = {
       code: this.formCode,
       name: this.formName,
       supplier_id: this.formSupplierId ? Number(this.formSupplierId) : 0,
@@ -173,10 +188,10 @@ struct PurchaseOrderPage {
 
     try {
       if (this.formMode === 'create') {
-        await this.api.post('/admin/purchase/order', body);
+        await this.api.post<Object>('/admin/purchase/order', body);
         promptAction.showToast({ message: '创建成功' });
       } else {
-        await this.api.put(`/admin/purchase/order/${this.formId}`, body);
+        await this.api.put<Object>(`/admin/purchase/order/${this.formId}`, body);
         promptAction.showToast({ message: '更新成功' });
       }
       this.showForm = false;
@@ -207,7 +222,7 @@ struct PurchaseOrderPage {
         fontColor: '#FF4D4F',
         action: async () => {
           try {
-            await this.api.delete(`/admin/purchase/order/${id}`);
+            await this.api.delete<Object>(`/admin/purchase/order/${id}`);
             promptAction.showToast({ message: '删除成功' });
             this.loadData(true);
           } catch (e) {
@@ -276,7 +291,7 @@ struct PurchaseOrderPage {
     if (this.loading && this.items.length === 0) {
       LoadingView();
     } else if (this.hasError) {
-      ErrorView({ onRetry: () => this.loadData(true) });
+      ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
       EmptyView({ message: '暂无采购订单数据' });
     } else {
@@ -381,47 +396,124 @@ struct PurchaseOrderPage {
           .textAlign(TextAlign.Center)
           .padding({ top: 16, bottom: 16 })
 
-        this.buildFormItem('订单名称', () => {
+        Row() {
+          Text('订单名称')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入订单名称（必填）', text: this.formName })
             .fontSize(15)
             .onChange((v: string) => { this.formName = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('订单编号', () => {
+        Row() {
+          Text('订单编号')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入订单编号', text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('供应商ID', () => {
+        Row() {
+          Text('供应商ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '供应商数字ID（必填）', text: this.formSupplierId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formSupplierId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('采购申请ID', () => {
+        Row() {
+          Text('采购申请ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '采购申请数字ID，留空为0', text: this.formApplyId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formApplyId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('收货仓库ID', () => {
+        Row() {
+          Text('收货仓库ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '收货仓库数字ID，留空为0', text: this.formWarehouseId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formWarehouseId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('订单总金额', () => {
+        Row() {
+          Text('订单总金额')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '订单总金额，留空为0', text: this.formTotalAmount })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formTotalAmount = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('状态', () => {
+        Row() {
+          Text('状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           Row() {
             Button('启用')
               .fontSize(13)
@@ -440,19 +532,50 @@ struct PurchaseOrderPage {
               .margin({ left: 12 })
               .onClick(() => { this.formStatus = 0; })
           }
-        });
+          .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('下单时间', () => {
+        Row() {
+          Text('下单时间')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss', text: this.formOrderedAt })
             .fontSize(15)
             .onChange((v: string) => { this.formOrderedAt = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('备注', () => {
+        Row() {
+          Text('备注')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入备注', text: this.formRemark })
             .fontSize(15)
             .onChange((v: string) => { this.formRemark = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -484,27 +607,5 @@ struct PurchaseOrderPage {
     .width('100%')
     .layoutWeight(1)
     .backgroundColor('#F5F5F5')
-  }
-
-  /**
-   * 表单项：标签 + 输入控件
-   */
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .minHeight(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

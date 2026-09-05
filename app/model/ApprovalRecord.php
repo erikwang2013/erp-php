@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class ApprovalRecord extends Model
 {
-    protected $table = 'erp_approval_record';
+    use Searchable;
+    protected $table = 'approval_record';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

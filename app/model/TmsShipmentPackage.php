@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class TmsShipmentPackage extends Model
 {
-    protected $table = 'erp_tms_shipment_package';
+    use Searchable;
+    protected $table = 'tms_shipment_package';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

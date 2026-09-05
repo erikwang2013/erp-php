@@ -7,11 +7,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class FinanceGeneralLedger extends Model
 {
-    protected $table = 'erp_finance_general_ledger';
+    use Searchable;
+    protected $table = 'finance_general_ledger';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

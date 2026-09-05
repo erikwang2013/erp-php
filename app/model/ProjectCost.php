@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -17,7 +18,8 @@ use support\Model;
  */
 class ProjectCost extends Model
 {
-    protected $table = 'erp_project_cost';
+    use Searchable;
+    protected $table = 'project_cost';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

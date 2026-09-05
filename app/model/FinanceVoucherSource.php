@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class FinanceVoucherSource extends Model
 {
-    protected $table = 'erp_finance_voucher_source';
+    use Searchable;
+    protected $table = 'finance_voucher_source';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

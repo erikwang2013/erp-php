@@ -17,6 +17,18 @@ interface WmsReceivingItem {
   status: number;
 }
 
+/** 表单保存请求体（与后端 fillable 对齐） */
+interface SaveBody {
+  code: string | number;
+  warehouse_id: string | number;
+  asn_id: string | number;
+  dock_location_id: string | number;
+  status: string | number;
+  receiver_id: string | number;
+  received_at: string | number;
+  remark: string | number;
+}
+
 @Entry
 @Component
 struct ReceivingPage {
@@ -26,6 +38,7 @@ struct ReceivingPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
+  @State errMsg: string = ''; // M4：加载失败时的可用 message（交 ErrorView 展示）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -60,8 +73,8 @@ struct ReceivingPage {
     this.hasError = false;
 
     try {
-      const res = await this.api.get(`/admin/wms/receiving?page=${this.page}&limit=${this.limit}`);
-      const data = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/wms/receiving?page=${this.page}&limit=${this.limit}`);
+      const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as WmsReceivingItem);
       if (isRefresh || this.page === 1) {
@@ -75,8 +88,10 @@ struct ReceivingPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
+      // M4：错误不吞——可用 message 交 ErrorView 展示（toast 与其重复故移除）；空消息回退原文案
+      const msg = e instanceof Error ? e.message : '';
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      this.errMsg = msg !== '' ? msg : '加载失败';
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -115,8 +130,8 @@ struct ReceivingPage {
     this.showForm = true;
     this.loading = true;
     try {
-      const res = await this.api.get(`/admin/wms/receiving/${id}`);
-      const row = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/wms/receiving/${id}`);
+      const row = res.data as Record<string, Object>;
       this.formCode = (row['code'] as string) ?? '';
       this.formWarehouseId = row['warehouse_id'] != null ? String(row['warehouse_id']) : '';
       this.formAsnId = row['asn_id'] != null ? String(row['asn_id']) : '';
@@ -130,7 +145,9 @@ struct ReceivingPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '加载详情失败' });
+      // M4：详情加载失败展示可用 message，空消息回退原文案
+      const msg = e instanceof Error ? e.message : '';
+      promptAction.showToast({ message: msg !== '' ? msg : '加载详情失败' });
     } finally {
       this.loading = false;
     }
@@ -150,7 +167,7 @@ struct ReceivingPage {
     }
 
     this.isSubmitting = true;
-    const body: Record<string, Object> = {
+    const body: SaveBody = {
       code: this.formCode,
       warehouse_id: this.formWarehouseId ? Number(this.formWarehouseId) : 0,
       asn_id: this.formAsnId ? Number(this.formAsnId) : 0,
@@ -163,10 +180,10 @@ struct ReceivingPage {
 
     try {
       if (this.formMode === 'create') {
-        await this.api.post('/admin/wms/receiving', body);
+        await this.api.post<Object>('/admin/wms/receiving', body);
         promptAction.showToast({ message: '创建成功' });
       } else {
-        await this.api.put(`/admin/wms/receiving/${this.formId}`, body);
+        await this.api.put<Object>(`/admin/wms/receiving/${this.formId}`, body);
         promptAction.showToast({ message: '更新成功' });
       }
       this.showForm = false;
@@ -177,7 +194,9 @@ struct ReceivingPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '保存失败' });
+      // M4：保存失败展示可用 message，空消息回退原文案
+      const msg = e instanceof Error ? e.message : '';
+      promptAction.showToast({ message: msg !== '' ? msg : '保存失败' });
     } finally {
       this.isSubmitting = false;
     }
@@ -197,7 +216,7 @@ struct ReceivingPage {
         fontColor: '#FF4D4F',
         action: async () => {
           try {
-            await this.api.delete(`/admin/wms/receiving/${id}`);
+            await this.api.delete<Object>(`/admin/wms/receiving/${id}`);
             promptAction.showToast({ message: '删除成功' });
             this.loadData(true);
           } catch (e) {
@@ -205,7 +224,9 @@ struct ReceivingPage {
               router.replaceUrl({ url: 'pages/LoginPage' });
               return;
             }
-            promptAction.showToast({ message: '删除失败' });
+            // M4：删除失败展示可用 message，空消息回退原文案
+            const msg = e instanceof Error ? e.message : '';
+            promptAction.showToast({ message: msg !== '' ? msg : '删除失败' });
           }
         }
       },
@@ -266,7 +287,7 @@ struct ReceivingPage {
     if (this.loading && this.items.length === 0) {
       LoadingView();
     } else if (this.hasError) {
-      ErrorView({ onRetry: () => this.loadData(true) });
+      ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
       EmptyView({ message: '暂无收货数据' });
     } else {
@@ -371,34 +392,87 @@ struct ReceivingPage {
           .textAlign(TextAlign.Center)
           .padding({ top: 16, bottom: 16 })
 
-        this.buildFormItem('收货单号', () => {
+        Row() {
+          Text('收货单号')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入收货单号（必填）', text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('仓库ID', () => {
+        Row() {
+          Text('仓库ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '仓库数字ID（必填）', text: this.formWarehouseId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formWarehouseId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('ASN单ID', () => {
+        Row() {
+          Text('ASN单ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: 'ASN单数字ID，留空为0', text: this.formAsnId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formAsnId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('收货月台ID', () => {
+        Row() {
+          Text('收货月台ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '收货月台数字ID，留空为0', text: this.formDockLocationId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formDockLocationId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('状态', () => {
+        Row() {
+          Text('状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           Row() {
             Button('启用')
               .fontSize(13)
@@ -417,26 +491,69 @@ struct ReceivingPage {
               .margin({ left: 12 })
               .onClick(() => { this.formStatus = 0; })
           }
-        });
+          .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('收货人ID', () => {
+        Row() {
+          Text('收货人ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '收货人数字ID，留空为0', text: this.formReceiverId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formReceiverId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('收货时间', () => {
+        Row() {
+          Text('收货时间')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss，可留空', text: this.formReceivedAt })
             .fontSize(15)
             .onChange((v: string) => { this.formReceivedAt = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('备注', () => {
+        Row() {
+          Text('备注')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入备注', text: this.formRemark })
             .fontSize(15)
             .onChange((v: string) => { this.formRemark = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -468,27 +585,5 @@ struct ReceivingPage {
     .width('100%')
     .layoutWeight(1)
     .backgroundColor('#F5F5F5')
-  }
-
-  /**
-   * 表单项：标签 + 输入控件
-   */
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .minHeight(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

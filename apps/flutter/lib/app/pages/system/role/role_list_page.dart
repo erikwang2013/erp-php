@@ -4,6 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../widgets/confirm_dialog.dart';
+import '../../../l10n/app_l10n.dart';
 import 'role_controller.dart';
 
 class RoleListPage extends GetView<RoleController> {
@@ -15,23 +17,25 @@ class RoleListPage extends GetView<RoleController> {
       Get.put(RoleController(), permanent: false);
     }
     final ctrl = controller;
+    final l10n = AppL10n.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Text('角色管理', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(l10n.systemRoleTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const Spacer(),
           ElevatedButton.icon(
             onPressed: () => _showRoleDialog(context, ctrl),
             icon: const Icon(Icons.add),
-            label: const Text('新增角色'),
+            label: Text(l10n.systemRoleAdd),
           ),
         ]),
         const SizedBox(height: 12),
         Expanded(child: Obx(() {
+          final l10n = AppL10n.current;
           if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
-          if (ctrl.roles.isEmpty) return const Center(child: Text('暂无角色'));
+          if (ctrl.roles.isEmpty) return Center(child: Text(l10n.systemRoleEmpty));
 
           return ListView.builder(
             itemCount: ctrl.roles.length,
@@ -41,22 +45,19 @@ class RoleListPage extends GetView<RoleController> {
                 child: ListTile(
                   leading: const Icon(Icons.shield, size: 36),
                   title: Text(r['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('标识: ${r['slug']} | 用户数: ${r['users_count'] ?? 0} | ${r['description'] ?? ''}'),
+                  subtitle: Text(l10n.systemRoleSubtitle('${r['slug']}', int.tryParse('${r['users_count'] ?? 0}') ?? 0, '${r['description'] ?? ''}')),
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Chip(label: Text(r['status'] == 1 ? '启用' : '禁用')),
+                    Chip(label: Text(r['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled)),
                     IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _showRoleDialog(context, ctrl, role: r)),
                     IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () {
-                      final pwdCtrl = TextEditingController();
-                      showDialog(context: context, builder: (_) => AlertDialog(
-                        title: const Text('确认删除'), content: Column(mainAxisSize: MainAxisSize.min, children: [
-                          Text('确定要删除角色「${r['name']}」吗？'),
-                          TextField(controller: pwdCtrl, obscureText: true, decoration: const InputDecoration(labelText: '输入密码确认')),
-                        ]),
-                        actions: [
-                          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
-                          ElevatedButton(onPressed: () { ctrl.deleteRole(r['id'], pwdCtrl.text); Navigator.pop(context); }, style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white), child: const Text('删除')),
-                        ],
-                      ));
+                      // 复用 ConfirmDialog（密码确认 + 内部 loading/失败态，controller 自管生命周期）
+                      ConfirmDialog.show(
+                        context,
+                        content: l10n.systemRoleDeleteContent('${r['name']}'),
+                        confirmText: l10n.commonDelete,
+                        passwordLabel: l10n.commonPasswordConfirm,
+                        onConfirm: (pwd) => ctrl.deleteRole(r['id'], pwd),
+                      );
                     }),
                   ]),
                 ),
@@ -64,11 +65,25 @@ class RoleListPage extends GetView<RoleController> {
             },
           );
         })),
+        // 分页（默认 limit=15，超出首屏的数据需翻页可达）
+        const SizedBox(height: 8),
+        Obx(() {
+          final l10n = AppL10n.current;
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(onPressed: ctrl.prevPage, icon: const Icon(Icons.chevron_left)),
+              Text(l10n.commonPageInfo(ctrl.page.value, (ctrl.total.value / ctrl.limit.value).ceil(), ctrl.total.value)),
+              IconButton(onPressed: ctrl.nextPage, icon: const Icon(Icons.chevron_right)),
+            ],
+          );
+        }),
       ],
     );
   }
 
   void _showRoleDialog(BuildContext context, RoleController ctrl, {dynamic role}) {
+    final l10n = AppL10n.of(context);
     final nameCtrl = TextEditingController(text: role?['name'] ?? '');
     final slugCtrl = TextEditingController(text: role?['slug'] ?? '');
     final descCtrl = TextEditingController(text: role?['description'] ?? '');
@@ -78,13 +93,13 @@ class RoleListPage extends GetView<RoleController> {
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (_, setDialogState) => AlertDialog(
-          title: Text(role != null ? '编辑角色' : '新增角色', style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(role != null ? l10n.systemRoleEdit : l10n.systemRoleAdd, style: const TextStyle(fontWeight: FontWeight.bold)),
           content: SizedBox(width: 450, child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: '名称'), enabled: role == null),
-            TextField(controller: slugCtrl, decoration: const InputDecoration(labelText: '标识'), enabled: role == null),
-            TextField(controller: descCtrl, decoration: const InputDecoration(labelText: '描述')),
+            TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l10n.fieldName), enabled: role == null),
+            TextField(controller: slugCtrl, decoration: InputDecoration(labelText: l10n.fieldSlug), enabled: role == null),
+            TextField(controller: descCtrl, decoration: InputDecoration(labelText: l10n.fieldDescription)),
             const SizedBox(height: 12),
-            const Text('权限分配:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(l10n.systemRolePermSection, style: const TextStyle(fontWeight: FontWeight.bold)),
             ...ctrl.permissions.map((perm) => CheckboxListTile(
               title: Text(perm['name'] ?? ''),
               subtitle: Text(perm['slug'] ?? ''),
@@ -95,7 +110,7 @@ class RoleListPage extends GetView<RoleController> {
             )),
           ]))),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
             ElevatedButton(onPressed: () {
               if (role != null) {
                 ctrl.updateRole(role['id'], name: nameCtrl.text, desc: descCtrl.text, permIds: selectedPerms.toList());
@@ -103,7 +118,7 @@ class RoleListPage extends GetView<RoleController> {
                 ctrl.createRole(nameCtrl.text, slugCtrl.text, descCtrl.text, selectedPerms.toList());
               }
               Navigator.pop(context);
-            }, child: const Text('保存')),
+            }, child: Text(l10n.commonSave)),
           ],
         ),
       ),

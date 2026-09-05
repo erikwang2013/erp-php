@@ -21,8 +21,8 @@ void main() {
     Get.reset();
     SharedPreferences.setMockInitialValues({});
     adapter = FakeHttpClientAdapter(routes: {
-      '/admin/profile': (o) async => FakeHttpClientAdapter.jsonResponse({'code': 0, 'data': {}}),
-      '/admin/profile/password': (o) async => FakeHttpClientAdapter.jsonResponse({'code': 0, 'data': {}}),
+      '/admin/v1/profile': (o) async => FakeHttpClientAdapter.jsonResponse({'code': 0, 'data': {}}),
+      '/admin/v1/profile/password': (o) async => FakeHttpClientAdapter.jsonResponse({'code': 0, 'data': {}}),
     });
     ApiService.instance.dio.httpClientAdapter = adapter;
   });
@@ -66,7 +66,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      final req = adapter.requests.where((r) => r.path == '/admin/profile').toList();
+      final req = adapter.requests.where((r) => r.path == '/admin/v1/profile').toList();
       expect(req, hasLength(1));
       final body = req.first.data as Map<String, dynamic>;
       expect(body['real_name'], '张三');

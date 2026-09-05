@@ -19,7 +19,7 @@ void main() {
 
   Future<FakeHttpClientAdapter> buildAdapter() async {
     return FakeHttpClientAdapter(routes: {
-      '/admin/user': (o) async => FakeHttpClientAdapter.jsonResponse({
+      '/admin/v1/user': (o) async => FakeHttpClientAdapter.jsonResponse({
         'code': 0,
         'data': {
           'list': [
@@ -82,7 +82,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       final req = adapter.requests.last;
-      expect(req.path, '/admin/user');
+      expect(req.path, '/admin/v1/user');
       expect(req.queryParameters['keyword'], 'admin');
     });
 

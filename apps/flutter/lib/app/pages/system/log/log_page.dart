@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../services/api_service.dart';
+import '../../../l10n/app_l10n.dart';
 
 class LogController extends GetxController {
   final api = ApiService();
@@ -29,7 +30,10 @@ class LogController extends GetxController {
       final resp = await api.get('/admin/v1/log', params: params);
       logs.value = resp['data']['list'] as List<dynamic>;
       total.value = resp['data']['total'] as int;
-    } catch (e) { Get.snackbar('错误', '加载失败: $e'); }
+    } catch (e) {
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackError, l10n.commonLoadFailedMsg('$e'));
+    }
     finally { isLoading.value = false; }
   }
 
@@ -46,37 +50,42 @@ class LogPage extends GetView<LogController> {
       Get.put(LogController(), permanent: false);
     }
     final ctrl = controller;
+    final l10n = AppL10n.of(context);
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('操作日志', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+      Text(l10n.logTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
       const SizedBox(height: 12),
       Row(children: [
-        SizedBox(width: 150, child: TextField(decoration: const InputDecoration(hintText: '操作筛选', isDense: true), onSubmitted: (v) { ctrl.actionFilter.value = v; ctrl.loadLogs(reset: true); })),
+        SizedBox(width: 150, child: TextField(decoration: InputDecoration(hintText: l10n.logActionHint, isDense: true), onSubmitted: (v) { ctrl.actionFilter.value = v; ctrl.loadLogs(reset: true); })),
         const SizedBox(width: 12),
-        SizedBox(width: 200, child: TextField(decoration: const InputDecoration(hintText: '路径筛选', isDense: true), onSubmitted: (v) { ctrl.pathFilter.value = v; ctrl.loadLogs(reset: true); })),
+        SizedBox(width: 200, child: TextField(decoration: InputDecoration(hintText: l10n.logPathHint, isDense: true), onSubmitted: (v) { ctrl.pathFilter.value = v; ctrl.loadLogs(reset: true); })),
       ]),
       const SizedBox(height: 12),
       Expanded(child: Obx(() {
+        final l10n = AppL10n.current;
         if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
-        return SingleChildScrollView(child: DataTable(columns: const [
-          DataColumn(label: Text('操作者')),
-          DataColumn(label: Text('方法')),
-          DataColumn(label: Text('路径')),
-          DataColumn(label: Text('IP')),
-          DataColumn(label: Text('时间')),
+        return SingleChildScrollView(child: DataTable(columns: [
+          DataColumn(label: Text(l10n.fieldOperator)),
+          DataColumn(label: Text(l10n.fieldMethod)),
+          DataColumn(label: Text(l10n.fieldPath)),
+          const DataColumn(label: Text('IP')),
+          DataColumn(label: Text(l10n.fieldTime)),
         ], rows: ctrl.logs.map((l) => DataRow(cells: [
-          DataCell(Text(l['user_name'] ?? '系统')),
+          DataCell(Text(l['user_name'] ?? l10n.logSystem)),
           DataCell(Chip(label: Text(l['method'] ?? ''))),
           DataCell(Text(l['path'] ?? '')),
           DataCell(Text(l['ip'] ?? '')),
           DataCell(Text(l['created_at'] ?? '')),
         ])).toList()));
       })),
-      Obx(() => Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        IconButton(onPressed: ctrl.prevPage, icon: const Icon(Icons.chevron_left)),
-        Text('${ctrl.page.value} / ${(ctrl.total.value / ctrl.limit.value).ceil()} (${ctrl.total.value}条)'),
-        IconButton(onPressed: ctrl.nextPage, icon: const Icon(Icons.chevron_right)),
-      ])),
+      Obx(() {
+        final l10n = AppL10n.current;
+        return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          IconButton(onPressed: ctrl.prevPage, icon: const Icon(Icons.chevron_left)),
+          Text(l10n.logPageInfo(ctrl.page.value, (ctrl.total.value / ctrl.limit.value).ceil(), ctrl.total.value)),
+          IconButton(onPressed: ctrl.nextPage, icon: const Icon(Icons.chevron_right)),
+        ]);
+      }),
     ]);
   }
 }

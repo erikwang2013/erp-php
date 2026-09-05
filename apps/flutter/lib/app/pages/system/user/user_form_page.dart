@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../services/api_service.dart';
+import '../../../l10n/app_l10n.dart';
 
 class UserFormPage extends StatefulWidget {
   final Map<String, dynamic>? userData;
@@ -39,6 +40,7 @@ class _UserFormPageState extends State<UserFormPage> {
   }
 
   Future<void> _submit() async {
+    final l10n = AppL10n.current;
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _isLoading = true);
 
@@ -62,10 +64,10 @@ class _UserFormPageState extends State<UserFormPage> {
       } else {
         await api.post('/admin/v1/user', data: data);
       }
-      Get.snackbar('成功', isEdit ? '用户更新成功' : '用户创建成功');
+      Get.snackbar(l10n.commonSnackSuccess, isEdit ? l10n.systemUserUpdated : l10n.systemUserCreated);
       Get.back(result: true);
     } catch (e) {
-      Get.snackbar('错误', '操作失败: $e');
+      Get.snackbar(l10n.commonSnackError, l10n.commonOpFailedMsg('$e'));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -73,8 +75,9 @@ class _UserFormPageState extends State<UserFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(isEdit ? '编辑用户' : '新增用户')),
+      appBar: AppBar(title: Text(isEdit ? l10n.systemUserEdit : l10n.systemUserAdd)),
       body: Center(
         child: SizedBox(
           width: 500,
@@ -83,22 +86,22 @@ class _UserFormPageState extends State<UserFormPage> {
             child: ListView(
               padding: const EdgeInsets.all(24),
               children: [
-                TextFormField(controller: _usernameCtrl, enabled: !isEdit, decoration: const InputDecoration(labelText: '用户名'), validator: (v) => (v == null || v.isEmpty) ? '请输入用户名' : null),
+                TextFormField(controller: _usernameCtrl, enabled: !isEdit, decoration: InputDecoration(labelText: l10n.fieldUsername), validator: (v) => (v == null || v.isEmpty) ? l10n.commonInputRequired(l10n.fieldUsername) : null),
                 const SizedBox(height: 16),
-                TextFormField(controller: _passwordCtrl, obscureText: true, decoration: InputDecoration(labelText: isEdit ? '新密码（留空不修改）' : '密码'), validator: (v) => !isEdit && (v == null || v.isEmpty) ? '请输入密码' : null),
+                TextFormField(controller: _passwordCtrl, obscureText: true, decoration: InputDecoration(labelText: isEdit ? l10n.userPwdEditHint : l10n.userPwdNewLabel), validator: (v) => !isEdit && (v == null || v.isEmpty) ? l10n.commonEnterPassword : null),
                 const SizedBox(height: 16),
-                TextFormField(controller: _realNameCtrl, decoration: const InputDecoration(labelText: '真实姓名'), validator: (v) => (v == null || v.isEmpty) ? '请输入真实姓名' : null),
+                TextFormField(controller: _realNameCtrl, decoration: InputDecoration(labelText: l10n.fieldRealNameFull), validator: (v) => (v == null || v.isEmpty) ? l10n.commonInputRequired(l10n.fieldRealNameFull) : null),
                 const SizedBox(height: 16),
-                TextFormField(controller: _phoneCtrl, decoration: const InputDecoration(labelText: '手机号')),
+                TextFormField(controller: _phoneCtrl, decoration: InputDecoration(labelText: l10n.fieldPhone)),
                 const SizedBox(height: 16),
-                TextFormField(controller: _emailCtrl, decoration: const InputDecoration(labelText: '邮箱')),
+                TextFormField(controller: _emailCtrl, decoration: InputDecoration(labelText: l10n.fieldEmail)),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<int>(initialValue: _status, decoration: const InputDecoration(labelText: '状态'), items: const [
-                  DropdownMenuItem(value: 1, child: Text('启用')),
-                  DropdownMenuItem(value: 0, child: Text('禁用')),
+                DropdownButtonFormField<int>(initialValue: _status, decoration: InputDecoration(labelText: l10n.commonStatus), items: [
+                  DropdownMenuItem(value: 1, child: Text(l10n.commonEnabled)),
+                  DropdownMenuItem(value: 0, child: Text(l10n.commonDisabled)),
                 ], onChanged: (v) => setState(() => _status = v ?? 1)),
                 const SizedBox(height: 24),
-                ElevatedButton(onPressed: _isLoading ? null : _submit, child: Text(_isLoading ? '提交中...' : '提交')),
+                ElevatedButton(onPressed: _isLoading ? null : _submit, child: Text(_isLoading ? l10n.commonSubmitting : l10n.commonSubmit)),
               ],
             ),
           ),

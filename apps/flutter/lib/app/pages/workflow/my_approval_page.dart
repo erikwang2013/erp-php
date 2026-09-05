@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
+import '../../l10n/app_l10n.dart';
 
 /// 我的审批页 — 覆盖 GET /admin/approval/my 及动作端点：
 /// POST /admin/approval/{id}/approve
@@ -19,21 +20,25 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
   final int _limit = 20;
   String _keyword = '';
   bool _loading = true;
+  String? _error;
+  int _reqSeq = 0;
 
   // 审批实例状态: 0审批中 1已通过 2已驳回 3已撤回
-  static const List<String> _statusLabels = ['审批中', '已通过', '已驳回', '已撤回'];
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
+    final seq = ++_reqSeq;
     setState(() => _loading = true);
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit'};
       final res = await ApiService.instance.get('/admin/v1/approval/my', params: params);
       final d = res['data'];
-      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
-    } catch (e) { setState(() => _loading = false); }
+      if (seq != _reqSeq || !mounted) return;
+      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; _error = null; });
+      if (_rows.isEmpty && _page > 1) { _page--; _load(); return; }
+    } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
   /// 审批意见输入对话框（驳回时 comment 必填）。
@@ -57,7 +62,7 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
               controller: commentCtrl,
               maxLines: 3,
               decoration: InputDecoration(
-                labelText: commentRequired ? '审批意见（必填）' : '审批意见（可选）',
+                labelText: commentRequired ? AppL10n.of(ctx).workflowCommentRequired : AppL10n.of(ctx).workflowCommentOptional,
                 isDense: true,
                 errorText: error,
               ),
@@ -65,12 +70,12 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
           }),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(AppL10n.of(ctx).commonCancel)),
           ElevatedButton(
             onPressed: () async {
               final comment = commentCtrl.text.trim();
               if (commentRequired && comment.isEmpty) {
-                error = '驳回意见不能为空';
+                error = AppL10n.of(ctx).workflowCommentRequiredError;
                 refresh?.call(() {});
                 return;
               }
@@ -79,15 +84,15 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
                 if (ctx.mounted) Navigator.of(ctx).pop();
                 _load();
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('操作成功')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppL10n.of(context).commonOpSuccess)));
                 }
               } catch (e) {
                 if (ctx.mounted) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('操作失败：$e')));
+                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(AppL10n.of(ctx).commonOpFailedMsg('$e'))));
                 }
               }
             },
-            child: const Text('确认'),
+            child: Text(AppL10n.of(ctx).commonConfirm),
           ),
         ],
       ),
@@ -96,23 +101,24 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
   }
 
   Future<void> _approve(Map<String, dynamic> row) => _commentDialog(
-    title: '审批通过', commentRequired: false,
+    title: AppL10n.current.workflowApproveTitle, commentRequired: false,
     onConfirm: (comment) => ApiService.instance.post('/admin/v1/approval/${row['id']}/approve', data: {'comment': comment}),
   );
 
   Future<void> _reject(Map<String, dynamic> row) => _commentDialog(
-    title: '驳回审批', commentRequired: true,
+    title: AppL10n.current.workflowRejectTitle, commentRequired: true,
     onConfirm: (comment) => ApiService.instance.post('/admin/v1/approval/${row['id']}/reject', data: {'comment': comment}),
   );
 
   Future<void> _withdraw(Map<String, dynamic> row) async {
+    final l10n = AppL10n.current;
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('撤回审批'),
-        content: const Text('确定要撤回该审批吗？仅提交人可操作。'),
+        title: Text(l10n.workflowWithdrawTitle),
+        content: Text(l10n.workflowWithdrawContent),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(AppL10n.of(ctx).commonCancel)),
           ElevatedButton(
             onPressed: () async {
               try {
@@ -120,64 +126,78 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
                 if (ctx.mounted) Navigator.of(ctx).pop();
                 _load();
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('已撤回')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppL10n.of(context).workflowWithdrawn)));
                 }
               } catch (e) {
                 if (ctx.mounted) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('撤回失败：$e')));
+                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(AppL10n.of(ctx).workflowWithdrawFailedMsg('$e'))));
                 }
               }
             },
-            child: const Text('撤回'),
+            child: Text(AppL10n.of(ctx).workflowWithdraw),
           ),
         ],
       ),
     );
   }
 
-  static String _statusText(dynamic s) {
-    final i = s is int ? s : int.tryParse('$s') ?? 0;
-    return (i >= 0 && i < _statusLabels.length) ? _statusLabels[i] : '$s';
+  String _statusText(dynamic s) {
+    final l10n = AppL10n.current;
+    final i = s is int ? s : int.tryParse('$s');
+    return switch (i) {
+      0 => l10n.workflowStatusApproving,
+      1 => l10n.workflowStatusApproved,
+      2 => l10n.workflowStatusRejected,
+      3 => l10n.workflowStatusWithdrawn,
+      _ => l10n.workflowStatusUnknown,
+    };
   }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
     rows: _rows.map((r) => _rowToMap(r)).toList(),
-    total: _total, page: _page, limit: _limit, loading: _loading,
+    total: _total, page: _page, limit: _limit, loading: _loading, error: _error, onRetry: _load,
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
   );
 
-  List<String> _columns() => ['单据类型', '单据ID', '状态', '提交时间', '操作'];
+  List<String> _columns() {
+    final l10n = AppL10n.current;
+    return [l10n.fieldDocType, l10n.fieldDocId, l10n.commonStatus, l10n.fieldSubmitTime, l10n.commonAction];
+  }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
-    final pending = (r['status'] is int ? r['status'] as int : int.tryParse('${r['status']}') ?? 0) == 0;
+    final l10n = AppL10n.current;
+    final statusVal = r['status'] is int ? r['status'] as int : int.tryParse('${r['status']}');
+    final pending = statusVal == 0;
     return {
-      '单据类型': r['target_type'] ?? '',
-      '单据ID': r['target_id'] ?? '',
-      '状态': _chip(_statusText(r['status'])),
-      '提交时间': r['submitted_at'] ?? '',
-      '操作': Row(mainAxisSize: MainAxisSize.min, children: [
+      l10n.fieldDocType: r['target_type'] ?? '',
+      l10n.fieldDocId: r['target_id'] ?? '',
+      l10n.commonStatus: _chip(r['status']),
+      l10n.fieldSubmitTime: r['submitted_at'] ?? '',
+      l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         if (pending) ...[
           IconButton(icon: const Icon(Icons.check_circle, size: 18, color: Colors.green),
-            tooltip: '通过', onPressed: () => _approve(r)),
+            tooltip: l10n.workflowApprove, onPressed: () => _approve(r)),
           IconButton(icon: const Icon(Icons.cancel, size: 18, color: Colors.red),
-            tooltip: '驳回', onPressed: () => _reject(r)),
+            tooltip: l10n.workflowReject, onPressed: () => _reject(r)),
           IconButton(icon: const Icon(Icons.undo, size: 18, color: Colors.orange),
-            tooltip: '撤回', onPressed: () => _withdraw(r)),
+            tooltip: l10n.workflowWithdraw, onPressed: () => _withdraw(r)),
         ] else
           const Text('—'),
       ]),
     };
   }
 
-  Widget _chip(String? s) {
-    final color = switch (s) {
-      '审批中' => Colors.orange,
-      '已通过' => Colors.green,
-      '已驳回' || '已撤回' => Colors.red,
+  Widget _chip(dynamic s) {
+    final i = s is int ? s : int.tryParse('$s');
+    // 颜色按状态枚举匹配，标签走 l10n，避免按译文字符串判色
+    final color = switch (i) {
+      0 => Colors.orange,
+      1 => Colors.green,
+      2 || 3 => Colors.red,
       _ => Colors.blue,
     };
     return Container(
@@ -186,7 +206,7 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(s ?? '', style: TextStyle(color: color, fontSize: 12)),
+      child: Text(_statusText(s), style: TextStyle(color: color, fontSize: 12)),
     );
   }
 }

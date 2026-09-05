@@ -13,7 +13,7 @@ declare(strict_types=1);
  */
 return [
     // ES 驱动，可选 elasticsearch|opensearch|meilisearch
-    'driver' => getenv('SCOUT_DRIVER') ?: 'elasticsearch',
+    'driver' => getenv('SCOUT_DRIVER') ?: 'opensearch',
 
     // ES 服务地址数组，支持多节点集群
     'hosts' => explode(',', getenv('SCOUT_HOSTS') ?: 'http://localhost:9200'),

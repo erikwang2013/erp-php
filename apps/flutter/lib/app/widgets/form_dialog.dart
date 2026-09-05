@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../l10n/app_l10n.dart';
 
 enum FormFieldType { text, number, dropdown, multiline }
 
@@ -59,8 +60,12 @@ class FormDialog extends StatefulWidget {
               FormFieldConfig(
                 name: f.name,
                 label: f.label,
-                initialValue:
-                    '${initialData[f.name] ?? f.initialValue ?? ''}',
+                // dropdown 预填值不在 options 中时置 null（回退 hint/空态），
+                // 否则 DropdownButtonFormField 会因 value 无对应 item 触发 assert。
+                initialValue: (f.type == FormFieldType.dropdown &&
+                        !f.options.contains('${initialData[f.name] ?? f.initialValue ?? ''}'))
+                    ? null
+                    : '${initialData[f.name] ?? f.initialValue ?? ''}',
                 required: f.required,
                 type: f.type,
                 options: f.options,
@@ -127,7 +132,7 @@ class _FormDialogState extends State<FormDialog> {
       // Keep the dialog open so the user can retry, but surface the error.
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('提交失败：$e')),
+          SnackBar(content: Text(AppL10n.of(context).commonSubmitFailedMsg('$e'))),
         );
       }
     } finally {
@@ -159,7 +164,7 @@ class _FormDialogState extends State<FormDialog> {
       actions: [
         TextButton(
           onPressed: _loading ? null : () => Navigator.of(context).pop(false),
-          child: const Text('取消'),
+          child: Text(AppL10n.of(context).commonCancel),
         ),
         ElevatedButton(
           onPressed: _loading ? null : _submit,
@@ -177,7 +182,9 @@ class _FormDialogState extends State<FormDialog> {
 
   Widget _buildField(FormFieldConfig f) {
     final validator = f.required
-        ? (v) => (v == null || v.toString().trim().isEmpty) ? '请输入${f.label}' : null
+        ? (v) => (v == null || v.toString().trim().isEmpty)
+            ? AppL10n.current.commonInputRequired(f.label)
+            : null
         : null;
     final label = f.required ? '${f.label} *' : f.label;
 

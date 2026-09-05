@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class HrAttendance extends Model
 {
-    protected $table = 'erp_hr_attendance';
+    use Searchable;
+    protected $table = 'hr_attendance';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

@@ -59,6 +59,7 @@ class ProductController extends BaseController
      */
 #[\erikwang2013\apidoc\annotation\Title("商品详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查询启用商品详情，含启用 SKU 与批发/零售价")]
+#[\erikwang2013\apidoc\annotation\Url("/api/v1/product/{hashid}")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("客户端 API")]

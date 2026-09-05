@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../l10n/app_l10n.dart';
 import '../services/api_service.dart';
 
 /// 详情页通用骨架：GET 拉取 → 加载/错误/重试 → 内容区。
@@ -25,9 +26,13 @@ class _DetailPageState extends State<DetailPage> {
     setState(() { _data = null; _error = null; });
     try {
       final res = await ApiService.instance.get(widget.endpoint);
+      if (!mounted) return; // 等待期间页面已被返回销毁
       setState(() => _data = Map<String, dynamic>.from(res['data'] ?? {}));
     } catch (e) {
-      setState(() => _error = '$e');
+      // friendlyError 翻译为当前语言文案；原始异常进 debugPrint 供排障
+      if (!mounted) return;
+      debugPrint('[detail] $widget.endpoint 加载失败: $e');
+      setState(() => _error = ApiService.friendlyError(e));
     }
   }
 
@@ -38,9 +43,9 @@ class _DetailPageState extends State<DetailPage> {
       body: _error != null
           ? Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Text('加载失败：$_error'),
+                Text('${AppL10n.of(context).commonLoadFailed}：$_error'),
                 const SizedBox(height: 12),
-                ElevatedButton(onPressed: _load, child: const Text('重试')),
+                ElevatedButton(onPressed: _load, child: Text(AppL10n.of(context).commonRetry)),
               ]),
             )
           : _data == null

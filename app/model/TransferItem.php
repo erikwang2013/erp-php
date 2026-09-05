@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class TransferItem extends Model
 {
-    protected $table = 'erp_transfer_item';
+    use Searchable;
+    protected $table = 'transfer_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

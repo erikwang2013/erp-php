@@ -17,6 +17,15 @@ interface HrDepartmentItem {
   status: number;
 }
 
+/** 表单保存请求体（与后端 fillable 对齐） */
+interface SaveBody {
+  name: string | number;
+  code: string | number;
+  parent_id: string | number;
+  manager_user_id: string | number;
+  status: string | number;
+}
+
 @Entry
 @Component
 struct DepartmentPage {
@@ -26,6 +35,7 @@ struct DepartmentPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
+  @State errorMsg: string = ''; // M4: 失败的真实错误文案（传给 ErrorView/提示）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -55,10 +65,11 @@ struct DepartmentPage {
       this.loading = true;
     }
     this.hasError = false;
+    this.errorMsg = '';
 
     try {
-      const res = await this.api.get(`/admin/hr/department?page=${this.page}&limit=${this.limit}`);
-      const data = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/hr/department?page=${this.page}&limit=${this.limit}`);
+      const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as HrDepartmentItem);
       if (isRefresh || this.page === 1) {
@@ -73,7 +84,9 @@ struct DepartmentPage {
         return;
       }
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      // M4: 展示真实错误信息（替代固定文案）；UNAUTHORIZED 已在上方跳转
+      this.errorMsg = (e instanceof Error && e.message) ? e.message : '加载失败';
+      promptAction.showToast({ message: this.errorMsg });
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -109,8 +122,8 @@ struct DepartmentPage {
     this.showForm = true;
     this.loading = true;
     try {
-      const res = await this.api.get(`/admin/hr/department/${id}`);
-      const row = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/hr/department/${id}`);
+      const row = res.data as Record<string, Object>;
       this.formName = (row['name'] as string) ?? '';
       this.formCode = (row['code'] as string) ?? '';
       this.formParentId = row['parent_id'] != null ? String(row['parent_id']) : '';
@@ -121,7 +134,8 @@ struct DepartmentPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '加载详情失败' });
+      // M4: 优先展示真实错误信息
+      promptAction.showToast({ message: (e instanceof Error && e.message) ? e.message : '加载详情失败' });
     } finally {
       this.loading = false;
     }
@@ -141,7 +155,7 @@ struct DepartmentPage {
     }
 
     this.isSubmitting = true;
-    const body: Record<string, Object> = {
+    const body: SaveBody = {
       name: this.formName,
       code: this.formCode,
       parent_id: this.formParentId ? Number(this.formParentId) : 0,
@@ -151,10 +165,10 @@ struct DepartmentPage {
 
     try {
       if (this.formMode === 'create') {
-        await this.api.post('/admin/hr/department', body);
+        await this.api.post<Object>('/admin/hr/department', body);
         promptAction.showToast({ message: '创建成功' });
       } else {
-        await this.api.put(`/admin/hr/department/${this.formId}`, body);
+        await this.api.put<Object>(`/admin/hr/department/${this.formId}`, body);
         promptAction.showToast({ message: '更新成功' });
       }
       this.showForm = false;
@@ -165,7 +179,8 @@ struct DepartmentPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '保存失败' });
+      // M4: 优先展示真实错误信息
+      promptAction.showToast({ message: (e instanceof Error && e.message) ? e.message : '保存失败' });
     } finally {
       this.isSubmitting = false;
     }
@@ -185,7 +200,7 @@ struct DepartmentPage {
         fontColor: '#FF4D4F',
         action: async () => {
           try {
-            await this.api.delete(`/admin/hr/department/${id}`);
+            await this.api.delete<Object>(`/admin/hr/department/${id}`);
             promptAction.showToast({ message: '删除成功' });
             this.loadData(true);
           } catch (e) {
@@ -193,7 +208,8 @@ struct DepartmentPage {
               router.replaceUrl({ url: 'pages/LoginPage' });
               return;
             }
-            promptAction.showToast({ message: '删除失败' });
+            // M4: 优先展示真实错误信息
+            promptAction.showToast({ message: (e instanceof Error && e.message) ? e.message : '删除失败' });
           }
         }
       },
@@ -254,7 +270,7 @@ struct DepartmentPage {
     if (this.loading && this.items.length === 0) {
       LoadingView();
     } else if (this.hasError) {
-      ErrorView({ onRetry: () => this.loadData(true) });
+      ErrorView({ message: this.errorMsg, onRetry: (): void => { this.loadData(true); } });
     } else if (this.items.length === 0) {
       EmptyView({ message: '暂无部门数据' });
     } else {
@@ -359,33 +375,86 @@ struct DepartmentPage {
           .textAlign(TextAlign.Center)
           .padding({ top: 16, bottom: 16 })
 
-        this.buildFormItem('部门名称', () => {
+        Row() {
+          Text('部门名称')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入部门名称（必填）', text: this.formName })
             .fontSize(15)
             .onChange((v: string) => { this.formName = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('部门编码', () => {
+        Row() {
+          Text('部门编码')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入部门编码（必填）', text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('上级部门ID', () => {
+        Row() {
+          Text('上级部门ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '上级部门数字ID，留空为0', text: this.formParentId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formParentId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('负责人ID', () => {
+        Row() {
+          Text('负责人ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '负责人用户数字ID，留空为0', text: this.formManagerUserId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formManagerUserId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('状态', () => {
+        Row() {
+          Text('状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           Row() {
             Button('启用')
               .fontSize(13)
@@ -404,7 +473,14 @@ struct DepartmentPage {
               .margin({ left: 12 })
               .onClick(() => { this.formStatus = 0; })
           }
-        });
+          .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -436,27 +512,5 @@ struct DepartmentPage {
     .width('100%')
     .layoutWeight(1)
     .backgroundColor('#F5F5F5')
-  }
-
-  /**
-   * 表单项：标签 + 输入控件
-   */
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .minHeight(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class SalesReturn extends Model
 {
-    protected $table = 'erp_sales_return';
+    use Searchable;
+    protected $table = 'sales_return';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

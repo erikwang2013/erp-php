@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
@@ -15,32 +16,42 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
   int _total = 0, _page = 1;
   final int _limit = 20;
   String _keyword = '';
-  
+
   bool _loading = true;
+  String? _error;
+  int _reqSeq = 0;
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
+    final seq = ++_reqSeq;
     setState(() => _loading = true);
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
-      
+
       final res = await ApiService.instance.get('/admin/v1/crm/analytics/report', params: params);
       final d = res['data'];
-      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
-    } catch (e) { setState(() => _loading = false); }
+      if (seq != _reqSeq || !mounted) return;
+      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; _error = null; });
+      if (_rows.isEmpty && _page > 1) { _page--; _load(); return; }
+    } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
   Future<void> _generate() async {
-    await FormDialog.show(context, title: '生成报表', fields: const [
-      FormFieldConfig(name: 'name', label: '报表名称', required: true),
-      FormFieldConfig(name: 'type', label: '报表类型', required: true, type: FormFieldType.dropdown,
-          options: ['customer', 'order', 'revenue', 'activity', 'retention']),
-      FormFieldConfig(name: 'period_year', label: '年度', required: true, type: FormFieldType.number),
-      FormFieldConfig(name: 'period_value', label: '期间值', required: true, type: FormFieldType.number),
-      FormFieldConfig(name: 'period_type', label: '期间类型', required: true, type: FormFieldType.dropdown,
-          options: ['1=月', '2=季', '3=年']),
+    final l10n = AppL10n.current;
+    await FormDialog.show(context, title: l10n.crmAnalyticsGenerate, fields: [
+      FormFieldConfig(name: 'name', label: l10n.crmAnalyticsReportName, required: true),
+      FormFieldConfig(name: 'type', label: l10n.crmAnalyticsReportType, required: true, type: FormFieldType.dropdown,
+          options: const ['customer', 'order', 'revenue', 'activity', 'retention']),
+      FormFieldConfig(name: 'period_year', label: l10n.crmAnalyticsYear, required: true, type: FormFieldType.number),
+      FormFieldConfig(name: 'period_value', label: l10n.crmAnalyticsPeriodValue, required: true, type: FormFieldType.number),
+      FormFieldConfig(name: 'period_type', label: l10n.crmAnalyticsPeriodType, required: true, type: FormFieldType.dropdown,
+          options: [
+            '1=${l10n.crmAnalyticsMonth}',
+            '2=${l10n.crmAnalyticsQuarter}',
+            '3=${l10n.crmAnalyticsYearUnit}',
+          ]),
     ], onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/crm/analytics/generate', data: {
         'name': data['name'] ?? '',
@@ -54,11 +65,12 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
   }
 
   Future<void> _createMetric() async {
-    await FormDialog.show(context, title: '新建指标', fields: const [
-      FormFieldConfig(name: 'name', label: '指标名称', required: true),
-      FormFieldConfig(name: 'key', label: '指标键名', required: true),
-      FormFieldConfig(name: 'type', label: '指标类型', required: true, type: FormFieldType.dropdown,
-          options: ['count', 'ratio', 'average', 'sum']),
+    final l10n = AppL10n.current;
+    await FormDialog.show(context, title: l10n.crmAnalyticsNewMetric, fields: [
+      FormFieldConfig(name: 'name', label: l10n.crmAnalyticsMetricName, required: true),
+      FormFieldConfig(name: 'key', label: l10n.crmAnalyticsMetricKey, required: true),
+      FormFieldConfig(name: 'type', label: l10n.crmAnalyticsMetricType, required: true, type: FormFieldType.dropdown,
+          options: const ['count', 'ratio', 'average', 'sum']),
     ], onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/crm/analytics/metric', data: data);
       _load(); return true;
@@ -70,21 +82,24 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
     columns: _columns(),
     rows: _rows.map((r) => _rowToMap(r)).toList(),
     total: _total, page: _page, limit: _limit, loading: _loading,
+    error: _error, onRetry: _load,
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
 
     actions: [
-      ElevatedButton.icon(onPressed: _generate, icon: const Icon(Icons.insights, size: 18), label: const Text('生成报表')),
-      ElevatedButton.icon(onPressed: _createMetric, icon: const Icon(Icons.add, size: 18), label: const Text('新建指标')),
+      ElevatedButton.icon(onPressed: _generate, icon: const Icon(Icons.insights, size: 18),
+        label: Text(AppL10n.of(context).crmAnalyticsGenerate)),
+      ElevatedButton.icon(onPressed: _createMetric, icon: const Icon(Icons.add, size: 18),
+        label: Text(AppL10n.of(context).crmAnalyticsNewMetric)),
     ],
   );
 
-  List<String> _columns() => ['名称', '编码'];
+  List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.crmCode];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    '名称': r['name'] ?? '',
-    '编码': r['code'] ?? '',
+    AppL10n.current.crmName: r['name'] ?? '',
+    AppL10n.current.crmCode: r['code'] ?? '',
   };
 
 }

@@ -5,6 +5,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
+  // 说明（取舍）：access/refresh token 经 SharedPreferences 明文落盘（无加密）。
+  // 移动端可换 flutter_secure_storage（Keychain/Keystore 加密），但 Web 端该插件
+  // 不可用，需 kIsWeb 条件编译维护双实现——当前业务（token 短有效 + refresh 轮换）
+  // 下先保持明文为最小实现，后续如引入强凭据再按上述方案升级。
   static const _keyToken = 'access_token';
   static const _keyRefreshToken = 'refresh_token';
   static const _keyUsername = 'username';

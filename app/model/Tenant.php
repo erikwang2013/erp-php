@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -36,9 +37,10 @@ use support\Model;
  */
 class Tenant extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_tenant';
+    protected $table = 'tenant';
 
     protected $primaryKey = 'id';
 

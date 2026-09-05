@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class ProjectTimesheet extends Model
 {
-    protected $table = 'erp_project_timesheet';
+    use Searchable;
+    protected $table = 'project_timesheet';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

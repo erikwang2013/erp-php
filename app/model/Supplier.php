@@ -18,7 +18,7 @@ class Supplier extends Model
     use SoftDeletes;
     use Searchable;
 
-    protected $table = 'erp_supplier';
+    protected $table = 'supplier';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

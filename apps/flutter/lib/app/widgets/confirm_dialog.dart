@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../l10n/app_l10n.dart';
 
 /// Confirmation dialog for destructive operations. Requires the operator's
 /// password and shows a loading state while [onConfirm] runs.
@@ -59,7 +60,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   Future<void> _confirm() async {
     final pwd = _passwordCtrl.text;
     if (pwd.isEmpty) {
-      setState(() => _error = '请输入密码');
+      setState(() => _error = AppL10n.current.commonEnterPassword);
       return;
     }
     setState(() {
@@ -72,10 +73,12 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
       if (ok) {
         Navigator.of(context).pop(true);
       } else {
-        setState(() => _error = '操作失败，请重试');
+        setState(() => _error = AppL10n.current.commonOpFailedRetry);
       }
     } catch (e) {
-      if (mounted) setState(() => _error = '操作失败：$e');
+      if (mounted) {
+        setState(() => _error = AppL10n.current.commonOpFailedMsg('$e'));
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -109,7 +112,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
       actions: [
         TextButton(
           onPressed: _loading ? null : () => Navigator.of(context).pop(false),
-          child: const Text('取消'),
+          child: Text(AppL10n.of(context).commonCancel),
         ),
         ElevatedButton(
           onPressed: _loading ? null : _confirm,

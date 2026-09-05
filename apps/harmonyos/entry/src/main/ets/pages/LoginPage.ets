@@ -6,28 +6,43 @@ import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import http from '@ohos.net.http';
 import { TokenManager } from '../utils/TokenManager';
+import { CaptchaVerifyDialog, CaptchaResult, ClickPoint } from '../common/CaptchaVerifyDialog';
+// H2：统一 API 基地址改读单一配置源（utils/Config），部署环境说明见该文件
+import { BASE_URL } from '../utils/Config';
 
-// 开发环境地址 — 真机部署时修改为实际服务器地址
-// 模拟器: http://10.0.2.2:8788
-// 真机: http://<服务器IP>:8788
-const BASE_URL = 'http://10.0.2.2:8788';
-
-interface CaptchaTarget {
-  order: number;
-  text: string;
-  x: number;
-  y: number;
+interface LoginData {
+  access_token: string;
+  refresh_token: string;
+  expires_in?: number; // M3：access_token 有效期（秒），TokenManager 持久化用于过期预判
 }
 
-interface CaptchaData {
+interface LoginResp {
+  code: number;
+  message: string;
+  data: LoginData;
+}
+
+interface VerifyData {
+  valid?: boolean;
+}
+
+interface VerifyResp {
+  code: number;
+  message: string;
+  data?: VerifyData;
+}
+
+// 独立校验接口 /api/v1/captcha/verify 请求体（坐标唯一校验点）
+interface VerifyPayload {
   key: string;
-  image: string; // base64
-  targets: CaptchaTarget[];
+  clicks: ClickPoint[];
 }
 
-interface ClickPoint {
-  x: number;
-  y: number;
+// 登录请求体：不携带坐标，仅凭 captcha_key 消费放行凭证
+interface LoginPayload {
+  username: string;
+  password: string;
+  captcha_key: string;
 }
 
 @Entry
@@ -37,71 +52,13 @@ struct LoginPage {
   @State password: string = '';
   @State isLoading: boolean = false;
   @State showPassword: boolean = false;
-
-  // 验证码状态
-  @State captchaData: CaptchaData | null = null;
-  @State captchaLoading: boolean = true;
-  @State clicks: ClickPoint[] = [];
-  @State clickMarkers: {x: number, y: number, order: number}[] = [];
-  @State captchaError: string = '';
   @State loginError: string = '';
 
   private httpClient: http.HttpRequest = http.createHttp();
+  private dialogController?: CustomDialogController;
+  private dialogOpen: boolean = false;
 
-  aboutToAppear(): void {
-    this.loadCaptcha();
-  }
-
-  async loadCaptcha(): Promise<void> {
-    this.captchaLoading = true;
-    this.clicks = [];
-    this.clickMarkers = [];
-    this.captchaError = '';
-
-    try {
-      const resp = await this.httpClient.request(`${BASE_URL}/api/captcha/generate`, {
-        method: http.RequestMethod.POST,
-        header: { 'Content-Type': 'application/json', 'API-Version': 'v1', 'X-Client-Platform': 'harmonyos' },
-        extraData: JSON.stringify({ difficulty: 'medium' }),
-        connectTimeout: 10000,
-        readTimeout: 10000
-      });
-
-      const result = JSON.parse(resp.result as string);
-      if (result.code === 0) {
-        this.captchaData = result.data;
-        this.captchaData!.targets.sort((a, b) => a.order - b.order);
-      } else {
-        this.captchaError = '验证码加载失败';
-      }
-    } catch (e) {
-      this.captchaError = '网络错误，无法加载验证码';
-    } finally {
-      this.captchaLoading = false;
-    }
-  }
-
-  onCaptchaClick(event: ClickEvent): void {
-    if (!this.captchaData || this.clicks.length >= this.captchaData.targets.length) return;
-
-    // 点击坐标 (相对于组件)
-    const widgetW = 400; // 组件近似宽度
-    const widgetH = 250;
-    const imgW = 400;
-    const imgH = 250;
-    const scaleX = imgW / widgetW;
-    const scaleY = imgH / widgetH;
-    const imgX = Math.round(event.x * scaleX);
-    const imgY = Math.round(event.y * scaleY);
-
-    const order = this.clicks.length;
-    this.clicks.push({ x: imgX, y: imgY });
-    this.clickMarkers.push({ x: event.x, y: event.y, order: order + 1 });
-    this.captchaError = '';
-    this.loginError = '';
-  }
-
-  async login(): Promise<void> {
+  login(): void {
     const trimmedUsername = this.username.trim();
     if (!trimmedUsername) {
       this.loginError = '请输入用户名';
@@ -111,45 +68,78 @@ struct LoginPage {
       this.loginError = '请输入密码';
       return;
     }
-    if (!this.captchaData || this.clicks.length < this.captchaData.targets.length) {
-      const next = this.captchaData?.targets[this.clicks.length];
-      this.loginError = next ? `请点击图中文字『${next.text}』` : '请完成验证码验证';
-      return;
+    if (this.dialogOpen) {
+      return; // 验证码弹框已打开，等待用户操作
+    }
+    this.loginError = '';
+    this.openCaptchaDialog();
+  }
+
+  openCaptchaDialog(): void {
+    // 每次打开前重建 controller，保证弹框内状态（图/目标字/点击数）干净
+    this.dialogOpen = true;
+    this.dialogController = new CustomDialogController({
+      builder: CaptchaVerifyDialog({
+        baseUrl: BASE_URL,
+        onResult: (r: CaptchaResult | null) => { this.onCaptchaResult(r); },
+      }),
+      autoCancel: false
+    });
+    this.dialogController.open();
+  }
+
+  async onCaptchaResult(result: CaptchaResult | null): Promise<void> {
+    this.dialogOpen = false; // 弹框已关闭（取消或点满回传）
+    if (result === null) {
+      return; // 用户取消：不打扰
     }
 
     this.isLoading = true;
     this.loginError = '';
-
     try {
-      const resp = await this.httpClient.request(`${BASE_URL}/api/auth/login`, {
-        method: http.RequestMethod.POST,
-        header: { 'Content-Type': 'application/json', 'API-Version': 'v1', 'X-Client-Platform': 'harmonyos' },
-        extraData: JSON.stringify({
-          username: trimmedUsername,
-          password: this.password,
-          captcha_key: this.captchaData!.key,
-          clicks: this.clicks
-        }),
-        connectTimeout: 15000,
-        readTimeout: 15000
-      });
-
-      const result = JSON.parse(resp.result as string);
-      if (result.code === 0) {
-        await TokenManager.saveTokens(result.data.access_token, result.data.refresh_token);
-        // 用户名同样做内存 + Preferences 持久化，冷启动恢复登录态后个人中心可读
-        await TokenManager.saveUsername(trimmedUsername);
-        router.replaceUrl({ url: 'pages/DashboardPage' });
-      } else {
-        this.loginError = result.message ?? '登录失败';
-        this.loadCaptcha();
+      // 1) 坐标唯一校验点：/api/v1/captcha/verify 通过后服务端写一次性放行凭证
+      const verifyPayload: VerifyPayload = { key: result.key, clicks: result.clicks };
+      const verify = JSON.parse(await this.postJson(`${BASE_URL}/api/v1/captcha/verify`, verifyPayload)) as VerifyResp;
+      if (verify.code !== 0 || !verify.data?.valid) {
+        this.loginError = verify.message ?? '验证码验证失败，请重试';
+        return;
       }
+      // 2) 登录请求不再携带 clicks，仅凭 captcha_key 消费放行凭证
+      await this.submitLogin(result.key);
     } catch (e) {
       this.loginError = '网络错误，请检查连接';
-      this.loadCaptcha();
     } finally {
       this.isLoading = false;
     }
+  }
+
+  private async submitLogin(captchaKey: string): Promise<void> {
+    const username = this.username.trim();
+    const loginPayload: LoginPayload = {
+      username: username,
+      password: this.password,
+      captcha_key: captchaKey
+    };
+    const result = JSON.parse(await this.postJson(`${BASE_URL}/api/v1/auth/login`, loginPayload)) as LoginResp;
+    if (result.code === 0) {
+      await TokenManager.saveTokens(result.data.access_token, result.data.refresh_token, result.data.expires_in);
+      // 用户名同样做内存 + Preferences 持久化，冷启动恢复登录态后个人中心可读
+      await TokenManager.saveUsername(username);
+      router.replaceUrl({ url: 'pages/DashboardPage' });
+    } else {
+      this.loginError = result.message ?? '登录失败';
+    }
+  }
+
+  private async postJson(path: string, payload: object): Promise<string> {
+    const resp = await this.httpClient.request(path, {
+      method: http.RequestMethod.POST,
+      header: { 'Content-Type': 'application/json', 'API-Version': 'v1', 'X-Client-Platform': 'harmonyos' },
+      extraData: JSON.stringify(payload),
+      connectTimeout: 15000,
+      readTimeout: 15000
+    });
+    return resp.result as string;
   }
 
   build() {
@@ -210,95 +200,6 @@ struct LoginPage {
             .width('100%')
             .margin({ top: 14 })
 
-            // 点击验证码
-            if (this.captchaLoading) {
-              LoadingProgress()
-                .width(36)
-                .height(36)
-                .color('#1677FF')
-                .margin({ top: 16 })
-            } else if (this.captchaError && !this.captchaData) {
-              Row() {
-                Text(this.captchaError)
-                  .fontSize(13)
-                  .fontColor('#FF4D4F')
-                  .layoutWeight(1)
-                Button('重试')
-                  .fontSize(13)
-                  .fontColor('#1677FF')
-                  .backgroundColor(Color.Transparent)
-                  .onClick(() => { this.loadCaptcha(); })
-              }
-              .width('100%')
-              .margin({ top: 14 })
-            } else if (this.captchaData) {
-              Column() {
-                // 提示文字
-                Row() {
-                  Text('请按顺序点击图中文字: ')
-                    .fontSize(12)
-                    .fontColor('#666666')
-                  ForEach(this.captchaData!.targets, (t: CaptchaTarget, i: number) => {
-                    Text(i > 0 ? ' → ' : '')
-                      .fontSize(12)
-                      .fontColor('#999999')
-                    Text(`"${t.text}"`)
-                      .fontSize(13)
-                      .fontWeight(this.clicks.length === i ? FontWeight.Bold : FontWeight.Normal)
-                      .fontColor(this.clicks.length > i ? '#52C41A' : (this.clicks.length === i ? '#1677FF' : '#333333'))
-                  })
-                }
-                .width('100%')
-                .margin({ top: 14, bottom: 6 })
-
-                // 验证码图片
-                Stack({ alignContent: Alignment.TopStart }) {
-                  Image((this.captchaData!.image.startsWith('data:') ?? false)
-                    ? this.captchaData!.image
-                    : `data:image/png;base64,${this.captchaData!.image}`)
-                    .width('100%')
-                    .height(200)
-                    .objectFit(ImageFit.Contain)
-                    .borderRadius(8)
-                    .border({ width: 1, color: '#EEEEEE' })
-                    .onClick((event: ClickEvent) => { this.onCaptchaClick(event); })
-
-                  // 点击标记
-                  ForEach(this.clickMarkers, (m: {x: number, y: number, order: number}) => {
-                    Circle({ width: 26, height: 26 })
-                      .fill('#1677FFCC')
-                      .position({ x: m.x - 13, y: m.y - 13 })
-                    Text(`${m.order}`)
-                      .fontSize(13)
-                      .fontColor('#FFFFFF')
-                      .fontWeight(FontWeight.Bold)
-                      .position({ x: m.x - 3, y: m.y - 8 })
-                  })
-                }
-                .width('100%')
-                .height(200)
-                .margin({ top: 4 })
-
-                // 操作栏
-                Row() {
-                  Text(`已点击 ${this.clicks.length}/${this.captchaData!.targets.length}`)
-                    .fontSize(12)
-                    .fontColor('#999999')
-
-                  Blank()
-
-                  Button('换一张')
-                    .fontSize(12)
-                    .fontColor('#1677FF')
-                    .backgroundColor(Color.Transparent)
-                    .onClick(() => { this.loadCaptcha(); })
-                }
-                .width('100%')
-                .margin({ top: 4 })
-              }
-              .width('100%')
-            }
-
             // 错误提示
             if (this.loginError) {
               Text(this.loginError)
@@ -309,7 +210,7 @@ struct LoginPage {
                 .padding({ top: 10, bottom: 2 })
             }
 
-            // 登录按钮
+            // 登录按钮（点击后弹验证码框，验证通过后自动继续登录）
             Button('登 录')
               .width('100%')
               .height(48)

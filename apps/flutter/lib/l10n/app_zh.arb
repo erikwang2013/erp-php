@@ -12,6 +12,7 @@
   "loginRequired": "请输入用户名和密码",
   "loginCaptchaRequired": "请加载验证码",
   "loginCaptchaLoadFailed": "验证码加载失败",
+  "loginCaptchaFailed": "验证码错误，请重试",
   "loginClickTarget": "请按顺序点击图中文字『{text}』",
   "loginNetworkError": "网络错误，请检查连接",
 
@@ -32,6 +33,48 @@
   "commonDeleteConfirm": "确认删除",
   "commonLoading": "加载中...",
   "commonRequestFailed": "请求失败",
+
+  "commonSearch": "搜索",
+  "commonSearchHint": "搜索...",
+  "commonRetry": "重试",
+  "commonNoData": "暂无数据",
+  "commonAdd": "新增",
+  "commonEdit": "编辑",
+  "commonDelete": "删除",
+  "commonDetail": "详情",
+  "commonStatus": "状态",
+  "commonAction": "操作",
+  "commonRefresh": "刷新",
+  "commonLoadFailed": "加载失败",
+  "commonAll": "全部",
+  "commonTotalPages": "共 {total} 条",
+  "@commonTotalPages": {
+    "placeholders": {
+      "total": {"type": "int"}
+    }
+  },
+  "commonKeywordHint": "输入关键词搜索",
+  "commonSubmit": "提交",
+  "commonEnterPassword": "请输入密码",
+  "commonOpFailedRetry": "操作失败，请重试",
+  "commonOpFailedMsg": "操作失败：{error}",
+  "@commonOpFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "commonSubmitFailedMsg": "提交失败：{error}",
+  "@commonSubmitFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "commonInputRequired": "请输入{label}",
+  "@commonInputRequired": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
 
   "apiNetworkError": "网络连接失败，请检查网络",
   "apiTimeoutError": "请求超时，请稍后重试",
@@ -72,6 +115,930 @@
   "@loginClickTarget": {
     "placeholders": {
       "text": {"type": "String"}
+    }
+  },
+
+  "commonName": "名称",
+  "commonCode": "编码",
+  "commonDeleteMsg": "确定要删除「{name}」吗？",
+  "@commonDeleteMsg": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "omsAddOrder": "新增OMS订单",
+  "omsEditOrder": "编辑OMS订单",
+  "omsOrderCode": "订单编码",
+  "omsOrderCodeHint": "必填（后端校验），如 OM+时间戳",
+  "omsOrderId": "关联销售订单ID",
+  "omsOrderIdHint": "从销售订单列表页获取数字ID",
+  "omsChannel": "渠道",
+  "omsChannelOrderNo": "渠道订单号",
+  "omsChannelStore": "渠道店铺名称",
+  "omsFulfillStatus": "履约状态",
+  "omsFulfillCreate": "创建履约",
+  "omsWarehouseId": "发货仓库ID",
+  "omsWarehouseIdHint": "后端要求提供发货仓库",
+  "omsFulfill": "履约",
+  "omsPaymentStatus": "支付状态",
+  "omsShippingMethod": "配送方式",
+  "omsShippingFee": "运费",
+  "omsShippingFeeHint": "如 10.00",
+  "omsPriority": "优先级",
+  "omsBuyerMessage": "买家备注",
+  "omsSellerNote": "卖家备注",
+  "omsHoldUntil": "冻结时间",
+  "omsHoldUntilHint": "格式 YYYY-MM-DD HH:mm:ss，可留空",
+  "omsFulUnassigned": "未分配",
+  "omsFulAssigned": "已分配",
+  "omsFulPicking": "拣货中",
+  "omsFulPacked": "已打包",
+  "omsFulShipped": "已发货",
+  "omsFulSigned": "已签收",
+  "omsPayPending": "待支付",
+  "omsPayPaid": "已支付",
+  "omsPayPartialRefund": "部分退款",
+  "omsPayRefunded": "已退款",
+  "omsPriorityHigh": "最高",
+  "omsPriorityNormal": "正常",
+  "omsPriorityLow": "最低",
+
+  "hrName": "名称",
+  "hrCode": "编码",
+  "hrEmpName": "姓名",
+  "hrEmpDepartment": "部门",
+  "hrEmpPhone": "电话",
+  "hrEmpPosition": "职位",
+  "hrEmployeeId": "员工ID",
+  "hrEmployeeTitle": "员工",
+  "hrRemark": "说明",
+  "hrDate": "日期",
+  "hrYes": "是",
+  "hrNo": "否",
+  "hrDeleteConfirmMsg": "确定要删除「{name}」吗？",
+  "@hrDeleteConfirmMsg": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "hrLeaveCreateTitle": "新增请假",
+  "hrLeaveEditTitle": "编辑请假",
+  "hrLeaveDeleteConfirm": "确定要删除该请假记录吗？",
+  "hrLeaveType": "请假类型",
+  "hrLeaveTypeHint": "类型",
+  "hrLeaveTypeAnnual": "年假",
+  "hrLeaveTypePersonal": "事假",
+  "hrLeaveTypeSick": "病假",
+  "hrLeaveTypeMarriage": "婚假",
+  "hrLeaveTypeMaternity": "产假",
+  "hrLeaveTypeCompensatory": "调休",
+  "hrLeaveDays": "请假天数",
+  "hrLeaveDaysCol": "天数",
+  "hrLeaveDaysHint": "如 1.5",
+  "hrLeaveStartDate": "开始日期",
+  "hrLeaveEndDate": "结束日期",
+  "hrLeaveDateHint": "YYYY-MM-DD，如 2026-09-05",
+  "hrLeaveReason": "请假原因",
+  "hrLeaveEmployeeHint": "从员工列表页获取数字ID",
+  "hrLeavePeriod": "请假日期",
+  "hrLeaveStatusPending": "待审批",
+  "hrLeaveStatusApproved": "已批准",
+  "hrLeaveStatusRejected": "已驳回",
+  "hrLeaveApproveTitle": "批准请假",
+  "hrLeaveRejectTitle": "驳回请假",
+  "hrLeaveApproveConfirm": "确认批准该请假申请吗？",
+  "hrLeaveRejectConfirm": "确认驳回该请假申请吗？",
+  "hrLeaveApprove": "批准",
+  "hrLeaveReject": "驳回",
+
+  "hrSalaryCreateTitle": "新增薪资记录",
+  "hrSalaryEditTitle": "编辑薪资",
+  "hrSalaryDeleteConfirm": "确定要删除该薪资记录吗？",
+  "hrSalaryYear": "薪资年度",
+  "hrSalaryMonth": "薪资月份",
+  "hrSalaryBase": "基本工资",
+  "hrSalaryPerformance": "绩效工资",
+  "hrSalaryOvertime": "加班费",
+  "hrSalaryDeduction": "扣款",
+  "hrSalaryTax": "个税",
+  "hrSalaryNet": "实发工资",
+  "hrSalaryPeriod": "期间",
+  "hrSalaryAmountHint": "如 8000.00",
+  "hrSalaryZeroHint": "默认 0",
+  "hrSalaryPayTitle": "薪资发放",
+  "hrSalaryPay": "发放",
+  "hrSalaryPayAction": "确认发放",
+  "hrSalaryPayConfirm": "确认将「{period}」的薪资标记为已发放吗？",
+  "@hrSalaryPayConfirm": {
+    "placeholders": {
+      "period": {"type": "String"}
+    }
+  },
+  "hrSalaryPaidSnack": "薪资已发放",
+  "hrSalaryPayFailedMsg": "发放失败：{error}",
+  "@hrSalaryPayFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "hrSalaryStatusPaid": "已发放",
+  "hrSalaryStatusUnpaid": "未发放",
+  "hrSalaryCalcAction": "计算薪资",
+  "hrSalaryCalcTitle": "薪资试算",
+  "hrCalcResultTitle": "试算结果",
+  "hrCalcItem": "项目",
+  "hrCalcAmount": "金额",
+  "hrCalcGross": "应发工资",
+  "hrCalcSocial": "社保(个人)",
+  "hrCalcHousing": "公积金",
+  "hrCalcTaxable": "应纳税所得额",
+  "hrCalcClose": "关闭",
+
+  "hrSalaryItemCreateTitle": "新增薪资项",
+  "hrSalaryItemEditTitle": "编辑薪资项",
+  "hrSalaryItemType": "类型(0=固定 1=浮动)",
+  "hrSalaryItemTypeShort": "类型",
+  "hrSalaryItemTaxable": "是否计税(0/1)",
+  "hrSalaryItemTaxShort": "计税",
+  "hrSalaryItemDefault": "默认金额",
+  "hrSalaryItemTypeFixed": "固定",
+  "hrSalaryItemTypeFloat": "浮动",
+
+  "eamEquipmentCode": "设备编码",
+  "eamEquipmentName": "设备名称",
+  "eamModel": "型号",
+  "eamSerialNumber": "序列号",
+  "eamCategory": "设备分类",
+  "eamCategoryCol": "分类",
+  "eamLocation": "存放位置",
+  "eamDepartmentId": "部门ID",
+  "eamPurchaseDate": "购买日期",
+  "eamWarrantyExpiry": "保修到期",
+  "eamEquipmentId": "设备ID",
+  "eamPlanName": "计划名称",
+  "eamFrequency": "保养频率",
+  "eamFrequencyCol": "频率",
+  "eamLastDate": "上次保养日期",
+  "eamNextDate": "下次日期",
+  "eamNextDateFull": "下次保养日期",
+  "eamAssignee": "负责人",
+  "eamRepairCode": "工单编码",
+  "eamRepairType": "维修类型",
+  "eamFaultDescription": "故障描述",
+  "eamRepairAssignee": "维修人",
+  "eamStartDate": "开始时间",
+  "eamEndDate": "结束时间",
+  "eamRepairCost": "维修费用",
+  "eamTransitionTitle": "状态流转",
+  "eamTransitionConfirm": "确定要将工单「{code}」流转为「{status}」吗？",
+  "@eamTransitionConfirm": {
+    "placeholders": {
+      "code": {"type": "String"},
+      "status": {"type": "String"}
+    }
+  },
+  "eamRepairStart": "开始维修",
+  "eamRepairFinish": "完成",
+  "eamSpareCode": "备件编码",
+  "eamSpareName": "备件名称",
+  "eamSpareSpec": "规格型号",
+  "eamSpareSpecCol": "规格",
+  "eamUnit": "单位",
+  "eamStockQty": "库存数量",
+  "eamStockCol": "库存",
+  "eamMinStock": "最低库存",
+  "eamDeleteConfirmMsg": "确定要删除「{name}」吗？",
+  "@eamDeleteConfirmMsg": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "manufacturingName": "名称",
+  "manufacturingCode": "编码",
+  "manufacturingDeleteConfirmMsg": "确定要删除「{name}」吗？",
+  "@manufacturingDeleteConfirmMsg": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "crmName": "名称",
+  "crmCode": "编码",
+  "crmPhone": "电话",
+  "crmEmail": "邮箱",
+  "crmRemark": "备注",
+  "crmAmount": "金额",
+  "crmOptional": "选填",
+  "crmDeleteConfirmMsg": "确定要删除「{name}」吗？",
+  "@crmDeleteConfirmMsg": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "crmAnalyticsGenerate": "生成报表",
+  "crmAnalyticsNewMetric": "新建指标",
+  "crmAnalyticsReportName": "报表名称",
+  "crmAnalyticsReportType": "报表类型",
+  "crmAnalyticsYear": "年度",
+  "crmAnalyticsPeriodValue": "期间值",
+  "crmAnalyticsPeriodType": "期间类型",
+  "crmAnalyticsMetricName": "指标名称",
+  "crmAnalyticsMetricKey": "指标键名",
+  "crmAnalyticsMetricType": "指标类型",
+  "crmAnalyticsMonth": "月",
+  "crmAnalyticsQuarter": "季",
+  "crmAnalyticsYearUnit": "年",
+
+  "crmContractStatusDraft": "草稿",
+  "crmContractStatusPending": "待审批",
+  "crmContractStatusApproved": "已审批",
+  "crmContractStatusActive": "执行中",
+  "crmContractStatusDone": "已完成",
+  "crmContractStatusTerminated": "已终止",
+  "crmContractTransitionTitle": "合同状态流转",
+  "crmContractTargetStatus": "目标状态",
+  "crmContractTransition": "流转",
+  "crmContractTransitionTooltip": "状态流转",
+  "crmContractNoTarget": "当前状态无可流转的目标状态",
+  "crmContractSelectTarget": "请选择目标状态",
+  "crmContractTransitionOk": "状态流转成功",
+
+  "crmFollowAddTitle": "新增跟进记录",
+  "crmFollowEditTitle": "编辑跟进记录",
+  "crmFollowAdd": "新增跟进",
+  "crmFollowSubject": "跟进主题",
+  "crmFollowTopic": "主题",
+  "crmFollowContent": "跟进内容",
+
+  "crmFunnelAdd": "新增阶段",
+  "crmFunnelEditTitle": "编辑阶段",
+  "crmFunnelStageName": "阶段名称",
+  "crmFunnelSortOrder": "排序",
+
+  "crmOpportunityStage": "阶段",
+
+  "crmPoolClaimTitle": "领取客户",
+  "crmPoolClaim": "领取",
+  "crmPoolRelease": "释放回公海",
+
+  "crmQuotationToContract": "报价转合同",
+  "crmQuotationConvert": "转合同",
+  "crmContractCode": "合同编号",
+  "crmContractName": "合同名称",
+  "crmQuotationCodeHint": "留空自动生成 CT+时间戳",
+  "crmQuotationNameHint": "留空默认 合同-报价单号",
+
+  "crmTicketNoAssignableUser": "暂无可选用户",
+  "crmTicketAssignTitle": "指派工单",
+  "crmTicketAssignee": "指派人",
+  "crmTicketAssign": "指派",
+  "crmTicketResolveTitle": "解决工单",
+  "crmTicketResolve": "解决",
+  "crmTicketResolveNote": "解决说明",
+  "crmTicketConfirmResolve": "确认解决",
+
+  "purchaseName": "名称",
+  "purchaseCode": "编码",
+  "purchaseRemark": "备注",
+  "purchaseDeleteConfirmMsg": "确定要删除「{name}」吗？",
+  "@purchaseDeleteConfirmMsg": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "purchaseAmountExampleHint": "如 1000.00",
+  "purchaseDateTimeHint": "格式 YYYY-MM-DD HH:mm:ss",
+
+  "purchaseApplyAddTitle": "新增采购申请",
+  "purchaseApplyEditTitle": "编辑采购申请",
+  "purchaseApplyNo": "申请单号",
+  "purchaseApplyNoHint": "留空自动生成 PA+时间戳",
+  "purchaseApplyUserId": "申请人ID",
+  "purchaseApplyUserIdHint": "从员工列表页获取数字ID",
+  "purchaseApplyDept": "申请部门",
+  "purchaseApplyStatusPending": "待审批",
+  "purchaseApplyStatusApproved": "已批准",
+  "purchaseApplyStatusRejected": "已驳回",
+  "purchaseApplyStatusOrdered": "已转订单",
+
+  "purchaseOrderAddTitle": "新增采购订单",
+  "purchaseOrderEditTitle": "编辑采购订单",
+  "purchaseOrderName": "订单名称",
+  "purchaseOrderNameRequiredHint": "必填（后端校验）",
+  "purchaseOrderCode": "订单编号",
+  "purchaseOrderCodeHint": "留空自动生成 PO+时间戳",
+  "purchaseSupplierId": "供应商ID",
+  "purchaseSupplierIdHint": "从供应商列表页获取数字ID",
+  "purchaseApplyId": "采购申请ID",
+  "purchaseWarehouseId": "收货仓库ID",
+  "purchaseZeroHint": "留空为0",
+  "purchaseOrderTotalAmount": "订单总金额",
+  "purchaseOrderTotalHint": "如 100.00",
+  "purchaseTotalAmount": "总金额",
+  "purchaseOrderTimeLabel": "下单时间",
+  "purchaseOrderStatusPending": "待审核",
+  "purchaseOrderStatusApproved": "已审核",
+  "purchaseOrderStatusPartReceived": "部分收货",
+  "purchaseOrderStatusReceived": "已收货",
+  "purchaseOrderStatusCancelled": "已取消",
+
+  "purchaseSettleDialog": "采购结算",
+  "purchaseSettle": "结算",
+  "purchaseReceiveId": "收货单ID",
+  "purchasePayableAmount": "应付金额",
+  "purchasePaidAmount": "已付金额",
+  "purchasePaidDefaultHint": "默认 0",
+  "purchaseSettleStatusLabel": "结算状态",
+  "purchaseSettledAt": "结算时间",
+  "purchaseSettleStatusUnsettled": "未结算",
+  "purchaseSettleStatusPartial": "部分结算",
+  "purchaseSettleStatusSettled": "已结算",
+
+  "purchaseReceiveEditRemarkTitle": "编辑收货单（仅备注）",
+  "purchaseReceiveNo": "收货单号",
+  "purchaseReceiveOrder": "采购订单",
+  "purchaseReceiveSupplier": "供应商",
+  "purchaseReceiveWarehouse": "仓库",
+  "purchaseReceiveStatusPending": "待入库",
+  "purchaseReceiveStatusDone": "已入库",
+
+  "purchaseSettlementAddTitle": "新增采购结算（付款核销）",
+  "purchaseSettlementEditTitle": "编辑采购结算",
+  "purchaseSettlementAdd": "新增结算",
+  "purchaseReceiptPaymentId": "付款单ID",
+  "purchaseReceiptPaymentIdHint": "需已审核的付款单 hashid",
+  "purchaseWriteoffAmount": "核销金额",
+  "purchaseSettlementDeleteMsg": "确定要删除该采购结算记录吗？",
+
+  "commonRemark": "备注",
+  "commonRequiredBackend": "必填（后端校验）",
+  "commonDateFormat": "格式 YYYY-MM-DD",
+  "commonDateTimeFormat": "格式 YYYY-MM-DD HH:mm:ss",
+  "commonDefaultZero": "默认 0",
+  "commonExampleAmount": "如 {amount}",
+  "@commonExampleAmount": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+
+  "financeSubjectId": "科目ID",
+  "financeStartDate": "开始日期",
+  "financeEndDate": "结束日期",
+  "financeDate": "日期",
+  "financeSummary": "摘要",
+  "financeDirection": "方向",
+  "financeAmount": "金额",
+  "financeBalance": "余额",
+  "financeDebit": "借",
+  "financeCredit": "贷",
+
+  "financeAssetDepreciate": "计提折旧",
+  "financeAssetDepYear": "折旧年份",
+  "financeAssetDepMonth": "折旧月份",
+  "financeAssetConfirmDepreciate": "确认计提",
+  "financeAssetDepreciated": "折旧计提成功",
+
+  "financeOriginCurrencyId": "原币ID",
+  "financeTargetCurrencyId": "目标币ID",
+  "financeRate": "汇率",
+  "financeRateHint": "如 7.250000",
+  "financeEffectiveDate": "生效日期",
+  "financeOriginCurrencyHint": "币种列表中的数字ID，如 61000000000000002=USD",
+  "financeTargetCurrencyHint": "如 61000000000000001=CNY",
+  "financeExchangeRateAdd": "新增汇率",
+  "financeExchangeRateEdit": "编辑汇率",
+  "financeExchangeRateDeleteMsg": "确定要删除该汇率记录吗？",
+
+  "financeBankAccountName": "账户名称",
+  "financeBankAccountNumber": "银行账号",
+  "financeBankBankName": "开户银行",
+  "financeBankAccountBalance": "账户余额",
+  "financeBankAdd": "新增银行账户",
+  "financeBankEdit": "编辑银行账户",
+  "financeBankAddButton": "新增账户",
+  "financeBankAccountDeleteMsg": "确定要删除银行账户「{name}」吗？",
+  "@financeBankAccountDeleteMsg": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "financeVoucherAdd": "新增记账凭证",
+  "financeVoucherEdit": "编辑记账凭证",
+  "financeVoucherName": "凭证名称",
+  "financeVoucherCode": "凭证号",
+  "financeVoucherCodeHint": "留空自动生成 VCH+时间戳",
+  "financeVoucherDate": "凭证日期",
+  "financeVoucherDraft": "草稿",
+  "financeVoucherReviewed": "已审核",
+  "financeVoucherItemSubject": "明细-科目ID",
+  "financeVoucherItemSubjectHint": "从科目列表获取数字ID，填了则按明细创建",
+  "financeVoucherItemSummary": "明细-摘要",
+  "financeVoucherItemDebit": "明细-借方金额",
+  "financeVoucherItemCredit": "明细-贷方金额",
+
+  "financeReportProfit": "利润报表",
+  "financeReportBalanceSheet": "资产负债表",
+  "financeReportCashFlow": "现金流量表",
+  "financeReportTrialBalance": "试算平衡表",
+  "financeReportAccountBalance": "科目余额",
+  "financeReportClosePeriod": "期末结转",
+  "financeReportConsolidate": "合并报表",
+  "financeReportRatios": "财务比率",
+  "financeQuery": "查询",
+  "financeQuerying": "查询中...",
+  "financeCalculating": "计算中...",
+  "financeJsonInvalidMsg": "{field} 不是合法 JSON",
+  "financeJsonArrayRequired": "{field} 必须为 JSON 数组",
+  "financeJsonObjectRequired": "{field} 必须为 JSON 对象",
+  "financeConsolidateJsonLabel": "子公司报表 JSON 数组 *",
+  "financeConsolidateJsonHint": "JSON 数组，每项含 name（子公司名）、currency（币种）、amount（金额）字段，如 name=子公司A, currency=USD, amount=1000",
+  "financeBaseCurrency": "本位币",
+  "financeConsolidating": "合并中...",
+  "financeExecuteConsolidate": "执行合并",
+  "financeExchangeGainLoss": "汇兑损益",
+  "financeBalanceSheetJsonLabel": "资产负债表 JSON *",
+  "financeBalanceSheetJsonHint": "JSON 对象，含 current_assets、current_liabilities、total_liabilities、total_assets 字段，值为数字",
+  "financeProfitStatementJsonLabel": "利润表 JSON *",
+  "financeProfitStatementJsonHint": "JSON 对象，含 net_profit、revenue 字段，值为数字",
+  "financeCalcRatios": "计算比率",
+  "financeCurrentRatio": "流动比率",
+  "financeDebtRatio": "资产负债率",
+  "financeNetMargin": "净利率",
+  "financeRoa": "资产收益率",
+  "financeYear": "年份",
+  "financeMonth": "月份",
+  "financeAnnual": "年度",
+  "financeNoDetailData": "暂无明细数据",
+  "financeRevenue": "营业收入",
+  "financeCost": "营业成本",
+  "financeExpensesTotal": "费用合计",
+  "financeProfit": "利润",
+  "financeExpense": "费用",
+  "financeCurrentAssets": "流动资产",
+  "financeNonCurrentAssets": "非流动资产",
+  "financeTotalAssets": "资产总计",
+  "financeCurrentLiabilities": "流动负债",
+  "financeNonCurrentLiabilities": "非流动负债",
+  "financeTotalLiabilities": "负债总计",
+  "financeEquity": "所有者权益",
+  "financeReportNote": "报表说明: {note}",
+  "financeOperatingInflow": "经营活动流入",
+  "financeOperatingOutflow": "经营活动流出",
+  "financeOperatingNet": "经营活动净额",
+  "financeInvestingInflow": "投资活动流入",
+  "financeInvestingOutflow": "投资活动流出",
+  "financeInvestingNet": "投资活动净额",
+  "financeFinancingInflow": "筹资活动流入",
+  "financeFinancingOutflow": "筹资活动流出",
+  "financeFinancingNet": "筹资活动净额",
+  "financeBeginningCash": "期初现金",
+  "financeEndingCash": "期末现金",
+  "financePeriod": "期间 YYYY-MM",
+  "financePeriodOptional": "期间 YYYY-MM(可选)",
+  "financeDebitTotal": "借方合计",
+  "financeCreditTotal": "贷方合计",
+  "financeAccountBalanceRequired": "请输入科目ID（account_subject_id 必填）",
+  "financeOpeningDebit": "期初借方",
+  "financeOpeningCredit": "期初贷方",
+  "financeCurrentDebit": "本期借方",
+  "financeCurrentCredit": "本期贷方",
+  "financeClosingDebit": "期末借方",
+  "financeClosingCredit": "期末贷方",
+  "financeRevenueCarry": "收入结转",
+  "financeExpenseCarry": "费用结转",
+  "financeYearProfit": "本年利润",
+  "financeCloseStatus": "结转状态",
+  "financeVoucherIdMsg": "凭证ID: {id}",
+
+  "salesCustomerId": "客户ID",
+  "salesDeliveryId": "发货单ID",
+  "salesReceivableAmount": "应收金额",
+  "salesReceivedAmount": "已收金额",
+  "salesSettledAt": "结算时间",
+  "salesSettleStatus": "结算状态",
+  "salesSettleTitle": "销售结算",
+  "salesSettleTooltip": "结算",
+  "salesSettlementUnsettled": "未结算",
+  "salesSettlementPartSettled": "部分结算",
+  "salesSettlementSettled": "已结算",
+
+  "salesOrderAdd": "新增销售订单",
+  "salesOrderEdit": "编辑销售订单",
+  "salesOrderName": "订单名称",
+  "salesOrderNo": "订单编号",
+  "salesOrderCodeHint": "留空自动生成 SO+时间戳",
+  "salesCustomerIdHint": "从客户列表页获取数字ID",
+  "salesWarehouseId": "发货仓库ID",
+  "salesWarehouseIdHint": "留空为0",
+  "salesOrderTotalAmount": "订单总金额",
+  "salesTotalAmount": "总金额",
+  "salesDiscountAmount": "优惠金额",
+  "salesOrderedAt": "下单时间",
+  "salesOrderPending": "待审核",
+  "salesOrderReviewed": "已审核",
+  "salesOrderPartShipped": "部分发货",
+  "salesOrderShipped": "已发货",
+  "salesOrderCancelled": "已取消",
+
+  "salesQuoteDraft": "草稿",
+  "salesQuoteQuoted": "已报价",
+  "salesQuoteConverted": "已转订单",
+  "salesQuoteExpired": "已失效",
+  "salesQuotationAdd": "新增报价单",
+  "salesQuotationEdit": "编辑报价单",
+  "salesQuotationNo": "报价单号",
+  "salesQuotationCodeHint": "留空自动生成 QT+时间戳",
+  "salesQuotationAmount": "报价金额",
+  "salesQuotedAt": "报价时间",
+
+  "salesSettlementAdd": "新增销售结算（收款核销）",
+  "salesSettlementEdit": "编辑销售结算",
+  "salesSettlementAddButton": "新增结算",
+  "salesSettlementDeleteMsg": "确定要删除该销售结算记录吗？",
+  "salesReceiptPaymentId": "收款单ID",
+  "salesReceiptPaymentHint": "需已审核的收款单 hashid",
+  "salesWriteoffAmount": "核销金额",
+
+  "commonClose": "关闭",
+  "commonEnabled": "启用",
+  "commonDisabled": "禁用",
+  "commonSave": "保存",
+  "commonSubmitting": "提交中...",
+  "commonSnackSuccess": "成功",
+  "commonSnackError": "错误",
+  "commonSnackInfo": "提示",
+  "commonOpSuccess": "操作成功",
+  "commonPasswordConfirm": "输入密码确认",
+  "commonDeleteContent": "确定要删除「{name}」吗？",
+  "@commonDeleteContent": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "commonDeleteFailedMsg": "删除失败: {error}",
+  "@commonDeleteFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "commonLoadFailedMsg": "加载失败: {error}",
+  "@commonLoadFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "commonPageInfo": "第 {page} 页 / 共 {pages} 页 ({total} 条)",
+  "@commonPageInfo": {
+    "placeholders": {
+      "page": {"type": "int"},
+      "pages": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+
+  "fieldName": "名称",
+  "fieldCode": "编码",
+  "fieldTitle": "标题",
+  "fieldContent": "内容",
+  "fieldCategory": "分类",
+  "fieldType": "类型",
+  "fieldTags": "标签",
+  "fieldTime": "时间",
+  "fieldRemark": "备注",
+  "fieldContact": "联系人",
+  "fieldPhone": "手机号",
+  "fieldAddress": "地址",
+  "fieldManager": "负责人",
+  "fieldLevel": "等级",
+  "fieldWarehouse": "仓库",
+  "fieldEmail": "邮箱",
+  "fieldDescription": "描述",
+  "fieldSlug": "标识",
+  "fieldUsername": "用户名",
+  "fieldRealName": "姓名",
+  "fieldRealNameFull": "真实姓名",
+  "fieldLastLogin": "最后登录",
+  "fieldProductName": "商品名称",
+  "fieldSpec": "规格",
+  "fieldPrice": "价格",
+  "fieldSort": "排序",
+  "fieldVersion": "版本",
+  "fieldDocTitle": "文档标题",
+  "fieldDocCode": "文档编码",
+  "fieldChangeNote": "变更说明",
+  "fieldGroup": "分组",
+  "fieldKey": "键",
+  "fieldValue": "值",
+  "fieldNote": "说明",
+  "fieldOperator": "操作者",
+  "fieldMethod": "方法",
+  "fieldPath": "路径",
+  "fieldDocType": "单据类型",
+  "fieldDocId": "单据ID",
+  "fieldSubmitTime": "提交时间",
+  "fieldInspectNo": "检验单号",
+  "fieldReceivingId": "收货单ID",
+  "fieldProductId": "商品ID",
+  "fieldInspectionStdId": "检验标准ID",
+  "fieldInspectedQty": "检验数量",
+  "fieldPassedQty": "合格数量",
+  "fieldRejectedQty": "不合格数量",
+  "fieldInspectResult": "检验结果",
+  "fieldInspector": "检验员",
+  "fieldResult": "结果",
+  "fieldDeliveryId": "发货单ID",
+  "fieldWorkOrderId": "生产工单ID",
+  "fieldWorkOrderIdShort": "工单ID",
+  "fieldWorkstationId": "工作站ID",
+  "fieldDefectNo": "不合格编号",
+  "fieldSourceType": "来源类型",
+  "fieldSourceId": "来源记录ID",
+  "fieldDefectType": "缺陷类型",
+  "fieldDefectQty": "缺陷数量",
+  "fieldSeverity": "严重程度",
+  "fieldDisposition": "处置方式",
+  "fieldRootCause": "根本原因",
+  "fieldCorrectiveAction": "纠正措施",
+  "fieldReporter": "报告人",
+  "fieldNo": "编号",
+  "fieldSource": "来源",
+  "fieldQty": "数量",
+  "fieldStdName": "标准名称",
+  "fieldStdCode": "标准编码",
+  "fieldInspectSpec": "检验规格",
+  "fieldSamplingPlan": "抽样方案",
+  "fieldInspectType": "检验类型",
+  "qualityQtySummary": "检验/合格/不合格",
+
+  "biDashboardName": "看板名称",
+  "biLayout": "布局配置",
+  "biUserId": "用户ID",
+  "biChartManage": "图表管理",
+  "biChartManageTitle": "图表管理 — {name}",
+  "@biChartManageTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "biChartAdd": "新增图表",
+  "biChartEdit": "编辑图表",
+  "biChartName": "图表名称",
+  "biChartType": "图表类型",
+  "biChartTypeLabel": "类型: {type}",
+  "@biChartTypeLabel": {
+    "placeholders": {
+      "type": {"type": "String"}
+    }
+  },
+  "biChartConfig": "配置JSON",
+  "biChartDeleteContent": "确定要删除图表「{name}」吗？",
+  "@biChartDeleteContent": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "biChartCount": "共 {count} 个",
+  "@biChartCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "biChartEmpty": "暂无图表，点击「新增图表」创建",
+  "biDatasetId": "数据集ID",
+  "biPositionX": "X坐标",
+  "biPositionY": "Y坐标",
+  "biWidth": "宽度",
+  "biHeight": "高度",
+  "biDatasetName": "数据集名称",
+  "biTemplateId": "模板ID",
+  "biQuerySql": "查询SQL",
+  "biRowCount": "行数",
+  "biGeneratedAt": "生成时间",
+  "biParams": "参数(JSON)",
+
+  "workflowStatusApproving": "审批中",
+  "workflowStatusApproved": "已通过",
+  "workflowStatusRejected": "已驳回",
+  "workflowStatusWithdrawn": "已撤回",
+  "workflowStatusUnknown": "未知",
+  "workflowApproveTitle": "通过审批",
+  "workflowRejectTitle": "驳回审批",
+  "workflowWithdrawTitle": "撤回审批",
+  "workflowApprove": "通过",
+  "workflowReject": "驳回",
+  "workflowWithdraw": "撤回",
+  "workflowWithdrawContent": "确定要撤回该审批吗？",
+  "workflowWithdrawn": "已撤回",
+  "workflowWithdrawFailedMsg": "撤回失败: {error}",
+  "@workflowWithdrawFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "workflowCommentRequired": "审批意见（必填）",
+  "workflowCommentOptional": "审批意见（选填）",
+  "workflowCommentRequiredError": "审批意见为必填项",
+  "workflowSubmit": "提交审批",
+  "workflowSubmitTitle": "提交审批：{name}",
+  "@workflowSubmitTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "workflowSubmitSuccess": "提交成功",
+  "workflowDocIdInteger": "单据ID必须为数字",
+  "workflowDocTypeHint": "如 purchase_order / expense",
+
+  "notificationMarkAllRead": "标记全部已读",
+
+  "reportExecute": "执行",
+  "reportResultTitle": "报表结果：{name}",
+  "@reportResultTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "reportFieldDatasetId": "数据集ID: {value}",
+  "@reportFieldDatasetId": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "reportFieldRowCount": "结果行数: {value}",
+  "@reportFieldRowCount": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "reportFieldGeneratedAt": "生成时间: {value}",
+  "@reportFieldGeneratedAt": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "reportFieldResult": "结果: {value}",
+  "@reportFieldResult": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "reportNoRows": "查询成功，暂无数据行",
+  "reportExecuteFailedMsg": "执行失败：{error}",
+  "@reportExecuteFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "systemRoleTitle": "角色管理",
+  "systemRoleAdd": "新增角色",
+  "systemRoleEdit": "编辑角色",
+  "systemRoleEmpty": "暂无角色",
+  "systemRoleSubtitle": "标识: {slug} | 用户数: {count} | {desc}",
+  "@systemRoleSubtitle": {
+    "placeholders": {
+      "slug": {"type": "String"},
+      "count": {"type": "int"},
+      "desc": {"type": "String"}
+    }
+  },
+  "systemRolePermSection": "权限分配:",
+  "systemRoleDeleteContent": "确定要删除角色「{name}」吗？",
+  "@systemRoleDeleteContent": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "systemRoleLoadFailedMsg": "加载角色列表失败: {error}",
+  "@systemRoleLoadFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "systemPermLoadFailedMsg": "加载权限列表失败: {error}",
+  "@systemPermLoadFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "systemRoleCreated": "角色创建成功",
+  "systemRoleCreateFailedMsg": "创建失败: {error}",
+  "@systemRoleCreateFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "systemRoleUpdated": "角色更新成功",
+  "systemRoleUpdateFailedMsg": "更新失败: {error}",
+  "@systemRoleUpdateFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "systemRoleDeleted": "角色删除成功",
+
+  "systemUserTitle": "用户管理",
+  "systemUserAdd": "新增用户",
+  "systemUserEdit": "编辑用户",
+  "systemUserCreated": "用户创建成功",
+  "systemUserUpdated": "用户更新成功",
+  "systemUserSearchHint": "搜索用户名/姓名",
+  "systemUserDeleteContent": "确定要删除用户「{name}」吗？",
+  "@systemUserDeleteContent": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "systemUserBatchDelLabel": "删除({count})",
+  "@systemUserBatchDelLabel": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "systemUserBatchDeleteTitle": "确认批量删除",
+  "systemUserBatchDeleteContent": "确定要删除选中的 {count} 个用户吗？",
+  "@systemUserBatchDeleteContent": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "systemUserBatchEnable": "批量启用",
+  "systemUserBatchDisable": "批量禁用",
+  "systemUserBatchEnabled": "批量启用完成",
+  "systemUserBatchDisabled": "批量禁用完成",
+  "systemUserBatchDeleteDone": "批量删除完成",
+  "systemUserBatchDeleteFailedMsg": "批量删除失败: {error}",
+  "@systemUserBatchDeleteFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "systemUserLoadFailedMsg": "加载用户列表失败: {error}",
+  "@systemUserLoadFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "systemUserSelectFirst": "请先选择用户",
+  "userPwdNewLabel": "密码",
+  "userPwdEditHint": "新密码（留空不修改）",
+
+  "configTitle": "系统配置",
+  "configAdd": "新增配置",
+  "configEdit": "编辑配置",
+  "configSaveSuccess": "保存成功",
+  "configSaveFailedMsg": "保存失败: {error}",
+  "@configSaveFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "configDeleteSuccess": "删除成功",
+  "systemConfigDeleteContent": "确定要删除配置「{key}」吗？",
+  "@systemConfigDeleteContent": {
+    "placeholders": {
+      "key": {"type": "String"}
+    }
+  },
+
+  "logTitle": "操作日志",
+  "logActionHint": "操作筛选",
+  "logPathHint": "路径筛选",
+  "logSystem": "系统",
+  "logPageInfo": "{page} / {pages} ({total}条)",
+  "@logPageInfo": {
+    "placeholders": {
+      "page": {"type": "int"},
+      "pages": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+
+  "profileChangePassword": "修改密码",
+  "profileOldPassword": "旧密码",
+  "profileNewPassword": "新密码 (6-32位)",
+  "profileConfirmPassword": "确认新密码",
+  "profileLeaveBlank": "未填写则留空",
+  "profileNoChanges": "没有需要保存的修改",
+  "profileUpdateSuccess": "个人信息更新成功",
+  "profileUpdateFailedMsg": "更新失败: {error}",
+  "@profileUpdateFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "profilePwdMismatch": "两次密码不一致",
+  "profilePwdChanged": "密码修改成功",
+  "profilePwdChangeFailedMsg": "修改失败: {error}",
+  "@profilePwdChangeFailedMsg": {
+    "placeholders": {
+      "error": {"type": "String"}
     }
   }
 }
