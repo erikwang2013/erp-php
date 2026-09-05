@@ -219,7 +219,7 @@ struct PurchaseOrderPage {
       alignment: DialogAlignment.Center,
       primaryButton: {
         value: '确定',
-        fontColor: '#FF4D4F',
+        fontColor: $r('app.color.danger_text'),
         action: async () => {
           try {
             await this.api.delete<Object>(`/admin/purchase/order/${id}`);
@@ -249,7 +249,7 @@ struct PurchaseOrderPage {
           Image($rawfile('back.png')).width(24).height(24)
         }
         .width(36).height(36)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.surface'))
         .onClick(() => router.back())
 
         Text('采购订单')
@@ -261,8 +261,8 @@ struct PurchaseOrderPage {
 
         Button('+ 新增')
           .fontSize(13)
-          .fontColor('#FFFFFF')
-          .backgroundColor('#1677FF')
+          .fontColor($r('app.color.text_on_primary'))
+          .backgroundColor($r('app.color.primary'))
           .borderRadius(4)
           .height(32)
           .onClick(() => this.openCreate())
@@ -270,7 +270,7 @@ struct PurchaseOrderPage {
       .width('100%')
       .height(56)
       .padding({ left: 16, right: 16 })
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.surface'))
 
       if (this.showForm) {
         this.buildForm()
@@ -280,7 +280,7 @@ struct PurchaseOrderPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F5F5F5')
+    .backgroundColor($r('app.color.bg_page'))
   }
 
   /**
@@ -310,7 +310,7 @@ struct PurchaseOrderPage {
 
                   Text(`供应商ID: ${item.supplier_id}`)
                     .fontSize(12)
-                    .fontColor('#999999')
+                    .fontColor($r('app.color.text_hint'))
                     .margin({ top: 2 })
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -321,16 +321,16 @@ struct PurchaseOrderPage {
                 // 状态
                 Text(item.status === 1 ? '启用' : '禁用')
                   .fontSize(10)
-                  .fontColor(item.status === 1 ? '#52C41A' : '#FF4D4F')
-                  .backgroundColor(item.status === 1 ? '#E6FFF0' : '#FFE6E6')
+                  .fontColor(item.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
+                  .backgroundColor(item.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
                   .borderRadius(2)
                   .padding({ left: 6, right: 6, top: 2, bottom: 2 })
 
                 // 操作
                 Button('编辑')
                   .fontSize(12)
-                  .fontColor('#1677FF')
-                  .backgroundColor('#E6F0FF')
+                  .fontColor($r('app.color.primary'))
+                  .backgroundColor($r('app.color.primary_bg'))
                   .borderRadius(4)
                   .height(28)
                   .margin({ left: 8 })
@@ -338,8 +338,8 @@ struct PurchaseOrderPage {
 
                 Button('删除')
                   .fontSize(12)
-                  .fontColor('#FF4D4F')
-                  .backgroundColor('#FFE6E6')
+                  .fontColor($r('app.color.danger_text'))
+                  .backgroundColor($r('app.color.danger_bg'))
                   .borderRadius(4)
                   .height(28)
                   .margin({ left: 8 })
@@ -347,8 +347,8 @@ struct PurchaseOrderPage {
               }
               .width('100%')
               .padding({ left: 16, right: 16, top: 10, bottom: 10 })
-              .backgroundColor('#FFFFFF')
-              .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+              .backgroundColor($r('app.color.surface'))
+              .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
             }
           }, (item: PurchaseOrderItem) => item.id)
 
@@ -358,11 +358,11 @@ struct PurchaseOrderPage {
               if (this.items.length >= this.total) {
                 Text('— 没有更多了 —')
                   .fontSize(12)
-                  .fontColor('#CCCCCC')
+                  .fontColor($r('app.color.text_disabled'))
               } else {
                 Button('加载更多')
                   .fontSize(13)
-                  .fontColor('#1677FF')
+                  .fontColor($r('app.color.primary'))
                   .backgroundColor(Color.Transparent)
                   .onClick(() => this.loadMore())
               }
@@ -399,7 +399,7 @@ struct PurchaseOrderPage {
         Row() {
           Text('订单名称')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '请输入订单名称（必填）', text: this.formName })
@@ -410,14 +410,14 @@ struct PurchaseOrderPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('订单编号')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '请输入订单编号', text: this.formCode })
@@ -428,14 +428,14 @@ struct PurchaseOrderPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('供应商ID')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '供应商数字ID（必填）', text: this.formSupplierId })
@@ -447,14 +447,14 @@ struct PurchaseOrderPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('采购申请ID')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '采购申请数字ID，留空为0', text: this.formApplyId })
@@ -466,14 +466,14 @@ struct PurchaseOrderPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('收货仓库ID')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '收货仓库数字ID，留空为0', text: this.formWarehouseId })
@@ -485,14 +485,14 @@ struct PurchaseOrderPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('订单总金额')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '订单总金额，留空为0', text: this.formTotalAmount })
@@ -504,29 +504,29 @@ struct PurchaseOrderPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('状态')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           Row() {
             Button('启用')
               .fontSize(13)
-              .fontColor(this.formStatus === 1 ? '#FFFFFF' : '#666666')
-              .backgroundColor(this.formStatus === 1 ? '#52C41A' : '#F5F5F5')
+              .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+              .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
               .borderRadius(4)
               .height(32)
               .onClick(() => { this.formStatus = 1; })
 
             Button('禁用')
               .fontSize(13)
-              .fontColor(this.formStatus === 0 ? '#FFFFFF' : '#666666')
-              .backgroundColor(this.formStatus === 0 ? '#FF4D4F' : '#F5F5F5')
+              .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+              .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
               .borderRadius(4)
               .height(32)
               .margin({ left: 12 })
@@ -537,14 +537,14 @@ struct PurchaseOrderPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('下单时间')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss', text: this.formOrderedAt })
@@ -555,14 +555,14 @@ struct PurchaseOrderPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('备注')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '请输入备注', text: this.formRemark })
@@ -573,8 +573,8 @@ struct PurchaseOrderPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         // 操作按钮
@@ -583,8 +583,8 @@ struct PurchaseOrderPage {
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
-            .fontColor('#666666')
-            .backgroundColor('#F0F0F0')
+            .fontColor($r('app.color.text_secondary'))
+            .backgroundColor($r('app.color.surface_alt'))
             .borderRadius(8)
             .onClick(() => { this.showForm = false; })
 
@@ -592,8 +592,8 @@ struct PurchaseOrderPage {
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
-            .fontColor('#FFFFFF')
-            .backgroundColor(this.isSubmitting ? '#99BBFF' : '#1677FF')
+            .fontColor($r('app.color.text_on_primary'))
+            .backgroundColor(this.isSubmitting ? $r('app.color.primary_disabled') : $r('app.color.primary'))
             .borderRadius(8)
             .margin({ left: 16 })
             .enabled(!this.isSubmitting)
@@ -606,6 +606,6 @@ struct PurchaseOrderPage {
     }
     .width('100%')
     .layoutWeight(1)
-    .backgroundColor('#F5F5F5')
+    .backgroundColor($r('app.color.bg_page'))
   }
 }

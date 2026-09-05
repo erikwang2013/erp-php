@@ -49,10 +49,10 @@ struct FulfillmentListPage {
         Column() {
           Text(this.errMsg)
             .fontSize(14)
-            .fontColor('#999')
+            .fontColor($r('app.color.text_hint'))
           Button('重试')
             .fontSize(14)
-            .fontColor('#1677FF')
+            .fontColor($r('app.color.primary'))
             .backgroundColor(Color.Transparent)
             .margin({ top: 12 })
             .onClick(() => { this.loadData(); })
@@ -70,7 +70,7 @@ struct FulfillmentListPage {
                   .layoutWeight(1)
                 Text((item['code'] as string) ?? '')
                   .fontSize(12)
-                  .fontColor('#999')
+                  .fontColor($r('app.color.text_hint'))
               }
               .width('100%')
               .padding(12)

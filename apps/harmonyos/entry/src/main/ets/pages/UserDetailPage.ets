@@ -111,7 +111,7 @@ struct UserDetailPage {
       alignment: DialogAlignment.Center,
       primaryButton: {
         value: '确定',
-        fontColor: '#FF4D4F',
+        fontColor: $r('app.color.danger_text'),
         action: async () => {
           try {
             await UserService.delete(this.userId);
@@ -141,7 +141,7 @@ struct UserDetailPage {
           Image($rawfile('back.png')).width(24).height(24)
         }
         .width(36).height(36)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.surface'))
         .onClick(() => router.back())
 
         Text(this.mode === 'create' ? '新增用户' : '用户详情')
@@ -154,8 +154,8 @@ struct UserDetailPage {
         if (this.mode !== 'create') {
           Button('删除')
             .fontSize(13)
-            .fontColor('#FF4D4F')
-            .backgroundColor('#FFE6E6')
+            .fontColor($r('app.color.danger_text'))
+            .backgroundColor($r('app.color.danger_bg'))
             .borderRadius(4)
             .height(32)
             .onClick(() => this.deleteUser())
@@ -164,7 +164,7 @@ struct UserDetailPage {
       .width('100%')
       .height(56)
       .padding({ left: 16, right: 16 })
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.surface'))
 
       if (this.isLoading) {
         LoadingView();
@@ -175,14 +175,14 @@ struct UserDetailPage {
           Column() {
             // 头像
             Circle({ width: 72, height: 72 })
-              .fill('#E6F0FF')
+              .fill($r('app.color.primary_bg'))
               .margin({ top: 24, bottom: 24 })
 
             // 表单
             Row() {
               Text('用户名')
               .fontSize(15)
-              .fontColor('#333333')
+              .fontColor($r('app.color.text_primary'))
               .width(80)
 
               TextInput({ placeholder: '请输入用户名', text: this.formUsername })
@@ -194,15 +194,15 @@ struct UserDetailPage {
             .width('100%')
             .height(56)
             .padding({ left: 16, right: 16 })
-            .backgroundColor('#FFFFFF')
-            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
             .alignItems(VerticalAlign.Center)
 
             if (this.mode === 'create') {
               Row() {
                 Text('密码')
                 .fontSize(15)
-                .fontColor('#333333')
+                .fontColor($r('app.color.text_primary'))
                 .width(80)
 
                 TextInput({ placeholder: '请输入密码', text: this.formPassword })
@@ -214,15 +214,15 @@ struct UserDetailPage {
               .width('100%')
               .height(56)
               .padding({ left: 16, right: 16 })
-              .backgroundColor('#FFFFFF')
-              .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+              .backgroundColor($r('app.color.surface'))
+              .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
               .alignItems(VerticalAlign.Center)
             }
 
             Row() {
               Text('姓名')
               .fontSize(15)
-              .fontColor('#333333')
+              .fontColor($r('app.color.text_primary'))
               .width(80)
 
               TextInput({ placeholder: '请输入真实姓名', text: this.formRealName })
@@ -233,14 +233,14 @@ struct UserDetailPage {
             .width('100%')
             .height(56)
             .padding({ left: 16, right: 16 })
-            .backgroundColor('#FFFFFF')
-            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
             .alignItems(VerticalAlign.Center)
 
             Row() {
               Text('手机号')
               .fontSize(15)
-              .fontColor('#333333')
+              .fontColor($r('app.color.text_primary'))
               .width(80)
 
               TextInput({ placeholder: '请输入手机号', text: this.formPhone })
@@ -252,14 +252,14 @@ struct UserDetailPage {
             .width('100%')
             .height(56)
             .padding({ left: 16, right: 16 })
-            .backgroundColor('#FFFFFF')
-            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
             .alignItems(VerticalAlign.Center)
 
             Row() {
               Text('邮箱')
               .fontSize(15)
-              .fontColor('#333333')
+              .fontColor($r('app.color.text_primary'))
               .width(80)
 
               TextInput({ placeholder: '请输入邮箱', text: this.formEmail })
@@ -271,29 +271,29 @@ struct UserDetailPage {
             .width('100%')
             .height(56)
             .padding({ left: 16, right: 16 })
-            .backgroundColor('#FFFFFF')
-            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
             .alignItems(VerticalAlign.Center)
 
             Row() {
               Text('状态')
               .fontSize(15)
-              .fontColor('#333333')
+              .fontColor($r('app.color.text_primary'))
               .width(80)
 
               Row() {
                 Button('启用')
                   .fontSize(13)
-                  .fontColor(this.formStatus === 1 ? '#FFFFFF' : '#666666')
-                  .backgroundColor(this.formStatus === 1 ? '#52C41A' : '#F5F5F5')
+                  .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+                  .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
                   .borderRadius(4)
                   .height(32)
                   .onClick(() => { this.formStatus = 1; })
 
                 Button('禁用')
                   .fontSize(13)
-                  .fontColor(this.formStatus === 0 ? '#FFFFFF' : '#666666')
-                  .backgroundColor(this.formStatus === 0 ? '#FF4D4F' : '#F5F5F5')
+                  .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+                  .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
                   .borderRadius(4)
                   .height(32)
                   .margin({ left: 12 })
@@ -304,8 +304,8 @@ struct UserDetailPage {
             .width('100%')
             .height(56)
             .padding({ left: 16, right: 16 })
-            .backgroundColor('#FFFFFF')
-            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
             .alignItems(VerticalAlign.Center)
 
             // 提交按钮
@@ -313,8 +313,8 @@ struct UserDetailPage {
               .width('100%')
               .height(48)
               .fontSize(16)
-              .fontColor('#FFFFFF')
-              .backgroundColor(this.isSubmitting ? '#99BBFF' : '#1677FF')
+              .fontColor($r('app.color.text_on_primary'))
+              .backgroundColor(this.isSubmitting ? $r('app.color.primary_disabled') : $r('app.color.primary'))
               .borderRadius(8)
               .margin({ top: 32, left: 16, right: 16, bottom: 32 })
               .enabled(!this.isSubmitting)
@@ -324,7 +324,7 @@ struct UserDetailPage {
         }
         .width('100%')
         .layoutWeight(1)
-        .backgroundColor('#F5F5F5')
+        .backgroundColor($r('app.color.bg_page'))
       }
     }
     .width('100%')

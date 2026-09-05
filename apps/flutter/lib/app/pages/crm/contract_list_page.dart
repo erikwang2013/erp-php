@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -174,31 +175,34 @@ class _ContractListPageState extends State<ContractListPage> {
     AppL10n.current.crmCode: r['code'] ?? '',
     AppL10n.current.commonStatus: _statusChip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
-      IconButton(icon: const Icon(Icons.compare_arrows, size: 18, color: Colors.teal),
+      IconButton(icon: Icon(Icons.compare_arrows, size: 18, color: AppColors.of(context).primary),
         tooltip: AppL10n.current.crmContractTransitionTooltip, onPressed: () => _transition(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-      IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
+      IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
   };
 
-  /// 状态徽标：0草稿/1待审批 橙，2已审批/3执行中/4已完成 绿，5已终止 红，其余蓝。
+  /// 状态徽标（§2.4）：0草稿/1待审批=待办(warning)，2已审批/4已完成=终态(success)，
+  /// 3执行中=进行中(primary)，5已终止=失败(danger)。
   Widget _statusChip(dynamic s) {
     final i = s is int ? s : int.tryParse('$s') ?? 0;
     final labels = _statusLabels;
     final text = (i >= 0 && i < labels.length) ? labels[i] : '$s';
-    final color = switch (i) {
-      0 || 1 => Colors.orange,
-      2 || 3 || 4 => Colors.green,
-      5 => Colors.red,
-      _ => Colors.blue,
+    final c = AppColors.of(context);
+    final (bg, fg) = switch (i) {
+      0 || 1 => (c.warningBg, c.warningText),
+      2 || 4 => (c.successBg, c.successText),
+      3 => (c.primaryBg, c.primaryPressed),
+      5 => (c.dangerBg, c.dangerText),
+      _ => (c.primaryBg, c.primaryPressed),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(text, style: TextStyle(color: color, fontSize: 12)),
+      child: Text(text, style: TextStyle(color: fg, fontSize: 12)),
     );
   }
 }

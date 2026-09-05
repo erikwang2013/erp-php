@@ -209,7 +209,7 @@ struct PutawayPage {
       alignment: DialogAlignment.Center,
       primaryButton: {
         value: '确定',
-        fontColor: '#FF4D4F',
+        fontColor: $r('app.color.danger_text'),
         action: async () => {
           try {
             await this.api.delete<Object>(`/admin/wms/putaway/${id}`);
@@ -241,7 +241,7 @@ struct PutawayPage {
           Image($rawfile('back.png')).width(24).height(24)
         }
         .width(36).height(36)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.surface'))
         .onClick(() => router.back())
 
         Text('上架管理')
@@ -253,8 +253,8 @@ struct PutawayPage {
 
         Button('+ 新增')
           .fontSize(13)
-          .fontColor('#FFFFFF')
-          .backgroundColor('#1677FF')
+          .fontColor($r('app.color.text_on_primary'))
+          .backgroundColor($r('app.color.primary'))
           .borderRadius(4)
           .height(32)
           .onClick(() => this.openCreate())
@@ -262,7 +262,7 @@ struct PutawayPage {
       .width('100%')
       .height(56)
       .padding({ left: 16, right: 16 })
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.surface'))
 
       if (this.showForm) {
         this.buildForm()
@@ -272,7 +272,7 @@ struct PutawayPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F5F5F5')
+    .backgroundColor($r('app.color.bg_page'))
   }
 
   /**
@@ -302,7 +302,7 @@ struct PutawayPage {
 
                   Text(`仓库ID: ${item.warehouse_id} · 策略: ${item.strategy || '-'}`)
                     .fontSize(12)
-                    .fontColor('#999999')
+                    .fontColor($r('app.color.text_hint'))
                     .margin({ top: 2 })
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -313,16 +313,16 @@ struct PutawayPage {
                 // 状态
                 Text(item.status === 1 ? '启用' : '禁用')
                   .fontSize(10)
-                  .fontColor(item.status === 1 ? '#52C41A' : '#FF4D4F')
-                  .backgroundColor(item.status === 1 ? '#E6FFF0' : '#FFE6E6')
+                  .fontColor(item.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
+                  .backgroundColor(item.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
                   .borderRadius(2)
                   .padding({ left: 6, right: 6, top: 2, bottom: 2 })
 
                 // 操作
                 Button('编辑')
                   .fontSize(12)
-                  .fontColor('#1677FF')
-                  .backgroundColor('#E6F0FF')
+                  .fontColor($r('app.color.primary'))
+                  .backgroundColor($r('app.color.primary_bg'))
                   .borderRadius(4)
                   .height(28)
                   .margin({ left: 8 })
@@ -330,8 +330,8 @@ struct PutawayPage {
 
                 Button('删除')
                   .fontSize(12)
-                  .fontColor('#FF4D4F')
-                  .backgroundColor('#FFE6E6')
+                  .fontColor($r('app.color.danger_text'))
+                  .backgroundColor($r('app.color.danger_bg'))
                   .borderRadius(4)
                   .height(28)
                   .margin({ left: 8 })
@@ -339,8 +339,8 @@ struct PutawayPage {
               }
               .width('100%')
               .padding({ left: 16, right: 16, top: 10, bottom: 10 })
-              .backgroundColor('#FFFFFF')
-              .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+              .backgroundColor($r('app.color.surface'))
+              .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
             }
           }, (item: WmsPutawayItem) => item.id)
 
@@ -350,11 +350,11 @@ struct PutawayPage {
               if (this.items.length >= this.total) {
                 Text('— 没有更多了 —')
                   .fontSize(12)
-                  .fontColor('#CCCCCC')
+                  .fontColor($r('app.color.text_disabled'))
               } else {
                 Button('加载更多')
                   .fontSize(13)
-                  .fontColor('#1677FF')
+                  .fontColor($r('app.color.primary'))
                   .backgroundColor(Color.Transparent)
                   .onClick(() => this.loadMore())
               }
@@ -391,7 +391,7 @@ struct PutawayPage {
         Row() {
           Text('上架单号')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '请输入上架单号（必填）', text: this.formCode })
@@ -402,14 +402,14 @@ struct PutawayPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('仓库ID')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '仓库数字ID（必填）', text: this.formWarehouseId })
@@ -421,14 +421,14 @@ struct PutawayPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('收货单ID')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '收货单数字ID，留空为0', text: this.formReceivingId })
@@ -440,29 +440,29 @@ struct PutawayPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('状态')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           Row() {
             Button('启用')
               .fontSize(13)
-              .fontColor(this.formStatus === 1 ? '#FFFFFF' : '#666666')
-              .backgroundColor(this.formStatus === 1 ? '#52C41A' : '#F5F5F5')
+              .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+              .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
               .borderRadius(4)
               .height(32)
               .onClick(() => { this.formStatus = 1; })
 
             Button('禁用')
               .fontSize(13)
-              .fontColor(this.formStatus === 0 ? '#FFFFFF' : '#666666')
-              .backgroundColor(this.formStatus === 0 ? '#FF4D4F' : '#F5F5F5')
+              .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+              .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
               .borderRadius(4)
               .height(32)
               .margin({ left: 12 })
@@ -473,14 +473,14 @@ struct PutawayPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('上架策略')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '如: fifo / lifo / fefo', text: this.formStrategy })
@@ -491,14 +491,14 @@ struct PutawayPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('指派人员ID')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '指派人员数字ID，留空为0', text: this.formAssignedTo })
@@ -510,14 +510,14 @@ struct PutawayPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         Row() {
           Text('完成时间')
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
           .width(80)
 
           TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss，可留空', text: this.formCompletedAt })
@@ -528,8 +528,8 @@ struct PutawayPage {
         .width('100%')
         .constraintSize({ minHeight: 56 })
         .padding({ left: 16, right: 16 })
-        .backgroundColor('#FFFFFF')
-        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
         .alignItems(VerticalAlign.Center)
 
         // 操作按钮
@@ -538,8 +538,8 @@ struct PutawayPage {
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
-            .fontColor('#666666')
-            .backgroundColor('#F0F0F0')
+            .fontColor($r('app.color.text_secondary'))
+            .backgroundColor($r('app.color.surface_alt'))
             .borderRadius(8)
             .onClick(() => { this.showForm = false; })
 
@@ -547,8 +547,8 @@ struct PutawayPage {
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
-            .fontColor('#FFFFFF')
-            .backgroundColor(this.isSubmitting ? '#99BBFF' : '#1677FF')
+            .fontColor($r('app.color.text_on_primary'))
+            .backgroundColor(this.isSubmitting ? $r('app.color.primary_disabled') : $r('app.color.primary'))
             .borderRadius(8)
             .margin({ left: 16 })
             .enabled(!this.isSubmitting)
@@ -561,6 +561,6 @@ struct PutawayPage {
     }
     .width('100%')
     .layoutWeight(1)
-    .backgroundColor('#F5F5F5')
+    .backgroundColor($r('app.color.bg_page'))
   }
 }

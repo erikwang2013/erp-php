@@ -48,7 +48,7 @@ struct PickPage {
         // M4：错误展示位（样式随页面现状）
         Text(this.errMsg)
           .fontSize(14)
-          .fontColor('#999999')
+          .fontColor($r('app.color.text_hint'))
           .textAlign(TextAlign.Center)
           .width('100%')
           .margin({ top: 48 })
@@ -62,7 +62,7 @@ struct PickPage {
                   .layoutWeight(1)
                 Text((item['code'] as string) ?? '')
                   .fontSize(12)
-                  .fontColor('#999')
+                  .fontColor($r('app.color.text_hint'))
               }
               .width('100%')
               .padding(12)

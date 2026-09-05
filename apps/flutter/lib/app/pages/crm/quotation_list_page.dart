@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -108,10 +109,10 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
     AppL10n.current.crmName: r['name'] ?? '',
     AppL10n.current.crmCode: r['code'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
-      IconButton(icon: const Icon(Icons.handshake, size: 18, color: Colors.teal),
+      IconButton(icon: Icon(Icons.handshake, size: 18, color: AppColors.of(context).primary),
         tooltip: AppL10n.current.crmQuotationConvert, onPressed: () => _toContract(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-      IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
+      IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
   };
 

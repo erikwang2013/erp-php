@@ -79,7 +79,7 @@ struct UserListPage {
           Image($rawfile('back.png')).width(24).height(24)
         }
         .width(36).height(36)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.surface'))
         .onClick(() => router.back())
 
         Text('用户管理')
@@ -91,8 +91,8 @@ struct UserListPage {
 
         Button('+ 新增')
           .fontSize(13)
-          .fontColor('#FFFFFF')
-          .backgroundColor('#1677FF')
+          .fontColor($r('app.color.text_on_primary'))
+          .backgroundColor($r('app.color.primary'))
           .borderRadius(4)
           .height(32)
           .onClick(() => {
@@ -102,14 +102,14 @@ struct UserListPage {
       .width('100%')
       .height(56)
       .padding({ left: 16, right: 16 })
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.surface'))
 
       // 搜索栏
       Row() {
         TextInput({ placeholder: '搜索用户名或姓名', text: this.keyword })
           .height(40)
           .fontSize(14)
-          .backgroundColor('#F5F5F5')
+          .backgroundColor($r('app.color.surface_alt'))
           .borderRadius(8)
           .layoutWeight(1)
           .padding({ left: 12, right: 12 })
@@ -122,8 +122,8 @@ struct UserListPage {
 
         Button('搜索')
           .fontSize(13)
-          .fontColor('#FFFFFF')
-          .backgroundColor('#1677FF')
+          .fontColor($r('app.color.text_on_primary'))
+          .backgroundColor($r('app.color.primary'))
           .borderRadius(4)
           .width(60)
           .height(40)
@@ -134,7 +134,7 @@ struct UserListPage {
       }
       .width('100%')
       .padding({ left: 16, right: 16, top: 8, bottom: 8 })
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.surface'))
 
       // 内容
       if (this.isLoading) {
@@ -152,7 +152,7 @@ struct UserListPage {
                 Row() {
                   // 头像
                   Circle({ width: 40, height: 40 })
-                    .fill('#E6F0FF')
+                    .fill($r('app.color.primary_bg'))
 
                   // 信息
                   Column() {
@@ -163,8 +163,8 @@ struct UserListPage {
 
                       Text(user.status === 1 ? '启用' : '禁用')
                         .fontSize(10)
-                        .fontColor(user.status === 1 ? '#52C41A' : '#FF4D4F')
-                        .backgroundColor(user.status === 1 ? '#E6FFF0' : '#FFE6E6')
+                        .fontColor(user.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
+                        .backgroundColor(user.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
                         .borderRadius(2)
                         .padding({ left: 6, right: 6, top: 2, bottom: 2 })
                         .margin({ left: 8 })
@@ -172,7 +172,7 @@ struct UserListPage {
 
                     Text(user.real_name)
                       .fontSize(12)
-                      .fontColor('#999999')
+                      .fontColor($r('app.color.text_hint'))
                       .margin({ top: 2 })
                   }
                   .alignItems(HorizontalAlign.Start)
@@ -182,13 +182,13 @@ struct UserListPage {
                   Image($rawfile('arrow_right.png'))
                     .width(16)
                     .height(16)
-                    .fillColor('#CCCCCC')
+                    .fillColor($r('app.color.text_disabled'))
                 }
                 .width('100%')
                 .height(64)
                 .padding({ left: 16, right: 16 })
-                .backgroundColor('#FFFFFF')
-                .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+                .backgroundColor($r('app.color.surface'))
+                .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
                 .onClick(() => {
                   router.pushUrl({
                     url: 'pages/UserDetailPage',
@@ -204,11 +204,11 @@ struct UserListPage {
                 if (this.users.length >= this.total) {
                   Text('— 没有更多了 —')
                     .fontSize(12)
-                    .fontColor('#CCCCCC')
+                    .fontColor($r('app.color.text_disabled'))
                 } else {
                   Button('加载更多')
                     .fontSize(13)
-                    .fontColor('#1677FF')
+                    .fontColor($r('app.color.primary'))
                     .backgroundColor(Color.Transparent)
                     .onClick(() => this.loadMore())
                 }
@@ -232,6 +232,6 @@ struct UserListPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F5F5F5')
+    .backgroundColor($r('app.color.bg_page'))
   }
 }

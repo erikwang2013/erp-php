@@ -24,34 +24,34 @@ struct SplashPage {
       Text('开放管理后台')
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#1677FF')
+        .fontColor($r('app.color.primary'))
 
       Text('HarmonyOS 客户端')
         .fontSize(13)
-        .fontColor('#999999')
+        .fontColor($r('app.color.text_hint'))
         .margin({ top: 6 })
 
       LoadingProgress()
         .width(40)
         .height(40)
-        .color('#1677FF')
+        .color($r('app.color.primary'))
         .margin({ top: 32 })
 
       Text('正在恢复登录状态...')
         .fontSize(12)
-        .fontColor('#999999')
+        .fontColor($r('app.color.text_hint'))
         .margin({ top: 12 })
 
       Blank()
 
       Text('Copyright (c) 2026 erik — https://erik.xyz')
         .fontSize(10)
-        .fontColor('#CCCCCC')
+        .fontColor($r('app.color.text_disabled'))
         .margin({ bottom: 20 })
     }
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Center)
-    .backgroundColor('#FFFFFF')
+    .backgroundColor($r('app.color.surface'))
   }
 }

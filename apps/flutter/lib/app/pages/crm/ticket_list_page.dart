@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -164,9 +165,9 @@ class _TicketListPageState extends State<TicketListPage> {
     AppL10n.current.crmCode: r['code'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.person_add, size: 18), tooltip: AppL10n.current.crmTicketAssign, onPressed: () => _assign(r)),
-      IconButton(icon: const Icon(Icons.check_circle, size: 18, color: Colors.green), tooltip: AppL10n.current.crmTicketResolve, onPressed: () => _resolve(r)),
+      IconButton(icon: Icon(Icons.check_circle, size: 18, color: AppColors.of(context).success), tooltip: AppL10n.current.crmTicketResolve, onPressed: () => _resolve(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-      IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
+      IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
   };
 

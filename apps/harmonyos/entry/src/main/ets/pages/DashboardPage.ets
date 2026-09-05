@@ -50,8 +50,8 @@ struct DashboardPage {
         // 导出菜单
         Button('导出')
           .fontSize(13)
-          .fontColor('#1677FF')
-          .backgroundColor('#E6F0FF')
+          .fontColor($r('app.color.primary'))
+          .backgroundColor($r('app.color.primary_bg'))
           .borderRadius(4)
           .onClick(() => {
             promptAction.showToast({ message: '导出功能已触发，查看系统通知' });
@@ -69,7 +69,7 @@ struct DashboardPage {
       .width('100%')
       .height(56)
       .padding({ left: 16, right: 16 })
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.surface'))
 
       // 内容区
       if (this.isLoading) {
@@ -113,7 +113,7 @@ struct DashboardPage {
 
                 Text('查看全部 >')
                   .fontSize(12)
-                  .fontColor('#1677FF')
+                  .fontColor($r('app.color.primary'))
               }
               .width('100%')
               .margin({ bottom: 12 })
@@ -121,7 +121,7 @@ struct DashboardPage {
               if (this.dashboardData!.recent_logs.length === 0) {
                 Text('暂无操作记录')
                   .fontSize(13)
-                  .fontColor('#999999')
+                  .fontColor($r('app.color.text_hint'))
                   .width('100%')
                   .textAlign(TextAlign.Center)
                   .padding({ top: 24, bottom: 24 })
@@ -129,16 +129,16 @@ struct DashboardPage {
                 ForEach(this.dashboardData!.recent_logs.slice(0, 8), (log: OperationLogItem) => {
                   Row() {
                     Circle({ width: 32, height: 32 })
-                      .fill('#E6F0FF')
+                      .fill($r('app.color.primary_bg'))
 
                     Column() {
                       Text(log.action)
                         .fontSize(13)
-                        .fontColor('#333333')
+                        .fontColor($r('app.color.text_primary'))
 
                       Text(log.created_at ?? '')
                         .fontSize(11)
-                        .fontColor('#999999')
+                        .fontColor($r('app.color.text_hint'))
                         .margin({ top: 2 })
                     }
                     .alignItems(HorizontalAlign.Start)
@@ -147,16 +147,16 @@ struct DashboardPage {
 
                     Text(log.ip ?? '')
                       .fontSize(11)
-                      .fontColor('#999999')
+                      .fontColor($r('app.color.text_hint'))
                   }
                   .width('100%')
                   .height(48)
-                  .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+                  .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
                 })
               }
             }
             .width('100%')
-            .backgroundColor('#FFFFFF')
+            .backgroundColor($r('app.color.surface'))
             .borderRadius(8)
             .padding(16)
             .margin({ left: 16, right: 16, top: 12 })
@@ -168,7 +168,7 @@ struct DashboardPage {
         }
         .width('100%')
         .layoutWeight(1)
-        .backgroundColor('#F5F5F5')
+        .backgroundColor($r('app.color.bg_page'))
       }
     }
     .width('100%')

@@ -27,7 +27,7 @@ struct ProfilePage {
       alignment: DialogAlignment.Center,
       primaryButton: {
         value: '确定退出',
-        fontColor: '#FF4D4F',
+        fontColor: $r('app.color.danger_text'),
         action: () => {
           // clearTokens 为 async：链式等待 Preferences 落盘完成再跳转，避免磁盘残留旧凭据复活登录态
           TokenManager.clearTokens().then(() => {
@@ -51,7 +51,7 @@ struct ProfilePage {
           Image($rawfile('back.png')).width(24).height(24)
         }
         .width(36).height(36)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.surface'))
         .onClick(() => router.back())
 
         Text('个人中心')
@@ -62,14 +62,14 @@ struct ProfilePage {
       .width('100%')
       .height(56)
       .padding({ left: 16, right: 16 })
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.surface'))
 
       Scroll() {
         Column() {
           // 用户信息卡片
           Column() {
             Circle({ width: 64, height: 64 })
-              .fill('#E6F0FF')
+              .fill($r('app.color.primary_bg'))
 
             Text(this.username)
               .fontSize(18)
@@ -78,12 +78,12 @@ struct ProfilePage {
 
             Text(this.role)
               .fontSize(13)
-              .fontColor('#999999')
+              .fontColor($r('app.color.text_hint'))
               .margin({ top: 4 })
           }
           .width('100%')
           .padding({ top: 32, bottom: 32 })
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('app.color.surface'))
           .margin({ top: 16 })
 
           // 菜单列表
@@ -102,7 +102,7 @@ struct ProfilePage {
             });
           }
           .width('100%')
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('app.color.surface'))
           .borderRadius(8)
           .margin({ top: 16, left: 16, right: 16 })
 
@@ -111,8 +111,8 @@ struct ProfilePage {
             .width('100%')
             .height(48)
             .fontSize(16)
-            .fontColor('#FF4D4F')
-            .backgroundColor('#FFFFFF')
+            .fontColor($r('app.color.danger_text'))
+            .backgroundColor($r('app.color.surface'))
             .borderRadius(8)
             .margin({ top: 32, left: 16, right: 16 })
             .onClick(() => {
@@ -122,7 +122,7 @@ struct ProfilePage {
           // 版权
           Text('Copyright (c) 2026 erik — https://erik.xyz')
             .fontSize(11)
-            .fontColor('#CCCCCC')
+            .fontColor($r('app.color.text_disabled'))
             .textAlign(TextAlign.Center)
             .width('100%')
             .margin({ top: 24, bottom: 32 })
@@ -131,7 +131,7 @@ struct ProfilePage {
       }
       .width('100%')
       .layoutWeight(1)
-      .backgroundColor('#F5F5F5')
+      .backgroundColor($r('app.color.bg_page'))
     }
     .width('100%')
     .height('100%')
@@ -143,11 +143,11 @@ struct ProfilePage {
       Column() {
         Text(title)
           .fontSize(15)
-          .fontColor('#333333')
+          .fontColor($r('app.color.text_primary'))
 
         Text(subtitle)
           .fontSize(12)
-          .fontColor('#999999')
+          .fontColor($r('app.color.text_hint'))
           .margin({ top: 2 })
       }
       .alignItems(HorizontalAlign.Start)
@@ -156,12 +156,12 @@ struct ProfilePage {
       Image($rawfile('arrow_right.png'))
         .width(16)
         .height(16)
-        .fillColor('#CCCCCC')
+        .fillColor($r('app.color.text_disabled'))
     }
     .width('100%')
     .height(64)
     .padding({ left: 16, right: 16 })
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+    .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
     .onClick(onClick)
   }
 }

@@ -46,11 +46,11 @@ struct InventoryPage {
         Column({ space: 16 }) {
           Text(this.errMsg)
             .fontSize(14)
-            .fontColor('#999999')
+            .fontColor($r('app.color.text_hint'))
           Button('重试')
             .fontSize(14)
-            .fontColor('#FFFFFF')
-            .backgroundColor('#1677FF')
+            .fontColor($r('app.color.text_on_primary'))
+            .backgroundColor($r('app.color.primary'))
             .onClick(() => this.loadData())
         }
         .justifyContent(FlexAlign.Center)

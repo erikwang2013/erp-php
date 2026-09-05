@@ -156,11 +156,11 @@ struct LoginPage {
             Text('开放管理后台')
               .fontSize(22)
               .fontWeight(FontWeight.Bold)
-              .fontColor('#1677FF')
+              .fontColor($r('app.color.primary'))
 
             Text('HarmonyOS 客户端')
               .fontSize(12)
-              .fontColor('#999999')
+              .fontColor($r('app.color.text_hint'))
               .margin({ top: 2 })
           }
           .width('100%')
@@ -173,7 +173,7 @@ struct LoginPage {
             TextInput({ placeholder: '请输入用户名', text: this.username })
               .height(48)
               .fontSize(15)
-              .backgroundColor('#F5F5F5')
+              .backgroundColor($r('app.color.surface_alt'))
               .borderRadius(8)
               .padding({ left: 16, right: 16 })
               .onChange((v: string) => { this.username = v; })
@@ -184,7 +184,7 @@ struct LoginPage {
                 .height(48)
                 .fontSize(15)
                 .type(this.showPassword ? InputType.Normal : InputType.Password)
-                .backgroundColor('#F5F5F5')
+                .backgroundColor($r('app.color.surface_alt'))
                 .borderRadius(8)
                 .padding({ left: 16, right: 16 })
                 .layoutWeight(1)
@@ -192,7 +192,7 @@ struct LoginPage {
 
               Button(this.showPassword ? '隐藏' : '显示')
                 .fontSize(12)
-                .fontColor('#1677FF')
+                .fontColor($r('app.color.primary'))
                 .backgroundColor(Color.Transparent)
                 .width(56)
                 .onClick(() => { this.showPassword = !this.showPassword; })
@@ -204,7 +204,7 @@ struct LoginPage {
             if (this.loginError) {
               Text(this.loginError)
                 .fontSize(13)
-                .fontColor('#FF4D4F')
+                .fontColor($r('app.color.danger_text'))
                 .width('100%')
                 .textAlign(TextAlign.Center)
                 .padding({ top: 10, bottom: 2 })
@@ -215,8 +215,8 @@ struct LoginPage {
               .width('100%')
               .height(48)
               .fontSize(16)
-              .fontColor('#FFFFFF')
-              .backgroundColor(this.isLoading ? '#99BBFF' : '#1677FF')
+              .fontColor($r('app.color.text_on_primary'))
+              .backgroundColor(this.isLoading ? $r('app.color.primary_disabled') : $r('app.color.primary'))
               .borderRadius(8)
               .margin({ top: 20 })
               .enabled(!this.isLoading)
@@ -229,10 +229,10 @@ struct LoginPage {
           Row() {
             Text('还没有账号？')
               .fontSize(13)
-              .fontColor('#999999')
+              .fontColor($r('app.color.text_hint'))
             Button('立即注册')
               .fontSize(13)
-              .fontColor('#1677FF')
+              .fontColor($r('app.color.primary'))
               .backgroundColor(Color.Transparent)
               .onClick(() => {
                 promptAction.showToast({ message: '注册功能即将上线' });
@@ -244,7 +244,7 @@ struct LoginPage {
           // 版权
           Text('Copyright (c) 2026 erik — https://erik.xyz')
             .fontSize(10)
-            .fontColor('#CCCCCC')
+            .fontColor($r('app.color.text_disabled'))
             .textAlign(TextAlign.Center)
             .width('100%')
             .padding({ top: 20, bottom: 24 })
@@ -257,6 +257,6 @@ struct LoginPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#FFFFFF')
+    .backgroundColor($r('app.color.surface'))
   }
 }

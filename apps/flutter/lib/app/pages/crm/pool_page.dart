@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 
@@ -76,7 +77,7 @@ class _PoolPageState extends State<PoolPage> {
     AppL10n.current.crmCode: r['code'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.person_add, size: 18), tooltip: AppL10n.current.crmPoolClaim, onPressed: () => _claim(r)),
-      IconButton(icon: const Icon(Icons.logout, size: 18, color: Colors.orange), tooltip: AppL10n.current.crmPoolRelease, onPressed: () => _release(r)),
+      IconButton(icon: Icon(Icons.logout, size: 18, color: AppColors.of(context).warning), tooltip: AppL10n.current.crmPoolRelease, onPressed: () => _release(r)),
     ]),
   };
 
