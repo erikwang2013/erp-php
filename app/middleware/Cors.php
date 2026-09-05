@@ -29,7 +29,9 @@ class Cors implements MiddlewareInterface
             'X-Frame-Options' => 'DENY',
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
-            'Content-Security-Policy' => "default-src 'self'; script-src 'self' 'nonce-{$nonce}'; style-src 'self' 'nonce-{$nonce}'; img-src 'self' data: blob:; connect-src 'self';",
+            // style-src 放行 'unsafe-inline'：服务端渲染模板普遍使用 style 属性与 <style> 块，
+            // nonce 无法覆盖属性级内联；script-src 保持 nonce 严格不放行 inline（风险面不对称：样式无脚本执行能力）
+            'Content-Security-Policy' => "default-src 'self'; script-src 'self' 'nonce-{$nonce}'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self';",
             'X-Permitted-Cross-Domain-Policies' => 'none',
         ];
 
