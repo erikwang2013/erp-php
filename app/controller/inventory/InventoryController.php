@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace app\controller\inventory;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\Inventory;
 use support\Request;
@@ -17,7 +15,7 @@ use support\Response;
 /**
  * 库存管理
  * @Apidoc\Tag("库存管理")
- */#[Apidoc\Tag("库存管理")]
+ */#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
 
 class InventoryController extends BaseController
 {
@@ -41,22 +39,22 @@ class InventoryController extends BaseController
      *     @Apidoc\Returned("page", type="int", desc="当前页码"),
      *     @Apidoc\Returned("limit", type="int", desc="每页条数"),
      * })
-     */#[Apidoc\Title("库存列表")]
-#[Apidoc\Desc("获取库存分页列表，支持关键字搜索和状态筛选")]
-#[Apidoc\Url("/admin/v1/inventory")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("库存管理")]
-#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码)")]
-#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("list", type:"array", desc:"库存列表")]
-#[Apidoc\Returned("total", type:"int", desc:"总条数")]
-#[Apidoc\Returned("page", type:"int", desc:"当前页码")]
-#[Apidoc\Returned("limit", type:"int", desc:"每页条数")]
+     */#[\erikwang2013\apidoc\annotation\Title("库存列表")]
+#[\erikwang2013\apidoc\annotation\Desc("获取库存分页列表，支持关键字搜索和状态筛选")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"库存列表")]
+#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
+#[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
+#[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
 
     public function index(Request $request): Response
     {
@@ -96,16 +94,16 @@ class InventoryController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="库存记录")
-     */#[Apidoc\Title("创建库存记录")]
-#[Apidoc\Desc("手动创建一条库存记录")]
-#[Apidoc\Url("/admin/v1/inventory")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("库存管理")]
-#[Apidoc\Param(name:"name", type:"string", require:true, desc:"名称")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"库存记录")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建库存记录")]
+#[\erikwang2013\apidoc\annotation\Desc("手动创建一条库存记录")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"名称")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"库存记录")]
 
     public function store(Request $request): Response
     {
@@ -134,15 +132,15 @@ class InventoryController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="库存详情")
-     */#[Apidoc\Title("库存详情")]
-#[Apidoc\Desc("获取指定库存记录的详细信息")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("库存管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"库存记录ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"库存详情")]
+     */#[\erikwang2013\apidoc\annotation\Title("库存详情")]
+#[\erikwang2013\apidoc\annotation\Desc("获取指定库存记录的详细信息")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"库存记录ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"库存详情")]
 
     public function show(Request $request, string $id): Response
     {
@@ -167,15 +165,15 @@ class InventoryController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的库存记录")
-     */#[Apidoc\Title("更新库存记录")]
-#[Apidoc\Desc("更新指定库存记录的信息")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("库存管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"库存记录ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"更新后的库存记录")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新库存记录")]
+#[\erikwang2013\apidoc\annotation\Desc("更新指定库存记录的信息")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"库存记录ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的库存记录")]
 
     public function update(Request $request, string $id): Response
     {
@@ -204,16 +202,16 @@ class InventoryController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */#[Apidoc\Title("删除库存记录")]
-#[Apidoc\Desc("软删除指定库存记录，需要密码二次确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("库存管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"库存记录ID(hashid)")]
-#[Apidoc\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除库存记录")]
+#[\erikwang2013\apidoc\annotation\Desc("软删除指定库存记录，需要密码二次确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"库存记录ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
 
     public function destroy(Request $request, string $id): Response
     {

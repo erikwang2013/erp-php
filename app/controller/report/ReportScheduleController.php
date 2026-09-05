@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace app\controller\report;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\ReportSchedule;
 use support\Request;
@@ -17,7 +15,7 @@ use support\Response;
 /**
  * 报表调度管理
   * @Apidoc\Tag("自定义报表")
- */#[Apidoc\Tag("自定义报表")]
+ */#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
 
 class ReportScheduleController extends BaseController
 {
@@ -36,19 +34,19 @@ class ReportScheduleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("报表调度列表")]
-#[Apidoc\Desc("分页查询报表调度记录")]
-#[Apidoc\Url("/admin/v1/report/schedule")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("自定义报表")]
-#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
-#[Apidoc\Param(name:"template_id", type:"int", desc:"报表模板ID")]
-#[Apidoc\Param(name:"enabled", type:"int", desc:"启用状态")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("报表调度列表")]
+#[\erikwang2013\apidoc\annotation\Desc("分页查询报表调度记录")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/report/schedule")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"template_id", type:"int", desc:"报表模板ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"enabled", type:"int", desc:"启用状态")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function index(Request $request): Response
     {
@@ -88,19 +86,19 @@ class ReportScheduleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("创建报表调度")]
-#[Apidoc\Desc("新增报表调度记录，自动计算下次执行时间")]
-#[Apidoc\Url("/admin/v1/report/schedule")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("自定义报表")]
-#[Apidoc\Param(name:"template_id", type:"int", desc:"报表模板ID，必填")]
-#[Apidoc\Param(name:"name", type:"string", desc:"调度名称，必填")]
-#[Apidoc\Param(name:"frequency", type:"int", desc:"调度频率:1每天2每周3每月，必填")]
-#[Apidoc\Param(name:"recipients", type:"string", desc:"接收人列表，必填")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建报表调度")]
+#[\erikwang2013\apidoc\annotation\Desc("新增报表调度记录，自动计算下次执行时间")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/report/schedule")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
+#[\erikwang2013\apidoc\annotation\Param(name:"template_id", type:"int", desc:"报表模板ID，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"调度名称，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"frequency", type:"int", desc:"调度频率:1每天2每周3每月，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"recipients", type:"string", desc:"接收人列表，必填")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function store(Request $request): Response
     {
@@ -136,15 +134,15 @@ class ReportScheduleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("报表调度详情")]
-#[Apidoc\Desc("查看报表调度详细信息")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("自定义报表")]
-#[Apidoc\Param(name:"id", type:"string", desc:"调度ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("报表调度详情")]
+#[\erikwang2013\apidoc\annotation\Desc("查看报表调度详细信息")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"调度ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function show(Request $request, string $id): Response
     {
@@ -172,15 +170,15 @@ class ReportScheduleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("更新报表调度")]
-#[Apidoc\Desc("修改报表调度信息，频率变更时重新计算下次执行时间")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("自定义报表")]
-#[Apidoc\Param(name:"id", type:"string", desc:"调度ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新报表调度")]
+#[\erikwang2013\apidoc\annotation\Desc("修改报表调度信息，频率变更时重新计算下次执行时间")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"调度ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function update(Request $request, string $id): Response
     {
@@ -218,16 +216,16 @@ class ReportScheduleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("删除报表调度")]
-#[Apidoc\Desc("删除报表调度记录，需密码确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("自定义报表")]
-#[Apidoc\Param(name:"id", type:"string", desc:"调度ID")]
-#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除报表调度")]
+#[\erikwang2013\apidoc\annotation\Desc("删除报表调度记录，需密码确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"调度ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function destroy(Request $request, string $id): Response
     {

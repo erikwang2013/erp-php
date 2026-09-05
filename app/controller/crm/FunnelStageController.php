@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace app\controller\crm;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\CrmFunnelStage;
 use app\service\crm\CrmService;
@@ -34,19 +32,19 @@ class FunnelStageController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("漏斗阶段列表")]
-#[Apidoc\Desc("分页查询漏斗阶段记录")]
-#[Apidoc\Url("/admin/v1/crm/funnel")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", desc:"关键词")]
-#[Apidoc\Param(name:"status", type:"int", desc:"状态")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("漏斗阶段列表")]
+#[\erikwang2013\apidoc\annotation\Desc("分页查询漏斗阶段记录")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/funnel")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"关键词")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function index(Request $request): Response
     {
@@ -79,16 +77,16 @@ class FunnelStageController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("创建漏斗阶段")]
-#[Apidoc\Desc("新增漏斗阶段记录")]
-#[Apidoc\Url("/admin/v1/crm/funnel")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"name", type:"string", desc:"漏斗阶段名称，必填")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建漏斗阶段")]
+#[\erikwang2013\apidoc\annotation\Desc("新增漏斗阶段记录")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/funnel")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"漏斗阶段名称，必填")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function store(Request $request): Response
     {
@@ -114,15 +112,15 @@ class FunnelStageController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("漏斗阶段详情")]
-#[Apidoc\Desc("查看漏斗阶段详细信息")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"id", type:"string", desc:"漏斗阶段ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("漏斗阶段详情")]
+#[\erikwang2013\apidoc\annotation\Desc("查看漏斗阶段详细信息")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"漏斗阶段ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function show(Request $request, string $id): Response
     {
@@ -147,15 +145,15 @@ class FunnelStageController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("更新漏斗阶段")]
-#[Apidoc\Desc("修改漏斗阶段信息")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"id", type:"string", desc:"漏斗阶段ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新漏斗阶段")]
+#[\erikwang2013\apidoc\annotation\Desc("修改漏斗阶段信息")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"漏斗阶段ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function update(Request $request, string $id): Response
     {
@@ -181,16 +179,16 @@ class FunnelStageController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("删除漏斗阶段")]
-#[Apidoc\Desc("删除漏斗阶段记录，需密码确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"id", type:"string", desc:"漏斗阶段ID")]
-#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除漏斗阶段")]
+#[\erikwang2013\apidoc\annotation\Desc("删除漏斗阶段记录，需密码确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"漏斗阶段ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function destroy(Request $request, string $id): Response
     {

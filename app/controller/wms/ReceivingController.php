@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace app\controller\wms;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\WmsReceiving;
 use app\service\wms\WmsInboundService;
@@ -33,19 +31,19 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("收货单列表")]
-#[Apidoc\Desc("获取收货单列表，支持分页、编码搜索和状态筛选")]
-#[Apidoc\Url("/admin/v1/wms/receiving")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("仓储管理(WMS)")]
-#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（编码）")]
-#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("收货单列表")]
+#[\erikwang2013\apidoc\annotation\Desc("获取收货单列表，支持分页、编码搜索和状态筛选")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/receiving")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("仓储管理(WMS)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（编码）")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function index(Request $request): Response
     {
@@ -85,16 +83,16 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("创建收货单")]
-#[Apidoc\Desc("创建收货单，编码必填（缺省自动生成）")]
-#[Apidoc\Url("/admin/v1/wms/receiving")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("仓储管理(WMS)")]
-#[Apidoc\Param(name:"code", type:"string", desc:"收货单编码，必填")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建收货单")]
+#[\erikwang2013\apidoc\annotation\Desc("创建收货单，编码必填（缺省自动生成）")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/receiving")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("仓储管理(WMS)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"收货单编码，必填")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function store(Request $request): Response
     {
@@ -126,15 +124,15 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("收货单详情")]
-#[Apidoc\Desc("按 ID 获取收货单详情")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("仓储管理(WMS)")]
-#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("收货单详情")]
+#[\erikwang2013\apidoc\annotation\Desc("按 ID 获取收货单详情")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("仓储管理(WMS)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function show(Request $request, string $id): Response
     {
@@ -162,15 +160,15 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("更新收货单")]
-#[Apidoc\Desc("按 ID 更新收货单信息")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("仓储管理(WMS)")]
-#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新收货单")]
+#[\erikwang2013\apidoc\annotation\Desc("按 ID 更新收货单信息")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("仓储管理(WMS)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function update(Request $request, string $id): Response
     {
@@ -202,16 +200,16 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("删除收货单")]
-#[Apidoc\Desc("按 ID 删除收货单，需操作密码二次确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("仓储管理(WMS)")]
-#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
-#[Apidoc\Param(name:"password", type:"string", desc:"操作密码（二次确认）")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除收货单")]
+#[\erikwang2013\apidoc\annotation\Desc("按 ID 删除收货单，需操作密码二次确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("仓储管理(WMS)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"操作密码（二次确认）")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -246,16 +244,16 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据（生成的上架任务）")
-     */#[Apidoc\Title("完成收货")]
-#[Apidoc\Desc("提交实收明细完成收货，并自动生成上架任务")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("仓储管理(WMS)")]
-#[Apidoc\Param(name:"id", type:"string", desc:"收货单ID(hashid)")]
-#[Apidoc\Param(name:"items", type:"array", desc:"收货明细（实收数量等），必填")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据（生成的上架任务）")]
+     */#[\erikwang2013\apidoc\annotation\Title("完成收货")]
+#[\erikwang2013\apidoc\annotation\Desc("提交实收明细完成收货，并自动生成上架任务")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("仓储管理(WMS)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"收货单ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"items", type:"array", desc:"收货明细（实收数量等），必填")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据（生成的上架任务）")]
 
     public function complete(Request $request, string $id): Response
     {

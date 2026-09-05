@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace app\controller\crm;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\CrmQuotation;
 use app\model\CrmQuotationItem;
@@ -36,20 +34,20 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("报价列表")]
-#[Apidoc\Desc("分页查询CRM报价记录")]
-#[Apidoc\Url("/admin/v1/crm/quotation")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", desc:"关键词")]
-#[Apidoc\Param(name:"status", type:"int", desc:"状态")]
-#[Apidoc\Param(name:"customer_id", type:"int", desc:"客户ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("报价列表")]
+#[\erikwang2013\apidoc\annotation\Desc("分页查询CRM报价记录")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/quotation")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"关键词")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态")]
+#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", desc:"客户ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function index(Request $request): Response
     {
@@ -85,17 +83,17 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("创建报价")]
-#[Apidoc\Desc("新增CRM报价记录，含报价明细")]
-#[Apidoc\Url("/admin/v1/crm/quotation")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"customer_id", type:"int", desc:"客户ID，必填")]
-#[Apidoc\Param(name:"items", type:"array", desc:"报价明细列表")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建报价")]
+#[\erikwang2013\apidoc\annotation\Desc("新增CRM报价记录，含报价明细")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/quotation")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", desc:"客户ID，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"items", type:"array", desc:"报价明细列表")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function store(Request $request): Response
     {
@@ -126,15 +124,15 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("报价详情")]
-#[Apidoc\Desc("查看CRM报价详细信息")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"id", type:"string", desc:"报价ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("报价详情")]
+#[\erikwang2013\apidoc\annotation\Desc("查看CRM报价详细信息")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"报价ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function show(Request $request, string $id): Response
     {
@@ -160,16 +158,16 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("更新报价")]
-#[Apidoc\Desc("修改CRM报价信息，仅草稿状态可编辑")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"id", type:"string", desc:"报价ID")]
-#[Apidoc\Param(name:"items", type:"array", desc:"报价明细列表")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新报价")]
+#[\erikwang2013\apidoc\annotation\Desc("修改CRM报价信息，仅草稿状态可编辑")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"报价ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"items", type:"array", desc:"报价明细列表")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function update(Request $request, string $id): Response
     {
@@ -206,16 +204,16 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("删除报价")]
-#[Apidoc\Desc("删除CRM报价记录，需密码确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"id", type:"string", desc:"报价ID")]
-#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除报价")]
+#[\erikwang2013\apidoc\annotation\Desc("删除CRM报价记录，需密码确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"报价ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -251,18 +249,18 @@ class QuotationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="报价和合同数据")
-     */#[Apidoc\Title("报价转合同")]
-#[Apidoc\Desc("将CRM报价转为正式合同，复制报价明细到合同明细")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("CRM")]
-#[Apidoc\Param(name:"id", type:"string", desc:"报价ID")]
-#[Apidoc\Param(name:"code", type:"string", desc:"合同编号")]
-#[Apidoc\Param(name:"name", type:"string", desc:"合同名称")]
-#[Apidoc\Param(name:"remark", type:"string", desc:"备注")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"报价和合同数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("报价转合同")]
+#[\erikwang2013\apidoc\annotation\Desc("将CRM报价转为正式合同，复制报价明细到合同明细")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("CRM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"报价ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"合同编号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"合同名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", desc:"备注")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"报价和合同数据")]
 
     public function toContract(Request $request, string $id): Response
     {

@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace app\controller\inventory;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\service\inventory\TraceService;
 use support\Container;
@@ -43,15 +41,15 @@ class TraceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="批次追溯结果")
-     */#[Apidoc\Title("批次正向追溯")]
-#[Apidoc\Desc("按批次号查询全部出入库流水，出库侧展开下游去向（单据类型/source_id）")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("库存管理")]
-#[Apidoc\Param(name:"batchCode", type:"string", require:true, desc:"批次号")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"批次追溯结果")]
+     */#[\erikwang2013\apidoc\annotation\Title("批次正向追溯")]
+#[\erikwang2013\apidoc\annotation\Desc("按批次号查询全部出入库流水，出库侧展开下游去向（单据类型/source_id）")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"batchCode", type:"string", require:true, desc:"批次号")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"批次追溯结果")]
 
     public function forward(Request $request, string $batchCode): Response
     {
@@ -70,15 +68,15 @@ class TraceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="批次来源链")
-     */#[Apidoc\Title("批次反向追溯")]
-#[Apidoc\Desc("按批次号查询入库来源链（来源单据类型/source_id）")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("库存管理")]
-#[Apidoc\Param(name:"batchCode", type:"string", require:true, desc:"批次号")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"批次来源链")]
+     */#[\erikwang2013\apidoc\annotation\Title("批次反向追溯")]
+#[\erikwang2013\apidoc\annotation\Desc("按批次号查询入库来源链（来源单据类型/source_id）")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"batchCode", type:"string", require:true, desc:"批次号")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"批次来源链")]
 
     public function backward(Request $request, string $batchCode): Response
     {
@@ -97,15 +95,15 @@ class TraceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="序列号追溯结果")
-     */#[Apidoc\Title("序列号追溯")]
-#[Apidoc\Desc("按序列号查询入出库两端流水明细")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("库存管理")]
-#[Apidoc\Param(name:"serialCode", type:"string", require:true, desc:"序列号")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"序列号追溯结果")]
+     */#[\erikwang2013\apidoc\annotation\Title("序列号追溯")]
+#[\erikwang2013\apidoc\annotation\Desc("按序列号查询入出库两端流水明细")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"serialCode", type:"string", require:true, desc:"序列号")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"序列号追溯结果")]
 
     public function serial(Request $request, string $serialCode): Response
     {
@@ -124,16 +122,16 @@ class TraceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="近效期批次列表")
-     */#[Apidoc\Title("近效期预警")]
-#[Apidoc\Desc("查询未来 N 天内到期且有在库的批次")]
-#[Apidoc\Url("/trace/expiry")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("库存管理")]
-#[Apidoc\Param(name:"days", type:"int", default:90, desc:"预警窗口天数")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"array", desc:"近效期批次列表")]
+     */#[\erikwang2013\apidoc\annotation\Title("近效期预警")]
+#[\erikwang2013\apidoc\annotation\Desc("查询未来 N 天内到期且有在库的批次")]
+#[\erikwang2013\apidoc\annotation\Url("/trace/expiry")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"days", type:"int", default:90, desc:"预警窗口天数")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"近效期批次列表")]
 
     public function expiry(Request $request): Response
     {

@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace app\controller\purchase;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\PurchaseOrder;
 use app\model\PurchaseOrderItem;
@@ -24,7 +22,7 @@ use support\Response;
 /**
  * 采购收货管理
  * @Apidoc\Tag("采购管理")
- */#[Apidoc\Tag("采购管理")]
+ */#[\erikwang2013\apidoc\annotation\Tag("采购管理")]
 
 class ReceiveController extends BaseController
 {
@@ -50,24 +48,24 @@ class ReceiveController extends BaseController
      *     @Apidoc\Returned("page", type="int", desc="当前页码"),
      *     @Apidoc\Returned("limit", type="int", desc="每页条数"),
      * })
-     */#[Apidoc\Title("收货单列表")]
-#[Apidoc\Desc("获取采购收货单分页列表，支持关键字/状态/订单/供应商筛选")]
-#[Apidoc\Url("/admin/v1/purchase/receive")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("采购管理")]
-#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(收货单号)")]
-#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选:0待入库1已入库")]
-#[Apidoc\Param(name:"order_id", type:"string", default:"", desc:"采购订单ID(hashid)")]
-#[Apidoc\Param(name:"supplier_id", type:"string", default:"", desc:"供应商ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("list", type:"array", desc:"收货单列表")]
-#[Apidoc\Returned("total", type:"int", desc:"总条数")]
-#[Apidoc\Returned("page", type:"int", desc:"当前页码")]
-#[Apidoc\Returned("limit", type:"int", desc:"每页条数")]
+     */#[\erikwang2013\apidoc\annotation\Title("收货单列表")]
+#[\erikwang2013\apidoc\annotation\Desc("获取采购收货单分页列表，支持关键字/状态/订单/供应商筛选")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/receive")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("采购管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(收货单号)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选:0待入库1已入库")]
+#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"string", default:"", desc:"采购订单ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"supplier_id", type:"string", default:"", desc:"供应商ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"收货单列表")]
+#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
+#[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
+#[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
 
     public function index(Request $request): Response
     {
@@ -124,21 +122,21 @@ class ReceiveController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="收货单信息")
-     */#[Apidoc\Title("创建收货单")]
-#[Apidoc\Desc("创建收货单并自动执行入库操作，同时生成应付记录并更新采购订单状态")]
-#[Apidoc\Url("/admin/v1/purchase/receive")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("采购管理")]
-#[Apidoc\Param(name:"code", type:"string", require:true, desc:"收货单号")]
-#[Apidoc\Param(name:"order_id", type:"string", require:true, desc:"采购订单ID(hashid)")]
-#[Apidoc\Param(name:"supplier_id", type:"string", require:true, desc:"供应商ID(hashid)")]
-#[Apidoc\Param(name:"warehouse_id", type:"string", require:true, desc:"仓库ID(hashid)")]
-#[Apidoc\Param(name:"remark", type:"string", default:"", desc:"备注")]
-#[Apidoc\Param(name:"items", type:"array", require:true, desc:"收货明细(含product_id/quantity/price等)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"收货单信息")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建收货单")]
+#[\erikwang2013\apidoc\annotation\Desc("创建收货单并自动执行入库操作，同时生成应付记录并更新采购订单状态")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/receive")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("采购管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"收货单号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"string", require:true, desc:"采购订单ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"supplier_id", type:"string", require:true, desc:"供应商ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"warehouse_id", type:"string", require:true, desc:"仓库ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", default:"", desc:"备注")]
+#[\erikwang2013\apidoc\annotation\Param(name:"items", type:"array", require:true, desc:"收货明细(含product_id/quantity/price等)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"收货单信息")]
 
     public function store(Request $request): Response
     {
@@ -341,15 +339,15 @@ class ReceiveController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="收货单详情(含关联数据)")
-     */#[Apidoc\Title("收货单详情")]
-#[Apidoc\Desc("获取指定收货单的详细信息，包含明细、订单、供应商和仓库")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("采购管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"收货单ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"收货单详情(含关联数据)")]
+     */#[\erikwang2013\apidoc\annotation\Title("收货单详情")]
+#[\erikwang2013\apidoc\annotation\Desc("获取指定收货单的详细信息，包含明细、订单、供应商和仓库")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("采购管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"收货单ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"收货单详情(含关联数据)")]
 
     public function show(Request $request, string $id): Response
     {
@@ -375,16 +373,16 @@ class ReceiveController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的收货单信息")
-     */#[Apidoc\Title("更新收货单")]
-#[Apidoc\Desc("更新收货单备注等信息，不修改核心数据")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("采购管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"收货单ID(hashid)")]
-#[Apidoc\Param(name:"remark", type:"string", default:"", desc:"备注")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"更新后的收货单信息")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新收货单")]
+#[\erikwang2013\apidoc\annotation\Desc("更新收货单备注等信息，不修改核心数据")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("采购管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"收货单ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", default:"", desc:"备注")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的收货单信息")]
 
     public function update(Request $request, string $id): Response
     {
@@ -415,16 +413,16 @@ class ReceiveController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */#[Apidoc\Title("删除收货单")]
-#[Apidoc\Desc("软删除指定收货单，需要密码二次确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("采购管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"收货单ID(hashid)")]
-#[Apidoc\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除收货单")]
+#[\erikwang2013\apidoc\annotation\Desc("软删除指定收货单，需要密码二次确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("采购管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"收货单ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
 
     public function destroy(Request $request, string $id): Response
     {

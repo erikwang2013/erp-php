@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace app\controller\purchase;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\PurchaseRfq;
 use app\model\PurchaseRfqItem;
@@ -31,11 +29,11 @@ class RfqQuoteController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/rfq-quote")
      * @Apidoc\Method("GET")
      * @Apidoc\Tag("寻源采购")
-     */#[Apidoc\Title("报价列表")]
-#[Apidoc\Desc("指定询价单下的供应商报价列表")]
-#[Apidoc\Url("/admin/v1/purchase/rfq-quote")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Tag("寻源采购")]
+     */#[\erikwang2013\apidoc\annotation\Title("报价列表")]
+#[\erikwang2013\apidoc\annotation\Desc("指定询价单下的供应商报价列表")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/rfq-quote")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
 
     public function index(Request $request): Response
     {
@@ -62,11 +60,11 @@ class RfqQuoteController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/rfq-quote")
      * @Apidoc\Method("POST")
      * @Apidoc\Tag("寻源采购")
-     */#[Apidoc\Title("登记报价")]
-#[Apidoc\Desc("仅已发布(询价中)询价单可报价；行金额 = 单价 × 询价数量(bcmath)，报价总额 = Σ行金额")]
-#[Apidoc\Url("/admin/v1/purchase/rfq-quote")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Tag("寻源采购")]
+     */#[\erikwang2013\apidoc\annotation\Title("登记报价")]
+#[\erikwang2013\apidoc\annotation\Desc("仅已发布(询价中)询价单可报价；行金额 = 单价 × 询价数量(bcmath)，报价总额 = Σ行金额")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/rfq-quote")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
 
     public function store(Request $request): Response
     {
@@ -130,9 +128,9 @@ class RfqQuoteController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/rfq-quote/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Tag("寻源采购")
-     */#[Apidoc\Title("报价详情")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Tag("寻源采购")]
+     */#[\erikwang2013\apidoc\annotation\Title("报价详情")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
 
     public function show(Request $request, string $id): Response
     {
@@ -152,9 +150,9 @@ class RfqQuoteController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/rfq-quote/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Tag("寻源采购")
-     */#[Apidoc\Title("更新报价")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Tag("寻源采购")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新报价")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
 
     public function update(Request $request, string $id): Response
     {
@@ -204,9 +202,9 @@ class RfqQuoteController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/rfq-quote/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Tag("寻源采购")
-     */#[Apidoc\Title("删除报价")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Tag("寻源采购")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除报价")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
 
     public function destroy(Request $request, string $id): Response
     {

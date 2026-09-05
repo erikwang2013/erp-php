@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace app\controller\manufacturing;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\MfgCostEntry;
 use app\model\MfgProductionOrder;
@@ -24,7 +22,7 @@ use support\Response;
 /**
  * 费用归集单管理 — CRUD + 审核（人工/制费/其他计入 WIP）
   * @Apidoc\Tag("生产制造")
- */#[Apidoc\Tag("生产制造")]
+ */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class CostEntryController extends BaseController
 {
@@ -42,18 +40,18 @@ class CostEntryController extends BaseController
      * @Apidoc\Param(name="order_id", type="int", desc="生产工单ID")
      * @Apidoc\Param(name="entry_type", type="int", desc="费用类型 1人工/2制费/3其他")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("费用归集单列表")]
-#[Apidoc\Url("/admin/v1/mfg/cost-entry")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", desc:"编码关键词")]
-#[Apidoc\Param(name:"status", type:"int", desc:"状态 0草稿/1已审核")]
-#[Apidoc\Param(name:"order_id", type:"int", desc:"生产工单ID")]
-#[Apidoc\Param(name:"entry_type", type:"int", desc:"费用类型 1人工/2制费/3其他")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("费用归集单列表")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/cost-entry")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"编码关键词")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态 0草稿/1已审核")]
+#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"int", desc:"生产工单ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"entry_type", type:"int", desc:"费用类型 1人工/2制费/3其他")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function index(Request $request): Response
     {
@@ -89,18 +87,18 @@ class CostEntryController extends BaseController
      * @Apidoc\Param(name="entry_date", type="string", desc="归集日期 Y-m-d，默认当天")
      * @Apidoc\Param(name="summary", type="string", desc="摘要")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("创建费用归集单")]
-#[Apidoc\Url("/admin/v1/mfg/cost-entry")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"code", type:"string", desc:"归集单编码，必填，唯一")]
-#[Apidoc\Param(name:"order_id", type:"int", desc:"生产工单ID，必填")]
-#[Apidoc\Param(name:"entry_type", type:"int", desc:"费用类型 1人工/2制费/3其他，必填")]
-#[Apidoc\Param(name:"amount", type:"float", desc:"金额，必填，>0")]
-#[Apidoc\Param(name:"entry_date", type:"string", desc:"归集日期 Y-m-d，默认当天")]
-#[Apidoc\Param(name:"summary", type:"string", desc:"摘要")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建费用归集单")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/cost-entry")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"归集单编码，必填，唯一")]
+#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"int", desc:"生产工单ID，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"entry_type", type:"int", desc:"费用类型 1人工/2制费/3其他，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"amount", type:"float", desc:"金额，必填，>0")]
+#[\erikwang2013\apidoc\annotation\Param(name:"entry_date", type:"string", desc:"归集日期 Y-m-d，默认当天")]
+#[\erikwang2013\apidoc\annotation\Param(name:"summary", type:"string", desc:"摘要")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function store(Request $request): Response
     {
@@ -152,12 +150,12 @@ class CostEntryController extends BaseController
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="归集单ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("费用归集单详情")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"归集单ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("费用归集单详情")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"归集单ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function show(Request $request, string $id): Response
     {
@@ -183,12 +181,12 @@ class CostEntryController extends BaseController
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="归集单ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("更新费用归集单")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"归集单ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新费用归集单")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"归集单ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function update(Request $request, string $id): Response
     {
@@ -217,13 +215,13 @@ class CostEntryController extends BaseController
      * @Apidoc\Param(name="id", type="string", desc="归集单ID")
      * @Apidoc\Param(name="password", type="string", desc="管理员密码")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("删除费用归集单")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"归集单ID")]
-#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除费用归集单")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"归集单ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -254,12 +252,12 @@ class CostEntryController extends BaseController
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="归集单ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("审核费用归集单")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"归集单ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("审核费用归集单")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"归集单ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function audit(Request $request, string $id): Response
     {

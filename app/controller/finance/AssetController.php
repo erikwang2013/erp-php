@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace app\controller\finance;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\FinanceAsset;
 use app\model\FinanceAssetDepreciation;
@@ -34,20 +32,20 @@ class AssetController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("固定资产列表")]
-#[Apidoc\Desc("分页查询固定资产记录")]
-#[Apidoc\Url("/admin/v1/finance/asset")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", desc:"关键词")]
-#[Apidoc\Param(name:"status", type:"int", desc:"状态")]
-#[Apidoc\Param(name:"category", type:"string", desc:"资产类别")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("固定资产列表")]
+#[\erikwang2013\apidoc\annotation\Desc("分页查询固定资产记录")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/asset")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"关键词")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态")]
+#[\erikwang2013\apidoc\annotation\Param(name:"category", type:"string", desc:"资产类别")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function index(Request $request): Response
     {
@@ -98,23 +96,23 @@ class AssetController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("创建固定资产")]
-#[Apidoc\Desc("新增固定资产，支持直线法自动计算月折旧额")]
-#[Apidoc\Url("/admin/v1/finance/asset")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"name", type:"string", desc:"资产名称")]
-#[Apidoc\Param(name:"code", type:"string", desc:"资产编码")]
-#[Apidoc\Param(name:"category", type:"string", desc:"资产类别")]
-#[Apidoc\Param(name:"purchase_date", type:"string", desc:"购置日期")]
-#[Apidoc\Param(name:"purchase_amount", type:"float", desc:"购置金额")]
-#[Apidoc\Param(name:"salvage_value", type:"float", desc:"残值")]
-#[Apidoc\Param(name:"useful_life", type:"int", desc:"使用年限")]
-#[Apidoc\Param(name:"depreciation_method", type:"int", desc:"折旧方法:1=直线法")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建固定资产")]
+#[\erikwang2013\apidoc\annotation\Desc("新增固定资产，支持直线法自动计算月折旧额")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/asset")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"资产名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"资产编码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"category", type:"string", desc:"资产类别")]
+#[\erikwang2013\apidoc\annotation\Param(name:"purchase_date", type:"string", desc:"购置日期")]
+#[\erikwang2013\apidoc\annotation\Param(name:"purchase_amount", type:"float", desc:"购置金额")]
+#[\erikwang2013\apidoc\annotation\Param(name:"salvage_value", type:"float", desc:"残值")]
+#[\erikwang2013\apidoc\annotation\Param(name:"useful_life", type:"int", desc:"使用年限")]
+#[\erikwang2013\apidoc\annotation\Param(name:"depreciation_method", type:"int", desc:"折旧方法:1=直线法")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function store(Request $request): Response
     {
@@ -150,15 +148,15 @@ class AssetController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("固定资产详情")]
-#[Apidoc\Desc("查看固定资产详细信息")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"id", type:"string", desc:"资产ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("固定资产详情")]
+#[\erikwang2013\apidoc\annotation\Desc("查看固定资产详细信息")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"资产ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function show(Request $request, string $id): Response
     {
@@ -189,21 +187,21 @@ class AssetController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("更新固定资产")]
-#[Apidoc\Desc("修改固定资产信息，自动重新计算净值和月折旧额")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"id", type:"string", desc:"资产ID")]
-#[Apidoc\Param(name:"name", type:"string", desc:"资产名称")]
-#[Apidoc\Param(name:"code", type:"string", desc:"资产编码")]
-#[Apidoc\Param(name:"category", type:"string", desc:"资产类别")]
-#[Apidoc\Param(name:"purchase_amount", type:"float", desc:"购置金额")]
-#[Apidoc\Param(name:"salvage_value", type:"float", desc:"残值")]
-#[Apidoc\Param(name:"useful_life", type:"int", desc:"使用年限")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新固定资产")]
+#[\erikwang2013\apidoc\annotation\Desc("修改固定资产信息，自动重新计算净值和月折旧额")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"资产ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"资产名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"资产编码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"category", type:"string", desc:"资产类别")]
+#[\erikwang2013\apidoc\annotation\Param(name:"purchase_amount", type:"float", desc:"购置金额")]
+#[\erikwang2013\apidoc\annotation\Param(name:"salvage_value", type:"float", desc:"残值")]
+#[\erikwang2013\apidoc\annotation\Param(name:"useful_life", type:"int", desc:"使用年限")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function update(Request $request, string $id): Response
     {
@@ -238,16 +236,16 @@ class AssetController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("删除固定资产")]
-#[Apidoc\Desc("删除固定资产，需密码确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"id", type:"string", desc:"资产ID")]
-#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除固定资产")]
+#[\erikwang2013\apidoc\annotation\Desc("删除固定资产，需密码确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"资产ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -282,17 +280,17 @@ class AssetController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="折旧记录")
-     */#[Apidoc\Title("计提折旧")]
-#[Apidoc\Desc("为指定资产创建一条折旧记录")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"id", type:"string", desc:"资产ID")]
-#[Apidoc\Param(name:"period_year", type:"int", desc:"折旧年份")]
-#[Apidoc\Param(name:"period_month", type:"int", desc:"折旧月份")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"折旧记录")]
+     */#[\erikwang2013\apidoc\annotation\Title("计提折旧")]
+#[\erikwang2013\apidoc\annotation\Desc("为指定资产创建一条折旧记录")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"资产ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"period_year", type:"int", desc:"折旧年份")]
+#[\erikwang2013\apidoc\annotation\Param(name:"period_month", type:"int", desc:"折旧月份")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"折旧记录")]
 
     public function depreciate(Request $request, string $id): Response
     {
@@ -351,15 +349,15 @@ class AssetController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="折旧记录列表")
-     */#[Apidoc\Title("折旧记录列表")]
-#[Apidoc\Desc("查看指定资产的折旧记录")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"id", type:"string", desc:"资产ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"折旧记录列表")]
+     */#[\erikwang2013\apidoc\annotation\Title("折旧记录列表")]
+#[\erikwang2013\apidoc\annotation\Desc("查看指定资产的折旧记录")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"资产ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"折旧记录列表")]
 
     public function depreciation(Request $request, string $id): Response
     {

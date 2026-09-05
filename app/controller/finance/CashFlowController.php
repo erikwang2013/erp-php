@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace app\controller\finance;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\FinanceCashFlow;
 use app\service\finance\LedgerBalanceService;
@@ -32,17 +30,17 @@ class CashFlowController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="现金流量表数据")
-     */#[Apidoc\Title("现金流量表")]
-#[Apidoc\Desc("查询快照或从已审核凭证实时生成现金流量表")]
-#[Apidoc\Url("/admin/v1/finance/report/cash-flow")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"report_year", type:"int", desc:"报表年份")]
-#[Apidoc\Param(name:"report_month", type:"int", desc:"报表月份")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"现金流量表数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("现金流量表")]
+#[\erikwang2013\apidoc\annotation\Desc("查询快照或从已审核凭证实时生成现金流量表")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/cash-flow")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"report_year", type:"int", desc:"报表年份")]
+#[\erikwang2013\apidoc\annotation\Param(name:"report_month", type:"int", desc:"报表月份")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"现金流量表数据")]
 
     public function index(Request $request): Response
     {
@@ -97,17 +95,17 @@ class CashFlowController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="快照数据")
-     */#[Apidoc\Title("保存现金流量表快照")]
-#[Apidoc\Desc("将现金流量表数据保存为快照记录")]
-#[Apidoc\Url("/admin/v1/finance/report/cash-flow")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"report_year", type:"int", desc:"报表年份")]
-#[Apidoc\Param(name:"report_month", type:"int", desc:"报表月份")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"快照数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("保存现金流量表快照")]
+#[\erikwang2013\apidoc\annotation\Desc("将现金流量表数据保存为快照记录")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/cash-flow")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"report_year", type:"int", desc:"报表年份")]
+#[\erikwang2013\apidoc\annotation\Param(name:"report_month", type:"int", desc:"报表月份")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"快照数据")]
 
     public function store(Request $request): Response
     {

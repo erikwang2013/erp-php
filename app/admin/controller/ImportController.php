@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\model\AdminUser;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use support\Log;
@@ -36,19 +34,19 @@ class ImportController extends BaseController
      *     @Apidoc\Returned("failed", type="int", desc="失败数"),
      *     @Apidoc\Returned("errors", type="array", desc="错误详情"),
      * })
-     */#[Apidoc\Title("Excel导入用户")]
-#[Apidoc\Desc("上传Excel文件批量导入用户，支持xlsx/xls格式，必需列为username/password/real_name")]
-#[Apidoc\Url("/admin/v1/import/users")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("导入管理")]
-#[Apidoc\Param(name:"file", type:"file", require:true, desc:"Excel文件(.xlsx/.xls)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("total", type:"int", desc:"总行数")]
-#[Apidoc\Returned("success", type:"int", desc:"成功数")]
-#[Apidoc\Returned("failed", type:"int", desc:"失败数")]
-#[Apidoc\Returned("errors", type:"array", desc:"错误详情")]
+     */#[\erikwang2013\apidoc\annotation\Title("Excel导入用户")]
+#[\erikwang2013\apidoc\annotation\Desc("上传Excel文件批量导入用户，支持xlsx/xls格式，必需列为username/password/real_name")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/import/users")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("导入管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"file", type:"file", require:true, desc:"Excel文件(.xlsx/.xls)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总行数")]
+#[\erikwang2013\apidoc\annotation\Returned("success", type:"int", desc:"成功数")]
+#[\erikwang2013\apidoc\annotation\Returned("failed", type:"int", desc:"失败数")]
+#[\erikwang2013\apidoc\annotation\Returned("errors", type:"array", desc:"错误详情")]
 
     public function users(Request $request): Response
     {

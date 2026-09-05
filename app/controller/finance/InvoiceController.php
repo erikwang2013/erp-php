@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace app\controller\finance;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\FinanceInvoice;
 use app\model\FinanceInvoiceItem;
@@ -22,7 +20,7 @@ use support\Response;
  * 发票管理(应收/应付) — P0：开票申请状态流 + 三单匹配校验
  * 边界：税务票据追踪单据，不新增 ARAP 分录、不联动收付款/核销/结算。
  * @Apidoc\Tag("财务管理")
- */#[Apidoc\Tag("财务管理")]
+ */#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
 class InvoiceController extends BaseController
 {
@@ -45,18 +43,18 @@ class InvoiceController extends BaseController
      * @Apidoc\Param(name="biz_type", type="string", default="", desc="来源类型(purchase_receive/sales_delivery/manual)")
      * @Apidoc\Param(name="status", type="string", default="", desc="状态(draft/submitted/audited/voided)")
      * @Apidoc\Param(name="keyword", type="string", default="", desc="关键词(发票号)")
-     */#[Apidoc\Title("发票列表")]
-#[Apidoc\Desc("发票分页列表，支持类型/来源/状态筛选")]
-#[Apidoc\Url("/admin/v1/finance/invoice")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[Apidoc\Param(name:"type", type:"string", default:"", desc:"类型(ar/ap)")]
-#[Apidoc\Param(name:"biz_type", type:"string", default:"", desc:"来源类型(purchase_receive/sales_delivery/manual)")]
-#[Apidoc\Param(name:"status", type:"string", default:"", desc:"状态(draft/submitted/audited/voided)")]
-#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"关键词(发票号)")]
+     */#[\erikwang2013\apidoc\annotation\Title("发票列表")]
+#[\erikwang2013\apidoc\annotation\Desc("发票分页列表，支持类型/来源/状态筛选")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/invoice")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"type", type:"string", default:"", desc:"类型(ar/ap)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"biz_type", type:"string", default:"", desc:"来源类型(purchase_receive/sales_delivery/manual)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"string", default:"", desc:"状态(draft/submitted/audited/voided)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"关键词(发票号)")]
 
     public function index(Request $request): Response
     {
@@ -93,12 +91,12 @@ class InvoiceController extends BaseController
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
-     */#[Apidoc\Title("创建开票申请")]
-#[Apidoc\Desc("金额由服务端 bcmath 计算；来源关联单超开将被拦截")]
-#[Apidoc\Url("/admin/v1/finance/invoice")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建开票申请")]
+#[\erikwang2013\apidoc\annotation\Desc("金额由服务端 bcmath 计算；来源关联单超开将被拦截")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/invoice")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
     public function store(Request $request): Response
     {
@@ -129,8 +127,8 @@ class InvoiceController extends BaseController
      * @Apidoc\Title("发票详情")
      * @Apidoc\Url("/admin/v1/finance/invoice/{id}")
      * @Apidoc\Method("GET")
-     */#[Apidoc\Title("发票详情")]
-#[Apidoc\Method("GET")]
+     */#[\erikwang2013\apidoc\annotation\Title("发票详情")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
 
     public function show(Request $request, string $id): Response
     {
@@ -147,8 +145,8 @@ class InvoiceController extends BaseController
      * @Apidoc\Title("更新开票申请")
      * @Apidoc\Url("/admin/v1/finance/invoice/{id}")
      * @Apidoc\Method("PUT")
-     */#[Apidoc\Title("更新开票申请")]
-#[Apidoc\Method("PUT")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新开票申请")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
 
     public function update(Request $request, string $id): Response
     {
@@ -196,8 +194,8 @@ class InvoiceController extends BaseController
      * @Apidoc\Title("删除开票申请")
      * @Apidoc\Url("/admin/v1/finance/invoice/{id}")
      * @Apidoc\Method("DELETE")
-     */#[Apidoc\Title("删除开票申请")]
-#[Apidoc\Method("DELETE")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除开票申请")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -224,8 +222,8 @@ class InvoiceController extends BaseController
      * @Apidoc\Title("提交开票申请")
      * @Apidoc\Url("/admin/v1/finance/invoice/{id}/submit")
      * @Apidoc\Method("POST")
-     */#[Apidoc\Title("提交开票申请")]
-#[Apidoc\Method("POST")]
+     */#[\erikwang2013\apidoc\annotation\Title("提交开票申请")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
 
     public function submit(Request $request, string $id): Response
     {
@@ -241,8 +239,8 @@ class InvoiceController extends BaseController
      * @Apidoc\Title("审核发票")
      * @Apidoc\Url("/admin/v1/finance/invoice/{id}/audit")
      * @Apidoc\Method("POST")
-     */#[Apidoc\Title("审核发票")]
-#[Apidoc\Method("POST")]
+     */#[\erikwang2013\apidoc\annotation\Title("审核发票")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
 
     public function audit(Request $request, string $id): Response
     {
@@ -259,8 +257,8 @@ class InvoiceController extends BaseController
      * @Apidoc\Title("作废发票")
      * @Apidoc\Url("/admin/v1/finance/invoice/{id}/void")
      * @Apidoc\Method("POST")
-     */#[Apidoc\Title("作废发票")]
-#[Apidoc\Method("POST")]
+     */#[\erikwang2013\apidoc\annotation\Title("作废发票")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
 
     public function void(Request $request, string $id): Response
     {
@@ -278,10 +276,10 @@ class InvoiceController extends BaseController
      * @Apidoc\Desc("返回 来源总额/已开票累计/未开票余额/本次金额/校验结果(result: ok=恰好 under=小于 over=超开)")
      * @Apidoc\Url("/admin/v1/finance/invoice/match-check")
      * @Apidoc\Method("POST")
-     */#[Apidoc\Title("三单匹配预检")]
-#[Apidoc\Desc("返回 来源总额/已开票累计/未开票余额/本次金额/校验结果(result: ok:恰好 under:小于 over:超开)")]
-#[Apidoc\Url("/admin/v1/finance/invoice/match-check")]
-#[Apidoc\Method("POST")]
+     */#[\erikwang2013\apidoc\annotation\Title("三单匹配预检")]
+#[\erikwang2013\apidoc\annotation\Desc("返回 来源总额/已开票累计/未开票余额/本次金额/校验结果(result: ok:恰好 under:小于 over:超开)")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/invoice/match-check")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
 
     public function matchCheck(Request $request): Response
     {

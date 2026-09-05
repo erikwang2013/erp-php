@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace app\controller\bi;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\BiDashboard;
 use app\model\BiWidget;
@@ -18,7 +16,7 @@ use support\Response;
 /**
  * BI 数据看板管理
  * @Apidoc\Tag("BI看板")
- */#[Apidoc\Tag("BI看板")]
+ */#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
 
 class DashboardController extends BaseController
 {
@@ -37,19 +35,19 @@ class DashboardController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="分页列表(list/total/page/limit)")
-     */#[Apidoc\Title("BI 看板列表")]
-#[Apidoc\Desc("分页查询数据看板，支持名称关键字与状态筛选")]
-#[Apidoc\Url("/admin/v1/bi/dashboard")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("BI看板")]
-#[Apidoc\Param(name:"page", type:"int", default:"1", desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", default:"15", desc:"每页数量")]
-#[Apidoc\Param(name:"keyword", type:"string", desc:"看板名称关键字")]
-#[Apidoc\Param(name:"status", type:"int", desc:"状态,0=停用,1=启用")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"分页列表(list/total/page/limit)")]
+     */#[\erikwang2013\apidoc\annotation\Title("BI 看板列表")]
+#[\erikwang2013\apidoc\annotation\Desc("分页查询数据看板，支持名称关键字与状态筛选")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/bi/dashboard")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:"1", desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:"15", desc:"每页数量")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"看板名称关键字")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态,0=停用,1=启用")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"分页列表(list/total/page/limit)")]
 
     public function index(Request $request): Response
     {
@@ -82,16 +80,16 @@ class DashboardController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="看板详情(hashid)")
-     */#[Apidoc\Title("创建 BI 看板")]
-#[Apidoc\Desc("新建数据看板，可携带布局配置字段")]
-#[Apidoc\Url("/admin/v1/bi/dashboard")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("BI看板")]
-#[Apidoc\Param(name:"name", type:"string", require:true, desc:"看板名称(≤200字符)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"看板详情(hashid)")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建 BI 看板")]
+#[\erikwang2013\apidoc\annotation\Desc("新建数据看板，可携带布局配置字段")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/bi/dashboard")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"看板名称(≤200字符)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"看板详情(hashid)")]
 
     public function store(Request $request): Response
     {
@@ -121,15 +119,15 @@ class DashboardController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="看板详情,含widgets组件数组")
-     */#[Apidoc\Title("BI 看板详情")]
-#[Apidoc\Desc("查看看板详情及其下图表组件列表")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("BI看板")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"看板ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"看板详情,含widgets组件数组")]
+     */#[\erikwang2013\apidoc\annotation\Title("BI 看板详情")]
+#[\erikwang2013\apidoc\annotation\Desc("查看看板详情及其下图表组件列表")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"看板ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"看板详情,含widgets组件数组")]
 
     public function show(Request $request, string $id): Response
     {
@@ -158,16 +156,16 @@ class DashboardController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后看板详情(hashid)")
-     */#[Apidoc\Title("更新 BI 看板")]
-#[Apidoc\Desc("更新看板名称或布局配置")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("BI看板")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"看板ID(hashid)")]
-#[Apidoc\Param(name:"name", type:"string", desc:"看板名称")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"更新后看板详情(hashid)")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新 BI 看板")]
+#[\erikwang2013\apidoc\annotation\Desc("更新看板名称或布局配置")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"看板ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"看板名称")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后看板详情(hashid)")]
 
     public function update(Request $request, string $id): Response
     {
@@ -195,16 +193,16 @@ class DashboardController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */#[Apidoc\Title("删除 BI 看板")]
-#[Apidoc\Desc("删除看板并级联删除其下全部图表组件，需二次密码确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("BI看板")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"看板ID(hashid)")]
-#[Apidoc\Param(name:"password", type:"string", require:true, desc:"操作密码(二次确认)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除 BI 看板")]
+#[\erikwang2013\apidoc\annotation\Desc("删除看板并级联删除其下全部图表组件，需二次密码确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"看板ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"操作密码(二次确认)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
 
     public function destroy(Request $request, string $id): Response
     {

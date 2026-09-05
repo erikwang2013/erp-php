@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace app\controller\manufacturing;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\HrEmployee;
 use app\model\MfgProductionOrder;
@@ -27,7 +25,7 @@ use support\Response;
 /**
  * 工序报工单管理 — CRUD + 审核（WIP 人工成本归集）
  * @Apidoc\Tag("生产制造")
- */#[Apidoc\Tag("生产制造")]
+ */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class WorkReportController extends BaseController
 {
@@ -45,18 +43,18 @@ class WorkReportController extends BaseController
      * @Apidoc\Param(name="order_id", type="int", desc="生产工单ID")
      * @Apidoc\Param(name="employee_id", type="int", desc="员工ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("报工单列表")]
-#[Apidoc\Url("/admin/v1/mfg/work-report")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", desc:"编码关键词")]
-#[Apidoc\Param(name:"status", type:"int", desc:"状态 0草稿/1已审核")]
-#[Apidoc\Param(name:"order_id", type:"int", desc:"生产工单ID")]
-#[Apidoc\Param(name:"employee_id", type:"int", desc:"员工ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("报工单列表")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/work-report")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"编码关键词")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态 0草稿/1已审核")]
+#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"int", desc:"生产工单ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"employee_id", type:"int", desc:"员工ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function index(Request $request): Response
     {
@@ -96,22 +94,22 @@ class WorkReportController extends BaseController
      * @Apidoc\Param(name="qualified_qty", type="numeric", desc="合格数量，默认=报工数量")
      * @Apidoc\Param(name="remark", type="string", desc="备注")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("创建报工单")]
-#[Apidoc\Url("/admin/v1/mfg/work-report")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"code", type:"string", desc:"报工单编码，缺省自动生成 WR+日期+随机尾")]
-#[Apidoc\Param(name:"order_id", type:"int", desc:"生产工单ID，必填")]
-#[Apidoc\Param(name:"product_id", type:"int", desc:"产品ID，必填（须等于工序所属产品）")]
-#[Apidoc\Param(name:"routing_id", type:"int", desc:"工序ID，必填")]
-#[Apidoc\Param(name:"workstation_id", type:"int", desc:"工作站ID，缺省0")]
-#[Apidoc\Param(name:"employee_id", type:"int", desc:"报工员工ID，必填")]
-#[Apidoc\Param(name:"report_date", type:"string", desc:"报工日期 Y-m-d，默认当天")]
-#[Apidoc\Param(name:"quantity", type:"numeric", desc:"报工数量，必填 >0")]
-#[Apidoc\Param(name:"qualified_qty", type:"numeric", desc:"合格数量，默认=报工数量")]
-#[Apidoc\Param(name:"remark", type:"string", desc:"备注")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建报工单")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/work-report")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"报工单编码，缺省自动生成 WR+日期+随机尾")]
+#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"int", desc:"生产工单ID，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"product_id", type:"int", desc:"产品ID，必填（须等于工序所属产品）")]
+#[\erikwang2013\apidoc\annotation\Param(name:"routing_id", type:"int", desc:"工序ID，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"workstation_id", type:"int", desc:"工作站ID，缺省0")]
+#[\erikwang2013\apidoc\annotation\Param(name:"employee_id", type:"int", desc:"报工员工ID，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"report_date", type:"string", desc:"报工日期 Y-m-d，默认当天")]
+#[\erikwang2013\apidoc\annotation\Param(name:"quantity", type:"numeric", desc:"报工数量，必填 >0")]
+#[\erikwang2013\apidoc\annotation\Param(name:"qualified_qty", type:"numeric", desc:"合格数量，默认=报工数量")]
+#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", desc:"备注")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function store(Request $request): Response
     {
@@ -195,12 +193,12 @@ class WorkReportController extends BaseController
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="报工单ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("报工单详情")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"报工单ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("报工单详情")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"报工单ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function show(Request $request, string $id): Response
     {
@@ -228,12 +226,12 @@ class WorkReportController extends BaseController
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="报工单ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("更新报工单")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"报工单ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新报工单")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"报工单ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function update(Request $request, string $id): Response
     {
@@ -278,13 +276,13 @@ class WorkReportController extends BaseController
      * @Apidoc\Param(name="id", type="string", desc="报工单ID")
      * @Apidoc\Param(name="password", type="string", desc="管理员密码")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("删除报工单")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"报工单ID")]
-#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除报工单")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"报工单ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -315,12 +313,12 @@ class WorkReportController extends BaseController
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="报工单ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */#[Apidoc\Title("审核报工单")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"报工单ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+     */#[\erikwang2013\apidoc\annotation\Title("审核报工单")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"报工单ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 
     public function audit(Request $request, string $id): Response
     {

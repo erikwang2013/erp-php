@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace app\controller\sales;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\SalesReturn;
 use support\Request;
@@ -32,19 +30,19 @@ class ReturnController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("销售退货列表")]
-#[Apidoc\Desc("获取销售退货列表，支持分页、关键词搜索和状态筛选")]
-#[Apidoc\Url("/admin/v1/sales/return")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("销售管理")]
-#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（名称/编码）")]
-#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("销售退货列表")]
+#[\erikwang2013\apidoc\annotation\Desc("获取销售退货列表，支持分页、关键词搜索和状态筛选")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/return")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（名称/编码）")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function index(Request $request): Response
     {
@@ -86,18 +84,18 @@ class ReturnController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="销售退货记录")
-     */#[Apidoc\Title("创建销售退货")]
-#[Apidoc\Desc("新增一个销售退货记录")]
-#[Apidoc\Url("/admin/v1/sales/return")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("销售管理")]
-#[Apidoc\Param(name:"name", type:"string", default:"", desc:"退货名称（必填）")]
-#[Apidoc\Param(name:"code", type:"string", default:"", desc:"退货单号")]
-#[Apidoc\Param(name:"status", type:"int", default:1, desc:"状态")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"销售退货记录")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建销售退货")]
+#[\erikwang2013\apidoc\annotation\Desc("新增一个销售退货记录")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/return")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"退货名称（必填）")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"退货单号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:1, desc:"状态")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"销售退货记录")]
 
     public function store(Request $request): Response
     {
@@ -126,15 +124,15 @@ class ReturnController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="销售退货详情")
-     */#[Apidoc\Title("销售退货详情")]
-#[Apidoc\Desc("根据ID获取销售退货详细信息")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("销售管理")]
-#[Apidoc\Param(name:"id", type:"string", default:"", desc:"销售退货hashid")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"销售退货详情")]
+     */#[\erikwang2013\apidoc\annotation\Title("销售退货详情")]
+#[\erikwang2013\apidoc\annotation\Desc("根据ID获取销售退货详细信息")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售退货hashid")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"销售退货详情")]
 
     public function show(Request $request, string $id): Response
     {
@@ -162,18 +160,18 @@ class ReturnController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的销售退货记录")
-     */#[Apidoc\Title("更新销售退货")]
-#[Apidoc\Desc("根据ID更新销售退货信息")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("销售管理")]
-#[Apidoc\Param(name:"id", type:"string", default:"", desc:"销售退货hashid")]
-#[Apidoc\Param(name:"name", type:"string", default:"", desc:"退货名称")]
-#[Apidoc\Param(name:"code", type:"string", default:"", desc:"退货单号")]
-#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"更新后的销售退货记录")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新销售退货")]
+#[\erikwang2013\apidoc\annotation\Desc("根据ID更新销售退货信息")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售退货hashid")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"退货名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"退货单号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的销售退货记录")]
 
     public function update(Request $request, string $id): Response
     {
@@ -202,16 +200,16 @@ class ReturnController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */#[Apidoc\Title("删除销售退货")]
-#[Apidoc\Desc("根据ID软删除销售退货，需管理员密码二次确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("销售管理")]
-#[Apidoc\Param(name:"id", type:"string", default:"", desc:"销售退货hashid")]
-#[Apidoc\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除销售退货")]
+#[\erikwang2013\apidoc\annotation\Desc("根据ID软删除销售退货，需管理员密码二次确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售退货hashid")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
 
     public function destroy(Request $request, string $id): Response
     {

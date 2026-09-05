@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace app\controller\finance;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\Company;
 use app\model\FinanceLedger;
@@ -32,15 +30,15 @@ class CompanyController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="公司列表")
-     */#[Apidoc\Title("公司列表")]
-#[Apidoc\Desc("全量公司列表，含各自默认账套摘要")]
-#[Apidoc\Url("/admin/v1/finance/company/list")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"公司列表")]
+     */#[\erikwang2013\apidoc\annotation\Title("公司列表")]
+#[\erikwang2013\apidoc\annotation\Desc("全量公司列表，含各自默认账套摘要")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/company/list")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"公司列表")]
 
     public function list(Request $request): Response
     {
@@ -74,17 +72,17 @@ class CompanyController extends BaseController
      * @Apidoc\Param(name="base_currency", type="string", desc="本位币，默认CNY")
      * @Apidoc\Param(name="parent_id", type="string", desc="上级组织ID(hashid或数字)，0=顶级")
      * @Apidoc\Param(name="remark", type="string", desc="备注")
-     */#[Apidoc\Title("新增公司")]
-#[Apidoc\Desc("创建组织并自动创建默认账套、开启当前自然月期间")]
-#[Apidoc\Url("/admin/v1/finance/company/create")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"name", type:"string", desc:"公司名称，必填")]
-#[Apidoc\Param(name:"code", type:"string", desc:"公司编码(2-50位字母/数字/_-)，必填且全局唯一")]
-#[Apidoc\Param(name:"base_currency", type:"string", desc:"本位币，默认CNY")]
-#[Apidoc\Param(name:"parent_id", type:"string", desc:"上级组织ID(hashid或数字)，0=顶级")]
-#[Apidoc\Param(name:"remark", type:"string", desc:"备注")]
+     */#[\erikwang2013\apidoc\annotation\Title("新增公司")]
+#[\erikwang2013\apidoc\annotation\Desc("创建组织并自动创建默认账套、开启当前自然月期间")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/company/create")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"公司名称，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"公司编码(2-50位字母/数字/_-)，必填且全局唯一")]
+#[\erikwang2013\apidoc\annotation\Param(name:"base_currency", type:"string", desc:"本位币，默认CNY")]
+#[\erikwang2013\apidoc\annotation\Param(name:"parent_id", type:"string", desc:"上级组织ID(hashid或数字)，0=顶级")]
+#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", desc:"备注")]
 
     public function create(Request $request): Response
     {
@@ -129,14 +127,14 @@ class CompanyController extends BaseController
      * @Apidoc\Tag("财务管理")
      * @Apidoc\Param(name="id", type="string", desc="公司ID(hashid)，必填")
      * @Apidoc\Param(name="status", type="int", desc="0=停用 1=启用")
-     */#[Apidoc\Title("启用/停用公司")]
-#[Apidoc\Desc("status 0=停用 1=启用")]
-#[Apidoc\Url("/admin/v1/finance/company/toggle")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"id", type:"string", desc:"公司ID(hashid)，必填")]
-#[Apidoc\Param(name:"status", type:"int", desc:"0=停用 1=启用")]
+     */#[\erikwang2013\apidoc\annotation\Title("启用/停用公司")]
+#[\erikwang2013\apidoc\annotation\Desc("status 0=停用 1=启用")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/company/toggle")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"公司ID(hashid)，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"0=停用 1=启用")]
 
     public function toggle(Request $request): Response
     {

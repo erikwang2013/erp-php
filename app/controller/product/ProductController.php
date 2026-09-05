@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace app\controller\product;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\Product;
 use app\service\product\ProductService;
@@ -20,7 +18,7 @@ use Throwable;
 /**
  * 商品管理
  * @Apidoc\Tag("商品管理")
- */#[Apidoc\Tag("商品管理")]
+ */#[\erikwang2013\apidoc\annotation\Tag("商品管理")]
 
 class ProductController extends BaseController
 {
@@ -45,23 +43,23 @@ class ProductController extends BaseController
      *     @Apidoc\Returned("page", type="int", desc="当前页码"),
      *     @Apidoc\Returned("limit", type="int", desc="每页条数"),
      * })
-     */#[Apidoc\Title("商品列表")]
-#[Apidoc\Desc("获取商品分页列表，支持关键字/分类/状态筛选")]
-#[Apidoc\Url("/admin/v1/product")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("商品管理")]
-#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码/条码)")]
-#[Apidoc\Param(name:"category_id", type:"string", default:"", desc:"分类ID(hashid)")]
-#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选:0禁用1启用")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("list", type:"array", desc:"商品列表")]
-#[Apidoc\Returned("total", type:"int", desc:"总条数")]
-#[Apidoc\Returned("page", type:"int", desc:"当前页码")]
-#[Apidoc\Returned("limit", type:"int", desc:"每页条数")]
+     */#[\erikwang2013\apidoc\annotation\Title("商品列表")]
+#[\erikwang2013\apidoc\annotation\Desc("获取商品分页列表，支持关键字/分类/状态筛选")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("商品管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码/条码)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"category_id", type:"string", default:"", desc:"分类ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选:0禁用1启用")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"商品列表")]
+#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
+#[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
+#[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
 
     public function index(Request $request): Response
     {
@@ -112,27 +110,27 @@ class ProductController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="商品信息")
-     */#[Apidoc\Title("创建商品")]
-#[Apidoc\Desc("创建新商品，可同时创建SKU和价格")]
-#[Apidoc\Url("/admin/v1/product")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("商品管理")]
-#[Apidoc\Param(name:"name", type:"string", require:true, desc:"商品名称")]
-#[Apidoc\Param(name:"code", type:"string", require:true, desc:"商品编码")]
-#[Apidoc\Param(name:"category_id", type:"string", require:true, desc:"分类ID(hashid)")]
-#[Apidoc\Param(name:"unit", type:"string", require:true, desc:"单位")]
-#[Apidoc\Param(name:"brand_id", type:"string", default:"", desc:"品牌ID(hashid)")]
-#[Apidoc\Param(name:"barcode", type:"string", default:"", desc:"条码")]
-#[Apidoc\Param(name:"spec", type:"string", default:"", desc:"规格型号")]
-#[Apidoc\Param(name:"image", type:"string", default:"", desc:"图片URL")]
-#[Apidoc\Param(name:"description", type:"string", default:"", desc:"商品描述")]
-#[Apidoc\Param(name:"status", type:"int", default:1, desc:"状态:0禁用1启用")]
-#[Apidoc\Param(name:"skus", type:"array", default:"", desc:"SKU列表")]
-#[Apidoc\Param(name:"prices", type:"array", default:"", desc:"价格列表")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"商品信息")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建商品")]
+#[\erikwang2013\apidoc\annotation\Desc("创建新商品，可同时创建SKU和价格")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("商品管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"商品名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"商品编码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"category_id", type:"string", require:true, desc:"分类ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"unit", type:"string", require:true, desc:"单位")]
+#[\erikwang2013\apidoc\annotation\Param(name:"brand_id", type:"string", default:"", desc:"品牌ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"barcode", type:"string", default:"", desc:"条码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"spec", type:"string", default:"", desc:"规格型号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"image", type:"string", default:"", desc:"图片URL")]
+#[\erikwang2013\apidoc\annotation\Param(name:"description", type:"string", default:"", desc:"商品描述")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:1, desc:"状态:0禁用1启用")]
+#[\erikwang2013\apidoc\annotation\Param(name:"skus", type:"array", default:"", desc:"SKU列表")]
+#[\erikwang2013\apidoc\annotation\Param(name:"prices", type:"array", default:"", desc:"价格列表")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"商品信息")]
 
     public function store(Request $request): Response
     {
@@ -180,15 +178,15 @@ class ProductController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="商品详情(含关联数据)")
-     */#[Apidoc\Title("商品详情")]
-#[Apidoc\Desc("获取指定商品的详细信息，包含分类、品牌、SKU、价格和单位")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("商品管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"商品ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"商品详情(含关联数据)")]
+     */#[\erikwang2013\apidoc\annotation\Title("商品详情")]
+#[\erikwang2013\apidoc\annotation\Desc("获取指定商品的详细信息，包含分类、品牌、SKU、价格和单位")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("商品管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"商品ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"商品详情(含关联数据)")]
 
     public function show(Request $request, string $id): Response
     {
@@ -222,24 +220,24 @@ class ProductController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的商品信息")
-     */#[Apidoc\Title("更新商品")]
-#[Apidoc\Desc("更新指定商品的信息")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("商品管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"商品ID(hashid)")]
-#[Apidoc\Param(name:"name", type:"string", default:"", desc:"商品名称")]
-#[Apidoc\Param(name:"barcode", type:"string", default:"", desc:"条码")]
-#[Apidoc\Param(name:"spec", type:"string", default:"", desc:"规格型号")]
-#[Apidoc\Param(name:"unit", type:"string", default:"", desc:"单位")]
-#[Apidoc\Param(name:"image", type:"string", default:"", desc:"图片URL")]
-#[Apidoc\Param(name:"description", type:"string", default:"", desc:"商品描述")]
-#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态:0禁用1启用")]
-#[Apidoc\Param(name:"category_id", type:"string", default:"", desc:"分类ID(hashid)")]
-#[Apidoc\Param(name:"brand_id", type:"string", default:"", desc:"品牌ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"更新后的商品信息")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新商品")]
+#[\erikwang2013\apidoc\annotation\Desc("更新指定商品的信息")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("商品管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"商品ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"商品名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"barcode", type:"string", default:"", desc:"条码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"spec", type:"string", default:"", desc:"规格型号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"unit", type:"string", default:"", desc:"单位")]
+#[\erikwang2013\apidoc\annotation\Param(name:"image", type:"string", default:"", desc:"图片URL")]
+#[\erikwang2013\apidoc\annotation\Param(name:"description", type:"string", default:"", desc:"商品描述")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态:0禁用1启用")]
+#[\erikwang2013\apidoc\annotation\Param(name:"category_id", type:"string", default:"", desc:"分类ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"brand_id", type:"string", default:"", desc:"品牌ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的商品信息")]
 
     public function update(Request $request, string $id): Response
     {
@@ -276,16 +274,16 @@ class ProductController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */#[Apidoc\Title("删除商品")]
-#[Apidoc\Desc("软删除指定商品，需要密码二次确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("商品管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"商品ID(hashid)")]
-#[Apidoc\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除商品")]
+#[\erikwang2013\apidoc\annotation\Desc("软删除指定商品，需要密码二次确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("商品管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"商品ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
 
     public function destroy(Request $request, string $id): Response
     {

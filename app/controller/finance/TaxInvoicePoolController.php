@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace app\controller\finance;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\TaxInputInvoice;
 use app\service\tax\TaxInvoicePoolService;
@@ -22,7 +20,7 @@ use support\Response;
  * 状态机推进（验真 0→1/2、勾选 0→1、抵扣 1→2）全量校验在 TaxInvoicePoolService，
  * 本控制器只做参数搬运与统一响应；业务错误 422、发票不存在 404。
  * @Apidoc\Tag("财务管理")
- */#[Apidoc\Tag("财务管理")]
+ */#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
 class TaxInvoicePoolController extends BaseController
 {
@@ -47,22 +45,22 @@ class TaxInvoicePoolController extends BaseController
      * @Apidoc\Param(name="deduct_period", type="string", default="", desc="抵扣期间 YYYY-MM")
      * @Apidoc\Param(name="issue_date_from", type="string", default="", desc="开票日期起 Y-m-d")
      * @Apidoc\Param(name="issue_date_to", type="string", default="", desc="开票日期止 Y-m-d")
-     */#[Apidoc\Title("进项发票列表")]
-#[Apidoc\Url("/admin/v1/finance/tax-input-invoice")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", default:20, desc:"每页条数(1-100)")]
-#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"关键词(发票代码/号码模糊)")]
-#[Apidoc\Param(name:"seller_name", type:"string", default:"", desc:"销售方名称(模糊)")]
-#[Apidoc\Param(name:"seller_tax_no", type:"string", default:"", desc:"销售方税号(精确)")]
-#[Apidoc\Param(name:"verify_status", type:"int", default:-1, desc:"验真状态(-1全部 0待验真 1通过 2失败)")]
-#[Apidoc\Param(name:"deduct_status", type:"int", default:-1, desc:"抵扣状态(-1全部 0未勾选 1已勾选待抵扣 2已抵扣)")]
-#[Apidoc\Param(name:"source", type:"string", default:"", desc:"来源(manual:手工 excel:批量导入)")]
-#[Apidoc\Param(name:"deduct_period", type:"string", default:"", desc:"抵扣期间 YYYY-MM")]
-#[Apidoc\Param(name:"issue_date_from", type:"string", default:"", desc:"开票日期起 Y-m-d")]
-#[Apidoc\Param(name:"issue_date_to", type:"string", default:"", desc:"开票日期止 Y-m-d")]
+     */#[\erikwang2013\apidoc\annotation\Title("进项发票列表")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-input-invoice")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:20, desc:"每页条数(1-100)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"关键词(发票代码/号码模糊)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"seller_name", type:"string", default:"", desc:"销售方名称(模糊)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"seller_tax_no", type:"string", default:"", desc:"销售方税号(精确)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"verify_status", type:"int", default:-1, desc:"验真状态(-1全部 0待验真 1通过 2失败)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"deduct_status", type:"int", default:-1, desc:"抵扣状态(-1全部 0未勾选 1已勾选待抵扣 2已抵扣)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"source", type:"string", default:"", desc:"来源(manual:手工 excel:批量导入)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"deduct_period", type:"string", default:"", desc:"抵扣期间 YYYY-MM")]
+#[\erikwang2013\apidoc\annotation\Param(name:"issue_date_from", type:"string", default:"", desc:"开票日期起 Y-m-d")]
+#[\erikwang2013\apidoc\annotation\Param(name:"issue_date_to", type:"string", default:"", desc:"开票日期止 Y-m-d")]
 
     public function index(Request $request): Response
     {
@@ -107,23 +105,23 @@ class TaxInvoicePoolController extends BaseController
      * @Apidoc\Param(name="tax_amount", type="string", required=true, desc="税额")
      * @Apidoc\Param(name="source", type="string", default="manual", desc="来源(manual/excel)")
      * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
-     */#[Apidoc\Title("进项发票登记")]
-#[Apidoc\Url("/admin/v1/finance/tax-input-invoice")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"invoice_code", type:"string", default:"", desc:"发票代码(数电票留空)")]
-#[Apidoc\Param(name:"invoice_no", type:"string", required:true, desc:"发票号码")]
-#[Apidoc\Param(name:"issue_date", type:"string", required:true, desc:"开票日期 Y-m-d")]
-#[Apidoc\Param(name:"seller_name", type:"string", required:true, desc:"销售方名称")]
-#[Apidoc\Param(name:"seller_tax_no", type:"string", required:true, desc:"销售方税号")]
-#[Apidoc\Param(name:"buyer_name", type:"string", default:"", desc:"购买方名称")]
-#[Apidoc\Param(name:"buyer_tax_no", type:"string", default:"", desc:"购买方税号")]
-#[Apidoc\Param(name:"amount", type:"string", required:true, desc:"价税合计")]
-#[Apidoc\Param(name:"untaxed_amount", type:"string", required:true, desc:"不含税金额")]
-#[Apidoc\Param(name:"tax_amount", type:"string", required:true, desc:"税额")]
-#[Apidoc\Param(name:"source", type:"string", default:"manual", desc:"来源(manual/excel)")]
-#[Apidoc\Param(name:"remark", type:"string", default:"", desc:"备注")]
+     */#[\erikwang2013\apidoc\annotation\Title("进项发票登记")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-input-invoice")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"invoice_code", type:"string", default:"", desc:"发票代码(数电票留空)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"invoice_no", type:"string", required:true, desc:"发票号码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"issue_date", type:"string", required:true, desc:"开票日期 Y-m-d")]
+#[\erikwang2013\apidoc\annotation\Param(name:"seller_name", type:"string", required:true, desc:"销售方名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"seller_tax_no", type:"string", required:true, desc:"销售方税号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"buyer_name", type:"string", default:"", desc:"购买方名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"buyer_tax_no", type:"string", default:"", desc:"购买方税号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"amount", type:"string", required:true, desc:"价税合计")]
+#[\erikwang2013\apidoc\annotation\Param(name:"untaxed_amount", type:"string", required:true, desc:"不含税金额")]
+#[\erikwang2013\apidoc\annotation\Param(name:"tax_amount", type:"string", required:true, desc:"税额")]
+#[\erikwang2013\apidoc\annotation\Param(name:"source", type:"string", default:"manual", desc:"来源(manual/excel)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", default:"", desc:"备注")]
 
     public function store(Request $request): Response
     {
@@ -143,12 +141,12 @@ class TaxInvoicePoolController extends BaseController
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
      * @Apidoc\Param(name="rows", type="array", required=true, desc="行数组(字段同手工登记)")
-     */#[Apidoc\Title("进项发票批量登记")]
-#[Apidoc\Url("/admin/v1/finance/tax-input-invoice/batch")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"rows", type:"array", required:true, desc:"行数组(字段同手工登记)")]
+     */#[\erikwang2013\apidoc\annotation\Title("进项发票批量登记")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-input-invoice/batch")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"rows", type:"array", required:true, desc:"行数组(字段同手工登记)")]
 
     public function batch(Request $request): Response
     {
@@ -173,11 +171,11 @@ class TaxInvoicePoolController extends BaseController
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
      * @Apidoc\Param(name="id", type="string", required=true, desc="发票ID(hashid)")
-     */#[Apidoc\Title("进项发票验真")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"id", type:"string", required:true, desc:"发票ID(hashid)")]
+     */#[\erikwang2013\apidoc\annotation\Title("进项发票验真")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", required:true, desc:"发票ID(hashid)")]
 
     public function verify(Request $request, string $id): Response
     {
@@ -200,11 +198,11 @@ class TaxInvoicePoolController extends BaseController
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
      * @Apidoc\Param(name="id", type="string", required=true, desc="发票ID(hashid)")
-     */#[Apidoc\Title("进项发票勾选")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"id", type:"string", required:true, desc:"发票ID(hashid)")]
+     */#[\erikwang2013\apidoc\annotation\Title("进项发票勾选")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", required:true, desc:"发票ID(hashid)")]
 
     public function check(Request $request, string $id): Response
     {
@@ -228,12 +226,12 @@ class TaxInvoicePoolController extends BaseController
      * @Apidoc\Tag("财务管理")
      * @Apidoc\Param(name="id", type="string", required=true, desc="发票ID(hashid)")
      * @Apidoc\Param(name="deduct_period", type="string", required=true, desc="抵扣期间 YYYY-MM")
-     */#[Apidoc\Title("进项发票抵扣")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
-#[Apidoc\Param(name:"id", type:"string", required:true, desc:"发票ID(hashid)")]
-#[Apidoc\Param(name:"deduct_period", type:"string", required:true, desc:"抵扣期间 YYYY-MM")]
+     */#[\erikwang2013\apidoc\annotation\Title("进项发票抵扣")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", required:true, desc:"发票ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"deduct_period", type:"string", required:true, desc:"抵扣期间 YYYY-MM")]
 
     public function deduct(Request $request, string $id): Response
     {
@@ -256,11 +254,11 @@ class TaxInvoicePoolController extends BaseController
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
-     */#[Apidoc\Title("抵扣统计")]
-#[Apidoc\Url("/admin/v1/finance/tax-input-invoice/deduct-stats")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("财务管理")]
+     */#[\erikwang2013\apidoc\annotation\Title("抵扣统计")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-input-invoice/deduct-stats")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
     public function deductStats(Request $request): Response
     {

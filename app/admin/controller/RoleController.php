@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\model\AdminRole;
 use support\Request;
 use support\Response;
@@ -30,17 +28,17 @@ class RoleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("角色列表")]
-#[Apidoc\Desc("获取角色分页列表，包含用户数量统计")]
-#[Apidoc\Url("/admin/v1/role")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("角色管理")]
-#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("角色列表")]
+#[\erikwang2013\apidoc\annotation\Desc("获取角色分页列表，包含用户数量统计")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/role")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("角色管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function index(Request $request): Response
     {
@@ -75,15 +73,15 @@ class RoleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="角色信息")
-     */#[Apidoc\Title("角色详情")]
-#[Apidoc\Desc("按 ID 查询单个角色")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("角色管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"角色ID(hashid)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"角色信息")]
+     */#[\erikwang2013\apidoc\annotation\Title("角色详情")]
+#[\erikwang2013\apidoc\annotation\Desc("按 ID 查询单个角色")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("角色管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"角色ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"角色信息")]
 
     public function show(Request $request, string $id): Response
     {
@@ -111,19 +109,19 @@ class RoleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="新创建的角色")
-     */#[Apidoc\Title("创建角色")]
-#[Apidoc\Desc("创建一个新角色并同步关联权限")]
-#[Apidoc\Url("/admin/v1/role")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("角色管理")]
-#[Apidoc\Param(name:"name", type:"string", require:true, desc:"角色名称")]
-#[Apidoc\Param(name:"slug", type:"string", require:true, desc:"角色标识")]
-#[Apidoc\Param(name:"description", type:"string", default:"", desc:"角色描述")]
-#[Apidoc\Param(name:"status", type:"int", default:1, desc:"状态(1=启用,0=禁用)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"新创建的角色")]
+     */#[\erikwang2013\apidoc\annotation\Title("创建角色")]
+#[\erikwang2013\apidoc\annotation\Desc("创建一个新角色并同步关联权限")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/role")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("角色管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"角色名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"slug", type:"string", require:true, desc:"角色标识")]
+#[\erikwang2013\apidoc\annotation\Param(name:"description", type:"string", default:"", desc:"角色描述")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:1, desc:"状态(1=启用,0=禁用)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"新创建的角色")]
 
     public function store(Request $request): Response
     {
@@ -167,18 +165,18 @@ class RoleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的角色")
-     */#[Apidoc\Title("更新角色")]
-#[Apidoc\Desc("更新指定角色的信息并同步权限")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("角色管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"角色ID(hashid)")]
-#[Apidoc\Param(name:"name", type:"string", default:"", desc:"角色名称")]
-#[Apidoc\Param(name:"description", type:"string", default:"", desc:"角色描述")]
-#[Apidoc\Param(name:"status", type:"int", default:1, desc:"状态(1=启用,0=禁用)")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"更新后的角色")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新角色")]
+#[\erikwang2013\apidoc\annotation\Desc("更新指定角色的信息并同步权限")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("角色管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"角色ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"角色名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"description", type:"string", default:"", desc:"角色描述")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:1, desc:"状态(1=启用,0=禁用)")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的角色")]
 
     public function update(Request $request, string $id): Response
     {
@@ -213,16 +211,16 @@ class RoleController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */#[Apidoc\Title("删除角色")]
-#[Apidoc\Desc("删除指定角色，需当前管理员密码进行二次确认，同时清理关联的权限和用户")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("角色管理")]
-#[Apidoc\Param(name:"id", type:"string", require:true, desc:"角色ID(hashid)")]
-#[Apidoc\Param(name:"password", type:"string", require:true, desc:"当前用户密码（二次确认）")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除角色")]
+#[\erikwang2013\apidoc\annotation\Desc("删除指定角色，需当前管理员密码进行二次确认，同时清理关联的权限和用户")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("角色管理")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"角色ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前用户密码（二次确认）")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
 
     public function destroy(Request $request, string $id): Response
     {

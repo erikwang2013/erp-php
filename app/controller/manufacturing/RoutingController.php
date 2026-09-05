@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace app\controller\manufacturing;
 
-use erikwang2013\apidoc\annotation as Apidoc;
-
 use app\admin\controller\BaseController;
 use app\model\MfgRouting;
 use app\service\manufacturing\ManufacturingService;
@@ -19,7 +17,7 @@ use support\Response;
 /**
  * 工艺路线管理
   * @Apidoc\Tag("生产制造")
- */#[Apidoc\Tag("生产制造")]
+ */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class RoutingController extends BaseController
 {
@@ -35,16 +33,16 @@ class RoutingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("工艺路线列表")]
-#[Apidoc\Desc("按产品分组查询工艺路线，按seq排序")]
-#[Apidoc\Url("/admin/v1/mfg/routing")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"product_id", type:"int", desc:"产品ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("工艺路线列表")]
+#[\erikwang2013\apidoc\annotation\Desc("按产品分组查询工艺路线，按seq排序")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/routing")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"product_id", type:"int", desc:"产品ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function index(Request $request): Response
     {
@@ -76,19 +74,19 @@ class RoutingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("添加工艺工序")]
-#[Apidoc\Desc("新增工艺路线工序记录")]
-#[Apidoc\Url("/admin/v1/mfg/routing")]
-#[Apidoc\Method("POST")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"product_id", type:"int", desc:"产品ID，必填")]
-#[Apidoc\Param(name:"name", type:"string", desc:"工序名称，必填")]
-#[Apidoc\Param(name:"seq", type:"int", desc:"工序序号，必填")]
-#[Apidoc\Param(name:"workstation_id", type:"int", desc:"工作站ID，必填")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("添加工艺工序")]
+#[\erikwang2013\apidoc\annotation\Desc("新增工艺路线工序记录")]
+#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/routing")]
+#[\erikwang2013\apidoc\annotation\Method("POST")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"product_id", type:"int", desc:"产品ID，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"工序名称，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"seq", type:"int", desc:"工序序号，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"workstation_id", type:"int", desc:"工作站ID，必填")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function store(Request $request): Response
     {
@@ -119,15 +117,15 @@ class RoutingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("工艺工序详情")]
-#[Apidoc\Desc("查看工艺路线工序详细信息")]
-#[Apidoc\Method("GET")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"工序ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("工艺工序详情")]
+#[\erikwang2013\apidoc\annotation\Desc("查看工艺路线工序详细信息")]
+#[\erikwang2013\apidoc\annotation\Method("GET")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工序ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function show(Request $request, string $id): Response
     {
@@ -152,15 +150,15 @@ class RoutingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("更新工艺工序")]
-#[Apidoc\Desc("修改工艺路线工序信息")]
-#[Apidoc\Method("PUT")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"工序ID")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("更新工艺工序")]
+#[\erikwang2013\apidoc\annotation\Desc("修改工艺路线工序信息")]
+#[\erikwang2013\apidoc\annotation\Method("PUT")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工序ID")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function update(Request $request, string $id): Response
     {
@@ -186,16 +184,16 @@ class RoutingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */#[Apidoc\Title("删除工艺工序")]
-#[Apidoc\Desc("删除工艺路线工序记录，需密码确认")]
-#[Apidoc\Method("DELETE")]
-#[Apidoc\Author("erik")]
-#[Apidoc\Tag("生产制造")]
-#[Apidoc\Param(name:"id", type:"string", desc:"工序ID")]
-#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
-#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
-#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+     */#[\erikwang2013\apidoc\annotation\Title("删除工艺工序")]
+#[\erikwang2013\apidoc\annotation\Desc("删除工艺路线工序记录，需密码确认")]
+#[\erikwang2013\apidoc\annotation\Method("DELETE")]
+#[\erikwang2013\apidoc\annotation\Author("erik")]
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工序ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
+#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
+#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function destroy(Request $request, string $id): Response
     {
