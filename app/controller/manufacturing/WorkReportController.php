@@ -24,13 +24,15 @@ use support\Response;
 
 /**
  * 工序报工单管理 — CRUD + 审核（WIP 人工成本归集）
- */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class WorkReportController extends BaseController
 {
     /**
      * 报工单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("报工单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("报工单列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/work-report")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -65,7 +67,8 @@ class WorkReportController extends BaseController
 
     /**
      * 创建报工单（草稿）
-     */#[\erikwang2013\apidoc\annotation\Title("创建报工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建报工单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/work-report")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -157,7 +160,8 @@ class WorkReportController extends BaseController
 
     /**
      * 报工单详情
-     */#[\erikwang2013\apidoc\annotation\Title("报工单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("报工单详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -183,7 +187,8 @@ class WorkReportController extends BaseController
 
     /**
      * 更新报工单（仅草稿：数量/合格数/日期等，工单产品工序员工不可改）
-     */#[\erikwang2013\apidoc\annotation\Title("更新报工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新报工单")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -225,7 +230,8 @@ class WorkReportController extends BaseController
 
     /**
      * 删除报工单（仅草稿，需密码确认）
-     */#[\erikwang2013\apidoc\annotation\Title("删除报工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除报工单")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -255,7 +261,8 @@ class WorkReportController extends BaseController
 
     /**
      * 审核报工单（快照计件金额并归集 WIP 人工成本）
-     */#[\erikwang2013\apidoc\annotation\Title("审核报工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("审核报工单")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]

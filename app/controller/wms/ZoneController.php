@@ -16,7 +16,8 @@ class ZoneController extends BaseController
 {
     /**
      * 库区列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("库区列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库区列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取库区列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/zone")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class ZoneController extends BaseController
 
     /**
      * 创建库区
-     */#[\erikwang2013\apidoc\annotation\Title("创建库区")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建库区")]
 #[\erikwang2013\apidoc\annotation\Desc("创建库区，名称必填，其余字段按业务传入")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/zone")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -87,7 +89,8 @@ class ZoneController extends BaseController
 
     /**
      * 库区详情
-     */#[\erikwang2013\apidoc\annotation\Title("库区详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库区详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取库区详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -113,7 +116,8 @@ class ZoneController extends BaseController
 
     /**
      * 更新库区
-     */#[\erikwang2013\apidoc\annotation\Title("更新库区")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新库区")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新库区信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -142,7 +146,8 @@ class ZoneController extends BaseController
 
     /**
      * 删除库区
-     */#[\erikwang2013\apidoc\annotation\Title("删除库区")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除库区")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除库区，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

@@ -23,7 +23,8 @@ class TrainingController extends BaseController
 {
     /**
      * 课程列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("课程列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("课程列表")]
 #[\erikwang2013\apidoc\annotation\Desc("按状态/类型/最低学分/关键词分页查询课程")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/course")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class TrainingController extends BaseController
 
     /**
      * 创建课程
-     */#[\erikwang2013\apidoc\annotation\Title("创建课程")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建课程")]
 #[\erikwang2013\apidoc\annotation\Desc("title/course_type 必填；未传 status 落草稿(0)")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/course")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -82,7 +84,8 @@ class TrainingController extends BaseController
 
     /**
      * 更新课程
-     */#[\erikwang2013\apidoc\annotation\Title("更新课程")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新课程")]
 #[\erikwang2013\apidoc\annotation\Desc("可部分更新；下架仅拦截新报名，不影响已有选课")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -106,7 +109,8 @@ class TrainingController extends BaseController
 
     /**
      * 删除课程（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除课程")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除课程")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除课程；学分与选课历史保留")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -130,7 +134,8 @@ class TrainingController extends BaseController
 
     /**
      * 员工报名课程
-     */#[\erikwang2013\apidoc\annotation\Title("员工报名课程")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("员工报名课程")]
 #[\erikwang2013\apidoc\annotation\Desc("仅上架课程可报名；同员工同课程仅一条选课，重复报名拒绝")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -157,7 +162,8 @@ class TrainingController extends BaseController
 
     /**
      * 取消课程报名
-     */#[\erikwang2013\apidoc\annotation\Title("取消课程报名")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("取消课程报名")]
 #[\erikwang2013\apidoc\annotation\Desc("已报名(0)→已取消(2)；已完成(1)不可取消")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -184,7 +190,8 @@ class TrainingController extends BaseController
 
     /**
      * 标记课程完成
-     */#[\erikwang2013\apidoc\annotation\Title("标记课程完成")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("标记课程完成")]
 #[\erikwang2013\apidoc\annotation\Desc("已报名(0)→已完成(1)并记 completed_at；学分计入员工学分")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -211,7 +218,8 @@ class TrainingController extends BaseController
 
     /**
      * 员工学分统计
-     */#[\erikwang2013\apidoc\annotation\Title("员工学分统计")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("员工学分统计")]
 #[\erikwang2013\apidoc\annotation\Desc("已完成选课学分合计与选课历史（课程软删除后仍计入）")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

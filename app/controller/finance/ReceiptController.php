@@ -14,14 +14,16 @@ use support\Response;
 
 /**
  * 收款管理
- */#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
 class ReceiptController extends BaseController
 {
     /**
      * 收款列表（分页）
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("收款列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("收款列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取收款记录分页列表，支持关键字搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/receipt")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -63,7 +65,8 @@ class ReceiptController extends BaseController
 
     /**
      * 创建收款记录
-     */#[\erikwang2013\apidoc\annotation\Title("创建收款记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建收款记录")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一条新的收款记录，状态默认为待确认")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/receipt")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -104,7 +107,8 @@ class ReceiptController extends BaseController
 
     /**
      * 收款详情
-     */#[\erikwang2013\apidoc\annotation\Title("收款详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("收款详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定收款记录的详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -127,7 +131,8 @@ class ReceiptController extends BaseController
 
     /**
      * 更新收款记录
-     */#[\erikwang2013\apidoc\annotation\Title("更新收款记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新收款记录")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定收款记录的信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -191,7 +196,8 @@ class ReceiptController extends BaseController
 
     /**
      * 删除收款记录
-     */#[\erikwang2013\apidoc\annotation\Title("删除收款记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除收款记录")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定收款记录，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

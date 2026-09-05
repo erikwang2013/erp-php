@@ -17,7 +17,8 @@ class BudgetController extends BaseController
 {
     /**
      * 预算列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("预算列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("预算列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询预算记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/budget")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -64,7 +65,8 @@ class BudgetController extends BaseController
 
     /**
      * 创建预算
-     */#[\erikwang2013\apidoc\annotation\Title("创建预算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建预算")]
 #[\erikwang2013\apidoc\annotation\Desc("新增预算记录，含预算明细")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/budget")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -112,7 +114,8 @@ class BudgetController extends BaseController
 
     /**
      * 预算详情
-     */#[\erikwang2013\apidoc\annotation\Title("预算详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("预算详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看预算详细信息，含预算明细")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -140,7 +143,8 @@ class BudgetController extends BaseController
 
     /**
      * 更新预算
-     */#[\erikwang2013\apidoc\annotation\Title("更新预算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新预算")]
 #[\erikwang2013\apidoc\annotation\Desc("修改预算记录，仅草稿状态可编辑")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -189,7 +193,8 @@ class BudgetController extends BaseController
 
     /**
      * 删除预算
-     */#[\erikwang2013\apidoc\annotation\Title("删除预算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除预算")]
 #[\erikwang2013\apidoc\annotation\Desc("删除预算记录，需密码确认，连明细一起删除")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -222,7 +227,8 @@ class BudgetController extends BaseController
 
     /**
      * 预算执行对比
-     */#[\erikwang2013\apidoc\annotation\Title("预算执行对比")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("预算执行对比")]
 #[\erikwang2013\apidoc\annotation\Desc("预算 vs 实际执行对比分析")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

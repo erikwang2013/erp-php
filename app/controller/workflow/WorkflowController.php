@@ -17,7 +17,8 @@ class WorkflowController extends BaseController
 {
     /**
      * 工作流模板列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("工作流模板列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工作流模板列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询工作流模板记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/workflow")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -59,7 +60,8 @@ class WorkflowController extends BaseController
 
     /**
      * 创建工作流模板
-     */#[\erikwang2013\apidoc\annotation\Title("创建工作流模板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建工作流模板")]
 #[\erikwang2013\apidoc\annotation\Desc("新增工作流模板记录，含审批节点")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/workflow")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -111,7 +113,8 @@ class WorkflowController extends BaseController
 
     /**
      * 工作流详情
-     */#[\erikwang2013\apidoc\annotation\Title("工作流模板详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工作流模板详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看工作流模板详细信息，含审批节点")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -140,7 +143,8 @@ class WorkflowController extends BaseController
 
     /**
      * 更新工作流
-     */#[\erikwang2013\apidoc\annotation\Title("更新工作流模板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新工作流模板")]
 #[\erikwang2013\apidoc\annotation\Desc("修改工作流模板信息，含节点替换")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -191,7 +195,8 @@ class WorkflowController extends BaseController
 
     /**
      * 删除工作流
-     */#[\erikwang2013\apidoc\annotation\Title("删除工作流模板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除工作流模板")]
 #[\erikwang2013\apidoc\annotation\Desc("删除工作流模板记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

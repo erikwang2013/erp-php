@@ -15,13 +15,15 @@ use support\Response;
 
 /**
  * 来料检验 (IQC)
- */#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
 
 class IncomingCheckController extends BaseController
 {
     /**
      * 来料检验记录列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("来料检验记录列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("来料检验记录列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取来料检验(IQC)记录列表，支持分页、单号关键词搜索和结果筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/iqc")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -56,7 +58,8 @@ class IncomingCheckController extends BaseController
 
     /**
      * 创建来料检验记录
-     */#[\erikwang2013\apidoc\annotation\Title("创建来料检验记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建来料检验记录")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一条来料检验(IQC)记录，检验单号/检验数量/检验结果必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/iqc")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -89,7 +92,8 @@ class IncomingCheckController extends BaseController
 
     /**
      * 来料检验记录详情
-     */#[\erikwang2013\apidoc\annotation\Title("来料检验记录详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("来料检验记录详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取来料检验(IQC)记录详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -109,7 +113,8 @@ class IncomingCheckController extends BaseController
 
     /**
      * 更新来料检验记录
-     */#[\erikwang2013\apidoc\annotation\Title("更新来料检验记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新来料检验记录")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新来料检验(IQC)记录信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -134,7 +139,8 @@ class IncomingCheckController extends BaseController
 
     /**
      * 删除来料检验记录（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除来料检验记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除来料检验记录")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除来料检验(IQC)记录，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -164,7 +170,8 @@ class IncomingCheckController extends BaseController
 
     /**
      * 检验登记（自动生成不合格品单）
-     */#[\erikwang2013\apidoc\annotation\Title("检验登记")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("检验登记")]
 #[\erikwang2013\apidoc\annotation\Desc("按检验类型(iqc/ipqc/oqc)登记结果，reject时自动创建不合格品单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/inspection/record")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -194,7 +201,8 @@ class IncomingCheckController extends BaseController
 
     /**
      * 检验合格率
-     */#[\erikwang2013\apidoc\annotation\Title("检验合格率")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("检验合格率")]
 #[\erikwang2013\apidoc\annotation\Desc("按检验明细汇总计算合格率")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/inspection/pass-rate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

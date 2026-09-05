@@ -19,13 +19,15 @@ use support\Response;
 
 /**
  * 设备点检执行（扫码闭环）
- */#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
 
 class EamInspectionController extends BaseController
 {
     /**
      * 点检任务列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("点检任务列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("点检任务列表")]
 #[\erikwang2013\apidoc\annotation\Desc("按设备/日期/状态分页查询点检任务")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/inspection")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -69,7 +71,8 @@ class EamInspectionController extends BaseController
 
     /**
      * 生成点检任务
-     */#[\erikwang2013\apidoc\annotation\Title("生成点检任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("生成点检任务")]
 #[\erikwang2013\apidoc\annotation\Desc("按计划或人工补单生成点检任务；扫码自动生成请走扫码执行接口")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/inspection")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -111,7 +114,8 @@ class EamInspectionController extends BaseController
 
     /**
      * 点检任务详情（含结果明细）
-     */#[\erikwang2013\apidoc\annotation\Title("点检任务详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("点检任务详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看点检任务及扫码结果明细")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -138,7 +142,8 @@ class EamInspectionController extends BaseController
 
     /**
      * 改期/改派/改备注（仅待执行任务可改）
-     */#[\erikwang2013\apidoc\annotation\Title("修改点检任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("修改点检任务")]
 #[\erikwang2013\apidoc\annotation\Desc("改期、更换负责人或备注；仅待执行任务可修改")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -168,7 +173,8 @@ class EamInspectionController extends BaseController
 
     /**
      * 取消点检任务
-     */#[\erikwang2013\apidoc\annotation\Title("取消点检任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("取消点检任务")]
 #[\erikwang2013\apidoc\annotation\Desc("仅待执行任务可取消；已完成的点检不可取消")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -191,7 +197,8 @@ class EamInspectionController extends BaseController
 
     /**
      * 扫码点检执行
-     */#[\erikwang2013\apidoc\annotation\Title("扫码点检执行")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("扫码点检执行")]
 #[\erikwang2013\apidoc\annotation\Desc("扫码提交当日点检结果；无任务自动生成，异常项自动创建维修单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/inspection/scan-execute")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

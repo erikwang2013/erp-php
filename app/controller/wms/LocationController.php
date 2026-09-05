@@ -16,7 +16,8 @@ class LocationController extends BaseController
 {
     /**
      * 库位列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("库位列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库位列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取库位列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/location")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class LocationController extends BaseController
 
     /**
      * 创建库位
-     */#[\erikwang2013\apidoc\annotation\Title("创建库位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建库位")]
 #[\erikwang2013\apidoc\annotation\Desc("创建库位，编码必填，其余字段按业务传入")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/location")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -82,7 +84,8 @@ class LocationController extends BaseController
 
     /**
      * 库位详情
-     */#[\erikwang2013\apidoc\annotation\Title("库位详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库位详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取库位详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -108,7 +111,8 @@ class LocationController extends BaseController
 
     /**
      * 更新库位
-     */#[\erikwang2013\apidoc\annotation\Title("更新库位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新库位")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新库位信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -137,7 +141,8 @@ class LocationController extends BaseController
 
     /**
      * 删除库位
-     */#[\erikwang2013\apidoc\annotation\Title("删除库位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除库位")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除库位，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

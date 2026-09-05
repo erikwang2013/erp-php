@@ -26,7 +26,8 @@ class SettlementController extends BaseController
 
     /**
      * 采购结算列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("采购结算列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("采购结算列表")]
 #[\erikwang2013\apidoc\annotation\Desc("基于应付记录查询采购结算，状态按已核销金额推导")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/settlement")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -84,7 +85,8 @@ class SettlementController extends BaseController
 
     /**
      * 采购结算核销（经服务层）
-     */#[\erikwang2013\apidoc\annotation\Title("创建采购结算核销")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建采购结算核销")]
 #[\erikwang2013\apidoc\annotation\Desc("对收货单应付记录执行付款核销，状态由服务层推导，客户端传 status 一律忽略")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/settlement")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -132,7 +134,8 @@ class SettlementController extends BaseController
 
     /**
      * 采购结算详情
-     */#[\erikwang2013\apidoc\annotation\Title("采购结算详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("采购结算详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据应付记录ID获取采购结算详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -157,7 +160,8 @@ class SettlementController extends BaseController
 
     /**
      * 更新采购结算（仅应付金额）
-     */#[\erikwang2013\apidoc\annotation\Title("更新采购结算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新采购结算")]
 #[\erikwang2013\apidoc\annotation\Desc("仅允许调整应付金额，且不得小于已核销金额；状态由服务端推导")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -193,7 +197,8 @@ class SettlementController extends BaseController
 
     /**
      * 删除采购结算（仅未核销记录）
-     */#[\erikwang2013\apidoc\annotation\Title("删除采购结算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除采购结算")]
 #[\erikwang2013\apidoc\annotation\Desc("删除未核销的应付记录，需管理员密码二次确认；已核销记录不可删除")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

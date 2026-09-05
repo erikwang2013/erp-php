@@ -14,13 +14,15 @@ use support\Response;
 
 /**
  * 数据集管理
- */#[\erikwang2013\apidoc\annotation\Tag("商业智能")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("商业智能")]
 
 class DatasetController extends BaseController
 {
     /**
      * 数据集列表
-     */#[\erikwang2013\apidoc\annotation\Title("数据集列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("数据集列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询自定义报表数据集，支持按名称或查询SQL关键字筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/bi/dataset")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +55,8 @@ class DatasetController extends BaseController
 
     /**
      * 创建数据集
-     */#[\erikwang2013\apidoc\annotation\Title("创建数据集")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建数据集")]
 #[\erikwang2013\apidoc\annotation\Desc("基于报表模板新建数据集")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/bi/dataset")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -84,7 +87,8 @@ class DatasetController extends BaseController
 
     /**
      * 数据集详情
-     */#[\erikwang2013\apidoc\annotation\Title("数据集详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("数据集详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看单个数据集定义")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -104,7 +108,8 @@ class DatasetController extends BaseController
 
     /**
      * 更新数据集
-     */#[\erikwang2013\apidoc\annotation\Title("更新数据集")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新数据集")]
 #[\erikwang2013\apidoc\annotation\Desc("更新数据集名称或查询定义")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -130,7 +135,8 @@ class DatasetController extends BaseController
 
     /**
      * 删除数据集
-     */#[\erikwang2013\apidoc\annotation\Title("删除数据集")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除数据集")]
 #[\erikwang2013\apidoc\annotation\Desc("删除数据集定义，需二次密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

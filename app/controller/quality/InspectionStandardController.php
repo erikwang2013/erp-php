@@ -14,13 +14,15 @@ use support\Response;
 
 /**
  * 检验标准管理
- */#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
 
 class InspectionStandardController extends BaseController
 {
     /**
      * 检验标准列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("检验标准列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("检验标准列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取检验标准列表，支持分页、名称/编码关键词搜索")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/standard")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -50,7 +52,8 @@ class InspectionStandardController extends BaseController
 
     /**
      * 创建检验标准
-     */#[\erikwang2013\apidoc\annotation\Title("创建检验标准")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建检验标准")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一条检验标准，标准名称必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/standard")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -77,7 +80,8 @@ class InspectionStandardController extends BaseController
 
     /**
      * 检验标准详情
-     */#[\erikwang2013\apidoc\annotation\Title("检验标准详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("检验标准详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取检验标准详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -97,7 +101,8 @@ class InspectionStandardController extends BaseController
 
     /**
      * 更新检验标准
-     */#[\erikwang2013\apidoc\annotation\Title("更新检验标准")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新检验标准")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新检验标准信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -122,7 +127,8 @@ class InspectionStandardController extends BaseController
 
     /**
      * 删除检验标准（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除检验标准")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除检验标准")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除检验标准，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

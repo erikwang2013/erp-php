@@ -19,7 +19,8 @@ class HealthController
     /**
      * 健康检查
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("健康检查")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("健康检查")]
 #[\erikwang2013\apidoc\annotation\Desc("检查系统各组件的运行状态，包括数据库、Redis和Elasticsearch连接状态")]
 #[\erikwang2013\apidoc\annotation\Url("/health")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

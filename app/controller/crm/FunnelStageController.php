@@ -18,7 +18,8 @@ class FunnelStageController extends BaseController
 {
     /**
      * 漏斗阶段列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("漏斗阶段列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("漏斗阶段列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询漏斗阶段记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/funnel")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class FunnelStageController extends BaseController
 
     /**
      * 创建漏斗阶段
-     */#[\erikwang2013\apidoc\annotation\Title("创建漏斗阶段")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建漏斗阶段")]
 #[\erikwang2013\apidoc\annotation\Desc("新增漏斗阶段记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/funnel")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -78,7 +80,8 @@ class FunnelStageController extends BaseController
 
     /**
      * 漏斗阶段详情
-     */#[\erikwang2013\apidoc\annotation\Title("漏斗阶段详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("漏斗阶段详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看漏斗阶段详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -101,7 +104,8 @@ class FunnelStageController extends BaseController
 
     /**
      * 更新漏斗阶段
-     */#[\erikwang2013\apidoc\annotation\Title("更新漏斗阶段")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新漏斗阶段")]
 #[\erikwang2013\apidoc\annotation\Desc("修改漏斗阶段信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -124,7 +128,8 @@ class FunnelStageController extends BaseController
 
     /**
      * 删除漏斗阶段
-     */#[\erikwang2013\apidoc\annotation\Title("删除漏斗阶段")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除漏斗阶段")]
 #[\erikwang2013\apidoc\annotation\Desc("删除漏斗阶段记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

@@ -14,13 +14,15 @@ use support\Response;
 
 /**
  * 出货检验 (OQC)
- */#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
 
 class FinalCheckController extends BaseController
 {
     /**
      * 出货检验记录列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("出货检验记录列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("出货检验记录列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取出货检验(OQC)记录列表，支持分页、单号关键词搜索和结果筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/oqc")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -55,7 +57,8 @@ class FinalCheckController extends BaseController
 
     /**
      * 创建出货检验记录
-     */#[\erikwang2013\apidoc\annotation\Title("创建出货检验记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建出货检验记录")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一条出货检验(OQC)记录，检验单号/检验数量/检验结果必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/oqc")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -88,7 +91,8 @@ class FinalCheckController extends BaseController
 
     /**
      * 出货检验记录详情
-     */#[\erikwang2013\apidoc\annotation\Title("出货检验记录详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("出货检验记录详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取出货检验(OQC)记录详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -108,7 +112,8 @@ class FinalCheckController extends BaseController
 
     /**
      * 更新出货检验记录
-     */#[\erikwang2013\apidoc\annotation\Title("更新出货检验记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新出货检验记录")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新出货检验(OQC)记录信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -133,7 +138,8 @@ class FinalCheckController extends BaseController
 
     /**
      * 删除出货检验记录（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除出货检验记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除出货检验记录")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除出货检验(OQC)记录，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

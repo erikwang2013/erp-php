@@ -18,7 +18,8 @@ class BrandController extends BaseController
 {
     /**
      * 品牌列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("品牌列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("品牌列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询品牌记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/brand")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class BrandController extends BaseController
 
     /**
      * 创建品牌
-     */#[\erikwang2013\apidoc\annotation\Title("创建品牌")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建品牌")]
 #[\erikwang2013\apidoc\annotation\Desc("新增品牌记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/brand")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -78,7 +80,8 @@ class BrandController extends BaseController
 
     /**
      * 品牌详情
-     */#[\erikwang2013\apidoc\annotation\Title("品牌详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("品牌详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看品牌详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -101,7 +104,8 @@ class BrandController extends BaseController
 
     /**
      * 更新品牌
-     */#[\erikwang2013\apidoc\annotation\Title("更新品牌")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新品牌")]
 #[\erikwang2013\apidoc\annotation\Desc("修改品牌信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -124,7 +128,8 @@ class BrandController extends BaseController
 
     /**
      * 删除品牌
-     */#[\erikwang2013\apidoc\annotation\Title("删除品牌")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除品牌")]
 #[\erikwang2013\apidoc\annotation\Desc("删除品牌记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

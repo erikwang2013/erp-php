@@ -18,13 +18,15 @@ use support\Response;
 
 /**
  * 项目成本归集与预算偏差
- */#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
 
 class ProjectCostController extends BaseController
 {
     /**
      * 成本台账列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("成本台账列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("成本台账列表")]
 #[\erikwang2013\apidoc\annotation\Desc("按项目/类别/来源/日期区间分页查询成本归集行")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/cost")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -78,7 +80,8 @@ class ProjectCostController extends BaseController
 
     /**
      * 手工录入成本
-     */#[\erikwang2013\apidoc\annotation\Title("手工录入成本")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("手工录入成本")]
 #[\erikwang2013\apidoc\annotation\Desc("人工=工时×费率；材料/其他=直接金额，金额列均存 DECIMAL 字符串")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/cost")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -128,7 +131,8 @@ class ProjectCostController extends BaseController
 
     /**
      * 删除成本记录
-     */#[\erikwang2013\apidoc\annotation\Title("删除成本记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除成本记录")]
 #[\erikwang2013\apidoc\annotation\Desc("仅手工录入的成本行可删除，需密码确认；工时归集行不可删")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -163,7 +167,8 @@ class ProjectCostController extends BaseController
 
     /**
      * 工时归集（自动生成成本）
-     */#[\erikwang2013\apidoc\annotation\Title("工时归集生成成本")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工时归集生成成本")]
 #[\erikwang2013\apidoc\annotation\Desc("按区间取工时台账×成员费率生成人工成本，幂等可重跑；未配置费率成员整行拒绝并列出")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/cost/generate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -206,7 +211,8 @@ class ProjectCostController extends BaseController
 
     /**
      * 项目损益（预算 vs 实际成本）
-     */#[\erikwang2013\apidoc\annotation\Title("项目损益")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("项目损益")]
 #[\erikwang2013\apidoc\annotation\Desc("预算-实际成本偏差；偏差率=偏差/预算×100%，预算为0时偏差率为null；超支不阻断")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/cost/pnl")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

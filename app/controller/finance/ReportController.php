@@ -21,7 +21,8 @@ class ReportController extends BaseController
 {
     /**
      * 财务利润报表
-     */#[\erikwang2013\apidoc\annotation\Title("财务利润报表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("财务利润报表")]
 #[\erikwang2013\apidoc\annotation\Desc("按年度和月份查询利润数据，含汇总统计")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/profit")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -69,7 +70,8 @@ class ReportController extends BaseController
 
     /**
      * 期末损益结转
-     */#[\erikwang2013\apidoc\annotation\Title("期末损益结转")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("期末损益结转")]
 #[\erikwang2013\apidoc\annotation\Desc("将损益类科目余额结转至本年利润")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/close-period")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -91,7 +93,8 @@ class ReportController extends BaseController
 
     /**
      * 多币种报表合并
-     */#[\erikwang2013\apidoc\annotation\Title("多币种合并")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("多币种合并")]
 #[\erikwang2013\apidoc\annotation\Desc("按期末汇率将外币报表折算为本位币")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/consolidate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -117,7 +120,8 @@ class ReportController extends BaseController
 
     /**
      * 财务指标计算
-     */#[\erikwang2013\apidoc\annotation\Title("财务指标计算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("财务指标计算")]
 #[\erikwang2013\apidoc\annotation\Desc("由资产负债表与利润表计算流动比率/负债率/净利率/资产收益率")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/ratios")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -139,7 +143,8 @@ class ReportController extends BaseController
 
     /**
      * 试算平衡表
-     */#[\erikwang2013\apidoc\annotation\Title("试算平衡表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("试算平衡表")]
 #[\erikwang2013\apidoc\annotation\Desc("按期间汇总科目借贷方发生额与余额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/trial-balance")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -160,7 +165,8 @@ class ReportController extends BaseController
 
     /**
      * 科目余额查询
-     */#[\erikwang2013\apidoc\annotation\Title("科目余额查询")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("科目余额查询")]
 #[\erikwang2013\apidoc\annotation\Desc("查询指定会计科目在期间的期初/本期/期末余额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/account-balance")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

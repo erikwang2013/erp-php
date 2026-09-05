@@ -18,13 +18,15 @@ use support\Response;
  * 会员价值引擎·卡券 — P2-3 C1
  * 发券（模板限量）与核销（归属/过期/已核销判拒）；模板维护为管理端手工建数据。
  * 核销来源 order_source 必填（记调用方单号）。路由注册随批次 lead 关闸（本批不注册）。
- */#[\erikwang2013\apidoc\annotation\Tag("会员管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("会员管理")]
 
 class CouponController extends BaseController
 {
     /**
      * 发券（模板须启用且有余量；valid_days=0 的券长期有效 expire_at=null）
-     */#[\erikwang2013\apidoc\annotation\Title("会员发券")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("会员发券")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/coupon/issue")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -50,7 +52,8 @@ class CouponController extends BaseController
 
     /**
      * 核销卡券（管理端代核销；过期判拒时惰性置 2，已核销/已过期不可再核销）
-     */#[\erikwang2013\apidoc\annotation\Title("卡券核销")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("卡券核销")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/coupon/redeem")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

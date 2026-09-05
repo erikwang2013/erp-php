@@ -18,7 +18,8 @@ class WarehouseController extends BaseController
 {
     /**
      * 仓库列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("仓库列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("仓库列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询仓库记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/warehouse")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class WarehouseController extends BaseController
 
     /**
      * 创建仓库
-     */#[\erikwang2013\apidoc\annotation\Title("创建仓库")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建仓库")]
 #[\erikwang2013\apidoc\annotation\Desc("新增仓库记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/warehouse")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -78,7 +80,8 @@ class WarehouseController extends BaseController
 
     /**
      * 仓库详情
-     */#[\erikwang2013\apidoc\annotation\Title("仓库详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("仓库详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看仓库详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -101,7 +104,8 @@ class WarehouseController extends BaseController
 
     /**
      * 更新仓库
-     */#[\erikwang2013\apidoc\annotation\Title("更新仓库")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新仓库")]
 #[\erikwang2013\apidoc\annotation\Desc("修改仓库信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -124,7 +128,8 @@ class WarehouseController extends BaseController
 
     /**
      * 删除仓库
-     */#[\erikwang2013\apidoc\annotation\Title("删除仓库")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除仓库")]
 #[\erikwang2013\apidoc\annotation\Desc("删除仓库记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

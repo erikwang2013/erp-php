@@ -14,13 +14,15 @@ use support\Response;
 
 /**
  * 备品备件管理
- */#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
 
 class SparePartController extends BaseController
 {
     /**
      * 备品备件列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("备品备件列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("备品备件列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取备品备件列表，支持分页、名称/编码/存放位置关键词搜索及状态/设备筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/spare-part")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -64,7 +66,8 @@ class SparePartController extends BaseController
 
     /**
      * 创建备品备件
-     */#[\erikwang2013\apidoc\annotation\Title("创建备品备件")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建备品备件")]
 #[\erikwang2013\apidoc\annotation\Desc("新增备品备件档案，编码/名称必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/spare-part")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -95,7 +98,8 @@ class SparePartController extends BaseController
 
     /**
      * 备品备件详情
-     */#[\erikwang2013\apidoc\annotation\Title("备品备件详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("备品备件详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取备品备件详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +119,8 @@ class SparePartController extends BaseController
 
     /**
      * 更新备品备件
-     */#[\erikwang2013\apidoc\annotation\Title("更新备品备件")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新备品备件")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新备品备件信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -140,7 +145,8 @@ class SparePartController extends BaseController
 
     /**
      * 删除备品备件（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除备品备件")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除备品备件")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除备品备件档案，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

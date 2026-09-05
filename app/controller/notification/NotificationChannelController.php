@@ -15,11 +15,11 @@ use support\Response;
 
 /**
  * 通知渠道外发（B4, P2-5）
- *
+
  * 【状态】本批次仅交付控制器 + Apidoc，不注册路由：启用入口
  * （/admin/platform/notification-channel/*）由平台批次统一挂载并接入权限
  * （AdminAuth 之后）。站内通知（inapp）走既有 NotificationController。
- *
+
  * 发送日志 id 为 snowflake 数值主键（本控制器无按 id 查询动作，故不作
  * hashid 编解码）。业务规则与错误消息契约见 ChannelService（消息文本为
  * 稳定契约，勿在此层改写）。
@@ -35,7 +35,8 @@ class NotificationChannelController extends BaseController
 
     /**
      * 发送渠道通知
-     */#[\erikwang2013\apidoc\annotation\Title("发送渠道通知")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("发送渠道通知")]
 #[\erikwang2013\apidoc\annotation\Desc("同步外发 sms/mail（Mock 网关），成功/失败均落 erp_notification_channel_log；同 (channel,to,内容) 5 分钟成功窗口内幂等去重，dedup:true 返回既有记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/notification-channel/send")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -74,7 +75,8 @@ class NotificationChannelController extends BaseController
 
     /**
      * 发送日志列表
-     */#[\erikwang2013\apidoc\annotation\Title("发送日志列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("发送日志列表")]
 #[\erikwang2013\apidoc\annotation\Desc("渠道通知发送日志分页查询，倒序")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/notification-channel/logs")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -106,7 +108,8 @@ class NotificationChannelController extends BaseController
 
     /**
      * 重试失败记录
-     */#[\erikwang2013\apidoc\annotation\Title("重试失败记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("重试失败记录")]
 #[\erikwang2013\apidoc\annotation\Desc("重试 status:2 且冷却(上次尝试≥60秒前)的失败记录，id 升序取前 limit 条")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/notification-channel/retry")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

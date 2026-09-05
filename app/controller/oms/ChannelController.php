@@ -16,7 +16,8 @@ class ChannelController extends BaseController
 {
     /**
      * 销售渠道列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("销售渠道列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("销售渠道列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取销售渠道列表，支持分页、渠道名称关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/oms/channel")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class ChannelController extends BaseController
 
     /**
      * 创建销售渠道
-     */#[\erikwang2013\apidoc\annotation\Title("创建销售渠道")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建销售渠道")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一个销售渠道（线上/线下），渠道名称必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/oms/channel")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -87,7 +89,8 @@ class ChannelController extends BaseController
 
     /**
      * 销售渠道详情
-     */#[\erikwang2013\apidoc\annotation\Title("销售渠道详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("销售渠道详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取销售渠道详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -113,7 +116,8 @@ class ChannelController extends BaseController
 
     /**
      * 更新销售渠道
-     */#[\erikwang2013\apidoc\annotation\Title("更新销售渠道")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新销售渠道")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新销售渠道信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -142,7 +146,8 @@ class ChannelController extends BaseController
 
     /**
      * 删除销售渠道（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除销售渠道")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除销售渠道")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除销售渠道，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

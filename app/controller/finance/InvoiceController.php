@@ -19,7 +19,8 @@ use support\Response;
 /**
  * 发票管理(应收/应付) — P0：开票申请状态流 + 三单匹配校验
  * 边界：税务票据追踪单据，不新增 ARAP 分录、不联动收付款/核销/结算。
- */#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
 class InvoiceController extends BaseController
 {
@@ -30,7 +31,8 @@ class InvoiceController extends BaseController
 
     /**
      * 发票列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("发票列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("发票列表")]
 #[\erikwang2013\apidoc\annotation\Desc("发票分页列表，支持类型/来源/状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/invoice")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -72,7 +74,8 @@ class InvoiceController extends BaseController
 
     /**
      * 创建开票申请(draft)
-     */#[\erikwang2013\apidoc\annotation\Title("创建开票申请")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建开票申请")]
 #[\erikwang2013\apidoc\annotation\Desc("金额由服务端 bcmath 计算；来源关联单超开将被拦截")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/invoice")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -105,7 +108,8 @@ class InvoiceController extends BaseController
 
     /**
      * 发票详情（含明细）
-     */#[\erikwang2013\apidoc\annotation\Title("发票详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("发票详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 
     public function show(Request $request, string $id): Response
@@ -120,7 +124,8 @@ class InvoiceController extends BaseController
 
     /**
      * 更新开票申请（仅 draft 可改金额明细/日期/币种/备注，金额整体重算并复检余额）
-     */#[\erikwang2013\apidoc\annotation\Title("更新开票申请")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新开票申请")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 
     public function update(Request $request, string $id): Response
@@ -166,7 +171,8 @@ class InvoiceController extends BaseController
 
     /**
      * 删除开票申请（仅 draft，需管理员密码；软删头+硬删明细）
-     */#[\erikwang2013\apidoc\annotation\Title("删除开票申请")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除开票申请")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 
     public function destroy(Request $request, string $id): Response
@@ -191,7 +197,8 @@ class InvoiceController extends BaseController
 
     /**
      * 提交开票申请(draft→submitted，复检余额)
-     */#[\erikwang2013\apidoc\annotation\Title("提交开票申请")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("提交开票申请")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 
     public function submit(Request $request, string $id): Response
@@ -205,7 +212,8 @@ class InvoiceController extends BaseController
 
     /**
      * 审核入账(submitted→audited，写三单匹配日志)
-     */#[\erikwang2013\apidoc\annotation\Title("审核发票")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("审核发票")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 
     public function audit(Request $request, string $id): Response
@@ -220,7 +228,8 @@ class InvoiceController extends BaseController
 
     /**
      * 作废发票(任意非 voided 状态，需原因；作废后未开票余额自动回补)
-     */#[\erikwang2013\apidoc\annotation\Title("作废发票")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("作废发票")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 
     public function void(Request $request, string $id): Response
@@ -235,7 +244,8 @@ class InvoiceController extends BaseController
 
     /**
      * 三单匹配预检（不落库）：拟开票明细金额 vs 来源单未开票余额
-     */#[\erikwang2013\apidoc\annotation\Title("三单匹配预检")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("三单匹配预检")]
 #[\erikwang2013\apidoc\annotation\Desc("返回 来源总额/已开票累计/未开票余额/本次金额/校验结果(result: ok:恰好 under:小于 over:超开)")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/invoice/match-check")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

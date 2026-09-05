@@ -14,7 +14,8 @@ class IndexController
 {
     /**
      * 首页(iframe 官方欢迎页)
-     */#[\erikwang2013\apidoc\annotation\Title("首页")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("首页")]
 #[\erikwang2013\apidoc\annotation\Desc("webman 默认首页，内嵌官方欢迎页 iframe，返回原始 HTML")]
 #[\erikwang2013\apidoc\annotation\Url("/")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -46,7 +47,8 @@ EOF;
 
     /**
      * 欢迎视图页
-     */#[\erikwang2013\apidoc\annotation\Title("欢迎视图页")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("欢迎视图页")]
 #[\erikwang2013\apidoc\annotation\Desc("渲染 index/view 欢迎视图(Blade 模板)")]
 #[\erikwang2013\apidoc\annotation\Url("/index/view")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -60,7 +62,8 @@ EOF;
 
     /**
      * 健康检查 JSON
-     */#[\erikwang2013\apidoc\annotation\Title("健康检查")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("健康检查")]
 #[\erikwang2013\apidoc\annotation\Desc("返回固定 JSON 探活响应")]
 #[\erikwang2013\apidoc\annotation\Url("/index/json")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

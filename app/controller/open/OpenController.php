@@ -13,7 +13,7 @@ use support\Response;
 
 /**
  * P0 开放接口演示控制器（/open/v1 组）
- *
+
  * ping 为公开接口（无需认证）；其余路由组挂 OpenApiAuth 中间件，
  * 认证通过后 $request->openapiApp 即当前请求方应用。
  */
@@ -22,7 +22,8 @@ class OpenController
     /**
      * 公开连通性检查
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("公开连通性检查")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("公开连通性检查")]
 #[\erikwang2013\apidoc\annotation\Desc("无需 API Key 的公开接口，返回服务标识与当前时间，用于连通性检查")]
 #[\erikwang2013\apidoc\annotation\Url("/open/v1/ping")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -48,7 +49,8 @@ class OpenController
     /**
      * 读取应用自身信息
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("读取应用自身信息")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("读取应用自身信息")]
 #[\erikwang2013\apidoc\annotation\Desc("URL 中的 id 必须与请求方应用一致(原始数字ID,非hashid)，仅返回非敏感字段")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

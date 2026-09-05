@@ -14,13 +14,15 @@ use support\Response;
 
 /**
  * 不合格品管理
- */#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
 
 class NonconformityController extends BaseController
 {
     /**
      * 不合格品单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("不合格品单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("不合格品单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取不合格品单列表，支持分页、单号/缺陷类型关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/nonconformity")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -55,7 +57,8 @@ class NonconformityController extends BaseController
 
     /**
      * 创建不合格品单
-     */#[\erikwang2013\apidoc\annotation\Title("创建不合格品单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建不合格品单")]
 #[\erikwang2013\apidoc\annotation\Desc("新增不合格品单，单号/缺陷类型/缺陷数量必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/nonconformity")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -88,7 +91,8 @@ class NonconformityController extends BaseController
 
     /**
      * 不合格品单详情
-     */#[\erikwang2013\apidoc\annotation\Title("不合格品单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("不合格品单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取不合格品单详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -108,7 +112,8 @@ class NonconformityController extends BaseController
 
     /**
      * 更新不合格品单
-     */#[\erikwang2013\apidoc\annotation\Title("更新不合格品单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新不合格品单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新不合格品单信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -133,7 +138,8 @@ class NonconformityController extends BaseController
 
     /**
      * 删除不合格品单（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除不合格品单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除不合格品单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除不合格品单，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

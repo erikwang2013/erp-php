@@ -16,7 +16,8 @@ class CurrencyController extends BaseController
 {
     /**
      * 币种列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("币种列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("币种列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询币种记录，本位币在前")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/currency")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class CurrencyController extends BaseController
 
     /**
      * 创建币种
-     */#[\erikwang2013\apidoc\annotation\Title("创建币种")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建币种")]
 #[\erikwang2013\apidoc\annotation\Desc("新增币种记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/currency")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -90,7 +92,8 @@ class CurrencyController extends BaseController
 
     /**
      * 币种详情
-     */#[\erikwang2013\apidoc\annotation\Title("币种详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("币种详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看币种详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -113,7 +116,8 @@ class CurrencyController extends BaseController
 
     /**
      * 更新币种
-     */#[\erikwang2013\apidoc\annotation\Title("更新币种")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新币种")]
 #[\erikwang2013\apidoc\annotation\Desc("修改币种信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -139,7 +143,8 @@ class CurrencyController extends BaseController
 
     /**
      * 删除币种
-     */#[\erikwang2013\apidoc\annotation\Title("删除币种")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除币种")]
 #[\erikwang2013\apidoc\annotation\Desc("删除币种记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

@@ -19,7 +19,8 @@ class ConsolidationController extends BaseController
 {
     /**
      * 生成合并草稿（集团=公司及其直接子公司，全部经默认账套）
-     */#[\erikwang2013\apidoc\annotation\Title("生成合并草稿")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("生成合并草稿")]
 #[\erikwang2013\apidoc\annotation\Desc("以报表期间内各子公司默认账套的单体报表（快照优先/实时兜底）合并；外币经期末汇率折算")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/consolidation/draft")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -55,7 +56,8 @@ class ConsolidationController extends BaseController
 
     /**
      * 最新版本（当前草稿）
-     */#[\erikwang2013\apidoc\annotation\Title("最新合并报表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("最新合并报表")]
 #[\erikwang2013\apidoc\annotation\Desc("同一集团+期间的当前版本（最新 created_at，可含已出表历史）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/consolidation/latest")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -83,7 +85,8 @@ class ConsolidationController extends BaseController
 
     /**
      * 版本列表（含历史已出表）
-     */#[\erikwang2013\apidoc\annotation\Title("合并报表版本列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("合并报表版本列表")]
 #[\erikwang2013\apidoc\annotation\Desc("同一集团+期间的全部历史版本，新→旧")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/consolidation/list")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -112,7 +115,8 @@ class ConsolidationController extends BaseController
 
     /**
      * 抵销分录（仅作用最新草稿）
-     */#[\erikwang2013\apidoc\annotation\Title("合并抵销分录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("合并抵销分录")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一组抵销行到当前草稿并重算合计；行=account_code+debit/credit（bcmath字符串）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/consolidation/eliminations")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -138,7 +142,8 @@ class ConsolidationController extends BaseController
 
     /**
      * 出表（草稿 → 已出）
-     */#[\erikwang2013\apidoc\annotation\Title("合并报表出表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("合并报表出表")]
 #[\erikwang2013\apidoc\annotation\Desc("status 0→1 并落 issued_at；仅未出表草稿可出，已出不可重复")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/consolidation/issue")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

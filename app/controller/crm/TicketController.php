@@ -19,7 +19,8 @@ class TicketController extends BaseController
 {
     /**
      * 工单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("服务工单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("服务工单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询服务工单记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/ticket")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -68,7 +69,8 @@ class TicketController extends BaseController
 
     /**
      * 创建工单
-     */#[\erikwang2013\apidoc\annotation\Title("创建服务工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建服务工单")]
 #[\erikwang2013\apidoc\annotation\Desc("新增服务工单记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/ticket")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -97,7 +99,8 @@ class TicketController extends BaseController
 
     /**
      * 工单详情
-     */#[\erikwang2013\apidoc\annotation\Title("服务工单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("服务工单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看服务工单详细信息，含回复列表")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -125,7 +128,8 @@ class TicketController extends BaseController
 
     /**
      * 更新工单
-     */#[\erikwang2013\apidoc\annotation\Title("更新服务工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新服务工单")]
 #[\erikwang2013\apidoc\annotation\Desc("修改服务工单信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -148,7 +152,8 @@ class TicketController extends BaseController
 
     /**
      * 删除工单
-     */#[\erikwang2013\apidoc\annotation\Title("删除服务工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除服务工单")]
 #[\erikwang2013\apidoc\annotation\Desc("删除服务工单，连回复记录一起删除，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -180,7 +185,8 @@ class TicketController extends BaseController
 
     /**
      * 指派工单
-     */#[\erikwang2013\apidoc\annotation\Title("指派工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("指派工单")]
 #[\erikwang2013\apidoc\annotation\Desc("将工单指派给指定处理人")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -210,7 +216,8 @@ class TicketController extends BaseController
 
     /**
      * 解决工单
-     */#[\erikwang2013\apidoc\annotation\Title("解决工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("解决工单")]
 #[\erikwang2013\apidoc\annotation\Desc("将工单标记为已解决，可附带解决回复")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -240,7 +247,8 @@ class TicketController extends BaseController
 
     /**
      * 添加工单回复
-     */#[\erikwang2013\apidoc\annotation\Title("添加工单回复")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("添加工单回复")]
 #[\erikwang2013\apidoc\annotation\Desc("为工单添加回复记录")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

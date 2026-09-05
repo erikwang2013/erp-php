@@ -14,7 +14,8 @@ use support\Response;
 
 /**
  * 维修工单管理
- */#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
 
 class RepairOrderController extends BaseController
 {
@@ -30,7 +31,8 @@ class RepairOrderController extends BaseController
 
     /**
      * 维修工单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("维修工单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("维修工单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取维修工单列表，支持分页、工单号/故障描述关键词搜索及状态/设备筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/repair")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -73,7 +75,8 @@ class RepairOrderController extends BaseController
 
     /**
      * 创建维修工单
-     */#[\erikwang2013\apidoc\annotation\Title("创建维修工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建维修工单")]
 #[\erikwang2013\apidoc\annotation\Desc("新增维修工单，工单号/设备ID/故障描述/维修类型必填，初始状态为 open")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/repair")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -109,7 +112,8 @@ class RepairOrderController extends BaseController
 
     /**
      * 维修工单详情
-     */#[\erikwang2013\apidoc\annotation\Title("维修工单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("维修工单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取维修工单详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -129,7 +133,8 @@ class RepairOrderController extends BaseController
 
     /**
      * 更新维修工单
-     */#[\erikwang2013\apidoc\annotation\Title("更新维修工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新维修工单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新维修工单信息，已完成/已取消的工单不允许编辑")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -158,7 +163,8 @@ class RepairOrderController extends BaseController
 
     /**
      * 删除维修工单（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除维修工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除维修工单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除维修工单，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -188,7 +194,8 @@ class RepairOrderController extends BaseController
 
     /**
      * 状态流转
-     */#[\erikwang2013\apidoc\annotation\Title("维修工单状态流转")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("维修工单状态流转")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Param(name:"status", type:"string", require:true, desc:"目标状态: in_progress/completed/cancelled")]
 

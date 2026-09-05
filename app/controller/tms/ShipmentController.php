@@ -16,7 +16,8 @@ class ShipmentController extends BaseController
 {
     /**
      * 运单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("运单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("运单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取运单列表，支持分页、编码搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/shipment")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class ShipmentController extends BaseController
 
     /**
      * 创建运单
-     */#[\erikwang2013\apidoc\annotation\Title("创建运单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建运单")]
 #[\erikwang2013\apidoc\annotation\Desc("创建运单，编码必填（缺省自动生成）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/shipment")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -89,7 +91,8 @@ class ShipmentController extends BaseController
 
     /**
      * 运单详情
-     */#[\erikwang2013\apidoc\annotation\Title("运单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("运单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取运单详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +118,8 @@ class ShipmentController extends BaseController
 
     /**
      * 更新运单
-     */#[\erikwang2013\apidoc\annotation\Title("更新运单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新运单")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新运单信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -144,7 +148,8 @@ class ShipmentController extends BaseController
 
     /**
      * 删除运单
-     */#[\erikwang2013\apidoc\annotation\Title("删除运单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除运单")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除运单，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -177,7 +182,8 @@ class ShipmentController extends BaseController
 
     /**
      * 确认发货
-     */#[\erikwang2013\apidoc\annotation\Title("确认发货")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("确认发货")]
 #[\erikwang2013\apidoc\annotation\Desc("提交发货确认，关联发货单与OMS订单")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -209,7 +215,8 @@ class ShipmentController extends BaseController
 
     /**
      * 获取面单
-     */#[\erikwang2013\apidoc\annotation\Title("获取面单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("获取面单")]
 #[\erikwang2013\apidoc\annotation\Desc("按运单获取面单下载地址，面单生成请求已提交")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

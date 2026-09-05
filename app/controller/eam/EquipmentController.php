@@ -14,13 +14,15 @@ use support\Response;
 
 /**
  * 设备台账管理
- */#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
 
 class EquipmentController extends BaseController
 {
     /**
      * 设备列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("设备列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("设备列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取设备列表，支持分页、名称/编码/序列号关键词搜索及状态/分类筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/equipment")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -64,7 +66,8 @@ class EquipmentController extends BaseController
 
     /**
      * 创建设备
-     */#[\erikwang2013\apidoc\annotation\Title("创建设备")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建设备")]
 #[\erikwang2013\apidoc\annotation\Desc("新增设备档案，设备编码/名称必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/equipment")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -95,7 +98,8 @@ class EquipmentController extends BaseController
 
     /**
      * 设备详情
-     */#[\erikwang2013\apidoc\annotation\Title("设备详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("设备详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取设备详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +119,8 @@ class EquipmentController extends BaseController
 
     /**
      * 更新设备
-     */#[\erikwang2013\apidoc\annotation\Title("更新设备")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新设备")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新设备档案信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -140,7 +145,8 @@ class EquipmentController extends BaseController
 
     /**
      * 删除设备（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除设备")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除设备")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除设备档案，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

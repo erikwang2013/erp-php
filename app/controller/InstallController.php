@@ -31,7 +31,8 @@ class InstallController
 
     /**
      * 安装向导页
-     */#[\erikwang2013\apidoc\annotation\Title("安装向导")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("安装向导")]
 #[\erikwang2013\apidoc\annotation\Desc("四步安装向导(环境检查/数据库配置/管理员账号/确认安装)，GET 展示表单，POST 提交步骤；已安装时返回完成提示页(HTML)")]
 #[\erikwang2013\apidoc\annotation\Url("/install")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -76,7 +77,8 @@ class InstallController
 
     /**
      * 测试数据库连接
-     */#[\erikwang2013\apidoc\annotation\Title("测试数据库连接")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("测试数据库连接")]
 #[\erikwang2013\apidoc\annotation\Desc("安装向导第 1 步使用，校验 MySQL 连通性与版本(需 >= 8.0)；系统已安装后禁止调用")]
 #[\erikwang2013\apidoc\annotation\Url("/install/test-db")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

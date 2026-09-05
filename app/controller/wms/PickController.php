@@ -16,7 +16,8 @@ class PickController extends BaseController
 {
     /**
      * 拣货任务列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("拣货任务列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("拣货任务列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取拣货任务列表，支持分页、编码搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/pick")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class PickController extends BaseController
 
     /**
      * 创建拣货任务
-     */#[\erikwang2013\apidoc\annotation\Title("创建拣货任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建拣货任务")]
 #[\erikwang2013\apidoc\annotation\Desc("创建拣货任务，编码必填（缺省自动生成）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/pick")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -89,7 +91,8 @@ class PickController extends BaseController
 
     /**
      * 拣货任务详情
-     */#[\erikwang2013\apidoc\annotation\Title("拣货任务详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("拣货任务详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取拣货任务详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +118,8 @@ class PickController extends BaseController
 
     /**
      * 更新拣货任务
-     */#[\erikwang2013\apidoc\annotation\Title("更新拣货任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新拣货任务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新拣货任务信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -144,7 +148,8 @@ class PickController extends BaseController
 
     /**
      * 删除拣货任务
-     */#[\erikwang2013\apidoc\annotation\Title("删除拣货任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除拣货任务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除拣货任务，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -177,7 +182,8 @@ class PickController extends BaseController
 
     /**
      * 开始拣货
-     */#[\erikwang2013\apidoc\annotation\Title("开始拣货")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("开始拣货")]
 #[\erikwang2013\apidoc\annotation\Desc("开始执行指定拣货任务")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -206,7 +212,8 @@ class PickController extends BaseController
 
     /**
      * 确认拣货
-     */#[\erikwang2013\apidoc\annotation\Title("确认拣货")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("确认拣货")]
 #[\erikwang2013\apidoc\annotation\Desc("提交实际拣货明细，确认拣货完成")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

@@ -16,7 +16,8 @@ class BankAccountController extends BaseController
 {
     /**
      * 银行账户列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("银行账户列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("银行账户列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询银行账户记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-account")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class BankAccountController extends BaseController
 
     /**
      * 创建银行账户
-     */#[\erikwang2013\apidoc\annotation\Title("创建银行账户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建银行账户")]
 #[\erikwang2013\apidoc\annotation\Desc("新增银行账户记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-account")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -87,7 +89,8 @@ class BankAccountController extends BaseController
 
     /**
      * 银行账户详情
-     */#[\erikwang2013\apidoc\annotation\Title("银行账户详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("银行账户详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看银行账户详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -110,7 +113,8 @@ class BankAccountController extends BaseController
 
     /**
      * 更新银行账户
-     */#[\erikwang2013\apidoc\annotation\Title("更新银行账户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新银行账户")]
 #[\erikwang2013\apidoc\annotation\Desc("修改银行账户信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -138,7 +142,8 @@ class BankAccountController extends BaseController
 
     /**
      * 删除银行账户
-     */#[\erikwang2013\apidoc\annotation\Title("删除银行账户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除银行账户")]
 #[\erikwang2013\apidoc\annotation\Desc("删除银行账户，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

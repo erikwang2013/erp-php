@@ -17,7 +17,8 @@ class PutawayController extends BaseController
 {
     /**
      * 上架任务列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("上架任务列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("上架任务列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取上架任务列表，支持分页、编码搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/putaway")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -59,7 +60,8 @@ class PutawayController extends BaseController
 
     /**
      * 创建上架任务
-     */#[\erikwang2013\apidoc\annotation\Title("创建上架任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建上架任务")]
 #[\erikwang2013\apidoc\annotation\Desc("创建上架任务，编码必填（缺省自动生成）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/putaway")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -90,7 +92,8 @@ class PutawayController extends BaseController
 
     /**
      * 上架任务详情
-     */#[\erikwang2013\apidoc\annotation\Title("上架任务详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("上架任务详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取上架任务详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -116,7 +119,8 @@ class PutawayController extends BaseController
 
     /**
      * 更新上架任务
-     */#[\erikwang2013\apidoc\annotation\Title("更新上架任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新上架任务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新上架任务信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -145,7 +149,8 @@ class PutawayController extends BaseController
 
     /**
      * 删除上架任务
-     */#[\erikwang2013\apidoc\annotation\Title("删除上架任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除上架任务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除上架任务，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -178,7 +183,8 @@ class PutawayController extends BaseController
 
     /**
      * 开始上架
-     */#[\erikwang2013\apidoc\annotation\Title("开始上架")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("开始上架")]
 #[\erikwang2013\apidoc\annotation\Desc("开始执行指定上架任务")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -209,7 +215,8 @@ class PutawayController extends BaseController
 
     /**
      * 确认上架（触发入库）
-     */#[\erikwang2013\apidoc\annotation\Title("确认上架")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("确认上架")]
 #[\erikwang2013\apidoc\annotation\Desc("确认上架完成，触发库存入库更新")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

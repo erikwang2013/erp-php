@@ -26,7 +26,8 @@ class ExportController extends BaseController
 {
     /**
      * 导出Excel
-     */#[\erikwang2013\apidoc\annotation\Title("导出Excel")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("导出Excel")]
 #[\erikwang2013\apidoc\annotation\Desc("根据指定的表名、字段和筛选条件导出Excel文件，敏感字段自动脱敏处理")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/export/excel")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -131,7 +132,8 @@ class ExportController extends BaseController
 
     /**
      * 导出PDF
-     */#[\erikwang2013\apidoc\annotation\Title("导出PDF")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("导出PDF")]
 #[\erikwang2013\apidoc\annotation\Desc("根据指定的数据类型生成PDF文件，支持表格和仪表盘两种类型")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/export/pdf")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

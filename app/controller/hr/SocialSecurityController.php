@@ -23,7 +23,8 @@ class SocialSecurityController extends BaseController
 {
     /**
      * 社保规则列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("社保规则列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("社保规则列表")]
 #[\erikwang2013\apidoc\annotation\Desc("城市等值过滤；每条规则附 rates 比例行")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/social-rule")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -50,7 +51,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 社保规则详情
-     */#[\erikwang2013\apidoc\annotation\Title("社保规则详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("社保规则详情")]
 #[\erikwang2013\apidoc\annotation\Desc("含全部 rates 比例行")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -73,7 +75,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 创建社保规则
-     */#[\erikwang2013\apidoc\annotation\Title("创建社保规则")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建社保规则")]
 #[\erikwang2013\apidoc\annotation\Desc("city+rule_name 唯一；可随建随传初始 rates；0.00 表示该方向不设限")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/social-rule")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -104,7 +107,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 更新社保规则头字段
-     */#[\erikwang2013\apidoc\annotation\Title("更新社保规则")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新社保规则")]
 #[\erikwang2013\apidoc\annotation\Desc("仅更新头部字段；比例行走 setRate/removeRate")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -132,7 +136,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 删除社保规则
-     */#[\erikwang2013\apidoc\annotation\Title("删除社保规则")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除社保规则")]
 #[\erikwang2013\apidoc\annotation\Desc("有员工绑定则拒绝删除；级联清比例行")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -156,7 +161,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 设置险种比例
-     */#[\erikwang2013\apidoc\annotation\Title("设置险种比例")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("设置险种比例")]
 #[\erikwang2013\apidoc\annotation\Desc("行级 upsert：已存在则覆盖；比例 0.00 = 无该方缴费（行保留）")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -188,7 +194,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 删除险种比例
-     */#[\erikwang2013\apidoc\annotation\Title("删除险种比例")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除险种比例")]
 #[\erikwang2013\apidoc\annotation\Desc("仅删除指定险种比例行")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -213,7 +220,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 绑定员工社保规则
-     */#[\erikwang2013\apidoc\annotation\Title("绑定员工社保")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("绑定员工社保")]
 #[\erikwang2013\apidoc\annotation\Desc("一员工一条；base_amount:0 自动按下限计费；显式基数须落在规则上下限内")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/employee-social")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -243,7 +251,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 解绑员工社保
-     */#[\erikwang2013\apidoc\annotation\Title("解绑员工社保")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("解绑员工社保")]
 #[\erikwang2013\apidoc\annotation\Desc("换城市/换年度须先解绑再绑定")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/employee-social")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
@@ -267,7 +276,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 员工社保绑定详情
-     */#[\erikwang2013\apidoc\annotation\Title("员工社保详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("员工社保详情")]
 #[\erikwang2013\apidoc\annotation\Desc("绑定行 + 规则 + 规则全部比例")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -290,7 +300,8 @@ class SocialSecurityController extends BaseController
 
     /**
      * 员工社保计算
-     */#[\erikwang2013\apidoc\annotation\Title("员工社保计算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("员工社保计算")]
 #[\erikwang2013\apidoc\annotation\Desc("工资条/自助查询共用，只读不改数据；未绑定返回 422")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

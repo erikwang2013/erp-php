@@ -16,7 +16,8 @@ class TrackingController extends BaseController
 {
     /**
      * 物流轨迹列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("物流轨迹列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("物流轨迹列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取物流轨迹列表，支持分页和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/tracking")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -52,7 +53,8 @@ class TrackingController extends BaseController
 
     /**
      * 创建物流轨迹
-     */#[\erikwang2013\apidoc\annotation\Title("创建物流轨迹")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建物流轨迹")]
 #[\erikwang2013\apidoc\annotation\Desc("创建物流轨迹记录，编码必填，其余字段按业务传入")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/tracking")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -81,7 +83,8 @@ class TrackingController extends BaseController
 
     /**
      * 物流轨迹详情
-     */#[\erikwang2013\apidoc\annotation\Title("物流轨迹详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("物流轨迹详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取物流轨迹详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -107,7 +110,8 @@ class TrackingController extends BaseController
 
     /**
      * 更新物流轨迹
-     */#[\erikwang2013\apidoc\annotation\Title("更新物流轨迹")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新物流轨迹")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新物流轨迹信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -136,7 +140,8 @@ class TrackingController extends BaseController
 
     /**
      * 删除物流轨迹
-     */#[\erikwang2013\apidoc\annotation\Title("删除物流轨迹")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除物流轨迹")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除物流轨迹，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -169,7 +174,8 @@ class TrackingController extends BaseController
 
     /**
      * 承运商轨迹回调
-     */#[\erikwang2013\apidoc\annotation\Title("承运商轨迹回调")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("承运商轨迹回调")]
 #[\erikwang2013\apidoc\annotation\Desc("承运商轨迹回传（公开接口，HMAC 签名验证），按运单号写入轨迹事件")]
 #[\erikwang2013\apidoc\annotation\Url("/api/tms/tracking/callback")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

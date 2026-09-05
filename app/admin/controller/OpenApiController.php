@@ -15,7 +15,7 @@ use support\Response;
 
 /**
  * P0 OpenAPI 开放平台应用管理
- *
+
  * app_key 为公开标识（ak_ 前缀）；app_secret 加密入库，仅在创建 / 重置时明文展示一次，
  * 请管理员自行留存（丢失后只能重置）。
  */
@@ -23,7 +23,8 @@ class OpenApiController extends BaseController
 {
     /**
      * 开放平台应用列表
-     */#[\erikwang2013\apidoc\annotation\Title("开放平台应用列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("开放平台应用列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询开放平台应用，支持按应用名称/app_key关键字与状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/openapi/app")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -69,7 +70,8 @@ class OpenApiController extends BaseController
 
     /**
      * 开放平台应用详情
-     */#[\erikwang2013\apidoc\annotation\Title("开放平台应用详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("开放平台应用详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看应用详情(app_secret 不参与回显)")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -91,7 +93,8 @@ class OpenApiController extends BaseController
 
     /**
      * 创建开放平台应用
-     */#[\erikwang2013\apidoc\annotation\Title("创建开放平台应用")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建开放平台应用")]
 #[\erikwang2013\apidoc\annotation\Desc("创建应用并生成 app_key/app_secret，app_secret 仅此一次明文返回，请立即保存")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/openapi/app")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -142,7 +145,8 @@ class OpenApiController extends BaseController
 
     /**
      * 更新开放平台应用
-     */#[\erikwang2013\apidoc\annotation\Title("更新开放平台应用")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新开放平台应用")]
 #[\erikwang2013\apidoc\annotation\Desc("更新应用名称/授权范围/状态，不改动密钥")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -189,7 +193,8 @@ class OpenApiController extends BaseController
 
     /**
      * 删除开放平台应用
-     */#[\erikwang2013\apidoc\annotation\Title("删除开放平台应用")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除开放平台应用")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除应用，同时停用其名下所有 Webhook 订阅，需二次密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -220,7 +225,8 @@ class OpenApiController extends BaseController
 
     /**
      * 重置应用密钥
-     */#[\erikwang2013\apidoc\annotation\Title("重置应用密钥")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("重置应用密钥")]
 #[\erikwang2013\apidoc\annotation\Desc("原密钥即刻作废，新 app_secret 仅此一次明文返回，请立即保存，需二次密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -256,7 +262,8 @@ class OpenApiController extends BaseController
 
     /**
      * 启用/禁用应用
-     */#[\erikwang2013\apidoc\annotation\Title("启用/禁用应用")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("启用/禁用应用")]
 #[\erikwang2013\apidoc\annotation\Desc("切换应用启用状态")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -284,7 +291,7 @@ class OpenApiController extends BaseController
 
     /**
      * 规范化 scopes：空数组/未提供 -> null（不限制）；否则校验每个元素均以 / 开头
-     *
+
      * @return array|null|false null=不限制，array=合法范围，false=非法输入
      */
     private function sanitizeScopes($scopes)

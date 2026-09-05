@@ -17,7 +17,7 @@ use support\Response;
 
 /**
  * P0 Webhook 订阅管理（归属开放平台应用，事件投递见 WebhookService）
- *
+
  * secret 加密入库，仅在创建时明文展示一次（不提供回显，丢失可重置）；
  * 事件名支持 "*" 通配订阅全部事件。
  */
@@ -25,7 +25,8 @@ class WebhookController extends BaseController
 {
     /**
      * Webhook 订阅列表
-     */#[\erikwang2013\apidoc\annotation\Title("Webhook 订阅列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("Webhook 订阅列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询订阅，可按 app_id 过滤，附带应用名称")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/openapi/webhook")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -73,7 +74,8 @@ class WebhookController extends BaseController
 
     /**
      * Webhook 订阅详情
-     */#[\erikwang2013\apidoc\annotation\Title("Webhook 订阅详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("Webhook 订阅详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看订阅详情(secret 不参与回显)")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -95,7 +97,8 @@ class WebhookController extends BaseController
 
     /**
      * 新建 Webhook 订阅
-     */#[\erikwang2013\apidoc\annotation\Title("新建 Webhook 订阅")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("新建 Webhook 订阅")]
 #[\erikwang2013\apidoc\annotation\Desc("为应用创建事件订阅，secret 明文仅此一次返回，未提供时自动生成")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/openapi/webhook")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -162,7 +165,8 @@ class WebhookController extends BaseController
 
     /**
      * 更新 Webhook 订阅
-     */#[\erikwang2013\apidoc\annotation\Title("更新 Webhook 订阅")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新 Webhook 订阅")]
 #[\erikwang2013\apidoc\annotation\Desc("更新订阅事件/target_url/状态；secret 仅在本次传入时重置")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -222,7 +226,8 @@ class WebhookController extends BaseController
 
     /**
      * 删除 Webhook 订阅
-     */#[\erikwang2013\apidoc\annotation\Title("删除 Webhook 订阅")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除 Webhook 订阅")]
 #[\erikwang2013\apidoc\annotation\Desc("硬删除订阅并级联清理其投递日志，需二次密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -253,7 +258,8 @@ class WebhookController extends BaseController
 
     /**
      * 发送测试事件
-     */#[\erikwang2013\apidoc\annotation\Title("发送测试事件")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("发送测试事件")]
 #[\erikwang2013\apidoc\annotation\Desc("走真实投递链路发送测试事件并落库，便于验证回调可达性与验签")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -277,7 +283,8 @@ class WebhookController extends BaseController
 
     /**
      * Webhook 投递日志
-     */#[\erikwang2013\apidoc\annotation\Title("Webhook 投递日志")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("Webhook 投递日志")]
 #[\erikwang2013\apidoc\annotation\Desc("按订阅分页查询事件投递日志，最新在前")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -314,7 +321,7 @@ class WebhookController extends BaseController
 
     /**
      * 规范化订阅事件数组
-     *
+
      * @return array|false array=合法事件，false=非法输入
      */
     private function sanitizeEvents($events)

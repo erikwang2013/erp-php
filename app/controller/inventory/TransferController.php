@@ -16,7 +16,8 @@ class TransferController extends BaseController
 {
     /**
      * 库存调拨列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("库存调拨列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库存调拨列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取库存调拨列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory/transfer")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class TransferController extends BaseController
 
     /**
      * 创建库存调拨
-     */#[\erikwang2013\apidoc\annotation\Title("创建库存调拨")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建库存调拨")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一个库存调拨记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory/transfer")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -88,7 +90,8 @@ class TransferController extends BaseController
 
     /**
      * 库存调拨详情
-     */#[\erikwang2013\apidoc\annotation\Title("库存调拨详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库存调拨详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取库存调拨详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -111,7 +114,8 @@ class TransferController extends BaseController
 
     /**
      * 更新库存调拨
-     */#[\erikwang2013\apidoc\annotation\Title("更新库存调拨")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新库存调拨")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新库存调拨信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -140,7 +144,8 @@ class TransferController extends BaseController
 
     /**
      * 删除库存调拨（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除库存调拨")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除库存调拨")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除库存调拨，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

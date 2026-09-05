@@ -16,7 +16,8 @@ use support\Response;
 
 /**
  * 文档管理
- */#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
 
 class DocumentController extends BaseController
 {
@@ -25,9 +26,7 @@ class DocumentController extends BaseController
      */
     private const CATEGORIES = ['制度规范', '流程文档', '技术文档', '合同协议', '培训材料', '其他'];
 
-    /**
-     * 文档列表
-     */#[\erikwang2013\apidoc\annotation\Title("文档列表")]
+#[\erikwang2013\apidoc\annotation\Title("文档列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询文档，支持标题/编码关键字、分类与状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dms/document")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -68,9 +67,7 @@ class DocumentController extends BaseController
         return $this->successPage($list, $total, $page, $limit);
     }
 
-    /**
-     * 创建文档
-     */#[\erikwang2013\apidoc\annotation\Title("创建文档")]
+#[\erikwang2013\apidoc\annotation\Title("创建文档")]
 #[\erikwang2013\apidoc\annotation\Desc("新建文档，自动生成文档编码(DOC-日期-随机)并记录初始版本")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dms/document")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -112,7 +109,8 @@ class DocumentController extends BaseController
 
     /**
      * 文档详情
-     */#[\erikwang2013\apidoc\annotation\Title("文档详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("文档详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看文档详情及其全部版本历史")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -138,7 +136,8 @@ class DocumentController extends BaseController
 
     /**
      * 更新文档
-     */#[\erikwang2013\apidoc\annotation\Title("更新文档")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新文档")]
 #[\erikwang2013\apidoc\annotation\Desc("更新文档信息，内容变更时自动生成新版本并记录变更说明")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -176,7 +175,8 @@ class DocumentController extends BaseController
 
     /**
      * 删除文档
-     */#[\erikwang2013\apidoc\annotation\Title("删除文档")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除文档")]
 #[\erikwang2013\apidoc\annotation\Desc("删除文档并级联删除其全部版本记录，需二次密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -207,7 +207,8 @@ class DocumentController extends BaseController
 
     /**
      * 文档版本历史
-     */#[\erikwang2013\apidoc\annotation\Title("文档版本历史")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("文档版本历史")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 
     public function versions(Request $request, string $id): Response
@@ -220,7 +221,8 @@ class DocumentController extends BaseController
 
     /**
      * 文档分类列表
-     */#[\erikwang2013\apidoc\annotation\Title("文档分类列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("文档分类列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dms/categories")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 

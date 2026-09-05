@@ -20,7 +20,8 @@ class LedgerPeriodController extends BaseController
 {
     /**
      * 期间列表
-     */#[\erikwang2013\apidoc\annotation\Title("期间列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("期间列表")]
 #[\erikwang2013\apidoc\annotation\Desc("指定账套（缺省回落到公司默认/存量默认账套）的会计期间，倒序")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ledger/period-list")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -51,7 +52,8 @@ class LedgerPeriodController extends BaseController
 
     /**
      * 开账
-     */#[\erikwang2013\apidoc\annotation\Title("开账")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("开账")]
 #[\erikwang2013\apidoc\annotation\Desc("账套下开一个会计期间 YYYY-MM（重复开账 → 业务异常）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ledger/period-open")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -76,7 +78,8 @@ class LedgerPeriodController extends BaseController
 
     /**
      * 关账
-     */#[\erikwang2013\apidoc\annotation\Title("关账")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("关账")]
 #[\erikwang2013\apidoc\annotation\Desc("实时重算三张单体快照并落库，期间置为已关；前置拒绝期间内未审核凭证")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ledger/period-close")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

@@ -16,13 +16,15 @@ use support\Response;
 
 /**
  * 部门管理 — 树形CRUD
- */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class DepartmentController extends BaseController
 {
     /**
      * 部门树形列表
-     */#[\erikwang2013\apidoc\annotation\Title("部门列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("部门列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询部门列表，支持关键词和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/department")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -55,7 +57,8 @@ class DepartmentController extends BaseController
 
     /**
      * 创建部门
-     */#[\erikwang2013\apidoc\annotation\Title("创建部门")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建部门")]
 #[\erikwang2013\apidoc\annotation\Desc("新增部门记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/department")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -85,7 +88,8 @@ class DepartmentController extends BaseController
 
     /**
      * 部门详情
-     */#[\erikwang2013\apidoc\annotation\Title("部门详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("部门详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看部门详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -108,7 +112,8 @@ class DepartmentController extends BaseController
 
     /**
      * 更新部门
-     */#[\erikwang2013\apidoc\annotation\Title("更新部门")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新部门")]
 #[\erikwang2013\apidoc\annotation\Desc("修改部门信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -131,7 +136,8 @@ class DepartmentController extends BaseController
 
     /**
      * 删除部门
-     */#[\erikwang2013\apidoc\annotation\Title("删除部门")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除部门")]
 #[\erikwang2013\apidoc\annotation\Desc("删除部门记录，需先删除子部门，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

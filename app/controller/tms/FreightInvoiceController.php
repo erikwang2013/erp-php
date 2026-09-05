@@ -16,7 +16,8 @@ class FreightInvoiceController extends BaseController
 {
     /**
      * 运费发票列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("运费发票列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("运费发票列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取运费发票列表，支持分页、编码搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/freight-invoice")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class FreightInvoiceController extends BaseController
 
     /**
      * 创建运费发票
-     */#[\erikwang2013\apidoc\annotation\Title("创建运费发票")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建运费发票")]
 #[\erikwang2013\apidoc\annotation\Desc("创建运费发票，编码必填（缺省自动生成）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/freight-invoice")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -89,7 +91,8 @@ class FreightInvoiceController extends BaseController
 
     /**
      * 运费发票详情
-     */#[\erikwang2013\apidoc\annotation\Title("运费发票详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("运费发票详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取运费发票详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +118,8 @@ class FreightInvoiceController extends BaseController
 
     /**
      * 更新运费发票
-     */#[\erikwang2013\apidoc\annotation\Title("更新运费发票")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新运费发票")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新运费发票信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -144,7 +148,8 @@ class FreightInvoiceController extends BaseController
 
     /**
      * 删除运费发票
-     */#[\erikwang2013\apidoc\annotation\Title("删除运费发票")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除运费发票")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除运费发票，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -177,7 +182,8 @@ class FreightInvoiceController extends BaseController
 
     /**
      * 确认运费发票
-     */#[\erikwang2013\apidoc\annotation\Title("确认运费发票")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("确认运费发票")]
 #[\erikwang2013\apidoc\annotation\Desc("确认运费发票，状态置为已确认(1)")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -205,7 +211,8 @@ class FreightInvoiceController extends BaseController
 
     /**
      * 支付运费发票
-     */#[\erikwang2013\apidoc\annotation\Title("支付运费发票")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("支付运费发票")]
 #[\erikwang2013\apidoc\annotation\Desc("支付运费发票，需先确认(状态1)，支付后状态置为已支付(2)")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

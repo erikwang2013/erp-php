@@ -15,13 +15,15 @@ use support\Response;
 
 /**
  * BI 数据看板管理
- */#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
 
 class DashboardController extends BaseController
 {
     /**
      * BI 看板列表
-     */#[\erikwang2013\apidoc\annotation\Title("BI 看板列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("BI 看板列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询数据看板，支持名称关键字与状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/bi/dashboard")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -56,7 +58,8 @@ class DashboardController extends BaseController
 
     /**
      * 创建 BI 看板
-     */#[\erikwang2013\apidoc\annotation\Title("创建 BI 看板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建 BI 看板")]
 #[\erikwang2013\apidoc\annotation\Desc("新建数据看板，可携带布局配置字段")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/bi/dashboard")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -85,7 +88,8 @@ class DashboardController extends BaseController
 
     /**
      * BI 看板详情
-     */#[\erikwang2013\apidoc\annotation\Title("BI 看板详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("BI 看板详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看看板详情及其下图表组件列表")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -111,7 +115,8 @@ class DashboardController extends BaseController
 
     /**
      * 更新 BI 看板
-     */#[\erikwang2013\apidoc\annotation\Title("更新 BI 看板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新 BI 看板")]
 #[\erikwang2013\apidoc\annotation\Desc("更新看板名称或布局配置")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -137,7 +142,8 @@ class DashboardController extends BaseController
 
     /**
      * 删除 BI 看板
-     */#[\erikwang2013\apidoc\annotation\Title("删除 BI 看板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除 BI 看板")]
 #[\erikwang2013\apidoc\annotation\Desc("删除看板并级联删除其下全部图表组件，需二次密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

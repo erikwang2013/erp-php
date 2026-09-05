@@ -21,13 +21,15 @@ use support\Response;
 
 /**
  * 费用归集单管理 — CRUD + 审核（人工/制费/其他计入 WIP）
- */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class CostEntryController extends BaseController
 {
     /**
      * 费用归集单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("费用归集单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("费用归集单列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/cost-entry")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -62,7 +64,8 @@ class CostEntryController extends BaseController
 
     /**
      * 创建费用归集单（草稿）
-     */#[\erikwang2013\apidoc\annotation\Title("创建费用归集单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建费用归集单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/cost-entry")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -118,7 +121,8 @@ class CostEntryController extends BaseController
 
     /**
      * 费用归集单详情
-     */#[\erikwang2013\apidoc\annotation\Title("费用归集单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("费用归集单详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -142,7 +146,8 @@ class CostEntryController extends BaseController
 
     /**
      * 更新费用归集单（仅草稿）
-     */#[\erikwang2013\apidoc\annotation\Title("更新费用归集单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新费用归集单")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -168,7 +173,8 @@ class CostEntryController extends BaseController
 
     /**
      * 删除费用归集单（仅草稿，需密码确认）
-     */#[\erikwang2013\apidoc\annotation\Title("删除费用归集单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除费用归集单")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -198,7 +204,8 @@ class CostEntryController extends BaseController
 
     /**
      * 审核费用归集单（计入 WIP 对应成本桶）
-     */#[\erikwang2013\apidoc\annotation\Title("审核费用归集单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("审核费用归集单")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]

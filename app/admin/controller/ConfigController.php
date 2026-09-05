@@ -16,7 +16,8 @@ class ConfigController extends BaseController
 {
     /**
      * 系统配置列表
-     */#[\erikwang2013\apidoc\annotation\Title("系统配置列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("系统配置列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取系统配置分页列表，支持按分组筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/config")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class ConfigController extends BaseController
 
     /**
      * 创建配置
-     */#[\erikwang2013\apidoc\annotation\Title("创建配置")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建配置")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一个新的系统配置项，group+key 组合必须唯一")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/config")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -106,7 +108,8 @@ class ConfigController extends BaseController
 
     /**
      * 更新配置
-     */#[\erikwang2013\apidoc\annotation\Title("更新配置")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新配置")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定配置项的值、类型或说明")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -144,7 +147,8 @@ class ConfigController extends BaseController
 
     /**
      * 删除配置（需密码二次确认）
-     */#[\erikwang2013\apidoc\annotation\Title("删除配置")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除配置")]
 #[\erikwang2013\apidoc\annotation\Desc("删除指定配置项，需当前管理员密码进行二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

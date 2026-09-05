@@ -16,7 +16,8 @@ class ServiceController extends BaseController
 {
     /**
      * 承运商服务列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("承运商服务列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("承运商服务列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取承运商服务列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/service")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class ServiceController extends BaseController
 
     /**
      * 创建承运商服务
-     */#[\erikwang2013\apidoc\annotation\Title("创建承运商服务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建承运商服务")]
 #[\erikwang2013\apidoc\annotation\Desc("创建承运商服务，名称必填，其余字段按业务传入")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/service")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -87,7 +89,8 @@ class ServiceController extends BaseController
 
     /**
      * 承运商服务详情
-     */#[\erikwang2013\apidoc\annotation\Title("承运商服务详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("承运商服务详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取承运商服务详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -113,7 +116,8 @@ class ServiceController extends BaseController
 
     /**
      * 更新承运商服务
-     */#[\erikwang2013\apidoc\annotation\Title("更新承运商服务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新承运商服务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新承运商服务信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -142,7 +146,8 @@ class ServiceController extends BaseController
 
     /**
      * 删除承运商服务
-     */#[\erikwang2013\apidoc\annotation\Title("删除承运商服务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除承运商服务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除承运商服务，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

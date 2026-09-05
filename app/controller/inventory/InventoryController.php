@@ -14,14 +14,16 @@ use support\Response;
 
 /**
  * 库存管理
- */#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
 
 class InventoryController extends BaseController
 {
     /**
      * 库存列表（分页）
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("库存列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库存列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取库存分页列表，支持关键字搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -66,7 +68,8 @@ class InventoryController extends BaseController
 
     /**
      * 创建库存记录
-     */#[\erikwang2013\apidoc\annotation\Title("创建库存记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建库存记录")]
 #[\erikwang2013\apidoc\annotation\Desc("手动创建一条库存记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -94,7 +97,8 @@ class InventoryController extends BaseController
 
     /**
      * 库存详情
-     */#[\erikwang2013\apidoc\annotation\Title("库存详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库存详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定库存记录的详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -117,7 +121,8 @@ class InventoryController extends BaseController
 
     /**
      * 更新库存记录
-     */#[\erikwang2013\apidoc\annotation\Title("更新库存记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新库存记录")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定库存记录的信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -143,7 +148,8 @@ class InventoryController extends BaseController
 
     /**
      * 删除库存记录
-     */#[\erikwang2013\apidoc\annotation\Title("删除库存记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除库存记录")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定库存记录，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

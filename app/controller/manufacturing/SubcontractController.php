@@ -22,17 +22,19 @@ use support\Response;
 
 /**
  * 委外加工订单（P1-M2）
- *
+
  * 状态机：0草稿 → 1已发料 → 2已收货 → 3已核销。
  * 状态推进不设独立审核端点：发料单/收料单审核时联动推进
  * （见 SubcontractService::auditIssue / auditReceive）。
- */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class SubcontractController extends BaseController
 {
     /**
      * 委外订单列表（分页，按单号/供应商/产品/状态筛选）
-     */#[\erikwang2013\apidoc\annotation\Title("委外订单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("委外订单列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/subcontract")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -67,7 +69,8 @@ class SubcontractController extends BaseController
 
     /**
      * 创建委外订单（草稿）
-     */#[\erikwang2013\apidoc\annotation\Title("创建委外订单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建委外订单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/subcontract")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -135,7 +138,8 @@ class SubcontractController extends BaseController
 
     /**
      * 委外订单详情（含供应商与发料/收料单）
-     */#[\erikwang2013\apidoc\annotation\Title("委外订单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("委外订单详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -164,7 +168,8 @@ class SubcontractController extends BaseController
 
     /**
      * 更新委外订单（仅草稿）
-     */#[\erikwang2013\apidoc\annotation\Title("更新委外订单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新委外订单")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -205,7 +210,8 @@ class SubcontractController extends BaseController
 
     /**
      * 删除委外订单（仅草稿且无关联单据，需密码确认）
-     */#[\erikwang2013\apidoc\annotation\Title("删除委外订单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除委外订单")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]

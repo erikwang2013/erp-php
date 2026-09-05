@@ -19,7 +19,8 @@ class ImportController extends BaseController
     /**
      * Excel导入用户
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("Excel导入用户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("Excel导入用户")]
 #[\erikwang2013\apidoc\annotation\Desc("上传Excel文件批量导入用户，支持xlsx/xls格式，必需列为username/password/real_name")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/import/users")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

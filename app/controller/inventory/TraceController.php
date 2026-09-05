@@ -16,13 +16,13 @@ use support\Response;
 
 /**
  * 追溯链报表（P1-M6）：批次正反向追溯 / 序列号链 / 近效期预警
- *
+
  * 路由（由 lead 注册，本控制器不自行注册）：
  *   GET /trace/forward/{batchCode}
  *   GET /trace/backward/{batchCode}
  *   GET /trace/serial/{serialCode}
  *   GET /trace/expiry?days=N
- *
+
  * 注意：追溯接口返回原始 snowflake id 与 source_id（不 hashid 编码），
  * 便于前端直接以 source_id 定位上游/下游业务单据。
  */
@@ -30,7 +30,8 @@ class TraceController extends BaseController
 {
     /**
      * 正向追溯：该批次全部流水按方向分组，出库侧展开下游去向
-     */#[\erikwang2013\apidoc\annotation\Title("批次正向追溯")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("批次正向追溯")]
 #[\erikwang2013\apidoc\annotation\Desc("按批次号查询全部出入库流水，出库侧展开下游去向（单据类型/source_id）")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -47,7 +48,8 @@ class TraceController extends BaseController
 
     /**
      * 反向追溯：该批次入库流水的来源 → 上游单据
-     */#[\erikwang2013\apidoc\annotation\Title("批次反向追溯")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("批次反向追溯")]
 #[\erikwang2013\apidoc\annotation\Desc("按批次号查询入库来源链（来源单据类型/source_id）")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -64,7 +66,8 @@ class TraceController extends BaseController
 
     /**
      * 序列号链：入库/出库两端流水明细
-     */#[\erikwang2013\apidoc\annotation\Title("序列号追溯")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("序列号追溯")]
 #[\erikwang2013\apidoc\annotation\Desc("按序列号查询入出库两端流水明细")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -81,7 +84,8 @@ class TraceController extends BaseController
 
     /**
      * 近效期预警：expiry_date 非空且 <= 今天+days，且批次仍有在库
-     */#[\erikwang2013\apidoc\annotation\Title("近效期预警")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("近效期预警")]
 #[\erikwang2013\apidoc\annotation\Desc("查询未来 N 天内到期且有在库的批次")]
 #[\erikwang2013\apidoc\annotation\Url("/trace/expiry")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

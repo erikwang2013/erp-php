@@ -21,14 +21,16 @@ use support\Response;
 
 /**
  * 采购收货管理
- */#[\erikwang2013\apidoc\annotation\Tag("采购管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("采购管理")]
 
 class ReceiveController extends BaseController
 {
     /**
      * 收货单列表（分页）
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("收货单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("收货单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取采购收货单分页列表，支持关键字/状态/订单/供应商筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/receive")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -87,7 +89,8 @@ class ReceiveController extends BaseController
 
     /**
      * 创建收货单并执行入库
-     */#[\erikwang2013\apidoc\annotation\Title("创建收货单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建收货单")]
 #[\erikwang2013\apidoc\annotation\Desc("创建收货单并自动执行入库操作，同时生成应付记录并更新采购订单状态")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/receive")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -294,7 +297,8 @@ class ReceiveController extends BaseController
 
     /**
      * 收货单详情
-     */#[\erikwang2013\apidoc\annotation\Title("收货单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("收货单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定收货单的详细信息，包含明细、订单、供应商和仓库")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -317,7 +321,8 @@ class ReceiveController extends BaseController
 
     /**
      * 更新收货单
-     */#[\erikwang2013\apidoc\annotation\Title("更新收货单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新收货单")]
 #[\erikwang2013\apidoc\annotation\Desc("更新收货单备注等信息，不修改核心数据")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -346,7 +351,8 @@ class ReceiveController extends BaseController
 
     /**
      * 删除收货单
-     */#[\erikwang2013\apidoc\annotation\Title("删除收货单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除收货单")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定收货单，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

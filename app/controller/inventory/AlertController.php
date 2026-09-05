@@ -16,7 +16,8 @@ class AlertController extends BaseController
 {
     /**
      * 库存预警规则列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("库存预警规则列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库存预警规则列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取库存预警规则列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory/alert")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class AlertController extends BaseController
 
     /**
      * 创建库存预警规则
-     */#[\erikwang2013\apidoc\annotation\Title("创建库存预警规则")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建库存预警规则")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一个库存预警规则记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory/alert")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -88,7 +90,8 @@ class AlertController extends BaseController
 
     /**
      * 库存预警规则详情
-     */#[\erikwang2013\apidoc\annotation\Title("库存预警规则详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库存预警规则详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取库存预警规则详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -111,7 +114,8 @@ class AlertController extends BaseController
 
     /**
      * 更新库存预警规则
-     */#[\erikwang2013\apidoc\annotation\Title("更新库存预警规则")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新库存预警规则")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新库存预警规则信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -140,7 +144,8 @@ class AlertController extends BaseController
 
     /**
      * 删除库存预警规则（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除库存预警规则")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除库存预警规则")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除库存预警规则，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

@@ -21,16 +21,18 @@ use support\Response;
 
 /**
  * 委外收料单（P1-M2）
- *
+
  * 状态机：0草稿 → 1已审核。审核时按委外单加工单价快照入库并联动委外单
  * （见 SubcontractService::auditReceive；收满自动核销委外单）。
- */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class SubcontractReceiveController extends BaseController
 {
     /**
      * 委外收料单列表（分页，按单号/状态/委外单筛选）
-     */#[\erikwang2013\apidoc\annotation\Title("委外收料单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("委外收料单列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/subcontract-receive")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -63,7 +65,8 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 创建委外收料单（草稿；仓库缺省取委外单收料仓库）
-     */#[\erikwang2013\apidoc\annotation\Title("创建委外收料单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建委外收料单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/subcontract-receive")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -125,7 +128,8 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 委外收料单详情（含委外单）
-     */#[\erikwang2013\apidoc\annotation\Title("委外收料单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("委外收料单详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -149,7 +153,8 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 更新委外收料单（仅草稿）
-     */#[\erikwang2013\apidoc\annotation\Title("更新委外收料单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新委外收料单")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -187,7 +192,8 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 删除委外收料单（仅草稿，需密码确认）
-     */#[\erikwang2013\apidoc\annotation\Title("删除委外收料单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除委外收料单")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
@@ -218,7 +224,8 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 审核委外收料单（按加工单价入库，收满自动核销委外单）
-     */#[\erikwang2013\apidoc\annotation\Title("审核委外收料单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("审核委外收料单")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]

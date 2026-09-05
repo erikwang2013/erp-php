@@ -16,7 +16,8 @@ class FulfillmentController extends BaseController
 {
     /**
      * 履约单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("履约单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("履约单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取发货履约单列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/oms/fulfillment")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class FulfillmentController extends BaseController
 
     /**
      * 创建履约单
-     */#[\erikwang2013\apidoc\annotation\Title("创建履约单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建履约单")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一条发货履约单，履约单号必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/oms/fulfillment")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -82,7 +84,8 @@ class FulfillmentController extends BaseController
 
     /**
      * 履约单详情
-     */#[\erikwang2013\apidoc\annotation\Title("履约单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("履约单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取发货履约单详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -108,7 +111,8 @@ class FulfillmentController extends BaseController
 
     /**
      * 更新履约单
-     */#[\erikwang2013\apidoc\annotation\Title("更新履约单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新履约单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新履约单信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -137,7 +141,8 @@ class FulfillmentController extends BaseController
 
     /**
      * 删除履约单（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除履约单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除履约单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除履约单，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

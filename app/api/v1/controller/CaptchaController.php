@@ -19,7 +19,8 @@ class CaptchaController
      * 生成点击验证码
      *     }),
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("生成点击验证码")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("生成点击验证码")]
 #[\erikwang2013\apidoc\annotation\Desc("生成点击式验证码图片(base64 PNG)，key 用于后续校验")]
 #[\erikwang2013\apidoc\annotation\Url("/api/v1/captcha/generate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -65,7 +66,8 @@ class CaptchaController
     /**
      * 校验点击验证码
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("校验点击验证码")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("校验点击验证码")]
 #[\erikwang2013\apidoc\annotation\Desc("提交 key 与点击坐标进行校验，供登录/注册等流程预校验或重试")]
 #[\erikwang2013\apidoc\annotation\Url("/api/v1/captcha/verify")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

@@ -19,7 +19,8 @@ use support\Response;
  * 进项发票池 — P2-2 F5
  * 状态机推进（验真 0→1/2、勾选 0→1、抵扣 1→2）全量校验在 TaxInvoicePoolService，
  * 本控制器只做参数搬运与统一响应；业务错误 422、发票不存在 404。
- */#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
 class TaxInvoicePoolController extends BaseController
 {
@@ -28,7 +29,8 @@ class TaxInvoicePoolController extends BaseController
 
     /**
      * 进项发票列表（分页筛选：关键词/销售方/状态/来源/期间/日期区间）
-     */#[\erikwang2013\apidoc\annotation\Title("进项发票列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("进项发票列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-input-invoice")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -71,7 +73,8 @@ class TaxInvoicePoolController extends BaseController
 
     /**
      * 手工登记进项发票
-     */#[\erikwang2013\apidoc\annotation\Title("进项发票登记")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("进项发票登记")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-input-invoice")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -101,7 +104,8 @@ class TaxInvoicePoolController extends BaseController
 
     /**
      * 批量登记（excel 导入语义：行级错误不阻断；返回成功/失败行数与逐行错误）
-     */#[\erikwang2013\apidoc\annotation\Title("进项发票批量登记")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("进项发票批量登记")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-input-invoice/batch")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -125,7 +129,8 @@ class TaxInvoicePoolController extends BaseController
 
     /**
      * 发票验真（0待验真 → 1通过/2失败，Mock 验真器；幂等：已验真拒绝重复）
-     */#[\erikwang2013\apidoc\annotation\Title("进项发票验真")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("进项发票验真")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
@@ -146,7 +151,8 @@ class TaxInvoicePoolController extends BaseController
 
     /**
      * 勾选抵扣（0未勾选 → 1已勾选待抵扣，须验真通过）
-     */#[\erikwang2013\apidoc\annotation\Title("进项发票勾选")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("进项发票勾选")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
@@ -167,7 +173,8 @@ class TaxInvoicePoolController extends BaseController
 
     /**
      * 确认抵扣（1已勾选 → 2已抵扣，记录抵扣期间）
-     */#[\erikwang2013\apidoc\annotation\Title("进项发票抵扣")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("进项发票抵扣")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
@@ -190,7 +197,8 @@ class TaxInvoicePoolController extends BaseController
 
     /**
      * 抵扣统计（按抵扣期间分组：张数/价税合计，bcmath 累加）
-     */#[\erikwang2013\apidoc\annotation\Title("抵扣统计")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("抵扣统计")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-input-invoice/deduct-stats")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

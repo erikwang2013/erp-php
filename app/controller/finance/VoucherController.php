@@ -17,7 +17,8 @@ class VoucherController extends BaseController
 {
     /**
      * 记账凭证列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("记账凭证列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("记账凭证列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询记账凭证记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/voucher")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -59,7 +60,8 @@ class VoucherController extends BaseController
 
     /**
      * 创建记账凭证
-     */#[\erikwang2013\apidoc\annotation\Title("创建记账凭证")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建记账凭证")]
 #[\erikwang2013\apidoc\annotation\Desc("新增记账凭证记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/voucher")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -104,7 +106,8 @@ class VoucherController extends BaseController
 
     /**
      * 记账凭证详情
-     */#[\erikwang2013\apidoc\annotation\Title("记账凭证详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("记账凭证详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看记账凭证详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -127,7 +130,8 @@ class VoucherController extends BaseController
 
     /**
      * 更新记账凭证
-     */#[\erikwang2013\apidoc\annotation\Title("更新记账凭证")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新记账凭证")]
 #[\erikwang2013\apidoc\annotation\Desc("修改记账凭证信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -167,7 +171,8 @@ class VoucherController extends BaseController
 
     /**
      * 删除记账凭证
-     */#[\erikwang2013\apidoc\annotation\Title("删除记账凭证")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除记账凭证")]
 #[\erikwang2013\apidoc\annotation\Desc("删除记账凭证记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

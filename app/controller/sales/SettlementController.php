@@ -26,7 +26,8 @@ class SettlementController extends BaseController
 
     /**
      * 销售结算列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("销售结算列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("销售结算列表")]
 #[\erikwang2013\apidoc\annotation\Desc("基于应收记录查询销售结算，状态按已核销金额推导")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/settlement")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -84,7 +85,8 @@ class SettlementController extends BaseController
 
     /**
      * 销售结算核销（经服务层）
-     */#[\erikwang2013\apidoc\annotation\Title("创建销售结算核销")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建销售结算核销")]
 #[\erikwang2013\apidoc\annotation\Desc("对发货单应收记录执行收款核销，状态由服务层推导，客户端传 status 一律忽略")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/settlement")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -132,7 +134,8 @@ class SettlementController extends BaseController
 
     /**
      * 销售结算详情
-     */#[\erikwang2013\apidoc\annotation\Title("销售结算详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("销售结算详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据应收记录ID获取销售结算详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -157,7 +160,8 @@ class SettlementController extends BaseController
 
     /**
      * 更新销售结算（仅应收金额）
-     */#[\erikwang2013\apidoc\annotation\Title("更新销售结算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新销售结算")]
 #[\erikwang2013\apidoc\annotation\Desc("仅允许调整应收金额，且不得小于已核销金额；状态由服务端推导")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -193,7 +197,8 @@ class SettlementController extends BaseController
 
     /**
      * 删除销售结算（仅未核销记录）
-     */#[\erikwang2013\apidoc\annotation\Title("删除销售结算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除销售结算")]
 #[\erikwang2013\apidoc\annotation\Desc("删除未核销的应收记录，需管理员密码二次确认；已核销记录不可删除")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

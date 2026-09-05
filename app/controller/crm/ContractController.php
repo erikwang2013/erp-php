@@ -20,7 +20,8 @@ class ContractController extends BaseController
 {
     /**
      * 合同列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("合同列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("合同列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询合同记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/contract")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -59,7 +60,8 @@ class ContractController extends BaseController
 
     /**
      * 创建合同
-     */#[\erikwang2013\apidoc\annotation\Title("创建合同")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建合同")]
 #[\erikwang2013\apidoc\annotation\Desc("新增合同记录，含合同明细")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/contract")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -91,7 +93,8 @@ class ContractController extends BaseController
 
     /**
      * 合同详情
-     */#[\erikwang2013\apidoc\annotation\Title("合同详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("合同详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看合同详细信息，含合同明细")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -114,7 +117,8 @@ class ContractController extends BaseController
 
     /**
      * 更新合同
-     */#[\erikwang2013\apidoc\annotation\Title("更新合同")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新合同")]
 #[\erikwang2013\apidoc\annotation\Desc("修改合同信息，仅草稿状态可编辑")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -149,7 +153,8 @@ class ContractController extends BaseController
 
     /**
      * 删除合同
-     */#[\erikwang2013\apidoc\annotation\Title("删除合同")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除合同")]
 #[\erikwang2013\apidoc\annotation\Desc("删除合同记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -181,7 +186,8 @@ class ContractController extends BaseController
 
     /**
      * 合同状态流转
-     */#[\erikwang2013\apidoc\annotation\Title("合同状态流转")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("合同状态流转")]
 #[\erikwang2013\apidoc\annotation\Desc("推进合同状态: 0草稿 1待审批 2已审批 3执行中 4已完成 5已终止")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

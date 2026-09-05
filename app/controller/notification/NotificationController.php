@@ -17,7 +17,8 @@ class NotificationController extends BaseController
 {
     /**
      * 我的通知列表
-     */#[\erikwang2013\apidoc\annotation\Title("我的通知列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("我的通知列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询当前用户的通知记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/notification/my")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class NotificationController extends BaseController
 
     /**
      * 标记单条已读
-     */#[\erikwang2013\apidoc\annotation\Title("标记已读")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("标记已读")]
 #[\erikwang2013\apidoc\annotation\Desc("将指定通知标记为已读")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -79,7 +81,8 @@ class NotificationController extends BaseController
 
     /**
      * 标记全部已读
-     */#[\erikwang2013\apidoc\annotation\Title("全部标记已读")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("全部标记已读")]
 #[\erikwang2013\apidoc\annotation\Desc("将当前用户所有通知标记为已读")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/notification/read-all")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -99,7 +102,8 @@ class NotificationController extends BaseController
 
     /**
      * 未读数量
-     */#[\erikwang2013\apidoc\annotation\Title("未读通知数量")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("未读通知数量")]
 #[\erikwang2013\apidoc\annotation\Desc("获取当前用户的未读通知数量")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/notification/unread-count")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

@@ -16,13 +16,15 @@ use support\Response;
 
 /**
  * 工作站管理
- */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class WorkstationController extends BaseController
 {
     /**
      * 工作站列表
-     */#[\erikwang2013\apidoc\annotation\Title("工作站列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工作站列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询工作站记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/workstation")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -55,7 +57,8 @@ class WorkstationController extends BaseController
 
     /**
      * 创建工作站
-     */#[\erikwang2013\apidoc\annotation\Title("创建工作站")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建工作站")]
 #[\erikwang2013\apidoc\annotation\Desc("新增工作站记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/workstation")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -84,7 +87,8 @@ class WorkstationController extends BaseController
 
     /**
      * 工作站详情
-     */#[\erikwang2013\apidoc\annotation\Title("工作站详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工作站详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看工作站详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -107,7 +111,8 @@ class WorkstationController extends BaseController
 
     /**
      * 更新工作站
-     */#[\erikwang2013\apidoc\annotation\Title("更新工作站")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新工作站")]
 #[\erikwang2013\apidoc\annotation\Desc("修改工作站信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -130,7 +135,8 @@ class WorkstationController extends BaseController
 
     /**
      * 删除工作站
-     */#[\erikwang2013\apidoc\annotation\Title("删除工作站")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除工作站")]
 #[\erikwang2013\apidoc\annotation\Desc("删除工作站记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

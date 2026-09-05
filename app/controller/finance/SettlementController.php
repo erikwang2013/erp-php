@@ -19,7 +19,8 @@ class SettlementController extends BaseController
 {
     /**
      * 核销记录列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("核销记录列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("核销记录列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询核销记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/settlement")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -47,7 +48,8 @@ class SettlementController extends BaseController
 
     /**
      * 创建核销记录（经服务层校验余额并同步 erp_finance_ar_ap.settled_amount）
-     */#[\erikwang2013\apidoc\annotation\Title("创建核销记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建核销记录")]
 #[\erikwang2013\apidoc\annotation\Desc("按应收应付类型走收款/付款核销，超出未核销余额将拒绝")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/settlement")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -95,7 +97,8 @@ class SettlementController extends BaseController
 
     /**
      * 核销记录详情
-     */#[\erikwang2013\apidoc\annotation\Title("核销记录详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("核销记录详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看核销记录详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

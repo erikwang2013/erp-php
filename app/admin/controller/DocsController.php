@@ -13,13 +13,15 @@ use support\Response;
 
 /**
  * OpenAPI 3.0 文档端点
- */#[\erikwang2013\apidoc\annotation\Tag("API文档")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("API文档")]
 
 class DocsController
 {
     /**
      * OpenAPI 3.0 规范文档
-     */#[\erikwang2013\apidoc\annotation\Title("OpenAPI规范文档")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("OpenAPI规范文档")]
 #[\erikwang2013\apidoc\annotation\Desc("返回 OpenAPI 3.0.3 格式的JSON规范文档，包含所有管理端和客户端接口定义")]
 #[\erikwang2013\apidoc\annotation\Url("/api/docs")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

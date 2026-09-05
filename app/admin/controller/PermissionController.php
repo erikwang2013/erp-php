@@ -16,7 +16,8 @@ class PermissionController extends BaseController
 {
     /**
      * 权限树列表
-     */#[\erikwang2013\apidoc\annotation\Title("权限树列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("权限树列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取完整的权限树结构，按排序字段升序排列")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/permission")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -40,7 +41,8 @@ class PermissionController extends BaseController
 
     /**
      * 权限详情
-     */#[\erikwang2013\apidoc\annotation\Title("权限详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("权限详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 查询单个权限节点")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -63,7 +65,8 @@ class PermissionController extends BaseController
 
     /**
      * 创建权限
-     */#[\erikwang2013\apidoc\annotation\Title("创建权限")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建权限")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一个新的权限节点，支持目录、菜单、按钮三种类型")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/permission")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -108,7 +111,8 @@ class PermissionController extends BaseController
 
     /**
      * 更新权限
-     */#[\erikwang2013\apidoc\annotation\Title("更新权限")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新权限")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定权限节点的基本信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -141,7 +145,8 @@ class PermissionController extends BaseController
 
     /**
      * 删除权限（需密码二次确认）
-     */#[\erikwang2013\apidoc\annotation\Title("删除权限")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除权限")]
 #[\erikwang2013\apidoc\annotation\Desc("删除指定权限节点，级联删除所有子权限，需当前管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

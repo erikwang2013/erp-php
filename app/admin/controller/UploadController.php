@@ -19,7 +19,8 @@ class UploadController extends BaseController
     /**
      * 文件上传
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("文件上传")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("文件上传")]
 #[\erikwang2013\apidoc\annotation\Desc("上传文件到服务器，支持jpg/jpeg/png/gif/pdf/xlsx/docx格式，最大10MB")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/upload")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

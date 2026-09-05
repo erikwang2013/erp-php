@@ -17,14 +17,16 @@ use support\Response;
 
 /**
  * BOM管理
- */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class BomController extends BaseController
 {
     /**
      * BOM列表（分页）
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("BOM列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("BOM列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取BOM分页列表，支持关键字/状态/产品筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/bom")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -66,7 +68,8 @@ class BomController extends BaseController
 
     /**
      * 创建BOM
-     */#[\erikwang2013\apidoc\annotation\Title("创建BOM")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建BOM")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一个新的BOM，状态默认为草稿")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/bom")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -97,7 +100,8 @@ class BomController extends BaseController
 
     /**
      * BOM详情
-     */#[\erikwang2013\apidoc\annotation\Title("BOM详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("BOM详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定BOM的详细信息，包含物料明细")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -125,7 +129,8 @@ class BomController extends BaseController
 
     /**
      * 更新BOM
-     */#[\erikwang2013\apidoc\annotation\Title("更新BOM")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新BOM")]
 #[\erikwang2013\apidoc\annotation\Desc("更新BOM信息，已生效的BOM不可直接修改")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -153,7 +158,8 @@ class BomController extends BaseController
 
     /**
      * 删除BOM
-     */#[\erikwang2013\apidoc\annotation\Title("删除BOM")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除BOM")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定BOM及其关联明细，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -186,7 +192,8 @@ class BomController extends BaseController
 
     /**
      * 新增BOM版本
-     */#[\erikwang2013\apidoc\annotation\Title("新增BOM版本")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("新增BOM版本")]
 #[\erikwang2013\apidoc\annotation\Desc("基于源BOM创建新版本，复制所有明细，旧版本自动设为失效")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/bom/new-version")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -218,7 +225,8 @@ class BomController extends BaseController
 
     /**
      * 生效BOM
-     */#[\erikwang2013\apidoc\annotation\Title("生效BOM")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("生效BOM")]
 #[\erikwang2013\apidoc\annotation\Desc("将指定BOM设为生效状态，同一产品的其他已生效BOM自动设为失效")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

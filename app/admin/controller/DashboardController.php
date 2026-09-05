@@ -32,14 +32,16 @@ use support\Response;
 
 /**
  * 仪表盘
- */#[\erikwang2013\apidoc\annotation\Tag("仪表盘")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("仪表盘")]
 
 class DashboardController extends BaseController
 {
     /**
      * 仪表盘总览数据
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("仪表盘总览")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("仪表盘总览")]
 #[\erikwang2013\apidoc\annotation\Desc("获取经营总览数据，包含用户统计、趋势、分布和最近操作日志。数据缓存5分钟。")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dashboard")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -204,7 +206,8 @@ class DashboardController extends BaseController
     /**
      * 销售看板
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("销售看板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("销售看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取销售看板数据，包含今日/本月销售额、客户排行、商机漏斗。数据缓存5分钟。")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dashboard/sales")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -312,7 +315,8 @@ class DashboardController extends BaseController
     /**
      * 库存看板
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("库存看板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库存看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取库存看板数据，包含库存总值、预警统计和出入库趋势。数据缓存5分钟。")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dashboard/inventory")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -348,7 +352,8 @@ class DashboardController extends BaseController
     /**
      * 财务看板
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("财务看板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("财务看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取财务看板数据，包含应收应付、本月收付款和现金余额。数据缓存5分钟。")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dashboard/finance")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -425,7 +430,8 @@ class DashboardController extends BaseController
     /**
      * OMS 订单履约看板
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("OMS 订单履约看板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("OMS 订单履约看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取 OMS 履约 KPI：待处理/拣货中订单、今日发货数与待处理退货单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dashboard/oms")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -451,7 +457,8 @@ class DashboardController extends BaseController
     /**
      * WMS 仓储作业看板
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("WMS 仓储作业看板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("WMS 仓储作业看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取 WMS 仓储作业 KPI：待收货/待上架/待拣货/待打包任务数")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dashboard/wms")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -477,7 +484,8 @@ class DashboardController extends BaseController
     /**
      * TMS 运输管理看板
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("TMS 运输管理看板")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("TMS 运输管理看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取 TMS 运输 KPI：待发运/运输中/今日妥投/异常运单数")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/dashboard/tms")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

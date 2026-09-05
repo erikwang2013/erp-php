@@ -18,7 +18,8 @@ class SupplierController extends BaseController
 {
     /**
      * 供应商列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("供应商列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("供应商列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询供应商记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/supplier")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class SupplierController extends BaseController
 
     /**
      * 创建供应商
-     */#[\erikwang2013\apidoc\annotation\Title("创建供应商")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建供应商")]
 #[\erikwang2013\apidoc\annotation\Desc("新增供应商记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/supplier")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -78,7 +80,8 @@ class SupplierController extends BaseController
 
     /**
      * 供应商详情
-     */#[\erikwang2013\apidoc\annotation\Title("供应商详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("供应商详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看供应商详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -101,7 +104,8 @@ class SupplierController extends BaseController
 
     /**
      * 更新供应商
-     */#[\erikwang2013\apidoc\annotation\Title("更新供应商")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新供应商")]
 #[\erikwang2013\apidoc\annotation\Desc("修改供应商信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -124,7 +128,8 @@ class SupplierController extends BaseController
 
     /**
      * 删除供应商
-     */#[\erikwang2013\apidoc\annotation\Title("删除供应商")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除供应商")]
 #[\erikwang2013\apidoc\annotation\Desc("删除供应商记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

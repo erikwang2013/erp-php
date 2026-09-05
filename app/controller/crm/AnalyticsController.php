@@ -21,7 +21,8 @@ class AnalyticsController extends BaseController
 
     /**
      * 报表列表
-     */#[\erikwang2013\apidoc\annotation\Title("分析报表列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("分析报表列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询分析报表记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/analytics")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -56,7 +57,8 @@ class AnalyticsController extends BaseController
 
     /**
      * 生成分析报表
-     */#[\erikwang2013\apidoc\annotation\Title("生成分析报表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("生成分析报表")]
 #[\erikwang2013\apidoc\annotation\Desc("根据类型生成模拟分析报表数据并保存")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/analytics")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -105,7 +107,8 @@ class AnalyticsController extends BaseController
 
     /**
      * 报表详情
-     */#[\erikwang2013\apidoc\annotation\Title("报表详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("报表详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看分析报表详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -133,7 +136,8 @@ class AnalyticsController extends BaseController
 
     /**
      * 指标列表
-     */#[\erikwang2013\apidoc\annotation\Title("分析指标列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("分析指标列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询全部分析指标配置")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/analytics")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -153,7 +157,8 @@ class AnalyticsController extends BaseController
 
     /**
      * 创建/更新指标
-     */#[\erikwang2013\apidoc\annotation\Title("创建或更新分析指标")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建或更新分析指标")]
 #[\erikwang2013\apidoc\annotation\Desc("有id则更新，无id则创建分析指标")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/analytics")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

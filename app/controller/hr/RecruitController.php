@@ -23,7 +23,8 @@ use support\Response;
  * 职位/候选人/面试/Offer 分组接口。候选人状态机唯一入口为 RecruitService
  * （状态推进/面试联动/Offer 锁定与回退），status 一律经动作接口变更，禁止直改。
  * 统一返回 {code,message,data}；Tag 见类注解。
- */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class RecruitController extends BaseController
 {

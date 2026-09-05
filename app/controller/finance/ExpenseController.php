@@ -14,14 +14,16 @@ use support\Response;
 
 /**
  * 费用支出管理
- */#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
 class ExpenseController extends BaseController
 {
     /**
      * 费用列表（分页）
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("费用列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("费用列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取费用支出分页列表，支持关键字搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/expense")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -66,7 +68,8 @@ class ExpenseController extends BaseController
 
     /**
      * 创建费用记录
-     */#[\erikwang2013\apidoc\annotation\Title("创建费用记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建费用记录")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一条新的费用支出记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/expense")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -94,7 +97,8 @@ class ExpenseController extends BaseController
 
     /**
      * 费用详情
-     */#[\erikwang2013\apidoc\annotation\Title("费用详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("费用详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定费用记录的详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -117,7 +121,8 @@ class ExpenseController extends BaseController
 
     /**
      * 更新费用记录
-     */#[\erikwang2013\apidoc\annotation\Title("更新费用记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新费用记录")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定费用记录的信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -143,7 +148,8 @@ class ExpenseController extends BaseController
 
     /**
      * 删除费用记录
-     */#[\erikwang2013\apidoc\annotation\Title("删除费用记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除费用记录")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定费用记录，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

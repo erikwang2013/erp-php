@@ -15,14 +15,16 @@ use support\Response;
 
 /**
  * 项目管理
- */#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
 
 class ProjectController extends BaseController
 {
     /**
      * 项目列表（分页）
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("项目列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("项目列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取项目分页列表，支持关键字/状态/负责人筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -79,7 +81,8 @@ class ProjectController extends BaseController
 
     /**
      * 创建项目
-     */#[\erikwang2013\apidoc\annotation\Title("创建项目")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建项目")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一个新项目")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -108,7 +111,8 @@ class ProjectController extends BaseController
 
     /**
      * 项目详情
-     */#[\erikwang2013\apidoc\annotation\Title("项目详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("项目详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定项目的详细信息，包含计算后的进度")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -134,7 +138,8 @@ class ProjectController extends BaseController
 
     /**
      * 更新项目
-     */#[\erikwang2013\apidoc\annotation\Title("更新项目")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新项目")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定项目的信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -160,7 +165,8 @@ class ProjectController extends BaseController
 
     /**
      * 删除项目
-     */#[\erikwang2013\apidoc\annotation\Title("删除项目")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除项目")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定项目，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

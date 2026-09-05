@@ -16,13 +16,15 @@ use support\Response;
 
 /**
  * 工艺路线管理
- */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class RoutingController extends BaseController
 {
     /**
      * 工艺路线列表
-     */#[\erikwang2013\apidoc\annotation\Title("工艺路线列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工艺路线列表")]
 #[\erikwang2013\apidoc\annotation\Desc("按产品分组查询工艺路线，按seq排序")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/routing")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -50,7 +52,8 @@ class RoutingController extends BaseController
 
     /**
      * 添加工序
-     */#[\erikwang2013\apidoc\annotation\Title("添加工艺工序")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("添加工艺工序")]
 #[\erikwang2013\apidoc\annotation\Desc("新增工艺路线工序记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/routing")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -83,7 +86,8 @@ class RoutingController extends BaseController
 
     /**
      * 工序详情
-     */#[\erikwang2013\apidoc\annotation\Title("工艺工序详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工艺工序详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看工艺路线工序详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -106,7 +110,8 @@ class RoutingController extends BaseController
 
     /**
      * 更新工序
-     */#[\erikwang2013\apidoc\annotation\Title("更新工艺工序")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新工艺工序")]
 #[\erikwang2013\apidoc\annotation\Desc("修改工艺路线工序信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -129,7 +134,8 @@ class RoutingController extends BaseController
 
     /**
      * 删除工序
-     */#[\erikwang2013\apidoc\annotation\Title("删除工艺工序")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除工艺工序")]
 #[\erikwang2013\apidoc\annotation\Desc("删除工艺路线工序记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

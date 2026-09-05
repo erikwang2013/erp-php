@@ -21,7 +21,8 @@ use support\Response;
 
 /**
  * 薪资与薪资项管理
- */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class SalaryController extends BaseController
 {
@@ -29,7 +30,8 @@ class SalaryController extends BaseController
 
     /**
      * 薪资列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("薪资列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("薪资列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询薪资记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -76,7 +78,8 @@ class SalaryController extends BaseController
 
     /**
      * 创建薪资记录
-     */#[\erikwang2013\apidoc\annotation\Title("创建薪资记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建薪资记录")]
 #[\erikwang2013\apidoc\annotation\Desc("新增薪资记录，自动计算实发金额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -116,7 +119,8 @@ class SalaryController extends BaseController
 
     /**
      * 薪资详情
-     */#[\erikwang2013\apidoc\annotation\Title("薪资详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("薪资详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看薪资记录详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -144,7 +148,8 @@ class SalaryController extends BaseController
 
     /**
      * 更新薪资
-     */#[\erikwang2013\apidoc\annotation\Title("更新薪资")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新薪资")]
 #[\erikwang2013\apidoc\annotation\Desc("修改薪资记录，自动重新计算实发，已发放不可修改")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -172,7 +177,8 @@ class SalaryController extends BaseController
 
     /**
      * 删除薪资记录
-     */#[\erikwang2013\apidoc\annotation\Title("删除薪资记录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除薪资记录")]
 #[\erikwang2013\apidoc\annotation\Desc("删除薪资记录，已发放不可删除，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -207,7 +213,8 @@ class SalaryController extends BaseController
 
     /**
      * 薪资发放确认
-     */#[\erikwang2013\apidoc\annotation\Title("薪资发放")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("薪资发放")]
 #[\erikwang2013\apidoc\annotation\Desc("确认薪资已发放，将状态更新为已发放")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -235,7 +242,8 @@ class SalaryController extends BaseController
 
     /**
      * 批量生成薪资
-     */#[\erikwang2013\apidoc\annotation\Title("批量生成薪资")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("批量生成薪资")]
 #[\erikwang2013\apidoc\annotation\Desc("按部门和期间为所有在职员工批量生成初始薪资记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -261,7 +269,8 @@ class SalaryController extends BaseController
 
     /**
      * 薪资试算
-     */#[\erikwang2013\apidoc\annotation\Title("薪资试算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("薪资试算")]
 #[\erikwang2013\apidoc\annotation\Desc("按基本工资/绩效/加班/计件/扣款试算个税与实发金额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary/calculate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -299,7 +308,8 @@ class SalaryController extends BaseController
 
     /**
      * 银行代发文件
-     */#[\erikwang2013\apidoc\annotation\Title("银行代发文件")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("银行代发文件")]
 #[\erikwang2013\apidoc\annotation\Desc("校验员工银行账号并生成代发CSV")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary/payroll-file")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -330,7 +340,8 @@ class SalaryController extends BaseController
 
     /**
      * 薪资项列表
-     */#[\erikwang2013\apidoc\annotation\Title("薪资项列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("薪资项列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询全部薪资项配置")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -350,7 +361,8 @@ class SalaryController extends BaseController
 
     /**
      * 创建薪资项
-     */#[\erikwang2013\apidoc\annotation\Title("创建薪资项")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建薪资项")]
 #[\erikwang2013\apidoc\annotation\Desc("新增薪资项配置")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -379,7 +391,8 @@ class SalaryController extends BaseController
 
     /**
      * 薪资项详情
-     */#[\erikwang2013\apidoc\annotation\Title("薪资项详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("薪资项详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看薪资项详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -402,7 +415,8 @@ class SalaryController extends BaseController
 
     /**
      * 更新薪资项
-     */#[\erikwang2013\apidoc\annotation\Title("更新薪资项")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新薪资项")]
 #[\erikwang2013\apidoc\annotation\Desc("修改薪资项配置")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -425,7 +439,8 @@ class SalaryController extends BaseController
 
     /**
      * 删除薪资项
-     */#[\erikwang2013\apidoc\annotation\Title("删除薪资项")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除薪资项")]
 #[\erikwang2013\apidoc\annotation\Desc("删除薪资项配置，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -457,7 +472,8 @@ class SalaryController extends BaseController
 
     /**
      * 工资条视图
-     */#[\erikwang2013\apidoc\annotation\Title("工资条视图")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工资条视图")]
 #[\erikwang2013\apidoc\annotation\Desc("头行+薪资项行+社保补充（只读，不改动薪资数据）")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

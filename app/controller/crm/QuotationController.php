@@ -19,7 +19,8 @@ class QuotationController extends BaseController
 {
     /**
      * CRM报价列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("报价列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("报价列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询CRM报价记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/quotation")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -57,7 +58,8 @@ class QuotationController extends BaseController
 
     /**
      * 创建CRM报价
-     */#[\erikwang2013\apidoc\annotation\Title("创建报价")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建报价")]
 #[\erikwang2013\apidoc\annotation\Desc("新增CRM报价记录，含报价明细")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/quotation")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -88,7 +90,8 @@ class QuotationController extends BaseController
 
     /**
      * CRM报价详情
-     */#[\erikwang2013\apidoc\annotation\Title("报价详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("报价详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看CRM报价详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -111,7 +114,8 @@ class QuotationController extends BaseController
 
     /**
      * 更新CRM报价
-     */#[\erikwang2013\apidoc\annotation\Title("更新报价")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新报价")]
 #[\erikwang2013\apidoc\annotation\Desc("修改CRM报价信息，仅草稿状态可编辑")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -146,7 +150,8 @@ class QuotationController extends BaseController
 
     /**
      * 删除CRM报价
-     */#[\erikwang2013\apidoc\annotation\Title("删除报价")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除报价")]
 #[\erikwang2013\apidoc\annotation\Desc("删除CRM报价记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -178,7 +183,8 @@ class QuotationController extends BaseController
 
     /**
      * 报价转合同
-     */#[\erikwang2013\apidoc\annotation\Title("报价转合同")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("报价转合同")]
 #[\erikwang2013\apidoc\annotation\Desc("将CRM报价转为正式合同，复制报价明细到合同明细")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

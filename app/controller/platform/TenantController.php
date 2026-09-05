@@ -15,11 +15,11 @@ use support\Response;
 
 /**
  * 租户管理（P2-4 B5）
- *
+
  * 【状态】本批次仅交付控制器 + Apidoc，不注册路由：启用入口（/admin/platform/tenant/*）
  * 由平台批次统一挂载并接入权限（AdminAuth 之后）。业务规则与错误消息契约
  * 见 TenantService（消息文本为稳定契约，勿在此层改写）。
- *
+
  * ID 出入参约定：租户 id 一律 hashid 字符串；company_id 兼容 hashid 或数字
  * （decodeIdSafe，同 CompanyController 双解码惯例）。
  */
@@ -34,7 +34,8 @@ class TenantController extends BaseController
 
     /**
      * 租户列表
-     */#[\erikwang2013\apidoc\annotation\Title("租户列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("租户列表")]
 #[\erikwang2013\apidoc\annotation\Desc("按状态/公司过滤的租户列表，倒序")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/list")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -70,7 +71,8 @@ class TenantController extends BaseController
 
     /**
      * 开通租户（创建即启用）
-     */#[\erikwang2013\apidoc\annotation\Title("开通租户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("开通租户")]
 #[\erikwang2013\apidoc\annotation\Desc("公司 1:1 开通租户：plan/套餐 + 到期日，创建即 status:1 启用")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/provision")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -106,7 +108,8 @@ class TenantController extends BaseController
 
     /**
      * 停用租户
-     */#[\erikwang2013\apidoc\annotation\Title("停用租户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("停用租户")]
 #[\erikwang2013\apidoc\annotation\Desc("仅 1启用 → 2停用")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/suspend")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -126,7 +129,8 @@ class TenantController extends BaseController
 
     /**
      * 恢复启用租户
-     */#[\erikwang2013\apidoc\annotation\Title("恢复启用租户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("恢复启用租户")]
 #[\erikwang2013\apidoc\annotation\Desc("仅 2停用 → 1启用；到期(3)恢复须走续费(renew)")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/resume")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -146,7 +150,8 @@ class TenantController extends BaseController
 
     /**
      * 标记租户到期
-     */#[\erikwang2013\apidoc\annotation\Title("标记租户到期")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("标记租户到期")]
 #[\erikwang2013\apidoc\annotation\Desc("1启用/2停用 → 3到期（重复标记拒绝）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/expire-mark")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -166,7 +171,8 @@ class TenantController extends BaseController
 
     /**
      * 租户续费（叠加天数）
-     */#[\erikwang2013\apidoc\annotation\Title("租户续费")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("租户续费")]
 #[\erikwang2013\apidoc\annotation\Desc("到期日向后叠加 N 天；已到期(3)续费自动恢复启用，停用(2)续费仅延长期限")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/renew")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -190,7 +196,8 @@ class TenantController extends BaseController
 
     /**
      * 到期预警列表
-     */#[\erikwang2013\apidoc\annotation\Title("到期预警")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("到期预警")]
 #[\erikwang2013\apidoc\annotation\Desc("启用中且 N 天内到期的租户（含今天与边界日），到期日升序")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/expiry-warnings")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

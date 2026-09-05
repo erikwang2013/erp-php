@@ -16,7 +16,8 @@ class OrderController extends BaseController
 {
     /**
      * 采购订单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("采购订单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("采购订单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取采购订单列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/order")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class OrderController extends BaseController
 
     /**
      * 创建采购订单
-     */#[\erikwang2013\apidoc\annotation\Title("创建采购订单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建采购订单")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一个采购订单记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/order")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -88,7 +90,8 @@ class OrderController extends BaseController
 
     /**
      * 采购订单详情
-     */#[\erikwang2013\apidoc\annotation\Title("采购订单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("采购订单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取采购订单详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -111,7 +114,8 @@ class OrderController extends BaseController
 
     /**
      * 更新采购订单
-     */#[\erikwang2013\apidoc\annotation\Title("更新采购订单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新采购订单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新采购订单信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -140,7 +144,8 @@ class OrderController extends BaseController
 
     /**
      * 删除采购订单（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除采购订单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除采购订单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除采购订单，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

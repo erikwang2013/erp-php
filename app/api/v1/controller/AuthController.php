@@ -29,7 +29,8 @@ class AuthController
      * 用户登录
      *     }),
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("用户登录")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("用户登录")]
 #[\erikwang2013\apidoc\annotation\Desc("用户名密码登录，需先通过点击验证码；连续失败 5 次账号锁定 15 分钟")]
 #[\erikwang2013\apidoc\annotation\Url("/api/v1/auth/login")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -160,7 +161,8 @@ class AuthController
      * 用户注册
      *     }),
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("用户注册")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("用户注册")]
 #[\erikwang2013\apidoc\annotation\Desc("需先通过点击验证码；受 REGISTRATION_ENABLED:1 配置开关控制，默认关闭")]
 #[\erikwang2013\apidoc\annotation\Url("/api/v1/auth/register")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -248,7 +250,8 @@ class AuthController
     /**
      * 刷新令牌
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("刷新令牌")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("刷新令牌")]
 #[\erikwang2013\apidoc\annotation\Desc("用刷新令牌换取新的访问令牌与刷新令牌，仅接受 refresh 类型令牌")]
 #[\erikwang2013\apidoc\annotation\Url("/api/v1/auth/refresh")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

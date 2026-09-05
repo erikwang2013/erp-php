@@ -18,7 +18,8 @@ class BalanceSheetController extends BaseController
 {
     /**
      * 资产负债表
-     */#[\erikwang2013\apidoc\annotation\Title("资产负债表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("资产负债表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询或从总账生成资产负债表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/balance-sheet")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -66,7 +67,8 @@ class BalanceSheetController extends BaseController
 
     /**
      * 保存资产负债表快照
-     */#[\erikwang2013\apidoc\annotation\Title("保存资产负债表快照")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("保存资产负债表快照")]
 #[\erikwang2013\apidoc\annotation\Desc("将资产负债表数据保存为快照记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/balance-sheet")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

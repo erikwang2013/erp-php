@@ -16,14 +16,16 @@ use support\Response;
 
 /**
  * 员工管理
- */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class EmployeeController extends BaseController
 {
     /**
      * 员工列表（分页）
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("员工列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("员工列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取员工分页列表，支持关键字/状态/部门筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/employee")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -71,7 +73,8 @@ class EmployeeController extends BaseController
 
     /**
      * 创建员工
-     */#[\erikwang2013\apidoc\annotation\Title("创建员工")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建员工")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一名新员工")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/employee")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -100,7 +103,8 @@ class EmployeeController extends BaseController
 
     /**
      * 员工详情
-     */#[\erikwang2013\apidoc\annotation\Title("员工详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("员工详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定员工的详细信息，包含部门和职位")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -129,7 +133,8 @@ class EmployeeController extends BaseController
 
     /**
      * 更新员工
-     */#[\erikwang2013\apidoc\annotation\Title("更新员工")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新员工")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定员工的信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -152,7 +157,8 @@ class EmployeeController extends BaseController
 
     /**
      * 删除员工
-     */#[\erikwang2013\apidoc\annotation\Title("删除员工")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除员工")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定员工，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

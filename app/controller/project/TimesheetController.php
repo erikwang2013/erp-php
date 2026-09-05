@@ -16,7 +16,8 @@ class TimesheetController extends BaseController
 {
     /**
      * 工时记录列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("工时记录列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工时记录列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询工时记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/timesheet")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -66,7 +67,8 @@ class TimesheetController extends BaseController
 
     /**
      * 记录工时
-     */#[\erikwang2013\apidoc\annotation\Title("记录工时")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("记录工时")]
 #[\erikwang2013\apidoc\annotation\Desc("新增工时记录，自动聚合更新任务实际工时")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/timesheet")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -104,7 +106,8 @@ class TimesheetController extends BaseController
 
     /**
      * 工时详情
-     */#[\erikwang2013\apidoc\annotation\Title("工时详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("工时详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看工时记录详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -127,7 +130,8 @@ class TimesheetController extends BaseController
 
     /**
      * 更新工时
-     */#[\erikwang2013\apidoc\annotation\Title("更新工时")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新工时")]
 #[\erikwang2013\apidoc\annotation\Desc("修改工时记录，自动更新任务实际工时")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -155,7 +159,8 @@ class TimesheetController extends BaseController
 
     /**
      * 删除工时
-     */#[\erikwang2013\apidoc\annotation\Title("删除工时")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除工时")]
 #[\erikwang2013\apidoc\annotation\Desc("删除工时记录，自动更新任务实际工时，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

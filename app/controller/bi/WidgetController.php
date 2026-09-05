@@ -14,13 +14,15 @@ use support\Response;
 
 /**
  * BI 看板组件管理
- */#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("BI看板")]
 
 class WidgetController extends BaseController
 {
     /**
      * 图表组件列表
-     */#[\erikwang2013\apidoc\annotation\Title("图表组件列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("图表组件列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询图表组件，支持按看板与名称关键字筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/bi/widget")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -55,7 +57,8 @@ class WidgetController extends BaseController
 
     /**
      * 创建图表组件
-     */#[\erikwang2013\apidoc\annotation\Title("创建图表组件")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建图表组件")]
 #[\erikwang2013\apidoc\annotation\Desc("在指定看板下新建图表组件")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/bi/widget")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -88,7 +91,8 @@ class WidgetController extends BaseController
 
     /**
      * 图表组件详情
-     */#[\erikwang2013\apidoc\annotation\Title("图表组件详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("图表组件详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看单个图表组件配置")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -108,7 +112,8 @@ class WidgetController extends BaseController
 
     /**
      * 更新图表组件
-     */#[\erikwang2013\apidoc\annotation\Title("更新图表组件")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新图表组件")]
 #[\erikwang2013\apidoc\annotation\Desc("更新组件名称、类型或配置")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -135,7 +140,8 @@ class WidgetController extends BaseController
 
     /**
      * 删除图表组件
-     */#[\erikwang2013\apidoc\annotation\Title("删除图表组件")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除图表组件")]
 #[\erikwang2013\apidoc\annotation\Desc("删除图表组件，需二次密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

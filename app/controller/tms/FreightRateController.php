@@ -17,7 +17,8 @@ class FreightRateController extends BaseController
 {
     /**
      * 运费费率列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("运费费率列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("运费费率列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取运费费率列表，支持分页和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/freight-rate")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class FreightRateController extends BaseController
 
     /**
      * 创建运费费率
-     */#[\erikwang2013\apidoc\annotation\Title("创建运费费率")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建运费费率")]
 #[\erikwang2013\apidoc\annotation\Desc("创建运费费率，编码必填，其余字段按业务传入")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/freight-rate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -82,7 +84,8 @@ class FreightRateController extends BaseController
 
     /**
      * 运费费率详情
-     */#[\erikwang2013\apidoc\annotation\Title("运费费率详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("运费费率详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取运费费率详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -108,7 +111,8 @@ class FreightRateController extends BaseController
 
     /**
      * 更新运费费率
-     */#[\erikwang2013\apidoc\annotation\Title("更新运费费率")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新运费费率")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新运费费率信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -137,7 +141,8 @@ class FreightRateController extends BaseController
 
     /**
      * 删除运费费率
-     */#[\erikwang2013\apidoc\annotation\Title("删除运费费率")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除运费费率")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除运费费率，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -170,7 +175,8 @@ class FreightRateController extends BaseController
 
     /**
      * 运费试算
-     */#[\erikwang2013\apidoc\annotation\Title("运费试算")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("运费试算")]
 #[\erikwang2013\apidoc\annotation\Desc("按承运商服务/目的国/重量匹配费率卡计算运费")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/freight-rate/calculate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -196,7 +202,8 @@ class FreightRateController extends BaseController
 
     /**
      * 运费比价
-     */#[\erikwang2013\apidoc\annotation\Title("运费比价")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("运费比价")]
 #[\erikwang2013\apidoc\annotation\Desc("按目的国/重量列出所有可用费率并按价格升序")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/freight-rate/rate-shop")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

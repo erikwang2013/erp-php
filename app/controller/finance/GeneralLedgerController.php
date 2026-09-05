@@ -16,7 +16,8 @@ class GeneralLedgerController extends BaseController
 {
     /**
      * 总账查询
-     */#[\erikwang2013\apidoc\annotation\Title("总账查询")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("总账查询")]
 #[\erikwang2013\apidoc\annotation\Desc("按科目+会计期间汇总查询总账")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/general-ledger")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

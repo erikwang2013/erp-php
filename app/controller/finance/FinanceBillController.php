@@ -19,7 +19,8 @@ use support\Response;
  * 承兑汇票票据台账(应收/应付) — P2 F6
  * 状态机全量转换校验在 FinanceBillService：0在库 1已背书 2已贴现 3托收中 4已到期兑付 5已退票。
  * 边界：票据为资产追踪单据，不新增 ARAP 分录、不联动收付款/核销/结算。
- */#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
 class FinanceBillController extends BaseController
 {
@@ -28,7 +29,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 票据台账列表（分页，方向/类型/状态/关键词筛选）
-     */#[\erikwang2013\apidoc\annotation\Title("票据台账列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("票据台账列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bill")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -73,7 +75,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 到期预警清单（未兑付且到期日 ≤ 今天+days，上限 200）
-     */#[\erikwang2013\apidoc\annotation\Title("到期预警清单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("到期预警清单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bill/due-warnings")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Param(name:"days", type:"int", default:7, desc:"预警天数")]
@@ -93,7 +96,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 票据登记
-     */#[\erikwang2013\apidoc\annotation\Title("票据登记")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("票据登记")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bill")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Param(name:"bill_no", type:"string", required:true, desc:"票号(唯一)")]
@@ -135,7 +139,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 票据详情
-     */#[\erikwang2013\apidoc\annotation\Title("票据详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("票据详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 
     public function show(Request $request, string $id): Response
@@ -150,7 +155,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 更新票据（仅 在库 可改；票号/方向/来源不可改）
-     */#[\erikwang2013\apidoc\annotation\Title("更新票据")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新票据")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 
     public function update(Request $request, string $id): Response
@@ -170,7 +176,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 删除票据（仅 在库，需管理员密码；软删）
-     */#[\erikwang2013\apidoc\annotation\Title("删除票据")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除票据")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", required:true, desc:"管理员密码")]
 
@@ -195,7 +202,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 背书转让（在库→已背书，被背书人必填；应收票、未到期）
-     */#[\erikwang2013\apidoc\annotation\Title("背书转让")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("背书转让")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Param(name:"endorsee", type:"string", required:true, desc:"被背书人")]
 
@@ -210,7 +218,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 贴现（在库→已贴现；记录贴现息）
-     */#[\erikwang2013\apidoc\annotation\Title("票据贴现")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("票据贴现")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Param(name:"fee", type:"string", required:true, desc:"贴现息(0~票面金额)")]
 
@@ -225,7 +234,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 托收（在库→托收中；指定托收账户）
-     */#[\erikwang2013\apidoc\annotation\Title("票据托收")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("票据托收")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", default:"", desc:"托收账户(hashid，留空用登记账户)")]
 
@@ -242,7 +252,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 到期确认兑付/解付（收票：托收中→已到期兑付；开票：在库→已到期兑付）
-     */#[\erikwang2013\apidoc\annotation\Title("确认到期兑付")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("确认到期兑付")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 
     public function cash(Request $request, string $id): Response
@@ -256,7 +267,8 @@ class FinanceBillController extends BaseController
 
     /**
      * 退票（在库/托收中→已退票；托收被拒付退回）
-     */#[\erikwang2013\apidoc\annotation\Title("退票")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("退票")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 
     public function reject(Request $request, string $id): Response

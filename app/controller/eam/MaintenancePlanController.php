@@ -14,13 +14,15 @@ use support\Response;
 
 /**
  * 保养计划管理
- */#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
 
 class MaintenancePlanController extends BaseController
 {
     /**
      * 保养计划列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("保养计划列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("保养计划列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取保养计划列表，支持分页、计划名称关键词搜索及设备/状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/maintenance")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -60,7 +62,8 @@ class MaintenancePlanController extends BaseController
 
     /**
      * 创建保养计划
-     */#[\erikwang2013\apidoc\annotation\Title("创建保养计划")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建保养计划")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一条设备保养计划，设备ID/计划名称/保养频率必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/maintenance")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -93,7 +96,8 @@ class MaintenancePlanController extends BaseController
 
     /**
      * 保养计划详情
-     */#[\erikwang2013\apidoc\annotation\Title("保养计划详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("保养计划详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取保养计划详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -113,7 +117,8 @@ class MaintenancePlanController extends BaseController
 
     /**
      * 更新保养计划
-     */#[\erikwang2013\apidoc\annotation\Title("更新保养计划")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新保养计划")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新保养计划信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -138,7 +143,8 @@ class MaintenancePlanController extends BaseController
 
     /**
      * 删除保养计划（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除保养计划")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除保养计划")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除保养计划，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

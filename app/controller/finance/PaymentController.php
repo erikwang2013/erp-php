@@ -16,7 +16,8 @@ class PaymentController extends BaseController
 {
     /**
      * 付款单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("付款单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("付款单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询付款单记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/payment")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -55,7 +56,8 @@ class PaymentController extends BaseController
 
     /**
      * 创建付款单
-     */#[\erikwang2013\apidoc\annotation\Title("创建付款单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建付款单")]
 #[\erikwang2013\apidoc\annotation\Desc("新增付款单记录，状态默认为待付款")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/payment")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -95,7 +97,8 @@ class PaymentController extends BaseController
 
     /**
      * 付款单详情
-     */#[\erikwang2013\apidoc\annotation\Title("付款单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("付款单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看付款单详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -118,7 +121,8 @@ class PaymentController extends BaseController
 
     /**
      * 更新付款单
-     */#[\erikwang2013\apidoc\annotation\Title("更新付款单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新付款单")]
 #[\erikwang2013\apidoc\annotation\Desc("修改付款单信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -177,7 +181,8 @@ class PaymentController extends BaseController
 
     /**
      * 删除付款单
-     */#[\erikwang2013\apidoc\annotation\Title("删除付款单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除付款单")]
 #[\erikwang2013\apidoc\annotation\Desc("删除付款单记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

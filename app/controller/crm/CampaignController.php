@@ -18,7 +18,8 @@ class CampaignController extends BaseController
 {
     /**
      * 营销活动列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("营销活动列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("营销活动列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询营销活动记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/campaign")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -57,7 +58,8 @@ class CampaignController extends BaseController
 
     /**
      * 创建营销活动
-     */#[\erikwang2013\apidoc\annotation\Title("创建营销活动")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建营销活动")]
 #[\erikwang2013\apidoc\annotation\Desc("新增营销活动记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/campaign")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -86,7 +88,8 @@ class CampaignController extends BaseController
 
     /**
      * 活动详情
-     */#[\erikwang2013\apidoc\annotation\Title("营销活动详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("营销活动详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看营销活动详细信息，含参与统计")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -116,7 +119,8 @@ class CampaignController extends BaseController
 
     /**
      * 更新活动
-     */#[\erikwang2013\apidoc\annotation\Title("更新营销活动")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新营销活动")]
 #[\erikwang2013\apidoc\annotation\Desc("修改营销活动信息，仅计划中或进行中可编辑")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -145,7 +149,8 @@ class CampaignController extends BaseController
 
     /**
      * 删除活动
-     */#[\erikwang2013\apidoc\annotation\Title("删除营销活动")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除营销活动")]
 #[\erikwang2013\apidoc\annotation\Desc("删除营销活动，连参与记录一起删除，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

@@ -19,7 +19,8 @@ class TaxController extends BaseController
 
     /**
      * 税率列表
-     */#[\erikwang2013\apidoc\annotation\Title("税率列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("税率列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询全部税率配置")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-rate")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -39,7 +40,8 @@ class TaxController extends BaseController
 
     /**
      * 创建/更新税率
-     */#[\erikwang2013\apidoc\annotation\Title("创建或更新税率")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建或更新税率")]
 #[\erikwang2013\apidoc\annotation\Desc("有id则更新，无id则创建税率记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-rate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -84,7 +86,8 @@ class TaxController extends BaseController
 
     /**
      * 删除税率
-     */#[\erikwang2013\apidoc\annotation\Title("删除税率")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除税率")]
 #[\erikwang2013\apidoc\annotation\Desc("删除税率配置记录")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -110,7 +113,8 @@ class TaxController extends BaseController
 
     /**
      * 税务记录列表
-     */#[\erikwang2013\apidoc\annotation\Title("税务记录列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("税务记录列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询税务记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/tax-rate")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

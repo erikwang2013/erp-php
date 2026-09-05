@@ -14,14 +14,16 @@ use support\Response;
 
 /**
  * 用户管理
- */#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
 
 class UserController extends BaseController
 {
     /**
      * 用户列表（分页）
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("用户列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("用户列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取用户分页列表，支持关键字搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/user")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -86,7 +88,8 @@ class UserController extends BaseController
 
     /**
      * 创建用户
-     */#[\erikwang2013\apidoc\annotation\Title("创建用户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建用户")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一个新的管理后台用户")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/user")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -138,7 +141,8 @@ class UserController extends BaseController
 
     /**
      * 用户详情
-     */#[\erikwang2013\apidoc\annotation\Title("用户详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("用户详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定用户的详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -165,7 +169,8 @@ class UserController extends BaseController
 
     /**
      * 更新用户
-     */#[\erikwang2013\apidoc\annotation\Title("更新用户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新用户")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定用户的信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -211,7 +216,8 @@ class UserController extends BaseController
 
     /**
      * 删除用户（软删除，需密码二次确认）
-     */#[\erikwang2013\apidoc\annotation\Title("删除用户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除用户")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定用户，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -244,7 +250,8 @@ class UserController extends BaseController
     /**
      * 批量删除
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("批量删除用户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("批量删除用户")]
 #[\erikwang2013\apidoc\annotation\Desc("批量软删除多个用户，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/user/batch/destroy")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -292,7 +299,8 @@ class UserController extends BaseController
     /**
      * 批量启用/禁用
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("批量启用/禁用用户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("批量启用/禁用用户")]
 #[\erikwang2013\apidoc\annotation\Desc("批量修改用户启用/禁用状态")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/user/batch/status")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

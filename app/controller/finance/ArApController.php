@@ -17,7 +17,8 @@ class ArApController extends BaseController
 {
     /**
      * 应收应付列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("应收应付列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("应收应付列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询应收应付记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ar-ap")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -56,7 +57,8 @@ class ArApController extends BaseController
 
     /**
      * 创建应收应付
-     */#[\erikwang2013\apidoc\annotation\Title("创建应收应付")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建应收应付")]
 #[\erikwang2013\apidoc\annotation\Desc("新增应收应付记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ar-ap")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -107,7 +109,8 @@ class ArApController extends BaseController
 
     /**
      * 应收应付详情
-     */#[\erikwang2013\apidoc\annotation\Title("应收应付详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("应收应付详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看应收应付记录详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -130,7 +133,8 @@ class ArApController extends BaseController
 
     /**
      * 更新应收应付
-     */#[\erikwang2013\apidoc\annotation\Title("更新应收应付")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新应收应付")]
 #[\erikwang2013\apidoc\annotation\Desc("修改应收应付记录")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -172,7 +176,8 @@ class ArApController extends BaseController
 
     /**
      * 删除应收应付
-     */#[\erikwang2013\apidoc\annotation\Title("删除应收应付")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除应收应付")]
 #[\erikwang2013\apidoc\annotation\Desc("删除应收应付记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

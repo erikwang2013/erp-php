@@ -16,7 +16,8 @@ class RoleController extends BaseController
 {
     /**
      * 角色列表
-     */#[\erikwang2013\apidoc\annotation\Title("角色列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("角色列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取角色分页列表，包含用户数量统计")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/role")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -51,7 +52,8 @@ class RoleController extends BaseController
 
     /**
      * 角色详情
-     */#[\erikwang2013\apidoc\annotation\Title("角色详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("角色详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 查询单个角色")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -74,7 +76,8 @@ class RoleController extends BaseController
 
     /**
      * 创建角色
-     */#[\erikwang2013\apidoc\annotation\Title("创建角色")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建角色")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一个新角色并同步关联权限")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/role")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -117,7 +120,8 @@ class RoleController extends BaseController
 
     /**
      * 更新角色
-     */#[\erikwang2013\apidoc\annotation\Title("更新角色")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新角色")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定角色的信息并同步权限")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -152,7 +156,8 @@ class RoleController extends BaseController
 
     /**
      * 删除角色（需密码二次确认）
-     */#[\erikwang2013\apidoc\annotation\Title("删除角色")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除角色")]
 #[\erikwang2013\apidoc\annotation\Desc("删除指定角色，需当前管理员密码进行二次确认，同时清理关联的权限和用户")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

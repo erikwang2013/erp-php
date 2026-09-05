@@ -16,7 +16,8 @@ class CostCenterController extends BaseController
 {
     /**
      * 成本中心树形列表
-     */#[\erikwang2013\apidoc\annotation\Title("成本中心列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("成本中心列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询成本中心树形结构列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/cost-center")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -54,7 +55,8 @@ class CostCenterController extends BaseController
 
     /**
      * 创建成本中心
-     */#[\erikwang2013\apidoc\annotation\Title("创建成本中心")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建成本中心")]
 #[\erikwang2013\apidoc\annotation\Desc("新增成本中心节点")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/cost-center")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -86,7 +88,8 @@ class CostCenterController extends BaseController
 
     /**
      * 成本中心详情
-     */#[\erikwang2013\apidoc\annotation\Title("成本中心详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("成本中心详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看成本中心详细信息，含子级")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -116,7 +119,8 @@ class CostCenterController extends BaseController
 
     /**
      * 更新成本中心
-     */#[\erikwang2013\apidoc\annotation\Title("更新成本中心")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新成本中心")]
 #[\erikwang2013\apidoc\annotation\Desc("修改成本中心信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -142,7 +146,8 @@ class CostCenterController extends BaseController
 
     /**
      * 删除成本中心
-     */#[\erikwang2013\apidoc\annotation\Title("删除成本中心")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除成本中心")]
 #[\erikwang2013\apidoc\annotation\Desc("删除成本中心，需先删除子级，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

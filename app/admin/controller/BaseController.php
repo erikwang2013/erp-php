@@ -102,7 +102,7 @@ class BaseController
     /**
      * 二次确认 — 验证当前登录用户密码
      * 敏感操作（删除、导出等）调用此方法确认身份
-     *
+
      * @param int $adminId 当前登录用户 ID
      * @param string $password 用户输入的密码
      * @return string|null 错误消息，null 表示验证通过
@@ -131,7 +131,7 @@ class BaseController
 
     /**
      * 记录异常日志（含 TraceId），供各控制器 catch 分支统一调用。
-     *
+
      * fail-open 审计要求：任何被捕获吞掉的异常都必须留下可观测日志，
      * 避免"静默失败"导致问题无法排查。
      */

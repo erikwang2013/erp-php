@@ -18,7 +18,8 @@ class CashFlowController extends BaseController
 {
     /**
      * 现金流量表
-     */#[\erikwang2013\apidoc\annotation\Title("现金流量表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("现金流量表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询快照或从已审核凭证实时生成现金流量表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/cash-flow")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -72,7 +73,8 @@ class CashFlowController extends BaseController
 
     /**
      * 保存现金流量表快照
-     */#[\erikwang2013\apidoc\annotation\Title("保存现金流量表快照")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("保存现金流量表快照")]
 #[\erikwang2013\apidoc\annotation\Desc("将现金流量表数据保存为快照记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/cash-flow")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

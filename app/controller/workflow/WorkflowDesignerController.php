@@ -17,7 +17,7 @@ use support\Response;
 
 /**
  * 可视化流程设计器（P1-B3）
- *
+
  * 画布数据模型 + 配置 API。零新表：canvas_json 挂在 erp_approval_workflow 上，
  * erp_approval_node 保持执行真相源不变，故既有 submit/approve/reject 路径零影响。
  * 本控制器与 WorkflowController 并存互不覆盖：后者管理模板元数据 + 线性节点，
@@ -27,7 +27,8 @@ class WorkflowDesignerController extends BaseController
 {
     /**
      * 读取画布设计
-     */#[\erikwang2013\apidoc\annotation\Title("读取流程画布")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("读取流程画布")]
 #[\erikwang2013\apidoc\annotation\Desc("返回画布快照：节点(含坐标)与边；工作流不存在或画布为空时返回空结构")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -51,7 +52,8 @@ class WorkflowDesignerController extends BaseController
 
     /**
      * 保存画布设计
-     */#[\erikwang2013\apidoc\annotation\Title("保存流程画布")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("保存流程画布")]
 #[\erikwang2013\apidoc\annotation\Desc("事务内写画布快照并按主路径重建审批节点；边引用不存在的节点或节点id重复时422")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -90,7 +92,8 @@ class WorkflowDesignerController extends BaseController
 
     /**
      * 校验流程拓扑
-     */#[\erikwang2013\apidoc\annotation\Title("校验流程拓扑")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("校验流程拓扑")]
 #[\erikwang2013\apidoc\annotation\Desc("检查起始节点唯一性、不可达孤岛与 forward 边有向环；reject 驳回回边豁免环检测")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +118,8 @@ class WorkflowDesignerController extends BaseController
 
     /**
      * 求解下一节点
-     */#[\erikwang2013\apidoc\annotation\Title("求解流程下一节点")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("求解流程下一节点")]
 #[\erikwang2013\apidoc\annotation\Desc("按边条件命中下一节点；无条件 fallback 边优先级低于条件命中边")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

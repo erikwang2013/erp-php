@@ -18,7 +18,8 @@ class LocationController extends BaseController
 {
     /**
      * 库位列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("库位列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库位列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取库位列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/location")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class LocationController extends BaseController
 
     /**
      * 按仓库获取库位列表
-     */#[\erikwang2013\apidoc\annotation\Title("按仓库获取库位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("按仓库获取库位")]
 #[\erikwang2013\apidoc\annotation\Desc("根据仓库ID获取该仓库下的所有库位列表")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -80,7 +82,8 @@ class LocationController extends BaseController
 
     /**
      * 创建库位
-     */#[\erikwang2013\apidoc\annotation\Title("创建库位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建库位")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一个库位记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/location")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -108,7 +111,8 @@ class LocationController extends BaseController
 
     /**
      * 库位详情
-     */#[\erikwang2013\apidoc\annotation\Title("库位详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("库位详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取库位详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -131,7 +135,8 @@ class LocationController extends BaseController
 
     /**
      * 更新库位
-     */#[\erikwang2013\apidoc\annotation\Title("更新库位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新库位")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新库位信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -158,7 +163,8 @@ class LocationController extends BaseController
 
     /**
      * 删除库位（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除库位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除库位")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除库位，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

@@ -18,7 +18,8 @@ use support\Response;
  * 银企对账(流水导入/自动核销/手工核销/未达报告) — P2 F6
  * 对账目标 = 现金日记账 erp_finance_cash_journal：只写核销匹配轨，不改动日记账。
  * 匹配严格 1:1；批次导入按 (账户,批次) 幂等；同条件两次自动核销结果一致。
- */#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
 class BankReconController extends BaseController
 {
@@ -29,7 +30,8 @@ class BankReconController extends BaseController
 
     /**
      * 对账单行列表（日期范围必填；批次/对账状态筛选）
-     */#[\erikwang2013\apidoc\annotation\Title("对账单行列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("对账单行列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-statement")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -67,7 +69,8 @@ class BankReconController extends BaseController
 
     /**
      * 导入对账单行（整批原子；同账户同批次重复导入整批跳过）
-     */#[\erikwang2013\apidoc\annotation\Title("导入对账单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("导入对账单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-statement/import")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
@@ -100,7 +103,8 @@ class BankReconController extends BaseController
 
     /**
      * 自动核销（金额+日期窗口±N 天 → 摘要，候选唯一才落库；返回匹配/人工候选/未达清单）
-     */#[\erikwang2013\apidoc\annotation\Title("自动核销")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("自动核销")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-recon/auto")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
@@ -141,7 +145,8 @@ class BankReconController extends BaseController
 
     /**
      * 手工核销（金额与方向必须一致）
-     */#[\erikwang2013\apidoc\annotation\Title("手工核销")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("手工核销")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-recon/manual")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
@@ -174,7 +179,8 @@ class BankReconController extends BaseController
 
     /**
      * 取消核销
-     */#[\erikwang2013\apidoc\annotation\Title("取消核销")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("取消核销")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-recon/unreconcile")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
@@ -202,7 +208,8 @@ class BankReconController extends BaseController
 
     /**
      * 对账报告（已对清单 + 双方未达清单 + 分向汇总）
-     */#[\erikwang2013\apidoc\annotation\Title("对账报告")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("对账报告")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-recon/report")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]

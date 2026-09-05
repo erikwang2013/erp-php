@@ -16,7 +16,8 @@ class AsnController extends BaseController
 {
     /**
      * 预到货通知列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("预到货通知列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("预到货通知列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取预到货通知(ASN)列表，支持分页、编码搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/asn")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class AsnController extends BaseController
 
     /**
      * 创建预到货通知
-     */#[\erikwang2013\apidoc\annotation\Title("创建预到货通知")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建预到货通知")]
 #[\erikwang2013\apidoc\annotation\Desc("创建预到货通知(ASN)，编码必填（缺省自动生成）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/asn")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -89,7 +91,8 @@ class AsnController extends BaseController
 
     /**
      * 预到货通知详情
-     */#[\erikwang2013\apidoc\annotation\Title("预到货通知详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("预到货通知详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取预到货通知详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +118,8 @@ class AsnController extends BaseController
 
     /**
      * 更新预到货通知
-     */#[\erikwang2013\apidoc\annotation\Title("更新预到货通知")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新预到货通知")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新预到货通知信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -144,7 +148,8 @@ class AsnController extends BaseController
 
     /**
      * 删除预到货通知
-     */#[\erikwang2013\apidoc\annotation\Title("删除预到货通知")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除预到货通知")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除预到货通知，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

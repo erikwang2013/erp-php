@@ -24,7 +24,8 @@ class ProfileController extends BaseController
 
     /**
      * 更新个人信息
-     */#[\erikwang2013\apidoc\annotation\Title("更新个人信息")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新个人信息")]
 #[\erikwang2013\apidoc\annotation\Desc("更新当前登录用户的真实姓名、手机号和邮箱")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/profile")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -67,7 +68,8 @@ class ProfileController extends BaseController
 
     /**
      * 修改密码
-     */#[\erikwang2013\apidoc\annotation\Title("修改密码")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("修改密码")]
 #[\erikwang2013\apidoc\annotation\Desc("修改当前登录用户的登录密码，需验证旧密码")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/profile/password")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -110,7 +112,8 @@ class ProfileController extends BaseController
 
     /**
      * 登出
-     */#[\erikwang2013\apidoc\annotation\Title("登出")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("登出")]
 #[\erikwang2013\apidoc\annotation\Desc("退出当前登录，将当前JWT令牌加入黑名单使其立即失效")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/profile/logout")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

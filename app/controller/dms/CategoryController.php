@@ -14,7 +14,8 @@ use support\Response;
 
 /**
  * 文档分类管理
- */#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
 
 class CategoryController extends BaseController
 {

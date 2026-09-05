@@ -16,7 +16,8 @@ class QuotationController extends BaseController
 {
     /**
      * 销售报价列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("销售报价列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("销售报价列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取销售报价列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/quotation")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class QuotationController extends BaseController
 
     /**
      * 创建销售报价
-     */#[\erikwang2013\apidoc\annotation\Title("创建销售报价")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建销售报价")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一个销售报价记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/quotation")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -88,7 +90,8 @@ class QuotationController extends BaseController
 
     /**
      * 销售报价详情
-     */#[\erikwang2013\apidoc\annotation\Title("销售报价详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("销售报价详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取销售报价详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -111,7 +114,8 @@ class QuotationController extends BaseController
 
     /**
      * 更新销售报价
-     */#[\erikwang2013\apidoc\annotation\Title("更新销售报价")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新销售报价")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新销售报价信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -140,7 +144,8 @@ class QuotationController extends BaseController
 
     /**
      * 删除销售报价（软删除）
-     */#[\erikwang2013\apidoc\annotation\Title("删除销售报价")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除销售报价")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除销售报价，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

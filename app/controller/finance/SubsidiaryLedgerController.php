@@ -16,7 +16,8 @@ class SubsidiaryLedgerController extends BaseController
 {
     /**
      * 明细账查询
-     */#[\erikwang2013\apidoc\annotation\Title("明细账查询")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("明细账查询")]
 #[\erikwang2013\apidoc\annotation\Desc("按科目列出每笔凭证分录明细，支持日期范围筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/subsidiary-ledger")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

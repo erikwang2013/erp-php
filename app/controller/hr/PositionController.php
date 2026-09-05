@@ -16,13 +16,15 @@ use support\Response;
 
 /**
  * 职位管理
- */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class PositionController extends BaseController
 {
     /**
      * 职位列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("职位列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("职位列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询职位记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/position")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -61,7 +63,8 @@ class PositionController extends BaseController
 
     /**
      * 创建职位
-     */#[\erikwang2013\apidoc\annotation\Title("创建职位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建职位")]
 #[\erikwang2013\apidoc\annotation\Desc("新增职位记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/position")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -91,7 +94,8 @@ class PositionController extends BaseController
 
     /**
      * 职位详情
-     */#[\erikwang2013\apidoc\annotation\Title("职位详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("职位详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看职位详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -114,7 +118,8 @@ class PositionController extends BaseController
 
     /**
      * 更新职位
-     */#[\erikwang2013\apidoc\annotation\Title("更新职位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新职位")]
 #[\erikwang2013\apidoc\annotation\Desc("修改职位信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -137,7 +142,8 @@ class PositionController extends BaseController
 
     /**
      * 删除职位
-     */#[\erikwang2013\apidoc\annotation\Title("删除职位")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除职位")]
 #[\erikwang2013\apidoc\annotation\Desc("删除职位记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

@@ -16,7 +16,8 @@ class WaveController extends BaseController
 {
     /**
      * 波次列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("波次列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("波次列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取波次列表，支持分页、编码搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/wave")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class WaveController extends BaseController
 
     /**
      * 创建波次
-     */#[\erikwang2013\apidoc\annotation\Title("创建波次")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建波次")]
 #[\erikwang2013\apidoc\annotation\Desc("创建波次，编码必填（缺省自动生成）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/wave")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -89,7 +91,8 @@ class WaveController extends BaseController
 
     /**
      * 波次详情
-     */#[\erikwang2013\apidoc\annotation\Title("波次详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("波次详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取波次详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +118,8 @@ class WaveController extends BaseController
 
     /**
      * 更新波次
-     */#[\erikwang2013\apidoc\annotation\Title("更新波次")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新波次")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新波次信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -144,7 +148,8 @@ class WaveController extends BaseController
 
     /**
      * 删除波次
-     */#[\erikwang2013\apidoc\annotation\Title("删除波次")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除波次")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除波次，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -177,7 +182,8 @@ class WaveController extends BaseController
 
     /**
      * 释放波次并生成拣货任务
-     */#[\erikwang2013\apidoc\annotation\Title("释放波次")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("释放波次")]
 #[\erikwang2013\apidoc\annotation\Desc("提交拣货明细释放波次，自动生成拣货任务")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

@@ -17,7 +17,8 @@ class ReceivingController extends BaseController
 {
     /**
      * 收货单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("收货单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("收货单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取收货单列表，支持分页、编码搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/receiving")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -59,7 +60,8 @@ class ReceivingController extends BaseController
 
     /**
      * 创建收货单
-     */#[\erikwang2013\apidoc\annotation\Title("创建收货单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建收货单")]
 #[\erikwang2013\apidoc\annotation\Desc("创建收货单，编码必填（缺省自动生成）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/receiving")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -90,7 +92,8 @@ class ReceivingController extends BaseController
 
     /**
      * 收货单详情
-     */#[\erikwang2013\apidoc\annotation\Title("收货单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("收货单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取收货单详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -116,7 +119,8 @@ class ReceivingController extends BaseController
 
     /**
      * 更新收货单
-     */#[\erikwang2013\apidoc\annotation\Title("更新收货单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新收货单")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新收货单信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -145,7 +149,8 @@ class ReceivingController extends BaseController
 
     /**
      * 删除收货单
-     */#[\erikwang2013\apidoc\annotation\Title("删除收货单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除收货单")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除收货单，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -178,7 +183,8 @@ class ReceivingController extends BaseController
 
     /**
      * 完成收货并生成上架任务
-     */#[\erikwang2013\apidoc\annotation\Title("完成收货")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("完成收货")]
 #[\erikwang2013\apidoc\annotation\Desc("提交实收明细完成收货，并自动生成上架任务")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

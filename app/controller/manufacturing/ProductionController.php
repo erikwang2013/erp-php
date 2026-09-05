@@ -19,13 +19,15 @@ use support\Response;
 
 /**
  * 生产工单管理 — CRUD + 状态流转
- */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class ProductionController extends BaseController
 {
     /**
      * 生产工单列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("生产工单列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("生产工单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询生产工单记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/production")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -64,7 +66,8 @@ class ProductionController extends BaseController
 
     /**
      * 创建生产工单
-     */#[\erikwang2013\apidoc\annotation\Title("创建生产工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建生产工单")]
 #[\erikwang2013\apidoc\annotation\Desc("新增生产工单记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/production")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -98,7 +101,8 @@ class ProductionController extends BaseController
 
     /**
      * 工单详情
-     */#[\erikwang2013\apidoc\annotation\Title("生产工单详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("生产工单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看生产工单详细信息，含明细和BOM")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -129,7 +133,8 @@ class ProductionController extends BaseController
 
     /**
      * 更新工单
-     */#[\erikwang2013\apidoc\annotation\Title("更新生产工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新生产工单")]
 #[\erikwang2013\apidoc\annotation\Desc("修改生产工单，仅待生产状态可修改")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -157,7 +162,8 @@ class ProductionController extends BaseController
 
     /**
      * 删除工单
-     */#[\erikwang2013\apidoc\annotation\Title("删除生产工单")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除生产工单")]
 #[\erikwang2013\apidoc\annotation\Desc("删除生产工单，生产中或已完成不可删除，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -192,7 +198,8 @@ class ProductionController extends BaseController
 
     /**
      * 开始生产
-     */#[\erikwang2013\apidoc\annotation\Title("开始生产")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("开始生产")]
 #[\erikwang2013\apidoc\annotation\Desc("将工单状态变更为生产中")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -220,7 +227,8 @@ class ProductionController extends BaseController
 
     /**
      * 完成生产（完工结算：入库 + 成本结转凭证，同事务）
-     */#[\erikwang2013\apidoc\annotation\Title("完成生产")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("完成生产")]
 #[\erikwang2013\apidoc\annotation\Desc("完工结算并入库产成品，归集成本结转为财务凭证")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

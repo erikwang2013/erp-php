@@ -19,7 +19,8 @@ class CustomerController extends BaseController
 {
     /**
      * 客户列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("客户列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("客户列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询客户记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/customer")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -54,7 +55,8 @@ class CustomerController extends BaseController
 
     /**
      * 创建客户
-     */#[\erikwang2013\apidoc\annotation\Title("创建客户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建客户")]
 #[\erikwang2013\apidoc\annotation\Desc("新增客户记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/customer")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -79,7 +81,8 @@ class CustomerController extends BaseController
 
     /**
      * 客户详情
-     */#[\erikwang2013\apidoc\annotation\Title("客户详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("客户详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看客户详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -102,7 +105,8 @@ class CustomerController extends BaseController
 
     /**
      * 更新客户
-     */#[\erikwang2013\apidoc\annotation\Title("更新客户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新客户")]
 #[\erikwang2013\apidoc\annotation\Desc("修改客户信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -125,7 +129,8 @@ class CustomerController extends BaseController
 
     /**
      * 删除客户
-     */#[\erikwang2013\apidoc\annotation\Title("删除客户")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除客户")]
 #[\erikwang2013\apidoc\annotation\Desc("删除客户记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -157,7 +162,8 @@ class CustomerController extends BaseController
 
     /**
      * 客户等级列表
-     */#[\erikwang2013\apidoc\annotation\Title("客户等级列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("客户等级列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询全部客户等级，供前端下拉选择")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/customer-level")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

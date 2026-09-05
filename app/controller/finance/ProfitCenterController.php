@@ -16,7 +16,8 @@ class ProfitCenterController extends BaseController
 {
     /**
      * 利润中心树形列表
-     */#[\erikwang2013\apidoc\annotation\Title("利润中心列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("利润中心列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询利润中心树形结构列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/profit-center")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -54,7 +55,8 @@ class ProfitCenterController extends BaseController
 
     /**
      * 创建利润中心
-     */#[\erikwang2013\apidoc\annotation\Title("创建利润中心")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建利润中心")]
 #[\erikwang2013\apidoc\annotation\Desc("新增利润中心节点")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/profit-center")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -86,7 +88,8 @@ class ProfitCenterController extends BaseController
 
     /**
      * 利润中心详情
-     */#[\erikwang2013\apidoc\annotation\Title("利润中心详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("利润中心详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看利润中心详细信息，含子级")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +118,8 @@ class ProfitCenterController extends BaseController
 
     /**
      * 更新利润中心
-     */#[\erikwang2013\apidoc\annotation\Title("更新利润中心")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新利润中心")]
 #[\erikwang2013\apidoc\annotation\Desc("修改利润中心信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -141,7 +145,8 @@ class ProfitCenterController extends BaseController
 
     /**
      * 删除利润中心
-     */#[\erikwang2013\apidoc\annotation\Title("删除利润中心")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除利润中心")]
 #[\erikwang2013\apidoc\annotation\Desc("删除利润中心，需先删除子级，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

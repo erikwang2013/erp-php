@@ -19,7 +19,8 @@ use support\Response;
 
 /**
  * 考勤与请假管理
- */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class AttendanceController extends BaseController
 {
@@ -27,7 +28,8 @@ class AttendanceController extends BaseController
 
     /**
      * 考勤记录列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("考勤记录列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("考勤记录列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询考勤记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -71,7 +73,8 @@ class AttendanceController extends BaseController
 
     /**
      * 上班打卡
-     */#[\erikwang2013\apidoc\annotation\Title("上班打卡")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("上班打卡")]
 #[\erikwang2013\apidoc\annotation\Desc("员工上班打卡，根据考勤规则自动判定迟到")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance/clock-in")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -100,7 +103,8 @@ class AttendanceController extends BaseController
 
     /**
      * 下班打卡
-     */#[\erikwang2013\apidoc\annotation\Title("下班打卡")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("下班打卡")]
 #[\erikwang2013\apidoc\annotation\Desc("员工下班打卡，根据考勤规则自动判定早退")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance/clock-out")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -131,7 +135,8 @@ class AttendanceController extends BaseController
 
     /**
      * 请假列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("请假列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("请假列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询请假记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -174,7 +179,8 @@ class AttendanceController extends BaseController
 
     /**
      * 创建请假
-     */#[\erikwang2013\apidoc\annotation\Title("创建请假")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建请假")]
 #[\erikwang2013\apidoc\annotation\Desc("提交请假申请")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -209,7 +215,8 @@ class AttendanceController extends BaseController
 
     /**
      * 请假详情
-     */#[\erikwang2013\apidoc\annotation\Title("请假详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("请假详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看请假记录详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -237,7 +244,8 @@ class AttendanceController extends BaseController
 
     /**
      * 更新请假
-     */#[\erikwang2013\apidoc\annotation\Title("更新请假")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新请假")]
 #[\erikwang2013\apidoc\annotation\Desc("修改请假申请，仅待审批状态可修改")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -265,7 +273,8 @@ class AttendanceController extends BaseController
 
     /**
      * 删除请假
-     */#[\erikwang2013\apidoc\annotation\Title("删除请假")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除请假")]
 #[\erikwang2013\apidoc\annotation\Desc("删除请假记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -297,7 +306,8 @@ class AttendanceController extends BaseController
 
     /**
      * 审批请假
-     */#[\erikwang2013\apidoc\annotation\Title("审批请假")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("审批请假")]
 #[\erikwang2013\apidoc\annotation\Desc("批准或驳回请假申请，批准后自动标记考勤为请假状态")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

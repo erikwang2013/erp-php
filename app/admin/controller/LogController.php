@@ -17,7 +17,8 @@ class LogController extends BaseController
     /**
      * 操作日志列表
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("操作日志列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("操作日志列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取操作日志分页列表，支持按用户、操作动作、请求路径、日期范围筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/log")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

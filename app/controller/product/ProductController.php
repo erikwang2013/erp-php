@@ -17,14 +17,16 @@ use Throwable;
 
 /**
  * 商品管理
- */#[\erikwang2013\apidoc\annotation\Tag("商品管理")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("商品管理")]
 
 class ProductController extends BaseController
 {
     /**
      * 商品列表（分页）
      * })
-     */#[\erikwang2013\apidoc\annotation\Title("商品列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("商品列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取商品分页列表，支持关键字/分类/状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -70,7 +72,8 @@ class ProductController extends BaseController
 
     /**
      * 创建商品
-     */#[\erikwang2013\apidoc\annotation\Title("创建商品")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建商品")]
 #[\erikwang2013\apidoc\annotation\Desc("创建新商品，可同时创建SKU和价格")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -128,7 +131,8 @@ class ProductController extends BaseController
 
     /**
      * 商品详情
-     */#[\erikwang2013\apidoc\annotation\Title("商品详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("商品详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定商品的详细信息，包含分类、品牌、SKU、价格和单位")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -151,7 +155,8 @@ class ProductController extends BaseController
 
     /**
      * 更新商品
-     */#[\erikwang2013\apidoc\annotation\Title("更新商品")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新商品")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定商品的信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -194,7 +199,8 @@ class ProductController extends BaseController
 
     /**
      * 删除商品
-     */#[\erikwang2013\apidoc\annotation\Title("删除商品")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除商品")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定商品，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

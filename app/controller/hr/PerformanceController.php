@@ -24,7 +24,8 @@ use support\Response;
  * 批次 0草稿→1进行中→2已归档（仅可引用已启用模板；归档须≥1 条评分）。
  * 行主键 id 经 hashid 出入；跨表外键（template_id/employee_id/plan_id 等）为原始整数。
  * 统一返回 {code,message,data}；Tag 见类注解。
- */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+ */
+#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class PerformanceController extends BaseController
 {

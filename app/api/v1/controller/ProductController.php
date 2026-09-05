@@ -16,7 +16,8 @@ class ProductController extends BaseController
 {
     /**
      * 商品列表
-     */#[\erikwang2013\apidoc\annotation\Title("商品列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("商品列表")]
 #[\erikwang2013\apidoc\annotation\Desc("客户端公开商品列表(仅启用商品)，支持关键词搜索，分页返回")]
 #[\erikwang2013\apidoc\annotation\Url("/api/v1/product")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -53,7 +54,8 @@ class ProductController extends BaseController
 
     /**
      * 商品详情
-     */#[\erikwang2013\apidoc\annotation\Title("商品详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("商品详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查询启用商品详情，含启用 SKU 与批发/零售价")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

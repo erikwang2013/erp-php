@@ -16,7 +16,8 @@ class PackController extends BaseController
 {
     /**
      * 打包任务列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("打包任务列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("打包任务列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取打包任务列表，支持分页、编码搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/pack")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -58,7 +59,8 @@ class PackController extends BaseController
 
     /**
      * 创建打包任务
-     */#[\erikwang2013\apidoc\annotation\Title("创建打包任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建打包任务")]
 #[\erikwang2013\apidoc\annotation\Desc("创建打包任务，编码必填（缺省自动生成）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/pack")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -89,7 +91,8 @@ class PackController extends BaseController
 
     /**
      * 打包任务详情
-     */#[\erikwang2013\apidoc\annotation\Title("打包任务详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("打包任务详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取打包任务详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -115,7 +118,8 @@ class PackController extends BaseController
 
     /**
      * 更新打包任务
-     */#[\erikwang2013\apidoc\annotation\Title("更新打包任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新打包任务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新打包任务信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -144,7 +148,8 @@ class PackController extends BaseController
 
     /**
      * 删除打包任务
-     */#[\erikwang2013\apidoc\annotation\Title("删除打包任务")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除打包任务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除打包任务，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -177,7 +182,8 @@ class PackController extends BaseController
 
     /**
      * 创建打包任务（按仓库）
-     */#[\erikwang2013\apidoc\annotation\Title("开始打包")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("开始打包")]
 #[\erikwang2013\apidoc\annotation\Desc("按仓库创建打包任务，仓库ID必填，其余条件参数按业务传入")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -206,7 +212,8 @@ class PackController extends BaseController
 
     /**
      * 完成打包
-     */#[\erikwang2013\apidoc\annotation\Title("完成打包")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("完成打包")]
 #[\erikwang2013\apidoc\annotation\Desc("提交打包结果，完成指定打包任务")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

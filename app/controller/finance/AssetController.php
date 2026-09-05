@@ -17,7 +17,8 @@ class AssetController extends BaseController
 {
     /**
      * 固定资产列表（分页）
-     */#[\erikwang2013\apidoc\annotation\Title("固定资产列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("固定资产列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询固定资产记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/asset")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -64,7 +65,8 @@ class AssetController extends BaseController
 
     /**
      * 创建固定资产
-     */#[\erikwang2013\apidoc\annotation\Title("创建固定资产")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("创建固定资产")]
 #[\erikwang2013\apidoc\annotation\Desc("新增固定资产，支持直线法自动计算月折旧额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/asset")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -106,7 +108,8 @@ class AssetController extends BaseController
 
     /**
      * 固定资产详情
-     */#[\erikwang2013\apidoc\annotation\Title("固定资产详情")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("固定资产详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看固定资产详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -129,7 +132,8 @@ class AssetController extends BaseController
 
     /**
      * 更新固定资产
-     */#[\erikwang2013\apidoc\annotation\Title("更新固定资产")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("更新固定资产")]
 #[\erikwang2013\apidoc\annotation\Desc("修改固定资产信息，自动重新计算净值和月折旧额")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -167,7 +171,8 @@ class AssetController extends BaseController
 
     /**
      * 删除固定资产
-     */#[\erikwang2013\apidoc\annotation\Title("删除固定资产")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("删除固定资产")]
 #[\erikwang2013\apidoc\annotation\Desc("删除固定资产，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -199,7 +204,8 @@ class AssetController extends BaseController
 
     /**
      * 计提折旧
-     */#[\erikwang2013\apidoc\annotation\Title("计提折旧")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("计提折旧")]
 #[\erikwang2013\apidoc\annotation\Desc("为指定资产创建一条折旧记录")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -258,7 +264,8 @@ class AssetController extends BaseController
 
     /**
      * 折旧记录列表
-     */#[\erikwang2013\apidoc\annotation\Title("折旧记录列表")]
+     */
+#[\erikwang2013\apidoc\annotation\Title("折旧记录列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查看指定资产的折旧记录")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
