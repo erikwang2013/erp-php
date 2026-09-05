@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class PurchaseRfqItem extends Model
 {
-    protected $table = 'erp_purchase_rfq_item';
+    use Searchable;
+    protected $table = 'purchase_rfq_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

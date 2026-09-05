@@ -23,6 +23,19 @@ interface HrEmployeeItem {
   status: number;
 }
 
+/** 表单保存请求体（与后端 fillable 对齐） */
+interface SaveBody {
+  name: string | number;
+  code: string | number;
+  department_id: string | number;
+  position_id: string | number;
+  gender: string | number;
+  phone: string | number;
+  email: string | number;
+  hire_date: string | number;
+  status: string | number;
+}
+
 @Entry
 @Component
 struct EmployeeListPage {
@@ -32,6 +45,7 @@ struct EmployeeListPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
+  @State errorMsg: string = ''; // M4: 失败的真实错误文案（传给 ErrorView/提示）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -65,10 +79,11 @@ struct EmployeeListPage {
       this.loading = true;
     }
     this.hasError = false;
+    this.errorMsg = '';
 
     try {
-      const res = await this.api.get(`/admin/hr/employee?page=${this.page}&limit=${this.limit}`);
-      const data = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/hr/employee?page=${this.page}&limit=${this.limit}`);
+      const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as HrEmployeeItem);
       if (isRefresh || this.page === 1) {
@@ -83,7 +98,9 @@ struct EmployeeListPage {
         return;
       }
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      // M4: 展示真实错误信息（替代固定文案）；UNAUTHORIZED 已在上方跳转
+      this.errorMsg = (e instanceof Error && e.message) ? e.message : '加载失败';
+      promptAction.showToast({ message: this.errorMsg });
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -123,8 +140,8 @@ struct EmployeeListPage {
     this.showForm = true;
     this.loading = true;
     try {
-      const res = await this.api.get(`/admin/hr/employee/${id}`);
-      const row = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/hr/employee/${id}`);
+      const row = res.data as Record<string, Object>;
       this.formName = (row['name'] as string) ?? '';
       this.formCode = (row['code'] as string) ?? '';
       this.formDepartmentId = row['department_id'] != null ? String(row['department_id']) : '';
@@ -139,7 +156,8 @@ struct EmployeeListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '加载详情失败' });
+      // M4: 优先展示真实错误信息
+      promptAction.showToast({ message: (e instanceof Error && e.message) ? e.message : '加载详情失败' });
     } finally {
       this.loading = false;
     }
@@ -159,7 +177,7 @@ struct EmployeeListPage {
     }
 
     this.isSubmitting = true;
-    const body: Record<string, Object> = {
+    const body: SaveBody = {
       name: this.formName,
       code: this.formCode,
       department_id: this.formDepartmentId ? Number(this.formDepartmentId) : 0,
@@ -173,10 +191,10 @@ struct EmployeeListPage {
 
     try {
       if (this.formMode === 'create') {
-        await this.api.post('/admin/hr/employee', body);
+        await this.api.post<Object>('/admin/hr/employee', body);
         promptAction.showToast({ message: '创建成功' });
       } else {
-        await this.api.put(`/admin/hr/employee/${this.formId}`, body);
+        await this.api.put<Object>(`/admin/hr/employee/${this.formId}`, body);
         promptAction.showToast({ message: '更新成功' });
       }
       this.showForm = false;
@@ -187,7 +205,8 @@ struct EmployeeListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '保存失败' });
+      // M4: 优先展示真实错误信息
+      promptAction.showToast({ message: (e instanceof Error && e.message) ? e.message : '保存失败' });
     } finally {
       this.isSubmitting = false;
     }
@@ -207,7 +226,7 @@ struct EmployeeListPage {
         fontColor: '#FF4D4F',
         action: async () => {
           try {
-            await this.api.delete(`/admin/hr/employee/${id}`);
+            await this.api.delete<Object>(`/admin/hr/employee/${id}`);
             promptAction.showToast({ message: '删除成功' });
             this.loadData(true);
           } catch (e) {
@@ -215,7 +234,8 @@ struct EmployeeListPage {
               router.replaceUrl({ url: 'pages/LoginPage' });
               return;
             }
-            promptAction.showToast({ message: '删除失败' });
+            // M4: 优先展示真实错误信息
+            promptAction.showToast({ message: (e instanceof Error && e.message) ? e.message : '删除失败' });
           }
         }
       },
@@ -276,7 +296,7 @@ struct EmployeeListPage {
     if (this.loading && this.items.length === 0) {
       LoadingView();
     } else if (this.hasError) {
-      ErrorView({ onRetry: () => this.loadData(true) });
+      ErrorView({ message: this.errorMsg, onRetry: (): void => { this.loadData(true); } });
     } else if (this.items.length === 0) {
       EmptyView({ message: '暂无员工数据' });
     } else {
@@ -381,58 +401,159 @@ struct EmployeeListPage {
           .textAlign(TextAlign.Center)
           .padding({ top: 16, bottom: 16 })
 
-        this.buildFormItem('姓名', () => {
+        Row() {
+          Text('姓名')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入员工姓名（必填）', text: this.formName })
             .fontSize(15)
             .onChange((v: string) => { this.formName = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('工号', () => {
+        Row() {
+          Text('工号')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入工号（必填）', text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('部门ID', () => {
+        Row() {
+          Text('部门ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '部门数字ID，留空为0', text: this.formDepartmentId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formDepartmentId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('职位ID', () => {
+        Row() {
+          Text('职位ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '职位数字ID，留空为0', text: this.formPositionId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formPositionId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('性别', () => {
+        Row() {
+          Text('性别')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '0未知/1男/2女，留空为0', text: this.formGender })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formGender = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('电话', () => {
+        Row() {
+          Text('电话')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入联系电话', text: this.formPhone })
             .fontSize(15)
             .onChange((v: string) => { this.formPhone = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('邮箱', () => {
+        Row() {
+          Text('邮箱')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入邮箱', text: this.formEmail })
             .fontSize(15)
             .onChange((v: string) => { this.formEmail = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('入职日期', () => {
+        Row() {
+          Text('入职日期')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: 'YYYY-MM-DD，可留空', text: this.formHireDate })
             .fontSize(15)
             .onChange((v: string) => { this.formHireDate = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('状态', () => {
+        Row() {
+          Text('状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           Row() {
             Button('在职')
               .fontSize(13)
@@ -451,7 +572,14 @@ struct EmployeeListPage {
               .margin({ left: 12 })
               .onClick(() => { this.formStatus = 0; })
           }
-        });
+          .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -483,27 +611,5 @@ struct EmployeeListPage {
     .width('100%')
     .layoutWeight(1)
     .backgroundColor('#F5F5F5')
-  }
-
-  /**
-   * 表单项：标签 + 输入控件
-   */
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .minHeight(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

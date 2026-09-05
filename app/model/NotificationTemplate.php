@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class NotificationTemplate extends Model
 {
-    protected $table = 'erp_notification_template';
+    use Searchable;
+    protected $table = 'notification_template';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

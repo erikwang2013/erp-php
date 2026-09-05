@@ -361,7 +361,47 @@ docker compose ps --format "table {{.Name}}\t{{.Status}}"
 - 删除用户/角色等敏感操作需在请求体中二次确认当前用户密码
 - 登出后 Token 立即加入黑名单，有效期内不可复用
 
-### 4. 多语言
+### 4. 全文搜索引擎（可选）
+
+全文检索通过 `erikwang2013/webman-scout` 实现（模型加 `Searchable` trait 后，保存时自动同步索引）。支持 **Elasticsearch** 与 **OpenSearch** 两种引擎，二选一：
+
+**① 安装对应客户端（Composer 包与驱动必须匹配，装错会报 "Please install the ... client"）**
+
+| 引擎 | Composer 客户端 |
+|---|---|
+| Elasticsearch | `composer require elasticsearch/elasticsearch:^9.5` |
+| OpenSearch | `composer require opensearch-project/opensearch-php:^2.0` |
+
+**② 配置 `.env` 选择驱动**
+
+```ini
+# elasticsearch | opensearch（与上面安装的客户端一致）
+SCOUT_DRIVER=opensearch
+# 索引名称前缀 / 分片 / 副本 / 批量块大小 / 软删除（两种引擎通用）
+SCOUT_PREFIX=erp_
+SCOUT_SHARDS=1
+SCOUT_REPLICAS=0
+SCOUT_CHUNK_SIZE=500
+SCOUT_SOFT_DELETE=true
+```
+
+**③ 连接配置（两种引擎读取位置不同）**
+
+- **Elasticsearch**：`.env` 的 `SCOUT_HOSTS`（多节点逗号分隔，如 `http://localhost:9200`），无认证直连；
+- **OpenSearch**：官方镜像默认启用安全插件（自签 TLS + 账号认证），走 `config/scout.php` 的 `opensearch` 节，不读 `SCOUT_HOSTS`：
+
+  ```ini
+  # .env
+  SCOUT_OPENSEARCH_HOST=https://localhost:9200
+  SCOUT_OPENSEARCH_USERNAME=admin
+  SCOUT_OPENSEARCH_PASSWORD=你的密码
+  ```
+
+  `config/scout.php` 中 `opensearch` 节默认 `ssl_verification=false`（本地自签证书）；生产环境应改 `true` 并配置证书，切勿使用弱口令。
+
+> 本项目 Docker Compose 内置 Elasticsearch（`open-admin-es` 服务）：走 Docker 部署选 **elasticsearch 驱动 + ES 客户端**；外部/独立 OpenSearch 容器选 **opensearch 驱动 + opensearch-php**。已启用索引的模型：AdminUser、Customer、Product、Supplier。
+
+### 5. 多语言
 
 通过请求头 `Accept-Language` 自动切换（zh-CN / en），默认中文。
 

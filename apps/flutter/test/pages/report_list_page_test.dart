@@ -35,7 +35,7 @@ void main() {
   group('报表列表', () {
     testWidgets('渲染报表列与行数据及执行按钮', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
-        '/admin/report': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/report': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
@@ -59,7 +59,7 @@ void main() {
   group('报表执行结果详情', () {
     testWidgets('点击执行展示详情对话框（数据集/行数/生成时间/结果表格）', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
-        '/admin/report': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/report': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
@@ -68,11 +68,11 @@ void main() {
             'total': 1,
           },
         }),
-        '/admin/report/1/execute': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/report/1/execute': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {'dataset_id': 'ds-20260827-001'},
         }),
-        '/admin/report/1/result': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/report/1/result': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'dataset_id': 'ds-20260827-001',
@@ -101,7 +101,7 @@ void main() {
 
     testWidgets('结果为空时提示暂无数据行，关闭按钮可退出详情', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
-        '/admin/report': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/report': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
@@ -110,11 +110,11 @@ void main() {
             'total': 1,
           },
         }),
-        '/admin/report/1/execute': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/report/1/execute': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {'dataset_id': 'ds-20260827-002'},
         }),
-        '/admin/report/1/result': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/report/1/result': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'dataset_id': 'ds-20260827-002',

@@ -18,6 +18,7 @@ struct ProfilePage {
     this.username = (AppStorage.get('adminUsername') as string) ?? '管理员';
   }
 
+  // 债务：服务端 refresh_token(14d) 吊销需后端 logout 接口，不在客户端范围内；当前仅清本地凭据
   logout(): void {
     AlertDialog.show({
       title: '确认退出',
@@ -28,9 +29,11 @@ struct ProfilePage {
         value: '确定退出',
         fontColor: '#FF4D4F',
         action: () => {
-          TokenManager.clearTokens();
-          promptAction.showToast({ message: '已退出登录' });
-          router.replaceUrl({ url: 'pages/LoginPage' });
+          // clearTokens 为 async：链式等待 Preferences 落盘完成再跳转，避免磁盘残留旧凭据复活登录态
+          TokenManager.clearTokens().then(() => {
+            promptAction.showToast({ message: '已退出登录' });
+            router.replaceUrl({ url: 'pages/LoginPage' });
+          });
         }
       },
       secondaryButton: {

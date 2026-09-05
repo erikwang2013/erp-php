@@ -28,7 +28,7 @@ class DashboardController extends GetxController {
 
   List<FlSpot> get salesTrendSpots {
     final amounts = bizSales['trend']?['amounts'] as List<dynamic>? ?? [];
-    return amounts.asMap().entries.map((e) => FlSpot(e.key.toDouble(), (e.value as num).toDouble())).toList();
+    return amounts.asMap().entries.map((e) => FlSpot(e.key.toDouble(), ((e.value as num?) ?? 0).toDouble())).toList();
   }
 
   List<PieChartSectionData> get orderStatusSections {
@@ -49,7 +49,7 @@ class DashboardController extends GetxController {
     final allSeries = trends['series'] as List<dynamic>? ?? [];
     return allSeries.map((s) {
       final data = s['data'] as List<dynamic>? ?? [];
-      return data.asMap().entries.map((e) => FlSpot(e.key.toDouble(), (e.value as num).toDouble())).toList();
+      return data.asMap().entries.map((e) => FlSpot(e.key.toDouble(), ((e.value as num?) ?? 0).toDouble())).toList();
     }).toList();
   }
 

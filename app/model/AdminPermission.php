@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class AdminPermission extends Model
 {
-    protected $table = 'erp_admin_permission';
+    use Searchable;
+    protected $table = 'admin_permission';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

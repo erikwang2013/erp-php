@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
+import '../../l10n/app_l10n.dart';
 
 class InventoryListPage extends StatefulWidget {
   const InventoryListPage({super.key});
@@ -14,38 +15,83 @@ class _InventoryListPageState extends State<InventoryListPage> {
   int _total = 0, _page = 1;
   final int _limit = 20;
   String _keyword = '';
-  
+
   bool _loading = true;
+  String? _error;
+  int _reqSeq = 0;
 
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() {
+    super.initState();
+    _load();
+  }
 
   Future<void> _load() async {
+    final seq = ++_reqSeq;
     setState(() => _loading = true);
     try {
-      final params = <String, String>{'page': '$_page', 'limit': '$_limit', 'keyword': _keyword};
-      
-      final res = await ApiService.instance.get('/admin/v1/inventory', params: params);
+      final params = <String, String>{
+        'page': '$_page',
+        'limit': '$_limit',
+        'keyword': _keyword,
+      };
+
+      final res = await ApiService.instance.get(
+        '/admin/v1/inventory',
+        params: params,
+      );
       final d = res['data'];
-      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
-    } catch (e) { setState(() => _loading = false); }
+      if (seq != _reqSeq || !mounted) return;
+      setState(() {
+        _rows = List<Map<String, dynamic>>.from(d['list'] ?? []);
+        _total = d['total'] ?? 0;
+        _loading = false;
+        _error = null;
+      });
+      if (_rows.isEmpty && _page > 1) {
+        _page--;
+        _load();
+        return;
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _error = ApiService.friendlyError(e);
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
     rows: _rows.map((r) => _rowToMap(r)).toList(),
-    total: _total, page: _page, limit: _limit, loading: _loading,
+    total: _total,
+    page: _page,
+    limit: _limit,
+    loading: _loading,
+    error: _error,
+    onRetry: _load,
     keyword: _keyword,
-    onSearch: (v) { _keyword = v; _page = 1; _load(); },
-    onPageChanged: (p) { _page = p; _load(); },
+    onSearch: (v) {
+      _keyword = v;
+      _page = 1;
+      _load();
+    },
+    onPageChanged: (p) {
+      _page = p;
+      _load();
+    },
   );
 
-  List<String> _columns() => ['名称', '编码'];
+  List<String> _columns() => [
+    AppL10n.of(context).commonName,
+    AppL10n.of(context).commonCode,
+  ];
 
-  Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    '名称': r['name'] ?? '',
-    '编码': r['code'] ?? '',
-  };
-
+  Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
+    final l = AppL10n.of(context);
+    return {l.commonName: r['name'] ?? '', l.commonCode: r['code'] ?? ''};
+  }
 }

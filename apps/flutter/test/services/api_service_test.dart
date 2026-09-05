@@ -83,7 +83,7 @@ void main() {
   });
 
   group('ApiService — 401 自动刷新', () {
-    test('401 时调用 refresh 接口并使用新 token 更新会话', () async {
+    test('401 时调用 refresh 接口并使用新 token 重放原请求', () async {
       // 预置旧会话
       await AuthService.saveLogin(
         token: 'old-token',
@@ -91,8 +91,63 @@ void main() {
         username: 'admin',
       );
 
-      // refresh 接口返回成功 + 新 token；其余路径一律 401
-      adapter.routes['/api/auth/refresh'] = (options) async =>
+      // refresh 接口返回成功 + 新 token
+      adapter.routes['/api/v1/auth/refresh'] = (options) async =>
+          FakeHttpClientAdapter.jsonResponse({
+            'code': 0,
+            'data': {
+              'access_token': 'new-token',
+              'refresh_token': 'new-refresh',
+              'user': {'username': 'admin'},
+            },
+          });
+      // /api/user 首次 401，刷新后（带新 token 重放）返回业务成功
+      adapter.routes['/api/user'] = (options) async {
+        if (options.headers['Authorization'] == 'Bearer new-token') {
+          return FakeHttpClientAdapter.jsonResponse({
+            'code': 0,
+            'data': {'id': 1, 'username': 'admin'},
+          });
+        }
+        return FakeHttpClientAdapter.jsonResponse(
+          {'code': 401, 'message': 'unauthorized'},
+          statusCode: 401,
+        );
+      };
+      adapter.fallback = (options) async => FakeHttpClientAdapter.jsonResponse(
+            {'code': 401, 'message': 'unauthorized'},
+            statusCode: 401,
+          );
+
+      // 访问受保护接口 → 401 → 拦截器自动刷新并重放 → 调用方拿到业务数据
+      final resp = await ApiService.instance.get('/api/user');
+      expect(resp['code'], 0);
+      expect((resp['data'] as Map)['username'], 'admin');
+
+      // 会话应已用新 token 更新
+      expect(await AuthService.getToken(), 'new-token');
+      expect(await AuthService.getRefreshToken(), 'new-refresh');
+      // 刷新请求的请求体应携带 refresh_token；原请求重放一次（共 2 次）
+      final refreshReq = adapter.requests
+          .where((r) => r.path == '/api/v1/auth/refresh')
+          .toList();
+      expect(refreshReq, hasLength(1));
+      final data = refreshReq.first.data as Map<String, dynamic>;
+      expect(data['refresh_token'], 'refresh-token');
+      final userReqs =
+          adapter.requests.where((r) => r.path == '/api/user').toList();
+      expect(userReqs, hasLength(2));
+    });
+
+    test('刷新成功但重放仍 401 时清除 token 登出（防重放死循环）', () async {
+      await AuthService.saveLogin(
+        token: 'old-token',
+        refreshToken: 'refresh-token',
+        username: 'admin',
+      );
+
+      // refresh 成功，但 /api/user 始终 401（token 被服务端彻底废弃）
+      adapter.routes['/api/v1/auth/refresh'] = (options) async =>
           FakeHttpClientAdapter.jsonResponse({
             'code': 0,
             'data': {
@@ -106,22 +161,18 @@ void main() {
             statusCode: 401,
           );
 
-      // 访问受保护接口 → 401 → 拦截器自动刷新
       await expectLater(
         ApiService.instance.get('/api/user'),
         throwsA(isA<ApiException>()),
       );
 
-      // 会话应已用新 token 更新
-      expect(await AuthService.getToken(), 'new-token');
-      expect(await AuthService.getRefreshToken(), 'new-refresh');
-      // 刷新请求的请求体应携带 refresh_token
+      // token 应被清除，回到未登录状态；不出现第二轮 refresh
+      expect(await AuthService.getToken(), isNull);
+      expect(await AuthService.isLoggedIn(), isFalse);
       final refreshReq = adapter.requests
-          .where((r) => r.path == '/api/auth/refresh')
+          .where((r) => r.path == '/api/v1/auth/refresh')
           .toList();
       expect(refreshReq, hasLength(1));
-      final data = refreshReq.first.data as Map<String, dynamic>;
-      expect(data['refresh_token'], 'refresh-token');
     });
 
     test('401 且刷新失败时清除本地 token', () async {
@@ -132,7 +183,7 @@ void main() {
       );
 
       // refresh 接口返回业务失败（HTTP 200 + code != 0），其余 401
-      adapter.routes['/api/auth/refresh'] = (options) async =>
+      adapter.routes['/api/v1/auth/refresh'] = (options) async =>
           FakeHttpClientAdapter.jsonResponse({
             'code': 4002,
             'message': 'refresh token 已失效',

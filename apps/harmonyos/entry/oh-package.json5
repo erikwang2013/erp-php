@@ -5,9 +5,5 @@
   "main": "",
   "author": "erik <erik@erik.xyz>",
   "license": "MIT",
-  "dependencies": {
-    "@ohos/router": "latest",
-    "@ohos/http": "latest",
-    "@ohos/dataPreferences": "latest"
-  }
+  "dependencies": {}
 }

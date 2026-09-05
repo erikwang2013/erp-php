@@ -7,11 +7,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class CrmPoolRule extends Model
 {
-    protected $table = 'erp_crm_customer_pool_rule';
+    use Searchable;
+    protected $table = 'crm_customer_pool_rule';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

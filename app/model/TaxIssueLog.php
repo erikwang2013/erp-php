@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -18,9 +19,10 @@ use support\Model;
  */
 class TaxIssueLog extends Model
 {
+    use Searchable;
     public $timestamps = false;
 
-    protected $table = 'erp_tax_issue_log';
+    protected $table = 'tax_issue_log';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -7,11 +7,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class BiWidget extends Model
 {
-    protected $table = 'erp_bi_widget';
+    use Searchable;
+    protected $table = 'bi_widget';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

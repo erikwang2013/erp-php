@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class OmsInventoryReservation extends Model
 {
-    protected $table = 'erp_oms_inventory_reservation';
+    use Searchable;
+    protected $table = 'oms_inventory_reservation';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

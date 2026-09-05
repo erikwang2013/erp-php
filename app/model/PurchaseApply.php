@@ -9,13 +9,15 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class PurchaseApply extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_purchase_apply';
+    protected $table = 'purchase_apply';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

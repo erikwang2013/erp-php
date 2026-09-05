@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class HrSalaryItem extends Model
 {
-    protected $table = 'erp_hr_salary_item';
+    use Searchable;
+    protected $table = 'hr_salary_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

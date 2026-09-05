@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,9 +22,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class MfgSubcontractIssue extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_mfg_subcontract_issue';
+    protected $table = 'mfg_subcontract_issue';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

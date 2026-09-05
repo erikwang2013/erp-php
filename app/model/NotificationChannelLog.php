@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -35,7 +36,8 @@ use support\Model;
  */
 class NotificationChannelLog extends Model
 {
-    protected $table = 'erp_notification_channel_log';
+    use Searchable;
+    protected $table = 'notification_channel_log';
 
     protected $primaryKey = 'id';
 

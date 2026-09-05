@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class ApprovalNode extends Model
 {
-    protected $table = 'erp_approval_node';
+    use Searchable;
+    protected $table = 'approval_node';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

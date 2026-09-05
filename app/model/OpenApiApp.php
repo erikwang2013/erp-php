@@ -10,6 +10,7 @@ namespace app\model;
 
 use Erikwang2013\Encryptable\Encryptable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -21,9 +22,10 @@ use support\Model;
  */
 class OpenApiApp extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_openapi_app';
+    protected $table = 'openapi_app';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

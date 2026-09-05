@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class MfgBomItem extends Model
 {
-    protected $table = 'erp_mfg_bom_item';
+    use Searchable;
+    protected $table = 'mfg_bom_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

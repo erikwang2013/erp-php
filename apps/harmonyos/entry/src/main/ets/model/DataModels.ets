@@ -88,6 +88,26 @@ export interface User {
 export interface UserListResult extends PageResult<User> {}
 
 /**
+ * 用户列表查询参数
+ */
+export interface UserQuery extends PageParams {
+  keyword?: string;
+  status?: number;
+}
+
+/**
+ * 新建用户表单
+ */
+export interface UserCreateForm {
+  username: string;
+  real_name: string;
+  phone: string;
+  email: string;
+  password: string;
+  status: number;
+}
+
+/**
  * 角色模型
  */
 export interface Role {

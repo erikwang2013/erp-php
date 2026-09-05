@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -20,7 +21,8 @@ use support\Model;
  */
 class HrSocialRate extends Model
 {
-    protected $table = 'erp_hr_social_rate';
+    use Searchable;
+    protected $table = 'hr_social_rate';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

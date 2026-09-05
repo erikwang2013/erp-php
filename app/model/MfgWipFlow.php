@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class MfgWipFlow extends Model
 {
-    protected $table = 'erp_mfg_wip_flow';
+    use Searchable;
+    protected $table = 'mfg_wip_flow';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\model;
 
 use app\model\concerns\TenantScope;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -15,6 +16,7 @@ use support\Model;
  */
 class FinanceBalanceSheet extends Model
 {
+    use Searchable;
     use TenantScope;
 
     protected static function tenantScopeByCompany(): bool
@@ -22,7 +24,7 @@ class FinanceBalanceSheet extends Model
         return true;
     }
 
-    protected $table = 'erp_finance_balance_sheet';
+    protected $table = 'finance_balance_sheet';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -7,11 +7,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class DmsDocumentVersion extends Model
 {
-    protected $table = 'erp_dms_document_version';
+    use Searchable;
+    protected $table = 'dms_document_version';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

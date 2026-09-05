@@ -9,13 +9,15 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class HrLeave extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_hr_leave';
+    protected $table = 'hr_leave';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

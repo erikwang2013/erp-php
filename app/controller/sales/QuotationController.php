@@ -27,7 +27,7 @@ class QuotationController extends BaseController
 #[\erikwang2013\apidoc\annotation\Tag("销售管理")]
 #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
 #[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（名称/编码）")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（报价单号）")]
 #[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
@@ -42,10 +42,8 @@ class QuotationController extends BaseController
 
         $query = SalesQuotation::query();
         if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
+            // 表无 name 列（erp_sales_quotation 仅有 code/customer_id 等，见 install.sql），仅按报价单号搜索
+            $query->where('code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
@@ -68,8 +66,8 @@ class QuotationController extends BaseController
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"报价名称（必填）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"报价单号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"报价单号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", require:true, desc:"客户ID")]
 #[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:1, desc:"状态")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
@@ -77,7 +75,11 @@ class QuotationController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        // 校验真实表列（原 name 必填校验指向不存在的列，随 fill 落入 INSERT 必 SQL 错）
+        $validator = validator($request->all(), [
+            'code' => 'required|string|max:50',
+            'customer_id' => 'required|integer',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -123,8 +125,8 @@ class QuotationController extends BaseController
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("销售管理")]
 #[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售报价hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"报价名称")]
 #[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"报价单号")]
+#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", default:"", desc:"客户ID")]
 #[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]

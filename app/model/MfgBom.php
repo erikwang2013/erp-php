@@ -9,13 +9,15 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class MfgBom extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_mfg_bom';
+    protected $table = 'mfg_bom';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

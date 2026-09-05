@@ -18,6 +18,14 @@ interface OmsChannelItem {
   status: number;
 }
 
+/** 表单保存请求体（与后端 fillable 对齐） */
+interface SaveBody {
+  code: string | number;
+  name: string | number;
+  type: string | number;
+  status: string | number;
+}
+
 @Entry
 @Component
 struct ChannelListPage {
@@ -27,6 +35,7 @@ struct ChannelListPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
+  @State errMsg: string = '加载失败'; // M4: 错误展示文案（取后端/网络 message，空则保底）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -57,8 +66,8 @@ struct ChannelListPage {
     this.hasError = false;
 
     try {
-      const res = await this.api.get(`/admin/oms/channel?page=${this.page}&limit=${this.limit}`);
-      const data = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/oms/channel?page=${this.page}&limit=${this.limit}`);
+      const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as OmsChannelItem);
       if (isRefresh || this.page === 1) {
@@ -73,7 +82,9 @@ struct ChannelListPage {
         return;
       }
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      // M4: 不吞错误，把 message 传给错误位与 toast；UNAUTHORIZED/空 message 显示友好文案（§0.8）
+      this.errMsg = e instanceof Error && e.message.length > 0 && e.message !== 'UNAUTHORIZED' ? e.message : '登录已过期，请重新登录';
+      promptAction.showToast({ message: this.errMsg });
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -108,8 +119,8 @@ struct ChannelListPage {
     this.showForm = true;
     this.loading = true;
     try {
-      const res = await this.api.get(`/admin/oms/channel/${id}`);
-      const row = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/oms/channel/${id}`);
+      const row = res.data as Record<string, Object>;
       this.formCode = (row['code'] as string) ?? '';
       this.formName = (row['name'] as string) ?? '';
       this.formType = (row['type'] as string) ?? 'direct';
@@ -135,7 +146,7 @@ struct ChannelListPage {
     }
 
     this.isSubmitting = true;
-    const body: Record<string, Object> = {
+    const body: SaveBody = {
       code: this.formCode,
       name: this.formName,
       type: this.formType,
@@ -144,10 +155,10 @@ struct ChannelListPage {
 
     try {
       if (this.formMode === 'create') {
-        await this.api.post('/admin/oms/channel', body);
+        await this.api.post<Object>('/admin/oms/channel', body);
         promptAction.showToast({ message: '创建成功' });
       } else {
-        await this.api.put(`/admin/oms/channel/${this.formId}`, body);
+        await this.api.put<Object>(`/admin/oms/channel/${this.formId}`, body);
         promptAction.showToast({ message: '更新成功' });
       }
       this.showForm = false;
@@ -178,7 +189,7 @@ struct ChannelListPage {
         fontColor: '#FF4D4F',
         action: async () => {
           try {
-            await this.api.delete(`/admin/oms/channel/${id}`);
+            await this.api.delete<Object>(`/admin/oms/channel/${id}`);
             promptAction.showToast({ message: '删除成功' });
             this.loadData(true);
           } catch (e) {
@@ -247,7 +258,7 @@ struct ChannelListPage {
     if (this.loading && this.items.length === 0) {
       LoadingView();
     } else if (this.hasError) {
-      ErrorView({ onRetry: () => this.loadData(true) });
+      ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
       EmptyView({ message: '暂无渠道数据' });
     } else {
@@ -352,25 +363,66 @@ struct ChannelListPage {
           .textAlign(TextAlign.Center)
           .padding({ top: 16, bottom: 16 })
 
-        this.buildFormItem('编码', () => {
+        Row() {
+          Text('编码')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入渠道编码', text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('名称', () => {
+        Row() {
+          Text('名称')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入渠道名称（必填）', text: this.formName })
             .fontSize(15)
             .onChange((v: string) => { this.formName = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('类型', () => {
+        Row() {
+          Text('类型')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '渠道类型，默认 direct', text: this.formType })
             .fontSize(15)
             .onChange((v: string) => { this.formType = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('状态', () => {
+        Row() {
+          Text('状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           Row() {
             Button('启用')
               .fontSize(13)
@@ -389,7 +441,14 @@ struct ChannelListPage {
               .margin({ left: 12 })
               .onClick(() => { this.formStatus = 0; })
           }
-        });
+          .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -421,27 +480,5 @@ struct ChannelListPage {
     .width('100%')
     .layoutWeight(1)
     .backgroundColor('#F5F5F5')
-  }
-
-  /**
-   * 表单项：标签 + 输入控件
-   */
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .minHeight(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
@@ -21,50 +22,59 @@ class _SalaryPageState extends State<SalaryPage> {
   final int _limit = 20;
   String _keyword = '';
   bool _loading = true;
+  String? _error;
+  int _reqSeq = 0;
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
+    final seq = ++_reqSeq;
     setState(() => _loading = true);
     try {
       final params = <String, String>{'page': '$_page', 'limit': '$_limit'};
       final res = await ApiService.instance.get('/admin/v1/hr/salary', params: params);
       final d = res['data'];
-      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
-    } catch (e) { setState(() => _loading = false); }
+      if (seq != _reqSeq || !mounted) return;
+      final list = List<Map<String, dynamic>>.from(d['list'] ?? []);
+      setState(() { _rows = list; _total = d['total'] ?? 0; _loading = false; _error = null; });
+      if (list.isEmpty && _page > 1) { _page--; _load(); }
+    } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
   Future<void> _create() async {
-    await FormDialog.show(context, title: '新增薪资记录', fields: _formFields(), onSubmit: (data) async {
+    final l10n = AppL10n.of(context);
+    await FormDialog.show(context, title: l10n.hrSalaryCreateTitle, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/hr/salary', data: _buildPayload(data));
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: '编辑薪资', fields: _formFields(), initialData: row, onSubmit: (data) async {
+    final l10n = AppL10n.of(context);
+    await FormDialog.show(context, title: l10n.hrSalaryEditTitle, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/hr/salary/${row['id']}', data: _buildPayload(data));
       _load(); return true;
     });
   }
 
   Future<void> _delete(Map<String, dynamic> row) async {
-    await ConfirmDialog.show(context, title: '确认删除', content: '确定要删除该薪资记录吗？', onConfirm: (password) async {
+    final l10n = AppL10n.of(context);
+    await ConfirmDialog.show(context, title: l10n.commonDeleteConfirm, content: l10n.hrSalaryDeleteConfirm, onConfirm: (password) async {
       await ApiService.instance.delete('/admin/v1/hr/salary/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
 
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'employee_id', label: '员工ID', required: true),
-    FormFieldConfig(name: 'period_year', label: '薪资年度', required: true, type: FormFieldType.number),
-    FormFieldConfig(name: 'period_month', label: '薪资月份', required: true, type: FormFieldType.number),
-    FormFieldConfig(name: 'base_salary', label: '基本工资', type: FormFieldType.number, hint: '如 8000.00'),
-    FormFieldConfig(name: 'performance', label: '绩效工资', type: FormFieldType.number, hint: '默认 0'),
-    FormFieldConfig(name: 'overtime', label: '加班费', type: FormFieldType.number, hint: '默认 0'),
-    FormFieldConfig(name: 'deduction', label: '扣款', type: FormFieldType.number, hint: '默认 0'),
-    FormFieldConfig(name: 'tax', label: '个税', type: FormFieldType.number, hint: '默认 0'),
+    FormFieldConfig(name: 'employee_id', label: AppL10n.current.hrEmployeeId, required: true),
+    FormFieldConfig(name: 'period_year', label: AppL10n.current.hrSalaryYear, required: true, type: FormFieldType.number),
+    FormFieldConfig(name: 'period_month', label: AppL10n.current.hrSalaryMonth, required: true, type: FormFieldType.number),
+    FormFieldConfig(name: 'base_salary', label: AppL10n.current.hrSalaryBase, type: FormFieldType.number, hint: AppL10n.current.hrSalaryAmountHint),
+    FormFieldConfig(name: 'performance', label: AppL10n.current.hrSalaryPerformance, type: FormFieldType.number, hint: AppL10n.current.hrSalaryZeroHint),
+    FormFieldConfig(name: 'overtime', label: AppL10n.current.hrSalaryOvertime, type: FormFieldType.number, hint: AppL10n.current.hrSalaryZeroHint),
+    FormFieldConfig(name: 'deduction', label: AppL10n.current.hrSalaryDeduction, type: FormFieldType.number, hint: AppL10n.current.hrSalaryZeroHint),
+    FormFieldConfig(name: 'tax', label: AppL10n.current.hrSalaryTax, type: FormFieldType.number, hint: AppL10n.current.hrSalaryZeroHint),
   ];
 
   Map<String, dynamic> _buildPayload(Map<String, String> data) {
@@ -84,13 +94,15 @@ class _SalaryPageState extends State<SalaryPage> {
 
   /// 薪资发放：POST /admin/hr/salary/{id}/pay，二次确认 + 失败提示。
   Future<void> _pay(Map<String, dynamic> row) async {
+    final l10n = AppL10n.of(context);
+    final period = '${row['period_year'] ?? ''}-${row['period_month'] ?? ''}';
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('薪资发放'),
-        content: Text('确认将「${row['period_year'] ?? ''}-${row['period_month'] ?? ''}」的薪资标记为已发放吗？'),
+        title: Text(l10n.hrSalaryPayTitle),
+        content: Text(l10n.hrSalaryPayConfirm(period)),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(l10n.commonCancel)),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
             onPressed: () async {
@@ -99,15 +111,15 @@ class _SalaryPageState extends State<SalaryPage> {
                 if (ctx.mounted) Navigator.of(ctx).pop();
                 _load();
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('薪资已发放')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppL10n.current.hrSalaryPaidSnack)));
                 }
               } catch (e) {
                 if (ctx.mounted) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('发放失败：$e')));
+                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(AppL10n.of(ctx).hrSalaryPayFailedMsg('$e'))));
                 }
               }
             },
-            child: const Text('确认发放'),
+            child: Text(l10n.hrSalaryPayAction),
           ),
         ],
       ),
@@ -116,11 +128,12 @@ class _SalaryPageState extends State<SalaryPage> {
 
   /// 薪资试算：POST /admin/hr/salary/calculate，结果弹窗展示。
   Future<void> _calculate() async {
-    await FormDialog.show(context, title: '薪资试算', fields: const [
-      FormFieldConfig(name: 'base_salary', label: '基本工资', type: FormFieldType.number, initialValue: '8000'),
-      FormFieldConfig(name: 'performance', label: '绩效工资', type: FormFieldType.number, initialValue: '0'),
-      FormFieldConfig(name: 'overtime', label: '加班费', type: FormFieldType.number, initialValue: '0'),
-      FormFieldConfig(name: 'deduction', label: '扣款', type: FormFieldType.number, initialValue: '0'),
+    final l10n = AppL10n.of(context);
+    await FormDialog.show(context, title: l10n.hrSalaryCalcTitle, fields: [
+      FormFieldConfig(name: 'base_salary', label: AppL10n.current.hrSalaryBase, type: FormFieldType.number, initialValue: '8000'),
+      FormFieldConfig(name: 'performance', label: AppL10n.current.hrSalaryPerformance, type: FormFieldType.number, initialValue: '0'),
+      FormFieldConfig(name: 'overtime', label: AppL10n.current.hrSalaryOvertime, type: FormFieldType.number, initialValue: '0'),
+      FormFieldConfig(name: 'deduction', label: AppL10n.current.hrSalaryDeduction, type: FormFieldType.number, initialValue: '0'),
     ], onSubmit: (data) async {
       String num(String key) =>
           (data[key]?.trim().isEmpty ?? true) ? '0' : data[key]!.trim();
@@ -135,25 +148,28 @@ class _SalaryPageState extends State<SalaryPage> {
         await showDialog<void>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('试算结果'),
+            title: Text(l10n.hrCalcResultTitle),
             content: SizedBox(
               width: 380,
               child: DataTable(
                 columnSpacing: 24,
-                columns: const [DataColumn(label: Text('项目')), DataColumn(label: Text('金额'))],
+                columns: [
+                  DataColumn(label: Text(l10n.hrCalcItem)),
+                  DataColumn(label: Text(l10n.hrCalcAmount)),
+                ],
                 rows: [
-                  _kv('应发工资', d['gross']),
-                  _kv('社保(个人)', d['social_insurance']),
-                  _kv('公积金', d['housing_fund']),
-                  _kv('应纳税所得额', d['taxable_income']),
-                  _kv('个税', d['tax']),
-                  _kv('扣款', d['deduction']),
-                  _kv('实发工资', d['net']),
+                  _kv(l10n.hrCalcGross, d['gross']),
+                  _kv(l10n.hrCalcSocial, d['social_insurance']),
+                  _kv(l10n.hrCalcHousing, d['housing_fund']),
+                  _kv(l10n.hrCalcTaxable, d['taxable_income']),
+                  _kv(l10n.hrSalaryTax, d['tax']),
+                  _kv(l10n.hrSalaryDeduction, d['deduction']),
+                  _kv(l10n.hrSalaryNet, d['net']),
                 ],
               ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('关闭')),
+              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(l10n.hrCalcClose)),
             ],
           ),
         );
@@ -168,31 +184,48 @@ class _SalaryPageState extends State<SalaryPage> {
   ]);
 
   @override
-  Widget build(BuildContext context) => DataTableWrapper(
-    columns: _columns(),
-    rows: _rows.map((r) => _rowToMap(r)).toList(),
-    total: _total, page: _page, limit: _limit, loading: _loading,
-    keyword: _keyword,
-    onSearch: (v) { _keyword = v; _page = 1; _load(); },
-    onPageChanged: (p) { _page = p; _load(); },
-    actions: [
-      ElevatedButton.icon(onPressed: _calculate, icon: const Icon(Icons.calculate, size: 18), label: const Text('计算薪资')),
-      const SizedBox(width: 8),
-      ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: const Text('新增')),
-    ],
-  );
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    return DataTableWrapper(
+      columns: _columns(),
+      rows: _rows.map((r) => _rowToMap(r)).toList(),
+      total: _total, page: _page, limit: _limit, loading: _loading, error: _error, onRetry: _load,
+      keyword: _keyword,
+      onSearch: (v) { _keyword = v; _page = 1; _load(); },
+      onPageChanged: (p) { _page = p; _load(); },
+      actions: [
+        ElevatedButton.icon(onPressed: _calculate, icon: const Icon(Icons.calculate, size: 18), label: Text(l10n.hrSalaryCalcAction)),
+        const SizedBox(width: 8),
+        ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(l10n.commonAdd)),
+      ],
+    );
+  }
 
-  List<String> _columns() => ['员工ID', '期间', '基本工资', '实发工资', '状态', '操作'];
+  List<String> _columns() => [
+    AppL10n.current.hrEmployeeId,
+    AppL10n.current.hrSalaryPeriod,
+    AppL10n.current.hrSalaryBase,
+    AppL10n.current.hrSalaryNet,
+    AppL10n.current.commonStatus,
+    AppL10n.current.commonAction,
+  ];
+
+  /// 后端 status 可能返回 int 或字符串数字，宽容解析。
+  static bool _paid(Map<String, dynamic> r) {
+    final s = r['status'];
+    return (s is int ? s : int.tryParse('$s') ?? 0) == 1;
+  }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    '员工ID': r['employee_id'] ?? '',
-    '期间': '${r['period_year'] ?? ''}-${r['period_month'] ?? ''}',
-    '基本工资': r['base_salary'] ?? '',
-    '实发工资': r['net_salary'] ?? '',
-    '状态': ((r['status'] ?? 0) == 1) ? '已发放' : '未发放',
-    '操作': Row(mainAxisSize: MainAxisSize.min, children: [
-      if ((r['status'] ?? 0) != 1)
-        IconButton(icon: const Icon(Icons.paid, size: 18, color: Colors.green), tooltip: '发放', onPressed: () => _pay(r)),
+    AppL10n.current.hrEmployeeId: r['employee_id'] ?? '',
+    AppL10n.current.hrSalaryPeriod: '${r['period_year'] ?? ''}-${r['period_month'] ?? ''}',
+    AppL10n.current.hrSalaryBase: r['base_salary'] ?? '',
+    AppL10n.current.hrSalaryNet: r['net_salary'] ?? '',
+    AppL10n.current.commonStatus: _paid(r)
+        ? AppL10n.current.hrSalaryStatusPaid : AppL10n.current.hrSalaryStatusUnpaid,
+    AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
+      if (!_paid(r))
+        IconButton(icon: const Icon(Icons.paid, size: 18, color: Colors.green), tooltip: AppL10n.current.hrSalaryPay, onPressed: () => _pay(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
     ]),

@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class ReportFilter extends Model
 {
-    protected $table = 'erp_report_filter';
+    use Searchable;
+    protected $table = 'report_filter';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

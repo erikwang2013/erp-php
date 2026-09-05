@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -19,7 +20,8 @@ use support\Model;
  */
 class HrSocialRule extends Model
 {
-    protected $table = 'erp_hr_social_rule';
+    use Searchable;
+    protected $table = 'hr_social_rule';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

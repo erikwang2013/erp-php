@@ -14,6 +14,7 @@ struct DashboardPage {
   @State dashboardData: DashboardData | null = null;
   @State isLoading: boolean = true;
   @State hasError: boolean = false;
+  @State errMsg: string = ''; // M4：真实错误文案（catch 不再吞 message）
 
   aboutToAppear(): void {
     this.loadDashboard();
@@ -29,6 +30,7 @@ struct DashboardPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
+      this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
       this.hasError = true;
     } finally {
       this.isLoading = false;
@@ -73,7 +75,7 @@ struct DashboardPage {
       if (this.isLoading) {
         LoadingView();
       } else if (this.hasError) {
-        ErrorView({ onRetry: () => this.loadDashboard() });
+        ErrorView({ message: this.errMsg, onRetry: () => this.loadDashboard() });
       } else if (!this.dashboardData) {
         EmptyView();
       } else {

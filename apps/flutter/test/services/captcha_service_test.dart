@@ -22,7 +22,7 @@ void main() {
 
   group('CaptchaService — 生成验证码', () {
     test('generate 成功解析 CaptchaData（含目标点击文字）', () async {
-      adapter.routes['/api/captcha/generate'] = (options) async =>
+      adapter.routes['/api/v1/captcha/generate'] = (options) async =>
           FakeHttpClientAdapter.jsonResponse({
             'code': 0,
             'data': {
@@ -49,12 +49,12 @@ void main() {
 
       // 请求体应携带难度参数
       final req = adapter.requests.single;
-      expect(req.path, '/api/captcha/generate');
+      expect(req.path, '/api/v1/captcha/generate');
       expect((req.data as Map)['difficulty'], 'medium');
     });
 
     test('generate 业务失败时抛出异常', () async {
-      adapter.routes['/api/captcha/generate'] = (options) async =>
+      adapter.routes['/api/v1/captcha/generate'] = (options) async =>
           FakeHttpClientAdapter.jsonResponse({
             'code': 5001,
             'message': '验证码服务不可用',
@@ -67,7 +67,7 @@ void main() {
     });
 
     test('targets 缺失时解析为空列表（容错）', () async {
-      adapter.routes['/api/captcha/generate'] = (options) async =>
+      adapter.routes['/api/v1/captcha/generate'] = (options) async =>
           FakeHttpClientAdapter.jsonResponse({
             'code': 0,
             'data': {'key': 'k', 'image': 'img'},
@@ -80,7 +80,7 @@ void main() {
 
   group('CaptchaService — 校验验证码', () {
     test('verify 命中正确时返回 true', () async {
-      adapter.routes['/api/captcha/verify'] = (options) async =>
+      adapter.routes['/api/v1/captcha/verify'] = (options) async =>
           FakeHttpClientAdapter.jsonResponse({
             'code': 0,
             'data': {'valid': true},
@@ -94,7 +94,7 @@ void main() {
     });
 
     test('verify 不通过时返回 false', () async {
-      adapter.routes['/api/captcha/verify'] = (options) async =>
+      adapter.routes['/api/v1/captcha/verify'] = (options) async =>
           FakeHttpClientAdapter.jsonResponse({
             'code': 0,
             'data': {'valid': false},
@@ -105,7 +105,7 @@ void main() {
     });
 
     test('verify 请求体包含点击坐标（取整）', () async {
-      adapter.routes['/api/captcha/verify'] = (options) async =>
+      adapter.routes['/api/v1/captcha/verify'] = (options) async =>
           FakeHttpClientAdapter.jsonResponse({
             'code': 0,
             'data': {'valid': true},

@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
 
@@ -16,11 +17,14 @@ class _SubsidiaryLedgerPageState extends State<SubsidiaryLedgerPage> {
   final int _limit = 20;
   String _accountId = '', _startDate = '', _endDate = '';
   bool _loading = true;
+  String? _error;
+  int _reqSeq = 0;
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
+    final seq = ++_reqSeq;
     setState(() => _loading = true);
     try {
       final params = <String, String>{
@@ -31,43 +35,46 @@ class _SubsidiaryLedgerPageState extends State<SubsidiaryLedgerPage> {
       };
       final res = await ApiService.instance.get('/admin/v1/finance/subsidiary-ledger', params: params);
       final d = res['data'];
-      setState(() { _rows = List<Map<String, dynamic>>.from(d['list'] ?? []); _total = d['total'] ?? 0; _loading = false; });
-    } catch (e) { setState(() => _loading = false); }
+      if (seq != _reqSeq || !mounted) return;
+      final list = List<Map<String, dynamic>>.from(d['list'] ?? []);
+      setState(() { _rows = list; _total = d['total'] ?? 0; _loading = false; _error = null; });
+      if (list.isEmpty && _page > 1) { _page--; _load(); }
+    } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
-  static String _directionText(dynamic d) => '${d ?? ''}' == '2' ? '贷' : '借';
+  static String _directionText(dynamic d) => '${d ?? ''}' == '2' ? AppL10n.current.financeCredit : AppL10n.current.financeDebit;
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
     rows: _rows.map((r) => _rowToMap(r)).toList(),
-    total: _total, page: _page, limit: _limit, loading: _loading,
+    total: _total, page: _page, limit: _limit, loading: _loading, error: _error, onRetry: _load,
     onPageChanged: (p) { _page = p; _load(); },
     filterBar: Row(mainAxisSize: MainAxisSize.min, children: [
       SizedBox(width: 90, child: TextField(
-        decoration: const InputDecoration(labelText: '科目ID', isDense: true),
+        decoration: InputDecoration(labelText: AppL10n.of(context).financeSubjectId, isDense: true),
         onSubmitted: (v) { _accountId = v; _page = 1; _load(); },
       )),
       const SizedBox(width: 8),
       SizedBox(width: 110, child: TextField(
-        decoration: const InputDecoration(labelText: '开始日期', isDense: true),
+        decoration: InputDecoration(labelText: AppL10n.of(context).financeStartDate, isDense: true),
         onSubmitted: (v) { _startDate = v; _page = 1; _load(); },
       )),
       const SizedBox(width: 8),
       SizedBox(width: 110, child: TextField(
-        decoration: const InputDecoration(labelText: '结束日期', isDense: true),
+        decoration: InputDecoration(labelText: AppL10n.of(context).financeEndDate, isDense: true),
         onSubmitted: (v) { _endDate = v; _page = 1; _load(); },
       )),
     ]),
   );
 
-  List<String> _columns() => ['日期', '摘要', '方向', '金额', '余额'];
+  List<String> _columns() => [AppL10n.current.financeDate, AppL10n.current.financeSummary, AppL10n.current.financeDirection, AppL10n.current.financeAmount, AppL10n.current.financeBalance];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    '日期': r['entry_date'] ?? '',
-    '摘要': r['summary'] ?? '',
-    '方向': _directionText(r['direction']),
-    '金额': r['amount'] ?? '',
-    '余额': r['balance'] ?? '',
+    AppL10n.current.financeDate: r['entry_date'] ?? '',
+    AppL10n.current.financeSummary: r['summary'] ?? '',
+    AppL10n.current.financeDirection: _directionText(r['direction']),
+    AppL10n.current.financeAmount: r['amount'] ?? '',
+    AppL10n.current.financeBalance: r['balance'] ?? '',
   };
 }

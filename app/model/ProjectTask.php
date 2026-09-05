@@ -9,13 +9,15 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class ProjectTask extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_project_task';
+    protected $table = 'project_task';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

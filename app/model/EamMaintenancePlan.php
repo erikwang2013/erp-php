@@ -7,11 +7,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class EamMaintenancePlan extends Model
 {
-    protected $table = 'erp_eam_maintenance_plan';
+    use Searchable;
+    protected $table = 'eam_maintenance_plan';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

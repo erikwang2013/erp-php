@@ -22,7 +22,7 @@ void main() {
     Get.reset();
     SharedPreferences.setMockInitialValues({});
     adapter = FakeHttpClientAdapter(routes: {
-      '/admin/role': (o) async => FakeHttpClientAdapter.jsonResponse({
+      '/admin/v1/role': (o) async => FakeHttpClientAdapter.jsonResponse({
         'code': 0,
         'data': {
           'list': [
@@ -32,7 +32,7 @@ void main() {
           'total': 2,
         },
       }),
-      '/admin/permission': (o) async => FakeHttpClientAdapter.jsonResponse({
+      '/admin/v1/permission': (o) async => FakeHttpClientAdapter.jsonResponse({
         'code': 0,
         'data': [
           {'id': 1, 'name': '用户管理', 'slug': 'user:list'},

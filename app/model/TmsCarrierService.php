@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class TmsCarrierService extends Model
 {
-    protected $table = 'erp_tms_carrier_service';
+    use Searchable;
+    protected $table = 'tms_carrier_service';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

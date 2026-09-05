@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class WmsPutawayTask extends Model
 {
-    protected $table = 'erp_wms_putaway_task';
+    use Searchable;
+    protected $table = 'wms_putaway_task';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

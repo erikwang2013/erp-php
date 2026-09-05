@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
@@ -34,7 +35,8 @@ use support\Model;
  */
 class CustomFieldDefinition extends Model
 {
-    protected $table = 'erp_custom_field_definition';
+    use Searchable;
+    protected $table = 'custom_field_definition';
 
     protected $primaryKey = 'id';
 

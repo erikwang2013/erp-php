@@ -10,13 +10,15 @@ namespace app\model;
 
 use Erikwang2013\Encryptable\Encryptable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class HrEmployee extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_hr_employee';
+    protected $table = 'hr_employee';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class WmsAsnItem extends Model
 {
-    protected $table = 'erp_wms_asn_item';
+    use Searchable;
+    protected $table = 'wms_asn_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

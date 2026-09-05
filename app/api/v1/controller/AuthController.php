@@ -33,7 +33,7 @@ class AuthController
      * })
      */
 #[\erikwang2013\apidoc\annotation\Title("用户登录")]
-#[\erikwang2013\apidoc\annotation\Desc("用户名密码登录，需先通过点击验证码；连续失败 5 次账号锁定 15 分钟")]
+#[\erikwang2013\apidoc\annotation\Desc("用户名密码登录；人机验证在独立接口 /api/v1/captcha/verify 完成（一次性放行凭证），本接口凭 captcha_key 消费放行、不比对坐标；连续失败 5 次账号锁定 15 分钟")]
 #[\erikwang2013\apidoc\annotation\Url("/api/v1/auth/login")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -56,23 +56,20 @@ class AuthController
             'username' => 'required|string|min:3|max:50',
             'password' => 'required|string|min:6|max:32',
             'captcha_key' => 'required|string',
-            'clicks' => 'required|array|min:2',
         ]);
 
         if ($validator->fails()) {
             return json(['code' => 422, 'message' => $validator->errors()->first(), 'data' => []]);
         }
 
-        // 验证点击验证码
+        // 人机验证：坐标比对只发生在独立接口 /api/v1/captcha/verify（挑战一次性消费），
+        // 该接口通过后写入放行凭证 captcha_pass:<key>，本接口仅凭 captcha_key 消费放行。
         // E2E 测试口令：仅当服务端 .env 显式设置 E2E_CAPTCHA_CODE 且请求携带相同口令时放行
         // （CI 专用；生产 .env 无此变量，旁路不生效）
         $bypass = getenv('E2E_CAPTCHA_CODE');
-        if ($bypass !== false && $bypass !== '' && $request->input('captcha_key') === $bypass) {
-            $clicks = [];
-        } else {
-            $clicks = array_map(fn ($c) => [(int)$c['x'], (int)$c['y']], $request->input('clicks'));
-            if (!captcha_verify($request->input('captcha_key'), 'click', $clicks)) {
-                return json(['code' => 422, 'message' => '验证码错误，请重试', 'data' => []]);
+        if ($bypass === false || $bypass === '' || $request->input('captcha_key') !== $bypass) {
+            if (!$this->consumeCaptchaPass($request->input('captcha_key'))) {
+                return json(['code' => 422, 'message' => '请先完成人机验证', 'data' => []]);
             }
         }
 
@@ -165,7 +162,7 @@ class AuthController
      * })
      */
 #[\erikwang2013\apidoc\annotation\Title("用户注册")]
-#[\erikwang2013\apidoc\annotation\Desc("需先通过点击验证码；受 REGISTRATION_ENABLED:1 配置开关控制，默认关闭")]
+#[\erikwang2013\apidoc\annotation\Desc("注册；人机验证须先在独立接口 /api/v1/captcha/verify 完成（凭 captcha_key 消费放行、不比对坐标）；受 REGISTRATION_ENABLED:1 配置开关控制，默认关闭")]
 #[\erikwang2013\apidoc\annotation\Url("/api/v1/auth/register")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -197,15 +194,15 @@ class AuthController
             'password' => 'required|string|min:6|max:32',
             'real_name' => 'required|string|max:50',
             'captcha_key' => 'required|string',
-            'clicks' => 'required|array|min:2',
         ]);
 
         if ($validator->fails()) {
             return json(['code' => 422, 'message' => $validator->errors()->first(), 'data' => []]);
         }
 
-        if (!captcha_verify($request->input('captcha_key'), 'click', $request->input('clicks'))) {
-            return json(['code' => 422, 'message' => '验证码错误，请重试', 'data' => []]);
+        // 同登录：坐标比对已在 /api/v1/captcha/verify 完成，这里仅消费一次性放行凭证
+        if (!$this->consumeCaptchaPass($request->input('captcha_key'))) {
+            return json(['code' => 422, 'message' => '请先完成人机验证', 'data' => []]);
         }
 
         $username = $request->input('username');
@@ -369,6 +366,30 @@ class AuthController
         } catch (\Throwable $e) {
             // 有意的 fail-open 降级：会话跟踪失败不阻断登录，但并发会话限制将失效，需记录告警日志
             Log::warning('会话跟踪失败（并发会话限制可能失效）: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+        }
+    }
+
+    /**
+     * 消费一次性人机验证放行凭证（由独立接口 /api/v1/captcha/verify 验证通过后写入）。
+     * 凭证存在即视为已通过验证并立即删除（单次有效）；Redis 不可用时 fail-closed。
+     */
+    private function consumeCaptchaPass(string $key): bool
+    {
+        if ($key === '') {
+            return false;
+        }
+        try {
+            $marker = "captcha_pass:{$key}";
+            $passed = Redis::get($marker) === '1';
+            if ($passed) {
+                Redis::del($marker);
+            }
+
+            return $passed;
+        } catch (\Throwable $e) {
+            Log::error('人机验证放行凭证读取失败（Redis 不可用）: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+
+            return false;
         }
     }
 }

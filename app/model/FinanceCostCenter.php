@@ -8,12 +8,14 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class FinanceCostCenter extends Model
 {
+    use Searchable;
     use SoftDeletes;
-    protected $table = 'erp_finance_cost_center';
+    protected $table = 'finance_cost_center';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

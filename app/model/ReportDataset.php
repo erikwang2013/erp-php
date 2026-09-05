@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class ReportDataset extends Model
 {
-    protected $table = 'erp_report_dataset';
+    use Searchable;
+    protected $table = 'report_dataset';
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $timestamps = false;

@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class ProductSku extends Model
 {
-    protected $table = 'erp_product_sku';
+    use Searchable;
+    protected $table = 'product_sku';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

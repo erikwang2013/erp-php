@@ -9,13 +9,15 @@ declare(strict_types=1);
 namespace app\model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class SalesDelivery extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
-    protected $table = 'erp_sales_delivery';
+    protected $table = 'sales_delivery';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

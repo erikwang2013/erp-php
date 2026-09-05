@@ -7,11 +7,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class FinanceAllocation extends Model
 {
-    protected $table = 'erp_finance_allocation';
+    use Searchable;
+    protected $table = 'finance_allocation';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

@@ -30,7 +30,7 @@ void main() {
   }
 
   FakeHttpClientAdapter adapterWithList() => FakeHttpClientAdapter(routes: {
-        '/admin/crm/pool': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/crm/pool': (o) async => FakeHttpClientAdapter.jsonResponse({
               'code': 0,
               'data': {
                 'list': [
@@ -64,10 +64,10 @@ void main() {
     await tester.tap(find.text('提交'));
     await tester.pumpAndSettle();
 
-    final call = adapter.requests.firstWhere((r) => r.path == '/admin/crm/pool/claim/1');
+    final call = adapter.requests.firstWhere((r) => r.path == '/admin/v1/crm/pool/claim/1');
     expect(call.method, 'POST');
     expect((call.data as Map)['remark'], '我要跟进');
-    expect(adapter.requests.where((r) => r.path == '/admin/crm/pool').length, 2); // 初始 + 刷新
+    expect(adapter.requests.where((r) => r.path == '/admin/v1/crm/pool').length, 2); // 初始 + 刷新
   });
 
   testWidgets('释放回公海：提交 remark 并刷新列表', (tester) async {
@@ -81,8 +81,8 @@ void main() {
     await tester.tap(find.text('提交'));
     await tester.pumpAndSettle();
 
-    final call = adapter.requests.firstWhere((r) => r.path == '/admin/crm/pool/release/1');
+    final call = adapter.requests.firstWhere((r) => r.path == '/admin/v1/crm/pool/release/1');
     expect(call.method, 'POST');
-    expect(adapter.requests.where((r) => r.path == '/admin/crm/pool').length, 2);
+    expect(adapter.requests.where((r) => r.path == '/admin/v1/crm/pool').length, 2);
   });
 }

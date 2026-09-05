@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class InventoryBatch extends Model
 {
-    protected $table = 'erp_inventory_batch';
+    use Searchable;
+    protected $table = 'inventory_batch';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

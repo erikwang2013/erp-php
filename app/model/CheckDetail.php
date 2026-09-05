@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class CheckDetail extends Model
 {
-    protected $table = 'erp_check_detail';
+    use Searchable;
+    protected $table = 'check_detail';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

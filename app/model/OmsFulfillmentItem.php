@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class OmsFulfillmentItem extends Model
 {
-    protected $table = 'erp_oms_fulfillment_item';
+    use Searchable;
+    protected $table = 'oms_fulfillment_item';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

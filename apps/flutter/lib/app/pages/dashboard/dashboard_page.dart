@@ -343,6 +343,19 @@ class DashboardPage extends GetView<DashboardController> {
   }
 
   Widget _buildStatsGrid(BuildContext context) {
+    // 后端返回的统计卡片（最多展示 4 张）；为空（接口失败/无数据）时给出空态，
+    // 避免固定 itemCount: 4 访问空列表导致 RangeError 崩溃。
+    final stats = controller.stats;
+    if (stats.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        child: Center(
+          child: Text(AppL10n.of(context).dashboardNoData,
+              style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+        ),
+      );
+    }
+    final itemCount = stats.length > 4 ? 4 : stats.length;
     return LayoutBuilder(
       builder: (context, constraints) {
         final crossAxisCount = constraints.maxWidth > 900 ? 4 : 2;
@@ -355,9 +368,9 @@ class DashboardPage extends GetView<DashboardController> {
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
           ),
-          itemCount: 4,
+          itemCount: itemCount,
           itemBuilder: (context, index) {
-            final stat = controller.stats[index];
+            final stat = stats[index];
             final color = Color(int.parse('0xFF${stat['color'].replaceFirst('#', '')}'));
             return Card(
               child: Padding(

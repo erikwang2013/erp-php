@@ -40,7 +40,7 @@ void main() {
   group('商品列表', () {
     testWidgets('渲染商品列与行数据', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
-        '/admin/product': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/product': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
@@ -65,7 +65,7 @@ void main() {
   group('销售订单列表', () {
     testWidgets('渲染订单编号与状态（3=已发货）', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
-        '/admin/sales/order': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/sales/order': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
@@ -88,7 +88,7 @@ void main() {
   group('库存预警列表', () {
     testWidgets('渲染预警名称与编码', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
-        '/admin/inventory/alert': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/inventory/alert': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
@@ -110,7 +110,7 @@ void main() {
   group('财务应收应付列表', () {
     testWidgets('渲染往来单位名称与编码', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
-        '/admin/finance/ar-ap': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/finance/ar-ap': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
@@ -131,7 +131,7 @@ void main() {
   group('项目列表', () {
     testWidgets('渲染项目名称与编码', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
-        '/admin/project': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/project': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
@@ -152,7 +152,7 @@ void main() {
   group('我的审批列表', () {
     testWidgets('渲染审批单据与状态（0=审批中）及通过/驳回操作', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
-        '/admin/approval/my': (o) async => FakeHttpClientAdapter.jsonResponse({
+        '/admin/v1/approval/my': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [

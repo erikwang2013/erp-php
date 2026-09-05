@@ -22,6 +22,8 @@ export class TokenManager {
   private static readonly ACCESS_TOKEN_KEY = 'access_token';
   private static readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private static readonly USERNAME_KEY = 'adminUsername';
+  // token 过期时刻（毫秒时间戳，存 string）— 全新 key，无旧版本兼容负担
+  private static readonly EXPIRES_AT_KEY = 'token_expires_at';
 
   // Preferences 实例（init 成功后可用）
   private static prefs: preferences.Preferences | null = null;
@@ -40,22 +42,32 @@ export class TokenManager {
     const accessToken = await TokenManager.prefs.get(TokenManager.ACCESS_TOKEN_KEY, '') as string;
     const refreshToken = await TokenManager.prefs.get(TokenManager.REFRESH_TOKEN_KEY, '') as string;
     const username = await TokenManager.prefs.get(TokenManager.USERNAME_KEY, '') as string;
+    const expiresAt = await TokenManager.prefs.get(TokenManager.EXPIRES_AT_KEY, '') as string;
 
     AppStorage.setOrCreate(TokenManager.ACCESS_TOKEN_KEY, accessToken);
     AppStorage.setOrCreate(TokenManager.REFRESH_TOKEN_KEY, refreshToken);
     AppStorage.setOrCreate(TokenManager.USERNAME_KEY, username);
+    AppStorage.setOrCreate(TokenManager.EXPIRES_AT_KEY, expiresAt);
   }
 
   /**
    * 保存 token：内存缓存 + 磁盘持久化双写
+   * @param expiresInSeconds 登录/刷新响应里的过期时长（秒）；省略或 <=0 表示未知，
+   *   过期判定全靠 401 兜底，不做预判
    */
-  static async saveTokens(accessToken: string, refreshToken: string): Promise<void> {
+  static async saveTokens(accessToken: string, refreshToken: string, expiresInSeconds?: number): Promise<void> {
     // 先更新内存缓存，保证后续请求立即读到新 token
     AppStorage.setOrCreate(TokenManager.ACCESS_TOKEN_KEY, accessToken);
     AppStorage.setOrCreate(TokenManager.REFRESH_TOKEN_KEY, refreshToken);
+    // 过期时刻：有明确时长才预判；未知则清空（存储介质限制见类注释，明文属已知边界）
+    const expiresAt = (expiresInSeconds !== undefined && expiresInSeconds > 0)
+      ? String(Date.now() + expiresInSeconds * 1000)
+      : '';
+    AppStorage.setOrCreate(TokenManager.EXPIRES_AT_KEY, expiresAt);
     // 再异步落盘（顺序执行，确保磁盘与内存最终一致）
     await TokenManager.putToDisk(TokenManager.ACCESS_TOKEN_KEY, accessToken);
     await TokenManager.putToDisk(TokenManager.REFRESH_TOKEN_KEY, refreshToken);
+    await TokenManager.putToDisk(TokenManager.EXPIRES_AT_KEY, expiresAt);
   }
 
   /**
@@ -85,9 +97,11 @@ export class TokenManager {
     AppStorage.setOrCreate(TokenManager.ACCESS_TOKEN_KEY, '');
     AppStorage.setOrCreate(TokenManager.REFRESH_TOKEN_KEY, '');
     AppStorage.setOrCreate(TokenManager.USERNAME_KEY, '');
+    AppStorage.setOrCreate(TokenManager.EXPIRES_AT_KEY, '');
     await TokenManager.putToDisk(TokenManager.ACCESS_TOKEN_KEY, '');
     await TokenManager.putToDisk(TokenManager.REFRESH_TOKEN_KEY, '');
     await TokenManager.putToDisk(TokenManager.USERNAME_KEY, '');
+    await TokenManager.putToDisk(TokenManager.EXPIRES_AT_KEY, '');
   }
 
   /**
@@ -95,6 +109,18 @@ export class TokenManager {
    */
   static isLoggedIn(): boolean {
     return (TokenManager.getAccessToken() ?? '').length > 0;
+  }
+
+  /**
+   * 是否已过有效期（含 30s 宽容差，避免边界 401）。
+   * 无过期时刻（如旧版本登录态）返回 false，交由 401 通道兜底。
+   */
+  static isAccessTokenExpired(): boolean {
+    const expiresAt = Number(AppStorage.get(TokenManager.EXPIRES_AT_KEY) as string ?? '');
+    if (expiresAt <= 0) {
+      return false;
+    }
+    return Date.now() > expiresAt - 30000;
   }
 
   /**
@@ -106,7 +132,12 @@ export class TokenManager {
     if (!prefs) {
       return;
     }
-    await prefs.put(key, value);
-    await prefs.flush();
+    try {
+      await prefs.put(key, value);
+      await prefs.flush();
+    } catch (err) {
+      // 落盘失败不静默：内存缓存仍可用，但需暴露问题便于排查（安全存储属后续设计）
+      console.error('TokenManager 持久化失败', key, err);
+    }
   }
 }

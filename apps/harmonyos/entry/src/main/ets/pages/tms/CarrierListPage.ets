@@ -17,6 +17,18 @@ interface TmsCarrierItem {
   status: number;
 }
 
+/** 表单保存请求体（与后端 fillable 对齐） */
+interface SaveBody {
+  name: string | number;
+  code: string | number;
+  type: string | number;
+  website: string | number;
+  tracking_url_template: string | number;
+  api_provider: string | number;
+  contact_phone: string | number;
+  status: string | number;
+}
+
 @Entry
 @Component
 struct CarrierListPage {
@@ -26,6 +38,7 @@ struct CarrierListPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
+  @State errMsg: string = '加载失败'; // M4: 错误展示文案（取后端/网络 message，空则保底）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -60,8 +73,8 @@ struct CarrierListPage {
     this.hasError = false;
 
     try {
-      const res = await this.api.get(`/admin/tms/carrier?page=${this.page}&limit=${this.limit}`);
-      const data = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/tms/carrier?page=${this.page}&limit=${this.limit}`);
+      const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as TmsCarrierItem);
       if (isRefresh || this.page === 1) {
@@ -76,7 +89,9 @@ struct CarrierListPage {
         return;
       }
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      // M4: 不吞错误，把 message 传给错误位与 toast；UNAUTHORIZED/空 message 显示友好文案（§0.8）
+      this.errMsg = e instanceof Error && e.message.length > 0 && e.message !== 'UNAUTHORIZED' ? e.message : '登录已过期，请重新登录';
+      promptAction.showToast({ message: this.errMsg });
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -115,8 +130,8 @@ struct CarrierListPage {
     this.showForm = true;
     this.loading = true;
     try {
-      const res = await this.api.get(`/admin/tms/carrier/${id}`);
-      const row = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/tms/carrier/${id}`);
+      const row = res.data as Record<string, Object>;
       this.formName = (row['name'] as string) ?? '';
       this.formCode = (row['code'] as string) ?? '';
       this.formType = (row['type'] as string) ?? 'express';
@@ -146,7 +161,7 @@ struct CarrierListPage {
     }
 
     this.isSubmitting = true;
-    const body: Record<string, Object> = {
+    const body: SaveBody = {
       name: this.formName,
       code: this.formCode,
       type: this.formType,
@@ -159,10 +174,10 @@ struct CarrierListPage {
 
     try {
       if (this.formMode === 'create') {
-        await this.api.post('/admin/tms/carrier', body);
+        await this.api.post<Object>('/admin/tms/carrier', body);
         promptAction.showToast({ message: '创建成功' });
       } else {
-        await this.api.put(`/admin/tms/carrier/${this.formId}`, body);
+        await this.api.put<Object>(`/admin/tms/carrier/${this.formId}`, body);
         promptAction.showToast({ message: '更新成功' });
       }
       this.showForm = false;
@@ -193,7 +208,7 @@ struct CarrierListPage {
         fontColor: '#FF4D4F',
         action: async () => {
           try {
-            await this.api.delete(`/admin/tms/carrier/${id}`);
+            await this.api.delete<Object>(`/admin/tms/carrier/${id}`);
             promptAction.showToast({ message: '删除成功' });
             this.loadData(true);
           } catch (e) {
@@ -262,7 +277,7 @@ struct CarrierListPage {
     if (this.loading && this.items.length === 0) {
       LoadingView();
     } else if (this.hasError) {
-      ErrorView({ onRetry: () => this.loadData(true) });
+      ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
       EmptyView({ message: '暂无承运商数据' });
     } else {
@@ -367,50 +382,139 @@ struct CarrierListPage {
           .textAlign(TextAlign.Center)
           .padding({ top: 16, bottom: 16 })
 
-        this.buildFormItem('名称', () => {
+        Row() {
+          Text('名称')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入承运商名称（必填）', text: this.formName })
             .fontSize(15)
             .onChange((v: string) => { this.formName = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('编码', () => {
+        Row() {
+          Text('编码')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入承运商编码', text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('类型', () => {
+        Row() {
+          Text('类型')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '默认 express', text: this.formType })
             .fontSize(15)
             .onChange((v: string) => { this.formType = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('官网', () => {
+        Row() {
+          Text('官网')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入官网地址', text: this.formWebsite })
             .fontSize(15)
             .onChange((v: string) => { this.formWebsite = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('跟踪链接模板', () => {
+        Row() {
+          Text('跟踪链接模板')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '如 https://xxx/{tracking_no}', text: this.formTrackingUrlTemplate })
             .fontSize(15)
             .onChange((v: string) => { this.formTrackingUrlTemplate = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('API服务商', () => {
+        Row() {
+          Text('API服务商')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入API服务商', text: this.formApiProvider })
             .fontSize(15)
             .onChange((v: string) => { this.formApiProvider = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('联系电话', () => {
+        Row() {
+          Text('联系电话')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入联系电话', text: this.formContactPhone })
             .fontSize(15)
             .type(InputType.PhoneNumber)
             .onChange((v: string) => { this.formContactPhone = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('状态', () => {
+        Row() {
+          Text('状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           Row() {
             Button('启用')
               .fontSize(13)
@@ -429,7 +533,14 @@ struct CarrierListPage {
               .margin({ left: 12 })
               .onClick(() => { this.formStatus = 0; })
           }
-        });
+          .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -461,27 +572,5 @@ struct CarrierListPage {
     .width('100%')
     .layoutWeight(1)
     .backgroundColor('#F5F5F5')
-  }
-
-  /**
-   * 表单项：标签 + 输入控件
-   */
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .minHeight(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

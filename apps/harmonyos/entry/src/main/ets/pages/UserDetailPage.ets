@@ -14,6 +14,7 @@ struct UserDetailPage {
   @State user: User | null = null;
   @State isLoading: boolean = true;
   @State hasError: boolean = false;
+  @State errMsg: string = ''; // M4：真实错误文案（catch 不再吞 message）
   @State isSubmitting: boolean = false;
   @State mode: string = 'view';
   @State userId: string = '';
@@ -52,6 +53,7 @@ struct UserDetailPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
+      this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
       this.hasError = true;
     } finally {
       this.isLoading = false;
@@ -167,7 +169,7 @@ struct UserDetailPage {
       if (this.isLoading) {
         LoadingView();
       } else if (this.hasError) {
-        ErrorView({ onRetry: () => this.loadDetail() });
+        ErrorView({ message: this.errMsg, onRetry: () => this.loadDetail() });
       } else {
         Scroll() {
           Column() {
@@ -177,43 +179,108 @@ struct UserDetailPage {
               .margin({ top: 24, bottom: 24 })
 
             // 表单
-            this.buildFormItem('用户名', () => {
+            Row() {
+              Text('用户名')
+              .fontSize(15)
+              .fontColor('#333333')
+              .width(80)
+
               TextInput({ placeholder: '请输入用户名', text: this.formUsername })
                 .fontSize(15)
                 .enabled(this.mode === 'create')
                 .onChange((v: string) => { this.formUsername = v; })
-            });
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .height(56)
+            .padding({ left: 16, right: 16 })
+            .backgroundColor('#FFFFFF')
+            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .alignItems(VerticalAlign.Center)
 
             if (this.mode === 'create') {
-              this.buildFormItem('密码', () => {
+              Row() {
+                Text('密码')
+                .fontSize(15)
+                .fontColor('#333333')
+                .width(80)
+
                 TextInput({ placeholder: '请输入密码', text: this.formPassword })
                   .fontSize(15)
                   .type(InputType.Password)
                   .onChange((v: string) => { this.formPassword = v; })
-              });
+                  .layoutWeight(1)
+              }
+              .width('100%')
+              .height(56)
+              .padding({ left: 16, right: 16 })
+              .backgroundColor('#FFFFFF')
+              .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+              .alignItems(VerticalAlign.Center)
             }
 
-            this.buildFormItem('姓名', () => {
+            Row() {
+              Text('姓名')
+              .fontSize(15)
+              .fontColor('#333333')
+              .width(80)
+
               TextInput({ placeholder: '请输入真实姓名', text: this.formRealName })
                 .fontSize(15)
                 .onChange((v: string) => { this.formRealName = v; })
-            });
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .height(56)
+            .padding({ left: 16, right: 16 })
+            .backgroundColor('#FFFFFF')
+            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .alignItems(VerticalAlign.Center)
 
-            this.buildFormItem('手机号', () => {
+            Row() {
+              Text('手机号')
+              .fontSize(15)
+              .fontColor('#333333')
+              .width(80)
+
               TextInput({ placeholder: '请输入手机号', text: this.formPhone })
                 .fontSize(15)
                 .type(InputType.PhoneNumber)
                 .onChange((v: string) => { this.formPhone = v; })
-            });
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .height(56)
+            .padding({ left: 16, right: 16 })
+            .backgroundColor('#FFFFFF')
+            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .alignItems(VerticalAlign.Center)
 
-            this.buildFormItem('邮箱', () => {
+            Row() {
+              Text('邮箱')
+              .fontSize(15)
+              .fontColor('#333333')
+              .width(80)
+
               TextInput({ placeholder: '请输入邮箱', text: this.formEmail })
                 .fontSize(15)
                 .type(InputType.Email)
                 .onChange((v: string) => { this.formEmail = v; })
-            });
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .height(56)
+            .padding({ left: 16, right: 16 })
+            .backgroundColor('#FFFFFF')
+            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .alignItems(VerticalAlign.Center)
 
-            this.buildFormItem('状态', () => {
+            Row() {
+              Text('状态')
+              .fontSize(15)
+              .fontColor('#333333')
+              .width(80)
+
               Row() {
                 Button('启用')
                   .fontSize(13)
@@ -232,7 +299,14 @@ struct UserDetailPage {
                   .margin({ left: 12 })
                   .onClick(() => { this.formStatus = 0; })
               }
-            });
+              .layoutWeight(1)
+            }
+            .width('100%')
+            .height(56)
+            .padding({ left: 16, right: 16 })
+            .backgroundColor('#FFFFFF')
+            .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+            .alignItems(VerticalAlign.Center)
 
             // 提交按钮
             Button('保 存')
@@ -255,24 +329,5 @@ struct UserDetailPage {
     }
     .width('100%')
     .height('100%')
-  }
-
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .height(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

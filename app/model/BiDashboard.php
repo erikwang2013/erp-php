@@ -7,11 +7,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class BiDashboard extends Model
 {
-    protected $table = 'erp_bi_dashboard';
+    use Searchable;
+    protected $table = 'bi_dashboard';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

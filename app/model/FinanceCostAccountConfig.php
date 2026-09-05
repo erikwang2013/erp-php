@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class FinanceCostAccountConfig extends Model
 {
-    protected $table = 'erp_finance_cost_account_config';
+    use Searchable;
+    protected $table = 'finance_cost_account_config';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

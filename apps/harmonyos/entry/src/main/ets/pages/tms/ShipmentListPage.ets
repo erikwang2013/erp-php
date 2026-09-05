@@ -17,6 +17,22 @@ interface TmsShipmentItem {
   status: number;
 }
 
+/** 表单保存请求体（与后端 fillable 对齐） */
+interface SaveBody {
+  code: string | number;
+  carrier_service_id: string | number;
+  tracking_no: string | number;
+  status: string | number;
+  shipping_label_url: string | number;
+  estimated_delivery_at: string | number;
+  actual_delivery_at: string | number;
+  total_weight_kg: string | number;
+  package_count: string | number;
+  freight_charge: string | number;
+  insurance_charge: string | number;
+  currency: string | number;
+}
+
 @Entry
 @Component
 struct ShipmentListPage {
@@ -26,6 +42,7 @@ struct ShipmentListPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
+  @State errMsg: string = '加载失败'; // M4: 错误展示文案（取后端/网络 message，空则保底）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -64,8 +81,8 @@ struct ShipmentListPage {
     this.hasError = false;
 
     try {
-      const res = await this.api.get(`/admin/tms/shipment?page=${this.page}&limit=${this.limit}`);
-      const data = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/tms/shipment?page=${this.page}&limit=${this.limit}`);
+      const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as TmsShipmentItem);
       if (isRefresh || this.page === 1) {
@@ -80,7 +97,9 @@ struct ShipmentListPage {
         return;
       }
       this.hasError = true;
-      promptAction.showToast({ message: '加载失败' });
+      // M4: 不吞错误，把 message 传给错误位与 toast；UNAUTHORIZED/空 message 显示友好文案（§0.8）
+      this.errMsg = e instanceof Error && e.message.length > 0 && e.message !== 'UNAUTHORIZED' ? e.message : '登录已过期，请重新登录';
+      promptAction.showToast({ message: this.errMsg });
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -123,8 +142,8 @@ struct ShipmentListPage {
     this.showForm = true;
     this.loading = true;
     try {
-      const res = await this.api.get(`/admin/tms/shipment/${id}`);
-      const row = res['data'] as Record<string, Object>;
+      const res = await this.api.get<Record<string, Object>>(`/admin/tms/shipment/${id}`);
+      const row = res.data as Record<string, Object>;
       this.formCode = (row['code'] as string) ?? '';
       this.formCarrierServiceId = row['carrier_service_id'] != null ? String(row['carrier_service_id']) : '';
       this.formTrackingNo = (row['tracking_no'] as string) ?? '';
@@ -158,7 +177,7 @@ struct ShipmentListPage {
     }
 
     this.isSubmitting = true;
-    const body: Record<string, Object> = {
+    const body: SaveBody = {
       code: this.formCode,
       carrier_service_id: this.formCarrierServiceId ? Number(this.formCarrierServiceId) : 0,
       tracking_no: this.formTrackingNo,
@@ -175,10 +194,10 @@ struct ShipmentListPage {
 
     try {
       if (this.formMode === 'create') {
-        await this.api.post('/admin/tms/shipment', body);
+        await this.api.post<Object>('/admin/tms/shipment', body);
         promptAction.showToast({ message: '创建成功' });
       } else {
-        await this.api.put(`/admin/tms/shipment/${this.formId}`, body);
+        await this.api.put<Object>(`/admin/tms/shipment/${this.formId}`, body);
         promptAction.showToast({ message: '更新成功' });
       }
       this.showForm = false;
@@ -209,7 +228,7 @@ struct ShipmentListPage {
         fontColor: '#FF4D4F',
         action: async () => {
           try {
-            await this.api.delete(`/admin/tms/shipment/${id}`);
+            await this.api.delete<Object>(`/admin/tms/shipment/${id}`);
             promptAction.showToast({ message: '删除成功' });
             this.loadData(true);
           } catch (e) {
@@ -278,7 +297,7 @@ struct ShipmentListPage {
     if (this.loading && this.items.length === 0) {
       LoadingView();
     } else if (this.hasError) {
-      ErrorView({ onRetry: () => this.loadData(true) });
+      ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
       EmptyView({ message: '暂无运单数据' });
     } else {
@@ -383,26 +402,67 @@ struct ShipmentListPage {
           .textAlign(TextAlign.Center)
           .padding({ top: 16, bottom: 16 })
 
-        this.buildFormItem('运单号', () => {
+        Row() {
+          Text('运单号')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入运单号（必填）', text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('承运商服务ID', () => {
+        Row() {
+          Text('承运商服务ID')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '承运商服务数字ID，留空为0', text: this.formCarrierServiceId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formCarrierServiceId = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('物流跟踪号', () => {
+        Row() {
+          Text('物流跟踪号')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入物流跟踪号', text: this.formTrackingNo })
             .fontSize(15)
             .onChange((v: string) => { this.formTrackingNo = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('状态', () => {
+        Row() {
+          Text('状态')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           Row() {
             Button('启用')
               .fontSize(13)
@@ -421,59 +481,162 @@ struct ShipmentListPage {
               .margin({ left: 12 })
               .onClick(() => { this.formStatus = 0; })
           }
-        });
+          .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('面单URL', () => {
+        Row() {
+          Text('面单URL')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入面单URL', text: this.formShippingLabelUrl })
             .fontSize(15)
             .onChange((v: string) => { this.formShippingLabelUrl = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('预计送达时间', () => {
+        Row() {
+          Text('预计送达时间')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss，可留空', text: this.formEstimatedDeliveryAt })
             .fontSize(15)
             .onChange((v: string) => { this.formEstimatedDeliveryAt = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('实际送达时间', () => {
+        Row() {
+          Text('实际送达时间')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss，可留空', text: this.formActualDeliveryAt })
             .fontSize(15)
             .onChange((v: string) => { this.formActualDeliveryAt = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('总重量kg', () => {
+        Row() {
+          Text('总重量kg')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入总重量，如 1.5', text: this.formTotalWeightKg })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formTotalWeightKg = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('包裹数量', () => {
+        Row() {
+          Text('包裹数量')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '包裹数量，默认1', text: this.formPackageCount })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formPackageCount = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('运费', () => {
+        Row() {
+          Text('运费')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入运费', text: this.formFreightCharge })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formFreightCharge = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('保价费', () => {
+        Row() {
+          Text('保价费')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '请输入保价费', text: this.formInsuranceCharge })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formInsuranceCharge = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
-        this.buildFormItem('币种', () => {
+        Row() {
+          Text('币种')
+          .fontSize(15)
+          .fontColor('#333333')
+          .width(80)
+
           TextInput({ placeholder: '默认 CNY', text: this.formCurrency })
             .fontSize(15)
             .onChange((v: string) => { this.formCurrency = v; })
-        });
+            .layoutWeight(1)
+        }
+        .width('100%')
+        .constraintSize({ minHeight: 56 })
+        .padding({ left: 16, right: 16 })
+        .backgroundColor('#FFFFFF')
+        .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
+        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -505,27 +668,5 @@ struct ShipmentListPage {
     .width('100%')
     .layoutWeight(1)
     .backgroundColor('#F5F5F5')
-  }
-
-  /**
-   * 表单项：标签 + 输入控件
-   */
-  @Builder
-  buildFormItem(label: string, content: () => void) {
-    Row() {
-      Text(label)
-        .fontSize(15)
-        .fontColor('#333333')
-        .width(80)
-
-      content()
-        .layoutWeight(1)
-    }
-    .width('100%')
-    .minHeight(56)
-    .padding({ left: 16, right: 16 })
-    .backgroundColor('#FFFFFF')
-    .border({ width: { bottom: 0.5 }, color: '#EEEEEE' })
-    .alignItems(VerticalAlign.Center)
   }
 }

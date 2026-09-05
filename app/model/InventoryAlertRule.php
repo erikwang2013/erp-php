@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class InventoryAlertRule extends Model
 {
-    protected $table = 'erp_inventory_alert_rule';
+    use Searchable;
+    protected $table = 'inventory_alert_rule';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

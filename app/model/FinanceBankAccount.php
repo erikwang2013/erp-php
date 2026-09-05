@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 namespace app\model;
 
+use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 class FinanceBankAccount extends Model
 {
-    protected $table = 'erp_finance_bank_account';
+    use Searchable;
+    protected $table = 'finance_bank_account';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';

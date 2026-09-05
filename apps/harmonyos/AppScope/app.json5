@@ -8,7 +8,6 @@
     "label": "$string:open_admin",
     "minAPIVersion": 12,
     "targetAPIVersion": 12,
-    "apiReleaseType": "Release",
     "debug": false,
     "car": {
       "minAPIVersion": 12
