@@ -24,6 +24,11 @@ class DataTableWrapper extends StatelessWidget {
   final Widget? filterBar;
   final List<Widget>? actions;
 
+  /// 右对齐列索引(§5.2「时间金额列右对齐」):该列表头与文本单元格右对齐,
+  /// 文本单元格追加等宽数字特性(§3 tabular figures);值为 Widget 的单元格原样保留。
+  /// 不传则渲染与旧版完全一致。
+  final List<int> rightAlignColumns;
+
   const DataTableWrapper({
     super.key,
     required this.columns,
@@ -39,6 +44,7 @@ class DataTableWrapper extends StatelessWidget {
     this.keyword = '',
     this.filterBar,
     this.actions,
+    this.rightAlignColumns = const [],
   });
 
   @override
@@ -107,7 +113,8 @@ class DataTableWrapper extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         color: scheme.onSurfaceVariant)),
               ]))
-            : _DataTable(columns: columns, rows: rows, compact: compact)),
+            : _DataTable(columns: columns, rows: rows, compact: compact,
+                rightAlign: rightAlignColumns)),
         if (tp > 1)
           Padding(
             padding: const EdgeInsets.only(top: 12),
@@ -138,26 +145,35 @@ class _DataTable extends StatelessWidget {
   final List<Map<String, dynamic>> rows;
   final bool compact;
 
+  /// 右对齐列索引;走 data_table_2 的 numeric 列语义(表头与单元格右对齐)。
+  final List<int> rightAlign;
+
   const _DataTable(
-      {required this.columns, required this.rows, required this.compact});
+      {required this.columns,
+      required this.rows,
+      required this.compact,
+      this.rightAlign = const []});
 
   @override
   Widget build(BuildContext context) {
+    final right = rightAlign.contains;
     final table = DataTable2(
       columnSpacing: 12,
       horizontalMargin: 12,
       minWidth: columns.length * 130.0,
-      columns: columns
-          .map((c) => DataColumn2(
-              label: Text(c, style: const TextStyle(fontWeight: FontWeight.w600))))
-          .toList(),
+      columns: [
+        for (var i = 0; i < columns.length; i++)
+          DataColumn2(
+            numeric: right(i),
+            label: Text(columns[i],
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+      ],
       rows: rows
-          .map((r) => DataRow2(
-              cells: columns
-                  .map((c) => DataCell(r[c] is Widget
-                      ? r[c] as Widget
-                      : Text('${r[c] ?? ''}')))
-                  .toList()))
+          .map((r) => DataRow2(cells: [
+                for (var i = 0; i < columns.length; i++)
+                  DataCell(_cell(r[columns[i]], right(i))),
+              ]))
           .toList(),
     );
     if (!compact) return table;
@@ -168,6 +184,16 @@ class _DataTable extends StatelessWidget {
       ),
       child: table,
     );
+  }
+
+  /// 单元格:Widget 原样保留(不包不套);纯文本在右对齐列补等宽数字特性
+  /// (§3:数字一律 tabular figures),文字色/字号仍走 dataTableTheme。
+  Widget _cell(dynamic v, bool right) {
+    if (v is Widget) return v;
+    return Text('${v ?? ''}',
+        style: right
+            ? const TextStyle(fontFeatures: [FontFeature.tabularFigures()])
+            : null);
   }
 }
 
