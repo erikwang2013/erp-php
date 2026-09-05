@@ -57,7 +57,7 @@ class InstallController
             }
         }
 
-        return $this->renderStep($step, $errors, $request->post());
+        return $this->renderStep($step, $errors, $request);
     }
 
     /**
@@ -142,6 +142,10 @@ class InstallController
         HTML;
         $html .= $this->htmlFooter();
 
+        // 内联 <script> 注入 CSP nonce（script-src 严格模式必需），style 已由 style-src unsafe-inline 放行
+        $nonce = htmlspecialchars((string) ($request->cspNonce ?? ''), ENT_QUOTES);
+        $html = str_replace('<script>', '<script nonce="' . $nonce . '">', $html);
+
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }
 
@@ -161,10 +165,14 @@ class InstallController
         HTML;
         $html .= $this->htmlFooter();
 
+        // 内联 <script> 注入 CSP nonce（script-src 严格模式必需），style 已由 style-src unsafe-inline 放行
+        $nonce = htmlspecialchars((string) ($request->cspNonce ?? ''), ENT_QUOTES);
+        $html = str_replace('<script>', '<script nonce="' . $nonce . '">', $html);
+
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }
 
-    private function renderStep(int $step, array $errors = [], array $old = []): Response
+    private function renderStep(int $step, array $errors = [], \support\Request $request): Response
     {
         $steps = ['环境检查', '数据库配置', '管理员账号', '确认安装'];
         $html = $this->htmlHeader('安装向导 — ' . $steps[$step]);
@@ -204,6 +212,10 @@ class InstallController
         };
         $html .= '</div>';
         $html .= $this->htmlFooter();
+
+        // 内联 <script> 注入 CSP nonce（script-src 严格模式必需），style 已由 style-src unsafe-inline 放行
+        $nonce = htmlspecialchars((string) ($request->cspNonce ?? ''), ENT_QUOTES);
+        $html = str_replace('<script>', '<script nonce="' . $nonce . '">', $html);
 
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }

@@ -23,6 +23,9 @@ class Cors implements MiddlewareInterface
             return response('', 204, CorsPolicy::preflightHeaders($request));
         }
 
+        // nonce 随请求透传给视图（服务端渲染的内联 <script> 需携带 nonce 属性才能过 script-src）
+        $request->cspNonce = $nonce;
+
         $response = $handler($request);
         $headers = [
             'X-Content-Type-Options' => 'nosniff',
