@@ -6,6 +6,8 @@ import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { ApiService } from '../../service/ApiService';
 import { LoadingView, ErrorView, EmptyView } from '../../common/Components';
+import { TopBar, TopBarAction } from '../../common/TopBar';
+import { ConfirmDialog } from '../../common/FormDialog';
 
 /**
  * 收货单列表项（与后端 /admin/wms/receiving 返回字段对齐）
@@ -202,71 +204,53 @@ struct ReceivingPage {
     }
   }
 
+  private dialogController?: CustomDialogController;
+
   /**
-   * 删除：确认对话框后 DELETE /admin/wms/receiving/{id}
+   * 删除入口：行内删除先经 ConfirmDialog 确认（骨架收敛试点）
    */
-  deleteItem(id: string): void {
-    AlertDialog.show({
-      title: '确认删除',
-      message: '确定要删除该收货单吗？删除后不可恢复。',
-      autoCancel: true,
+  confirmDelete(id: string): void {
+    this.dialogController = new CustomDialogController({
+      builder: ConfirmDialog({
+        title: '确认删除',
+        message: '确定要删除该收货单吗？删除后不可恢复。',
+        onConfirm: () => {
+          this.deleteItem(id);
+        },
+      }),
       alignment: DialogAlignment.Center,
-      primaryButton: {
-        value: '确定',
-        fontColor: $r('app.color.danger_text'),
-        action: async () => {
-          try {
-            await this.api.delete<Object>(`/admin/wms/receiving/${id}`);
-            promptAction.showToast({ message: '删除成功' });
-            this.loadData(true);
-          } catch (e) {
-            if (e instanceof Error && e.message === 'UNAUTHORIZED') {
-              router.replaceUrl({ url: 'pages/LoginPage' });
-              return;
-            }
-            // M4：删除失败展示可用 message，空消息回退原文案
-            const msg = e instanceof Error ? e.message : '';
-            promptAction.showToast({ message: msg !== '' ? msg : '删除失败' });
-          }
-        }
-      },
-      secondaryButton: {
-        value: '取消',
-        action: () => {}
-      }
+      autoCancel: true,
     });
+    this.dialogController.open();
+  }
+
+  /**
+   * 删除：DELETE /admin/wms/receiving/{id}
+   */
+  async deleteItem(id: string): Promise<void> {
+    try {
+      await this.api.delete<Object>(`/admin/wms/receiving/${id}`);
+      promptAction.showToast({ message: '删除成功' });
+      this.loadData(true);
+    } catch (e) {
+      if (e instanceof Error && e.message === 'UNAUTHORIZED') {
+        router.replaceUrl({ url: 'pages/LoginPage' });
+        return;
+      }
+      // M4：删除失败展示可用 message，空消息回退原文案
+      const msg = e instanceof Error ? e.message : '';
+      promptAction.showToast({ message: msg !== '' ? msg : '删除失败' });
+    }
   }
 
   build() {
     Column() {
-      // 顶栏
-      Row() {
-        Button({ type: ButtonType.Circle }) {
-          Image($rawfile('back.png')).width(24).height(24)
-        }
-        .width(36).height(36)
-        .backgroundColor($r('app.color.surface'))
-        .onClick(() => router.back())
-
-        Text('收货管理')
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .margin({ left: 8 })
-
-        Blank()
-
-        Button('+ 新增')
-          .fontSize(13)
-          .fontColor($r('app.color.text_on_primary'))
-          .backgroundColor($r('app.color.primary'))
-          .borderRadius(4)
-          .height(32)
-          .onClick(() => this.openCreate())
-      }
-      .width('100%')
-      .height(56)
-      .padding({ left: 16, right: 16 })
-      .backgroundColor($r('app.color.surface'))
+      // 顶栏（骨架收敛试点：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
+      TopBar({
+        title: '收货管理',
+        actions: [new TopBarAction('+ 新增')],
+        onAction: () => this.openCreate(),
+      })
 
       if (this.showForm) {
         this.buildForm()
@@ -339,7 +323,7 @@ struct ReceivingPage {
                   .borderRadius(4)
                   .height(28)
                   .margin({ left: 8 })
-                  .onClick(() => this.deleteItem(item.id))
+                  .onClick(() => this.confirmDelete(item.id))
               }
               .width('100%')
               .padding({ left: 16, right: 16, top: 10, bottom: 10 })
