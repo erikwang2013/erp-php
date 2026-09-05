@@ -791,6 +791,7 @@ class InstallController
 
     private function htmlFooter(): string
     {
-        return "</body>\n</html>";
+        // 界面版本水印：用于区分浏览器是否加载到最新代码（升级排查用）
+        return '<div class="foot">install-ui v7 · ' . date('Y-m-d H:i') . '</div></body>\n</html>';
     }
 }
