@@ -1,0 +1,98 @@
+.home-page{
+    padding:16px;
+    min-height: calc(100vh - 90px);
+    background-color: @page-bg-grey;
+    .readme{
+        h1{
+            margin-bottom: 5px;
+        }
+    }
+    .tags-wraper{
+        height: 162px;
+        overflow: hidden;
+        overflow-y: auto;
+        .ant-tag{
+            margin-bottom: 10px;
+        }
+    }
+}
+.number-block{
+    padding-top:5px;
+    &-item{
+        background-color: @component-background;
+        border-radius: 3px;
+        padding:11px;
+        margin-bottom: 16px;
+        &:deep(.ant-card-meta-title){
+            margin-bottom: 0px;
+        }
+        .color-green{
+            background-color: @success-color;
+        }
+        .color-blue{
+            background-color: @info-color;
+        }
+        .color-orange{
+            background-color: @warning-color;
+        }
+    }
+}
+.author-list{
+    &>ul{
+        padding-left: 0;
+        &>li{
+            list-style-type:none;
+            padding-bottom: 10px;
+            border-bottom: 1px solid @input-border-color;
+            h4{
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+.method-list{
+    height: 162px;
+    overflow: hidden;
+    overflow-y: auto;
+    &>ul{
+        padding-left: 0;
+        list-style-type:none;
+        &>li{
+            
+            
+            margin-bottom: 5px;
+            border-radius: 3px;
+            position: relative;
+            height: 36px;
+            line-height: 36px;
+            
+            .name{
+                flex:1;
+                text-align: left;
+            }
+            .info{
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top:0;
+                left: 0;
+                z-index: 1;   
+                display: flex;
+                padding:0 10px;
+            }
+            .bg{
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top:0;
+                left: 0;
+                opacity: 0.3;
+            }
+        }
+    }
+}
+.footer-version{
+    text-align: center;
+    color:#999;
+}

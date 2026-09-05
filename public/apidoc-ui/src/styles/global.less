@@ -1,0 +1,147 @@
+@font-face {
+	font-family: 'Blimone';
+	src: local('Blimone'), url(../../src/assets/fonts/Blimone-Light.woff);
+  }
+  
+
+body{
+	// color: var(--text-color);
+	// h1, h2, h3, h4, h5, h6{
+	// 	color: var(--text-color);
+	// }
+	background: @page-bg;
+	
+}
+.mt{
+	margin-top: 24px;
+}
+.mt-sm{
+	margin-top: 10px;
+}
+.mb{
+	margin-bottom: 24px;
+}
+.mb-sm{
+	margin-bottom:10px!important;
+}
+.mb-xs{
+	margin-bottom:5px;
+}
+.mr{
+	margin-right: 24px;
+}
+.mr-sm{
+	margin-right: 10px;
+}
+.mr-xs{
+	margin-right: 5px;
+}
+.flex{
+	display: flex;
+	&-item{
+		flex:1;
+	}
+}
+.tl{
+	text-align: left;
+}
+.tr{
+	text-align: right;
+}
+
+.text-placeholder{
+	color: #bfbfbf;
+}
+.tags-select_popover {
+   .ant-popover-inner-content{
+      padding:5px 0;
+    }
+  }
+
+::-webkit-scrollbar-track {
+	box-shadow: none;
+	background-color: @layout-body-background;
+}
+
+::-webkit-scrollbar {
+	height: 10px !important;
+	width: 10px !important;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 0;
+	border-style: dashed;
+	background-color: @scrollbar-color;
+	border-color: transparent;
+	border-width: 1px;
+	background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background-color: @scrollbar-color;
+	box-shadow: none;
+}
+
+.select-menu {
+	max-height: 200px;
+	overflow: hidden;
+	overflow-y: auto;
+	background: @select-dropdown-bg;
+	box-shadow: 0 2px 8px @shadow-color;
+	ul,
+	li {
+	  padding: 0;
+	  margin: 0;
+	  list-style: none;
+	}
+	li {
+	  line-height: 32px;
+	  padding: 0 10px;
+	  position: relative;
+	  cursor: pointer;
+	//   color: var(--text-color);
+	  min-width: 120px;
+	  &:hover {
+		background: @select-item-selected-bg;
+	  }
+	  .tags-select_check {
+		display: none;
+		position: absolute;
+		top: 0px;
+		right: 10px;
+		color: @primary-color
+	  }
+	  &.active {
+		background: @select-item-selected-bg;
+		.tags-select_check {
+		  display: block;
+		}
+	  }
+	}
+  }
+
+.mobile{
+	.ant-select-single:not(.ant-select-customize-input) .ant-select-selector{
+		padding:0 5px;
+	}
+}
+
+.generator-modal{
+    max-width: 96%;
+}
+.ant-tabs-tab{
+	padding:12px;
+}
+.ant-page-header-heading 
+.ant-page-header-heading-title{
+	font-weight: 500;
+}
+.ant-page-header.ant-page-header-ghost{
+	padding: 16px 0px 5px 0;
+}
+
+.confirm-modal {
+    .ant-modal-footer {
+      border-top: none!important;
+    }
+  }

@@ -1,0 +1,24 @@
+
+.text-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    .text-grid-item {
+        display: flex;
+        line-height: 24px;
+        &_label {
+          width: 80px;
+          text-align: right;
+          display: inline-block;
+          &:after {
+            content: ":";
+            margin: 0 4px 0 2px;
+            position: relative;
+            top: -0.5px;
+          }
+        }
+        &_value {
+          flex: 1;
+        }
+    }
+}

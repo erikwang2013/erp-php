@@ -1,0 +1,35 @@
+.data-form{
+    &.grid{
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    .data-form-item{
+        padding:5px;
+        margin-bottom: 0px;
+        .data-form-item_title{
+            display: inline-block;
+            text-align: right;
+            line-height: 32px;
+        }
+    }
+    &:deep(.ant-form-item-label){
+        width: 90px;
+    }
+    &:deep(.ant-form-item .app-select_select){
+        width: 100%;
+    }
+    &.inline{
+        .data-form-item{
+            display: inline-block;
+            &:deep(.ant-form-item-label){
+                display: inline-block;
+                width: auto;
+                vertical-align: top;
+            }
+             &:deep(.ant-form-item-control){
+                display: inline-block;
+            }
+        }
+    }
+}
