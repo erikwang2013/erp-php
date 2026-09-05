@@ -12,7 +12,7 @@ use app\model\Product;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("商品")]
-#[\erikwang2013\apidoc\annotation\Group("客户端认证")]
+#[\erikwang2013\apidoc\annotation\Group("客户端公开")]
 
 class ProductController extends BaseController
 {
