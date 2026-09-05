@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -189,15 +190,15 @@ class _LeavePageState extends State<LeavePage> {
     AppL10n.current.commonStatus: _statusChip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       if (_pending(r))
-        IconButton(icon: const Icon(Icons.check_circle, size: 18, color: Colors.green),
+        IconButton(icon: Icon(Icons.check_circle, size: 18, color: AppColors.of(context).success),
           tooltip: AppL10n.current.hrLeaveApprove, onPressed: () => _approve(r, approve: true)),
       if (_pending(r))
-        IconButton(icon: const Icon(Icons.cancel, size: 18, color: Colors.red),
+        IconButton(icon: Icon(Icons.cancel, size: 18, color: AppColors.of(context).danger),
           tooltip: AppL10n.current.hrLeaveReject, onPressed: () => _approve(r, approve: false)),
       // 服务端仅允许修改待审批记录，故编辑入口同样按待审批展示
       if (_pending(r))
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-      IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
+      IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
   };
 
@@ -213,8 +214,8 @@ class _LeavePageState extends State<LeavePage> {
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(l10n.commonCancel)),
           ElevatedButton(
             style: approve
-                ? ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white)
-                : ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                ? ElevatedButton.styleFrom(backgroundColor: AppColors.of(ctx).success, foregroundColor: AppColors.of(ctx).textOnPrimary)
+                : ElevatedButton.styleFrom(backgroundColor: AppColors.of(ctx).danger, foregroundColor: AppColors.of(ctx).textOnPrimary),
             onPressed: () async {
               try {
                 await ApiService.instance.post('/admin/v1/hr/leave/${row['id']}/approve',
@@ -238,23 +239,25 @@ class _LeavePageState extends State<LeavePage> {
     );
   }
 
-  /// 状态 chip：颜色按后端枚举下标（0 待审批/1 已批准/2 已驳回）决定，
+  /// 状态徽标（§2.4）：颜色按后端枚举下标（0 待审批/1 已批准/2 已驳回）归类，
   /// 文案经 _statusText 走当前语言，避免对翻译后文案做字符串比较。
   Widget _statusChip(dynamic s) {
     final i = s is int ? s : int.tryParse('$s') ?? -1;
-    final color = switch (i) {
-      0 => Colors.orange,
-      1 => Colors.green,
-      2 => Colors.red,
-      _ => Colors.blue,
+    final c = AppColors.of(context);
+    // §2.4: 0待审批=待办(warning)，1已批准=终态(success)，2已驳回=失败(danger)
+    final (bg, fg) = switch (i) {
+      0 => (c.warningBg, c.warningText),
+      1 => (c.successBg, c.successText),
+      2 => (c.dangerBg, c.dangerText),
+      _ => (c.primaryBg, c.primaryPressed),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(_statusText(s), style: TextStyle(color: color, fontSize: 12)),
+      child: Text(_statusText(s), style: TextStyle(color: fg, fontSize: 12)),
     );
   }
 }
