@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace app\controller;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\common\SnowflakeService;
 use support\Log;
 use support\Request;

@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace app\controller\manufacturing;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\admin\controller\BaseController;
 use app\model\MfgSubcontract;
 use app\model\MfgSubcontractReceive;

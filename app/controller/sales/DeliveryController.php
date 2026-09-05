@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace app\controller\sales;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\admin\controller\BaseController;
 use app\model\SalesDelivery;
 use app\model\SalesDeliveryItem;

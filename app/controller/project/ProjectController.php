@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace app\controller\project;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\admin\controller\BaseController;
 use app\model\Project;
 use app\model\ProjectTask;

@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace app\controller\print;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\admin\controller\BaseController;
 use app\service\print\PrintTemplateService;
 use InvalidArgumentException;

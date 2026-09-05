@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace app\api\v1\controller;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use support\Log;
 use support\Request;
 use support\Response;

@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace app\controller\purchase;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\admin\controller\BaseController;
 use app\model\PurchaseRfq;
 use app\model\PurchaseRfqItem;

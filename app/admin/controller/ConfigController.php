@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\model\SystemConfig;
 use support\Request;
 use support\Response;

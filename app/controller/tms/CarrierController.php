@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace app\controller\tms;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\admin\controller\BaseController;
 use app\model\TmsCarrier;
 use support\Request;

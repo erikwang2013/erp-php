@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\common\EncryptionService;
 use app\model\AdminRole;
 use app\model\AdminUser;

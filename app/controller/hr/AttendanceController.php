@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace app\controller\hr;
 
+use erikwang2013\apidoc\annotation as Apidoc;
+
 use app\admin\controller\BaseController;
 use app\model\HrAttendance;
 use app\model\HrEmployee;
