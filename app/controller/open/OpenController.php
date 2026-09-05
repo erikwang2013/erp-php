@@ -35,7 +35,17 @@ class OpenController
      *     @Apidoc\Returned("service", type="string", desc="服务标识 erp-open-api"),
      *     @Apidoc\Returned("time", type="string", desc="服务器当前时间 Y-m-d H:i:s"),
      * })
-     */
+     */#[Apidoc\Title("公开连通性检查")]
+#[Apidoc\Desc("无需 API Key 的公开接口，返回服务标识与当前时间，用于连通性检查")]
+#[Apidoc\Url("/open/v1/ping")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("开放接口")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("service", type:"string", desc:"服务标识 erp-open-api")]
+#[Apidoc\Returned("time", type:"string", desc:"服务器当前时间 Y-m-d H:i:s")]
+
     public function ping(): Response
     {
         return json([
@@ -66,7 +76,20 @@ class OpenController
      *     @Apidoc\Returned("status", type="int", desc="状态,0=禁用,1=启用"),
      *     @Apidoc\Returned("created_at", type="string", desc="创建时间"),
      * })
-     */
+     */#[Apidoc\Title("读取应用自身信息")]
+#[Apidoc\Desc("URL 中的 id 必须与请求方应用一致(原始数字ID,非hashid)，仅返回非敏感字段")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("开放接口")]
+#[Apidoc\Param(name:"id", type:"int", require:true, desc:"应用ID(原始数字ID,需与请求方应用一致)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("app_name", type:"string", desc:"应用名称")]
+#[Apidoc\Returned("app_key", type:"string", desc:"应用标识(ak_前缀)")]
+#[Apidoc\Returned("scopes", type:"array", desc:"授权范围路径前缀数组")]
+#[Apidoc\Returned("status", type:"int", desc:"状态,0=禁用,1=启用")]
+#[Apidoc\Returned("created_at", type:"string", desc:"创建时间")]
+
     public function apps(Request $request, string $id): Response
     {
         $app = $request->openapiApp;

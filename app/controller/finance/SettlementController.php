@@ -33,7 +33,18 @@ class SettlementController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("核销记录列表")]
+#[Apidoc\Desc("分页查询核销记录")]
+#[Apidoc\Url("/admin/v1/finance/settlement")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("财务管理")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -62,7 +73,19 @@ class SettlementController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建核销记录")]
+#[Apidoc\Desc("按应收应付类型走收款/付款核销，超出未核销余额将拒绝")]
+#[Apidoc\Url("/admin/v1/finance/settlement")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("财务管理")]
+#[Apidoc\Param(name:"ar_ap_id", type:"int", desc:"应收应付ID，必填")]
+#[Apidoc\Param(name:"receipt_payment_id", type:"int", desc:"收付款ID，必填")]
+#[Apidoc\Param(name:"amount", type:"float", desc:"核销金额，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['ar_ap_id' => 'required|integer', 'receipt_payment_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
@@ -108,7 +131,16 @@ class SettlementController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("核销记录详情")]
+#[Apidoc\Desc("查看核销记录详细信息")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("财务管理")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);

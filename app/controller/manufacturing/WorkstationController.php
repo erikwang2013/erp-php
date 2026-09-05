@@ -19,7 +19,8 @@ use support\Response;
 /**
  * 工作站管理
   * @Apidoc\Tag("生产制造")
- */
+ */#[Apidoc\Tag("生产制造")]
+
 class WorkstationController extends BaseController
 {
     /**
@@ -35,7 +36,18 @@ class WorkstationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("工作站列表")]
+#[Apidoc\Desc("查询工作站记录")]
+#[Apidoc\Url("/admin/v1/mfg/workstation")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"keyword", type:"string", desc:"关键词")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $keyword = $request->input('keyword', '');
@@ -68,7 +80,18 @@ class WorkstationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建工作站")]
+#[Apidoc\Desc("新增工作站记录")]
+#[Apidoc\Url("/admin/v1/mfg/workstation")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"code", type:"string", desc:"工作站编码，必填")]
+#[Apidoc\Param(name:"name", type:"string", desc:"工作站名称，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -96,7 +119,16 @@ class WorkstationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("工作站详情")]
+#[Apidoc\Desc("查看工作站详细信息")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"工作站ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -120,7 +152,16 @@ class WorkstationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新工作站")]
+#[Apidoc\Desc("修改工作站信息")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"工作站ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -145,7 +186,17 @@ class WorkstationController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除工作站")]
+#[Apidoc\Desc("删除工作站记录，需密码确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"工作站ID")]
+#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);

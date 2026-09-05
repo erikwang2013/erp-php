@@ -34,7 +34,15 @@ class CustomFieldController extends BaseController
      * @Apidoc\Tag("低代码")
      * @Apidoc\Param(name="entity_type", type="string", desc="实体类型，空=全部")
      * @Apidoc\Param(name="status", type="int", desc="1=仅启用")
-     */
+     */#[Apidoc\Title("自定义字段定义列表")]
+#[Apidoc\Desc("按实体类型与启用状态查询字段定义")]
+#[Apidoc\Url("/admin/v1/platform/custom-field")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("低代码")]
+#[Apidoc\Param(name:"entity_type", type:"string", desc:"实体类型，空=全部")]
+#[Apidoc\Param(name:"status", type:"int", desc:"1=仅启用")]
+
     public function list(Request $request): Response
     {
         $result = $this->customField()->list(
@@ -56,7 +64,13 @@ class CustomFieldController extends BaseController
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("低代码")
-     */
+     */#[Apidoc\Title("新建自定义字段定义")]
+#[Apidoc\Desc("entity_type/field_key 白名单；同实体同 key 唯一")]
+#[Apidoc\Url("/admin/v1/platform/custom-field")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("低代码")]
+
     public function create(Request $request): Response
     {
         try {
@@ -78,7 +92,11 @@ class CustomFieldController extends BaseController
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("低代码")
-     */
+     */#[Apidoc\Title("更新自定义字段定义")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("低代码")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -101,7 +119,11 @@ class CustomFieldController extends BaseController
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("低代码")
-     */
+     */#[Apidoc\Title("删除自定义字段定义")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("低代码")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -121,7 +143,13 @@ class CustomFieldController extends BaseController
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("低代码")
-     */
+     */#[Apidoc\Title("校验实体自定义字段值")]
+#[Apidoc\Desc("单据保存前调用：按启用定义校验并返回归一化值；未知 key 宽容忽略")]
+#[Apidoc\Url("/admin/v1/platform/custom-field/validate")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("低代码")]
+
     public function validate(Request $request): Response
     {
         $entityType = (string) $request->input('entity_type', '');
@@ -146,7 +174,13 @@ class CustomFieldController extends BaseController
      * @Apidoc\Method("POST")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("低代码")
-     */
+     */#[Apidoc\Title("实体自定义字段动态表单")]
+#[Apidoc\Desc("返回实体全部启用定义 + 既有值合并，供前端渲染")]
+#[Apidoc\Url("/admin/v1/platform/custom-field/schema")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("低代码")]
+
     public function schema(Request $request): Response
     {
         $entityType = (string) $request->input('entity_type', '');

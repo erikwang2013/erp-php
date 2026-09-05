@@ -38,7 +38,20 @@ class OpenApiController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="分页列表(list/total/page/limit)")
-     */
+     */#[Apidoc\Title("开放平台应用列表")]
+#[Apidoc\Desc("分页查询开放平台应用，支持按应用名称/app_key关键字与状态筛选")]
+#[Apidoc\Url("/admin/v1/openapi/app")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("开放平台")]
+#[Apidoc\Param(name:"page", type:"int", default:"1", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", default:"10", desc:"每页数量")]
+#[Apidoc\Param(name:"keyword", type:"string", desc:"应用名称或app_key关键字")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态,0=禁用,1=启用")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"分页列表(list/total/page/limit)")]
+
     public function index(Request $request): Response
     {
         $page = max((int) $request->get('page', 1), 1);
@@ -81,7 +94,16 @@ class OpenApiController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="应用详情(hashid)")
-     */
+     */#[Apidoc\Title("开放平台应用详情")]
+#[Apidoc\Desc("查看应用详情(app_secret 不参与回显)")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("开放平台")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"应用ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"应用详情(hashid)")]
+
     public function show(Request $request, string $id): Response
     {
         $app = OpenApiApp::find($this->decodeId($id));
@@ -106,7 +128,19 @@ class OpenApiController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="id(hashid)/app_key/app_secret(仅一次展示)")
-     */
+     */#[Apidoc\Title("创建开放平台应用")]
+#[Apidoc\Desc("创建应用并生成 app_key/app_secret，app_secret 仅此一次明文返回，请立即保存")]
+#[Apidoc\Url("/admin/v1/openapi/app")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("开放平台")]
+#[Apidoc\Param(name:"app_name", type:"string", require:true, desc:"应用名称(≤100字符)")]
+#[Apidoc\Param(name:"scopes", type:"array", desc:"授权范围(以/开头的路径前缀数组,缺省=不限制)")]
+#[Apidoc\Param(name:"status", type:"int", default:"1", desc:"状态,0=禁用,1=启用")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"id(hashid)/app_key/app_secret(仅一次展示)")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -158,7 +192,19 @@ class OpenApiController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后应用详情(hashid)")
-     */
+     */#[Apidoc\Title("更新开放平台应用")]
+#[Apidoc\Desc("更新应用名称/授权范围/状态，不改动密钥")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("开放平台")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"应用ID(hashid)")]
+#[Apidoc\Param(name:"app_name", type:"string", require:true, desc:"应用名称(≤100字符)")]
+#[Apidoc\Param(name:"scopes", type:"array", desc:"授权范围(以/开头的路径前缀数组)")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态,0=禁用,1=启用")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"更新后应用详情(hashid)")]
+
     public function update(Request $request, string $id): Response
     {
         $app = OpenApiApp::find($this->decodeId($id));
@@ -204,7 +250,17 @@ class OpenApiController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */
+     */#[Apidoc\Title("删除开放平台应用")]
+#[Apidoc\Desc("软删除应用，同时停用其名下所有 Webhook 订阅，需二次密码确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("开放平台")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"应用ID(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", require:true, desc:"操作密码(二次确认)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+
     public function destroy(Request $request, string $id): Response
     {
         $error = $this->confirmPassword((int) ($request->adminId ?? 0), (string) $request->input('password', ''), $request);
@@ -236,7 +292,17 @@ class OpenApiController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="id(hashid)/app_secret(仅一次展示)")
-     */
+     */#[Apidoc\Title("重置应用密钥")]
+#[Apidoc\Desc("原密钥即刻作废，新 app_secret 仅此一次明文返回，请立即保存，需二次密码确认")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("开放平台")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"应用ID(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", require:true, desc:"操作密码(二次确认)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"id(hashid)/app_secret(仅一次展示)")]
+
     public function resetSecret(Request $request, string $id): Response
     {
         $error = $this->confirmPassword((int) ($request->adminId ?? 0), (string) $request->input('password', ''), $request);
@@ -272,7 +338,16 @@ class OpenApiController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="id(hashid)/status(切换后状态)")
-     */
+     */#[Apidoc\Title("启用/禁用应用")]
+#[Apidoc\Desc("切换应用启用状态")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("开放平台")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"应用ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"id(hashid)/status(切换后状态)")]
+
     public function toggleStatus(Request $request, string $id): Response
     {
         $app = OpenApiApp::find($this->decodeId($id));

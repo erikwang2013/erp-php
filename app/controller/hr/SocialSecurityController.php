@@ -37,7 +37,19 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("社保规则列表")]
+#[Apidoc\Desc("城市等值过滤；每条规则附 rates 比例行")]
+#[Apidoc\Url("/admin/v1/hr/social-rule")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Param(name:"city", type:"string", desc:"城市等值过滤")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function ruleList(Request $request): Response
     {
         $result = $this->social()->listRules(
@@ -62,7 +74,16 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("社保规则详情")]
+#[Apidoc\Desc("含全部 rates 比例行")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"id", type:"string", desc:"规则ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function ruleShow(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -90,7 +111,20 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建社保规则")]
+#[Apidoc\Desc("city+rule_name 唯一；可随建随传初始 rates；0.00 表示该方向不设限")]
+#[Apidoc\Url("/admin/v1/hr/social-rule")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"city", type:"string", desc:"城市，必填")]
+#[Apidoc\Param(name:"rule_name", type:"string", desc:"规则名称，必填")]
+#[Apidoc\Param(name:"social_base_min", type:"string", desc:"缴费基数下限，最多两位小数")]
+#[Apidoc\Param(name:"social_base_max", type:"string", desc:"缴费基数上限，最多两位小数")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function createRule(Request $request): Response
     {
         $rates = $request->input('rates', []);
@@ -122,7 +156,20 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新社保规则")]
+#[Apidoc\Desc("仅更新头部字段；比例行走 setRate/removeRate")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"id", type:"string", desc:"规则ID")]
+#[Apidoc\Param(name:"city", type:"string", desc:"城市")]
+#[Apidoc\Param(name:"rule_name", type:"string", desc:"规则名称")]
+#[Apidoc\Param(name:"social_base_min", type:"string", desc:"缴费基数下限")]
+#[Apidoc\Param(name:"social_base_max", type:"string", desc:"缴费基数上限")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function updateRule(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -147,7 +194,16 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除社保规则")]
+#[Apidoc\Desc("有员工绑定则拒绝删除；级联清比例行")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"id", type:"string", desc:"规则ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function destroyRule(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -175,7 +231,19 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("设置险种比例")]
+#[Apidoc\Desc("行级 upsert：已存在则覆盖；比例 0.00 = 无该方缴费（行保留）")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"id", type:"string", desc:"规则ID")]
+#[Apidoc\Param(name:"insurance_type", type:"string", desc:"险种:pension养老/medical医疗/unemployment失业/injury工伤/maternity生育/housing公积金")]
+#[Apidoc\Param(name:"personal_rate", type:"string", desc:"个人比例 0~100，最多两位小数")]
+#[Apidoc\Param(name:"company_rate", type:"string", desc:"公司比例 0~100，最多两位小数")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function setRate(Request $request, string $id): Response
     {
         $ruleId = $this->decodeId($id);
@@ -206,7 +274,17 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除险种比例")]
+#[Apidoc\Desc("仅删除指定险种比例行")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"id", type:"string", desc:"规则ID")]
+#[Apidoc\Param(name:"insurance_type", type:"string", desc:"险种:pension/medical/unemployment/injury/maternity/housing")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function removeRate(Request $request, string $id): Response
     {
         $ruleId = $this->decodeId($id);
@@ -233,7 +311,19 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("绑定员工社保")]
+#[Apidoc\Desc("一员工一条；base_amount:0 自动按下限计费；显式基数须落在规则上下限内")]
+#[Apidoc\Url("/admin/v1/hr/employee-social")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"employee_id", type:"int", desc:"员工ID，必填")]
+#[Apidoc\Param(name:"rule_id", type:"int", desc:"规则ID，必填")]
+#[Apidoc\Param(name:"base_amount", type:"string", desc:"缴费基数，最多两位小数，0=自动按下限")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function bind(Request $request): Response
     {
         try {
@@ -261,7 +351,17 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("解绑员工社保")]
+#[Apidoc\Desc("换城市/换年度须先解绑再绑定")]
+#[Apidoc\Url("/admin/v1/hr/employee-social")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"employee_id", type:"int", desc:"员工ID，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function unbind(Request $request): Response
     {
         try {
@@ -285,7 +385,16 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("员工社保详情")]
+#[Apidoc\Desc("绑定行 + 规则 + 规则全部比例")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"id", type:"string", desc:"员工ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function employeeSocialDetail(Request $request, string $id): Response
     {
         $employeeId = $this->decodeId($id);
@@ -309,7 +418,16 @@ class SocialSecurityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="base_amount/base_source/notes/items/personal_total/company_total")
-     */
+     */#[Apidoc\Title("员工社保计算")]
+#[Apidoc\Desc("工资条/自助查询共用，只读不改数据；未绑定返回 422")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("人力资源")]
+#[Apidoc\Param(name:"id", type:"string", desc:"员工ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"base_amount/base_source/notes/items/personal_total/company_total")]
+
     public function calculate(Request $request, string $id): Response
     {
         $employeeId = $this->decodeId($id);

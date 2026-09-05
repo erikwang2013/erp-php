@@ -27,7 +27,8 @@ use support\Response;
  * 状态机：0草稿 → 1已审核。审核时按委外单加工单价快照入库并联动委外单
  * （见 SubcontractService::auditReceive；收满自动核销委外单）。
  * @Apidoc\Tag("生产制造")
- */
+ */#[Apidoc\Tag("生产制造")]
+
 class SubcontractReceiveController extends BaseController
 {
     /**
@@ -43,7 +44,18 @@ class SubcontractReceiveController extends BaseController
      * @Apidoc\Param(name="subcontract_id", type="int", desc="委外订单ID")
      * @Apidoc\Param(name="status", type="int", desc="状态 0草稿 1已审核")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */
+     */#[Apidoc\Title("委外收料单列表")]
+#[Apidoc\Url("/admin/v1/mfg/subcontract-receive")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Param(name:"keyword", type:"string", desc:"单号模糊搜索")]
+#[Apidoc\Param(name:"subcontract_id", type:"int", desc:"委外订单ID")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态 0草稿 1已审核")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -77,7 +89,19 @@ class SubcontractReceiveController extends BaseController
      * @Apidoc\Param(name="quantity", type="number", desc="收料数量，必填，>0")
      * @Apidoc\Param(name="remark", type="string", desc="备注")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */
+     */#[Apidoc\Title("创建委外收料单")]
+#[Apidoc\Url("/admin/v1/mfg/subcontract-receive")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"code", type:"string", desc:"收料单号，必填，唯一")]
+#[Apidoc\Param(name:"subcontract_id", type:"int", desc:"委外订单ID，必填")]
+#[Apidoc\Param(name:"warehouse_id", type:"int", desc:"收料仓库ID，可空，缺省取委外单仓库")]
+#[Apidoc\Param(name:"receive_date", type:"string", desc:"收料日期，可空")]
+#[Apidoc\Param(name:"quantity", type:"number", desc:"收料数量，必填，>0")]
+#[Apidoc\Param(name:"remark", type:"string", desc:"备注")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -134,7 +158,13 @@ class SubcontractReceiveController extends BaseController
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="收料单ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */
+     */#[Apidoc\Title("委外收料单详情")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"收料单ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -159,7 +189,13 @@ class SubcontractReceiveController extends BaseController
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="收料单ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */
+     */#[Apidoc\Title("更新委外收料单")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"收料单ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -199,7 +235,14 @@ class SubcontractReceiveController extends BaseController
      * @Apidoc\Param(name="id", type="string", desc="收料单ID")
      * @Apidoc\Param(name="password", type="string", desc="管理员密码")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */
+     */#[Apidoc\Title("删除委外收料单")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"收料单ID")]
+#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -230,7 +273,13 @@ class SubcontractReceiveController extends BaseController
      * @Apidoc\Tag("生产制造")
      * @Apidoc\Param(name="id", type="string", desc="收料单ID")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */
+     */#[Apidoc\Title("审核委外收料单")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"收料单ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+
     public function audit(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);

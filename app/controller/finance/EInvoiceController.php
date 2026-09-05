@@ -23,7 +23,8 @@ use support\Response;
  * 本控制器只做参数搬运与统一响应；业务错误 422、发票不存在 404。
  * 平台为适配器注入（默认 mock），切换真实开票通道不涉及本控制器。
  * @Apidoc\Tag("财务管理")
- */
+ */#[Apidoc\Tag("财务管理")]
+
 class EInvoiceController extends BaseController
 {
     /**
@@ -34,7 +35,12 @@ class EInvoiceController extends BaseController
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
      * @Apidoc\Param(name="id", type="string", required=true, desc="发票ID(hashid，须应收且已审核)")
-     */
+     */#[Apidoc\Title("开具数电票")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("财务管理")]
+#[Apidoc\Param(name:"id", type:"string", required:true, desc:"发票ID(hashid，须应收且已审核)")]
+
     public function issue(Request $request, string $id): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -66,7 +72,13 @@ class EInvoiceController extends BaseController
      * @Apidoc\Tag("财务管理")
      * @Apidoc\Param(name="id", type="string", required=true, desc="发票ID(hashid)")
      * @Apidoc\Param(name="reason", type="string", required=true, desc="红冲原因")
-     */
+     */#[Apidoc\Title("数电票红冲")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("财务管理")]
+#[Apidoc\Param(name:"id", type:"string", required:true, desc:"发票ID(hashid)")]
+#[Apidoc\Param(name:"reason", type:"string", required:true, desc:"红冲原因")]
+
     public function void(Request $request, string $id): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -96,7 +108,12 @@ class EInvoiceController extends BaseController
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("财务管理")
      * @Apidoc\Param(name="id", type="string", required=true, desc="发票ID(hashid)")
-     */
+     */#[Apidoc\Title("数电票操作日志")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("财务管理")]
+#[Apidoc\Param(name:"id", type:"string", required:true, desc:"发票ID(hashid)")]
+
     public function logs(Request $request, string $id): Response
     {
         $invoiceId = $this->decodeId($id);

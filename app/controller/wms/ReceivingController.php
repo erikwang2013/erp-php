@@ -33,7 +33,20 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("收货单列表")]
+#[Apidoc\Desc("获取收货单列表，支持分页、编码搜索和状态筛选")]
+#[Apidoc\Url("/admin/v1/wms/receiving")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（编码）")]
+#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -72,7 +85,17 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建收货单")]
+#[Apidoc\Desc("创建收货单，编码必填（缺省自动生成）")]
+#[Apidoc\Url("/admin/v1/wms/receiving")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"code", type:"string", desc:"收货单编码，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['code' => 'required|string|max:200']);
@@ -103,7 +126,16 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("收货单详情")]
+#[Apidoc\Desc("按 ID 获取收货单详情")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -130,7 +162,16 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新收货单")]
+#[Apidoc\Desc("按 ID 更新收货单信息")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -161,7 +202,17 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除收货单")]
+#[Apidoc\Desc("按 ID 删除收货单，需操作密码二次确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", desc:"操作密码（二次确认）")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -195,7 +246,17 @@ class ReceivingController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据（生成的上架任务）")
-     */
+     */#[Apidoc\Title("完成收货")]
+#[Apidoc\Desc("提交实收明细完成收货，并自动生成上架任务")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"收货单ID(hashid)")]
+#[Apidoc\Param(name:"items", type:"array", desc:"收货明细（实收数量等），必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据（生成的上架任务）")]
+
     public function complete(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);

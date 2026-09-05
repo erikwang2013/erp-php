@@ -32,7 +32,20 @@ class FreightInvoiceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("运费发票列表")]
+#[Apidoc\Desc("获取运费发票列表，支持分页、编码搜索和状态筛选")]
+#[Apidoc\Url("/admin/v1/tms/freight-invoice")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（编码）")]
+#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -71,7 +84,17 @@ class FreightInvoiceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建运费发票")]
+#[Apidoc\Desc("创建运费发票，编码必填（缺省自动生成）")]
+#[Apidoc\Url("/admin/v1/tms/freight-invoice")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"code", type:"string", desc:"发票编码，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['code' => 'required|string|max:200']);
@@ -102,7 +125,16 @@ class FreightInvoiceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("运费发票详情")]
+#[Apidoc\Desc("按 ID 获取运费发票详情")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -129,7 +161,16 @@ class FreightInvoiceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新运费发票")]
+#[Apidoc\Desc("按 ID 更新运费发票信息")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -160,7 +201,17 @@ class FreightInvoiceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除运费发票")]
+#[Apidoc\Desc("按 ID 删除运费发票，需操作密码二次确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", desc:"操作密码（二次确认）")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -193,7 +244,16 @@ class FreightInvoiceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("确认运费发票")]
+#[Apidoc\Desc("确认运费发票，状态置为已确认(1)")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"发票ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function confirm(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -222,7 +282,16 @@ class FreightInvoiceController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("支付运费发票")]
+#[Apidoc\Desc("支付运费发票，需先确认(状态1)，支付后状态置为已支付(2)")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"发票ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function pay(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);

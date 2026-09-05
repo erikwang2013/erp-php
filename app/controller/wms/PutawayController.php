@@ -33,7 +33,20 @@ class PutawayController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("上架任务列表")]
+#[Apidoc\Desc("获取上架任务列表，支持分页、编码搜索和状态筛选")]
+#[Apidoc\Url("/admin/v1/wms/putaway")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（编码）")]
+#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -72,7 +85,17 @@ class PutawayController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建上架任务")]
+#[Apidoc\Desc("创建上架任务，编码必填（缺省自动生成）")]
+#[Apidoc\Url("/admin/v1/wms/putaway")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"code", type:"string", desc:"上架任务编码，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['code' => 'required|string|max:200']);
@@ -103,7 +126,16 @@ class PutawayController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("上架任务详情")]
+#[Apidoc\Desc("按 ID 获取上架任务详情")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -130,7 +162,16 @@ class PutawayController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新上架任务")]
+#[Apidoc\Desc("按 ID 更新上架任务信息")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -161,7 +202,17 @@ class PutawayController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除上架任务")]
+#[Apidoc\Desc("按 ID 删除上架任务，需操作密码二次确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", desc:"操作密码（二次确认）")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -194,7 +245,16 @@ class PutawayController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("开始上架")]
+#[Apidoc\Desc("开始执行指定上架任务")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"上架任务ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function start(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -226,7 +286,16 @@ class PutawayController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("确认上架")]
+#[Apidoc\Desc("确认上架完成，触发库存入库更新")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("仓储管理(WMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"上架任务ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function complete(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);

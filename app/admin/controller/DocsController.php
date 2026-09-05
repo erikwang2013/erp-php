@@ -16,7 +16,8 @@ use support\Response;
 /**
  * OpenAPI 3.0 文档端点
  * @Apidoc\Tag("API文档")
- */
+ */#[Apidoc\Tag("API文档")]
+
 class DocsController
 {
     /**
@@ -30,7 +31,16 @@ class DocsController
      * @Apidoc\Returned("openapi", type="string", desc="OpenAPI版本号")
      * @Apidoc\Returned("info", type="object", desc="API基本信息")
      * @Apidoc\Returned("paths", type="object", desc="接口路径定义")
-     */
+     */#[Apidoc\Title("OpenAPI规范文档")]
+#[Apidoc\Desc("返回 OpenAPI 3.0.3 格式的JSON规范文档，包含所有管理端和客户端接口定义")]
+#[Apidoc\Url("/api/docs")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("API文档")]
+#[Apidoc\Returned("openapi", type:"string", desc:"OpenAPI版本号")]
+#[Apidoc\Returned("info", type:"object", desc:"API基本信息")]
+#[Apidoc\Returned("paths", type:"object", desc:"接口路径定义")]
+
     public function index(Request $request): Response
     {
         return json($this->buildSpec());

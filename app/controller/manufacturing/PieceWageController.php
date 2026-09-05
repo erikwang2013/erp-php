@@ -22,7 +22,8 @@ use support\Response;
  * 数据由报工审核自动写入（WorkReportService::audit → PieceWageService::accumulate），
  * HR 薪资批量生成（HrService::batchGenerateSalaries）按员工+期间并入。
  * @Apidoc\Tag("生产制造")
- */
+ */#[Apidoc\Tag("生产制造")]
+
 class PieceWageController extends BaseController
 {
     /**
@@ -38,7 +39,18 @@ class PieceWageController extends BaseController
      * @Apidoc\Param(name="period_year", type="int", desc="归集年份，如 2026")
      * @Apidoc\Param(name="period_month", type="int", desc="归集月份 1-12")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */
+     */#[Apidoc\Title("计件工资台账")]
+#[Apidoc\Url("/admin/v1/mfg/piece-wage")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Param(name:"employee_id", type:"int", desc:"员工ID")]
+#[Apidoc\Param(name:"period_year", type:"int", desc:"归集年份，如 2026")]
+#[Apidoc\Param(name:"period_month", type:"int", desc:"归集月份 1-12")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);

@@ -20,7 +20,8 @@ use support\Response;
 /**
  * MRP计划管理 — 计划生成 + 列表
   * @Apidoc\Tag("生产制造")
- */
+ */#[Apidoc\Tag("生产制造")]
+
 class MrpController extends BaseController
 {
     /**
@@ -39,7 +40,21 @@ class MrpController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("MRP计划列表")]
+#[Apidoc\Desc("分页查询MRP计划记录")]
+#[Apidoc\Url("/admin/v1/mfg/mrp")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Param(name:"period_year", type:"int", desc:"计划年度")]
+#[Apidoc\Param(name:"period_month", type:"int", desc:"计划月份")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -75,7 +90,19 @@ class MrpController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建MRP计划")]
+#[Apidoc\Desc("新增MRP计划头记录")]
+#[Apidoc\Url("/admin/v1/mfg/mrp")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"code", type:"string", desc:"计划编码，必填")]
+#[Apidoc\Param(name:"period_year", type:"int", desc:"计划年度，必填")]
+#[Apidoc\Param(name:"period_month", type:"int", desc:"计划月份，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -104,7 +131,16 @@ class MrpController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("MRP计划详情")]
+#[Apidoc\Desc("查看MRP计划详细信息，含明细")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"计划ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -133,7 +169,16 @@ class MrpController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新MRP计划")]
+#[Apidoc\Desc("修改MRP计划，已确认不可修改")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"计划ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -163,7 +208,17 @@ class MrpController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除MRP计划")]
+#[Apidoc\Desc("删除MRP计划，连明细一起删除，需密码确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"计划ID")]
+#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -195,7 +250,16 @@ class MrpController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("生成MRP明细")]
+#[Apidoc\Desc("基于各产品BOM与库存计算净需求，生成MRP计划明细")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"id", type:"string", desc:"计划ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function generate(Request $request, string $id): Response
     {
         $planId = $this->decodeId($id);

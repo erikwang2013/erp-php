@@ -35,7 +35,11 @@ class SupplierAssessmentController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/supplier-assessment")
      * @Apidoc\Method("GET")
      * @Apidoc\Tag("寻源采购")
-     */
+     */#[Apidoc\Title("供应商评分列表")]
+#[Apidoc\Url("/admin/v1/purchase/supplier-assessment")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Tag("寻源采购")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -65,7 +69,12 @@ class SupplierAssessmentController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/supplier-assessment")
      * @Apidoc\Method("POST")
      * @Apidoc\Tag("寻源采购")
-     */
+     */#[Apidoc\Title("新增供应商评分")]
+#[Apidoc\Desc("total_score 0-100；等级规则 A ≥ 90 / B ≥ 70 / C；dimensions 为评估维度 JSON")]
+#[Apidoc\Url("/admin/v1/purchase/supplier-assessment")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Tag("寻源采购")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -96,7 +105,10 @@ class SupplierAssessmentController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/supplier-assessment/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Tag("寻源采购")
-     */
+     */#[Apidoc\Title("评分详情")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Tag("寻源采购")]
+
     public function show(Request $request, string $id): Response
     {
         $assessment = SupplierAssessment::find($this->decodeId($id));
@@ -113,7 +125,10 @@ class SupplierAssessmentController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/supplier-assessment/{id}")
      * @Apidoc\Method("PUT")
      * @Apidoc\Tag("寻源采购")
-     */
+     */#[Apidoc\Title("更新评分")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Tag("寻源采购")]
+
     public function update(Request $request, string $id): Response
     {
         $assessment = SupplierAssessment::find($this->decodeId($id));
@@ -149,7 +164,10 @@ class SupplierAssessmentController extends BaseController
      * @Apidoc\Url("/admin/v1/purchase/supplier-assessment/{id}")
      * @Apidoc\Method("DELETE")
      * @Apidoc\Tag("寻源采购")
-     */
+     */#[Apidoc\Title("删除评分")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Tag("寻源采购")]
+
     public function destroy(Request $request, string $id): Response
     {
         $assessment = SupplierAssessment::find($this->decodeId($id));

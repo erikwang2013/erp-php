@@ -39,7 +39,24 @@ class TicketController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("服务工单列表")]
+#[Apidoc\Desc("分页查询服务工单记录")]
+#[Apidoc\Url("/admin/v1/crm/ticket")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Param(name:"keyword", type:"string", desc:"关键词")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态")]
+#[Apidoc\Param(name:"priority", type:"int", desc:"优先级")]
+#[Apidoc\Param(name:"category", type:"string", desc:"工单分类")]
+#[Apidoc\Param(name:"customer_id", type:"int", desc:"客户ID")]
+#[Apidoc\Param(name:"assignee_user_id", type:"int", desc:"指派人ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -82,7 +99,18 @@ class TicketController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建服务工单")]
+#[Apidoc\Desc("新增服务工单记录")]
+#[Apidoc\Url("/admin/v1/crm/ticket")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"title", type:"string", desc:"工单标题，必填")]
+#[Apidoc\Param(name:"customer_id", type:"int", desc:"客户ID，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -110,7 +138,16 @@ class TicketController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("服务工单详情")]
+#[Apidoc\Desc("查看服务工单详细信息，含回复列表")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"id", type:"string", desc:"工单ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -139,7 +176,16 @@ class TicketController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新服务工单")]
+#[Apidoc\Desc("修改服务工单信息")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"id", type:"string", desc:"工单ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -164,7 +210,17 @@ class TicketController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除服务工单")]
+#[Apidoc\Desc("删除服务工单，连回复记录一起删除，需密码确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"id", type:"string", desc:"工单ID")]
+#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -197,7 +253,17 @@ class TicketController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("指派工单")]
+#[Apidoc\Desc("将工单指派给指定处理人")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"id", type:"string", desc:"工单ID")]
+#[Apidoc\Param(name:"assignee_user_id", type:"int", desc:"指派人用户ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function assign(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -228,7 +294,17 @@ class TicketController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("解决工单")]
+#[Apidoc\Desc("将工单标记为已解决，可附带解决回复")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"id", type:"string", desc:"工单ID")]
+#[Apidoc\Param(name:"content", type:"string", desc:"解决说明")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function resolve(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -260,7 +336,18 @@ class TicketController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("添加工单回复")]
+#[Apidoc\Desc("为工单添加回复记录")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"id", type:"string", desc:"工单ID")]
+#[Apidoc\Param(name:"content", type:"string", desc:"回复内容，必填")]
+#[Apidoc\Param(name:"is_internal", type:"int", desc:"是否内部备注:0=公开1=内部")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function reply(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);

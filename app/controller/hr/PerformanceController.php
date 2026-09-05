@@ -27,7 +27,8 @@ use support\Response;
  * 行主键 id 经 hashid 出入；跨表外键（template_id/employee_id/plan_id 等）为原始整数。
  * 统一返回 {code,message,data}；Tag 见类注解。
  * @Apidoc\Tag("人力资源")
- */
+ */#[Apidoc\Tag("人力资源")]
+
 class PerformanceController extends BaseController
 {
     // ---------- KPI 模板（erp_hr_kpi_template） ----------
@@ -39,7 +40,13 @@ class PerformanceController extends BaseController
      * @Apidoc\Param(name="status", type="int", desc="状态:0草稿1启用")
      * @Apidoc\Param(name="name", type="string", desc="模板名称（等值）")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("模板列表")]
+#[Apidoc\Url("/admin/v1/hr/perf/template")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态:0草稿1启用")]
+#[Apidoc\Param(name:"name", type:"string", desc:"模板名称（等值）")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function templateIndex(Request $request): Response
     {
         $result = $this->perf()->list(HrKpiTemplate::class, [
@@ -63,7 +70,13 @@ class PerformanceController extends BaseController
      * @Apidoc\Param(name="period_type", type="string", desc="周期类型:monthly/quarterly/yearly，默认monthly")
      * @Apidoc\Param(name="items", type="array", desc="指标项[{indicator,weight,target_value?,rater_type,sort?}]，可选")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("新建模板")]
+#[Apidoc\Url("/admin/v1/hr/perf/template")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Param(name:"name", type:"string", desc:"模板名称，必填")]
+#[Apidoc\Param(name:"period_type", type:"string", desc:"周期类型:monthly/quarterly/yearly，默认monthly")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function templateStore(Request $request): Response
     {
         $validator = validator($request->all(), ['name' => 'required|string|max:100']);
@@ -84,7 +97,10 @@ class PerformanceController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/perf/template/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("模板详情")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function templateShow(Request $request, string $id): Response
     {
         try {
@@ -104,7 +120,13 @@ class PerformanceController extends BaseController
      * @Apidoc\Param(name="period_type", type="string", desc="周期类型:monthly/quarterly/yearly")
      * @Apidoc\Param(name="items", type="array", desc="指标项（仅草稿模板可改）")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新模板")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Param(name:"name", type:"string", desc:"模板名称")]
+#[Apidoc\Param(name:"period_type", type:"string", desc:"周期类型:monthly/quarterly/yearly")]
+#[Apidoc\Param(name:"items", type:"array", desc:"指标项（仅草稿模板可改）")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function templateUpdate(Request $request, string $id): Response
     {
         $validator = validator($request->all(), ['name' => 'sometimes|string|max:100']);
@@ -125,7 +147,10 @@ class PerformanceController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/perf/template/{id}/enable")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("启用模板")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function templateEnable(Request $request, string $id): Response
     {
         try {
@@ -143,7 +168,11 @@ class PerformanceController extends BaseController
      * @Apidoc\Method("DELETE")
      * @Apidoc\Param(name="password", type="string", desc="管理员密码")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除模板")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function templateDestroy(Request $request, string $id): Response
     {
         $templateId = $this->decodeId($id);
@@ -173,7 +202,13 @@ class PerformanceController extends BaseController
      * @Apidoc\Param(name="status", type="int", desc="状态:0草稿1进行中2已归档")
      * @Apidoc\Param(name="template_id", type="int", desc="模板ID")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("考核批次列表")]
+#[Apidoc\Url("/admin/v1/hr/perf/plan")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态:0草稿1进行中2已归档")]
+#[Apidoc\Param(name:"template_id", type:"int", desc:"模板ID")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function planIndex(Request $request): Response
     {
         $result = $this->perf()->list(HrPerfPlan::class, [
@@ -197,7 +232,15 @@ class PerformanceController extends BaseController
      * @Apidoc\Param(name="period_end", type="string", desc="周期结束 Y-m-d，必填")
      * @Apidoc\Param(name="created_by", type="int", desc="创建人ID，默认当前管理员")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("新建考核批次")]
+#[Apidoc\Url("/admin/v1/hr/perf/plan")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Param(name:"template_id", type:"int", desc:"模板ID（须已启用），必填")]
+#[Apidoc\Param(name:"period_start", type:"string", desc:"周期开始 Y-m-d，必填")]
+#[Apidoc\Param(name:"period_end", type:"string", desc:"周期结束 Y-m-d，必填")]
+#[Apidoc\Param(name:"created_by", type:"int", desc:"创建人ID，默认当前管理员")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function planStore(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -224,7 +267,10 @@ class PerformanceController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/perf/plan/{id}/start")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("启动考核批次")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function planStart(Request $request, string $id): Response
     {
         try {
@@ -241,7 +287,10 @@ class PerformanceController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/perf/plan/{id}/archive")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("归档考核批次")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function planArchive(Request $request, string $id): Response
     {
         try {
@@ -265,7 +314,15 @@ class PerformanceController extends BaseController
      * @Apidoc\Param(name="rater_id", type="int", desc="评分人ID，默认当前管理员")
      * @Apidoc\Param(name="scores", type="array", desc="评分项[{indicator,score,comment?}]，必填")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("提交评分")]
+#[Apidoc\Url("/admin/v1/hr/perf/score")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Param(name:"plan_id", type:"int", desc:"考核批次ID（进行中），必填")]
+#[Apidoc\Param(name:"employee_id", type:"int", desc:"被考核员工ID，必填")]
+#[Apidoc\Param(name:"rater_type", type:"int", desc:"评分人类型:1自评2上级3同事360，必填")]
+#[Apidoc\Param(name:"rater_id", type:"int", desc:"评分人ID，默认当前管理员")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function scoreSubmit(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -300,7 +357,14 @@ class PerformanceController extends BaseController
      * @Apidoc\Param(name="employee_id", type="int", desc="被考核员工ID")
      * @Apidoc\Param(name="rater_id", type="int", desc="评分人ID")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("评分记录列表")]
+#[Apidoc\Url("/admin/v1/hr/perf/score")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Param(name:"plan_id", type:"int", desc:"考核批次ID")]
+#[Apidoc\Param(name:"employee_id", type:"int", desc:"被考核员工ID")]
+#[Apidoc\Param(name:"rater_id", type:"int", desc:"评分人ID")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function scoreIndex(Request $request): Response
     {
         $result = $this->perf()->list(HrPerfScore::class, [
@@ -323,7 +387,13 @@ class PerformanceController extends BaseController
      * @Apidoc\Param(name="plan_id", type="int", desc="考核批次ID，必填")
      * @Apidoc\Param(name="employee_id", type="int", desc="被考核员工ID，必填")
      * @Apidoc\Returned("data", type="object", desc="业务数据（无评分记录时 data 为 null）")
-     */
+     */#[Apidoc\Title("员工考核汇总")]
+#[Apidoc\Url("/admin/v1/hr/perf/score/summary")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Param(name:"plan_id", type:"int", desc:"考核批次ID，必填")]
+#[Apidoc\Param(name:"employee_id", type:"int", desc:"被考核员工ID，必填")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据（无评分记录时 data 为 null）")]
+
     public function summary(Request $request): Response
     {
         try {

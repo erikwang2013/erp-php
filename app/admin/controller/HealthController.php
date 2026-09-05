@@ -38,7 +38,22 @@ class HealthController
      *     @Apidoc\Returned("elasticsearch", type="string", desc="ES状态(ok/unavailable)"),
      *     @Apidoc\Returned("timestamp", type="int", desc="当前时间戳"),
      * })
-     */
+     */#[Apidoc\Title("健康检查")]
+#[Apidoc\Desc("检查系统各组件的运行状态，包括数据库、Redis和Elasticsearch连接状态")]
+#[Apidoc\Url("/health")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("健康检查")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("app", type:"string", desc:"应用名称")]
+#[Apidoc\Returned("version", type:"string", desc:"应用版本")]
+#[Apidoc\Returned("php", type:"string", desc:"PHP版本")]
+#[Apidoc\Returned("database", type:"string", desc:"数据库状态(ok/unavailable)")]
+#[Apidoc\Returned("redis", type:"string", desc:"Redis状态(ok/unavailable)")]
+#[Apidoc\Returned("elasticsearch", type:"string", desc:"ES状态(ok/unavailable)")]
+#[Apidoc\Returned("timestamp", type:"int", desc:"当前时间戳")]
+
     public function index(Request $request): Response
     {
         return json([

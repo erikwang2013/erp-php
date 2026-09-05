@@ -37,7 +37,20 @@ class AnalyticsController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("分析报表列表")]
+#[Apidoc\Desc("分页查询分析报表记录")]
+#[Apidoc\Url("/admin/v1/crm/analytics")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Param(name:"type", type:"string", desc:"报表类型")]
+#[Apidoc\Param(name:"period_year", type:"int", desc:"报表年度")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function reports(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -73,7 +86,21 @@ class AnalyticsController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("生成分析报表")]
+#[Apidoc\Desc("根据类型生成模拟分析报表数据并保存")]
+#[Apidoc\Url("/admin/v1/crm/analytics")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"name", type:"string", desc:"报表名称，必填")]
+#[Apidoc\Param(name:"type", type:"string", desc:"报表类型:customer/order/revenue/activity/retention，必填")]
+#[Apidoc\Param(name:"period_year", type:"int", desc:"报表年度，必填")]
+#[Apidoc\Param(name:"period_value", type:"int", desc:"期间值，必填")]
+#[Apidoc\Param(name:"period_type", type:"int", desc:"期间类型:1=月2=季3=年")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function generate(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -118,7 +145,16 @@ class AnalyticsController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("报表详情")]
+#[Apidoc\Desc("查看分析报表详细信息")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"id", type:"string", desc:"报表ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function reportShow(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -146,7 +182,16 @@ class AnalyticsController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("分析指标列表")]
+#[Apidoc\Desc("查询全部分析指标配置")]
+#[Apidoc\Url("/admin/v1/crm/analytics")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function metrics(Request $request): Response
     {
         $list = $this->crm()->all(CrmAnalyticsMetric::class, [], ['orderBy' => 'id', 'orderDir' => 'asc']);
@@ -170,7 +215,20 @@ class AnalyticsController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建或更新分析指标")]
+#[Apidoc\Desc("有id则更新，无id则创建分析指标")]
+#[Apidoc\Url("/admin/v1/crm/analytics")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("CRM")]
+#[Apidoc\Param(name:"name", type:"string", desc:"指标名称，必填")]
+#[Apidoc\Param(name:"key", type:"string", desc:"指标键名，必填")]
+#[Apidoc\Param(name:"type", type:"string", desc:"指标类型，必填")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID，传则更新")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function storeMetric(Request $request): Response
     {
         $validator = validator($request->all(), [

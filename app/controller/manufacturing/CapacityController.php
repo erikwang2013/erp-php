@@ -19,7 +19,8 @@ use support\Response;
 /**
  * 产能负荷（P1-M3）：工作站日历例外 + 粗能力负荷报表
   * @Apidoc\Tag("生产制造")
- */
+ */#[Apidoc\Tag("生产制造")]
+
 class CapacityController extends BaseController
 {
     /**
@@ -36,7 +37,19 @@ class CapacityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("工作站日历")]
+#[Apidoc\Desc("查询工作站逐日可用工时；无例外记录按默认规则(周一~五8小时)返回")]
+#[Apidoc\Url("/admin/v1/mfg/capacity/calendar")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"workstation_id", type:"string", desc:"工作站ID，必填")]
+#[Apidoc\Param(name:"from", type:"string", desc:"开始日期 YYYY-MM-DD，默认今天")]
+#[Apidoc\Param(name:"to", type:"string", desc:"结束日期 YYYY-MM-DD，默认+30天")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function calendar(Request $request): Response
     {
         $wsId = $this->decodeWsId($request->input('workstation_id'));
@@ -68,7 +81,20 @@ class CapacityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("设置日历例外")]
+#[Apidoc\Desc("覆盖默认日历规则；同一工作站同一天重复设置即更新")]
+#[Apidoc\Url("/admin/v1/mfg/capacity/calendar")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"workstation_id", type:"string", desc:"工作站ID，必填")]
+#[Apidoc\Param(name:"date", type:"string", desc:"日期 YYYY-MM-DD，必填")]
+#[Apidoc\Param(name:"hours", type:"string", desc:"可用工时 0~24，必填")]
+#[Apidoc\Param(name:"remark", type:"string", desc:"备注(停机/检修等)，最长200字")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function setException(Request $request): Response
     {
         $wsId = $this->decodeWsId($request->input('workstation_id'));
@@ -106,7 +132,19 @@ class CapacityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除日历例外")]
+#[Apidoc\Desc("删除指定工作站指定日期的例外记录，需密码确认；无记录时幂等成功")]
+#[Apidoc\Url("/admin/v1/mfg/capacity/calendar")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"workstation_id", type:"string", desc:"工作站ID，必填")]
+#[Apidoc\Param(name:"date", type:"string", desc:"日期 YYYY-MM-DD，必填")]
+#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function removeException(Request $request): Response
     {
         $wsId = $this->decodeWsId($request->input('workstation_id'));
@@ -145,7 +183,19 @@ class CapacityController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("产能负荷报表")]
+#[Apidoc\Desc("未结工单剩余数量×工艺标准工时折算需求，按计划窗口产能日均摊；缺省统计全部启用工作站")]
+#[Apidoc\Url("/admin/v1/mfg/capacity/report")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("生产制造")]
+#[Apidoc\Param(name:"workstation_id", type:"string", desc:"工作站ID，可选；缺省=全部启用工作站")]
+#[Apidoc\Param(name:"from", type:"string", desc:"开始日期 YYYY-MM-DD，默认今天")]
+#[Apidoc\Param(name:"to", type:"string", desc:"结束日期 YYYY-MM-DD，默认+30天")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function report(Request $request): Response
     {
         $wsId = $this->decodeWsId($request->input('workstation_id'));   // 缺省 null=全部启用站

@@ -22,7 +22,8 @@ use support\Response;
 /**
  * 设备点检执行（扫码闭环）
  * @Apidoc\Tag("设备管理")
- */
+ */#[Apidoc\Tag("设备管理")]
+
 class EamInspectionController extends BaseController
 {
     /**
@@ -41,7 +42,21 @@ class EamInspectionController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("点检任务列表")]
+#[Apidoc\Desc("按设备/日期/状态分页查询点检任务")]
+#[Apidoc\Url("/admin/v1/eam/inspection")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("设备管理")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Param(name:"equipment_id", type:"string", desc:"设备ID(hashid)")]
+#[Apidoc\Param(name:"task_date", type:"string", desc:"点检日期 Y-m-d")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态: 0待执行 1已完成 2异常待维修 3已取消")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -85,7 +100,21 @@ class EamInspectionController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("生成点检任务")]
+#[Apidoc\Desc("按计划或人工补单生成点检任务；扫码自动生成请走扫码执行接口")]
+#[Apidoc\Url("/admin/v1/eam/inspection")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("设备管理")]
+#[Apidoc\Param(name:"equipment_id", type:"string", desc:"设备ID(hashid)，必填")]
+#[Apidoc\Param(name:"task_date", type:"string", desc:"点检日期 Y-m-d，必填")]
+#[Apidoc\Param(name:"source_plan_id", type:"string", desc:"来源保养计划ID(hashid)，选填")]
+#[Apidoc\Param(name:"assignee_id", type:"string", desc:"负责人ID(hashid)，选填")]
+#[Apidoc\Param(name:"remark", type:"string", desc:"备注")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -123,7 +152,16 @@ class EamInspectionController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("点检任务详情")]
+#[Apidoc\Desc("查看点检任务及扫码结果明细")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("设备管理")]
+#[Apidoc\Param(name:"id", type:"string", desc:"任务ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -154,7 +192,19 @@ class EamInspectionController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("修改点检任务")]
+#[Apidoc\Desc("改期、更换负责人或备注；仅待执行任务可修改")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("设备管理")]
+#[Apidoc\Param(name:"id", type:"string", desc:"任务ID(hashid)")]
+#[Apidoc\Param(name:"task_date", type:"string", desc:"点检日期 Y-m-d")]
+#[Apidoc\Param(name:"assignee_id", type:"string", desc:"负责人ID(hashid)")]
+#[Apidoc\Param(name:"remark", type:"string", desc:"备注")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function update(Request $request, string $id): Response
     {
         $data = $request->all();
@@ -182,7 +232,16 @@ class EamInspectionController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("取消点检任务")]
+#[Apidoc\Desc("仅待执行任务可取消；已完成的点检不可取消")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("设备管理")]
+#[Apidoc\Param(name:"id", type:"string", desc:"任务ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function cancel(Request $request, string $id): Response
     {
         try {
@@ -208,7 +267,19 @@ class EamInspectionController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("扫码点检执行")]
+#[Apidoc\Desc("扫码提交当日点检结果；无任务自动生成，异常项自动创建维修单")]
+#[Apidoc\Url("/admin/v1/eam/inspection/scan-execute")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("设备管理")]
+#[Apidoc\Param(name:"equipment_id", type:"string", desc:"设备ID(hashid)，必填")]
+#[Apidoc\Param(name:"task_date", type:"string", desc:"点检日期 Y-m-d，必填")]
+#[Apidoc\Param(name:"items", type:"array", desc:"点检项数组，必填，元素含 item_name/result(0正常1异常)/remark")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function scanExecute(Request $request): Response
     {
         $validator = validator($request->all(), [

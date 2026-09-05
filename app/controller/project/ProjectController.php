@@ -18,7 +18,8 @@ use support\Response;
 /**
  * 项目管理
  * @Apidoc\Tag("项目管理")
- */
+ */#[Apidoc\Tag("项目管理")]
+
 class ProjectController extends BaseController
 {
     /**
@@ -42,7 +43,24 @@ class ProjectController extends BaseController
      *     @Apidoc\Returned("page", type="int", desc="当前页码"),
      *     @Apidoc\Returned("limit", type="int", desc="每页条数"),
      * })
-     */
+     */#[Apidoc\Title("项目列表")]
+#[Apidoc\Desc("获取项目分页列表，支持关键字/状态/负责人筛选")]
+#[Apidoc\Url("/admin/v1/project")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码)")]
+#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[Apidoc\Param(name:"manager_user_id", type:"string", default:"", desc:"负责人ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("list", type:"array", desc:"项目列表(含进度)")]
+#[Apidoc\Returned("total", type:"int", desc:"总条数")]
+#[Apidoc\Returned("page", type:"int", desc:"当前页码")]
+#[Apidoc\Returned("limit", type:"int", desc:"每页条数")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -93,7 +111,18 @@ class ProjectController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="项目信息")
-     */
+     */#[Apidoc\Title("创建项目")]
+#[Apidoc\Desc("创建一个新项目")]
+#[Apidoc\Url("/admin/v1/project")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"name", type:"string", require:true, desc:"项目名称")]
+#[Apidoc\Param(name:"manager_user_id", type:"int", require:true, desc:"负责人用户ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"项目信息")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['name' => 'required|string|max:200', 'manager_user_id' => 'required|integer|min:1']);
@@ -121,7 +150,16 @@ class ProjectController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="项目详情(含进度)")
-     */
+     */#[Apidoc\Title("项目详情")]
+#[Apidoc\Desc("获取指定项目的详细信息，包含计算后的进度")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"项目ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"项目详情(含进度)")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -148,7 +186,16 @@ class ProjectController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的项目信息")
-     */
+     */#[Apidoc\Title("更新项目")]
+#[Apidoc\Desc("更新指定项目的信息")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"项目ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"更新后的项目信息")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -176,7 +223,17 @@ class ProjectController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */
+     */#[Apidoc\Title("删除项目")]
+#[Apidoc\Desc("软删除指定项目，需要密码二次确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"项目ID(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);

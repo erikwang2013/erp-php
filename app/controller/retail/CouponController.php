@@ -21,7 +21,8 @@ use support\Response;
  * 发券（模板限量）与核销（归属/过期/已核销判拒）；模板维护为管理端手工建数据。
  * 核销来源 order_source 必填（记调用方单号）。路由注册随批次 lead 关闸（本批不注册）。
  * @Apidoc\Tag("会员管理")
- */
+ */#[Apidoc\Tag("会员管理")]
+
 class CouponController extends BaseController
 {
     /**
@@ -33,7 +34,14 @@ class CouponController extends BaseController
      * @Apidoc\Tag("会员管理")
      * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
      * @Apidoc\Param(name="template_id", type="string", required=true, desc="卡券模板(hashid)")
-     */
+     */#[Apidoc\Title("会员发券")]
+#[Apidoc\Url("/admin/v1/coupon/issue")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"member_id", type:"string", required:true, desc:"会员(hashid)")]
+#[Apidoc\Param(name:"template_id", type:"string", required:true, desc:"卡券模板(hashid)")]
+
     public function issue(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -59,7 +67,14 @@ class CouponController extends BaseController
      * @Apidoc\Tag("会员管理")
      * @Apidoc\Param(name="coupon_id", type="string", required=true, desc="卡券(hashid)")
      * @Apidoc\Param(name="order_source", type="string", required=true, desc="核销来源单号(≤20)")
-     */
+     */#[Apidoc\Title("卡券核销")]
+#[Apidoc\Url("/admin/v1/coupon/redeem")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"coupon_id", type:"string", required:true, desc:"卡券(hashid)")]
+#[Apidoc\Param(name:"order_source", type:"string", required:true, desc:"核销来源单号(≤20)")]
+
     public function redeem(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;

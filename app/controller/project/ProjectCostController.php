@@ -21,7 +21,8 @@ use support\Response;
 /**
  * 项目成本归集与预算偏差
  * @Apidoc\Tag("项目管理")
- */
+ */#[Apidoc\Tag("项目管理")]
+
 class ProjectCostController extends BaseController
 {
     /**
@@ -42,7 +43,23 @@ class ProjectCostController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("成本台账列表")]
+#[Apidoc\Desc("按项目/类别/来源/日期区间分页查询成本归集行")]
+#[Apidoc\Url("/admin/v1/project/cost")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Param(name:"project_id", type:"string", desc:"项目ID(hashid)")]
+#[Apidoc\Param(name:"category", type:"int", desc:"类别: 1人工 2材料 3其他")]
+#[Apidoc\Param(name:"source_type", type:"string", desc:"来源: timesheet/manual")]
+#[Apidoc\Param(name:"from", type:"string", desc:"发生日期起 Y-m-d")]
+#[Apidoc\Param(name:"to", type:"string", desc:"发生日期止 Y-m-d")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -98,7 +115,25 @@ class ProjectCostController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("手工录入成本")]
+#[Apidoc\Desc("人工=工时×费率；材料/其他=直接金额，金额列均存 DECIMAL 字符串")]
+#[Apidoc\Url("/admin/v1/project/cost")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"project_id", type:"string", desc:"项目ID(hashid)，必填")]
+#[Apidoc\Param(name:"work_date", type:"string", desc:"发生日期 Y-m-d，必填")]
+#[Apidoc\Param(name:"category", type:"int", desc:"类别: 1人工 2材料 3其他，必填")]
+#[Apidoc\Param(name:"hours", type:"float", desc:"工时，类别=1时必填")]
+#[Apidoc\Param(name:"rate", type:"float", desc:"费率(元/小时)，类别=1时选填，默认按费率快照规则取0")]
+#[Apidoc\Param(name:"cost", type:"float", desc:"金额，类别=2/3时必填")]
+#[Apidoc\Param(name:"task_id", type:"string", desc:"关联任务ID(hashid)，选填")]
+#[Apidoc\Param(name:"employee_id", type:"string", desc:"员工ID(hashid)，选填")]
+#[Apidoc\Param(name:"remark", type:"string", desc:"备注")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -141,7 +176,17 @@ class ProjectCostController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除成本记录")]
+#[Apidoc\Desc("仅手工录入的成本行可删除，需密码确认；工时归集行不可删")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"id", type:"string", desc:"成本记录ID(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -178,7 +223,19 @@ class ProjectCostController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("工时归集生成成本")]
+#[Apidoc\Desc("按区间取工时台账×成员费率生成人工成本，幂等可重跑；未配置费率成员整行拒绝并列出")]
+#[Apidoc\Url("/admin/v1/project/cost/generate")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"project_id", type:"string", desc:"项目ID(hashid)，必填")]
+#[Apidoc\Param(name:"from", type:"string", desc:"起始日期 Y-m-d，必填")]
+#[Apidoc\Param(name:"to", type:"string", desc:"截止日期 Y-m-d，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function generate(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -219,7 +276,17 @@ class ProjectCostController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("项目损益")]
+#[Apidoc\Desc("预算-实际成本偏差；偏差率=偏差/预算×100%，预算为0时偏差率为null；超支不阻断")]
+#[Apidoc\Url("/admin/v1/project/cost/pnl")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("项目管理")]
+#[Apidoc\Param(name:"project_id", type:"string", desc:"项目ID(hashid)，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function pnl(Request $request): Response
     {
         $validator = validator($request->all(), ['project_id' => 'required|string']);

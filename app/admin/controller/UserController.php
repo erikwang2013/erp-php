@@ -17,7 +17,8 @@ use support\Response;
 /**
  * 用户管理
  * @Apidoc\Tag("用户管理")
- */
+ */#[Apidoc\Tag("用户管理")]
+
 class UserController extends BaseController
 {
     /**
@@ -40,7 +41,23 @@ class UserController extends BaseController
      *     @Apidoc\Returned("page", type="int", desc="当前页码"),
      *     @Apidoc\Returned("limit", type="int", desc="每页条数"),
      * })
-     */
+     */#[Apidoc\Title("用户列表")]
+#[Apidoc\Desc("获取用户分页列表，支持关键字搜索和状态筛选")]
+#[Apidoc\Url("/admin/v1/user")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("用户管理")]
+#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(用户名/姓名)")]
+#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选:0禁用1启用")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("list", type:"array", desc:"用户列表")]
+#[Apidoc\Returned("total", type:"int", desc:"总条数")]
+#[Apidoc\Returned("page", type:"int", desc:"当前页码")]
+#[Apidoc\Returned("limit", type:"int", desc:"每页条数")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -104,7 +121,22 @@ class UserController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="用户信息")
-     */
+     */#[Apidoc\Title("创建用户")]
+#[Apidoc\Desc("创建一个新的管理后台用户")]
+#[Apidoc\Url("/admin/v1/user")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("用户管理")]
+#[Apidoc\Param(name:"username", type:"string", require:true, desc:"用户名(3-50字符)")]
+#[Apidoc\Param(name:"password", type:"string", require:true, desc:"密码(6-32字符)")]
+#[Apidoc\Param(name:"real_name", type:"string", require:true, desc:"真实姓名")]
+#[Apidoc\Param(name:"status", type:"int", default:1, desc:"状态:0禁用1启用")]
+#[Apidoc\Param(name:"phone", type:"string", default:"", desc:"手机号")]
+#[Apidoc\Param(name:"email", type:"string", default:"", desc:"邮箱")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"用户信息")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -151,7 +183,16 @@ class UserController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="用户详情")
-     */
+     */#[Apidoc\Title("用户详情")]
+#[Apidoc\Desc("获取指定用户的详细信息")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("用户管理")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"用户ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"用户详情")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -184,7 +225,21 @@ class UserController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的用户信息")
-     */
+     */#[Apidoc\Title("更新用户")]
+#[Apidoc\Desc("更新指定用户的信息")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("用户管理")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"用户ID(hashid)")]
+#[Apidoc\Param(name:"real_name", type:"string", default:"", desc:"真实姓名")]
+#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态:0禁用1启用")]
+#[Apidoc\Param(name:"password", type:"string", default:"", desc:"新密码(留空不修改)")]
+#[Apidoc\Param(name:"phone", type:"string", default:"", desc:"手机号")]
+#[Apidoc\Param(name:"email", type:"string", default:"", desc:"邮箱")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"更新后的用户信息")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -227,7 +282,17 @@ class UserController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */
+     */#[Apidoc\Title("删除用户")]
+#[Apidoc\Desc("软删除指定用户，需要密码二次确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("用户管理")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"用户ID(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -262,7 +327,18 @@ class UserController extends BaseController
      * @Apidoc\Returned("data", type="object", desc="操作结果", children={
      *     @Apidoc\Returned("count", type="int", desc="删除数量"),
      * })
-     */
+     */#[Apidoc\Title("批量删除用户")]
+#[Apidoc\Desc("批量软删除多个用户，需要密码二次确认")]
+#[Apidoc\Url("/admin/v1/user/batch/destroy")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("用户管理")]
+#[Apidoc\Param(name:"ids", type:"array", require:true, desc:"用户ID列表(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("count", type:"int", desc:"删除数量")]
+
     public function batchDestroy(Request $request): Response
     {
         $ids = $request->input('ids', []);
@@ -311,7 +387,18 @@ class UserController extends BaseController
      * @Apidoc\Returned("data", type="object", desc="操作结果", children={
      *     @Apidoc\Returned("count", type="int", desc="操作数量"),
      * })
-     */
+     */#[Apidoc\Title("批量启用/禁用用户")]
+#[Apidoc\Desc("批量修改用户启用/禁用状态")]
+#[Apidoc\Url("/admin/v1/user/batch/status")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("用户管理")]
+#[Apidoc\Param(name:"ids", type:"array", require:true, desc:"用户ID列表(hashid)")]
+#[Apidoc\Param(name:"status", type:"int", require:true, desc:"目标状态:0禁用1启用")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("count", type:"int", desc:"操作数量")]
+
     public function batchStatus(Request $request): Response
     {
         $ids = $request->input('ids', []);

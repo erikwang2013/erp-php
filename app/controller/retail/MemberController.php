@@ -21,7 +21,8 @@ use support\Response;
  * 开卡/总览/储值充-消-退/积分赚-抵-作废；语义校验与幂等在 MemberService，
  * 本层仅 hashid 编解码 + 透传。路由注册随批次 lead 关闸（本批不注册）。
  * @Apidoc\Tag("会员管理")
- */
+ */#[Apidoc\Tag("会员管理")]
+
 class MemberController extends BaseController
 {
     /**
@@ -37,7 +38,18 @@ class MemberController extends BaseController
      * @Apidoc\Param(name="customer_id", type="string", default="0", desc="关联客户(hashid)")
      * @Apidoc\Param(name="source", type="string", default="manual", desc="开卡来源 pos/miniapp/manual")
      * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
-     */
+     */#[Apidoc\Title("会员开卡")]
+#[Apidoc\Url("/admin/v1/member/open")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"phone", type:"string", required:true, desc:"手机号(11 位)")]
+#[Apidoc\Param(name:"name", type:"string", required:true, desc:"姓名")]
+#[Apidoc\Param(name:"level", type:"int", default:0, desc:"等级 0普通/1银卡/2金卡/3铂金")]
+#[Apidoc\Param(name:"customer_id", type:"string", default:"0", desc:"关联客户(hashid)")]
+#[Apidoc\Param(name:"source", type:"string", default:"manual", desc:"开卡来源 pos/miniapp/manual")]
+#[Apidoc\Param(name:"remark", type:"string", default:"", desc:"备注")]
+
     public function open(Request $request): Response
     {
         $payload = $request->post();
@@ -60,7 +72,13 @@ class MemberController extends BaseController
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("会员管理")
      * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
-     */
+     */#[Apidoc\Title("会员总览")]
+#[Apidoc\Url("/admin/v1/member/overview")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"member_id", type:"string", required:true, desc:"会员(hashid)")]
+
     public function overview(Request $request): Response
     {
         [$data, $error] = $this->service()->memberOverview(
@@ -83,7 +101,15 @@ class MemberController extends BaseController
      * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
      * @Apidoc\Param(name="amount", type="string", required=true, desc="金额(≤2 位小数)")
      * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
-     */
+     */#[Apidoc\Title("储值充值")]
+#[Apidoc\Url("/admin/v1/member/recharge")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"member_id", type:"string", required:true, desc:"会员(hashid)")]
+#[Apidoc\Param(name:"amount", type:"string", required:true, desc:"金额(≤2 位小数)")]
+#[Apidoc\Param(name:"remark", type:"string", default:"", desc:"备注")]
+
     public function recharge(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -110,7 +136,15 @@ class MemberController extends BaseController
      * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
      * @Apidoc\Param(name="amount", type="string", required=true, desc="金额(≤2 位小数)")
      * @Apidoc\Param(name="biz_id", type="string", required=true, desc="业务单号(纯数字)")
-     */
+     */#[Apidoc\Title("储值消费")]
+#[Apidoc\Url("/admin/v1/member/consume")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"member_id", type:"string", required:true, desc:"会员(hashid)")]
+#[Apidoc\Param(name:"amount", type:"string", required:true, desc:"金额(≤2 位小数)")]
+#[Apidoc\Param(name:"biz_id", type:"string", required:true, desc:"业务单号(纯数字)")]
+
     public function consume(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -137,7 +171,15 @@ class MemberController extends BaseController
      * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
      * @Apidoc\Param(name="amount", type="string", required=true, desc="金额(≤2 位小数)")
      * @Apidoc\Param(name="biz_id", type="string", required=true, desc="业务单号(纯数字)")
-     */
+     */#[Apidoc\Title("储值退款")]
+#[Apidoc\Url("/admin/v1/member/refund")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"member_id", type:"string", required:true, desc:"会员(hashid)")]
+#[Apidoc\Param(name:"amount", type:"string", required:true, desc:"金额(≤2 位小数)")]
+#[Apidoc\Param(name:"biz_id", type:"string", required:true, desc:"业务单号(纯数字)")]
+
     public function refund(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -164,7 +206,15 @@ class MemberController extends BaseController
      * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
      * @Apidoc\Param(name="points", type="int", required=true, desc="积分数(>0)")
      * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
-     */
+     */#[Apidoc\Title("积分入账")]
+#[Apidoc\Url("/admin/v1/member/points-earn")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"member_id", type:"string", required:true, desc:"会员(hashid)")]
+#[Apidoc\Param(name:"points", type:"int", required:true, desc:"积分数(>0)")]
+#[Apidoc\Param(name:"remark", type:"string", default:"", desc:"备注")]
+
     public function pointsEarn(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -191,7 +241,15 @@ class MemberController extends BaseController
      * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
      * @Apidoc\Param(name="points", type="int", required=true, desc="积分数(>0)")
      * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
-     */
+     */#[Apidoc\Title("积分抵扣")]
+#[Apidoc\Url("/admin/v1/member/points-consume")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"member_id", type:"string", required:true, desc:"会员(hashid)")]
+#[Apidoc\Param(name:"points", type:"int", required:true, desc:"积分数(>0)")]
+#[Apidoc\Param(name:"remark", type:"string", default:"", desc:"备注")]
+
     public function pointsConsume(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -218,7 +276,15 @@ class MemberController extends BaseController
      * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
      * @Apidoc\Param(name="points", type="int", required=true, desc="积分数(>0)")
      * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
-     */
+     */#[Apidoc\Title("积分作废")]
+#[Apidoc\Url("/admin/v1/member/points-expire")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("会员管理")]
+#[Apidoc\Param(name:"member_id", type:"string", required:true, desc:"会员(hashid)")]
+#[Apidoc\Param(name:"points", type:"int", required:true, desc:"积分数(>0)")]
+#[Apidoc\Param(name:"remark", type:"string", default:"", desc:"备注")]
+
     public function pointsExpire(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;

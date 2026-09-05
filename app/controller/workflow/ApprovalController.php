@@ -20,7 +20,8 @@ use support\Response;
 /**
  * 审批管理
  * @Apidoc\Tag("审批工作流")
- */
+ */#[Apidoc\Tag("审批工作流")]
+
 class ApprovalController extends BaseController
 {
     /**
@@ -37,7 +38,18 @@ class ApprovalController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="审批实例")
-     */
+     */#[Apidoc\Title("提交审批")]
+#[Apidoc\Desc("将指定单据提交到工作流审批，创建审批实例并进入第一个审批节点")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("审批工作流")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"工作流ID(hashid)")]
+#[Apidoc\Param(name:"target_type", type:"string", require:true, desc:"单据类型")]
+#[Apidoc\Param(name:"target_id", type:"int", require:true, desc:"单据ID")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"审批实例")]
+
     public function submit(Request $request, string $id): Response
     {
         $workflowId = $this->decodeId($id);
@@ -90,7 +102,17 @@ class ApprovalController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */
+     */#[Apidoc\Title("审批通过")]
+#[Apidoc\Desc("通过当前节点的审批，流转到下一个节点或完成审批")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("审批工作流")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"审批实例ID(hashid)")]
+#[Apidoc\Param(name:"comment", type:"string", default:"", desc:"审批意见")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+
     public function approve(Request $request, string $id): Response
     {
         $instanceId = $this->decodeId($id);
@@ -145,7 +167,17 @@ class ApprovalController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */
+     */#[Apidoc\Title("驳回审批")]
+#[Apidoc\Desc("驳回当前审批实例，需要填写驳回意见")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("审批工作流")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"审批实例ID(hashid)")]
+#[Apidoc\Param(name:"comment", type:"string", require:true, desc:"驳回意见")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+
     public function reject(Request $request, string $id): Response
     {
         $instanceId = $this->decodeId($id);
@@ -193,7 +225,16 @@ class ApprovalController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */
+     */#[Apidoc\Title("撤回审批")]
+#[Apidoc\Desc("撤回由当前用户提交的审批实例，仅提交人可操作")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("审批工作流")]
+#[Apidoc\Param(name:"id", type:"string", require:true, desc:"审批实例ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+
     public function withdraw(Request $request, string $id): Response
     {
         $instanceId = $this->decodeId($id);
@@ -235,7 +276,21 @@ class ApprovalController extends BaseController
      *     @Apidoc\Returned("page", type="int", desc="当前页码"),
      *     @Apidoc\Returned("limit", type="int", desc="每页条数"),
      * })
-     */
+     */#[Apidoc\Title("我的审批列表")]
+#[Apidoc\Desc("获取当前用户待审批的审批实例分页列表")]
+#[Apidoc\Url("/admin/v1/approval/my")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("审批工作流")]
+#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("list", type:"array", desc:"待审批列表")]
+#[Apidoc\Returned("total", type:"int", desc:"总条数")]
+#[Apidoc\Returned("page", type:"int", desc:"当前页码")]
+#[Apidoc\Returned("limit", type:"int", desc:"每页条数")]
+
     public function myApprovals(Request $request): Response
     {
         $page = (int) $request->input('page', 1);

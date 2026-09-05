@@ -38,7 +38,18 @@ class PrintTemplateController extends BaseController
      * @Apidoc\Param(name="keyword", type="string", desc="关键词(code/name)")
      * @Apidoc\Param(name="target_type", type="string", desc="适用单据类型")
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     */
+     */#[Apidoc\Title("打印模板列表")]
+#[Apidoc\Desc("分页查询打印模板，支持关键词与单据类型过滤")]
+#[Apidoc\Url("/admin/v1/print/template")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("打印模板")]
+#[Apidoc\Param(name:"page", type:"int", desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", desc:"每页条数")]
+#[Apidoc\Param(name:"keyword", type:"string", desc:"关键词(code/name)")]
+#[Apidoc\Param(name:"target_type", type:"string", desc:"适用单据类型")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -72,7 +83,19 @@ class PrintTemplateController extends BaseController
      * @Apidoc\Param(name="target_type", type="string", desc="适用单据类型")
      * @Apidoc\Param(name="paper_size", type="string", desc="纸张，默认A4")
      * @Apidoc\Param(name="orientation", type="string", desc="portrait/landscape")
-     */
+     */#[Apidoc\Title("新建打印模板")]
+#[Apidoc\Desc("code/name/content 必填；code 全局唯一（含软删）")]
+#[Apidoc\Url("/admin/v1/print/template")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("打印模板")]
+#[Apidoc\Param(name:"code", type:"string", require:true, desc:"模板编码")]
+#[Apidoc\Param(name:"name", type:"string", require:true, desc:"模板名称")]
+#[Apidoc\Param(name:"content", type:"string", require:true, desc:"HTML模板体")]
+#[Apidoc\Param(name:"target_type", type:"string", desc:"适用单据类型")]
+#[Apidoc\Param(name:"paper_size", type:"string", desc:"纸张，默认A4")]
+#[Apidoc\Param(name:"orientation", type:"string", desc:"portrait/landscape")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -101,7 +124,12 @@ class PrintTemplateController extends BaseController
      * @Apidoc\Method("GET")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")
-     */
+     */#[Apidoc\Title("打印模板详情")]
+#[Apidoc\Desc("返回模板字段与 content 中的占位符 token 清单，供前端设计器提示")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("打印模板")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -124,7 +152,12 @@ class PrintTemplateController extends BaseController
      * @Apidoc\Method("PUT")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")
-     */
+     */#[Apidoc\Title("更新打印模板")]
+#[Apidoc\Desc("部分更新：仅提交的字段生效")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("打印模板")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -145,7 +178,12 @@ class PrintTemplateController extends BaseController
      * @Apidoc\Method("DELETE")
      * @Apidoc\Author("erik")
      * @Apidoc\Tag("打印模板")
-     */
+     */#[Apidoc\Title("删除打印模板")]
+#[Apidoc\Desc("软删除；uk_code 唯一性保留，删除后同编码需换码")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("打印模板")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -174,7 +212,15 @@ class PrintTemplateController extends BaseController
      * @Apidoc\Tag("打印模板")
      * @Apidoc\Param(name="code", type="string", require=true, desc="模板编码")
      * @Apidoc\Param(name="data", type="object", desc="渲染数据(支持点路径占位符)")
-     */
+     */#[Apidoc\Title("渲染打印模板")]
+#[Apidoc\Desc("按模板 code 渲染：占位符替换 + 缺失键清单；不落盘不生成 PDF")]
+#[Apidoc\Url("/admin/v1/print/template/render")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("打印模板")]
+#[Apidoc\Param(name:"code", type:"string", require:true, desc:"模板编码")]
+#[Apidoc\Param(name:"data", type:"object", desc:"渲染数据(支持点路径占位符)")]
+
     public function render(Request $request): Response
     {
         $code = (string) $request->input('code', '');
@@ -205,7 +251,15 @@ class PrintTemplateController extends BaseController
      * @Apidoc\Tag("打印模板")
      * @Apidoc\Param(name="code", type="string", require=true, desc="模板编码")
      * @Apidoc\Param(name="data", type="object", desc="渲染数据")
-     */
+     */#[Apidoc\Title("下载打印 PDF")]
+#[Apidoc\Desc("按模板 code 渲染并输出 PDF 文件（纸张/方向取模板配置）")]
+#[Apidoc\Url("/admin/v1/print/template/pdf")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("打印模板")]
+#[Apidoc\Param(name:"code", type:"string", require:true, desc:"模板编码")]
+#[Apidoc\Param(name:"data", type:"object", desc:"渲染数据")]
+
     public function pdf(Request $request): Response
     {
         $code = (string) $request->input('code', '');

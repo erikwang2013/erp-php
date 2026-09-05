@@ -32,7 +32,19 @@ class FreightRateController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("运费费率列表")]
+#[Apidoc\Desc("获取运费费率列表，支持分页和状态筛选")]
+#[Apidoc\Url("/admin/v1/tms/freight-rate")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选（0=禁用,1=启用）")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -66,7 +78,17 @@ class FreightRateController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("创建运费费率")]
+#[Apidoc\Desc("创建运费费率，编码必填，其余字段按业务传入")]
+#[Apidoc\Url("/admin/v1/tms/freight-rate")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"code", type:"string", desc:"费率编码，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['code' => 'required|string|max:200']);
@@ -95,7 +117,16 @@ class FreightRateController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("运费费率详情")]
+#[Apidoc\Desc("按 ID 获取运费费率详情")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -122,7 +153,16 @@ class FreightRateController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新运费费率")]
+#[Apidoc\Desc("按 ID 更新运费费率信息")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -153,7 +193,17 @@ class FreightRateController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除运费费率")]
+#[Apidoc\Desc("按 ID 删除运费费率，需操作密码二次确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运输管理(TMS)")]
+#[Apidoc\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
+#[Apidoc\Param(name:"password", type:"string", desc:"操作密码（二次确认）")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -188,7 +238,19 @@ class FreightRateController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="运费结果(charge/currency/rate_id)")
-     */
+     */#[Apidoc\Title("运费试算")]
+#[Apidoc\Desc("按承运商服务/目的国/重量匹配费率卡计算运费")]
+#[Apidoc\Url("/admin/v1/tms/freight-rate/calculate")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运费费率")]
+#[Apidoc\Param(name:"carrier_service_id", type:"int", desc:"承运商服务ID，必填")]
+#[Apidoc\Param(name:"dest_country", type:"string", desc:"目的国")]
+#[Apidoc\Param(name:"weight_kg", type:"float", desc:"重量(kg)，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"运费结果(charge/currency/rate_id)")]
+
     public function calculate(Request $request): Response
     {
         $carrierServiceId = (int) $request->input('carrier_service_id', 0);
@@ -213,7 +275,18 @@ class FreightRateController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="费率列表(list)")
-     */
+     */#[Apidoc\Title("运费比价")]
+#[Apidoc\Desc("按目的国/重量列出所有可用费率并按价格升序")]
+#[Apidoc\Url("/admin/v1/tms/freight-rate/rate-shop")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("运费费率")]
+#[Apidoc\Param(name:"dest_country", type:"string", desc:"目的国")]
+#[Apidoc\Param(name:"weight_kg", type:"float", desc:"重量(kg)，必填")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"费率列表(list)")]
+
     public function rateShop(Request $request): Response
     {
         $weightKg = (float) $request->input('weight_kg', 0);

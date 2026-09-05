@@ -40,7 +40,20 @@ class ProfileController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的用户信息(脱敏)")
-     */
+     */#[Apidoc\Title("更新个人信息")]
+#[Apidoc\Desc("更新当前登录用户的真实姓名、手机号和邮箱")]
+#[Apidoc\Url("/admin/v1/profile")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("个人中心")]
+#[Apidoc\Param(name:"real_name", type:"string", default:"", desc:"真实姓名")]
+#[Apidoc\Param(name:"phone", type:"string", default:"", desc:"手机号")]
+#[Apidoc\Param(name:"email", type:"string", default:"", desc:"邮箱")]
+#[Apidoc\Param(name:"avatar", type:"string", default:"", desc:"头像URL")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"更新后的用户信息(脱敏)")]
+
     public function updateProfile(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -81,7 +94,18 @@ class ProfileController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */
+     */#[Apidoc\Title("修改密码")]
+#[Apidoc\Desc("修改当前登录用户的登录密码，需验证旧密码")]
+#[Apidoc\Url("/admin/v1/profile/password")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("个人中心")]
+#[Apidoc\Param(name:"old_password", type:"string", require:true, desc:"旧密码")]
+#[Apidoc\Param(name:"new_password", type:"string", require:true, desc:"新密码(6-32位)")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+
     public function updatePassword(Request $request): Response
     {
         $adminId = $request->adminId ?? 0;
@@ -122,7 +146,16 @@ class ProfileController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */
+     */#[Apidoc\Title("登出")]
+#[Apidoc\Desc("退出当前登录，将当前JWT令牌加入黑名单使其立即失效")]
+#[Apidoc\Url("/admin/v1/profile/logout")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("个人中心")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+
     public function logout(Request $request): Response
     {
         $token = $request->header('Authorization', '');

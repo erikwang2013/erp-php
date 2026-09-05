@@ -32,7 +32,20 @@ class FlowController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("库存流水列表")]
+#[Apidoc\Desc("获取库存流水列表，支持分页、关键词搜索和状态筛选")]
+#[Apidoc\Url("/admin/v1/inventory/flow")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("库存管理")]
+#[Apidoc\Param(name:"page", type:"int", default:1, desc:"页码")]
+#[Apidoc\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+#[Apidoc\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（名称/编码）")]
+#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function index(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -73,7 +86,19 @@ class FlowController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="库存流水记录")
-     */
+     */#[Apidoc\Title("创建库存流水")]
+#[Apidoc\Desc("新增一个库存流水记录")]
+#[Apidoc\Url("/admin/v1/inventory/flow")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("库存管理")]
+#[Apidoc\Param(name:"name", type:"string", default:"", desc:"流水名称（必填）")]
+#[Apidoc\Param(name:"code", type:"string", default:"", desc:"流水单号")]
+#[Apidoc\Param(name:"status", type:"int", default:1, desc:"状态")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"库存流水记录")]
+
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), ['name' => 'required|string|max:200']);
@@ -101,7 +126,16 @@ class FlowController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="库存流水详情")
-     */
+     */#[Apidoc\Title("库存流水详情")]
+#[Apidoc\Desc("根据ID获取库存流水详细信息")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("库存管理")]
+#[Apidoc\Param(name:"id", type:"string", default:"", desc:"库存流水hashid")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"库存流水详情")]
+
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -128,7 +162,19 @@ class FlowController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="object", desc="更新后的库存流水记录")
-     */
+     */#[Apidoc\Title("更新库存流水")]
+#[Apidoc\Desc("根据ID更新库存流水信息")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("库存管理")]
+#[Apidoc\Param(name:"id", type:"string", default:"", desc:"库存流水hashid")]
+#[Apidoc\Param(name:"name", type:"string", default:"", desc:"流水名称")]
+#[Apidoc\Param(name:"code", type:"string", default:"", desc:"流水单号")]
+#[Apidoc\Param(name:"status", type:"int", default:"", desc:"状态")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"object", desc:"更新后的库存流水记录")]
+
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -156,7 +202,17 @@ class FlowController extends BaseController
      * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      * @Apidoc\Returned("message", type="string", desc="业务信息")
      * @Apidoc\Returned("data", type="array", desc="空数组")
-     */
+     */#[Apidoc\Title("删除库存流水")]
+#[Apidoc\Desc("根据ID软删除库存流水，需管理员密码二次确认")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Author("erik")]
+#[Apidoc\Tag("库存管理")]
+#[Apidoc\Param(name:"id", type:"string", default:"", desc:"库存流水hashid")]
+#[Apidoc\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
+#[Apidoc\Returned("code", type:"int", desc:"业务代码,0=成功")]
+#[Apidoc\Returned("message", type:"string", desc:"业务信息")]
+#[Apidoc\Returned("data", type:"array", desc:"空数组")]
+
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);

@@ -26,7 +26,8 @@ use support\Response;
  * （状态推进/面试联动/Offer 锁定与回退），status 一律经动作接口变更，禁止直改。
  * 统一返回 {code,message,data}；Tag 见类注解。
  * @Apidoc\Tag("人力资源")
- */
+ */#[Apidoc\Tag("人力资源")]
+
 class RecruitController extends BaseController
 {
     // ---------- 职位（erp_hr_job，软删除） ----------
@@ -38,7 +39,13 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="status", type="int", desc="状态:0草稿1发布中2已关闭")
      * @Apidoc\Param(name="job_title", type="string", desc="职位名称（等值）")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("职位列表")]
+#[Apidoc\Url("/admin/v1/hr/recruit/job")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态:0草稿1发布中2已关闭")]
+#[Apidoc\Param(name:"job_title", type:"string", desc:"职位名称（等值）")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function jobIndex(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -65,7 +72,15 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="headcount", type="int", desc="招聘人数")
      * @Apidoc\Param(name="requirement", type="string", desc="任职要求")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("新建职位")]
+#[Apidoc\Url("/admin/v1/hr/recruit/job")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Param(name:"job_title", type:"string", desc:"职位名称，必填")]
+#[Apidoc\Param(name:"department_id", type:"int", desc:"部门ID")]
+#[Apidoc\Param(name:"headcount", type:"int", desc:"招聘人数")]
+#[Apidoc\Param(name:"requirement", type:"string", desc:"任职要求")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function jobStore(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -86,7 +101,10 @@ class RecruitController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/recruit/job/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("职位详情")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function jobShow(Request $request, string $id): Response
     {
         $job = $this->recruit()->find(HrJob::class, $this->decodeId($id));
@@ -104,7 +122,12 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="job_title", type="string", desc="职位名称")
      * @Apidoc\Param(name="headcount", type="int", desc="招聘人数")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新职位")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Param(name:"job_title", type:"string", desc:"职位名称")]
+#[Apidoc\Param(name:"headcount", type:"int", desc:"招聘人数")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function jobUpdate(Request $request, string $id): Response
     {
         $job = $this->recruit()->update(HrJob::class, $this->decodeId($id), $request->all(), ['status']);
@@ -121,7 +144,11 @@ class RecruitController extends BaseController
      * @Apidoc\Method("DELETE")
      * @Apidoc\Param(name="password", type="string", desc="管理员密码")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除职位")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function jobDestroy(Request $request, string $id): Response
     {
         $job = $this->recruit()->find(HrJob::class, $this->decodeId($id));
@@ -145,7 +172,10 @@ class RecruitController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/recruit/job/{id}/publish")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("发布职位")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function jobPublish(Request $request, string $id): Response
     {
         try {
@@ -162,7 +192,10 @@ class RecruitController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/recruit/job/{id}/close")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("关闭职位")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function jobClose(Request $request, string $id): Response
     {
         try {
@@ -184,7 +217,14 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="job_id", type="int", desc="职位ID")
      * @Apidoc\Param(name="name", type="string", desc="姓名（等值）")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("候选人列表")]
+#[Apidoc\Url("/admin/v1/hr/recruit/candidate")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态:0新简历1初筛通过2面试中3已发Offer4已入职5已淘汰")]
+#[Apidoc\Param(name:"job_id", type:"int", desc:"职位ID")]
+#[Apidoc\Param(name:"name", type:"string", desc:"姓名（等值）")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function candidateIndex(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -213,7 +253,16 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="job_id", type="int", desc="应聘职位ID，必填")
      * @Apidoc\Param(name="expected_salary", type="float", desc="期望薪资")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("新建候选人")]
+#[Apidoc\Url("/admin/v1/hr/recruit/candidate")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Param(name:"name", type:"string", desc:"姓名，必填")]
+#[Apidoc\Param(name:"phone", type:"string", desc:"手机号")]
+#[Apidoc\Param(name:"source", type:"string", desc:"来源渠道")]
+#[Apidoc\Param(name:"job_id", type:"int", desc:"应聘职位ID，必填")]
+#[Apidoc\Param(name:"expected_salary", type:"float", desc:"期望薪资")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function candidateStore(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -238,7 +287,10 @@ class RecruitController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/recruit/candidate/{id}")
      * @Apidoc\Method("GET")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("候选人详情")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function candidateShow(Request $request, string $id): Response
     {
         $candidate = $this->recruit()->find(HrCandidate::class, $this->decodeId($id));
@@ -256,7 +308,12 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="phone", type="string", desc="手机号")
      * @Apidoc\Param(name="source", type="string", desc="来源渠道")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("更新候选人")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Param(name:"phone", type:"string", desc:"手机号")]
+#[Apidoc\Param(name:"source", type:"string", desc:"来源渠道")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function candidateUpdate(Request $request, string $id): Response
     {
         $candidate = $this->recruit()->update(HrCandidate::class, $this->decodeId($id), $request->all(), ['status']);
@@ -273,7 +330,11 @@ class RecruitController extends BaseController
      * @Apidoc\Method("POST")
      * @Apidoc\Param(name="status", type="int", desc="目标状态:0新简历1初筛通过2面试中3已发Offer4已入职5已淘汰")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("推进候选人状态")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Param(name:"status", type:"int", desc:"目标状态:0新简历1初筛通过2面试中3已发Offer4已入职5已淘汰")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function candidateAdvance(Request $request, string $id): Response
     {
         $validator = validator($request->all(), ['status' => 'required|integer|between:0,5']);
@@ -296,7 +357,11 @@ class RecruitController extends BaseController
      * @Apidoc\Method("DELETE")
      * @Apidoc\Param(name="password", type="string", desc="管理员密码")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("删除候选人")]
+#[Apidoc\Method("DELETE")]
+#[Apidoc\Param(name:"password", type:"string", desc:"管理员密码")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function candidateDestroy(Request $request, string $id): Response
     {
         $candidateId = $this->decodeId($id);
@@ -327,7 +392,12 @@ class RecruitController extends BaseController
      * @Apidoc\Method("GET")
      * @Apidoc\Param(name="candidate_id", type="int", desc="候选人ID")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("面试记录列表")]
+#[Apidoc\Url("/admin/v1/hr/recruit/interview")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Param(name:"candidate_id", type:"int", desc:"候选人ID")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function interviewIndex(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -352,7 +422,15 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="result", type="int", desc="结果:0待定1通过2不通过")
      * @Apidoc\Param(name="round_no", type="int", desc="轮次，缺省自动取最大轮次+1")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("记录面试")]
+#[Apidoc\Url("/admin/v1/hr/recruit/interview")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Param(name:"candidate_id", type:"int", desc:"候选人ID，必填")]
+#[Apidoc\Param(name:"interview_date", type:"string", desc:"面试日期 Y-m-d，必填")]
+#[Apidoc\Param(name:"result", type:"int", desc:"结果:0待定1通过2不通过")]
+#[Apidoc\Param(name:"round_no", type:"int", desc:"轮次，缺省自动取最大轮次+1")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function interviewStore(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -380,7 +458,12 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="result", type="int", desc="结果:1通过2不通过，必填")
      * @Apidoc\Param(name="comment", type="string", desc="评价")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("变更面试结果")]
+#[Apidoc\Method("PUT")]
+#[Apidoc\Param(name:"result", type:"int", desc:"结果:1通过2不通过，必填")]
+#[Apidoc\Param(name:"comment", type:"string", desc:"评价")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function interviewUpdate(Request $request, string $id): Response
     {
         $validator = validator($request->all(), [
@@ -412,7 +495,13 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="candidate_id", type="int", desc="候选人ID")
      * @Apidoc\Param(name="status", type="int", desc="状态:0草稿1已发出2已接受3已拒绝")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("Offer列表")]
+#[Apidoc\Url("/admin/v1/hr/recruit/offer")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Param(name:"candidate_id", type:"int", desc:"候选人ID")]
+#[Apidoc\Param(name:"status", type:"int", desc:"状态:0草稿1已发出2已接受3已拒绝")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function offerIndex(Request $request): Response
     {
         $page = (int) $request->input('page', 1);
@@ -437,7 +526,14 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="offered_salary", type="float", desc="Offer薪资，必填")
      * @Apidoc\Param(name="onboard_date", type="string", desc="入职日期 Y-m-d")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("发起Offer")]
+#[Apidoc\Url("/admin/v1/hr/recruit/offer")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Param(name:"candidate_id", type:"int", desc:"候选人ID，必填")]
+#[Apidoc\Param(name:"offered_salary", type:"float", desc:"Offer薪资，必填")]
+#[Apidoc\Param(name:"onboard_date", type:"string", desc:"入职日期 Y-m-d")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function offerStore(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -462,7 +558,10 @@ class RecruitController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/recruit/offer/{id}/send")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("发出Offer")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function offerSend(Request $request, string $id): Response
     {
         try {
@@ -479,7 +578,10 @@ class RecruitController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/recruit/offer/{id}/accept")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("接受Offer")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function offerAccept(Request $request, string $id): Response
     {
         try {
@@ -496,7 +598,10 @@ class RecruitController extends BaseController
      * @Apidoc\Url("/admin/v1/hr/recruit/offer/{id}/reject")
      * @Apidoc\Method("POST")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("拒绝Offer")]
+#[Apidoc\Method("POST")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function offerReject(Request $request, string $id): Response
     {
         try {
@@ -517,7 +622,13 @@ class RecruitController extends BaseController
      * @Apidoc\Param(name="from", type="string", desc="开始日期 Y-m-d，必填")
      * @Apidoc\Param(name="to", type="string", desc="结束日期 Y-m-d，必填")
      * @Apidoc\Returned("data", type="object", desc="业务数据")
-     */
+     */#[Apidoc\Title("招聘漏斗统计")]
+#[Apidoc\Url("/admin/v1/hr/recruit/funnel")]
+#[Apidoc\Method("GET")]
+#[Apidoc\Param(name:"from", type:"string", desc:"开始日期 Y-m-d，必填")]
+#[Apidoc\Param(name:"to", type:"string", desc:"结束日期 Y-m-d，必填")]
+#[Apidoc\Returned("data", type:"object", desc:"业务数据")]
+
     public function funnel(Request $request): Response
     {
         $from = (string) $request->input('from', '');
