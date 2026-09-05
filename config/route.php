@@ -352,22 +352,23 @@ Route::group('/admin/v1', function () {
     // 通知系统
     // ============================================================
     Route::any('/notification/my', [app\controller\notification\NotificationController::class, 'myNotifications']);
-    Route::post('/notification/{id}/read', [app\controller\notification\NotificationController::class, 'markRead']);
     Route::post('/notification/read-all', [app\controller\notification\NotificationController::class, 'markAllRead']);
     Route::any('/notification/unread-count', [app\controller\notification\NotificationController::class, 'unreadCount']);
+    Route::post('/notification/{id}/read', [app\controller\notification\NotificationController::class, 'markRead']);
 
     // ============================================================
     // 项目管理
     // ============================================================
     Route::resource('/project/task', app\controller\project\TaskController::class);
     Route::resource('/project/timesheet', app\controller\project\TimesheetController::class);
-    Route::resource('/project', app\controller\project\ProjectController::class);
-    // 项目成本（P1）：静态子路径先于 DELETE {id} 注册
+    // 项目成本（P1）：静态子路径必须先于 resource('/project') 注册，否则
+    // 与 resource 的 GET /project/{id} 变量路由同段冲突（FastRoute BadRouteException）
     Route::get('/project/cost/pnl', [app\controller\project\ProjectCostController::class, 'pnl']);
     Route::post('/project/cost/generate', [app\controller\project\ProjectCostController::class, 'generate']);
     Route::get('/project/cost', [app\controller\project\ProjectCostController::class, 'index']);
     Route::post('/project/cost', [app\controller\project\ProjectCostController::class, 'store']);
     Route::delete('/project/cost/{id}', [app\controller\project\ProjectCostController::class, 'destroy']);
+    Route::resource('/project', app\controller\project\ProjectController::class);
 
     // ============================================================
     // 人力资源管理
