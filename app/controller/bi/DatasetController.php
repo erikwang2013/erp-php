@@ -17,6 +17,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("商业智能")]
 #[\erikwang2013\apidoc\annotation\Title("数据集")]
+#[\erikwang2013\apidoc\annotation\Group("BI看板")]
 
 class DatasetController extends BaseController
 {

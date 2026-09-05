@@ -19,6 +19,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 #[\erikwang2013\apidoc\annotation\Title("部门")]
+#[\erikwang2013\apidoc\annotation\Group("人力资源")]
 
 class DepartmentController extends BaseController
 {

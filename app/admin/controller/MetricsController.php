@@ -22,6 +22,7 @@ use Throwable;
  * Prometheus 指标端点
  */
 #[\erikwang2013\apidoc\annotation\Tag("监控指标")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class MetricsController
 {

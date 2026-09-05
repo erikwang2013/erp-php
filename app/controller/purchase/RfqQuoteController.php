@@ -19,6 +19,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("报价")]
+#[\erikwang2013\apidoc\annotation\Group("采购管理")]
 
 class RfqQuoteController extends BaseController
 {

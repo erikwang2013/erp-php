@@ -19,6 +19,7 @@ use support\Response;
  * MRP计划管理 — 计划生成 + 列表
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Group("生产制造")]
 
 class MrpController extends BaseController
 {

@@ -18,6 +18,7 @@ use support\Request;
 use support\Response;
 use Throwable;
 #[\erikwang2013\apidoc\annotation\Title("用户登录")]
+#[\erikwang2013\apidoc\annotation\Group("客户端认证")]
 
 class AuthController
 {

@@ -19,6 +19,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 #[\erikwang2013\apidoc\annotation\Title("员工")]
+#[\erikwang2013\apidoc\annotation\Group("人力资源")]
 
 class EmployeeController extends BaseController
 {

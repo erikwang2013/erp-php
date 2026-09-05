@@ -15,6 +15,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("公海池客户")]
+#[\erikwang2013\apidoc\annotation\Group("CRM")]
 
 class PoolController extends BaseController
 {

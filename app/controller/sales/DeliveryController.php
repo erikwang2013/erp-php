@@ -26,6 +26,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("销售管理")]
 #[\erikwang2013\apidoc\annotation\Title("发货单")]
+#[\erikwang2013\apidoc\annotation\Group("销售管理")]
 
 class DeliveryController extends BaseController
 {

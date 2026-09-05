@@ -12,6 +12,7 @@ use app\model\WmsPickTask;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("拣货任务")]
+#[\erikwang2013\apidoc\annotation\Group("仓储管理WMS")]
 
 class PickController extends BaseController
 {

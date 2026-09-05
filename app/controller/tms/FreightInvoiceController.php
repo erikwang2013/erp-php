@@ -12,6 +12,7 @@ use app\model\TmsFreightInvoice;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("运费发票")]
+#[\erikwang2013\apidoc\annotation\Group("运输管理TMS")]
 
 class FreightInvoiceController extends BaseController
 {

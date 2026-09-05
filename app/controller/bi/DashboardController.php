@@ -17,6 +17,7 @@ use support\Response;
  * BI 数据看板管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("BI看板")]
+#[\erikwang2013\apidoc\annotation\Group("BI看板")]
 
 class DashboardController extends BaseController
 {

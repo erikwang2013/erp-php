@@ -12,6 +12,7 @@ use app\model\WmsPackTask;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("打包任务")]
+#[\erikwang2013\apidoc\annotation\Group("仓储管理WMS")]
 
 class PackController extends BaseController
 {

@@ -13,6 +13,7 @@ use app\service\notification\NotificationService;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("我的通知")]
+#[\erikwang2013\apidoc\annotation\Group("消息通知")]
 
 class NotificationController extends BaseController
 {

@@ -14,6 +14,7 @@ use support\Request;
 use support\Response;
 use Throwable;
 #[\erikwang2013\apidoc\annotation\Title("健康检查")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class HealthController
 {

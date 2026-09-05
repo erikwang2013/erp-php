@@ -20,6 +20,7 @@ use support\Response;
  * 本批次不注册路由（controller 仅写 Apidoc），路由归口由批次负责人统一注册。
  */
 #[\erikwang2013\apidoc\annotation\Title("社保规则")]
+#[\erikwang2013\apidoc\annotation\Group("人力资源")]
 class SocialSecurityController extends BaseController
 {
     /**

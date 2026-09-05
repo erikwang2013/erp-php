@@ -15,6 +15,7 @@ use support\Response;
  * OpenAPI 3.0 文档端点
  */
 #[\erikwang2013\apidoc\annotation\Tag("API文档")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class DocsController
 {

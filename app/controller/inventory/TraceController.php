@@ -27,6 +27,7 @@ use support\Response;
  * 便于前端直接以 source_id 定位上游/下游业务单据。
  */
 #[\erikwang2013\apidoc\annotation\Title("批次正向追溯")]
+#[\erikwang2013\apidoc\annotation\Group("库存管理")]
 class TraceController extends BaseController
 {
     /**

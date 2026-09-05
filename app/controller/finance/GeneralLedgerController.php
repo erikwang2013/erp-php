@@ -12,6 +12,7 @@ use app\model\FinanceGeneralLedger;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("总账")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class GeneralLedgerController extends BaseController
 {

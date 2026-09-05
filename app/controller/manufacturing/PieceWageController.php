@@ -22,6 +22,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 #[\erikwang2013\apidoc\annotation\Title("计件工资台账")]
+#[\erikwang2013\apidoc\annotation\Group("生产制造")]
 
 class PieceWageController extends BaseController
 {

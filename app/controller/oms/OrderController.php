@@ -13,6 +13,7 @@ use app\service\oms\OmsOrderService;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("销售订单")]
+#[\erikwang2013\apidoc\annotation\Group("订单管理OMS")]
 
 class OrderController extends BaseController
 {

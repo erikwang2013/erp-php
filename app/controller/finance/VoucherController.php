@@ -13,6 +13,7 @@ use app\service\finance\DoubleEntryService;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("记账凭证")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class VoucherController extends BaseController
 {

@@ -19,6 +19,7 @@ use support\Response;
  * BOM管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Group("生产制造")]
 
 class BomController extends BaseController
 {

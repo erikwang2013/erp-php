@@ -21,6 +21,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("会员管理")]
 #[\erikwang2013\apidoc\annotation\Title("会员开卡")]
+#[\erikwang2013\apidoc\annotation\Group("会员零售")]
 
 class MemberController extends BaseController
 {

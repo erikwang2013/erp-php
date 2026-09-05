@@ -12,6 +12,7 @@ use app\model\CheckTask;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("盘点任务")]
+#[\erikwang2013\apidoc\annotation\Group("库存管理")]
 
 class CheckTaskController extends BaseController
 {

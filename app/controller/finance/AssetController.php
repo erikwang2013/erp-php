@@ -13,6 +13,7 @@ use app\model\FinanceAssetDepreciation;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("固定资产")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class AssetController extends BaseController
 {

@@ -13,6 +13,7 @@ use support\Log;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("安装向导")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class InstallController
 {

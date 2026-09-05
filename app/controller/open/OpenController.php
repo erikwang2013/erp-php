@@ -18,6 +18,7 @@ use support\Response;
  * 认证通过后 $request->openapiApp 即当前请求方应用。
  */
 #[\erikwang2013\apidoc\annotation\Title("公开连通性检查")]
+#[\erikwang2013\apidoc\annotation\Group("开放接口")]
 class OpenController
 {
     /**

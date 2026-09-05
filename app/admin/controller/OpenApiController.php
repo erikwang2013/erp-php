@@ -20,6 +20,7 @@ use support\Response;
  * 请管理员自行留存（丢失后只能重置）。
  */
 #[\erikwang2013\apidoc\annotation\Title("开放平台应用")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 class OpenApiController extends BaseController
 {
     /**

@@ -12,6 +12,7 @@ use app\model\WmsZone;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("库区")]
+#[\erikwang2013\apidoc\annotation\Group("仓储管理WMS")]
 
 class ZoneController extends BaseController
 {

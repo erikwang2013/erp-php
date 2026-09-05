@@ -12,6 +12,7 @@ use app\model\ProjectTimesheet;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("工时记录")]
+#[\erikwang2013\apidoc\annotation\Group("项目管理")]
 
 class TimesheetController extends BaseController
 {

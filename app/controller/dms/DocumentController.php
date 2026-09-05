@@ -19,6 +19,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("文档管理")]
 #[\erikwang2013\apidoc\annotation\Title("文档")]
+#[\erikwang2013\apidoc\annotation\Group("文档管理DMS")]
 
 class DocumentController extends BaseController
 {

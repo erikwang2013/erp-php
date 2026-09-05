@@ -26,6 +26,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 #[\erikwang2013\apidoc\annotation\Title("职位")]
+#[\erikwang2013\apidoc\annotation\Group("人力资源")]
 
 class RecruitController extends BaseController
 {

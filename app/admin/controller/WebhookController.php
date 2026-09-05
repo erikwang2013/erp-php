@@ -21,6 +21,7 @@ use support\Response;
  * secret 加密入库，仅在创建时明文展示一次（不提供回显，丢失可重置）；
  * 事件名支持 "*" 通配订阅全部事件。
  */
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 class WebhookController extends BaseController
 {
     /**

@@ -12,6 +12,7 @@ use app\model\WmsAsn;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("预到货通知")]
+#[\erikwang2013\apidoc\annotation\Group("仓储管理WMS")]
 
 class AsnController extends BaseController
 {

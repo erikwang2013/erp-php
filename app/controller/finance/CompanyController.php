@@ -18,6 +18,7 @@ use support\Response;
  * 组织/公司管理（F1）——多组织与账套的入口。
  */
 #[\erikwang2013\apidoc\annotation\Title("公司")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 class CompanyController extends BaseController
 {
     /**

@@ -12,6 +12,7 @@ use app\model\FinanceCurrency;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("币种")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class CurrencyController extends BaseController
 {

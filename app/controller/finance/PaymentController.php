@@ -12,6 +12,7 @@ use app\model\FinancePayment;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("付款单")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class PaymentController extends BaseController
 {

@@ -16,6 +16,7 @@ use support\Response;
  * 集团合并报表（F2）——草稿生成/版本/抵销/出表。
  */
 #[\erikwang2013\apidoc\annotation\Title("生成合并草稿")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 class ConsolidationController extends BaseController
 {
     /**

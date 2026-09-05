@@ -14,6 +14,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("商机")]
+#[\erikwang2013\apidoc\annotation\Group("CRM")]
 
 class OpportunityController extends BaseController
 {

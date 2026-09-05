@@ -13,6 +13,7 @@ use app\service\tms\FreightCalculatorService;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("运费费率")]
+#[\erikwang2013\apidoc\annotation\Group("运输管理TMS")]
 
 class FreightRateController extends BaseController
 {

@@ -24,6 +24,7 @@ use support\Response;
  * 本控制器管理画布拓扑（节点坐标 / 边 / 分支条件）。
  */
 #[\erikwang2013\apidoc\annotation\Title("读取流程画布")]
+#[\erikwang2013\apidoc\annotation\Group("审批工作流")]
 class WorkflowDesignerController extends BaseController
 {
     /**

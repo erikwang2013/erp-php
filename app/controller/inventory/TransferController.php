@@ -12,6 +12,7 @@ use app\model\Transfer;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("库存调拨")]
+#[\erikwang2013\apidoc\annotation\Group("库存管理")]
 
 class TransferController extends BaseController
 {

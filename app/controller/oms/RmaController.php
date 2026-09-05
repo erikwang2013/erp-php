@@ -12,6 +12,7 @@ use app\model\OmsRma;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("退换货单")]
+#[\erikwang2013\apidoc\annotation\Group("订单管理OMS")]
 
 class RmaController extends BaseController
 {

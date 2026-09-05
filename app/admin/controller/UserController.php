@@ -17,6 +17,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("用户管理")]
 #[\erikwang2013\apidoc\annotation\Title("用户")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class UserController extends BaseController
 {

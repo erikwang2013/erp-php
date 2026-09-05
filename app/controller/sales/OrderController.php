@@ -15,6 +15,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("销售订单")]
+#[\erikwang2013\apidoc\annotation\Group("销售管理")]
 
 class OrderController extends BaseController
 {

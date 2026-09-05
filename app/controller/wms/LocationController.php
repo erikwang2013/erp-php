@@ -12,6 +12,7 @@ use app\model\WmsLocation;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("库位")]
+#[\erikwang2013\apidoc\annotation\Group("仓储管理WMS")]
 
 class LocationController extends BaseController
 {

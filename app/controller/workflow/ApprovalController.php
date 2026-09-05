@@ -20,6 +20,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("审批工作流")]
 #[\erikwang2013\apidoc\annotation\Title("审批")]
+#[\erikwang2013\apidoc\annotation\Group("审批工作流")]
 
 class ApprovalController extends BaseController
 {

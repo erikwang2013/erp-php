@@ -11,6 +11,7 @@ namespace app\admin\controller;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("文件上传")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class UploadController extends BaseController
 {

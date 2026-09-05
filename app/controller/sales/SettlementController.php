@@ -20,6 +20,7 @@ use support\Response;
  * 状态由 settled_amount/amount 推导；核销走 FinanceService::settleReceipt。
  */
 #[\erikwang2013\apidoc\annotation\Title("销售结算")]
+#[\erikwang2013\apidoc\annotation\Group("销售管理")]
 class SettlementController extends BaseController
 {
     private const AR_TYPE = 1;

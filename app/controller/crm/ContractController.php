@@ -16,6 +16,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("合同")]
+#[\erikwang2013\apidoc\annotation\Group("CRM")]
 
 class ContractController extends BaseController
 {

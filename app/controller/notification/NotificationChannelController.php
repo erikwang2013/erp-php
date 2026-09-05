@@ -25,6 +25,7 @@ use support\Response;
  * 稳定契约，勿在此层改写）。
  */
 #[\erikwang2013\apidoc\annotation\Title("发送渠道通知")]
+#[\erikwang2013\apidoc\annotation\Group("消息通知")]
 class NotificationChannelController extends BaseController
 {
     private ChannelService $service;

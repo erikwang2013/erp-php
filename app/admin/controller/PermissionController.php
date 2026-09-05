@@ -12,6 +12,7 @@ use app\model\AdminPermission;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("权限树")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class PermissionController extends BaseController
 {

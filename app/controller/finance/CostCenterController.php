@@ -12,6 +12,7 @@ use app\model\FinanceCostCenter;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("成本中心")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class CostCenterController extends BaseController
 {

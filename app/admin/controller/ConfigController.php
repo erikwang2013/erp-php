@@ -12,6 +12,7 @@ use app\model\SystemConfig;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("系统配置")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class ConfigController extends BaseController
 {

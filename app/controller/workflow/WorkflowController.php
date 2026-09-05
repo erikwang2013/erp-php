@@ -13,6 +13,7 @@ use app\model\ApprovalWorkflow;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("工作流模板")]
+#[\erikwang2013\apidoc\annotation\Group("审批工作流")]
 
 class WorkflowController extends BaseController
 {

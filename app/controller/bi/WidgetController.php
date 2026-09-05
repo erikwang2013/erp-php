@@ -17,6 +17,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("BI看板")]
 #[\erikwang2013\apidoc\annotation\Title("图表组件")]
+#[\erikwang2013\apidoc\annotation\Group("BI看板")]
 
 class WidgetController extends BaseController
 {

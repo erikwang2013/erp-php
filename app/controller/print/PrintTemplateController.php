@@ -22,6 +22,7 @@ use support\Response;
  * CRUD 走 hashid 路由；render/pdf 用模板 code 直调（单据侧集成按 code 引用模板）。
  */
 #[\erikwang2013\apidoc\annotation\Title("打印模板")]
+#[\erikwang2013\apidoc\annotation\Group("打印模板")]
 class PrintTemplateController extends BaseController
 {
     /**

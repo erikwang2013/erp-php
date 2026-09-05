@@ -12,6 +12,7 @@ use app\model\TmsTrackingEvent;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("物流轨迹")]
+#[\erikwang2013\apidoc\annotation\Group("运输管理TMS")]
 
 class TrackingController extends BaseController
 {

@@ -21,6 +21,7 @@ use support\Response;
  * 服务在保存 custom_fields 前调用）。
  */
 #[\erikwang2013\apidoc\annotation\Title("自定义字段定义")]
+#[\erikwang2013\apidoc\annotation\Group("平台管理")]
 class CustomFieldController extends BaseController
 {
     /**

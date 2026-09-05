@@ -12,6 +12,7 @@ use app\model\FinanceBankAccount;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("银行账户")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class BankAccountController extends BaseController
 {

@@ -30,6 +30,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 #[\erikwang2013\apidoc\annotation\Title("委外发料单")]
+#[\erikwang2013\apidoc\annotation\Group("生产制造")]
 
 class SubcontractIssueController extends BaseController
 {

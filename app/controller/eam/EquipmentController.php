@@ -17,6 +17,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("设备管理")]
 #[\erikwang2013\apidoc\annotation\Title("设备")]
+#[\erikwang2013\apidoc\annotation\Group("设备管理EAM")]
 
 class EquipmentController extends BaseController
 {

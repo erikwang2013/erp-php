@@ -12,6 +12,7 @@ use app\model\SalesQuotation;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("销售报价")]
+#[\erikwang2013\apidoc\annotation\Group("销售管理")]
 
 class QuotationController extends BaseController
 {

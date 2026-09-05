@@ -24,6 +24,7 @@ use support\Response;
  * （decodeIdSafe，同 CompanyController 双解码惯例）。
  */
 #[\erikwang2013\apidoc\annotation\Title("租户")]
+#[\erikwang2013\apidoc\annotation\Group("平台管理")]
 class TenantController extends BaseController
 {
     private TenantService $service;

@@ -12,6 +12,7 @@ use app\model\Channel;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("销售渠道")]
+#[\erikwang2013\apidoc\annotation\Group("订单管理OMS")]
 
 class ChannelController extends BaseController
 {

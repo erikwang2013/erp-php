@@ -15,6 +15,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("客户")]
+#[\erikwang2013\apidoc\annotation\Group("商品基础数据")]
 
 class CustomerController extends BaseController
 {

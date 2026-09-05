@@ -14,6 +14,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("仓库")]
+#[\erikwang2013\apidoc\annotation\Group("商品基础数据")]
 
 class WarehouseController extends BaseController
 {

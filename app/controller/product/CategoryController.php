@@ -14,6 +14,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("分类")]
+#[\erikwang2013\apidoc\annotation\Group("商品基础数据")]
 
 class CategoryController extends BaseController
 {

@@ -12,6 +12,7 @@ use app\model\FinanceExchangeRate;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("汇率")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class ExchangeRateController extends BaseController
 {

@@ -14,6 +14,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("营销活动")]
+#[\erikwang2013\apidoc\annotation\Group("CRM")]
 
 class CampaignController extends BaseController
 {

@@ -12,6 +12,7 @@ use app\model\SalesReturn;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("销售退货")]
+#[\erikwang2013\apidoc\annotation\Group("销售管理")]
 
 class ReturnController extends BaseController
 {

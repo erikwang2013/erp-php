@@ -12,6 +12,7 @@ use app\model\ProjectTask;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("项目任务")]
+#[\erikwang2013\apidoc\annotation\Group("项目管理")]
 
 class TaskController extends BaseController
 {

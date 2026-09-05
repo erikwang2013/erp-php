@@ -21,6 +21,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
 #[\erikwang2013\apidoc\annotation\Title("报表模板")]
+#[\erikwang2013\apidoc\annotation\Group("自定义报表")]
 
 class ReportController extends BaseController
 {

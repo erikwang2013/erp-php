@@ -22,6 +22,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 #[\erikwang2013\apidoc\annotation\Title("考勤记录")]
+#[\erikwang2013\apidoc\annotation\Group("人力资源")]
 
 class AttendanceController extends BaseController
 {

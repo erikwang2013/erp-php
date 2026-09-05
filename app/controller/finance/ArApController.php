@@ -13,6 +13,7 @@ use app\service\finance\FinanceService;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("应收应付")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class ArApController extends BaseController
 {

@@ -17,6 +17,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 #[\erikwang2013\apidoc\annotation\Title("收款")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class ReceiptController extends BaseController
 {

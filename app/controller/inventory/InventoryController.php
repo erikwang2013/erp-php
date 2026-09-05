@@ -17,6 +17,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("库存管理")]
 #[\erikwang2013\apidoc\annotation\Title("库存")]
+#[\erikwang2013\apidoc\annotation\Group("库存管理")]
 
 class InventoryController extends BaseController
 {

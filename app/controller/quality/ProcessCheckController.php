@@ -17,6 +17,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("质量管理")]
 #[\erikwang2013\apidoc\annotation\Title("过程检验记录")]
+#[\erikwang2013\apidoc\annotation\Group("质量管理QMS")]
 
 class ProcessCheckController extends BaseController
 {

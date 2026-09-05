@@ -13,6 +13,7 @@ use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("波次管理")]
 #[\erikwang2013\apidoc\annotation\Title("波次")]
+#[\erikwang2013\apidoc\annotation\Group("仓储管理WMS")]
 
 class WaveController extends BaseController
 {

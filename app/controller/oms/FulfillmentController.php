@@ -12,6 +12,7 @@ use app\model\OmsFulfillment;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("履约单")]
+#[\erikwang2013\apidoc\annotation\Group("订单管理OMS")]
 
 class FulfillmentController extends BaseController
 {

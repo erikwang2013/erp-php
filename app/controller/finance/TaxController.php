@@ -13,6 +13,7 @@ use app\model\FinanceTaxRecord;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("税率")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class TaxController extends BaseController
 {

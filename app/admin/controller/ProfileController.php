@@ -15,6 +15,7 @@ use support\Redis;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("更新个人")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class ProfileController extends BaseController
 {

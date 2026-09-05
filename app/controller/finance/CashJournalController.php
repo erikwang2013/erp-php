@@ -12,6 +12,7 @@ use app\model\FinanceCashJournal;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("现金日记账")]
+#[\erikwang2013\apidoc\annotation\Group("财务管理")]
 
 class CashJournalController extends BaseController
 {

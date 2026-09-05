@@ -10,6 +10,7 @@ namespace app\controller;
 
 use support\Request;
 #[\erikwang2013\apidoc\annotation\Title("首页")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class IndexController
 {

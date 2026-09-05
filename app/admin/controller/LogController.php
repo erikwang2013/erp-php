@@ -12,6 +12,7 @@ use app\model\OperationLog;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("操作日志")]
+#[\erikwang2013\apidoc\annotation\Group("系统管理")]
 
 class LogController extends BaseController
 {

@@ -16,6 +16,7 @@ use support\Response;
  * 文档分类管理
  */
 #[\erikwang2013\apidoc\annotation\Title("文档分类")]
+#[\erikwang2013\apidoc\annotation\Group("文档管理DMS")]
 
 
 class CategoryController extends BaseController

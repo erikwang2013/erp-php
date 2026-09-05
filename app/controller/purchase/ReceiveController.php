@@ -24,6 +24,7 @@ use support\Response;
  */
 #[\erikwang2013\apidoc\annotation\Tag("采购管理")]
 #[\erikwang2013\apidoc\annotation\Title("收货单")]
+#[\erikwang2013\apidoc\annotation\Group("采购管理")]
 
 class ReceiveController extends BaseController
 {

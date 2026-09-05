@@ -13,6 +13,7 @@ use support\Request;
 use support\Response;
 use Throwable;
 #[\erikwang2013\apidoc\annotation\Title("生成点击验证码")]
+#[\erikwang2013\apidoc\annotation\Group("客户端认证")]
 
 class CaptchaController
 {
