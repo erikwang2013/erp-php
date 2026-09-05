@@ -31,6 +31,10 @@ class RateLimit implements MiddlewareInterface
     public function process(Request $request, callable $handler): Response
     {
         $path = $request->path();
+        // 安装向导（/install*）放行（引导阶段用户 IP 高频操作属正常）
+        if (str_starts_with($path, 'install')) {
+            return $handler($request);
+        }
         $ip = $request->getRealIp();
 
         $limit = $this->defaultLimit;

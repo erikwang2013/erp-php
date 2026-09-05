@@ -65,6 +65,11 @@ class SecurityFilter implements MiddlewareInterface
 
     public function process(Request $request, callable $handler): Response
     {
+        // 安装向导（/install*）放行：引导阶段无会话/无数据可护，且表单含密码等字段不应被规则扫描
+        if (str_starts_with($request->path(), 'install')) {
+            return $handler($request);
+        }
+
         // 0. HTTP 方法限制 — 仅允许标准方法
         $method = $request->method();
         if (!in_array($method, ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], true)) {
