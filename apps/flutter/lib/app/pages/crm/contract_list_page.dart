@@ -4,6 +4,7 @@ import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
+import '../../widgets/status_badge.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
 
@@ -196,13 +197,6 @@ class _ContractListPageState extends State<ContractListPage> {
       5 => (c.dangerBg, c.dangerText),
       _ => (c.primaryBg, c.primaryPressed),
     };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(text, style: TextStyle(color: fg, fontSize: 12)),
-    );
+    return StatusBadge(label: text, bg: bg, fg: fg);
   }
 }

@@ -66,6 +66,7 @@ class _SubsidiaryLedgerPageState extends State<SubsidiaryLedgerPage> {
         onSubmitted: (v) { _endDate = v; _page = 1; _load(); },
       )),
     ]),
+    rightAlignColumns: [0, 3, 4],
   );
 
   List<String> _columns() => [AppL10n.current.financeDate, AppL10n.current.financeSummary, AppL10n.current.financeDirection, AppL10n.current.financeAmount, AppL10n.current.financeBalance];

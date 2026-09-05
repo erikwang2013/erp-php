@@ -86,6 +86,7 @@ class _ProductListPageState extends State<ProductListPage> {
     actions: [
       ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(AppL10n.of(context).commonAdd)),
     ],
+    rightAlignColumns: [3],
   );
 
   List<String> _columns() {

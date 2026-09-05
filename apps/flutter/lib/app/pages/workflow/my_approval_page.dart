@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
+import '../../widgets/status_badge.dart';
 import '../../l10n/app_l10n.dart';
 
 /// 我的审批页 — 覆盖 GET /admin/approval/my 及动作端点：
@@ -162,6 +163,7 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
+    rightAlignColumns: [3],
   );
 
   List<String> _columns() {
@@ -203,13 +205,6 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
       2 || 3 => (c.dangerBg, c.dangerText),
       _ => (c.primaryBg, c.primaryPressed),
     };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(_statusText(s), style: TextStyle(color: fg, fontSize: 12)),
-    );
+    return StatusBadge(label: _statusText(s), bg: bg, fg: fg);
   }
 }

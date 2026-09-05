@@ -45,6 +45,7 @@ class _AttendancePageState extends State<AttendancePage> {
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
     actions: const [],
+    rightAlignColumns: [1],
   );
 
   List<String> _columns() => [

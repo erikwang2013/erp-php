@@ -79,6 +79,7 @@ class _SalaryItemPageState extends State<SalaryItemPage> {
       actions: [
         ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(l10n.hrSalaryItemCreateTitle)),
       ],
+      rightAlignColumns: [4],
     );
   }
 

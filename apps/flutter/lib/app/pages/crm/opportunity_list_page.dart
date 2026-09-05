@@ -86,6 +86,7 @@ class _OpportunityListPageState extends State<OpportunityListPage> {
     actions: [
       ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(AppL10n.of(context).commonAdd)),
     ],
+    rightAlignColumns: [2],
   );
 
   List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.crmCode, AppL10n.current.crmAmount, AppL10n.current.crmOpportunityStage, AppL10n.current.commonAction];

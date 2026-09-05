@@ -13,6 +13,7 @@ import 'package:admin_app/app/pages/product/product_list_page.dart';
 import 'package:admin_app/app/pages/project/project_list_page.dart';
 import 'package:admin_app/app/pages/sales/order_list_page.dart';
 import 'package:admin_app/app/pages/workflow/my_approval_page.dart';
+import 'package:admin_app/app/widgets/status_badge.dart';
 import 'package:admin_app/app/services/api_service.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
@@ -81,7 +82,9 @@ void main() {
       expect(find.text('订单编号'), findsOneWidget);
       expect(find.text('SO20260801'), findsOneWidget);
       expect(find.text('1280.00'), findsOneWidget);
-      expect(find.text('已发货'), findsOneWidget);
+      // 状态筛选已改为 chips 行(§5.2)，同一文案会同时出现在筛选 chips 与行内
+      // StatusBadge —— 此处断言行内徽标，而非裸文本
+      expect(find.descendant(of: find.byType(StatusBadge), matching: find.text('已发货')), findsOneWidget);
     });
   });
 

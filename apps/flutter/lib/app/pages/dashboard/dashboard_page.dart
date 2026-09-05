@@ -198,8 +198,8 @@ class DashboardPage extends GetView<DashboardController> {
     final c = AppColors.of(context);
     final list = controller.bizSales['status_distribution'] as List<dynamic>? ?? [];
     // 图例与 controller.orderStatusSections 的饼图切片颜色按下标一一对应：前三色为 token
-    // 主色/成功/警示（两主题下与注册图表色一致），后两色保持注册图表字面量（chart_5/未注册 magenta 待收口）
-    final colors = [c.primary, c.success, c.warning, const Color(0xFF722ED1), const Color(0xFFEB2F96)];
+    // 主色/成功/警示（两主题下与注册图表色一致），后两色保持注册图表字面量（chart_5/chart_6）
+    final colors = [c.primary, c.success, c.warning, const Color(0xFF722ED1), const Color(0xFF13C2C2)];
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),

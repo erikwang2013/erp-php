@@ -86,6 +86,7 @@ class _ExchangeRatePageState extends State<ExchangeRatePage> {
     actions: [
       ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(AppL10n.of(context).financeExchangeRateAdd)),
     ],
+    rightAlignColumns: [2, 3],
   );
 
   List<String> _columns() => [AppL10n.current.financeOriginCurrencyId, AppL10n.current.financeTargetCurrencyId, AppL10n.current.financeRate, AppL10n.current.financeEffectiveDate, AppL10n.current.commonAction];

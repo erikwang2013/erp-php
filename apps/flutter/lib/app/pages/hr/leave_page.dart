@@ -4,6 +4,7 @@ import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
+import '../../widgets/status_badge.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
 
@@ -170,6 +171,7 @@ class _LeavePageState extends State<LeavePage> {
       actions: [
         ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(l10n.commonAdd)),
       ],
+      rightAlignColumns: [2],
     );
   }
 
@@ -251,13 +253,6 @@ class _LeavePageState extends State<LeavePage> {
       2 => (c.dangerBg, c.dangerText),
       _ => (c.primaryBg, c.primaryPressed),
     };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(_statusText(s), style: TextStyle(color: fg, fontSize: 12)),
-    );
+    return StatusBadge(label: _statusText(s), bg: bg, fg: fg);
   }
 }

@@ -58,6 +58,7 @@ class _NotificationPageState extends State<NotificationPage> {
         label: Text(AppL10n.of(context).notificationMarkAllRead),
       ),
     ],
+    rightAlignColumns: [2],
   );
 
   List<String> _columns() {

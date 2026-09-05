@@ -32,7 +32,7 @@ class DashboardController extends GetxController {
   }
 
   List<PieChartSectionData> get orderStatusSections {
-    const colors = [Color(0xFF1677FF), Color(0xFF52C41A), Color(0xFFFA8C16), Color(0xFF722ED1), Color(0xFFEB2F96)];
+    const colors = [Color(0xFF1677FF), Color(0xFF52C41A), Color(0xFFFA8C16), Color(0xFF722ED1), Color(0xFF13C2C2)];
     final list = bizSales['status_distribution'] as List<dynamic>? ?? [];
     return List.generate(list.length, (i) {
       final item = list[i] as Map<String, dynamic>;

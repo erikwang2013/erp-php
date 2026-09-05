@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
+import '../../widgets/status_badge.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../l10n/app_l10n.dart';
@@ -408,13 +409,6 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
       bg = c.dangerBg;
       fg = c.dangerText;
     }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(s, style: TextStyle(color: fg, fontSize: 12)),
-    );
+    return StatusBadge(label: s, bg: bg, fg: fg);
   }
 }

@@ -4,6 +4,7 @@ import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
+import '../../widgets/status_badge.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
 
@@ -110,6 +111,7 @@ class _BankAccountPageState extends State<BankAccountPage> {
     actions: [
       ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(AppL10n.of(context).financeBankAddButton)),
     ],
+    rightAlignColumns: [3],
   );
 
   List<String> _columns() => [AppL10n.current.financeBankAccountName, AppL10n.current.financeBankAccountNumber, AppL10n.current.financeBankBankName, AppL10n.current.financeBalance, AppL10n.current.commonStatus, AppL10n.current.commonAction];
@@ -136,13 +138,6 @@ class _BankAccountPageState extends State<BankAccountPage> {
       1 => (c.successBg, c.successText),
       _ => (c.primaryBg, c.primaryPressed),
     };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(label, style: TextStyle(color: fg, fontSize: 12)),
-    );
+    return StatusBadge(label: label, bg: bg, fg: fg);
   }
 }
