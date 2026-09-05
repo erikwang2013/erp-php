@@ -609,8 +609,8 @@ class InstallController
         .pm-step{margin-top:12px;font-size:13.5px;color:#64748b;min-height:20px}
         .pm-err{margin-top:10px;font-size:13px;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;text-align:left;line-height:1.6;word-break:break-all}
         #pm-retry{margin-top:14px}
-        .adv-box{margin:18px 0;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;padding:4px 18px 14px}
-        .adv-box .adv-head{font-size:14px;font-weight:700;color:#4338ca;padding:12px 0 6px}
+        .adv-panel{margin:18px 0;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;padding:4px 18px 14px}
+        .adv-panel .adv-panel-title{font-size:14px;font-weight:700;color:#4338ca;padding:12px 0 6px}
         @media(max-width:720px){body{padding:28px 14px 40px}.card{padding:24px 20px}.form-row{flex-direction:column;gap:0}.step-label{display:none}.step-line{max-width:26px}}
         </style>
         </head>

@@ -11,8 +11,8 @@
 <div class="form-group"><label>密码</label><input type="password" name="password" value="<?= $h('password') ?>"></div>
 <div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="<?= $h('prefix','erp_') ?>" required></div>
 
-<div class="adv-box" id="adv-box" style="display:block;margin:18px 0;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;padding:12px 18px 16px">
-  <div class="adv-head" style="font-weight:700;color:#4338ca;padding:6px 0 10px">🔐 密钥与启动端口（高级）—— 留空则安装时自动生成</div>
+<div class="adv-panel" id="advPanel" style="display:block;margin:18px 0;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;padding:12px 18px 16px">
+  <div class="adv-panel-title" style="font-weight:700;color:#4338ca;padding:6px 0 10px">🔐 密钥与启动端口（高级）—— 留空则安装时自动生成</div>
   <div class="form-row" style="display:flex;gap:14px">
     <div class="form-group" style="flex:1"><label>JWT 签名密钥 JWT_SECRET_KEY</label><input name="jwt_secret" value="<?= $h('jwt_secret') ?>" placeholder="留空自动生成（推荐）"><div class="hint">令牌签名，泄露可伪造登录态</div></div>
     <div class="form-group" style="flex:1"><label>接口传输密钥 ENCRYPTION_KEY</label><input name="encryption_key" value="<?= $h('encryption_key') ?>" placeholder="留空自动生成（推荐）"></div>
