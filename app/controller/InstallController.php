@@ -107,11 +107,8 @@ class InstallController
                 return json(['code' => 1, 'message' => '非法的主机或端口参数']);
             }
 
+            // 连通性测试只连服务器（不带 dbname）：数据库可能尚未创建
             $dsn = "mysql:host={$host};port={$port};charset=utf8mb4";
-            if ($database) {
-                $dsn .= ";dbname={$database}";
-            }
-
             $pdo = new \PDO($dsn, $username, $password, [
                 \PDO::ATTR_TIMEOUT => 5,
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
@@ -122,7 +119,17 @@ class InstallController
                 return json(['code' => 1, 'message' => "MySQL 版本需 >= 8.0，当前: {$version}"]);
             }
 
-            return json(['code' => 0, 'message' => "连接成功，MySQL {$version}"]);
+            // 库存在性单独探测（缺失不阻塞连通性结论）
+            $dbExists = false;
+            if ($database && preg_match('/^[a-zA-Z0-9_\-]+$/', $database)) {
+                $stmt = $pdo->prepare('SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?');
+                $stmt->execute([$database]);
+                $dbExists = (int) $stmt->fetchColumn() > 0;
+            }
+
+            return json(['code' => 0, 'message' => "连接成功，MySQL {$version}" . ($database
+                ? ($dbExists ? "；数据库 {$database} 已存在" : "；数据库 {$database} 尚不存在，安装时将自动创建")
+                : '')]);
         } catch (\PDOException $e) {
             return json(['code' => 1, 'message' => '连接失败: ' . $e->getMessage()]);
         }
@@ -431,7 +438,20 @@ class InstallController
         $adminUser = trim($request->input('admin_username'));
         $adminPass = $request->input('admin_password');
 
+        // 库名白名单（防注入）；库不存在时自动创建（测试连接不再要求预建库）
+        if (!preg_match('/^[a-zA-Z0-9_\-]+$/', (string) $db['database'])) {
+            return ['数据库名只能包含字母、数字、下划线与连字符'];
+        }
+
         try {
+            $server = new \PDO(
+                "mysql:host={$db['host']};port={$db['port']};charset=utf8mb4",
+                $db['username'],
+                $db['password'],
+                [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
+            );
+            $server->exec('CREATE DATABASE IF NOT EXISTS `' . $db['database'] . '` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+
             $pdo = new \PDO(
                 "mysql:host={$db['host']};port={$db['port']};dbname={$db['database']};charset=utf8mb4",
                 $db['username'],
