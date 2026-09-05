@@ -232,6 +232,17 @@ open-erp/
 - Flutter >= 3.41（仅前端开发需要）
 - Elasticsearch >= 7.x（可选，搜索功能需要）
 
+## 默认本地域名
+
+项目默认使用本地域名 **`http://erp.test`**（Flutter 与 HarmonyOS 客户端的默认 API 地址、后端 Web 入口约定）。
+
+- **本机访问**：在 hosts 中添加一行 `127.0.0.1 erp.test`，并将 Web 服务器/反代指向后端监听端口（默认 `8788`，见 `.env` 的 `APP_HTTP_PORT`，可在安装向导或 `.env` 中修改；WebSocket 默认 `8282` 对应 `APP_WS_PORT`）。
+- **改部署域名**：
+  - Flutter 构建注入：`flutter build web --dart-define=API_BASE_URL=https://你的域名`
+  - HarmonyOS：编辑 `apps/harmonyos/entry/src/main/ets/service/ApiService.ets` 的 `BASE_URL`
+  - 模拟器调试可临时改回 `http://10.0.2.2:8788`（访问宿主机）
+- 所有接口版本已置于路径（`/admin/v1`、`/api/v1`、`/open/v1`），客户端只需配置根地址。
+
 ## 快速开始
 
 ### 1. 安装依赖
