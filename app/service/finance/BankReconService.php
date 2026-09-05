@@ -144,13 +144,13 @@ class BankReconService
         if ($matched === 1) {
             $query->whereExists(function ($q) use ($accountId): void {
                 $q->select(DB::raw(1))->from('finance_bank_recon_match')
-                    ->whereColumn('statement_id', 'erp_finance_bank_statement.id')
+                    ->whereColumn('statement_id', db_prefix().'finance_bank_statement.id')
                     ->where('bank_account_id', $accountId);
             });
         } elseif ($matched === 0) {
             $query->whereNotExists(function ($q) use ($accountId): void {
                 $q->select(DB::raw(1))->from('finance_bank_recon_match')
-                    ->whereColumn('statement_id', 'erp_finance_bank_statement.id')
+                    ->whereColumn('statement_id', db_prefix().'finance_bank_statement.id')
                     ->where('bank_account_id', $accountId);
             });
         }
@@ -181,7 +181,7 @@ class BankReconService
         $statements = FinanceBankStatement::where('bank_account_id', $accountId)
             ->whereBetween('stmt_date', [$from, $to])->whereNotExists(function ($q) use ($accountId): void {
                 $q->select(DB::raw(1))->from('finance_bank_recon_match')
-                    ->whereColumn('statement_id', 'erp_finance_bank_statement.id')
+                    ->whereColumn('statement_id', db_prefix().'finance_bank_statement.id')
                     ->where('bank_account_id', $accountId);
             })->orderBy('stmt_date')->orderBy('id')->get()->all();
         $pool = $this->unmatchedJournals($accountId, $from, $to, $windowDays);
@@ -328,7 +328,7 @@ class BankReconService
             ->where('bank_account_id', $accountId)
             ->whereBetween('stmt_date', [$from, $to])->whereNotExists(function ($q) use ($accountId): void {
                 $q->select(DB::raw(1))->from('finance_bank_recon_match')
-                    ->whereColumn('statement_id', 'erp_finance_bank_statement.id')
+                    ->whereColumn('statement_id', db_prefix().'finance_bank_statement.id')
                     ->where('bank_account_id', $accountId);
             })->orderBy('stmt_date')->orderBy('id')
             ->get(['id', 'bank_account_id', 'stmt_date', 'direction', 'amount', 'counterparty', 'reference', 'balance_after', 'import_batch'])
@@ -358,7 +358,7 @@ class BankReconService
             ->whereBetween('journal_date', [$start, $end])
             ->whereNotExists(function ($q) use ($accountId): void {
                 $q->select(DB::raw(1))->from('finance_bank_recon_match')
-                    ->whereColumn('cash_journal_id', 'erp_finance_cash_journal.id')
+                    ->whereColumn('cash_journal_id', db_prefix().'finance_cash_journal.id')
                     ->where('bank_account_id', $accountId);
             })->orderBy('journal_date')->orderBy('id')
             ->get(['id', 'journal_date', 'direction', 'amount', 'summary', 'source_type', 'source_id'])

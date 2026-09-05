@@ -283,12 +283,12 @@ class DashboardController extends BaseController
     private function getTopProducts(string $startOfRange): array
     {
         $top = SalesOrderItem::query()
-            ->join('sales_order', 'erp_sales_order.id', '=', 'erp_sales_order_item.order_id')
-            ->whereNull('erp_sales_order.deleted_at')
-            ->whereDate('erp_sales_order.ordered_at', '>=', $startOfRange)
-            ->where('erp_sales_order.status', '!=', 4)
-            ->selectRaw('erp_sales_order_item.product_id, SUM(erp_sales_order_item.quantity) as qty')
-            ->groupBy('erp_sales_order_item.product_id')->orderByDesc('qty')->limit(5)
+            ->join('sales_order', db_prefix().'sales_order.id', '=', db_prefix().'sales_order_item.order_id')
+            ->whereNull(db_prefix().'sales_order.deleted_at')
+            ->whereDate(db_prefix().'sales_order.ordered_at', '>=', $startOfRange)
+            ->where(db_prefix().'sales_order.status', '!=', 4)
+            ->selectRaw(sprintf('%s.product_id, SUM(%s.quantity) as qty', db_prefix().'sales_order_item', db_prefix().'sales_order_item'))
+            ->groupBy(db_prefix().'sales_order_item.product_id')->orderByDesc('qty')->limit(5)
             ->get();
         $productNames = Product::whereIn('id', $top->pluck('product_id'))->pluck('name', 'id');
 

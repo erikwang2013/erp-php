@@ -193,6 +193,18 @@ function bc_abs(string|int|float $value): string
     return rtrim(rtrim(bcsub('0', $n, 6), '0'), '.');
 }
 
+/**
+ * 数据库表前缀（与 config/database.php 生效值同源）。
+ * Grammar 只对表参自动加前缀；限定列引用/原生 SQL 需物理表名时
+ * 用本函数拼接，避免二次硬编码 erp_。
+ */
+function db_prefix(): string
+{
+    $prefix = config('database.connections.mysql.prefix', '');
+
+    return $prefix !== '' ? (string) $prefix : (string) (getenv('DB_PREFIX') ?: '');
+}
+
 // poster-php 配置挂载：PosterConfig 默认只读包内 vendor config（driver 硬编码 auto），
 // 项目 config/poster.php 需在此显式加载才生效（生产与测试共用此引导路径）。
 // PosterConfig::load(null) 会按包内默认路径重载并因 mtime 不等而覆盖已挂载配置

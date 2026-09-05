@@ -46,7 +46,7 @@ class PieceWageService extends AbstractCrudService
         $now = date('Y-m-d H:i:s');
 
         DB::statement(
-            'INSERT INTO erp_mfg_piece_wage (id, employee_id, period_year, period_month, quantity, amount, created_at, updated_at) '
+            'INSERT INTO ' . db_prefix() . 'mfg_piece_wage (id, employee_id, period_year, period_month, quantity, amount, created_at, updated_at) '
             . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE '
             . 'quantity = quantity + VALUES(quantity), amount = amount + VALUES(amount), updated_at = VALUES(updated_at)',
             [$this->generateId(), $employeeId, $year, $month, $qty, $amount, $now, $now]

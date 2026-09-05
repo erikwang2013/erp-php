@@ -52,9 +52,9 @@ class SettlementController extends BaseController
 
         $query = FinanceArAp::query()->where('type', self::AR_TYPE)->where('source_type', self::SOURCE_TYPE);
         if ($keyword) {
-            $query->join('customer', 'erp_customer.id', '=', 'erp_finance_ar_ap.partner_id')
-                  ->select('erp_finance_ar_ap.*')
-                  ->where('erp_customer.name', 'like', "%{$keyword}%");
+            $query->join('customer', db_prefix().'customer.id', '=', db_prefix().'finance_ar_ap.partner_id')
+                  ->select(db_prefix().'finance_ar_ap.*')
+                  ->where(db_prefix().'customer.name', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->whereRaw(match ((int) $status) {
@@ -67,7 +67,7 @@ class SettlementController extends BaseController
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('erp_finance_ar_ap.id', 'desc')->get();
+            ->limit($limit)->orderBy(db_prefix().'finance_ar_ap.id', 'desc')->get();
 
         $settledAtMap = [];
         if (!$list->isEmpty()) {

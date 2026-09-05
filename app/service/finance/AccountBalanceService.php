@@ -45,14 +45,14 @@ class AccountBalanceService
         [$start, $end] = $this->periodRange($period);
 
         $rows = Db::select(
-            'SELECT vi.account_id, a.parent_id, a.code, a.name, a.direction,
+            str_replace('erp_', db_prefix(), 'SELECT vi.account_id, a.parent_id, a.code, a.name, a.direction,
                     ROUND(SUM(vi.debit_amount), 2) AS debit, ROUND(SUM(vi.credit_amount), 2) AS credit
              FROM erp_finance_voucher_item vi
              JOIN erp_finance_voucher v ON v.id = vi.voucher_id AND v.status = 1 AND v.deleted_at IS NULL
              JOIN erp_finance_account a ON a.id = vi.account_id AND a.deleted_at IS NULL AND a.status = 1
              WHERE v.voucher_date BETWEEN ? AND ?
              GROUP BY vi.account_id, a.parent_id, a.code, a.name, a.direction
-             ORDER BY a.code',
+             ORDER BY a.code'),
             [$start, $end]
         );
 
@@ -97,7 +97,7 @@ class AccountBalanceService
             $params[] = $start;
             $params[] = $end;
         }
-        $row = Db::selectOne($sql, $params);
+        $row = Db::selectOne(str_replace('erp_', db_prefix(), $sql), $params);
 
         return [bc_norm($row->debit), bc_norm($row->credit)];
     }

@@ -301,11 +301,11 @@ class MfgCostService extends AbstractCrudService
     private function calcStandardMaterialCost(int $orderId, int $bomId): string
     {
         $rows = MfgMaterialIssueItem::query()
-            ->join('mfg_material_issue as h', 'h.id', '=', 'erp_mfg_material_issue_item.issue_id')
+            ->join('mfg_material_issue as h', 'h.id', '=', db_prefix().'mfg_material_issue_item.issue_id')
             ->where('h.order_id', $orderId)
             ->where('h.status', 1)
-            ->orderBy('erp_mfg_material_issue_item.id')
-            ->get(['erp_mfg_material_issue_item.product_id', 'erp_mfg_material_issue_item.unit_cost']);
+            ->orderBy(db_prefix().'mfg_material_issue_item.id')
+            ->get([db_prefix().'mfg_material_issue_item.product_id', db_prefix().'mfg_material_issue_item.unit_cost']);
         // 按物料取最近一次审核领料的均价快照
         $lastCost = [];
         foreach ($rows as $row) {

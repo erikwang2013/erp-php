@@ -78,7 +78,7 @@ class LedgerBalanceService
         $sql .= ' GROUP BY i.account_id, a.code, a.name, a.type';
 
         $rows = [];
-        foreach (DB::select($sql, $binds) as $row) {
+        foreach (DB::select(str_replace('erp_', db_prefix(), $sql), $binds) as $row) {
             $rows[(int) $row->account_id] = [
                 'code' => (string) $row->code,
                 'name' => (string) $row->name,
@@ -172,7 +172,7 @@ class LedgerBalanceService
             . 'WHERE v.ledger_id = ? AND v.voucher_date <= ? AND a.type IN (4,5) '
             . 'GROUP BY a.type';
         $profit = '0';
-        foreach (DB::select($sql, [$ledgerId, $beforeDate]) as $row) {
+        foreach (DB::select(str_replace('erp_', db_prefix(), $sql), [$ledgerId, $beforeDate]) as $row) {
             // net 统一为贷-借口径：收入正值、费用负值（借-贷=-net），直接累加即 收入−费用
             $profit = bcadd($profit, bc_norm((string) $row->net), 6);
         }
@@ -198,7 +198,7 @@ class LedgerBalanceService
 
         $revenue = $expense = '0';
         $lines = [];
-        foreach (DB::select($sql, [$ledgerId, $start, $end]) as $row) {
+        foreach (DB::select(str_replace('erp_', db_prefix(), $sql), [$ledgerId, $start, $end]) as $row) {
             // type4 收入 net=贷-借；type5 费用取反为借-贷正数
             if ((int) $row->type === 4) {
                 $revenue = bcadd($revenue, bc_norm((string) $row->net), 6);
@@ -242,7 +242,7 @@ class LedgerBalanceService
             . 'JOIN erp_finance_account a ON a.id = i.account_id '
             . 'WHERE v.ledger_id = ? AND v.voucher_date BETWEEN ? AND ? '
             . 'ORDER BY i.voucher_id';
-        $rows = DB::select($sql, [$ledgerId, $start, $end]);
+        $rows = DB::select(str_replace('erp_', db_prefix(), $sql), [$ledgerId, $start, $end]);
 
         $buckets = ['operating' => '0', 'investing' => '0', 'financing' => '0'];
         foreach ($rows as $row) {
@@ -325,7 +325,7 @@ class LedgerBalanceService
         }
         $sql .= ' GROUP BY a.code';
         $balance = '0';
-        foreach (DB::select($sql, $binds) as $row) {
+        foreach (DB::select(str_replace('erp_', db_prefix(), $sql), $binds) as $row) {
             if (self::isCashAccount((string) $row->code)) {
                 $balance = bcadd($balance, bc_norm((string) $row->net), 6);
             }
