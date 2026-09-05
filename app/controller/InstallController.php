@@ -364,12 +364,80 @@ class InstallController
             </ol>
             <div class="notice-tip">全过程约需数秒，请勿关闭页面。安装后 .env 将标记 APP_INSTALLED=true，重复访问 /install 将跳转完成页。</div>
         </div>
-        <form method="post" class="install-actions">
+        <form method="post" class="install-actions" id="install-form">
         <input type="hidden" name="step" value="3">
         {$hidden}
         <a href="/install?step=2" class="btn btn-secondary">← 上一步</a>
-        <button type="submit" class="btn btn-install">🚀 开始安装</button>
+        <button type="submit" id="install-btn" class="btn btn-install">🚀 开始安装</button>
         </form>
+
+        <div id="progress-mask" style="display:none">
+            <div class="pm-card">
+                <div class="pm-title" id="pm-title">正在安装 open-erp…</div>
+                <div class="pm-track"><div class="pm-bar" id="pm-bar"></div></div>
+                <div class="pm-step" id="pm-step">准备中…</div>
+                <div class="pm-err" id="pm-err" style="display:none"></div>
+                <button type="button" id="pm-retry" class="btn btn-install" style="display:none">🔄 重试</button>
+            </div>
+        </div>
+        <script>
+        (function () {
+            var form = document.getElementById('install-form');
+            var mask = document.getElementById('progress-mask');
+            var bar = document.getElementById('pm-bar');
+            var stepEl = document.getElementById('pm-step');
+            var errEl = document.getElementById('pm-err');
+            var retryBtn = document.getElementById('pm-retry');
+            var phases = ['写入配置文件…', '创建数据库…', '导入表结构与种子数据…', '创建管理员账号…', '即将完成…'];
+            var lastFd = null;
+
+            function run(fd) {
+                lastFd = fd;
+                mask.style.display = 'flex';
+                errEl.style.display = 'none';
+                retryBtn.style.display = 'none';
+                bar.style.width = '8%';
+                var i = 0;
+                var timer = setInterval(function () {
+                    i = Math.min(i + 1, phases.length - 1);
+                    stepEl.textContent = phases[i];
+                    bar.style.width = Math.min(8 + i * 17 + 6, 88) + '%';
+                }, 700);
+                fetch(form.action, { method: 'POST', body: fd })
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) {
+                        clearInterval(timer);
+                        bar.style.width = '100%';
+                        if (html.indexOf('系统已成功安装') !== -1 || html.indexOf('安装完成') !== -1) {
+                            stepEl.textContent = '✅ 安装成功，正在跳转…';
+                            setTimeout(function () { location.href = '/install'; }, 900);
+                        } else {
+                            var doc = new DOMParser().parseFromString(html, 'text/html');
+                            var alert = doc.querySelector('.alert-error');
+                            bar.style.width = '0%';
+                            errEl.style.display = 'block';
+                            errEl.textContent = '安装未完成：' + (alert ? alert.textContent.trim() : '未知错误，请查看服务端日志');
+                            retryBtn.style.display = 'inline-flex';
+                            stepEl.textContent = '';
+                        }
+                    })
+                    .catch(function (e) {
+                        clearInterval(timer);
+                        bar.style.width = '0%';
+                        errEl.style.display = 'block';
+                        errEl.textContent = '请求失败：' + e.message;
+                        retryBtn.style.display = 'inline-flex';
+                        stepEl.textContent = '';
+                    });
+            }
+
+            form.addEventListener('submit', function (ev) {
+                ev.preventDefault();
+                run(new FormData(form));
+            });
+            retryBtn.addEventListener('click', function () { if (lastFd) run(lastFd); });
+        })();
+        </script>
         HTML;
     }
 
@@ -636,6 +704,14 @@ class InstallController
         .env-fail{display:inline-flex;align-items:center;gap:6px;color:var(--err);font-weight:600}
         #test-result{margin-top:10px;font-size:13.5px}
         .foot{color:#94a3b8;font-size:12px;margin-top:26px;letter-spacing:.3px}
+        #progress-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:99;padding:20px}
+        .pm-card{background:#fff;border-radius:16px;padding:30px 34px;width:min(480px,100%);box-shadow:0 24px 60px -16px rgba(15,23,42,.4);text-align:center}
+        .pm-title{font-size:16.5px;font-weight:700;margin-bottom:18px}
+        .pm-track{height:10px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+        .pm-bar{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#6366f1,#059669);transition:width .6s ease}
+        .pm-step{margin-top:12px;font-size:13.5px;color:#64748b;min-height:20px}
+        .pm-err{margin-top:10px;font-size:13px;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;text-align:left;line-height:1.6;word-break:break-all}
+        #pm-retry{margin-top:14px}
         @media(max-width:720px){body{padding:28px 14px 40px}.card{padding:24px 20px}.form-row{flex-direction:column;gap:0}.step-label{display:none}.step-line{max-width:26px}}
         </style>
         </head>
