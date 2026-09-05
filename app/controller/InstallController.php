@@ -291,6 +291,7 @@ class InstallController
         <div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="{$h('prefix', 'erp_')}" required></div>
         {$adv}
         <div class="form-actions">
+            <a href="/install" class="btn btn-secondary">← 上一步（环境检查）</a>
             <button type="button" id="test-db-btn" class="btn btn-secondary">测试连接</button>
             <button type="submit" class="btn">下一步：管理员账号</button>
         </div>
@@ -337,6 +338,7 @@ class InstallController
         <div class="form-group"><label>管理员用户名</label><input type="text" name="admin_username" value="{$u}" required minlength="3"></div>
         <div class="form-group"><label>管理员密码</label><input type="password" name="admin_password" required minlength="6" placeholder="至少6位"></div>
         <div class="form-group"><label>确认密码</label><input type="password" name="admin_password_confirm" required minlength="6" placeholder="再次输入密码"></div>
+        <a href="/install?step=1" class="btn btn-secondary">← 上一步（数据库配置）</a>
         <button type="submit" class="btn">下一步：确认安装</button>
         </form>
         HTML;
