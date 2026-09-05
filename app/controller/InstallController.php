@@ -189,6 +189,16 @@ class InstallController
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }
 
+    private function view(string $tpl, array $vars = []): string
+    {
+        $file = app_path() . '/view/install/' . $tpl . '.php';
+        extract($vars, EXTR_SKIP);
+        ob_start();
+        include $file;
+
+        return (string) ob_get_clean();
+    }
+
     private function renderStep(int $step, array $errors, \support\Request $request): Response
     {
         $steps = ['环境检查', '数据库配置', '管理员账号', '确认安装'];
@@ -240,223 +250,49 @@ class InstallController
 
     private function renderStep0(): string
     {
-        $results = $this->checkEnvironment();
+        $envs = [];
         $allOk = true;
-        $rows = '';
-        foreach ($results as $item) {
-            $icon = match ($item['status']) {
-                'ok' => '✅',
-                'warn' => '⚠️',
-                default => '❌',
-            };
+        foreach ($this->checkEnvironment() as $item) {
+            $envs[] = [
+                'icon'  => match ($item['status']) { 'ok' => '✅', 'warn' => '⚠️', default => '❌' },
+                'name'  => $item['name'],
+                'value' => $item['value'],
+            ];
             if ($item['status'] === 'fail') {
                 $allOk = false;
             }
-            $rows .= "<tr><td>{$icon}</td><td>{$item['name']}</td><td style=\"color:#888;font-size:13px\">{$item['value']}</td></tr>";
         }
 
-        $html = '<h1>环境检查</h1>';
-        $html .= '<table class="env-table">' . $rows . '</table>';
-        $html .= $allOk
-            ? '<form method="post"><input type="hidden" name="step" value="0"><button type="submit" class="btn">下一步：数据库配置</button></form>'
-            : '<div class="alert alert-error">请先解决以上 ❌ 标记的问题，然后刷新本页重新检查。</div>';
-
-        return $html;
+        return $this->view('step0', ['envs' => $envs, 'allOk' => $allOk]);
     }
 
     private function renderStep1(array $old): string
     {
-        $esc = static fn (mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES);
-        $adv = '<div class="adv-box" id="adv-box" style="display:block;margin:18px 0;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;padding:10px 18px 16px"><div class="adv-head" style="font-weight:700;color:#4338ca;padding:6px 0 8px">🔐 密钥与启动端口（高级）—— 留空则安装时自动生成</div>'
-            . '<div class="form-row" style="display:flex;gap:14px;margin-bottom:6px"><div class="form-group"><label>JWT 签名密钥 JWT_SECRET_KEY</label><input name="jwt_secret" value="' . $esc($old['jwt_secret'] ?? '') . '" placeholder="留空自动生成（推荐）"><div class="hint">令牌签名，泄露可伪造登录态</div></div>'
-            . '<div class="form-group"><label>接口传输密钥 ENCRYPTION_KEY</label><input name="encryption_key" value="' . $esc($old['encryption_key'] ?? '') . '" placeholder="留空自动生成（推荐）"></div></div>'
-            . '<div class="form-row" style="display:flex;gap:14px;margin-bottom:6px"><div class="form-group"><label>存储加密密钥 ENCRYPTABLE_KEY</label><input name="encryptable_key" value="' . $esc($old['encryptable_key'] ?? '') . '" placeholder="留空自动生成（推荐）"></div>'
-            . '<div class="form-group"><label>ID 混淆盐 HASHIDS_SALT</label><input name="hashids_salt" value="' . $esc($old['hashids_salt'] ?? '') . '" placeholder="留空自动生成（推荐）"></div></div>'
-            . '<div class="form-row" style="display:flex;gap:14px;margin-bottom:6px"><div class="form-group"><label>启动端口（HTTP）</label><input name="http_port" value="' . $esc($old['http_port'] ?? '8788') . '" placeholder="默认 8788"><div class="hint">写入 .env 的 APP_HTTP_PORT，config/process.php 读取</div></div>'
-            . '<div class="form-group"><label>WebSocket 端口</label><input name="ws_port" value="' . $esc($old['ws_port'] ?? '8282') . '" placeholder="默认 8282"><div class="hint">写入 .env 的 APP_WS_PORT，config/process.php 读取</div></div></div></details>';
-    
-        $h = fn (string $k, string $d = '') => htmlspecialchars($old[$k] ?? $d);
-
-        return <<<HTML
-        <h1>数据库配置</h1>
-        <form method="post" id="db-form">
-        <input type="hidden" name="step" value="1">
-        <div class="form-row">
-            <div class="form-group" style="flex:2"><label>主机地址</label><input type="text" name="host" required value="{$h('host', '127.0.0.1')}" required></div>
-            <div class="form-group" style="flex:1"><label>端口</label><input type="number" name="port" required value="{$h('port', '3306')}" required></div>
-        </div>
-        <div class="form-group"><label>数据库名</label><input type="text" name="database" required value="{$h('database', 'erp')}" required placeholder="请提前创建数据库"></div>
-        <div class="form-group"><label>用户名</label><input type="text" name="username" required value="{$h('username', 'root')}" required></div>
-        <div class="form-group"><label>密码</label><input type="password" name="password" value="{$h('password')}"></div>
-        <div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="{$h('prefix', 'erp_')}" required></div>
-        {$adv}
-        <div class="form-actions">
-            <a href="/install" class="btn btn-secondary">← 上一步（环境检查）</a>
-            <button type="button" id="test-db-btn" class="btn btn-secondary">测试连接</button>
-            <button type="submit" class="btn">下一步：管理员账号</button>
-        </div>
-        <div id="test-result" style="margin-top:12px;"></div>
-        </form>
-        <script>
-        // CSP 严格模式：事件属性级 handler 不在 nonce 覆盖范围，用 addEventListener 绑定
-        document.getElementById('test-db-btn')?.addEventListener('click', testDb);
-
-        async function testDb() {
-            const r = document.getElementById('test-result');
-            r.innerHTML = '<span style="color:#999;">⏳ 测试中...</span>';
-            const fd = new FormData(document.getElementById('db-form'));
-            const p = new URLSearchParams();
-            for (const [k, v] of fd) { if (k !== 'step' && k !== 'prefix') p.append(k, v); }
-            try {
-                const resp = await fetch('/install/test-db?' + p.toString());
-                const json = await resp.json();
-                r.innerHTML = json.code === 0
-                    ? '<span style="color:#2e7d32;">✅ ' + json.message + '</span>'
-                    : '<span style="color:#c62828;">❌ ' + json.message + '</span>';
-            } catch (e) {
-                r.innerHTML = '<span style="color:#c62828;">❌ 请求失败: ' + e.message + '</span>';
-            }
-        }
-        </script>
-        HTML;
+        return $this->view('step1', ['old' => $old]);
     }
 
     private function renderStep2(array $old): string
     {
-        $u = htmlspecialchars($old['admin_username'] ?? 'admin');
-        $hidden = '';
-        foreach (['host', 'port', 'database', 'username', 'password', 'prefix'] as $k) {
-            $v = htmlspecialchars($old[$k] ?? '');
-            $hidden .= "<input type=\"hidden\" name=\"{$k}\" value=\"{$v}\">";
-        }
-
-        return <<<HTML
-        <h1>管理员账号</h1>
-        <form method="post">
-        <input type="hidden" name="step" value="2">
-        {$hidden}
-        <div class="form-group"><label>管理员用户名</label><input type="text" name="admin_username" value="{$u}" required minlength="3"></div>
-        <div class="form-group"><label>管理员密码</label><input type="password" name="admin_password" required minlength="6" placeholder="至少6位"></div>
-        <div class="form-group"><label>确认密码</label><input type="password" name="admin_password_confirm" required minlength="6" placeholder="再次输入密码"></div>
-        <a href="/install?step=1" class="btn btn-secondary">← 上一步（数据库配置）</a>
-        <button type="submit" class="btn">下一步：确认安装</button>
-        </form>
-        HTML;
+        return $this->view('step2', ['old' => $old]);
     }
 
     private function renderStep3(array $old): string
     {
-        $items = '';
+        $summary = [];
         $labels = [
             ['host', '数据库主机'], ['port', '端口'], ['database', '数据库名'],
             ['username', '数据库用户'], ['prefix', '表前缀'], ['admin_username', '管理员账号'],
             ['http_port', '启动端口'], ['ws_port', 'WebSocket 端口'],
         ];
         foreach ($labels as [$k, $label]) {
-            $v = htmlspecialchars((string) ($old[$k] ?? ''));
-            if ($v === '') {
+            $v = $old[$k] ?? '';
+            if ($v === '' || $v === null) {
                 continue;
             }
-            $items .= "<div class=\"sum-item\"><span class=\"sum-label\">{$label}</span><span class=\"sum-value\">{$v}</span></div>";
+            $summary[] = [$label, (string) $v];
         }
 
-        $hidden = '';
-        foreach (['host', 'port', 'database', 'username', 'password', 'prefix', 'admin_username', 'admin_password',
-                  'jwt_secret', 'encryption_key', 'encryptable_key', 'hashids_salt', 'http_port', 'ws_port'] as $k) {
-            $v = htmlspecialchars($old[$k] ?? '');
-            $hidden .= "<input type=\"hidden\" name=\"{$k}\" value=\"{$v}\">";
-        }
-
-        return <<<HTML
-        <h1 class="step-title">确认安装</h1>
-        <div class="summary-card">
-            <div class="sum-head">📋 安装配置总览</div>
-            {$items}
-        </div>
-        <div class="notice-box">
-            <div class="notice-title">⚠️ 点击「开始安装」后将依次执行：</div>
-            <ol class="notice-list">
-                <li>写入 <code>.env</code> 配置文件（密钥自动生成）</li>
-                <li>自动创建数据库并导入 226 张表结构与种子数据</li>
-                <li>创建管理员账号并关联超级管理员角色</li>
-            </ol>
-            <div class="notice-tip">全过程约需数秒，请勿关闭页面。安装后 .env 将标记 APP_INSTALLED=true，重复访问 /install 将跳转完成页。</div>
-        </div>
-        <form method="post" class="install-actions" id="install-form">
-        <input type="hidden" name="step" value="3">
-        {$hidden}
-        <a href="/install?step=2" class="btn btn-secondary">← 上一步</a>
-        <button type="submit" id="install-btn" class="btn btn-install">🚀 开始安装</button>
-        </form>
-
-        <div id="progress-mask" style="display:none">
-            <div class="pm-card">
-                <div class="pm-title" id="pm-title">正在安装 open-erp…</div>
-                <div class="pm-track"><div class="pm-bar" id="pm-bar"></div></div>
-                <div class="pm-step" id="pm-step">准备中…</div>
-                <div class="pm-err" id="pm-err" style="display:none"></div>
-                <button type="button" id="pm-retry" class="btn btn-install" style="display:none">🔄 重试</button>
-            </div>
-        </div>
-        <script>
-        (function () {
-            var form = document.getElementById('install-form');
-            var mask = document.getElementById('progress-mask');
-            var bar = document.getElementById('pm-bar');
-            var stepEl = document.getElementById('pm-step');
-            var errEl = document.getElementById('pm-err');
-            var retryBtn = document.getElementById('pm-retry');
-            var phases = ['写入配置文件…', '创建数据库…', '导入表结构与种子数据…', '创建管理员账号…', '即将完成…'];
-            var lastFd = null;
-
-            function run(fd) {
-                lastFd = fd;
-                mask.style.display = 'flex';
-                errEl.style.display = 'none';
-                retryBtn.style.display = 'none';
-                bar.style.width = '8%';
-                var i = 0;
-                var timer = setInterval(function () {
-                    i = Math.min(i + 1, phases.length - 1);
-                    stepEl.textContent = phases[i];
-                    bar.style.width = Math.min(8 + i * 17 + 6, 88) + '%';
-                }, 700);
-                fetch(form.action, { method: 'POST', body: fd })
-                    .then(function (r) { return r.text(); })
-                    .then(function (html) {
-                        clearInterval(timer);
-                        bar.style.width = '100%';
-                        if (html.indexOf('系统已成功安装') !== -1 || html.indexOf('安装完成') !== -1) {
-                            stepEl.textContent = '✅ 安装成功，正在跳转…';
-                            setTimeout(function () { location.href = '/install'; }, 900);
-                        } else {
-                            var doc = new DOMParser().parseFromString(html, 'text/html');
-                            var alert = doc.querySelector('.alert-error');
-                            bar.style.width = '0%';
-                            errEl.style.display = 'block';
-                            errEl.textContent = '安装未完成：' + (alert ? alert.textContent.trim() : '未知错误，请查看服务端日志');
-                            retryBtn.style.display = 'inline-flex';
-                            stepEl.textContent = '';
-                        }
-                    })
-                    .catch(function (e) {
-                        clearInterval(timer);
-                        bar.style.width = '0%';
-                        errEl.style.display = 'block';
-                        errEl.textContent = '请求失败：' + e.message;
-                        retryBtn.style.display = 'inline-flex';
-                        stepEl.textContent = '';
-                    });
-            }
-
-            form.addEventListener('submit', function (ev) {
-                ev.preventDefault();
-                run(new FormData(form));
-            });
-            retryBtn.addEventListener('click', function () { if (lastFd) run(lastFd); });
-        })();
-        </script>
-        HTML;
+        return $this->view('step3', ['old' => $old, 'summary' => $summary]);
     }
 
     private function processStep(int $step, Request $request): array
