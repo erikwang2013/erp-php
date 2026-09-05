@@ -282,11 +282,11 @@ class InstallController
         <form method="post" id="db-form">
         <input type="hidden" name="step" value="1">
         <div class="form-row">
-            <div class="form-group" style="flex:2"><label>主机地址</label><input type="text" name="host" value="{$h('host', '127.0.0.1')}" required></div>
-            <div class="form-group" style="flex:1"><label>端口</label><input type="number" name="port" value="{$h('port', '3306')}" required></div>
+            <div class="form-group" style="flex:2"><label>主机地址</label><input type="text" name="host" required value="{$h('host', '127.0.0.1')}" required></div>
+            <div class="form-group" style="flex:1"><label>端口</label><input type="number" name="port" required value="{$h('port', '3306')}" required></div>
         </div>
-        <div class="form-group"><label>数据库名</label><input type="text" name="database" value="{$h('database', 'erp')}" required placeholder="请提前创建数据库"></div>
-        <div class="form-group"><label>用户名</label><input type="text" name="username" value="{$h('username', 'root')}" required></div>
+        <div class="form-group"><label>数据库名</label><input type="text" name="database" required value="{$h('database', 'erp')}" required placeholder="请提前创建数据库"></div>
+        <div class="form-group"><label>用户名</label><input type="text" name="username" required value="{$h('username', 'root')}" required></div>
         <div class="form-group"><label>密码</label><input type="password" name="password" value="{$h('password')}"></div>
         <div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="{$h('prefix', 'erp_')}" required></div>
         {$adv}
