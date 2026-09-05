@@ -1,6 +1,3 @@
 <?php
-
-/*
- * 兼容别名：v1.0.2 插件硬编码 config(plugin.hg.apidoc.app)；真实配置在 erikwang2013/apidoc
- */
-return config("plugin.erikwang2013.apidoc.app");
+// v1.0.2 兼容别名层（插件硬编码 plugin.hg.apidoc 键）：真实配置在 plugin.erikwang2013.apidoc.app
+return config('plugin.erikwang2013.apidoc.app');
