@@ -27,8 +27,29 @@ class AuthController
     }
 
     /**
-     * 登录（需先通过点击验证码）
-     * POST /api/auth/login
+     * 用户登录
+     * @Apidoc\Title("用户登录")
+     * @Apidoc\Desc("用户名密码登录，需先通过点击验证码；连续失败 5 次账号锁定 15 分钟")
+     * @Apidoc\Url("/api/v1/auth/login")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("客户端 API")
+     * @Apidoc\Param(name="username", type="string", require=true, desc="用户名(3-50字符)")
+     * @Apidoc\Param(name="password", type="string", require=true, desc="密码(6-32字符)")
+     * @Apidoc\Param(name="captcha_key", type="string", require=true, desc="验证码标识(来自生成接口)")
+     * @Apidoc\Param(name="clicks", type="array", require=true, desc="点击坐标数组[{x,y}],至少2个")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("access_token", type="string", desc="访问令牌"),
+     *     @Apidoc\Returned("refresh_token", type="string", desc="刷新令牌"),
+     *     @Apidoc\Returned("expires_in", type="int", desc="访问令牌有效期(秒)"),
+     *     @Apidoc\Returned("user", type="object", desc="用户信息", children={
+     *         @Apidoc\Returned("id", type="string", desc="用户ID(hashid)"),
+     *         @Apidoc\Returned("username", type="string", desc="用户名"),
+     *         @Apidoc\Returned("real_name", type="string", desc="姓名"),
+     *     }),
+     * })
      */
     public function login(Request $request): Response
     {
@@ -140,8 +161,32 @@ class AuthController
     }
 
     /**
-     * 注册（需先通过点击验证码；受 REGISTRATION_ENABLED 配置开关控制，默认关闭）
-     * POST /api/auth/register
+     * 用户注册
+     * @Apidoc\Title("用户注册")
+     * @Apidoc\Desc("需先通过点击验证码；受 REGISTRATION_ENABLED=1 配置开关控制，默认关闭")
+     * @Apidoc\Url("/api/v1/auth/register")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("客户端 API")
+     * @Apidoc\Param(name="username", type="string", require=true, desc="用户名(3-50字符)")
+     * @Apidoc\Param(name="password", type="string", require=true, desc="密码(6-32字符)")
+     * @Apidoc\Param(name="real_name", type="string", require=true, desc="姓名(≤50字符)")
+     * @Apidoc\Param(name="captcha_key", type="string", require=true, desc="验证码标识(来自生成接口)")
+     * @Apidoc\Param(name="clicks", type="array", require=true, desc="点击坐标数组[{x,y}],至少2个")
+     * @Apidoc\Param(name="phone", type="string", desc="手机号(选填)")
+     * @Apidoc\Param(name="email", type="string", desc="邮箱(选填)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("access_token", type="string", desc="访问令牌"),
+     *     @Apidoc\Returned("refresh_token", type="string", desc="刷新令牌"),
+     *     @Apidoc\Returned("expires_in", type="int", desc="访问令牌有效期(秒)"),
+     *     @Apidoc\Returned("user", type="object", desc="用户信息", children={
+     *         @Apidoc\Returned("id", type="string", desc="用户ID(hashid)"),
+     *         @Apidoc\Returned("username", type="string", desc="用户名"),
+     *         @Apidoc\Returned("real_name", type="string", desc="姓名"),
+     *     }),
+     * })
      */
     public function register(Request $request): Response
     {
@@ -209,7 +254,20 @@ class AuthController
 
     /**
      * 刷新令牌
-     * POST /api/auth/refresh
+     * @Apidoc\Title("刷新令牌")
+     * @Apidoc\Desc("用刷新令牌换取新的访问令牌与刷新令牌，仅接受 refresh 类型令牌")
+     * @Apidoc\Url("/api/v1/auth/refresh")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("客户端 API")
+     * @Apidoc\Param(name="refresh_token", type="string", require=true, desc="刷新令牌")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("access_token", type="string", desc="新访问令牌"),
+     *     @Apidoc\Returned("refresh_token", type="string", desc="新刷新令牌"),
+     *     @Apidoc\Returned("expires_in", type="int", desc="访问令牌有效期(秒)"),
+     * })
      */
     public function refresh(Request $request): Response
     {

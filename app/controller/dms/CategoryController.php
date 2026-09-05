@@ -20,6 +20,18 @@ class CategoryController extends BaseController
 {
     private const CATEGORIES = ['制度规范', '流程文档', '技术文档', '合同协议', '培训材料', '其他'];
 
+    /**
+     * 文档分类列表
+     * @Apidoc\Title("文档分类列表")
+     * @Apidoc\Desc("返回启用的文档分类名称列表，无自定义分类时回退内置默认分类")
+     * @Apidoc\Url("/admin/v1/dms/categories")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("文档管理")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="list(分类名称数组)")
+     */
     public function index(Request $request): Response
     {
         $categories = DmsCategory::where('status', 1)->orderBy('sort')->pluck('name')->all();

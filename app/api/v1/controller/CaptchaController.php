@@ -18,9 +18,22 @@ class CaptchaController
 {
     /**
      * 生成点击验证码
-     * POST /api/captcha/generate
-     *
-     * 返回: { key, image (base64), extra: { targets: [{order, text}] } }
+     * @Apidoc\Title("生成点击验证码")
+     * @Apidoc\Desc("生成点击式验证码图片(base64 PNG)，key 用于后续校验")
+     * @Apidoc\Url("/api/v1/captcha/generate")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("客户端 API")
+     * @Apidoc\Param(name="difficulty", type="string", default="medium", desc="难度(easy/medium/hard)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("key", type="string", desc="验证码标识(校验时回传)"),
+     *     @Apidoc\Returned("image", type="string", desc="验证码图片(base64 PNG)"),
+     *     @Apidoc\Returned("extra", type="object", desc="附加信息", children={
+     *         @Apidoc\Returned("targets", type="array", desc="点击目标提示[{order,text}],不含坐标"),
+     *     }),
+     * })
      */
     public function generate(Request $request): Response
     {
@@ -55,9 +68,19 @@ class CaptchaController
 
     /**
      * 校验点击验证码
-     * POST /api/captcha/verify
-     *
-     * 请求: { key, clicks: [{x, y}, ...] }
+     * @Apidoc\Title("校验点击验证码")
+     * @Apidoc\Desc("提交 key 与点击坐标进行校验，供登录/注册等流程预校验或重试")
+     * @Apidoc\Url("/api/v1/captcha/verify")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("客户端 API")
+     * @Apidoc\Param(name="key", type="string", require=true, desc="验证码标识")
+     * @Apidoc\Param(name="clicks", type="array", require=true, desc="点击坐标数组[{x,y}]")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=验证通过,422=验证失败")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("valid", type="bool", desc="是否验证通过"),
+     * })
      */
     public function verify(Request $request): Response
     {

@@ -426,7 +426,23 @@ class DashboardController extends BaseController
         );
     }
 
-    /** OMS KPI */
+    /**
+     * OMS 订单履约看板
+     * @Apidoc\Title("OMS 订单履约看板")
+     * @Apidoc\Desc("获取 OMS 履约 KPI：待处理/拣货中订单、今日发货数与待处理退货单")
+     * @Apidoc\Url("/admin/v1/dashboard/oms")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仪表盘")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("pending_orders", type="int", desc="待处理订单数(待审核/待发货)"),
+     *     @Apidoc\Returned("picking_orders", type="int", desc="拣货中订单数"),
+     *     @Apidoc\Returned("shipped_today", type="int", desc="今日发货订单数"),
+     *     @Apidoc\Returned("pending_rma", type="int", desc="待处理退货单数"),
+     * })
+     */
     public function oms(Request $request): Response
     {
         return $this->success([
@@ -437,7 +453,23 @@ class DashboardController extends BaseController
         ]);
     }
 
-    /** WMS KPI */
+    /**
+     * WMS 仓储作业看板
+     * @Apidoc\Title("WMS 仓储作业看板")
+     * @Apidoc\Desc("获取 WMS 仓储作业 KPI：待收货/待上架/待拣货/待打包任务数")
+     * @Apidoc\Url("/admin/v1/dashboard/wms")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仪表盘")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("pending_receiving", type="int", desc="待收货单数"),
+     *     @Apidoc\Returned("pending_putaway", type="int", desc="待上架任务数"),
+     *     @Apidoc\Returned("pending_picks", type="int", desc="待拣货任务数"),
+     *     @Apidoc\Returned("pending_packs", type="int", desc="待打包任务数"),
+     * })
+     */
     public function wms(Request $request): Response
     {
         return $this->success([
@@ -448,7 +480,23 @@ class DashboardController extends BaseController
         ]);
     }
 
-    /** TMS KPI */
+    /**
+     * TMS 运输管理看板
+     * @Apidoc\Title("TMS 运输管理看板")
+     * @Apidoc\Desc("获取 TMS 运输 KPI：待发运/运输中/今日妥投/异常运单数")
+     * @Apidoc\Url("/admin/v1/dashboard/tms")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仪表盘")
+     * @Apidoc\Returned("code", type="int", desc="业务代码")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
+     *     @Apidoc\Returned("pending_shipments", type="int", desc="待发运运单数"),
+     *     @Apidoc\Returned("in_transit", type="int", desc="运输中运单数"),
+     *     @Apidoc\Returned("delivered_today", type="int", desc="今日妥投运单数"),
+     *     @Apidoc\Returned("exception_shipments", type="int", desc="异常运单数"),
+     * })
+     */
     public function tms(Request $request): Response
     {
         return $this->success([
