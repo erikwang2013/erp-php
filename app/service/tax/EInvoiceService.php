@@ -174,7 +174,7 @@ class EInvoiceService
      */
     private function buildPayload(FinanceInvoice $invoice): array
     {
-        $customer = DB::table('erp_customer')->find((int) $invoice->customer_id);
+        $customer = DB::table('customer')->find((int) $invoice->customer_id);
         $buyerName = $customer ? (string) ($customer->name ?? '') : '';
         $buyerTaxNo = $customer && property_exists($customer, 'tax_no') ? (string) $customer->tax_no : '';
 

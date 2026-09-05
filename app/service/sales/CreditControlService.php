@@ -109,7 +109,7 @@ class CreditControlService
      */
     private function unpaidArAmount(int $customerId): string
     {
-        return bc_norm(DB::table('erp_finance_ar_ap')
+        return bc_norm(DB::table('finance_ar_ap')
             ->where('type', 1)
             ->where('partner_id', $customerId)
             ->whereIn('status', [0, 1])
@@ -121,7 +121,7 @@ class CreditControlService
      */
     private function overdueAmount(int $customerId): string
     {
-        return bc_norm(DB::table('erp_finance_ar_ap')
+        return bc_norm(DB::table('finance_ar_ap')
             ->where('type', 1)
             ->where('partner_id', $customerId)
             ->whereIn('status', [0, 1])
@@ -137,12 +137,12 @@ class CreditControlService
      */
     private function openOrderOccupancy(int $customerId): string
     {
-        return bc_norm(DB::table('erp_sales_order as o')
+        return bc_norm(DB::table('sales_order as o')
             ->leftJoinSub(
-                DB::table('erp_sales_delivery_item as di')
+                DB::table('sales_delivery_item as di')
                     ->select('d.order_id as order_id')
                     ->selectRaw('SUM(di.amount) as delivered')
-                    ->join('erp_sales_delivery as d', 'd.id', '=', 'di.delivery_id')
+                    ->join('sales_delivery as d', 'd.id', '=', 'di.delivery_id')
                     ->where('d.status', 1)
                     ->whereNull('d.deleted_at')
                     ->groupBy('d.order_id'),

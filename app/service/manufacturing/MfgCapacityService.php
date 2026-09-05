@@ -81,17 +81,17 @@ class MfgCapacityService
         $this->assertWorkstation($workstationId);
 
         DB::transaction(function () use ($workstationId, $date, $hours, $remark): void {
-            $row = DB::table('erp_mfg_capacity_calendar')
+            $row = DB::table('mfg_capacity_calendar')
                 ->where('workstation_id', $workstationId)
                 ->where('work_date', $date)
                 ->first(['id']);
             $now = date('Y-m-d H:i:s');
             if ($row) {
-                DB::table('erp_mfg_capacity_calendar')
+                DB::table('mfg_capacity_calendar')
                     ->where('id', (int) $row->id)
                     ->update(['available_hours' => $hours, 'remark' => $remark, 'updated_at' => $now]);
             } else {
-                DB::table('erp_mfg_capacity_calendar')->insert([
+                DB::table('mfg_capacity_calendar')->insert([
                     'id' => SnowflakeService::generate(),
                     'workstation_id' => $workstationId,
                     'work_date' => $date,
@@ -112,7 +112,7 @@ class MfgCapacityService
     public function removeException(int $workstationId, string $date): void
     {
         $this->assertDate($date);
-        DB::table('erp_mfg_capacity_calendar')
+        DB::table('mfg_capacity_calendar')
             ->where('workstation_id', $workstationId)
             ->where('work_date', $date)
             ->delete();
@@ -139,8 +139,8 @@ class MfgCapacityService
         // 1) 需求源：未结工单明细（剩余数量>0 才算需求）
         $demand = [];   // [planned_start, planned_end, remaining(scale4), product_id]
         $productIds = [];
-        $rows = DB::table('erp_mfg_production_order as o')
-            ->join('erp_mfg_production_item as i', 'i.order_id', '=', 'o.id')
+        $rows = DB::table('mfg_production_order as o')
+            ->join('mfg_production_item as i', 'i.order_id', '=', 'o.id')
             ->whereNull('o.deleted_at')
             ->whereIn('o.status', [0, 1])
             ->whereIn('i.status', [0, 1])
@@ -173,7 +173,7 @@ class MfgCapacityService
         // 3) 负荷展开：剩余数量 × 产品在该工作站的工序标准工时合计，沿窗口产能日均摊
         $loads = [];   // [wsId][date] => scale4 累计
         if ($demand !== []) {
-            $routings = DB::table('erp_mfg_routing')
+            $routings = DB::table('mfg_routing')
                 ->whereIn('product_id', array_keys($productIds))
                 ->get(['product_id', 'workstation_id', 'standard_hours']);
             $unitByProduct = [];   // [product_id][wsId] => 单件标准工时合计(scale4)
@@ -258,7 +258,7 @@ class MfgCapacityService
     /** 报表工作站集合：指定 ID 时须存在（含禁用站）；缺省=全部启用站 */
     private function reportWorkstations(?int $workstationId): array
     {
-        $query = DB::table('erp_mfg_workstation');
+        $query = DB::table('mfg_workstation');
         if ($workstationId !== null) {
             $row = $query->where('id', $workstationId)->first(['id', 'code', 'name']);
             if (!$row) {
@@ -277,7 +277,7 @@ class MfgCapacityService
 
     private function assertWorkstation(int $workstationId): void
     {
-        $exists = DB::table('erp_mfg_workstation')->where('id', $workstationId)->exists();
+        $exists = DB::table('mfg_workstation')->where('id', $workstationId)->exists();
         if (!$exists) {
             throw new InvalidArgumentException('工作站不存在');
         }
@@ -290,7 +290,7 @@ class MfgCapacityService
         if ($wsIds === []) {
             return $map;
         }
-        $rows = DB::table('erp_mfg_capacity_calendar')
+        $rows = DB::table('mfg_capacity_calendar')
             ->whereIn('workstation_id', $wsIds)
             ->whereBetween('work_date', [$from, $to])
             ->get(['workstation_id', 'work_date', 'available_hours']);

@@ -360,7 +360,7 @@ class FinanceBillService
         if ($sourceId <= 0) {
             return '关联收款单缺失';
         }
-        $receipt = DB::table('erp_finance_receipt')->find($sourceId);
+        $receipt = DB::table('finance_receipt')->find($sourceId);
         if (!$receipt || (int) $receipt->status !== 1) {
             return '关联收款单不存在或未审核';
         }

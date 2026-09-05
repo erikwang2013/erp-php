@@ -28,8 +28,8 @@ class InvoiceService
 {
     /** biz_type => [来源头表, 头表外键列, 头表伙伴列, 期望发票 type] */
     private const SOURCE_MAP = [
-        'purchase_receive' => ['erp_purchase_receive', 'receive_id', 'supplier_id', 'ap'],
-        'sales_delivery' => ['erp_sales_delivery', 'delivery_id', 'customer_id', 'ar'],
+        'purchase_receive' => ['purchase_receive', 'receive_id', 'supplier_id', 'ap'],
+        'sales_delivery' => ['sales_delivery', 'delivery_id', 'customer_id', 'ar'],
     ];
 
     /**
@@ -155,7 +155,7 @@ class InvoiceService
         $sum = DB::table($itemTable)->where($itemFk, $sourceId)->sum('amount');
         $sourceTotal = $sum === null ? '0' : bc_norm($sum);
 
-        $query = DB::table('erp_finance_invoice')
+        $query = DB::table('finance_invoice')
             ->where('biz_type', $bizType)->where('source_id', $sourceId)
             ->where('status', '!=', 'voided')->whereNull('deleted_at');
         if ($excludeInvoiceId > 0) {

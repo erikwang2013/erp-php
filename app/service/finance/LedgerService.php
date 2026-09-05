@@ -42,9 +42,9 @@ class LedgerService
     private const COMPANY_CODE_RE = '/^[A-Za-z0-9_-]{2,50}$/';
 
     private const SNAPSHOT_TABLES = [
-        'erp_finance_balance_sheet',
-        'erp_finance_cash_flow',
-        'erp_finance_profit',
+        'finance_balance_sheet',
+        'finance_cash_flow',
+        'finance_profit',
     ];
 
     private LedgerBalanceService $balance;
@@ -93,7 +93,7 @@ class LedgerService
             }
 
             // 存量回填（前提：p0_f1f2.sql 已执行，voucher/快照表已加列）
-            DB::table('erp_finance_voucher')->whereNull('ledger_id')
+            DB::table('finance_voucher')->whereNull('ledger_id')
                 ->update(['ledger_id' => $ledger->id]);
             foreach (self::SNAPSHOT_TABLES as $table) {
                 DB::table($table)->whereNull('company_id')
@@ -189,7 +189,7 @@ class LedgerService
         }
 
         [$start, $end] = self::periodRange($period);
-        $drafts = DB::table('erp_finance_voucher')
+        $drafts = DB::table('finance_voucher')
             ->where('ledger_id', $ledgerId)
             ->where('status', 0)
             ->whereBetween('voucher_date', [$start, $end])
@@ -208,7 +208,7 @@ class LedgerService
             $beginning = $this->balance->beginningCash($ledgerId, $year, $month);
             $cf = $this->balance->computeCashFlow($ledgerId, $year, $month, $beginning);
 
-            $balanceSheetId = $this->saveSnapshot('erp_finance_balance_sheet', [
+            $balanceSheetId = $this->saveSnapshot('finance_balance_sheet', [
                 'ledger_id' => $ledgerId,
                 'report_year' => $year,
                 'report_month' => $month,
@@ -224,7 +224,7 @@ class LedgerService
                 'non_current_liabilities' => $bs['non_current_liabilities'],
                 'report_data' => json_encode($bs['report_data'], JSON_UNESCAPED_UNICODE),
             ]);
-            $profitId = $this->saveSnapshot('erp_finance_profit', [
+            $profitId = $this->saveSnapshot('finance_profit', [
                 'ledger_id' => $ledgerId,
                 'year' => $year,
                 'month' => $month,
@@ -236,7 +236,7 @@ class LedgerService
                 'expense' => $pl['expense'],
                 'profit' => $pl['profit'],
             ]);
-            $cashFlowId = $this->saveSnapshot('erp_finance_cash_flow', [
+            $cashFlowId = $this->saveSnapshot('finance_cash_flow', [
                 'ledger_id' => $ledgerId,
                 'report_year' => $year,
                 'report_month' => $month,

@@ -365,11 +365,11 @@ class RecruitService extends AbstractCrudService
         $eliminatedWithInterview = 0;
         $eliminatedWithOffer = 0;
         if ($eliminatedIds !== []) {
-            $eliminatedWithInterview = DB::table('erp_hr_interview')
+            $eliminatedWithInterview = DB::table('hr_interview')
                 ->whereIn('candidate_id', $eliminatedIds)
                 ->distinct('candidate_id')
                 ->count('candidate_id');
-            $eliminatedWithOffer = DB::table('erp_hr_offer')
+            $eliminatedWithOffer = DB::table('hr_offer')
                 ->whereIn('candidate_id', $eliminatedIds)
                 ->distinct('candidate_id')
                 ->count('candidate_id');

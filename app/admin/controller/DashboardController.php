@@ -283,7 +283,7 @@ class DashboardController extends BaseController
     private function getTopProducts(string $startOfRange): array
     {
         $top = SalesOrderItem::query()
-            ->join('erp_sales_order', 'erp_sales_order.id', '=', 'erp_sales_order_item.order_id')
+            ->join('sales_order', 'erp_sales_order.id', '=', 'erp_sales_order_item.order_id')
             ->whereNull('erp_sales_order.deleted_at')
             ->whereDate('erp_sales_order.ordered_at', '>=', $startOfRange)
             ->where('erp_sales_order.status', '!=', 4)

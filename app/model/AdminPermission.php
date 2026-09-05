@@ -38,6 +38,6 @@ class AdminPermission extends Model
 
     public function roles()
     {
-        return $this->belongsToMany(AdminRole::class, 'erp_admin_role_permission', 'permission_id', 'role_id');
+        return $this->belongsToMany(AdminRole::class, 'admin_role_permission', 'permission_id', 'role_id');
     }
 }

@@ -59,7 +59,7 @@ class PieceWageService extends AbstractCrudService
     public function periodSummary(int $periodYear, int $periodMonth): array
     {
         $map = [];
-        foreach (DB::table('erp_mfg_piece_wage')
+        foreach (DB::table('mfg_piece_wage')
             ->where('period_year', $periodYear)
             ->where('period_month', $periodMonth)
             ->get(['employee_id', 'amount']) as $row) {

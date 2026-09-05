@@ -301,7 +301,7 @@ class MfgCostService extends AbstractCrudService
     private function calcStandardMaterialCost(int $orderId, int $bomId): string
     {
         $rows = MfgMaterialIssueItem::query()
-            ->join('erp_mfg_material_issue as h', 'h.id', '=', 'erp_mfg_material_issue_item.issue_id')
+            ->join('mfg_material_issue as h', 'h.id', '=', 'erp_mfg_material_issue_item.issue_id')
             ->where('h.order_id', $orderId)
             ->where('h.status', 1)
             ->orderBy('erp_mfg_material_issue_item.id')

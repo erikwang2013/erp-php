@@ -52,7 +52,7 @@ class SettlementController extends BaseController
 
         $query = FinanceArAp::query()->where('type', self::AR_TYPE)->where('source_type', self::SOURCE_TYPE);
         if ($keyword) {
-            $query->join('erp_customer', 'erp_customer.id', '=', 'erp_finance_ar_ap.partner_id')
+            $query->join('customer', 'erp_customer.id', '=', 'erp_finance_ar_ap.partner_id')
                   ->select('erp_finance_ar_ap.*')
                   ->where('erp_customer.name', 'like', "%{$keyword}%");
         }
