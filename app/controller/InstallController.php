@@ -172,7 +172,7 @@ class InstallController
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }
 
-    private function renderStep(int $step, array $errors = [], \support\Request $request): Response
+    private function renderStep(int $step, array $errors, \support\Request $request): Response
     {
         $steps = ['环境检查', '数据库配置', '管理员账号', '确认安装'];
         $html = $this->htmlHeader('安装向导 — ' . $steps[$step]);
