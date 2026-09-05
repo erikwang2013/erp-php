@@ -48,7 +48,7 @@ global $argv;
 return [
     'webman' => [
         'handler' => Http::class,
-        'listen' => 'http://0.0.0.0:8788',
+        'listen' => 'http://0.0.0.0:' . env('APP_HTTP_PORT', '8788'),
         'count' => cpu_count() * 4,
         'user' => '',
         'group' => '',
@@ -65,7 +65,7 @@ return [
     // WebSocket server for real-time notifications
     'socket' => [
         'handler' => \app\process\WebSocket::class,
-        'listen' => 'websocket://0.0.0.0:8282',
+        'listen' => 'websocket://0.0.0.0:' . env('APP_WS_PORT', '8282'),
         'count' => 1,
     ],
     // Redis 队列消费进程（最小实现，详见 docs/queue.md）

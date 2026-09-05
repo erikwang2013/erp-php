@@ -262,6 +262,15 @@ class InstallController
 
     private function renderStep1(array $old): string
     {
+        $esc = static fn (mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES);
+        $adv = '<details class="adv-box" id="adv-box"><summary>🔐 密钥与启动端口（高级）—— 留空则安装时自动生成</summary>'
+            . '<div class="form-row"><div class="form-group"><label>JWT 签名密钥 JWT_SECRET_KEY</label><input name="jwt_secret" value="' . $esc($old['jwt_secret'] ?? '') . '" placeholder="留空自动生成（推荐）"><div class="hint">令牌签名，泄露可伪造登录态</div></div>'
+            . '<div class="form-group"><label>接口传输密钥 ENCRYPTION_KEY</label><input name="encryption_key" value="' . $esc($old['encryption_key'] ?? '') . '" placeholder="留空自动生成（推荐）"></div></div>'
+            . '<div class="form-row"><div class="form-group"><label>存储加密密钥 ENCRYPTABLE_KEY</label><input name="encryptable_key" value="' . $esc($old['encryptable_key'] ?? '') . '" placeholder="留空自动生成（推荐）"></div>'
+            . '<div class="form-group"><label>ID 混淆盐 HASHIDS_SALT</label><input name="hashids_salt" value="' . $esc($old['hashids_salt'] ?? '') . '" placeholder="留空自动生成（推荐）"></div></div>'
+            . '<div class="form-row"><div class="form-group"><label>启动端口（HTTP）</label><input name="http_port" value="' . $esc($old['http_port'] ?? '8788') . '" placeholder="默认 8788"><div class="hint">写入 .env 的 APP_HTTP_PORT，config/process.php 读取</div></div>'
+            . '<div class="form-group"><label>WebSocket 端口</label><input name="ws_port" value="' . $esc($old['ws_port'] ?? '8282') . '" placeholder="默认 8282"><div class="hint">写入 .env 的 APP_WS_PORT，config/process.php 读取</div></div></div></details>';
+    
         $h = fn (string $k, string $d = '') => htmlspecialchars($old[$k] ?? $d);
 
         return <<<HTML
@@ -276,6 +285,7 @@ class InstallController
         <div class="form-group"><label>用户名</label><input type="text" name="username" value="{$h('username', 'root')}" required></div>
         <div class="form-group"><label>密码</label><input type="password" name="password" value="{$h('password')}"></div>
         <div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="{$h('prefix', 'erp_')}" required></div>
+        {$adv}
         <div class="form-actions">
             <button type="button" id="test-db-btn" class="btn btn-secondary">测试连接</button>
             <button type="submit" class="btn">下一步：管理员账号</button>
@@ -334,6 +344,7 @@ class InstallController
         $labels = [
             ['host', '数据库主机'], ['port', '端口'], ['database', '数据库名'],
             ['username', '数据库用户'], ['prefix', '表前缀'], ['admin_username', '管理员账号'],
+            ['http_port', '启动端口'], ['ws_port', 'WebSocket 端口'],
         ];
         foreach ($labels as [$k, $label]) {
             $v = htmlspecialchars((string) ($old[$k] ?? ''));
@@ -344,7 +355,8 @@ class InstallController
         }
 
         $hidden = '';
-        foreach (['host', 'port', 'database', 'username', 'password', 'prefix', 'admin_username', 'admin_password'] as $k) {
+        foreach (['host', 'port', 'database', 'username', 'password', 'prefix', 'admin_username', 'admin_password',
+                  'jwt_secret', 'encryption_key', 'encryptable_key', 'hashids_salt', 'http_port', 'ws_port'] as $k) {
             $v = htmlspecialchars($old[$k] ?? '');
             $hidden .= "<input type=\"hidden\" name=\"{$k}\" value=\"{$v}\">";
         }
@@ -543,7 +555,7 @@ class InstallController
             $stmt = $pdo->prepare('INSERT INTO `' . $db['prefix'] . 'admin_user_role` (`user_id`, `role_id`) VALUES (:uid, :rid)');
             $stmt->execute(['uid' => $adminId, 'rid' => 10000000000000001]);
 
-            $this->writeEnv($db);
+            $this->writeEnv($db, $this->collectAdvanced($request));
             file_put_contents($this->lockFile, date('Y-m-d H:i:s') . ' — installed');
 
             return [];
@@ -555,7 +567,42 @@ class InstallController
         }
     }
 
-    private function writeEnv(array $db): void
+    private function collectAdvanced(Request $request): array
+    {
+        $adv = [];
+        $hex = '/^[A-Za-z0-9]{16,128}$/';
+        $map = [
+            'jwt_secret' => 'JWT_SECRET_KEY',
+            'encryption_key' => 'ENCRYPTION_KEY',
+            'encryptable_key' => 'ENCRYPTABLE_KEY',
+            'hashids_salt' => 'HASHIDS_SALT',
+            'http_port' => 'APP_HTTP_PORT',
+            'ws_port' => 'APP_WS_PORT',
+        ];
+        foreach ($map as $field => $envKey) {
+            $raw = trim((string) $request->input($field, ''));
+            if ($raw === '') {
+                $adv[$envKey] = str_ends_with($envKey, '_PORT')
+                    ? ($envKey === 'APP_HTTP_PORT' ? '8788' : '8282')
+                    : bin2hex(random_bytes(24));
+                continue;
+            }
+            if (str_ends_with($envKey, '_PORT')) {
+                if (!preg_match('/^\d{2,5}$/', $raw)) {
+                    throw new \InvalidArgumentException($envKey . ' 必须是 2-5 位数字端口');
+                }
+                $adv[$envKey] = $raw;
+            } elseif (!preg_match($hex, $raw)) {
+                throw new \InvalidArgumentException($field . ' 必须是 16-128 位字母数字密钥（或留空自动生成）');
+            } else {
+                $adv[$envKey] = $raw;
+            }
+        }
+
+        return $adv;
+    }
+
+    private function writeEnv(array $db, array $extra = []): void
     {
         $template = file_get_contents($this->envExamplePath);
         if (!$template) {
@@ -579,6 +626,14 @@ class InstallController
         if (!preg_match('/^APP_KEY=/m', $template)) {
             $appKey = bin2hex(random_bytes(16));
             $template = preg_replace('/^(APP_URL=.*)$/m', "\$1\nAPP_KEY={$appKey}", $template);
+        }
+
+        foreach ($extra as $key => $value) {
+            if (preg_match('/^' . $key . '=.*$/m', $template)) {
+                $template = preg_replace('/^' . $key . '=.*$/m', $key . '=' . $value, $template);
+            } else {
+                $template .= $key . '=' . $value . "\n";
+            }
         }
 
         $template = rtrim($template) . "\nAPP_INSTALLED=true\n";
@@ -712,6 +767,10 @@ class InstallController
         .pm-step{margin-top:12px;font-size:13.5px;color:#64748b;min-height:20px}
         .pm-err{margin-top:10px;font-size:13px;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;text-align:left;line-height:1.6;word-break:break-all}
         #pm-retry{margin-top:14px}
+        .adv-box{margin:18px 0;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;padding:4px 18px 14px}
+        .adv-box summary{cursor:pointer;font-size:14px;font-weight:600;color:#4338ca;padding:10px 0;list-style:none}
+        .adv-box summary::before{content:'▸ ';transition:transform .15s}
+        .adv-box[open] summary::before{transform:rotate(90deg)}
         @media(max-width:720px){body{padding:28px 14px 40px}.card{padding:24px 20px}.form-row{flex-direction:column;gap:0}.step-label{display:none}.step-line{max-width:26px}}
         </style>
         </head>
