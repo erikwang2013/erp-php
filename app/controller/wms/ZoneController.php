@@ -16,7 +16,20 @@ use support\Response;
 class ZoneController extends BaseController
 {
     /**
-     * 列表（分页）
+     * 库区列表（分页）
+     * @Apidoc\Title("库区列表")
+     * @Apidoc\Desc("获取库区列表，支持分页、关键词搜索和状态筛选")
+     * @Apidoc\Url("/admin/v1/wms/zone")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（名称）")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选（0=禁用,1=启用）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -45,7 +58,17 @@ class ZoneController extends BaseController
     }
 
     /**
-     * 创建
+     * 创建库区
+     * @Apidoc\Title("创建库区")
+     * @Apidoc\Desc("创建库区，名称必填，其余字段按业务传入")
+     * @Apidoc\Url("/admin/v1/wms/zone")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="name", type="string", desc="库区名称，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -64,7 +87,17 @@ class ZoneController extends BaseController
     }
 
     /**
-     * 详情
+     * 库区详情
+     * @Apidoc\Title("库区详情")
+     * @Apidoc\Desc("按 ID 获取库区详情")
+     * @Apidoc\Url("/admin/v1/wms/zone/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $id): Response
     {
@@ -81,7 +114,17 @@ class ZoneController extends BaseController
     }
 
     /**
-     * 更新
+     * 更新库区
+     * @Apidoc\Title("更新库区")
+     * @Apidoc\Desc("按 ID 更新库区信息")
+     * @Apidoc\Url("/admin/v1/wms/zone/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $id): Response
     {
@@ -101,7 +144,18 @@ class ZoneController extends BaseController
     }
 
     /**
-     * 删除
+     * 删除库区
+     * @Apidoc\Title("删除库区")
+     * @Apidoc\Desc("按 ID 删除库区，需操作密码二次确认")
+     * @Apidoc\Url("/admin/v1/wms/zone/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Param(name="password", type="string", desc="操作密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $id): Response
     {

@@ -16,7 +16,20 @@ use support\Response;
 class ShipmentController extends BaseController
 {
     /**
-     * 列表（分页）
+     * 运单列表（分页）
+     * @Apidoc\Title("运单列表")
+     * @Apidoc\Desc("获取运单列表，支持分页、编码搜索和状态筛选")
+     * @Apidoc\Url("/admin/v1/tms/shipment")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（编码）")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -45,7 +58,17 @@ class ShipmentController extends BaseController
     }
 
     /**
-     * 创建
+     * 创建运单
+     * @Apidoc\Title("创建运单")
+     * @Apidoc\Desc("创建运单，编码必填（缺省自动生成）")
+     * @Apidoc\Url("/admin/v1/tms/shipment")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="code", type="string", desc="运单编码，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -66,7 +89,17 @@ class ShipmentController extends BaseController
     }
 
     /**
-     * 详情
+     * 运单详情
+     * @Apidoc\Title("运单详情")
+     * @Apidoc\Desc("按 ID 获取运单详情")
+     * @Apidoc\Url("/admin/v1/tms/shipment/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $id): Response
     {
@@ -83,7 +116,17 @@ class ShipmentController extends BaseController
     }
 
     /**
-     * 更新
+     * 更新运单
+     * @Apidoc\Title("更新运单")
+     * @Apidoc\Desc("按 ID 更新运单信息")
+     * @Apidoc\Url("/admin/v1/tms/shipment/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $id): Response
     {
@@ -103,7 +146,18 @@ class ShipmentController extends BaseController
     }
 
     /**
-     * 删除
+     * 删除运单
+     * @Apidoc\Title("删除运单")
+     * @Apidoc\Desc("按 ID 删除运单，需操作密码二次确认")
+     * @Apidoc\Url("/admin/v1/tms/shipment/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Param(name="password", type="string", desc="操作密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $id): Response
     {
@@ -125,7 +179,21 @@ class ShipmentController extends BaseController
         return $this->success([], $this->trans('deleted'));
     }
 
-    /** 确认发货 */
+    /**
+     * 确认发货
+     * @Apidoc\Title("确认发货")
+     * @Apidoc\Desc("提交发货确认，关联发货单与OMS订单")
+     * @Apidoc\Url("/admin/v1/tms/shipment/{id}/ship")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="id", type="string", desc="运单ID(hashid)")
+     * @Apidoc\Param(name="fulfillment_id", type="int", default=0, desc="发货单ID")
+     * @Apidoc\Param(name="oms_order_id", type="int", default=0, desc="OMS订单ID")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
+     */
     public function ship(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -144,7 +212,19 @@ class ShipmentController extends BaseController
         }
     }
 
-    /** 获取面单 */
+    /**
+     * 获取面单
+     * @Apidoc\Title("获取面单")
+     * @Apidoc\Desc("按运单获取面单下载地址，面单生成请求已提交")
+     * @Apidoc\Url("/admin/v1/tms/shipment/{id}/get-label")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="id", type="string", desc="运单ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据（label_url 面单下载地址）")
+     */
     public function getLabel(Request $request, string $id): Response
     {
         // 校验 hashid 合法性，同时保留原始 hash 用于面单下载地址

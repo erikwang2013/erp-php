@@ -16,7 +16,20 @@ use support\Response;
 class WaveController extends BaseController
 {
     /**
-     * 列表（分页）
+     * 波次列表（分页）
+     * @Apidoc\Title("波次列表")
+     * @Apidoc\Desc("获取波次列表，支持分页、编码搜索和状态筛选")
+     * @Apidoc\Url("/admin/v1/wms/wave")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（编码）")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -45,7 +58,17 @@ class WaveController extends BaseController
     }
 
     /**
-     * 创建
+     * 创建波次
+     * @Apidoc\Title("创建波次")
+     * @Apidoc\Desc("创建波次，编码必填（缺省自动生成）")
+     * @Apidoc\Url("/admin/v1/wms/wave")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="code", type="string", desc="波次编码，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -66,7 +89,17 @@ class WaveController extends BaseController
     }
 
     /**
-     * 详情
+     * 波次详情
+     * @Apidoc\Title("波次详情")
+     * @Apidoc\Desc("按 ID 获取波次详情")
+     * @Apidoc\Url("/admin/v1/wms/wave/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $id): Response
     {
@@ -83,7 +116,17 @@ class WaveController extends BaseController
     }
 
     /**
-     * 更新
+     * 更新波次
+     * @Apidoc\Title("更新波次")
+     * @Apidoc\Desc("按 ID 更新波次信息")
+     * @Apidoc\Url("/admin/v1/wms/wave/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $id): Response
     {
@@ -103,7 +146,18 @@ class WaveController extends BaseController
     }
 
     /**
-     * 删除
+     * 删除波次
+     * @Apidoc\Title("删除波次")
+     * @Apidoc\Desc("按 ID 删除波次，需操作密码二次确认")
+     * @Apidoc\Url("/admin/v1/wms/wave/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Param(name="password", type="string", desc="操作密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $id): Response
     {
@@ -125,7 +179,20 @@ class WaveController extends BaseController
         return $this->success([], $this->trans('deleted'));
     }
 
-    /** 释放波次 → 生成拣货任务 */
+    /**
+     * 释放波次并生成拣货任务
+     * @Apidoc\Title("释放波次")
+     * @Apidoc\Desc("提交拣货明细释放波次，自动生成拣货任务")
+     * @Apidoc\Url("/admin/v1/wms/wave/{id}/release")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("仓储管理(WMS)")
+     * @Apidoc\Param(name="id", type="string", desc="波次ID(hashid)")
+     * @Apidoc\Param(name="items", type="array", desc="拣货明细，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据（生成的拣货任务）")
+     */
     public function release(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);

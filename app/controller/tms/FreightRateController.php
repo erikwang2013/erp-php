@@ -17,7 +17,19 @@ use support\Response;
 class FreightRateController extends BaseController
 {
     /**
-     * 列表（分页）
+     * 运费费率列表（分页）
+     * @Apidoc\Title("运费费率列表")
+     * @Apidoc\Desc("获取运费费率列表，支持分页和状态筛选")
+     * @Apidoc\Url("/admin/v1/tms/freight-rate")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选（0=禁用,1=启用）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function index(Request $request): Response
     {
@@ -41,7 +53,17 @@ class FreightRateController extends BaseController
     }
 
     /**
-     * 创建
+     * 创建运费费率
+     * @Apidoc\Title("创建运费费率")
+     * @Apidoc\Desc("创建运费费率，编码必填，其余字段按业务传入")
+     * @Apidoc\Url("/admin/v1/tms/freight-rate")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="code", type="string", desc="费率编码，必填")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function store(Request $request): Response
     {
@@ -60,7 +82,17 @@ class FreightRateController extends BaseController
     }
 
     /**
-     * 详情
+     * 运费费率详情
+     * @Apidoc\Title("运费费率详情")
+     * @Apidoc\Desc("按 ID 获取运费费率详情")
+     * @Apidoc\Url("/admin/v1/tms/freight-rate/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function show(Request $request, string $id): Response
     {
@@ -77,7 +109,17 @@ class FreightRateController extends BaseController
     }
 
     /**
-     * 更新
+     * 更新运费费率
+     * @Apidoc\Title("更新运费费率")
+     * @Apidoc\Desc("按 ID 更新运费费率信息")
+     * @Apidoc\Url("/admin/v1/tms/freight-rate/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function update(Request $request, string $id): Response
     {
@@ -97,7 +139,18 @@ class FreightRateController extends BaseController
     }
 
     /**
-     * 删除
+     * 删除运费费率
+     * @Apidoc\Title("删除运费费率")
+     * @Apidoc\Desc("按 ID 删除运费费率，需操作密码二次确认")
+     * @Apidoc\Url("/admin/v1/tms/freight-rate/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("运输管理(TMS)")
+     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
+     * @Apidoc\Param(name="password", type="string", desc="操作密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */
     public function destroy(Request $request, string $id): Response
     {
