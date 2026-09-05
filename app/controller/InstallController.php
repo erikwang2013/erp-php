@@ -611,6 +611,10 @@ class InstallController
         #pm-retry{margin-top:14px}
         .adv-panel{margin:18px 0;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;padding:4px 18px 14px}
         .adv-panel .adv-panel-title{font-size:14px;font-weight:700;color:#4338ca;padding:12px 0 6px}
+        .pw-wrap{position:relative}
+        .pw-wrap input{padding-right:44px}
+        .pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;line-height:1;padding:4px 6px;color:#64748b}
+        .pw-eye:hover{color:#4338ca}
         @media(max-width:720px){body{padding:28px 14px 40px}.card{padding:24px 20px}.form-row{flex-direction:column;gap:0}.step-label{display:none}.step-line{max-width:26px}}
         </style>
         </head>
@@ -628,6 +632,6 @@ class InstallController
     private function htmlFooter(): string
     {
         // 界面版本水印：用于区分浏览器是否加载到最新代码（升级排查用）
-        return '<div class="foot">install-ui v7 · ' . date('Y-m-d H:i') . '</div></body>\n</html>';
+        return '<div class="foot">erik.xyz · ' . date('Y-m-d H:i') . '</div></body></html>';
     }
 }

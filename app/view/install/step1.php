@@ -8,7 +8,10 @@
 </div>
 <div class="form-group"><label>数据库名</label><input type="text" name="database" required value="<?= $h('database','erp') ?>" placeholder="不存在将自动创建"></div>
 <div class="form-group"><label>用户名</label><input type="text" name="username" required value="<?= $h('username','root') ?>"></div>
-<div class="form-group"><label>密码</label><input type="password" name="password" value="<?= $h('password') ?>"></div>
+<div class="form-group"><label>密码</label>
+  <div class="pw-wrap"><input type="password" name="password" id="db-pass" data-pw value="<?= $h('password') ?>">
+  <button type="button" class="pw-eye" data-eye="db-pass" aria-label="显示/隐藏密码">👁</button></div>
+</div>
 <div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="<?= $h('prefix','erp_') ?>" required></div>
 
 <div class="adv-panel" id="advPanel" style="display:block;margin:18px 0;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;padding:12px 18px 16px">
@@ -37,6 +40,15 @@
 <script>
 (function () {
   var form = document.getElementById('db-form');
+  function bindEye(id) {
+    var input = document.getElementById(id), btn = document.querySelector('[data-eye="'+id+'"]');
+    btn.addEventListener('click', function () {
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.textContent = show ? '🙈' : '👁';
+    });
+  }
+  bindEye('db-pass');
   function block(elm, msg) {
     elm.focus();
     document.getElementById('test-result').innerHTML = '<span style="color:#c62828;">❌ ' + msg + '</span>';
