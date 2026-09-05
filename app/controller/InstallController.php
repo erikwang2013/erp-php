@@ -40,6 +40,20 @@ class InstallController
      */
     public function index(Request $request): Response
     {
+        try {
+            return $this->doIndex($request);
+        } catch (\Throwable $e) {
+            // 安装向导自诊断：异常直接回显（引导阶段无敏感数据，便于定位启动类问题）
+            $msg = htmlspecialchars($e->getMessage(), ENT_QUOTES)
+                . '<br>@' . htmlspecialchars((string) $e->getFile(), ENT_QUOTES)
+                . ':' . $e->getLine();
+            return new Response(500, ['Content-Type' => 'text/html; charset=utf-8'],
+                $this->htmlHeader('安装错误') . '<div class="card"><h1 style="color:#c62828">❌ ' . $msg . '</h1></div>' . $this->htmlFooter());
+        }
+    }
+
+    private function doIndex(Request $request): Response
+    {
         if ($this->isInstalled()) {
             return $this->renderInstalled();
         }
@@ -142,10 +156,6 @@ class InstallController
         HTML;
         $html .= $this->htmlFooter();
 
-        // 内联 <script> 注入 CSP nonce（script-src 严格模式必需），style 已由 style-src unsafe-inline 放行
-        $nonce = htmlspecialchars((string) ($request->cspNonce ?? ''), ENT_QUOTES);
-        $html = str_replace('<script>', '<script nonce="' . $nonce . '">', $html);
-
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }
 
@@ -165,16 +175,13 @@ class InstallController
         HTML;
         $html .= $this->htmlFooter();
 
-        // 内联 <script> 注入 CSP nonce（script-src 严格模式必需），style 已由 style-src unsafe-inline 放行
-        $nonce = htmlspecialchars((string) ($request->cspNonce ?? ''), ENT_QUOTES);
-        $html = str_replace('<script>', '<script nonce="' . $nonce . '">', $html);
-
         return new Response(200, ['Content-Type' => 'text/html; charset=utf-8'], $html);
     }
 
     private function renderStep(int $step, array $errors, \support\Request $request): Response
     {
         $steps = ['环境检查', '数据库配置', '管理员账号', '确认安装'];
+        $old = $request->post();   // 表单回填（原签名 $old 参数在改 $request 传递时并入）
         $html = $this->htmlHeader('安装向导 — ' . $steps[$step]);
 
         // 步骤指示器
