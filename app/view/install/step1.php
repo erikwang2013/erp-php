@@ -36,16 +36,37 @@
 </form>
 <script>
 (function () {
+  var form = document.getElementById('db-form');
+  function block(elm, msg) {
+    elm.focus();
+    document.getElementById('test-result').innerHTML = '<span style="color:#c62828;">❌ ' + msg + '</span>';
+  }
+  form.addEventListener('submit', function (ev) {
+    var host = form.querySelector('[name="host"]');
+    var port = form.querySelector('[name="port"]');
+    var db   = form.querySelector('[name="database"]');
+    var user = form.querySelector('[name="username"]');
+    if (!host.value.trim()) { ev.preventDefault(); return block(host, '请填写数据库主机地址'); }
+    if (!port.value.trim() || !/^\d{1,5}$/.test(port.value)) { ev.preventDefault(); return block(port, '请填写正确的数据库端口'); }
+    if (!db.value.trim()) { ev.preventDefault(); return block(db, '请填写数据库名'); }
+    if (!user.value.trim()) { ev.preventDefault(); return block(user, '请填写数据库用户名'); }
+  });
   document.getElementById('test-db-btn')?.addEventListener('click', testDb);
   async function testDb() {
-    const r = document.getElementById('test-result');
+    var r = document.getElementById('test-result');
+    var host = document.querySelector('[name="host"]'), port = document.querySelector('[name="port"]');
+    var db = document.querySelector('[name="database"]'), user = document.querySelector('[name="username"]');
+    if (!host.value.trim() || !db.value.trim() || !user.value.trim() || !port.value.trim()) {
+      r.innerHTML = '<span style="color:#c62828;">❌ 请先完整填写主机/端口/数据库名/用户名再测试</span>';
+      return;
+    }
     r.innerHTML = '<span style="color:#999;">⏳ 测试中...</span>';
-    const fd = new FormData(document.getElementById('db-form'));
-    const p = new URLSearchParams();
-    for (const [k, v] of fd) { if (k !== 'step' && k !== 'prefix') p.append(k, v); }
+    var fd = new FormData(form);
+    var p = new URLSearchParams();
+    for (var e of fd) { if (e[0] !== 'step' && e[0] !== 'prefix') p.append(e[0], e[1]); }
     try {
-      const resp = await fetch('/install/test-db?' + p.toString());
-      const json = await resp.json();
+      var resp = await fetch('/install/test-db?' + p.toString());
+      var json = await resp.json();
       r.innerHTML = json.code === 0
         ? '<span style="color:#2e7d32;">✅ ' + json.message + '</span>'
         : '<span style="color:#c62828;">❌ ' + json.message + '</span>';
