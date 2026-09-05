@@ -300,12 +300,13 @@ class MfgCostService extends AbstractCrudService
      */
     private function calcStandardMaterialCost(int $orderId, int $bomId): string
     {
+        // 限定列引用首段走 wrapTable 会加前缀，故不用别名、直接裸表名
         $rows = MfgMaterialIssueItem::query()
-            ->join('mfg_material_issue as h', 'h.id', '=', db_prefix().'mfg_material_issue_item.issue_id')
-            ->where('h.order_id', $orderId)
-            ->where('h.status', 1)
-            ->orderBy(db_prefix().'mfg_material_issue_item.id')
-            ->get([db_prefix().'mfg_material_issue_item.product_id', db_prefix().'mfg_material_issue_item.unit_cost']);
+            ->join('mfg_material_issue', 'mfg_material_issue.id', '=', 'mfg_material_issue_item.issue_id')
+            ->where('mfg_material_issue.order_id', $orderId)
+            ->where('mfg_material_issue.status', 1)
+            ->orderBy('mfg_material_issue_item.id')
+            ->get(['mfg_material_issue_item.product_id', 'mfg_material_issue_item.unit_cost']);
         // 按物料取最近一次审核领料的均价快照
         $lastCost = [];
         foreach ($rows as $row) {

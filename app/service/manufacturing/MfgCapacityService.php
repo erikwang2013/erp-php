@@ -139,14 +139,16 @@ class MfgCapacityService
         // 1) 需求源：未结工单明细（剩余数量>0 才算需求）
         $demand = [];   // [planned_start, planned_end, remaining(scale4), product_id]
         $productIds = [];
-        $rows = DB::table('mfg_production_order as o')
-            ->join('mfg_production_item as i', 'i.order_id', '=', 'o.id')
-            ->whereNull('o.deleted_at')
-            ->whereIn('o.status', [0, 1])
-            ->whereIn('i.status', [0, 1])
-            ->whereNotNull('o.planned_start')
-            ->whereNotNull('o.planned_end')
-            ->get(['o.planned_start', 'o.planned_end', 'i.product_id', 'i.planned_quantity', 'i.completed_quantity']);
+        // 限定列引用首段走 wrapTable 加前缀，别名写法会拼成 erp_o/erp_i，一律用裸表名
+        $rows = DB::table('mfg_production_order')
+            ->join('mfg_production_item', 'mfg_production_item.order_id', '=', 'mfg_production_order.id')
+            ->whereNull('mfg_production_order.deleted_at')
+            ->whereIn('mfg_production_order.status', [0, 1])
+            ->whereIn('mfg_production_item.status', [0, 1])
+            ->whereNotNull('mfg_production_order.planned_start')
+            ->whereNotNull('mfg_production_order.planned_end')
+            ->get(['mfg_production_order.planned_start', 'mfg_production_order.planned_end',
+                'mfg_production_item.product_id', 'mfg_production_item.planned_quantity', 'mfg_production_item.completed_quantity']);
         foreach ($rows as $row) {
             $remaining = bcsub(bc_norm($row->planned_quantity), bc_norm($row->completed_quantity), 4);
             if (bccomp($remaining, '0', 4) <= 0) {

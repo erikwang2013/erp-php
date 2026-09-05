@@ -177,12 +177,12 @@ class ReceiveController extends BaseController
                 if (!$orderItem) {
                     throw new \RuntimeException("采购明细不存在: order_item_id={$orderItemId}");
                 }
-                $receivedSoFar = bc_norm(PurchaseReceiveItem::query()->join('purchase_receive', db_prefix().'purchase_receive.id', '=', db_prefix().'purchase_receive_item.receive_id')
-                    ->where(db_prefix().'purchase_receive.order_id', $orderId)
-                    ->where(db_prefix().'purchase_receive.status', 1)
-                    ->whereNull(db_prefix().'purchase_receive.deleted_at')
-                    ->where(db_prefix().'purchase_receive_item.order_item_id', $orderItemId)
-                    ->sum(db_prefix().'purchase_receive_item.quantity'));
+                $receivedSoFar = bc_norm(PurchaseReceiveItem::query()->join('purchase_receive', 'purchase_receive.id', '=', 'purchase_receive_item.receive_id')
+                    ->where('purchase_receive.order_id', $orderId)
+                    ->where('purchase_receive.status', 1)
+                    ->whereNull('purchase_receive.deleted_at')
+                    ->where('purchase_receive_item.order_item_id', $orderItemId)
+                    ->sum('purchase_receive_item.quantity'));
                 $orderedQty = bc_norm($orderItem->quantity);
                 if (bccomp(bcadd($receivedSoFar, $quantity, 4), $orderedQty, 4) > 0) {
                     throw new \RuntimeException(
@@ -265,11 +265,11 @@ class ReceiveController extends BaseController
         }
 
         // 各订单明细行的累计实收（跨全部已入库收货单）
-        $receivedByItem = PurchaseReceiveItem::query()->join('purchase_receive', db_prefix().'purchase_receive.id', '=', db_prefix().'purchase_receive_item.receive_id')
-            ->where(db_prefix().'purchase_receive.order_id', $order->id)
-            ->where(db_prefix().'purchase_receive.status', 1)
-            ->whereNull(db_prefix().'purchase_receive.deleted_at')
-            ->groupBy(db_prefix().'purchase_receive_item.order_item_id')
+        $receivedByItem = PurchaseReceiveItem::query()->join('purchase_receive', 'purchase_receive.id', '=', 'purchase_receive_item.receive_id')
+            ->where('purchase_receive.order_id', $order->id)
+            ->where('purchase_receive.status', 1)
+            ->whereNull('purchase_receive.deleted_at')
+            ->groupBy('purchase_receive_item.order_item_id')
             ->selectRaw(db_prefix().'purchase_receive_item.order_item_id')
             ->selectRaw('SUM(' . db_prefix() . 'purchase_receive_item.quantity) as total_received')
             ->get()

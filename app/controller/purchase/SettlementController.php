@@ -52,9 +52,9 @@ class SettlementController extends BaseController
 
         $query = FinanceArAp::query()->where('type', self::AP_TYPE)->where('source_type', self::SOURCE_TYPE);
         if ($keyword) {
-            $query->join('supplier', db_prefix().'supplier.id', '=', db_prefix().'finance_ar_ap.partner_id')
-                  ->select(db_prefix().'finance_ar_ap.*')
-                  ->where(db_prefix().'supplier.name', 'like', "%{$keyword}%");
+            $query->join('supplier', 'supplier.id', '=', 'finance_ar_ap.partner_id')
+                  ->select('finance_ar_ap.*')
+                  ->where('supplier.name', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->whereRaw(match ((int) $status) {
@@ -67,7 +67,7 @@ class SettlementController extends BaseController
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy(db_prefix().'finance_ar_ap.id', 'desc')->get();
+            ->limit($limit)->orderBy('finance_ar_ap.id', 'desc')->get();
 
         $settledAtMap = [];
         if (!$list->isEmpty()) {

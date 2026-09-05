@@ -189,12 +189,12 @@ class DeliveryController extends BaseController
                 if (!$orderItem) {
                     throw new \RuntimeException("销售明细不存在: order_item_id={$orderItemId}");
                 }
-                $deliveredSoFar = bc_norm(SalesDeliveryItem::query()->join('sales_delivery', db_prefix().'sales_delivery.id', '=', db_prefix().'sales_delivery_item.delivery_id')
-                    ->where(db_prefix().'sales_delivery.order_id', $orderId)
-                    ->where(db_prefix().'sales_delivery.status', 1)
-                    ->whereNull(db_prefix().'sales_delivery.deleted_at')
-                    ->where(db_prefix().'sales_delivery_item.order_item_id', $orderItemId)
-                    ->sum(db_prefix().'sales_delivery_item.quantity'));
+                $deliveredSoFar = bc_norm(SalesDeliveryItem::query()->join('sales_delivery', 'sales_delivery.id', '=', 'sales_delivery_item.delivery_id')
+                    ->where('sales_delivery.order_id', $orderId)
+                    ->where('sales_delivery.status', 1)
+                    ->whereNull('sales_delivery.deleted_at')
+                    ->where('sales_delivery_item.order_item_id', $orderItemId)
+                    ->sum('sales_delivery_item.quantity'));
                 $orderedQty = bc_norm($orderItem->quantity);
                 if (bccomp(bcadd($deliveredSoFar, $quantity, 4), $orderedQty, 4) > 0) {
                     throw new \RuntimeException(
@@ -277,11 +277,11 @@ class DeliveryController extends BaseController
         }
 
         // 各订单明细行的累计实发（跨全部已出库发货单）
-        $deliveredByItem = SalesDeliveryItem::query()->join('sales_delivery', db_prefix().'sales_delivery.id', '=', db_prefix().'sales_delivery_item.delivery_id')
-            ->where(db_prefix().'sales_delivery.order_id', $order->id)
-            ->where(db_prefix().'sales_delivery.status', 1)
-            ->whereNull(db_prefix().'sales_delivery.deleted_at')
-            ->groupBy(db_prefix().'sales_delivery_item.order_item_id')
+        $deliveredByItem = SalesDeliveryItem::query()->join('sales_delivery', 'sales_delivery.id', '=', 'sales_delivery_item.delivery_id')
+            ->where('sales_delivery.order_id', $order->id)
+            ->where('sales_delivery.status', 1)
+            ->whereNull('sales_delivery.deleted_at')
+            ->groupBy('sales_delivery_item.order_item_id')
             ->selectRaw(db_prefix().'sales_delivery_item.order_item_id')
             ->selectRaw('SUM(' . db_prefix() . 'sales_delivery_item.quantity) as total_delivered')
             ->get()

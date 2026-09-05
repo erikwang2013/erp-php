@@ -12,8 +12,8 @@ use support\Db;
 
 /**
  * 科目余额/试算平衡：从已审核凭证分录（erp_finance_voucher_item）按科目真实聚合。
- * 使用原始 SQL：模型表名已含 erp_ 前缀，而 config/database.php 的 prefix 配置
- * 会二次加前缀（erp_erp_xxx，既有配置问题，不在本服务修复范围）。
+ * 使用原始 SQL：文本不经语法层加前缀，表名一律 str_replace('erp_', db_prefix())
+ * 显式替换为物理名（见各查询串入口）。
  */
 class AccountBalanceService
 {

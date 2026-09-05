@@ -137,24 +137,23 @@ class CreditControlService
      */
     private function openOrderOccupancy(int $customerId): string
     {
-        return bc_norm(DB::table('sales_order as o')
-            ->leftJoinSub(
-                DB::table('sales_delivery_item as di')
-                    ->select('d.order_id as order_id')
-                    ->selectRaw('SUM(di.amount) as delivered')
-                    ->join('sales_delivery as d', 'd.id', '=', 'di.delivery_id')
-                    ->where('d.status', 1)
-                    ->whereNull('d.deleted_at')
-                    ->groupBy('d.order_id'),
-                'sd',
-                'sd.order_id',
-                '=',
-                'o.id'
-            )
-            ->where('o.customer_id', $customerId)
-            ->whereIn('o.status', [1, 2])
-            ->whereNull('o.deleted_at')
-            ->sum(DB::raw('GREATEST(COALESCE(o.total_amount, 0) - COALESCE(sd.delivered, 0), 0)')));
+        // 限定列引用首段走 wrapTable 加前缀：内层裸表名即可；子查询别名 sd 侧
+        // 用 DB::raw 绕过 wrap，外层 base 裸表名走语法层。raw 文本内用 db_prefix() 拼物理名。
+        $sub = DB::table('sales_delivery_item')
+            ->select('sales_delivery.order_id as order_id')
+            ->selectRaw('SUM(' . db_prefix() . 'sales_delivery_item.amount) as delivered')
+            ->join('sales_delivery', 'sales_delivery.id', '=', 'sales_delivery_item.delivery_id')
+            ->where('sales_delivery.status', 1)
+            ->whereNull('sales_delivery.deleted_at')
+            ->groupBy('sales_delivery.order_id');
+
+        return bc_norm(DB::table('sales_order')
+            // 子查询别名 sd 经语法层会拼成 erp_sd，raw 引用侧须同前缀（db_prefix 拼接）
+            ->leftJoinSub($sub, 'sd', DB::raw(db_prefix() . 'sd.order_id'), '=', 'sales_order.id')
+            ->where('sales_order.customer_id', $customerId)
+            ->whereIn('sales_order.status', [1, 2])
+            ->whereNull('sales_order.deleted_at')
+            ->sum(DB::raw('GREATEST(COALESCE(' . db_prefix() . 'sales_order.total_amount, 0) - COALESCE(' . db_prefix() . 'sd.delivered, 0), 0)')));
     }
 
     /**
