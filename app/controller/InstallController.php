@@ -576,55 +576,77 @@ class InstallController
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{$title}</title>
         <style>
+        :root{--pri:#4f46e5;--pri-d:#4338ca;--pri-l:#eef2ff;--ok:#059669;--ok-l:#ecfdf5;--warn:#d97706;--warn-l:#fffbeb;--err:#dc2626;--err-l:#fef2f2;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--bg:#f8fafc}
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f1f1f1;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
-        h1{font-size:22px;font-weight:600;margin-bottom:20px;color:#1d2327}
-        .card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);padding:32px;max-width:600px;width:100%;margin-top:20px}
-        .steps{display:flex;align-items:center;justify-content:center;max-width:600px;width:100%;margin-bottom:8px}
-        .step{display:flex;align-items:center;gap:8px;font-size:14px}
-        .step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
-        .step.pending .step-num{background:#e0e0e0;color:#888}
-        .step.active .step-num{background:#2271b1;color:#fff}
-        .step.done .step-num{background:#2e7d32;color:#fff}
-        .step.active .step-label{color:#2271b1;font-weight:600}
-        .step.pending .step-label,.step.done .step-label{color:#888}
-        .step-line{flex:1;height:2px;background:#e0e0e0;margin:0 12px;max-width:60px}
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Arial,sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:48px 20px 60px;background:
+          radial-gradient(1200px 500px at 15% -10%,#eef2ff 0%,transparent 55%),
+          radial-gradient(900px 420px at 110% 0%,#ecfdf5 0%,transparent 50%),
+          var(--bg)}
+        .brand{display:flex;align-items:center;gap:14px;margin-bottom:26px;user-select:none}
+        .brand-mark{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:800;box-shadow:0 8px 20px rgba(79,70,229,.35)}
+        .brand-name{font-size:21px;font-weight:700;letter-spacing:.2px}
+        .brand-sub{font-size:12.5px;color:var(--mut);margin-top:2px;letter-spacing:.3px}
+        .steps{display:flex;align-items:center;justify-content:center;width:100%;max-width:720px;margin-bottom:22px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 18px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+        .step{display:flex;align-items:center;gap:8px;font-size:13px}
+        .step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+        .step.pending .step-num{background:#e2e8f0;color:#64748b}
+        .step.active .step-num{background:var(--pri);color:#fff;box-shadow:0 0 0 4px rgba(79,70,229,.15)}
+        .step.done .step-num{background:var(--ok);color:#fff}
+        .step.active .step-label{color:var(--pri);font-weight:700}
+        .step.done .step-label{color:var(--ok);font-weight:600}
+        .step.pending .step-label{color:#94a3b8}
+        .step-line{flex:1;height:2px;background:#e2e8f0;margin:0 10px;max-width:56px;border-radius:2px}
+        .step.done + .step-line{background:var(--ok)}
+        .card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,.05),0 12px 32px -12px rgba(15,23,42,.12);padding:34px 36px;max-width:720px;width:100%}
+        .card h1,.step-title{font-size:19px;font-weight:700;margin-bottom:22px;display:flex;align-items:center;gap:10px}
+        .card h1:before,.step-title:before{content:"";width:4px;height:18px;border-radius:2px;background:linear-gradient(180deg,#6366f1,#4f46e5);display:inline-block}
         .form-group{margin-bottom:16px}
-        .form-group label{display:block;font-size:14px;font-weight:500;margin-bottom:4px;color:#555}
-        .form-group input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:4px;font-size:15px;transition:border-color .2s}
-        .form-group input:focus{outline:none;border-color:#2271b1;box-shadow:0 0 0 1px #2271b1}
-        .form-row{display:flex;gap:16px}
-        .btn{display:inline-block;padding:10px 24px;background:#2271b1;color:#fff;border:none;border-radius:4px;font-size:15px;cursor:pointer;text-decoration:none;font-weight:500}
-        .btn:hover{background:#135e96}
-        .btn-secondary{background:#f0f0f1;color:#2271b1;border:1px solid #2271b1}
-        .btn-secondary:hover{background:#e0e0e0}
-        .btn-install{background:#2e7d32;font-size:16px;padding:12px 32px}
-        .btn-install:hover{background:#1b5e20}
-        .form-actions{display:flex;gap:12px;margin-top:20px}
-        .alert-error{background:#fce4ec;border:1px solid #e57373;color:#c62828;padding:12px 16px;border-radius:4px;font-size:14px}
-        .alert-warn{background:#fff3e0;border:1px solid #ffb74d;color:#e65100;padding:12px 16px;border-radius:4px;font-size:14px;margin:16px 0;text-align:left;line-height:1.8}
-        .env-table{width:100%;border-collapse:collapse;margin-bottom:20px}
-        .env-table td{padding:8px 12px;border-bottom:1px solid #f0f0f1;font-size:14px}
-        .env-table td:first-child{width:36px;text-align:center}
-        .env-table tr:last-child td{border-bottom:none}
-        code{background:#f0f0f1;padding:2px 6px;border-radius:3px;font-size:13px}
-
-        .step-title{font-size:22px;font-weight:600;color:#1d2327}
-        .summary-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;margin-bottom:16px}
-        .sum-head{padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e0e0e0;font-weight:600;font-size:15px;color:#1d2327}
-        .sum-item{display:flex;justify-content:space-between;padding:9px 20px;border-bottom:1px solid #f5f5f5;font-size:14px}
+        .form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#334155}
+        .form-group input,.form-group select{width:100%;padding:10px 13px;border:1px solid #cbd5e1;border-radius:10px;font-size:14.5px;background:#fff;transition:border-color .18s,box-shadow .18s}
+        .form-group input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(79,70,229,.14)}
+        .form-group .hint{font-size:12px;color:#94a3b8;margin-top:5px}
+        .form-row{display:flex;gap:14px}
+        .form-row .form-group{flex:1}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 26px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;box-shadow:0 4px 12px rgba(79,70,229,.25);transition:transform .12s,box-shadow .2s,filter .2s}
+        .btn:hover{filter:brightness(1.06);box-shadow:0 6px 16px rgba(79,70,229,.32);transform:translateY(-1px)}
+        .btn:active{transform:translateY(0)}
+        .btn-secondary{background:#fff;color:var(--pri);border:1px solid #c7d2fe;box-shadow:none;font-weight:600}
+        .btn-secondary:hover{background:var(--pri-l);box-shadow:none;transform:none}
+        .btn-install{background:linear-gradient(135deg,#059669,#047857);font-size:15.5px;padding:12px 34px;box-shadow:0 4px 14px rgba(5,150,105,.28)}
+        .btn-install:hover{box-shadow:0 6px 18px rgba(5,150,105,.35)}
+        .form-actions,.install-actions{display:flex;gap:12px;margin-top:26px;align-items:center}
+        .alert-error{background:var(--err-l);border:1px solid #fecaca;color:var(--err);padding:12px 16px;border-radius:10px;font-size:14px}
+        .alert-warn{background:var(--warn-l);border:1px solid #fde68a;color:#92400e;padding:13px 16px;border-radius:10px;font-size:14px;margin:16px 0;text-align:left;line-height:1.8}
+        .summary-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:18px}
+        .sum-head{padding:12px 20px;background:#f8fafc;border-bottom:1px solid var(--line);font-weight:700;font-size:14px}
+        .sum-item{display:flex;justify-content:space-between;gap:16px;padding:10px 20px;border-bottom:1px solid #f1f5f9;font-size:14px}
         .sum-item:last-child{border-bottom:none}
-        .sum-label{color:#757575}
-        .sum-value{font-weight:600;color:#1d2327;word-break:break-all}
-        .notice-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:14px 20px;margin-bottom:20px}
-        .notice-title{color:#8d6e00;font-weight:600;margin-bottom:8px;font-size:14px}
-        .notice-list{margin:0 0 0 18px;line-height:2;font-size:14px;color:#5d4a00}
-        .notice-tip{margin-top:8px;font-size:13px;color:#a18800;border-top:1px dashed #ffe082;padding-top:8px}
-        .install-actions{display:flex;gap:12px;margin-top:8px}
-        @media(max-width:640px){.sum-item{flex-direction:column;gap:2px}}
+        .sum-label{color:var(--mut);flex-shrink:0}
+        .sum-value{font-weight:600;word-break:break-all;text-align:right}
+        .notice-box{background:var(--warn-l);border:1px solid #fde68a;border-radius:12px;padding:14px 20px;margin-bottom:8px}
+        .notice-title{color:#92400e;font-weight:700;margin-bottom:8px;font-size:13.5px}
+        .notice-list{margin:0 0 0 18px;line-height:2;font-size:14px;color:#78350f}
+        .notice-tip{margin-top:8px;font-size:12.5px;color:#a16207;border-top:1px dashed #fcd34d;padding-top:8px}
+        .env-table{width:100%;border-collapse:collapse;margin-bottom:8px}
+        .env-table td{padding:9px 8px;border-bottom:1px solid #f1f5f9;font-size:13.5px}
+        .env-table td:first-child{width:40px;text-align:center}
+        .env-table tr:last-child td{border-bottom:none}
+        code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-size:12.5px;color:#475569}
+        .env-ok{display:inline-flex;align-items:center;gap:6px;color:var(--ok);font-weight:600}
+        .env-fail{display:inline-flex;align-items:center;gap:6px;color:var(--err);font-weight:600}
+        #test-result{margin-top:10px;font-size:13.5px}
+        .foot{color:#94a3b8;font-size:12px;margin-top:26px;letter-spacing:.3px}
+        @media(max-width:720px){body{padding:28px 14px 40px}.card{padding:24px 20px}.form-row{flex-direction:column;gap:0}.step-label{display:none}.step-line{max-width:26px}}
         </style>
         </head>
         <body>
+        <div class="brand">
+            <div class="brand-mark">E</div>
+            <div>
+                <div class="brand-name">open-erp</div>
+                <div class="brand-sub">开放 ERP 系统 · 安装向导</div>
+            </div>
+        </div>
         HTML;
     }
 
