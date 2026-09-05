@@ -376,31 +376,23 @@ class InstallController
 
     private function validateStep1(Request $request): array
     {
+        // 仅做字段格式校验；连通性由页内「测试连接」按钮实时验证，
+        // 权威连接在最终安装(executeInstall)执行 —— 步骤推进不重复活连
         $errors = [];
         if (!$request->input('host')) {
             $errors[] = '请输入数据库主机地址';
         }
-        if (!$request->input('port')) {
-            $errors[] = '请输入数据库端口';
+        if (!preg_match('/^\d{1,5}$/', (string) $request->input('port', ''))) {
+            $errors[] = '请输入正确的数据库端口';
         }
         if (!$request->input('database')) {
-            $errors[] = '请输入数据库名';
+            $errors[] = '请输入数据库名（不存在将自动创建）';
         }
         if (!$request->input('username')) {
             $errors[] = '请输入数据库用户名';
         }
-        if (!empty($errors)) {
-            return $errors;
-        }
-
-        try {
-            $dsn = 'mysql:host=' . $request->input('host') . ';port=' . $request->input('port') . ';dbname=' . $request->input('database') . ';charset=utf8mb4';
-            new \PDO($dsn, $request->input('username'), $request->input('password'), [
-                \PDO::ATTR_TIMEOUT => 5,
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            ]);
-        } catch (\PDOException $e) {
-            $errors[] = '数据库连接失败: ' . $e->getMessage();
+        if (!preg_match('/^[a-zA-Z0-9_.\-]+$/', (string) $request->input('host', ''))) {
+            $errors[] = '数据库主机地址只能包含字母、数字、._-字符';
         }
 
         return $errors;
