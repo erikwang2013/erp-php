@@ -249,6 +249,8 @@ struct PutawayPage {
         title: '上架管理',
         actions: [new TopBarAction('+ 新增')],
         onAction: () => this.openCreate(),
+        onRefresh: () => this.loadData(true),
+        refreshing: this.isRefreshing || this.loading,
       })
 
       if (this.showForm) {

@@ -47,6 +47,19 @@ struct DashboardPage {
 
         Blank()
 
+        // 刷新：重载当前仪表盘数据
+        Button('刷新')
+          .fontSize(13)
+          .fontColor($r('app.color.primary'))
+          .backgroundColor($r('app.color.primary_bg'))
+          .borderRadius(4)
+          .height(32)
+          .enabled(!this.isLoading)
+          .onClick(() => {
+            this.loadDashboard();
+          })
+          .margin({ right: 12 })
+
         // 导出菜单
         Button('导出')
           .fontSize(13)

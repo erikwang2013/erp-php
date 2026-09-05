@@ -9,6 +9,8 @@
 //   TopBar({ title: '商品管理', actions: [new TopBarAction('+ 新增', 'primary')] })
 //   .onAction? -> 见 onAction 回调：
 //   TopBar({ title: 'x', actions: [...], onAction: (i) => { ... } })
+//   刷新：注入 onRefresh 后标题右侧渲染轻量"刷新"钮（与动作钮同排，刷新中传 refreshing 禁用防连点）：
+//   TopBar({ title: 'x', onRefresh: () => this.loadData(true), refreshing: this.isRefreshing })
 
 /** 右上操作按钮描述（label + kind: primary 主按钮 / danger 危险浅底钮） */
 export class TopBarAction {
@@ -26,8 +28,10 @@ export struct TopBar {
   @Prop title: string = '';
   @Prop back: boolean = true;
   @Prop actions: Array<TopBarAction> = [];
+  @Prop refreshing: boolean = false; // 刷新进行中：禁用刷新钮防连点
   onBack?: () => void;
   onAction?: (index: number) => void;
+  onRefresh?: () => void;
 
   build() {
     Row() {
@@ -58,6 +62,24 @@ export struct TopBar {
         .margin({ left: this.back ? 8 : 0 })
 
       Blank()
+
+      if (this.onRefresh) {
+        // 轻量刷新钮：幽灵样式（与动作钮同列，注入回调才渲染）
+        Button('刷新')
+          .fontSize(13)
+          .fontColor($r('app.color.primary'))
+          .backgroundColor($r('app.color.primary_bg'))
+          .borderRadius(6)
+          .height(32)
+          .padding({ left: 12, right: 12 })
+          .margin({ left: 8 })
+          .enabled(!this.refreshing)
+          .onClick(() => {
+            if (this.onRefresh) {
+              this.onRefresh();
+            }
+          })
+      }
 
       ForEach(this.actions, (action: TopBarAction, index: number) => {
         if (action.kind === 'danger') {

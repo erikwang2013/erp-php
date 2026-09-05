@@ -149,6 +149,13 @@ struct UserDetailPage {
         title: this.mode === 'create' ? '新增用户' : '用户详情',
         actions: this.mode !== 'create' ? [new TopBarAction('删除', 'danger')] : [],
         onAction: () => this.confirmDelete(),
+        // 详情/编辑态可刷新重载服务端详情；新增态（纯表单）无远端数据，注入仅守卫态回调
+        onRefresh: () => {
+          if (this.mode !== 'create') {
+            this.loadDetail();
+          }
+        },
+        refreshing: this.isLoading,
       })
 
       if (this.isLoading) {

@@ -254,6 +254,8 @@ struct ProductionOrderPage {
         title: '生产工单',
         actions: [new TopBarAction('+ 新增')],
         onAction: () => this.openCreate(),
+        onRefresh: () => this.loadData(true),
+        refreshing: this.isRefreshing || this.loading,
       })
 
       if (this.showForm) {

@@ -10,6 +10,7 @@ struct FulfillmentListPage {
   @State items: Array<Object> = [];
   @State loading: boolean = true;
   @State errMsg: string = ''; // M4: 非空表示加载失败，展示真实错误信息
+  @State isRefreshing: boolean = false; // 刷新进行中
   @State total: number = 0;
   @State page: number = 1;
   private api: ApiService = new ApiService();
@@ -19,8 +20,13 @@ struct FulfillmentListPage {
     this.loadData();
   }
 
-  async loadData() {
-    this.loading = true;
+  async loadData(isRefresh: boolean = false) {
+    if (isRefresh) {
+      this.page = 1;
+      this.isRefreshing = true;
+    } else {
+      this.loading = true;
+    }
     this.errMsg = '';
     try {
       const res = await this.api.get<Record<string, Object>>(`/admin/oms/fulfillment?page=${this.page}&limit=${this.limit}`);
@@ -33,15 +39,28 @@ struct FulfillmentListPage {
       this.errMsg = raw.length > 0 && raw !== 'UNAUTHORIZED' ? raw : '登录已过期，请重新登录';
     } finally {
       this.loading = false;
+      this.isRefreshing = false;
     }
   }
 
   build() {
     Column() {
-      Text('履约管理')
-        .fontSize(20)
-        .fontWeight(FontWeight.Bold)
-        .padding(16)
+      Row() {
+        Text('履约管理')
+          .fontSize(20)
+          .fontWeight(FontWeight.Bold)
+        Blank()
+        Button('刷新')
+          .fontSize(13)
+          .fontColor($r('app.color.primary'))
+          .backgroundColor($r('app.color.primary_bg'))
+          .borderRadius(6)
+          .height(32)
+          .enabled(!this.loading && !this.isRefreshing)
+          .onClick(() => { this.loadData(true); })
+      }
+      .width('100%')
+      .padding(16)
       if (this.loading) {
         LoadingProgress()
       } else if (this.errMsg !== '') {
@@ -61,24 +80,30 @@ struct FulfillmentListPage {
         .layoutWeight(1)
         .justifyContent(FlexAlign.Center)
       } else {
-        List() {
-          ForEach(this.items, (item: Record<string, Object>) => {
-            ListItem() {
-              Row() {
-                Text((item['name'] as string) ?? (item['code'] as string) ?? '')
-                  .fontSize(14)
-                  .layoutWeight(1)
-                Text((item['code'] as string) ?? '')
-                  .fontSize(12)
-                  .fontColor($r('app.color.text_hint'))
+        Refresh({ refreshing: $$this.isRefreshing }) {
+          List() {
+            ForEach(this.items, (item: Record<string, Object>) => {
+              ListItem() {
+                Row() {
+                  Text((item['name'] as string) ?? (item['code'] as string) ?? '')
+                    .fontSize(14)
+                    .layoutWeight(1)
+                  Text((item['code'] as string) ?? '')
+                    .fontSize(12)
+                    .fontColor($r('app.color.text_hint'))
+                }
+                .width('100%')
+                .padding(12)
               }
-              .width('100%')
-              .padding(12)
-            }
-          })
+            })
+          }
+          .width('100%')
+          .layoutWeight(1)
+          .edgeEffect(EdgeEffect.Spring)
         }
-        .width('100%')
-        .layoutWeight(1)
+        .onRefreshing(() => {
+          this.loadData(true);
+        })
       }
     }
     .width('100%')

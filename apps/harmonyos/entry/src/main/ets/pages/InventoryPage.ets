@@ -11,14 +11,19 @@ struct InventoryPage {
   @State items: Array<Object> = [];
   @State loading: boolean = true;
   @State errMsg: string = ''; // M4：真实错误文案（catch 不再吞 message）
+  @State isRefreshing: boolean = false; // 刷新进行中
   private api: ApiService = new ApiService();
 
   aboutToAppear() {
     this.loadData();
   }
 
-  async loadData() {
-    this.loading = true;
+  async loadData(isRefresh: boolean = false) {
+    if (isRefresh) {
+      this.isRefreshing = true;
+    } else {
+      this.loading = true;
+    }
     this.errMsg = '';
     try {
       const res = await this.api.get<Record<string, Object>>('/admin/inventory/?page=1&limit=20');
@@ -31,15 +36,28 @@ struct InventoryPage {
       this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
     } finally {
       this.loading = false;
+      this.isRefreshing = false;
     }
   }
 
   build() {
     Column() {
-      Text('库存管理')
-        .fontSize(20)
-        .fontWeight(FontWeight.Bold)
-        .padding(16)
+      Row() {
+        Text('库存管理')
+          .fontSize(20)
+          .fontWeight(FontWeight.Bold)
+        Blank()
+        Button('刷新')
+          .fontSize(13)
+          .fontColor($r('app.color.primary'))
+          .backgroundColor($r('app.color.primary_bg'))
+          .borderRadius(6)
+          .height(32)
+          .enabled(!this.loading && !this.isRefreshing)
+          .onClick(() => { this.loadData(true); })
+      }
+      .width('100%')
+      .padding(16)
       if (this.loading) {
         LoadingProgress()
       } else if (this.errMsg) {
@@ -57,15 +75,23 @@ struct InventoryPage {
         .width('100%')
         .layoutWeight(1)
       } else {
-        List() {
-          ForEach(this.items, (item: Object) => {
-            ListItem() {
-              Text(JSON.stringify(item))
-                .padding(12)
-                .fontSize(14)
-            }
-          })
+        Refresh({ refreshing: $$this.isRefreshing }) {
+          List() {
+            ForEach(this.items, (item: Object) => {
+              ListItem() {
+                Text(JSON.stringify(item))
+                  .padding(12)
+                  .fontSize(14)
+              }
+            })
+          }
+          .width('100%')
+          .layoutWeight(1)
+          .edgeEffect(EdgeEffect.Spring)
         }
+        .onRefreshing(() => {
+          this.loadData(true);
+        })
       }
     }
     .width('100%')

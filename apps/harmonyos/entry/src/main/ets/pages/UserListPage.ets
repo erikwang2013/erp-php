@@ -81,6 +81,8 @@ struct UserListPage {
         onAction: () => {
           router.pushUrl({ url: 'pages/UserDetailPage', params: { mode: 'create' } });
         },
+        onRefresh: () => this.loadData(true),
+        refreshing: this.isRefreshing || this.isLoading,
       })
 
       // 搜索栏
