@@ -18,6 +18,7 @@ use support\Response;
  * 部门管理 — 树形CRUD
  */
 #[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+#[\erikwang2013\apidoc\annotation\Title("部门")]
 
 class DepartmentController extends BaseController
 {

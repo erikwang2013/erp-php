@@ -11,6 +11,8 @@ use app\admin\controller\BaseController;
 use app\model\WmsWave;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("波次管理")]
+#[\erikwang2013\apidoc\annotation\Title("波次")]
 
 class WaveController extends BaseController
 {

@@ -18,6 +18,7 @@ use support\Response;
  * 职位管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+#[\erikwang2013\apidoc\annotation\Title("职位")]
 
 class PositionController extends BaseController
 {

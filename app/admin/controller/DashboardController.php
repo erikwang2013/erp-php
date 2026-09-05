@@ -34,6 +34,7 @@ use support\Response;
  * 仪表盘
  */
 #[\erikwang2013\apidoc\annotation\Tag("仪表盘")]
+#[\erikwang2013\apidoc\annotation\Title("仪表盘总览")]
 
 class DashboardController extends BaseController
 {

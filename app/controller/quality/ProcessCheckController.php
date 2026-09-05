@@ -16,6 +16,7 @@ use support\Response;
  * 过程检验 (IPQC)
  */
 #[\erikwang2013\apidoc\annotation\Tag("质量管理")]
+#[\erikwang2013\apidoc\annotation\Title("过程检验记录")]
 
 class ProcessCheckController extends BaseController
 {

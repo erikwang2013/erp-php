@@ -12,6 +12,7 @@ use app\model\WmsPutawayTask;
 use app\service\wms\WmsInboundService;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("上架任务")]
 
 class PutawayController extends BaseController
 {

@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\Product;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("商品")]
 
 class ProductController extends BaseController
 {

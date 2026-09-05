@@ -22,6 +22,7 @@ use support\Response;
  * 平台为适配器注入（默认 mock），切换真实开票通道不涉及本控制器。
  */
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Title("开具数电票")]
 
 class EInvoiceController extends BaseController
 {

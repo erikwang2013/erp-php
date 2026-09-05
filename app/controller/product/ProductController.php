@@ -19,6 +19,7 @@ use Throwable;
  * 商品管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("商品管理")]
+#[\erikwang2013\apidoc\annotation\Title("商品")]
 
 class ProductController extends BaseController
 {

@@ -21,6 +21,7 @@ use support\Response;
  * 生产工单管理 — CRUD + 状态流转
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("生产工单")]
 
 class ProductionController extends BaseController
 {

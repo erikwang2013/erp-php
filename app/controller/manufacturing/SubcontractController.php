@@ -28,6 +28,7 @@ use support\Response;
  * （见 SubcontractService::auditIssue / auditReceive）。
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("委外订单")]
 
 class SubcontractController extends BaseController
 {

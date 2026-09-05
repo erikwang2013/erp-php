@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\FinanceProfitCenter;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("利润中心")]
 
 class ProfitCenterController extends BaseController
 {

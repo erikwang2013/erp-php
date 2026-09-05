@@ -12,6 +12,7 @@ use app\model\FinanceBudget;
 use app\model\FinanceBudgetItem;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("预算")]
 
 class BudgetController extends BaseController
 {

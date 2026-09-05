@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\FinanceSubsidiaryLedger;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("明细账")]
 
 class SubsidiaryLedgerController extends BaseController
 {

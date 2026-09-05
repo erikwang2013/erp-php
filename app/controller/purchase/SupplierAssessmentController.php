@@ -12,6 +12,7 @@ use app\admin\controller\BaseController;
 use app\model\SupplierAssessment;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("供应商评分")]
 
 class SupplierAssessmentController extends BaseController
 {

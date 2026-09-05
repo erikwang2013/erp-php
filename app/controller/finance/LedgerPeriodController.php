@@ -16,6 +16,7 @@ use support\Response;
 /**
  * 账套会计期间管理（F1）——开账/关账/期间列表。
  */
+#[\erikwang2013\apidoc\annotation\Title("期间")]
 class LedgerPeriodController extends BaseController
 {
     /**

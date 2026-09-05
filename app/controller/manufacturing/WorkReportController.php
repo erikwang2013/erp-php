@@ -26,6 +26,7 @@ use support\Response;
  * 工序报工单管理 — CRUD + 审核（WIP 人工成本归集）
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("报工单")]
 
 class WorkReportController extends BaseController
 {

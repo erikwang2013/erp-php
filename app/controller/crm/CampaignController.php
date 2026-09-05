@@ -13,6 +13,7 @@ use app\service\crm\CrmService;
 use support\Container;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("营销活动")]
 
 class CampaignController extends BaseController
 {

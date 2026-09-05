@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\InventoryAlertRule;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("库存预警规则")]
 
 class AlertController extends BaseController
 {

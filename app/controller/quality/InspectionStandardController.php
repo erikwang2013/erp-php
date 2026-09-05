@@ -16,6 +16,7 @@ use support\Response;
  * 检验标准管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("质量管理")]
+#[\erikwang2013\apidoc\annotation\Title("检验标准")]
 
 class InspectionStandardController extends BaseController
 {

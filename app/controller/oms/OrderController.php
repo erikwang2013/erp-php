@@ -12,6 +12,7 @@ use app\model\OmsOrder;
 use app\service\oms\OmsOrderService;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("销售订单")]
 
 class OrderController extends BaseController
 {

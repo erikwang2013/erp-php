@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\FinanceBankAccount;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("银行账户")]
 
 class BankAccountController extends BaseController
 {

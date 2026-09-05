@@ -12,6 +12,7 @@ use support\Log;
 use support\Request;
 use support\Response;
 use Throwable;
+#[\erikwang2013\apidoc\annotation\Title("生成点击验证码")]
 
 class CaptchaController
 {

@@ -23,6 +23,7 @@ use support\Response;
  * 薪资与薪资项管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+#[\erikwang2013\apidoc\annotation\Title("薪资")]
 
 class SalaryController extends BaseController
 {

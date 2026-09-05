@@ -29,6 +29,7 @@ use support\Response;
  * （见 SubcontractService::auditIssue）。
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("委外发料单")]
 
 class SubcontractIssueController extends BaseController
 {

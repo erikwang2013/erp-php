@@ -20,6 +20,7 @@ use support\Response;
  * 核销来源 order_source 必填（记调用方单号）。路由注册随批次 lead 关闸（本批不注册）。
  */
 #[\erikwang2013\apidoc\annotation\Tag("会员管理")]
+#[\erikwang2013\apidoc\annotation\Title("会员发券")]
 
 class CouponController extends BaseController
 {

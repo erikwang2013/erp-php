@@ -17,6 +17,7 @@ use support\Response;
  * ping 为公开接口（无需认证）；其余路由组挂 OpenApiAuth 中间件，
  * 认证通过后 $request->openapiApp 即当前请求方应用。
  */
+#[\erikwang2013\apidoc\annotation\Title("公开连通性检查")]
 class OpenController
 {
     /**

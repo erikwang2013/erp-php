@@ -16,6 +16,7 @@ use support\Response;
  * 备品备件管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+#[\erikwang2013\apidoc\annotation\Title("备品备件")]
 
 class SparePartController extends BaseController
 {

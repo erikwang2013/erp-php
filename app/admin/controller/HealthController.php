@@ -13,6 +13,7 @@ use support\Redis;
 use support\Request;
 use support\Response;
 use Throwable;
+#[\erikwang2013\apidoc\annotation\Title("健康检查")]
 
 class HealthController
 {

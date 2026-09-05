@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\TmsShipment;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("运单")]
 
 class ShipmentController extends BaseController
 {

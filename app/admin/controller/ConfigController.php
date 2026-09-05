@@ -11,6 +11,7 @@ namespace app\admin\controller;
 use app\model\SystemConfig;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("系统配置")]
 
 class ConfigController extends BaseController
 {

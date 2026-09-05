@@ -26,6 +26,7 @@ use support\Response;
  * 注意：追溯接口返回原始 snowflake id 与 source_id（不 hashid 编码），
  * 便于前端直接以 source_id 定位上游/下游业务单据。
  */
+#[\erikwang2013\apidoc\annotation\Title("批次正向追溯")]
 class TraceController extends BaseController
 {
     /**

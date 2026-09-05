@@ -21,6 +21,7 @@ use support\Response;
  * HR 薪资批量生成（HrService::batchGenerateSalaries）按员工+期间并入。
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("计件工资台账")]
 
 class PieceWageController extends BaseController
 {

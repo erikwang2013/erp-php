@@ -25,6 +25,7 @@ use support\Response;
  * 领料单管理 — CRUD + 审核（出库）
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("领料单")]
 
 class MaterialIssueController extends BaseController
 {

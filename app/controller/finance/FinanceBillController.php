@@ -21,6 +21,7 @@ use support\Response;
  * 边界：票据为资产追踪单据，不新增 ARAP 分录、不联动收付款/核销/结算。
  */
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Title("票据台账")]
 
 class FinanceBillController extends BaseController
 {

@@ -16,6 +16,7 @@ use support\Response;
  * 保养计划管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+#[\erikwang2013\apidoc\annotation\Title("保养计划")]
 
 class MaintenancePlanController extends BaseController
 {

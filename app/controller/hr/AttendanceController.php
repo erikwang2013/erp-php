@@ -21,6 +21,7 @@ use support\Response;
  * 考勤与请假管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+#[\erikwang2013\apidoc\annotation\Title("考勤记录")]
 
 class AttendanceController extends BaseController
 {

@@ -23,6 +23,7 @@ use support\Response;
  * 费用归集单管理 — CRUD + 审核（人工/制费/其他计入 WIP）
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("费用归集单")]
 
 class CostEntryController extends BaseController
 {

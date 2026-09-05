@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use support\Container;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("合同")]
 
 class ContractController extends BaseController
 {

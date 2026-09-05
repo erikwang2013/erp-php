@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\FinancePayment;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("付款单")]
 
 class PaymentController extends BaseController
 {

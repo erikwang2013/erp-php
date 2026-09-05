@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\WmsLocation;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("库位")]
 
 class LocationController extends BaseController
 {

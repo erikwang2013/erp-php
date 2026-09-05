@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\WmsAsn;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("预到货通知")]
 
 class AsnController extends BaseController
 {

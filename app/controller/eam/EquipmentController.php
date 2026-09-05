@@ -16,6 +16,7 @@ use support\Response;
  * 设备台账管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+#[\erikwang2013\apidoc\annotation\Title("设备")]
 
 class EquipmentController extends BaseController
 {

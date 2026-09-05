@@ -13,6 +13,7 @@ use app\service\product\ProductService;
 use support\Container;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("仓库")]
 
 class WarehouseController extends BaseController
 {

@@ -21,6 +21,7 @@ use support\Response;
  * 设备点检执行（扫码闭环）
  */
 #[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+#[\erikwang2013\apidoc\annotation\Title("点检任务")]
 
 class EamInspectionController extends BaseController
 {

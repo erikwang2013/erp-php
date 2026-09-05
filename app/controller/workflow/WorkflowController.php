@@ -12,6 +12,7 @@ use app\model\ApprovalNode;
 use app\model\ApprovalWorkflow;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("工作流模板")]
 
 class WorkflowController extends BaseController
 {

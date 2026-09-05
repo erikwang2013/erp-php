@@ -12,6 +12,7 @@ use app\model\WmsReceiving;
 use app\service\wms\WmsInboundService;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("收货单")]
 
 class ReceivingController extends BaseController
 {

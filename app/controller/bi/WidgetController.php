@@ -16,6 +16,7 @@ use support\Response;
  * BI 看板组件管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("BI看板")]
+#[\erikwang2013\apidoc\annotation\Title("图表组件")]
 
 class WidgetController extends BaseController
 {

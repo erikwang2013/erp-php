@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\ProjectTask;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("项目任务")]
 
 class TaskController extends BaseController
 {

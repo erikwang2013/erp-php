@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\WmsPickTask;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("拣货任务")]
 
 class PickController extends BaseController
 {

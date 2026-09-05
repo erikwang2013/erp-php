@@ -20,6 +20,7 @@ use support\Response;
  * 定义 CRUD + 动态 schema（applySchema 供前端渲染）+ 值校验（validate 由单据
  * 服务在保存 custom_fields 前调用）。
  */
+#[\erikwang2013\apidoc\annotation\Title("自定义字段定义")]
 class CustomFieldController extends BaseController
 {
     /**

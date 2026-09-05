@@ -20,6 +20,7 @@ use support\Response;
  * 匹配严格 1:1；批次导入按 (账户,批次) 幂等；同条件两次自动核销结果一致。
  */
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Title("对账单行")]
 
 class BankReconController extends BaseController
 {

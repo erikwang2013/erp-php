@@ -21,6 +21,7 @@ use support\Response;
  * 模板模型 + 占位符渲染（dompdf 出 PDF）+ 二维码出图（poster，{{qr:}} 占位符）。
  * CRUD 走 hashid 路由；render/pdf 用模板 code 直调（单据侧集成按 code 引用模板）。
  */
+#[\erikwang2013\apidoc\annotation\Title("打印模板")]
 class PrintTemplateController extends BaseController
 {
     /**

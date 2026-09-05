@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\TmsTrackingEvent;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("物流轨迹")]
 
 class TrackingController extends BaseController
 {

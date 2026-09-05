@@ -20,6 +20,7 @@ use support\Response;
  * 本层仅 hashid 编解码 + 透传。路由注册随批次 lead 关闸（本批不注册）。
  */
 #[\erikwang2013\apidoc\annotation\Tag("会员管理")]
+#[\erikwang2013\apidoc\annotation\Title("会员开卡")]
 
 class MemberController extends BaseController
 {

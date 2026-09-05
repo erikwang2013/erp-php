@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\FinanceCashJournal;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("现金日记账")]
 
 class CashJournalController extends BaseController
 {

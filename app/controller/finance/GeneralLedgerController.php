@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\FinanceGeneralLedger;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("总账")]
 
 class GeneralLedgerController extends BaseController
 {

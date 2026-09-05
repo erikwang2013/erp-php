@@ -19,6 +19,7 @@ use support\Response;
  * 销售结算 = erp_finance_ar_ap（source_type=sales_delivery）的薄视图，
  * 状态由 settled_amount/amount 推导；核销走 FinanceService::settleReceipt。
  */
+#[\erikwang2013\apidoc\annotation\Title("销售结算")]
 class SettlementController extends BaseController
 {
     private const AR_TYPE = 1;

@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\OmsRma;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("退换货单")]
 
 class RmaController extends BaseController
 {

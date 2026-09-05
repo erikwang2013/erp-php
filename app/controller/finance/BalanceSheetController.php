@@ -13,6 +13,7 @@ use app\service\finance\LedgerBalanceService;
 use app\service\finance\LedgerService;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("资产负债表")]
 
 class BalanceSheetController extends BaseController
 {

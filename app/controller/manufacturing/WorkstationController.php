@@ -18,6 +18,7 @@ use support\Response;
  * 工作站管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("工作站")]
 
 class WorkstationController extends BaseController
 {

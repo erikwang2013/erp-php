@@ -12,6 +12,7 @@ use app\model\FinanceTaxRate;
 use app\model\FinanceTaxRecord;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("税率")]
 
 class TaxController extends BaseController
 {

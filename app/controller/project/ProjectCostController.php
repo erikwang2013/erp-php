@@ -20,6 +20,7 @@ use support\Response;
  * 项目成本归集与预算偏差
  */
 #[\erikwang2013\apidoc\annotation\Tag("项目管理")]
+#[\erikwang2013\apidoc\annotation\Title("成本台账")]
 
 class ProjectCostController extends BaseController
 {

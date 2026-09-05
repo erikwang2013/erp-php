@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\PurchaseOrder;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("采购订单")]
 
 class OrderController extends BaseController
 {

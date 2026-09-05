@@ -19,6 +19,7 @@ use support\Response;
  * H4 社保基数规则：规则 CRUD + 险种比例行级维护 + 员工绑定 + 社保计算
  * 本批次不注册路由（controller 仅写 Apidoc），路由归口由批次负责人统一注册。
  */
+#[\erikwang2013\apidoc\annotation\Title("社保规则")]
 class SocialSecurityController extends BaseController
 {
     /**

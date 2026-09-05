@@ -17,6 +17,7 @@ use support\Redis;
 use support\Request;
 use support\Response;
 use Throwable;
+#[\erikwang2013\apidoc\annotation\Title("用户登录")]
 
 class AuthController
 {

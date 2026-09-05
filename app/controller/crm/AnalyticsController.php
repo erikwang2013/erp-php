@@ -14,6 +14,7 @@ use app\service\crm\CrmService;
 use support\Container;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("分析报表")]
 
 class AnalyticsController extends BaseController
 {

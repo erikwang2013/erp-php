@@ -16,6 +16,7 @@ use support\Response;
  * 维修工单管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("设备管理")]
+#[\erikwang2013\apidoc\annotation\Title("维修工单")]
 
 class RepairOrderController extends BaseController
 {

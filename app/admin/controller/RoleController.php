@@ -11,6 +11,7 @@ namespace app\admin\controller;
 use app\model\AdminRole;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("角色")]
 
 class RoleController extends BaseController
 {

@@ -13,6 +13,7 @@ use app\service\crm\CrmService;
 use support\Container;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("跟进记录")]
 
 class FollowRecordController extends BaseController
 {

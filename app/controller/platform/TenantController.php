@@ -23,6 +23,7 @@ use support\Response;
  * ID 出入参约定：租户 id 一律 hashid 字符串；company_id 兼容 hashid 或数字
  * （decodeIdSafe，同 CompanyController 双解码惯例）。
  */
+#[\erikwang2013\apidoc\annotation\Title("租户")]
 class TenantController extends BaseController
 {
     private TenantService $service;

@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\controller;
 
 use support\Request;
+#[\erikwang2013\apidoc\annotation\Title("首页")]
 
 class IndexController
 {

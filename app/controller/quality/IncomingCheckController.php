@@ -17,6 +17,7 @@ use support\Response;
  * 来料检验 (IQC)
  */
 #[\erikwang2013\apidoc\annotation\Tag("质量管理")]
+#[\erikwang2013\apidoc\annotation\Title("来料检验记录")]
 
 class IncomingCheckController extends BaseController
 {

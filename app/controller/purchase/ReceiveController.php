@@ -23,6 +23,7 @@ use support\Response;
  * 采购收货管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("采购管理")]
+#[\erikwang2013\apidoc\annotation\Title("收货单")]
 
 class ReceiveController extends BaseController
 {

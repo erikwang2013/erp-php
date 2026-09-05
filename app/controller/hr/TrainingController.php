@@ -19,6 +19,7 @@ use support\Response;
  * H3 课程体系：课程 CRUD + 报名/完成/取消 + 员工学分
  * 本批次不注册路由（controller 仅写 Apidoc），路由归口由批次负责人统一注册。
  */
+#[\erikwang2013\apidoc\annotation\Title("课程")]
 class TrainingController extends BaseController
 {
     /**

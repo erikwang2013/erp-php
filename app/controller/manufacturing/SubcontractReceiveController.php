@@ -26,6 +26,7 @@ use support\Response;
  * （见 SubcontractService::auditReceive；收满自动核销委外单）。
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("委外收料单")]
 
 class SubcontractReceiveController extends BaseController
 {

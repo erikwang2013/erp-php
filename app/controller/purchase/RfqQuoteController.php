@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use support\Container;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("报价")]
 
 class RfqQuoteController extends BaseController
 {

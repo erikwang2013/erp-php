@@ -16,6 +16,7 @@ use support\Response;
  * 出货检验 (OQC)
  */
 #[\erikwang2013\apidoc\annotation\Tag("质量管理")]
+#[\erikwang2013\apidoc\annotation\Title("出货检验记录")]
 
 class FinalCheckController extends BaseController
 {

@@ -13,6 +13,7 @@ use app\service\finance\LedgerBalanceService;
 use app\service\finance\LedgerService;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("现金流量表")]
 
 class CashFlowController extends BaseController
 {

@@ -23,6 +23,7 @@ use support\Response;
  * 本控制器与 WorkflowController 并存互不覆盖：后者管理模板元数据 + 线性节点，
  * 本控制器管理画布拓扑（节点坐标 / 边 / 分支条件）。
  */
+#[\erikwang2013\apidoc\annotation\Title("读取流程画布")]
 class WorkflowDesignerController extends BaseController
 {
     /**

@@ -12,6 +12,7 @@ use app\common\SnowflakeService;
 use support\Log;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("安装向导")]
 
 class InstallController
 {

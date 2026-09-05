@@ -24,6 +24,7 @@ use support\Response;
  * hashid 编解码）。业务规则与错误消息契约见 ChannelService（消息文本为
  * 稳定契约，勿在此层改写）。
  */
+#[\erikwang2013\apidoc\annotation\Title("发送渠道通知")]
 class NotificationChannelController extends BaseController
 {
     private ChannelService $service;

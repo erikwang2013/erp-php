@@ -18,6 +18,7 @@ use support\Response;
  * 工艺路线管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("工艺路线")]
 
 class RoutingController extends BaseController
 {

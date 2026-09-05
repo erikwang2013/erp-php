@@ -21,6 +21,7 @@ use support\Response;
  * 本控制器只做参数搬运与统一响应；业务错误 422、发票不存在 404。
  */
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Title("进项发票")]
 
 class TaxInvoicePoolController extends BaseController
 {

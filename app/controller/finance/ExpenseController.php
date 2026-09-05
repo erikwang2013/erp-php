@@ -16,6 +16,7 @@ use support\Response;
  * 费用支出管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
+#[\erikwang2013\apidoc\annotation\Title("费用")]
 
 class ExpenseController extends BaseController
 {

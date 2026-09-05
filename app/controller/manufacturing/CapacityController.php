@@ -18,6 +18,7 @@ use support\Response;
  * 产能负荷（P1-M3）：工作站日历例外 + 粗能力负荷报表
  */
 #[\erikwang2013\apidoc\annotation\Tag("生产制造")]
+#[\erikwang2013\apidoc\annotation\Title("工作站日历")]
 
 class CapacityController extends BaseController
 {

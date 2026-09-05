@@ -19,6 +19,7 @@ use support\Response;
  * app_key 为公开标识（ak_ 前缀）；app_secret 加密入库，仅在创建 / 重置时明文展示一次，
  * 请管理员自行留存（丢失后只能重置）。
  */
+#[\erikwang2013\apidoc\annotation\Title("开放平台应用")]
 class OpenApiController extends BaseController
 {
     /**

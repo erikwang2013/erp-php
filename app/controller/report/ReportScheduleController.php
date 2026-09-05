@@ -16,6 +16,7 @@ use support\Response;
  * 报表调度管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
+#[\erikwang2013\apidoc\annotation\Title("报表调度")]
 
 class ReportScheduleController extends BaseController
 {

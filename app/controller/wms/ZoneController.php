@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\WmsZone;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("库区")]
 
 class ZoneController extends BaseController
 {

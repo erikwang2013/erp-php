@@ -16,6 +16,7 @@ use app\service\finance\LedgerService;
 use app\service\finance\PeriodCloseService;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("财务利润报表")]
 
 class ReportController extends BaseController
 {

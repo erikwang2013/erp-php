@@ -17,6 +17,7 @@ use support\Response;
  * 项目管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("项目管理")]
+#[\erikwang2013\apidoc\annotation\Title("项目")]
 
 class ProjectController extends BaseController
 {

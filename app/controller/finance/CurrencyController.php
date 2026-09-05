@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\FinanceCurrency;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("币种")]
 
 class CurrencyController extends BaseController
 {

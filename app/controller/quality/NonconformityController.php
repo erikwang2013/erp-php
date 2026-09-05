@@ -16,6 +16,7 @@ use support\Response;
  * 不合格品管理
  */
 #[\erikwang2013\apidoc\annotation\Tag("质量管理")]
+#[\erikwang2013\apidoc\annotation\Title("不合格品单")]
 
 class NonconformityController extends BaseController
 {

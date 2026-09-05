@@ -25,6 +25,7 @@ use support\Response;
  * 统一返回 {code,message,data}；Tag 见类注解。
  */
 #[\erikwang2013\apidoc\annotation\Tag("人力资源")]
+#[\erikwang2013\apidoc\annotation\Title("职位")]
 
 class RecruitController extends BaseController
 {

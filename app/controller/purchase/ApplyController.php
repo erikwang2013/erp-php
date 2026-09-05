@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\PurchaseApply;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("采购申请")]
 
 class ApplyController extends BaseController
 {

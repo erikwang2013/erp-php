@@ -11,6 +11,7 @@ namespace app\admin\controller;
 use app\model\OperationLog;
 use support\Request;
 use support\Response;
+#[\erikwang2013\apidoc\annotation\Title("操作日志")]
 
 class LogController extends BaseController
 {
