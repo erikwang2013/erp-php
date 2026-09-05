@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 
 /// 财务报表页 — 覆盖端点：
 /// GET  /admin/finance/report/profit            （利润报表）
@@ -147,12 +148,12 @@ class _ConsolidateTabState extends State<_ConsolidateTab> {
           ),
         ]),
         const SizedBox(height: 8),
-        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
         if (_result.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(children: [
-            _MetricCard(label: AppL10n.of(context).financeBaseCurrency, value: _result['base_currency'], color: Colors.blue),
-            _MetricCard(label: AppL10n.of(context).financeExchangeGainLoss, value: _result['exchange_gain_loss'], color: Colors.orange),
+            _MetricCard(label: AppL10n.of(context).financeBaseCurrency, value: _result['base_currency'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeExchangeGainLoss, value: _result['exchange_gain_loss'], color: AppColors.of(context).warning),
           ]),
           if (_result['message'] != null)
             Padding(padding: const EdgeInsets.only(top: 4), child: Text('${_result['message']}')),
@@ -233,14 +234,14 @@ class _RatiosTabState extends State<_RatiosTab> {
           label: Text(_loading ? AppL10n.of(context).financeCalculating : AppL10n.of(context).financeCalcRatios),
         ),
         const SizedBox(height: 8),
-        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
         if (_result.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(children: [
-            _MetricCard(label: AppL10n.of(context).financeCurrentRatio, value: _result['current_ratio'], color: Colors.blue),
-            _MetricCard(label: AppL10n.of(context).financeDebtRatio, value: _result['debt_ratio'], color: Colors.orange),
-            _MetricCard(label: AppL10n.of(context).financeNetMargin, value: _result['net_profit_margin'], color: Colors.green),
-            _MetricCard(label: AppL10n.of(context).financeRoa, value: _result['return_on_assets'], color: Colors.teal),
+            _MetricCard(label: AppL10n.of(context).financeCurrentRatio, value: _result['current_ratio'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeDebtRatio, value: _result['debt_ratio'], color: AppColors.of(context).warning),
+            _MetricCard(label: AppL10n.of(context).financeNetMargin, value: _result['net_profit_margin'], color: AppColors.of(context).success),
+            _MetricCard(label: AppL10n.of(context).financeRoa, value: _result['return_on_assets'], color: AppColors.of(context).primary),
           ]),
         ],
       ]),
@@ -314,7 +315,7 @@ class _MetricCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-          Text(label, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+          Text(label, style: TextStyle(fontSize: 13, color: AppColors.of(context).textSecondary)),
           const SizedBox(height: 6),
           Text(_fmt(value), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: c)),
         ]),
@@ -405,14 +406,14 @@ class _ProfitTabState extends State<_ProfitTab> {
         _PeriodBar(yearCtrl: _yearCtrl, monthCtrl: _monthCtrl,
           onLoad: _load, loading: _loading),
         const SizedBox(height: 8),
-        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
         if (_summary.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(children: [
-            _MetricCard(label: AppL10n.of(context).financeRevenue, value: _summary['total_revenue'], color: Colors.green),
-            _MetricCard(label: AppL10n.of(context).financeCost, value: _summary['total_cost'], color: Colors.orange),
-            _MetricCard(label: AppL10n.of(context).financeExpensesTotal, value: _summary['total_expense'], color: Colors.orange),
-            _MetricCard(label: AppL10n.of(context).financeProfit, value: _summary['total_profit'], color: Colors.teal),
+            _MetricCard(label: AppL10n.of(context).financeRevenue, value: _summary['total_revenue'], color: AppColors.of(context).success),
+            _MetricCard(label: AppL10n.of(context).financeCost, value: _summary['total_cost'], color: AppColors.of(context).warning),
+            _MetricCard(label: AppL10n.of(context).financeExpensesTotal, value: _summary['total_expense'], color: AppColors.of(context).warning),
+            _MetricCard(label: AppL10n.of(context).financeProfit, value: _summary['total_profit'], color: AppColors.of(context).primary),
           ]),
         ],
         const SizedBox(height: 8),
@@ -483,21 +484,21 @@ class _BalanceSheetTabState extends State<_BalanceSheetTab> {
         _PeriodBar(yearCtrl: _yearCtrl, monthCtrl: _monthCtrl,
           onLoad: _load, loading: _loading),
         const SizedBox(height: 8),
-        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
         if (_data.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(children: [
-            _MetricCard(label: AppL10n.of(context).financeCurrentAssets, value: _data['current_assets'], color: Colors.blue),
-            _MetricCard(label: AppL10n.of(context).financeNonCurrentAssets, value: _data['non_current_assets'], color: Colors.blue),
-            _MetricCard(label: AppL10n.of(context).financeTotalAssets, value: _data['total_assets'], color: Colors.green),
-            _MetricCard(label: AppL10n.of(context).financeCurrentLiabilities, value: _data['current_liabilities'], color: Colors.orange),
-            _MetricCard(label: AppL10n.of(context).financeNonCurrentLiabilities, value: _data['non_current_liabilities'], color: Colors.orange),
-            _MetricCard(label: AppL10n.of(context).financeTotalLiabilities, value: _data['total_liabilities'], color: Colors.orange),
-            _MetricCard(label: AppL10n.of(context).financeEquity, value: _data['total_equity'], color: Colors.teal),
+            _MetricCard(label: AppL10n.of(context).financeCurrentAssets, value: _data['current_assets'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeNonCurrentAssets, value: _data['non_current_assets'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeTotalAssets, value: _data['total_assets'], color: AppColors.of(context).success),
+            _MetricCard(label: AppL10n.of(context).financeCurrentLiabilities, value: _data['current_liabilities'], color: AppColors.of(context).warning),
+            _MetricCard(label: AppL10n.of(context).financeNonCurrentLiabilities, value: _data['non_current_liabilities'], color: AppColors.of(context).warning),
+            _MetricCard(label: AppL10n.of(context).financeTotalLiabilities, value: _data['total_liabilities'], color: AppColors.of(context).warning),
+            _MetricCard(label: AppL10n.of(context).financeEquity, value: _data['total_equity'], color: AppColors.of(context).primary),
           ]),
           const SizedBox(height: 4),
           if (_data['report_data'] != null)
-            Text(AppL10n.of(context).financeReportNote('${_data['report_data']}'), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(AppL10n.of(context).financeReportNote('${_data['report_data']}'), style: TextStyle(fontSize: 12, color: AppColors.of(context).textHint)),
         ],
       ]),
     ));
@@ -546,25 +547,25 @@ class _CashFlowTabState extends State<_CashFlowTab> {
         _PeriodBar(yearCtrl: _yearCtrl, monthCtrl: _monthCtrl,
           onLoad: _load, loading: _loading),
         const SizedBox(height: 8),
-        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
         if (_data.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(children: [
-            _MetricCard(label: AppL10n.of(context).financeOperatingInflow, value: _data['operating_inflow'], color: Colors.green),
-            _MetricCard(label: AppL10n.of(context).financeOperatingOutflow, value: _data['operating_outflow'], color: Colors.red),
-            _MetricCard(label: AppL10n.of(context).financeOperatingNet, value: _data['operating_net'], color: Colors.teal),
-            _MetricCard(label: AppL10n.of(context).financeInvestingInflow, value: _data['investing_inflow'], color: Colors.green),
-            _MetricCard(label: AppL10n.of(context).financeInvestingOutflow, value: _data['investing_outflow'], color: Colors.red),
-            _MetricCard(label: AppL10n.of(context).financeInvestingNet, value: _data['investing_net'], color: Colors.teal),
-            _MetricCard(label: AppL10n.of(context).financeFinancingInflow, value: _data['financing_inflow'], color: Colors.green),
-            _MetricCard(label: AppL10n.of(context).financeFinancingOutflow, value: _data['financing_outflow'], color: Colors.red),
-            _MetricCard(label: AppL10n.of(context).financeFinancingNet, value: _data['financing_net'], color: Colors.teal),
-            _MetricCard(label: AppL10n.of(context).financeBeginningCash, value: _data['beginning_cash'], color: Colors.blue),
-            _MetricCard(label: AppL10n.of(context).financeEndingCash, value: _data['ending_cash'], color: Colors.indigo),
+            _MetricCard(label: AppL10n.of(context).financeOperatingInflow, value: _data['operating_inflow'], color: AppColors.of(context).success),
+            _MetricCard(label: AppL10n.of(context).financeOperatingOutflow, value: _data['operating_outflow'], color: AppColors.of(context).danger),
+            _MetricCard(label: AppL10n.of(context).financeOperatingNet, value: _data['operating_net'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeInvestingInflow, value: _data['investing_inflow'], color: AppColors.of(context).success),
+            _MetricCard(label: AppL10n.of(context).financeInvestingOutflow, value: _data['investing_outflow'], color: AppColors.of(context).danger),
+            _MetricCard(label: AppL10n.of(context).financeInvestingNet, value: _data['investing_net'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeFinancingInflow, value: _data['financing_inflow'], color: AppColors.of(context).success),
+            _MetricCard(label: AppL10n.of(context).financeFinancingOutflow, value: _data['financing_outflow'], color: AppColors.of(context).danger),
+            _MetricCard(label: AppL10n.of(context).financeFinancingNet, value: _data['financing_net'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeBeginningCash, value: _data['beginning_cash'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeEndingCash, value: _data['ending_cash'], color: AppColors.of(context).primary),
           ]),
           const SizedBox(height: 4),
           if (_data['report_data'] != null)
-            Text(AppL10n.of(context).financeReportNote('${_data['report_data']}'), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(AppL10n.of(context).financeReportNote('${_data['report_data']}'), style: TextStyle(fontSize: 12, color: AppColors.of(context).textHint)),
         ],
       ]),
     ));
@@ -626,12 +627,12 @@ class _TrialBalanceTabState extends State<_TrialBalanceTab> {
           ),
         ]),
         const SizedBox(height: 8),
-        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
         if (_data.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(children: [
-            _MetricCard(label: AppL10n.of(context).financeDebitTotal, value: _data['total_debit'], color: Colors.blue),
-            _MetricCard(label: AppL10n.of(context).financeCreditTotal, value: _data['total_credit'], color: Colors.orange),
+            _MetricCard(label: AppL10n.of(context).financeDebitTotal, value: _data['total_debit'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeCreditTotal, value: _data['total_credit'], color: AppColors.of(context).warning),
           ]),
           const SizedBox(height: 8),
           _ItemsTable(items),
@@ -703,16 +704,16 @@ class _AccountBalanceTabState extends State<_AccountBalanceTab> {
           ),
         ]),
         const SizedBox(height: 8),
-        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
         if (_data.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(children: [
-            _MetricCard(label: AppL10n.of(context).financeOpeningDebit, value: _data['opening_debit'], color: Colors.blue),
-            _MetricCard(label: AppL10n.of(context).financeOpeningCredit, value: _data['opening_credit'], color: Colors.orange),
-            _MetricCard(label: AppL10n.of(context).financeCurrentDebit, value: _data['current_debit'], color: Colors.blue),
-            _MetricCard(label: AppL10n.of(context).financeCurrentCredit, value: _data['current_credit'], color: Colors.orange),
-            _MetricCard(label: AppL10n.of(context).financeClosingDebit, value: _data['closing_debit'], color: Colors.teal),
-            _MetricCard(label: AppL10n.of(context).financeClosingCredit, value: _data['closing_credit'], color: Colors.teal),
+            _MetricCard(label: AppL10n.of(context).financeOpeningDebit, value: _data['opening_debit'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeOpeningCredit, value: _data['opening_credit'], color: AppColors.of(context).warning),
+            _MetricCard(label: AppL10n.of(context).financeCurrentDebit, value: _data['current_debit'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeCurrentCredit, value: _data['current_credit'], color: AppColors.of(context).warning),
+            _MetricCard(label: AppL10n.of(context).financeClosingDebit, value: _data['closing_debit'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeClosingCredit, value: _data['closing_credit'], color: AppColors.of(context).primary),
           ]),
         ],
       ]),
@@ -762,14 +763,14 @@ class _ClosePeriodTabState extends State<_ClosePeriodTab> {
         _PeriodBar(yearCtrl: _yearCtrl, monthCtrl: _monthCtrl,
           onLoad: _close, loading: _loading),
         const SizedBox(height: 8),
-        if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+        if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
         if (_result.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(children: [
-            _MetricCard(label: AppL10n.of(context).financeRevenueCarry, value: _result['revenue_total'], color: Colors.green),
-            _MetricCard(label: AppL10n.of(context).financeExpenseCarry, value: _result['expense_total'], color: Colors.orange),
-            _MetricCard(label: AppL10n.of(context).financeYearProfit, value: _result['net_profit'], color: Colors.teal),
-            _MetricCard(label: AppL10n.of(context).financeCloseStatus, value: _result['status'], color: Colors.blue),
+            _MetricCard(label: AppL10n.of(context).financeRevenueCarry, value: _result['revenue_total'], color: AppColors.of(context).success),
+            _MetricCard(label: AppL10n.of(context).financeExpenseCarry, value: _result['expense_total'], color: AppColors.of(context).warning),
+            _MetricCard(label: AppL10n.of(context).financeYearProfit, value: _result['net_profit'], color: AppColors.of(context).primary),
+            _MetricCard(label: AppL10n.of(context).financeCloseStatus, value: _result['status'], color: AppColors.of(context).primary),
           ]),
           if (_result['message'] != null)
             Padding(padding: const EdgeInsets.only(top: 4), child: Text('${_result['message']}')),

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -79,7 +80,7 @@ class _TaxPageState extends State<TaxPage> {
     AppL10n.current.commonName: r['name'] ?? '',
     AppL10n.current.commonCode: r['code'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
-      IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.red), onPressed: () => _delete(r)),
+      IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
   };
 
