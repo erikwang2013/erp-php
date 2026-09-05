@@ -49,7 +49,7 @@ void main() {
       expect(find.text('暂无数据'), findsOneWidget);
     });
 
-    testWidgets('loading 时显示加载指示器', (tester) async {
+    testWidgets('loading 时显示三行骨架屏(§5.2,禁整页菊花)', (tester) async {
       await tester.pumpWidget(wrap(const DataTableWrapper(
         columns: columns,
         rows: [],
@@ -59,7 +59,14 @@ void main() {
         loading: true,
       )));
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // 骨架行:行高同数据行、surface_alt 50% 透明底,共 3 行
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.text('暂无数据'), findsNothing);
+      final skeletons = find.byWidgetPredicate((w) =>
+          w is Container &&
+          w.decoration is BoxDecoration &&
+          (w.decoration as BoxDecoration).color?.a == 0.5);
+      expect(skeletons, findsNWidgets(3));
     });
 
     testWidgets('单元格值可为 Widget（自定义渲染）', (tester) async {
