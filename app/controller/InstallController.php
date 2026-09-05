@@ -267,7 +267,7 @@ class InstallController
     private function renderStep1(array $old): string
     {
         $esc = static fn (mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES);
-        $adv = '<details class="adv-box" id="adv-box"><summary>🔐 密钥与启动端口（高级）—— 留空则安装时自动生成</summary>'
+        $adv = '<details open class="adv-box" id="adv-box"><summary>🔐 密钥与启动端口（高级）—— 留空则安装时自动生成</summary>'
             . '<div class="form-row"><div class="form-group"><label>JWT 签名密钥 JWT_SECRET_KEY</label><input name="jwt_secret" value="' . $esc($old['jwt_secret'] ?? '') . '" placeholder="留空自动生成（推荐）"><div class="hint">令牌签名，泄露可伪造登录态</div></div>'
             . '<div class="form-group"><label>接口传输密钥 ENCRYPTION_KEY</label><input name="encryption_key" value="' . $esc($old['encryption_key'] ?? '') . '" placeholder="留空自动生成（推荐）"></div></div>'
             . '<div class="form-row"><div class="form-group"><label>存储加密密钥 ENCRYPTABLE_KEY</label><input name="encryptable_key" value="' . $esc($old['encryptable_key'] ?? '') . '" placeholder="留空自动生成（推荐）"></div>'
