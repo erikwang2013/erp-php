@@ -35,6 +35,10 @@ class RateLimit implements MiddlewareInterface
         if (str_starts_with($path, 'install')) {
             return $handler($request);
         }
+        // apidoc 文档接口（/apidoc*）放行（静态注解浏览/生成属低频但需批量遍历）
+        if (str_starts_with($path, 'apidoc')) {
+            return $handler($request);
+        }
         $ip = $request->getRealIp();
 
         $limit = $this->defaultLimit;
