@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
- * @Apidoc\Tag("文件管理")
  */
 
 declare(strict_types=1);
@@ -27,19 +26,6 @@ class ExportController extends BaseController
 {
     /**
      * 导出Excel
-     * @Apidoc\Title("导出Excel")
-     * @Apidoc\Desc("根据指定的表名、字段和筛选条件导出Excel文件，敏感字段自动脱敏处理")
-     * @Apidoc\Url("/admin/v1/export/excel")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("文件管理")
-     * @Apidoc\Param(name="table", type="string", require=true, desc="数据表名(admin_user/operation_log/admin_role/system_config)")
-     * @Apidoc\Param(name="columns", type="array", default="", desc="导出字段列表，为空则导出全部")
-     * @Apidoc\Param(name="conditions", type="object", default="", desc="筛选条件键值对")
-     * @Apidoc\Param(name="title", type="string", default="数据导出", desc="导出文件标题")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="string", desc="Excel文件下载")
      */#[\erikwang2013\apidoc\annotation\Title("导出Excel")]
 #[\erikwang2013\apidoc\annotation\Desc("根据指定的表名、字段和筛选条件导出Excel文件，敏感字段自动脱敏处理")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/export/excel")]
@@ -145,18 +131,6 @@ class ExportController extends BaseController
 
     /**
      * 导出PDF
-     * @Apidoc\Title("导出PDF")
-     * @Apidoc\Desc("根据指定的数据类型生成PDF文件，支持表格和仪表盘两种类型")
-     * @Apidoc\Url("/admin/v1/export/pdf")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("文件管理")
-     * @Apidoc\Param(name="type", type="string", require=true, desc="导出类型(table/dashboard)")
-     * @Apidoc\Param(name="title", type="string", default="数据导出", desc="导出文件标题")
-     * @Apidoc\Param(name="data", type="object", default="", desc="导出数据(含columns/rows或stats)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="string", desc="PDF文件下载")
      */#[\erikwang2013\apidoc\annotation\Title("导出PDF")]
 #[\erikwang2013\apidoc\annotation\Desc("根据指定的数据类型生成PDF文件，支持表格和仪表盘两种类型")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/export/pdf")]

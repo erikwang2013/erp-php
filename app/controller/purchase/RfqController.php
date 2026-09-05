@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
- * @Apidoc\Tag("寻源采购")
  */
 
 declare(strict_types=1);
@@ -24,11 +23,6 @@ class RfqController extends BaseController
 {
     /**
      * 询价单列表（分页）
-     * @Apidoc\Title("询价单列表")
-     * @Apidoc\Desc("询比价单列表，支持状态筛选与 rfq_no 关键词")
-     * @Apidoc\Url("/admin/v1/purchase/rfq")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("询价单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("询比价单列表，支持状态筛选与 rfq_no 关键词")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/rfq")]
@@ -60,11 +54,6 @@ class RfqController extends BaseController
 
     /**
      * 创建询价单（头 + 明细同事务）
-     * @Apidoc\Title("创建询价单")
-     * @Apidoc\Desc("询价单头与明细行（product_id/quantity/unit/target_price）一并保存")
-     * @Apidoc\Url("/admin/v1/purchase/rfq")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("创建询价单")]
 #[\erikwang2013\apidoc\annotation\Desc("询价单头与明细行（product_id/quantity/unit/target_price）一并保存")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/rfq")]
@@ -108,10 +97,6 @@ class RfqController extends BaseController
 
     /**
      * 询价单详情（含明细与报价）
-     * @Apidoc\Title("询价单详情")
-     * @Apidoc\Url("/admin/v1/purchase/rfq/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("询价单详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
@@ -135,10 +120,6 @@ class RfqController extends BaseController
 
     /**
      * 更新询价单（仅草稿可改头与明细）
-     * @Apidoc\Title("更新询价单")
-     * @Apidoc\Url("/admin/v1/purchase/rfq/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("更新询价单")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
@@ -182,10 +163,6 @@ class RfqController extends BaseController
 
     /**
      * 删除询价单（软删除，仅草稿，需管理员密码二次确认）
-     * @Apidoc\Title("删除询价单")
-     * @Apidoc\Url("/admin/v1/purchase/rfq/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("删除询价单")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
@@ -210,10 +187,6 @@ class RfqController extends BaseController
 
     /**
      * 发布询价（草稿 → 已发布，开放报价登记）
-     * @Apidoc\Title("发布询价")
-     * @Apidoc\Url("/admin/v1/purchase/rfq/{id}/submit")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("发布询价")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
@@ -235,11 +208,6 @@ class RfqController extends BaseController
 
     /**
      * 比价汇总：报价按金额升序（bccomp）+ 行单价对比目标价
-     * @Apidoc\Title("比价汇总")
-     * @Apidoc\Desc("全部有效报价按总额升序排列并标注最低价；逐行给出各供应商单价与目标价对比")
-     * @Apidoc\Url("/admin/v1/purchase/rfq/{id}/compare")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("比价汇总")]
 #[\erikwang2013\apidoc\annotation\Desc("全部有效报价按总额升序排列并标注最低价；逐行给出各供应商单价与目标价对比")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -312,11 +280,6 @@ class RfqController extends BaseController
 
     /**
      * 中标：选中报价 → 生成采购订单草稿（RfqService->award 事务）
-     * @Apidoc\Title("中标")
-     * @Apidoc\Desc("报价置中标、询价单置已中标，并按中标行生成 erp_purchase_order 草稿（状态 0 待审核）")
-     * @Apidoc\Url("/admin/v1/purchase/rfq/{id}/award")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("中标")]
 #[\erikwang2013\apidoc\annotation\Desc("报价置中标、询价单置已中标，并按中标行生成 erp_purchase_order 草稿（状态 0 待审核）")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -341,10 +304,6 @@ class RfqController extends BaseController
 
     /**
      * 关闭询价单：已发布/已中标 → 关闭；草稿 → 取消
-     * @Apidoc\Title("关闭询价单")
-     * @Apidoc\Url("/admin/v1/purchase/rfq/{id}/close")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("关闭询价单")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]

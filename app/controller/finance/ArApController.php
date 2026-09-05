@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("财务管理")
  */
 declare(strict_types=1);
 
@@ -18,19 +17,6 @@ class ArApController extends BaseController
 {
     /**
      * 应收应付列表（分页）
-     * @Apidoc\Title("应收应付列表")
-     * @Apidoc\Desc("分页查询应收应付记录")
-     * @Apidoc\Url("/admin/v1/finance/ar-ap")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
-     * @Apidoc\Param(name="status", type="int", desc="状态")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("应收应付列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询应收应付记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ar-ap")]
@@ -70,21 +56,6 @@ class ArApController extends BaseController
 
     /**
      * 创建应收应付
-     * @Apidoc\Title("创建应收应付")
-     * @Apidoc\Desc("新增应收应付记录")
-     * @Apidoc\Url("/admin/v1/finance/ar-ap")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="type", type="int", desc="类型：1应收2应付")
-     * @Apidoc\Param(name="partner_id", type="string", desc="往来方ID")
-     * @Apidoc\Param(name="source_type", type="string", desc="来源类型")
-     * @Apidoc\Param(name="source_id", type="string", desc="来源ID")
-     * @Apidoc\Param(name="amount", type="float", desc="金额")
-     * @Apidoc\Param(name="due_date", type="string", desc="到期日")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建应收应付")]
 #[\erikwang2013\apidoc\annotation\Desc("新增应收应付记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ar-ap")]
@@ -136,16 +107,6 @@ class ArApController extends BaseController
 
     /**
      * 应收应付详情
-     * @Apidoc\Title("应收应付详情")
-     * @Apidoc\Desc("查看应收应付记录详情")
-     * @Apidoc\Url("/admin/v1/finance/ar-ap/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("应收应付详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看应收应付记录详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -169,20 +130,6 @@ class ArApController extends BaseController
 
     /**
      * 更新应收应付
-     * @Apidoc\Title("更新应收应付")
-     * @Apidoc\Desc("修改应收应付记录")
-     * @Apidoc\Url("/admin/v1/finance/ar-ap/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID")
-     * @Apidoc\Param(name="partner_id", type="string", desc="往来方ID")
-     * @Apidoc\Param(name="amount", type="float", desc="金额")
-     * @Apidoc\Param(name="status", type="int", desc="状态")
-     * @Apidoc\Param(name="due_date", type="string", desc="到期日")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新应收应付")]
 #[\erikwang2013\apidoc\annotation\Desc("修改应收应付记录")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -225,17 +172,6 @@ class ArApController extends BaseController
 
     /**
      * 删除应收应付
-     * @Apidoc\Title("删除应收应付")
-     * @Apidoc\Desc("删除应收应付记录，需密码确认")
-     * @Apidoc\Url("/admin/v1/finance/ar-ap/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除应收应付")]
 #[\erikwang2013\apidoc\annotation\Desc("删除应收应付记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

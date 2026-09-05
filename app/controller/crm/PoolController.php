@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("CRM")
  */
 declare(strict_types=1);
 
@@ -20,19 +19,6 @@ class PoolController extends BaseController
 {
     /**
      * 公海池入口
-     * @Apidoc\Title("公海池客户列表")
-     * @Apidoc\Desc("分页查询公海池客户记录(status=0或无归属人)")
-     * @Apidoc\Url("/admin/v1/crm/pool")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
-     * @Apidoc\Param(name="level_id", type="int", desc="客户等级ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("公海池客户列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询公海池客户记录(status:0或无归属人)")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/pool")]
@@ -78,17 +64,6 @@ class PoolController extends BaseController
 
     /**
      * 领取客户
-     * @Apidoc\Title("领取客户")
-     * @Apidoc\Desc("从公海池领取客户到当前用户名下")
-     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="客户ID")
-     * @Apidoc\Param(name="remark", type="string", desc="备注")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("领取客户")]
 #[\erikwang2013\apidoc\annotation\Desc("从公海池领取客户到当前用户名下")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -119,17 +94,6 @@ class PoolController extends BaseController
 
     /**
      * 释放客户到公海池
-     * @Apidoc\Title("释放客户")
-     * @Apidoc\Desc("将客户释放回公海池")
-     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="客户ID")
-     * @Apidoc\Param(name="remark", type="string", desc="备注")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("释放客户")]
 #[\erikwang2013\apidoc\annotation\Desc("将客户释放回公海池")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -170,16 +134,6 @@ class PoolController extends BaseController
 
     /**
      * 创建公海池规则
-     * @Apidoc\Title("创建公海池规则")
-     * @Apidoc\Desc("新增公海池规则记录")
-     * @Apidoc\Url("/admin/v1/crm/pool")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="level_id", type="int", desc="客户等级ID，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建公海池规则")]
 #[\erikwang2013\apidoc\annotation\Desc("新增公海池规则记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/pool")]
@@ -205,16 +159,6 @@ class PoolController extends BaseController
 
     /**
      * 公海池规则详情
-     * @Apidoc\Title("公海池规则详情")
-     * @Apidoc\Desc("查看公海池规则详细信息")
-     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="规则ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("公海池规则详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看公海池规则详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -238,16 +182,6 @@ class PoolController extends BaseController
 
     /**
      * 更新公海池规则
-     * @Apidoc\Title("更新公海池规则")
-     * @Apidoc\Desc("修改公海池规则信息")
-     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="规则ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新公海池规则")]
 #[\erikwang2013\apidoc\annotation\Desc("修改公海池规则信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -271,17 +205,6 @@ class PoolController extends BaseController
 
     /**
      * 删除公海池规则
-     * @Apidoc\Title("删除公海池规则")
-     * @Apidoc\Desc("删除公海池规则记录，需密码确认")
-     * @Apidoc\Url("/admin/v1/crm/pool/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="规则ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除公海池规则")]
 #[\erikwang2013\apidoc\annotation\Desc("删除公海池规则记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

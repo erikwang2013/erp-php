@@ -24,14 +24,6 @@ class CustomFieldController extends BaseController
 {
     /**
      * 字段定义列表
-     * @Apidoc\Title("自定义字段定义列表")
-     * @Apidoc\Desc("按实体类型与启用状态查询字段定义")
-     * @Apidoc\Url("/admin/v1/platform/custom-field")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("低代码")
-     * @Apidoc\Param(name="entity_type", type="string", desc="实体类型，空=全部")
-     * @Apidoc\Param(name="status", type="int", desc="1=仅启用")
      */#[\erikwang2013\apidoc\annotation\Title("自定义字段定义列表")]
 #[\erikwang2013\apidoc\annotation\Desc("按实体类型与启用状态查询字段定义")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/custom-field")]
@@ -56,12 +48,6 @@ class CustomFieldController extends BaseController
 
     /**
      * 新建字段定义
-     * @Apidoc\Title("新建自定义字段定义")
-     * @Apidoc\Desc("entity_type/field_key 白名单；同实体同 key 唯一")
-     * @Apidoc\Url("/admin/v1/platform/custom-field")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("低代码")
      */#[\erikwang2013\apidoc\annotation\Title("新建自定义字段定义")]
 #[\erikwang2013\apidoc\annotation\Desc("entity_type/field_key 白名单；同实体同 key 唯一")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/custom-field")]
@@ -85,11 +71,6 @@ class CustomFieldController extends BaseController
 
     /**
      * 更新字段定义
-     * @Apidoc\Title("更新自定义字段定义")
-     * @Apidoc\Url("/admin/v1/platform/custom-field/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("低代码")
      */#[\erikwang2013\apidoc\annotation\Title("更新自定义字段定义")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -112,11 +93,6 @@ class CustomFieldController extends BaseController
 
     /**
      * 删除字段定义
-     * @Apidoc\Title("删除自定义字段定义")
-     * @Apidoc\Url("/admin/v1/platform/custom-field/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("低代码")
      */#[\erikwang2013\apidoc\annotation\Title("删除自定义字段定义")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -135,12 +111,6 @@ class CustomFieldController extends BaseController
 
     /**
      * 实体自定义字段校验
-     * @Apidoc\Title("校验实体自定义字段值")
-     * @Apidoc\Desc("单据保存前调用：按启用定义校验并返回归一化值；未知 key 宽容忽略")
-     * @Apidoc\Url("/admin/v1/platform/custom-field/validate")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("低代码")
      */#[\erikwang2013\apidoc\annotation\Title("校验实体自定义字段值")]
 #[\erikwang2013\apidoc\annotation\Desc("单据保存前调用：按启用定义校验并返回归一化值；未知 key 宽容忽略")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/custom-field/validate")]
@@ -166,12 +136,6 @@ class CustomFieldController extends BaseController
 
     /**
      * 动态表单 schema
-     * @Apidoc\Title("实体自定义字段动态表单")
-     * @Apidoc\Desc("返回实体全部启用定义 + 既有值合并，供前端渲染")
-     * @Apidoc\Url("/admin/v1/platform/custom-field/schema")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("低代码")
      */#[\erikwang2013\apidoc\annotation\Title("实体自定义字段动态表单")]
 #[\erikwang2013\apidoc\annotation\Desc("返回实体全部启用定义 + 既有值合并，供前端渲染")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/custom-field/schema")]

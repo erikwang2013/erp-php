@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("库存管理")
  */
 declare(strict_types=1);
 
@@ -17,19 +16,6 @@ class AlertController extends BaseController
 {
     /**
      * 库存预警规则列表（分页）
-     * @Apidoc\Title("库存预警规则列表")
-     * @Apidoc\Desc("获取库存预警规则列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/v1/inventory/alert")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("库存管理")
-     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（名称/编码）")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选（0=禁用,1=启用）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("库存预警规则列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取库存预警规则列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory/alert")]
@@ -72,18 +58,6 @@ class AlertController extends BaseController
 
     /**
      * 创建库存预警规则
-     * @Apidoc\Title("创建库存预警规则")
-     * @Apidoc\Desc("新增一个库存预警规则记录")
-     * @Apidoc\Url("/admin/v1/inventory/alert")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("库存管理")
-     * @Apidoc\Param(name="name", type="string", default="", desc="预警规则名称（必填）")
-     * @Apidoc\Param(name="code", type="string", default="", desc="预警规则编码")
-     * @Apidoc\Param(name="status", type="int", default=1, desc="状态（0=禁用,1=启用）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="库存预警规则记录")
      */#[\erikwang2013\apidoc\annotation\Title("创建库存预警规则")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一个库存预警规则记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory/alert")]
@@ -114,16 +88,6 @@ class AlertController extends BaseController
 
     /**
      * 库存预警规则详情
-     * @Apidoc\Title("库存预警规则详情")
-     * @Apidoc\Desc("根据ID获取库存预警规则详细信息")
-     * @Apidoc\Url("/admin/v1/inventory/alert/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("库存管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="预警规则hashid")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="库存预警规则详情")
      */#[\erikwang2013\apidoc\annotation\Title("库存预警规则详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取库存预警规则详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -147,19 +111,6 @@ class AlertController extends BaseController
 
     /**
      * 更新库存预警规则
-     * @Apidoc\Title("更新库存预警规则")
-     * @Apidoc\Desc("根据ID更新库存预警规则信息")
-     * @Apidoc\Url("/admin/v1/inventory/alert/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("库存管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="预警规则hashid")
-     * @Apidoc\Param(name="name", type="string", default="", desc="预警规则名称")
-     * @Apidoc\Param(name="code", type="string", default="", desc="预警规则编码")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态（0=禁用,1=启用）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="更新后的库存预警规则记录")
      */#[\erikwang2013\apidoc\annotation\Title("更新库存预警规则")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新库存预警规则信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -189,17 +140,6 @@ class AlertController extends BaseController
 
     /**
      * 删除库存预警规则（软删除）
-     * @Apidoc\Title("删除库存预警规则")
-     * @Apidoc\Desc("根据ID软删除库存预警规则，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/v1/inventory/alert/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("库存管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="预警规则hashid")
-     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="array", desc="空数组")
      */#[\erikwang2013\apidoc\annotation\Title("删除库存预警规则")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除库存预警规则，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

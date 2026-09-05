@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("项目管理")
  */
 declare(strict_types=1);
 
@@ -17,22 +16,6 @@ class TaskController extends BaseController
 {
     /**
      * 项目任务列表（分页）
-     * @Apidoc\Title("项目任务列表")
-     * @Apidoc\Desc("分页查询项目任务，支持按项目筛选")
-     * @Apidoc\Url("/admin/v1/project/task")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("项目管理")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="project_id", type="string", desc="项目ID")
-     * @Apidoc\Param(name="parent_id", type="int", desc="父任务ID")
-     * @Apidoc\Param(name="status", type="int", desc="状态")
-     * @Apidoc\Param(name="assignee_user_id", type="int", desc="负责人ID")
-     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("项目任务列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询项目任务，支持按项目筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/task")]
@@ -88,17 +71,6 @@ class TaskController extends BaseController
 
     /**
      * 创建项目任务
-     * @Apidoc\Title("创建项目任务")
-     * @Apidoc\Desc("新增项目任务记录，自动更新上级项目进度")
-     * @Apidoc\Url("/admin/v1/project/task")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("项目管理")
-     * @Apidoc\Param(name="name", type="string", desc="任务名称，必填")
-     * @Apidoc\Param(name="project_id", type="string", desc="项目ID，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建项目任务")]
 #[\erikwang2013\apidoc\annotation\Desc("新增项目任务记录，自动更新上级项目进度")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/task")]
@@ -135,16 +107,6 @@ class TaskController extends BaseController
 
     /**
      * 任务详情
-     * @Apidoc\Title("项目任务详情")
-     * @Apidoc\Desc("查看项目任务详细信息，含子任务列表")
-     * @Apidoc\Url("/admin/v1/project/task/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("项目管理")
-     * @Apidoc\Param(name="id", type="string", desc="任务ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("项目任务详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看项目任务详细信息，含子任务列表")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -174,16 +136,6 @@ class TaskController extends BaseController
 
     /**
      * 更新任务
-     * @Apidoc\Title("更新项目任务")
-     * @Apidoc\Desc("修改项目任务信息，自动更新上级项目进度")
-     * @Apidoc\Url("/admin/v1/project/task/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("项目管理")
-     * @Apidoc\Param(name="id", type="string", desc="任务ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新项目任务")]
 #[\erikwang2013\apidoc\annotation\Desc("修改项目任务信息，自动更新上级项目进度")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -212,17 +164,6 @@ class TaskController extends BaseController
 
     /**
      * 删除任务
-     * @Apidoc\Title("删除项目任务")
-     * @Apidoc\Desc("删除项目任务，自动更新上级项目进度，需密码确认")
-     * @Apidoc\Url("/admin/v1/project/task/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("项目管理")
-     * @Apidoc\Param(name="id", type="string", desc="任务ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除项目任务")]
 #[\erikwang2013\apidoc\annotation\Desc("删除项目任务，自动更新上级项目进度，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

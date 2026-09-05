@@ -16,31 +16,12 @@ use support\Response;
 
 /**
  * 员工管理
- * @Apidoc\Tag("人力资源")
  */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class EmployeeController extends BaseController
 {
     /**
      * 员工列表（分页）
-     * @Apidoc\Title("员工列表")
-     * @Apidoc\Desc("获取员工分页列表，支持关键字/状态/部门筛选")
-     * @Apidoc\Url("/admin/v1/hr/employee")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词(姓名/编码)")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
-     * @Apidoc\Param(name="department_id", type="int", default="", desc="部门ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
-     *     @Apidoc\Returned("list", type="array", desc="员工列表(含部门/职位)"),
-     *     @Apidoc\Returned("total", type="int", desc="总条数"),
-     *     @Apidoc\Returned("page", type="int", desc="当前页码"),
-     *     @Apidoc\Returned("limit", type="int", desc="每页条数"),
      * })
      */#[\erikwang2013\apidoc\annotation\Title("员工列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取员工分页列表，支持关键字/状态/部门筛选")]
@@ -90,17 +71,6 @@ class EmployeeController extends BaseController
 
     /**
      * 创建员工
-     * @Apidoc\Title("创建员工")
-     * @Apidoc\Desc("创建一名新员工")
-     * @Apidoc\Url("/admin/v1/hr/employee")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="code", type="string", require=true, desc="员工编码")
-     * @Apidoc\Param(name="name", type="string", require=true, desc="员工姓名")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="员工信息")
      */#[\erikwang2013\apidoc\annotation\Title("创建员工")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一名新员工")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/employee")]
@@ -130,16 +100,6 @@ class EmployeeController extends BaseController
 
     /**
      * 员工详情
-     * @Apidoc\Title("员工详情")
-     * @Apidoc\Desc("获取指定员工的详细信息，包含部门和职位")
-     * @Apidoc\Url("/admin/v1/hr/employee/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="员工ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="员工详情(含部门/职位)")
      */#[\erikwang2013\apidoc\annotation\Title("员工详情")]
 #[\erikwang2013\apidoc\annotation\Desc("获取指定员工的详细信息，包含部门和职位")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -169,16 +129,6 @@ class EmployeeController extends BaseController
 
     /**
      * 更新员工
-     * @Apidoc\Title("更新员工")
-     * @Apidoc\Desc("更新指定员工的信息")
-     * @Apidoc\Url("/admin/v1/hr/employee/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="员工ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="更新后的员工信息")
      */#[\erikwang2013\apidoc\annotation\Title("更新员工")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定员工的信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -202,17 +152,6 @@ class EmployeeController extends BaseController
 
     /**
      * 删除员工
-     * @Apidoc\Title("删除员工")
-     * @Apidoc\Desc("软删除指定员工，需要密码二次确认")
-     * @Apidoc\Url("/admin/v1/hr/employee/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="员工ID(hashid)")
-     * @Apidoc\Param(name="password", type="string", require=true, desc="当前管理员密码(二次确认)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="array", desc="空数组")
      */#[\erikwang2013\apidoc\annotation\Title("删除员工")]
 #[\erikwang2013\apidoc\annotation\Desc("软删除指定员工，需要密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

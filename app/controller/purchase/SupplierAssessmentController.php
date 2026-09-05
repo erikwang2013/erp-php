@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
- * @Apidoc\Tag("寻源采购")
  */
 
 declare(strict_types=1);
@@ -29,10 +28,6 @@ class SupplierAssessmentController extends BaseController
 
     /**
      * 供应商评分列表（分页）
-     * @Apidoc\Title("供应商评分列表")
-     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("供应商评分列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/supplier-assessment")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -62,11 +57,6 @@ class SupplierAssessmentController extends BaseController
 
     /**
      * 新增供应商评分（等级由服务端按总分推导）
-     * @Apidoc\Title("新增供应商评分")
-     * @Apidoc\Desc("total_score 0-100；等级规则 A ≥ 90 / B ≥ 70 / C；dimensions 为评估维度 JSON")
-     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("新增供应商评分")]
 #[\erikwang2013\apidoc\annotation\Desc("total_score 0-100；等级规则 A ≥ 90 / B ≥ 70 / C；dimensions 为评估维度 JSON")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/supplier-assessment")]
@@ -99,10 +89,6 @@ class SupplierAssessmentController extends BaseController
 
     /**
      * 评分详情
-     * @Apidoc\Title("评分详情")
-     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("评分详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
@@ -119,10 +105,6 @@ class SupplierAssessmentController extends BaseController
 
     /**
      * 更新评分（等级随总分重新推导）
-     * @Apidoc\Title("更新评分")
-     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("更新评分")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
@@ -158,10 +140,6 @@ class SupplierAssessmentController extends BaseController
 
     /**
      * 删除评分（软删除，需管理员密码二次确认）
-     * @Apidoc\Title("删除评分")
-     * @Apidoc\Url("/admin/v1/purchase/supplier-assessment/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("删除评分")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]

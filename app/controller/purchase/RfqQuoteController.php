@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
- * @Apidoc\Tag("寻源采购")
  */
 
 declare(strict_types=1);
@@ -24,11 +23,6 @@ class RfqQuoteController extends BaseController
 {
     /**
      * 报价列表（分页）
-     * @Apidoc\Title("报价列表")
-     * @Apidoc\Desc("指定询价单下的供应商报价列表")
-     * @Apidoc\Url("/admin/v1/purchase/rfq-quote")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("报价列表")]
 #[\erikwang2013\apidoc\annotation\Desc("指定询价单下的供应商报价列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/rfq-quote")]
@@ -55,11 +49,6 @@ class RfqQuoteController extends BaseController
 
     /**
      * 登记报价：金额全部由服务端按询价单需求数量计算，客户端只传单价
-     * @Apidoc\Title("登记报价")
-     * @Apidoc\Desc("仅已发布(询价中)询价单可报价；行金额 = 单价 × 询价数量(bcmath)，报价总额 = Σ行金额")
-     * @Apidoc\Url("/admin/v1/purchase/rfq-quote")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("登记报价")]
 #[\erikwang2013\apidoc\annotation\Desc("仅已发布(询价中)询价单可报价；行金额 = 单价 × 询价数量(bcmath)，报价总额 = Σ行金额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/rfq-quote")]
@@ -124,10 +113,6 @@ class RfqQuoteController extends BaseController
 
     /**
      * 报价详情（含逐行单价）
-     * @Apidoc\Title("报价详情")
-     * @Apidoc\Url("/admin/v1/purchase/rfq-quote/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("报价详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
@@ -146,10 +131,6 @@ class RfqQuoteController extends BaseController
 
     /**
      * 更新报价（整单替换明细，金额重算；已中标或询价单非询价中不可改）
-     * @Apidoc\Title("更新报价")
-     * @Apidoc\Url("/admin/v1/purchase/rfq-quote/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("更新报价")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
@@ -198,10 +179,6 @@ class RfqQuoteController extends BaseController
 
     /**
      * 删除报价（软删除；已中标不可删）
-     * @Apidoc\Title("删除报价")
-     * @Apidoc\Url("/admin/v1/purchase/rfq-quote/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Tag("寻源采购")
      */#[\erikwang2013\apidoc\annotation\Title("删除报价")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Tag("寻源采购")]

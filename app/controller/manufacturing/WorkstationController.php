@@ -16,24 +16,12 @@ use support\Response;
 
 /**
  * 工作站管理
-  * @Apidoc\Tag("生产制造")
  */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class WorkstationController extends BaseController
 {
     /**
      * 工作站列表
-     * @Apidoc\Title("工作站列表")
-     * @Apidoc\Desc("查询工作站记录")
-     * @Apidoc\Url("/admin/v1/mfg/workstation")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
-     * @Apidoc\Param(name="status", type="int", desc="状态")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("工作站列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询工作站记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/workstation")]
@@ -67,17 +55,6 @@ class WorkstationController extends BaseController
 
     /**
      * 创建工作站
-     * @Apidoc\Title("创建工作站")
-     * @Apidoc\Desc("新增工作站记录")
-     * @Apidoc\Url("/admin/v1/mfg/workstation")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="code", type="string", desc="工作站编码，必填")
-     * @Apidoc\Param(name="name", type="string", desc="工作站名称，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建工作站")]
 #[\erikwang2013\apidoc\annotation\Desc("新增工作站记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/workstation")]
@@ -107,16 +84,6 @@ class WorkstationController extends BaseController
 
     /**
      * 工作站详情
-     * @Apidoc\Title("工作站详情")
-     * @Apidoc\Desc("查看工作站详细信息")
-     * @Apidoc\Url("/admin/v1/mfg/workstation/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="工作站ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("工作站详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看工作站详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -140,16 +107,6 @@ class WorkstationController extends BaseController
 
     /**
      * 更新工作站
-     * @Apidoc\Title("更新工作站")
-     * @Apidoc\Desc("修改工作站信息")
-     * @Apidoc\Url("/admin/v1/mfg/workstation/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="工作站ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新工作站")]
 #[\erikwang2013\apidoc\annotation\Desc("修改工作站信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -173,17 +130,6 @@ class WorkstationController extends BaseController
 
     /**
      * 删除工作站
-     * @Apidoc\Title("删除工作站")
-     * @Apidoc\Desc("删除工作站记录，需密码确认")
-     * @Apidoc\Url("/admin/v1/mfg/workstation/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="工作站ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除工作站")]
 #[\erikwang2013\apidoc\annotation\Desc("删除工作站记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

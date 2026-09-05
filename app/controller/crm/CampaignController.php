@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("CRM")
  */
 declare(strict_types=1);
 
@@ -19,20 +18,6 @@ class CampaignController extends BaseController
 {
     /**
      * 营销活动列表（分页）
-     * @Apidoc\Title("营销活动列表")
-     * @Apidoc\Desc("分页查询营销活动记录")
-     * @Apidoc\Url("/admin/v1/crm/campaign")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
-     * @Apidoc\Param(name="status", type="int", desc="状态")
-     * @Apidoc\Param(name="type", type="string", desc="活动类型")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("营销活动列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询营销活动记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/campaign")]
@@ -72,17 +57,6 @@ class CampaignController extends BaseController
 
     /**
      * 创建营销活动
-     * @Apidoc\Title("创建营销活动")
-     * @Apidoc\Desc("新增营销活动记录")
-     * @Apidoc\Url("/admin/v1/crm/campaign")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="name", type="string", desc="活动名称，必填")
-     * @Apidoc\Param(name="owner_user_id", type="int", desc="负责人用户ID，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建营销活动")]
 #[\erikwang2013\apidoc\annotation\Desc("新增营销活动记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/campaign")]
@@ -112,16 +86,6 @@ class CampaignController extends BaseController
 
     /**
      * 活动详情
-     * @Apidoc\Title("营销活动详情")
-     * @Apidoc\Desc("查看营销活动详细信息，含参与统计")
-     * @Apidoc\Url("/admin/v1/crm/campaign/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="活动ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("营销活动详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看营销活动详细信息，含参与统计")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -152,16 +116,6 @@ class CampaignController extends BaseController
 
     /**
      * 更新活动
-     * @Apidoc\Title("更新营销活动")
-     * @Apidoc\Desc("修改营销活动信息，仅计划中或进行中可编辑")
-     * @Apidoc\Url("/admin/v1/crm/campaign/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="活动ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新营销活动")]
 #[\erikwang2013\apidoc\annotation\Desc("修改营销活动信息，仅计划中或进行中可编辑")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -191,17 +145,6 @@ class CampaignController extends BaseController
 
     /**
      * 删除活动
-     * @Apidoc\Title("删除营销活动")
-     * @Apidoc\Desc("删除营销活动，连参与记录一起删除，需密码确认")
-     * @Apidoc\Url("/admin/v1/crm/campaign/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("CRM")
-     * @Apidoc\Param(name="id", type="string", desc="活动ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除营销活动")]
 #[\erikwang2013\apidoc\annotation\Desc("删除营销活动，连参与记录一起删除，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

@@ -31,12 +31,6 @@ class InstallController
 
     /**
      * 安装向导页
-     * @Apidoc\Title("安装向导")
-     * @Apidoc\Desc("四步安装向导(环境检查/数据库配置/管理员账号/确认安装)，GET 展示表单，POST 提交步骤；已安装时返回完成提示页(HTML)")
-     * @Apidoc\Url("/install")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("系统")
      */#[\erikwang2013\apidoc\annotation\Title("安装向导")]
 #[\erikwang2013\apidoc\annotation\Desc("四步安装向导(环境检查/数据库配置/管理员账号/确认安装)，GET 展示表单，POST 提交步骤；已安装时返回完成提示页(HTML)")]
 #[\erikwang2013\apidoc\annotation\Url("/install")]
@@ -82,19 +76,6 @@ class InstallController
 
     /**
      * 测试数据库连接
-     * @Apidoc\Title("测试数据库连接")
-     * @Apidoc\Desc("安装向导第 1 步使用，校验 MySQL 连通性与版本(需 >= 8.0)；系统已安装后禁止调用")
-     * @Apidoc\Url("/install/test-db")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("系统")
-     * @Apidoc\Param(name="host", type="string", default="127.0.0.1", desc="数据库主机(仅字母数字._-:字符)")
-     * @Apidoc\Param(name="port", type="int", default="3306", desc="数据库端口(1-5位数字)")
-     * @Apidoc\Param(name="database", type="string", desc="数据库名(可空,传空则不连库校验)")
-     * @Apidoc\Param(name="username", type="string", default="root", desc="数据库用户")
-     * @Apidoc\Param(name="password", type="string", desc="数据库密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=连接成功,1=失败")
-     * @Apidoc\Returned("message", type="string", desc="结果信息(成功含 MySQL 版本)")
      */#[\erikwang2013\apidoc\annotation\Title("测试数据库连接")]
 #[\erikwang2013\apidoc\annotation\Desc("安装向导第 1 步使用，校验 MySQL 连通性与版本(需 >= 8.0)；系统已安装后禁止调用")]
 #[\erikwang2013\apidoc\annotation\Url("/install/test-db")]

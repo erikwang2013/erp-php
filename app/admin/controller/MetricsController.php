@@ -20,21 +20,12 @@ use Throwable;
 
 /**
  * Prometheus 指标端点
- * @Apidoc\Tag("监控指标")
  */#[\erikwang2013\apidoc\annotation\Tag("监控指标")]
 
 class MetricsController
 {
     /**
      * Prometheus监控指标
-     * @Apidoc\Title("Prometheus监控指标")
-     * @Apidoc\Desc("返回Prometheus text format格式的监控指标，包含活跃用户数、数据库/Redis连接状态、PHP版本等信息")
-     * @Apidoc\Url("/metrics")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("监控指标")
-     * @Apidoc\Returned("content-type", type="string", desc="text/plain; charset=utf-8")
-     * @Apidoc\Returned("body", type="string", desc="Prometheus text format指标数据")
      */#[\erikwang2013\apidoc\annotation\Title("Prometheus监控指标")]
 #[\erikwang2013\apidoc\annotation\Desc("返回Prometheus text format格式的监控指标，包含活跃用户数、数据库/Redis连接状态、PHP版本等信息")]
 #[\erikwang2013\apidoc\annotation\Url("/metrics")]

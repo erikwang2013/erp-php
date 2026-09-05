@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("审批工作流")
  */
 declare(strict_types=1);
 
@@ -18,19 +17,6 @@ class WorkflowController extends BaseController
 {
     /**
      * 工作流模板列表（分页）
-     * @Apidoc\Title("工作流模板列表")
-     * @Apidoc\Desc("分页查询工作流模板记录")
-     * @Apidoc\Url("/admin/v1/workflow")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("审批工作流")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
-     * @Apidoc\Param(name="target_type", type="string", desc="目标类型")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("工作流模板列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询工作流模板记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/workflow")]
@@ -73,19 +59,6 @@ class WorkflowController extends BaseController
 
     /**
      * 创建工作流模板
-     * @Apidoc\Title("创建工作流模板")
-     * @Apidoc\Desc("新增工作流模板记录，含审批节点")
-     * @Apidoc\Url("/admin/v1/workflow")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("审批工作流")
-     * @Apidoc\Param(name="name", type="string", desc="模板名称，必填")
-     * @Apidoc\Param(name="code", type="string", desc="模板编码，必填")
-     * @Apidoc\Param(name="target_type", type="string", desc="目标类型，必填")
-     * @Apidoc\Param(name="nodes", type="array", desc="审批节点列表")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建工作流模板")]
 #[\erikwang2013\apidoc\annotation\Desc("新增工作流模板记录，含审批节点")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/workflow")]
@@ -138,16 +111,6 @@ class WorkflowController extends BaseController
 
     /**
      * 工作流详情
-     * @Apidoc\Title("工作流模板详情")
-     * @Apidoc\Desc("查看工作流模板详细信息，含审批节点")
-     * @Apidoc\Url("/admin/v1/workflow/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("审批工作流")
-     * @Apidoc\Param(name="id", type="string", desc="工作流ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("工作流模板详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看工作流模板详细信息，含审批节点")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -177,17 +140,6 @@ class WorkflowController extends BaseController
 
     /**
      * 更新工作流
-     * @Apidoc\Title("更新工作流模板")
-     * @Apidoc\Desc("修改工作流模板信息，含节点替换")
-     * @Apidoc\Url("/admin/v1/workflow/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("审批工作流")
-     * @Apidoc\Param(name="id", type="string", desc="工作流ID")
-     * @Apidoc\Param(name="nodes", type="array", desc="审批节点列表(传则替换全部)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新工作流模板")]
 #[\erikwang2013\apidoc\annotation\Desc("修改工作流模板信息，含节点替换")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -239,17 +191,6 @@ class WorkflowController extends BaseController
 
     /**
      * 删除工作流
-     * @Apidoc\Title("删除工作流模板")
-     * @Apidoc\Desc("删除工作流模板记录，需密码确认")
-     * @Apidoc\Url("/admin/v1/workflow/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("审批工作流")
-     * @Apidoc\Param(name="id", type="string", desc="工作流ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除工作流模板")]
 #[\erikwang2013\apidoc\annotation\Desc("删除工作流模板记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

@@ -25,18 +25,6 @@ class WebhookController extends BaseController
 {
     /**
      * Webhook 订阅列表
-     * @Apidoc\Title("Webhook 订阅列表")
-     * @Apidoc\Desc("分页查询订阅，可按 app_id 过滤，附带应用名称")
-     * @Apidoc\Url("/admin/v1/openapi/webhook")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("开放平台")
-     * @Apidoc\Param(name="page", type="int", default="1", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default="10", desc="每页数量")
-     * @Apidoc\Param(name="app_id", type="string", desc="所属应用ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="分页列表(list/total/page/limit)")
      */#[\erikwang2013\apidoc\annotation\Title("Webhook 订阅列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询订阅，可按 app_id 过滤，附带应用名称")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/openapi/webhook")]
@@ -85,16 +73,6 @@ class WebhookController extends BaseController
 
     /**
      * Webhook 订阅详情
-     * @Apidoc\Title("Webhook 订阅详情")
-     * @Apidoc\Desc("查看订阅详情(secret 不参与回显)")
-     * @Apidoc\Url("/admin/v1/openapi/webhook/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("开放平台")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="订阅ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="订阅详情(hashid)")
      */#[\erikwang2013\apidoc\annotation\Title("Webhook 订阅详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看订阅详情(secret 不参与回显)")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -117,20 +95,6 @@ class WebhookController extends BaseController
 
     /**
      * 新建 Webhook 订阅
-     * @Apidoc\Title("新建 Webhook 订阅")
-     * @Apidoc\Desc("为应用创建事件订阅，secret 明文仅此一次返回，未提供时自动生成")
-     * @Apidoc\Url("/admin/v1/openapi/webhook")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("开放平台")
-     * @Apidoc\Param(name="app_id", type="string", require=true, desc="所属应用ID(hashid)")
-     * @Apidoc\Param(name="event", type="array", require=true, desc="订阅事件数组(合法字符:字母数字._-,或\"*\")")
-     * @Apidoc\Param(name="target_url", type="string", require=true, desc="回调地址(http/https,≤500字符)")
-     * @Apidoc\Param(name="secret", type="string", desc="签名密钥(16-200字符,缺省自动生成32位十六进制)")
-     * @Apidoc\Param(name="enabled", type="int", default="1", desc="是否启用,0=停用,1=启用")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="id(hashid)/app_id(hashid)/secret(仅一次展示)")
      */#[\erikwang2013\apidoc\annotation\Title("新建 Webhook 订阅")]
 #[\erikwang2013\apidoc\annotation\Desc("为应用创建事件订阅，secret 明文仅此一次返回，未提供时自动生成")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/openapi/webhook")]
@@ -198,20 +162,6 @@ class WebhookController extends BaseController
 
     /**
      * 更新 Webhook 订阅
-     * @Apidoc\Title("更新 Webhook 订阅")
-     * @Apidoc\Desc("更新订阅事件/target_url/状态；secret 仅在本次传入时重置")
-     * @Apidoc\Url("/admin/v1/openapi/webhook/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("开放平台")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="订阅ID(hashid)")
-     * @Apidoc\Param(name="event", type="array", desc="订阅事件数组(合法字符:字母数字._-,或\"*\")")
-     * @Apidoc\Param(name="target_url", type="string", desc="回调地址(http/https,≤500字符)")
-     * @Apidoc\Param(name="secret", type="string", desc="签名密钥(传入即视为重置)")
-     * @Apidoc\Param(name="enabled", type="int", desc="是否启用,0=停用,1=启用")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="更新后订阅详情(hashid)")
      */#[\erikwang2013\apidoc\annotation\Title("更新 Webhook 订阅")]
 #[\erikwang2013\apidoc\annotation\Desc("更新订阅事件/target_url/状态；secret 仅在本次传入时重置")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -272,17 +222,6 @@ class WebhookController extends BaseController
 
     /**
      * 删除 Webhook 订阅
-     * @Apidoc\Title("删除 Webhook 订阅")
-     * @Apidoc\Desc("硬删除订阅并级联清理其投递日志，需二次密码确认")
-     * @Apidoc\Url("/admin/v1/openapi/webhook/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("开放平台")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="订阅ID(hashid)")
-     * @Apidoc\Param(name="password", type="string", require=true, desc="操作密码(二次确认)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="array", desc="空数组")
      */#[\erikwang2013\apidoc\annotation\Title("删除 Webhook 订阅")]
 #[\erikwang2013\apidoc\annotation\Desc("硬删除订阅并级联清理其投递日志，需二次密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
@@ -314,16 +253,6 @@ class WebhookController extends BaseController
 
     /**
      * 发送测试事件
-     * @Apidoc\Title("发送测试事件")
-     * @Apidoc\Desc("走真实投递链路发送测试事件并落库，便于验证回调可达性与验签")
-     * @Apidoc\Url("/admin/v1/openapi/webhook/{id}/test")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("开放平台")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="订阅ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="投递结果(status/详情)")
      */#[\erikwang2013\apidoc\annotation\Title("发送测试事件")]
 #[\erikwang2013\apidoc\annotation\Desc("走真实投递链路发送测试事件并落库，便于验证回调可达性与验签")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -348,18 +277,6 @@ class WebhookController extends BaseController
 
     /**
      * Webhook 投递日志
-     * @Apidoc\Title("Webhook 投递日志")
-     * @Apidoc\Desc("按订阅分页查询事件投递日志，最新在前")
-     * @Apidoc\Url("/admin/v1/openapi/webhook/{id}/logs")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("开放平台")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="订阅ID(hashid)")
-     * @Apidoc\Param(name="page", type="int", default="1", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default="10", desc="每页数量")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="分页列表(list/total/page/limit)")
      */#[\erikwang2013\apidoc\annotation\Title("Webhook 投递日志")]
 #[\erikwang2013\apidoc\annotation\Desc("按订阅分页查询事件投递日志，最新在前")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

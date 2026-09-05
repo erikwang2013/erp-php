@@ -18,24 +18,12 @@ use support\Response;
  * 会员价值引擎·会员/储值/积分 — P2-3 C1
  * 开卡/总览/储值充-消-退/积分赚-抵-作废；语义校验与幂等在 MemberService，
  * 本层仅 hashid 编解码 + 透传。路由注册随批次 lead 关闸（本批不注册）。
- * @Apidoc\Tag("会员管理")
  */#[\erikwang2013\apidoc\annotation\Tag("会员管理")]
 
 class MemberController extends BaseController
 {
     /**
      * 会员开卡（手机号唯一，软删号码拒重开；含储值 0.00 + 积分 0 建档）
-     * @Apidoc\Title("会员开卡")
-     * @Apidoc\Url("/admin/v1/member/open")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("会员管理")
-     * @Apidoc\Param(name="phone", type="string", required=true, desc="手机号(11 位)")
-     * @Apidoc\Param(name="name", type="string", required=true, desc="姓名")
-     * @Apidoc\Param(name="level", type="int", default=0, desc="等级 0普通/1银卡/2金卡/3铂金")
-     * @Apidoc\Param(name="customer_id", type="string", default="0", desc="关联客户(hashid)")
-     * @Apidoc\Param(name="source", type="string", default="manual", desc="开卡来源 pos/miniapp/manual")
-     * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
      */#[\erikwang2013\apidoc\annotation\Title("会员开卡")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/member/open")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -64,12 +52,6 @@ class MemberController extends BaseController
 
     /**
      * 会员总览（主档 + 储值/积分余额 + 可用卡券数 + 累计充值/消费）
-     * @Apidoc\Title("会员总览")
-     * @Apidoc\Url("/admin/v1/member/overview")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("会员管理")
-     * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
      */#[\erikwang2013\apidoc\annotation\Title("会员总览")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/member/overview")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -91,14 +73,6 @@ class MemberController extends BaseController
 
     /**
      * 储值充值
-     * @Apidoc\Title("储值充值")
-     * @Apidoc\Url("/admin/v1/member/recharge")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("会员管理")
-     * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
-     * @Apidoc\Param(name="amount", type="string", required=true, desc="金额(≤2 位小数)")
-     * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
      */#[\erikwang2013\apidoc\annotation\Title("储值充值")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/member/recharge")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -126,14 +100,6 @@ class MemberController extends BaseController
 
     /**
      * 储值消费（biz_id 为调用方业务单号，同号重复消费由服务幂等判拒）
-     * @Apidoc\Title("储值消费")
-     * @Apidoc\Url("/admin/v1/member/consume")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("会员管理")
-     * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
-     * @Apidoc\Param(name="amount", type="string", required=true, desc="金额(≤2 位小数)")
-     * @Apidoc\Param(name="biz_id", type="string", required=true, desc="业务单号(纯数字)")
      */#[\erikwang2013\apidoc\annotation\Title("储值消费")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/member/consume")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -161,14 +127,6 @@ class MemberController extends BaseController
 
     /**
      * 储值退款（冲正原消费；同 biz_id 已退 → 拒绝，部分退款由调用方控累计上限）
-     * @Apidoc\Title("储值退款")
-     * @Apidoc\Url("/admin/v1/member/refund")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("会员管理")
-     * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
-     * @Apidoc\Param(name="amount", type="string", required=true, desc="金额(≤2 位小数)")
-     * @Apidoc\Param(name="biz_id", type="string", required=true, desc="业务单号(纯数字)")
      */#[\erikwang2013\apidoc\annotation\Title("储值退款")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/member/refund")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -196,14 +154,6 @@ class MemberController extends BaseController
 
     /**
      * 积分入账（赚取）
-     * @Apidoc\Title("积分入账")
-     * @Apidoc\Url("/admin/v1/member/points-earn")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("会员管理")
-     * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
-     * @Apidoc\Param(name="points", type="int", required=true, desc="积分数(>0)")
-     * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
      */#[\erikwang2013\apidoc\annotation\Title("积分入账")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/member/points-earn")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -231,14 +181,6 @@ class MemberController extends BaseController
 
     /**
      * 积分抵扣（管理端手工扣减；不足整笔拒绝）
-     * @Apidoc\Title("积分抵扣")
-     * @Apidoc\Url("/admin/v1/member/points-consume")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("会员管理")
-     * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
-     * @Apidoc\Param(name="points", type="int", required=true, desc="积分数(>0)")
-     * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
      */#[\erikwang2013\apidoc\annotation\Title("积分抵扣")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/member/points-consume")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -266,14 +208,6 @@ class MemberController extends BaseController
 
     /**
      * 积分作废（手工调过期积分）
-     * @Apidoc\Title("积分作废")
-     * @Apidoc\Url("/admin/v1/member/points-expire")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("会员管理")
-     * @Apidoc\Param(name="member_id", type="string", required=true, desc="会员(hashid)")
-     * @Apidoc\Param(name="points", type="int", required=true, desc="积分数(>0)")
-     * @Apidoc\Param(name="remark", type="string", default="", desc="备注")
      */#[\erikwang2013\apidoc\annotation\Title("积分作废")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/member/points-expire")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

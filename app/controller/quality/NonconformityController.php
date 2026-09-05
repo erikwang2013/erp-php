@@ -14,26 +14,12 @@ use support\Response;
 
 /**
  * 不合格品管理
- * @Apidoc\Tag("质量管理")
  */#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
 
 class NonconformityController extends BaseController
 {
     /**
      * 不合格品单列表（分页）
-     * @Apidoc\Title("不合格品单列表")
-     * @Apidoc\Desc("获取不合格品单列表，支持分页、单号/缺陷类型关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/v1/quality/nonconformity")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（单号/缺陷类型）")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="不合格品单列表数据")
      */#[\erikwang2013\apidoc\annotation\Title("不合格品单列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取不合格品单列表，支持分页、单号/缺陷类型关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/nonconformity")]
@@ -69,18 +55,6 @@ class NonconformityController extends BaseController
 
     /**
      * 创建不合格品单
-     * @Apidoc\Title("创建不合格品单")
-     * @Apidoc\Desc("新增不合格品单，单号/缺陷类型/缺陷数量必填")
-     * @Apidoc\Url("/admin/v1/quality/nonconformity")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="code", type="string", default="", desc="不合格品单号（必填）")
-     * @Apidoc\Param(name="defect_type", type="string", default="", desc="缺陷类型（必填）")
-     * @Apidoc\Param(name="defect_qty", type="int", default="", desc="缺陷数量（必填）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="创建的不合格品单记录")
      */#[\erikwang2013\apidoc\annotation\Title("创建不合格品单")]
 #[\erikwang2013\apidoc\annotation\Desc("新增不合格品单，单号/缺陷类型/缺陷数量必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/nonconformity")]
@@ -114,16 +88,6 @@ class NonconformityController extends BaseController
 
     /**
      * 不合格品单详情
-     * @Apidoc\Title("不合格品单详情")
-     * @Apidoc\Desc("根据ID获取不合格品单详细信息")
-     * @Apidoc\Url("/admin/v1/quality/nonconformity/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="不合格品单hashid")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="不合格品单详情")
      */#[\erikwang2013\apidoc\annotation\Title("不合格品单详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取不合格品单详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -144,16 +108,6 @@ class NonconformityController extends BaseController
 
     /**
      * 更新不合格品单
-     * @Apidoc\Title("更新不合格品单")
-     * @Apidoc\Desc("根据ID更新不合格品单信息")
-     * @Apidoc\Url("/admin/v1/quality/nonconformity/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="不合格品单hashid")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="更新后的不合格品单记录")
      */#[\erikwang2013\apidoc\annotation\Title("更新不合格品单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新不合格品单信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -179,17 +133,6 @@ class NonconformityController extends BaseController
 
     /**
      * 删除不合格品单（软删除）
-     * @Apidoc\Title("删除不合格品单")
-     * @Apidoc\Desc("根据ID软删除不合格品单，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/v1/quality/nonconformity/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="不合格品单hashid")
-     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="array", desc="空数组")
      */#[\erikwang2013\apidoc\annotation\Title("删除不合格品单")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除不合格品单，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

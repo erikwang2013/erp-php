@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("财务管理")
  */
 declare(strict_types=1);
 
@@ -17,19 +16,6 @@ class CashJournalController extends BaseController
 {
     /**
      * 现金日记账列表（分页）
-     * @Apidoc\Title("现金日记账列表")
-     * @Apidoc\Desc("分页查询现金日记账记录")
-     * @Apidoc\Url("/admin/v1/finance/cash-journal")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
-     * @Apidoc\Param(name="status", type="int", desc="状态")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("现金日记账列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询现金日记账记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/cash-journal")]
@@ -72,16 +58,6 @@ class CashJournalController extends BaseController
 
     /**
      * 创建现金日记账
-     * @Apidoc\Title("创建现金日记账")
-     * @Apidoc\Desc("新增现金日记账记录")
-     * @Apidoc\Url("/admin/v1/finance/cash-journal")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="name", type="string", desc="记录名称，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建现金日记账")]
 #[\erikwang2013\apidoc\annotation\Desc("新增现金日记账记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/cash-journal")]
@@ -110,16 +86,6 @@ class CashJournalController extends BaseController
 
     /**
      * 现金日记账详情
-     * @Apidoc\Title("现金日记账详情")
-     * @Apidoc\Desc("查看现金日记账记录详情")
-     * @Apidoc\Url("/admin/v1/finance/cash-journal/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("现金日记账详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看现金日记账记录详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -143,16 +109,6 @@ class CashJournalController extends BaseController
 
     /**
      * 更新现金日记账
-     * @Apidoc\Title("更新现金日记账")
-     * @Apidoc\Desc("修改现金日记账记录")
-     * @Apidoc\Url("/admin/v1/finance/cash-journal/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新现金日记账")]
 #[\erikwang2013\apidoc\annotation\Desc("修改现金日记账记录")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -179,17 +135,6 @@ class CashJournalController extends BaseController
 
     /**
      * 删除现金日记账
-     * @Apidoc\Title("删除现金日记账")
-     * @Apidoc\Desc("删除现金日记账记录，需密码确认")
-     * @Apidoc\Url("/admin/v1/finance/cash-journal/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除现金日记账")]
 #[\erikwang2013\apidoc\annotation\Desc("删除现金日记账记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

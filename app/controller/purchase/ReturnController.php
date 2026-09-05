@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("采购管理")
  */
 declare(strict_types=1);
 
@@ -17,19 +16,6 @@ class ReturnController extends BaseController
 {
     /**
      * 采购退货列表（分页）
-     * @Apidoc\Title("采购退货列表")
-     * @Apidoc\Desc("获取采购退货列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/v1/purchase/return")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（名称/编码）")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("采购退货列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取采购退货列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/return")]
@@ -72,18 +58,6 @@ class ReturnController extends BaseController
 
     /**
      * 创建采购退货
-     * @Apidoc\Title("创建采购退货")
-     * @Apidoc\Desc("新增一个采购退货记录")
-     * @Apidoc\Url("/admin/v1/purchase/return")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="name", type="string", default="", desc="退货名称（必填）")
-     * @Apidoc\Param(name="code", type="string", default="", desc="退货单号")
-     * @Apidoc\Param(name="status", type="int", default=1, desc="状态")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="采购退货记录")
      */#[\erikwang2013\apidoc\annotation\Title("创建采购退货")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一个采购退货记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/return")]
@@ -114,16 +88,6 @@ class ReturnController extends BaseController
 
     /**
      * 采购退货详情
-     * @Apidoc\Title("采购退货详情")
-     * @Apidoc\Desc("根据ID获取采购退货详细信息")
-     * @Apidoc\Url("/admin/v1/purchase/return/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="采购退货hashid")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="采购退货详情")
      */#[\erikwang2013\apidoc\annotation\Title("采购退货详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取采购退货详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -147,19 +111,6 @@ class ReturnController extends BaseController
 
     /**
      * 更新采购退货
-     * @Apidoc\Title("更新采购退货")
-     * @Apidoc\Desc("根据ID更新采购退货信息")
-     * @Apidoc\Url("/admin/v1/purchase/return/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="采购退货hashid")
-     * @Apidoc\Param(name="name", type="string", default="", desc="退货名称")
-     * @Apidoc\Param(name="code", type="string", default="", desc="退货单号")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="更新后的采购退货记录")
      */#[\erikwang2013\apidoc\annotation\Title("更新采购退货")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新采购退货信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -189,17 +140,6 @@ class ReturnController extends BaseController
 
     /**
      * 删除采购退货（软删除）
-     * @Apidoc\Title("删除采购退货")
-     * @Apidoc\Desc("根据ID软删除采购退货，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/v1/purchase/return/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("采购管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="采购退货hashid")
-     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="array", desc="空数组")
      */#[\erikwang2013\apidoc\annotation\Title("删除采购退货")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除采购退货，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

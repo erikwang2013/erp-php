@@ -24,24 +24,12 @@ use support\Response;
  *
  * 状态机：0草稿 → 1已审核。审核时按委外单加工单价快照入库并联动委外单
  * （见 SubcontractService::auditReceive；收满自动核销委外单）。
- * @Apidoc\Tag("生产制造")
  */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class SubcontractReceiveController extends BaseController
 {
     /**
      * 委外收料单列表（分页，按单号/状态/委外单筛选）
-     * @Apidoc\Title("委外收料单列表")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", desc="单号模糊搜索")
-     * @Apidoc\Param(name="subcontract_id", type="int", desc="委外订单ID")
-     * @Apidoc\Param(name="status", type="int", desc="状态 0草稿 1已审核")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("委外收料单列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/subcontract-receive")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -75,18 +63,6 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 创建委外收料单（草稿；仓库缺省取委外单收料仓库）
-     * @Apidoc\Title("创建委外收料单")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="code", type="string", desc="收料单号，必填，唯一")
-     * @Apidoc\Param(name="subcontract_id", type="int", desc="委外订单ID，必填")
-     * @Apidoc\Param(name="warehouse_id", type="int", desc="收料仓库ID，可空，缺省取委外单仓库")
-     * @Apidoc\Param(name="receive_date", type="string", desc="收料日期，可空")
-     * @Apidoc\Param(name="quantity", type="number", desc="收料数量，必填，>0")
-     * @Apidoc\Param(name="remark", type="string", desc="备注")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("创建委外收料单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/subcontract-receive")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -149,13 +125,6 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 委外收料单详情（含委外单）
-     * @Apidoc\Title("委外收料单详情")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="收料单ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("委外收料单详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -180,13 +149,6 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 更新委外收料单（仅草稿）
-     * @Apidoc\Title("更新委外收料单")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="收料单ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("更新委外收料单")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -225,14 +187,6 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 删除委外收料单（仅草稿，需密码确认）
-     * @Apidoc\Title("删除委外收料单")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="收料单ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("删除委外收料单")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -264,13 +218,6 @@ class SubcontractReceiveController extends BaseController
 
     /**
      * 审核委外收料单（按加工单价入库，收满自动核销委外单）
-     * @Apidoc\Title("审核委外收料单")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract-receive/{id}/audit")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="收料单ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("审核委外收料单")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

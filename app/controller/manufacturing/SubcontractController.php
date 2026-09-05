@@ -26,25 +26,12 @@ use support\Response;
  * 状态机：0草稿 → 1已发料 → 2已收货 → 3已核销。
  * 状态推进不设独立审核端点：发料单/收料单审核时联动推进
  * （见 SubcontractService::auditIssue / auditReceive）。
- * @Apidoc\Tag("生产制造")
  */#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
 
 class SubcontractController extends BaseController
 {
     /**
      * 委外订单列表（分页，按单号/供应商/产品/状态筛选）
-     * @Apidoc\Title("委外订单列表")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", desc="单号模糊搜索")
-     * @Apidoc\Param(name="supplier_id", type="int", desc="供应商ID")
-     * @Apidoc\Param(name="product_id", type="int", desc="委外产品ID")
-     * @Apidoc\Param(name="status", type="int", desc="状态 0草稿 1已发料 2已收货 3已核销")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("委外订单列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/subcontract")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -80,19 +67,6 @@ class SubcontractController extends BaseController
 
     /**
      * 创建委外订单（草稿）
-     * @Apidoc\Title("创建委外订单")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="code", type="string", desc="委外单号，必填，唯一")
-     * @Apidoc\Param(name="supplier_id", type="int", desc="供应商ID，必填")
-     * @Apidoc\Param(name="product_id", type="int", desc="委外产品ID，必填")
-     * @Apidoc\Param(name="warehouse_id", type="int", desc="收料仓库ID，必填")
-     * @Apidoc\Param(name="quantity", type="number", desc="委外数量，必填，>0")
-     * @Apidoc\Param(name="unit_price", type="number", desc="加工单价，必填，≥0")
-     * @Apidoc\Param(name="remark", type="string", desc="备注")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("创建委外订单")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/subcontract")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -161,13 +135,6 @@ class SubcontractController extends BaseController
 
     /**
      * 委外订单详情（含供应商与发料/收料单）
-     * @Apidoc\Title("委外订单详情")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="委外订单ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("委外订单详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -197,13 +164,6 @@ class SubcontractController extends BaseController
 
     /**
      * 更新委外订单（仅草稿）
-     * @Apidoc\Title("更新委外订单")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="委外订单ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("更新委外订单")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -245,14 +205,6 @@ class SubcontractController extends BaseController
 
     /**
      * 删除委外订单（仅草稿且无关联单据，需密码确认）
-     * @Apidoc\Title("删除委外订单")
-     * @Apidoc\Url("/admin/v1/mfg/subcontract/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("生产制造")
-     * @Apidoc\Param(name="id", type="string", desc="委外订单ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
      */#[\erikwang2013\apidoc\annotation\Title("删除委外订单")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

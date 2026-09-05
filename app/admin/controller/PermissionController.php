@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
- * @Apidoc\Tag("权限管理")
  */
 
 declare(strict_types=1);
@@ -17,15 +16,6 @@ class PermissionController extends BaseController
 {
     /**
      * 权限树列表
-     * @Apidoc\Title("权限树列表")
-     * @Apidoc\Desc("获取完整的权限树结构，按排序字段升序排列")
-     * @Apidoc\Url("/admin/v1/permission")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("权限管理")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="array", desc="权限树数组")
      */#[\erikwang2013\apidoc\annotation\Title("权限树列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取完整的权限树结构，按排序字段升序排列")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/permission")]
@@ -50,16 +40,6 @@ class PermissionController extends BaseController
 
     /**
      * 权限详情
-     * @Apidoc\Title("权限详情")
-     * @Apidoc\Desc("按 ID 查询单个权限节点")
-     * @Apidoc\Url("/admin/v1/permission/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("权限管理")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="权限ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="权限信息")
      */#[\erikwang2013\apidoc\annotation\Title("权限详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 查询单个权限节点")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -83,22 +63,6 @@ class PermissionController extends BaseController
 
     /**
      * 创建权限
-     * @Apidoc\Title("创建权限")
-     * @Apidoc\Desc("创建一个新的权限节点，支持目录、菜单、按钮三种类型")
-     * @Apidoc\Url("/admin/v1/permission")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("权限管理")
-     * @Apidoc\Param(name="parent_id", type="int", default=0, desc="父级权限ID")
-     * @Apidoc\Param(name="name", type="string", require=true, desc="权限名称")
-     * @Apidoc\Param(name="slug", type="string", require=true, desc="权限标识")
-     * @Apidoc\Param(name="type", type="int", require=true, desc="类型(1=目录,2=菜单,3=按钮)")
-     * @Apidoc\Param(name="icon", type="string", default="", desc="图标")
-     * @Apidoc\Param(name="path", type="string", default="", desc="前端路由路径")
-     * @Apidoc\Param(name="sort", type="int", default=0, desc="排序(越小越靠前)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="新创建的权限")
      */#[\erikwang2013\apidoc\annotation\Title("创建权限")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一个新的权限节点，支持目录、菜单、按钮三种类型")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/permission")]
@@ -144,20 +108,6 @@ class PermissionController extends BaseController
 
     /**
      * 更新权限
-     * @Apidoc\Title("更新权限")
-     * @Apidoc\Desc("更新指定权限节点的基本信息")
-     * @Apidoc\Url("/admin/v1/permission/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("权限管理")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="权限ID(hashid)")
-     * @Apidoc\Param(name="name", type="string", default="", desc="权限名称")
-     * @Apidoc\Param(name="icon", type="string", default="", desc="图标")
-     * @Apidoc\Param(name="path", type="string", default="", desc="前端路由路径")
-     * @Apidoc\Param(name="sort", type="int", default=0, desc="排序")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="更新后的权限")
      */#[\erikwang2013\apidoc\annotation\Title("更新权限")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定权限节点的基本信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -191,17 +141,6 @@ class PermissionController extends BaseController
 
     /**
      * 删除权限（需密码二次确认）
-     * @Apidoc\Title("删除权限")
-     * @Apidoc\Desc("删除指定权限节点，级联删除所有子权限，需当前管理员密码二次确认")
-     * @Apidoc\Url("/admin/v1/permission/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("权限管理")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="权限ID(hashid)")
-     * @Apidoc\Param(name="password", type="string", require=true, desc="当前用户密码（二次确认）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="array", desc="空数组")
      */#[\erikwang2013\apidoc\annotation\Title("删除权限")]
 #[\erikwang2013\apidoc\annotation\Desc("删除指定权限节点，级联删除所有子权限，需当前管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

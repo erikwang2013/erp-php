@@ -14,12 +14,6 @@ class IndexController
 {
     /**
      * 首页(iframe 官方欢迎页)
-     * @Apidoc\Title("首页")
-     * @Apidoc\Desc("webman 默认首页，内嵌官方欢迎页 iframe，返回原始 HTML")
-     * @Apidoc\Url("/")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("系统")
      */#[\erikwang2013\apidoc\annotation\Title("首页")]
 #[\erikwang2013\apidoc\annotation\Desc("webman 默认首页，内嵌官方欢迎页 iframe，返回原始 HTML")]
 #[\erikwang2013\apidoc\annotation\Url("/")]
@@ -52,12 +46,6 @@ EOF;
 
     /**
      * 欢迎视图页
-     * @Apidoc\Title("欢迎视图页")
-     * @Apidoc\Desc("渲染 index/view 欢迎视图(Blade 模板)")
-     * @Apidoc\Url("/index/view")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("系统")
      */#[\erikwang2013\apidoc\annotation\Title("欢迎视图页")]
 #[\erikwang2013\apidoc\annotation\Desc("渲染 index/view 欢迎视图(Blade 模板)")]
 #[\erikwang2013\apidoc\annotation\Url("/index/view")]
@@ -72,14 +60,6 @@ EOF;
 
     /**
      * 健康检查 JSON
-     * @Apidoc\Title("健康检查")
-     * @Apidoc\Desc("返回固定 JSON 探活响应")
-     * @Apidoc\Url("/index/json")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("系统")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,恒为0")
-     * @Apidoc\Returned("msg", type="string", desc="提示信息")
      */#[\erikwang2013\apidoc\annotation\Title("健康检查")]
 #[\erikwang2013\apidoc\annotation\Desc("返回固定 JSON 探活响应")]
 #[\erikwang2013\apidoc\annotation\Url("/index/json")]

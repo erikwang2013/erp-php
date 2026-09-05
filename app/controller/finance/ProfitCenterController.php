@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("财务管理")
  */
 declare(strict_types=1);
 
@@ -17,17 +16,6 @@ class ProfitCenterController extends BaseController
 {
     /**
      * 利润中心树形列表
-     * @Apidoc\Title("利润中心列表")
-     * @Apidoc\Desc("查询利润中心树形结构列表")
-     * @Apidoc\Url("/admin/v1/finance/profit-center")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="keyword", type="string", desc="关键词")
-     * @Apidoc\Param(name="status", type="int", desc="状态")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("利润中心列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询利润中心树形结构列表")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/profit-center")]
@@ -66,17 +54,6 @@ class ProfitCenterController extends BaseController
 
     /**
      * 创建利润中心
-     * @Apidoc\Title("创建利润中心")
-     * @Apidoc\Desc("新增利润中心节点")
-     * @Apidoc\Url("/admin/v1/finance/profit-center")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="code", type="string", desc="编码，必填")
-     * @Apidoc\Param(name="name", type="string", desc="名称，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建利润中心")]
 #[\erikwang2013\apidoc\annotation\Desc("新增利润中心节点")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/profit-center")]
@@ -109,16 +86,6 @@ class ProfitCenterController extends BaseController
 
     /**
      * 利润中心详情
-     * @Apidoc\Title("利润中心详情")
-     * @Apidoc\Desc("查看利润中心详细信息，含子级")
-     * @Apidoc\Url("/admin/v1/finance/profit-center/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", desc="利润中心ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("利润中心详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看利润中心详细信息，含子级")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -148,16 +115,6 @@ class ProfitCenterController extends BaseController
 
     /**
      * 更新利润中心
-     * @Apidoc\Title("更新利润中心")
-     * @Apidoc\Desc("修改利润中心信息")
-     * @Apidoc\Url("/admin/v1/finance/profit-center/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", desc="利润中心ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新利润中心")]
 #[\erikwang2013\apidoc\annotation\Desc("修改利润中心信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -184,17 +141,6 @@ class ProfitCenterController extends BaseController
 
     /**
      * 删除利润中心
-     * @Apidoc\Title("删除利润中心")
-     * @Apidoc\Desc("删除利润中心，需先删除子级，需密码确认")
-     * @Apidoc\Url("/admin/v1/finance/profit-center/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", desc="利润中心ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除利润中心")]
 #[\erikwang2013\apidoc\annotation\Desc("删除利润中心，需先删除子级，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

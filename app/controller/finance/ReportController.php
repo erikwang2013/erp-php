@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-  * @Apidoc\Tag("财务管理")
  */
 declare(strict_types=1);
 
@@ -22,17 +21,6 @@ class ReportController extends BaseController
 {
     /**
      * 财务利润报表
-     * @Apidoc\Title("财务利润报表")
-     * @Apidoc\Desc("按年度和月份查询利润数据，含汇总统计")
-     * @Apidoc\Url("/admin/v1/finance/report/profit")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="year", type="int", desc="年份，默认当前年")
-     * @Apidoc\Param(name="month", type="int", desc="月份，可选")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="利润数据，含list和summary")
      */#[\erikwang2013\apidoc\annotation\Title("财务利润报表")]
 #[\erikwang2013\apidoc\annotation\Desc("按年度和月份查询利润数据，含汇总统计")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/profit")]
@@ -81,14 +69,6 @@ class ReportController extends BaseController
 
     /**
      * 期末损益结转
-     * @Apidoc\Title("期末损益结转")
-     * @Apidoc\Desc("将损益类科目余额结转至本年利润")
-     * @Apidoc\Url("/admin/v1/finance/report/close-period")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="year", type="int", desc="年份，默认当前年")
-     * @Apidoc\Param(name="month", type="int", desc="月份(1-12)，默认当前月")
      */#[\erikwang2013\apidoc\annotation\Title("期末损益结转")]
 #[\erikwang2013\apidoc\annotation\Desc("将损益类科目余额结转至本年利润")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/close-period")]
@@ -111,14 +91,6 @@ class ReportController extends BaseController
 
     /**
      * 多币种报表合并
-     * @Apidoc\Title("多币种合并")
-     * @Apidoc\Desc("按期末汇率将外币报表折算为本位币")
-     * @Apidoc\Url("/admin/v1/finance/report/consolidate")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="subsidiary_reports", type="array", desc="子公司报表列表")
-     * @Apidoc\Param(name="base_currency", type="string", desc="本位币，默认CNY")
      */#[\erikwang2013\apidoc\annotation\Title("多币种合并")]
 #[\erikwang2013\apidoc\annotation\Desc("按期末汇率将外币报表折算为本位币")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/consolidate")]
@@ -145,14 +117,6 @@ class ReportController extends BaseController
 
     /**
      * 财务指标计算
-     * @Apidoc\Title("财务指标计算")
-     * @Apidoc\Desc("由资产负债表与利润表计算流动比率/负债率/净利率/资产收益率")
-     * @Apidoc\Url("/admin/v1/finance/report/ratios")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="balance_sheet", type="object", desc="资产负债表(流动资产/流动负债/总负债/总资产)")
-     * @Apidoc\Param(name="profit_statement", type="object", desc="利润表(净利润/营业收入)")
      */#[\erikwang2013\apidoc\annotation\Title("财务指标计算")]
 #[\erikwang2013\apidoc\annotation\Desc("由资产负债表与利润表计算流动比率/负债率/净利率/资产收益率")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/ratios")]
@@ -175,13 +139,6 @@ class ReportController extends BaseController
 
     /**
      * 试算平衡表
-     * @Apidoc\Title("试算平衡表")
-     * @Apidoc\Desc("按期间汇总科目借贷方发生额与余额")
-     * @Apidoc\Url("/admin/v1/finance/report/trial-balance")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="period", type="string", desc="期间 YYYY-MM，默认当前月")
      */#[\erikwang2013\apidoc\annotation\Title("试算平衡表")]
 #[\erikwang2013\apidoc\annotation\Desc("按期间汇总科目借贷方发生额与余额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/trial-balance")]
@@ -203,14 +160,6 @@ class ReportController extends BaseController
 
     /**
      * 科目余额查询
-     * @Apidoc\Title("科目余额查询")
-     * @Apidoc\Desc("查询指定会计科目在期间的期初/本期/期末余额")
-     * @Apidoc\Url("/admin/v1/finance/report/account-balance")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="account_subject_id", type="int", desc="科目ID，必填")
-     * @Apidoc\Param(name="period", type="string", desc="期间 YYYY-MM，默认当前月")
      */#[\erikwang2013\apidoc\annotation\Title("科目余额查询")]
 #[\erikwang2013\apidoc\annotation\Desc("查询指定会计科目在期间的期初/本期/期末余额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/account-balance")]

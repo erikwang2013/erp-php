@@ -21,7 +21,6 @@ use support\Response;
 
 /**
  * 薪资与薪资项管理
-  * @Apidoc\Tag("人力资源")
  */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class SalaryController extends BaseController
@@ -30,21 +29,6 @@ class SalaryController extends BaseController
 
     /**
      * 薪资列表（分页）
-     * @Apidoc\Title("薪资列表")
-     * @Apidoc\Desc("分页查询薪资记录")
-     * @Apidoc\Url("/admin/v1/hr/salary")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID")
-     * @Apidoc\Param(name="period_year", type="int", desc="薪资年度")
-     * @Apidoc\Param(name="period_month", type="int", desc="薪资月份")
-     * @Apidoc\Param(name="status", type="int", desc="状态:0未发放1已发放")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("薪资列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询薪资记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
@@ -92,23 +76,6 @@ class SalaryController extends BaseController
 
     /**
      * 创建薪资记录
-     * @Apidoc\Title("创建薪资记录")
-     * @Apidoc\Desc("新增薪资记录，自动计算实发金额")
-     * @Apidoc\Url("/admin/v1/hr/salary")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID，必填")
-     * @Apidoc\Param(name="period_year", type="int", desc="薪资年度，必填")
-     * @Apidoc\Param(name="period_month", type="int", desc="薪资月份，必填")
-     * @Apidoc\Param(name="base_salary", type="float", desc="基本工资")
-     * @Apidoc\Param(name="performance", type="float", desc="绩效工资")
-     * @Apidoc\Param(name="overtime", type="float", desc="加班费")
-     * @Apidoc\Param(name="deduction", type="float", desc="扣款")
-     * @Apidoc\Param(name="tax", type="float", desc="个税")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建薪资记录")]
 #[\erikwang2013\apidoc\annotation\Desc("新增薪资记录，自动计算实发金额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
@@ -149,16 +116,6 @@ class SalaryController extends BaseController
 
     /**
      * 薪资详情
-     * @Apidoc\Title("薪资详情")
-     * @Apidoc\Desc("查看薪资记录详细信息")
-     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("薪资详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看薪资记录详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -187,16 +144,6 @@ class SalaryController extends BaseController
 
     /**
      * 更新薪资
-     * @Apidoc\Title("更新薪资")
-     * @Apidoc\Desc("修改薪资记录，自动重新计算实发，已发放不可修改")
-     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新薪资")]
 #[\erikwang2013\apidoc\annotation\Desc("修改薪资记录，自动重新计算实发，已发放不可修改")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -225,17 +172,6 @@ class SalaryController extends BaseController
 
     /**
      * 删除薪资记录
-     * @Apidoc\Title("删除薪资记录")
-     * @Apidoc\Desc("删除薪资记录，已发放不可删除，需密码确认")
-     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除薪资记录")]
 #[\erikwang2013\apidoc\annotation\Desc("删除薪资记录，已发放不可删除，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
@@ -271,16 +207,6 @@ class SalaryController extends BaseController
 
     /**
      * 薪资发放确认
-     * @Apidoc\Title("薪资发放")
-     * @Apidoc\Desc("确认薪资已发放，将状态更新为已发放")
-     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("薪资发放")]
 #[\erikwang2013\apidoc\annotation\Desc("确认薪资已发放，将状态更新为已发放")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -309,18 +235,6 @@ class SalaryController extends BaseController
 
     /**
      * 批量生成薪资
-     * @Apidoc\Title("批量生成薪资")
-     * @Apidoc\Desc("按部门和期间为所有在职员工批量生成初始薪资记录")
-     * @Apidoc\Url("/admin/v1/hr/salary")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="period_year", type="int", desc="薪资年度")
-     * @Apidoc\Param(name="period_month", type="int", desc="薪资月份")
-     * @Apidoc\Param(name="department_id", type="int", desc="部门ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("批量生成薪资")]
 #[\erikwang2013\apidoc\annotation\Desc("按部门和期间为所有在职员工批量生成初始薪资记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
@@ -347,20 +261,6 @@ class SalaryController extends BaseController
 
     /**
      * 薪资试算
-     * @Apidoc\Title("薪资试算")
-     * @Apidoc\Desc("按基本工资/绩效/加班/计件/扣款试算个税与实发金额")
-     * @Apidoc\Url("/admin/v1/hr/salary/calculate")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="base_salary", type="float", desc="基本工资")
-     * @Apidoc\Param(name="performance", type="float", desc="绩效工资")
-     * @Apidoc\Param(name="overtime", type="float", desc="加班费")
-     * @Apidoc\Param(name="piece_wage", type="float", desc="计件工资（报工审核自动归集，P1-M1b）")
-     * @Apidoc\Param(name="deduction", type="float", desc="扣款")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="试算结果")
      */#[\erikwang2013\apidoc\annotation\Title("薪资试算")]
 #[\erikwang2013\apidoc\annotation\Desc("按基本工资/绩效/加班/计件/扣款试算个税与实发金额")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary/calculate")]
@@ -399,17 +299,6 @@ class SalaryController extends BaseController
 
     /**
      * 银行代发文件
-     * @Apidoc\Title("银行代发文件")
-     * @Apidoc\Desc("校验员工银行账号并生成代发CSV")
-     * @Apidoc\Url("/admin/v1/hr/salary/payroll-file")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="bank_code", type="string", desc="银行代码: ICBC/BOC/CCB/CMB")
-     * @Apidoc\Param(name="records", type="array", desc="代发记录[{employee_name,bank_account,net_salary,bank_branch}]")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="代发文件内容与校验结果")
      */#[\erikwang2013\apidoc\annotation\Title("银行代发文件")]
 #[\erikwang2013\apidoc\annotation\Desc("校验员工银行账号并生成代发CSV")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary/payroll-file")]
@@ -441,15 +330,6 @@ class SalaryController extends BaseController
 
     /**
      * 薪资项列表
-     * @Apidoc\Title("薪资项列表")
-     * @Apidoc\Desc("查询全部薪资项配置")
-     * @Apidoc\Url("/admin/v1/hr/salary")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("薪资项列表")]
 #[\erikwang2013\apidoc\annotation\Desc("查询全部薪资项配置")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
@@ -470,17 +350,6 @@ class SalaryController extends BaseController
 
     /**
      * 创建薪资项
-     * @Apidoc\Title("创建薪资项")
-     * @Apidoc\Desc("新增薪资项配置")
-     * @Apidoc\Url("/admin/v1/hr/salary")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="code", type="string", desc="薪资项编码，必填")
-     * @Apidoc\Param(name="name", type="string", desc="薪资项名称，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建薪资项")]
 #[\erikwang2013\apidoc\annotation\Desc("新增薪资项配置")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/salary")]
@@ -510,16 +379,6 @@ class SalaryController extends BaseController
 
     /**
      * 薪资项详情
-     * @Apidoc\Title("薪资项详情")
-     * @Apidoc\Desc("查看薪资项详细信息")
-     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="薪资项ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("薪资项详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看薪资项详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -543,16 +402,6 @@ class SalaryController extends BaseController
 
     /**
      * 更新薪资项
-     * @Apidoc\Title("更新薪资项")
-     * @Apidoc\Desc("修改薪资项配置")
-     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="薪资项ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新薪资项")]
 #[\erikwang2013\apidoc\annotation\Desc("修改薪资项配置")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -576,17 +425,6 @@ class SalaryController extends BaseController
 
     /**
      * 删除薪资项
-     * @Apidoc\Title("删除薪资项")
-     * @Apidoc\Desc("删除薪资项配置，需密码确认")
-     * @Apidoc\Url("/admin/v1/hr/salary/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="薪资项ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除薪资项")]
 #[\erikwang2013\apidoc\annotation\Desc("删除薪资项配置，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
@@ -619,16 +457,6 @@ class SalaryController extends BaseController
 
     /**
      * 工资条视图
-     * @Apidoc\Title("工资条视图")
-     * @Apidoc\Desc("头行+薪资项行+社保补充（只读，不改动薪资数据）")
-     * @Apidoc\Url("/admin/v1/hr/salary/{id}/payslip")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="薪资ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="salary/items/social")
      */#[\erikwang2013\apidoc\annotation\Title("工资条视图")]
 #[\erikwang2013\apidoc\annotation\Desc("头行+薪资项行+社保补充（只读，不改动薪资数据）")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]

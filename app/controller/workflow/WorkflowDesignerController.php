@@ -27,16 +27,6 @@ class WorkflowDesignerController extends BaseController
 {
     /**
      * 读取画布设计
-     * @Apidoc\Title("读取流程画布")
-     * @Apidoc\Desc("返回画布快照：节点(含坐标)与边；工作流不存在或画布为空时返回空结构")
-     * @Apidoc\Url("/admin/v1/workflow/designer/{workflowId}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("审批工作流")
-     * @Apidoc\Param(name="workflowId", type="string", desc="工作流ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("读取流程画布")]
 #[\erikwang2013\apidoc\annotation\Desc("返回画布快照：节点(含坐标)与边；工作流不存在或画布为空时返回空结构")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -61,18 +51,6 @@ class WorkflowDesignerController extends BaseController
 
     /**
      * 保存画布设计
-     * @Apidoc\Title("保存流程画布")
-     * @Apidoc\Desc("事务内写画布快照并按主路径重建审批节点；边引用不存在的节点或节点id重复时422")
-     * @Apidoc\Url("/admin/v1/workflow/designer/{workflowId}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("审批工作流")
-     * @Apidoc\Param(name="workflowId", type="string", desc="工作流ID")
-     * @Apidoc\Param(name="nodes", type="array", desc="节点数组，顺序即主路径顺序")
-     * @Apidoc\Param(name="edges", type="array", desc="边数组(kind=forward/reject)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("保存流程画布")]
 #[\erikwang2013\apidoc\annotation\Desc("事务内写画布快照并按主路径重建审批节点；边引用不存在的节点或节点id重复时422")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -112,16 +90,6 @@ class WorkflowDesignerController extends BaseController
 
     /**
      * 校验流程拓扑
-     * @Apidoc\Title("校验流程拓扑")
-     * @Apidoc\Desc("检查起始节点唯一性、不可达孤岛与 forward 边有向环；reject 驳回回边豁免环检测")
-     * @Apidoc\Url("/admin/v1/workflow/designer/{workflowId}/validate")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("审批工作流")
-     * @Apidoc\Param(name="workflowId", type="string", desc="工作流ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("校验流程拓扑")]
 #[\erikwang2013\apidoc\annotation\Desc("检查起始节点唯一性、不可达孤岛与 forward 边有向环；reject 驳回回边豁免环检测")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -147,17 +115,6 @@ class WorkflowDesignerController extends BaseController
 
     /**
      * 求解下一节点
-     * @Apidoc\Title("求解流程下一节点")
-     * @Apidoc\Desc("按边条件命中下一节点；无条件 fallback 边优先级低于条件命中边")
-     * @Apidoc\Url("/admin/v1/workflow/designer/{workflowId}/route")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("审批工作流")
-     * @Apidoc\Param(name="workflowId", type="string", desc="工作流ID")
-     * @Apidoc\Param(name="context", type="array", desc="上下文(amount/department 等)；context.current_node_id 可选，指定从哪节点求解，缺省取图的起始节点")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("求解流程下一节点")]
 #[\erikwang2013\apidoc\annotation\Desc("按边条件命中下一节点；无条件 fallback 边优先级低于条件命中边")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

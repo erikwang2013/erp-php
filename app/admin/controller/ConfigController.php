@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
- * @Apidoc\Tag("系统配置")
  */
 
 declare(strict_types=1);
@@ -17,18 +16,6 @@ class ConfigController extends BaseController
 {
     /**
      * 系统配置列表
-     * @Apidoc\Title("系统配置列表")
-     * @Apidoc\Desc("获取系统配置分页列表，支持按分组筛选")
-     * @Apidoc\Url("/admin/v1/config")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("系统配置")
-     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
-     * @Apidoc\Param(name="group", type="string", default="", desc="配置分组筛选")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("系统配置列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取系统配置分页列表，支持按分组筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/config")]
@@ -71,20 +58,6 @@ class ConfigController extends BaseController
 
     /**
      * 创建配置
-     * @Apidoc\Title("创建配置")
-     * @Apidoc\Desc("创建一个新的系统配置项，group+key 组合必须唯一")
-     * @Apidoc\Url("/admin/v1/config")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("系统配置")
-     * @Apidoc\Param(name="group", type="string", require=true, desc="配置分组")
-     * @Apidoc\Param(name="key", type="string", require=true, desc="配置键名")
-     * @Apidoc\Param(name="value", type="string", require=true, desc="配置值")
-     * @Apidoc\Param(name="type", type="string", default="string", desc="值类型(string/int/bool/json)")
-     * @Apidoc\Param(name="description", type="string", default="", desc="配置说明")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="新创建的配置")
      */#[\erikwang2013\apidoc\annotation\Title("创建配置")]
 #[\erikwang2013\apidoc\annotation\Desc("创建一个新的系统配置项，group+key 组合必须唯一")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/config")]
@@ -133,19 +106,6 @@ class ConfigController extends BaseController
 
     /**
      * 更新配置
-     * @Apidoc\Title("更新配置")
-     * @Apidoc\Desc("更新指定配置项的值、类型或说明")
-     * @Apidoc\Url("/admin/v1/config/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("系统配置")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="配置ID(hashid)")
-     * @Apidoc\Param(name="value", type="string", default="", desc="配置值")
-     * @Apidoc\Param(name="type", type="string", default="", desc="值类型")
-     * @Apidoc\Param(name="description", type="string", default="", desc="配置说明")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="更新后的配置")
      */#[\erikwang2013\apidoc\annotation\Title("更新配置")]
 #[\erikwang2013\apidoc\annotation\Desc("更新指定配置项的值、类型或说明")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -184,17 +144,6 @@ class ConfigController extends BaseController
 
     /**
      * 删除配置（需密码二次确认）
-     * @Apidoc\Title("删除配置")
-     * @Apidoc\Desc("删除指定配置项，需当前管理员密码进行二次确认")
-     * @Apidoc\Url("/admin/v1/config/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("系统配置")
-     * @Apidoc\Param(name="id", type="string", require=true, desc="配置ID(hashid)")
-     * @Apidoc\Param(name="password", type="string", require=true, desc="当前用户密码（二次确认）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="array", desc="空数组")
      */#[\erikwang2013\apidoc\annotation\Title("删除配置")]
 #[\erikwang2013\apidoc\annotation\Desc("删除指定配置项，需当前管理员密码进行二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

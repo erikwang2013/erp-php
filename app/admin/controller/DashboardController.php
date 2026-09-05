@@ -32,26 +32,12 @@ use support\Response;
 
 /**
  * 仪表盘
- * @Apidoc\Tag("仪表盘")
  */#[\erikwang2013\apidoc\annotation\Tag("仪表盘")]
 
 class DashboardController extends BaseController
 {
     /**
      * 仪表盘总览数据
-     * @Apidoc\Title("仪表盘总览")
-     * @Apidoc\Desc("获取经营总览数据，包含用户统计、趋势、分布和最近操作日志。数据缓存5分钟。")
-     * @Apidoc\Url("/admin/v1/dashboard")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仪表盘")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
-     *     @Apidoc\Returned("stats", type="array", desc="统计卡片数据"),
-     *     @Apidoc\Returned("trends", type="object", desc="30日趋势数据"),
-     *     @Apidoc\Returned("distribution", type="object", desc="分布数据"),
-     *     @Apidoc\Returned("recent_logs", type="array", desc="最近操作日志"),
      * })
      */#[\erikwang2013\apidoc\annotation\Title("仪表盘总览")]
 #[\erikwang2013\apidoc\annotation\Desc("获取经营总览数据，包含用户统计、趋势、分布和最近操作日志。数据缓存5分钟。")]
@@ -217,22 +203,6 @@ class DashboardController extends BaseController
 
     /**
      * 销售看板
-     * @Apidoc\Title("销售看板")
-     * @Apidoc\Desc("获取销售看板数据，包含今日/本月销售额、客户排行、商机漏斗。数据缓存5分钟。")
-     * @Apidoc\Url("/admin/v1/dashboard/sales")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仪表盘")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
-     *     @Apidoc\Returned("today_sales", type="float", desc="今日销售额"),
-     *     @Apidoc\Returned("month_sales", type="float", desc="本月销售额"),
-     *     @Apidoc\Returned("top_customers", type="array", desc="客户排行"),
-     *     @Apidoc\Returned("funnel", type="array", desc="商机漏斗"),
-     *     @Apidoc\Returned("trend", type="array", desc="30日销售趋势"),
-     *     @Apidoc\Returned("top_products", type="array", desc="Top5热销商品"),
-     *     @Apidoc\Returned("status_distribution", type="array", desc="订单状态分布"),
      * })
      */#[\erikwang2013\apidoc\annotation\Title("销售看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取销售看板数据，包含今日/本月销售额、客户排行、商机漏斗。数据缓存5分钟。")]
@@ -341,19 +311,6 @@ class DashboardController extends BaseController
 
     /**
      * 库存看板
-     * @Apidoc\Title("库存看板")
-     * @Apidoc\Desc("获取库存看板数据，包含库存总值、预警统计和出入库趋势。数据缓存5分钟。")
-     * @Apidoc\Url("/admin/v1/dashboard/inventory")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仪表盘")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
-     *     @Apidoc\Returned("total_value", type="float", desc="库存总值"),
-     *     @Apidoc\Returned("alert_low", type="int", desc="低库存预警数"),
-     *     @Apidoc\Returned("alert_high", type="int", desc="高库存预警数"),
-     *     @Apidoc\Returned("flow_trend", type="array", desc="出入库趋势"),
      * })
      */#[\erikwang2013\apidoc\annotation\Title("库存看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取库存看板数据，包含库存总值、预警统计和出入库趋势。数据缓存5分钟。")]
@@ -390,22 +347,6 @@ class DashboardController extends BaseController
 
     /**
      * 财务看板
-     * @Apidoc\Title("财务看板")
-     * @Apidoc\Desc("获取财务看板数据，包含应收应付、本月收付款和现金余额。数据缓存5分钟。")
-     * @Apidoc\Url("/admin/v1/dashboard/finance")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仪表盘")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
-     *     @Apidoc\Returned("total_ar", type="float", desc="应收账款总额"),
-     *     @Apidoc\Returned("total_ap", type="float", desc="应付账款总额"),
-     *     @Apidoc\Returned("month_receipt", type="float", desc="本月收款"),
-     *     @Apidoc\Returned("month_payment", type="float", desc="本月付款"),
-     *     @Apidoc\Returned("cash_balance", type="float", desc="现金余额"),
-     *     @Apidoc\Returned("ar_aging", type="array", desc="应收账龄汇总"),
-     *     @Apidoc\Returned("ap_aging", type="array", desc="应付账龄汇总"),
      * })
      */#[\erikwang2013\apidoc\annotation\Title("财务看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取财务看板数据，包含应收应付、本月收付款和现金余额。数据缓存5分钟。")]
@@ -483,19 +424,6 @@ class DashboardController extends BaseController
 
     /**
      * OMS 订单履约看板
-     * @Apidoc\Title("OMS 订单履约看板")
-     * @Apidoc\Desc("获取 OMS 履约 KPI：待处理/拣货中订单、今日发货数与待处理退货单")
-     * @Apidoc\Url("/admin/v1/dashboard/oms")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仪表盘")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
-     *     @Apidoc\Returned("pending_orders", type="int", desc="待处理订单数(待审核/待发货)"),
-     *     @Apidoc\Returned("picking_orders", type="int", desc="拣货中订单数"),
-     *     @Apidoc\Returned("shipped_today", type="int", desc="今日发货订单数"),
-     *     @Apidoc\Returned("pending_rma", type="int", desc="待处理退货单数"),
      * })
      */#[\erikwang2013\apidoc\annotation\Title("OMS 订单履约看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取 OMS 履约 KPI：待处理/拣货中订单、今日发货数与待处理退货单")]
@@ -522,19 +450,6 @@ class DashboardController extends BaseController
 
     /**
      * WMS 仓储作业看板
-     * @Apidoc\Title("WMS 仓储作业看板")
-     * @Apidoc\Desc("获取 WMS 仓储作业 KPI：待收货/待上架/待拣货/待打包任务数")
-     * @Apidoc\Url("/admin/v1/dashboard/wms")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仪表盘")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
-     *     @Apidoc\Returned("pending_receiving", type="int", desc="待收货单数"),
-     *     @Apidoc\Returned("pending_putaway", type="int", desc="待上架任务数"),
-     *     @Apidoc\Returned("pending_picks", type="int", desc="待拣货任务数"),
-     *     @Apidoc\Returned("pending_packs", type="int", desc="待打包任务数"),
      * })
      */#[\erikwang2013\apidoc\annotation\Title("WMS 仓储作业看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取 WMS 仓储作业 KPI：待收货/待上架/待拣货/待打包任务数")]
@@ -561,19 +476,6 @@ class DashboardController extends BaseController
 
     /**
      * TMS 运输管理看板
-     * @Apidoc\Title("TMS 运输管理看板")
-     * @Apidoc\Desc("获取 TMS 运输 KPI：待发运/运输中/今日妥投/异常运单数")
-     * @Apidoc\Url("/admin/v1/dashboard/tms")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仪表盘")
-     * @Apidoc\Returned("code", type="int", desc="业务代码")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据", children={
-     *     @Apidoc\Returned("pending_shipments", type="int", desc="待发运运单数"),
-     *     @Apidoc\Returned("in_transit", type="int", desc="运输中运单数"),
-     *     @Apidoc\Returned("delivered_today", type="int", desc="今日妥投运单数"),
-     *     @Apidoc\Returned("exception_shipments", type="int", desc="异常运单数"),
      * })
      */#[\erikwang2013\apidoc\annotation\Title("TMS 运输管理看板")]
 #[\erikwang2013\apidoc\annotation\Desc("获取 TMS 运输 KPI：待发运/运输中/今日妥投/异常运单数")]

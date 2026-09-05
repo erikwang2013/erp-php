@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
- * @Apidoc\Tag("打包管理")
  */
 declare(strict_types=1);
 
@@ -17,19 +16,6 @@ class PackController extends BaseController
 {
     /**
      * 打包任务列表（分页）
-     * @Apidoc\Title("打包任务列表")
-     * @Apidoc\Desc("获取打包任务列表，支持分页、编码搜索和状态筛选")
-     * @Apidoc\Url("/admin/v1/wms/pack")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仓储管理(WMS)")
-     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（编码）")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("打包任务列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取打包任务列表，支持分页、编码搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/pack")]
@@ -72,16 +58,6 @@ class PackController extends BaseController
 
     /**
      * 创建打包任务
-     * @Apidoc\Title("创建打包任务")
-     * @Apidoc\Desc("创建打包任务，编码必填（缺省自动生成）")
-     * @Apidoc\Url("/admin/v1/wms/pack")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仓储管理(WMS)")
-     * @Apidoc\Param(name="code", type="string", desc="打包任务编码，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建打包任务")]
 #[\erikwang2013\apidoc\annotation\Desc("创建打包任务，编码必填（缺省自动生成）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/wms/pack")]
@@ -113,16 +89,6 @@ class PackController extends BaseController
 
     /**
      * 打包任务详情
-     * @Apidoc\Title("打包任务详情")
-     * @Apidoc\Desc("按 ID 获取打包任务详情")
-     * @Apidoc\Url("/admin/v1/wms/pack/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仓储管理(WMS)")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("打包任务详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取打包任务详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -149,16 +115,6 @@ class PackController extends BaseController
 
     /**
      * 更新打包任务
-     * @Apidoc\Title("更新打包任务")
-     * @Apidoc\Desc("按 ID 更新打包任务信息")
-     * @Apidoc\Url("/admin/v1/wms/pack/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仓储管理(WMS)")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新打包任务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新打包任务信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -188,17 +144,6 @@ class PackController extends BaseController
 
     /**
      * 删除打包任务
-     * @Apidoc\Title("删除打包任务")
-     * @Apidoc\Desc("按 ID 删除打包任务，需操作密码二次确认")
-     * @Apidoc\Url("/admin/v1/wms/pack/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仓储管理(WMS)")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
-     * @Apidoc\Param(name="password", type="string", desc="操作密码（二次确认）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除打包任务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除打包任务，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
@@ -232,16 +177,6 @@ class PackController extends BaseController
 
     /**
      * 创建打包任务（按仓库）
-     * @Apidoc\Title("开始打包")
-     * @Apidoc\Desc("按仓库创建打包任务，仓库ID必填，其余条件参数按业务传入")
-     * @Apidoc\Url("/admin/v1/wms/pack/{id}/start")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仓储管理(WMS)")
-     * @Apidoc\Param(name="warehouse_id", type="string", desc="仓库ID(hashid)，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据（创建的打包任务）")
      */#[\erikwang2013\apidoc\annotation\Title("开始打包")]
 #[\erikwang2013\apidoc\annotation\Desc("按仓库创建打包任务，仓库ID必填，其余条件参数按业务传入")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
@@ -271,16 +206,6 @@ class PackController extends BaseController
 
     /**
      * 完成打包
-     * @Apidoc\Title("完成打包")
-     * @Apidoc\Desc("提交打包结果，完成指定打包任务")
-     * @Apidoc\Url("/admin/v1/wms/pack/{id}/complete")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("仓储管理(WMS)")
-     * @Apidoc\Param(name="id", type="string", desc="打包任务ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("完成打包")]
 #[\erikwang2013\apidoc\annotation\Desc("提交打包结果，完成指定打包任务")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

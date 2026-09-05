@@ -19,7 +19,6 @@ use support\Response;
 
 /**
  * 考勤与请假管理
-  * @Apidoc\Tag("人力资源")
  */#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
 
 class AttendanceController extends BaseController
@@ -28,20 +27,6 @@ class AttendanceController extends BaseController
 
     /**
      * 考勤记录列表（分页）
-     * @Apidoc\Title("考勤记录列表")
-     * @Apidoc\Desc("分页查询考勤记录")
-     * @Apidoc\Url("/admin/v1/hr/attendance")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID")
-     * @Apidoc\Param(name="work_date", type="string", desc="工作日期")
-     * @Apidoc\Param(name="status", type="int", desc="状态:1正常2迟到3早退4旷工5请假")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("考勤记录列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询考勤记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance")]
@@ -86,16 +71,6 @@ class AttendanceController extends BaseController
 
     /**
      * 上班打卡
-     * @Apidoc\Title("上班打卡")
-     * @Apidoc\Desc("员工上班打卡，根据考勤规则自动判定迟到")
-     * @Apidoc\Url("/admin/v1/hr/attendance/clock-in")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="打卡结果")
      */#[\erikwang2013\apidoc\annotation\Title("上班打卡")]
 #[\erikwang2013\apidoc\annotation\Desc("员工上班打卡，根据考勤规则自动判定迟到")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance/clock-in")]
@@ -125,16 +100,6 @@ class AttendanceController extends BaseController
 
     /**
      * 下班打卡
-     * @Apidoc\Title("下班打卡")
-     * @Apidoc\Desc("员工下班打卡，根据考勤规则自动判定早退")
-     * @Apidoc\Url("/admin/v1/hr/attendance/clock-out")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="打卡结果")
      */#[\erikwang2013\apidoc\annotation\Title("下班打卡")]
 #[\erikwang2013\apidoc\annotation\Desc("员工下班打卡，根据考勤规则自动判定早退")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance/clock-out")]
@@ -166,20 +131,6 @@ class AttendanceController extends BaseController
 
     /**
      * 请假列表（分页）
-     * @Apidoc\Title("请假列表")
-     * @Apidoc\Desc("分页查询请假记录")
-     * @Apidoc\Url("/admin/v1/hr/attendance")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="page", type="int", desc="页码")
-     * @Apidoc\Param(name="limit", type="int", desc="每页条数")
-     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID")
-     * @Apidoc\Param(name="type", type="int", desc="请假类型")
-     * @Apidoc\Param(name="status", type="int", desc="状态:0待审批1已批准2已驳回")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("请假列表")]
 #[\erikwang2013\apidoc\annotation\Desc("分页查询请假记录")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance")]
@@ -223,20 +174,6 @@ class AttendanceController extends BaseController
 
     /**
      * 创建请假
-     * @Apidoc\Title("创建请假")
-     * @Apidoc\Desc("提交请假申请")
-     * @Apidoc\Url("/admin/v1/hr/attendance")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="employee_id", type="int", desc="员工ID，必填")
-     * @Apidoc\Param(name="type", type="int", desc="请假类型，必填")
-     * @Apidoc\Param(name="start_date", type="string", desc="开始日期，必填")
-     * @Apidoc\Param(name="end_date", type="string", desc="结束日期，必填")
-     * @Apidoc\Param(name="days", type="float", desc="请假天数，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建请假")]
 #[\erikwang2013\apidoc\annotation\Desc("提交请假申请")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/attendance")]
@@ -272,16 +209,6 @@ class AttendanceController extends BaseController
 
     /**
      * 请假详情
-     * @Apidoc\Title("请假详情")
-     * @Apidoc\Desc("查看请假记录详细信息")
-     * @Apidoc\Url("/admin/v1/hr/attendance/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="请假ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("请假详情")]
 #[\erikwang2013\apidoc\annotation\Desc("查看请假记录详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -310,16 +237,6 @@ class AttendanceController extends BaseController
 
     /**
      * 更新请假
-     * @Apidoc\Title("更新请假")
-     * @Apidoc\Desc("修改请假申请，仅待审批状态可修改")
-     * @Apidoc\Url("/admin/v1/hr/attendance/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="请假ID")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新请假")]
 #[\erikwang2013\apidoc\annotation\Desc("修改请假申请，仅待审批状态可修改")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -348,17 +265,6 @@ class AttendanceController extends BaseController
 
     /**
      * 删除请假
-     * @Apidoc\Title("删除请假")
-     * @Apidoc\Desc("删除请假记录，需密码确认")
-     * @Apidoc\Url("/admin/v1/hr/attendance/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="请假ID")
-     * @Apidoc\Param(name="password", type="string", desc="管理员密码")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除请假")]
 #[\erikwang2013\apidoc\annotation\Desc("删除请假记录，需密码确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]
@@ -391,17 +297,6 @@ class AttendanceController extends BaseController
 
     /**
      * 审批请假
-     * @Apidoc\Title("审批请假")
-     * @Apidoc\Desc("批准或驳回请假申请，批准后自动标记考勤为请假状态")
-     * @Apidoc\Url("/admin/v1/hr/attendance/{id}")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("人力资源")
-     * @Apidoc\Param(name="id", type="string", desc="请假ID")
-     * @Apidoc\Param(name="action", type="string", desc="审批动作:approve批准/reject驳回")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("审批请假")]
 #[\erikwang2013\apidoc\annotation\Desc("批准或驳回请假申请，批准后自动标记考勤为请假状态")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]

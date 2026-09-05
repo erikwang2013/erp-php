@@ -20,15 +20,6 @@ class LedgerPeriodController extends BaseController
 {
     /**
      * 期间列表
-     * @Apidoc\Title("期间列表")
-     * @Apidoc\Desc("指定账套（缺省回落到公司默认/存量默认账套）的会计期间，倒序")
-     * @Apidoc\Url("/admin/v1/finance/ledger/period-list")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="company_id", type="string", desc="公司ID(hashid)，可选")
-     * @Apidoc\Param(name="ledger_id", type="string", desc="账套ID(hashid)，可选，优先于company_id")
-     * @Apidoc\Returned("data", type="object", desc="期间列表")
      */#[\erikwang2013\apidoc\annotation\Title("期间列表")]
 #[\erikwang2013\apidoc\annotation\Desc("指定账套（缺省回落到公司默认/存量默认账套）的会计期间，倒序")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ledger/period-list")]
@@ -60,15 +51,6 @@ class LedgerPeriodController extends BaseController
 
     /**
      * 开账
-     * @Apidoc\Title("开账")
-     * @Apidoc\Desc("账套下开一个会计期间 YYYY-MM（重复开账 → 业务异常）")
-     * @Apidoc\Url("/admin/v1/finance/ledger/period-open")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="company_id", type="string", desc="公司ID(hashid)，可选")
-     * @Apidoc\Param(name="ledger_id", type="string", desc="账套ID(hashid)，可选")
-     * @Apidoc\Param(name="period", type="string", desc="期间 YYYY-MM，必填")
      */#[\erikwang2013\apidoc\annotation\Title("开账")]
 #[\erikwang2013\apidoc\annotation\Desc("账套下开一个会计期间 YYYY-MM（重复开账 → 业务异常）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ledger/period-open")]
@@ -94,16 +76,6 @@ class LedgerPeriodController extends BaseController
 
     /**
      * 关账
-     * @Apidoc\Title("关账")
-     * @Apidoc\Desc("实时重算三张单体快照并落库，期间置为已关；前置拒绝期间内未审核凭证")
-     * @Apidoc\Url("/admin/v1/finance/ledger/period-close")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="company_id", type="string", desc="公司ID(hashid)，可选")
-     * @Apidoc\Param(name="ledger_id", type="string", desc="账套ID(hashid)，可选")
-     * @Apidoc\Param(name="period", type="string", desc="期间 YYYY-MM，必填")
-     * @Apidoc\Returned("data", type="object", desc="三张快照行ID(hashid)")
      */#[\erikwang2013\apidoc\annotation\Title("关账")]
 #[\erikwang2013\apidoc\annotation\Desc("实时重算三张单体快照并落库，期间置为已关；前置拒绝期间内未审核凭证")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ledger/period-close")]

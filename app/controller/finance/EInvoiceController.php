@@ -20,19 +20,12 @@ use support\Response;
  * 幂等与状态机（none → issued → voided）在 EInvoiceService 行锁内判定，
  * 本控制器只做参数搬运与统一响应；业务错误 422、发票不存在 404。
  * 平台为适配器注入（默认 mock），切换真实开票通道不涉及本控制器。
- * @Apidoc\Tag("财务管理")
  */#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
 
 class EInvoiceController extends BaseController
 {
     /**
      * 开具数电票（幂等：已开具重复调用直接返回既有数电票号码，绝不重复开票）
-     * @Apidoc\Title("开具数电票")
-     * @Apidoc\Url("/admin/v1/finance/e-invoice/{id}/issue")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", required=true, desc="发票ID(hashid，须应收且已审核)")
      */#[\erikwang2013\apidoc\annotation\Title("开具数电票")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -63,13 +56,6 @@ class EInvoiceController extends BaseController
 
     /**
      * 数电票红冲（仅已开具可冲；冲后不可再开/再冲，electronic_no 保留供对账）
-     * @Apidoc\Title("数电票红冲")
-     * @Apidoc\Url("/admin/v1/finance/e-invoice/{id}/void")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", required=true, desc="发票ID(hashid)")
-     * @Apidoc\Param(name="reason", type="string", required=true, desc="红冲原因")
      */#[\erikwang2013\apidoc\annotation\Title("数电票红冲")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
@@ -100,12 +86,6 @@ class EInvoiceController extends BaseController
 
     /**
      * 开票/红冲日志（平台调用轨迹，新→旧）
-     * @Apidoc\Title("数电票操作日志")
-     * @Apidoc\Url("/admin/v1/finance/e-invoice/{id}/logs")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("财务管理")
-     * @Apidoc\Param(name="id", type="string", required=true, desc="发票ID(hashid)")
      */#[\erikwang2013\apidoc\annotation\Title("数电票操作日志")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]

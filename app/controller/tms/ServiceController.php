@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
- * @Apidoc\Tag("承运商服务")
  */
 declare(strict_types=1);
 
@@ -17,19 +16,6 @@ class ServiceController extends BaseController
 {
     /**
      * 承运商服务列表（分页）
-     * @Apidoc\Title("承运商服务列表")
-     * @Apidoc\Desc("获取承运商服务列表，支持分页、关键词搜索和状态筛选")
-     * @Apidoc\Url("/admin/v1/tms/service")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("运输管理(TMS)")
-     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（名称）")
-     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选（0=禁用,1=启用）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("承运商服务列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取承运商服务列表，支持分页、关键词搜索和状态筛选")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/service")]
@@ -72,16 +58,6 @@ class ServiceController extends BaseController
 
     /**
      * 创建承运商服务
-     * @Apidoc\Title("创建承运商服务")
-     * @Apidoc\Desc("创建承运商服务，名称必填，其余字段按业务传入")
-     * @Apidoc\Url("/admin/v1/tms/service")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("运输管理(TMS)")
-     * @Apidoc\Param(name="name", type="string", desc="服务名称，必填")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("创建承运商服务")]
 #[\erikwang2013\apidoc\annotation\Desc("创建承运商服务，名称必填，其余字段按业务传入")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/service")]
@@ -111,16 +87,6 @@ class ServiceController extends BaseController
 
     /**
      * 承运商服务详情
-     * @Apidoc\Title("承运商服务详情")
-     * @Apidoc\Desc("按 ID 获取承运商服务详情")
-     * @Apidoc\Url("/admin/v1/tms/service/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("运输管理(TMS)")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("承运商服务详情")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 获取承运商服务详情")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -147,16 +113,6 @@ class ServiceController extends BaseController
 
     /**
      * 更新承运商服务
-     * @Apidoc\Title("更新承运商服务")
-     * @Apidoc\Desc("按 ID 更新承运商服务信息")
-     * @Apidoc\Url("/admin/v1/tms/service/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("运输管理(TMS)")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("更新承运商服务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 更新承运商服务信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -186,17 +142,6 @@ class ServiceController extends BaseController
 
     /**
      * 删除承运商服务
-     * @Apidoc\Title("删除承运商服务")
-     * @Apidoc\Desc("按 ID 删除承运商服务，需操作密码二次确认")
-     * @Apidoc\Url("/admin/v1/tms/service/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("运输管理(TMS)")
-     * @Apidoc\Param(name="id", type="string", desc="记录ID(hashid)")
-     * @Apidoc\Param(name="password", type="string", desc="操作密码（二次确认）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="业务数据")
      */#[\erikwang2013\apidoc\annotation\Title("删除承运商服务")]
 #[\erikwang2013\apidoc\annotation\Desc("按 ID 删除承运商服务，需操作密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

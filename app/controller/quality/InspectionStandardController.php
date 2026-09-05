@@ -14,25 +14,12 @@ use support\Response;
 
 /**
  * 检验标准管理
- * @Apidoc\Tag("质量管理")
  */#[\erikwang2013\apidoc\annotation\Tag("质量管理")]
 
 class InspectionStandardController extends BaseController
 {
     /**
      * 检验标准列表（分页）
-     * @Apidoc\Title("检验标准列表")
-     * @Apidoc\Desc("获取检验标准列表，支持分页、名称/编码关键词搜索")
-     * @Apidoc\Url("/admin/v1/quality/standard")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
-     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
-     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（名称/编码）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="检验标准列表数据")
      */#[\erikwang2013\apidoc\annotation\Title("检验标准列表")]
 #[\erikwang2013\apidoc\annotation\Desc("获取检验标准列表，支持分页、名称/编码关键词搜索")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/standard")]
@@ -63,16 +50,6 @@ class InspectionStandardController extends BaseController
 
     /**
      * 创建检验标准
-     * @Apidoc\Title("创建检验标准")
-     * @Apidoc\Desc("新增一条检验标准，标准名称必填")
-     * @Apidoc\Url("/admin/v1/quality/standard")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="name", type="string", default="", desc="标准名称（必填）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="创建的检验标准记录")
      */#[\erikwang2013\apidoc\annotation\Title("创建检验标准")]
 #[\erikwang2013\apidoc\annotation\Desc("新增一条检验标准，标准名称必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/quality/standard")]
@@ -100,16 +77,6 @@ class InspectionStandardController extends BaseController
 
     /**
      * 检验标准详情
-     * @Apidoc\Title("检验标准详情")
-     * @Apidoc\Desc("根据ID获取检验标准详细信息")
-     * @Apidoc\Url("/admin/v1/quality/standard/{id}")
-     * @Apidoc\Method("GET")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="检验标准hashid")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="检验标准详情")
      */#[\erikwang2013\apidoc\annotation\Title("检验标准详情")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID获取检验标准详细信息")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
@@ -130,16 +97,6 @@ class InspectionStandardController extends BaseController
 
     /**
      * 更新检验标准
-     * @Apidoc\Title("更新检验标准")
-     * @Apidoc\Desc("根据ID更新检验标准信息")
-     * @Apidoc\Url("/admin/v1/quality/standard/{id}")
-     * @Apidoc\Method("PUT")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="检验标准hashid")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="更新后的检验标准记录")
      */#[\erikwang2013\apidoc\annotation\Title("更新检验标准")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID更新检验标准信息")]
 #[\erikwang2013\apidoc\annotation\Method("PUT")]
@@ -165,17 +122,6 @@ class InspectionStandardController extends BaseController
 
     /**
      * 删除检验标准（软删除）
-     * @Apidoc\Title("删除检验标准")
-     * @Apidoc\Desc("根据ID软删除检验标准，需管理员密码二次确认")
-     * @Apidoc\Url("/admin/v1/quality/standard/{id}")
-     * @Apidoc\Method("DELETE")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("质量管理")
-     * @Apidoc\Param(name="id", type="string", default="", desc="检验标准hashid")
-     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="array", desc="空数组")
      */#[\erikwang2013\apidoc\annotation\Title("删除检验标准")]
 #[\erikwang2013\apidoc\annotation\Desc("根据ID软删除检验标准，需管理员密码二次确认")]
 #[\erikwang2013\apidoc\annotation\Method("DELETE")]

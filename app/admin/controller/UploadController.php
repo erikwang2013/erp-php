@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
- * @Apidoc\Tag("上传管理")
  */
 
 declare(strict_types=1);
@@ -19,17 +18,6 @@ class UploadController extends BaseController
 
     /**
      * 文件上传
-     * @Apidoc\Title("文件上传")
-     * @Apidoc\Desc("上传文件到服务器，支持jpg/jpeg/png/gif/pdf/xlsx/docx格式，最大10MB")
-     * @Apidoc\Url("/admin/v1/upload")
-     * @Apidoc\Method("POST")
-     * @Apidoc\Author("erik")
-     * @Apidoc\Tag("上传管理")
-     * @Apidoc\Param(name="file", type="file", require=true, desc="上传文件(最大10MB)")
-     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
-     * @Apidoc\Returned("message", type="string", desc="业务信息")
-     * @Apidoc\Returned("data", type="object", desc="上传结果", children={
-     *     @Apidoc\Returned("url", type="string", desc="文件访问相对路径"),
      * })
      */#[\erikwang2013\apidoc\annotation\Title("文件上传")]
 #[\erikwang2013\apidoc\annotation\Desc("上传文件到服务器，支持jpg/jpeg/png/gif/pdf/xlsx/docx格式，最大10MB")]
