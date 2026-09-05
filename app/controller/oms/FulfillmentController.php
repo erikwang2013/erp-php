@@ -16,7 +16,20 @@ use support\Response;
 class FulfillmentController extends BaseController
 {
     /**
-     * 列表（分页）
+     * 履约单列表（分页）
+     * @Apidoc\Title("履约单列表")
+     * @Apidoc\Desc("获取发货履约单列表，支持分页、关键词搜索和状态筛选")
+     * @Apidoc\Url("/admin/v1/oms/fulfillment")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("履约管理")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="履约单列表数据")
      */
     public function index(Request $request): Response
     {
@@ -40,7 +53,17 @@ class FulfillmentController extends BaseController
     }
 
     /**
-     * 创建
+     * 创建履约单
+     * @Apidoc\Title("创建履约单")
+     * @Apidoc\Desc("新增一条发货履约单，履约单号必填")
+     * @Apidoc\Url("/admin/v1/oms/fulfillment")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("履约管理")
+     * @Apidoc\Param(name="code", type="string", default="", desc="履约单号（必填）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="创建的履约单记录")
      */
     public function store(Request $request): Response
     {
@@ -59,7 +82,17 @@ class FulfillmentController extends BaseController
     }
 
     /**
-     * 详情
+     * 履约单详情
+     * @Apidoc\Title("履约单详情")
+     * @Apidoc\Desc("根据ID获取发货履约单详细信息")
+     * @Apidoc\Url("/admin/v1/oms/fulfillment/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("履约管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="履约单hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="履约单详情")
      */
     public function show(Request $request, string $id): Response
     {
@@ -76,7 +109,17 @@ class FulfillmentController extends BaseController
     }
 
     /**
-     * 更新
+     * 更新履约单
+     * @Apidoc\Title("更新履约单")
+     * @Apidoc\Desc("根据ID更新履约单信息")
+     * @Apidoc\Url("/admin/v1/oms/fulfillment/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("履约管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="履约单hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="更新后的履约单记录")
      */
     public function update(Request $request, string $id): Response
     {
@@ -96,7 +139,18 @@ class FulfillmentController extends BaseController
     }
 
     /**
-     * 删除
+     * 删除履约单（软删除）
+     * @Apidoc\Title("删除履约单")
+     * @Apidoc\Desc("根据ID软删除履约单，需管理员密码二次确认")
+     * @Apidoc\Url("/admin/v1/oms/fulfillment/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("履约管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="履约单hashid")
+     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="array", desc="空数组")
      */
     public function destroy(Request $request, string $id): Response
     {

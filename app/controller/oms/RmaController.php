@@ -16,7 +16,20 @@ use support\Response;
 class RmaController extends BaseController
 {
     /**
-     * 列表（分页）
+     * 退换货单列表（分页）
+     * @Apidoc\Title("退换货单列表")
+     * @Apidoc\Desc("获取退换货单列表，支持分页、单号关键词搜索和状态筛选")
+     * @Apidoc\Url("/admin/v1/oms/rma")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("退换货")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（退换货单号）")
+     * @Apidoc\Param(name="status", type="int", default="", desc="状态筛选")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="退换货单列表数据")
      */
     public function index(Request $request): Response
     {
@@ -45,7 +58,17 @@ class RmaController extends BaseController
     }
 
     /**
-     * 创建
+     * 创建退换货单
+     * @Apidoc\Title("创建退换货单")
+     * @Apidoc\Desc("新增退换货单，单号必填（不传则自动生成）")
+     * @Apidoc\Url("/admin/v1/oms/rma")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("退换货")
+     * @Apidoc\Param(name="code", type="string", default="", desc="退换货单号")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="创建的退换货单记录")
      */
     public function store(Request $request): Response
     {
@@ -66,7 +89,17 @@ class RmaController extends BaseController
     }
 
     /**
-     * 详情
+     * 退换货单详情
+     * @Apidoc\Title("退换货单详情")
+     * @Apidoc\Desc("根据ID获取退换货单详细信息")
+     * @Apidoc\Url("/admin/v1/oms/rma/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("退换货")
+     * @Apidoc\Param(name="id", type="string", default="", desc="退换货单hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="退换货单详情")
      */
     public function show(Request $request, string $id): Response
     {
@@ -83,7 +116,17 @@ class RmaController extends BaseController
     }
 
     /**
-     * 更新
+     * 更新退换货单
+     * @Apidoc\Title("更新退换货单")
+     * @Apidoc\Desc("根据ID更新退换货单信息")
+     * @Apidoc\Url("/admin/v1/oms/rma/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("退换货")
+     * @Apidoc\Param(name="id", type="string", default="", desc="退换货单hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="更新后的退换货单记录")
      */
     public function update(Request $request, string $id): Response
     {
@@ -103,7 +146,18 @@ class RmaController extends BaseController
     }
 
     /**
-     * 删除
+     * 删除退换货单（软删除）
+     * @Apidoc\Title("删除退换货单")
+     * @Apidoc\Desc("根据ID软删除退换货单，需管理员密码二次确认")
+     * @Apidoc\Url("/admin/v1/oms/rma/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("退换货")
+     * @Apidoc\Param(name="id", type="string", default="", desc="退换货单hashid")
+     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="array", desc="空数组")
      */
     public function destroy(Request $request, string $id): Response
     {
@@ -125,7 +179,20 @@ class RmaController extends BaseController
         return $this->success([], $this->trans('deleted'));
     }
 
-    /** 审批RMA */
+    /**
+     * 退换货单审批
+     * @Apidoc\Title("退换货单审批")
+     * @Apidoc\Desc("审批退换货单：批准后进入退货流程，拒绝则标记为已拒绝")
+     * @Apidoc\Url("/admin/v1/oms/rma/{id}/approve")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("退换货")
+     * @Apidoc\Param(name="id", type="string", default="", desc="退换货单hashid")
+     * @Apidoc\Param(name="approved", type="bool", default=true, desc="是否批准: true=批准/false=拒绝")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="审批后的退换货单记录")
+     */
     public function approve(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -154,7 +221,19 @@ class RmaController extends BaseController
         return $this->success($this->encodeIds($rma->toArray()), $approved ? '已批准' : '已拒绝');
     }
 
-    /** RMA收货确认 */
+    /**
+     * RMA收货确认
+     * @Apidoc\Title("RMA收货确认")
+     * @Apidoc\Desc("退货寄回后确认收货，记录收货时间并流转到下一状态")
+     * @Apidoc\Url("/admin/v1/oms/rma/{id}/receive")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("退换货")
+     * @Apidoc\Param(name="id", type="string", default="", desc="退换货单hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="收货确认后的退换货单记录")
+     */
     public function receive(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);
@@ -177,7 +256,19 @@ class RmaController extends BaseController
         return $this->success($this->encodeIds($rma->toArray()), '收货确认成功');
     }
 
-    /** RMA退款 */
+    /**
+     * RMA退款
+     * @Apidoc\Title("RMA退款")
+     * @Apidoc\Desc("对已审批/已收货的退换货单执行退款，流转到退款完成状态")
+     * @Apidoc\Url("/admin/v1/oms/rma/{id}/refund")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("退换货")
+     * @Apidoc\Param(name="id", type="string", default="", desc="退换货单hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="退款完成后的退换货单记录")
+     */
     public function refund(Request $request, string $id): Response
     {
         $id = $this->decodeIdSafe($id);

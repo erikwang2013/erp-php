@@ -18,6 +18,22 @@ use support\Response;
  */
 class ProcessCheckController extends BaseController
 {
+    /**
+     * 过程检验记录列表（分页）
+     * @Apidoc\Title("过程检验记录列表")
+     * @Apidoc\Desc("获取过程检验(IPQC)记录列表，支持分页、单号关键词搜索和结果筛选")
+     * @Apidoc\Url("/admin/v1/quality/ipqc")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("质量管理")
+     * @Apidoc\Param(name="page", type="int", default=1, desc="页码")
+     * @Apidoc\Param(name="limit", type="int", default=15, desc="每页条数")
+     * @Apidoc\Param(name="keyword", type="string", default="", desc="搜索关键词（检验单号）")
+     * @Apidoc\Param(name="result", type="string", default="", desc="结果筛选: pass/reject")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="检验记录列表数据")
+     */
     public function index(Request $request): Response
     {
         $page = (int)$request->input('page', 1);
@@ -37,6 +53,21 @@ class ProcessCheckController extends BaseController
         return $this->successPage($list, $total, $page, $limit);
     }
 
+    /**
+     * 创建过程检验记录
+     * @Apidoc\Title("创建过程检验记录")
+     * @Apidoc\Desc("新增一条过程检验(IPQC)记录，检验单号/检验数量/检验结果必填")
+     * @Apidoc\Url("/admin/v1/quality/ipqc")
+     * @Apidoc\Method("POST")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("质量管理")
+     * @Apidoc\Param(name="code", type="string", default="", desc="检验单号（必填）")
+     * @Apidoc\Param(name="inspected_qty", type="int", default="", desc="检验数量（必填）")
+     * @Apidoc\Param(name="result", type="string", default="", desc="检验结果: pass/reject（必填）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="创建的检验记录")
+     */
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
@@ -55,6 +86,19 @@ class ProcessCheckController extends BaseController
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
 
+    /**
+     * 过程检验记录详情
+     * @Apidoc\Title("过程检验记录详情")
+     * @Apidoc\Desc("根据ID获取过程检验(IPQC)记录详细信息")
+     * @Apidoc\Url("/admin/v1/quality/ipqc/{id}")
+     * @Apidoc\Method("GET")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("质量管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="检验记录hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="检验记录详情")
+     */
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -63,6 +107,19 @@ class ProcessCheckController extends BaseController
         return $item ? $this->success($this->encodeIds($item->toArray())) : $this->fail('记录不存在', 404);
     }
 
+    /**
+     * 更新过程检验记录
+     * @Apidoc\Title("更新过程检验记录")
+     * @Apidoc\Desc("根据ID更新过程检验(IPQC)记录信息")
+     * @Apidoc\Url("/admin/v1/quality/ipqc/{id}")
+     * @Apidoc\Method("PUT")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("质量管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="检验记录hashid")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="object", desc="更新后的检验记录")
+     */
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
@@ -76,6 +133,20 @@ class ProcessCheckController extends BaseController
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }
 
+    /**
+     * 删除过程检验记录（软删除）
+     * @Apidoc\Title("删除过程检验记录")
+     * @Apidoc\Desc("根据ID软删除过程检验(IPQC)记录，需管理员密码二次确认")
+     * @Apidoc\Url("/admin/v1/quality/ipqc/{id}")
+     * @Apidoc\Method("DELETE")
+     * @Apidoc\Author("erik")
+     * @Apidoc\Tag("质量管理")
+     * @Apidoc\Param(name="id", type="string", default="", desc="检验记录hashid")
+     * @Apidoc\Param(name="password", type="string", default="", desc="管理员密码（二次确认）")
+     * @Apidoc\Returned("code", type="int", desc="业务代码,0=成功")
+     * @Apidoc\Returned("message", type="string", desc="业务信息")
+     * @Apidoc\Returned("data", type="array", desc="空数组")
+     */
     public function destroy(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
