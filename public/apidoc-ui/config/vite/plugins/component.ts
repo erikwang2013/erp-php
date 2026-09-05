@@ -15,6 +15,8 @@ export const AutoRegistryComponents = () => {
     directives: true,
     include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
     exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/, /[\\/]\.nuxt[\\/]/],
-    resolvers: [AntDesignVueResolver(), VueUseComponentsResolver()],
+    // importStyle: 'less'：antd 组件样式改走 less 主题管线（否则默认的预编译 css 永不随
+    // theme-dark 作用域变色，弹窗/下拉/表格等模块在深色主题下保持白色）
+    resolvers: [AntDesignVueResolver({ importStyle: 'less' }), VueUseComponentsResolver()],
   })
 }

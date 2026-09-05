@@ -679,16 +679,16 @@
         },
         {
             "name": "erikwang2013/apidoc-php",
-            "version": "v1.0.2",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/apidoc-php.git",
-                "reference": "0a9378530b3eca9190de56b8bcb01da8685b4a71"
+                "reference": "d569a94fcff612a779b8b6d024e76fc5856d4c60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/apidoc-php/zipball/0a9378530b3eca9190de56b8bcb01da8685b4a71",
-                "reference": "0a9378530b3eca9190de56b8bcb01da8685b4a71",
+                "url": "https://api.github.com/repos/erikwang2013/apidoc-php/zipball/d569a94fcff612a779b8b6d024e76fc5856d4c60",
+                "reference": "d569a94fcff612a779b8b6d024e76fc5856d4c60",
                 "shasum": ""
             },
             "require": {
@@ -742,9 +742,9 @@
                 "自动生成api"
             ],
             "support": {
-                "source": "https://github.com/erikwang2013/apidoc-php/tree/v1.0.2"
+                "source": "https://github.com/erikwang2013/apidoc-php/tree/v1.0.3"
             },
-            "time": "2026-09-05T06:23:42+00:00"
+            "time": "2026-09-05T09:56:21+00:00"
         },
         {
             "name": "erikwang2013/encryptable",

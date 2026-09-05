@@ -19,8 +19,48 @@ return [
         'cache' => ['enable' => false],
         'auth' => ['enable' => false, 'password' => '123456', 'secret_key' => 'apidoc#erik', 'expire' => 86400],
         'ignored_methods' => [],
-        'params' => [],
-        'responses' => [],
+         'params'=>[
+            // （选配）全局的请求Header
+            'header'=>[
+                // name=字段名，type=字段类型，require=是否必须，default=默认值，desc=字段描述
+                ['name'=>'Authorization','type'=>'string','require'=>true,'desc'=>'身份令牌Token'],
+            ],
+            // （选配）全局的请求Query
+            'query'=>[
+                // 同上 header
+            ],
+            // （选配）全局的请求Body
+            'body'=>[
+                // 同上 header
+            ],
+        ],
+           // 全局响应体
+        'responses'=>[
+            // 成功响应体
+            'success'=>[
+                ['name'=>'code','desc'=>'业务代码','type'=>'int','require'=>1],
+                ['name'=>'message','desc'=>'业务信息','type'=>'string','require'=>1],
+                //参数同上 headers；main=true来指定接口Returned参数挂载节点
+                ['name'=>'data','desc'=>'业务数据','main'=>true,'type'=>'object','require'=>1],
+            ],
+            // 异常响应体
+            'error'=>[
+                ['name'=>'code','desc'=>'业务代码','type'=>'int','require'=>1,'md'=>'/docs/HttpError.md'],
+                ['name'=>'message','desc'=>'业务信息','type'=>'string','require'=>1],
+            ]
+        ],
+        // （选配）全局响应状态码
+        'responses_status'=>[
+            [
+                'name'=>'200',
+                'desc'=>'请求成功'
+            ],
+            [
+                'name'=>'401',
+                'desc'=>'登录令牌无效',
+                'contentType'=>''
+            ],
+        ],
         'database' => [],
         'docs' => [],
         'generator' => [],

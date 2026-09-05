@@ -50,7 +50,22 @@
                     @click="onExportSwaggerJson(item)"
                     >{{ t(`common.exportSwaggerJson`) }}</a
                   >
-
+                  <a v-if="state.exportingKey !== item.key" @click="onExportDoc(item, 'md')">{{
+                    t(`exportDoc.markdown`)
+                  }}</a>
+                  <a v-if="state.exportingKey !== item.key" @click="onExportDoc(item, 'pdf')">{{
+                    t(`exportDoc.pdf`)
+                  }}</a>
+                  <a
+                    v-if="state.exportingKey !== item.key"
+                    @click="onExportDoc(item, 'openapi')"
+                    >{{ t(`exportDoc.openapi`) }}</a
+                  >
+                  <a
+                    v-if="state.exportingKey !== item.key"
+                    @click="onExportDoc(item, 'postman')"
+                    >{{ t(`exportDoc.postman`) }}</a
+                  >
                   <a
                     v-for="(action, actionIndex) in appStore.serverConfig.share?.actions"
                     :key="actionIndex"
@@ -92,6 +107,15 @@
   import EditShareModal from './EditShare.vue'
   import { message } from 'ant-design-vue'
   import { copyTextToClipboard, downloadFile } from '/@/utils/helper/index'
+  import { collectDoc, errMessage } from '/@/utils/apidocExport/collect'
+  import {
+    blobDownload,
+    buildMarkdown,
+    buildPrintHtml,
+    openPrintWindow,
+    renderPrintWindow,
+  } from '/@/utils/apidocExport/render'
+  import { buildOpenApiJson, buildPostmanJson, downloadJson } from '/@/utils/apidocExport/json'
 
   const props = defineProps({
     onSuccess: {
@@ -119,6 +143,7 @@
     pageIndex: number
     pageTotal: number
     pageSize: number
+    exportingKey: string
   }>({
     visible: false,
     modalTitle: t('apiShare.title'),
@@ -127,6 +152,7 @@
     pageIndex: 1,
     pageTotal: 0,
     pageSize: 5,
+    exportingKey: '',
   })
 
   onMounted(() => {
@@ -246,6 +272,47 @@
         message.error(t('common.exportError', { message: error }))
       }
     })
+  }
+  // 导出分享记录可见范围：shareKey 走请求 payload 鉴权，遍历全部 app（后端按分享范围过滤）
+  const onExportDoc = async (item, kind: 'md' | 'pdf' | 'openapi' | 'postman') => {
+    if (state.exportingKey) return
+    state.exportingKey = item.key
+    let win: Window | null = null
+    try {
+      // PDF：空白打印窗必须在 await 前同步打开，否则被浏览器弹窗拦截
+      if (kind === 'pdf') {
+        win = openPrintWindow()
+        if (!win) {
+          message.warning(t('common.exportError', { message: '弹窗被拦截，请允许后重试' }))
+          return
+        }
+      }
+      const nodes = await collectDoc({
+        appScopes: Object.keys(appStore.appObject),
+        shareKey: item.key,
+      })
+      if (!nodes.length) {
+        message.warning(t('common.notdata'))
+        return
+      }
+      const title = item.name || 'apidoc'
+      if (kind === 'pdf') {
+        renderPrintWindow(win, buildPrintHtml(buildMarkdown(nodes, title), title))
+      } else if (kind === 'openapi') {
+        downloadJson(`${title}-openapi.json`, buildOpenApiJson(nodes, title))
+      } else if (kind === 'postman') {
+        downloadJson(`${title}-postman.json`, buildPostmanJson(nodes, title))
+      } else {
+        blobDownload(`${title}-apidoc.md`, buildMarkdown(nodes, title))
+      }
+    } catch (error) {
+      message.error(t('common.exportError', { message: errMessage(error) }))
+      if (kind === 'pdf' && win && !win.closed) {
+        win.close()
+      }
+    } finally {
+      state.exportingKey = ''
+    }
   }
 </script>
 

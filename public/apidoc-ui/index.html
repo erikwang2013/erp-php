@@ -4,10 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!-- 低风险 CSP：config.js/LOAD_SCRIPTS 是运行时动态注入的脚本，故不限制 script-src -->
+    <!-- 低风险 CSP：config.js/LOAD_SCRIPTS 是运行时动态注入的脚本，故不限制 script-src。
+         frame-ancestors 不能放在 meta 里（浏览器忽略并告警），如需防 iframe 嵌套请由服务端响应头下发 -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
+      content="object-src 'none'; base-uri 'self'"
     />
     <link rel="icon" href="./favicon.ico" />
     <title>Apidoc</title>

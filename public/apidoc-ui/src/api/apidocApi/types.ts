@@ -186,3 +186,24 @@ export interface HandleApiShareActionParams {
 export interface ExportSwaggerParams {
   key: string
 }
+
+export interface ExportAllDataParams {
+  lang?: string
+  /** 分享记录 key（属主鉴权，按分享可见范围导出，同 exportSwagger） */
+  key?: string
+  /** 应用 key（整棵应用树导出，与 key 二选一） */
+  appKey?: string
+}
+
+/** exportAllData 返回的应用树节点：叶子 app 带 appKey，children 为接口菜单树且详情内嵌 */
+export interface ExportAppNode {
+  key?: string
+  title?: string
+  appKey?: string
+  menuKey?: string
+  children?: any[]
+}
+
+export interface ExportAllDataResult {
+  apiData?: ExportAppNode[]
+}

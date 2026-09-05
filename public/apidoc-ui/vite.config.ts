@@ -63,22 +63,13 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
         // 确保外部化处理那些不想打包进库的依赖
         external: [],
         output: {
+          // 只保留 monaco 手动分组（其 src 侧为动态 import，天然异步）。
+          // 曾对 antd/vendor 做对象式+函数式分包：共享依赖（lodash 内部模块、CJS 互操作
+          // commonjsGlobal 等）会被锁进其中一个组、另一组反向 import 造成 chunk 循环，
+          // 模块求值期抛 TDZ（Cannot access 'isFunction$3' before initialization）。
+          // 其余依赖交给 Rollup 自然分组，可自动合并消环。
           manualChunks: {
-            antd: ['ant-design-vue', '@ant-design/icons-vue'],
             monaco: ['monaco-editor'],
-            vendor: [
-              'vue',
-              'vue-router',
-              'pinia',
-              'vue-i18n',
-              'axios',
-              'lodash-es',
-              'marked',
-              'highlight.js',
-              'nprogress',
-              'js-md5',
-              'mockjs',
-            ],
           },
         },
       },

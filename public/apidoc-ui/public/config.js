@@ -273,6 +273,12 @@ window.apidocFeConfig = {
         "apiShare.type.label":"分享接口",
         "apiShare.time.label":"分享时间",
         "apiShare.all.text":"每次都解析或取缓存中所有接口数据",
+        "exportDoc.title":"导出文档",
+        "exportDoc.markdown":"导出 Markdown",
+        "exportDoc.pdf":"导出 PDF(打印)",
+        "exportDoc.generating":"正在导出文档…",
+        "exportDoc.openapi":"导出 Swagger/OpenAPI JSON",
+        "exportDoc.postman":"导出 Postman JSON",
 
 
         
