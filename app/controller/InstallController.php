@@ -330,14 +330,17 @@ class InstallController
 
     private function renderStep3(array $old): string
     {
-        $rows = '';
+        $items = '';
         $labels = [
-            'host' => '数据库主机', 'port' => '端口', 'database' => '数据库名',
-            'username' => '数据库用户', 'prefix' => '表前缀', 'admin_username' => '管理员账号',
+            ['host', '数据库主机'], ['port', '端口'], ['database', '数据库名'],
+            ['username', '数据库用户'], ['prefix', '表前缀'], ['admin_username', '管理员账号'],
         ];
-        foreach ($labels as $k => $label) {
+        foreach ($labels as [$k, $label]) {
             $v = htmlspecialchars((string) ($old[$k] ?? ''));
-            $rows .= "<tr><td>{$label}</td><td><strong>{$v}</strong></td></tr>";
+            if ($v === '') {
+                continue;
+            }
+            $items .= "<div class=\"sum-item\"><span class=\"sum-label\">{$label}</span><span class=\"sum-value\">{$v}</span></div>";
         }
 
         $hidden = '';
@@ -347,18 +350,25 @@ class InstallController
         }
 
         return <<<HTML
-        <h1>确认安装</h1>
-        <table class="env-table">{$rows}</table>
-        <div class="alert alert-warn">
-            ⚠️ 点击"开始安装"后将执行：<br>
-            ① 写入 .env 配置文件<br>
-            ② 创建 122 张数据库表并导入种子数据<br>
-            ③ 创建管理员账号并关联超级管理员角色
+        <h1 class="step-title">确认安装</h1>
+        <div class="summary-card">
+            <div class="sum-head">📋 安装配置总览</div>
+            {$items}
         </div>
-        <form method="post">
+        <div class="notice-box">
+            <div class="notice-title">⚠️ 点击「开始安装」后将依次执行：</div>
+            <ol class="notice-list">
+                <li>写入 <code>.env</code> 配置文件（密钥自动生成）</li>
+                <li>自动创建数据库并导入 226 张表结构与种子数据</li>
+                <li>创建管理员账号并关联超级管理员角色</li>
+            </ol>
+            <div class="notice-tip">全过程约需数秒，请勿关闭页面。安装后 .env 将标记 APP_INSTALLED=true，重复访问 /install 将跳转完成页。</div>
+        </div>
+        <form method="post" class="install-actions">
         <input type="hidden" name="step" value="3">
         {$hidden}
-        <button type="submit" class="btn btn-install">开始安装</button>
+        <a href="/install?step=2" class="btn btn-secondary">← 上一步</a>
+        <button type="submit" class="btn btn-install">🚀 开始安装</button>
         </form>
         HTML;
     }
@@ -598,7 +608,20 @@ class InstallController
         .env-table td:first-child{width:36px;text-align:center}
         .env-table tr:last-child td{border-bottom:none}
         code{background:#f0f0f1;padding:2px 6px;border-radius:3px;font-size:13px}
-        @media(max-width:640px){.card{padding:20px}.form-row{flex-direction:column;gap:0}.step-label{display:none}}
+
+        .step-title{font-size:22px;font-weight:600;color:#1d2327}
+        .summary-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;margin-bottom:16px}
+        .sum-head{padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e0e0e0;font-weight:600;font-size:15px;color:#1d2327}
+        .sum-item{display:flex;justify-content:space-between;padding:9px 20px;border-bottom:1px solid #f5f5f5;font-size:14px}
+        .sum-item:last-child{border-bottom:none}
+        .sum-label{color:#757575}
+        .sum-value{font-weight:600;color:#1d2327;word-break:break-all}
+        .notice-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:14px 20px;margin-bottom:20px}
+        .notice-title{color:#8d6e00;font-weight:600;margin-bottom:8px;font-size:14px}
+        .notice-list{margin:0 0 0 18px;line-height:2;font-size:14px;color:#5d4a00}
+        .notice-tip{margin-top:8px;font-size:13px;color:#a18800;border-top:1px dashed #ffe082;padding-top:8px}
+        .install-actions{display:flex;gap:12px;margin-top:8px}
+        @media(max-width:640px){.sum-item{flex-direction:column;gap:2px}}
         </style>
         </head>
         <body>
