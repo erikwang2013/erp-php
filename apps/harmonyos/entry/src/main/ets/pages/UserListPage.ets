@@ -9,6 +9,7 @@ import { User, UserCreateForm, UserUpdateForm } from '../model/DataModels';
 import { LoadingView, ErrorView, EmptyView } from '../common/Components';
 import { TopBar, TopBarAction } from '../common/TopBar';
 import { ConfirmDialog, FormDialog, FormField } from '../common/FormDialog';
+import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../common/ListRow';
 import { L10n } from '../utils/L10n';
 
 /**
@@ -89,6 +90,14 @@ struct UserListPage {
   }
 
   /** 新建表单（用户名/密码均必填） */
+  /** 行徽章：启用 success / 停用 danger（kind 同源驱动行 icon 圆徽色） */
+  private userBadge(user: User): RowBadge {
+    if (user.status === 1) {
+      return new RowBadge('success', $r('app.string.status_enabled'));
+    }
+    return new RowBadge('danger', $r('app.string.status_disabled'));
+  }
+
   openCreate(): void {
     this.formMode = 'create';
     this.editUserId = '';
@@ -266,140 +275,119 @@ struct UserListPage {
         refreshing: this.isRefreshing || this.isLoading,
       })
 
-      // 搜索栏
-      Row() {
-        TextInput({ placeholder: $r('app.string.user_search_hint'), text: this.keyword })
-          .height(40)
-          .fontSize(14)
-          .backgroundColor($r('app.color.surface_alt'))
-          .borderRadius(8)
-          .layoutWeight(1)
-          .padding({ left: 12, right: 12 })
-          .onChange((value: string) => {
-            this.keyword = value;
-          })
-          .onSubmit(() => {
-            this.onSearch();
-          })
+      // 内容容器（3.0 卡层级：搜索卡 + 列表卡悬浮 bg_page，圆角 8 + 发丝边框）
+      Column() {
+        // 搜索卡
+        Row() {
+          TextInput({ placeholder: $r('app.string.user_search_hint'), text: this.keyword })
+            .height(40)
+            .fontSize(14)
+            .backgroundColor($r('app.color.surface_alt'))
+            .borderRadius(8)
+            .layoutWeight(1)
+            .padding({ left: 12, right: 12 })
+            .onChange((value: string) => {
+              this.keyword = value;
+            })
+            .onSubmit(() => {
+              this.onSearch();
+            })
 
-        Button($r('app.string.search'))
-          .fontSize(13)
-          .fontColor($r('app.color.text_on_primary'))
-          .backgroundColor($r('app.color.primary'))
-          .borderRadius(4)
-          .width(60)
-          .height(40)
-          .margin({ left: 8 })
-          .onClick(() => {
-            this.onSearch();
-          })
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: 8, bottom: 8 })
-      .backgroundColor($r('app.color.surface'))
+          Button($r('app.string.search'))
+            .fontSize(13)
+            .fontColor($r('app.color.text_on_primary'))
+            .backgroundColor($r('app.color.primary'))
+            .borderRadius(8)
+            .width(60)
+            .height(40)
+            .margin({ left: 8 })
+            .onClick(() => {
+              this.onSearch();
+            })
+        }
+        .width('100%')
+        .padding(8)
+        .backgroundColor($r('app.color.surface'))
+        .borderRadius(8)
+        .border({ width: 1, color: $r('app.color.border') })
 
-      // 内容
-      if (this.isLoading && this.users.length === 0) {
-        LoadingView();
-      } else if (this.hasError) {
-        ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
-      } else if (this.users.length === 0) {
-        EmptyView({ message: $r('app.string.user_empty') });
-      } else {
-        // 刷新组件
-        Refresh({ refreshing: $$this.isRefreshing }) {
-          List() {
-            ForEach(this.users, (user: User) => {
-              ListItem() {
-                Row() {
-                  // 头像
-                  Circle({ width: 40, height: 40 })
-                    .fill($r('app.color.primary_bg'))
+        // 内容（加载/错误/空态，或列表卡）
+        if (this.isLoading && this.users.length === 0) {
+          LoadingView();
+        } else if (this.hasError) {
+          ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
+        } else if (this.users.length === 0) {
+          EmptyView({ message: $r('app.string.user_empty') });
+        } else {
+          Column() {
+            Column() {
+              ListSectionHeader({ moduleKey: 'system', count: this.total })
 
-                  // 信息
-                  Column() {
-                    Row() {
-                      Text(user.username)
-                        .fontSize(15)
-                        .fontWeight(FontWeight.Medium)
-
-                      Text(user.status === 1 ? $r('app.string.status_enabled') : $r('app.string.status_disabled'))
-                        .fontSize(10)
-                        .fontColor(user.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
-                        .backgroundColor(user.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
-                        .borderRadius(2)
-                        .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-                        .margin({ left: 8 })
+              Refresh({ refreshing: $$this.isRefreshing }) {
+                List() {
+                  ForEach(this.users, (user: User, index: number) => {
+                    ListItem() {
+                      ListRow({
+                        title: user.username,
+                        subtitle: user.real_name ?? '',
+                        icon: user.real_name || user.username,
+                        badge: this.userBadge(user),
+                        actions: [
+                          new RowAction($r('app.string.edit'), 'primary', (): void => {
+                            this.openEdit(user);
+                          }),
+                          new RowAction($r('app.string.delete'), 'danger', (): void => {
+                            this.confirmDelete(user);
+                          })
+                        ],
+                        isLast: index === this.users.length - 1
+                      })
                     }
+                  }, (user: User) => user.id)
 
-                    Text(user.real_name)
-                      .fontSize(12)
-                      .fontColor($r('app.color.text_hint'))
-                      .maxLines(1)
-                      .textOverflow({ overflow: TextOverflow.Ellipsis })
-                      .margin({ top: 2 })
+                  // 加载更多
+                  ListItem() {
+                    Row() {
+                      if (this.users.length >= this.total) {
+                        Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
+                          .fontSize(12)
+                          .fontColor($r('app.color.text_disabled'))
+                      } else {
+                        Button($r('app.string.load_more'))
+                          .fontSize(13)
+                          .fontColor($r('app.color.primary'))
+                          .backgroundColor(Color.Transparent)
+                          .onClick(() => this.loadMore())
+                      }
+                    }
+                    .justifyContent(FlexAlign.Center)
+                    .width('100%')
+                    .height(48)
                   }
-                  .alignItems(HorizontalAlign.Start)
-                  .layoutWeight(1)
-                  .margin({ left: 12 })
-
-                  Button($r('app.string.edit'))
-                    .fontSize(12)
-                    .fontColor($r('app.color.primary'))
-                    .backgroundColor($r('app.color.primary_bg'))
-                    .borderRadius(4)
-                    .height(28)
-                    .margin({ left: 8 })
-                    .onClick(() => {
-                      this.openEdit(user);
-                    })
-
-                  Button($r('app.string.delete'))
-                    .fontSize(12)
-                    .fontColor($r('app.color.danger_text'))
-                    .backgroundColor($r('app.color.danger_bg'))
-                    .borderRadius(4)
-                    .height(28)
-                    .margin({ left: 8 })
-                    .onClick(() => {
-                      this.confirmDelete(user);
-                    })
                 }
                 .width('100%')
-                .padding({ left: 16, right: 16, top: 10, bottom: 10 })
-                .backgroundColor($r('app.color.surface'))
-                .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+                .layoutWeight(1)
+                .edgeEffect(EdgeEffect.Spring)
               }
-            }, (user: User) => user.id)
-
-            // 加载更多
-            ListItem() {
-              Row() {
-                if (this.users.length >= this.total) {
-                  Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
-                    .fontSize(12)
-                    .fontColor($r('app.color.text_disabled'))
-                } else {
-                  Button($r('app.string.load_more'))
-                    .fontSize(13)
-                    .fontColor($r('app.color.primary'))
-                    .backgroundColor(Color.Transparent)
-                    .onClick(() => this.loadMore())
-                }
-              }
-              .justifyContent(FlexAlign.Center)
-              .width('100%')
-              .height(48)
+              .onRefreshing(() => {
+                this.loadData(true);
+              })
             }
+            .width('100%')
+            .layoutWeight(1)
+            .borderRadius(8)
+            .clip(true)
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: 1, color: $r('app.color.border') })
           }
           .width('100%')
           .layoutWeight(1)
-          .edgeEffect(EdgeEffect.Spring)
+          .margin({ top: 8 })
         }
-        .onRefreshing(() => {
-          this.loadData(true);
-        })
       }
+      .width('100%')
+      .layoutWeight(1)
+      .padding({ left: 12, right: 12, top: 12, bottom: 12 })
     }
     .width('100%')
     .height('100%')

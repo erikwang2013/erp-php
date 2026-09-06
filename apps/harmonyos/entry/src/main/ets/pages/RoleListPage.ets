@@ -10,6 +10,7 @@ import { LoadingView, ErrorView, EmptyView } from '../common/Components';
 import { TopBar, TopBarAction } from '../common/TopBar';
 import { ConfirmDialog, FormDialog, FormField } from '../common/FormDialog';
 import { PermissionTreePicker } from '../common/PermissionTreePicker';
+import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../common/ListRow';
 import { L10n } from '../utils/L10n';
 
 /**
@@ -132,6 +133,22 @@ struct RoleListPage {
       });
     }
     return list;
+  }
+
+  /** 行徽章：启用 success / 停用 danger（kind 同源驱动行 icon 圆徽色） */
+  private roleBadge(role: RoleItem): RowBadge {
+    if (role.status === 1) {
+      return new RowBadge('success', $r('app.string.status_enabled'));
+    }
+    return new RowBadge('danger', $r('app.string.status_disabled'));
+  }
+
+  /** 副行文案：slug · 用户数（· description，有值并入单行——与 Flutter 副行同构） */
+  private roleSubtitle(role: RoleItem): string {
+    const base = L10n.str(this.getUIContext(), 'role_subtitle_fmt',
+      role.slug || '-', String(role.users_count ?? 0));
+    const description = (role.description ?? '').trim();
+    return description.length > 0 ? base + ' · ' + description : base;
   }
 
   private formFields(mode: string): Array<FormField> {
@@ -303,99 +320,70 @@ struct RoleListPage {
     } else if (this.roles.length === 0) {
       EmptyView({ message: $r('app.string.role_empty') });
     } else {
-      Refresh({ refreshing: $$this.isRefreshing }) {
-        List() {
-          ForEach(this.roles, (role: RoleItem) => {
-            ListItem() {
-              Row() {
-                Column() {
-                  Row() {
-                    Text(role.name || '-')
-                      .fontSize(15)
-                      .fontWeight(FontWeight.Medium)
-                      .maxLines(1)
-                      .textOverflow({ overflow: TextOverflow.Ellipsis })
+      // 3.0 卡层级：surface 列表卡（内容头行 + 行列表）悬浮 bg_page，圆角 + 发丝边框
+      Column() {
+        Column() {
+          ListSectionHeader({ moduleKey: 'system', count: this.total })
 
-                    Text(role.status === 1 ? $r('app.string.status_enabled') : $r('app.string.status_disabled'))
-                      .fontSize(10)
-                      .fontColor(role.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
-                      .backgroundColor(role.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
-                      .borderRadius(2)
-                      .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-                      .margin({ left: 8 })
-                  }
+          Refresh({ refreshing: $$this.isRefreshing }) {
+            List() {
+              ForEach(this.roles, (role: RoleItem, index: number) => {
+                ListItem() {
+                  ListRow({
+                    title: role.name || '-',
+                    subtitle: this.roleSubtitle(role),
+                    icon: role.name || '-',
+                    badge: this.roleBadge(role),
+                    actions: [
+                      new RowAction($r('app.string.edit'), 'primary', (): void => {
+                        this.openEdit(role.id);
+                      }),
+                      new RowAction($r('app.string.delete'), 'danger', (): void => {
+                        this.confirmDelete(role);
+                      })
+                    ],
+                    isLast: index === this.roles.length - 1
+                  })
+                }
+              }, (role: RoleItem) => role.id)
 
-                  Text(L10n.str(this.getUIContext(), 'role_subtitle_fmt',
-                    role.slug || '-', String(role.users_count ?? 0)))
-                    .fontSize(12)
-                    .fontColor($r('app.color.text_hint'))
-                    .maxLines(1)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-                    .margin({ top: 2 })
-
-                  if (role.description && role.description.length > 0) {
-                    Text(role.description)
+              ListItem() {
+                Row() {
+                  if (this.roles.length >= this.total) {
+                    Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
                       .fontSize(12)
-                      .fontColor($r('app.color.text_hint'))
-                      .maxLines(1)
-                      .textOverflow({ overflow: TextOverflow.Ellipsis })
-                      .margin({ top: 2 })
+                      .fontColor($r('app.color.text_disabled'))
+                  } else {
+                    Button($r('app.string.load_more'))
+                      .fontSize(13)
+                      .fontColor($r('app.color.primary'))
+                      .backgroundColor(Color.Transparent)
+                      .onClick(() => this.loadMore())
                   }
                 }
-                .alignItems(HorizontalAlign.Start)
-                .layoutWeight(1)
-
-                Button($r('app.string.edit'))
-                  .fontSize(12)
-                  .fontColor($r('app.color.primary'))
-                  .backgroundColor($r('app.color.primary_bg'))
-                  .borderRadius(4)
-                  .height(28)
-                  .margin({ left: 8 })
-                  .onClick(() => this.openEdit(role.id))
-
-                Button($r('app.string.delete'))
-                  .fontSize(12)
-                  .fontColor($r('app.color.danger_text'))
-                  .backgroundColor($r('app.color.danger_bg'))
-                  .borderRadius(4)
-                  .height(28)
-                  .margin({ left: 8 })
-                  .onClick(() => this.confirmDelete(role))
-              }
-              .width('100%')
-              .padding({ left: 16, right: 16, top: 10, bottom: 10 })
-              .backgroundColor($r('app.color.surface'))
-              .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-            }
-          }, (role: RoleItem) => role.id)
-
-          ListItem() {
-            Row() {
-              if (this.roles.length >= this.total) {
-                Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
-                  .fontSize(12)
-                  .fontColor($r('app.color.text_disabled'))
-              } else {
-                Button($r('app.string.load_more'))
-                  .fontSize(13)
-                  .fontColor($r('app.color.primary'))
-                  .backgroundColor(Color.Transparent)
-                  .onClick(() => this.loadMore())
+                .justifyContent(FlexAlign.Center)
+                .width('100%')
+                .height(48)
               }
             }
-            .justifyContent(FlexAlign.Center)
             .width('100%')
-            .height(48)
+            .layoutWeight(1)
+            .edgeEffect(EdgeEffect.Spring)
           }
+          .onRefreshing(() => {
+            this.loadData(true);
+          })
         }
         .width('100%')
         .layoutWeight(1)
-        .edgeEffect(EdgeEffect.Spring)
+        .borderRadius(8)
+        .clip(true)
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: 1, color: $r('app.color.border') })
       }
-      .onRefreshing(() => {
-        this.loadData(true);
-      })
+      .width('100%')
+      .layoutWeight(1)
+      .padding({ left: 12, right: 12, top: 12, bottom: 12 })
     }
   }
 
