@@ -927,6 +927,202 @@
     {
       "name": "carrier_name_required",
       "value": "Carrier name is required"
+    },
+    {
+      "name": "receiving_list_title",
+      "value": "Receiving"
+    },
+    {
+      "name": "receiving_empty",
+      "value": "No receiving docs yet"
+    },
+    {
+      "name": "receiving_wh_fmt",
+      "value": "Warehouse ID: %1$s"
+    },
+    {
+      "name": "receiving_form_add",
+      "value": "New Receiving Doc"
+    },
+    {
+      "name": "receiving_form_edit",
+      "value": "Edit Receiving Doc"
+    },
+    {
+      "name": "receiving_delete_msg",
+      "value": "Delete this receiving doc? This cannot be undone."
+    },
+    {
+      "name": "receiving_code",
+      "value": "Doc No."
+    },
+    {
+      "name": "receiving_warehouse_id",
+      "value": "Warehouse ID"
+    },
+    {
+      "name": "receiving_asn_id",
+      "value": "ASN ID"
+    },
+    {
+      "name": "receiving_dock_location_id",
+      "value": "Dock Location ID"
+    },
+    {
+      "name": "receiving_status",
+      "value": "Status"
+    },
+    {
+      "name": "receiving_receiver_id",
+      "value": "Receiver ID"
+    },
+    {
+      "name": "receiving_received_at",
+      "value": "Received At"
+    },
+    {
+      "name": "receiving_remark",
+      "value": "Remark"
+    },
+    {
+      "name": "receiving_code_hint",
+      "value": "Enter doc No. (required)"
+    },
+    {
+      "name": "receiving_warehouse_id_hint",
+      "value": "Warehouse numeric ID (required)"
+    },
+    {
+      "name": "receiving_asn_id_hint",
+      "value": "ASN numeric ID, leave blank for 0"
+    },
+    {
+      "name": "receiving_dock_location_id_hint",
+      "value": "Dock location numeric ID, leave blank for 0"
+    },
+    {
+      "name": "receiving_receiver_id_hint",
+      "value": "Receiver numeric ID, leave blank for 0"
+    },
+    {
+      "name": "receiving_received_at_hint",
+      "value": "Format: YYYY-MM-DD HH:mm:ss, optional"
+    },
+    {
+      "name": "receiving_remark_hint",
+      "value": "Enter a remark"
+    },
+    {
+      "name": "receiving_code_required",
+      "value": "Doc No. is required"
+    },
+    {
+      "name": "receiving_warehouse_id_required",
+      "value": "Warehouse ID is required"
+    },
+    {
+      "name": "putaway_list_title",
+      "value": "Putaway"
+    },
+    {
+      "name": "putaway_empty",
+      "value": "No putaway docs yet"
+    },
+    {
+      "name": "putaway_wh_strategy_fmt",
+      "value": "Warehouse ID: %1$s · Strategy: %2$s"
+    },
+    {
+      "name": "putaway_form_add",
+      "value": "New Putaway Doc"
+    },
+    {
+      "name": "putaway_form_edit",
+      "value": "Edit Putaway Doc"
+    },
+    {
+      "name": "putaway_delete_msg",
+      "value": "Delete this putaway doc? This cannot be undone."
+    },
+    {
+      "name": "putaway_code",
+      "value": "Doc No."
+    },
+    {
+      "name": "putaway_warehouse_id",
+      "value": "Warehouse ID"
+    },
+    {
+      "name": "putaway_receiving_id",
+      "value": "Receiving Doc ID"
+    },
+    {
+      "name": "putaway_status",
+      "value": "Status"
+    },
+    {
+      "name": "putaway_strategy",
+      "value": "Putaway Strategy"
+    },
+    {
+      "name": "putaway_assigned_to",
+      "value": "Assignee ID"
+    },
+    {
+      "name": "putaway_completed_at",
+      "value": "Completed At"
+    },
+    {
+      "name": "putaway_code_hint",
+      "value": "Enter doc No. (required)"
+    },
+    {
+      "name": "putaway_warehouse_id_hint",
+      "value": "Warehouse numeric ID (required)"
+    },
+    {
+      "name": "putaway_receiving_id_hint",
+      "value": "Receiving doc numeric ID, leave blank for 0"
+    },
+    {
+      "name": "putaway_strategy_hint",
+      "value": "e.g. fifo / lifo / fefo"
+    },
+    {
+      "name": "putaway_assigned_to_hint",
+      "value": "Assignee numeric ID, leave blank for 0"
+    },
+    {
+      "name": "putaway_completed_at_hint",
+      "value": "Format: YYYY-MM-DD HH:mm:ss, optional"
+    },
+    {
+      "name": "putaway_code_required",
+      "value": "Doc No. is required"
+    },
+    {
+      "name": "putaway_warehouse_id_required",
+      "value": "Warehouse ID is required"
+    },
+    {
+      "name": "pack_list_title",
+      "value": "Packing"
+    },
+    {
+      "name": "pick_list_title",
+      "value": "Picking"
+    },
+    {
+      "name": "wave_list_title",
+      "value": "Wave"
+    },
+    {
+      "name": "zone_list_title",
+      "value": "Zones"
+    },
+    {
+      "name": "asn_list_title",
+      "value": "Advance Shipment Notice"
     }
   ]
 }

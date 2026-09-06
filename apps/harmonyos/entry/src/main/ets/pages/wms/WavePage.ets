@@ -3,6 +3,7 @@
  */
 
 import { ApiService } from '../../service/ApiService';
+import { L10n } from '../../utils/L10n';
 
 @Entry
 @Component
@@ -37,7 +38,7 @@ struct WavePage {
     } catch (e) {
       // M4：加载失败不吞错误——有可用 message 直接展示；UNAUTHORIZED/空消息映射为登录过期提示
       const msg = e instanceof Error ? e.message : '';
-      this.errMsg = (msg === '' || msg === 'UNAUTHORIZED') ? '登录已过期，请重新登录' : msg;
+      this.errMsg = (msg === '' || msg === 'UNAUTHORIZED') ? L10n.str(this.getUIContext(), 'login_expired') : msg;
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -47,11 +48,11 @@ struct WavePage {
   build() {
     Column() {
       Row() {
-        Text('波次管理')
+        Text($r('app.string.wave_list_title'))
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
         Blank()
-        Button('刷新')
+        Button($r('app.string.refresh'))
           .fontSize(13)
           .fontColor($r('app.color.primary'))
           .backgroundColor($r('app.color.primary_bg'))

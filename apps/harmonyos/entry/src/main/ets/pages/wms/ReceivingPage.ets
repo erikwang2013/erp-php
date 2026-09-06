@@ -5,6 +5,7 @@
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { ApiService } from '../../service/ApiService';
+import { L10n } from '../../utils/L10n';
 import { LoadingView, ErrorView, EmptyView } from '../../common/Components';
 import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
@@ -93,7 +94,7 @@ struct ReceivingPage {
       // M4：错误不吞——可用 message 交 ErrorView 展示（toast 与其重复故移除）；空消息回退原文案
       const msg = e instanceof Error ? e.message : '';
       this.hasError = true;
-      this.errMsg = msg !== '' ? msg : '加载失败';
+      this.errMsg = msg !== '' ? msg : L10n.str(this.getUIContext(), 'load_failed');
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -149,7 +150,7 @@ struct ReceivingPage {
       }
       // M4：详情加载失败展示可用 message，空消息回退原文案
       const msg = e instanceof Error ? e.message : '';
-      promptAction.showToast({ message: msg !== '' ? msg : '加载详情失败' });
+      promptAction.showToast({ message: msg !== '' ? msg : L10n.str(this.getUIContext(), 'load_detail_failed') });
     } finally {
       this.loading = false;
     }
@@ -160,11 +161,11 @@ struct ReceivingPage {
    */
   async save(): Promise<void> {
     if (!this.formCode.trim()) {
-      promptAction.showToast({ message: '请输入收货单号' });
+      promptAction.showToast({ message: $r('app.string.receiving_code_required') });
       return;
     }
     if (!this.formWarehouseId.trim()) {
-      promptAction.showToast({ message: '请输入仓库ID' });
+      promptAction.showToast({ message: $r('app.string.receiving_warehouse_id_required') });
       return;
     }
 
@@ -183,10 +184,10 @@ struct ReceivingPage {
     try {
       if (this.formMode === 'create') {
         await this.api.post<Object>('/admin/wms/receiving', body);
-        promptAction.showToast({ message: '创建成功' });
+        promptAction.showToast({ message: $r('app.string.create_success') });
       } else {
         await this.api.put<Object>(`/admin/wms/receiving/${this.formId}`, body);
-        promptAction.showToast({ message: '更新成功' });
+        promptAction.showToast({ message: $r('app.string.update_success') });
       }
       this.showForm = false;
       // 刷新列表（回到第一页）
@@ -198,7 +199,7 @@ struct ReceivingPage {
       }
       // M4：保存失败展示可用 message，空消息回退原文案
       const msg = e instanceof Error ? e.message : '';
-      promptAction.showToast({ message: msg !== '' ? msg : '保存失败' });
+      promptAction.showToast({ message: msg !== '' ? msg : L10n.str(this.getUIContext(), 'save_failed') });
     } finally {
       this.isSubmitting = false;
     }
@@ -212,8 +213,8 @@ struct ReceivingPage {
   confirmDelete(id: string): void {
     this.dialogController = new CustomDialogController({
       builder: ConfirmDialog({
-        title: '确认删除',
-        message: '确定要删除该收货单吗？删除后不可恢复。',
+        title: $r('app.string.delete_confirm'),
+        message: $r('app.string.receiving_delete_msg'),
         onConfirm: () => {
           this.deleteItem(id);
         },
@@ -230,7 +231,7 @@ struct ReceivingPage {
   async deleteItem(id: string): Promise<void> {
     try {
       await this.api.delete<Object>(`/admin/wms/receiving/${id}`);
-      promptAction.showToast({ message: '删除成功' });
+      promptAction.showToast({ message: $r('app.string.delete_success') });
       this.loadData(true);
     } catch (e) {
       if (e instanceof Error && e.message === 'UNAUTHORIZED') {
@@ -239,7 +240,7 @@ struct ReceivingPage {
       }
       // M4：删除失败展示可用 message，空消息回退原文案
       const msg = e instanceof Error ? e.message : '';
-      promptAction.showToast({ message: msg !== '' ? msg : '删除失败' });
+      promptAction.showToast({ message: msg !== '' ? msg : L10n.str(this.getUIContext(), 'delete_failed') });
     }
   }
 
@@ -247,8 +248,8 @@ struct ReceivingPage {
     Column() {
       // 顶栏（骨架收敛试点：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
       TopBar({
-        title: '收货管理',
-        actions: [new TopBarAction('+ 新增')],
+        title: $r('app.string.receiving_list_title'),
+        actions: [new TopBarAction($r('app.string.user_add'))],
         onAction: () => this.openCreate(),
         onRefresh: () => this.loadData(true),
         refreshing: this.isRefreshing || this.loading,
@@ -275,7 +276,7 @@ struct ReceivingPage {
     } else if (this.hasError) {
       ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
-      EmptyView({ message: '暂无收货数据' });
+      EmptyView({ message: $r('app.string.receiving_empty') });
     } else {
       Refresh({ refreshing: $$this.isRefreshing }) {
         List() {
@@ -290,7 +291,7 @@ struct ReceivingPage {
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-                  Text(`仓库ID: ${item.warehouse_id}`)
+                  Text(L10n.str(this.getUIContext(), 'receiving_wh_fmt', String(item.warehouse_id)))
                     .fontSize(12)
                     .fontColor($r('app.color.text_hint'))
                     .margin({ top: 2 })
@@ -301,7 +302,7 @@ struct ReceivingPage {
                 .layoutWeight(1)
 
                 // 状态
-                Text(item.status === 1 ? '启用' : '禁用')
+                Text(item.status === 1 ? $r('app.string.status_enabled') : $r('app.string.status_disabled'))
                   .fontSize(10)
                   .fontColor(item.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
                   .backgroundColor(item.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
@@ -309,7 +310,7 @@ struct ReceivingPage {
                   .padding({ left: 6, right: 6, top: 2, bottom: 2 })
 
                 // 操作
-                Button('编辑')
+                Button($r('app.string.edit'))
                   .fontSize(12)
                   .fontColor($r('app.color.primary'))
                   .backgroundColor($r('app.color.primary_bg'))
@@ -318,7 +319,7 @@ struct ReceivingPage {
                   .margin({ left: 8 })
                   .onClick(() => this.openEdit(item.id))
 
-                Button('删除')
+                Button($r('app.string.delete'))
                   .fontSize(12)
                   .fontColor($r('app.color.danger_text'))
                   .backgroundColor($r('app.color.danger_bg'))
@@ -338,11 +339,11 @@ struct ReceivingPage {
           ListItem() {
             Row() {
               if (this.items.length >= this.total) {
-                Text('— 没有更多了 —')
+                Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
                   .fontSize(12)
                   .fontColor($r('app.color.text_disabled'))
               } else {
-                Button('加载更多')
+                Button($r('app.string.load_more'))
                   .fontSize(13)
                   .fontColor($r('app.color.primary'))
                   .backgroundColor(Color.Transparent)
@@ -371,7 +372,7 @@ struct ReceivingPage {
   buildForm() {
     Scroll() {
       Column() {
-        Text(this.formMode === 'create' ? '新增收货单' : '编辑收货单')
+        Text(this.formMode === 'create' ? $r('app.string.receiving_form_add') : $r('app.string.receiving_form_edit'))
           .fontSize(16)
           .fontWeight(FontWeight.Bold)
           .width('100%')
@@ -379,12 +380,12 @@ struct ReceivingPage {
           .padding({ top: 16, bottom: 16 })
 
         Row() {
-          Text('收货单号')
+          Text($r('app.string.receiving_code'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入收货单号（必填）', text: this.formCode })
+          TextInput({ placeholder: $r('app.string.receiving_code_hint'), text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
             .layoutWeight(1)
@@ -397,12 +398,12 @@ struct ReceivingPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('仓库ID')
+          Text($r('app.string.receiving_warehouse_id'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '仓库数字ID（必填）', text: this.formWarehouseId })
+          TextInput({ placeholder: $r('app.string.receiving_warehouse_id_hint'), text: this.formWarehouseId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formWarehouseId = v; })
@@ -416,12 +417,12 @@ struct ReceivingPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('ASN单ID')
+          Text($r('app.string.receiving_asn_id'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: 'ASN单数字ID，留空为0', text: this.formAsnId })
+          TextInput({ placeholder: $r('app.string.receiving_asn_id_hint'), text: this.formAsnId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formAsnId = v; })
@@ -435,12 +436,12 @@ struct ReceivingPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('收货月台ID')
+          Text($r('app.string.receiving_dock_location_id'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '收货月台数字ID，留空为0', text: this.formDockLocationId })
+          TextInput({ placeholder: $r('app.string.receiving_dock_location_id_hint'), text: this.formDockLocationId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formDockLocationId = v; })
@@ -454,13 +455,13 @@ struct ReceivingPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('状态')
+          Text($r('app.string.receiving_status'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
           Row() {
-            Button('启用')
+            Button($r('app.string.status_enabled'))
               .fontSize(13)
               .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
               .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
@@ -468,7 +469,7 @@ struct ReceivingPage {
               .height(32)
               .onClick(() => { this.formStatus = 1; })
 
-            Button('禁用')
+            Button($r('app.string.status_disabled'))
               .fontSize(13)
               .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
               .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
@@ -487,12 +488,12 @@ struct ReceivingPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('收货人ID')
+          Text($r('app.string.receiving_receiver_id'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '收货人数字ID，留空为0', text: this.formReceiverId })
+          TextInput({ placeholder: $r('app.string.receiving_receiver_id_hint'), text: this.formReceiverId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formReceiverId = v; })
@@ -506,12 +507,12 @@ struct ReceivingPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('收货时间')
+          Text($r('app.string.receiving_received_at'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss，可留空', text: this.formReceivedAt })
+          TextInput({ placeholder: $r('app.string.receiving_received_at_hint'), text: this.formReceivedAt })
             .fontSize(15)
             .onChange((v: string) => { this.formReceivedAt = v; })
             .layoutWeight(1)
@@ -524,12 +525,12 @@ struct ReceivingPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('备注')
+          Text($r('app.string.receiving_remark'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入备注', text: this.formRemark })
+          TextInput({ placeholder: $r('app.string.receiving_remark_hint'), text: this.formRemark })
             .fontSize(15)
             .onChange((v: string) => { this.formRemark = v; })
             .layoutWeight(1)
@@ -543,7 +544,7 @@ struct ReceivingPage {
 
         // 操作按钮
         Row() {
-          Button('取 消')
+          Button($r('app.string.cancel'))
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
@@ -552,7 +553,7 @@ struct ReceivingPage {
             .borderRadius(8)
             .onClick(() => { this.showForm = false; })
 
-          Button('保 存')
+          Button($r('app.string.save'))
             .layoutWeight(1)
             .height(44)
             .fontSize(15)

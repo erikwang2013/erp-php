@@ -927,6 +927,202 @@
     {
       "name": "carrier_name_required",
       "value": "请输入承运商名称"
+    },
+    {
+      "name": "receiving_list_title",
+      "value": "收货管理"
+    },
+    {
+      "name": "receiving_empty",
+      "value": "暂无收货数据"
+    },
+    {
+      "name": "receiving_wh_fmt",
+      "value": "仓库ID: %1$s"
+    },
+    {
+      "name": "receiving_form_add",
+      "value": "新增收货单"
+    },
+    {
+      "name": "receiving_form_edit",
+      "value": "编辑收货单"
+    },
+    {
+      "name": "receiving_delete_msg",
+      "value": "确定要删除该收货单吗？删除后不可恢复。"
+    },
+    {
+      "name": "receiving_code",
+      "value": "收货单号"
+    },
+    {
+      "name": "receiving_warehouse_id",
+      "value": "仓库ID"
+    },
+    {
+      "name": "receiving_asn_id",
+      "value": "ASN单ID"
+    },
+    {
+      "name": "receiving_dock_location_id",
+      "value": "收货月台ID"
+    },
+    {
+      "name": "receiving_status",
+      "value": "状态"
+    },
+    {
+      "name": "receiving_receiver_id",
+      "value": "收货人ID"
+    },
+    {
+      "name": "receiving_received_at",
+      "value": "收货时间"
+    },
+    {
+      "name": "receiving_remark",
+      "value": "备注"
+    },
+    {
+      "name": "receiving_code_hint",
+      "value": "请输入收货单号（必填）"
+    },
+    {
+      "name": "receiving_warehouse_id_hint",
+      "value": "仓库数字ID（必填）"
+    },
+    {
+      "name": "receiving_asn_id_hint",
+      "value": "ASN单数字ID，留空为0"
+    },
+    {
+      "name": "receiving_dock_location_id_hint",
+      "value": "收货月台数字ID，留空为0"
+    },
+    {
+      "name": "receiving_receiver_id_hint",
+      "value": "收货人数字ID，留空为0"
+    },
+    {
+      "name": "receiving_received_at_hint",
+      "value": "格式: YYYY-MM-DD HH:mm:ss，可留空"
+    },
+    {
+      "name": "receiving_remark_hint",
+      "value": "请输入备注"
+    },
+    {
+      "name": "receiving_code_required",
+      "value": "请输入收货单号"
+    },
+    {
+      "name": "receiving_warehouse_id_required",
+      "value": "请输入仓库ID"
+    },
+    {
+      "name": "putaway_list_title",
+      "value": "上架管理"
+    },
+    {
+      "name": "putaway_empty",
+      "value": "暂无上架数据"
+    },
+    {
+      "name": "putaway_wh_strategy_fmt",
+      "value": "仓库ID: %1$s · 策略: %2$s"
+    },
+    {
+      "name": "putaway_form_add",
+      "value": "新增上架单"
+    },
+    {
+      "name": "putaway_form_edit",
+      "value": "编辑上架单"
+    },
+    {
+      "name": "putaway_delete_msg",
+      "value": "确定要删除该上架单吗？删除后不可恢复。"
+    },
+    {
+      "name": "putaway_code",
+      "value": "上架单号"
+    },
+    {
+      "name": "putaway_warehouse_id",
+      "value": "仓库ID"
+    },
+    {
+      "name": "putaway_receiving_id",
+      "value": "收货单ID"
+    },
+    {
+      "name": "putaway_status",
+      "value": "状态"
+    },
+    {
+      "name": "putaway_strategy",
+      "value": "上架策略"
+    },
+    {
+      "name": "putaway_assigned_to",
+      "value": "指派人员ID"
+    },
+    {
+      "name": "putaway_completed_at",
+      "value": "完成时间"
+    },
+    {
+      "name": "putaway_code_hint",
+      "value": "请输入上架单号（必填）"
+    },
+    {
+      "name": "putaway_warehouse_id_hint",
+      "value": "仓库数字ID（必填）"
+    },
+    {
+      "name": "putaway_receiving_id_hint",
+      "value": "收货单数字ID，留空为0"
+    },
+    {
+      "name": "putaway_strategy_hint",
+      "value": "如: fifo / lifo / fefo"
+    },
+    {
+      "name": "putaway_assigned_to_hint",
+      "value": "指派人员数字ID，留空为0"
+    },
+    {
+      "name": "putaway_completed_at_hint",
+      "value": "格式: YYYY-MM-DD HH:mm:ss，可留空"
+    },
+    {
+      "name": "putaway_code_required",
+      "value": "请输入上架单号"
+    },
+    {
+      "name": "putaway_warehouse_id_required",
+      "value": "请输入仓库ID"
+    },
+    {
+      "name": "pack_list_title",
+      "value": "打包管理"
+    },
+    {
+      "name": "pick_list_title",
+      "value": "拣货管理"
+    },
+    {
+      "name": "wave_list_title",
+      "value": "波次管理"
+    },
+    {
+      "name": "zone_list_title",
+      "value": "库区管理"
+    },
+    {
+      "name": "asn_list_title",
+      "value": "预到货通知"
     }
   ]
 }
