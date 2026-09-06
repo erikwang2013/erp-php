@@ -25,6 +25,10 @@ class _ContractListPageState extends State<ContractListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 客户选项（id→名称，id 为客户列表行 hashid），打开新增/编辑弹窗前懒加载一次。
+  Map<String, String> _customerOptions = {};
+  bool _customersLoaded = false;
+
   // 合同状态: 0草稿 1待审批 2已审批 3执行中 4已完成 5已终止
   List<String> get _statusLabels => [
     AppL10n.current.crmContractStatusDraft,
@@ -61,8 +65,28 @@ class _ContractListPageState extends State<ContractListPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
+  /// 加载客户下拉选项（customer_id 必填且为 hashid，取自 /admin/v1/customer 列表行 id）。
+  Future<bool> _ensureCustomers() async {
+    if (_customersLoaded) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/customer', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _customerOptions = {
+        for (final c in list) '${c['id']}': '${c['name'] ?? c['code'] ?? ''}',
+      };
+      _customersLoaded = true;
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
     final l10n = AppL10n.current;
+    if (!await _ensureCustomers() || !mounted) return;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/crm/contract', data: data);
       _load(); return true;
@@ -71,6 +95,7 @@ class _ContractListPageState extends State<ContractListPage> {
 
   Future<void> _edit(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
+    if (!await _ensureCustomers() || !mounted) return;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/crm/contract/${row['id']}', data: data);
       _load(); return true;
@@ -150,10 +175,23 @@ class _ContractListPageState extends State<ContractListPage> {
     );
   }
 
-  List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.current.crmName, required: true),
-    FormFieldConfig(name: 'code', label: AppL10n.current.crmCode),
-  ];
+  // 与后端 ContractController::store 契约对齐：name/customer_id 必填；
+  // owner_user_id 表列 NOT NULL 但由后端默认归属当前操作人；code 留空后端自动生成（uk_code 唯一）
+  List<FormFieldConfig> _formFields() {
+    final l10n = AppL10n.current;
+    return [
+      FormFieldConfig(name: 'name', label: l10n.crmName, required: true),
+      FormFieldConfig(
+        name: 'customer_id',
+        label: l10n.fieldCustomer,
+        required: true,
+        type: FormFieldType.dropdown,
+        options: _customerOptions.keys.toList(),
+        optionLabels: _customerOptions,
+      ),
+      FormFieldConfig(name: 'code', label: l10n.crmCode),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(

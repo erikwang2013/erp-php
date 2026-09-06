@@ -759,6 +759,8 @@
   "fieldHours": "Hours",
   "fieldProject": "Project",
   "fieldUser": "User",
+  "fieldCustomer": "Customer",
+  "fieldOwner": "Owner",
   "fieldWorkDate": "Work Date",
   "fieldLevel": "Level",
   "fieldWarehouse": "Warehouse",

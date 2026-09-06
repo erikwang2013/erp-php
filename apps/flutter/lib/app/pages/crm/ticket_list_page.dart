@@ -23,6 +23,10 @@ class _TicketListPageState extends State<TicketListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 客户选项（id→名称，id 为客户列表行 hashid），打开新增/编辑弹窗前懒加载一次。
+  Map<String, String> _customerOptions = {};
+  bool _customersLoaded = false;
+
   @override
   void initState() { super.initState(); _load(); }
 
@@ -40,8 +44,28 @@ class _TicketListPageState extends State<TicketListPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
+  /// 加载客户下拉选项（customer_id 必填且为 hashid，取自 /admin/v1/customer 列表行 id）。
+  Future<bool> _ensureCustomers() async {
+    if (_customersLoaded) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/customer', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _customerOptions = {
+        for (final c in list) '${c['id']}': '${c['name'] ?? c['code'] ?? ''}',
+      };
+      _customersLoaded = true;
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
     final l10n = AppL10n.current;
+    if (!await _ensureCustomers() || !mounted) return;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/crm/ticket', data: data);
       _load(); return true;
@@ -50,6 +74,7 @@ class _TicketListPageState extends State<TicketListPage> {
 
   Future<void> _edit(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
+    if (!await _ensureCustomers() || !mounted) return;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/crm/ticket/${row['id']}', data: data);
       _load(); return true;
@@ -59,7 +84,7 @@ class _TicketListPageState extends State<TicketListPage> {
   Future<void> _delete(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
     await ConfirmDialog.show(context, title: l10n.commonDeleteConfirm,
-        content: l10n.crmDeleteConfirmMsg('${row['name'] ?? row['code'] ?? row['id']}'),
+        content: l10n.crmDeleteConfirmMsg('${row['title'] ?? row['code'] ?? row['id']}'),
         onConfirm: (password) async {
       await ApiService.instance.delete('/admin/v1/crm/ticket/${row['id']}', data: {'password': password});
       _load(); return true;
@@ -86,7 +111,7 @@ class _TicketListPageState extends State<TicketListPage> {
             decoration: InputDecoration(labelText: l10n.crmTicketAssignee),
             items: [
               for (final u in users)
-                DropdownMenuItem(value: u['id'].toString(), child: Text('${u['username']}')),
+                DropdownMenuItem(value: u['id'].toString(), child: Text('${u['real_name'] ?? u['username'] ?? ''}')),
             ],
             onChanged: submitting ? null : (v) => setState(() => selected = v ?? ''),
           ),
@@ -96,8 +121,9 @@ class _TicketListPageState extends State<TicketListPage> {
               onPressed: submitting ? null : () async {
                 setState(() => submitting = true);
                 try {
+                  // 用户列表行 id 为 hashid 原串，后端 assign 做双模解码，勿 int.parse
                   await ApiService.instance.post('/admin/v1/crm/ticket/${row['id']}/assign',
-                      data: {'assignee_user_id': int.parse(selected)});
+                      data: {'assignee_user_id': selected});
                   if (ctx.mounted) Navigator.pop(ctx);
                   _load();
                 } catch (e) {
@@ -138,10 +164,23 @@ class _TicketListPageState extends State<TicketListPage> {
     });
   }
 
-  List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.current.crmName, required: true),
-    FormFieldConfig(name: 'code', label: AppL10n.current.crmCode),
-  ];
+  // 与后端 TicketController::store 契约对齐（表无 name 列）：
+  // title/customer_id 必填；code 真列但留空后端自动生成（uk_code 唯一）
+  List<FormFieldConfig> _formFields() {
+    final l10n = AppL10n.current;
+    return [
+      FormFieldConfig(name: 'title', label: l10n.fieldTitle, required: true),
+      FormFieldConfig(
+        name: 'customer_id',
+        label: l10n.fieldCustomer,
+        required: true,
+        type: FormFieldType.dropdown,
+        options: _customerOptions.keys.toList(),
+        optionLabels: _customerOptions,
+      ),
+      FormFieldConfig(name: 'code', label: l10n.crmCode),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
@@ -161,11 +200,11 @@ class _TicketListPageState extends State<TicketListPage> {
     ],
   );
 
-  List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.crmCode, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.fieldTitle, AppL10n.current.fieldCustomer, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.crmName: r['name'] ?? '',
-    AppL10n.current.crmCode: r['code'] ?? '',
+    AppL10n.current.fieldTitle: r['title'] ?? '',
+    AppL10n.current.fieldCustomer: r['customer_name'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.person_add, size: 18), tooltip: AppL10n.current.crmTicketAssign, onPressed: () => _assign(r)),
       IconButton(icon: Icon(Icons.check_circle, size: 18, color: AppColors.of(context).success), tooltip: AppL10n.current.crmTicketResolve, onPressed: () => _resolve(r)),

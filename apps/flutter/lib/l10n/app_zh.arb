@@ -750,6 +750,8 @@
   "fieldHours": "工时(小时)",
   "fieldProject": "项目",
   "fieldUser": "用户",
+  "fieldCustomer": "客户",
+  "fieldOwner": "负责人",
   "fieldWorkDate": "工作日期",
   "fieldLevel": "等级",
   "fieldWarehouse": "仓库",

@@ -1839,6 +1839,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fieldUser => '用户';
 
   @override
+  String get fieldCustomer => '客户';
+
+  @override
+  String get fieldOwner => '负责人';
+
+  @override
   String get fieldWorkDate => '工作日期';
 
   @override

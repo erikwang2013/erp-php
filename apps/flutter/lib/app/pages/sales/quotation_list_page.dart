@@ -24,6 +24,10 @@ class _SalesQuotationListPageState extends State<SalesQuotationListPage> {
   bool _loading = true;
   String? _error;
 
+  /// 客户选项（id→名称，id 为客户列表行 hashid），打开新增/编辑弹窗前懒加载一次。
+  Map<String, String> _customerOptions = {};
+  bool _customersLoaded = false;
+
   // 后端 erp_sales_quotation 列: code/customer_id/total_amount/status/remark/
   // quoted_at（无 name 列）；store() 校验 code+customer_id 必填
   static List<String> get _statusLabels => [AppL10n.current.salesQuoteDraft, AppL10n.current.salesQuoteQuoted, AppL10n.current.salesQuoteConverted, AppL10n.current.salesQuoteExpired];
@@ -44,7 +48,27 @@ class _SalesQuotationListPageState extends State<SalesQuotationListPage> {
     }
   }
 
+  /// 加载客户下拉选项（customer_id 必填且为 hashid，取自 /admin/v1/customer 列表行 id）。
+  Future<bool> _ensureCustomers() async {
+    if (_customersLoaded) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/customer', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _customerOptions = {
+        for (final c in list) '${c['id']}': '${c['name'] ?? c['code'] ?? ''}',
+      };
+      _customersLoaded = true;
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
+    if (!await _ensureCustomers() || !mounted) return;
     await FormDialog.show(context, title: AppL10n.of(context).salesQuotationAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/sales/quotation', data: _buildPayload(data));
       _load(); return true;
@@ -52,6 +76,7 @@ class _SalesQuotationListPageState extends State<SalesQuotationListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureCustomers() || !mounted) return;
     await FormDialog.show(context, title: AppL10n.of(context).salesQuotationEdit, fields: _formFields(),
       initialData: _toEditData(row), onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/sales/quotation/${row['id']}', data: _buildPayload(data));
@@ -73,7 +98,14 @@ class _SalesQuotationListPageState extends State<SalesQuotationListPage> {
         '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
     return [
       FormFieldConfig(name: 'code', label: AppL10n.of(context).salesQuotationNo, hint: AppL10n.of(context).salesQuotationCodeHint),
-      FormFieldConfig(name: 'customer_id', label: AppL10n.of(context).salesCustomerId, required: true, hint: AppL10n.of(context).salesCustomerIdHint),
+      FormFieldConfig(
+        name: 'customer_id',
+        label: AppL10n.of(context).fieldCustomer,
+        required: true,
+        type: FormFieldType.dropdown,
+        options: _customerOptions.keys.toList(),
+        optionLabels: _customerOptions,
+      ),
       FormFieldConfig(name: 'total_amount', label: AppL10n.of(context).salesQuotationAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonExampleAmount('1000.00')),
       FormFieldConfig(name: 'status', label: AppL10n.of(context).commonStatus, type: FormFieldType.dropdown,
         options: [for (var i = 0; i < _statusLabels.length; i++) '$i - ${_statusLabels[i]}'], initialValue: '0 - ${_statusLabels[0]}'),
@@ -140,11 +172,11 @@ class _SalesQuotationListPageState extends State<SalesQuotationListPage> {
     rightAlignColumns: [2],
   );
 
-  List<String> _columns() => [AppL10n.current.salesQuotationNo, AppL10n.current.salesCustomerId, AppL10n.current.salesQuotationAmount, AppL10n.current.commonStatus, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.salesQuotationNo, AppL10n.current.fieldCustomer, AppL10n.current.salesQuotationAmount, AppL10n.current.commonStatus, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.salesQuotationNo: r['code'] ?? '',
-    AppL10n.current.salesCustomerId: r['customer_id'] ?? '',
+    AppL10n.current.fieldCustomer: r['customer_name'] ?? r['customer_id'] ?? '',
     AppL10n.current.salesQuotationAmount: r['total_amount'] ?? '',
     AppL10n.current.commonStatus: _chip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

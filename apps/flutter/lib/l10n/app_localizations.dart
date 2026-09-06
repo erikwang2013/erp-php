@@ -3644,6 +3644,18 @@ abstract class AppLocalizations {
   /// **'用户'**
   String get fieldUser;
 
+  /// No description provided for @fieldCustomer.
+  ///
+  /// In zh, this message translates to:
+  /// **'客户'**
+  String get fieldCustomer;
+
+  /// No description provided for @fieldOwner.
+  ///
+  /// In zh, this message translates to:
+  /// **'负责人'**
+  String get fieldOwner;
+
   /// No description provided for @fieldWorkDate.
   ///
   /// In zh, this message translates to:

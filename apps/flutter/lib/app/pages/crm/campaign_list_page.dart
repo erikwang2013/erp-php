@@ -23,6 +23,10 @@ class _CampaignListPageState extends State<CampaignListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 负责人选项（id→姓名，id 为用户列表行 hashid），打开新增/编辑弹窗前懒加载一次。
+  Map<String, String> _ownerOptions = {};
+  bool _ownersLoaded = false;
+
   @override
   void initState() { super.initState(); _load(); }
 
@@ -40,8 +44,28 @@ class _CampaignListPageState extends State<CampaignListPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
+  /// 加载负责人下拉选项（owner_user_id 必填且为 hashid，取自 /admin/v1/user 列表行 id）。
+  Future<bool> _ensureOwners() async {
+    if (_ownersLoaded) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/user', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _ownerOptions = {
+        for (final u in list) '${u['id']}': '${u['real_name'] ?? u['username'] ?? ''}',
+      };
+      _ownersLoaded = true;
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
     final l10n = AppL10n.current;
+    if (!await _ensureOwners() || !mounted) return;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/crm/campaign', data: data);
       _load(); return true;
@@ -50,6 +74,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
 
   Future<void> _edit(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
+    if (!await _ensureOwners() || !mounted) return;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/crm/campaign/${row['id']}', data: data);
       _load(); return true;
@@ -66,10 +91,22 @@ class _CampaignListPageState extends State<CampaignListPage> {
     });
   }
 
-  List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.current.crmName, required: true),
-    FormFieldConfig(name: 'code', label: AppL10n.current.crmCode),
-  ];
+  // 与后端 CampaignController::store 契约对齐：name/owner_user_id 必填（负责人为 /admin/v1/user 下拉）
+  List<FormFieldConfig> _formFields() {
+    final l10n = AppL10n.current;
+    return [
+      FormFieldConfig(name: 'name', label: l10n.crmName, required: true),
+      FormFieldConfig(
+        name: 'owner_user_id',
+        label: l10n.fieldOwner,
+        required: true,
+        type: FormFieldType.dropdown,
+        options: _ownerOptions.keys.toList(),
+        optionLabels: _ownerOptions,
+      ),
+      FormFieldConfig(name: 'code', label: l10n.crmCode),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(

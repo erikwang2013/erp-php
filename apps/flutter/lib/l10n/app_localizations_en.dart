@@ -1860,6 +1860,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldUser => 'User';
 
   @override
+  String get fieldCustomer => 'Customer';
+
+  @override
+  String get fieldOwner => 'Owner';
+
+  @override
   String get fieldWorkDate => 'Work Date';
 
   @override
