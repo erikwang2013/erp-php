@@ -333,6 +333,9 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).omsOrderTitle,
+    moduleKey: 'oms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

@@ -153,6 +153,11 @@
   "omsWarehouseIdHint": "A shipping warehouse is required by the server",
   "omsFulfill": "Fulfill",
   "omsPaymentStatus": "Payment Status",
+  "omsChannelTitle": "Channels",
+  "omsFulfillmentTitle": "Fulfillment",
+  "omsOrderTitle": "OMS Orders",
+  "omsRmaTitle": "Returns (RMA)",
+
   "omsShippingMethod": "Shipping Method",
   "omsShippingFee": "Shipping Fee",
   "omsShippingFeeHint": "e.g. 10.00",

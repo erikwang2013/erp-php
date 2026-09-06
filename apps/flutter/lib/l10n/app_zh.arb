@@ -144,6 +144,11 @@
   "omsWarehouseIdHint": "后端要求提供发货仓库",
   "omsFulfill": "履约",
   "omsPaymentStatus": "支付状态",
+  "omsChannelTitle": "渠道管理",
+  "omsFulfillmentTitle": "履约管理",
+  "omsOrderTitle": "OMS 订单",
+  "omsRmaTitle": "退换货(RMA)",
+
   "omsShippingMethod": "配送方式",
   "omsShippingFee": "运费",
   "omsShippingFeeHint": "如 10.00",

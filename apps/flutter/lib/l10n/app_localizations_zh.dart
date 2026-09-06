@@ -307,6 +307,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get omsPaymentStatus => '支付状态';
 
   @override
+  String get omsChannelTitle => '渠道管理';
+
+  @override
+  String get omsFulfillmentTitle => '履约管理';
+
+  @override
+  String get omsOrderTitle => 'OMS 订单';
+
+  @override
+  String get omsRmaTitle => '退换货(RMA)';
+
+  @override
   String get omsShippingMethod => '配送方式';
 
   @override

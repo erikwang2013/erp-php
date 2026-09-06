@@ -662,6 +662,30 @@ abstract class AppLocalizations {
   /// **'支付状态'**
   String get omsPaymentStatus;
 
+  /// No description provided for @omsChannelTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'渠道管理'**
+  String get omsChannelTitle;
+
+  /// No description provided for @omsFulfillmentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'履约管理'**
+  String get omsFulfillmentTitle;
+
+  /// No description provided for @omsOrderTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'OMS 订单'**
+  String get omsOrderTitle;
+
+  /// No description provided for @omsRmaTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'退换货(RMA)'**
+  String get omsRmaTitle;
+
   /// No description provided for @omsShippingMethod.
   ///
   /// In zh, this message translates to:

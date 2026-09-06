@@ -310,6 +310,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get omsPaymentStatus => 'Payment Status';
 
   @override
+  String get omsChannelTitle => 'Channels';
+
+  @override
+  String get omsFulfillmentTitle => 'Fulfillment';
+
+  @override
+  String get omsOrderTitle => 'OMS Orders';
+
+  @override
+  String get omsRmaTitle => 'Returns (RMA)';
+
+  @override
   String get omsShippingMethod => 'Shipping Method';
 
   @override

@@ -143,6 +143,9 @@ class _RmaListPageState extends State<RmaListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).omsRmaTitle,
+    moduleKey: 'oms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

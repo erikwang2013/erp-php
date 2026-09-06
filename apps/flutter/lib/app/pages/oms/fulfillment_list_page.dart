@@ -143,6 +143,9 @@ class _FulfillmentListPageState extends State<FulfillmentListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).omsFulfillmentTitle,
+    moduleKey: 'oms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

@@ -143,6 +143,9 @@ class _ChannelListPageState extends State<ChannelListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).omsChannelTitle,
+    moduleKey: 'oms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(
