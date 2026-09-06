@@ -117,25 +117,42 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
     return Center(child: SizedBox(width: 500, child: ListView(padding: const EdgeInsets.all(24), children: [
       Text(l10n.navProfile, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 24),
-      TextField(controller: _realNameCtrl, onChanged: (_) => setState(() => _nameDirty = true),
-          decoration: InputDecoration(labelText: l10n.fieldRealName, hintText: l10n.profileLeaveBlank)),
-      const SizedBox(height: 12),
-      TextField(controller: _phoneCtrl, onChanged: (_) => setState(() => _phoneDirty = true),
-          decoration: InputDecoration(labelText: l10n.fieldPhone, hintText: l10n.profileLeaveBlank)),
-      const SizedBox(height: 12),
-      TextField(controller: _emailCtrl, onChanged: (_) => setState(() => _emailDirty = true),
-          decoration: InputDecoration(labelText: l10n.fieldEmail, hintText: l10n.profileLeaveBlank)),
-      const SizedBox(height: 24),
-      Row(children: [
-        ElevatedButton.icon(onPressed: _updateProfile, icon: const Icon(Icons.save), label: Text(l10n.commonSave)),
-      ]),
-      const SizedBox(height: 32),
-      const Divider(),
-      ListTile(leading: const Icon(Icons.lock), title: Text(l10n.profileChangePassword), trailing: const Icon(Icons.chevron_right), onTap: _changePassword),
-      ListTile(leading: Icon(Icons.logout, color: AppColors.of(context).danger), title: Text(l10n.navLogout, style: TextStyle(color: AppColors.of(context).danger)), onTap: _logout),
+      const SizedBox(height: 16),
+      // 视觉统一:内容区套 surface 圆角卡容器(r12 + hairline,同列表页 wrapper 语言);
+      // 用 Material 而非 Container:卡内含 ListTile,需自身作墨水祖先(否则 debug 断言)
+      Material(
+        color: c.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppMetrics.radiusCard),
+          side: BorderSide(color: c.divider),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            TextField(controller: _realNameCtrl, onChanged: (_) => setState(() => _nameDirty = true),
+                decoration: InputDecoration(labelText: l10n.fieldRealName, hintText: l10n.profileLeaveBlank)),
+            const SizedBox(height: 12),
+            TextField(controller: _phoneCtrl, onChanged: (_) => setState(() => _phoneDirty = true),
+                decoration: InputDecoration(labelText: l10n.fieldPhone, hintText: l10n.profileLeaveBlank)),
+            const SizedBox(height: 12),
+            TextField(controller: _emailCtrl, onChanged: (_) => setState(() => _emailDirty = true),
+                decoration: InputDecoration(labelText: l10n.fieldEmail, hintText: l10n.profileLeaveBlank)),
+            const SizedBox(height: 20),
+            Row(children: [
+              ElevatedButton.icon(onPressed: _updateProfile, icon: const Icon(Icons.save), label: Text(l10n.commonSave)),
+            ]),
+            const SizedBox(height: 16),
+            const Divider(),
+            // 修改密码/退出登录入口:行为与弹框不动(历史批已统一)
+            ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.lock), title: Text(l10n.profileChangePassword), trailing: const Icon(Icons.chevron_right), onTap: _changePassword),
+            ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.logout, color: c.danger), title: Text(l10n.navLogout, style: TextStyle(color: c.danger)), onTap: _logout),
+          ]),
+        ),
+      ),
     ])));
   }
 }
