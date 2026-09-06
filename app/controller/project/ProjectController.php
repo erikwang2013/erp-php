@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\project;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
 use app\model\Project;
 use app\model\ProjectTask;
 use support\Request;
@@ -62,21 +63,25 @@ class ProjectController extends BaseController
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
         }
-        if ($managerId) {
-            $query->where('manager_user_id', (int) $managerId);
+        if ($managerId !== null && $managerId !== '') {
+            $query->where('manager_user_id', $this->decodeIdSafe((string) $managerId) ?? (int) $managerId);
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $rows = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(function ($item) {
-                $data = $item->toArray();
-                $data = $this->encodeIds($data);
-                // 计算实际进度
-                $data['progress'] = $this->calcProgress($item->id);
+            ->get()->map(fn ($item) => $item->toArray())->all();
 
-                return $data;
-            });
+        // 负责人展示名（行级同查询无 N+1）；manager_user_id 一并编码，编辑弹窗回填同源选项
+        $managerIds = array_values(array_unique(array_map(fn ($r) => (int) ($r['manager_user_id'] ?? 0), $rows)));
+        $managerNames = AdminUser::whereIn('id', $managerIds)->pluck('real_name', 'id');
+        $list = array_map(function ($row) use ($managerNames) {
+            $row['manager_name'] = (string) ($managerNames[(int) ($row['manager_user_id'] ?? 0)] ?? '');
+            // 计算实际进度
+            $row['progress'] = $this->calcProgress($row['id']);
+
+            return $this->encodeIds($row, ['id', 'manager_user_id']);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -91,24 +96,27 @@ class ProjectController extends BaseController
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("项目管理")]
 #[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"项目名称")]
-#[\erikwang2013\apidoc\annotation\Param(name:"manager_user_id", type:"int", require:true, desc:"负责人用户ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"项目编号(唯一)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"manager_user_id", type:"string", require:true, desc:"负责人用户ID(hashid)")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
 #[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"项目信息")]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'manager_user_id' => 'required|integer|min:1']);
+        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'code' => 'required|string|max:50', 'manager_user_id' => 'required|string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
         $item = new Project();
         $item->id = $this->generateId();
+        // manager_user_id 接受 /admin/v1/user 列表下发的 hashid，先解码回 int 再 fill
+        $request->merge(['manager_user_id' => $this->decodeIdSafe((string) $request->input('manager_user_id')) ?? 0]);
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'manager_user_id']), '创建成功');
     }
 
     /**
@@ -132,7 +140,7 @@ class ProjectController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        $result = $this->encodeIds($item->toArray());
+        $result = $this->encodeIds($item->toArray(), ['id', 'manager_user_id']);
         $result['progress'] = $this->calcProgress($item->id);
 
         return $this->success($result);
@@ -159,10 +167,14 @@ class ProjectController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
+        if ($request->input('manager_user_id', '') !== '') {
+            $request->merge(['manager_user_id' => $this->decodeIdSafe((string) $request->input('manager_user_id')) ?? 0]);
+        }
+
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'manager_user_id']), '更新成功');
     }
 
     /**

@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace app\controller\project;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
+use app\model\Project;
 use app\model\ProjectTimesheet;
 use support\Request;
 use support\Response;
@@ -46,23 +48,35 @@ class TimesheetController extends BaseController
 
         $query = ProjectTimesheet::query();
 
-        if ($projectId) {
-            $query->where('project_id', (int) $projectId);
+        if ($projectId !== null && $projectId !== '') {
+            $query->where('project_id', $this->decodeIdSafe((string) $projectId) ?? (int) $projectId);
         }
-        if ($taskId) {
-            $query->where('task_id', (int) $taskId);
+        if ($taskId !== null && $taskId !== '') {
+            $query->where('task_id', $this->decodeIdSafe((string) $taskId) ?? (int) $taskId);
         }
-        if ($userId) {
-            $query->where('user_id', (int) $userId);
+        if ($userId !== null && $userId !== '') {
+            $query->where('user_id', $this->decodeIdSafe((string) $userId) ?? (int) $userId);
         }
-        if ($workDate) {
+        if ($workDate !== null && $workDate !== '') {
             $query->where('work_date', $workDate);
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $rows = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('work_date', 'desc')->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $item->toArray())->all();
+
+        // 行级展示名（项目/用户），FK 一并编码供编辑弹窗回填同源选项
+        $projectIds = array_values(array_unique(array_map(fn ($r) => (int) ($r['project_id'] ?? 0), $rows)));
+        $userIds = array_values(array_unique(array_map(fn ($r) => (int) ($r['user_id'] ?? 0), $rows)));
+        $projectNames = Project::whereIn('id', $projectIds)->pluck('name', 'id');
+        $userNames = AdminUser::whereIn('id', $userIds)->pluck('real_name', 'id');
+        $list = array_map(function ($row) use ($projectNames, $userNames) {
+            $row['project_name'] = (string) ($projectNames[(int) ($row['project_id'] ?? 0)] ?? '');
+            $row['user_name'] = (string) ($userNames[(int) ($row['user_id'] ?? 0)] ?? '');
+
+            return $this->encodeIds($row, ['id', 'project_id', 'task_id', 'user_id']);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -76,8 +90,8 @@ class TimesheetController extends BaseController
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"project_id", type:"int", desc:"项目ID，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"user_id", type:"int", desc:"用户ID，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"project_id", type:"string", desc:"项目ID(hashid)，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"user_id", type:"string", desc:"用户ID(hashid)，必填")]
 #[\erikwang2013\apidoc\annotation\Param(name:"hours", type:"float", desc:"工时数，必填")]
 #[\erikwang2013\apidoc\annotation\Param(name:"work_date", type:"string", desc:"工作日期，必填")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
@@ -87,8 +101,8 @@ class TimesheetController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'project_id' => 'required|integer|min:1',
-            'user_id' => 'required|integer|min:1',
+            'project_id' => 'required|string',
+            'user_id' => 'required|string',
             'hours' => 'required|numeric|min:0.01',
             'work_date' => 'required|date',
         ]);
@@ -98,12 +112,13 @@ class TimesheetController extends BaseController
 
         $item = new ProjectTimesheet();
         $item->id = $this->generateId();
+        $this->decodeFkIntoRequest($request);
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $this->updateTaskActualHours($item->task_id);
 
-        return $this->success($this->encodeIds($item->toArray()), '工时记录成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'task_id', 'user_id']), '工时记录成功');
     }
 
     /**
@@ -127,7 +142,21 @@ class TimesheetController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'task_id', 'user_id']));
+    }
+
+    /**
+     * hashid 兼容解码：store/update 前把表单下发的 hashid FK（来自 /admin/v1/project、
+     * /admin/v1/user 等列表行）解码为 int 合并回请求，fill 落库即为 int。
+     */
+    protected function decodeFkIntoRequest(Request $request): void
+    {
+        foreach (['project_id', 'task_id', 'user_id'] as $key) {
+            $value = $request->input($key, '');
+            if ($value !== null && $value !== '') {
+                $request->merge([$key => $this->decodeIdSafe((string) $value) ?? (int) $value]);
+            }
+        }
     }
 
     /**
@@ -151,12 +180,13 @@ class TimesheetController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
+        $this->decodeFkIntoRequest($request);
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $this->updateTaskActualHours($item->task_id);
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'task_id', 'user_id']), '更新成功');
     }
 
     /**

@@ -19,4 +19,6 @@ class ProjectTimesheet extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    // fillable 与 guarded 需共存：仅 guarded 时 getFillable() 为空 → fill 空写。
+    protected $fillable = ['project_id', 'task_id', 'user_id', 'hours', 'work_date', 'description'];
 }

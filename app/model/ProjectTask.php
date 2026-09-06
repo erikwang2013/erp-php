@@ -22,4 +22,6 @@ class ProjectTask extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+    // fillable 与 guarded 需共存：仅 guarded 时 getFillable() 为空 → fill 空写。
+    protected $fillable = ['project_id', 'parent_id', 'name', 'assignee_user_id', 'status', 'priority', 'start_date', 'due_date', 'completed_at', 'estimated_hours', 'actual_hours', 'progress', 'seq', 'description'];
 }

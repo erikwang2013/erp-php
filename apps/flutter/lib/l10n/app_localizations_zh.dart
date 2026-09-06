@@ -1809,6 +1809,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fieldManager => '负责人';
 
   @override
+  String get fieldHours => '工时(小时)';
+
+  @override
+  String get fieldProject => '项目';
+
+  @override
+  String get fieldUser => '用户';
+
+  @override
+  String get fieldWorkDate => '工作日期';
+
+  @override
   String get fieldLevel => '等级';
 
   @override

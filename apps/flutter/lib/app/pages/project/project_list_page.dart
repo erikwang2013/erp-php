@@ -23,6 +23,10 @@ class _ProjectListPageState extends State<ProjectListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 负责人选项（id→姓名），打开新增/编辑弹窗前懒加载一次。
+  Map<String, String> _managerOptions = {};
+  bool _managerLoaded = false;
+
   @override
   void initState() { super.initState(); _load(); }
 
@@ -40,7 +44,27 @@ class _ProjectListPageState extends State<ProjectListPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
+  /// 加载负责人选项（POST 的 manager_user_id 必填且为 hashid，取自 /admin/v1/user 列表行 id）。
+  Future<bool> _ensureManagers() async {
+    if (_managerLoaded) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/user', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _managerOptions = {
+        for (final u in list) '${u['id']}': '${u['real_name'] ?? u['username'] ?? ''}',
+      };
+      _managerLoaded = true;
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
+    if (!await _ensureManagers() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/project', data: data);
@@ -49,6 +73,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureManagers() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/project/${row['id']}', data: data);
@@ -64,11 +89,21 @@ class _ProjectListPageState extends State<ProjectListPage> {
     });
   }
 
+  // 字段与后端 ProjectController::store 契约对齐：
+  // name/code/manager_user_id 必填（code 因 uk_code 唯一约束不可为空，空串第二次提交即 1062 重复键）。
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
       FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
-      FormFieldConfig(name: 'code', label: l10n.fieldCode),
+      FormFieldConfig(name: 'code', label: l10n.fieldCode, required: true),
+      FormFieldConfig(
+        name: 'manager_user_id',
+        label: l10n.fieldManager,
+        required: true,
+        type: FormFieldType.dropdown,
+        options: _managerOptions.keys.toList(),
+        optionLabels: _managerOptions,
+      ),
     ];
   }
 
@@ -91,7 +126,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.fieldName, l10n.fieldCode, l10n.commonAction];
+    return [l10n.fieldName, l10n.fieldCode, l10n.fieldManager, l10n.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
@@ -99,6 +134,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
     return {
       l10n.fieldName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
+      l10n.fieldManager: r['manager_name'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
         IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

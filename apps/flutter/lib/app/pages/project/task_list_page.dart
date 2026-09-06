@@ -23,6 +23,11 @@ class _ProjectTaskListPageState extends State<ProjectTaskListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 项目选项（id→名称），打开新增/编辑弹窗前懒加载一次。
+  /// erp_project_task 无 code 列（install.sql 权威），表单/列表均以项目归属为准。
+  Map<String, String> _projectOptions = {};
+  bool _projectLoaded = false;
+
   @override
   void initState() { super.initState(); _load(); }
 
@@ -40,7 +45,27 @@ class _ProjectTaskListPageState extends State<ProjectTaskListPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
+  /// 加载项目选项（POST 的 project_id 必填，值取 /admin/v1/project 列表行 id hashid）。
+  Future<bool> _ensureProjects() async {
+    if (_projectLoaded) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/project', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _projectOptions = {
+        for (final p in list) '${p['id']}': '${p['name'] ?? p['code'] ?? ''}',
+      };
+      _projectLoaded = true;
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
+    if (!await _ensureProjects() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/project/task', data: data);
@@ -49,6 +74,7 @@ class _ProjectTaskListPageState extends State<ProjectTaskListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureProjects() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/project/task/${row['id']}', data: data);
@@ -58,17 +84,25 @@ class _ProjectTaskListPageState extends State<ProjectTaskListPage> {
 
   Future<void> _delete(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
-    await ConfirmDialog.show(context, title: l10n.commonDeleteConfirm, content: l10n.commonDeleteContent(row['name'] ?? row['code'] ?? '${row['id']}'), onConfirm: (password) async {
+    await ConfirmDialog.show(context, title: l10n.commonDeleteConfirm, content: l10n.commonDeleteContent(row['name'] ?? '${row['id']}'), onConfirm: (password) async {
       await ApiService.instance.delete('/admin/v1/project/task/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
 
+  // 字段与后端 TaskController::store 契约对齐：name/project_id 必填（422 消息源）。
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
       FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
-      FormFieldConfig(name: 'code', label: l10n.fieldCode),
+      FormFieldConfig(
+        name: 'project_id',
+        label: l10n.fieldProject,
+        required: true,
+        type: FormFieldType.dropdown,
+        options: _projectOptions.keys.toList(),
+        optionLabels: _projectOptions,
+      ),
     ];
   }
 
@@ -91,14 +125,14 @@ class _ProjectTaskListPageState extends State<ProjectTaskListPage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.fieldName, l10n.fieldCode, l10n.commonAction];
+    return [l10n.fieldName, l10n.fieldProject, l10n.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     return {
       l10n.fieldName: r['name'] ?? '',
-      l10n.fieldCode: r['code'] ?? '',
+      l10n.fieldProject: r['project_name'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
         IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

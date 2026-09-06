@@ -1830,6 +1830,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldManager => 'Manager';
 
   @override
+  String get fieldHours => 'Hours';
+
+  @override
+  String get fieldProject => 'Project';
+
+  @override
+  String get fieldUser => 'User';
+
+  @override
+  String get fieldWorkDate => 'Work Date';
+
+  @override
   String get fieldLevel => 'Level';
 
   @override

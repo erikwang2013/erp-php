@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\project;
 
 use app\admin\controller\BaseController;
+use app\model\Project;
 use app\model\ProjectTask;
 use support\Request;
 use support\Response;
@@ -65,9 +66,18 @@ class TaskController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $rows = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('seq')->orderBy('id', 'asc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $item->toArray())->all();
+
+        // 行级展示名：项目名（避免幻列/裸 snowflake）；FK 一并编码，供编辑弹窗回填同源选项
+        $projectIds = array_values(array_unique(array_map(fn ($r) => (int) ($r['project_id'] ?? 0), $rows)));
+        $projectNames = Project::whereIn('id', $projectIds)->pluck('name', 'id');
+        $list = array_map(function ($row) use ($projectNames) {
+            $row['project_name'] = (string) ($projectNames[(int) ($row['project_id'] ?? 0)] ?? '');
+
+            return $this->encodeIds($row, ['id', 'project_id']);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -96,17 +106,16 @@ class TaskController extends BaseController
 
         $item = new ProjectTask();
         $item->id = $this->generateId();
-
+        // project_id 兼容 hashid/raw 双态：先解码合并回请求，fill 落库即为 int
         $projectIdHash = $request->input('project_id');
-        $decoded = $this->decodeIdSafe($projectIdHash);
-        $item->project_id = $decoded ?? (int) $projectIdHash;
+        $request->merge(['project_id' => $this->decodeIdSafe((string) $projectIdHash) ?? (int) $projectIdHash]);
 
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $this->updateProjectProgress($item->project_id);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id']), '创建成功');
     }
 
     /**
@@ -130,11 +139,11 @@ class TaskController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        $result = $this->encodeIds($item->toArray());
+        $result = $this->encodeIds($item->toArray(), ['id', 'project_id']);
 
         $result['children'] = ProjectTask::where('parent_id', $item->id)
             ->orderBy('seq')->orderBy('id')
-            ->get()->map(fn ($child) => $this->encodeIds($child->toArray()));
+            ->get()->map(fn ($child) => $this->encodeIds($child->toArray(), ['id', 'project_id']));
 
         return $this->success($result);
     }
@@ -160,12 +169,16 @@ class TaskController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
+        if ($request->input('project_id', '') !== '') {
+            $request->merge(['project_id' => $this->decodeIdSafe((string) $request->input('project_id')) ?? (int) $request->input('project_id')]);
+        }
+
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $this->updateProjectProgress($item->project_id);
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id']), '更新成功');
     }
 
     /**

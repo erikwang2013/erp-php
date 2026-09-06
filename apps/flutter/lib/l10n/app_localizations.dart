@@ -3584,6 +3584,30 @@ abstract class AppLocalizations {
   /// **'负责人'**
   String get fieldManager;
 
+  /// No description provided for @fieldHours.
+  ///
+  /// In zh, this message translates to:
+  /// **'工时(小时)'**
+  String get fieldHours;
+
+  /// No description provided for @fieldProject.
+  ///
+  /// In zh, this message translates to:
+  /// **'项目'**
+  String get fieldProject;
+
+  /// No description provided for @fieldUser.
+  ///
+  /// In zh, this message translates to:
+  /// **'用户'**
+  String get fieldUser;
+
+  /// No description provided for @fieldWorkDate.
+  ///
+  /// In zh, this message translates to:
+  /// **'工作日期'**
+  String get fieldWorkDate;
+
   /// No description provided for @fieldLevel.
   ///
   /// In zh, this message translates to:
