@@ -631,6 +631,302 @@
     {
       "name": "rma_title",
       "value": "退换货管理"
+    },
+    {
+      "name": "sales_list_title",
+      "value": "销售订单"
+    },
+    {
+      "name": "sales_empty",
+      "value": "暂无销售订单数据"
+    },
+    {
+      "name": "sales_customer_fmt",
+      "value": "客户ID: %1$s"
+    },
+    {
+      "name": "sales_form_add",
+      "value": "新增销售订单"
+    },
+    {
+      "name": "sales_form_edit",
+      "value": "编辑销售订单"
+    },
+    {
+      "name": "sales_delete_msg",
+      "value": "确定要删除该销售订单吗？删除后不可恢复。"
+    },
+    {
+      "name": "sales_name",
+      "value": "订单名称"
+    },
+    {
+      "name": "sales_code",
+      "value": "订单编号"
+    },
+    {
+      "name": "sales_customer_id",
+      "value": "客户ID"
+    },
+    {
+      "name": "sales_quotation_id",
+      "value": "报价单ID"
+    },
+    {
+      "name": "sales_warehouse_id",
+      "value": "发货仓库ID"
+    },
+    {
+      "name": "sales_total_amount",
+      "value": "订单总金额"
+    },
+    {
+      "name": "sales_discount_amount",
+      "value": "优惠金额"
+    },
+    {
+      "name": "sales_status",
+      "value": "状态"
+    },
+    {
+      "name": "sales_ordered_at",
+      "value": "下单时间"
+    },
+    {
+      "name": "sales_remark",
+      "value": "备注"
+    },
+    {
+      "name": "sales_name_hint",
+      "value": "请输入订单名称（必填）"
+    },
+    {
+      "name": "sales_code_hint",
+      "value": "请输入订单编号"
+    },
+    {
+      "name": "sales_customer_id_hint",
+      "value": "客户数字ID（必填）"
+    },
+    {
+      "name": "sales_quotation_id_hint",
+      "value": "报价单数字ID，留空为0"
+    },
+    {
+      "name": "sales_warehouse_id_hint",
+      "value": "发货仓库数字ID，留空为0"
+    },
+    {
+      "name": "sales_total_amount_hint",
+      "value": "订单总金额，留空为0"
+    },
+    {
+      "name": "sales_discount_amount_hint",
+      "value": "优惠金额，默认0"
+    },
+    {
+      "name": "sales_ordered_at_hint",
+      "value": "格式: YYYY-MM-DD HH:mm:ss"
+    },
+    {
+      "name": "sales_remark_hint",
+      "value": "请输入备注"
+    },
+    {
+      "name": "sales_name_required",
+      "value": "请输入订单名称"
+    },
+    {
+      "name": "sales_customer_id_required",
+      "value": "请输入客户ID"
+    },
+    {
+      "name": "purchase_list_title",
+      "value": "采购订单"
+    },
+    {
+      "name": "purchase_empty",
+      "value": "暂无采购订单数据"
+    },
+    {
+      "name": "purchase_supplier_fmt",
+      "value": "供应商ID: %1$s"
+    },
+    {
+      "name": "purchase_form_add",
+      "value": "新增采购订单"
+    },
+    {
+      "name": "purchase_form_edit",
+      "value": "编辑采购订单"
+    },
+    {
+      "name": "purchase_delete_msg",
+      "value": "确定要删除该采购订单吗？删除后不可恢复。"
+    },
+    {
+      "name": "purchase_name",
+      "value": "订单名称"
+    },
+    {
+      "name": "purchase_code",
+      "value": "订单编号"
+    },
+    {
+      "name": "purchase_supplier_id",
+      "value": "供应商ID"
+    },
+    {
+      "name": "purchase_apply_id",
+      "value": "采购申请ID"
+    },
+    {
+      "name": "purchase_warehouse_id",
+      "value": "收货仓库ID"
+    },
+    {
+      "name": "purchase_total_amount",
+      "value": "订单总金额"
+    },
+    {
+      "name": "purchase_status",
+      "value": "状态"
+    },
+    {
+      "name": "purchase_ordered_at",
+      "value": "下单时间"
+    },
+    {
+      "name": "purchase_remark",
+      "value": "备注"
+    },
+    {
+      "name": "purchase_name_hint",
+      "value": "请输入订单名称（必填）"
+    },
+    {
+      "name": "purchase_code_hint",
+      "value": "请输入订单编号"
+    },
+    {
+      "name": "purchase_supplier_id_hint",
+      "value": "供应商数字ID（必填）"
+    },
+    {
+      "name": "purchase_apply_id_hint",
+      "value": "采购申请数字ID，留空为0"
+    },
+    {
+      "name": "purchase_warehouse_id_hint",
+      "value": "收货仓库数字ID，留空为0"
+    },
+    {
+      "name": "purchase_total_amount_hint",
+      "value": "订单总金额，留空为0"
+    },
+    {
+      "name": "purchase_ordered_at_hint",
+      "value": "格式: YYYY-MM-DD HH:mm:ss"
+    },
+    {
+      "name": "purchase_remark_hint",
+      "value": "请输入备注"
+    },
+    {
+      "name": "purchase_name_required",
+      "value": "请输入订单名称"
+    },
+    {
+      "name": "purchase_supplier_id_required",
+      "value": "请输入供应商ID"
+    },
+    {
+      "name": "carrier_list_title",
+      "value": "承运商管理"
+    },
+    {
+      "name": "carrier_empty",
+      "value": "暂无承运商数据"
+    },
+    {
+      "name": "carrier_code_fmt",
+      "value": "编码: %1$s"
+    },
+    {
+      "name": "carrier_form_add",
+      "value": "新增承运商"
+    },
+    {
+      "name": "carrier_form_edit",
+      "value": "编辑承运商"
+    },
+    {
+      "name": "carrier_delete_msg",
+      "value": "确定要删除该承运商吗？删除后不可恢复。"
+    },
+    {
+      "name": "carrier_name",
+      "value": "名称"
+    },
+    {
+      "name": "carrier_code",
+      "value": "编码"
+    },
+    {
+      "name": "carrier_type",
+      "value": "类型"
+    },
+    {
+      "name": "carrier_website",
+      "value": "官网"
+    },
+    {
+      "name": "carrier_tracking_url_template",
+      "value": "跟踪链接模板"
+    },
+    {
+      "name": "carrier_api_provider",
+      "value": "API服务商"
+    },
+    {
+      "name": "carrier_contact_phone",
+      "value": "联系电话"
+    },
+    {
+      "name": "carrier_status",
+      "value": "状态"
+    },
+    {
+      "name": "carrier_name_hint",
+      "value": "请输入承运商名称（必填）"
+    },
+    {
+      "name": "carrier_code_hint",
+      "value": "请输入承运商编码"
+    },
+    {
+      "name": "carrier_type_hint",
+      "value": "默认 express"
+    },
+    {
+      "name": "carrier_website_hint",
+      "value": "请输入官网地址"
+    },
+    {
+      "name": "carrier_tracking_url_template_hint",
+      "value": "如 https://xxx/{tracking_no}"
+    },
+    {
+      "name": "carrier_api_provider_hint",
+      "value": "请输入API服务商"
+    },
+    {
+      "name": "carrier_contact_phone_hint",
+      "value": "请输入联系电话"
+    },
+    {
+      "name": "carrier_name_required",
+      "value": "请输入承运商名称"
     }
   ]
 }

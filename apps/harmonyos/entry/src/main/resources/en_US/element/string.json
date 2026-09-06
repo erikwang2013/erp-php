@@ -631,6 +631,302 @@
     {
       "name": "rma_title",
       "value": "Returns & RMA"
+    },
+    {
+      "name": "sales_list_title",
+      "value": "Sales Orders"
+    },
+    {
+      "name": "sales_empty",
+      "value": "No sales orders yet"
+    },
+    {
+      "name": "sales_customer_fmt",
+      "value": "Customer ID: %1$s"
+    },
+    {
+      "name": "sales_form_add",
+      "value": "New Sales Order"
+    },
+    {
+      "name": "sales_form_edit",
+      "value": "Edit Sales Order"
+    },
+    {
+      "name": "sales_delete_msg",
+      "value": "Delete this sales order? This cannot be undone."
+    },
+    {
+      "name": "sales_name",
+      "value": "Order Name"
+    },
+    {
+      "name": "sales_code",
+      "value": "Order No."
+    },
+    {
+      "name": "sales_customer_id",
+      "value": "Customer ID"
+    },
+    {
+      "name": "sales_quotation_id",
+      "value": "Quotation ID"
+    },
+    {
+      "name": "sales_warehouse_id",
+      "value": "Shipping Warehouse ID"
+    },
+    {
+      "name": "sales_total_amount",
+      "value": "Total Amount"
+    },
+    {
+      "name": "sales_discount_amount",
+      "value": "Discount Amount"
+    },
+    {
+      "name": "sales_status",
+      "value": "Status"
+    },
+    {
+      "name": "sales_ordered_at",
+      "value": "Ordered At"
+    },
+    {
+      "name": "sales_remark",
+      "value": "Remark"
+    },
+    {
+      "name": "sales_name_hint",
+      "value": "Enter order name (required)"
+    },
+    {
+      "name": "sales_code_hint",
+      "value": "Enter order No."
+    },
+    {
+      "name": "sales_customer_id_hint",
+      "value": "Customer numeric ID (required)"
+    },
+    {
+      "name": "sales_quotation_id_hint",
+      "value": "Quotation numeric ID, leave blank for 0"
+    },
+    {
+      "name": "sales_warehouse_id_hint",
+      "value": "Shipping warehouse numeric ID, leave blank for 0"
+    },
+    {
+      "name": "sales_total_amount_hint",
+      "value": "Total amount, leave blank for 0"
+    },
+    {
+      "name": "sales_discount_amount_hint",
+      "value": "Discount amount, defaults to 0"
+    },
+    {
+      "name": "sales_ordered_at_hint",
+      "value": "Format: YYYY-MM-DD HH:mm:ss"
+    },
+    {
+      "name": "sales_remark_hint",
+      "value": "Enter a remark"
+    },
+    {
+      "name": "sales_name_required",
+      "value": "Order name is required"
+    },
+    {
+      "name": "sales_customer_id_required",
+      "value": "Customer ID is required"
+    },
+    {
+      "name": "purchase_list_title",
+      "value": "Purchase Orders"
+    },
+    {
+      "name": "purchase_empty",
+      "value": "No purchase orders yet"
+    },
+    {
+      "name": "purchase_supplier_fmt",
+      "value": "Supplier ID: %1$s"
+    },
+    {
+      "name": "purchase_form_add",
+      "value": "New Purchase Order"
+    },
+    {
+      "name": "purchase_form_edit",
+      "value": "Edit Purchase Order"
+    },
+    {
+      "name": "purchase_delete_msg",
+      "value": "Delete this purchase order? This cannot be undone."
+    },
+    {
+      "name": "purchase_name",
+      "value": "Order Name"
+    },
+    {
+      "name": "purchase_code",
+      "value": "Order No."
+    },
+    {
+      "name": "purchase_supplier_id",
+      "value": "Supplier ID"
+    },
+    {
+      "name": "purchase_apply_id",
+      "value": "Apply ID"
+    },
+    {
+      "name": "purchase_warehouse_id",
+      "value": "Receiving Warehouse ID"
+    },
+    {
+      "name": "purchase_total_amount",
+      "value": "Total Amount"
+    },
+    {
+      "name": "purchase_status",
+      "value": "Status"
+    },
+    {
+      "name": "purchase_ordered_at",
+      "value": "Ordered At"
+    },
+    {
+      "name": "purchase_remark",
+      "value": "Remark"
+    },
+    {
+      "name": "purchase_name_hint",
+      "value": "Enter order name (required)"
+    },
+    {
+      "name": "purchase_code_hint",
+      "value": "Enter order No."
+    },
+    {
+      "name": "purchase_supplier_id_hint",
+      "value": "Supplier numeric ID (required)"
+    },
+    {
+      "name": "purchase_apply_id_hint",
+      "value": "Apply numeric ID, leave blank for 0"
+    },
+    {
+      "name": "purchase_warehouse_id_hint",
+      "value": "Receiving warehouse numeric ID, leave blank for 0"
+    },
+    {
+      "name": "purchase_total_amount_hint",
+      "value": "Total amount, leave blank for 0"
+    },
+    {
+      "name": "purchase_ordered_at_hint",
+      "value": "Format: YYYY-MM-DD HH:mm:ss"
+    },
+    {
+      "name": "purchase_remark_hint",
+      "value": "Enter a remark"
+    },
+    {
+      "name": "purchase_name_required",
+      "value": "Order name is required"
+    },
+    {
+      "name": "purchase_supplier_id_required",
+      "value": "Supplier ID is required"
+    },
+    {
+      "name": "carrier_list_title",
+      "value": "Carrier Management"
+    },
+    {
+      "name": "carrier_empty",
+      "value": "No carriers yet"
+    },
+    {
+      "name": "carrier_code_fmt",
+      "value": "Code: %1$s"
+    },
+    {
+      "name": "carrier_form_add",
+      "value": "New Carrier"
+    },
+    {
+      "name": "carrier_form_edit",
+      "value": "Edit Carrier"
+    },
+    {
+      "name": "carrier_delete_msg",
+      "value": "Delete this carrier? This cannot be undone."
+    },
+    {
+      "name": "carrier_name",
+      "value": "Name"
+    },
+    {
+      "name": "carrier_code",
+      "value": "Code"
+    },
+    {
+      "name": "carrier_type",
+      "value": "Type"
+    },
+    {
+      "name": "carrier_website",
+      "value": "Website"
+    },
+    {
+      "name": "carrier_tracking_url_template",
+      "value": "Tracking URL Template"
+    },
+    {
+      "name": "carrier_api_provider",
+      "value": "API Provider"
+    },
+    {
+      "name": "carrier_contact_phone",
+      "value": "Contact Phone"
+    },
+    {
+      "name": "carrier_status",
+      "value": "Status"
+    },
+    {
+      "name": "carrier_name_hint",
+      "value": "Enter carrier name (required)"
+    },
+    {
+      "name": "carrier_code_hint",
+      "value": "Enter carrier code"
+    },
+    {
+      "name": "carrier_type_hint",
+      "value": "Defaults to express"
+    },
+    {
+      "name": "carrier_website_hint",
+      "value": "Enter website URL"
+    },
+    {
+      "name": "carrier_tracking_url_template_hint",
+      "value": "e.g. https://xxx/{tracking_no}"
+    },
+    {
+      "name": "carrier_api_provider_hint",
+      "value": "Enter API provider"
+    },
+    {
+      "name": "carrier_contact_phone_hint",
+      "value": "Enter contact phone"
+    },
+    {
+      "name": "carrier_name_required",
+      "value": "Carrier name is required"
     }
   ]
 }
