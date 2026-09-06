@@ -151,7 +151,7 @@ class _LeavePageState extends State<LeavePage> {
       columns: _columns(),
       rows: _rows.map((r) => _rowToMap(r)).toList(),
       total: _total, page: _page, limit: _limit, loading: _loading,
-      error: _error, onRetry: _load,
+      error: _error, onRetry: _load, onRefresh: _load,
       onPageChanged: (p) { _page = p; _load(); },
       filterBar: Row(mainAxisSize: MainAxisSize.min, children: [
         DropdownButton<String>(

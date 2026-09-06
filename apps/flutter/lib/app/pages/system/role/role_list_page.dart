@@ -26,6 +26,12 @@ class RoleListPage extends GetView<RoleController> {
         Row(children: [
           Text(l10n.systemRoleTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const Spacer(),
+          // 刷新:保持当前页重载;加载中禁用
+          Obx(() => IconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: AppL10n.current.commonRefresh,
+                onPressed: ctrl.isLoading.value ? null : () => ctrl.loadRoles(),
+              )),
           ElevatedButton.icon(
             onPressed: () => _showRoleDialog(context, ctrl),
             icon: const Icon(Icons.add),
@@ -35,38 +41,55 @@ class RoleListPage extends GetView<RoleController> {
         const SizedBox(height: 12),
         Expanded(child: Obx(() {
           final l10n = AppL10n.current;
-          if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
-          if (ctrl.roles.isEmpty) return Center(child: Text(l10n.systemRoleEmpty));
-
-          return ListView.builder(
-            itemCount: ctrl.roles.length,
-            itemBuilder: (_, i) {
-              final r = ctrl.roles[i];
-              return Card(
-                child: ListTile(
-                  leading: const Icon(Icons.shield, size: 36),
-                  title: Text(r['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(l10n.systemRoleSubtitle('${r['slug']}', int.tryParse('${r['users_count'] ?? 0}') ?? 0, '${r['description'] ?? ''}')),
-                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Chip(label: Text(r['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled), // §2.4：启用 success/停用 danger
-                        color: WidgetStatePropertyAll(r['status'] == 1 ? AppColors.of(context).successBg : AppColors.of(context).dangerBg),
-                        labelStyle: TextStyle(color: r['status'] == 1 ? AppColors.of(context).successText : AppColors.of(context).dangerText, fontSize: 12),
-                        side: BorderSide.none),
-                    IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _showRoleDialog(context, ctrl, role: r)),
-                    IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () {
-                      // 复用 ConfirmDialog（密码确认 + 内部 loading/失败态，controller 自管生命周期）
-                      ConfirmDialog.show(
-                        context,
-                        content: l10n.systemRoleDeleteContent('${r['name']}'),
-                        confirmText: l10n.commonDelete,
-                        passwordLabel: l10n.commonPasswordConfirm,
-                        onConfirm: (pwd) => ctrl.deleteRole(r['id'], pwd),
-                      );
-                    }),
-                  ]),
-                ),
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // 下拉刷新:保持当前页重载;加载中整页菊花
+          return RefreshIndicator(
+            onRefresh: () => ctrl.loadRoles(),
+            child: LayoutBuilder(builder: (context, c) {
+              if (ctrl.roles.isEmpty) {
+                // 空态撑满视口:内容不足一屏时下拉仍可触发
+                return SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: c.maxHeight),
+                    child: Center(child: Text(l10n.systemRoleEmpty)),
+                  ),
+                );
+              }
+              return ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: ctrl.roles.length,
+                itemBuilder: (_, i) {
+                  final r = ctrl.roles[i];
+                  return Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.shield, size: 36),
+                      title: Text(r['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(l10n.systemRoleSubtitle('${r['slug']}', int.tryParse('${r['users_count'] ?? 0}') ?? 0, '${r['description'] ?? ''}')),
+                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Chip(label: Text(r['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled), // §2.4：启用 success/停用 danger
+                            color: WidgetStatePropertyAll(r['status'] == 1 ? AppColors.of(context).successBg : AppColors.of(context).dangerBg),
+                            labelStyle: TextStyle(color: r['status'] == 1 ? AppColors.of(context).successText : AppColors.of(context).dangerText, fontSize: 12),
+                            side: BorderSide.none),
+                        IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _showRoleDialog(context, ctrl, role: r)),
+                        IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () {
+                          // 复用 ConfirmDialog（密码确认 + 内部 loading/失败态，controller 自管生命周期）
+                          ConfirmDialog.show(
+                            context,
+                            content: l10n.systemRoleDeleteContent('${r['name']}'),
+                            confirmText: l10n.commonDelete,
+                            passwordLabel: l10n.commonPasswordConfirm,
+                            onConfirm: (pwd) => ctrl.deleteRole(r['id'], pwd),
+                          );
+                        }),
+                      ]),
+                    ),
+                  );
+                },
               );
-            },
+            }),
           );
         })),
         // 分页（默认 limit=15，超出首屏的数据需翻页可达）

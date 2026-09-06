@@ -1,6 +1,8 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-// 列表页表格容器(主文档 §5.2):搜索+筛选+操作行 → 加载/错误/空/表格三态
-// → 分页;移动(<768)行高 56,桌面 48。签名保持对外不变。
+// 列表页表格容器(主文档 §5.2):搜索+筛选+操作行 → 加载/错误/空/表格
+// → 分页;移动(<768)行高 56,桌面 48。
+// onRefresh(必填可空):非 null 时工具栏出现刷新按钮(loading 中禁用),
+// 且内容区支持下拉刷新(RefreshIndicator)。数据页须显式传入以证明覆盖。
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import '../l10n/app_l10n.dart';
@@ -14,6 +16,10 @@ class DataTableWrapper extends StatelessWidget {
   /// 非空时显示错误态(含重试按钮),与空数据态区分。
   final String? error;
   final VoidCallback? onRetry;
+
+  /// 页面重载回调(保持当前页/搜索/筛选);非 null 时启用下拉刷新与工具栏刷新按钮。
+  /// 非网络取数的使用方(离线/演示渲染)显式传 null。
+  final Future<void> Function()? onRefresh;
 
   final ValueChanged<int>? onPageChanged;
   final ValueChanged<String>? onSearch;
@@ -39,6 +45,7 @@ class DataTableWrapper extends StatelessWidget {
     this.loading = false,
     this.error,
     this.onRetry,
+    required this.onRefresh,
     this.onPageChanged,
     this.onSearch,
     this.keyword = '',
@@ -62,59 +69,44 @@ class DataTableWrapper extends StatelessWidget {
           ),
         if (filterBar != null) ...[const SizedBox(width: 12), filterBar!],
         const Spacer(),
+        // 下拉刷新等价入口:工具栏刷新按钮,loading 中禁用(防重复请求)
+        if (onRefresh != null)
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: AppL10n.of(context).commonRefresh,
+            onPressed: loading ? null : onRefresh,
+          ),
         ...?actions,
       ];
       return Column(children: [
-        if (onSearch != null || actions != null)
+        if (onSearch != null || actions != null || onRefresh != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Row(children: toolbar),
           ),
-        Expanded(child: loading
-          // 加载态:3 行骨架(行高同数据行,surface_alt 50%),禁整页菊花(§5.2)
-          ? Column(children: [
-              for (var i = 0; i < 3; i++)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Container(
-                    height: compact ? 56 : 48,
-                    decoration: BoxDecoration(
-                      color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                ),
-            ])
-          : error != null
-            // 加载失败与「暂无数据」必须可区分:错误态带重试按钮
-            ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.error_outline,
-                    color: scheme.error, size: 36),
-                const SizedBox(height: 8),
-                Text(error!,
-                    style: TextStyle(fontSize: 14, color: scheme.error)),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: onRetry,
-                  style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(72, 32)),
-                  icon: const Icon(Icons.refresh, size: 16),
-                  label: Text(AppL10n.of(context).commonRetry),
-                ),
-              ]))
-            : rows.isEmpty
-            ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.inbox_outlined,
-                    size: 48, color: scheme.onSurfaceVariant),
-                const SizedBox(height: 12),
-                Text(AppL10n.of(context).commonNoData,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: scheme.onSurfaceVariant)),
-              ]))
-            : _DataTable(columns: columns, rows: rows, compact: compact,
-                rightAlign: rightAlignColumns)),
+        Expanded(
+          // onRefresh == null 保持旧结构;非 null 时内容区整体可下拉,四态各自
+          // 为可滚动体(表格态用 DataTable2 内部滚动,其余态 AlwaysScrollable
+          // 撑满视口居中)——data_table_2 文档禁外层无界滚动包裹。
+          child: onRefresh == null
+              ? _stateBody(context, compact, scheme)
+              : LayoutBuilder(builder: (context, c) {
+                  final viewportH = c.maxHeight;
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      // 加载中(骨架态)下拉不重复触发;按钮已在 loading 禁用
+                      if (loading) return;
+                      await onRefresh?.call();
+                    },
+                    // DataTable2 内部垂直滚动体在自嵌套 scrollable 之下,
+                    // 放宽 depth,只认纵向通知
+                    notificationPredicate: (n) =>
+                        n.metrics.axis == Axis.vertical,
+                    child:
+                        _refreshBody(context, compact, scheme, viewportH),
+                  );
+                }),
+        ),
         if (tp > 1)
           Padding(
             padding: const EdgeInsets.only(top: 12),
@@ -137,6 +129,94 @@ class DataTableWrapper extends StatelessWidget {
       ]);
     });
   }
+
+  /// 无刷新设施时的原版四态(直接交给 Expanded)。
+  Widget _stateBody(BuildContext context, bool compact, ColorScheme scheme) {
+    return _stateContent(context, compact, scheme);
+  }
+
+  /// 下拉刷新版内容:表格态返回 DataTable2(内部滚动,禁外层无界包裹);
+  /// 骨架/错误/空态用 AlwaysScrollable 滚动体撑满视口,保持居中语义,
+  /// 内容高度不足视口时下拉仍可触发。
+  Widget _refreshBody(BuildContext context, bool compact, ColorScheme scheme,
+      double viewportH) {
+    final content = _stateContent(context, compact, scheme);
+    if (content is _DataTable) {
+      // DataTable2 不暴露 physics 参数:其内部滚动体在平台钳制物理下不接受
+      // 拖拽(短表内容零滚动范围),下拉无法触发 → 注入 AlwaysScrollable。
+      return ScrollConfiguration(
+        behavior: const _PullScrollBehavior(),
+        child: content,
+      );
+    }
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: viewportH),
+        child: content,
+      ),
+    );
+  }
+
+  /// 四态内容本体:加载骨架 / 错误(含重试) / 空数据 / 数据表。
+  Widget _stateContent(BuildContext context, bool compact, ColorScheme scheme) {
+    if (loading) {
+      // 加载态:3 行骨架(行高同数据行,surface_alt 50%),禁整页菊花(§5.2)
+      return Column(children: [
+        for (var i = 0; i < 3; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              height: compact ? 56 : 48,
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+      ]);
+    }
+    if (error != null) {
+      // 加载失败与「暂无数据」必须可区分:错误态带重试按钮
+      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.error_outline, color: scheme.error, size: 36),
+        const SizedBox(height: 8),
+        Text(error!, style: TextStyle(fontSize: 14, color: scheme.error)),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: onRetry,
+          style: OutlinedButton.styleFrom(minimumSize: const Size(72, 32)),
+          icon: const Icon(Icons.refresh, size: 16),
+          label: Text(AppL10n.of(context).commonRetry),
+        ),
+      ]));
+    }
+    if (rows.isEmpty) {
+      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.inbox_outlined,
+            size: 48, color: scheme.onSurfaceVariant),
+        const SizedBox(height: 12),
+        Text(AppL10n.of(context).commonNoData,
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: scheme.onSurfaceVariant)),
+      ]));
+    }
+    return _DataTable(columns: columns, rows: rows, compact: compact,
+        rightAlign: rightAlignColumns);
+  }
+}
+
+/// 给 DataTable2 内部滚动体注入 AlwaysScrollableScrollPhysics:
+/// 平台默认物理(Android 钳制)下零滚动范围内容不接受拖拽,下拉无法触发;
+/// 叠加在 super 平台物理之上,保留原生惯性/钳制语义。
+class _PullScrollBehavior extends MaterialScrollBehavior {
+  const _PullScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      AlwaysScrollableScrollPhysics(parent: super.getScrollPhysics(context));
 }
 
 /// 断点行高:移动 56 / 桌面 48(§4/§5.2),表头样式走全局 dataTableTheme。

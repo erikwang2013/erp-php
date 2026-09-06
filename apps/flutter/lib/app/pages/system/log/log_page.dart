@@ -53,7 +53,16 @@ class LogPage extends GetView<LogController> {
     final l10n = AppL10n.of(context);
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(l10n.logTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+      Row(children: [
+        Text(l10n.logTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Spacer(),
+        // 刷新:保持当前页与筛选重载;加载中禁用
+        Obx(() => IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: AppL10n.current.commonRefresh,
+              onPressed: ctrl.isLoading.value ? null : () => ctrl.loadLogs(),
+            )),
+      ]),
       const SizedBox(height: 12),
       Row(children: [
         SizedBox(width: 150, child: TextField(decoration: InputDecoration(hintText: l10n.logActionHint, isDense: true), onSubmitted: (v) { ctrl.actionFilter.value = v; ctrl.loadLogs(reset: true); })),
@@ -64,19 +73,26 @@ class LogPage extends GetView<LogController> {
       Expanded(child: Obx(() {
         final l10n = AppL10n.current;
         if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
-        return SingleChildScrollView(child: DataTable(columns: [
-          DataColumn(label: Text(l10n.fieldOperator)),
-          DataColumn(label: Text(l10n.fieldMethod)),
-          DataColumn(label: Text(l10n.fieldPath)),
-          const DataColumn(label: Text('IP')),
-          DataColumn(label: Text(l10n.fieldTime)),
-        ], rows: ctrl.logs.map((l) => DataRow(cells: [
-          DataCell(Text(l['user_name'] ?? l10n.logSystem)),
-          DataCell(Chip(label: Text(l['method'] ?? ''))),
-          DataCell(Text(l['path'] ?? '')),
-          DataCell(Text(l['ip'] ?? '')),
-          DataCell(Text(l['created_at'] ?? '')),
-        ])).toList()));
+        // 下拉刷新:保持当前页与筛选重载;加载中整页菊花
+        return RefreshIndicator(
+          onRefresh: () => ctrl.loadLogs(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: DataTable(columns: [
+              DataColumn(label: Text(l10n.fieldOperator)),
+              DataColumn(label: Text(l10n.fieldMethod)),
+              DataColumn(label: Text(l10n.fieldPath)),
+              const DataColumn(label: Text('IP')),
+              DataColumn(label: Text(l10n.fieldTime)),
+            ], rows: ctrl.logs.map((l) => DataRow(cells: [
+              DataCell(Text(l['user_name'] ?? l10n.logSystem)),
+              DataCell(Chip(label: Text(l['method'] ?? ''))),
+              DataCell(Text(l['path'] ?? '')),
+              DataCell(Text(l['ip'] ?? '')),
+              DataCell(Text(l['created_at'] ?? '')),
+            ])).toList()),
+          ),
+        );
       })),
       Obx(() {
         final l10n = AppL10n.current;

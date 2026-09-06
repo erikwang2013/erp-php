@@ -135,7 +135,7 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
     limit: _limit,
     loading: _loading,
     error: _error,
-    onRetry: _load,
+    onRetry: _load, onRefresh: _load,
     keyword: _keyword,
     onSearch: (v) {
       _keyword = v;

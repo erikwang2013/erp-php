@@ -75,6 +75,10 @@ class DashboardController extends GetxController {
     loadBizStats();
   }
 
+  /// 页面级刷新:总览 + OMS/WMS/TMS + 经营看板一次重载(各方法自带错误兜底,不会抛)。
+  Future<void> refreshAll() =>
+      Future.wait([loadData(), loadOpsStats(), loadBizStats()]);
+
   /// 经营看板：销售趋势/热销商品/订单状态 + 账龄 + 库存预警。
   Future<void> loadBizStats() async {
     try {

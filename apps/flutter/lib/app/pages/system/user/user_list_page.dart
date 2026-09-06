@@ -29,6 +29,12 @@ class UserListPage extends GetView<UserController> {
           children: [
             Text(l10n.systemUserTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const Spacer(),
+            // 刷新:保持当前页/搜索/筛选重载;加载中禁用
+            Obx(() => IconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: AppL10n.current.commonRefresh,
+                  onPressed: ctrl.isLoading.value ? null : () => ctrl.loadUsers(),
+                )),
             ElevatedButton.icon(
               onPressed: () => Get.to(() => const UserFormPage())?.then((_) => ctrl.loadUsers(reset: true)),
               icon: const Icon(Icons.add),
@@ -87,51 +93,67 @@ class UserListPage extends GetView<UserController> {
           ],
         ),
         const SizedBox(height: 12),
-        // Table
+        // Table(下拉刷新:保持当前页/搜索/筛选重载;加载中整页菊花)
         Expanded(
           child: Obx(() {
             final l10n = AppL10n.current;
-            if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
-            if (ctrl.users.isEmpty) return Center(child: Text(l10n.commonNoData));
-
-            return SingleChildScrollView(
-              child: DataTable(
-                columns: [
-                  DataColumn(label: Checkbox(value: ctrl.selectedIds.length == ctrl.users.length && ctrl.users.isNotEmpty, onChanged: (_) => ctrl.toggleSelectAll())),
-                  DataColumn(label: Text(l10n.fieldUsername)),
-                  DataColumn(label: Text(l10n.fieldRealName)),
-                  DataColumn(label: Text(l10n.fieldPhone)),
-                  DataColumn(label: Text(l10n.fieldEmail)),
-                  DataColumn(label: Text(l10n.commonStatus)),
-                  DataColumn(label: Text(l10n.fieldLastLogin)),
-                  DataColumn(label: Text(l10n.commonAction)),
-                ],
-                rows: ctrl.users.map((u) {
-                  final id = u['id'].toString();
-                  return DataRow(
-                    selected: ctrl.selectedIds.contains(id),
-                    onSelectChanged: (_) => ctrl.toggleSelect(id),
-                    cells: [
-                      DataCell(Checkbox(value: ctrl.selectedIds.contains(id), onChanged: (_) => ctrl.toggleSelect(id))),
-                      DataCell(Text(u['username'] ?? '')),
-                      DataCell(Text(u['real_name'] ?? '')),
-                      DataCell(Text(u['phone'] ?? '')),
-                      DataCell(Text(u['email'] ?? '')),
-                      DataCell(u['status'] == null
-                          ? Chip(label: Text('-')) // 状态缺失显式占位，避免误判为「禁用」
-                          : Chip(label: Text(u['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled), // §2.4：启用 success/停用 danger
-                              color: WidgetStatePropertyAll(u['status'] == 1 ? AppColors.of(context).successBg : AppColors.of(context).dangerBg),
-                              labelStyle: TextStyle(color: u['status'] == 1 ? AppColors.of(context).successText : AppColors.of(context).dangerText, fontSize: 12),
-                              side: BorderSide.none)),
-                      DataCell(Text(u['last_login_at'] ?? '-')),
-                      DataCell(Row(mainAxisSize: MainAxisSize.min, children: [
-                        IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => Get.to(() => UserFormPage(userData: u))?.then((_) => ctrl.loadUsers())),
-                        IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _confirmDelete(context, ctrl, u)),
-                      ])),
-                    ],
+            if (ctrl.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return RefreshIndicator(
+              onRefresh: () => ctrl.loadUsers(),
+              child: LayoutBuilder(builder: (context, c) {
+                if (ctrl.users.isEmpty) {
+                  // 空态撑满视口:内容不足一屏时下拉仍可触发
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: c.maxHeight),
+                      child: Center(child: Text(l10n.commonNoData)),
+                    ),
                   );
-                }).toList(),
-              ),
+                }
+                return SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: DataTable(
+                    columns: [
+                      DataColumn(label: Checkbox(value: ctrl.selectedIds.length == ctrl.users.length && ctrl.users.isNotEmpty, onChanged: (_) => ctrl.toggleSelectAll())),
+                      DataColumn(label: Text(l10n.fieldUsername)),
+                      DataColumn(label: Text(l10n.fieldRealName)),
+                      DataColumn(label: Text(l10n.fieldPhone)),
+                      DataColumn(label: Text(l10n.fieldEmail)),
+                      DataColumn(label: Text(l10n.commonStatus)),
+                      DataColumn(label: Text(l10n.fieldLastLogin)),
+                      DataColumn(label: Text(l10n.commonAction)),
+                    ],
+                    rows: ctrl.users.map((u) {
+                      final id = u['id'].toString();
+                      return DataRow(
+                        selected: ctrl.selectedIds.contains(id),
+                        onSelectChanged: (_) => ctrl.toggleSelect(id),
+                        cells: [
+                          DataCell(Checkbox(value: ctrl.selectedIds.contains(id), onChanged: (_) => ctrl.toggleSelect(id))),
+                          DataCell(Text(u['username'] ?? '')),
+                          DataCell(Text(u['real_name'] ?? '')),
+                          DataCell(Text(u['phone'] ?? '')),
+                          DataCell(Text(u['email'] ?? '')),
+                          DataCell(u['status'] == null
+                              ? Chip(label: Text('-')) // 状态缺失显式占位，避免误判为「禁用」
+                              : Chip(label: Text(u['status'] == 1 ? l10n.commonEnabled : l10n.commonDisabled), // §2.4：启用 success/停用 danger
+                                  color: WidgetStatePropertyAll(u['status'] == 1 ? AppColors.of(context).successBg : AppColors.of(context).dangerBg),
+                                  labelStyle: TextStyle(color: u['status'] == 1 ? AppColors.of(context).successText : AppColors.of(context).dangerText, fontSize: 12),
+                                  side: BorderSide.none)),
+                          DataCell(Text(u['last_login_at'] ?? '-')),
+                          DataCell(Row(mainAxisSize: MainAxisSize.min, children: [
+                            IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => Get.to(() => UserFormPage(userData: u))?.then((_) => ctrl.loadUsers())),
+                            IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _confirmDelete(context, ctrl, u)),
+                          ])),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                );
+              }),
             );
           }),
         ),

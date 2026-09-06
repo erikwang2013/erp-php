@@ -81,7 +81,7 @@ class _DocumentListPageState extends State<DocumentListPage> {
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
     rows: _rows.map((r) => _rowToMap(r)).toList(),
-    total: _total, page: _page, limit: _limit, loading: _loading, error: _error, onRetry: _load,
+    total: _total, page: _page, limit: _limit, loading: _loading, error: _error, onRetry: _load, onRefresh: _load,
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },

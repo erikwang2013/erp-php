@@ -132,7 +132,7 @@ class _PackPageState extends State<PackPage> {
     limit: _limit,
     loading: _loading,
     error: _error,
-    onRetry: _load,
+    onRetry: _load, onRefresh: _load,
     keyword: _keyword,
     onSearch: (v) {
       _keyword = v;

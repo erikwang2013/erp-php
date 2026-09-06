@@ -89,36 +89,47 @@ class ConfigPage extends GetView<ConfigController> {
       Row(children: [
         Text(l10n.configTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const Spacer(),
+        // 刷新:保持当前页重载;加载中禁用
+        Obx(() => IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: AppL10n.current.commonRefresh,
+              onPressed: ctrl.isLoading.value ? null : () => ctrl.loadConfigs(),
+            )),
         ElevatedButton.icon(onPressed: () => _showDialog(context, ctrl), icon: const Icon(Icons.add), label: Text(l10n.configAdd)),
       ]),
       const SizedBox(height: 12),
       Expanded(child: Obx(() {
         final l10n = AppL10n.current;
         if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
-        return ListView.builder(
-          itemCount: ctrl.configs.length,
-          itemBuilder: (_, i) {
-            final c = ctrl.configs[i];
-            return Card(child: ListTile(
-              title: Text('${c['group']}.${c['key']}', style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(c['description'] ?? ''),
-              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                Chip(label: Text(c['type'] ?? 'string')), // type 为后端存储值，原样展示不翻译
-                const SizedBox(width: 8),
-                Text(c['value'] ?? '', style: TextStyle(color: AppColors.of(context).primary)),
-                IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _showDialog(context, ctrl, item: c)),
-                IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () {
-                  ConfirmDialog.show(
-                    context,
-                    content: l10n.systemConfigDeleteContent('${c['group']}.${c['key']}'),
-                    confirmText: l10n.commonDelete,
-                    passwordLabel: l10n.commonPasswordConfirm,
-                    onConfirm: (pwd) => ctrl.remove(c['id'], pwd),
-                  );
-                }),
-              ]),
-            ));
-          },
+        // 下拉刷新:保持当前页重载;加载中整页菊花
+        return RefreshIndicator(
+          onRefresh: () => ctrl.loadConfigs(),
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemCount: ctrl.configs.length,
+            itemBuilder: (_, i) {
+              final c = ctrl.configs[i];
+              return Card(child: ListTile(
+                title: Text('${c['group']}.${c['key']}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(c['description'] ?? ''),
+                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Chip(label: Text(c['type'] ?? 'string')), // type 为后端存储值，原样展示不翻译
+                  const SizedBox(width: 8),
+                  Text(c['value'] ?? '', style: TextStyle(color: AppColors.of(context).primary)),
+                  IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _showDialog(context, ctrl, item: c)),
+                  IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () {
+                    ConfirmDialog.show(
+                      context,
+                      content: l10n.systemConfigDeleteContent('${c['group']}.${c['key']}'),
+                      confirmText: l10n.commonDelete,
+                      passwordLabel: l10n.commonPasswordConfirm,
+                      onConfirm: (pwd) => ctrl.remove(c['id'], pwd),
+                    );
+                  }),
+                ]),
+              ));
+            },
+          ),
         );
       })),
       // 分页（默认 limit=15，超出首屏的数据需翻页可达）

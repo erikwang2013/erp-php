@@ -28,6 +28,8 @@ void main() {
         total: 2,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
       )));
 
       for (final c in columns) {
@@ -44,6 +46,8 @@ void main() {
         total: 0,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
       )));
 
       expect(find.text('暂无数据'), findsOneWidget);
@@ -56,6 +60,8 @@ void main() {
         total: 0,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
         loading: true,
       )));
 
@@ -81,6 +87,8 @@ void main() {
         total: 1,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
       )));
 
       expect(find.text('商品A'), findsOneWidget);
@@ -96,6 +104,8 @@ void main() {
         total: 25,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
       )));
 
       expect(find.text('共 25 条'), findsOneWidget);
@@ -110,6 +120,8 @@ void main() {
         total: 25,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
         onPageChanged: (p) => changedPage = p,
       )));
 
@@ -125,6 +137,8 @@ void main() {
         total: 25,
         page: 2,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
         onPageChanged: (p) => changedPage = p,
       )));
 
@@ -139,6 +153,8 @@ void main() {
         total: 25,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
       )));
 
       final btn = tester.widget<IconButton>(
@@ -157,6 +173,8 @@ void main() {
         total: 25,
         page: 3,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
       )));
 
       final btn = tester.widget<IconButton>(
@@ -177,6 +195,8 @@ void main() {
         total: 2,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
         onSearch: (_) {},
       )));
 
@@ -192,6 +212,8 @@ void main() {
         total: 2,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
         keyword: 'admin',
         onSearch: (k) => searched = k,
       )));
@@ -211,6 +233,8 @@ void main() {
         total: 2,
         page: 1,
         limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
         actions: [
           TextButton(
             key: const Key('export-btn'),
