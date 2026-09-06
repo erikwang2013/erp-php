@@ -71,11 +71,14 @@ class ApprovalController extends BaseController
         $row = ApprovalInstance::query()
             ->leftJoin('approval_workflow', 'approval_workflow.id', '=', 'approval_instance.workflow_id')
             ->leftJoin('approval_node', 'approval_node.id', '=', 'approval_instance.current_node_id')
+            ->leftJoin('admin_user', 'admin_user.id', '=', 'approval_instance.submitter_id')
             ->where('approval_instance.id', $instanceId)
             ->select(
                 'approval_instance.*',
                 'approval_workflow.name as workflow_name',
-                'approval_node.name as current_node_name'
+                'approval_node.name as current_node_name',
+                // 提交人姓名（提交人被删 → leftJoin 得 null，客户端回退显示 submitter_id）
+                'admin_user.real_name as submitter_name'
             )
             ->first();
         if (!$row) {

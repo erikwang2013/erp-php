@@ -626,6 +626,7 @@ class DetailContractRegressionTest extends TestCase
             $this->assertSame($this->encodeId($ids['instance_id']), $data['id'] ?? null);
             $this->assertSame($this->encodeId($ids['workflow_id']), $data['workflow_id'] ?? null);
             $this->assertSame($this->encodeId($ids['user_id']), $data['submitter_id'] ?? null, 'submitter_id 应 hashid');
+            $this->assertSame('批2审批人' . $ids['suffix'], $data['submitter_name'] ?? null, 'submitter_name 应 join admin_user.real_name');
             $this->assertSame('purchase_order', $data['target_type'] ?? null);
             $this->assertSame($targetId, $data['target_id'] ?? null, 'target_id 保持 raw int');
             $this->assertSame($this->encodeId($targetId), $data['target_ref'] ?? null, 'registry 内类型 target_ref 应编码');
