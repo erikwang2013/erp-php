@@ -111,74 +111,74 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonRequestFailed => 'Request failed';
 
   @override
-  String get commonSearch => '搜索';
+  String get commonSearch => 'Search';
 
   @override
-  String get commonSearchHint => '搜索...';
+  String get commonSearchHint => 'Search...';
 
   @override
-  String get commonRetry => '重试';
+  String get commonRetry => 'Retry';
 
   @override
-  String get commonNoData => '暂无数据';
+  String get commonNoData => 'No data';
 
   @override
-  String get commonAdd => '新增';
+  String get commonAdd => 'Add';
 
   @override
-  String get commonEdit => '编辑';
+  String get commonEdit => 'Edit';
 
   @override
-  String get commonDelete => '删除';
+  String get commonDelete => 'Delete';
 
   @override
-  String get commonDetail => '详情';
+  String get commonDetail => 'Details';
 
   @override
-  String get commonStatus => '状态';
+  String get commonStatus => 'Status';
 
   @override
-  String get commonAction => '操作';
+  String get commonAction => 'Actions';
 
   @override
-  String get commonRefresh => '刷新';
+  String get commonRefresh => 'Refresh';
 
   @override
-  String get commonLoadFailed => '加载失败';
+  String get commonLoadFailed => 'Failed to load';
 
   @override
-  String get commonAll => '全部';
+  String get commonAll => 'All';
 
   @override
   String commonTotalPages(int total) {
-    return '共 $total 条';
+    return '$total records';
   }
 
   @override
-  String get commonKeywordHint => '输入关键词搜索';
+  String get commonKeywordHint => 'Enter keywords to search';
 
   @override
-  String get commonSubmit => '提交';
+  String get commonSubmit => 'Submit';
 
   @override
-  String get commonEnterPassword => '请输入密码';
+  String get commonEnterPassword => 'Please enter your password';
 
   @override
-  String get commonOpFailedRetry => '操作失败，请重试';
+  String get commonOpFailedRetry => 'Operation failed, please retry';
 
   @override
   String commonOpFailedMsg(String error) {
-    return '操作失败：$error';
+    return 'Operation failed: $error';
   }
 
   @override
   String commonSubmitFailedMsg(String error) {
-    return '提交失败：$error';
+    return 'Submit failed: $error';
   }
 
   @override
   String commonInputRequired(String label) {
-    return '请输入$label';
+    return 'Please enter $label';
   }
 
   @override
@@ -252,2072 +252,2092 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardNoData => 'No data';
 
   @override
-  String get commonName => '名称';
+  String get commonName => 'Name';
 
   @override
-  String get commonCode => '编码';
+  String get commonCode => 'Code';
 
   @override
   String commonDeleteMsg(String name) {
-    return '确定要删除「$name」吗？';
+    return 'Are you sure you want to delete \"$name\"?';
   }
 
   @override
-  String get omsAddOrder => '新增OMS订单';
+  String get omsAddOrder => 'Add OMS Order';
 
   @override
-  String get omsEditOrder => '编辑OMS订单';
+  String get omsEditOrder => 'Edit OMS Order';
 
   @override
-  String get omsOrderCode => '订单编码';
+  String get omsOrderCode => 'Order Code';
 
   @override
-  String get omsOrderCodeHint => '必填（后端校验），如 OM+时间戳';
+  String get omsOrderCodeHint =>
+      'Required (validated by server), e.g. OM+timestamp';
 
   @override
-  String get omsOrderId => '关联销售订单ID';
+  String get omsOrderId => 'Linked Sales Order ID';
 
   @override
-  String get omsOrderIdHint => '从销售订单列表页获取数字ID';
+  String get omsOrderIdHint => 'Numeric ID from the sales order list page';
 
   @override
-  String get omsChannel => '渠道';
+  String get omsChannel => 'Channel';
 
   @override
-  String get omsChannelOrderNo => '渠道订单号';
+  String get omsChannelOrderNo => 'Channel Order No.';
 
   @override
-  String get omsChannelStore => '渠道店铺名称';
+  String get omsChannelStore => 'Channel Store Name';
 
   @override
-  String get omsFulfillStatus => '履约状态';
+  String get omsFulfillStatus => 'Fulfillment Status';
 
   @override
-  String get omsFulfillCreate => '创建履约';
+  String get omsFulfillCreate => 'Create Fulfillment';
 
   @override
-  String get omsWarehouseId => '发货仓库ID';
+  String get omsWarehouseId => 'Shipping Warehouse ID';
 
   @override
-  String get omsWarehouseIdHint => '后端要求提供发货仓库';
+  String get omsWarehouseIdHint =>
+      'A shipping warehouse is required by the server';
 
   @override
-  String get omsFulfill => '履约';
+  String get omsFulfill => 'Fulfill';
 
   @override
-  String get omsPaymentStatus => '支付状态';
+  String get omsPaymentStatus => 'Payment Status';
 
   @override
-  String get omsShippingMethod => '配送方式';
+  String get omsShippingMethod => 'Shipping Method';
 
   @override
-  String get omsShippingFee => '运费';
+  String get omsShippingFee => 'Shipping Fee';
 
   @override
-  String get omsShippingFeeHint => '如 10.00';
+  String get omsShippingFeeHint => 'e.g. 10.00';
 
   @override
-  String get omsPriority => '优先级';
+  String get omsPriority => 'Priority';
 
   @override
-  String get omsBuyerMessage => '买家备注';
+  String get omsBuyerMessage => 'Buyer Note';
 
   @override
-  String get omsSellerNote => '卖家备注';
+  String get omsSellerNote => 'Seller Note';
 
   @override
-  String get omsHoldUntil => '冻结时间';
+  String get omsHoldUntil => 'Hold Until';
 
   @override
-  String get omsHoldUntilHint => '格式 YYYY-MM-DD HH:mm:ss，可留空';
+  String get omsHoldUntilHint => 'Format YYYY-MM-DD HH:mm:ss, optional';
 
   @override
-  String get omsFulUnassigned => '未分配';
+  String get omsFulUnassigned => 'Unassigned';
 
   @override
-  String get omsFulAssigned => '已分配';
+  String get omsFulAssigned => 'Assigned';
 
   @override
-  String get omsFulPicking => '拣货中';
+  String get omsFulPicking => 'Picking';
 
   @override
-  String get omsFulPacked => '已打包';
+  String get omsFulPacked => 'Packed';
 
   @override
-  String get omsFulShipped => '已发货';
+  String get omsFulShipped => 'Shipped';
 
   @override
-  String get omsFulSigned => '已签收';
+  String get omsFulSigned => 'Signed For';
 
   @override
-  String get omsPayPending => '待支付';
+  String get omsPayPending => 'Pending Payment';
 
   @override
-  String get omsPayPaid => '已支付';
+  String get omsPayPaid => 'Paid';
 
   @override
-  String get omsPayPartialRefund => '部分退款';
+  String get omsPayPartialRefund => 'Partially Refunded';
 
   @override
-  String get omsPayRefunded => '已退款';
+  String get omsPayRefunded => 'Refunded';
 
   @override
-  String get omsPriorityHigh => '最高';
+  String get omsPriorityHigh => 'Highest';
 
   @override
-  String get omsPriorityNormal => '正常';
+  String get omsPriorityNormal => 'Normal';
 
   @override
-  String get omsPriorityLow => '最低';
+  String get omsPriorityLow => 'Lowest';
 
   @override
-  String get hrName => '名称';
+  String get hrName => 'Name';
 
   @override
-  String get hrCode => '编码';
+  String get hrCode => 'Code';
 
   @override
-  String get hrEmpName => '姓名';
+  String get hrEmpName => 'Employee Name';
 
   @override
-  String get hrEmpDepartment => '部门';
+  String get hrEmpDepartment => 'Department';
 
   @override
-  String get hrEmpPhone => '电话';
+  String get hrEmpPhone => 'Phone';
 
   @override
-  String get hrEmpPosition => '职位';
+  String get hrEmpPosition => 'Position';
 
   @override
-  String get hrEmployeeId => '员工ID';
+  String get hrEmployeeId => 'Employee ID';
 
   @override
-  String get hrEmployeeTitle => '员工';
+  String get hrEmployeeTitle => 'Employees';
 
   @override
-  String get hrRemark => '说明';
+  String get hrRemark => 'Description';
 
   @override
-  String get hrDate => '日期';
+  String get hrDate => 'Date';
 
   @override
-  String get hrYes => '是';
+  String get hrYes => 'Yes';
 
   @override
-  String get hrNo => '否';
+  String get hrNo => 'No';
 
   @override
   String hrDeleteConfirmMsg(String name) {
-    return '确定要删除「$name」吗？';
+    return 'Are you sure you want to delete \"$name\"?';
   }
 
   @override
-  String get hrLeaveCreateTitle => '新增请假';
+  String get hrLeaveCreateTitle => 'Add Leave';
 
   @override
-  String get hrLeaveEditTitle => '编辑请假';
+  String get hrLeaveEditTitle => 'Edit Leave';
 
   @override
-  String get hrLeaveDeleteConfirm => '确定要删除该请假记录吗？';
+  String get hrLeaveDeleteConfirm =>
+      'Are you sure you want to delete this leave record?';
 
   @override
-  String get hrLeaveType => '请假类型';
+  String get hrLeaveType => 'Leave Type';
 
   @override
-  String get hrLeaveTypeHint => '类型';
+  String get hrLeaveTypeHint => 'Type';
 
   @override
-  String get hrLeaveTypeAnnual => '年假';
+  String get hrLeaveTypeAnnual => 'Annual Leave';
 
   @override
-  String get hrLeaveTypePersonal => '事假';
+  String get hrLeaveTypePersonal => 'Personal Leave';
 
   @override
-  String get hrLeaveTypeSick => '病假';
+  String get hrLeaveTypeSick => 'Sick Leave';
 
   @override
-  String get hrLeaveTypeMarriage => '婚假';
+  String get hrLeaveTypeMarriage => 'Marriage Leave';
 
   @override
-  String get hrLeaveTypeMaternity => '产假';
+  String get hrLeaveTypeMaternity => 'Maternity Leave';
 
   @override
-  String get hrLeaveTypeCompensatory => '调休';
+  String get hrLeaveTypeCompensatory => 'Compensatory Leave';
 
   @override
-  String get hrLeaveDays => '请假天数';
+  String get hrLeaveDays => 'Leave Days';
 
   @override
-  String get hrLeaveDaysCol => '天数';
+  String get hrLeaveDaysCol => 'Days';
 
   @override
-  String get hrLeaveDaysHint => '如 1.5';
+  String get hrLeaveDaysHint => 'e.g. 1.5';
 
   @override
-  String get hrLeaveStartDate => '开始日期';
+  String get hrLeaveStartDate => 'Start Date';
 
   @override
-  String get hrLeaveEndDate => '结束日期';
+  String get hrLeaveEndDate => 'End Date';
 
   @override
-  String get hrLeaveDateHint => 'YYYY-MM-DD，如 2026-09-05';
+  String get hrLeaveDateHint => 'YYYY-MM-DD, e.g. 2026-09-05';
 
   @override
-  String get hrLeaveReason => '请假原因';
+  String get hrLeaveReason => 'Reason';
 
   @override
-  String get hrLeaveEmployeeHint => '从员工列表页获取数字ID';
+  String get hrLeaveEmployeeHint => 'Numeric ID from the employee list page';
 
   @override
-  String get hrLeavePeriod => '请假日期';
+  String get hrLeavePeriod => 'Leave Period';
 
   @override
-  String get hrLeaveStatusPending => '待审批';
+  String get hrLeaveStatusPending => 'Pending';
 
   @override
-  String get hrLeaveStatusApproved => '已批准';
+  String get hrLeaveStatusApproved => 'Approved';
 
   @override
-  String get hrLeaveStatusRejected => '已驳回';
+  String get hrLeaveStatusRejected => 'Rejected';
 
   @override
-  String get hrLeaveApproveTitle => '批准请假';
+  String get hrLeaveApproveTitle => 'Approve Leave';
 
   @override
-  String get hrLeaveRejectTitle => '驳回请假';
+  String get hrLeaveRejectTitle => 'Reject Leave';
 
   @override
-  String get hrLeaveApproveConfirm => '确认批准该请假申请吗？';
+  String get hrLeaveApproveConfirm => 'Approve this leave request?';
 
   @override
-  String get hrLeaveRejectConfirm => '确认驳回该请假申请吗？';
+  String get hrLeaveRejectConfirm => 'Reject this leave request?';
 
   @override
-  String get hrLeaveApprove => '批准';
+  String get hrLeaveApprove => 'Approve';
 
   @override
-  String get hrLeaveReject => '驳回';
+  String get hrLeaveReject => 'Reject';
 
   @override
-  String get hrSalaryCreateTitle => '新增薪资记录';
+  String get hrSalaryCreateTitle => 'Add Payroll Record';
 
   @override
-  String get hrSalaryEditTitle => '编辑薪资';
+  String get hrSalaryEditTitle => 'Edit Payroll Record';
 
   @override
-  String get hrSalaryDeleteConfirm => '确定要删除该薪资记录吗？';
+  String get hrSalaryDeleteConfirm =>
+      'Are you sure you want to delete this payroll record?';
 
   @override
-  String get hrSalaryYear => '薪资年度';
+  String get hrSalaryYear => 'Salary Year';
 
   @override
-  String get hrSalaryMonth => '薪资月份';
+  String get hrSalaryMonth => 'Salary Month';
 
   @override
-  String get hrSalaryBase => '基本工资';
+  String get hrSalaryBase => 'Base Salary';
 
   @override
-  String get hrSalaryPerformance => '绩效工资';
+  String get hrSalaryPerformance => 'Performance Pay';
 
   @override
-  String get hrSalaryOvertime => '加班费';
+  String get hrSalaryOvertime => 'Overtime Pay';
 
   @override
-  String get hrSalaryDeduction => '扣款';
+  String get hrSalaryDeduction => 'Deductions';
 
   @override
-  String get hrSalaryTax => '个税';
+  String get hrSalaryTax => 'Income Tax';
 
   @override
-  String get hrSalaryNet => '实发工资';
+  String get hrSalaryNet => 'Net Pay';
 
   @override
-  String get hrSalaryPeriod => '期间';
+  String get hrSalaryPeriod => 'Period';
 
   @override
-  String get hrSalaryAmountHint => '如 8000.00';
+  String get hrSalaryAmountHint => 'e.g. 8000.00';
 
   @override
-  String get hrSalaryZeroHint => '默认 0';
+  String get hrSalaryZeroHint => 'Default 0';
 
   @override
-  String get hrSalaryPayTitle => '薪资发放';
+  String get hrSalaryPayTitle => 'Pay Salaries';
 
   @override
-  String get hrSalaryPay => '发放';
+  String get hrSalaryPay => 'Pay';
 
   @override
-  String get hrSalaryPayAction => '确认发放';
+  String get hrSalaryPayAction => 'Confirm Payment';
 
   @override
   String hrSalaryPayConfirm(String period) {
-    return '确认将「$period」的薪资标记为已发放吗？';
+    return 'Mark salary for \"$period\" as paid?';
   }
 
   @override
-  String get hrSalaryPaidSnack => '薪资已发放';
+  String get hrSalaryPaidSnack => 'Salary marked as paid';
 
   @override
   String hrSalaryPayFailedMsg(String error) {
-    return '发放失败：$error';
+    return 'Payment failed: $error';
   }
 
   @override
-  String get hrSalaryStatusPaid => '已发放';
+  String get hrSalaryStatusPaid => 'Paid';
 
   @override
-  String get hrSalaryStatusUnpaid => '未发放';
+  String get hrSalaryStatusUnpaid => 'Unpaid';
 
   @override
-  String get hrSalaryCalcAction => '计算薪资';
+  String get hrSalaryCalcAction => 'Calculate Salary';
 
   @override
-  String get hrSalaryCalcTitle => '薪资试算';
+  String get hrSalaryCalcTitle => 'Salary Calculation';
 
   @override
-  String get hrCalcResultTitle => '试算结果';
+  String get hrCalcResultTitle => 'Calculation Result';
 
   @override
-  String get hrCalcItem => '项目';
+  String get hrCalcItem => 'Item';
 
   @override
-  String get hrCalcAmount => '金额';
+  String get hrCalcAmount => 'Amount';
 
   @override
-  String get hrCalcGross => '应发工资';
+  String get hrCalcGross => 'Gross Pay';
 
   @override
-  String get hrCalcSocial => '社保(个人)';
+  String get hrCalcSocial => 'Social Insurance (employee)';
 
   @override
-  String get hrCalcHousing => '公积金';
+  String get hrCalcHousing => 'Housing Fund';
 
   @override
-  String get hrCalcTaxable => '应纳税所得额';
+  String get hrCalcTaxable => 'Taxable Income';
 
   @override
-  String get hrCalcClose => '关闭';
+  String get hrCalcClose => 'Close';
 
   @override
-  String get hrSalaryItemCreateTitle => '新增薪资项';
+  String get hrSalaryItemCreateTitle => 'Add Salary Item';
 
   @override
-  String get hrSalaryItemEditTitle => '编辑薪资项';
+  String get hrSalaryItemEditTitle => 'Edit Salary Item';
 
   @override
-  String get hrSalaryItemType => '类型(0=固定 1=浮动)';
+  String get hrSalaryItemType => 'Type (0=fixed 1=variable)';
 
   @override
-  String get hrSalaryItemTypeShort => '类型';
+  String get hrSalaryItemTypeShort => 'Type';
 
   @override
-  String get hrSalaryItemTaxable => '是否计税(0/1)';
+  String get hrSalaryItemTaxable => 'Taxable (0/1)';
 
   @override
-  String get hrSalaryItemTaxShort => '计税';
+  String get hrSalaryItemTaxShort => 'Taxable';
 
   @override
-  String get hrSalaryItemDefault => '默认金额';
+  String get hrSalaryItemDefault => 'Default Amount';
 
   @override
-  String get hrSalaryItemTypeFixed => '固定';
+  String get hrSalaryItemTypeFixed => 'Fixed';
 
   @override
-  String get hrSalaryItemTypeFloat => '浮动';
+  String get hrSalaryItemTypeFloat => 'Variable';
 
   @override
-  String get eamEquipmentCode => '设备编码';
+  String get eamEquipmentCode => 'Equipment Code';
 
   @override
-  String get eamEquipmentName => '设备名称';
+  String get eamEquipmentName => 'Equipment Name';
 
   @override
-  String get eamModel => '型号';
+  String get eamModel => 'Model';
 
   @override
-  String get eamSerialNumber => '序列号';
+  String get eamSerialNumber => 'Serial Number';
 
   @override
-  String get eamCategory => '设备分类';
+  String get eamCategory => 'Equipment Category';
 
   @override
-  String get eamCategoryCol => '分类';
+  String get eamCategoryCol => 'Category';
 
   @override
-  String get eamLocation => '存放位置';
+  String get eamLocation => 'Location';
 
   @override
-  String get eamDepartmentId => '部门ID';
+  String get eamDepartmentId => 'Department ID';
 
   @override
-  String get eamPurchaseDate => '购买日期';
+  String get eamPurchaseDate => 'Purchase Date';
 
   @override
-  String get eamWarrantyExpiry => '保修到期';
+  String get eamWarrantyExpiry => 'Warranty Expiry';
 
   @override
-  String get eamEquipmentId => '设备ID';
+  String get eamEquipmentId => 'Equipment ID';
 
   @override
-  String get eamPlanName => '计划名称';
+  String get eamPlanName => 'Plan Name';
 
   @override
-  String get eamFrequency => '保养频率';
+  String get eamFrequency => 'Maintenance Frequency';
 
   @override
-  String get eamFrequencyCol => '频率';
+  String get eamFrequencyCol => 'Frequency';
 
   @override
-  String get eamLastDate => '上次保养日期';
+  String get eamLastDate => 'Last Maintenance Date';
 
   @override
-  String get eamNextDate => '下次日期';
+  String get eamNextDate => 'Next Date';
 
   @override
-  String get eamNextDateFull => '下次保养日期';
+  String get eamNextDateFull => 'Next Maintenance Date';
 
   @override
-  String get eamAssignee => '负责人';
+  String get eamAssignee => 'Assignee';
 
   @override
-  String get eamRepairCode => '工单编码';
+  String get eamRepairCode => 'Work Order Code';
 
   @override
-  String get eamRepairType => '维修类型';
+  String get eamRepairType => 'Repair Type';
 
   @override
-  String get eamFaultDescription => '故障描述';
+  String get eamFaultDescription => 'Fault Description';
 
   @override
-  String get eamRepairAssignee => '维修人';
+  String get eamRepairAssignee => 'Repairer';
 
   @override
-  String get eamStartDate => '开始时间';
+  String get eamStartDate => 'Start Time';
 
   @override
-  String get eamEndDate => '结束时间';
+  String get eamEndDate => 'End Time';
 
   @override
-  String get eamRepairCost => '维修费用';
+  String get eamRepairCost => 'Repair Cost';
 
   @override
-  String get eamTransitionTitle => '状态流转';
+  String get eamTransitionTitle => 'Status Transition';
 
   @override
   String eamTransitionConfirm(String code, String status) {
-    return '确定要将工单「$code」流转为「$status」吗？';
+    return 'Move work order \"$code\" to \"$status\"?';
   }
 
   @override
-  String get eamRepairStart => '开始维修';
+  String get eamRepairStart => 'Start Repair';
 
   @override
-  String get eamRepairFinish => '完成';
+  String get eamRepairFinish => 'Finish';
 
   @override
-  String get eamSpareCode => '备件编码';
+  String get eamSpareCode => 'Spare Part Code';
 
   @override
-  String get eamSpareName => '备件名称';
+  String get eamSpareName => 'Spare Part Name';
 
   @override
-  String get eamSpareSpec => '规格型号';
+  String get eamSpareSpec => 'Model/Spec';
 
   @override
-  String get eamSpareSpecCol => '规格';
+  String get eamSpareSpecCol => 'Spec';
 
   @override
-  String get eamUnit => '单位';
+  String get eamUnit => 'Unit';
 
   @override
-  String get eamStockQty => '库存数量';
+  String get eamStockQty => 'Stock Qty';
 
   @override
-  String get eamStockCol => '库存';
+  String get eamStockCol => 'Stock';
 
   @override
-  String get eamMinStock => '最低库存';
+  String get eamMinStock => 'Min Stock';
 
   @override
   String eamDeleteConfirmMsg(String name) {
-    return '确定要删除「$name」吗？';
+    return 'Are you sure you want to delete \"$name\"?';
   }
 
   @override
-  String get manufacturingName => '名称';
+  String get manufacturingName => 'Name';
 
   @override
-  String get manufacturingCode => '编码';
+  String get manufacturingCode => 'Code';
 
   @override
   String manufacturingDeleteConfirmMsg(String name) {
-    return '确定要删除「$name」吗？';
+    return 'Are you sure you want to delete \"$name\"?';
   }
 
   @override
-  String get crmName => '名称';
+  String get crmName => 'Name';
 
   @override
-  String get crmCode => '编码';
+  String get crmCode => 'Code';
 
   @override
-  String get crmPhone => '电话';
+  String get crmPhone => 'Phone';
 
   @override
-  String get crmEmail => '邮箱';
+  String get crmEmail => 'Email';
 
   @override
-  String get crmRemark => '备注';
+  String get crmRemark => 'Notes';
 
   @override
-  String get crmAmount => '金额';
+  String get crmAmount => 'Amount';
 
   @override
-  String get crmOptional => '选填';
+  String get crmOptional => 'Optional';
 
   @override
   String crmDeleteConfirmMsg(String name) {
-    return '确定要删除「$name」吗？';
+    return 'Are you sure you want to delete \"$name\"?';
   }
 
   @override
-  String get crmAnalyticsGenerate => '生成报表';
+  String get crmAnalyticsGenerate => 'Generate Report';
 
   @override
-  String get crmAnalyticsNewMetric => '新建指标';
+  String get crmAnalyticsNewMetric => 'New Metric';
 
   @override
-  String get crmAnalyticsReportName => '报表名称';
+  String get crmAnalyticsReportName => 'Report Name';
 
   @override
-  String get crmAnalyticsReportType => '报表类型';
+  String get crmAnalyticsReportType => 'Report Type';
 
   @override
-  String get crmAnalyticsYear => '年度';
+  String get crmAnalyticsYear => 'Year';
 
   @override
-  String get crmAnalyticsPeriodValue => '期间值';
+  String get crmAnalyticsPeriodValue => 'Period Value';
 
   @override
-  String get crmAnalyticsPeriodType => '期间类型';
+  String get crmAnalyticsPeriodType => 'Period Type';
 
   @override
-  String get crmAnalyticsMetricName => '指标名称';
+  String get crmAnalyticsMetricName => 'Metric Name';
 
   @override
-  String get crmAnalyticsMetricKey => '指标键名';
+  String get crmAnalyticsMetricKey => 'Metric Key';
 
   @override
-  String get crmAnalyticsMetricType => '指标类型';
+  String get crmAnalyticsMetricType => 'Metric Type';
 
   @override
-  String get crmAnalyticsMonth => '月';
+  String get crmAnalyticsMonth => 'Month';
 
   @override
-  String get crmAnalyticsQuarter => '季';
+  String get crmAnalyticsQuarter => 'Quarter';
 
   @override
-  String get crmAnalyticsYearUnit => '年';
+  String get crmAnalyticsYearUnit => 'Year';
 
   @override
-  String get crmContractStatusDraft => '草稿';
+  String get crmContractStatusDraft => 'Draft';
 
   @override
-  String get crmContractStatusPending => '待审批';
+  String get crmContractStatusPending => 'Pending Approval';
 
   @override
-  String get crmContractStatusApproved => '已审批';
+  String get crmContractStatusApproved => 'Approved';
 
   @override
-  String get crmContractStatusActive => '执行中';
+  String get crmContractStatusActive => 'Active';
 
   @override
-  String get crmContractStatusDone => '已完成';
+  String get crmContractStatusDone => 'Completed';
 
   @override
-  String get crmContractStatusTerminated => '已终止';
+  String get crmContractStatusTerminated => 'Terminated';
 
   @override
-  String get crmContractTransitionTitle => '合同状态流转';
+  String get crmContractTransitionTitle => 'Contract Status Transition';
 
   @override
-  String get crmContractTargetStatus => '目标状态';
+  String get crmContractTargetStatus => 'Target Status';
 
   @override
-  String get crmContractTransition => '流转';
+  String get crmContractTransition => 'Transition';
 
   @override
-  String get crmContractTransitionTooltip => '状态流转';
+  String get crmContractTransitionTooltip => 'Change Status';
 
   @override
-  String get crmContractNoTarget => '当前状态无可流转的目标状态';
+  String get crmContractNoTarget =>
+      'No target status available for the current status';
 
   @override
-  String get crmContractSelectTarget => '请选择目标状态';
+  String get crmContractSelectTarget => 'Please select a target status';
 
   @override
-  String get crmContractTransitionOk => '状态流转成功';
+  String get crmContractTransitionOk => 'Status transitioned';
 
   @override
-  String get crmFollowAddTitle => '新增跟进记录';
+  String get crmFollowAddTitle => 'Add Follow-up';
 
   @override
-  String get crmFollowEditTitle => '编辑跟进记录';
+  String get crmFollowEditTitle => 'Edit Follow-up';
 
   @override
-  String get crmFollowAdd => '新增跟进';
+  String get crmFollowAdd => 'Add Follow-up';
 
   @override
-  String get crmFollowSubject => '跟进主题';
+  String get crmFollowSubject => 'Follow-up Subject';
 
   @override
-  String get crmFollowTopic => '主题';
+  String get crmFollowTopic => 'Subject';
 
   @override
-  String get crmFollowContent => '跟进内容';
+  String get crmFollowContent => 'Follow-up Content';
 
   @override
-  String get crmFunnelAdd => '新增阶段';
+  String get crmFunnelAdd => 'Add Stage';
 
   @override
-  String get crmFunnelEditTitle => '编辑阶段';
+  String get crmFunnelEditTitle => 'Edit Stage';
 
   @override
-  String get crmFunnelStageName => '阶段名称';
+  String get crmFunnelStageName => 'Stage Name';
 
   @override
-  String get crmFunnelSortOrder => '排序';
+  String get crmFunnelSortOrder => 'Sort Order';
 
   @override
-  String get crmOpportunityStage => '阶段';
+  String get crmOpportunityStage => 'Stage';
 
   @override
-  String get crmPoolClaimTitle => '领取客户';
+  String get crmPoolClaimTitle => 'Claim Customer';
 
   @override
-  String get crmPoolClaim => '领取';
+  String get crmPoolClaim => 'Claim';
 
   @override
-  String get crmPoolRelease => '释放回公海';
+  String get crmPoolRelease => 'Release to Pool';
 
   @override
-  String get crmQuotationToContract => '报价转合同';
+  String get crmQuotationToContract => 'Quotation to Contract';
 
   @override
-  String get crmQuotationConvert => '转合同';
+  String get crmQuotationConvert => 'Convert to Contract';
 
   @override
-  String get crmContractCode => '合同编号';
+  String get crmContractCode => 'Contract No.';
 
   @override
-  String get crmContractName => '合同名称';
+  String get crmContractName => 'Contract Name';
 
   @override
-  String get crmQuotationCodeHint => '留空自动生成 CT+时间戳';
+  String get crmQuotationCodeHint =>
+      'Leave blank to auto-generate CT+timestamp';
 
   @override
-  String get crmQuotationNameHint => '留空默认 合同-报价单号';
+  String get crmQuotationNameHint =>
+      'Leave blank to default to Contract-quotation No.';
 
   @override
-  String get crmTicketNoAssignableUser => '暂无可选用户';
+  String get crmTicketNoAssignableUser => 'No assignable users';
 
   @override
-  String get crmTicketAssignTitle => '指派工单';
+  String get crmTicketAssignTitle => 'Assign Ticket';
 
   @override
-  String get crmTicketAssignee => '指派人';
+  String get crmTicketAssignee => 'Assignee';
 
   @override
-  String get crmTicketAssign => '指派';
+  String get crmTicketAssign => 'Assign';
 
   @override
-  String get crmTicketResolveTitle => '解决工单';
+  String get crmTicketResolveTitle => 'Resolve Ticket';
 
   @override
-  String get crmTicketResolve => '解决';
+  String get crmTicketResolve => 'Resolve';
 
   @override
-  String get crmTicketResolveNote => '解决说明';
+  String get crmTicketResolveNote => 'Resolution Notes';
 
   @override
-  String get crmTicketConfirmResolve => '确认解决';
+  String get crmTicketConfirmResolve => 'Confirm Resolution';
 
   @override
-  String get purchaseName => '名称';
+  String get purchaseName => 'Name';
 
   @override
-  String get purchaseCode => '编码';
+  String get purchaseCode => 'Code';
 
   @override
-  String get purchaseRemark => '备注';
+  String get purchaseRemark => 'Notes';
 
   @override
   String purchaseDeleteConfirmMsg(String name) {
-    return '确定要删除「$name」吗？';
+    return 'Are you sure you want to delete \"$name\"?';
   }
 
   @override
-  String get purchaseAmountExampleHint => '如 1000.00';
+  String get purchaseAmountExampleHint => 'e.g. 1000.00';
 
   @override
-  String get purchaseDateTimeHint => '格式 YYYY-MM-DD HH:mm:ss';
+  String get purchaseDateTimeHint => 'Format YYYY-MM-DD HH:mm:ss';
 
   @override
-  String get purchaseApplyAddTitle => '新增采购申请';
+  String get purchaseApplyAddTitle => 'Add Purchase Request';
 
   @override
-  String get purchaseApplyEditTitle => '编辑采购申请';
+  String get purchaseApplyEditTitle => 'Edit Purchase Request';
 
   @override
-  String get purchaseApplyNo => '申请单号';
+  String get purchaseApplyNo => 'Request No.';
 
   @override
-  String get purchaseApplyNoHint => '留空自动生成 PA+时间戳';
+  String get purchaseApplyNoHint => 'Leave blank to auto-generate PA+timestamp';
 
   @override
-  String get purchaseApplyUserId => '申请人ID';
+  String get purchaseApplyUserId => 'Requester ID';
 
   @override
-  String get purchaseApplyUserIdHint => '从员工列表页获取数字ID';
+  String get purchaseApplyUserIdHint =>
+      'Numeric ID from the employee list page';
 
   @override
-  String get purchaseApplyDept => '申请部门';
+  String get purchaseApplyDept => 'Department';
 
   @override
-  String get purchaseApplyStatusPending => '待审批';
+  String get purchaseApplyStatusPending => 'Pending';
 
   @override
-  String get purchaseApplyStatusApproved => '已批准';
+  String get purchaseApplyStatusApproved => 'Approved';
 
   @override
-  String get purchaseApplyStatusRejected => '已驳回';
+  String get purchaseApplyStatusRejected => 'Rejected';
 
   @override
-  String get purchaseApplyStatusOrdered => '已转订单';
+  String get purchaseApplyStatusOrdered => 'Converted to Order';
 
   @override
-  String get purchaseOrderAddTitle => '新增采购订单';
+  String get purchaseOrderAddTitle => 'Add Purchase Order';
 
   @override
-  String get purchaseOrderEditTitle => '编辑采购订单';
+  String get purchaseOrderEditTitle => 'Edit Purchase Order';
 
   @override
-  String get purchaseOrderName => '订单名称';
+  String get purchaseOrderName => 'Order Name';
 
   @override
-  String get purchaseOrderNameRequiredHint => '必填（后端校验）';
+  String get purchaseOrderNameRequiredHint => 'Required (validated by server)';
 
   @override
-  String get purchaseOrderCode => '订单编号';
+  String get purchaseOrderCode => 'Order No.';
 
   @override
-  String get purchaseOrderCodeHint => '留空自动生成 PO+时间戳';
+  String get purchaseOrderCodeHint =>
+      'Leave blank to auto-generate PO+timestamp';
 
   @override
-  String get purchaseSupplierId => '供应商ID';
+  String get purchaseSupplierId => 'Supplier ID';
 
   @override
-  String get purchaseSupplierIdHint => '从供应商列表页获取数字ID';
+  String get purchaseSupplierIdHint => 'Numeric ID from the supplier list page';
 
   @override
-  String get purchaseApplyId => '采购申请ID';
+  String get purchaseApplyId => 'Purchase Request ID';
 
   @override
-  String get purchaseWarehouseId => '收货仓库ID';
+  String get purchaseWarehouseId => 'Receiving Warehouse ID';
 
   @override
-  String get purchaseZeroHint => '留空为0';
+  String get purchaseZeroHint => 'Leave blank for 0';
 
   @override
-  String get purchaseOrderTotalAmount => '订单总金额';
+  String get purchaseOrderTotalAmount => 'Order Total Amount';
 
   @override
-  String get purchaseOrderTotalHint => '如 100.00';
+  String get purchaseOrderTotalHint => 'e.g. 100.00';
 
   @override
-  String get purchaseTotalAmount => '总金额';
+  String get purchaseTotalAmount => 'Total Amount';
 
   @override
-  String get purchaseOrderTimeLabel => '下单时间';
+  String get purchaseOrderTimeLabel => 'Order Date';
 
   @override
-  String get purchaseOrderStatusPending => '待审核';
+  String get purchaseOrderStatusPending => 'Pending Review';
 
   @override
-  String get purchaseOrderStatusApproved => '已审核';
+  String get purchaseOrderStatusApproved => 'Reviewed';
 
   @override
-  String get purchaseOrderStatusPartReceived => '部分收货';
+  String get purchaseOrderStatusPartReceived => 'Partially Received';
 
   @override
-  String get purchaseOrderStatusReceived => '已收货';
+  String get purchaseOrderStatusReceived => 'Received';
 
   @override
-  String get purchaseOrderStatusCancelled => '已取消';
+  String get purchaseOrderStatusCancelled => 'Cancelled';
 
   @override
-  String get purchaseSettleDialog => '采购结算';
+  String get purchaseSettleDialog => 'Purchase Settlement';
 
   @override
-  String get purchaseSettle => '结算';
+  String get purchaseSettle => 'Settle';
 
   @override
-  String get purchaseReceiveId => '收货单ID';
+  String get purchaseReceiveId => 'Receiving ID';
 
   @override
-  String get purchasePayableAmount => '应付金额';
+  String get purchasePayableAmount => 'Payable Amount';
 
   @override
-  String get purchasePaidAmount => '已付金额';
+  String get purchasePaidAmount => 'Paid Amount';
 
   @override
-  String get purchasePaidDefaultHint => '默认 0';
+  String get purchasePaidDefaultHint => 'Default 0';
 
   @override
-  String get purchaseSettleStatusLabel => '结算状态';
+  String get purchaseSettleStatusLabel => 'Settlement Status';
 
   @override
-  String get purchaseSettledAt => '结算时间';
+  String get purchaseSettledAt => 'Settled At';
 
   @override
-  String get purchaseSettleStatusUnsettled => '未结算';
+  String get purchaseSettleStatusUnsettled => 'Unsettled';
 
   @override
-  String get purchaseSettleStatusPartial => '部分结算';
+  String get purchaseSettleStatusPartial => 'Partially Settled';
 
   @override
-  String get purchaseSettleStatusSettled => '已结算';
+  String get purchaseSettleStatusSettled => 'Settled';
 
   @override
-  String get purchaseReceiveEditRemarkTitle => '编辑收货单（仅备注）';
+  String get purchaseReceiveEditRemarkTitle =>
+      'Edit Receiving Record (remark only)';
 
   @override
-  String get purchaseReceiveNo => '收货单号';
+  String get purchaseReceiveNo => 'Receiving No.';
 
   @override
-  String get purchaseReceiveOrder => '采购订单';
+  String get purchaseReceiveOrder => 'Purchase Order';
 
   @override
-  String get purchaseReceiveSupplier => '供应商';
+  String get purchaseReceiveSupplier => 'Supplier';
 
   @override
-  String get purchaseReceiveWarehouse => '仓库';
+  String get purchaseReceiveWarehouse => 'Warehouse';
 
   @override
-  String get purchaseReceiveStatusPending => '待入库';
+  String get purchaseReceiveStatusPending => 'Pending Receipt';
 
   @override
-  String get purchaseReceiveStatusDone => '已入库';
+  String get purchaseReceiveStatusDone => 'Received';
 
   @override
-  String get purchaseSettlementAddTitle => '新增采购结算（付款核销）';
+  String get purchaseSettlementAddTitle =>
+      'Add Purchase Settlement (payment write-off)';
 
   @override
-  String get purchaseSettlementEditTitle => '编辑采购结算';
+  String get purchaseSettlementEditTitle => 'Edit Purchase Settlement';
 
   @override
-  String get purchaseSettlementAdd => '新增结算';
+  String get purchaseSettlementAdd => 'Add Settlement';
 
   @override
-  String get purchaseReceiptPaymentId => '付款单ID';
+  String get purchaseReceiptPaymentId => 'Payment ID';
 
   @override
-  String get purchaseReceiptPaymentIdHint => '需已审核的付款单 hashid';
+  String get purchaseReceiptPaymentIdHint =>
+      'Hashid of an approved payment record';
 
   @override
-  String get purchaseWriteoffAmount => '核销金额';
+  String get purchaseWriteoffAmount => 'Write-off Amount';
 
   @override
-  String get purchaseSettlementDeleteMsg => '确定要删除该采购结算记录吗？';
+  String get purchaseSettlementDeleteMsg =>
+      'Are you sure you want to delete this purchase settlement record?';
 
   @override
-  String get commonRemark => '备注';
+  String get commonRemark => 'Notes';
 
   @override
-  String get commonRequiredBackend => '必填（后端校验）';
+  String get commonRequiredBackend => 'Required (validated by server)';
 
   @override
-  String get commonDateFormat => '格式 YYYY-MM-DD';
+  String get commonDateFormat => 'Format YYYY-MM-DD';
 
   @override
-  String get commonDateTimeFormat => '格式 YYYY-MM-DD HH:mm:ss';
+  String get commonDateTimeFormat => 'Format YYYY-MM-DD HH:mm:ss';
 
   @override
-  String get commonDefaultZero => '默认 0';
+  String get commonDefaultZero => 'Default 0';
 
   @override
   String commonExampleAmount(String amount) {
-    return '如 $amount';
+    return 'e.g. $amount';
   }
 
   @override
-  String get financeSubjectId => '科目ID';
+  String get financeSubjectId => 'Account ID';
 
   @override
-  String get financeStartDate => '开始日期';
+  String get financeStartDate => 'Start Date';
 
   @override
-  String get financeEndDate => '结束日期';
+  String get financeEndDate => 'End Date';
 
   @override
-  String get financeDate => '日期';
+  String get financeDate => 'Date';
 
   @override
-  String get financeSummary => '摘要';
+  String get financeSummary => 'Summary';
 
   @override
-  String get financeDirection => '方向';
+  String get financeDirection => 'Direction';
 
   @override
-  String get financeAmount => '金额';
+  String get financeAmount => 'Amount';
 
   @override
-  String get financeBalance => '余额';
+  String get financeBalance => 'Balance';
 
   @override
-  String get financeDebit => '借';
+  String get financeDebit => 'Debit';
 
   @override
-  String get financeCredit => '贷';
+  String get financeCredit => 'Credit';
 
   @override
-  String get financeAssetDepreciate => '计提折旧';
+  String get financeAssetDepreciate => 'Record Depreciation';
 
   @override
-  String get financeAssetDepYear => '折旧年份';
+  String get financeAssetDepYear => 'Depreciation Year';
 
   @override
-  String get financeAssetDepMonth => '折旧月份';
+  String get financeAssetDepMonth => 'Depreciation Month';
 
   @override
-  String get financeAssetConfirmDepreciate => '确认计提';
+  String get financeAssetConfirmDepreciate => 'Confirm';
 
   @override
-  String get financeAssetDepreciated => '折旧计提成功';
+  String get financeAssetDepreciated => 'Depreciation recorded';
 
   @override
-  String get financeOriginCurrencyId => '原币ID';
+  String get financeOriginCurrencyId => 'Source Currency ID';
 
   @override
-  String get financeTargetCurrencyId => '目标币ID';
+  String get financeTargetCurrencyId => 'Target Currency ID';
 
   @override
-  String get financeRate => '汇率';
+  String get financeRate => 'Exchange Rate';
 
   @override
-  String get financeRateHint => '如 7.250000';
+  String get financeRateHint => 'e.g. 7.250000';
 
   @override
-  String get financeEffectiveDate => '生效日期';
+  String get financeEffectiveDate => 'Effective Date';
 
   @override
-  String get financeOriginCurrencyHint => '币种列表中的数字ID，如 61000000000000002=USD';
+  String get financeOriginCurrencyHint =>
+      'Numeric ID from the currency list, e.g. 61000000000000002=USD';
 
   @override
-  String get financeTargetCurrencyHint => '如 61000000000000001=CNY';
+  String get financeTargetCurrencyHint => 'e.g. 61000000000000001=CNY';
 
   @override
-  String get financeExchangeRateAdd => '新增汇率';
+  String get financeExchangeRateAdd => 'Add Exchange Rate';
 
   @override
-  String get financeExchangeRateEdit => '编辑汇率';
+  String get financeExchangeRateEdit => 'Edit Exchange Rate';
 
   @override
-  String get financeExchangeRateDeleteMsg => '确定要删除该汇率记录吗？';
+  String get financeExchangeRateDeleteMsg =>
+      'Are you sure you want to delete this exchange rate?';
 
   @override
-  String get financeBankAccountName => '账户名称';
+  String get financeBankAccountName => 'Account Name';
 
   @override
-  String get financeBankAccountNumber => '银行账号';
+  String get financeBankAccountNumber => 'Bank Account Number';
 
   @override
-  String get financeBankBankName => '开户银行';
+  String get financeBankBankName => 'Bank Name';
 
   @override
-  String get financeBankAccountBalance => '账户余额';
+  String get financeBankAccountBalance => 'Account Balance';
 
   @override
-  String get financeBankAdd => '新增银行账户';
+  String get financeBankAdd => 'Add Bank Account';
 
   @override
-  String get financeBankEdit => '编辑银行账户';
+  String get financeBankEdit => 'Edit Bank Account';
 
   @override
-  String get financeBankAddButton => '新增账户';
+  String get financeBankAddButton => 'Add Account';
 
   @override
   String financeBankAccountDeleteMsg(String name) {
-    return '确定要删除银行账户「$name」吗？';
+    return 'Are you sure you want to delete bank account \"$name\"?';
   }
 
   @override
-  String get financeVoucherAdd => '新增记账凭证';
+  String get financeVoucherAdd => 'Add Voucher';
 
   @override
-  String get financeVoucherEdit => '编辑记账凭证';
+  String get financeVoucherEdit => 'Edit Voucher';
 
   @override
-  String get financeVoucherName => '凭证名称';
+  String get financeVoucherName => 'Voucher Name';
 
   @override
-  String get financeVoucherCode => '凭证号';
+  String get financeVoucherCode => 'Voucher No.';
 
   @override
-  String get financeVoucherCodeHint => '留空自动生成 VCH+时间戳';
+  String get financeVoucherCodeHint =>
+      'Leave blank to auto-generate VCH+timestamp';
 
   @override
-  String get financeVoucherDate => '凭证日期';
+  String get financeVoucherDate => 'Voucher Date';
 
   @override
-  String get financeVoucherDraft => '草稿';
+  String get financeVoucherDraft => 'Draft';
 
   @override
-  String get financeVoucherReviewed => '已审核';
+  String get financeVoucherReviewed => 'Reviewed';
 
   @override
-  String get financeVoucherItemSubject => '明细-科目ID';
+  String get financeVoucherItemSubject => 'Item Account ID';
 
   @override
-  String get financeVoucherItemSubjectHint => '从科目列表获取数字ID，填了则按明细创建';
+  String get financeVoucherItemSubjectHint =>
+      'Numeric ID from the account list; when set, the voucher is created with line items';
 
   @override
-  String get financeVoucherItemSummary => '明细-摘要';
+  String get financeVoucherItemSummary => 'Item Summary';
 
   @override
-  String get financeVoucherItemDebit => '明细-借方金额';
+  String get financeVoucherItemDebit => 'Item Debit';
 
   @override
-  String get financeVoucherItemCredit => '明细-贷方金额';
+  String get financeVoucherItemCredit => 'Item Credit';
 
   @override
-  String get financeReportProfit => '利润报表';
+  String get financeReportProfit => 'Profit Report';
 
   @override
-  String get financeReportBalanceSheet => '资产负债表';
+  String get financeReportBalanceSheet => 'Balance Sheet';
 
   @override
-  String get financeReportCashFlow => '现金流量表';
+  String get financeReportCashFlow => 'Cash Flow Statement';
 
   @override
-  String get financeReportTrialBalance => '试算平衡表';
+  String get financeReportTrialBalance => 'Trial Balance';
 
   @override
-  String get financeReportAccountBalance => '科目余额';
+  String get financeReportAccountBalance => 'Account Balances';
 
   @override
-  String get financeReportClosePeriod => '期末结转';
+  String get financeReportClosePeriod => 'Period-End Closing';
 
   @override
-  String get financeReportConsolidate => '合并报表';
+  String get financeReportConsolidate => 'Consolidated Reports';
 
   @override
-  String get financeReportRatios => '财务比率';
+  String get financeReportRatios => 'Financial Ratios';
 
   @override
-  String get financeQuery => '查询';
+  String get financeQuery => 'Query';
 
   @override
-  String get financeQuerying => '查询中...';
+  String get financeQuerying => 'Querying...';
 
   @override
-  String get financeCalculating => '计算中...';
+  String get financeCalculating => 'Calculating...';
 
   @override
   String financeJsonInvalidMsg(Object field) {
-    return '$field 不是合法 JSON';
+    return '$field is not valid JSON';
   }
 
   @override
   String financeJsonArrayRequired(Object field) {
-    return '$field 必须为 JSON 数组';
+    return '$field must be a JSON array';
   }
 
   @override
   String financeJsonObjectRequired(Object field) {
-    return '$field 必须为 JSON 对象';
+    return '$field must be a JSON object';
   }
 
   @override
-  String get financeConsolidateJsonLabel => '子公司报表 JSON 数组 *';
+  String get financeConsolidateJsonLabel => 'Subsidiary Reports JSON Array *';
 
   @override
   String get financeConsolidateJsonHint =>
-      'JSON 数组，每项含 name（子公司名）、currency（币种）、amount（金额）字段，如 name=子公司A, currency=USD, amount=1000';
+      'JSON array; each item has name (subsidiary), currency and amount fields, e.g. name=Subsidiary A, currency=USD, amount=1000';
 
   @override
-  String get financeBaseCurrency => '本位币';
+  String get financeBaseCurrency => 'Base Currency';
 
   @override
-  String get financeConsolidating => '合并中...';
+  String get financeConsolidating => 'Consolidating...';
 
   @override
-  String get financeExecuteConsolidate => '执行合并';
+  String get financeExecuteConsolidate => 'Run Consolidation';
 
   @override
-  String get financeExchangeGainLoss => '汇兑损益';
+  String get financeExchangeGainLoss => 'Exchange Gain/Loss';
 
   @override
-  String get financeBalanceSheetJsonLabel => '资产负债表 JSON *';
+  String get financeBalanceSheetJsonLabel => 'Balance Sheet JSON *';
 
   @override
   String get financeBalanceSheetJsonHint =>
-      'JSON 对象，含 current_assets、current_liabilities、total_liabilities、total_assets 字段，值为数字';
+      'JSON object with numeric values for current_assets, current_liabilities, total_liabilities and total_assets';
 
   @override
-  String get financeProfitStatementJsonLabel => '利润表 JSON *';
+  String get financeProfitStatementJsonLabel => 'Income Statement JSON *';
 
   @override
   String get financeProfitStatementJsonHint =>
-      'JSON 对象，含 net_profit、revenue 字段，值为数字';
+      'JSON object with numeric values for net_profit and revenue';
 
   @override
-  String get financeCalcRatios => '计算比率';
+  String get financeCalcRatios => 'Calculate Ratios';
 
   @override
-  String get financeCurrentRatio => '流动比率';
+  String get financeCurrentRatio => 'Current Ratio';
 
   @override
-  String get financeDebtRatio => '资产负债率';
+  String get financeDebtRatio => 'Debt-to-Asset Ratio';
 
   @override
-  String get financeNetMargin => '净利率';
+  String get financeNetMargin => 'Net Margin';
 
   @override
-  String get financeRoa => '资产收益率';
+  String get financeRoa => 'Return on Assets';
 
   @override
-  String get financeYear => '年份';
+  String get financeYear => 'Year';
 
   @override
-  String get financeMonth => '月份';
+  String get financeMonth => 'Month';
 
   @override
-  String get financeAnnual => '年度';
+  String get financeAnnual => 'Annual';
 
   @override
-  String get financeNoDetailData => '暂无明细数据';
+  String get financeNoDetailData => 'No detail data';
 
   @override
-  String get financeRevenue => '营业收入';
+  String get financeRevenue => 'Operating Revenue';
 
   @override
-  String get financeCost => '营业成本';
+  String get financeCost => 'Operating Cost';
 
   @override
-  String get financeExpensesTotal => '费用合计';
+  String get financeExpensesTotal => 'Total Expenses';
 
   @override
-  String get financeProfit => '利润';
+  String get financeProfit => 'Profit';
 
   @override
-  String get financeExpense => '费用';
+  String get financeExpense => 'Expense';
 
   @override
-  String get financeCurrentAssets => '流动资产';
+  String get financeCurrentAssets => 'Current Assets';
 
   @override
-  String get financeNonCurrentAssets => '非流动资产';
+  String get financeNonCurrentAssets => 'Non-Current Assets';
 
   @override
-  String get financeTotalAssets => '资产总计';
+  String get financeTotalAssets => 'Total Assets';
 
   @override
-  String get financeCurrentLiabilities => '流动负债';
+  String get financeCurrentLiabilities => 'Current Liabilities';
 
   @override
-  String get financeNonCurrentLiabilities => '非流动负债';
+  String get financeNonCurrentLiabilities => 'Non-Current Liabilities';
 
   @override
-  String get financeTotalLiabilities => '负债总计';
+  String get financeTotalLiabilities => 'Total Liabilities';
 
   @override
-  String get financeEquity => '所有者权益';
+  String get financeEquity => 'Owner\'s Equity';
 
   @override
   String financeReportNote(Object note) {
-    return '报表说明: $note';
+    return 'Report note: $note';
   }
 
   @override
-  String get financeOperatingInflow => '经营活动流入';
+  String get financeOperatingInflow => 'Operating Inflows';
 
   @override
-  String get financeOperatingOutflow => '经营活动流出';
+  String get financeOperatingOutflow => 'Operating Outflows';
 
   @override
-  String get financeOperatingNet => '经营活动净额';
+  String get financeOperatingNet => 'Net Operating Cash Flow';
 
   @override
-  String get financeInvestingInflow => '投资活动流入';
+  String get financeInvestingInflow => 'Investing Inflows';
 
   @override
-  String get financeInvestingOutflow => '投资活动流出';
+  String get financeInvestingOutflow => 'Investing Outflows';
 
   @override
-  String get financeInvestingNet => '投资活动净额';
+  String get financeInvestingNet => 'Net Investing Cash Flow';
 
   @override
-  String get financeFinancingInflow => '筹资活动流入';
+  String get financeFinancingInflow => 'Financing Inflows';
 
   @override
-  String get financeFinancingOutflow => '筹资活动流出';
+  String get financeFinancingOutflow => 'Financing Outflows';
 
   @override
-  String get financeFinancingNet => '筹资活动净额';
+  String get financeFinancingNet => 'Net Financing Cash Flow';
 
   @override
-  String get financeBeginningCash => '期初现金';
+  String get financeBeginningCash => 'Beginning Cash';
 
   @override
-  String get financeEndingCash => '期末现金';
+  String get financeEndingCash => 'Ending Cash';
 
   @override
-  String get financePeriod => '期间 YYYY-MM';
+  String get financePeriod => 'Period YYYY-MM';
 
   @override
-  String get financePeriodOptional => '期间 YYYY-MM(可选)';
+  String get financePeriodOptional => 'Period YYYY-MM (optional)';
 
   @override
-  String get financeDebitTotal => '借方合计';
+  String get financeDebitTotal => 'Total Debits';
 
   @override
-  String get financeCreditTotal => '贷方合计';
+  String get financeCreditTotal => 'Total Credits';
 
   @override
-  String get financeAccountBalanceRequired => '请输入科目ID（account_subject_id 必填）';
+  String get financeAccountBalanceRequired =>
+      'Enter Account ID (account_subject_id is required)';
 
   @override
-  String get financeOpeningDebit => '期初借方';
+  String get financeOpeningDebit => 'Opening Debit';
 
   @override
-  String get financeOpeningCredit => '期初贷方';
+  String get financeOpeningCredit => 'Opening Credit';
 
   @override
-  String get financeCurrentDebit => '本期借方';
+  String get financeCurrentDebit => 'Current Debit';
 
   @override
-  String get financeCurrentCredit => '本期贷方';
+  String get financeCurrentCredit => 'Current Credit';
 
   @override
-  String get financeClosingDebit => '期末借方';
+  String get financeClosingDebit => 'Closing Debit';
 
   @override
-  String get financeClosingCredit => '期末贷方';
+  String get financeClosingCredit => 'Closing Credit';
 
   @override
-  String get financeRevenueCarry => '收入结转';
+  String get financeRevenueCarry => 'Revenue Carryforward';
 
   @override
-  String get financeExpenseCarry => '费用结转';
+  String get financeExpenseCarry => 'Expense Carryforward';
 
   @override
-  String get financeYearProfit => '本年利润';
+  String get financeYearProfit => 'Profit for the Year';
 
   @override
-  String get financeCloseStatus => '结转状态';
+  String get financeCloseStatus => 'Closing Status';
 
   @override
   String financeVoucherIdMsg(Object id) {
-    return '凭证ID: $id';
+    return 'Voucher ID: $id';
   }
 
   @override
-  String get salesCustomerId => '客户ID';
+  String get salesCustomerId => 'Customer ID';
 
   @override
-  String get salesDeliveryId => '发货单ID';
+  String get salesDeliveryId => 'Delivery ID';
 
   @override
-  String get salesReceivableAmount => '应收金额';
+  String get salesReceivableAmount => 'Receivable Amount';
 
   @override
-  String get salesReceivedAmount => '已收金额';
+  String get salesReceivedAmount => 'Received Amount';
 
   @override
-  String get salesSettledAt => '结算时间';
+  String get salesSettledAt => 'Settled At';
 
   @override
-  String get salesSettleStatus => '结算状态';
+  String get salesSettleStatus => 'Settlement Status';
 
   @override
-  String get salesSettleTitle => '销售结算';
+  String get salesSettleTitle => 'Sales Settlement';
 
   @override
-  String get salesSettleTooltip => '结算';
+  String get salesSettleTooltip => 'Settle';
 
   @override
-  String get salesSettlementUnsettled => '未结算';
+  String get salesSettlementUnsettled => 'Unsettled';
 
   @override
-  String get salesSettlementPartSettled => '部分结算';
+  String get salesSettlementPartSettled => 'Partially Settled';
 
   @override
-  String get salesSettlementSettled => '已结算';
+  String get salesSettlementSettled => 'Settled';
 
   @override
-  String get salesOrderAdd => '新增销售订单';
+  String get salesOrderAdd => 'Add Sales Order';
 
   @override
-  String get salesOrderEdit => '编辑销售订单';
+  String get salesOrderEdit => 'Edit Sales Order';
 
   @override
-  String get salesOrderName => '订单名称';
+  String get salesOrderName => 'Order Name';
 
   @override
-  String get salesOrderNo => '订单编号';
+  String get salesOrderNo => 'Order No.';
 
   @override
-  String get salesOrderCodeHint => '留空自动生成 SO+时间戳';
+  String get salesOrderCodeHint => 'Leave blank to auto-generate SO+timestamp';
 
   @override
-  String get salesCustomerIdHint => '从客户列表页获取数字ID';
+  String get salesCustomerIdHint => 'Numeric ID from the customer list page';
 
   @override
-  String get salesWarehouseId => '发货仓库ID';
+  String get salesWarehouseId => 'Shipping Warehouse ID';
 
   @override
-  String get salesWarehouseIdHint => '留空为0';
+  String get salesWarehouseIdHint => 'Leave blank for 0';
 
   @override
-  String get salesOrderTotalAmount => '订单总金额';
+  String get salesOrderTotalAmount => 'Order Total Amount';
 
   @override
-  String get salesTotalAmount => '总金额';
+  String get salesTotalAmount => 'Total Amount';
 
   @override
-  String get salesDiscountAmount => '优惠金额';
+  String get salesDiscountAmount => 'Discount Amount';
 
   @override
-  String get salesOrderedAt => '下单时间';
+  String get salesOrderedAt => 'Order Date';
 
   @override
-  String get salesOrderPending => '待审核';
+  String get salesOrderPending => 'Pending Review';
 
   @override
-  String get salesOrderReviewed => '已审核';
+  String get salesOrderReviewed => 'Reviewed';
 
   @override
-  String get salesOrderPartShipped => '部分发货';
+  String get salesOrderPartShipped => 'Partially Shipped';
 
   @override
-  String get salesOrderShipped => '已发货';
+  String get salesOrderShipped => 'Shipped';
 
   @override
-  String get salesOrderCancelled => '已取消';
+  String get salesOrderCancelled => 'Cancelled';
 
   @override
-  String get salesQuoteDraft => '草稿';
+  String get salesQuoteDraft => 'Draft';
 
   @override
-  String get salesQuoteQuoted => '已报价';
+  String get salesQuoteQuoted => 'Quoted';
 
   @override
-  String get salesQuoteConverted => '已转订单';
+  String get salesQuoteConverted => 'Converted to Order';
 
   @override
-  String get salesQuoteExpired => '已失效';
+  String get salesQuoteExpired => 'Expired';
 
   @override
-  String get salesQuotationAdd => '新增报价单';
+  String get salesQuotationAdd => 'Add Quotation';
 
   @override
-  String get salesQuotationEdit => '编辑报价单';
+  String get salesQuotationEdit => 'Edit Quotation';
 
   @override
-  String get salesQuotationNo => '报价单号';
+  String get salesQuotationNo => 'Quotation No.';
 
   @override
-  String get salesQuotationCodeHint => '留空自动生成 QT+时间戳';
+  String get salesQuotationCodeHint =>
+      'Leave blank to auto-generate QT+timestamp';
 
   @override
-  String get salesQuotationAmount => '报价金额';
+  String get salesQuotationAmount => 'Quotation Amount';
 
   @override
-  String get salesQuotedAt => '报价时间';
+  String get salesQuotedAt => 'Quoted At';
 
   @override
-  String get salesSettlementAdd => '新增销售结算（收款核销）';
+  String get salesSettlementAdd => 'Add Sales Settlement (receipt write-off)';
 
   @override
-  String get salesSettlementEdit => '编辑销售结算';
+  String get salesSettlementEdit => 'Edit Sales Settlement';
 
   @override
-  String get salesSettlementAddButton => '新增结算';
+  String get salesSettlementAddButton => 'Add Settlement';
 
   @override
-  String get salesSettlementDeleteMsg => '确定要删除该销售结算记录吗？';
+  String get salesSettlementDeleteMsg =>
+      'Are you sure you want to delete this sales settlement record?';
 
   @override
-  String get salesReceiptPaymentId => '收款单ID';
+  String get salesReceiptPaymentId => 'Receipt ID';
 
   @override
-  String get salesReceiptPaymentHint => '需已审核的收款单 hashid';
+  String get salesReceiptPaymentHint => 'Hashid of an approved receipt record';
 
   @override
-  String get salesWriteoffAmount => '核销金额';
+  String get salesWriteoffAmount => 'Write-off Amount';
 
   @override
-  String get commonClose => '关闭';
+  String get commonClose => 'Close';
 
   @override
-  String get commonEnabled => '启用';
+  String get commonEnabled => 'Enabled';
 
   @override
-  String get commonDisabled => '禁用';
+  String get commonDisabled => 'Disabled';
 
   @override
-  String get commonSave => '保存';
+  String get commonSave => 'Save';
 
   @override
-  String get commonSubmitting => '提交中...';
+  String get commonSubmitting => 'Submitting...';
 
   @override
-  String get commonSnackSuccess => '成功';
+  String get commonSnackSuccess => 'Success';
 
   @override
-  String get commonSnackError => '错误';
+  String get commonSnackError => 'Error';
 
   @override
-  String get commonSnackInfo => '提示';
+  String get commonSnackInfo => 'Info';
 
   @override
-  String get commonOpSuccess => '操作成功';
+  String get commonOpSuccess => 'Operation successful';
 
   @override
-  String get commonPasswordConfirm => '输入密码确认';
+  String get commonPasswordConfirm => 'Enter password to confirm';
 
   @override
   String commonDeleteContent(String name) {
-    return '确定要删除「$name」吗？';
+    return 'Are you sure you want to delete \"$name\"?';
   }
 
   @override
   String commonDeleteFailedMsg(String error) {
-    return '删除失败: $error';
+    return 'Delete failed: $error';
   }
 
   @override
   String commonLoadFailedMsg(String error) {
-    return '加载失败: $error';
+    return 'Failed to load: $error';
   }
 
   @override
   String commonPageInfo(int page, int pages, int total) {
-    return '第 $page 页 / 共 $pages 页 ($total 条)';
+    return 'Page $page of $pages ($total records)';
   }
 
   @override
-  String get fieldName => '名称';
+  String get fieldName => 'Name';
 
   @override
-  String get fieldCode => '编码';
+  String get fieldCode => 'Code';
 
   @override
-  String get fieldTitle => '标题';
+  String get fieldTitle => 'Title';
 
   @override
-  String get fieldContent => '内容';
+  String get fieldContent => 'Content';
 
   @override
-  String get fieldCategory => '分类';
+  String get fieldCategory => 'Category';
 
   @override
-  String get fieldType => '类型';
+  String get fieldType => 'Type';
 
   @override
-  String get fieldTags => '标签';
+  String get fieldTags => 'Tags';
 
   @override
-  String get fieldTime => '时间';
+  String get fieldTime => 'Time';
 
   @override
-  String get fieldRemark => '备注';
+  String get fieldRemark => 'Notes';
 
   @override
-  String get fieldContact => '联系人';
+  String get fieldContact => 'Contact';
 
   @override
-  String get fieldPhone => '手机号';
+  String get fieldPhone => 'Phone';
 
   @override
-  String get fieldAddress => '地址';
+  String get fieldAddress => 'Address';
 
   @override
-  String get fieldManager => '负责人';
+  String get fieldManager => 'Manager';
 
   @override
-  String get fieldLevel => '等级';
+  String get fieldLevel => 'Level';
 
   @override
-  String get fieldWarehouse => '仓库';
+  String get fieldWarehouse => 'Warehouse';
 
   @override
-  String get fieldEmail => '邮箱';
+  String get fieldEmail => 'Email';
 
   @override
-  String get fieldDescription => '描述';
+  String get fieldDescription => 'Description';
 
   @override
-  String get fieldSlug => '标识';
+  String get fieldSlug => 'Slug';
 
   @override
-  String get fieldUsername => '用户名';
+  String get fieldUsername => 'Username';
 
   @override
-  String get fieldRealName => '姓名';
+  String get fieldRealName => 'Real Name';
 
   @override
-  String get fieldRealNameFull => '真实姓名';
+  String get fieldRealNameFull => 'Full Name';
 
   @override
-  String get fieldLastLogin => '最后登录';
+  String get fieldLastLogin => 'Last Login';
 
   @override
-  String get fieldProductName => '商品名称';
+  String get fieldProductName => 'Product Name';
 
   @override
-  String get fieldSpec => '规格';
+  String get fieldSpec => 'Spec';
 
   @override
-  String get fieldPrice => '价格';
+  String get fieldPrice => 'Price';
 
   @override
-  String get fieldSort => '排序';
+  String get fieldSort => 'Sort Order';
 
   @override
-  String get fieldVersion => '版本';
+  String get fieldVersion => 'Version';
 
   @override
-  String get fieldDocTitle => '文档标题';
+  String get fieldDocTitle => 'Document Title';
 
   @override
-  String get fieldDocCode => '文档编码';
+  String get fieldDocCode => 'Document Code';
 
   @override
-  String get fieldChangeNote => '变更说明';
+  String get fieldChangeNote => 'Change Notes';
 
   @override
-  String get fieldGroup => '分组';
+  String get fieldGroup => 'Group';
 
   @override
-  String get fieldKey => '键';
+  String get fieldKey => 'Key';
 
   @override
-  String get fieldValue => '值';
+  String get fieldValue => 'Value';
 
   @override
-  String get fieldNote => '说明';
+  String get fieldNote => 'Description';
 
   @override
-  String get fieldOperator => '操作者';
+  String get fieldOperator => 'Operator';
 
   @override
-  String get fieldMethod => '方法';
+  String get fieldMethod => 'Method';
 
   @override
-  String get fieldPath => '路径';
+  String get fieldPath => 'Path';
 
   @override
-  String get fieldDocType => '单据类型';
+  String get fieldDocType => 'Document Type';
 
   @override
-  String get fieldDocId => '单据ID';
+  String get fieldDocId => 'Document ID';
 
   @override
-  String get fieldSubmitTime => '提交时间';
+  String get fieldSubmitTime => 'Submitted At';
 
   @override
-  String get fieldInspectNo => '检验单号';
+  String get fieldInspectNo => 'Inspection No.';
 
   @override
-  String get fieldReceivingId => '收货单ID';
+  String get fieldReceivingId => 'Receiving ID';
 
   @override
-  String get fieldProductId => '商品ID';
+  String get fieldProductId => 'Product ID';
 
   @override
-  String get fieldInspectionStdId => '检验标准ID';
+  String get fieldInspectionStdId => 'Inspection Standard ID';
 
   @override
-  String get fieldInspectedQty => '检验数量';
+  String get fieldInspectedQty => 'Inspected Qty';
 
   @override
-  String get fieldPassedQty => '合格数量';
+  String get fieldPassedQty => 'Passed Qty';
 
   @override
-  String get fieldRejectedQty => '不合格数量';
+  String get fieldRejectedQty => 'Rejected Qty';
 
   @override
-  String get fieldInspectResult => '检验结果';
+  String get fieldInspectResult => 'Inspection Result';
 
   @override
-  String get fieldInspector => '检验员';
+  String get fieldInspector => 'Inspector';
 
   @override
-  String get fieldResult => '结果';
+  String get fieldResult => 'Result';
 
   @override
-  String get fieldDeliveryId => '发货单ID';
+  String get fieldDeliveryId => 'Delivery ID';
 
   @override
-  String get fieldWorkOrderId => '生产工单ID';
+  String get fieldWorkOrderId => 'Work Order ID';
 
   @override
-  String get fieldWorkOrderIdShort => '工单ID';
+  String get fieldWorkOrderIdShort => 'Work Order ID';
 
   @override
-  String get fieldWorkstationId => '工作站ID';
+  String get fieldWorkstationId => 'Workstation ID';
 
   @override
-  String get fieldDefectNo => '不合格编号';
+  String get fieldDefectNo => 'Defect No.';
 
   @override
-  String get fieldSourceType => '来源类型';
+  String get fieldSourceType => 'Source Type';
 
   @override
-  String get fieldSourceId => '来源记录ID';
+  String get fieldSourceId => 'Source ID';
 
   @override
-  String get fieldDefectType => '缺陷类型';
+  String get fieldDefectType => 'Defect Type';
 
   @override
-  String get fieldDefectQty => '缺陷数量';
+  String get fieldDefectQty => 'Defect Qty';
 
   @override
-  String get fieldSeverity => '严重程度';
+  String get fieldSeverity => 'Severity';
 
   @override
-  String get fieldDisposition => '处置方式';
+  String get fieldDisposition => 'Disposition';
 
   @override
-  String get fieldRootCause => '根本原因';
+  String get fieldRootCause => 'Root Cause';
 
   @override
-  String get fieldCorrectiveAction => '纠正措施';
+  String get fieldCorrectiveAction => 'Corrective Action';
 
   @override
-  String get fieldReporter => '报告人';
+  String get fieldReporter => 'Reporter';
 
   @override
-  String get fieldNo => '编号';
+  String get fieldNo => 'No.';
 
   @override
-  String get fieldSource => '来源';
+  String get fieldSource => 'Source';
 
   @override
-  String get fieldQty => '数量';
+  String get fieldQty => 'Qty';
 
   @override
-  String get fieldStdName => '标准名称';
+  String get fieldStdName => 'Standard Name';
 
   @override
-  String get fieldStdCode => '标准编码';
+  String get fieldStdCode => 'Standard Code';
 
   @override
-  String get fieldInspectSpec => '检验规格';
+  String get fieldInspectSpec => 'Inspection Spec';
 
   @override
-  String get fieldSamplingPlan => '抽样方案';
+  String get fieldSamplingPlan => 'Sampling Plan';
 
   @override
-  String get fieldInspectType => '检验类型';
+  String get fieldInspectType => 'Inspection Type';
 
   @override
-  String get qualityQtySummary => '检验/合格/不合格';
+  String get qualityQtySummary => 'Inspected/Passed/Rejected';
 
   @override
-  String get biDashboardName => '看板名称';
+  String get biDashboardName => 'Dashboard Name';
 
   @override
-  String get biLayout => '布局配置';
+  String get biLayout => 'Layout Config';
 
   @override
-  String get biUserId => '用户ID';
+  String get biUserId => 'User ID';
 
   @override
-  String get biChartManage => '图表管理';
+  String get biChartManage => 'Manage Charts';
 
   @override
   String biChartManageTitle(String name) {
-    return '图表管理 — $name';
+    return 'Manage Charts — $name';
   }
 
   @override
-  String get biChartAdd => '新增图表';
+  String get biChartAdd => 'Add Chart';
 
   @override
-  String get biChartEdit => '编辑图表';
+  String get biChartEdit => 'Edit Chart';
 
   @override
-  String get biChartName => '图表名称';
+  String get biChartName => 'Chart Name';
 
   @override
-  String get biChartType => '图表类型';
+  String get biChartType => 'Chart Type';
 
   @override
   String biChartTypeLabel(String type) {
-    return '类型: $type';
+    return 'Type: $type';
   }
 
   @override
-  String get biChartConfig => '配置JSON';
+  String get biChartConfig => 'Config JSON';
 
   @override
   String biChartDeleteContent(String name) {
-    return '确定要删除图表「$name」吗？';
+    return 'Are you sure you want to delete chart \"$name\"?';
   }
 
   @override
   String biChartCount(int count) {
-    return '共 $count 个';
+    return '$count total';
   }
 
   @override
-  String get biChartEmpty => '暂无图表，点击「新增图表」创建';
+  String get biChartEmpty => 'No charts yet; click \"Add Chart\" to create one';
 
   @override
-  String get biDatasetId => '数据集ID';
+  String get biDatasetId => 'Dataset ID';
 
   @override
-  String get biPositionX => 'X坐标';
+  String get biPositionX => 'X Position';
 
   @override
-  String get biPositionY => 'Y坐标';
+  String get biPositionY => 'Y Position';
 
   @override
-  String get biWidth => '宽度';
+  String get biWidth => 'Width';
 
   @override
-  String get biHeight => '高度';
+  String get biHeight => 'Height';
 
   @override
-  String get biDatasetName => '数据集名称';
+  String get biDatasetName => 'Dataset Name';
 
   @override
-  String get biTemplateId => '模板ID';
+  String get biTemplateId => 'Template ID';
 
   @override
-  String get biQuerySql => '查询SQL';
+  String get biQuerySql => 'Query SQL';
 
   @override
-  String get biRowCount => '行数';
+  String get biRowCount => 'Rows';
 
   @override
-  String get biGeneratedAt => '生成时间';
+  String get biGeneratedAt => 'Generated At';
 
   @override
-  String get biParams => '参数(JSON)';
+  String get biParams => 'Params (JSON)';
 
   @override
-  String get workflowStatusApproving => '审批中';
+  String get workflowStatusApproving => 'Approving';
 
   @override
-  String get workflowStatusApproved => '已通过';
+  String get workflowStatusApproved => 'Approved';
 
   @override
-  String get workflowStatusRejected => '已驳回';
+  String get workflowStatusRejected => 'Rejected';
 
   @override
-  String get workflowStatusWithdrawn => '已撤回';
+  String get workflowStatusWithdrawn => 'Withdrawn';
 
   @override
-  String get workflowStatusUnknown => '未知';
+  String get workflowStatusUnknown => 'Unknown';
 
   @override
-  String get workflowApproveTitle => '通过审批';
+  String get workflowApproveTitle => 'Approve';
 
   @override
-  String get workflowRejectTitle => '驳回审批';
+  String get workflowRejectTitle => 'Reject';
 
   @override
-  String get workflowWithdrawTitle => '撤回审批';
+  String get workflowWithdrawTitle => 'Withdraw Approval';
 
   @override
-  String get workflowApprove => '通过';
+  String get workflowApprove => 'Approve';
 
   @override
-  String get workflowReject => '驳回';
+  String get workflowReject => 'Reject';
 
   @override
-  String get workflowWithdraw => '撤回';
+  String get workflowWithdraw => 'Withdraw';
 
   @override
-  String get workflowWithdrawContent => '确定要撤回该审批吗？';
+  String get workflowWithdrawContent => 'Withdraw this approval request?';
 
   @override
-  String get workflowWithdrawn => '已撤回';
+  String get workflowWithdrawn => 'Withdrawn';
 
   @override
   String workflowWithdrawFailedMsg(String error) {
-    return '撤回失败: $error';
+    return 'Withdraw failed: $error';
   }
 
   @override
-  String get workflowCommentRequired => '审批意见（必填）';
+  String get workflowCommentRequired => 'Approval Comment (required)';
 
   @override
-  String get workflowCommentOptional => '审批意见（选填）';
+  String get workflowCommentOptional => 'Approval Comment (optional)';
 
   @override
-  String get workflowCommentRequiredError => '审批意见为必填项';
+  String get workflowCommentRequiredError => 'An approval comment is required';
 
   @override
-  String get workflowSubmit => '提交审批';
+  String get workflowSubmit => 'Submit for Approval';
 
   @override
   String workflowSubmitTitle(String name) {
-    return '提交审批：$name';
+    return 'Submit for Approval: $name';
   }
 
   @override
-  String get workflowSubmitSuccess => '提交成功';
+  String get workflowSubmitSuccess => 'Submitted successfully';
 
   @override
-  String get workflowDocIdInteger => '单据ID必须为数字';
+  String get workflowDocIdInteger => 'Document ID must be numeric';
 
   @override
-  String get workflowDocTypeHint => '如 purchase_order / expense';
+  String get workflowDocTypeHint => 'e.g. purchase_order / expense';
 
   @override
-  String get notificationMarkAllRead => '标记全部已读';
+  String get notificationMarkAllRead => 'Mark All as Read';
 
   @override
-  String get reportExecute => '执行';
+  String get reportExecute => 'Run';
 
   @override
   String reportResultTitle(String name) {
-    return '报表结果：$name';
+    return 'Report Result: $name';
   }
 
   @override
   String reportFieldDatasetId(String value) {
-    return '数据集ID: $value';
+    return 'Dataset ID: $value';
   }
 
   @override
   String reportFieldRowCount(String value) {
-    return '结果行数: $value';
+    return 'Result rows: $value';
   }
 
   @override
   String reportFieldGeneratedAt(String value) {
-    return '生成时间: $value';
+    return 'Generated at: $value';
   }
 
   @override
   String reportFieldResult(String value) {
-    return '结果: $value';
+    return 'Result: $value';
   }
 
   @override
-  String get reportNoRows => '查询成功，暂无数据行';
+  String get reportNoRows => 'Query succeeded, no result rows';
 
   @override
   String reportExecuteFailedMsg(String error) {
-    return '执行失败：$error';
+    return 'Execution failed: $error';
   }
 
   @override
-  String get systemRoleTitle => '角色管理';
+  String get systemRoleTitle => 'Roles';
 
   @override
-  String get systemRoleAdd => '新增角色';
+  String get systemRoleAdd => 'Add Role';
 
   @override
-  String get systemRoleEdit => '编辑角色';
+  String get systemRoleEdit => 'Edit Role';
 
   @override
-  String get systemRoleEmpty => '暂无角色';
+  String get systemRoleEmpty => 'No roles yet';
 
   @override
   String systemRoleSubtitle(String slug, int count, String desc) {
-    return '标识: $slug | 用户数: $count | $desc';
+    return 'Slug: $slug | Users: $count | $desc';
   }
 
   @override
-  String get systemRolePermSection => '权限分配:';
+  String get systemRolePermSection => 'Permissions:';
 
   @override
   String systemRoleDeleteContent(String name) {
-    return '确定要删除角色「$name」吗？';
+    return 'Are you sure you want to delete role \"$name\"?';
   }
 
   @override
   String systemRoleLoadFailedMsg(String error) {
-    return '加载角色列表失败: $error';
+    return 'Failed to load roles: $error';
   }
 
   @override
   String systemPermLoadFailedMsg(String error) {
-    return '加载权限列表失败: $error';
+    return 'Failed to load permissions: $error';
   }
 
   @override
-  String get systemRoleCreated => '角色创建成功';
+  String get systemRoleCreated => 'Role created';
 
   @override
   String systemRoleCreateFailedMsg(String error) {
-    return '创建失败: $error';
+    return 'Create failed: $error';
   }
 
   @override
-  String get systemRoleUpdated => '角色更新成功';
+  String get systemRoleUpdated => 'Role updated';
 
   @override
   String systemRoleUpdateFailedMsg(String error) {
-    return '更新失败: $error';
+    return 'Update failed: $error';
   }
 
   @override
-  String get systemRoleDeleted => '角色删除成功';
+  String get systemRoleDeleted => 'Role deleted';
 
   @override
-  String get systemUserTitle => '用户管理';
+  String get systemUserTitle => 'Users';
 
   @override
-  String get systemUserAdd => '新增用户';
+  String get systemUserAdd => 'Add User';
 
   @override
-  String get systemUserEdit => '编辑用户';
+  String get systemUserEdit => 'Edit User';
 
   @override
-  String get systemUserCreated => '用户创建成功';
+  String get systemUserCreated => 'User created';
 
   @override
-  String get systemUserUpdated => '用户更新成功';
+  String get systemUserUpdated => 'User updated';
 
   @override
-  String get systemUserSearchHint => '搜索用户名/姓名';
+  String get systemUserSearchHint => 'Search username/name';
 
   @override
   String systemUserDeleteContent(String name) {
-    return '确定要删除用户「$name」吗？';
+    return 'Are you sure you want to delete user \"$name\"?';
   }
 
   @override
   String systemUserBatchDelLabel(int count) {
-    return '删除($count)';
+    return 'Delete ($count)';
   }
 
   @override
-  String get systemUserBatchDeleteTitle => '确认批量删除';
+  String get systemUserBatchDeleteTitle => 'Confirm Batch Delete';
 
   @override
   String systemUserBatchDeleteContent(int count) {
-    return '确定要删除选中的 $count 个用户吗？';
+    return 'Delete the $count selected users?';
   }
 
   @override
-  String get systemUserBatchEnable => '批量启用';
+  String get systemUserBatchEnable => 'Enable Selected';
 
   @override
-  String get systemUserBatchDisable => '批量禁用';
+  String get systemUserBatchDisable => 'Disable Selected';
 
   @override
-  String get systemUserBatchEnabled => '批量启用完成';
+  String get systemUserBatchEnabled => 'Selected users enabled';
 
   @override
-  String get systemUserBatchDisabled => '批量禁用完成';
+  String get systemUserBatchDisabled => 'Selected users disabled';
 
   @override
-  String get systemUserBatchDeleteDone => '批量删除完成';
+  String get systemUserBatchDeleteDone => 'Selected users deleted';
 
   @override
   String systemUserBatchDeleteFailedMsg(String error) {
-    return '批量删除失败: $error';
+    return 'Batch delete failed: $error';
   }
 
   @override
   String systemUserLoadFailedMsg(String error) {
-    return '加载用户列表失败: $error';
+    return 'Failed to load users: $error';
   }
 
   @override
-  String get systemUserSelectFirst => '请先选择用户';
+  String get systemUserSelectFirst => 'Please select users first';
 
   @override
-  String get userPwdNewLabel => '密码';
+  String get userPwdNewLabel => 'Password';
 
   @override
-  String get userPwdEditHint => '新密码（留空不修改）';
+  String get userPwdEditHint => 'New password (leave blank to keep unchanged)';
 
   @override
-  String get configTitle => '系统配置';
+  String get configTitle => 'System Settings';
 
   @override
-  String get configAdd => '新增配置';
+  String get configAdd => 'Add Setting';
 
   @override
-  String get configEdit => '编辑配置';
+  String get configEdit => 'Edit Setting';
 
   @override
-  String get configSaveSuccess => '保存成功';
+  String get configSaveSuccess => 'Saved successfully';
 
   @override
   String configSaveFailedMsg(String error) {
-    return '保存失败: $error';
+    return 'Save failed: $error';
   }
 
   @override
-  String get configDeleteSuccess => '删除成功';
+  String get configDeleteSuccess => 'Deleted successfully';
 
   @override
   String systemConfigDeleteContent(String key) {
-    return '确定要删除配置「$key」吗？';
+    return 'Are you sure you want to delete setting \"$key\"?';
   }
 
   @override
-  String get logTitle => '操作日志';
+  String get logTitle => 'Operation Logs';
 
   @override
-  String get logActionHint => '操作筛选';
+  String get logActionHint => 'Filter by action';
 
   @override
-  String get logPathHint => '路径筛选';
+  String get logPathHint => 'Filter by path';
 
   @override
-  String get logSystem => '系统';
+  String get logSystem => 'System';
 
   @override
   String logPageInfo(int page, int pages, int total) {
-    return '$page / $pages ($total条)';
+    return '$page / $pages ($total)';
   }
 
   @override
-  String get profileChangePassword => '修改密码';
+  String get profileChangePassword => 'Change Password';
 
   @override
-  String get profileOldPassword => '旧密码';
+  String get profileOldPassword => 'Old Password';
 
   @override
-  String get profileNewPassword => '新密码 (6-32位)';
+  String get profileNewPassword => 'New Password (6-32 chars)';
 
   @override
-  String get profileConfirmPassword => '确认新密码';
+  String get profileConfirmPassword => 'Confirm New Password';
 
   @override
-  String get profileLeaveBlank => '未填写则留空';
+  String get profileLeaveBlank => 'Leave blank to keep unchanged';
 
   @override
-  String get profileNoChanges => '没有需要保存的修改';
+  String get profileNoChanges => 'No changes to save';
 
   @override
-  String get profileUpdateSuccess => '个人信息更新成功';
+  String get profileUpdateSuccess => 'Profile updated successfully';
 
   @override
   String profileUpdateFailedMsg(String error) {
-    return '更新失败: $error';
+    return 'Update failed: $error';
   }
 
   @override
-  String get profilePwdMismatch => '两次密码不一致';
+  String get profilePwdMismatch => 'Passwords do not match';
 
   @override
-  String get profilePwdChanged => '密码修改成功';
+  String get profilePwdChanged => 'Password changed successfully';
 
   @override
   String profilePwdChangeFailedMsg(String error) {
-    return '修改失败: $error';
+    return 'Change failed: $error';
   }
 }

@@ -1,9 +1,7 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 //
-// 双语守卫（C0 基建）：
-// (a) app_en.arb 中「已真译条目」（en≠zh 的 54 条 login/nav 等）零 CJK——
-//     678 条 zh 抄录存量由后续 T 批消化；T 批交付若夹带中文字符此守卫立即变红
-//     （全文件零 CJK 的严格版待 T 批后收紧启用）。
+// 双语守卫（C0 基建；T 批后收紧）：
+// (a) app_en.arb 全部值零 CJK（T 批已消化 678 条 zh 抄录，全文件严格版为永久回归锁）。
 // (b) en / zh 同 key 的 {} 占位符 token 序列一致（防翻译挪位/丢参数）。
 // (c) menuLabelsEn 与 menuConfig 每个唯一 zh label 双向全覆盖，且英文值零 CJK。
 import 'dart:convert';
@@ -19,13 +17,11 @@ void main() {
   final cjk = RegExp('[一-鿿]');
 
   group('en 文案守卫', () {
-    test('en≠zh 的已译条目零 CJK', () {
+    test('app_en.arb 全部值零 CJK（全文件严格版）', () {
       final leaked = <String>[];
       for (final key in en.keys) {
         final env = en[key]!;
-        if (env != zh[key] && cjk.hasMatch(env)) {
-          leaked.add('$key=$env');
-        }
+        if (cjk.hasMatch(env)) leaked.add('$key=$env');
       }
       expect(leaked, isEmpty, reason: '以下 en 条目仍含中文: $leaked');
     });

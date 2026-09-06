@@ -405,7 +405,7 @@ const Map<String, String> menuLabelsEn = {
   '系统管理': 'System',
   '用户管理': 'Users',
   '角色权限': 'Roles',
-  '系统配置': 'Configuration',
+  '系统配置': 'System Settings',
   '操作日志': 'Audit Logs',
   // 商品
   '商品管理': 'Products',
