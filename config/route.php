@@ -340,6 +340,8 @@ Route::group('/admin/v1', function () {
     Route::post('/approval/{id}/reject', [app\controller\workflow\ApprovalController::class, 'reject']);
     Route::post('/approval/{id}/withdraw', [app\controller\workflow\ApprovalController::class, 'withdraw']);
     Route::any('/approval/my', [app\controller\workflow\ApprovalController::class, 'myApprovals']);
+    // 审批详情（GET；须注册在 /approval/my 之后，避免静态路由被 {id} 动态段遮蔽）
+    Route::get('/approval/{id}', [app\controller\workflow\ApprovalController::class, 'show']);
     Route::get('/workflow/designer/{workflowId}', [app\controller\workflow\WorkflowDesignerController::class, 'load']);
     Route::put('/workflow/designer/{workflowId}', [app\controller\workflow\WorkflowDesignerController::class, 'save']);
     Route::post('/workflow/designer/{workflowId}/validate', [app\controller\workflow\WorkflowDesignerController::class, 'validate']);

@@ -84,10 +84,14 @@ class PurchaseModuleTest extends TestCase
         $this->assertSame(422, $this->responseCode($resp), '采购申请缺少 name 应校验失败');
     }
 
-    public function testOrderStoreRejectsMissingName(): void
+    public function testOrderStoreRejectsMissingRequiredFields(): void
     {
+        // 批2契约修正：erp_purchase_order 实列无 name 列（见 install.sql），必填为 code + supplier_id(hashid)
         $resp = (new \app\controller\purchase\OrderController())->store(new FakeRequest(['code' => 'PO-1']));
-        $this->assertSame(422, $this->responseCode($resp), '采购订单缺少 name 应校验失败');
+        $this->assertSame(422, $this->responseCode($resp), '采购订单缺少 supplier_id 应校验失败');
+
+        $resp = (new \app\controller\purchase\OrderController())->store(new FakeRequest(['supplier_id' => 'hash']));
+        $this->assertSame(422, $this->responseCode($resp), '采购订单缺少 code 应校验失败');
     }
 
     public function testReturnStoreRejectsMissingName(): void

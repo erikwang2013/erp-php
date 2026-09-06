@@ -9,6 +9,7 @@ namespace app\controller\sales;
 
 use app\admin\controller\BaseController;
 use app\model\SalesOrder;
+use app\model\SalesOrderItem;
 use app\service\sales\CreditControlException;
 use app\service\sales\CreditControlService;
 use support\Container;
@@ -43,19 +44,22 @@ class OrderController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $query = SalesOrder::query();
+        // erp_sales_order 无 name 列，客户名经 leftJoin 带出（customer_name）；customer.code 与 sales.code 同列名须限定
+        $query = SalesOrder::query()
+            ->leftJoin('customer', 'customer.id', '=', 'sales_order.customer_id')
+            ->select('sales_order.*', 'customer.name as customer_name');
         if ($keyword) {
             // 表无 name 列（erp_sales_order 仅有 code/customer_id 等，见 install.sql），仅按订单编号搜索
-            $query->where('code', 'like', "%{$keyword}%");
+            $query->where('sales_order.code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+            $query->where('sales_order.status', (int) $status);
         }
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->limit($limit)->orderBy('sales_order.id', 'desc')
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'customer_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -123,12 +127,28 @@ class OrderController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = SalesOrder::find($id);
+        $item = SalesOrder::query()
+            ->leftJoin('customer', 'customer.id', '=', 'sales_order.customer_id')
+            ->where('sales_order.id', $id)
+            ->select('sales_order.*', 'customer.name as customer_name')
+            ->first();
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        $data = $this->encodeIds($item->toArray(), ['id', 'customer_id']);
+        // 嵌套明细：行级 id/order_id/product_id 均 hashid（批5/6 下钻请求直接复用）；
+        // product 软删/硬删均以 null 兜底不丢行（leftJoin 天然保留，硬删行 name/code 为 null）
+        $items = SalesOrderItem::query()
+            ->leftJoin('product', 'product.id', '=', 'sales_order_item.product_id')
+            ->where('sales_order_item.order_id', $id)
+            ->select('sales_order_item.*', 'product.name as product_name', 'product.code as product_code')
+            ->orderBy('sales_order_item.id')
+            ->get()
+            ->map(fn ($row) => $this->encodeIds($row->toArray(), ['id', 'order_id', 'product_id']));
+        $data['items'] = $items->all();
+
+        return $this->success($data);
     }
 
     /**

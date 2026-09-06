@@ -9,6 +9,7 @@ namespace app\controller\oms;
 
 use app\admin\controller\BaseController;
 use app\model\OmsFulfillment;
+use app\model\OmsFulfillmentItem;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("履约单")]
@@ -29,6 +30,7 @@ class FulfillmentController extends BaseController
 #[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
 #[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词")]
 #[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[\erikwang2013\apidoc\annotation\Param(name:"oms_order_id", type:"string", default:"", desc:"按 OMS 订单过滤(hashid)")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
 #[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"履约单列表数据")]
@@ -39,17 +41,29 @@ class FulfillmentController extends BaseController
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
+        $omsOrderId = $request->input('oms_order_id', '');
 
-        $query = OmsFulfillment::query();
+        // 仓库名称 leftJoin 带出（erp_oms_fulfillment 无仓库名字段）；warehouse.code 同名列需限定来源
+        $query = OmsFulfillment::query()
+            ->leftJoin('warehouse', 'warehouse.id', '=', 'oms_fulfillment.warehouse_id')
+            ->select('oms_fulfillment.*', 'warehouse.name as warehouse_name');
 
+        if ($omsOrderId !== null && $omsOrderId !== '') {
+            // 过滤参数接收 hashid：解码失败/非正数一律 422 明确文案（防 raw 数字被 decodeId 误解）
+            $decodedOrderId = $this->decodeIdSafe((string) $omsOrderId);
+            if ($decodedOrderId === null || $decodedOrderId < 1) {
+                return $this->fail('无效的 oms_order_id', 422);
+            }
+            $query->where('oms_fulfillment.oms_order_id', $decodedOrderId);
+        }
         if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+            $query->where('oms_fulfillment.status', (int) $status);
         }
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->limit($limit)->orderBy('oms_fulfillment.id', 'desc')
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'oms_order_id', 'warehouse_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -103,12 +117,31 @@ class FulfillmentController extends BaseController
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
-        $item = OmsFulfillment::find($id);
+        $item = OmsFulfillment::query()
+            ->leftJoin('warehouse', 'warehouse.id', '=', 'oms_fulfillment.warehouse_id')
+            ->where('oms_fulfillment.id', $id)
+            ->select('oms_fulfillment.*', 'warehouse.name as warehouse_name')
+            ->first();
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        $data = $this->encodeIds($item->toArray(), ['id', 'oms_order_id', 'warehouse_id']);
+        // WMS/TMS 任务引用：0=未生成 → null；>0 → hashid（引用卡跳 /wms/pick|/wms/pack|/tms/shipment show）
+        foreach (['pick_task_id', 'pack_task_id', 'shipment_id'] as $fk) {
+            $data[$fk] = $data[$fk] ? $this->encodeId((int) $data[$fk]) : null;
+        }
+        // 嵌套明细：行级 id/product_id hashid + 商品名/编码 join（product 缺失 null 兜底不丢行）
+        $items = OmsFulfillmentItem::query()
+            ->leftJoin('product', 'product.id', '=', 'oms_fulfillment_item.product_id')
+            ->where('oms_fulfillment_item.fulfillment_id', $id)
+            ->select('oms_fulfillment_item.*', 'product.name as product_name', 'product.code as product_code')
+            ->orderBy('oms_fulfillment_item.id')
+            ->get()
+            ->map(fn ($row) => $this->encodeIds($row->toArray(), ['id', 'product_id']));
+        $data['items'] = $items->all();
+
+        return $this->success($data);
     }
 
     /**

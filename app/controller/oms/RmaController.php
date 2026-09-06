@@ -9,6 +9,7 @@ namespace app\controller\oms;
 
 use app\admin\controller\BaseController;
 use app\model\OmsRma;
+use app\model\OmsRmaItem;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("退换货单")]
@@ -115,7 +116,18 @@ class RmaController extends BaseController
             return $this->fail($this->trans('not_found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        $data = $this->encodeIds($item->toArray());
+        // 嵌套明细：行级 id/product_id hashid + 商品名/编码 join（product 缺失 null 兜底不丢行）
+        $items = OmsRmaItem::query()
+            ->leftJoin('product', 'product.id', '=', 'oms_rma_item.product_id')
+            ->where('oms_rma_item.rma_id', $id)
+            ->select('oms_rma_item.*', 'product.name as product_name', 'product.code as product_code')
+            ->orderBy('oms_rma_item.id')
+            ->get()
+            ->map(fn ($row) => $this->encodeIds($row->toArray(), ['id', 'product_id']));
+        $data['items'] = $items->all();
+
+        return $this->success($data);
     }
 
     /**
