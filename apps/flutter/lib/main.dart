@@ -147,7 +147,10 @@ import 'app/pages/eam/repair_order_page.dart';
 import 'app/pages/eam/spare_part_page.dart';
 import 'app/pages/dms/document_list_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // 读取持久化语言偏好（'system' 默认跟随系统语言）后再构建首帧。
+  await AppL10n.init();
   runApp(const AdminApp());
 }
 
@@ -302,7 +305,8 @@ class AdminApp extends StatelessWidget {
     return ValueListenableBuilder<Locale>(
       valueListenable: AppL10n.localeNotifier,
       builder: (context, locale, _) => GetMaterialApp(
-        title: '开放管理后台',
+        // 桌面窗口元数据（mobile 忽略）；随 localeNotifier 切换语言刷新。
+        title: AppL10n.current.appTitle,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,

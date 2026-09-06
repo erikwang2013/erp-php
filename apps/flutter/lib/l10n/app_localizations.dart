@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginTitle.
   ///
   /// In zh, this message translates to:
-  /// **'开放管理后台'**
+  /// **'erp开放管理后台'**
   String get loginTitle;
 
   /// No description provided for @loginSlogan.
@@ -205,6 +205,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'管理后台'**
   String get navAdminTitle;
+
+  /// No description provided for @appTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'erp管理后台'**
+  String get appTitle;
 
   /// No description provided for @navAdministrator.
   ///

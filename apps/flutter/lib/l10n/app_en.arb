@@ -18,6 +18,7 @@
   "navDashboard": "Dashboard",
   "navSystem": "System",
   "navAdminTitle": "Admin Console",
+  "appTitle": "Open ERP Admin",
   "navAdministrator": "Administrator",
   "navProfile": "Profile",
   "navLogout": "Log Out",

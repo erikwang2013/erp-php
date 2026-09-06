@@ -1,7 +1,7 @@
 {
   "@@locale": "zh",
 
-  "loginTitle": "开放管理后台",
+  "loginTitle": "erp开放管理后台",
   "loginSlogan": "一个平台，管好全部业务",
   "loginUsername": "用户名",
   "loginPassword": "密码",
@@ -20,6 +20,7 @@
   "navDashboard": "仪表盘",
   "navSystem": "系统管理",
   "navAdminTitle": "管理后台",
+  "appTitle": "erp管理后台",
   "navAdministrator": "管理员",
   "navProfile": "个人中心",
   "navLogout": "退出登录",

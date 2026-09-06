@@ -69,6 +69,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navAdminTitle => 'Admin Console';
 
   @override
+  String get appTitle => 'Open ERP Admin';
+
+  @override
   String get navAdministrator => 'Administrator';
 
   @override

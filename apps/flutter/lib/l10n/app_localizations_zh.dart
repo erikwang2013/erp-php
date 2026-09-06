@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get loginTitle => '开放管理后台';
+  String get loginTitle => 'erp开放管理后台';
 
   @override
   String get loginSlogan => '一个平台，管好全部业务';
@@ -67,6 +67,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get navAdminTitle => '管理后台';
+
+  @override
+  String get appTitle => 'erp管理后台';
 
   @override
   String get navAdministrator => '管理员';

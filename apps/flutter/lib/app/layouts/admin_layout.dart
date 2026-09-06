@@ -103,18 +103,12 @@ class _AdminLayoutState extends State<AdminLayout> {
     });
   }
 
-  /// 菜单显示文案：优先取 i18n（i18nKey 非空时），否则回退硬编码 label。
-  /// 最小国际化：仅 nav.dashboard / nav.system 两项接入，其余后续 i18n。
+  /// 菜单显示文案：zh 直出配置 label；非 zh（en）查 menuLabelsEn——
+  /// key = 配置的 zh label，miss 回退 zh（新菜单漏译时显示中文兜底而非空白）。
+  /// 展开状态/高亮仍以 zh label 为 key（menuConfig 不变，语言切换不动结构）。
   String _menuLabel(MenuItem item) {
-    final l10n = AppL10n.of(context);
-    switch (item.i18nKey) {
-      case 'nav.dashboard':
-        return l10n.navDashboard;
-      case 'nav.system':
-        return l10n.navSystem;
-      default:
-        return item.label;
-    }
+    if (AppL10n.locale.languageCode == 'zh') return item.label;
+    return menuLabelsEn[item.label] ?? item.label;
   }
 
   @override
@@ -144,8 +138,13 @@ class _AdminLayoutState extends State<AdminLayout> {
                 children: [
                   Image.asset('assets/mascot.png', width: 28, height: 28),
                   const SizedBox(width: 8),
-                  Text(l10n.navAdminTitle,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    l10n.navAdminTitle,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -207,8 +206,13 @@ class _AdminLayoutState extends State<AdminLayout> {
                     children: [
                       Image.asset('assets/mascot.png', width: 28, height: 28),
                       const SizedBox(width: 8),
-                      Text(l10n.navAdminTitle,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(
+                        l10n.navAdminTitle,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
           ),
@@ -241,8 +245,11 @@ class _AdminLayoutState extends State<AdminLayout> {
         children: [
           IconButton(
             icon: Icon(_sidebarCollapsed ? Icons.menu_open : Icons.menu),
-            tooltip: _sidebarCollapsed ? l10n.navExpandMenu : l10n.navCollapseMenu,
-            onPressed: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
+            tooltip: _sidebarCollapsed
+                ? l10n.navExpandMenu
+                : l10n.navCollapseMenu,
+            onPressed: () =>
+                setState(() => _sidebarCollapsed = !_sidebarCollapsed),
           ),
           const Spacer(),
           _buildLangToggle(),
@@ -263,7 +270,8 @@ class _AdminLayoutState extends State<AdminLayout> {
         child: Text(isZh ? '中文' : 'EN', style: const TextStyle(fontSize: 13)),
       ),
       onSelected: (code) => AppL10n.setLocale(
-          code == 'zh' ? const Locale('zh', 'CN') : const Locale('en')),
+        code == 'zh' ? const Locale('zh', 'CN') : const Locale('en'),
+      ),
       itemBuilder: (_) => const [
         PopupMenuItem(value: 'zh', child: Text('中文')),
         PopupMenuItem(value: 'en', child: Text('English')),
@@ -294,14 +302,20 @@ class _AdminLayoutState extends State<AdminLayout> {
               title: Text(l10n.navLogoutConfirmTitle),
               content: Text(l10n.navLogoutConfirmMessage),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.commonCancel)),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(l10n.commonCancel),
+                ),
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(ctx);
                     await AuthService.clearToken();
                     Get.offAllNamed('/login');
                   },
-                  child: Text(l10n.navLogoutConfirm, style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    l10n.navLogoutConfirm,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
               ],
             ),
@@ -317,13 +331,21 @@ class _AdminLayoutState extends State<AdminLayout> {
 
   // ─── Menu rendering (dynamic from menuConfig) ────────────────────
 
-  List<Widget> _buildMenuItems(List<MenuItem> items, {bool closeDrawer = false}) {
+  List<Widget> _buildMenuItems(
+    List<MenuItem> items, {
+    bool closeDrawer = false,
+  }) {
     return [
-      for (final item in items) _menuTile(item, depth: 0, closeDrawer: closeDrawer),
+      for (final item in items)
+        _menuTile(item, depth: 0, closeDrawer: closeDrawer),
     ];
   }
 
-  Widget _menuTile(MenuItem item, {required int depth, required bool closeDrawer}) {
+  Widget _menuTile(
+    MenuItem item, {
+    required int depth,
+    required bool closeDrawer,
+  }) {
     final children = item.children;
     if (children == null) return _leafTile(item, depth, closeDrawer);
     return Column(
@@ -352,12 +374,17 @@ class _AdminLayoutState extends State<AdminLayout> {
               Icon(item.icon, size: 20),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(_menuLabel(item),
-                    style: const TextStyle(fontSize: 14),
-                    overflow: TextOverflow.ellipsis),
+                child: Text(
+                  _menuLabel(item),
+                  style: const TextStyle(fontSize: 14),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              Icon(expanded ? Icons.expand_less : Icons.expand_more,
-                  size: 18, color: scheme.onSurfaceVariant),
+              Icon(
+                expanded ? Icons.expand_less : Icons.expand_more,
+                size: 18,
+                color: scheme.onSurfaceVariant,
+              ),
             ],
           ),
         ),
@@ -371,7 +398,9 @@ class _AdminLayoutState extends State<AdminLayout> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: InkWell(
-        onTap: item.route != null ? () => _goTo(item.route!, closeDrawer: closeDrawer) : null,
+        onTap: item.route != null
+            ? () => _goTo(item.route!, closeDrawer: closeDrawer)
+            : null,
         borderRadius: BorderRadius.circular(8),
         child: Container(
           height: 40,
@@ -382,15 +411,21 @@ class _AdminLayoutState extends State<AdminLayout> {
           ),
           child: Row(
             children: [
-              Icon(item.icon,
-                  size: 18, color: selected ? scheme.primary : scheme.onSurfaceVariant),
+              Icon(
+                item.icon,
+                size: 18,
+                color: selected ? scheme.primary : scheme.onSurfaceVariant,
+              ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(_menuLabel(item),
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: selected ? scheme.primary : scheme.onSurface),
-                    overflow: TextOverflow.ellipsis),
+                child: Text(
+                  _menuLabel(item),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: selected ? scheme.primary : scheme.onSurface,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -419,7 +454,8 @@ class _AdminLayoutState extends State<AdminLayout> {
         onSelected: _goTo,
         itemBuilder: (_) => [
           for (final c in item.children ?? const <MenuItem>[])
-            if (c.route != null) PopupMenuItem(value: c.route, child: Text(_menuLabel(c))),
+            if (c.route != null)
+              PopupMenuItem(value: c.route, child: Text(_menuLabel(c))),
         ],
       ),
     );
@@ -440,8 +476,11 @@ class _AdminLayoutState extends State<AdminLayout> {
             color: selected ? scheme.primaryContainer : null,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(item.icon,
-              size: 20, color: selected ? scheme.primary : scheme.onSurfaceVariant),
+          child: Icon(
+            item.icon,
+            size: 20,
+            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+          ),
         ),
       ),
     );
