@@ -9,6 +9,7 @@ import { L10n } from '../../utils/L10n';
 import { LoadingView, ErrorView, EmptyView } from '../../common/Components';
 import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
+import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
 
 /**
  * 运单列表项（与后端 /admin/tms/shipment 返回字段对齐）
@@ -279,6 +280,14 @@ struct ShipmentListPage {
     .backgroundColor($r('app.color.bg_page'))
   }
 
+  /** 行徽章：启用 success / 停用 danger（kind 同源驱动行 icon 圆徽色） */
+  private shipmentBadge(item: TmsShipmentItem): RowBadge {
+    if (item.status === 1) {
+      return new RowBadge('success', $r('app.string.status_enabled'));
+    }
+    return new RowBadge('danger', $r('app.string.status_disabled'));
+  }
+
   /**
    * 列表视图（保留原有分页逻辑）
    */
@@ -291,90 +300,70 @@ struct ShipmentListPage {
     } else if (this.items.length === 0) {
       EmptyView({ message: $r('app.string.shipment_empty') });
     } else {
-      Refresh({ refreshing: $$this.isRefreshing }) {
-        List() {
-          ForEach(this.items, (item: TmsShipmentItem) => {
-            ListItem() {
-              Row() {
-                // 运单号与跟踪号
-                Column() {
-                  Text(item.code || '-')
-                    .fontSize(15)
-                    .fontWeight(FontWeight.Medium)
-                    .maxLines(1)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-
-                  Text(L10n.str(this.getUIContext(), 'shipment_tracking_fmt', item.tracking_no || '-'))
-                    .fontSize(12)
-                    .fontColor($r('app.color.text_hint'))
-                    .margin({ top: 2 })
-                    .maxLines(1)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
+      // 3.0 卡层级：surface 列表卡（内容头行 + 行列表）悬浮 bg_page，圆角 + 发丝边框
+      Column() {
+        Column() {
+          ListSectionHeader({ moduleKey: 'tms', count: this.total })
+          Refresh({ refreshing: $$this.isRefreshing }) {
+            List() {
+              ForEach(this.items, (item: TmsShipmentItem, index: number) => {
+                ListItem() {
+                  ListRow({
+                    title: item.code || '-',
+                    subtitle: L10n.str(this.getUIContext(), 'shipment_tracking_fmt', item.tracking_no || '-'),
+                    icon: item.code || '-',
+                    badge: this.shipmentBadge(item),
+                    actions: [
+                      new RowAction($r('app.string.edit'), 'primary', (): void => {
+                        this.openEdit(item.id);
+                      }),
+                      new RowAction($r('app.string.delete'), 'danger', (): void => {
+                        this.confirmDelete(item.id);
+                      })
+                    ],
+                    isLast: index === this.items.length - 1
+                  })
                 }
-                .alignItems(HorizontalAlign.Start)
-                .layoutWeight(1)
+              }, (item: TmsShipmentItem) => item.id)
 
-                // 状态
-                Text(item.status === 1 ? $r('app.string.status_enabled') : $r('app.string.status_disabled'))
-                  .fontSize(10)
-                  .fontColor(item.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
-                  .backgroundColor(item.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
-                  .borderRadius(2)
-                  .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-
-                // 操作
-                Button($r('app.string.edit'))
-                  .fontSize(12)
-                  .fontColor($r('app.color.primary'))
-                  .backgroundColor($r('app.color.primary_bg'))
-                  .borderRadius(4)
-                  .height(28)
-                  .margin({ left: 8 })
-                  .onClick(() => this.openEdit(item.id))
-
-                Button($r('app.string.delete'))
-                  .fontSize(12)
-                  .fontColor($r('app.color.danger_text'))
-                  .backgroundColor($r('app.color.danger_bg'))
-                  .borderRadius(4)
-                  .height(28)
-                  .margin({ left: 8 })
-                  .onClick(() => this.confirmDelete(item.id))
-              }
-              .width('100%')
-              .padding({ left: 16, right: 16, top: 10, bottom: 10 })
-              .backgroundColor($r('app.color.surface'))
-              .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-            }
-          }, (item: TmsShipmentItem) => item.id)
-
-          // 加载更多
-          ListItem() {
-            Row() {
-              if (this.items.length >= this.total) {
-                Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
-                  .fontSize(12)
-                  .fontColor($r('app.color.text_disabled'))
-              } else {
-                Button($r('app.string.load_more'))
-                  .fontSize(13)
-                  .fontColor($r('app.color.primary'))
-                  .backgroundColor(Color.Transparent)
-                  .onClick(() => this.loadMore())
+              // 加载更多
+              ListItem() {
+                Row() {
+                  if (this.items.length >= this.total) {
+                    Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
+                      .fontSize(12)
+                      .fontColor($r('app.color.text_disabled'))
+                  } else {
+                    Button($r('app.string.load_more'))
+                      .fontSize(13)
+                      .fontColor($r('app.color.primary'))
+                      .backgroundColor(Color.Transparent)
+                      .onClick(() => this.loadMore())
+                  }
+                }
+                .justifyContent(FlexAlign.Center)
+                .width('100%')
+                .height(48)
               }
             }
-            .justifyContent(FlexAlign.Center)
             .width('100%')
-            .height(48)
+            .layoutWeight(1)
+            .edgeEffect(EdgeEffect.Spring)
           }
+          .onRefreshing(() => {
+            this.loadData(true);
+          })
         }
         .width('100%')
         .layoutWeight(1)
-        .edgeEffect(EdgeEffect.Spring)
+        .borderRadius(8)
+        .clip(true)
+        .backgroundColor($r('app.color.surface'))
+        .border({ width: 1, color: $r('app.color.border') })
       }
-      .onRefreshing(() => {
-        this.loadData(true);
-      })
+      .width('100%')
+      .layoutWeight(1)
+      .padding({ left: 12, right: 12, top: 12, bottom: 12 })
     }
   }
 
