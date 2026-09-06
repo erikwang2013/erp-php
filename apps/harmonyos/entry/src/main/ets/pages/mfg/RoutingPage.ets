@@ -5,6 +5,8 @@
 import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
+import { TopBar } from '../../common/TopBar';
+import { ListRow, ListSectionHeader } from '../../common/ListRow';
 
 @Entry
 @Component
@@ -47,55 +49,58 @@ struct RoutingPage {
 
   build() {
     Column() {
-      Row() {
-        Text($r('app.string.routing_list_title'))
-          .fontSize(20)
-          .fontWeight(FontWeight.Bold)
-        Blank()
-        Button($r('app.string.refresh'))
-          .fontSize(13)
-          .fontColor($r('app.color.primary'))
-          .backgroundColor($r('app.color.primary_bg'))
-          .borderRadius(6)
-          .height(32)
-          .enabled(!this.loading && !this.isRefreshing)
-          .onClick(() => { this.loadData(true); })
-      }
-      .width('100%')
-      .padding(16)
+      TopBar({
+        title: $r('app.string.routing_list_title'),
+        onRefresh: (): void => { this.loadData(true); },
+        refreshing: this.loading || this.isRefreshing,
+      })
+
       if (this.loading) {
         LoadingProgress()
       } else if (this.errMsg !== '') {
         // 失败错误位：真实文案 + 重试（ErrorView 内建）
         ErrorView({ message: this.errMsg, onRetry: (): void => { this.loadData(); } })
       } else {
-        Refresh({ refreshing: $$this.isRefreshing }) {
-          List() {
-            ForEach(this.items, (item: Record<string, Object>) => {
-              ListItem() {
-                Row() {
-                  Text((item['name'] as string) ?? (item['code'] as string) ?? '')
-                    .fontSize(14)
-                    .layoutWeight(1)
-                  Text((item['code'] as string) ?? '')
-                    .fontSize(12)
-                    .fontColor($r('app.color.text_hint'))
-                }
-                .width('100%')
-                .padding(12)
+        // 3.0 卡层级：surface 列表卡（内容头行 + 行列表）悬浮 bg_page，圆角 + 发丝边框
+        Column() {
+          Column() {
+            ListSectionHeader({ moduleKey: 'mfg', count: this.total })
+
+            Refresh({ refreshing: $$this.isRefreshing }) {
+              List() {
+                ForEach(this.items, (item: Record<string, Object>, index: number) => {
+                  ListItem() {
+                    ListRow({
+                      title: (item['name'] as string) || (item['code'] as string) || '-',
+                      subtitle: (item['code'] as string) ?? '',
+                      icon: (item['name'] as string) || (item['code'] as string) || '-',
+                      isLast: index === this.items.length - 1
+                    })
+                  }
+                })
               }
+              .width('100%')
+              .layoutWeight(1)
+              .edgeEffect(EdgeEffect.Spring)
+            }
+            .onRefreshing(() => {
+              this.loadData(true);
             })
           }
           .width('100%')
           .layoutWeight(1)
-          .edgeEffect(EdgeEffect.Spring)
+          .borderRadius(8)
+          .clip(true)
+          .backgroundColor($r('app.color.surface'))
+          .border({ width: 1, color: $r('app.color.border') })
         }
-        .onRefreshing(() => {
-          this.loadData(true);
-        })
+        .width('100%')
+        .layoutWeight(1)
+        .padding({ left: 12, right: 12, top: 12, bottom: 12 })
       }
     }
     .width('100%')
     .height('100%')
+    .backgroundColor($r('app.color.bg_page'))
   }
 }
