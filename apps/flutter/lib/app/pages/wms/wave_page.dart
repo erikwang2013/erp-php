@@ -143,6 +143,9 @@ class _WavePageState extends State<WavePage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).wmsWaveTitle,
+    moduleKey: 'wms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

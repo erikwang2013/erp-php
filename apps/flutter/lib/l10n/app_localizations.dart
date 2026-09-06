@@ -4621,6 +4621,78 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'修改失败: {error}'**
   String profilePwdChangeFailedMsg(String error);
+
+  /// No description provided for @wmsZoneTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'库区管理'**
+  String get wmsZoneTitle;
+
+  /// No description provided for @wmsAsnTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'预到货(ASN)'**
+  String get wmsAsnTitle;
+
+  /// No description provided for @wmsReceivingTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'收货管理'**
+  String get wmsReceivingTitle;
+
+  /// No description provided for @wmsPutawayTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'上架管理'**
+  String get wmsPutawayTitle;
+
+  /// No description provided for @wmsWaveTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'波次管理'**
+  String get wmsWaveTitle;
+
+  /// No description provided for @wmsPickTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'拣货管理'**
+  String get wmsPickTitle;
+
+  /// No description provided for @wmsPackTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'打包管理'**
+  String get wmsPackTitle;
+
+  /// No description provided for @tmsCarrierTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'承运商'**
+  String get tmsCarrierTitle;
+
+  /// No description provided for @tmsFreightRateTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'运费费率'**
+  String get tmsFreightRateTitle;
+
+  /// No description provided for @tmsShipmentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'运单管理'**
+  String get tmsShipmentTitle;
+
+  /// No description provided for @tmsTrackingTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'物流轨迹'**
+  String get tmsTrackingTitle;
+
+  /// No description provided for @tmsFreightInvoiceTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'运费发票'**
+  String get tmsFreightInvoiceTitle;
 }
 
 class _AppLocalizationsDelegate

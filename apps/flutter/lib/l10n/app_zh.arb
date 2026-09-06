@@ -1061,6 +1061,18 @@
   "profilePwdMismatch": "两次密码不一致",
   "profilePwdChanged": "密码修改成功",
   "profilePwdChangeFailedMsg": "修改失败: {error}",
+  "wmsZoneTitle": "库区管理",
+  "wmsAsnTitle": "预到货(ASN)",
+  "wmsReceivingTitle": "收货管理",
+  "wmsPutawayTitle": "上架管理",
+  "wmsWaveTitle": "波次管理",
+  "wmsPickTitle": "拣货管理",
+  "wmsPackTitle": "打包管理",
+  "tmsCarrierTitle": "承运商",
+  "tmsFreightRateTitle": "运费费率",
+  "tmsShipmentTitle": "运单管理",
+  "tmsTrackingTitle": "物流轨迹",
+  "tmsFreightInvoiceTitle": "运费发票",
   "@profilePwdChangeFailedMsg": {
     "placeholders": {
       "error": {"type": "String"}

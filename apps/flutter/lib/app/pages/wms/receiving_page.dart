@@ -143,6 +143,9 @@ class _ReceivingPageState extends State<ReceivingPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).wmsReceivingTitle,
+    moduleKey: 'wms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

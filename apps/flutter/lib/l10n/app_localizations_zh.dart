@@ -2382,4 +2382,40 @@ class AppLocalizationsZh extends AppLocalizations {
   String profilePwdChangeFailedMsg(String error) {
     return '修改失败: $error';
   }
+
+  @override
+  String get wmsZoneTitle => '库区管理';
+
+  @override
+  String get wmsAsnTitle => '预到货(ASN)';
+
+  @override
+  String get wmsReceivingTitle => '收货管理';
+
+  @override
+  String get wmsPutawayTitle => '上架管理';
+
+  @override
+  String get wmsWaveTitle => '波次管理';
+
+  @override
+  String get wmsPickTitle => '拣货管理';
+
+  @override
+  String get wmsPackTitle => '打包管理';
+
+  @override
+  String get tmsCarrierTitle => '承运商';
+
+  @override
+  String get tmsFreightRateTitle => '运费费率';
+
+  @override
+  String get tmsShipmentTitle => '运单管理';
+
+  @override
+  String get tmsTrackingTitle => '物流轨迹';
+
+  @override
+  String get tmsFreightInvoiceTitle => '运费发票';
 }

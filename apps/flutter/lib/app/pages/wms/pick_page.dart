@@ -143,6 +143,9 @@ class _PickPageState extends State<PickPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).wmsPickTitle,
+    moduleKey: 'wms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

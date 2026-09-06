@@ -146,6 +146,9 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).tmsFreightInvoiceTitle,
+    moduleKey: 'tms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

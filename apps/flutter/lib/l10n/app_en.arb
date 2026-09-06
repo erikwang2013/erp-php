@@ -1123,6 +1123,18 @@
   "profilePwdMismatch": "Passwords do not match",
   "profilePwdChanged": "Password changed successfully",
   "profilePwdChangeFailedMsg": "Change failed: {error}",
+  "wmsZoneTitle": "Zones",
+  "wmsAsnTitle": "Expected Receipts (ASN)",
+  "wmsReceivingTitle": "Receiving",
+  "wmsPutawayTitle": "Putaway",
+  "wmsWaveTitle": "Waves",
+  "wmsPickTitle": "Picking",
+  "wmsPackTitle": "Packing",
+  "tmsCarrierTitle": "Carriers",
+  "tmsFreightRateTitle": "Freight Rates",
+  "tmsShipmentTitle": "Shipments",
+  "tmsTrackingTitle": "Tracking",
+  "tmsFreightInvoiceTitle": "Freight Invoices",
   "@profilePwdChangeFailedMsg": {
     "placeholders": {
       "error": {

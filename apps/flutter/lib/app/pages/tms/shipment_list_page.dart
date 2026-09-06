@@ -143,6 +143,9 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).tmsShipmentTitle,
+    moduleKey: 'tms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

@@ -143,6 +143,9 @@ class _CarrierListPageState extends State<CarrierListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).tmsCarrierTitle,
+    moduleKey: 'tms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

@@ -143,6 +143,9 @@ class _TrackingPageState extends State<TrackingPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).tmsTrackingTitle,
+    moduleKey: 'tms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

@@ -146,6 +146,9 @@ class _FreightRatePageState extends State<FreightRatePage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).tmsFreightRateTitle,
+    moduleKey: 'tms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

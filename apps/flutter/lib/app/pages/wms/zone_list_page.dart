@@ -143,6 +143,9 @@ class _WmsZoneListPageState extends State<WmsZoneListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).wmsZoneTitle,
+    moduleKey: 'wms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

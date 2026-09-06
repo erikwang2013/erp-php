@@ -2403,4 +2403,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String profilePwdChangeFailedMsg(String error) {
     return 'Change failed: $error';
   }
+
+  @override
+  String get wmsZoneTitle => 'Zones';
+
+  @override
+  String get wmsAsnTitle => 'Expected Receipts (ASN)';
+
+  @override
+  String get wmsReceivingTitle => 'Receiving';
+
+  @override
+  String get wmsPutawayTitle => 'Putaway';
+
+  @override
+  String get wmsWaveTitle => 'Waves';
+
+  @override
+  String get wmsPickTitle => 'Picking';
+
+  @override
+  String get wmsPackTitle => 'Packing';
+
+  @override
+  String get tmsCarrierTitle => 'Carriers';
+
+  @override
+  String get tmsFreightRateTitle => 'Freight Rates';
+
+  @override
+  String get tmsShipmentTitle => 'Shipments';
+
+  @override
+  String get tmsTrackingTitle => 'Tracking';
+
+  @override
+  String get tmsFreightInvoiceTitle => 'Freight Invoices';
 }

@@ -143,6 +143,9 @@ class _PutawayPageState extends State<PutawayPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).wmsPutawayTitle,
+    moduleKey: 'wms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

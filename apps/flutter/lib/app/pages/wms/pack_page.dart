@@ -143,6 +143,9 @@ class _PackPageState extends State<PackPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).wmsPackTitle,
+    moduleKey: 'wms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

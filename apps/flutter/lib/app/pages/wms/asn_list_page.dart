@@ -143,6 +143,9 @@ class _AsnListPageState extends State<AsnListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).wmsAsnTitle,
+    moduleKey: 'wms',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(
