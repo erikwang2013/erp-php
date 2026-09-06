@@ -397,6 +397,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hrEmployeeTitle => 'Employees';
 
   @override
+  String get hrAttendanceTitle => 'Attendance';
+
+  @override
+  String get hrDepartmentTitle => 'Departments';
+
+  @override
+  String get hrEmployeeListTitle => 'Employees';
+
+  @override
+  String get hrLeaveTitle => 'Leave';
+
+  @override
+  String get hrPositionTitle => 'Positions';
+
+  @override
+  String get hrSalaryItemTitle => 'Payroll Items';
+
+  @override
+  String get hrSalaryTitle => 'Payroll';
+
+  @override
   String get hrRemark => 'Description';
 
   @override

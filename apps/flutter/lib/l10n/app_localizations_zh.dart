@@ -394,6 +394,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hrEmployeeTitle => '员工';
 
   @override
+  String get hrAttendanceTitle => '考勤管理';
+
+  @override
+  String get hrDepartmentTitle => '部门管理';
+
+  @override
+  String get hrEmployeeListTitle => '员工档案';
+
+  @override
+  String get hrLeaveTitle => '请假管理';
+
+  @override
+  String get hrPositionTitle => '职位管理';
+
+  @override
+  String get hrSalaryItemTitle => '薪资项配置';
+
+  @override
+  String get hrSalaryTitle => '薪资管理';
+
+  @override
   String get hrRemark => '说明';
 
   @override

@@ -836,6 +836,48 @@ abstract class AppLocalizations {
   /// **'员工'**
   String get hrEmployeeTitle;
 
+  /// No description provided for @hrAttendanceTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'考勤管理'**
+  String get hrAttendanceTitle;
+
+  /// No description provided for @hrDepartmentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'部门管理'**
+  String get hrDepartmentTitle;
+
+  /// No description provided for @hrEmployeeListTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'员工档案'**
+  String get hrEmployeeListTitle;
+
+  /// No description provided for @hrLeaveTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'请假管理'**
+  String get hrLeaveTitle;
+
+  /// No description provided for @hrPositionTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'职位管理'**
+  String get hrPositionTitle;
+
+  /// No description provided for @hrSalaryItemTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'薪资项配置'**
+  String get hrSalaryItemTitle;
+
+  /// No description provided for @hrSalaryTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'薪资管理'**
+  String get hrSalaryTitle;
+
   /// No description provided for @hrRemark.
   ///
   /// In zh, this message translates to:

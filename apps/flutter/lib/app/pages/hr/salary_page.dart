@@ -194,6 +194,9 @@ class _SalaryPageState extends State<SalaryPage> {
       keyword: _keyword,
       onSearch: (v) { _keyword = v; _page = 1; _load(); },
       onPageChanged: (p) { _page = p; _load(); },
+      pageTitle: AppL10n.current.hrSalaryTitle,
+      moduleKey: 'hr',
+      primaryColumnIndex: 0,
       actions: [
         ElevatedButton.icon(onPressed: _calculate, icon: const Icon(Icons.calculate, size: 18), label: Text(l10n.hrSalaryCalcAction)),
         const SizedBox(width: 8),

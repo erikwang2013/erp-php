@@ -76,6 +76,9 @@ class _SalaryItemPageState extends State<SalaryItemPage> {
       columns: _columns(),
       rows: _rows.map((r) => _rowToMap(r)).toList(),
       total: _rows.length, page: 1, limit: _rows.length, loading: _loading, error: _error, onRetry: _load, onRefresh: _load,
+      pageTitle: AppL10n.current.hrSalaryItemTitle,
+      moduleKey: 'hr',
+      primaryColumnIndex: 1,
       actions: [
         ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(l10n.hrSalaryItemCreateTitle)),
       ],

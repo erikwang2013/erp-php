@@ -167,7 +167,8 @@ class DataTableWrapper extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                   child: Row(children: toolbar),
                 ),
-                if (pageTitle == null) const _Hairline(),
+                // 工具栏下缘 hairline：与页头分隔对称（有/无 pageTitle 均铺）
+                const _Hairline(),
               ],
               Expanded(
                 // onRefresh == null 保持旧结构;非 null 时内容区整体可下拉,四态各自
