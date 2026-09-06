@@ -53,7 +53,7 @@ class CampaignController extends BaseController
             'eqFilters' => ['status'],
             'stringEqFilters' => ['type'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'owner_user_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -77,15 +77,16 @@ class CampaignController extends BaseController
     {
         $validator = validator($request->all(), [
             'name' => 'required|string|max:200',
-            'owner_user_id' => 'required|integer',
+            'owner_user_id' => 'required|string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->crm()->create(CrmCampaign::class, $request->all(), ['status' => 0]);
+        $data = $this->normalizeFkData($request->all());
+        $item = $this->crm()->create(CrmCampaign::class, $data, ['status' => 0]);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'owner_user_id']), '创建成功');
     }
 
     /**
@@ -109,7 +110,7 @@ class CampaignController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        $data = $this->encodeIds($item->toArray());
+        $data = $this->encodeIds($item->toArray(), ['id', 'owner_user_id']);
 
         $participants = $this->crm()->campaignParticipants($id);
         $data['participants'] = array_map(fn ($p) => $this->encodeIds($p), $participants);
@@ -144,9 +145,9 @@ class CampaignController extends BaseController
             return $this->fail('仅计划中或进行中状态可编辑', 422);
         }
 
-        $item = $this->crm()->update(CrmCampaign::class, $id, $request->all());
+        $item = $this->crm()->update(CrmCampaign::class, $id, $this->normalizeFkData($request->all()));
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'owner_user_id']), '更新成功');
     }
 
     /**
@@ -188,5 +189,20 @@ class CampaignController extends BaseController
     private function crm(): CrmService
     {
         return Container::get(CrmService::class);
+    }
+
+    /**
+     * owner_user_id 兼容解码：接受 /admin/v1/user 列表行 hashid 或裸 int → int 落库。
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function normalizeFkData(array $data): array
+    {
+        if (isset($data['owner_user_id']) && $data['owner_user_id'] !== '') {
+            $data['owner_user_id'] = $this->decodeIdSafe((string) $data['owner_user_id']) ?? (int) $data['owner_user_id'];
+        }
+
+        return $data;
     }
 }

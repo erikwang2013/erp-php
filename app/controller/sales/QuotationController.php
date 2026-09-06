@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\sales;
 
 use app\admin\controller\BaseController;
+use app\model\Customer;
 use app\model\SalesQuotation;
 use support\Request;
 use support\Response;
@@ -50,9 +51,17 @@ class QuotationController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $rows = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $item->toArray())->all();
+
+        // customer_id 编码为 hashid（与客户列表下拉选项同源，供编辑弹窗回填）+ 客户名称展示
+        $customerIds = array_values(array_unique(array_map(fn ($r) => (int) ($r['customer_id'] ?? 0), $rows)));
+        $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
+        $list = array_map(function ($row) use ($customerNames) {
+            $row['customer_name'] = (string) ($customerNames[(int) ($row['customer_id'] ?? 0)] ?? '');
+            return $this->encodeIds($row, ['id', 'customer_id']);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -78,7 +87,7 @@ class QuotationController extends BaseController
         // 校验真实表列（原 name 必填校验指向不存在的列，随 fill 落入 INSERT 必 SQL 错）
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
-            'customer_id' => 'required|integer',
+            'customer_id' => 'required|string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -86,10 +95,11 @@ class QuotationController extends BaseController
 
         $item = new SalesQuotation();
         $item->id = $this->generateId();
+        $this->decodeCustomerId($request);
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '创建成功');
     }
 
     /**
@@ -113,7 +123,7 @@ class QuotationController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']));
     }
 
     /**
@@ -140,10 +150,11 @@ class QuotationController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
+        $this->decodeCustomerId($request);
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '更新成功');
     }
 
     /**
@@ -177,5 +188,16 @@ class QuotationController extends BaseController
         $item->delete();
 
         return $this->success([], '删除成功');
+    }
+
+    /**
+     * customer_id 兼容解码：接受客户列表行 hashid 或裸 int，解码为 int 合并回请求落库。
+     */
+    private function decodeCustomerId(Request $request): void
+    {
+        $customerId = $request->input('customer_id', '');
+        if ($customerId !== null && $customerId !== '') {
+            $request->merge(['customer_id' => $this->decodeIdSafe((string) $customerId) ?? (int) $customerId]);
+        }
     }
 }

@@ -55,7 +55,7 @@ class ContractController extends BaseController
             'eqFilters' => ['status', 'customer_id'],
             'with' => ['items'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'owner_user_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -78,19 +78,26 @@ class ContractController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'customer_id' => 'required|integer']);
+        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'customer_id' => 'required|string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->crm()->create(CrmContract::class, $request->all(), ['status' => 0], false);
+        $data = $this->normalizeFkData($request->all());
+        // erp_crm_contract.owner_user_id NOT NULL 无默认；请求未指定负责人时归属当前操作人
+        $data['owner_user_id'] = $data['owner_user_id'] ?? ($request->adminId ?? 0);
+        // code uk_code 唯一；留空自动生成，避免空串二次插入 1062
+        if (trim((string) ($data['code'] ?? '')) === '') {
+            $data['code'] = 'CT' . $this->generateId();
+        }
+        $item = $this->crm()->create(CrmContract::class, $data, ['status' => 0], false);
 
         $items = $request->input('items', []);
         if (is_array($items)) {
             $this->crm()->replaceItems(CrmContractItem::class, 'contract_id', $item->id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id']), '创建成功');
     }
 
     /**
@@ -114,7 +121,7 @@ class ContractController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id']));
     }
 
     /**
@@ -143,7 +150,7 @@ class ContractController extends BaseController
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
-        $item = $this->crm()->update(CrmContract::class, $id, $request->all());
+        $item = $this->crm()->update(CrmContract::class, $id, $this->normalizeFkData($request->all()));
 
         $items = $request->input('items', []);
         if (!empty($items)) {
@@ -223,5 +230,26 @@ class ContractController extends BaseController
     private function crm(): CrmService
     {
         return Container::get(CrmService::class);
+    }
+
+    /**
+     * FK 兼容解码归一：customer_id/owner_user_id 接受 hashid 或裸 int → int 落库；
+     * code 留空时移除该键（保留库内原值，避免空串覆写 uk_code）。
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function normalizeFkData(array $data): array
+    {
+        foreach (['customer_id', 'owner_user_id'] as $fk) {
+            if (isset($data[$fk]) && $data[$fk] !== '') {
+                $data[$fk] = $this->decodeIdSafe((string) $data[$fk]) ?? (int) $data[$fk];
+            }
+        }
+        if (isset($data['code']) && trim((string) $data['code']) === '') {
+            unset($data['code']);
+        }
+
+        return $data;
     }
 }

@@ -9,6 +9,7 @@ namespace app\controller\crm;
 
 use app\admin\controller\BaseController;
 use app\model\CrmTicket;
+use app\model\Customer;
 use app\service\crm\CrmService;
 use InvalidArgumentException;
 use support\Container;
@@ -64,7 +65,13 @@ class TicketController extends BaseController
             'stringEqFilters' => ['category'],
             'truthyFilters' => ['customer_id', 'assignee_user_id'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        // customer_id 编码为 hashid（与客户下拉选项同源，供编辑回填）+ 客户名展示；表无 name 列，title 为主文本
+        $customerIds = array_values(array_unique(array_map(fn ($r) => (int) ($r['customer_id'] ?? 0), $result['list'])));
+        $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
+        $list = array_map(function ($item) use ($customerNames) {
+            $item['customer_name'] = (string) ($customerNames[(int) ($item['customer_id'] ?? 0)] ?? '');
+            return $this->encodeIds($item, ['id', 'customer_id']);
+        }, $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -88,15 +95,20 @@ class TicketController extends BaseController
     {
         $validator = validator($request->all(), [
             'title' => 'required|string|max:200',
-            'customer_id' => 'required|integer',
+            'customer_id' => 'required|string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->crm()->create(CrmTicket::class, $request->all(), ['status' => 0]);
+        $data = $this->normalizeFkData($request->all());
+        // code 表列 uk_code 唯一；留空自动生成，避免空串二次插入 1062
+        if (trim((string) ($data['code'] ?? '')) === '') {
+            $data['code'] = 'TK' . $this->generateId();
+        }
+        $item = $this->crm()->create(CrmTicket::class, $data, ['status' => 0]);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '创建成功');
     }
 
     /**
@@ -120,7 +132,7 @@ class TicketController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        $data = $this->encodeIds($item->toArray());
+        $data = $this->encodeIds($item->toArray(), ['id', 'customer_id']);
 
         $replies = $this->crm()->ticketReplies($id);
         $data['replies'] = array_map(fn ($r) => $this->encodeIds($r), $replies);
@@ -144,12 +156,12 @@ class TicketController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->crm()->update(CrmTicket::class, $id, $request->all());
+        $item = $this->crm()->update(CrmTicket::class, $id, $this->normalizeFkData($request->all()));
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '更新成功');
     }
 
     /**
@@ -203,7 +215,9 @@ class TicketController extends BaseController
     {
         $id = $this->decodeId($id);
 
-        $assigneeUserId = (int) $request->input('assignee_user_id', 0);
+        // 兼容解码：/admin/v1/user 列表行 id 为 hashid（客户端原串提交），历史裸 int 亦兼容
+        $raw = $request->input('assignee_user_id', 0);
+        $assigneeUserId = $this->decodeIdSafe((string) $raw) ?? (int) $raw;
         if ($assigneeUserId <= 0) {
             return $this->fail('请指定指派人', 422);
         }
@@ -213,7 +227,7 @@ class TicketController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '指派成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '指派成功');
     }
 
     /**
@@ -291,5 +305,26 @@ class TicketController extends BaseController
     private function crm(): CrmService
     {
         return Container::get(CrmService::class);
+    }
+
+    /**
+     * FK 兼容解码归一：customer_id 接受 hashid 或裸 int → int 落库；
+     * code 留空时移除该键（保留库内原值，避免空串覆写 uk_code）。
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function normalizeFkData(array $data): array
+    {
+        foreach (['customer_id'] as $fk) {
+            if (isset($data[$fk]) && $data[$fk] !== '') {
+                $data[$fk] = $this->decodeIdSafe((string) $data[$fk]) ?? (int) $data[$fk];
+            }
+        }
+        if (isset($data['code']) && trim((string) $data['code']) === '') {
+            unset($data['code']);
+        }
+
+        return $data;
     }
 }

@@ -20,4 +20,7 @@ class CrmCampaign extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+
+    // 显式 fillable（与 guarded 共存）：无 fillable → AbstractCrudService::fillableOnly 过滤为空 → 新增/编辑全空落库
+    protected $fillable = ['code', 'name', 'type', 'budget_amount', 'actual_cost', 'start_date', 'end_date', 'target_audience', 'description', 'owner_user_id', 'remark'];
 }

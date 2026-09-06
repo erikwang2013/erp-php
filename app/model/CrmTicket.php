@@ -20,4 +20,8 @@ class CrmTicket extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+
+    // 显式 fillable（与 guarded 共存）：无 fillable → AbstractCrudService::fillableOnly 过滤为空 → 新增/编辑全空落库
+    // 仅列可编辑字段；status/assignee_user_id/resolved_at/closed_at 由指派/解决/流转端点管理
+    protected $fillable = ['code', 'customer_id', 'contact_id', 'title', 'priority', 'category', 'content'];
 }
