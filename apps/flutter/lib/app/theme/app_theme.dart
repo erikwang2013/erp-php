@@ -99,7 +99,8 @@ ThemeData _build(Brightness brightness) {
       contentTextStyle: AppText.base.copyWith(color: c.textPrimary),
     ),
 
-    // 表格:桌面行 48/表头 40,表头字 secondary(移动行高 56 由 wrapper 断点覆盖)
+    // 表格:桌面行 44/表头 40,表头字 secondary(移动行高 56 由 wrapper 断点覆盖;
+    // 行高/表头底色与斑马纹见 AppMetrics.rowDesktop 与 wrapper 内着色)
     dataTableTheme: DataTableThemeData(
       dataRowMinHeight: AppMetrics.rowDesktop,
       dataRowMaxHeight: AppMetrics.rowDesktop,

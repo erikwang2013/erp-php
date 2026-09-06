@@ -1,7 +1,8 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 //
 // DataTableWrapper 通用组件测试：列头/行数据渲染、空态、加载态、
-// 分页交互与搜索框。
+// 分页交互与搜索框、视觉 3.0 加性参数(页头行/斑马纹/主列强调)。
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -245,6 +246,119 @@ void main() {
       )));
 
       expect(find.byKey(const Key('export-btn')), findsOneWidget);
+    });
+  });
+
+  group('DataTableWrapper — 视觉 3.0 加性参数', () {
+    testWidgets('pageTitle 渲染模块色竖条+标题+「共 N 条」;缺省完全不渲染', (tester) async {
+      await tester.pumpWidget(wrap(DataTableWrapper(
+        columns: columns,
+        rows: rows,
+        total: 5,
+        page: 1,
+        limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
+        pageTitle: '订单列表',
+        moduleKey: 'wms',
+      )));
+
+      // 8×16 竖条取 wms 模块色(与 HOS V0-h 同源 chart_6 #13C2C2)
+      final bar = tester.widget<Container>(find.byWidgetPredicate(
+        (w) =>
+            w is Container &&
+            w.decoration is BoxDecoration &&
+            (w.decoration as BoxDecoration).color == const Color(0xFF13C2C2),
+      ));
+      expect(bar.constraints?.maxWidth, 8);
+      expect(bar.constraints?.maxHeight, 16);
+      expect(find.text('订单列表'), findsOneWidget);
+      // total 5/limit 10 无分页脚,「共 N 条」仅页头一处
+      expect(find.text('共 5 条'), findsOneWidget);
+    });
+
+    testWidgets('pageTitle 不传时旧调用渲染完全不变(无竖条/无页头计数)', (tester) async {
+      await tester.pumpWidget(wrap(DataTableWrapper(
+        columns: columns,
+        rows: rows,
+        total: 5,
+        page: 1,
+        limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
+      )));
+
+      expect(find.text('共 5 条'), findsNothing, reason: '未开页头不应渲染计数');
+      final bars = find.byWidgetPredicate(
+        (w) =>
+            w is Container &&
+            w.decoration is BoxDecoration &&
+            w.constraints?.maxWidth == 8,
+      );
+      expect(bars, findsNothing, reason: '未开页头不应渲染模块色竖条');
+    });
+
+    testWidgets('斑马纹:偶行 surfaceAlt 低透明叠底、表头行同底 40%', (tester) async {
+      await tester.pumpWidget(wrap(DataTableWrapper(
+        columns: columns,
+        rows: rows,
+        total: 2,
+        page: 1,
+        limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
+      )));
+
+      final table = tester.widget<DataTable2>(find.byType(DataTable2));
+      final rows2 = table.rows;
+      expect(rows2, hasLength(2));
+      // 第 1 行无叠底
+      expect(rows2[0].color?.resolve(<WidgetState>{}), isNull);
+      // 第 2 行 surfaceAlt @ 35%
+      final zebra = rows2[1].color?.resolve(<WidgetState>{});
+      expect(zebra, isNotNull);
+      expect(zebra!.a, closeTo(0.35, 0.001));
+
+      final heading = table.headingRowColor?.resolve(<WidgetState>{});
+      expect(heading, isNotNull);
+      expect(heading!.a, closeTo(0.4, 0.001));
+    });
+
+    testWidgets('primaryColumnIndex 主列文本 w600,其余列原样', (tester) async {
+      await tester.pumpWidget(wrap(DataTableWrapper(
+        columns: columns,
+        rows: rows,
+        total: 2,
+        page: 1,
+        limit: 10,
+        // 离线渲染测试:非网络数据源,按契约显式传 null
+        onRefresh: null,
+        primaryColumnIndex: 1,
+      )));
+
+      // 主列(用户名)两行 w600
+      for (final name in ['admin', 'ops']) {
+        final t = tester.widget<Text>(find.text(name));
+        expect(t.style?.fontWeight, FontWeight.w600);
+      }
+      // 非主列(状态)不强调
+      final status = tester.widget<Text>(find.text('启用'));
+      expect(status.style?.fontWeight, isNot(FontWeight.w600));
+    });
+  });
+
+  group('moduleAccent 模块→模块色映射(与 HOS V0-h 同源,零新增 hex)', () {
+    test('hr/tms 紫、oms/wms 青、purchase 橙、mfg 绿、finance 红、其余回退蓝', () {
+      expect(moduleAccent('hr'), const Color(0xFF722ED1));
+      expect(moduleAccent('tms'), const Color(0xFF722ED1));
+      expect(moduleAccent('oms'), const Color(0xFF13C2C2));
+      expect(moduleAccent('wms'), const Color(0xFF13C2C2));
+      expect(moduleAccent('purchase'), const Color(0xFFFA8C16));
+      expect(moduleAccent('mfg'), const Color(0xFF52C41A));
+      expect(moduleAccent('finance'), const Color(0xFFFF4D4F));
+      expect(moduleAccent('system'), const Color(0xFF1677FF));
+      expect(moduleAccent('sales'), const Color(0xFF1677FF));
+      expect(moduleAccent('whatever'), const Color(0xFF1677FF));
     });
   });
 }

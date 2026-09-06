@@ -110,9 +110,10 @@ abstract final class AppMetrics {
   static const radiusCard = 12.0; // 数据卡(视觉 2.0:原 r8 升 r12)
   static const radiusFacade = 16.0; // 门面大卡(登录玻璃卡/hero 等)
   static const radiusControl = 6.0;
-  static const radiusChip = 16.0, radiusBadge = 4.0;
+  static const radiusChip = 16.0; // 胶囊徽章/chips(视觉 3.0:徽章方角升胶囊)
+  static const headBarW = 8.0, headBarH = 16.0; // 页头模块色竖条(8×16)
   static const controlH = 36.0, controlHMobile = 44.0; // 输入/按钮高
-  static const rowMobile = 56.0, rowDesktop = 48.0; // 列表行高
+  static const rowMobile = 56.0, rowDesktop = 44.0; // 列表行高
 }
 
 /// 阴影 token(视觉 2.0):门面卡柔和一级阴影(浅投影大模糊,无硬边)。
@@ -133,6 +134,13 @@ abstract final class AppText {
   static const lg = TextStyle(
     fontSize: 16,
     height: 1.5,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// 内容页卡内页头标题(18/w600,视觉 3.0 页头行)。
+  static const pageTitle = TextStyle(
+    fontSize: 18,
+    height: 1.4,
     fontWeight: FontWeight.w600,
   );
   static const xl = TextStyle(

@@ -1,12 +1,29 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-// 列表页表格容器(主文档 §5.2):搜索+筛选+操作行 → 加载/错误/空/表格
-// → 分页;移动(<768)行高 56,桌面 48。
+// 列表页表格容器(主文档 §5.2 + 视觉 3.0):整块内容包 surface 圆角卡容器
+// (r12 + hairline 描边),卡内自上而下:可选页头行(模块色竖条+标题+「共 N 条」)
+// → 搜索+筛选+操作行 → 加载/错误/空/表格(斑马纹) → 分页;
+// 移动(<768)行高 56,桌面 44(行高取 AppMetrics.rowDesktop)。
 // onRefresh(必填可空):非 null 时工具栏出现刷新按钮(loading 中禁用),
 // 且内容区支持下拉刷新(RefreshIndicator)。数据页须显式传入以证明覆盖。
+// 视觉 3.0 全部加性:pageTitle/moduleKey/primaryColumnIndex 不传时旧渲染不变。
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import '../l10n/app_l10n.dart';
+import '../theme/app_tokens.dart';
 import 'empty_state.dart';
+
+/// 模块→模块色(页头 8px 竖条;与 HOS V0-h moduleAccent 同源同值):
+/// system/sales 蓝、hr/tms 紫、oms/wms 青、purchase 橙、mfg 绿、finance 红。
+/// 色值零新增:chart_1..4 即语义 token 同值,chart_5/6 沿用 dashboard 注册
+/// 图表色字面量(#722ED1/#13C2C2,两主题一致)。未收录模块回退品牌蓝,避免断色。
+Color moduleAccent(String moduleKey) {
+  if (moduleKey == 'hr' || moduleKey == 'tms') return const Color(0xFF722ED1);
+  if (moduleKey == 'oms' || moduleKey == 'wms') return const Color(0xFF13C2C2);
+  if (moduleKey == 'purchase') return const Color(0xFFFA8C16);
+  if (moduleKey == 'mfg') return const Color(0xFF52C41A);
+  if (moduleKey == 'finance') return const Color(0xFFFF4D4F);
+  return const Color(0xFF1677FF);
+}
 
 class DataTableWrapper extends StatelessWidget {
   final List<String> columns;
@@ -36,6 +53,17 @@ class DataTableWrapper extends StatelessWidget {
   /// 不传则渲染与旧版完全一致。
   final List<int> rightAlignColumns;
 
+  /// 页头行标题(视觉 3.0);非 null 时卡内顶部渲染页头行:
+  /// 模块色 8px 竖条 + 18/w600 标题 + 「共 N 条」计数。不传不渲染。
+  final String? pageTitle;
+
+  /// 页头竖条模块键,见 [moduleAccent](与 HOS V0-h 同源同色)。
+  final String moduleKey;
+
+  /// 主业务列索引(w600 强调,视觉 3.0);-1 不渲染强调。仅作用于纯文本单元格,
+  /// 值为 Widget 的单元格原样保留。不传(-1)时渲染与旧版完全一致。
+  final int primaryColumnIndex;
+
   const DataTableWrapper({
     super.key,
     required this.columns,
@@ -53,6 +81,9 @@ class DataTableWrapper extends StatelessWidget {
     this.filterBar,
     this.actions,
     this.rightAlignColumns = const [],
+    this.pageTitle,
+    this.moduleKey = 'system',
+    this.primaryColumnIndex = -1,
   });
 
   @override
@@ -80,76 +111,128 @@ class DataTableWrapper extends StatelessWidget {
             ),
           ...?actions,
         ];
-        return Column(
-          children: [
-            if (onSearch != null || actions != null || onRefresh != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(children: toolbar),
-              ),
-            Expanded(
-              // onRefresh == null 保持旧结构;非 null 时内容区整体可下拉,四态各自
-              // 为可滚动体(表格态用 DataTable2 内部滚动,其余态 AlwaysScrollable
-              // 撑满视口居中)——data_table_2 文档禁外层无界滚动包裹。
-              child: onRefresh == null
-                  ? _stateBody(context, compact, scheme)
-                  : LayoutBuilder(
-                      builder: (context, c) {
-                        final viewportH = c.maxHeight;
-                        return RefreshIndicator(
-                          onRefresh: () async {
-                            // 加载中(骨架态)下拉不重复触发;按钮已在 loading 禁用
-                            if (loading) return;
-                            await onRefresh?.call();
-                          },
-                          // DataTable2 内部垂直滚动体在自嵌套 scrollable 之下,
-                          // 放宽 depth,只认纵向通知
-                          notificationPredicate: (n) =>
-                              n.metrics.axis == Axis.vertical,
-                          child: _refreshBody(
-                            context,
-                            compact,
-                            scheme,
-                            viewportH,
-                          ),
-                        );
-                      },
-                    ),
-            ),
-            if (tp > 1)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      AppL10n.of(context).commonTotalPages(total),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: scheme.onSurfaceVariant,
+        final c = AppColors.of(context);
+        // 视觉 3.0:全内容包 surface 圆角卡容器,从 bgPage 上浮起(r12 + hairline)
+        return Container(
+          decoration: BoxDecoration(
+            color: c.surface,
+            borderRadius: BorderRadius.circular(AppMetrics.radiusCard),
+            border: Border.all(color: c.divider),
+          ),
+          // 表头/斑马底色铺满行宽,卡内圆角由裁剪保证干净
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (pageTitle != null) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  child: Row(
+                    children: [
+                      // 8×16 模块色竖条(圆角 2)
+                      Container(
+                        width: AppMetrics.headBarW,
+                        height: AppMetrics.headBarH,
+                        decoration: BoxDecoration(
+                          color: moduleAccent(moduleKey),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_left, size: 20),
-                      onPressed: page > 1
-                          ? () => onPageChanged?.call(page - 1)
-                          : null,
-                    ),
-                    Text(
-                      '$page/${tp > 0 ? tp : 1}',
-                      style: TextStyle(fontSize: 13, color: scheme.onSurface),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_right, size: 20),
-                      onPressed: page < tp
-                          ? () => onPageChanged?.call(page + 1)
-                          : null,
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          pageTitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.pageTitle.copyWith(
+                            color: c.textPrimary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        AppL10n.of(context).commonTotalPages(total),
+                        style: TextStyle(fontSize: 13, color: c.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
+                const _Hairline(),
+              ],
+              if (onSearch != null || actions != null || onRefresh != null) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  child: Row(children: toolbar),
+                ),
+                if (pageTitle == null) const _Hairline(),
+              ],
+              Expanded(
+                // onRefresh == null 保持旧结构;非 null 时内容区整体可下拉,四态各自
+                // 为可滚动体(表格态用 DataTable2 内部滚动,其余态 AlwaysScrollable
+                // 撑满视口居中)——data_table_2 文档禁外层无界滚动包裹。
+                child: onRefresh == null
+                    ? _stateBody(context, compact, scheme)
+                    : LayoutBuilder(
+                        builder: (context, c) {
+                          final viewportH = c.maxHeight;
+                          return RefreshIndicator(
+                            onRefresh: () async {
+                              // 加载中(骨架态)下拉不重复触发;按钮已在 loading 禁用
+                              if (loading) return;
+                              await onRefresh?.call();
+                            },
+                            // DataTable2 内部垂直滚动体在自嵌套 scrollable 之下,
+                            // 放宽 depth,只认纵向通知
+                            notificationPredicate: (n) =>
+                                n.metrics.axis == Axis.vertical,
+                            child: _refreshBody(
+                              context,
+                              compact,
+                              scheme,
+                              viewportH,
+                            ),
+                          );
+                        },
+                      ),
               ),
-          ],
+              if (tp > 1)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        AppL10n.of(context).commonTotalPages(total),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        icon: const Icon(Icons.chevron_left, size: 20),
+                        onPressed: page > 1
+                            ? () => onPageChanged?.call(page - 1)
+                            : null,
+                      ),
+                      Text(
+                        '$page/${tp > 0 ? tp : 1}',
+                        style: TextStyle(fontSize: 13, color: scheme.onSurface),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.chevron_right, size: 20),
+                        onPressed: page < tp
+                            ? () => onPageChanged?.call(page + 1)
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         );
       },
     );
@@ -197,7 +280,7 @@ class DataTableWrapper extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Container(
-                height: compact ? 56 : 48,
+                height: compact ? AppMetrics.rowMobile : AppMetrics.rowDesktop,
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(6),
@@ -236,8 +319,18 @@ class DataTableWrapper extends StatelessWidget {
       rows: rows,
       compact: compact,
       rightAlign: rightAlignColumns,
+      primaryColumn: primaryColumnIndex,
     );
   }
+}
+
+/// 卡内 1px hairline 分隔线(主题 divider 色)。
+class _Hairline extends StatelessWidget {
+  const _Hairline();
+
+  @override
+  Widget build(BuildContext context) =>
+      Container(height: 1, color: AppColors.of(context).divider);
 }
 
 /// 给 DataTable2 内部滚动体注入 AlwaysScrollableScrollPhysics:
@@ -251,7 +344,8 @@ class _PullScrollBehavior extends MaterialScrollBehavior {
       AlwaysScrollableScrollPhysics(parent: super.getScrollPhysics(context));
 }
 
-/// 断点行高:移动 56 / 桌面 48(§4/§5.2),表头样式走全局 dataTableTheme。
+/// 断点行高:移动 56 / 桌面 44(§4/§5.2 + 视觉 3.0),表头样式走全局 dataTableTheme;
+/// 视觉 3.0:表头行底 surfaceAlt 40%、偶行斑马纹低透明叠底、主业务列 w600。
 class _DataTable extends StatelessWidget {
   final List<String> columns;
   final List<Map<String, dynamic>> rows;
@@ -260,17 +354,26 @@ class _DataTable extends StatelessWidget {
   /// 右对齐列索引;走 data_table_2 的 numeric 列语义(表头与单元格右对齐)。
   final List<int> rightAlign;
 
+  /// 主业务列索引(w600 强调);-1 不强调。
+  final int primaryColumn;
+
   const _DataTable({
     required this.columns,
     required this.rows,
     required this.compact,
     this.rightAlign = const [],
+    this.primaryColumn = -1,
   });
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final right = rightAlign.contains;
     final table = DataTable2(
+      // 表头行底:surfaceAlt 40%(视觉 3.0)
+      headingRowColor: WidgetStatePropertyAll(
+        c.surfaceAlt.withValues(alpha: 0.4),
+      ),
       columnSpacing: 12,
       horizontalMargin: 12,
       minWidth: columns.length * 130.0,
@@ -284,34 +387,52 @@ class _DataTable extends StatelessWidget {
             ),
           ),
       ],
-      rows: rows
-          .map(
-            (r) => DataRow2(
-              cells: [
-                for (var i = 0; i < columns.length; i++)
-                  DataCell(_cell(r[columns[i]], right(i))),
-              ],
-            ),
-          )
-          .toList(),
+      rows: [
+        for (var i = 0; i < rows.length; i++)
+          DataRow2(
+            // 斑马纹:偶行(第 2/4/6…)surfaceAlt 低透明叠底
+            color: i.isOdd
+                ? WidgetStatePropertyAll(c.surfaceAlt.withValues(alpha: 0.35))
+                : null,
+            cells: [
+              for (var j = 0; j < columns.length; j++)
+                DataCell(
+                  _cell(
+                    rows[i][columns[j]],
+                    right(j),
+                    emphasize: j == primaryColumn,
+                  ),
+                ),
+            ],
+          ),
+      ],
     );
     if (!compact) return table;
     return DataTableTheme(
-      data: DataTableThemeData(dataRowMinHeight: 56, dataRowMaxHeight: 56),
+      data: DataTableThemeData(
+        dataRowMinHeight: AppMetrics.rowMobile,
+        dataRowMaxHeight: AppMetrics.rowMobile,
+      ),
       child: table,
     );
   }
 
   /// 单元格:Widget 原样保留(不包不套);纯文本在右对齐列补等宽数字特性
-  /// (§3:数字一律 tabular figures),文字色/字号仍走 dataTableTheme。
-  Widget _cell(dynamic v, bool right) {
+  /// (§3:数字一律 tabular figures),主业务列文本 w600 强调(视觉 3.0)。
+  /// 文字色/字号仍走 dataTableTheme。
+  Widget _cell(dynamic v, bool right, {bool emphasize = false}) {
     if (v is Widget) return v;
-    return Text(
-      '${v ?? ''}',
-      style: right
-          ? const TextStyle(fontFeatures: [FontFeature.tabularFigures()])
-          : null,
-    );
+    TextStyle? style;
+    if (emphasize) {
+      style = const TextStyle(fontWeight: FontWeight.w600);
+    }
+    if (right) {
+      const tabular = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
+      style = style == null
+          ? tabular
+          : style.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
+    }
+    return Text('${v ?? ''}', style: style);
   }
 }
 

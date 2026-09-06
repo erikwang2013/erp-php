@@ -1,12 +1,12 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-// 状态徽标(主文档 §5.6 + §2.4):高 22、内边距 0 8、圆角 4、字 12/500。
+// 状态徽标(主文档 §5.6 + §2.4 + 视觉 3.0):胶囊形(StadiumBorder)、
+// 高 22、内边距 0 8、字 12/500。
 // 调用方按 §2.4 四类映射给 bg/fg(如 warningBg+warningText);
 // 纯展示组件,不读 context,可 const 构造。默认浅底式;
 // 实心版(桌面表格列 danger/success 用):单色底白字,高 18 字 10。
 // 用法:StatusBadge(label: '已审核', bg: c.successBg, fg: c.successText)
 //       StatusBadge.solid(label: '作废', color: c.danger)
 import 'package:flutter/material.dart';
-import '../theme/app_tokens.dart';
 
 class StatusBadge extends StatelessWidget {
   /// 文案(单行)。
@@ -50,10 +50,8 @@ class StatusBadge extends StatelessWidget {
       height: height,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(AppMetrics.radiusBadge),
-      ),
+      // 胶囊(视觉 3.0:原 r4 方角升胶囊,与 chips 同语义)
+      decoration: ShapeDecoration(color: bg, shape: const StadiumBorder()),
       child: Text(
         label,
         maxLines: 1,
