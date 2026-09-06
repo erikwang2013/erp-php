@@ -96,8 +96,11 @@ class OrderController extends BaseController
         $item = new PurchaseOrder();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
-        // 解码 int 须在 fill 之后覆写：supplier_id 在 $fillable 内，先赋会被请求里的 hash 串直填覆写（1366 崩）
+        // 解码 int 须在 fill 之后覆写：supplier_id/apply_id/warehouse_id 均在 $fillable 内，
+        // fill 会把请求里的 hash 串直填 BIGINT 列（1366 崩）——统一解码覆写，垃圾/空串落 0 缺省
         $item->supplier_id = $supplierId;
+        $item->apply_id = $this->decodeFlexibleId((string) $request->input('apply_id', '0')) ?? 0;
+        $item->warehouse_id = $this->decodeFlexibleId((string) $request->input('warehouse_id', '0')) ?? 0;
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -167,7 +170,7 @@ class OrderController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
-        // 同 store：supplier_id 在 $fillable 内，fill 会把请求 hash 串直填列——提供时解码 int 覆写
+        // 同 store：三个 FK 在 $fillable 内，fill 会把请求 hash 串直填列——提供时解码 int 覆写
         $supplierRaw = $request->input('supplier_id', null);
         if ($supplierRaw !== null && $supplierRaw !== '') {
             $supplierId = $this->decodeIdSafe((string) $supplierRaw);
@@ -175,6 +178,12 @@ class OrderController extends BaseController
                 return $this->fail('supplier_id 无效', 422);
             }
             $item->supplier_id = $supplierId;
+        }
+        foreach (['apply_id', 'warehouse_id'] as $field) {
+            $raw = $request->input($field, null);
+            if ($raw !== null && $raw !== '') {
+                $item->{$field} = $this->decodeFlexibleId((string) $raw) ?? 0;
+            }
         }
         $item->save();
 

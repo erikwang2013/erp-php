@@ -112,7 +112,10 @@ class SettlementController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $receiveId = $this->decodeId((string) $request->input('receive_id'));
+        $receiveId = $this->decodeFlexibleId((string) $request->input('receive_id'));
+        if ($receiveId === null || $receiveId < 1) {
+            return $this->fail('收货单ID无效', 422);
+        }
         $arAp = FinanceArAp::where('type', self::AP_TYPE)->where('source_type', self::SOURCE_TYPE)
             ->where('source_id', $receiveId)->first();
         if (!$arAp) {

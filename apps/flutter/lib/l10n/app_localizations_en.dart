@@ -2976,4 +2976,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wmsStatusDone => 'Done';
+
+  @override
+  String get purchaseReturnNo => 'Return No.';
+
+  @override
+  String get purchaseReturnNoHint => 'Auto PRN+timestamp when blank';
+
+  @override
+  String get purchaseReturnedAt => 'Returned At';
+
+  @override
+  String get purchaseReturnStatusPending => 'Pending Issue';
+
+  @override
+  String get purchaseReturnStatusDone => 'Issued';
 }

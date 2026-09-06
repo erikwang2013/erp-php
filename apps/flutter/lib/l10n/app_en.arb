@@ -1323,5 +1323,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "purchaseReturnNo": "Return No.",
+  "purchaseReturnNoHint": "Auto PRN+timestamp when blank",
+  "purchaseReturnedAt": "Returned At",
+  "purchaseReturnStatusPending": "Pending Issue",
+  "purchaseReturnStatusDone": "Issued"
 }

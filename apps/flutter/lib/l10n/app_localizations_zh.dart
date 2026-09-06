@@ -2951,4 +2951,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get wmsStatusDone => '已完成';
+
+  @override
+  String get purchaseReturnNo => '退货单号';
+
+  @override
+  String get purchaseReturnNoHint => '留空自动生成 PRN+时间戳';
+
+  @override
+  String get purchaseReturnedAt => '退货时间';
+
+  @override
+  String get purchaseReturnStatusPending => '待出库';
+
+  @override
+  String get purchaseReturnStatusDone => '已出库';
 }

@@ -5755,6 +5755,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'已完成'**
   String get wmsStatusDone;
+
+  /// No description provided for @purchaseReturnNo.
+  ///
+  /// In zh, this message translates to:
+  /// **'退货单号'**
+  String get purchaseReturnNo;
+
+  /// No description provided for @purchaseReturnNoHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'留空自动生成 PRN+时间戳'**
+  String get purchaseReturnNoHint;
+
+  /// No description provided for @purchaseReturnedAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'退货时间'**
+  String get purchaseReturnedAt;
+
+  /// No description provided for @purchaseReturnStatusPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待出库'**
+  String get purchaseReturnStatusPending;
+
+  /// No description provided for @purchaseReturnStatusDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'已出库'**
+  String get purchaseReturnStatusDone;
 }
 
 class _AppLocalizationsDelegate

@@ -1260,5 +1260,10 @@
     "placeholders": {
       "error": {"type": "String"}
     }
-  }
+  },
+  "purchaseReturnNo": "退货单号",
+  "purchaseReturnNoHint": "留空自动生成 PRN+时间戳",
+  "purchaseReturnedAt": "退货时间",
+  "purchaseReturnStatusPending": "待出库",
+  "purchaseReturnStatusDone": "已出库"
 }

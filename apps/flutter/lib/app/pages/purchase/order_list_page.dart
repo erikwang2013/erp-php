@@ -73,37 +73,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     });
   }
 
-  /// 采购结算：打开结算表单（金额/日期/方式 → 后端 amount/paid_amount/settled_at/status），
-  /// 提交 POST /admin/purchase/settlement。
-  Future<void> _settle(Map<String, dynamic> row) async {
-    final l10n = AppL10n.current;
-    final now = DateTime.now();
-    String pad(int v) => v.toString().padLeft(2, '0');
-    final defaultSettledAt =
-        '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
-    await FormDialog.show(context, title: l10n.purchaseSettleDialog, fields: [
-      FormFieldConfig(name: 'supplier_id', label: l10n.purchaseSupplierId, required: true, initialValue: '${row['supplier_id'] ?? ''}'),
-      FormFieldConfig(name: 'receive_id', label: l10n.purchaseReceiveId, required: true),
-      FormFieldConfig(name: 'amount', label: l10n.purchasePayableAmount, type: FormFieldType.number, hint: l10n.purchaseAmountExampleHint),
-      FormFieldConfig(name: 'paid_amount', label: l10n.purchasePaidAmount, type: FormFieldType.number, hint: l10n.purchasePaidDefaultHint),
-      FormFieldConfig(name: 'status', label: l10n.purchaseSettleStatusLabel, type: FormFieldType.dropdown,
-        options: _settleStatusOptions(), initialValue: _settleStatusOption(0)),
-      FormFieldConfig(name: 'settled_at', label: l10n.purchaseSettledAt, initialValue: defaultSettledAt,
-        hint: l10n.purchaseDateTimeHint),
-    ], onSubmit: (data) async {
-      final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
-      await ApiService.instance.post('/admin/v1/purchase/settlement', data: {
-        'supplier_id': data['supplier_id']?.trim(),
-        'receive_id': data['receive_id']?.trim(),
-        'amount': (data['amount']?.trim().isEmpty ?? true) ? '0' : data['amount']!.trim(),
-        'paid_amount': (data['paid_amount']?.trim().isEmpty ?? true) ? '0' : data['paid_amount']!.trim(),
-        'status': statusRaw,
-        'settled_at': data['settled_at']?.trim(),
-      });
-      _load(); return true;
-    });
-  }
-
   // 后端 erp_purchase_order 字段: code/apply_id/supplier_id/warehouse_id/
   // total_amount/status/remark/ordered_at（无 name 列；供应商名 supplier_name 由列表 leftJoin 带出）
   List<String> get _statusLabels => [
@@ -116,15 +85,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
 
   /// 下拉选项文案与后端 status 数字一一对应（提交时取 ' - ' 前缀）。
   String _statusOption(int i) => '$i - ${_statusLabels[i]}';
-
-  List<String> get _settleStatusLabels => [
-    AppL10n.current.purchaseSettleStatusUnsettled,
-    AppL10n.current.purchaseSettleStatusPartial,
-    AppL10n.current.purchaseSettleStatusSettled,
-  ];
-
-  String _settleStatusOption(int i) => '$i - ${_settleStatusLabels[i]}';
-  List<String> _settleStatusOptions() => [for (var i = 0; i < _settleStatusLabels.length; i++) _settleStatusOption(i)];
 
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
@@ -221,8 +181,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.visibility_outlined, size: 18),
         tooltip: AppL10n.current.commonDetail, onPressed: () => _detail(r)),
-      IconButton(icon: Icon(Icons.paid, size: 18, color: AppColors.of(context).primary),
-        tooltip: AppL10n.current.purchaseSettle, onPressed: () => _settle(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
