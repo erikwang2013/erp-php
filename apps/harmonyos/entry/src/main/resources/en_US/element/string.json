@@ -1435,6 +1435,290 @@
     {
       "name": "attendance_list_title",
       "value": "Attendance"
+    },
+    {
+      "name": "production_list_title",
+      "value": "Production Orders"
+    },
+    {
+      "name": "production_empty",
+      "value": "No production orders yet"
+    },
+    {
+      "name": "production_delete_msg",
+      "value": "Delete this production order? This cannot be undone."
+    },
+    {
+      "name": "production_form_add",
+      "value": "New Production Order"
+    },
+    {
+      "name": "production_form_edit",
+      "value": "Edit Production Order"
+    },
+    {
+      "name": "production_code",
+      "value": "Work Order No."
+    },
+    {
+      "name": "production_code_hint",
+      "value": "Enter a work order No. (required)"
+    },
+    {
+      "name": "production_code_required",
+      "value": "Work Order No. is required"
+    },
+    {
+      "name": "production_bom_id",
+      "value": "BOM ID"
+    },
+    {
+      "name": "production_bom_id_hint",
+      "value": "Enter the BOM numeric ID (required)"
+    },
+    {
+      "name": "production_bom_id_required",
+      "value": "BOM ID is required"
+    },
+    {
+      "name": "production_warehouse_id",
+      "value": "Warehouse ID"
+    },
+    {
+      "name": "production_warehouse_id_hint",
+      "value": "Warehouse numeric ID, leave blank for 0"
+    },
+    {
+      "name": "production_planned_quantity",
+      "value": "Planned Quantity"
+    },
+    {
+      "name": "production_planned_quantity_hint",
+      "value": "Enter the planned production quantity (required)"
+    },
+    {
+      "name": "production_planned_quantity_required",
+      "value": "Planned quantity is required"
+    },
+    {
+      "name": "production_status",
+      "value": "Status"
+    },
+    {
+      "name": "production_planned_start",
+      "value": "Planned Start Date"
+    },
+    {
+      "name": "production_planned_start_hint",
+      "value": "Format: YYYY-MM-DD"
+    },
+    {
+      "name": "production_planned_end",
+      "value": "Planned End Date"
+    },
+    {
+      "name": "production_planned_end_hint",
+      "value": "Format: YYYY-MM-DD"
+    },
+    {
+      "name": "production_remark",
+      "value": "Remark"
+    },
+    {
+      "name": "production_remark_hint",
+      "value": "Enter a remark"
+    },
+    {
+      "name": "product_list_title",
+      "value": "Products"
+    },
+    {
+      "name": "product_empty",
+      "value": "No products yet"
+    },
+    {
+      "name": "product_code_fmt",
+      "value": "Code: %1$s"
+    },
+    {
+      "name": "product_delete_msg",
+      "value": "Delete this product? This cannot be undone."
+    },
+    {
+      "name": "product_form_add",
+      "value": "New Product"
+    },
+    {
+      "name": "product_form_edit",
+      "value": "Edit Product"
+    },
+    {
+      "name": "product_name",
+      "value": "Name"
+    },
+    {
+      "name": "product_name_hint",
+      "value": "Enter a product name (required)"
+    },
+    {
+      "name": "product_name_required",
+      "value": "Product name is required"
+    },
+    {
+      "name": "product_code",
+      "value": "Code"
+    },
+    {
+      "name": "product_code_hint",
+      "value": "Enter a product code (required)"
+    },
+    {
+      "name": "product_code_required",
+      "value": "Product code is required"
+    },
+    {
+      "name": "product_category_id",
+      "value": "Category ID"
+    },
+    {
+      "name": "product_category_id_hint",
+      "value": "Category numeric ID (required)"
+    },
+    {
+      "name": "product_category_id_required",
+      "value": "Category ID is required"
+    },
+    {
+      "name": "product_brand_id",
+      "value": "Brand ID"
+    },
+    {
+      "name": "product_brand_id_hint",
+      "value": "Brand numeric ID, leave blank for 0"
+    },
+    {
+      "name": "product_barcode",
+      "value": "Barcode"
+    },
+    {
+      "name": "product_barcode_hint",
+      "value": "Enter a barcode"
+    },
+    {
+      "name": "product_spec",
+      "value": "Spec"
+    },
+    {
+      "name": "product_spec_hint",
+      "value": "Enter a spec"
+    },
+    {
+      "name": "product_unit",
+      "value": "Unit"
+    },
+    {
+      "name": "product_unit_hint",
+      "value": "e.g. pcs / box (required)"
+    },
+    {
+      "name": "product_unit_required",
+      "value": "Unit is required"
+    },
+    {
+      "name": "product_status",
+      "value": "Status"
+    },
+    {
+      "name": "product_description",
+      "value": "Description"
+    },
+    {
+      "name": "product_description_hint",
+      "value": "Enter a product description"
+    },
+    {
+      "name": "user_form_add",
+      "value": "New User"
+    },
+    {
+      "name": "user_delete_msg",
+      "value": "Delete this user? This cannot be undone."
+    },
+    {
+      "name": "user_username",
+      "value": "Username"
+    },
+    {
+      "name": "user_username_hint",
+      "value": "Enter a username"
+    },
+    {
+      "name": "user_username_required",
+      "value": "Username is required"
+    },
+    {
+      "name": "user_password",
+      "value": "Password"
+    },
+    {
+      "name": "user_password_hint",
+      "value": "Enter a password"
+    },
+    {
+      "name": "user_password_required",
+      "value": "Password is required"
+    },
+    {
+      "name": "user_name",
+      "value": "Name"
+    },
+    {
+      "name": "user_name_hint",
+      "value": "Enter the real name"
+    },
+    {
+      "name": "user_phone",
+      "value": "Phone"
+    },
+    {
+      "name": "user_phone_hint",
+      "value": "Enter a phone No."
+    },
+    {
+      "name": "user_email",
+      "value": "Email"
+    },
+    {
+      "name": "user_email_hint",
+      "value": "Enter an email"
+    },
+    {
+      "name": "user_status",
+      "value": "Status"
+    },
+    {
+      "name": "bom_list_title",
+      "value": "BOM"
+    },
+    {
+      "name": "mrp_list_title",
+      "value": "MRP"
+    },
+    {
+      "name": "routing_list_title",
+      "value": "Routing"
+    },
+    {
+      "name": "workstation_list_title",
+      "value": "Workstations"
+    },
+    {
+      "name": "approval_list_title",
+      "value": "My Approvals"
+    },
+    {
+      "name": "inventory_list_title",
+      "value": "Inventory"
     }
   ]
 }

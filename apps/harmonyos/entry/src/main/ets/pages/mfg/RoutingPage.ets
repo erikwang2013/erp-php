@@ -3,6 +3,7 @@
  */
 
 import { ApiService } from '../../service/ApiService';
+import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 
 @Entry
@@ -37,7 +38,7 @@ struct RoutingPage {
     } catch (e) {
       // M4: 错误不再吞掉——真实 message 优先展示，空信息/UNAUTHORIZED 给友好提示
       const msg = e instanceof Error ? e.message : '';
-      this.errMsg = (msg === '' || msg === 'UNAUTHORIZED') ? '登录已过期，请重新登录' : msg;
+      this.errMsg = (msg === '' || msg === 'UNAUTHORIZED') ? L10n.str(this.getUIContext(), 'login_expired') : msg;
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -47,11 +48,11 @@ struct RoutingPage {
   build() {
     Column() {
       Row() {
-        Text('工艺路线')
+        Text($r('app.string.routing_list_title'))
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
         Blank()
-        Button('刷新')
+        Button($r('app.string.refresh'))
           .fontSize(13)
           .fontColor($r('app.color.primary'))
           .backgroundColor($r('app.color.primary_bg'))

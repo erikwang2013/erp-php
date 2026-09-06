@@ -1435,6 +1435,290 @@
     {
       "name": "attendance_list_title",
       "value": "考勤管理"
+    },
+    {
+      "name": "production_list_title",
+      "value": "生产工单"
+    },
+    {
+      "name": "production_empty",
+      "value": "暂无生产工单数据"
+    },
+    {
+      "name": "production_delete_msg",
+      "value": "确定要删除该生产工单吗？删除后不可恢复。"
+    },
+    {
+      "name": "production_form_add",
+      "value": "新增生产工单"
+    },
+    {
+      "name": "production_form_edit",
+      "value": "编辑生产工单"
+    },
+    {
+      "name": "production_code",
+      "value": "工单号"
+    },
+    {
+      "name": "production_code_hint",
+      "value": "请输入工单号（必填）"
+    },
+    {
+      "name": "production_code_required",
+      "value": "请输入工单号"
+    },
+    {
+      "name": "production_bom_id",
+      "value": "BOM ID"
+    },
+    {
+      "name": "production_bom_id_hint",
+      "value": "请输入BOM数字ID（必填）"
+    },
+    {
+      "name": "production_bom_id_required",
+      "value": "请输入BOM ID"
+    },
+    {
+      "name": "production_warehouse_id",
+      "value": "仓库ID"
+    },
+    {
+      "name": "production_warehouse_id_hint",
+      "value": "仓库数字ID，留空为0"
+    },
+    {
+      "name": "production_planned_quantity",
+      "value": "计划数量"
+    },
+    {
+      "name": "production_planned_quantity_hint",
+      "value": "请输入计划生产数量（必填）"
+    },
+    {
+      "name": "production_planned_quantity_required",
+      "value": "请输入计划数量"
+    },
+    {
+      "name": "production_status",
+      "value": "状态"
+    },
+    {
+      "name": "production_planned_start",
+      "value": "计划开始日期"
+    },
+    {
+      "name": "production_planned_start_hint",
+      "value": "格式: YYYY-MM-DD"
+    },
+    {
+      "name": "production_planned_end",
+      "value": "计划结束日期"
+    },
+    {
+      "name": "production_planned_end_hint",
+      "value": "格式: YYYY-MM-DD"
+    },
+    {
+      "name": "production_remark",
+      "value": "备注"
+    },
+    {
+      "name": "production_remark_hint",
+      "value": "请输入备注"
+    },
+    {
+      "name": "product_list_title",
+      "value": "商品管理"
+    },
+    {
+      "name": "product_empty",
+      "value": "暂无商品数据"
+    },
+    {
+      "name": "product_code_fmt",
+      "value": "编码: %1$s"
+    },
+    {
+      "name": "product_delete_msg",
+      "value": "确定要删除该商品吗？删除后不可恢复。"
+    },
+    {
+      "name": "product_form_add",
+      "value": "新增商品"
+    },
+    {
+      "name": "product_form_edit",
+      "value": "编辑商品"
+    },
+    {
+      "name": "product_name",
+      "value": "名称"
+    },
+    {
+      "name": "product_name_hint",
+      "value": "请输入商品名称（必填）"
+    },
+    {
+      "name": "product_name_required",
+      "value": "请输入商品名称"
+    },
+    {
+      "name": "product_code",
+      "value": "编码"
+    },
+    {
+      "name": "product_code_hint",
+      "value": "请输入商品编码（必填）"
+    },
+    {
+      "name": "product_code_required",
+      "value": "请输入商品编码"
+    },
+    {
+      "name": "product_category_id",
+      "value": "分类ID"
+    },
+    {
+      "name": "product_category_id_hint",
+      "value": "分类数字ID（必填）"
+    },
+    {
+      "name": "product_category_id_required",
+      "value": "请输入分类ID"
+    },
+    {
+      "name": "product_brand_id",
+      "value": "品牌ID"
+    },
+    {
+      "name": "product_brand_id_hint",
+      "value": "品牌数字ID，留空为0"
+    },
+    {
+      "name": "product_barcode",
+      "value": "条码"
+    },
+    {
+      "name": "product_barcode_hint",
+      "value": "请输入条码"
+    },
+    {
+      "name": "product_spec",
+      "value": "规格"
+    },
+    {
+      "name": "product_spec_hint",
+      "value": "请输入规格"
+    },
+    {
+      "name": "product_unit",
+      "value": "单位"
+    },
+    {
+      "name": "product_unit_hint",
+      "value": "如: 件/箱（必填）"
+    },
+    {
+      "name": "product_unit_required",
+      "value": "请输入单位"
+    },
+    {
+      "name": "product_status",
+      "value": "状态"
+    },
+    {
+      "name": "product_description",
+      "value": "描述"
+    },
+    {
+      "name": "product_description_hint",
+      "value": "请输入商品描述"
+    },
+    {
+      "name": "user_form_add",
+      "value": "新增用户"
+    },
+    {
+      "name": "user_delete_msg",
+      "value": "确定要删除该用户吗？删除后不可恢复。"
+    },
+    {
+      "name": "user_username",
+      "value": "用户名"
+    },
+    {
+      "name": "user_username_hint",
+      "value": "请输入用户名"
+    },
+    {
+      "name": "user_username_required",
+      "value": "请输入用户名"
+    },
+    {
+      "name": "user_password",
+      "value": "密码"
+    },
+    {
+      "name": "user_password_hint",
+      "value": "请输入密码"
+    },
+    {
+      "name": "user_password_required",
+      "value": "请输入密码"
+    },
+    {
+      "name": "user_name",
+      "value": "姓名"
+    },
+    {
+      "name": "user_name_hint",
+      "value": "请输入真实姓名"
+    },
+    {
+      "name": "user_phone",
+      "value": "手机号"
+    },
+    {
+      "name": "user_phone_hint",
+      "value": "请输入手机号"
+    },
+    {
+      "name": "user_email",
+      "value": "邮箱"
+    },
+    {
+      "name": "user_email_hint",
+      "value": "请输入邮箱"
+    },
+    {
+      "name": "user_status",
+      "value": "状态"
+    },
+    {
+      "name": "bom_list_title",
+      "value": "BOM管理"
+    },
+    {
+      "name": "mrp_list_title",
+      "value": "MRP计划"
+    },
+    {
+      "name": "routing_list_title",
+      "value": "工艺路线"
+    },
+    {
+      "name": "workstation_list_title",
+      "value": "工作站"
+    },
+    {
+      "name": "approval_list_title",
+      "value": "我的审批"
+    },
+    {
+      "name": "inventory_list_title",
+      "value": "库存管理"
     }
   ]
 }

@@ -5,6 +5,7 @@
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { ApiService } from '../service/ApiService';
+import { L10n } from '../utils/L10n';
 import { LoadingView, ErrorView, EmptyView } from '../common/Components';
 import { TopBar, TopBarAction } from '../common/TopBar';
 import { ConfirmDialog } from '../common/FormDialog';
@@ -98,7 +99,7 @@ struct ProductListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
+      this.errMsg = e instanceof Error && e.message ? e.message : L10n.str(this.getUIContext(), 'load_failed');
       this.hasError = true;
       promptAction.showToast({ message: this.errMsg });
     } finally {
@@ -156,7 +157,7 @@ struct ProductListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '加载详情失败' });
+      promptAction.showToast({ message: L10n.str(this.getUIContext(), 'load_detail_failed') });
     } finally {
       this.loading = false;
     }
@@ -168,19 +169,19 @@ struct ProductListPage {
    */
   async save(): Promise<void> {
     if (!this.formName.trim()) {
-      promptAction.showToast({ message: '请输入商品名称' });
+      promptAction.showToast({ message: $r('app.string.product_name_required') });
       return;
     }
     if (!this.formCode.trim()) {
-      promptAction.showToast({ message: '请输入商品编码' });
+      promptAction.showToast({ message: $r('app.string.product_code_required') });
       return;
     }
     if (!this.formCategoryId.trim()) {
-      promptAction.showToast({ message: '请输入分类ID' });
+      promptAction.showToast({ message: $r('app.string.product_category_id_required') });
       return;
     }
     if (!this.formUnit.trim()) {
-      promptAction.showToast({ message: '请输入单位' });
+      promptAction.showToast({ message: $r('app.string.product_unit_required') });
       return;
     }
 
@@ -200,10 +201,10 @@ struct ProductListPage {
     try {
       if (this.formMode === 'create') {
         await this.api.post<Object>('/admin/product', body);
-        promptAction.showToast({ message: '创建成功' });
+        promptAction.showToast({ message: $r('app.string.create_success') });
       } else {
         await this.api.put<Object>(`/admin/product/${this.formId}`, body);
-        promptAction.showToast({ message: '更新成功' });
+        promptAction.showToast({ message: $r('app.string.update_success') });
       }
       this.showForm = false;
       // 刷新列表（回到第一页）
@@ -213,7 +214,7 @@ struct ProductListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '保存失败' });
+      promptAction.showToast({ message: L10n.str(this.getUIContext(), 'save_failed') });
     } finally {
       this.isSubmitting = false;
     }
@@ -227,8 +228,8 @@ struct ProductListPage {
   confirmDelete(id: string): void {
     this.dialogController = new CustomDialogController({
       builder: ConfirmDialog({
-        title: '确认删除',
-        message: '确定要删除该商品吗？删除后不可恢复。',
+        title: $r('app.string.delete_confirm'),
+        message: $r('app.string.product_delete_msg'),
         onConfirm: () => {
           this.deleteItem(id);
         },
@@ -245,14 +246,14 @@ struct ProductListPage {
   async deleteItem(id: string): Promise<void> {
     try {
       await this.api.delete<Object>(`/admin/product/${id}`);
-      promptAction.showToast({ message: '删除成功' });
+      promptAction.showToast({ message: $r('app.string.delete_success') });
       this.loadData(true);
     } catch (e) {
       if (e instanceof Error && e.message === 'UNAUTHORIZED') {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '删除失败' });
+      promptAction.showToast({ message: $r('app.string.delete_failed') });
     }
   }
 
@@ -260,8 +261,8 @@ struct ProductListPage {
     Column() {
       // 顶栏（骨架收敛：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
       TopBar({
-        title: '商品管理',
-        actions: [new TopBarAction('+ 新增')],
+        title: $r('app.string.product_list_title'),
+        actions: [new TopBarAction($r('app.string.user_add'))],
         onAction: () => this.openCreate(),
         onRefresh: () => this.loadData(true),
         refreshing: this.isRefreshing || this.loading,
@@ -288,7 +289,7 @@ struct ProductListPage {
     } else if (this.hasError) {
       ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
-      EmptyView({ message: '暂无商品数据' });
+      EmptyView({ message: $r('app.string.product_empty') });
     } else {
       Refresh({ refreshing: $$this.isRefreshing }) {
         List() {
@@ -303,7 +304,7 @@ struct ProductListPage {
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-                  Text(`编码: ${item.code || '-'}`)
+                  Text(L10n.str(this.getUIContext(), 'product_code_fmt', item.code || '-'))
                     .fontSize(12)
                     .fontColor($r('app.color.text_hint'))
                     .margin({ top: 2 })
@@ -314,7 +315,7 @@ struct ProductListPage {
                 .layoutWeight(1)
 
                 // 状态
-                Text(item.status === 1 ? '启用' : '禁用')
+                Text(item.status === 1 ? $r('app.string.status_enabled') : $r('app.string.status_disabled'))
                   .fontSize(10)
                   .fontColor(item.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
                   .backgroundColor(item.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
@@ -322,7 +323,7 @@ struct ProductListPage {
                   .padding({ left: 6, right: 6, top: 2, bottom: 2 })
 
                 // 操作
-                Button('编辑')
+                Button($r('app.string.edit'))
                   .fontSize(12)
                   .fontColor($r('app.color.primary'))
                   .backgroundColor($r('app.color.primary_bg'))
@@ -331,7 +332,7 @@ struct ProductListPage {
                   .margin({ left: 8 })
                   .onClick(() => this.openEdit(item.id))
 
-                Button('删除')
+                Button($r('app.string.delete'))
                   .fontSize(12)
                   .fontColor($r('app.color.danger_text'))
                   .backgroundColor($r('app.color.danger_bg'))
@@ -351,11 +352,11 @@ struct ProductListPage {
           ListItem() {
             Row() {
               if (this.items.length >= this.total) {
-                Text('— 没有更多了 —')
+                Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
                   .fontSize(12)
                   .fontColor($r('app.color.text_disabled'))
               } else {
-                Button('加载更多')
+                Button($r('app.string.load_more'))
                   .fontSize(13)
                   .fontColor($r('app.color.primary'))
                   .backgroundColor(Color.Transparent)
@@ -384,7 +385,7 @@ struct ProductListPage {
   buildForm() {
     Scroll() {
       Column() {
-        Text(this.formMode === 'create' ? '新增商品' : '编辑商品')
+        Text(this.formMode === 'create' ? $r('app.string.product_form_add') : $r('app.string.product_form_edit'))
           .fontSize(16)
           .fontWeight(FontWeight.Bold)
           .width('100%')
@@ -392,12 +393,12 @@ struct ProductListPage {
           .padding({ top: 16, bottom: 16 })
 
         Row() {
-          Text('名称')
+          Text($r('app.string.product_name'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入商品名称（必填）', text: this.formName })
+          TextInput({ placeholder: $r('app.string.product_name_hint'), text: this.formName })
             .fontSize(15)
             .onChange((v: string) => { this.formName = v; })
             .layoutWeight(1)
@@ -410,12 +411,12 @@ struct ProductListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('编码')
+          Text($r('app.string.product_code'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入商品编码（必填）', text: this.formCode })
+          TextInput({ placeholder: $r('app.string.product_code_hint'), text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
             .layoutWeight(1)
@@ -428,12 +429,12 @@ struct ProductListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('分类ID')
+          Text($r('app.string.product_category_id'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '分类数字ID（必填）', text: this.formCategoryId })
+          TextInput({ placeholder: $r('app.string.product_category_id_hint'), text: this.formCategoryId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formCategoryId = v; })
@@ -447,12 +448,12 @@ struct ProductListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('品牌ID')
+          Text($r('app.string.product_brand_id'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '品牌数字ID，留空为0', text: this.formBrandId })
+          TextInput({ placeholder: $r('app.string.product_brand_id_hint'), text: this.formBrandId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formBrandId = v; })
@@ -466,12 +467,12 @@ struct ProductListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('条码')
+          Text($r('app.string.product_barcode'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入条码', text: this.formBarcode })
+          TextInput({ placeholder: $r('app.string.product_barcode_hint'), text: this.formBarcode })
             .fontSize(15)
             .onChange((v: string) => { this.formBarcode = v; })
             .layoutWeight(1)
@@ -484,12 +485,12 @@ struct ProductListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('规格')
+          Text($r('app.string.product_spec'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入规格', text: this.formSpec })
+          TextInput({ placeholder: $r('app.string.product_spec_hint'), text: this.formSpec })
             .fontSize(15)
             .onChange((v: string) => { this.formSpec = v; })
             .layoutWeight(1)
@@ -502,12 +503,12 @@ struct ProductListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('单位')
+          Text($r('app.string.product_unit'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '如: 件/箱（必填）', text: this.formUnit })
+          TextInput({ placeholder: $r('app.string.product_unit_hint'), text: this.formUnit })
             .fontSize(15)
             .onChange((v: string) => { this.formUnit = v; })
             .layoutWeight(1)
@@ -520,13 +521,13 @@ struct ProductListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('状态')
+          Text($r('app.string.product_status'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
           Row() {
-            Button('启用')
+            Button($r('app.string.status_enabled'))
               .fontSize(13)
               .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
               .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
@@ -534,7 +535,7 @@ struct ProductListPage {
               .height(32)
               .onClick(() => { this.formStatus = 1; })
 
-            Button('禁用')
+            Button($r('app.string.status_disabled'))
               .fontSize(13)
               .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
               .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
@@ -553,12 +554,12 @@ struct ProductListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('描述')
+          Text($r('app.string.product_description'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入商品描述', text: this.formDescription })
+          TextInput({ placeholder: $r('app.string.product_description_hint'), text: this.formDescription })
             .fontSize(15)
             .onChange((v: string) => { this.formDescription = v; })
             .layoutWeight(1)
@@ -572,7 +573,7 @@ struct ProductListPage {
 
         // 操作按钮
         Row() {
-          Button('取 消')
+          Button($r('app.string.cancel'))
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
@@ -581,7 +582,7 @@ struct ProductListPage {
             .borderRadius(8)
             .onClick(() => { this.showForm = false; })
 
-          Button('保 存')
+          Button($r('app.string.save'))
             .layoutWeight(1)
             .height(44)
             .fontSize(15)

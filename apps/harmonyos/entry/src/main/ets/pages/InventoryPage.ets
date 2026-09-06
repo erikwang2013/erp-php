@@ -4,6 +4,7 @@
 
 import { router } from '@kit.ArkUI';
 import { ApiService } from '../service/ApiService';
+import { L10n } from '../utils/L10n';
 
 @Entry
 @Component
@@ -33,7 +34,7 @@ struct InventoryPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
+      this.errMsg = e instanceof Error && e.message ? e.message : L10n.str(this.getUIContext(), 'load_failed');
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -43,11 +44,11 @@ struct InventoryPage {
   build() {
     Column() {
       Row() {
-        Text('库存管理')
+        Text($r('app.string.inventory_list_title'))
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
         Blank()
-        Button('刷新')
+        Button($r('app.string.refresh'))
           .fontSize(13)
           .fontColor($r('app.color.primary'))
           .backgroundColor($r('app.color.primary_bg'))
@@ -65,7 +66,7 @@ struct InventoryPage {
           Text(this.errMsg)
             .fontSize(14)
             .fontColor($r('app.color.text_hint'))
-          Button('重试')
+          Button($r('app.string.retry'))
             .fontSize(14)
             .fontColor($r('app.color.text_on_primary'))
             .backgroundColor($r('app.color.primary'))

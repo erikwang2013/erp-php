@@ -5,6 +5,7 @@
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { UserService } from '../service/DataService';
+import { L10n } from '../utils/L10n';
 import { User } from '../model/DataModels';
 import { LoadingView, ErrorView } from '../common/Components';
 import { TopBar, TopBarAction } from '../common/TopBar';
@@ -55,7 +56,7 @@ struct UserDetailPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
+      this.errMsg = e instanceof Error && e.message ? e.message : L10n.str(this.getUIContext(), 'load_failed');
       this.hasError = true;
     } finally {
       this.isLoading = false;
@@ -64,11 +65,11 @@ struct UserDetailPage {
 
   async save(): Promise<void> {
     if (!this.formUsername.trim()) {
-      promptAction.showToast({ message: '请输入用户名' });
+      promptAction.showToast({ message: $r('app.string.user_username_required') });
       return;
     }
     if (this.mode === 'create' && !this.formPassword) {
-      promptAction.showToast({ message: '请输入密码' });
+      promptAction.showToast({ message: $r('app.string.user_password_required') });
       return;
     }
 
@@ -83,7 +84,7 @@ struct UserDetailPage {
           email: this.formEmail,
           status: this.formStatus
         });
-        promptAction.showToast({ message: '创建成功' });
+        promptAction.showToast({ message: $r('app.string.create_success') });
       } else {
         await UserService.update(this.userId, {
           real_name: this.formRealName,
@@ -91,7 +92,7 @@ struct UserDetailPage {
           email: this.formEmail,
           status: this.formStatus
         });
-        promptAction.showToast({ message: '更新成功' });
+        promptAction.showToast({ message: $r('app.string.update_success') });
       }
       router.back();
     } catch (e) {
@@ -99,7 +100,7 @@ struct UserDetailPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '保存失败' });
+      promptAction.showToast({ message: L10n.str(this.getUIContext(), 'save_failed') });
     } finally {
       this.isSubmitting = false;
     }
@@ -113,8 +114,8 @@ struct UserDetailPage {
   confirmDelete(): void {
     this.dialogController = new CustomDialogController({
       builder: ConfirmDialog({
-        title: '确认删除',
-        message: '确定要删除该用户吗？删除后不可恢复。',
+        title: $r('app.string.delete_confirm'),
+        message: $r('app.string.user_delete_msg'),
         onConfirm: () => {
           this.deleteUser();
         },
@@ -131,14 +132,14 @@ struct UserDetailPage {
   async deleteUser(): Promise<void> {
     try {
       await UserService.delete(this.userId);
-      promptAction.showToast({ message: '删除成功' });
+      promptAction.showToast({ message: $r('app.string.delete_success') });
       router.back();
     } catch (e) {
       if (e instanceof Error && e.message === 'UNAUTHORIZED') {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '删除失败' });
+      promptAction.showToast({ message: $r('app.string.delete_failed') });
     }
   }
 
@@ -146,8 +147,8 @@ struct UserDetailPage {
     Column() {
       // 顶栏（骨架收敛：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
       TopBar({
-        title: this.mode === 'create' ? '新增用户' : '用户详情',
-        actions: this.mode !== 'create' ? [new TopBarAction('删除', 'danger')] : [],
+        title: this.mode === 'create' ? $r('app.string.user_form_add') : $r('app.string.user_detail_title'),
+        actions: this.mode !== 'create' ? [new TopBarAction($r('app.string.delete'), 'danger')] : [],
         onAction: () => this.confirmDelete(),
         // 详情/编辑态可刷新重载服务端详情；新增态（纯表单）无远端数据，注入仅守卫态回调
         onRefresh: () => {
@@ -172,12 +173,12 @@ struct UserDetailPage {
 
             // 表单
             Row() {
-              Text('用户名')
+              Text($r('app.string.user_username'))
               .fontSize(15)
               .fontColor($r('app.color.text_primary'))
               .width(80)
 
-              TextInput({ placeholder: '请输入用户名', text: this.formUsername })
+              TextInput({ placeholder: $r('app.string.user_username_hint'), text: this.formUsername })
                 .fontSize(15)
                 .enabled(this.mode === 'create')
                 .onChange((v: string) => { this.formUsername = v; })
@@ -192,12 +193,12 @@ struct UserDetailPage {
 
             if (this.mode === 'create') {
               Row() {
-                Text('密码')
+                Text($r('app.string.user_password'))
                 .fontSize(15)
                 .fontColor($r('app.color.text_primary'))
                 .width(80)
 
-                TextInput({ placeholder: '请输入密码', text: this.formPassword })
+                TextInput({ placeholder: $r('app.string.user_password_hint'), text: this.formPassword })
                   .fontSize(15)
                   .type(InputType.Password)
                   .onChange((v: string) => { this.formPassword = v; })
@@ -212,12 +213,12 @@ struct UserDetailPage {
             }
 
             Row() {
-              Text('姓名')
+              Text($r('app.string.user_name'))
               .fontSize(15)
               .fontColor($r('app.color.text_primary'))
               .width(80)
 
-              TextInput({ placeholder: '请输入真实姓名', text: this.formRealName })
+              TextInput({ placeholder: $r('app.string.user_name_hint'), text: this.formRealName })
                 .fontSize(15)
                 .onChange((v: string) => { this.formRealName = v; })
                 .layoutWeight(1)
@@ -230,12 +231,12 @@ struct UserDetailPage {
             .alignItems(VerticalAlign.Center)
 
             Row() {
-              Text('手机号')
+              Text($r('app.string.user_phone'))
               .fontSize(15)
               .fontColor($r('app.color.text_primary'))
               .width(80)
 
-              TextInput({ placeholder: '请输入手机号', text: this.formPhone })
+              TextInput({ placeholder: $r('app.string.user_phone_hint'), text: this.formPhone })
                 .fontSize(15)
                 .type(InputType.PhoneNumber)
                 .onChange((v: string) => { this.formPhone = v; })
@@ -249,12 +250,12 @@ struct UserDetailPage {
             .alignItems(VerticalAlign.Center)
 
             Row() {
-              Text('邮箱')
+              Text($r('app.string.user_email'))
               .fontSize(15)
               .fontColor($r('app.color.text_primary'))
               .width(80)
 
-              TextInput({ placeholder: '请输入邮箱', text: this.formEmail })
+              TextInput({ placeholder: $r('app.string.user_email_hint'), text: this.formEmail })
                 .fontSize(15)
                 .type(InputType.Email)
                 .onChange((v: string) => { this.formEmail = v; })
@@ -268,13 +269,13 @@ struct UserDetailPage {
             .alignItems(VerticalAlign.Center)
 
             Row() {
-              Text('状态')
+              Text($r('app.string.user_status'))
               .fontSize(15)
               .fontColor($r('app.color.text_primary'))
               .width(80)
 
               Row() {
-                Button('启用')
+                Button($r('app.string.status_enabled'))
                   .fontSize(13)
                   .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
                   .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
@@ -282,7 +283,7 @@ struct UserDetailPage {
                   .height(32)
                   .onClick(() => { this.formStatus = 1; })
 
-                Button('禁用')
+                Button($r('app.string.status_disabled'))
                   .fontSize(13)
                   .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
                   .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
@@ -301,7 +302,7 @@ struct UserDetailPage {
             .alignItems(VerticalAlign.Center)
 
             // 提交按钮
-            Button('保 存')
+            Button($r('app.string.save'))
               .width('100%')
               .height(48)
               .fontSize(16)
