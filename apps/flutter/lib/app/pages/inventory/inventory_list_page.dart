@@ -83,6 +83,9 @@ class _InventoryListPageState extends State<InventoryListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).inventoryListTitle,
+    moduleKey: 'inventory',
+    primaryColumnIndex: 0,
   );
 
   List<String> _columns() => [

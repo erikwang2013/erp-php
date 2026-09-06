@@ -2499,4 +2499,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get financeCostProfitTitle => 'Cost / Profit Centers';
+
+  @override
+  String get crmAnalyticsTitle => 'Customer Analytics';
+
+  @override
+  String get crmCampaignTitle => 'Campaigns';
+
+  @override
+  String get crmContactTitle => 'Contacts';
+
+  @override
+  String get crmContractTitle => 'Contracts';
+
+  @override
+  String get crmFollowTitle => 'Follow-ups';
+
+  @override
+  String get crmFunnelTitle => 'Sales Funnel';
+
+  @override
+  String get crmOpportunityTitle => 'Opportunities';
+
+  @override
+  String get crmPoolTitle => 'Lead Pool';
+
+  @override
+  String get crmQuotationTitle => 'Quotations';
+
+  @override
+  String get crmTicketTitle => 'Service Tickets';
+
+  @override
+  String get qualityStandardTitle => 'Inspection Standards';
+
+  @override
+  String get qualityIqcTitle => 'Incoming Inspection (IQC)';
+
+  @override
+  String get qualityIpqcTitle => 'In-process Inspection (IPQC)';
+
+  @override
+  String get qualityOqcTitle => 'Outgoing Inspection (OQC)';
+
+  @override
+  String get qualityNonconformityTitle => 'Nonconforming Products';
+
+  @override
+  String get inventoryListTitle => 'Stock on Hand';
+
+  @override
+  String get inventoryFlowTitle => 'Stock Movements';
+
+  @override
+  String get inventoryTransferTitle => 'Transfers';
+
+  @override
+  String get inventoryCheckTitle => 'Stocktakes';
+
+  @override
+  String get inventoryAlertTitle => 'Stock Alerts';
 }

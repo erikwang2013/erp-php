@@ -143,6 +143,9 @@ class _InventoryAlertListPageState extends State<InventoryAlertListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).inventoryAlertTitle,
+    moduleKey: 'inventory',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

@@ -4813,6 +4813,126 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'成本/利润中心'**
   String get financeCostProfitTitle;
+
+  /// No description provided for @crmAnalyticsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'客户分析'**
+  String get crmAnalyticsTitle;
+
+  /// No description provided for @crmCampaignTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'营销活动'**
+  String get crmCampaignTitle;
+
+  /// No description provided for @crmContactTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'联系人'**
+  String get crmContactTitle;
+
+  /// No description provided for @crmContractTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'合同管理'**
+  String get crmContractTitle;
+
+  /// No description provided for @crmFollowTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟进记录'**
+  String get crmFollowTitle;
+
+  /// No description provided for @crmFunnelTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'销售漏斗'**
+  String get crmFunnelTitle;
+
+  /// No description provided for @crmOpportunityTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'商机管理'**
+  String get crmOpportunityTitle;
+
+  /// No description provided for @crmPoolTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'公海池'**
+  String get crmPoolTitle;
+
+  /// No description provided for @crmQuotationTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'报价单'**
+  String get crmQuotationTitle;
+
+  /// No description provided for @crmTicketTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'服务工单'**
+  String get crmTicketTitle;
+
+  /// No description provided for @qualityStandardTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'检验标准'**
+  String get qualityStandardTitle;
+
+  /// No description provided for @qualityIqcTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'来料检验(IQC)'**
+  String get qualityIqcTitle;
+
+  /// No description provided for @qualityIpqcTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'过程检验(IPQC)'**
+  String get qualityIpqcTitle;
+
+  /// No description provided for @qualityOqcTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'出货检验(OQC)'**
+  String get qualityOqcTitle;
+
+  /// No description provided for @qualityNonconformityTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'不合格品'**
+  String get qualityNonconformityTitle;
+
+  /// No description provided for @inventoryListTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'实时库存'**
+  String get inventoryListTitle;
+
+  /// No description provided for @inventoryFlowTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'库存流水'**
+  String get inventoryFlowTitle;
+
+  /// No description provided for @inventoryTransferTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'库存调拨'**
+  String get inventoryTransferTitle;
+
+  /// No description provided for @inventoryCheckTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'盘点任务'**
+  String get inventoryCheckTitle;
+
+  /// No description provided for @inventoryAlertTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'库存预警'**
+  String get inventoryAlertTitle;
 }
 
 class _AppLocalizationsDelegate

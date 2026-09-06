@@ -147,6 +147,9 @@ class _InventoryTransferListPageState extends State<InventoryTransferListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).inventoryTransferTitle,
+    moduleKey: 'inventory',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

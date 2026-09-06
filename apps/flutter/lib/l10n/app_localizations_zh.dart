@@ -2478,4 +2478,64 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get financeCostProfitTitle => '成本/利润中心';
+
+  @override
+  String get crmAnalyticsTitle => '客户分析';
+
+  @override
+  String get crmCampaignTitle => '营销活动';
+
+  @override
+  String get crmContactTitle => '联系人';
+
+  @override
+  String get crmContractTitle => '合同管理';
+
+  @override
+  String get crmFollowTitle => '跟进记录';
+
+  @override
+  String get crmFunnelTitle => '销售漏斗';
+
+  @override
+  String get crmOpportunityTitle => '商机管理';
+
+  @override
+  String get crmPoolTitle => '公海池';
+
+  @override
+  String get crmQuotationTitle => '报价单';
+
+  @override
+  String get crmTicketTitle => '服务工单';
+
+  @override
+  String get qualityStandardTitle => '检验标准';
+
+  @override
+  String get qualityIqcTitle => '来料检验(IQC)';
+
+  @override
+  String get qualityIpqcTitle => '过程检验(IPQC)';
+
+  @override
+  String get qualityOqcTitle => '出货检验(OQC)';
+
+  @override
+  String get qualityNonconformityTitle => '不合格品';
+
+  @override
+  String get inventoryListTitle => '实时库存';
+
+  @override
+  String get inventoryFlowTitle => '库存流水';
+
+  @override
+  String get inventoryTransferTitle => '库存调拨';
+
+  @override
+  String get inventoryCheckTitle => '盘点任务';
+
+  @override
+  String get inventoryAlertTitle => '库存预警';
 }

@@ -143,6 +143,9 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
       _page = p;
       _load();
     },
+    pageTitle: AppL10n.of(context).inventoryCheckTitle,
+    moduleKey: 'inventory',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(

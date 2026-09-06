@@ -68,6 +68,9 @@ class _PoolPageState extends State<PoolPage> {
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
+    pageTitle: AppL10n.current.crmPoolTitle,
+    moduleKey: 'crm',
+    primaryColumnIndex: 0,
   );
 
   List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.crmCode, AppL10n.current.commonAction];

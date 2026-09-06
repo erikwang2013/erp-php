@@ -86,6 +86,9 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
+    pageTitle: AppL10n.current.crmAnalyticsTitle,
+    moduleKey: 'crm',
+    primaryColumnIndex: 0,
 
     actions: [
       ElevatedButton.icon(onPressed: _generate, icon: const Icon(Icons.insights, size: 18),
