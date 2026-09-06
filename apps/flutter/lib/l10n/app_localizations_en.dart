@@ -2559,4 +2559,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inventoryAlertTitle => 'Stock Alerts';
+
+  @override
+  String get eamEquipmentTitle => 'Equipment Ledger';
+
+  @override
+  String get eamMaintenanceTitle => 'Maintenance Plans';
+
+  @override
+  String get eamRepairTitle => 'Repair Orders';
+
+  @override
+  String get eamSpareTitle => 'Spare Parts';
+
+  @override
+  String get partnerCustomerTitle => 'Customers';
+
+  @override
+  String get partnerSupplierTitle => 'Suppliers';
+
+  @override
+  String get partnerWarehouseTitle => 'Warehouses';
+
+  @override
+  String get partnerLocationTitle => 'Locations';
+
+  @override
+  String get projectListTitle => 'Project List';
+
+  @override
+  String get projectTaskTitle => 'Tasks';
+
+  @override
+  String get projectTimesheetTitle => 'Timesheets';
+
+  @override
+  String get productListTitle => 'Product List';
+
+  @override
+  String get productCategoryTitle => 'Categories';
+
+  @override
+  String get productBrandTitle => 'Brands';
+
+  @override
+  String get biDashboardTitle => 'Dashboard';
+
+  @override
+  String get biDatasetTitle => 'Datasets';
+
+  @override
+  String get reportListTitle => 'Reports';
+
+  @override
+  String get reportScheduleTitle => 'Schedules';
+
+  @override
+  String get workflowListTitle => 'Workflows';
+
+  @override
+  String get workflowMyApprovalTitle => 'My Approvals';
+
+  @override
+  String get dmsDocumentTitle => 'Document List';
+
+  @override
+  String get notificationCenterTitle => 'Notifications';
 }

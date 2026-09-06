@@ -44,6 +44,9 @@ class _NotificationPageState extends State<NotificationPage> {
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
+    pageTitle: AppL10n.current.notificationCenterTitle,
+    moduleKey: 'notification',
+    primaryColumnIndex: 0,
     actions: [
       ElevatedButton.icon(
         onPressed: () async {

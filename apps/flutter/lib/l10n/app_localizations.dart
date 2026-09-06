@@ -4933,6 +4933,138 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'库存预警'**
   String get inventoryAlertTitle;
+
+  /// No description provided for @eamEquipmentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'设备台账'**
+  String get eamEquipmentTitle;
+
+  /// No description provided for @eamMaintenanceTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'保养计划'**
+  String get eamMaintenanceTitle;
+
+  /// No description provided for @eamRepairTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'维修工单'**
+  String get eamRepairTitle;
+
+  /// No description provided for @eamSpareTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'备件'**
+  String get eamSpareTitle;
+
+  /// No description provided for @partnerCustomerTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'客户'**
+  String get partnerCustomerTitle;
+
+  /// No description provided for @partnerSupplierTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'供应商'**
+  String get partnerSupplierTitle;
+
+  /// No description provided for @partnerWarehouseTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'仓库'**
+  String get partnerWarehouseTitle;
+
+  /// No description provided for @partnerLocationTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'库位'**
+  String get partnerLocationTitle;
+
+  /// No description provided for @projectListTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'项目列表'**
+  String get projectListTitle;
+
+  /// No description provided for @projectTaskTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'任务管理'**
+  String get projectTaskTitle;
+
+  /// No description provided for @projectTimesheetTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'工时记录'**
+  String get projectTimesheetTitle;
+
+  /// No description provided for @productListTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'商品列表'**
+  String get productListTitle;
+
+  /// No description provided for @productCategoryTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'商品分类'**
+  String get productCategoryTitle;
+
+  /// No description provided for @productBrandTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'品牌管理'**
+  String get productBrandTitle;
+
+  /// No description provided for @biDashboardTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'仪表盘'**
+  String get biDashboardTitle;
+
+  /// No description provided for @biDatasetTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'数据集'**
+  String get biDatasetTitle;
+
+  /// No description provided for @reportListTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'报表管理'**
+  String get reportListTitle;
+
+  /// No description provided for @reportScheduleTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'定时调度'**
+  String get reportScheduleTitle;
+
+  /// No description provided for @workflowListTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'工作流定义'**
+  String get workflowListTitle;
+
+  /// No description provided for @workflowMyApprovalTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'我的审批'**
+  String get workflowMyApprovalTitle;
+
+  /// No description provided for @dmsDocumentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'文档列表'**
+  String get dmsDocumentTitle;
+
+  /// No description provided for @notificationCenterTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'通知中心'**
+  String get notificationCenterTitle;
 }
 
 class _AppLocalizationsDelegate

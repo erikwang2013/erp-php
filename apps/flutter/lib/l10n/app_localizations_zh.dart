@@ -2538,4 +2538,70 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get inventoryAlertTitle => '库存预警';
+
+  @override
+  String get eamEquipmentTitle => '设备台账';
+
+  @override
+  String get eamMaintenanceTitle => '保养计划';
+
+  @override
+  String get eamRepairTitle => '维修工单';
+
+  @override
+  String get eamSpareTitle => '备件';
+
+  @override
+  String get partnerCustomerTitle => '客户';
+
+  @override
+  String get partnerSupplierTitle => '供应商';
+
+  @override
+  String get partnerWarehouseTitle => '仓库';
+
+  @override
+  String get partnerLocationTitle => '库位';
+
+  @override
+  String get projectListTitle => '项目列表';
+
+  @override
+  String get projectTaskTitle => '任务管理';
+
+  @override
+  String get projectTimesheetTitle => '工时记录';
+
+  @override
+  String get productListTitle => '商品列表';
+
+  @override
+  String get productCategoryTitle => '商品分类';
+
+  @override
+  String get productBrandTitle => '品牌管理';
+
+  @override
+  String get biDashboardTitle => '仪表盘';
+
+  @override
+  String get biDatasetTitle => '数据集';
+
+  @override
+  String get reportListTitle => '报表管理';
+
+  @override
+  String get reportScheduleTitle => '定时调度';
+
+  @override
+  String get workflowListTitle => '工作流定义';
+
+  @override
+  String get workflowMyApprovalTitle => '我的审批';
+
+  @override
+  String get dmsDocumentTitle => '文档列表';
+
+  @override
+  String get notificationCenterTitle => '通知中心';
 }
