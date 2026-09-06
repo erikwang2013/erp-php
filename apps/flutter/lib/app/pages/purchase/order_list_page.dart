@@ -187,6 +187,9 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
+    pageTitle: AppL10n.current.purchaseOrderTitle,
+    moduleKey: 'purchase',
+    primaryColumnIndex: 0,
     filterBar: FilterChips<String>(
       options: [for (var i = 0; i < _statusLabels.length; i++) ('$i', _statusLabels[i])],
       selected: _statusFilter, onChanged: (v) { _statusFilter = v; _page = 1; _load(); },

@@ -3122,6 +3122,66 @@ abstract class AppLocalizations {
   /// **'结算时间'**
   String get salesSettledAt;
 
+  /// No description provided for @salesOrderTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'销售订单'**
+  String get salesOrderTitle;
+
+  /// No description provided for @salesQuotationTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'销售报价'**
+  String get salesQuotationTitle;
+
+  /// No description provided for @salesDeliveryTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'销售发货'**
+  String get salesDeliveryTitle;
+
+  /// No description provided for @salesReturnTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'销售退货'**
+  String get salesReturnTitle;
+
+  /// No description provided for @salesSettlementTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'销售结算'**
+  String get salesSettlementTitle;
+
+  /// No description provided for @purchaseApplyTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'采购申请'**
+  String get purchaseApplyTitle;
+
+  /// No description provided for @purchaseOrderTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'采购订单'**
+  String get purchaseOrderTitle;
+
+  /// No description provided for @purchaseReceiveTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'采购收货'**
+  String get purchaseReceiveTitle;
+
+  /// No description provided for @purchaseReturnTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'采购退货'**
+  String get purchaseReturnTitle;
+
+  /// No description provided for @purchaseSettlementTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'采购结算'**
+  String get purchaseSettlementTitle;
+
   /// No description provided for @salesSettleStatus.
   ///
   /// In zh, this message translates to:

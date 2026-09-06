@@ -1570,6 +1570,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get salesSettledAt => '结算时间';
 
   @override
+  String get salesOrderTitle => '销售订单';
+
+  @override
+  String get salesQuotationTitle => '销售报价';
+
+  @override
+  String get salesDeliveryTitle => '销售发货';
+
+  @override
+  String get salesReturnTitle => '销售退货';
+
+  @override
+  String get salesSettlementTitle => '销售结算';
+
+  @override
+  String get purchaseApplyTitle => '采购申请';
+
+  @override
+  String get purchaseOrderTitle => '采购订单';
+
+  @override
+  String get purchaseReceiveTitle => '采购收货';
+
+  @override
+  String get purchaseReturnTitle => '采购退货';
+
+  @override
+  String get purchaseSettlementTitle => '采购结算';
+
+  @override
   String get salesSettleStatus => '结算状态';
 
   @override

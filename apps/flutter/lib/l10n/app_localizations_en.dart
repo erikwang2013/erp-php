@@ -1589,6 +1589,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get salesSettledAt => 'Settled At';
 
   @override
+  String get salesOrderTitle => 'Sales Orders';
+
+  @override
+  String get salesQuotationTitle => 'Sales Quotations';
+
+  @override
+  String get salesDeliveryTitle => 'Deliveries';
+
+  @override
+  String get salesReturnTitle => 'Sales Returns';
+
+  @override
+  String get salesSettlementTitle => 'Sales Settlements';
+
+  @override
+  String get purchaseApplyTitle => 'Purchase Requisitions';
+
+  @override
+  String get purchaseOrderTitle => 'Purchase Orders';
+
+  @override
+  String get purchaseReceiveTitle => 'Purchase Receipts';
+
+  @override
+  String get purchaseReturnTitle => 'Purchase Returns';
+
+  @override
+  String get purchaseSettlementTitle => 'Purchase Settlements';
+
+  @override
   String get salesSettleStatus => 'Settlement Status';
 
   @override
