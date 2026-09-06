@@ -8,6 +8,7 @@ import { UserService } from '../service/DataService';
 import { User } from '../model/DataModels';
 import { LoadingView, ErrorView, EmptyView } from '../common/Components';
 import { TopBar, TopBarAction } from '../common/TopBar';
+import { L10n } from '../utils/L10n';
 
 @Entry
 @Component
@@ -52,7 +53,8 @@ struct UserListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
+      this.errMsg = e instanceof Error && e.message ? e.message :
+        L10n.str(this.getUIContext(), 'load_failed');
       this.hasError = true;
       promptAction.showToast({ message: this.errMsg });
     } finally {
@@ -76,8 +78,8 @@ struct UserListPage {
     Column() {
       // 顶栏（骨架收敛：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
       TopBar({
-        title: '用户管理',
-        actions: [new TopBarAction('+ 新增')],
+        title: $r('app.string.user_list_title'),
+        actions: [new TopBarAction($r('app.string.user_add'))],
         onAction: () => {
           router.pushUrl({ url: 'pages/UserDetailPage', params: { mode: 'create' } });
         },
@@ -87,7 +89,7 @@ struct UserListPage {
 
       // 搜索栏
       Row() {
-        TextInput({ placeholder: '搜索用户名或姓名', text: this.keyword })
+        TextInput({ placeholder: $r('app.string.user_search_hint'), text: this.keyword })
           .height(40)
           .fontSize(14)
           .backgroundColor($r('app.color.surface_alt'))
@@ -101,7 +103,7 @@ struct UserListPage {
             this.onSearch();
           })
 
-        Button('搜索')
+        Button($r('app.string.search'))
           .fontSize(13)
           .fontColor($r('app.color.text_on_primary'))
           .backgroundColor($r('app.color.primary'))
@@ -123,7 +125,7 @@ struct UserListPage {
       } else if (this.hasError) {
         ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
       } else if (this.users.length === 0) {
-        EmptyView({ message: '暂无用户数据' });
+        EmptyView({ message: $r('app.string.user_empty') });
       } else {
         // 刷新组件
         Refresh({ refreshing: $$this.isRefreshing }) {
@@ -142,7 +144,7 @@ struct UserListPage {
                         .fontSize(15)
                         .fontWeight(FontWeight.Medium)
 
-                      Text(user.status === 1 ? '启用' : '禁用')
+                      Text(user.status === 1 ? $r('app.string.status_enabled') : $r('app.string.status_disabled'))
                         .fontSize(10)
                         .fontColor(user.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
                         .backgroundColor(user.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
@@ -183,11 +185,11 @@ struct UserListPage {
             ListItem() {
               Row() {
                 if (this.users.length >= this.total) {
-                  Text('— 没有更多了 —')
+                  Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
                     .fontSize(12)
                     .fontColor($r('app.color.text_disabled'))
                 } else {
-                  Button('加载更多')
+                  Button($r('app.string.load_more'))
                     .fontSize(13)
                     .fontColor($r('app.color.primary'))
                     .backgroundColor(Color.Transparent)

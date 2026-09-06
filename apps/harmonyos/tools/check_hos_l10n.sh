@@ -2,7 +2,7 @@
 #
 # HOS 双语资源一致性校验（base/zh ↔ en_US）
 #
-# 1) 全 ets 收集 $r('app.string.<key>') 引用 key；
+# 1) 全 ets 收集引用 key：$r('app.string.<key>') 静态引用 + L10n.str(ui, '<key>') 动态 key；
 # 2) 引用 key 在 base 与 en_US 双文件中必须存在；
 # 3) base 与 en_US 的 key 集完全一致（en_US 无孤儿、无缺失）；
 # 4) en_US 值零 CJK；
@@ -28,17 +28,22 @@ base_file = main_dir + '/resources/base/element/string.json'
 en_file = main_dir + '/resources/en_US/element/string.json'
 
 REF_RE = re.compile(r"\$r\(['\"]app\.string\.([a-z0-9_]+)['\"]\)")
+# L10n.str(ui, 'key', ...) 动态 key：运行时经 resourceManager 解析，须双文件齐备
+DYN_RE = re.compile(r"L10n\.str\([^,]*,\s*'([a-z0-9_]+)'")
 CJK_RE = re.compile(r'[㐀-䶿一-鿿豈-﫿]')
 TOKEN_RE = re.compile(r'%(?:\d+\$)?[a-z%]')
 
 def collect_refs():
     refs = set()
+    dyn = set()
     for base, _, files in __import__('os').walk(ets_dir):
         for f in files:
             if f.endswith('.ets'):
                 with open(base + '/' + f, encoding='utf-8') as fh:
-                    refs.update(REF_RE.findall(fh.read()))
-    return refs
+                    content = fh.read()
+                refs.update(REF_RE.findall(content))
+                dyn.update(DYN_RE.findall(content))
+    return refs, dyn
 
 def load_strings(path):
     with open(path, encoding='utf-8') as fh:
@@ -46,13 +51,14 @@ def load_strings(path):
     return {item['name']: item['value'] for item in data['string']}
 
 def main():
-    refs = collect_refs()
+    refs, dyn = collect_refs()
+    used = refs | dyn
     base = load_strings(base_file)
     en = load_strings(en_file)
     errors = []
 
-    missing_base = sorted(refs - set(base))
-    missing_en = sorted(refs - set(en))
+    missing_base = sorted(used - set(base))
+    missing_en = sorted(used - set(en))
     if missing_base:
         errors.append('引用 key 缺于 base: ' + ', '.join(missing_base))
     if missing_en:
@@ -82,8 +88,8 @@ def main():
         for e in errors:
             print('  - ' + e)
         return 1
-    print('OK: %d refs, %d base keys, %d en_US keys, %d printf values' %
-          (len(refs), len(base), len(en),
+    print('OK: %d static refs, %d L10n.str keys, %d base keys, %d en_US keys, %d printf values' %
+          (len(refs), len(dyn), len(base), len(en),
            sum(1 for k in set(base) & set(en) if '%' in base[k] or '%' in en[k])))
     return 0
 

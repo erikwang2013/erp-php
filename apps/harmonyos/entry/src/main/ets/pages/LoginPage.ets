@@ -6,6 +6,7 @@ import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import http from '@ohos.net.http';
 import { TokenManager } from '../utils/TokenManager';
+import { L10n } from '../utils/L10n';
 import { CaptchaVerifyDialog, CaptchaResult, ClickPoint } from '../common/CaptchaVerifyDialog';
 // H2：统一 API 基地址改读单一配置源（utils/Config），部署环境说明见该文件
 import { BASE_URL } from '../utils/Config';
@@ -96,11 +97,11 @@ struct LoginPage {
   login(): void {
     const trimmedUsername = this.username.trim();
     if (!trimmedUsername) {
-      this.loginError = '请输入用户名';
+      this.loginError = L10n.str(this.getUIContext(), 'login_username_input');
       return;
     }
     if (!this.password) {
-      this.loginError = '请输入密码';
+      this.loginError = L10n.str(this.getUIContext(), 'login_password_input');
       return;
     }
     if (this.dialogOpen) {
@@ -136,13 +137,14 @@ struct LoginPage {
       const verifyPayload: VerifyPayload = { key: result.key, clicks: result.clicks };
       const verify = JSON.parse(await this.postJson(`${BASE_URL}/api/v1/captcha/verify`, verifyPayload)) as VerifyResp;
       if (verify.code !== 0 || !verify.data?.valid) {
-        this.loginError = verify.message ?? '验证码验证失败，请重试';
+        // 服务端 message 直通；缺失时用本地文案兜底
+        this.loginError = verify.message ?? L10n.str(this.getUIContext(), 'captcha_verify_failed');
         return;
       }
       // 2) 登录请求不再携带 clicks，仅凭 captcha_key 消费放行凭证
       await this.submitLogin(result.key);
     } catch (e) {
-      this.loginError = '网络错误，请检查连接';
+      this.loginError = L10n.str(this.getUIContext(), 'login_network_error');
     } finally {
       this.isLoading = false;
     }
@@ -162,7 +164,8 @@ struct LoginPage {
       await TokenManager.saveUsername(username);
       router.replaceUrl({ url: 'pages/DashboardPage' });
     } else {
-      this.loginError = result.message ?? '登录失败';
+      // 服务端 message 直通；缺失时用本地文案兜底
+      this.loginError = result.message ?? L10n.str(this.getUIContext(), 'login_failed');
     }
   }
 
@@ -190,13 +193,13 @@ struct LoginPage {
               .translate({ y: this.mascotDy })
               .scale({ x: this.mascotScale, y: this.mascotScale })
 
-            Text('开放管理后台')
+            Text($r('app.string.app_name'))
               .fontSize(26)
               .fontWeight(FontWeight.Bold)
               .fontColor(ON_GRADIENT)
               .margin({ top: 14 })
 
-            Text('HarmonyOS 客户端')
+            Text($r('app.string.splash_subtitle'))
               .fontSize(13)
               .fontColor(ON_GRADIENT_SUB)
               .margin({ top: 8 })
@@ -207,7 +210,7 @@ struct LoginPage {
           // 表单卡（滑入）
           Column() {
             // 用户名
-            TextInput({ placeholder: '请输入用户名', text: this.username })
+            TextInput({ placeholder: $r('app.string.login_username_input'), text: this.username })
               .height(48)
               .fontSize(15)
               .backgroundColor($r('app.color.surface_alt'))
@@ -217,7 +220,7 @@ struct LoginPage {
 
             // 密码
             Row() {
-              TextInput({ placeholder: '请输入密码', text: this.password })
+              TextInput({ placeholder: $r('app.string.login_password_input'), text: this.password })
                 .height(48)
                 .fontSize(15)
                 .type(this.showPassword ? InputType.Normal : InputType.Password)
@@ -227,7 +230,7 @@ struct LoginPage {
                 .layoutWeight(1)
                 .onChange((v: string) => { this.password = v; })
 
-              Button(this.showPassword ? '隐藏' : '显示')
+              Button(this.showPassword ? $r('app.string.password_hide') : $r('app.string.password_show'))
                 .fontSize(12)
                 .fontColor($r('app.color.primary'))
                 .backgroundColor(Color.Transparent)
@@ -248,7 +251,7 @@ struct LoginPage {
             }
 
             // 登录按钮（点击后弹验证码框，验证通过后自动继续登录）
-            Button('登 录')
+            Button($r('app.string.login_button'))
               .width('100%')
               .height(48)
               .fontSize(16)
@@ -261,15 +264,15 @@ struct LoginPage {
 
             // 底部操作
             Row() {
-              Text('还没有账号？')
+              Text($r('app.string.login_no_account'))
                 .fontSize(13)
                 .fontColor($r('app.color.text_hint'))
-              Button('立即注册')
+              Button($r('app.string.login_register'))
                 .fontSize(13)
                 .fontColor($r('app.color.primary'))
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
-                  promptAction.showToast({ message: '注册功能即将上线' });
+                  promptAction.showToast({ message: $r('app.string.login_register_soon') });
                 })
             }
             .justifyContent(FlexAlign.Center)

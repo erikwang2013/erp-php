@@ -139,6 +139,246 @@
     {
       "name": "splash_restoring",
       "value": "正在恢复登录状态..."
+    },
+    {
+      "name": "login_username_input",
+      "value": "请输入用户名"
+    },
+    {
+      "name": "login_password_input",
+      "value": "请输入密码"
+    },
+    {
+      "name": "password_show",
+      "value": "显示"
+    },
+    {
+      "name": "password_hide",
+      "value": "隐藏"
+    },
+    {
+      "name": "login_no_account",
+      "value": "还没有账号？"
+    },
+    {
+      "name": "login_register",
+      "value": "立即注册"
+    },
+    {
+      "name": "login_register_soon",
+      "value": "注册功能即将上线"
+    },
+    {
+      "name": "login_failed",
+      "value": "登录失败"
+    },
+    {
+      "name": "login_network_error",
+      "value": "网络错误，请检查连接"
+    },
+    {
+      "name": "captcha_verify_failed",
+      "value": "验证码验证失败，请重试"
+    },
+    {
+      "name": "feature_developing",
+      "value": "功能开发中"
+    },
+    {
+      "name": "status_enabled",
+      "value": "启用"
+    },
+    {
+      "name": "status_disabled",
+      "value": "禁用"
+    },
+    {
+      "name": "export",
+      "value": "导出"
+    },
+    {
+      "name": "search",
+      "value": "搜索"
+    },
+    {
+      "name": "user_add",
+      "value": "+ 新增"
+    },
+    {
+      "name": "user_search_hint",
+      "value": "搜索用户名或姓名"
+    },
+    {
+      "name": "user_empty",
+      "value": "暂无用户数据"
+    },
+    {
+      "name": "profile_change_password",
+      "value": "修改密码"
+    },
+    {
+      "name": "profile_change_password_desc",
+      "value": "修改登录密码"
+    },
+    {
+      "name": "profile_clear_cache",
+      "value": "清除缓存"
+    },
+    {
+      "name": "profile_clear_cache_desc",
+      "value": "清除本地缓存数据"
+    },
+    {
+      "name": "cache_cleared",
+      "value": "缓存已清除"
+    },
+    {
+      "name": "profile_check_update",
+      "value": "检查更新"
+    },
+    {
+      "name": "profile_version",
+      "value": "当前版本 %s"
+    },
+    {
+      "name": "up_to_date",
+      "value": "已是最新版本"
+    },
+    {
+      "name": "profile_about",
+      "value": "关于"
+    },
+    {
+      "name": "profile_about_desc",
+      "value": "开放管理后台 HarmonyOS 客户端"
+    },
+    {
+      "name": "profile_language",
+      "value": "语言"
+    },
+    {
+      "name": "lang_system",
+      "value": "跟随系统"
+    },
+    {
+      "name": "lang_zh_cn",
+      "value": "简体中文"
+    },
+    {
+      "name": "lang_en_us",
+      "value": "English"
+    },
+    {
+      "name": "logout_confirm",
+      "value": "确认退出"
+    },
+    {
+      "name": "logout_confirm_msg",
+      "value": "确定要退出登录吗？"
+    },
+    {
+      "name": "logout_confirm_ok",
+      "value": "确定退出"
+    },
+    {
+      "name": "logout_success",
+      "value": "已退出登录"
+    },
+    {
+      "name": "profile_admin",
+      "value": "管理员"
+    },
+    {
+      "name": "profile_super_admin",
+      "value": "超级管理员"
+    },
+    {
+      "name": "greeting_dawn",
+      "value": "凌晨好"
+    },
+    {
+      "name": "greeting_morning",
+      "value": "上午好"
+    },
+    {
+      "name": "greeting_noon",
+      "value": "中午好"
+    },
+    {
+      "name": "greeting_afternoon",
+      "value": "下午好"
+    },
+    {
+      "name": "greeting_evening",
+      "value": "晚上好"
+    },
+    {
+      "name": "greeting_with_name",
+      "value": "%1$s，%2$s"
+    },
+    {
+      "name": "date_line",
+      "value": "%1$d年%2$d月%3$d日 星期%4$s"
+    },
+    {
+      "name": "weekday_sun",
+      "value": "日"
+    },
+    {
+      "name": "weekday_mon",
+      "value": "一"
+    },
+    {
+      "name": "weekday_tue",
+      "value": "二"
+    },
+    {
+      "name": "weekday_wed",
+      "value": "三"
+    },
+    {
+      "name": "weekday_thu",
+      "value": "四"
+    },
+    {
+      "name": "weekday_fri",
+      "value": "五"
+    },
+    {
+      "name": "weekday_sat",
+      "value": "六"
+    },
+    {
+      "name": "dashboard_export_toast",
+      "value": "导出功能已触发，查看系统通知"
+    },
+    {
+      "name": "dashboard_trend_title",
+      "value": "近30日销售趋势"
+    },
+    {
+      "name": "dashboard_status_title",
+      "value": "订单状态分布"
+    },
+    {
+      "name": "dashboard_orders_center",
+      "value": "订单"
+    },
+    {
+      "name": "dashboard_top_title",
+      "value": "热销商品 Top5"
+    },
+    {
+      "name": "dashboard_recent_title",
+      "value": "最近操作"
+    },
+    {
+      "name": "dashboard_view_all",
+      "value": "查看全部 >"
+    },
+    {
+      "name": "dashboard_no_logs",
+      "value": "暂无操作记录"
     }
   ]
 }

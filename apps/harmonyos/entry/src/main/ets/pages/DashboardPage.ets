@@ -24,10 +24,11 @@ import {
   MOTION_BASE
 } from '../common/ThemeTokens';
 import { TokenManager } from '../utils/TokenManager';
+import { L10n } from '../utils/L10n';
 
 /** KPI 卡展示规格（由后端 stats 归一，数字滚动所需） */
 interface KpiSpec {
-  label: string;
+  label: ResourceStr; // 后端固定文案经 kpiLabel 映射为资源；未知文案透传
   raw: string;      // 原始文案（非数字兜底直接展示）
   color: string;    // 后端 hex 直用
   target: number;   // 滚动目标值
@@ -43,7 +44,7 @@ interface KpiSpec {
  */
 @Component
 struct KpiCard {
-  @Prop label: string = '';
+  @Prop label: ResourceStr = '';
   @Prop color: string = BRAND_MID;
   @Prop raw: string = '';
   @Watch('onTargetChange') @Prop target: number = 0;
@@ -152,26 +153,87 @@ struct DashboardPage {
   @State isLoading: boolean = true;
   @State hasError: boolean = false;
   @State errMsg: string = ''; // M4：真实错误文案（catch 不再吞 message）
-  @State greeting: string = '';
-  @State dateLine: string = '';
 
   aboutToAppear(): void {
-    this.greeting = this.buildGreeting();
-    this.dateLine = this.buildDateLine();
     this.loadDashboard();
   }
 
-  private buildGreeting(): string {
+  /** 问候语：时段文案 +（有登录名时）拼接；文案经 L10n 按当前语言解析 */
+  private greetingText(): string {
+    const ui = this.getUIContext();
     const h = new Date().getHours();
-    const part = h < 6 ? '凌晨好' : h < 12 ? '上午好' : h < 14 ? '中午好' : h < 18 ? '下午好' : '晚上好';
+    const part = this.greetingPart(ui, h);
     const name = TokenManager.getUsername();
-    return name && name.length > 0 ? `${part}，${name}` : part;
+    if (name && name.length > 0) {
+      return L10n.str(ui, 'greeting_with_name', part, name);
+    }
+    return part;
   }
 
-  private buildDateLine(): string {
+  private greetingPart(ui: UIContext, h: number): string {
+    if (h < 6) {
+      return L10n.str(ui, 'greeting_dawn');
+    }
+    if (h < 12) {
+      return L10n.str(ui, 'greeting_morning');
+    }
+    if (h < 14) {
+      return L10n.str(ui, 'greeting_noon');
+    }
+    if (h < 18) {
+      return L10n.str(ui, 'greeting_afternoon');
+    }
+    return L10n.str(ui, 'greeting_evening');
+  }
+
+  /** 日期行：年月日 + 星期，语言相关排版由 date_line 资源格式串承载 */
+  private dateLineText(): string {
+    const ui = this.getUIContext();
     const d = new Date();
-    const week = ['日', '一', '二', '三', '四', '五', '六'][d.getDay()];
-    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 星期${week}`;
+    return L10n.str(ui, 'date_line', d.getFullYear(), d.getMonth() + 1, d.getDate(),
+      this.weekdayText(ui, d.getDay()));
+  }
+
+  private weekdayText(ui: UIContext, dow: number): string {
+    if (dow === 0) {
+      return L10n.str(ui, 'weekday_sun');
+    }
+    if (dow === 1) {
+      return L10n.str(ui, 'weekday_mon');
+    }
+    if (dow === 2) {
+      return L10n.str(ui, 'weekday_tue');
+    }
+    if (dow === 3) {
+      return L10n.str(ui, 'weekday_wed');
+    }
+    if (dow === 4) {
+      return L10n.str(ui, 'weekday_thu');
+    }
+    if (dow === 5) {
+      return L10n.str(ui, 'weekday_fri');
+    }
+    return L10n.str(ui, 'weekday_sat');
+  }
+
+  /**
+   * KPI 标签：后端固定四指标中文文案 → 本地资源；其余文案透传
+   * （后端下发 label 保持展示原样，属两端双语后端字段债务，未知文案不做猜测映射）
+   */
+  private kpiLabel(label: string): ResourceStr {
+    if (label === '用户总数') {
+      return $r('app.string.total_users');
+    }
+    if (label === '今日新增') {
+      return $r('app.string.today_new');
+    }
+    if (label === '活跃用户') {
+      return $r('app.string.active_users');
+    }
+    if (label === '操作日志') {
+      return $r('app.string.operation_logs');
+    }
+    return label;
   }
 
   private toKpis(data: DashboardData): KpiSpec[] {
@@ -182,7 +244,7 @@ struct DashboardPage {
       const dot = s.value.indexOf('.');
       const decimals = dot >= 0 && numeric ? s.value.length - dot - 1 : 0;
       list.push({
-        label: s.label,
+        label: this.kpiLabel(s.label),
         raw: s.value,
         color: s.color,
         target: numeric ? n : 0,
@@ -239,7 +301,8 @@ struct DashboardPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      this.errMsg = e instanceof Error && e.message ? e.message : '加载失败';
+      this.errMsg = e instanceof Error && e.message ? e.message :
+        L10n.str(this.getUIContext(), 'load_failed');
       this.hasError = true;
     } finally {
       this.isLoading = false;
@@ -251,14 +314,14 @@ struct DashboardPage {
       // 品牌渐变 hero：欢迎/日期 + 顶栏操作（刷新/导出/头像，行为与旧顶栏一致）
       Column() {
         Row() {
-          Text('仪表盘')
+          Text($r('app.string.dashboard_title'))
             .fontSize(20)
             .fontWeight(FontWeight.Bold)
             .fontColor(ON_GRADIENT)
 
           Blank()
 
-          Button('刷新')
+          Button($r('app.string.refresh'))
             .fontSize(13)
             .fontColor(ON_GRADIENT)
             .backgroundColor('#26FFFFFF')
@@ -268,14 +331,14 @@ struct DashboardPage {
             .onClick(() => { this.loadDashboard(); })
             .margin({ right: 8 })
 
-          Button('导出')
+          Button($r('app.string.export'))
             .fontSize(13)
             .fontColor(ON_GRADIENT)
             .backgroundColor('#26FFFFFF')
             .borderRadius(6)
             .height(32)
             .onClick(() => {
-              promptAction.showToast({ message: '导出功能已触发，查看系统通知' });
+              promptAction.showToast({ message: $r('app.string.dashboard_export_toast') });
             })
 
           Image($rawfile('avatar.png'))
@@ -293,12 +356,12 @@ struct DashboardPage {
         .padding({ left: 16, right: 16 })
 
         Column() {
-          Text(this.greeting)
+          Text(this.greetingText())
             .fontSize(22)
             .fontWeight(FontWeight.Bold)
             .fontColor(ON_GRADIENT)
 
-          Text(this.dateLine)
+          Text(this.dateLineText())
             .fontSize(12)
             .fontColor(ON_GRADIENT_SUB)
             .margin({ top: 6 })
@@ -337,7 +400,7 @@ struct DashboardPage {
                     })
                   }
                   .height(96)
-                }, (k: KpiSpec) => k.label)
+                }, (_k: KpiSpec, index: number) => index.toString())
               }
               .columnsTemplate('1fr 1fr')
               .rowsGap(12)
@@ -350,7 +413,7 @@ struct DashboardPage {
             // 自绘图表区（视觉 2.0，数据来自销售看板端点；失败则整区隐藏）
             if (this.trendDates.length > 1 && this.trendAmounts.length === this.trendDates.length) {
               Column() {
-                Text('近30日销售趋势')
+                Text($r('app.string.dashboard_trend_title'))
                   .fontSize(15)
                   .fontWeight(FontWeight.Medium)
                   .width('100%')
@@ -373,13 +436,17 @@ struct DashboardPage {
 
             if (this.donutItems.length > 0) {
               Column() {
-                Text('订单状态分布')
+                Text($r('app.string.dashboard_status_title'))
                   .fontSize(15)
                   .fontWeight(FontWeight.Medium)
                   .width('100%')
                   .margin({ bottom: 12 })
 
-                DonutChart({ items: this.donutItems, centerLabel: '订单' })
+                DonutChart({
+                  items: this.donutItems,
+                  // 环心标签走 L10n（Charts.ets 保持 string 类型不变，此处即时解析）
+                  centerLabel: L10n.str(this.getUIContext(), 'dashboard_orders_center')
+                })
               }
               .width('100%')
               .alignItems(HorizontalAlign.Start)
@@ -392,7 +459,7 @@ struct DashboardPage {
 
             if (this.topItems.length > 0) {
               Column() {
-                Text('热销商品 Top5')
+                Text($r('app.string.dashboard_top_title'))
                   .fontSize(15)
                   .fontWeight(FontWeight.Medium)
                   .width('100%')
@@ -412,13 +479,13 @@ struct DashboardPage {
             // 最近操作日志
             Column() {
               Row() {
-                Text('最近操作')
+                Text($r('app.string.dashboard_recent_title'))
                   .fontSize(16)
                   .fontWeight(FontWeight.Medium)
 
                 Blank()
 
-                Text('查看全部 >')
+                Text($r('app.string.dashboard_view_all'))
                   .fontSize(12)
                   .fontColor($r('app.color.primary'))
               }
@@ -426,7 +493,7 @@ struct DashboardPage {
               .margin({ bottom: 12 })
 
               if (this.dashboardData!.recent_logs.length === 0) {
-                Text('暂无操作记录')
+                Text($r('app.string.dashboard_no_logs'))
                   .fontSize(13)
                   .fontColor($r('app.color.text_hint'))
                   .width('100%')

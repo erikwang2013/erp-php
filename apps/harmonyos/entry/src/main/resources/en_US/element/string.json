@@ -139,6 +139,246 @@
     {
       "name": "splash_restoring",
       "value": "Restoring login state..."
+    },
+    {
+      "name": "login_username_input",
+      "value": "Enter username"
+    },
+    {
+      "name": "login_password_input",
+      "value": "Enter password"
+    },
+    {
+      "name": "password_show",
+      "value": "Show"
+    },
+    {
+      "name": "password_hide",
+      "value": "Hide"
+    },
+    {
+      "name": "login_no_account",
+      "value": "No account yet?"
+    },
+    {
+      "name": "login_register",
+      "value": "Register Now"
+    },
+    {
+      "name": "login_register_soon",
+      "value": "Registration coming soon"
+    },
+    {
+      "name": "login_failed",
+      "value": "Login failed"
+    },
+    {
+      "name": "login_network_error",
+      "value": "Network error. Check your connection"
+    },
+    {
+      "name": "captcha_verify_failed",
+      "value": "Verification failed. Please try again"
+    },
+    {
+      "name": "feature_developing",
+      "value": "Feature under development"
+    },
+    {
+      "name": "status_enabled",
+      "value": "Enabled"
+    },
+    {
+      "name": "status_disabled",
+      "value": "Disabled"
+    },
+    {
+      "name": "export",
+      "value": "Export"
+    },
+    {
+      "name": "search",
+      "value": "Search"
+    },
+    {
+      "name": "user_add",
+      "value": "+ Add"
+    },
+    {
+      "name": "user_search_hint",
+      "value": "Search by username or name"
+    },
+    {
+      "name": "user_empty",
+      "value": "No users yet"
+    },
+    {
+      "name": "profile_change_password",
+      "value": "Change Password"
+    },
+    {
+      "name": "profile_change_password_desc",
+      "value": "Change login password"
+    },
+    {
+      "name": "profile_clear_cache",
+      "value": "Clear Cache"
+    },
+    {
+      "name": "profile_clear_cache_desc",
+      "value": "Clear local cached data"
+    },
+    {
+      "name": "cache_cleared",
+      "value": "Cache cleared"
+    },
+    {
+      "name": "profile_check_update",
+      "value": "Check for Updates"
+    },
+    {
+      "name": "profile_version",
+      "value": "Version %s"
+    },
+    {
+      "name": "up_to_date",
+      "value": "Already up to date"
+    },
+    {
+      "name": "profile_about",
+      "value": "About"
+    },
+    {
+      "name": "profile_about_desc",
+      "value": "Open Admin Console — HarmonyOS client"
+    },
+    {
+      "name": "profile_language",
+      "value": "Language"
+    },
+    {
+      "name": "lang_system",
+      "value": "System"
+    },
+    {
+      "name": "lang_zh_cn",
+      "value": "Simplified Chinese"
+    },
+    {
+      "name": "lang_en_us",
+      "value": "English"
+    },
+    {
+      "name": "logout_confirm",
+      "value": "Confirm Sign Out"
+    },
+    {
+      "name": "logout_confirm_msg",
+      "value": "Are you sure you want to sign out?"
+    },
+    {
+      "name": "logout_confirm_ok",
+      "value": "Sign Out"
+    },
+    {
+      "name": "logout_success",
+      "value": "Signed out"
+    },
+    {
+      "name": "profile_admin",
+      "value": "Admin"
+    },
+    {
+      "name": "profile_super_admin",
+      "value": "Super Admin"
+    },
+    {
+      "name": "greeting_dawn",
+      "value": "Good morning"
+    },
+    {
+      "name": "greeting_morning",
+      "value": "Good morning"
+    },
+    {
+      "name": "greeting_noon",
+      "value": "Good afternoon"
+    },
+    {
+      "name": "greeting_afternoon",
+      "value": "Good afternoon"
+    },
+    {
+      "name": "greeting_evening",
+      "value": "Good evening"
+    },
+    {
+      "name": "greeting_with_name",
+      "value": "%1$s, %2$s"
+    },
+    {
+      "name": "date_line",
+      "value": "%1$d/%2$d/%3$d %4$s"
+    },
+    {
+      "name": "weekday_sun",
+      "value": "Sunday"
+    },
+    {
+      "name": "weekday_mon",
+      "value": "Monday"
+    },
+    {
+      "name": "weekday_tue",
+      "value": "Tuesday"
+    },
+    {
+      "name": "weekday_wed",
+      "value": "Wednesday"
+    },
+    {
+      "name": "weekday_thu",
+      "value": "Thursday"
+    },
+    {
+      "name": "weekday_fri",
+      "value": "Friday"
+    },
+    {
+      "name": "weekday_sat",
+      "value": "Saturday"
+    },
+    {
+      "name": "dashboard_export_toast",
+      "value": "Export started. Check system notifications"
+    },
+    {
+      "name": "dashboard_trend_title",
+      "value": "Sales Trend — Last 30 Days"
+    },
+    {
+      "name": "dashboard_status_title",
+      "value": "Order Status Distribution"
+    },
+    {
+      "name": "dashboard_orders_center",
+      "value": "Orders"
+    },
+    {
+      "name": "dashboard_top_title",
+      "value": "Top 5 Products"
+    },
+    {
+      "name": "dashboard_recent_title",
+      "value": "Recent Activity"
+    },
+    {
+      "name": "dashboard_view_all",
+      "value": "View All >"
+    },
+    {
+      "name": "dashboard_no_logs",
+      "value": "No activity records"
     }
   ]
 }

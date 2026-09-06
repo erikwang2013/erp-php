@@ -5,22 +5,67 @@
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { TokenManager } from '../utils/TokenManager';
+import { LanguageManager } from '../utils/LanguageManager';
+import { L10n } from '../utils/L10n';
 import { TopBar } from '../common/TopBar';
 import { ConfirmDialog } from '../common/FormDialog';
 
 @Entry
 @Component
 struct ProfilePage {
-  @State username: string = '管理员';
-  @State role: string = '超级管理员';
+  @State username: ResourceStr = $r('app.string.profile_admin');
+  @State role: ResourceStr = $r('app.string.profile_super_admin');
   @State appVersion: string = '1.0.0';
+  // 语言行副标题显示用；onPageShow 从 AppStorage 同步（setLanguage 经 restartApp 全量生效）
+  @State langTag: string = 'system';
 
   aboutToAppear(): void {
-    // 可从 AppStorage 获取登录用户信息
-    this.username = (AppStorage.get('adminUsername') as string) ?? '管理员';
+    // 可从 AppStorage 获取登录用户信息（缺失时保留资源默认文案）
+    const stored = AppStorage.get('adminUsername') as string;
+    if (stored && stored.length > 0) {
+      this.username = stored;
+    }
+    this.langTag = LanguageManager.getLanguage();
+  }
+
+  onPageShow(): void {
+    // 回到本页时同步语言显示值（未来无重启路径的语言变更兜底）
+    this.langTag = LanguageManager.getLanguage();
   }
 
   private dialogController?: CustomDialogController;
+
+  /** 语言行副标题：当前语言的本地化显示名 */
+  private languageLabel(): ResourceStr {
+    if (this.langTag === 'zh-CN') {
+      return $r('app.string.lang_zh_cn');
+    }
+    if (this.langTag === 'en-US') {
+      return $r('app.string.lang_en_us');
+    }
+    return $r('app.string.lang_system');
+  }
+
+  /** 语言选择：弹层三选一，选中后持久化并重启应用（LanguageManager.setLanguage） */
+  private pickLanguage(): void {
+    const langs: Array<promptAction.Button> = [
+      { text: $r('app.string.lang_system'), color: $r('app.color.text_primary') },
+      { text: $r('app.string.lang_zh_cn'), color: $r('app.color.text_primary') },
+      { text: $r('app.string.lang_en_us'), color: $r('app.color.text_primary') },
+    ];
+    promptAction.showActionMenu({
+      title: $r('app.string.profile_language'),
+      buttons: langs as [promptAction.Button, promptAction.Button?, promptAction.Button?,
+        promptAction.Button?, promptAction.Button?, promptAction.Button?],
+    }).then((ret: promptAction.ActionMenuSuccessResponse) => {
+      const tags: Array<string> = ['system', 'zh-CN', 'en-US'];
+      if (ret.index >= 0 && ret.index < tags.length) {
+        LanguageManager.setLanguage(tags[ret.index]);
+      }
+    }).catch(() => {
+      // 取消菜单等失败路径不处理
+    });
+  }
 
   /**
    * 退出入口：先经 ConfirmDialog 确认（骨架收敛）
@@ -28,9 +73,9 @@ struct ProfilePage {
   confirmLogout(): void {
     this.dialogController = new CustomDialogController({
       builder: ConfirmDialog({
-        title: '确认退出',
-        message: '确定要退出登录吗？',
-        confirmText: '确定退出',
+        title: $r('app.string.logout_confirm'),
+        message: $r('app.string.logout_confirm_msg'),
+        confirmText: $r('app.string.logout_confirm_ok'),
         onConfirm: () => {
           this.logout();
         },
@@ -48,7 +93,7 @@ struct ProfilePage {
   logout(): void {
     // clearTokens 为 async：链式等待 Preferences 落盘完成再跳转，避免磁盘残留旧凭据复活登录态
     TokenManager.clearTokens().then(() => {
-      promptAction.showToast({ message: '已退出登录' });
+      promptAction.showToast({ message: $r('app.string.logout_success') });
       router.replaceUrl({ url: 'pages/LoginPage' });
     });
   }
@@ -57,7 +102,7 @@ struct ProfilePage {
     Column() {
       // 顶栏（骨架收敛：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
       TopBar({
-        title: '个人中心',
+        title: $r('app.string.profile_title'),
       })
 
       Scroll() {
@@ -84,16 +129,20 @@ struct ProfilePage {
 
           // 菜单列表
           Column() {
-            this.buildMenuItem('修改密码', '修改登录密码', () => {
-              promptAction.showToast({ message: '功能开发中' });
+            this.buildMenuItem($r('app.string.profile_change_password'), $r('app.string.profile_change_password_desc'), () => {
+              promptAction.showToast({ message: $r('app.string.feature_developing') });
             });
-            this.buildMenuItem('清除缓存', '清除本地缓存数据', () => {
-              promptAction.showToast({ message: '缓存已清除' });
+            this.buildMenuItem($r('app.string.profile_language'), this.languageLabel(), () => {
+              this.pickLanguage();
             });
-            this.buildMenuItem('检查更新', `当前版本 ${this.appVersion}`, () => {
-              promptAction.showToast({ message: '已是最新版本' });
+            this.buildMenuItem($r('app.string.profile_clear_cache'), $r('app.string.profile_clear_cache_desc'), () => {
+              promptAction.showToast({ message: $r('app.string.cache_cleared') });
             });
-            this.buildMenuItem('关于', '开放管理后台 HarmonyOS 客户端', () => {
+            this.buildMenuItem($r('app.string.profile_check_update'),
+              L10n.str(this.getUIContext(), 'profile_version', this.appVersion), () => {
+                promptAction.showToast({ message: $r('app.string.up_to_date') });
+              });
+            this.buildMenuItem($r('app.string.profile_about'), $r('app.string.profile_about_desc'), () => {
               promptAction.showToast({ message: 'Copyright (c) 2026 erik' });
             });
           }
@@ -103,7 +152,7 @@ struct ProfilePage {
           .margin({ top: 16, left: 16, right: 16 })
 
           // 退出按钮
-          Button('退出登录')
+          Button($r('app.string.logout'))
             .width('100%')
             .height(48)
             .fontSize(16)
@@ -134,7 +183,7 @@ struct ProfilePage {
   }
 
   @Builder
-  buildMenuItem(title: string, subtitle: string, onClick: () => void) {
+  buildMenuItem(title: ResourceStr, subtitle: ResourceStr, onClick: () => void) {
     Row() {
       Column() {
         Text(title)
