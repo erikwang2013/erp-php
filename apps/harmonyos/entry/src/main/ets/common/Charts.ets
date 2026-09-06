@@ -13,6 +13,7 @@
  * Canvas 文本色用中性灰 #999，深浅主题均可读；主题敏感文字一律走 ArkUI 层。
  */
 import { BRAND_MID, CHART_COLORS } from './ThemeTokens';
+import { L10n } from '../utils/L10n';
 
 /** 图例/数据项 */
 export interface DonutItem {
@@ -30,13 +31,19 @@ const PLOT_BOTTOM = 20;
 const PLOT_LEFT = 2;
 const PLOT_RIGHT = 8;
 
-/** 坐标轴/数值紧凑格式化（≥1万转 万） */
-function fmtAxis(v: number): string {
-  if (v >= 10000) {
-    const w = v / 10000;
-    return (w >= 100 ? Math.round(w).toString() : w.toFixed(1)) + '万';
+/**
+ * 坐标轴/数值紧凑格式化：zh ≥1万按「万」进位、en ≥1万按「k」进位。
+ * 生效语言经 resolved_locale 探针 key 同步获取（资源解析与 UI 同源，免异步
+ * resourceManager 配置查询）；进位后缀取语言资源 axis_unit_tenk，代码零字面量。
+ */
+function fmtAxis(ui: UIContext, v: number): string {
+  if (v < 10000) {
+    return Math.round(v).toString();
   }
-  return Math.round(v).toString();
+  const zh = L10n.str(ui, 'resolved_locale') === 'zh';
+  const n = v / (zh ? 10000 : 1000);
+  const text = n >= 100 ? Math.round(n).toString() : (n.toFixed(1).replace(/\.0$/, ''));
+  return text + L10n.str(ui, 'axis_unit_tenk');
 }
 
 /** 'YYYY-MM-DD' → 'MM-DD' */
@@ -129,7 +136,7 @@ export struct TrendChart {
     ctx.font = '10px sans-serif';
     ctx.textBaseline = 'alphabetic';
     ctx.textAlign = 'left';
-    ctx.fillText(fmtAxis(max), PLOT_LEFT, PLOT_TOP - 6);
+    ctx.fillText(fmtAxis(this.getUIContext(), max), PLOT_LEFT, PLOT_TOP - 6);
     const tickIdx: number[] = [0];
     const mid = Math.floor((n - 1) / 2);
     if (mid > 0 && mid < n - 1) {
@@ -319,7 +326,7 @@ export struct TopBarsChart {
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
               .layoutWeight(1)
-            Text(fmtAxis(it.value))
+            Text(fmtAxis(this.getUIContext(), it.value))
               .fontSize(12)
               .fontColor($r('app.color.text_hint'))
               .margin({ left: 12 })

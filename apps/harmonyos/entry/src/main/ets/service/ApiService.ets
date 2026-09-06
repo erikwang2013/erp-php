@@ -95,7 +95,7 @@ export class ApiService {
     try {
       return JSON.parse(raw) as ApiResponse<T>;
     } catch (_) {
-      throw new Error('服务响应格式错误');
+      throw new Error('Malformed response from server');
     }
   }
 

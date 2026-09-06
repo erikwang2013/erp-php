@@ -217,20 +217,21 @@ struct DashboardPage {
   }
 
   /**
-   * KPI 标签：后端固定四指标中文文案 → 本地资源；其余文案透传
-   * （后端下发 label 保持展示原样，属两端双语后端字段债务，未知文案不做猜测映射）
+   * KPI 标签：后端固定四指标 icon 键 → 本地资源（MetricsController 契约四 icon 稳定）；
+   * 其余 icon 透传后端 label 原样（后端下发 label 保持展示原样，属两端双语
+   * 后端字段债务，未知文案不做猜测映射）
    */
-  private kpiLabel(label: string): ResourceStr {
-    if (label === '用户总数') {
+  private kpiLabel(icon: string, label: string): ResourceStr {
+    if (icon === 'people') {
       return $r('app.string.total_users');
     }
-    if (label === '今日新增') {
+    if (icon === 'person_add') {
       return $r('app.string.today_new');
     }
-    if (label === '活跃用户') {
+    if (icon === 'bolt') {
       return $r('app.string.active_users');
     }
-    if (label === '操作日志') {
+    if (icon === 'description') {
       return $r('app.string.operation_logs');
     }
     return label;
@@ -244,7 +245,7 @@ struct DashboardPage {
       const dot = s.value.indexOf('.');
       const decimals = dot >= 0 && numeric ? s.value.length - dot - 1 : 0;
       list.push({
-        label: this.kpiLabel(s.label),
+        label: this.kpiLabel(s.icon, s.label),
         raw: s.value,
         color: s.color,
         target: numeric ? n : 0,

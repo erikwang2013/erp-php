@@ -20,6 +20,7 @@
 //   this.dialogController.open();
 
 import http from '@ohos.net.http';
+import { L10n } from '../utils/L10n';
 
 export interface CaptchaTarget {
   order: number;
@@ -155,19 +156,19 @@ export struct CaptchaVerifyDialog {
 
   promptText(): string {
     const parts = this.targets.map((t: CaptchaTarget) => `"${t.text}"`);
-    return parts.length > 0 ? `请按顺序点击: ${parts.join(' → ')}` : '';
+    return parts.length > 0 ? L10n.str(this.getUIContext(), 'captcha_prompt_fmt', parts.join(' → ')) : '';
   }
 
   build() {
     Column() {
       // 标题行
       Row() {
-        Text('安全验证')
+        Text($r('app.string.captcha_verify_title'))
           .fontSize(16)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_primary'))
         Blank()
-        Text('取消')
+        Text($r('app.string.cancel'))
           .fontSize(14)
           .fontColor($r('app.color.primary'))
           .onClick(() => { this.cancel(); })
@@ -181,7 +182,7 @@ export struct CaptchaVerifyDialog {
             .width(36)
             .height(36)
             .color($r('app.color.primary'))
-          Text('验证码加载中…')
+          Text($r('app.string.captcha_loading'))
             .fontSize(12)
             .fontColor($r('app.color.text_hint'))
             .margin({ top: 8 })
@@ -191,10 +192,10 @@ export struct CaptchaVerifyDialog {
         .justifyContent(FlexAlign.Center)
       } else if (this.failed || this.image === '') {
         Column() {
-          Text('验证码加载失败，请检查网络')
+          Text($r('app.string.captcha_load_failed'))
             .fontSize(13)
             .fontColor($r('app.color.text_hint'))
-          Button('重试')
+          Button($r('app.string.retry'))
             .fontSize(13)
             .fontColor($r('app.color.primary'))
             .backgroundColor(Color.Transparent)
@@ -241,11 +242,12 @@ export struct CaptchaVerifyDialog {
 
         // 操作行：计数 + 换一张
         Row() {
-          Text(`已点击 ${this.clicks.length}/${this.targets.length}`)
+          Text(L10n.str(this.getUIContext(), 'captcha_clicked_fmt',
+            String(this.clicks.length), String(this.targets.length)))
             .fontSize(12)
             .fontColor($r('app.color.text_hint'))
           Blank()
-          Button('换一张')
+          Button($r('app.string.captcha_refresh'))
             .fontSize(12)
             .fontColor($r('app.color.primary'))
             .backgroundColor(Color.Transparent)

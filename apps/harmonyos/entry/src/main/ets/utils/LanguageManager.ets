@@ -75,7 +75,7 @@ export class LanguageManager {
         await prefs.flush();
       } catch (err) {
         // 落盘失败仅告警：内存态仍生效，重启后回到旧语言
-        console.error('LanguageManager 持久化失败', err);
+        console.error('LanguageManager persist failed', err);
       }
     }
     if (lang !== 'system') {

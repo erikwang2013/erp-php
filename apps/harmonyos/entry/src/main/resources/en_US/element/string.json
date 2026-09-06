@@ -1,28 +1,8 @@
 {
   "string": [
     {
-      "name": "entry_desc",
-      "value": "Open Admin Console"
-    },
-    {
-      "name": "module_desc",
-      "value": "Open Admin Console client module"
-    },
-    {
       "name": "app_name",
       "value": "Open Admin"
-    },
-    {
-      "name": "login_title",
-      "value": "Sign In"
-    },
-    {
-      "name": "login_username",
-      "value": "Username"
-    },
-    {
-      "name": "login_password",
-      "value": "Password"
     },
     {
       "name": "login_button",
@@ -49,20 +29,8 @@
       "value": "Sign Out"
     },
     {
-      "name": "export_excel",
-      "value": "Export Excel"
-    },
-    {
-      "name": "export_pdf",
-      "value": "Export PDF"
-    },
-    {
       "name": "search_hint",
       "value": "Enter keywords to search"
-    },
-    {
-      "name": "confirm",
-      "value": "OK"
     },
     {
       "name": "cancel",
@@ -81,10 +49,6 @@
       "value": "No More"
     },
     {
-      "name": "network_error",
-      "value": "Network request failed. Check your network connection"
-    },
-    {
       "name": "total_users",
       "value": "Total Users"
     },
@@ -99,10 +63,6 @@
     {
       "name": "operation_logs",
       "value": "Operation Logs"
-    },
-    {
-      "name": "copyright",
-      "value": "Copyright (c) 2026 erik — https://erik.xyz"
     },
     {
       "name": "refresh",
@@ -1719,6 +1679,46 @@
     {
       "name": "inventory_list_title",
       "value": "Inventory"
+    },
+    {
+      "name": "captcha_verify_title",
+      "value": "Security Check"
+    },
+    {
+      "name": "captcha_loading",
+      "value": "Loading captcha…"
+    },
+    {
+      "name": "captcha_load_failed",
+      "value": "Failed to load captcha. Check your network."
+    },
+    {
+      "name": "captcha_refresh",
+      "value": "Refresh"
+    },
+    {
+      "name": "captcha_prompt_fmt",
+      "value": "Click in order: %1$s"
+    },
+    {
+      "name": "captcha_clicked_fmt",
+      "value": "Clicked %1$s/%2$s"
+    },
+    {
+      "name": "total_count_fmt",
+      "value": "Total %1$s"
+    },
+    {
+      "name": "axis_unit_tenk",
+      "value": "k"
+    },
+    {
+      "name": "entry_desc",
+      "value": "Open Admin Console"
+    },
+    {
+      "name": "resolved_locale",
+      "value": "en"
     }
   ]
 }

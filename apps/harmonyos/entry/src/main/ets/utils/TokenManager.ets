@@ -137,7 +137,7 @@ export class TokenManager {
       await prefs.flush();
     } catch (err) {
       // 落盘失败不静默：内存缓存仍可用，但需暴露问题便于排查（安全存储属后续设计）
-      console.error('TokenManager 持久化失败', key, err);
+      console.error('TokenManager persist failed', key, err);
     }
   }
 }

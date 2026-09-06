@@ -1,28 +1,8 @@
 {
   "string": [
     {
-      "name": "entry_desc",
-      "value": "开放管理后台"
-    },
-    {
-      "name": "module_desc",
-      "value": "开放管理后台客户端模块"
-    },
-    {
       "name": "app_name",
       "value": "开放管理后台"
-    },
-    {
-      "name": "login_title",
-      "value": "登录"
-    },
-    {
-      "name": "login_username",
-      "value": "用户名"
-    },
-    {
-      "name": "login_password",
-      "value": "密码"
     },
     {
       "name": "login_button",
@@ -49,20 +29,8 @@
       "value": "退出登录"
     },
     {
-      "name": "export_excel",
-      "value": "导出Excel"
-    },
-    {
-      "name": "export_pdf",
-      "value": "导出PDF"
-    },
-    {
       "name": "search_hint",
       "value": "请输入关键词搜索"
-    },
-    {
-      "name": "confirm",
-      "value": "确定"
     },
     {
       "name": "cancel",
@@ -81,10 +49,6 @@
       "value": "没有更多了"
     },
     {
-      "name": "network_error",
-      "value": "网络请求失败，请检查网络连接"
-    },
-    {
       "name": "total_users",
       "value": "用户总数"
     },
@@ -99,10 +63,6 @@
     {
       "name": "operation_logs",
       "value": "操作日志"
-    },
-    {
-      "name": "copyright",
-      "value": "Copyright (c) 2026 erik — https://erik.xyz"
     },
     {
       "name": "refresh",
@@ -1719,6 +1679,46 @@
     {
       "name": "inventory_list_title",
       "value": "库存管理"
+    },
+    {
+      "name": "captcha_verify_title",
+      "value": "安全验证"
+    },
+    {
+      "name": "captcha_loading",
+      "value": "验证码加载中…"
+    },
+    {
+      "name": "captcha_load_failed",
+      "value": "验证码加载失败，请检查网络"
+    },
+    {
+      "name": "captcha_refresh",
+      "value": "换一张"
+    },
+    {
+      "name": "captcha_prompt_fmt",
+      "value": "请按顺序点击: %1$s"
+    },
+    {
+      "name": "captcha_clicked_fmt",
+      "value": "已点击 %1$s/%2$s"
+    },
+    {
+      "name": "total_count_fmt",
+      "value": "共 %1$s 条"
+    },
+    {
+      "name": "axis_unit_tenk",
+      "value": "万"
+    },
+    {
+      "name": "entry_desc",
+      "value": "开放管理后台"
+    },
+    {
+      "name": "resolved_locale",
+      "value": "zh"
     }
   ]
 }

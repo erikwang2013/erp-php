@@ -2,6 +2,8 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
+import { L10n } from '../utils/L10n';
+
 // 列表页筛选条（设计 5.2 工具栏 + 状态筛选 chips）：
 // 第 1 行：搜索框（flex 1,防抖 300ms,带清空 ×）——「新建」主按钮在 TopBar 右侧槽位,不重复放。
 // 第 2 行：横向滚动 chips（高 32 圆角 16,首项固定「全部」由页面保证）,行尾「共 N 条」。
@@ -27,7 +29,7 @@ export class FilterChipItem {
 export struct FilterBar {
   @Prop chips: Array<FilterChipItem> = [];
   @Prop active: string = '';
-  @Prop placeholder: string = '搜索';
+  @Prop placeholder: ResourceStr = $r('app.string.search_hint');
   @Prop total: number = -1; // >=0 时在 chips 行尾显示「共 N 条」
   onSearch?: (keyword: string) => void;
   onSelect?: (key: string) => void;
@@ -116,7 +118,7 @@ export struct FilterBar {
         .layoutWeight(1)
 
         if (this.total >= 0) {
-          Text(`共 ${this.total} 条`)
+          Text(L10n.str(this.getUIContext(), 'total_count_fmt', String(this.total)))
             .fontSize(12)
             .fontColor($r('app.color.text_hint'))
             .margin({ left: 12 })

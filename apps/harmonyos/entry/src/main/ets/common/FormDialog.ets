@@ -48,9 +48,9 @@ export class FormField {
     this.type = type;
     this.required = required;
     this.options = options;
-    // placeholder 未显式传入时按旧约定拼「请输入${label}」兜底（label 为 $r 资源时
-    // 无法拼接则留空）——后续页面批改传每字段全句 hint 资源后自然绕过本回退
-    this.placeholder = placeholder || (typeof label === 'string' ? `请输入${label}` : '');
+    // placeholder 未显式传入时留空（旧「请输入」拼接属未资源化时期遗留；
+    // 字段级全句 hint 资源化后调用方显式传参，本回退已无消费方）
+    this.placeholder = placeholder || '';
   }
 }
 
