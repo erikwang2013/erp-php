@@ -9,6 +9,7 @@ import window from '@ohos.window';
 import hilog from '@ohos.hilog';
 import router from '@ohos.router';
 import { TokenManager } from '../utils/TokenManager';
+import { LanguageManager } from '../utils/LanguageManager';
 
 const TAG = 'EntryAbility';
 
@@ -17,8 +18,11 @@ export default class EntryAbility extends UIAbility {
     hilog.info(0x0000, TAG, 'Ability onCreate');
   }
 
-  onWindowStageCreate(windowStage: window.WindowStage): void {
+  async onWindowStageCreate(windowStage: window.WindowStage): Promise<void> {
     hilog.info(0x0000, TAG, 'Ability onWindowStageCreate');
+
+    // H0 双语基座：loadContent 前恢复应用语言（内部兜底，不阻断启动）
+    await LanguageManager.init(this.context);
 
     // 先加载启动页（loading 状态），冷启动时避免闪登录页
     windowStage.loadContent('pages/SplashPage', (err) => {

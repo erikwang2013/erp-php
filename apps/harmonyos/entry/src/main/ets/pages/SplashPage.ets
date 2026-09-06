@@ -52,13 +52,13 @@ struct SplashPage {
         .translate({ y: this.mascotDy })
         .margin({ bottom: 16 })
 
-      Text('开放管理后台')
+      Text($r('app.string.app_name'))
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
         .fontColor(ON_GRADIENT)
         .opacity(this.textAlpha)
 
-      Text('HarmonyOS 客户端')
+      Text($r('app.string.splash_subtitle'))
         .fontSize(13)
         .fontColor(ON_GRADIENT_SUB)
         .margin({ top: 6 })
@@ -70,7 +70,7 @@ struct SplashPage {
         .color(ON_GRADIENT)
         .margin({ top: 32 })
 
-      Text('正在恢复登录状态...')
+      Text($r('app.string.splash_restoring'))
         .fontSize(12)
         .fontColor(ON_GRADIENT_FAINT)
         .margin({ top: 12 })

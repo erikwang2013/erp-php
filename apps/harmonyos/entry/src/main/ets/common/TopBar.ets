@@ -12,12 +12,12 @@
 //   刷新：注入 onRefresh 后标题右侧渲染轻量"刷新"钮（与动作钮同排，刷新中传 refreshing 禁用防连点）：
 //   TopBar({ title: 'x', onRefresh: () => this.loadData(true), refreshing: this.isRefreshing })
 
-/** 右上操作按钮描述（label + kind: primary 主按钮 / danger 危险浅底钮） */
+/** 右上操作按钮描述（label + kind: primary 主按钮 / danger 危险浅底钮；文案可 $r 资源化） */
 export class TopBarAction {
-  label: string = '';
+  label: ResourceStr = '';
   kind: string = 'primary'; // 'primary' | 'danger'
 
-  constructor(label: string, kind: string = 'primary') {
+  constructor(label: ResourceStr, kind: string = 'primary') {
     this.label = label;
     this.kind = kind;
   }
@@ -25,7 +25,7 @@ export class TopBarAction {
 
 @Component
 export struct TopBar {
-  @Prop title: string = '';
+  @Prop title: ResourceStr = '';
   @Prop back: boolean = true;
   @Prop actions: Array<TopBarAction> = [];
   @Prop refreshing: boolean = false; // 刷新进行中：禁用刷新钮防连点
@@ -65,7 +65,7 @@ export struct TopBar {
 
       if (this.onRefresh) {
         // 轻量刷新钮：幽灵样式（与动作钮同列，注入回调才渲染）
-        Button('刷新')
+        Button($r('app.string.refresh'))
           .fontSize(13)
           .fontColor($r('app.color.primary'))
           .backgroundColor($r('app.color.primary_bg'))
@@ -110,7 +110,7 @@ export struct TopBar {
               }
             })
         }
-      }, (action: TopBarAction, index: number) => `${index}-${action.label}`)
+      }, (action: TopBarAction, index: number) => index.toString())
     }
     .width('100%')
     .height(56)

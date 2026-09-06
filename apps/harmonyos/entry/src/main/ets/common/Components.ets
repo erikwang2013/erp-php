@@ -69,7 +69,7 @@ export struct StatCard {
  */
 @Component
 export struct LoadingView {
-  @Prop message: string = '加载中...';
+  @Prop message: ResourceStr = $r('app.string.loading');
 
   build() {
     Column() {
@@ -94,7 +94,7 @@ export struct LoadingView {
  */
 @Component
 export struct EmptyView {
-  @Prop message: string = '暂无数据';
+  @Prop message: ResourceStr = $r('app.string.empty');
   @Prop description: string = '';
 
   build() {
@@ -129,7 +129,7 @@ export struct EmptyView {
  */
 @Component
 export struct ErrorView {
-  @Prop message: string = '加载失败';
+  @Prop message: ResourceStr = $r('app.string.load_failed');
   onRetry?: () => void;
 
   build() {
@@ -139,7 +139,7 @@ export struct ErrorView {
         .fontColor($r('app.color.text_secondary'))
         .textAlign(TextAlign.Center)
 
-      Button('重试')
+      Button($r('app.string.retry'))
         .fontSize(13)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.primary'))

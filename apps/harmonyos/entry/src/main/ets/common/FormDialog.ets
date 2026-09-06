@@ -35,20 +35,22 @@ import promptAction from '@ohos.promptAction';
 /** 表单字段描述（value 收集在 onConfirm 的 Array<string> 参数中，与 fields 下标对齐） */
 export class FormField {
   key: string = '';
-  label: string = '';
+  label: ResourceStr = '';
   type: string = 'text'; // 'text' | 'number' | 'password' | 'select'
   required: boolean = false;
-  options: Array<string> = [];
-  placeholder: string = '';
+  options: Array<ResourceStr> = [];
+  placeholder: ResourceStr = '';
 
-  constructor(key: string, label: string, type: string = 'text',
-    required: boolean = false, options: Array<string> = [], placeholder: string = '') {
+  constructor(key: string, label: ResourceStr, type: string = 'text',
+    required: boolean = false, options: Array<ResourceStr> = [], placeholder: ResourceStr = '') {
     this.key = key;
     this.label = label;
     this.type = type;
     this.required = required;
     this.options = options;
-    this.placeholder = placeholder || `请输入${label}`;
+    // placeholder 未显式传入时按旧约定拼「请输入${label}」兜底（label 为 $r 资源时
+    // 无法拼接则留空）——后续页面批改传每字段全句 hint 资源后自然绕过本回退
+    this.placeholder = placeholder || (typeof label === 'string' ? `请输入${label}` : '');
   }
 }
 
@@ -58,10 +60,10 @@ export class FormField {
  */
 @CustomDialog
 export struct ConfirmDialog {
-  @Prop title: string = '';
-  @Prop message: string = '';
-  @Prop confirmText: string = '删除';
-  @Prop cancelText: string = '取消';
+  @Prop title: ResourceStr = '';
+  @Prop message: ResourceStr = '';
+  @Prop confirmText: ResourceStr = $r('app.string.delete');
+  @Prop cancelText: ResourceStr = $r('app.string.cancel');
   @Prop kind: string = 'danger'; // 'danger' 实心危险主操作 | 'primary' 主色
   onConfirm?: () => void;
   onCancel?: () => void;
@@ -153,10 +155,10 @@ export struct ConfirmDialog {
  */
 @CustomDialog
 export struct FormDialog {
-  @Prop title: string = '';
+  @Prop title: ResourceStr = '';
   @Prop fields: Array<FormField> = [];
-  @Prop submitText: string = '保存';
-  @Prop cancelText: string = '取消';
+  @Prop submitText: ResourceStr = $r('app.string.save');
+  @Prop cancelText: ResourceStr = $r('app.string.cancel');
   @Prop initial: Array<string> = [];
   onConfirm?: (values: Array<string>) => void;
   onCancel?: () => void;
@@ -218,11 +220,27 @@ export struct FormDialog {
     }).then((ret: promptAction.ActionMenuSuccessResponse) => {
       const idx: number = ret.index;
       if (idx >= 0 && idx < field.options.length) {
-        this.setValue(index, field.options[idx]);
+        this.setValue(index, this.optionText(field.options[idx]));
       }
     }).catch(() => {
       // 取消菜单等失败路径不处理
     });
+  }
+
+  /** 选项选中值落 values 前转纯字符串（选项为 $r 资源时按当前语言解析，兜底空串） */
+  private optionText(option: ResourceStr): string {
+    if (typeof option === 'string') {
+      return option;
+    }
+    try {
+      const rm = this.getUIContext().getHostContext()?.resourceManager;
+      if (rm) {
+        return rm.getStringSync(option);
+      }
+    } catch (err) {
+      // 资源解析失败：回退空串，不崩
+    }
+    return '';
   }
 
   build() {
@@ -307,7 +325,7 @@ export struct FormDialog {
               }
 
               if (this.missing[index]) {
-                Text('此项为必填')
+                Text($r('app.string.form_required'))
                   .fontSize(12)
                   .fontColor($r('app.color.danger_text'))
                   .width('100%')

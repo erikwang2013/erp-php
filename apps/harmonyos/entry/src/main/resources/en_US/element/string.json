@@ -2,103 +2,103 @@
   "string": [
     {
       "name": "entry_desc",
-      "value": "开放管理后台"
+      "value": "Open Admin Console"
     },
     {
       "name": "module_desc",
-      "value": "开放管理后台客户端模块"
+      "value": "Open Admin Console client module"
     },
     {
       "name": "app_name",
-      "value": "开放管理后台"
+      "value": "Open Admin"
     },
     {
       "name": "login_title",
-      "value": "登录"
+      "value": "Sign In"
     },
     {
       "name": "login_username",
-      "value": "用户名"
+      "value": "Username"
     },
     {
       "name": "login_password",
-      "value": "密码"
+      "value": "Password"
     },
     {
       "name": "login_button",
-      "value": "登 录"
+      "value": "Sign In"
     },
     {
       "name": "dashboard_title",
-      "value": "仪表盘"
+      "value": "Dashboard"
     },
     {
       "name": "user_list_title",
-      "value": "用户管理"
+      "value": "Users"
     },
     {
       "name": "user_detail_title",
-      "value": "用户详情"
+      "value": "User Details"
     },
     {
       "name": "profile_title",
-      "value": "个人中心"
+      "value": "Profile"
     },
     {
       "name": "logout",
-      "value": "退出登录"
+      "value": "Sign Out"
     },
     {
       "name": "export_excel",
-      "value": "导出Excel"
+      "value": "Export Excel"
     },
     {
       "name": "export_pdf",
-      "value": "导出PDF"
+      "value": "Export PDF"
     },
     {
       "name": "search_hint",
-      "value": "请输入关键词搜索"
+      "value": "Enter keywords to search"
     },
     {
       "name": "confirm",
-      "value": "确定"
+      "value": "OK"
     },
     {
       "name": "cancel",
-      "value": "取消"
+      "value": "Cancel"
     },
     {
       "name": "loading",
-      "value": "加载中..."
+      "value": "Loading..."
     },
     {
       "name": "load_more",
-      "value": "加载更多"
+      "value": "Load More"
     },
     {
       "name": "no_more",
-      "value": "没有更多了"
+      "value": "No More"
     },
     {
       "name": "network_error",
-      "value": "网络请求失败，请检查网络连接"
+      "value": "Network request failed. Check your network connection"
     },
     {
       "name": "total_users",
-      "value": "用户总数"
+      "value": "Total Users"
     },
     {
       "name": "today_new",
-      "value": "今日新增"
+      "value": "New Today"
     },
     {
       "name": "active_users",
-      "value": "活跃用户"
+      "value": "Active Users"
     },
     {
       "name": "operation_logs",
-      "value": "操作日志"
+      "value": "Operation Logs"
     },
     {
       "name": "copyright",
@@ -106,39 +106,39 @@
     },
     {
       "name": "refresh",
-      "value": "刷新"
+      "value": "Refresh"
     },
     {
       "name": "empty",
-      "value": "暂无数据"
+      "value": "No Data"
     },
     {
       "name": "load_failed",
-      "value": "加载失败"
+      "value": "Load Failed"
     },
     {
       "name": "retry",
-      "value": "重试"
+      "value": "Retry"
     },
     {
       "name": "form_required",
-      "value": "此项为必填"
+      "value": "This field is required"
     },
     {
       "name": "save",
-      "value": "保存"
+      "value": "Save"
     },
     {
       "name": "delete",
-      "value": "删除"
+      "value": "Delete"
     },
     {
       "name": "splash_subtitle",
-      "value": "HarmonyOS 客户端"
+      "value": "HarmonyOS Client"
     },
     {
       "name": "splash_restoring",
-      "value": "正在恢复登录状态..."
+      "value": "Restoring login state..."
     }
   ]
 }
