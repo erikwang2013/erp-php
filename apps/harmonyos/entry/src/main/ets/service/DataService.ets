@@ -136,11 +136,22 @@ export class RoleService {
  * 权限服务（权限树，批量 A 起为三级目录嵌套结构）
  */
 export class PermissionService {
-  static async getTree(): Promise<PermissionNode[]> {
+  // 模块级会话缓存（跨页复用）：首个非空树成功装载后驻留；权限变更低频，
+  // 手动刷新经 force 重拉后整体替换。空响应不覆缓存（异常清库场景保底）。
+  private static cachedTree: Array<PermissionNode> = [];
+
+  static async getTree(force: boolean = false): Promise<PermissionNode[]> {
+    if (!force && PermissionService.cachedTree.length > 0) {
+      return PermissionService.cachedTree;
+    }
     const response = await apiService.get<PermissionNode[]>('/admin/permission');
     if (response.code !== 0) {
       throw new Error(response.message);
     }
-    return response.data ?? [];
+    const data = response.data ?? [];
+    if (data.length > 0) {
+      PermissionService.cachedTree = data;
+    }
+    return data;
   }
 }

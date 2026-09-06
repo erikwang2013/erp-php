@@ -38,8 +38,12 @@ struct RoleListPage {
   // 表单弹框状态
   @State formMode: string = 'create'; // create | edit
   @State editId: string = '';
-  // 权限勾选集（编辑预选/点选全量回写；提交时快照发送，保存不擅补/不擅删）
+  // 权限勾选提交集（编辑预选 / onChange 上行累计；提交时快照发送，保存不擅补/不擅删）
   @State permPicked: Array<string> = [];
+  // presetIds 开框快照：弹框生命周期内不再变更——勾选只在 picker 内部演进、
+  // onChange 仅累计到 permPicked，不回灌本快照（避免每点一次整树 @Prop 重传重建）；
+  // 重开（含提交失败带原值重建）时重新快照 permPicked 当前值
+  @State permPreset: Array<string> = [];
 
   private formDialogController?: CustomDialogController;
 
@@ -48,11 +52,12 @@ struct RoleListPage {
     this.loadPerms();
   }
 
-  async loadPerms(): Promise<void> {
+  /** 加载权限树：默认走 Service 层静态缓存（首载后复用），手动刷新传 force 重拉 */
+  async loadPerms(force: boolean = false): Promise<void> {
     this.permLoading = true;
     this.permFailed = false;
     try {
-      this.perms = await PermissionService.getTree();
+      this.perms = await PermissionService.getTree(force);
     } catch (e) {
       if (e instanceof Error && e.message === 'UNAUTHORIZED') {
         router.replaceUrl({ url: 'pages/LoginPage' });
@@ -162,6 +167,8 @@ struct RoleListPage {
 
   /** 打开角色表单弹框（每次重建 controller/弹框实例，保证内部状态干净） */
   private openRoleDialog(initial: Array<string>): void {
+    // 开框快照勾选集（含提交失败重建路径：此时 permPicked 为失败前用户点选，原样保留）
+    this.permPreset = this.permPicked.slice();
     const mode = this.formMode;
     this.formDialogController = new CustomDialogController({
       builder: FormDialog({
@@ -412,7 +419,7 @@ struct RoleListPage {
           .height(24)
           .enabled(!this.permLoading)
           .onClick(() => {
-            this.loadPerms();
+            this.loadPerms(true); // 手动刷新：force 绕过 Service 层缓存重拉
           })
       }
       .width('100%')
@@ -448,7 +455,7 @@ struct RoleListPage {
       } else {
         PermissionTreePicker({
           nodes: this.perms,
-          presetIds: this.permPicked,
+          presetIds: this.permPreset,
           onChange: (ids: Array<string>): void => {
             this.permPicked = ids;
           }
