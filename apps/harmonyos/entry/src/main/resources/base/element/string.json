@@ -379,6 +379,258 @@
     {
       "name": "dashboard_no_logs",
       "value": "暂无操作记录"
+    },
+    {
+      "name": "edit",
+      "value": "编辑"
+    },
+    {
+      "name": "create_success",
+      "value": "创建成功"
+    },
+    {
+      "name": "update_success",
+      "value": "更新成功"
+    },
+    {
+      "name": "save_failed",
+      "value": "保存失败"
+    },
+    {
+      "name": "delete_success",
+      "value": "删除成功"
+    },
+    {
+      "name": "delete_failed",
+      "value": "删除失败"
+    },
+    {
+      "name": "load_detail_failed",
+      "value": "加载详情失败"
+    },
+    {
+      "name": "login_expired",
+      "value": "登录已过期，请重新登录"
+    },
+    {
+      "name": "delete_confirm",
+      "value": "确认删除"
+    },
+    {
+      "name": "order_list_title",
+      "value": "OMS订单管理"
+    },
+    {
+      "name": "order_empty",
+      "value": "暂无订单数据"
+    },
+    {
+      "name": "order_channel_fmt",
+      "value": "渠道: %1$s"
+    },
+    {
+      "name": "order_fulfillment_fmt",
+      "value": "履约: %1$s"
+    },
+    {
+      "name": "status_ff_0",
+      "value": "待分配"
+    },
+    {
+      "name": "status_ff_1",
+      "value": "履约中"
+    },
+    {
+      "name": "status_ff_4",
+      "value": "已发货"
+    },
+    {
+      "name": "status_ff_5",
+      "value": "已签收"
+    },
+    {
+      "name": "order_form_add",
+      "value": "新增订单"
+    },
+    {
+      "name": "order_form_edit",
+      "value": "编辑订单"
+    },
+    {
+      "name": "order_delete_msg",
+      "value": "确定要删除该订单吗？删除后不可恢复。"
+    },
+    {
+      "name": "order_code",
+      "value": "订单编码"
+    },
+    {
+      "name": "order_sales_id",
+      "value": "销售订单ID"
+    },
+    {
+      "name": "order_channel",
+      "value": "渠道"
+    },
+    {
+      "name": "order_channel_no",
+      "value": "渠道订单号"
+    },
+    {
+      "name": "order_channel_store",
+      "value": "渠道店铺"
+    },
+    {
+      "name": "order_ff_status",
+      "value": "履约状态"
+    },
+    {
+      "name": "order_payment_status",
+      "value": "支付状态"
+    },
+    {
+      "name": "order_shipping_method",
+      "value": "配送方式"
+    },
+    {
+      "name": "order_shipping_fee",
+      "value": "运费"
+    },
+    {
+      "name": "order_buyer_note",
+      "value": "买家备注"
+    },
+    {
+      "name": "order_seller_note",
+      "value": "卖家备注"
+    },
+    {
+      "name": "order_priority",
+      "value": "优先级"
+    },
+    {
+      "name": "order_hold_until",
+      "value": "冻结时间"
+    },
+    {
+      "name": "order_code_hint",
+      "value": "订单编码，如 OM+时间戳（必填）"
+    },
+    {
+      "name": "order_sales_id_hint",
+      "value": "请输入销售订单ID（必填）"
+    },
+    {
+      "name": "order_channel_hint",
+      "value": "渠道，默认 manual"
+    },
+    {
+      "name": "order_channel_no_hint",
+      "value": "请输入渠道订单号"
+    },
+    {
+      "name": "order_channel_store_hint",
+      "value": "请输入渠道店铺"
+    },
+    {
+      "name": "order_range_0to3_hint",
+      "value": "0-3，留空为0"
+    },
+    {
+      "name": "order_shipping_method_hint",
+      "value": "请输入配送方式"
+    },
+    {
+      "name": "order_shipping_fee_hint",
+      "value": "数字，留空为0"
+    },
+    {
+      "name": "order_buyer_note_hint",
+      "value": "请输入买家备注"
+    },
+    {
+      "name": "order_seller_note_hint",
+      "value": "请输入卖家备注"
+    },
+    {
+      "name": "order_priority_hint",
+      "value": "默认5"
+    },
+    {
+      "name": "order_hold_until_hint",
+      "value": "YYYY-MM-DD HH:mm:ss，可留空"
+    },
+    {
+      "name": "order_code_required",
+      "value": "请输入订单编码"
+    },
+    {
+      "name": "order_sales_id_required",
+      "value": "请输入销售订单ID"
+    },
+    {
+      "name": "channel_list_title",
+      "value": "OMS渠道"
+    },
+    {
+      "name": "channel_empty",
+      "value": "暂无渠道数据"
+    },
+    {
+      "name": "channel_code_fmt",
+      "value": "编码: %1$s"
+    },
+    {
+      "name": "channel_form_add",
+      "value": "新增渠道"
+    },
+    {
+      "name": "channel_form_edit",
+      "value": "编辑渠道"
+    },
+    {
+      "name": "channel_delete_msg",
+      "value": "确定要删除该渠道吗？删除后不可恢复。"
+    },
+    {
+      "name": "channel_code",
+      "value": "编码"
+    },
+    {
+      "name": "channel_name",
+      "value": "名称"
+    },
+    {
+      "name": "channel_type",
+      "value": "类型"
+    },
+    {
+      "name": "channel_status",
+      "value": "状态"
+    },
+    {
+      "name": "channel_code_hint",
+      "value": "请输入渠道编码"
+    },
+    {
+      "name": "channel_name_hint",
+      "value": "请输入渠道名称（必填）"
+    },
+    {
+      "name": "channel_type_hint",
+      "value": "渠道类型，默认 direct"
+    },
+    {
+      "name": "channel_name_required",
+      "value": "请输入渠道名称"
+    },
+    {
+      "name": "fulfillment_title",
+      "value": "履约管理"
+    },
+    {
+      "name": "rma_title",
+      "value": "退换货管理"
     }
   ]
 }

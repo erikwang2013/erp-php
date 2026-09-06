@@ -379,6 +379,258 @@
     {
       "name": "dashboard_no_logs",
       "value": "No activity records"
+    },
+    {
+      "name": "edit",
+      "value": "Edit"
+    },
+    {
+      "name": "create_success",
+      "value": "Created"
+    },
+    {
+      "name": "update_success",
+      "value": "Updated"
+    },
+    {
+      "name": "save_failed",
+      "value": "Save failed"
+    },
+    {
+      "name": "delete_success",
+      "value": "Deleted"
+    },
+    {
+      "name": "delete_failed",
+      "value": "Delete failed"
+    },
+    {
+      "name": "load_detail_failed",
+      "value": "Failed to load details"
+    },
+    {
+      "name": "login_expired",
+      "value": "Session expired, please sign in again"
+    },
+    {
+      "name": "delete_confirm",
+      "value": "Confirm Delete"
+    },
+    {
+      "name": "order_list_title",
+      "value": "OMS Orders"
+    },
+    {
+      "name": "order_empty",
+      "value": "No orders yet"
+    },
+    {
+      "name": "order_channel_fmt",
+      "value": "Channel: %1$s"
+    },
+    {
+      "name": "order_fulfillment_fmt",
+      "value": "Fulfillment: %1$s"
+    },
+    {
+      "name": "status_ff_0",
+      "value": "Pending"
+    },
+    {
+      "name": "status_ff_1",
+      "value": "In fulfillment"
+    },
+    {
+      "name": "status_ff_4",
+      "value": "Shipped"
+    },
+    {
+      "name": "status_ff_5",
+      "value": "Delivered"
+    },
+    {
+      "name": "order_form_add",
+      "value": "Add Order"
+    },
+    {
+      "name": "order_form_edit",
+      "value": "Edit Order"
+    },
+    {
+      "name": "order_delete_msg",
+      "value": "Delete this order? This cannot be undone."
+    },
+    {
+      "name": "order_code",
+      "value": "Order Code"
+    },
+    {
+      "name": "order_sales_id",
+      "value": "Sales Order ID"
+    },
+    {
+      "name": "order_channel",
+      "value": "Channel"
+    },
+    {
+      "name": "order_channel_no",
+      "value": "Channel Order No."
+    },
+    {
+      "name": "order_channel_store",
+      "value": "Channel Store"
+    },
+    {
+      "name": "order_ff_status",
+      "value": "Fulfillment Status"
+    },
+    {
+      "name": "order_payment_status",
+      "value": "Payment Status"
+    },
+    {
+      "name": "order_shipping_method",
+      "value": "Shipping Method"
+    },
+    {
+      "name": "order_shipping_fee",
+      "value": "Shipping Fee"
+    },
+    {
+      "name": "order_buyer_note",
+      "value": "Buyer Message"
+    },
+    {
+      "name": "order_seller_note",
+      "value": "Seller Note"
+    },
+    {
+      "name": "order_priority",
+      "value": "Priority"
+    },
+    {
+      "name": "order_hold_until",
+      "value": "Hold Until"
+    },
+    {
+      "name": "order_code_hint",
+      "value": "Order code, e.g. OM+timestamp (required)"
+    },
+    {
+      "name": "order_sales_id_hint",
+      "value": "Sales order ID (required)"
+    },
+    {
+      "name": "order_channel_hint",
+      "value": "Channel, defaults to manual"
+    },
+    {
+      "name": "order_channel_no_hint",
+      "value": "Enter channel order number"
+    },
+    {
+      "name": "order_channel_store_hint",
+      "value": "Enter channel store"
+    },
+    {
+      "name": "order_range_0to3_hint",
+      "value": "0-3, empty means 0"
+    },
+    {
+      "name": "order_shipping_method_hint",
+      "value": "Enter shipping method"
+    },
+    {
+      "name": "order_shipping_fee_hint",
+      "value": "Numeric, empty means 0"
+    },
+    {
+      "name": "order_buyer_note_hint",
+      "value": "Enter buyer message"
+    },
+    {
+      "name": "order_seller_note_hint",
+      "value": "Enter seller note"
+    },
+    {
+      "name": "order_priority_hint",
+      "value": "Defaults to 5"
+    },
+    {
+      "name": "order_hold_until_hint",
+      "value": "YYYY-MM-DD HH:mm:ss, optional"
+    },
+    {
+      "name": "order_code_required",
+      "value": "Order code is required"
+    },
+    {
+      "name": "order_sales_id_required",
+      "value": "Sales order ID is required"
+    },
+    {
+      "name": "channel_list_title",
+      "value": "OMS Channels"
+    },
+    {
+      "name": "channel_empty",
+      "value": "No channels yet"
+    },
+    {
+      "name": "channel_code_fmt",
+      "value": "Code: %1$s"
+    },
+    {
+      "name": "channel_form_add",
+      "value": "Add Channel"
+    },
+    {
+      "name": "channel_form_edit",
+      "value": "Edit Channel"
+    },
+    {
+      "name": "channel_delete_msg",
+      "value": "Delete this channel? This cannot be undone."
+    },
+    {
+      "name": "channel_code",
+      "value": "Code"
+    },
+    {
+      "name": "channel_name",
+      "value": "Name"
+    },
+    {
+      "name": "channel_type",
+      "value": "Type"
+    },
+    {
+      "name": "channel_status",
+      "value": "Status"
+    },
+    {
+      "name": "channel_code_hint",
+      "value": "Enter channel code"
+    },
+    {
+      "name": "channel_name_hint",
+      "value": "Channel name (required)"
+    },
+    {
+      "name": "channel_type_hint",
+      "value": "Channel type, defaults to direct"
+    },
+    {
+      "name": "channel_name_required",
+      "value": "Channel name is required"
+    },
+    {
+      "name": "fulfillment_title",
+      "value": "Fulfillment"
+    },
+    {
+      "name": "rma_title",
+      "value": "Returns & RMA"
     }
   ]
 }

@@ -5,6 +5,7 @@
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { ApiService } from '../../service/ApiService';
+import { L10n } from '../../utils/L10n';
 import { LoadingView, ErrorView, EmptyView } from '../../common/Components';
 import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
@@ -37,7 +38,7 @@ struct ChannelListPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
-  @State errMsg: string = '加载失败'; // M4: 错误展示文案（取后端/网络 message，空则保底）
+  @State errMsg: string = ''; // M4: 错误展示文案（取后端/网络 message，空则保底）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -85,7 +86,9 @@ struct ChannelListPage {
       }
       this.hasError = true;
       // M4: 不吞错误，把 message 传给错误位与 toast；UNAUTHORIZED/空 message 显示友好文案（§0.8）
-      this.errMsg = e instanceof Error && e.message.length > 0 && e.message !== 'UNAUTHORIZED' ? e.message : '登录已过期，请重新登录';
+      // 服务端 message 直通；空/UNAUTHORIZED 用本地化友好文案兜底
+      this.errMsg = e instanceof Error && e.message.length > 0 && e.message !== 'UNAUTHORIZED' ? e.message :
+        L10n.str(this.getUIContext(), 'login_expired');
       promptAction.showToast({ message: this.errMsg });
     } finally {
       this.loading = false;
@@ -132,7 +135,7 @@ struct ChannelListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '加载详情失败' });
+      promptAction.showToast({ message: $r('app.string.load_detail_failed') });
     } finally {
       this.loading = false;
     }
@@ -143,7 +146,7 @@ struct ChannelListPage {
    */
   async save(): Promise<void> {
     if (!this.formName.trim()) {
-      promptAction.showToast({ message: '请输入渠道名称' });
+      promptAction.showToast({ message: $r('app.string.channel_name_required') });
       return;
     }
 
@@ -158,10 +161,10 @@ struct ChannelListPage {
     try {
       if (this.formMode === 'create') {
         await this.api.post<Object>('/admin/oms/channel', body);
-        promptAction.showToast({ message: '创建成功' });
+        promptAction.showToast({ message: $r('app.string.create_success') });
       } else {
         await this.api.put<Object>(`/admin/oms/channel/${this.formId}`, body);
-        promptAction.showToast({ message: '更新成功' });
+        promptAction.showToast({ message: $r('app.string.update_success') });
       }
       this.showForm = false;
       // 刷新列表（回到第一页）
@@ -171,7 +174,7 @@ struct ChannelListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '保存失败' });
+      promptAction.showToast({ message: $r('app.string.save_failed') });
     } finally {
       this.isSubmitting = false;
     }
@@ -185,8 +188,8 @@ struct ChannelListPage {
   confirmDelete(id: string): void {
     this.dialogController = new CustomDialogController({
       builder: ConfirmDialog({
-        title: '确认删除',
-        message: '确定要删除该渠道吗？删除后不可恢复。',
+        title: $r('app.string.delete_confirm'),
+        message: $r('app.string.channel_delete_msg'),
         onConfirm: () => {
           this.deleteItem(id);
         },
@@ -203,14 +206,14 @@ struct ChannelListPage {
   async deleteItem(id: string): Promise<void> {
     try {
       await this.api.delete<Object>(`/admin/oms/channel/${id}`);
-      promptAction.showToast({ message: '删除成功' });
+      promptAction.showToast({ message: $r('app.string.delete_success') });
       this.loadData(true);
     } catch (e) {
       if (e instanceof Error && e.message === 'UNAUTHORIZED') {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '删除失败' });
+      promptAction.showToast({ message: $r('app.string.delete_failed') });
     }
   }
 
@@ -218,8 +221,8 @@ struct ChannelListPage {
     Column() {
       // 顶栏（骨架收敛：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
       TopBar({
-        title: 'OMS渠道',
-        actions: [new TopBarAction('+ 新增')],
+        title: $r('app.string.channel_list_title'),
+        actions: [new TopBarAction($r('app.string.user_add'))],
         onAction: () => this.openCreate(),
         onRefresh: () => this.loadData(true),
         refreshing: this.isRefreshing || this.loading,
@@ -246,7 +249,7 @@ struct ChannelListPage {
     } else if (this.hasError) {
       ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
-      EmptyView({ message: '暂无渠道数据' });
+      EmptyView({ message: $r('app.string.channel_empty') });
     } else {
       Refresh({ refreshing: $$this.isRefreshing }) {
         List() {
@@ -261,7 +264,7 @@ struct ChannelListPage {
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-                  Text(`编码: ${item.code || '-'}`)
+                  Text(L10n.str(this.getUIContext(), 'channel_code_fmt', item.code || '-'))
                     .fontSize(12)
                     .fontColor($r('app.color.text_hint'))
                     .margin({ top: 2 })
@@ -272,7 +275,7 @@ struct ChannelListPage {
                 .layoutWeight(1)
 
                 // 状态
-                Text(item.status === 1 ? '启用' : '禁用')
+                Text(item.status === 1 ? $r('app.string.status_enabled') : $r('app.string.status_disabled'))
                   .fontSize(10)
                   .fontColor(item.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
                   .backgroundColor(item.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
@@ -280,7 +283,7 @@ struct ChannelListPage {
                   .padding({ left: 6, right: 6, top: 2, bottom: 2 })
 
                 // 操作
-                Button('编辑')
+                Button($r('app.string.edit'))
                   .fontSize(12)
                   .fontColor($r('app.color.primary'))
                   .backgroundColor($r('app.color.primary_bg'))
@@ -289,7 +292,7 @@ struct ChannelListPage {
                   .margin({ left: 8 })
                   .onClick(() => this.openEdit(item.id))
 
-                Button('删除')
+                Button($r('app.string.delete'))
                   .fontSize(12)
                   .fontColor($r('app.color.danger_text'))
                   .backgroundColor($r('app.color.danger_bg'))
@@ -309,11 +312,11 @@ struct ChannelListPage {
           ListItem() {
             Row() {
               if (this.items.length >= this.total) {
-                Text('— 没有更多了 —')
+                Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
                   .fontSize(12)
                   .fontColor($r('app.color.text_disabled'))
               } else {
-                Button('加载更多')
+                Button($r('app.string.load_more'))
                   .fontSize(13)
                   .fontColor($r('app.color.primary'))
                   .backgroundColor(Color.Transparent)
@@ -342,7 +345,7 @@ struct ChannelListPage {
   buildForm() {
     Scroll() {
       Column() {
-        Text(this.formMode === 'create' ? '新增渠道' : '编辑渠道')
+        Text(this.formMode === 'create' ? $r('app.string.channel_form_add') : $r('app.string.channel_form_edit'))
           .fontSize(16)
           .fontWeight(FontWeight.Bold)
           .width('100%')
@@ -350,12 +353,12 @@ struct ChannelListPage {
           .padding({ top: 16, bottom: 16 })
 
         Row() {
-          Text('编码')
+          Text($r('app.string.channel_code'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入渠道编码', text: this.formCode })
+          TextInput({ placeholder: $r('app.string.channel_code_hint'), text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
             .layoutWeight(1)
@@ -368,12 +371,12 @@ struct ChannelListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('名称')
+          Text($r('app.string.channel_name'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入渠道名称（必填）', text: this.formName })
+          TextInput({ placeholder: $r('app.string.channel_name_hint'), text: this.formName })
             .fontSize(15)
             .onChange((v: string) => { this.formName = v; })
             .layoutWeight(1)
@@ -386,12 +389,12 @@ struct ChannelListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('类型')
+          Text($r('app.string.channel_type'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '渠道类型，默认 direct', text: this.formType })
+          TextInput({ placeholder: $r('app.string.channel_type_hint'), text: this.formType })
             .fontSize(15)
             .onChange((v: string) => { this.formType = v; })
             .layoutWeight(1)
@@ -404,13 +407,13 @@ struct ChannelListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('状态')
+          Text($r('app.string.channel_status'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
           Row() {
-            Button('启用')
+            Button($r('app.string.status_enabled'))
               .fontSize(13)
               .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
               .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
@@ -418,7 +421,7 @@ struct ChannelListPage {
               .height(32)
               .onClick(() => { this.formStatus = 1; })
 
-            Button('禁用')
+            Button($r('app.string.status_disabled'))
               .fontSize(13)
               .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
               .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
@@ -438,7 +441,7 @@ struct ChannelListPage {
 
         // 操作按钮
         Row() {
-          Button('取 消')
+          Button($r('app.string.cancel'))
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
@@ -447,7 +450,7 @@ struct ChannelListPage {
             .borderRadius(8)
             .onClick(() => { this.showForm = false; })
 
-          Button('保 存')
+          Button($r('app.string.save'))
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
