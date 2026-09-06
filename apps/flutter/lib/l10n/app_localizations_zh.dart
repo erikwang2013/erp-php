@@ -2418,4 +2418,64 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tmsFreightInvoiceTitle => '运费发票';
+
+  @override
+  String get mfgBomTitle => 'BOM管理';
+
+  @override
+  String get mfgProductionTitle => '生产工单';
+
+  @override
+  String get mfgRoutingTitle => '工艺路线';
+
+  @override
+  String get mfgWorkstationTitle => '工作站';
+
+  @override
+  String get mfgMrpTitle => 'MRP计划';
+
+  @override
+  String get financeVoucherTitle => '记账凭证';
+
+  @override
+  String get financeArApTitle => '应收应付';
+
+  @override
+  String get financeReceiptTitle => '收款管理';
+
+  @override
+  String get financePaymentTitle => '付款管理';
+
+  @override
+  String get financeCashJournalTitle => '现金日记账';
+
+  @override
+  String get financeExpenseTitle => '费用报销';
+
+  @override
+  String get financeLedgerTitle => '总账/明细账';
+
+  @override
+  String get financeSubsidiaryLedgerTitle => '明细分类账';
+
+  @override
+  String get financeAssetTitle => '固定资产';
+
+  @override
+  String get financeTaxTitle => '税务管理';
+
+  @override
+  String get financeCurrencyTitle => '多币种/汇率';
+
+  @override
+  String get financeBankAccountTitle => '银行账户';
+
+  @override
+  String get financeExchangeRateTitle => '汇率管理';
+
+  @override
+  String get financeBudgetTitle => '预算管理';
+
+  @override
+  String get financeCostProfitTitle => '成本/利润中心';
 }

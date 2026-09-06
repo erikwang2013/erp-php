@@ -148,6 +148,9 @@ class _VoucherListPageState extends State<VoucherListPage> {
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
+    pageTitle: AppL10n.current.financeVoucherTitle,
+    moduleKey: 'finance',
+    primaryColumnIndex: 0,
     
     actions: [
       ElevatedButton.icon(onPressed: _create, icon: const Icon(Icons.add, size: 18), label: Text(AppL10n.of(context).commonAdd)),

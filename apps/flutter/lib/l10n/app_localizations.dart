@@ -4693,6 +4693,126 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'运费发票'**
   String get tmsFreightInvoiceTitle;
+
+  /// No description provided for @mfgBomTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'BOM管理'**
+  String get mfgBomTitle;
+
+  /// No description provided for @mfgProductionTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'生产工单'**
+  String get mfgProductionTitle;
+
+  /// No description provided for @mfgRoutingTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'工艺路线'**
+  String get mfgRoutingTitle;
+
+  /// No description provided for @mfgWorkstationTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'工作站'**
+  String get mfgWorkstationTitle;
+
+  /// No description provided for @mfgMrpTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'MRP计划'**
+  String get mfgMrpTitle;
+
+  /// No description provided for @financeVoucherTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'记账凭证'**
+  String get financeVoucherTitle;
+
+  /// No description provided for @financeArApTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'应收应付'**
+  String get financeArApTitle;
+
+  /// No description provided for @financeReceiptTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'收款管理'**
+  String get financeReceiptTitle;
+
+  /// No description provided for @financePaymentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'付款管理'**
+  String get financePaymentTitle;
+
+  /// No description provided for @financeCashJournalTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'现金日记账'**
+  String get financeCashJournalTitle;
+
+  /// No description provided for @financeExpenseTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'费用报销'**
+  String get financeExpenseTitle;
+
+  /// No description provided for @financeLedgerTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'总账/明细账'**
+  String get financeLedgerTitle;
+
+  /// No description provided for @financeSubsidiaryLedgerTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'明细分类账'**
+  String get financeSubsidiaryLedgerTitle;
+
+  /// No description provided for @financeAssetTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'固定资产'**
+  String get financeAssetTitle;
+
+  /// No description provided for @financeTaxTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'税务管理'**
+  String get financeTaxTitle;
+
+  /// No description provided for @financeCurrencyTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'多币种/汇率'**
+  String get financeCurrencyTitle;
+
+  /// No description provided for @financeBankAccountTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'银行账户'**
+  String get financeBankAccountTitle;
+
+  /// No description provided for @financeExchangeRateTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'汇率管理'**
+  String get financeExchangeRateTitle;
+
+  /// No description provided for @financeBudgetTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'预算管理'**
+  String get financeBudgetTitle;
+
+  /// No description provided for @financeCostProfitTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'成本/利润中心'**
+  String get financeCostProfitTitle;
 }
 
 class _AppLocalizationsDelegate

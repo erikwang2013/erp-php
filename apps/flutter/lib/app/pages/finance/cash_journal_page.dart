@@ -46,6 +46,9 @@ class _CashJournalPageState extends State<CashJournalPage> {
     keyword: _keyword,
     onSearch: (v) { _keyword = v; _page = 1; _load(); },
     onPageChanged: (p) { _page = p; _load(); },
+    pageTitle: AppL10n.current.financeCashJournalTitle,
+    moduleKey: 'finance',
+    primaryColumnIndex: 0,
   );
 
   List<String> _columns() => [AppL10n.current.commonName, AppL10n.current.commonCode];

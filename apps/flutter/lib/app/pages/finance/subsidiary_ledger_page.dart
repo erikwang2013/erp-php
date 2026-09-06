@@ -50,6 +50,9 @@ class _SubsidiaryLedgerPageState extends State<SubsidiaryLedgerPage> {
     rows: _rows.map((r) => _rowToMap(r)).toList(),
     total: _total, page: _page, limit: _limit, loading: _loading, error: _error, onRetry: _load, onRefresh: _load,
     onPageChanged: (p) { _page = p; _load(); },
+    pageTitle: AppL10n.current.financeSubsidiaryLedgerTitle,
+    moduleKey: 'finance',
+    primaryColumnIndex: 0,
     filterBar: Row(mainAxisSize: MainAxisSize.min, children: [
       SizedBox(width: 90, child: TextField(
         decoration: InputDecoration(labelText: AppL10n.of(context).financeSubjectId, isDense: true),

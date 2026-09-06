@@ -2439,4 +2439,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tmsFreightInvoiceTitle => 'Freight Invoices';
+
+  @override
+  String get mfgBomTitle => 'BOM Management';
+
+  @override
+  String get mfgProductionTitle => 'Production Orders';
+
+  @override
+  String get mfgRoutingTitle => 'Routings';
+
+  @override
+  String get mfgWorkstationTitle => 'Workstations';
+
+  @override
+  String get mfgMrpTitle => 'MRP Planning';
+
+  @override
+  String get financeVoucherTitle => 'Vouchers';
+
+  @override
+  String get financeArApTitle => 'AR/AP';
+
+  @override
+  String get financeReceiptTitle => 'Receipts';
+
+  @override
+  String get financePaymentTitle => 'Payments';
+
+  @override
+  String get financeCashJournalTitle => 'Cash Journals';
+
+  @override
+  String get financeExpenseTitle => 'Expenses';
+
+  @override
+  String get financeLedgerTitle => 'General / Detail Ledger';
+
+  @override
+  String get financeSubsidiaryLedgerTitle => 'Subsidiary Ledgers';
+
+  @override
+  String get financeAssetTitle => 'Fixed Assets';
+
+  @override
+  String get financeTaxTitle => 'Taxes';
+
+  @override
+  String get financeCurrencyTitle => 'Multi-Currency / FX Rates';
+
+  @override
+  String get financeBankAccountTitle => 'Bank Accounts';
+
+  @override
+  String get financeExchangeRateTitle => 'Exchange Rates';
+
+  @override
+  String get financeBudgetTitle => 'Budgets';
+
+  @override
+  String get financeCostProfitTitle => 'Cost / Profit Centers';
 }
