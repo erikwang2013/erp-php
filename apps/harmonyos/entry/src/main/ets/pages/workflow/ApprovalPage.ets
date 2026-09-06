@@ -6,7 +6,17 @@ import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, ListSectionHeader } from '../../common/ListRow';
+import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
+
+/** 单据类型 → l10n 键（registry 注释：sales_order/purchase_apply/purchase_order/expense/leave/other） */
+const TARGET_TYPE_KEYS: Record<string, string> = {
+  'sales_order': 'target_type_sales_order',
+  'purchase_apply': 'target_type_purchase_apply',
+  'purchase_order': 'target_type_purchase_order',
+  'expense': 'target_type_expense',
+  'leave': 'target_type_leave',
+  'other': 'target_type_other'
+};
 
 @Entry
 @Component
@@ -47,6 +57,24 @@ struct ApprovalPage {
     }
   }
 
+  /** 标题：target_type 语义文案；表外值直显原文（不'-'，真实数据优先） */
+  private typeLabel(item: Record<string, Object>): string {
+    const raw = ((item['target_type'] as string) ?? '').trim();
+    if (raw.length === 0) {
+      return '-';
+    }
+    const key = TARGET_TYPE_KEYS[raw];
+    if (key !== undefined) {
+      return L10n.str(this.getUIContext(), key);
+    }
+    return raw;
+  }
+
+  /** 徽章：/approval/my 仅返回审批中实例（status=0），label 审批中 */
+  private pendingBadge(): RowBadge {
+    return new RowBadge('warning', $r('app.string.approval_status_pending'));
+  }
+
   build() {
     Column() {
       TopBar({
@@ -71,9 +99,11 @@ struct ApprovalPage {
                 ForEach(this.items, (item: Record<string, Object>, index: number) => {
                   ListItem() {
                     ListRow({
-                      title: (item['name'] as string) || (item['code'] as string) || '-',
-                      subtitle: (item['code'] as string) ?? '',
-                      icon: (item['name'] as string) || (item['code'] as string) || '-',
+                      // ApprovalInstance 实列无 name/code：标题=单据类型，副行=提交时间
+                      title: this.typeLabel(item),
+                      subtitle: ((item['submitted_at'] as string) ?? '') as string,
+                      icon: this.typeLabel(item),
+                      badge: this.pendingBadge(),
                       isLast: index === this.items.length - 1
                     })
                   }

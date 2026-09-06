@@ -7,6 +7,7 @@ import promptAction from '@ohos.promptAction';
 import { TokenManager } from '../utils/TokenManager';
 import { LanguageManager } from '../utils/LanguageManager';
 import { L10n } from '../utils/L10n';
+import { PermissionService } from '../service/DataService';
 import { TopBar } from '../common/TopBar';
 import { ConfirmDialog } from '../common/FormDialog';
 
@@ -93,6 +94,8 @@ struct ProfilePage {
   logout(): void {
     // clearTokens 为 async：链式等待 Preferences 落盘完成再跳转，避免磁盘残留旧凭据复活登录态
     TokenManager.clearTokens().then(() => {
+      // 权限树缓存属登录态会话：登出即清，防下一账号复用旧树
+      PermissionService.clear();
       promptAction.showToast({ message: $r('app.string.logout_success') });
       router.replaceUrl({ url: 'pages/LoginPage' });
     });

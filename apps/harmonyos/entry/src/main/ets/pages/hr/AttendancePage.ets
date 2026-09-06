@@ -6,7 +6,7 @@ import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, ListSectionHeader } from '../../common/ListRow';
+import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
 
 @Entry
 @Component
@@ -47,6 +47,36 @@ struct AttendancePage {
     }
   }
 
+  /** 标题：嵌套 employee 对象名（controller index with employee；软删后 null 兜底 employee_id） */
+  private empTitle(item: Record<string, Object>): string {
+    const emp = item['employee'];
+    if (emp != null) {
+      const e = emp as Record<string, Object>;
+      const n = ((e['name'] as string) ?? '').trim();
+      const c = ((e['code'] as string) ?? '').trim();
+      if (n.length > 0 || c.length > 0) {
+        return n.length > 0 ? n : c;
+      }
+    }
+    const raw = item['employee_id'];
+    return raw != null ? `#${String(raw)}` : '-';
+  }
+
+  /** 状态徽章：DDL 注释 1=正常 2=迟到 3=早退 4=缺卡 5=请假 6=出差 */
+  private attBadge(item: Record<string, Object>): RowBadge {
+    const code: number = (item['status'] as number) ?? 1;
+    let kind: string = 'neutral';
+    if (code === 1) {
+      kind = 'success';
+    } else if (code === 2 || code === 3) {
+      kind = 'warning';
+    } else if (code === 4) {
+      kind = 'danger';
+    }
+    // 动态资源名（$r 仅支持字面量）：经 L10n 按当前语言解析，缺键回退 key 不崩
+    return new RowBadge(kind, L10n.str(this.getUIContext(), `attendance_status_${code}`));
+  }
+
   build() {
     Column() {
       TopBar({
@@ -71,9 +101,11 @@ struct AttendancePage {
                 ForEach(this.items, (item: Record<string, Object>, index: number) => {
                   ListItem() {
                     ListRow({
-                      title: (item['name'] as string) || (item['code'] as string) || '-',
-                      subtitle: (item['code'] as string) ?? '',
-                      icon: (item['name'] as string) || (item['code'] as string) || '-',
+                      // HrAttendance 实列无 name/code：标题=员工（with employee 嵌套），副行=工作日
+                      title: this.empTitle(item),
+                      subtitle: ((item['work_date'] as string) ?? '') as string,
+                      icon: this.empTitle(item),
+                      badge: this.attBadge(item),
                       isLast: index === this.items.length - 1
                     })
                   }

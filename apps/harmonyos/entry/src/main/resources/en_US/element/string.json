@@ -597,10 +597,6 @@
       "value": "No sales orders yet"
     },
     {
-      "name": "sales_customer_fmt",
-      "value": "Customer ID: %1$s"
-    },
-    {
       "name": "sales_form_add",
       "value": "New Sales Order"
     },
@@ -611,10 +607,6 @@
     {
       "name": "sales_delete_msg",
       "value": "Delete this sales order? This cannot be undone."
-    },
-    {
-      "name": "sales_name",
-      "value": "Order Name"
     },
     {
       "name": "sales_code",
@@ -653,10 +645,6 @@
       "value": "Remark"
     },
     {
-      "name": "sales_name_hint",
-      "value": "Enter order name (required)"
-    },
-    {
       "name": "sales_code_hint",
       "value": "Enter order No."
     },
@@ -689,10 +677,6 @@
       "value": "Enter a remark"
     },
     {
-      "name": "sales_name_required",
-      "value": "Order name is required"
-    },
-    {
       "name": "sales_customer_id_required",
       "value": "Customer ID is required"
     },
@@ -705,10 +689,6 @@
       "value": "No purchase orders yet"
     },
     {
-      "name": "purchase_supplier_fmt",
-      "value": "Supplier ID: %1$s"
-    },
-    {
       "name": "purchase_form_add",
       "value": "New Purchase Order"
     },
@@ -719,10 +699,6 @@
     {
       "name": "purchase_delete_msg",
       "value": "Delete this purchase order? This cannot be undone."
-    },
-    {
-      "name": "purchase_name",
-      "value": "Order Name"
     },
     {
       "name": "purchase_code",
@@ -757,10 +733,6 @@
       "value": "Remark"
     },
     {
-      "name": "purchase_name_hint",
-      "value": "Enter order name (required)"
-    },
-    {
       "name": "purchase_code_hint",
       "value": "Enter order No."
     },
@@ -787,10 +759,6 @@
     {
       "name": "purchase_remark_hint",
       "value": "Enter a remark"
-    },
-    {
-      "name": "purchase_name_required",
-      "value": "Order name is required"
     },
     {
       "name": "purchase_supplier_id_required",
@@ -1803,6 +1771,86 @@
     {
       "name": "dashboard_sys_title",
       "value": "System"
+    },
+    {
+      "name": "fulfillment_status_0",
+      "value": "Pending"
+    },
+    {
+      "name": "fulfillment_status_1",
+      "value": "Assigning"
+    },
+    {
+      "name": "fulfillment_status_2",
+      "value": "Picking"
+    },
+    {
+      "name": "fulfillment_status_3",
+      "value": "Packing"
+    },
+    {
+      "name": "fulfillment_status_4",
+      "value": "Ready to Ship"
+    },
+    {
+      "name": "fulfillment_status_5",
+      "value": "Shipped"
+    },
+    {
+      "name": "fulfillment_status_6",
+      "value": "Cancelled"
+    },
+    {
+      "name": "attendance_status_1",
+      "value": "Normal"
+    },
+    {
+      "name": "attendance_status_2",
+      "value": "Late"
+    },
+    {
+      "name": "attendance_status_3",
+      "value": "Early Leave"
+    },
+    {
+      "name": "attendance_status_4",
+      "value": "Missing Punch"
+    },
+    {
+      "name": "attendance_status_5",
+      "value": "Leave"
+    },
+    {
+      "name": "attendance_status_6",
+      "value": "Business Trip"
+    },
+    {
+      "name": "target_type_sales_order",
+      "value": "Sales Order"
+    },
+    {
+      "name": "target_type_purchase_apply",
+      "value": "Purchase Requisition"
+    },
+    {
+      "name": "target_type_purchase_order",
+      "value": "Purchase Order"
+    },
+    {
+      "name": "target_type_expense",
+      "value": "Expense"
+    },
+    {
+      "name": "target_type_leave",
+      "value": "Leave"
+    },
+    {
+      "name": "target_type_other",
+      "value": "Other"
+    },
+    {
+      "name": "approval_status_pending",
+      "value": "Pending Approval"
     }
   ]
 }

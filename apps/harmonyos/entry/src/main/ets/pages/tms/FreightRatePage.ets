@@ -6,7 +6,7 @@ import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, ListSectionHeader } from '../../common/ListRow';
+import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
 
 @Entry
 @Component
@@ -47,6 +47,44 @@ struct FreightRatePage {
     }
   }
 
+  /** 行标题：起讫组合（区域优先，缺则国 ISO 码；双侧缺失兜底单侧/'-'） */
+  private routeTitle(item: Record<string, Object>): string {
+    const o = ((item['origin_zone'] as string) || (item['origin_country'] as string) || '').trim();
+    const d = ((item['dest_zone'] as string) || (item['dest_country'] as string) || '').trim();
+    if (o.length > 0 && d.length > 0) {
+      return `${o} → ${d}`;
+    }
+    return o.length > 0 ? o : (d.length > 0 ? d : '-');
+  }
+
+  /** 状态徽章：status 0=禁用 1=启用（DDL 注释），复用既有启用/禁用文案 */
+  private rateBadge(item: Record<string, Object>): RowBadge {
+    if ((item['status'] as number) === 1) {
+      return new RowBadge('success', $r('app.string.status_enabled'));
+    }
+    return new RowBadge('danger', $r('app.string.status_disabled'));
+  }
+
+  /** 副行：重量段 · 起步+每公斤单价 · 币种（raw 展示不造键） */
+  private rowSubtitle(item: Record<string, Object>): string {
+    const from = item['weight_from_kg'] != null ? String(item['weight_from_kg']) : '';
+    const to = item['weight_to_kg'] != null ? String(item['weight_to_kg']) : '';
+    const base = item['base_rate'] != null ? String(item['base_rate']) : '';
+    const per = item['per_kg_rate'] != null ? String(item['per_kg_rate']) : '';
+    const ccy = (item['currency'] as string) ?? '';
+    const parts: string[] = [];
+    if (from.length > 0 || to.length > 0) {
+      parts.push(`${from}~${to}kg`);
+    }
+    if (base.length > 0 && per.length > 0) {
+      parts.push(`${base}+${per}/kg`);
+    }
+    if (ccy.length > 0) {
+      parts.push(ccy);
+    }
+    return parts.join(' · ');
+  }
+
   build() {
     Column() {
       TopBar({
@@ -71,9 +109,11 @@ struct FreightRatePage {
                 ForEach(this.items, (item: Record<string, Object>, index: number) => {
                   ListItem() {
                     ListRow({
-                      title: (item['name'] as string) || (item['code'] as string) || '-',
-                      subtitle: (item['code'] as string) ?? '',
-                      icon: (item['name'] as string) || (item['code'] as string) || '-',
+                      // TmsFreightRate 实列无 name/code：起讫路线 + 费率 + 启用态徽章
+                      title: this.routeTitle(item),
+                      subtitle: this.rowSubtitle(item),
+                      icon: this.routeTitle(item), // ListRow 仅取首字符，同路线同色系圆徽
+                      badge: this.rateBadge(item),
                       isLast: index === this.items.length - 1
                     })
                   }

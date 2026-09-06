@@ -6,7 +6,7 @@ import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, ListSectionHeader } from '../../common/ListRow';
+import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
 
 @Entry
 @Component
@@ -48,6 +48,22 @@ struct FulfillmentListPage {
     }
   }
 
+  /** 状态徽章：DDL 注释 0=待处理 1=分配中 2=拣货中 3=打包中 4=待发货 5=已发货 6=已取消；
+   *  进行态（1-4）warning、终态已发货 success/已取消 danger、未开始 neutral */
+  private ffBadge(item: Record<string, Object>): RowBadge {
+    const code: number = (item['status'] as number) ?? 0;
+    let kind: string = 'neutral';
+    if (code >= 1 && code <= 4) {
+      kind = 'warning';
+    } else if (code === 5) {
+      kind = 'success';
+    } else if (code === 6) {
+      kind = 'danger';
+    }
+    // 动态资源名（$r 仅支持字面量）：经 L10n 按当前语言解析，缺键回退 key 不崩
+    return new RowBadge(kind, L10n.str(this.getUIContext(), `fulfillment_status_${code}`));
+  }
+
   build() {
     Column() {
       TopBar({
@@ -72,9 +88,11 @@ struct FulfillmentListPage {
                 ForEach(this.items, (item: Record<string, Object>, index: number) => {
                   ListItem() {
                     ListRow({
-                      title: (item['name'] as string) || (item['code'] as string) || '-',
-                      subtitle: (item['code'] as string) ?? '',
-                      icon: (item['name'] as string) || (item['code'] as string) || '-',
+                      // OmsFulfillment 实列无 name/code：标题=发货仓库（join 带出），副行=oms 订单 hashid
+                      title: ((item['warehouse_name'] as string) || (item['oms_order_id'] as string) || '-') as string,
+                      subtitle: item['warehouse_name'] != null ? ((item['oms_order_id'] as string) ?? '') : '',
+                      icon: ((item['warehouse_name'] as string) || (item['oms_order_id'] as string) || '-') as string,
+                      badge: this.ffBadge(item),
                       isLast: index === this.items.length - 1
                     })
                   }

@@ -597,10 +597,6 @@
       "value": "暂无销售订单数据"
     },
     {
-      "name": "sales_customer_fmt",
-      "value": "客户ID: %1$s"
-    },
-    {
       "name": "sales_form_add",
       "value": "新增销售订单"
     },
@@ -611,10 +607,6 @@
     {
       "name": "sales_delete_msg",
       "value": "确定要删除该销售订单吗？删除后不可恢复。"
-    },
-    {
-      "name": "sales_name",
-      "value": "订单名称"
     },
     {
       "name": "sales_code",
@@ -653,10 +645,6 @@
       "value": "备注"
     },
     {
-      "name": "sales_name_hint",
-      "value": "请输入订单名称（必填）"
-    },
-    {
       "name": "sales_code_hint",
       "value": "请输入订单编号"
     },
@@ -689,10 +677,6 @@
       "value": "请输入备注"
     },
     {
-      "name": "sales_name_required",
-      "value": "请输入订单名称"
-    },
-    {
       "name": "sales_customer_id_required",
       "value": "请输入客户ID"
     },
@@ -705,10 +689,6 @@
       "value": "暂无采购订单数据"
     },
     {
-      "name": "purchase_supplier_fmt",
-      "value": "供应商ID: %1$s"
-    },
-    {
       "name": "purchase_form_add",
       "value": "新增采购订单"
     },
@@ -719,10 +699,6 @@
     {
       "name": "purchase_delete_msg",
       "value": "确定要删除该采购订单吗？删除后不可恢复。"
-    },
-    {
-      "name": "purchase_name",
-      "value": "订单名称"
     },
     {
       "name": "purchase_code",
@@ -757,10 +733,6 @@
       "value": "备注"
     },
     {
-      "name": "purchase_name_hint",
-      "value": "请输入订单名称（必填）"
-    },
-    {
       "name": "purchase_code_hint",
       "value": "请输入订单编号"
     },
@@ -787,10 +759,6 @@
     {
       "name": "purchase_remark_hint",
       "value": "请输入备注"
-    },
-    {
-      "name": "purchase_name_required",
-      "value": "请输入订单名称"
     },
     {
       "name": "purchase_supplier_id_required",
@@ -1803,6 +1771,86 @@
     {
       "name": "dashboard_sys_title",
       "value": "系统管理"
+    },
+    {
+      "name": "fulfillment_status_0",
+      "value": "待处理"
+    },
+    {
+      "name": "fulfillment_status_1",
+      "value": "分配中"
+    },
+    {
+      "name": "fulfillment_status_2",
+      "value": "拣货中"
+    },
+    {
+      "name": "fulfillment_status_3",
+      "value": "打包中"
+    },
+    {
+      "name": "fulfillment_status_4",
+      "value": "待发货"
+    },
+    {
+      "name": "fulfillment_status_5",
+      "value": "已发货"
+    },
+    {
+      "name": "fulfillment_status_6",
+      "value": "已取消"
+    },
+    {
+      "name": "attendance_status_1",
+      "value": "正常"
+    },
+    {
+      "name": "attendance_status_2",
+      "value": "迟到"
+    },
+    {
+      "name": "attendance_status_3",
+      "value": "早退"
+    },
+    {
+      "name": "attendance_status_4",
+      "value": "缺卡"
+    },
+    {
+      "name": "attendance_status_5",
+      "value": "请假"
+    },
+    {
+      "name": "attendance_status_6",
+      "value": "出差"
+    },
+    {
+      "name": "target_type_sales_order",
+      "value": "销售订单"
+    },
+    {
+      "name": "target_type_purchase_apply",
+      "value": "采购申请"
+    },
+    {
+      "name": "target_type_purchase_order",
+      "value": "采购订单"
+    },
+    {
+      "name": "target_type_expense",
+      "value": "费用报销"
+    },
+    {
+      "name": "target_type_leave",
+      "value": "请假"
+    },
+    {
+      "name": "target_type_other",
+      "value": "其他"
+    },
+    {
+      "name": "approval_status_pending",
+      "value": "审批中"
     }
   ]
 }

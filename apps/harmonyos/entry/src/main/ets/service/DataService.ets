@@ -154,4 +154,9 @@ export class PermissionService {
     }
     return data;
   }
+
+  /** 登出清缓存：权限树属登录态会话数据，跨用户不得复用（ProfilePage.logout 调用） */
+  static clear(): void {
+    PermissionService.cachedTree = [];
+  }
 }

@@ -6,7 +6,7 @@ import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, ListSectionHeader } from '../../common/ListRow';
+import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
 
 @Entry
 @Component
@@ -47,6 +47,31 @@ struct TrackingPage {
     }
   }
 
+  /** 行徽章：status_code 语义 kind（picked_up/in_transit/out_for_delivery 途中 warning、
+   *  delivered success、exception danger、未知 neutral）——label 直显原始码，不造码表文案 */
+  private trackingBadge(item: Record<string, Object>): RowBadge {
+    const code = (item['status_code'] as string) ?? '';
+    let kind: string = 'neutral';
+    if (code === 'delivered') {
+      kind = 'success';
+    } else if (code === 'exception') {
+      kind = 'danger';
+    } else if (code === 'picked_up' || code === 'in_transit' || code === 'out_for_delivery') {
+      kind = 'warning';
+    }
+    return new RowBadge(kind, code);
+  }
+
+  /** 副行：发生地点 · 事件时间（raw 展示不造键） */
+  private rowSubtitle(item: Record<string, Object>): string {
+    const parts: string[] = [];
+    const loc = (item['location'] as string) ?? '';
+    const evt = (item['event_time'] as string) ?? '';
+    if (loc.length > 0) parts.push(loc);
+    if (evt.length > 0) parts.push(evt);
+    return parts.join(' · ');
+  }
+
   build() {
     Column() {
       TopBar({
@@ -71,9 +96,12 @@ struct TrackingPage {
                 ForEach(this.items, (item: Record<string, Object>, index: number) => {
                   ListItem() {
                     ListRow({
-                      title: (item['name'] as string) || (item['code'] as string) || '-',
-                      subtitle: (item['code'] as string) ?? '',
-                      icon: (item['name'] as string) || (item['code'] as string) || '-',
+                      // TmsTrackingEvent 实列无 name/code：标题=事件描述，徽章=status_code，
+                      // 副行=地点 · 时间（shipment_id 有 show 可跳留待批6）
+                      title: ((item['description'] as string) || (item['status_code'] as string) || '-') as string,
+                      subtitle: this.rowSubtitle(item),
+                      icon: (item['status_code'] as string) || '-',
+                      badge: this.trackingBadge(item),
                       isLast: index === this.items.length - 1
                     })
                   }

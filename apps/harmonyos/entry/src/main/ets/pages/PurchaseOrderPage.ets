@@ -18,8 +18,8 @@ import { DetailCard } from '../common/DetailCard';
 interface PurchaseOrderItem {
   id: string;
   code: string;
-  name: string;
-  supplier_id: number;
+  supplier_name: string; // leftJoin 带出；供应商软删后为 null（表无 name 列）
+  supplier_id: string; // hashid（后端 encodeIds 编码，保存原样回传）
   apply_id: number;
   warehouse_id: number;
   total_amount: number;
@@ -31,8 +31,7 @@ interface PurchaseOrderItem {
 /** 表单保存请求体（与后端 fillable 对齐） */
 interface SaveBody {
   code: string | number;
-  name: string | number;
-  supplier_id: string | number;
+  supplier_id: string; // hashid 原样回传（后端解码落库 int）
   apply_id: string | number;
   warehouse_id: string | number;
   total_amount: string | number;
@@ -63,7 +62,6 @@ struct PurchaseOrderPage {
 
   // 表单字段（与后端 fillable 字段名严格一致）
   @State formCode: string = '';
-  @State formName: string = '';
   @State formSupplierId: string = '';
   @State formApplyId: string = '';
   @State formWarehouseId: string = '';
@@ -131,7 +129,6 @@ struct PurchaseOrderPage {
     this.formMode = 'create';
     this.formId = '';
     this.formCode = '';
-    this.formName = '';
     this.formSupplierId = '';
     this.formApplyId = '';
     this.formWarehouseId = '';
@@ -154,7 +151,6 @@ struct PurchaseOrderPage {
       const res = await this.api.get<Record<string, Object>>(`/admin/purchase/order/${id}`);
       const row = res.data as Record<string, Object>;
       this.formCode = (row['code'] as string) ?? '';
-      this.formName = (row['name'] as string) ?? '';
       this.formSupplierId = row['supplier_id'] != null ? String(row['supplier_id']) : '';
       this.formApplyId = row['apply_id'] != null ? String(row['apply_id']) : '';
       this.formWarehouseId = row['warehouse_id'] != null ? String(row['warehouse_id']) : '';
@@ -177,10 +173,6 @@ struct PurchaseOrderPage {
    * 保存：新建 POST /admin/purchase/order，编辑 PUT /admin/purchase/order/{id}
    */
   async save(): Promise<void> {
-    if (!this.formName.trim()) {
-      promptAction.showToast({ message: $r('app.string.purchase_name_required') });
-      return;
-    }
     if (!this.formSupplierId.trim()) {
       promptAction.showToast({ message: $r('app.string.purchase_supplier_id_required') });
       return;
@@ -189,8 +181,7 @@ struct PurchaseOrderPage {
     this.isSubmitting = true;
     const body: SaveBody = {
       code: this.formCode,
-      name: this.formName,
-      supplier_id: this.formSupplierId ? Number(this.formSupplierId) : 0,
+      supplier_id: this.formSupplierId, // hashid 原样（后端解码；Number() 强转 hashid 得 NaN）
       apply_id: this.formApplyId ? Number(this.formApplyId) : 0,
       warehouse_id: this.formWarehouseId ? Number(this.formWarehouseId) : 0,
       total_amount: this.formTotalAmount ? Number(this.formTotalAmount) : 0,
@@ -302,9 +293,10 @@ struct PurchaseOrderPage {
               ForEach(this.items, (item: PurchaseOrderItem, index: number) => {
                 ListItem() {
                   ListRow({
-                    title: item.name || item.code || '-',
-                    subtitle: L10n.str(this.getUIContext(), 'purchase_supplier_fmt', String(item.supplier_id)),
-                    icon: item.name || item.code || '-',
+                    // 表无 name 列：标题取供应商名（leftJoin 带出），副行采购单号；供应商软删后 title 兜 code
+                    title: item.supplier_name || item.code || '-',
+                    subtitle: item.supplier_name ? item.code : '',
+                    icon: item.supplier_name || item.code || '-',
                     badge: this.purchaseBadge(item),
                     actions: [
                       new RowAction($r('app.string.edit'), 'primary', (): void => {
@@ -372,23 +364,6 @@ struct PurchaseOrderPage {
           Column() {
 
             Row() {
-              Text($r('app.string.purchase_name'))
-              .fontSize(15)
-              .fontColor($r('app.color.text_primary'))
-              .width(80)
-
-              TextInput({ placeholder: $r('app.string.purchase_name_hint'), text: this.formName })
-                .fontSize(15)
-                .onChange((v: string) => { this.formName = v; })
-                .layoutWeight(1)
-            }
-            .width('100%')
-            .constraintSize({ minHeight: 56 })
-            .backgroundColor($r('app.color.surface'))
-            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-            .alignItems(VerticalAlign.Center)
-
-            Row() {
               Text($r('app.string.purchase_code'))
               .fontSize(15)
               .fontColor($r('app.color.text_primary'))
@@ -413,7 +388,7 @@ struct PurchaseOrderPage {
 
               TextInput({ placeholder: $r('app.string.purchase_supplier_id_hint'), text: this.formSupplierId })
                 .fontSize(15)
-                .type(InputType.Number)
+                // supplier_id 为 hashid（可含字母）：默认键盘，勿用 Number
                 .onChange((v: string) => { this.formSupplierId = v; })
                 .layoutWeight(1)
             }

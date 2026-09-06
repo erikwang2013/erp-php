@@ -18,8 +18,8 @@ import { DetailCard } from '../common/DetailCard';
 interface SalesOrderItem {
   id: string;
   code: string;
-  name: string;
-  customer_id: number;
+  customer_name: string; // leftJoin 带出；客户软删后为 null（表无 name 列）
+  customer_id: string; // hashid（后端 encodeIds 编码，保存原样回传）
   quotation_id: number;
   warehouse_id: number;
   total_amount: number;
@@ -32,8 +32,7 @@ interface SalesOrderItem {
 /** 表单保存请求体（与后端 fillable 对齐） */
 interface SaveBody {
   code: string | number;
-  name: string | number;
-  customer_id: string | number;
+  customer_id: string; // hashid 原样回传（后端解码落库 int）
   quotation_id: string | number;
   warehouse_id: string | number;
   total_amount: string | number;
@@ -65,7 +64,6 @@ struct SalesOrderPage {
 
   // 表单字段（与后端 fillable 字段名严格一致）
   @State formCode: string = '';
-  @State formName: string = '';
   @State formCustomerId: string = '';
   @State formQuotationId: string = '';
   @State formWarehouseId: string = '';
@@ -134,7 +132,6 @@ struct SalesOrderPage {
     this.formMode = 'create';
     this.formId = '';
     this.formCode = '';
-    this.formName = '';
     this.formCustomerId = '';
     this.formQuotationId = '';
     this.formWarehouseId = '';
@@ -158,7 +155,6 @@ struct SalesOrderPage {
       const res = await this.api.get<Record<string, Object>>(`/admin/sales/order/${id}`);
       const row = res.data as Record<string, Object>;
       this.formCode = (row['code'] as string) ?? '';
-      this.formName = (row['name'] as string) ?? '';
       this.formCustomerId = row['customer_id'] != null ? String(row['customer_id']) : '';
       this.formQuotationId = row['quotation_id'] != null ? String(row['quotation_id']) : '';
       this.formWarehouseId = row['warehouse_id'] != null ? String(row['warehouse_id']) : '';
@@ -182,10 +178,6 @@ struct SalesOrderPage {
    * 保存：新建 POST /admin/sales/order，编辑 PUT /admin/sales/order/{id}
    */
   async save(): Promise<void> {
-    if (!this.formName.trim()) {
-      promptAction.showToast({ message: $r('app.string.sales_name_required') });
-      return;
-    }
     if (!this.formCustomerId.trim()) {
       promptAction.showToast({ message: $r('app.string.sales_customer_id_required') });
       return;
@@ -194,8 +186,7 @@ struct SalesOrderPage {
     this.isSubmitting = true;
     const body: SaveBody = {
       code: this.formCode,
-      name: this.formName,
-      customer_id: this.formCustomerId ? Number(this.formCustomerId) : 0,
+      customer_id: this.formCustomerId, // hashid 原样（后端解码；Number() 强转 hashid 得 NaN）
       quotation_id: this.formQuotationId ? Number(this.formQuotationId) : 0,
       warehouse_id: this.formWarehouseId ? Number(this.formWarehouseId) : 0,
       total_amount: this.formTotalAmount ? Number(this.formTotalAmount) : 0,
@@ -308,9 +299,10 @@ struct SalesOrderPage {
               ForEach(this.items, (item: SalesOrderItem, index: number) => {
                 ListItem() {
                   ListRow({
-                    title: item.name || item.code || '-',
-                    subtitle: L10n.str(this.getUIContext(), 'sales_customer_fmt', String(item.customer_id)),
-                    icon: item.name || item.code || '-',
+                    // 表无 name 列：标题取客户名（leftJoin 带出），副行订单号；客户软删后 title 兜 code
+                    title: item.customer_name || item.code || '-',
+                    subtitle: item.customer_name ? item.code : '',
+                    icon: item.customer_name || item.code || '-',
                     badge: this.salesBadge(item),
                     actions: [
                       new RowAction($r('app.string.edit'), 'primary', (): void => {
@@ -378,23 +370,6 @@ struct SalesOrderPage {
           Column() {
 
             Row() {
-              Text($r('app.string.sales_name'))
-              .fontSize(15)
-              .fontColor($r('app.color.text_primary'))
-              .width(80)
-
-              TextInput({ placeholder: $r('app.string.sales_name_hint'), text: this.formName })
-                .fontSize(15)
-                .onChange((v: string) => { this.formName = v; })
-                .layoutWeight(1)
-            }
-            .width('100%')
-            .constraintSize({ minHeight: 56 })
-            .backgroundColor($r('app.color.surface'))
-            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-            .alignItems(VerticalAlign.Center)
-
-            Row() {
               Text($r('app.string.sales_code'))
               .fontSize(15)
               .fontColor($r('app.color.text_primary'))
@@ -419,7 +394,7 @@ struct SalesOrderPage {
 
               TextInput({ placeholder: $r('app.string.sales_customer_id_hint'), text: this.formCustomerId })
                 .fontSize(15)
-                .type(InputType.Number)
+                // customer_id 为 hashid（可含字母）：默认键盘，勿用 Number
                 .onChange((v: string) => { this.formCustomerId = v; })
                 .layoutWeight(1)
             }
