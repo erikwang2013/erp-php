@@ -5,6 +5,7 @@
 import { apiService } from './ApiService';
 import {
   DashboardData,
+  SalesDashboard,
   User,
   UserListResult,
   UserQuery,
@@ -17,6 +18,15 @@ import {
 export class DashboardService {
   static async getDashboard(): Promise<DashboardData> {
     const response = await apiService.get<DashboardData>('/admin/dashboard');
+    if (response.code !== 0) {
+      throw new Error(response.message);
+    }
+    return response.data;
+  }
+
+  /** 销售看板（视觉 2.0 首页图表：30日趋势/订单状态分布/Top5 热销） */
+  static async getSales(): Promise<SalesDashboard> {
+    const response = await apiService.get<SalesDashboard>('/admin/dashboard/sales');
     if (response.code !== 0) {
       throw new Error(response.message);
     }

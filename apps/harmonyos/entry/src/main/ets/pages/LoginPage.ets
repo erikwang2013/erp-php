@@ -9,6 +9,18 @@ import { TokenManager } from '../utils/TokenManager';
 import { CaptchaVerifyDialog, CaptchaResult, ClickPoint } from '../common/CaptchaVerifyDialog';
 // H2：统一 API 基地址改读单一配置源（utils/Config），部署环境说明见该文件
 import { BASE_URL } from '../utils/Config';
+import {
+  BRAND_DEEP,
+  BRAND_MID,
+  BRAND_LIGHT,
+  ON_GRADIENT,
+  ON_GRADIENT_SUB,
+  ON_GRADIENT_FAINT,
+  RADIUS_PANEL,
+  RADIUS_INPUT,
+  RADIUS_BUTTON,
+  SHADOW_PANEL
+} from '../common/ThemeTokens';
 
 interface LoginData {
   access_token: string;
@@ -53,10 +65,33 @@ struct LoginPage {
   @State isLoading: boolean = false;
   @State showPassword: boolean = false;
   @State loginError: string = '';
+  // 视觉 2.0 入场动画状态（mascot 缩放上浮 / 表单卡滑入）
+  @State mascotDy: number = 28;
+  @State mascotScale: number = 0.85;
+  @State mascotAlpha: number = 0;
+  @State cardDy: number = 36;
+  @State cardAlpha: number = 0;
 
   private httpClient: http.HttpRequest = http.createHttp();
   private dialogController?: CustomDialogController;
   private dialogOpen: boolean = false;
+
+  aboutToAppear(): void {
+    // 入场：mascot 缩放+上浮（约 400ms），表单卡随后滑入（约 300ms）
+    setTimeout(() => {
+      this.getUIContext().animateTo({ duration: 400, curve: Curve.EaseOut }, () => {
+        this.mascotDy = 0;
+        this.mascotScale = 1;
+        this.mascotAlpha = 1;
+      });
+    }, 30);
+    setTimeout(() => {
+      this.getUIContext().animateTo({ duration: 300, curve: Curve.EaseOut }, () => {
+        this.cardDy = 0;
+        this.cardAlpha = 1;
+      });
+    }, 160);
+  }
 
   login(): void {
     const trimmedUsername = this.username.trim();
@@ -146,35 +181,37 @@ struct LoginPage {
     Column() {
       Scroll() {
         Column() {
-          // 顶部品牌区
+          // 品牌区：mascot 缩放上浮 + 品牌名（渐变底上，恒白字）
           Column() {
-            Image($rawfile('logo.png'))
-              .width(64)
-              .height(64)
-              .margin({ bottom: 8 })
+            Image($r('app.media.mascot'))
+              .width(104)
+              .height(104)
+              .opacity(this.mascotAlpha)
+              .translate({ y: this.mascotDy })
+              .scale({ x: this.mascotScale, y: this.mascotScale })
 
             Text('开放管理后台')
-              .fontSize(22)
+              .fontSize(26)
               .fontWeight(FontWeight.Bold)
-              .fontColor($r('app.color.primary'))
+              .fontColor(ON_GRADIENT)
+              .margin({ top: 14 })
 
             Text('HarmonyOS 客户端')
-              .fontSize(12)
-              .fontColor($r('app.color.text_hint'))
-              .margin({ top: 2 })
+              .fontSize(13)
+              .fontColor(ON_GRADIENT_SUB)
+              .margin({ top: 8 })
           }
           .width('100%')
-          .padding({ top: 40, bottom: 24 })
-          .justifyContent(FlexAlign.Center)
+          .padding({ top: 56, bottom: 10 })
 
-          // 表单区
+          // 表单卡（滑入）
           Column() {
             // 用户名
             TextInput({ placeholder: '请输入用户名', text: this.username })
               .height(48)
               .fontSize(15)
               .backgroundColor($r('app.color.surface_alt'))
-              .borderRadius(8)
+              .borderRadius(RADIUS_INPUT)
               .padding({ left: 16, right: 16 })
               .onChange((v: string) => { this.username = v; })
 
@@ -185,7 +222,7 @@ struct LoginPage {
                 .fontSize(15)
                 .type(this.showPassword ? InputType.Normal : InputType.Password)
                 .backgroundColor($r('app.color.surface_alt'))
-                .borderRadius(8)
+                .borderRadius(RADIUS_INPUT)
                 .padding({ left: 16, right: 16 })
                 .layoutWeight(1)
                 .onChange((v: string) => { this.password = v; })
@@ -217,37 +254,43 @@ struct LoginPage {
               .fontSize(16)
               .fontColor($r('app.color.text_on_primary'))
               .backgroundColor(this.isLoading ? $r('app.color.primary_disabled') : $r('app.color.primary'))
-              .borderRadius(8)
+              .borderRadius(RADIUS_BUTTON)
               .margin({ top: 20 })
               .enabled(!this.isLoading)
               .onClick(() => { this.login(); })
+
+            // 底部操作
+            Row() {
+              Text('还没有账号？')
+                .fontSize(13)
+                .fontColor($r('app.color.text_hint'))
+              Button('立即注册')
+                .fontSize(13)
+                .fontColor($r('app.color.primary'))
+                .backgroundColor(Color.Transparent)
+                .onClick(() => {
+                  promptAction.showToast({ message: '注册功能即将上线' });
+                })
+            }
+            .justifyContent(FlexAlign.Center)
+            .margin({ top: 16 })
           }
           .width('100%')
-          .padding({ left: 28, right: 28 })
-
-          // 底部操作
-          Row() {
-            Text('还没有账号？')
-              .fontSize(13)
-              .fontColor($r('app.color.text_hint'))
-            Button('立即注册')
-              .fontSize(13)
-              .fontColor($r('app.color.primary'))
-              .backgroundColor(Color.Transparent)
-              .onClick(() => {
-                promptAction.showToast({ message: '注册功能即将上线' });
-              })
-          }
-          .justifyContent(FlexAlign.Center)
-          .margin({ top: 16 })
+          .backgroundColor($r('app.color.surface'))
+          .borderRadius(RADIUS_PANEL)
+          .padding({ left: 24, right: 24, top: 24, bottom: 16 })
+          .margin({ left: 20, right: 20, top: 24 })
+          .shadow(SHADOW_PANEL)
+          .opacity(this.cardAlpha)
+          .translate({ y: this.cardDy })
 
           // 版权
           Text('Copyright (c) 2026 erik — https://erik.xyz')
             .fontSize(10)
-            .fontColor($r('app.color.text_disabled'))
+            .fontColor(ON_GRADIENT_FAINT)
             .textAlign(TextAlign.Center)
             .width('100%')
-            .padding({ top: 20, bottom: 24 })
+            .padding({ top: 26, bottom: 28 })
         }
         .width('100%')
       }
@@ -257,6 +300,15 @@ struct LoginPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor($r('app.color.surface'))
+    .linearGradient({ angle: 180, colors: [[BRAND_DEEP, 0], [BRAND_MID, 0.58], [BRAND_LIGHT, 1]] })
+  }
+
+  pageTransition() {
+    PageTransitionEnter({ duration: 300, curve: Curve.EaseOut })
+      .opacity(0)
+      .translate({ y: 24 })
+    PageTransitionExit({ duration: 250, curve: Curve.EaseIn })
+      .opacity(0)
+      .translate({ y: -12 })
   }
 }

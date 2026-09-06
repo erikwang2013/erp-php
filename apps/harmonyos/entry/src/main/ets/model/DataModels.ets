@@ -70,6 +70,42 @@ export interface DistributionItem {
 }
 
 /**
+ * 销售看板（/admin/v1/dashboard/sales 首页图表所需字段；其余字段如
+ * today_sales/top_customers/funnel 首页未用故不收，接口多传自动忽略）
+ */
+export interface SalesDashboard {
+  trend: SalesTrend;
+  top_products: TopProduct[];
+  status_distribution: OrderStatusItem[];
+}
+
+/**
+ * 30日销售趋势（后端已按日补 0，dates/amounts 等长 30）
+ */
+export interface SalesTrend {
+  dates: string[];
+  amounts: number[];
+}
+
+/**
+ * Top5 热销商品（近30日订购数量）
+ */
+export interface TopProduct {
+  product_id: string;
+  name: string;
+  quantity: number;
+}
+
+/**
+ * 订单状态分布（近30日，状态: 0待审核 1已审核 2部分发货 3已发货 4已取消）
+ */
+export interface OrderStatusItem {
+  status: number;
+  name: string;
+  value: number;
+}
+
+/**
  * 用户模型
  */
 export interface User {
