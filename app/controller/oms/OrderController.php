@@ -39,18 +39,22 @@ class OrderController extends BaseController
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
 
-        $query = OmsOrder::query();
+        // erp_oms_order 无 code 列（扩展表，uk_order_id 1:1 挂 erp_sales_order）——
+        // 单号 = 关联销售订单的 code，经 leftJoin 带出别名；关键字搜 销售单号/渠道单号
+        $query = OmsOrder::query()
+            ->leftJoin('sales_order', 'sales_order.id', '=', 'oms_order.order_id')
+            ->select('oms_order.*', 'sales_order.code as code');
 
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
-                $q->where('code', 'like', "%{$keyword}%")
-                  ->orWhere('channel_order_no', 'like', "%{$keyword}%");
+                $q->where('sales_order.code', 'like', "%{$keyword}%")
+                  ->orWhere('oms_order.channel_order_no', 'like', "%{$keyword}%");
             });
         }
 
-        $total = $query->count();
+        $total = (clone $query)->count();
         $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
+            ->limit($limit)->orderBy('oms_order.id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->successPage($list, $total, $page, $limit);
@@ -60,21 +64,25 @@ class OrderController extends BaseController
      * 创建销售订单
      */
 #[\erikwang2013\apidoc\annotation\Title("创建销售订单")]
-#[\erikwang2013\apidoc\annotation\Desc("新增一条销售订单，订单编码必填")]
+#[\erikwang2013\apidoc\annotation\Desc("新增一条销售订单 OMS 扩展记录，order_id（关联销售订单）必填")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/oms/order")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("OMS订单")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"订单编码（必填）")]
+#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"int", default:"", desc:"关联销售订单ID（必填，uk 唯一）")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
 #[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"创建的订单记录")]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        // 实列校验：code 为幻列（无此列，提交即丢弃），真实唯一身份 = order_id（uk_order_id）
+        $validator = validator($request->all(), ['order_id' => 'required|integer|min:1']);
         if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
+            return $this->fail('销售订单ID(order_id)不能为空', 422);
+        }
+        if (OmsOrder::where('order_id', (int) $request->input('order_id'))->exists()) {
+            return $this->fail('该销售订单已存在 OMS 扩展记录', 422);
         }
 
         $item = new OmsOrder();
@@ -105,7 +113,12 @@ class OrderController extends BaseController
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
         }
-        $item = OmsOrder::find($id);
+        // 单号同 index 口径：leftJoin 带出关联销售订单 code（表无 code 列，不得按幻列查）
+        $item = OmsOrder::query()
+            ->leftJoin('sales_order', 'sales_order.id', '=', 'oms_order.order_id')
+            ->select('oms_order.*', 'sales_order.code as code')
+            ->where('oms_order.id', $id)
+            ->first();
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }

@@ -11,6 +11,7 @@ namespace tests;
 use app\common\HashidsService;
 use app\common\SnowflakeService;
 use app\controller\oms\FulfillmentController as OmsFulfillmentController;
+use app\controller\oms\OrderController as OmsOrderController;
 use app\controller\oms\RmaController;
 use app\controller\purchase\OrderController as PurchaseOrderController;
 use app\controller\sales\OrderController as SalesOrderController;
@@ -23,6 +24,7 @@ use app\model\Customer;
 use app\model\Inventory;
 use app\model\OmsFulfillment;
 use app\model\OmsFulfillmentItem;
+use app\model\OmsOrder;
 use app\model\OmsRma;
 use app\model\OmsRmaItem;
 use app\model\Product;
@@ -684,5 +686,155 @@ class DetailContractRegressionTest extends TestCase
         ApprovalInstance::where('id', $ids['instance_id'])->delete();
         ApprovalNode::where('id', $ids['node_id'])->delete();
         ApprovalWorkflow::where('id', $ids['workflow_id'])->forceDelete();
+    }
+
+    /* ======================== oms order code join（批7 收口） ======================== */
+
+    /** OMS 订单种子：销售订单（code 单号）+ OMS 扩展行，返回 id 供清理 */
+    private function seedOmsOrderWithSalesCode(string $suffix): array
+    {
+        $orderId = SnowflakeService::generate();
+        $customerId = SnowflakeService::generate();
+        $omsId = SnowflakeService::generate();
+
+        $customer = new Customer();
+        $customer->id = $customerId;
+        $customer->code = 'B7C-' . $suffix;
+        $customer->name = '批7客户' . $suffix;
+        $customer->save();
+
+        $order = new SalesOrder();
+        $order->id = $orderId;
+        $order->code = 'B7SO-' . $suffix;
+        $order->customer_id = $customerId;
+        $order->save();
+
+        $oms = new OmsOrder();
+        $oms->id = $omsId;
+        $oms->order_id = $orderId;
+        $oms->save();
+
+        return ['order_id' => $orderId, 'customer_id' => $customerId, 'oms_id' => $omsId, 'suffix' => $suffix];
+    }
+
+    private function cleanupOmsOrderSeed(array $ids): void
+    {
+        if (!$ids) {
+            return;
+        }
+        OmsOrder::where('id', $ids['oms_id'])->delete();
+        SalesOrder::where('id', $ids['order_id'])->forceDelete();
+        Customer::where('id', $ids['customer_id'])->forceDelete();
+    }
+
+    public function testOmsOrderIndexKeywordSearchesSalesCodeWithAlias(): void
+    {
+        $suffix = $this->randSuffix();
+        $ids = [];
+        try {
+            $ids = $this->seedOmsOrderWithSalesCode($suffix);
+
+            // keyword 搜销售单号命中且不报 SQL 错（旧实现按幻列 code where → 崩溃）
+            $resp = (new OmsOrderController())->index(new FakeRequest(['page' => 1, 'limit' => 50, 'keyword' => 'B7SO-' . $suffix]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = null;
+            foreach ((array) ($body['data']['list'] ?? []) as $item) {
+                if (($item['id'] ?? null) === $this->encodeId($ids['oms_id'])) {
+                    $row = $item;
+                    break;
+                }
+            }
+            $this->assertNotNull($row, '按销售单号搜索应命中 OMS 扩展行');
+            $this->assertSame('B7SO-' . $suffix, $row['code'] ?? null, 'code 应为 leftJoin 带出的销售单号别名');
+        } finally {
+            $this->cleanupOmsOrderSeed($ids);
+        }
+    }
+
+    public function testOmsOrderIndexReturnsSalesCodeAliasWithoutKeyword(): void
+    {
+        $suffix = $this->randSuffix();
+        $ids = [];
+        try {
+            $ids = $this->seedOmsOrderWithSalesCode($suffix);
+
+            $resp = (new OmsOrderController())->index(new FakeRequest(['page' => 1, 'limit' => 50]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = null;
+            foreach ((array) ($body['data']['list'] ?? []) as $item) {
+                if (($item['id'] ?? null) === $this->encodeId($ids['oms_id'])) {
+                    $row = $item;
+                    break;
+                }
+            }
+            $this->assertNotNull($row, '新插入 OMS 行应出现在列表');
+            $this->assertSame('B7SO-' . $suffix, $row['code'] ?? null, '列表行 code 应为销售单号别名');
+        } finally {
+            $this->cleanupOmsOrderSeed($ids);
+        }
+    }
+
+    public function testOmsOrderShowCarriesSalesCodeAlias(): void
+    {
+        $suffix = $this->randSuffix();
+        $ids = [];
+        try {
+            $ids = $this->seedOmsOrderWithSalesCode($suffix);
+
+            $resp = (new OmsOrderController())->show(new FakeRequest(), $this->encodeId($ids['oms_id']));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $data = $body['data'] ?? [];
+            $this->assertSame($this->encodeId($ids['oms_id']), $data['id'] ?? null);
+            $this->assertSame('B7SO-' . $suffix, $data['code'] ?? null, '详情 code 应为销售单号别名');
+        } finally {
+            $this->cleanupOmsOrderSeed($ids);
+        }
+    }
+
+    public function testOmsOrderStoreRequiresRealOrderIdNotPhantomCode(): void
+    {
+        $suffix = $this->randSuffix();
+        $orderId = SnowflakeService::generate();
+        $customerId = SnowflakeService::generate();
+        $omsId = null;
+        try {
+            // 只带 code（旧幻校验必填项）不带 order_id → 422
+            $resp = (new OmsOrderController())->store(new FakeRequest(['code' => 'B7SO-' . $suffix]));
+            $this->assertSame(422, (int) ($this->jsonBody($resp)['code'] ?? -1), '缺 order_id 应 422');
+
+            // 带 order_id 不带 code → 成功（code 非列，提交即丢弃）
+            $customer = new Customer();
+            $customer->id = $customerId;
+            $customer->code = 'B7C-' . $suffix;
+            $customer->name = '批7客户' . $suffix;
+            $customer->save();
+            $order = new SalesOrder();
+            $order->id = $orderId;
+            $order->code = 'B7SO-' . $suffix;
+            $order->customer_id = $customerId;
+            $order->save();
+
+            $resp = (new OmsOrderController())->store(new FakeRequest(['order_id' => $orderId, 'channel' => 'manual']));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $omsId = isset($body['data']['id']) ? HashidsService::decode((string) $body['data']['id']) : null;
+            $this->assertNotNull($omsId, '应返回新建行 id（hashid）');
+            $row = OmsOrder::find($omsId);
+            $this->assertNotNull($row, '新建 OMS 行应落库');
+            $this->assertSame($orderId, (int) $row->order_id);
+
+            // 同 order_id 重复 → 422（uk_order_id 友好化）
+            $resp = (new OmsOrderController())->store(new FakeRequest(['order_id' => $orderId]));
+            $this->assertSame(422, (int) ($this->jsonBody($resp)['code'] ?? -1), '重复 order_id 应 422');
+        } finally {
+            if ($omsId) {
+                OmsOrder::where('id', $omsId)->delete();
+            }
+            SalesOrder::where('id', $orderId)->forceDelete();
+            Customer::where('id', $customerId)->forceDelete();
+        }
     }
 }
