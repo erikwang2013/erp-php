@@ -157,33 +157,73 @@ class RoleListPage extends GetView<RoleController> {
               Text(l10n.systemRolePermSection,
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(width: 4),
-              // 权限树加载失败时页内可重试(加载本身在 RoleController.onInit)
+              // 页内刷新/失败重试：force 重拉（会话缓存命中时普通调用不触网）
               InkWell(
-                onTap: ctrl.loadPermissions,
+                onTap: () => ctrl.loadPermissions(force: true),
                 child: Icon(Icons.refresh,
                     size: 16, color: Theme.of(context).colorScheme.outline),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          if (ctrl.permissions.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Center(
-                child: Text(l10n.commonNoData,
-                    style: TextStyle(
-                        fontSize: 13,
-                        color: Theme.of(context).colorScheme.outline)),
-              ),
-            )
-          else
-            PermissionTreePicker(
+          // P2 响应态：Obx 订阅 controller，数据晚到自动从 loading 转树
+          // （消除直读快照造成的假空态）；失败态含重试钮(force 重拉)。
+          Obx(() {
+            final l10n = AppL10n.current;
+            if (ctrl.permLoadFailed.value) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.commonLoadFailed,
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.error),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => ctrl.loadPermissions(force: true),
+                        icon: const Icon(Icons.refresh, size: 16),
+                        label: Text(l10n.commonRetry),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            if (ctrl.permissions.isEmpty) {
+              if (ctrl.isPermLoading.value) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2.5),
+                    ),
+                  ),
+                );
+              }
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: Text(l10n.commonNoData,
+                      style: TextStyle(
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.outline)),
+                ),
+              );
+            }
+            return PermissionTreePicker(
               nodes: ctrl.permissions
                   .map((p) => p as Map<String, dynamic>)
                   .toList(),
               initialSelectedIds: grantedIds,
               onChanged: (s) => permIds = s,
-            ),
+            );
+          }),
         ],
       ),
       onSubmit: (data) async {

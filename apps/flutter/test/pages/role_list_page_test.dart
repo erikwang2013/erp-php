@@ -3,11 +3,15 @@
 // 角色管理页 Widget 测试：mock /admin/role 与 /admin/permission，
 // 验证角色卡片渲染、新增角色弹窗（权限树）与编辑预选/保存回归
 // （历史 bug：仅比顶层权限 → 编辑保存静默清空）。
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:admin_app/app/pages/system/role/role_controller.dart';
 import 'package:admin_app/app/pages/system/role/role_list_page.dart';
 import 'package:admin_app/app/services/api_service.dart';
 
@@ -57,11 +61,8 @@ void main() {
               'users_count': 0,
               'status': 0,
               'description': '',
-              // 后端按授权逐条下发(含叶子);预选须递归标记到树深处
-              'permissions': [
-                {'id': 'leaf1', 'name': '订单查看', 'slug': 'sales:order:view'},
-                {'id': 'leaf2', 'name': '订单导出', 'slug': 'sales:order:export'},
-              ],
+              // 后端按授权逐条下发 hashid id 数组（349d50e 契约）;预选须递归标记到树深处
+              'permissions': ['leaf1', 'leaf2'],
             },
           ],
           'total': 2,
@@ -71,6 +72,8 @@ void main() {
           FakeHttpClientAdapter.jsonResponse({'code': 0, 'data': permissionTree()}),
     });
     ApiService.instance.dio.httpClientAdapter = adapter;
+    // 会话缓存模块级残留:每测冷启动,权限响应态测试可预测首拉必发请求
+    RoleController.clearPermissionCache();
   });
 
   Future<void> pumpRoleList(WidgetTester tester) async {
@@ -118,12 +121,20 @@ void main() {
       expect(find.text('名称 *'), findsOneWidget); // FormDialog 必填带 * 后缀
       expect(find.text('标识 *'), findsOneWidget);
       expect(find.text('状态'), findsOneWidget);
-      // 权限树 3 级全部展开可见（拍平行 + name/slug）
+      // 权限树默认仅展开第一级（P1-f 惰性默认）:顶层+直接子可见,孙级剪枝
       expect(find.text('销售管理'), findsOneWidget);
       expect(find.text('订单管理'), findsOneWidget);
+      expect(find.text('订单查看'), findsNothing);
+      expect(find.text('sales:order:view'), findsNothing);
+      // 展开订单管理目录 → 孙级行出现
+      await tester.tap(find.descendant(
+        of: find.byKey(const ValueKey('mid1')),
+        matching: find.byIcon(Icons.chevron_right),
+      ));
+      await tester.pump();
       expect(find.text('订单查看'), findsOneWidget);
       expect(find.text('sales:order:view'), findsOneWidget);
-      // 无预选:全树 checkbox 未勾且无 indeterminate
+      // 无预选:可见行 checkbox 均未勾且无 indeterminate
       for (final id in ['top1', 'mid1', 'leaf1']) {
         final box = tester.widget<Checkbox>(find.descendant(
           of: find.byKey(ValueKey(id)),
@@ -134,6 +145,124 @@ void main() {
 
       await tester.tap(find.text('取消'));
       await tester.pump();
+    });
+  });
+
+  group('RoleListPage — 权限区响应态(P2)', () {
+    testWidgets('权限晚到:弹框先 loading,数据到达 Obx 自动出树(非假空态)', (tester) async {
+      final gate = Completer<void>();
+      adapter = FakeHttpClientAdapter(routes: {
+        '/admin/v1/role': (o) async => FakeHttpClientAdapter.jsonResponse({
+          'code': 0,
+          'data': {
+            'list': [
+              {
+                'id': 1,
+                'name': '超级管理员',
+                'slug': 'super',
+                'users_count': 1,
+                'status': 1,
+                'description': '全部权限'
+              },
+            ],
+            'total': 1,
+          },
+        }),
+        '/admin/v1/permission': (o) async {
+          await gate.future; // 权限响应晚于弹框打开
+          return FakeHttpClientAdapter.jsonResponse(
+              {'code': 0, 'data': permissionTree()});
+        },
+      });
+      ApiService.instance.dio.httpClientAdapter = adapter;
+      await pumpRoleList(tester);
+
+      await tester.tap(find.text('新增角色'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // 加载中:树区菊花,而非直读快照的假空态
+      expect(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.byType(CircularProgressIndicator),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('暂无数据'), findsNothing);
+      expect(find.text('销售管理'), findsNothing);
+
+      // 数据到达 → Obx 自动刷新出树(无需手动重试/关开弹框)
+      gate.complete();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.text('销售管理'), findsOneWidget);
+      expect(find.text('订单管理'), findsOneWidget);
+
+      await tester.tap(find.text('取消'));
+      await tester.pump();
+    });
+
+    testWidgets('权限加载失败:错误+重试钮;点重试(force)成功出树', (tester) async {
+      var permCalls = 0;
+      adapter = FakeHttpClientAdapter(routes: {
+        '/admin/v1/role': (o) async => FakeHttpClientAdapter.jsonResponse({
+          'code': 0,
+          'data': {
+            'list': [
+              {
+                'id': 1,
+                'name': '超级管理员',
+                'slug': 'super',
+                'users_count': 1,
+                'status': 1,
+                'description': '全部权限'
+              },
+            ],
+            'total': 1,
+          },
+        }),
+        '/admin/v1/permission': (o) async {
+          permCalls++;
+          if (permCalls == 1) {
+            // 首次(页面 onInit 预取)失败
+            throw DioException(
+              requestOptions: RequestOptions(path: '/admin/v1/permission'),
+            );
+          }
+          return FakeHttpClientAdapter.jsonResponse(
+              {'code': 0, 'data': permissionTree()});
+        },
+      });
+      ApiService.instance.dio.httpClientAdapter = adapter;
+      await pumpRoleList(tester);
+
+      await tester.tap(find.text('新增角色'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(permCalls, 1);
+      expect(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('加载失败'),
+        ),
+        findsOneWidget,
+        reason: '弹框权限区应显示失败态',
+      );
+      expect(find.text('重试'), findsOneWidget);
+      expect(find.text('暂无数据'), findsNothing);
+
+      // 点重试 → force 重拉成功 → 树出现
+      await tester.tap(find.text('重试'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(permCalls, 2);
+      expect(find.text('销售管理'), findsOneWidget);
+
+      await tester.tap(find.text('取消'));
+      await tester.pump();
+      await settleSnackbars(tester); // 首拉失败 snackbar 收尾
     });
   });
 
@@ -150,6 +279,24 @@ void main() {
       await openEditDialog(tester);
 
       expect(find.text('编辑角色'), findsWidgets);
+      // 默认一级展开:折叠目录内已授叶子不可见,但目录行呈 indeterminate
+      // （后代判定走预计算 descendant 集,与行可见性无关）
+      expect(find.byKey(const ValueKey('leaf1')), findsNothing,
+          reason: '孙级默认折叠剪枝不可见');
+      for (final id in ['mid1', 'top1']) {
+        final box = tester.widget<Checkbox>(find.descendant(
+          of: find.byKey(ValueKey(id)),
+          matching: find.byType(Checkbox),
+        ));
+        expect(box.value, isNull, reason: '$id 应呈 indeterminate');
+      }
+
+      // 展开订单管理目录 → 已授叶子行出现
+      await tester.tap(find.descendant(
+        of: find.byKey(const ValueKey('mid1')),
+        matching: find.byIcon(Icons.chevron_right),
+      ));
+      await tester.pump();
       // 已授叶子 leaf1/leaf2 勾选
       for (final id in ['leaf1', 'leaf2']) {
         final box = tester.widget<Checkbox>(find.descendant(
@@ -157,14 +304,6 @@ void main() {
           matching: find.byType(Checkbox),
         ));
         expect(box.value, isTrue, reason: '$id 已授权应勾选');
-      }
-      // 中间目录/顶级未直接授权但有后代选中 → indeterminate(null)
-      for (final id in ['mid1', 'top1']) {
-        final box = tester.widget<Checkbox>(find.descendant(
-          of: find.byKey(ValueKey(id)),
-          matching: find.byType(Checkbox),
-        ));
-        expect(box.value, isNull, reason: '$id 应呈 indeterminate');
       }
     });
 
