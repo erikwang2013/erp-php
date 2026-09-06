@@ -9,7 +9,14 @@ import {
   User,
   UserListResult,
   UserQuery,
-  UserCreateForm
+  UserCreateForm,
+  UserUpdateForm,
+  Role,
+  RoleItem,
+  RoleListResult,
+  RoleSaveBody,
+  PermissionNode,
+  PasswordConfirmBody
 } from '../model/DataModels';
 
 /**
@@ -71,17 +78,69 @@ export class UserService {
     }
   }
 
-  static async update(id: string, data: Partial<User>): Promise<void> {
+  static async update(id: string, data: UserUpdateForm): Promise<void> {
     const response = await apiService.put<User>(`/admin/user/${id}`, data);
     if (response.code !== 0) {
       throw new Error(response.message);
     }
   }
 
-  static async delete(id: string): Promise<void> {
-    const response = await apiService.delete<void>(`/admin/user/${id}`);
+  /** 删除需当前管理员密码二次确认（后端 422 校验），与 RoleService.delete 同契约 */
+  static async delete(id: string, password: string): Promise<void> {
+    const body: PasswordConfirmBody = { password: password };
+    const response = await apiService.delete<void>(`/admin/user/${id}`, body);
     if (response.code !== 0) {
       throw new Error(response.message);
     }
+  }
+}
+
+/**
+ * 角色管理服务（删除需当前管理员密码二次确认，后端 422 校验）
+ */
+export class RoleService {
+  static async getList(page: number, limit: number): Promise<RoleListResult> {
+    const response = await apiService.get<RoleListResult>(`/admin/role?page=${page}&limit=${limit}`);
+    if (response.code !== 0) {
+      throw new Error(response.message);
+    }
+    return response.data;
+  }
+
+  static async create(data: RoleSaveBody): Promise<Role> {
+    const response = await apiService.post<Role>('/admin/role', data);
+    if (response.code !== 0) {
+      throw new Error(response.message);
+    }
+    return response.data;
+  }
+
+  static async update(id: string, data: RoleSaveBody): Promise<Role> {
+    const response = await apiService.put<Role>(`/admin/role/${id}`, data);
+    if (response.code !== 0) {
+      throw new Error(response.message);
+    }
+    return response.data;
+  }
+
+  static async delete(id: string, password: string): Promise<void> {
+    const body: PasswordConfirmBody = { password: password };
+    const response = await apiService.delete<void>(`/admin/role/${id}`, body);
+    if (response.code !== 0) {
+      throw new Error(response.message);
+    }
+  }
+}
+
+/**
+ * 权限服务（权限树，批量 A 起为三级目录嵌套结构）
+ */
+export class PermissionService {
+  static async getTree(): Promise<PermissionNode[]> {
+    const response = await apiService.get<PermissionNode[]>('/admin/permission');
+    if (response.code !== 0) {
+      throw new Error(response.message);
+    }
+    return response.data ?? [];
   }
 }

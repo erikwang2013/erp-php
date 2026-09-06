@@ -17,10 +17,6 @@
       "value": "Users"
     },
     {
-      "name": "user_detail_title",
-      "value": "User Details"
-    },
-    {
       "name": "profile_title",
       "value": "Profile"
     },
@@ -1613,20 +1609,12 @@
       "value": "Enter a username"
     },
     {
-      "name": "user_username_required",
-      "value": "Username is required"
-    },
-    {
       "name": "user_password",
       "value": "Password"
     },
     {
       "name": "user_password_hint",
       "value": "Enter a password"
-    },
-    {
-      "name": "user_password_required",
-      "value": "Password is required"
     },
     {
       "name": "user_name",
@@ -1719,6 +1707,102 @@
     {
       "name": "resolved_locale",
       "value": "en"
+    },
+    {
+      "name": "user_form_edit",
+      "value": "Edit User"
+    },
+    {
+      "name": "user_password_edit_hint",
+      "value": "Leave blank to keep the current password"
+    },
+    {
+      "name": "role_list_title",
+      "value": "Roles"
+    },
+    {
+      "name": "role_form_add",
+      "value": "New Role"
+    },
+    {
+      "name": "role_form_edit",
+      "value": "Edit Role"
+    },
+    {
+      "name": "role_name",
+      "value": "Role Name"
+    },
+    {
+      "name": "role_name_hint",
+      "value": "Enter a role name"
+    },
+    {
+      "name": "role_name_required",
+      "value": "Role name is required"
+    },
+    {
+      "name": "role_slug",
+      "value": "Identifier"
+    },
+    {
+      "name": "role_slug_hint",
+      "value": "Enter a role identifier"
+    },
+    {
+      "name": "role_slug_required",
+      "value": "Role identifier is required"
+    },
+    {
+      "name": "role_description",
+      "value": "Description"
+    },
+    {
+      "name": "role_description_hint",
+      "value": "Enter a role description"
+    },
+    {
+      "name": "role_status",
+      "value": "Status"
+    },
+    {
+      "name": "role_perm_section",
+      "value": "Permission Assignment"
+    },
+    {
+      "name": "role_perm_loading",
+      "value": "Loading permissions…"
+    },
+    {
+      "name": "role_perm_load_failed",
+      "value": "Failed to load permissions. Retry."
+    },
+    {
+      "name": "role_perm_empty",
+      "value": "No permission data"
+    },
+    {
+      "name": "role_empty",
+      "value": "No roles yet"
+    },
+    {
+      "name": "role_delete_msg_fmt",
+      "value": "Delete role \"%1$s\"? Grants of its associated users will be removed. Enter your current admin password to confirm."
+    },
+    {
+      "name": "role_subtitle_fmt",
+      "value": "%1$s · %2$s users"
+    },
+    {
+      "name": "confirm_password_hint",
+      "value": "Enter your current admin password"
+    },
+    {
+      "name": "confirm_password_required",
+      "value": "Enter your password first"
+    },
+    {
+      "name": "dashboard_sys_title",
+      "value": "System"
     }
   ]
 }

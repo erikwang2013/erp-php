@@ -143,6 +143,23 @@ export interface UserCreateForm {
   status: number;
 }
 
+/** 删除密码确认体（敏感删除需当前管理员密码二次确认，后端 422 校验） */
+export interface PasswordConfirmBody {
+  password: string;
+}
+
+/**
+ * 更新用户表单（编辑弹框：password 留空=不修改——后端
+ * has('password') && !empty() 才改密，空串安全忽略）
+ */
+export interface UserUpdateForm {
+  real_name: string;
+  phone: string;
+  email: string;
+  status: number;
+  password?: string;
+}
+
 /**
  * 角色模型
  */
@@ -152,6 +169,45 @@ export interface Role {
   slug: string;
   description: string;
   status: number;
+}
+
+/**
+ * 权限节点（/admin/permission 树形下发：id 为 hashid 字符串、
+ * parent_id 为后端原始数字 id、children 仅在含子节点时下发）
+ */
+export interface PermissionNode {
+  id: string;
+  name: string;
+  slug: string;
+  parent_id?: number;
+  type?: number; // 1=目录 2=菜单 3=按钮
+  icon?: string;
+  path?: string;
+  sort?: number;
+  children?: PermissionNode[];
+}
+
+/**
+ * 角色列表行（/admin/role 每行附 users_count 与平铺已授权限
+ * permissions——编辑弹框按该平铺集预选，防"只比顶层"静默清空）
+ */
+export interface RoleItem extends Role {
+  users_count?: number;
+  permissions?: PermissionNode[];
+}
+
+export interface RoleListResult extends PageResult<RoleItem> {}
+
+/**
+ * 角色保存请求体（name/slug 仅创建期提交；编辑期 name 只读回传冗余值、
+ * slug 后端不可改不提交；permission_ids 为全勾集合，hashid 字符串直传）
+ */
+export interface RoleSaveBody {
+  name: string;
+  slug?: string;
+  description: string;
+  status: number;
+  permission_ids: string[];
 }
 
 /**

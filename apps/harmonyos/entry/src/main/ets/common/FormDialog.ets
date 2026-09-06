@@ -40,9 +40,12 @@ export class FormField {
   required: boolean = false;
   options: Array<ResourceStr> = [];
   placeholder: ResourceStr = '';
+  readonly: boolean = false; // 编辑态只读：输入框禁用、下拉不弹选（值仍随 initial 展示）
+  optionValues: Array<string> = []; // select 原值表（与 options 下标对齐；缺省=选中值落解析文本，兼容旧语义）
 
   constructor(key: string, label: ResourceStr, type: string = 'text',
-    required: boolean = false, options: Array<ResourceStr> = [], placeholder: ResourceStr = '') {
+    required: boolean = false, options: Array<ResourceStr> = [], placeholder: ResourceStr = '',
+    readonly: boolean = false, optionValues: Array<string> = []) {
     this.key = key;
     this.label = label;
     this.type = type;
@@ -51,6 +54,8 @@ export class FormField {
     // placeholder 未显式传入时留空（旧「请输入」拼接属未资源化时期遗留；
     // 字段级全句 hint 资源化后调用方显式传参，本回退已无消费方）
     this.placeholder = placeholder || '';
+    this.readonly = readonly;
+    this.optionValues = optionValues;
   }
 }
 
@@ -65,7 +70,10 @@ export struct ConfirmDialog {
   @Prop confirmText: ResourceStr = $r('app.string.delete');
   @Prop cancelText: ResourceStr = $r('app.string.cancel');
   @Prop kind: string = 'danger'; // 'danger' 实心危险主操作 | 'primary' 主色
+  @Prop needPassword: boolean = false; // 敏感删除的密码二次确认（后端 422 校验）
+  @State pwd: string = '';
   onConfirm?: () => void;
+  onConfirmPwd?: (password: string) => void;
   onCancel?: () => void;
   controller?: CustomDialogController;
 
@@ -73,6 +81,22 @@ export struct ConfirmDialog {
     if (this.controller) {
       this.controller.close();
     }
+  }
+
+  /** 确认分支：needPassword 时空密码内联提示，不提交 */
+  private submit(): void {
+    if (this.needPassword) {
+      if (this.pwd.length === 0) {
+        promptAction.showToast({ message: $r('app.string.confirm_password_required') });
+        return;
+      }
+      if (this.onConfirmPwd) {
+        this.onConfirmPwd(this.pwd);
+      }
+    } else if (this.onConfirm) {
+      this.onConfirm();
+    }
+    this.close();
   }
 
   build() {
@@ -107,6 +131,21 @@ export struct ConfirmDialog {
         .width('100%')
         .margin({ top: 12 })
 
+      if (this.needPassword) {
+        TextInput({ placeholder: $r('app.string.confirm_password_hint'), text: this.pwd })
+          .fontSize(14)
+          .type(InputType.Password)
+          .fontColor($r('app.color.text_primary'))
+          .placeholderColor($r('app.color.text_hint'))
+          .height(40)
+          .width('100%')
+          .backgroundColor($r('app.color.surface_alt'))
+          .borderRadius(6)
+          .padding({ left: 12, right: 12 })
+          .margin({ top: 12 })
+          .onChange((v: string) => { this.pwd = v; })
+      }
+
       Row() {
         Button(this.cancelText)
           .fontSize(14)
@@ -133,10 +172,7 @@ export struct ConfirmDialog {
           .layoutWeight(1)
           .margin({ left: 12 })
           .onClick(() => {
-            if (this.onConfirm) {
-              this.onConfirm();
-            }
-            this.close();
+            this.submit();
           })
       }
       .width('100%')
@@ -167,6 +203,15 @@ export struct FormDialog {
   @State values: Array<string> = [];
   @State missing: Array<boolean> = [];
   @State submitting: boolean = false;
+  // 可选内容插槽（字段区下方随整体滚动渲染，如角色弹框的权限树选区）；
+  // 惰性组件语义：调用方仅当需要时传 withSlot=true + slotContent
+  @Prop withSlot: boolean = false;
+  @BuilderParam slotContent: () => void = this.slotEmpty;
+
+  @Builder
+  slotEmpty() {
+    Text('')
+  }
 
   aboutToAppear(): void {
     this.resetValues();
@@ -205,7 +250,7 @@ export struct FormDialog {
 
   private pickSelect(index: number): void {
     const field = this.fields[index];
-    if (!field || field.options.length === 0) {
+    if (!field || field.options.length === 0 || field.readonly) {
       return;
     }
     // 现代 ActionMenu API：buttons 定长元组 ≤6 + Promise（旧 sheets/responseCallback 为 @ohos.prompt 遗留形态）
@@ -220,11 +265,31 @@ export struct FormDialog {
     }).then((ret: promptAction.ActionMenuSuccessResponse) => {
       const idx: number = ret.index;
       if (idx >= 0 && idx < field.options.length) {
-        this.setValue(index, this.optionText(field.options[idx]));
+        this.setValue(index, this.selectRaw(field, idx));
       }
     }).catch(() => {
       // 取消菜单等失败路径不处理
     });
+  }
+
+  /** select 选中项落值：声明了 optionValues 存原值，否则回退解析文本（旧语义） */
+  private selectRaw(field: FormField, idx: number): string {
+    if (idx < field.optionValues.length) {
+      return String(field.optionValues[idx]);
+    }
+    return this.optionText(field.options[idx]);
+  }
+
+  /** 渲染值：select 存原值时换算回选项展示文案；其余类型原样 */
+  private displayValue(index: number): string {
+    const raw = index < this.values.length ? this.values[index] : '';
+    if (index < this.fields.length && this.fields[index].type === 'select') {
+      const vi = this.fields[index].optionValues.indexOf(raw);
+      if (vi >= 0 && vi < this.fields[index].options.length) {
+        return this.optionText(this.fields[index].options[vi]);
+      }
+    }
+    return raw;
   }
 
   /** 选项选中值落 values 前转纯字符串（选项为 $r 资源时按当前语言解析，兜底空串） */
@@ -292,18 +357,36 @@ export struct FormDialog {
               .width('100%')
 
               if (field.type === 'select') {
-                TextInput({ placeholder: field.placeholder, text: this.values[index] })
-                  .fontSize(14)
-                  .fontColor($r('app.color.text_primary'))
-                  .placeholderColor($r('app.color.text_hint'))
-                  .height(44)
-                  .backgroundColor($r('app.color.surface'))
-                  .borderRadius(6)
-                  .border({ width: 1, color: $r('app.color.border') })
-                  .margin({ top: 6 })
-                  .onClick(() => {
-                    this.pickSelect(index);
-                  })
+                // select 用禁用输入框纯展示 + 透明覆盖层拾取（禁键盘不弹起），
+                // 只读态不加覆盖层（值仍展示、不可再选）
+                Stack() {
+                  TextInput({ placeholder: field.placeholder, text: this.displayValue(index) })
+                    .fontSize(14)
+                    .fontColor($r('app.color.text_primary'))
+                    .placeholderColor($r('app.color.text_hint'))
+                    .height(44)
+                    .width('100%')
+                    .backgroundColor($r('app.color.surface'))
+                    .borderRadius(6)
+                    .border({ width: 1, color: $r('app.color.border') })
+                    .enabled(false)
+                  if (!field.readonly) {
+                    Row() {
+                      Text('▾')
+                        .fontSize(12)
+                        .fontColor($r('app.color.text_hint'))
+                    }
+                    .width('100%')
+                    .height(44)
+                    .padding({ right: 12 })
+                    .justifyContent(FlexAlign.End)
+                    .onClick(() => {
+                      this.pickSelect(index);
+                    })
+                  }
+                }
+                .width('100%')
+                .margin({ top: 6 })
               } else {
                 TextInput({
                   placeholder: field.placeholder,
@@ -319,6 +402,7 @@ export struct FormDialog {
                   .borderRadius(6)
                   .border({ width: 1, color: $r('app.color.border') })
                   .margin({ top: 6 })
+                  .enabled(!field.readonly)
                   .onChange((v: string) => {
                     this.setValue(index, v);
                   })
@@ -335,6 +419,14 @@ export struct FormDialog {
             .width('100%')
             .alignItems(HorizontalAlign.Start)
           }, (field: FormField) => field.key)
+
+          if (this.withSlot) {
+            Column() {
+              this.slotContent()
+            }
+            .width('100%')
+            .margin({ top: 8 })
+          }
         }
         .width('100%')
       }

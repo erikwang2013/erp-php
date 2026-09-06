@@ -17,10 +17,6 @@
       "value": "用户管理"
     },
     {
-      "name": "user_detail_title",
-      "value": "用户详情"
-    },
-    {
       "name": "profile_title",
       "value": "个人中心"
     },
@@ -1613,19 +1609,11 @@
       "value": "请输入用户名"
     },
     {
-      "name": "user_username_required",
-      "value": "请输入用户名"
-    },
-    {
       "name": "user_password",
       "value": "密码"
     },
     {
       "name": "user_password_hint",
-      "value": "请输入密码"
-    },
-    {
-      "name": "user_password_required",
       "value": "请输入密码"
     },
     {
@@ -1719,6 +1707,102 @@
     {
       "name": "resolved_locale",
       "value": "zh"
+    },
+    {
+      "name": "user_form_edit",
+      "value": "编辑用户"
+    },
+    {
+      "name": "user_password_edit_hint",
+      "value": "留空则不修改密码"
+    },
+    {
+      "name": "role_list_title",
+      "value": "角色管理"
+    },
+    {
+      "name": "role_form_add",
+      "value": "新增角色"
+    },
+    {
+      "name": "role_form_edit",
+      "value": "编辑角色"
+    },
+    {
+      "name": "role_name",
+      "value": "角色名称"
+    },
+    {
+      "name": "role_name_hint",
+      "value": "请输入角色名称"
+    },
+    {
+      "name": "role_name_required",
+      "value": "角色名称不能为空"
+    },
+    {
+      "name": "role_slug",
+      "value": "标识"
+    },
+    {
+      "name": "role_slug_hint",
+      "value": "请输入角色标识"
+    },
+    {
+      "name": "role_slug_required",
+      "value": "角色标识不能为空"
+    },
+    {
+      "name": "role_description",
+      "value": "描述"
+    },
+    {
+      "name": "role_description_hint",
+      "value": "请输入角色描述"
+    },
+    {
+      "name": "role_status",
+      "value": "状态"
+    },
+    {
+      "name": "role_perm_section",
+      "value": "权限分配"
+    },
+    {
+      "name": "role_perm_loading",
+      "value": "权限加载中…"
+    },
+    {
+      "name": "role_perm_load_failed",
+      "value": "权限数据加载失败，请重试"
+    },
+    {
+      "name": "role_perm_empty",
+      "value": "暂无权限数据"
+    },
+    {
+      "name": "role_empty",
+      "value": "暂无角色"
+    },
+    {
+      "name": "role_delete_msg_fmt",
+      "value": "删除角色「%1$s」？其已关联用户的授权将一并解除，需当前管理员密码确认。"
+    },
+    {
+      "name": "role_subtitle_fmt",
+      "value": "%1$s · %2$s 人"
+    },
+    {
+      "name": "confirm_password_hint",
+      "value": "请输入当前管理员密码"
+    },
+    {
+      "name": "confirm_password_required",
+      "value": "请先输入管理员密码"
+    },
+    {
+      "name": "dashboard_sys_title",
+      "value": "系统管理"
     }
   ]
 }

@@ -153,6 +153,8 @@ struct DashboardPage {
   @State isLoading: boolean = true;
   @State hasError: boolean = false;
   @State errMsg: string = ''; // M4：真实错误文案（catch 不再吞 message）
+  // 系统管理宫格按压动效（one-shot 缩放，非交互状态恒 1）
+  @State mgmtZoom: number = 1;
 
   aboutToAppear(): void {
     this.loadDashboard();
@@ -221,6 +223,54 @@ struct DashboardPage {
    * 其余 icon 透传后端 label 原样（后端下发 label 保持展示原样，属两端双语
    * 后端字段债务，未知文案不做猜测映射）
    */
+  /** 宫格按压动效（one-shot）：缩放沉底即回弹，页面跳转不等待动画 */
+  private pressMgmt(url: string): void {
+    this.mgmtZoom = 0.96;
+    setTimeout(() => {
+      this.mgmtZoom = 1;
+    }, 120);
+    router.pushUrl({ url: url });
+  }
+
+  /** 系统管理宫格卡：符号字色图标（免 rawfile）+ 文案 + 右箭；素色内容卡外框 */
+  @Builder
+  mgmtTile(label: ResourceStr, glyph: string, url: string) {
+    Row() {
+      Stack() {
+        Circle({ width: 36, height: 36 })
+          .fill($r('app.color.primary_bg'))
+        Text(glyph)
+          .fontSize(glyph === '◆' ? 14 : 16)
+          .fontColor(BRAND_MID)
+          .fontWeight(FontWeight.Medium)
+      }
+      .width(36)
+      .height(36)
+
+      Text(label)
+        .fontSize(14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_primary'))
+        .margin({ left: 10 })
+        .layoutWeight(1)
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+
+      Text('›')
+        .fontSize(20)
+        .fontColor($r('app.color.text_disabled'))
+    }
+    .width('100%')
+    .height(64)
+    .padding({ left: 12, right: 12 })
+    .backgroundColor($r('app.color.surface'))
+    .borderRadius(RADIUS_CARD)
+    .shadow(SHADOW_CARD)
+    .onClick(() => {
+      this.pressMgmt(url);
+    })
+  }
+
   private kpiLabel(icon: string, label: string): ResourceStr {
     if (icon === 'people') {
       return $r('app.string.total_users');
@@ -384,6 +434,35 @@ struct DashboardPage {
       } else {
         Scroll() {
           Column() {
+            // 系统管理宫格（2 项：用户管理/角色管理；UserListPage 此前全树无入口，
+            // 随此宫格一并接通。素色走主题 token，零渐变——渐变只归登录/splash/hero）
+            Column() {
+              Text($r('app.string.dashboard_sys_title'))
+                .fontSize(16)
+                .fontWeight(FontWeight.Medium)
+                .width('100%')
+                .margin({ bottom: 12 })
+
+              Grid() {
+                GridItem() {
+                  this.mgmtTile($r('app.string.user_list_title'), '◉', 'pages/UserListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.role_list_title'), '◆', 'pages/RoleListPage')
+                }
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(12)
+              .rowsGap(12)
+              .width('100%')
+              .scale({ x: this.mgmtZoom, y: this.mgmtZoom })
+              .animation({ duration: 120, curve: Curve.EaseOut })
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, top: 16 })
+            .alignItems(HorizontalAlign.Start)
+
             // KPI 数字滚动卡 2×2
             if (this.kpis.length > 0) {
               Grid() {
