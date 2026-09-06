@@ -61,10 +61,10 @@ class RoleController extends GetxController {
     }
   }
 
-  Future<bool> createRole(String name, String slug, String desc, List<String> permIds) async {
+  Future<bool> createRole(String name, String slug, String desc, List<String> permIds, {int status = 1}) async {
     try {
       await api.post('/admin/v1/role', data: {
-        'name': name, 'slug': slug, 'description': desc, 'permission_ids': permIds,
+        'name': name, 'slug': slug, 'description': desc, 'status': status, 'permission_ids': permIds,
       });
       await loadRoles();
       final l10n = AppL10n.current;
@@ -77,11 +77,12 @@ class RoleController extends GetxController {
     }
   }
 
-  Future<bool> updateRole(String id, {String? name, String? desc, List<String>? permIds}) async {
+  Future<bool> updateRole(String id, {String? name, String? desc, int? status, List<String>? permIds}) async {
     try {
       final data = <String, dynamic>{};
       if (name != null) data['name'] = name;
       if (desc != null) data['description'] = desc;
+      if (status != null) data['status'] = status;
       if (permIds != null) data['permission_ids'] = permIds;
       await api.put('/admin/v1/role/$id', data: data);
       await loadRoles();

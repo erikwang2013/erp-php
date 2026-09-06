@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_l10n.dart';
 
-enum FormFieldType { text, number, dropdown, multiline }
+enum FormFieldType { text, number, dropdown, password, multiline }
 
 /// Declarative description of a single form field rendered by [FormDialog].
 class FormFieldConfig {
@@ -10,8 +10,14 @@ class FormFieldConfig {
   final String label;
   final String? initialValue;
   final bool required;
+
+  /// 是否可编辑（如编辑态下 group/key/username 等主键字段禁止修改）。
+  final bool enabled;
   final FormFieldType type;
   final List<String> options;
+
+  /// dropdown 展示文案映射：值→标签（缺省时原值展示）。
+  final Map<String, String> optionLabels;
   final String? hint;
 
   const FormFieldConfig({
@@ -19,17 +25,21 @@ class FormFieldConfig {
     required this.label,
     this.initialValue,
     this.required = false,
+    this.enabled = true,
     this.type = FormFieldType.text,
     this.options = const [],
+    this.optionLabels = const {},
     this.hint,
   });
 }
 
 /// Reusable form dialog: renders fields dynamically from [FormFieldConfig]
 /// list, validates required fields and returns true on successful submit.
+/// [child] 渲染在字段区与按钮之间（如权限树等富内容区）。
 class FormDialog extends StatefulWidget {
   final String title;
   final List<FormFieldConfig> fields;
+  final Widget? child;
   final Future<bool> Function(Map<String, String> values)? onSubmit;
   final String submitText;
 
@@ -37,6 +47,7 @@ class FormDialog extends StatefulWidget {
     super.key,
     required this.title,
     required this.fields,
+    this.child,
     this.onSubmit,
     this.submitText = '提交',
   });
@@ -50,6 +61,7 @@ class FormDialog extends StatefulWidget {
     required String title,
     required List<FormFieldConfig> fields,
     Map<String, dynamic>? initialData,
+    Widget? child,
     Future<bool> Function(Map<String, String> values)? onSubmit,
     String submitText = '提交',
   }) {
@@ -67,8 +79,10 @@ class FormDialog extends StatefulWidget {
                     ? null
                     : '${initialData[f.name] ?? f.initialValue ?? ''}',
                 required: f.required,
+                enabled: f.enabled,
                 type: f.type,
                 options: f.options,
+                optionLabels: f.optionLabels,
                 hint: f.hint,
               ),
           ];
@@ -79,6 +93,7 @@ class FormDialog extends StatefulWidget {
         fields: effective,
         onSubmit: onSubmit,
         submitText: submitText,
+        child: child,
       ),
     ).then((r) => r ?? false);
   }
@@ -144,24 +159,42 @@ class _FormDialogState extends State<FormDialog> {
   Widget build(BuildContext context) {
     // 桌面居中弹窗 480 宽;窄屏(<500)不限制宽度避免溢出(§5.4)
     final wide = MediaQuery.sizeOf(context).width >= 500;
+    final fields = Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final f in widget.fields) ...[
+            _buildField(f),
+            const SizedBox(height: 16),
+          ],
+        ],
+      ),
+    );
+    // 无 child 插槽:保持原布局不变（内容超高原样可滚）;带 child 时整个
+    // 内容区限高滚动（权限树数百行时弹框不超出屏幕，树行随内容一起滚动）。
+    final body = widget.child == null
+        ? SingleChildScrollView(child: fields)
+        : ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * 0.72,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  fields,
+                  widget.child!,
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          );
     return AlertDialog(
       title: Text(widget.title),
       content: SizedBox(
         width: wide ? 480 : double.infinity,
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final f in widget.fields) ...[
-                  _buildField(f),
-                  const SizedBox(height: 16),
-                ],
-              ],
-            ),
-          ),
-        ),
+        child: body,
       ),
       actions: [
         OutlinedButton(
@@ -193,23 +226,34 @@ class _FormDialogState extends State<FormDialog> {
         : null;
     final label = f.required ? '${f.label} *' : f.label;
 
+    // 字段禁用手性:提交中全禁用;enabled=false 为编辑态只读字段
+    final fieldEnabled = !_loading && f.enabled;
     switch (f.type) {
       case FormFieldType.dropdown:
         return DropdownButtonFormField<String>(
           initialValue: _dropdownValues[f.name],
           decoration: InputDecoration(labelText: label, isDense: true),
           items: [
-            for (final o in f.options) DropdownMenuItem(value: o, child: Text(o)),
+            for (final o in f.options)
+              DropdownMenuItem(value: o, child: Text(f.optionLabels[o] ?? o)),
           ],
-          onChanged: _loading
-              ? null
-              : (v) => setState(() => _dropdownValues[f.name] = v),
+          onChanged: fieldEnabled
+              ? (v) => setState(() => _dropdownValues[f.name] = v)
+              : null,
+          validator: validator,
+        );
+      case FormFieldType.password:
+        return TextFormField(
+          controller: _controllers[f.name],
+          enabled: fieldEnabled,
+          obscureText: true,
+          decoration: InputDecoration(labelText: label, hintText: f.hint, isDense: true),
           validator: validator,
         );
       case FormFieldType.multiline:
         return TextFormField(
           controller: _controllers[f.name],
-          enabled: !_loading,
+          enabled: fieldEnabled,
           maxLines: 3,
           decoration: InputDecoration(labelText: label, hintText: f.hint, isDense: true),
           validator: validator,
@@ -217,7 +261,7 @@ class _FormDialogState extends State<FormDialog> {
       case FormFieldType.number:
         return TextFormField(
           controller: _controllers[f.name],
-          enabled: !_loading,
+          enabled: fieldEnabled,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(labelText: label, hintText: f.hint, isDense: true),
           validator: validator,
@@ -225,7 +269,7 @@ class _FormDialogState extends State<FormDialog> {
       case FormFieldType.text:
         return TextFormField(
           controller: _controllers[f.name],
-          enabled: !_loading,
+          enabled: fieldEnabled,
           decoration: InputDecoration(labelText: label, hintText: f.hint, isDense: true),
           validator: validator,
         );

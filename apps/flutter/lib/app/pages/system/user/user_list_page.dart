@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../theme/app_tokens.dart';
 import '../../../widgets/confirm_dialog.dart';
+import '../../../widgets/form_dialog.dart';
 import '../../../l10n/app_l10n.dart';
 import 'user_controller.dart';
-import 'user_form_page.dart';
 
 class UserListPage extends GetView<UserController> {
   const UserListPage({super.key});
@@ -36,7 +36,7 @@ class UserListPage extends GetView<UserController> {
                   onPressed: ctrl.isLoading.value ? null : () => ctrl.loadUsers(),
                 )),
             ElevatedButton.icon(
-              onPressed: () => Get.to(() => const UserFormPage())?.then((_) => ctrl.loadUsers(reset: true)),
+              onPressed: () => _showUserDialog(context, ctrl),
               icon: const Icon(Icons.add),
               label: Text(l10n.systemUserAdd),
             ),
@@ -145,7 +145,7 @@ class UserListPage extends GetView<UserController> {
                                   side: BorderSide.none)),
                           DataCell(Text(u['last_login_at'] ?? '-')),
                           DataCell(Row(mainAxisSize: MainAxisSize.min, children: [
-                            IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => Get.to(() => UserFormPage(userData: u))?.then((_) => ctrl.loadUsers())),
+                            IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _showUserDialog(context, ctrl, user: u)),
                             IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _confirmDelete(context, ctrl, u)),
                           ])),
                         ],
@@ -171,6 +171,47 @@ class UserListPage extends GetView<UserController> {
           );
         }),
       ],
+    );
+  }
+
+  /// 新增/编辑统一弹框(替换原 UserFormPage 整页)。编辑语义对齐后端与旧页:
+  /// username 不可改;密码留空=不修改(仅新建必填)。
+  Future<void> _showUserDialog(BuildContext context, UserController ctrl, {dynamic user}) async {
+    final l10n = AppL10n.of(context);
+    final isEdit = user != null;
+    await FormDialog.show(
+      context,
+      title: isEdit ? l10n.systemUserEdit : l10n.systemUserAdd,
+      fields: [
+        FormFieldConfig(
+          name: 'username',
+          label: l10n.fieldUsername,
+          required: true,
+          enabled: !isEdit,
+        ),
+        FormFieldConfig(
+          name: 'password',
+          label: isEdit ? l10n.userPwdEditHint : l10n.userPwdNewLabel,
+          type: FormFieldType.password,
+          required: !isEdit,
+        ),
+        FormFieldConfig(name: 'real_name', label: l10n.fieldRealNameFull, required: true),
+        FormFieldConfig(name: 'phone', label: l10n.fieldPhone),
+        FormFieldConfig(name: 'email', label: l10n.fieldEmail),
+        FormFieldConfig(
+          name: 'status',
+          label: l10n.commonStatus,
+          type: FormFieldType.dropdown,
+          initialValue: '1',
+          options: const ['1', '0'],
+          optionLabels: {'1': l10n.commonEnabled, '0': l10n.commonDisabled},
+        ),
+      ],
+      initialData: isEdit ? user : null,
+      submitText: l10n.commonSave,
+      onSubmit: (data) async => isEdit
+          ? ctrl.updateUser('${user['id']}', data)
+          : ctrl.createUser(data),
     );
   }
 

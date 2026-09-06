@@ -70,6 +70,50 @@ class UserController extends GetxController {
     }
   }
 
+  /// 新建用户:data 为弹框收集的字符串键值(username/password/real_name/phone/email/status)。
+  Future<bool> createUser(Map<String, String> data) async {
+    final l10n = AppL10n.current;
+    try {
+      await api.post('/admin/v1/user', data: {
+        'username': data['username'],
+        'password': data['password'],
+        'real_name': data['real_name'],
+        'phone': data['phone'],
+        'email': data['email'],
+        'status': int.tryParse(data['status'] ?? '') ?? 1,
+      });
+      await loadUsers(reset: true);
+      Get.snackbar(l10n.commonSnackSuccess, l10n.systemUserCreated);
+      return true;
+    } catch (e) {
+      Get.snackbar(l10n.commonSnackError, l10n.commonOpFailedMsg('$e'));
+      return false;
+    }
+  }
+
+  /// 更新用户:编辑弹框语义与旧 UserFormPage 一致 —— 用户名不可改、
+  /// 密码留空不修改(非空才随 PUT 提交)。
+  Future<bool> updateUser(String id, Map<String, String> data) async {
+    final l10n = AppL10n.current;
+    try {
+      final payload = <String, dynamic>{
+        'real_name': data['real_name'],
+        'phone': data['phone'],
+        'email': data['email'],
+        'status': int.tryParse(data['status'] ?? '') ?? 1,
+      };
+      final pwd = data['password']?.trim() ?? '';
+      if (pwd.isNotEmpty) payload['password'] = pwd;
+      await api.put('/admin/v1/user/$id', data: payload);
+      await loadUsers();
+      Get.snackbar(l10n.commonSnackSuccess, l10n.systemUserUpdated);
+      return true;
+    } catch (e) {
+      Get.snackbar(l10n.commonSnackError, l10n.commonOpFailedMsg('$e'));
+      return false;
+    }
+  }
+
   Future<bool> deleteUser(String id, String password) async {
     try {
       await api.delete('/admin/v1/user/$id', data: {'password': password});

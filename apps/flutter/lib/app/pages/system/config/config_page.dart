@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../../../services/api_service.dart';
 import '../../../theme/app_tokens.dart';
 import '../../../widgets/confirm_dialog.dart';
+import '../../../widgets/form_dialog.dart';
 import '../../../l10n/app_l10n.dart';
 
 class ConfigController extends GetxController {
@@ -47,7 +48,8 @@ class ConfigController extends GetxController {
     }
   }
 
-  Future<void> save(dynamic item) async {
+  /// 保存成功返回 true(弹框由调用方据此关闭),失败留在弹框内可重试。
+  Future<bool> save(dynamic item) async {
     final l10n = AppL10n.current;
     try {
       if (item['id'] != null) {
@@ -57,7 +59,11 @@ class ConfigController extends GetxController {
       }
       await loadConfigs();
       Get.snackbar(l10n.commonSnackSuccess, l10n.configSaveSuccess);
-    } catch (e) { Get.snackbar(l10n.commonSnackError, l10n.configSaveFailedMsg('$e')); }
+      return true;
+    } catch (e) {
+      Get.snackbar(l10n.commonSnackError, l10n.configSaveFailedMsg('$e'));
+      return false;
+    }
   }
 
   Future<bool> remove(String id, String pwd) async {
@@ -148,29 +154,38 @@ class ConfigPage extends GetView<ConfigController> {
     ]);
   }
 
-  void _showDialog(BuildContext context, ConfigController ctrl, {dynamic item}) {
+  Future<void> _showDialog(BuildContext context, ConfigController ctrl, {dynamic item}) async {
     final l10n = AppL10n.of(context);
-    final gCtrl = TextEditingController(text: item?['group'] ?? '');
-    final kCtrl = TextEditingController(text: item?['key'] ?? '');
-    final vCtrl = TextEditingController(text: item?['value'] ?? '');
-    final tCtrl = TextEditingController(text: item?['type'] ?? 'string');
-    final dCtrl = TextEditingController(text: item?['description'] ?? '');
-    showDialog(context: context, builder: (_) => AlertDialog(
-      title: Text(item != null ? l10n.configEdit : l10n.configAdd),
-      content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        TextField(controller: gCtrl, decoration: InputDecoration(labelText: l10n.fieldGroup), enabled: item == null),
-        TextField(controller: kCtrl, decoration: InputDecoration(labelText: l10n.fieldKey), enabled: item == null),
-        TextField(controller: vCtrl, decoration: InputDecoration(labelText: l10n.fieldValue), maxLines: 3),
-        TextField(controller: tCtrl, decoration: InputDecoration(labelText: l10n.fieldType)),
-        TextField(controller: dCtrl, decoration: InputDecoration(labelText: l10n.fieldNote)),
-      ])),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
-        ElevatedButton(onPressed: () {
-          ctrl.save({'id': item?['id'], 'group': gCtrl.text, 'key': kCtrl.text, 'value': vCtrl.text, 'type': tCtrl.text, 'description': dCtrl.text});
-          Navigator.pop(context);
-        }, child: Text(l10n.commonSave)),
+    final isEdit = item != null;
+    await FormDialog.show(
+      context,
+      title: isEdit ? l10n.configEdit : l10n.configAdd,
+      initialData: isEdit ? item : null,
+      submitText: l10n.commonSave,
+      fields: [
+        // group/key 为 uk_group_key 联合主键:编辑态禁改(与旧交互一致)
+        FormFieldConfig(name: 'group', label: l10n.fieldGroup, required: true, enabled: !isEdit),
+        FormFieldConfig(name: 'key', label: l10n.fieldKey, required: true, enabled: !isEdit),
+        FormFieldConfig(name: 'value', label: l10n.fieldValue, type: FormFieldType.multiline),
+        FormFieldConfig(
+          name: 'type',
+          label: l10n.fieldType,
+          type: FormFieldType.dropdown,
+          initialValue: 'string',
+          // 枚举与 erp_system_config.type 注释集(string|int|bool|json|array)一致;
+          // 原样英文展示(存储值),不翻译
+          options: const ['string', 'int', 'bool', 'json', 'array'],
+        ),
+        FormFieldConfig(name: 'description', label: l10n.fieldNote),
       ],
-    ));
+      onSubmit: (data) async => ctrl.save({
+        'id': item?['id'],
+        'group': data['group'],
+        'key': data['key'],
+        'value': data['value'],
+        'type': data['type'],
+        'description': data['description'],
+      }),
+    );
   }
 }

@@ -46,10 +46,24 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaterialApp(home: Scaffold(body: UserListPage())));
+    // GetMaterialApp 注册 Get.key 导航，使保存成功后的 Get.snackbar 可正常弹出
+    await tester.pumpWidget(const GetMaterialApp(home: Scaffold(body: UserListPage())));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
   }
+
+  /// 关闭 Get.snackbar 并等动画与自动关闭计时器走完，避免测试结束时残留 Timer/动画。
+  Future<void> settleSnackbars(WidgetTester tester) async {
+    Get.closeAllSnackbars();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pump();
+  }
+
+  /// 弹框内的第 [i] 个文本输入框（页面搜索框在弹框外，需限定后代查找）。
+  Finder dialogField(int i) => find
+      .descendant(of: find.byType(AlertDialog), matching: find.byType(TextField))
+      .at(i);
 
   group('UserListPage — 渲染', () {
     testWidgets('渲染标题与新增用户按钮', (tester) async {
@@ -95,6 +109,83 @@ void main() {
 
       final req = adapter.requests.last;
       expect(req.queryParameters['status'], 0);
+    });
+  });
+
+  group('UserListPage — 新增/编辑弹框(整页 → FormDialog 统一)', () {
+    testWidgets('新增弹框:字段齐全、密码框遮挡、状态默认启用', (tester) async {
+      await pumpUserList(tester);
+
+      await tester.tap(find.text('新增用户'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('新增用户'), findsNWidgets(2)); // 页头按钮 + 弹窗标题
+      // username/密码/真实姓名/手机/邮箱 五个输入框(状态为下拉非输入框)
+      expect(find.byType(TextField), findsNWidgets(6)); // 页面搜索框 1 + 弹框 5
+      expect(tester.widget<TextField>(dialogField(1)).obscureText, isTrue,
+          reason: '密码框应遮挡输入');
+      expect(tester.widget<TextField>(dialogField(0)).enabled, isTrue,
+          reason: '新增时 username 可编辑');
+      // 下拉默认选中「启用」
+      expect(find.text('启用'), findsWidgets);
+
+      await tester.tap(find.text('取消'));
+      await tester.pump();
+    });
+
+    testWidgets('新增提交:POST 带完整字段', (tester) async {
+      await pumpUserList(tester);
+
+      await tester.tap(find.text('新增用户'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await tester.enterText(dialogField(0), 'newuser');
+      await tester.enterText(dialogField(1), 'secret123');
+      await tester.enterText(dialogField(2), '新人');
+      await tester.tap(find.text('保存'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final req = adapter.requests
+          .where((r) => r.method == 'POST' && r.path == '/admin/v1/user')
+          .toList();
+      expect(req, hasLength(1));
+      final body = req.single.data as Map<String, dynamic>;
+      expect(body['username'], 'newuser');
+      expect(body['password'], 'secret123');
+      expect(body['real_name'], '新人');
+      expect(body['status'], 1);
+
+      await settleSnackbars(tester);
+    });
+
+    testWidgets('编辑弹框:username 只读;密码留空提交不携带 password', (tester) async {
+      await pumpUserList(tester);
+
+      await tester.tap(find.byIcon(Icons.edit).first); // admin 行
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('编辑用户'), findsOneWidget);
+      expect(tester.widget<TextField>(dialogField(0)).enabled, isFalse,
+          reason: '编辑时 username 禁止修改');
+
+      await tester.tap(find.text('保存'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final req = adapter.requests
+          .where((r) => r.method == 'PUT' && r.path == '/admin/v1/user/1')
+          .toList();
+      expect(req, hasLength(1));
+      final body = req.single.data as Map<String, dynamic>;
+      expect(body.containsKey('password'), isFalse, reason: '密码留空=不修改');
+      expect(body['real_name'], '管理员');
+      expect(body['status'], 1);
+
+      await settleSnackbars(tester);
     });
   });
 

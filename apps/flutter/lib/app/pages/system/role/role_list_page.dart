@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../theme/app_tokens.dart';
 import '../../../widgets/confirm_dialog.dart';
+import '../../../widgets/form_dialog.dart';
+import '../../../widgets/permission_tree_picker.dart';
 import '../../../l10n/app_l10n.dart';
 import 'role_controller.dart';
 
@@ -109,46 +111,94 @@ class RoleListPage extends GetView<RoleController> {
     );
   }
 
-  void _showRoleDialog(BuildContext context, RoleController ctrl, {dynamic role}) {
+  Future<void> _showRoleDialog(BuildContext context, RoleController ctrl, {dynamic role}) async {
     final l10n = AppL10n.of(context);
-    final nameCtrl = TextEditingController(text: role?['name'] ?? '');
-    final slugCtrl = TextEditingController(text: role?['slug'] ?? '');
-    final descCtrl = TextEditingController(text: role?['description'] ?? '');
-    final selectedPerms = (role?['permissions'] as List<dynamic>?)?.map((p) => p['id'].toString()).toSet() ?? <String>{};
+    final isEdit = role != null;
+    // 预选:role['permissions'] 为平铺完整权限 map 列表(后端已按角色授权逐条下发,
+    // 含中间目录),取 id 集合后交给树组件递归标记 —— 修复旧实现「只比顶层、
+    // 叶子权限保存即静默清空」的问题。id 同为 hashid 字符串,原样比较。
+    final grantedIds = (role?['permissions'] as List<dynamic>?)
+            ?.map((p) => '${p['id']}')
+            .toSet() ??
+        <String>{};
+    var permIds = grantedIds.toSet();
 
-    showDialog(
-      context: context,
-      builder: (_) => StatefulBuilder(
-        builder: (_, setDialogState) => AlertDialog(
-          title: Text(role != null ? l10n.systemRoleEdit : l10n.systemRoleAdd, style: const TextStyle(fontWeight: FontWeight.bold)),
-          content: SizedBox(width: 450, child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l10n.fieldName), enabled: role == null),
-            TextField(controller: slugCtrl, decoration: InputDecoration(labelText: l10n.fieldSlug), enabled: role == null),
-            TextField(controller: descCtrl, decoration: InputDecoration(labelText: l10n.fieldDescription)),
-            const SizedBox(height: 12),
-            Text(l10n.systemRolePermSection, style: const TextStyle(fontWeight: FontWeight.bold)),
-            ...ctrl.permissions.map((perm) => CheckboxListTile(
-              title: Text(perm['name'] ?? ''),
-              subtitle: Text(perm['slug'] ?? ''),
-              value: selectedPerms.contains(perm['id'].toString()),
-              onChanged: (v) {
-                setDialogState(() { if (v == true) { selectedPerms.add(perm['id'].toString()); } else { selectedPerms.remove(perm['id'].toString()); } });
-              },
-            )),
-          ]))),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
-            ElevatedButton(onPressed: () {
-              if (role != null) {
-                ctrl.updateRole(role['id'], name: nameCtrl.text, desc: descCtrl.text, permIds: selectedPerms.toList());
-              } else {
-                ctrl.createRole(nameCtrl.text, slugCtrl.text, descCtrl.text, selectedPerms.toList());
-              }
-              Navigator.pop(context);
-            }, child: Text(l10n.commonSave)),
-          ],
-        ),
+    final fields = <FormFieldConfig>[
+      FormFieldConfig(
+        name: 'name',
+        label: l10n.fieldName,
+        required: true,
+        enabled: !isEdit, // 名称/slug:slug 后端不可改;名称编辑沿用旧交互(只读)
       ),
+      FormFieldConfig(name: 'slug', label: l10n.fieldSlug, required: true, enabled: !isEdit),
+      FormFieldConfig(name: 'description', label: l10n.fieldDescription),
+      FormFieldConfig(
+        name: 'status',
+        label: l10n.commonStatus,
+        type: FormFieldType.dropdown,
+        initialValue: '1',
+        options: const ['1', '0'],
+        optionLabels: {'1': l10n.commonEnabled, '0': l10n.commonDisabled},
+      ),
+    ];
+
+    await FormDialog.show(
+      context,
+      title: isEdit ? l10n.systemRoleEdit : l10n.systemRoleAdd,
+      fields: fields,
+      initialData: isEdit ? role : null,
+      submitText: l10n.commonSave,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(l10n.systemRolePermSection,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 4),
+              // 权限树加载失败时页内可重试(加载本身在 RoleController.onInit)
+              InkWell(
+                onTap: ctrl.loadPermissions,
+                child: Icon(Icons.refresh,
+                    size: 16, color: Theme.of(context).colorScheme.outline),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          if (ctrl.permissions.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: Text(l10n.commonNoData,
+                    style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.outline)),
+              ),
+            )
+          else
+            PermissionTreePicker(
+              nodes: ctrl.permissions
+                  .map((p) => p as Map<String, dynamic>)
+                  .toList(),
+              initialSelectedIds: grantedIds,
+              onChanged: (s) => permIds = s,
+            ),
+        ],
+      ),
+      onSubmit: (data) async {
+        final status = int.tryParse(data['status'] ?? '') ?? 1;
+        return isEdit
+            ? ctrl.updateRole(role['id'],
+                name: data['name'] ?? '',
+                desc: data['description'] ?? '',
+                status: status,
+                permIds: permIds.toList())
+            : ctrl.createRole(data['name'] ?? '', data['slug'] ?? '',
+                data['description'] ?? '',
+                permIds.toList(),
+                status: status);
+      },
     );
   }
 }
