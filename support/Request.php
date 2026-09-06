@@ -23,9 +23,12 @@ class Request extends \Webman\Http\Request
     /**
      * 判断请求中是否包含指定字段（webman 原生 Request 无 has()，
      * 各 controller 的 $request->has('field') 均依赖本方法）。
+     *
+     * 修复：原实现仅查 GET query，POST 体字段恒判 false（角色权限同步等
+     * 走 POST/PUT 的字段被静默跳过）；现改查 input()（POST+GET 合并视图）。
      */
     public function has(string $key): bool
     {
-        return $this->get($key) !== null;
+        return $this->input($key) !== null;
     }
 }

@@ -122,7 +122,7 @@ class RoleController extends BaseController
 
         // 同步权限
         if ($request->has('permission_ids')) {
-            $role->permissions()->sync($request->input('permission_ids', []));
+            $role->permissions()->sync($this->normalizePermissionIds($request->input('permission_ids', [])));
         }
 
         return $this->success($this->encodeIds($role->toArray()), '创建成功');
@@ -158,10 +158,26 @@ class RoleController extends BaseController
         $role->save();
 
         if ($request->has('permission_ids')) {
-            $role->permissions()->sync($request->input('permission_ids', []));
+            $role->permissions()->sync($this->normalizePermissionIds($request->input('permission_ids', [])));
         }
 
         return $this->success($this->encodeIds($role->toArray()), '更新成功');
+    }
+
+    /**
+     * permission_ids 归一为原始 snowflake id 数组。
+     * 兼容两种客户端形态：数字（原始 id，含数字串）直通；
+     * 字符串（API 下发的 hashid）逐项解码，解码失败退化原值防误伤。
+     */
+    private function normalizePermissionIds($ids): array
+    {
+        return array_map(function ($v) {
+            if (is_numeric($v)) {
+                return (int) $v;
+            }
+
+            return $this->decodeIdSafe((string) $v) ?? (int) $v;
+        }, (array) $ids);
     }
 
     /**
