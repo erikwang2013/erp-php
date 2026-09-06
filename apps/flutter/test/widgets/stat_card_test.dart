@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:admin_app/app/theme/app_tokens.dart';
 import 'package:admin_app/app/widgets/stat_card.dart';
 
 void main() {
@@ -74,9 +75,10 @@ void main() {
         trendIsGood: false,
       )));
 
-      // 上升箭头存在，但文字颜色应为红色（bad）
+      // 上升箭头存在，但文字颜色应为 danger token（bad）
       final text = tester.widget<Text>(find.text('30.0%'));
-      expect(text.style?.color, Colors.red);
+      expect(text.style?.color,
+          AppColors.of(tester.element(find.byType(StatCard))).dangerText);
     });
 
     testWidgets('trendIsGood=false 时下降趋势显示绿色（好）', (tester) async {
@@ -90,7 +92,8 @@ void main() {
       )));
 
       final text = tester.widget<Text>(find.text('30.0%'));
-      expect(text.style?.color, Colors.green);
+      expect(text.style?.color,
+          AppColors.of(tester.element(find.byType(StatCard))).successText);
       expect(find.byIcon(Icons.arrow_downward), findsOneWidget);
     });
   });
