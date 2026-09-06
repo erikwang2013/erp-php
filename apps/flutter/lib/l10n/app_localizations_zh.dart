@@ -2616,4 +2616,231 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notificationCenterTitle => '通知中心';
+
+  @override
+  String get detailAllocateEmpty => '请至少填写一行分配明细';
+
+  @override
+  String get detailAllocateProductId => '商品ID（数字）';
+
+  @override
+  String get detailAllocateQtyRequired => '分配数量不能为空';
+
+  @override
+  String get detailAllocatePidInvalid => '商品ID须为正整数';
+
+  @override
+  String get detailAllocateQtyInvalid => '分配数量须为正数';
+
+  @override
+  String get detailApprovedAt => '批准时间';
+
+  @override
+  String get detailBasicInfo => '基本信息';
+
+  @override
+  String detailConfirmOp(String action) {
+    return '确定执行「$action」？';
+  }
+
+  @override
+  String get detailCreatedAt => '创建时间';
+
+  @override
+  String get detailCurrentNode => '当前节点';
+
+  @override
+  String get detailFulfillments => '履约单';
+
+  @override
+  String get detailItems => '商品明细';
+
+  @override
+  String get detailOrderRef => '关联订单';
+
+  @override
+  String get detailPackTask => '打包任务';
+
+  @override
+  String get detailPickTask => '拣货任务';
+
+  @override
+  String get detailReceivedAt => '收货时间';
+
+  @override
+  String get detailRecords => '审批记录';
+
+  @override
+  String get detailRefCustomer => '客户信息';
+
+  @override
+  String get detailRefOrder => '订单';
+
+  @override
+  String get detailRefPack => '打包单';
+
+  @override
+  String get detailRefPick => '拣货单';
+
+  @override
+  String get detailRefProduct => '商品信息';
+
+  @override
+  String get detailRefShipment => '运单';
+
+  @override
+  String get detailRefSupplier => '供应商信息';
+
+  @override
+  String get detailRefWarehouse => '仓库信息';
+
+  @override
+  String get detailReturnedAt => '退回时间';
+
+  @override
+  String get detailRmaCode => '退换单号';
+
+  @override
+  String get detailShipment => '运单';
+
+  @override
+  String get detailSubmittedBy => '提交人';
+
+  @override
+  String get detailViewDoc => '查看单据';
+
+  @override
+  String get detailWorkflowName => '审批流程';
+
+  @override
+  String get fieldAllocatedQty => '已分配';
+
+  @override
+  String get fieldAmount => '金额';
+
+  @override
+  String get fieldBarcode => '条码';
+
+  @override
+  String get fieldPackageType => '包装类型';
+
+  @override
+  String get fieldPackedQty => '已打包';
+
+  @override
+  String get fieldPickedQty => '已拣货';
+
+  @override
+  String get fieldShippedQty => '已发货';
+
+  @override
+  String get fieldTrackingNo => '运单号';
+
+  @override
+  String get fieldUnit => '单位';
+
+  @override
+  String get omsFulTaskAllocating => '分配中';
+
+  @override
+  String get omsFulTaskCancelled => '已取消';
+
+  @override
+  String get omsFulTaskPacking => '打包中';
+
+  @override
+  String get omsFulTaskPending => '待处理';
+
+  @override
+  String get omsFulTaskReadyToShip => '待发货';
+
+  @override
+  String get omsOrderAllocate => '分配库存';
+
+  @override
+  String get omsOrderCancel => '取消订单';
+
+  @override
+  String get omsRmaApprove => '批准';
+
+  @override
+  String get omsRmaReason => '原因';
+
+  @override
+  String get omsRmaReceive => '确认收货';
+
+  @override
+  String get omsRmaRefund => '退款';
+
+  @override
+  String get omsRmaRefundAmount => '退款金额';
+
+  @override
+  String get omsRmaReject => '拒绝';
+
+  @override
+  String get omsRmaReturnShippingFee => '退回运费';
+
+  @override
+  String get omsRmaStatusApproved => '已批准';
+
+  @override
+  String get omsRmaStatusPending => '待审核';
+
+  @override
+  String get omsRmaStatusReceived => '已收货';
+
+  @override
+  String get omsRmaStatusRefunded => '已退款';
+
+  @override
+  String get omsRmaStatusRejected => '已拒绝';
+
+  @override
+  String get omsRmaStatusReturned => '已退回';
+
+  @override
+  String get omsRmaTypeExchange => '换货';
+
+  @override
+  String get omsRmaTypeRepair => '维修';
+
+  @override
+  String get omsRmaTypeReturn => '退货';
+
+  @override
+  String get tmsShipStatusDelivered => '已送达';
+
+  @override
+  String get tmsShipStatusException => '异常';
+
+  @override
+  String get tmsShipStatusInTransit => '运输中';
+
+  @override
+  String get tmsShipStatusPickedUp => '已取件';
+
+  @override
+  String get tmsShipStatusReturned => '已退回';
+
+  @override
+  String get wmsPackStatusPending => '待打包';
+
+  @override
+  String get wmsPickStatusPending => '待拣货';
+
+  @override
+  String get wmsPickTypeByBatch => '批量拣货';
+
+  @override
+  String get wmsPickTypeByOrder => '按单拣货';
+
+  @override
+  String get wmsPickTypeByWave => '波次拣货';
+
+  @override
+  String get wmsPickTypeByZone => '分区拣货';
+
+  @override
+  String get wmsStatusDone => '已完成';
 }

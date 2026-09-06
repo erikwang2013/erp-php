@@ -36,6 +36,7 @@ import 'app/pages/purchase/order_list_page.dart';
 import 'app/pages/purchase/receive_list_page.dart';
 import 'app/pages/purchase/return_list_page.dart';
 import 'app/pages/purchase/settlement_list_page.dart';
+import 'app/pages/purchase/order_detail_page.dart';
 
 // 销售管理
 import 'app/pages/sales/quotation_list_page.dart';
@@ -43,6 +44,7 @@ import 'app/pages/sales/order_list_page.dart';
 import 'app/pages/sales/delivery_list_page.dart';
 import 'app/pages/sales/return_list_page.dart';
 import 'app/pages/sales/settlement_list_page.dart';
+import 'app/pages/sales/order_detail_page.dart';
 
 // 库存管理
 import 'app/pages/inventory/inventory_list_page.dart';
@@ -86,6 +88,9 @@ import 'app/pages/oms/order_list_page.dart';
 import 'app/pages/oms/fulfillment_list_page.dart';
 import 'app/pages/oms/rma_list_page.dart';
 import 'app/pages/oms/channel_list_page.dart';
+import 'app/pages/oms/order_detail_page.dart';
+import 'app/pages/oms/fulfillment_detail_page.dart';
+import 'app/pages/oms/rma_detail_page.dart';
 
 // WMS
 import 'app/pages/wms/zone_list_page.dart';
@@ -134,6 +139,7 @@ import 'app/pages/project/timesheet_page.dart';
 // 审批工作流 / 通知中心 / 自定义报表
 import 'app/pages/workflow/workflow_list_page.dart';
 import 'app/pages/workflow/my_approval_page.dart';
+import 'app/pages/workflow/approval_detail_page.dart';
 import 'app/pages/notification/notification_page.dart';
 import 'app/pages/report/report_list_page.dart';
 import 'app/pages/report/report_schedule_page.dart';
@@ -332,6 +338,14 @@ class AdminApp extends StatelessWidget {
         getPages: [
           fadeUpPage('/login', () => const LoginPage()),
           fadeUpPage('/profile', () => const ProfilePage()),
+          // 业务详情页（批5 联动；经 Get.toNamed 携带 {id, title} 打开，
+          // 不占用菜单路由，全屏自持 Scaffold/AppBar）
+          fadeUpPage('/sales/order/detail', () => const SalesOrderDetailPage()),
+          fadeUpPage('/purchase/order/detail', () => const PurchaseOrderDetailPage()),
+          fadeUpPage('/oms/order/detail', () => const OmsOrderDetailPage()),
+          fadeUpPage('/oms/fulfillment/detail', () => const FulfillmentDetailPage()),
+          fadeUpPage('/oms/rma/detail', () => const OmsRmaDetailPage()),
+          fadeUpPage('/approval/detail', () => const ApprovalDetailPage()),
           ..._menuRoutes,
         ],
         initialRoute: '/login',

@@ -5089,6 +5089,456 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'通知中心'**
   String get notificationCenterTitle;
+
+  /// No description provided for @detailAllocateEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'请至少填写一行分配明细'**
+  String get detailAllocateEmpty;
+
+  /// No description provided for @detailAllocateProductId.
+  ///
+  /// In zh, this message translates to:
+  /// **'商品ID（数字）'**
+  String get detailAllocateProductId;
+
+  /// No description provided for @detailAllocateQtyRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'分配数量不能为空'**
+  String get detailAllocateQtyRequired;
+
+  /// No description provided for @detailAllocatePidInvalid.
+  ///
+  /// In zh, this message translates to:
+  /// **'商品ID须为正整数'**
+  String get detailAllocatePidInvalid;
+
+  /// No description provided for @detailAllocateQtyInvalid.
+  ///
+  /// In zh, this message translates to:
+  /// **'分配数量须为正数'**
+  String get detailAllocateQtyInvalid;
+
+  /// No description provided for @detailApprovedAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'批准时间'**
+  String get detailApprovedAt;
+
+  /// No description provided for @detailBasicInfo.
+  ///
+  /// In zh, this message translates to:
+  /// **'基本信息'**
+  String get detailBasicInfo;
+
+  /// No description provided for @detailConfirmOp.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定执行「{action}」？'**
+  String detailConfirmOp(String action);
+
+  /// No description provided for @detailCreatedAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'创建时间'**
+  String get detailCreatedAt;
+
+  /// No description provided for @detailCurrentNode.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前节点'**
+  String get detailCurrentNode;
+
+  /// No description provided for @detailFulfillments.
+  ///
+  /// In zh, this message translates to:
+  /// **'履约单'**
+  String get detailFulfillments;
+
+  /// No description provided for @detailItems.
+  ///
+  /// In zh, this message translates to:
+  /// **'商品明细'**
+  String get detailItems;
+
+  /// No description provided for @detailOrderRef.
+  ///
+  /// In zh, this message translates to:
+  /// **'关联订单'**
+  String get detailOrderRef;
+
+  /// No description provided for @detailPackTask.
+  ///
+  /// In zh, this message translates to:
+  /// **'打包任务'**
+  String get detailPackTask;
+
+  /// No description provided for @detailPickTask.
+  ///
+  /// In zh, this message translates to:
+  /// **'拣货任务'**
+  String get detailPickTask;
+
+  /// No description provided for @detailReceivedAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'收货时间'**
+  String get detailReceivedAt;
+
+  /// No description provided for @detailRecords.
+  ///
+  /// In zh, this message translates to:
+  /// **'审批记录'**
+  String get detailRecords;
+
+  /// No description provided for @detailRefCustomer.
+  ///
+  /// In zh, this message translates to:
+  /// **'客户信息'**
+  String get detailRefCustomer;
+
+  /// No description provided for @detailRefOrder.
+  ///
+  /// In zh, this message translates to:
+  /// **'订单'**
+  String get detailRefOrder;
+
+  /// No description provided for @detailRefPack.
+  ///
+  /// In zh, this message translates to:
+  /// **'打包单'**
+  String get detailRefPack;
+
+  /// No description provided for @detailRefPick.
+  ///
+  /// In zh, this message translates to:
+  /// **'拣货单'**
+  String get detailRefPick;
+
+  /// No description provided for @detailRefProduct.
+  ///
+  /// In zh, this message translates to:
+  /// **'商品信息'**
+  String get detailRefProduct;
+
+  /// No description provided for @detailRefShipment.
+  ///
+  /// In zh, this message translates to:
+  /// **'运单'**
+  String get detailRefShipment;
+
+  /// No description provided for @detailRefSupplier.
+  ///
+  /// In zh, this message translates to:
+  /// **'供应商信息'**
+  String get detailRefSupplier;
+
+  /// No description provided for @detailRefWarehouse.
+  ///
+  /// In zh, this message translates to:
+  /// **'仓库信息'**
+  String get detailRefWarehouse;
+
+  /// No description provided for @detailReturnedAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'退回时间'**
+  String get detailReturnedAt;
+
+  /// No description provided for @detailRmaCode.
+  ///
+  /// In zh, this message translates to:
+  /// **'退换单号'**
+  String get detailRmaCode;
+
+  /// No description provided for @detailShipment.
+  ///
+  /// In zh, this message translates to:
+  /// **'运单'**
+  String get detailShipment;
+
+  /// No description provided for @detailSubmittedBy.
+  ///
+  /// In zh, this message translates to:
+  /// **'提交人'**
+  String get detailSubmittedBy;
+
+  /// No description provided for @detailViewDoc.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看单据'**
+  String get detailViewDoc;
+
+  /// No description provided for @detailWorkflowName.
+  ///
+  /// In zh, this message translates to:
+  /// **'审批流程'**
+  String get detailWorkflowName;
+
+  /// No description provided for @fieldAllocatedQty.
+  ///
+  /// In zh, this message translates to:
+  /// **'已分配'**
+  String get fieldAllocatedQty;
+
+  /// No description provided for @fieldAmount.
+  ///
+  /// In zh, this message translates to:
+  /// **'金额'**
+  String get fieldAmount;
+
+  /// No description provided for @fieldBarcode.
+  ///
+  /// In zh, this message translates to:
+  /// **'条码'**
+  String get fieldBarcode;
+
+  /// No description provided for @fieldPackageType.
+  ///
+  /// In zh, this message translates to:
+  /// **'包装类型'**
+  String get fieldPackageType;
+
+  /// No description provided for @fieldPackedQty.
+  ///
+  /// In zh, this message translates to:
+  /// **'已打包'**
+  String get fieldPackedQty;
+
+  /// No description provided for @fieldPickedQty.
+  ///
+  /// In zh, this message translates to:
+  /// **'已拣货'**
+  String get fieldPickedQty;
+
+  /// No description provided for @fieldShippedQty.
+  ///
+  /// In zh, this message translates to:
+  /// **'已发货'**
+  String get fieldShippedQty;
+
+  /// No description provided for @fieldTrackingNo.
+  ///
+  /// In zh, this message translates to:
+  /// **'运单号'**
+  String get fieldTrackingNo;
+
+  /// No description provided for @fieldUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'单位'**
+  String get fieldUnit;
+
+  /// No description provided for @omsFulTaskAllocating.
+  ///
+  /// In zh, this message translates to:
+  /// **'分配中'**
+  String get omsFulTaskAllocating;
+
+  /// No description provided for @omsFulTaskCancelled.
+  ///
+  /// In zh, this message translates to:
+  /// **'已取消'**
+  String get omsFulTaskCancelled;
+
+  /// No description provided for @omsFulTaskPacking.
+  ///
+  /// In zh, this message translates to:
+  /// **'打包中'**
+  String get omsFulTaskPacking;
+
+  /// No description provided for @omsFulTaskPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待处理'**
+  String get omsFulTaskPending;
+
+  /// No description provided for @omsFulTaskReadyToShip.
+  ///
+  /// In zh, this message translates to:
+  /// **'待发货'**
+  String get omsFulTaskReadyToShip;
+
+  /// No description provided for @omsOrderAllocate.
+  ///
+  /// In zh, this message translates to:
+  /// **'分配库存'**
+  String get omsOrderAllocate;
+
+  /// No description provided for @omsOrderCancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消订单'**
+  String get omsOrderCancel;
+
+  /// No description provided for @omsRmaApprove.
+  ///
+  /// In zh, this message translates to:
+  /// **'批准'**
+  String get omsRmaApprove;
+
+  /// No description provided for @omsRmaReason.
+  ///
+  /// In zh, this message translates to:
+  /// **'原因'**
+  String get omsRmaReason;
+
+  /// No description provided for @omsRmaReceive.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认收货'**
+  String get omsRmaReceive;
+
+  /// No description provided for @omsRmaRefund.
+  ///
+  /// In zh, this message translates to:
+  /// **'退款'**
+  String get omsRmaRefund;
+
+  /// No description provided for @omsRmaRefundAmount.
+  ///
+  /// In zh, this message translates to:
+  /// **'退款金额'**
+  String get omsRmaRefundAmount;
+
+  /// No description provided for @omsRmaReject.
+  ///
+  /// In zh, this message translates to:
+  /// **'拒绝'**
+  String get omsRmaReject;
+
+  /// No description provided for @omsRmaReturnShippingFee.
+  ///
+  /// In zh, this message translates to:
+  /// **'退回运费'**
+  String get omsRmaReturnShippingFee;
+
+  /// No description provided for @omsRmaStatusApproved.
+  ///
+  /// In zh, this message translates to:
+  /// **'已批准'**
+  String get omsRmaStatusApproved;
+
+  /// No description provided for @omsRmaStatusPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待审核'**
+  String get omsRmaStatusPending;
+
+  /// No description provided for @omsRmaStatusReceived.
+  ///
+  /// In zh, this message translates to:
+  /// **'已收货'**
+  String get omsRmaStatusReceived;
+
+  /// No description provided for @omsRmaStatusRefunded.
+  ///
+  /// In zh, this message translates to:
+  /// **'已退款'**
+  String get omsRmaStatusRefunded;
+
+  /// No description provided for @omsRmaStatusRejected.
+  ///
+  /// In zh, this message translates to:
+  /// **'已拒绝'**
+  String get omsRmaStatusRejected;
+
+  /// No description provided for @omsRmaStatusReturned.
+  ///
+  /// In zh, this message translates to:
+  /// **'已退回'**
+  String get omsRmaStatusReturned;
+
+  /// No description provided for @omsRmaTypeExchange.
+  ///
+  /// In zh, this message translates to:
+  /// **'换货'**
+  String get omsRmaTypeExchange;
+
+  /// No description provided for @omsRmaTypeRepair.
+  ///
+  /// In zh, this message translates to:
+  /// **'维修'**
+  String get omsRmaTypeRepair;
+
+  /// No description provided for @omsRmaTypeReturn.
+  ///
+  /// In zh, this message translates to:
+  /// **'退货'**
+  String get omsRmaTypeReturn;
+
+  /// No description provided for @tmsShipStatusDelivered.
+  ///
+  /// In zh, this message translates to:
+  /// **'已送达'**
+  String get tmsShipStatusDelivered;
+
+  /// No description provided for @tmsShipStatusException.
+  ///
+  /// In zh, this message translates to:
+  /// **'异常'**
+  String get tmsShipStatusException;
+
+  /// No description provided for @tmsShipStatusInTransit.
+  ///
+  /// In zh, this message translates to:
+  /// **'运输中'**
+  String get tmsShipStatusInTransit;
+
+  /// No description provided for @tmsShipStatusPickedUp.
+  ///
+  /// In zh, this message translates to:
+  /// **'已取件'**
+  String get tmsShipStatusPickedUp;
+
+  /// No description provided for @tmsShipStatusReturned.
+  ///
+  /// In zh, this message translates to:
+  /// **'已退回'**
+  String get tmsShipStatusReturned;
+
+  /// No description provided for @wmsPackStatusPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待打包'**
+  String get wmsPackStatusPending;
+
+  /// No description provided for @wmsPickStatusPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待拣货'**
+  String get wmsPickStatusPending;
+
+  /// No description provided for @wmsPickTypeByBatch.
+  ///
+  /// In zh, this message translates to:
+  /// **'批量拣货'**
+  String get wmsPickTypeByBatch;
+
+  /// No description provided for @wmsPickTypeByOrder.
+  ///
+  /// In zh, this message translates to:
+  /// **'按单拣货'**
+  String get wmsPickTypeByOrder;
+
+  /// No description provided for @wmsPickTypeByWave.
+  ///
+  /// In zh, this message translates to:
+  /// **'波次拣货'**
+  String get wmsPickTypeByWave;
+
+  /// No description provided for @wmsPickTypeByZone.
+  ///
+  /// In zh, this message translates to:
+  /// **'分区拣货'**
+  String get wmsPickTypeByZone;
+
+  /// No description provided for @wmsStatusDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'已完成'**
+  String get wmsStatusDone;
 }
 
 class _AppLocalizationsDelegate

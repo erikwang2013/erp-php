@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
@@ -179,6 +180,15 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
 
   String _p2(int v) => v.toString().padLeft(2, '0');
 
+  /// 详情页入口：写操作成功后详情页回传 changed=true → 刷新本列表。
+  Future<void> _detail(Map<String, dynamic> row) async {
+    final changed = await Get.toNamed('/purchase/order/detail', arguments: {
+      'id': '${row['id']}',
+      'title': '${row['code'] ?? ''}',
+    });
+    if (changed == true && mounted) _load();
+  }
+
   @override
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
@@ -209,6 +219,8 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     AppL10n.current.purchaseTotalAmount: r['total_amount'] ?? '',
     AppL10n.current.commonStatus: _statusChip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(icon: const Icon(Icons.visibility_outlined, size: 18),
+        tooltip: AppL10n.current.commonDetail, onPressed: () => _detail(r)),
       IconButton(icon: Icon(Icons.paid, size: 18, color: AppColors.of(context).primary),
         tooltip: AppL10n.current.purchaseSettle, onPressed: () => _settle(r)),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),

@@ -2637,4 +2637,232 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationCenterTitle => 'Notifications';
+
+  @override
+  String get detailAllocateEmpty => 'Add at least one allocation line';
+
+  @override
+  String get detailAllocateProductId => 'Product ID (numeric)';
+
+  @override
+  String get detailAllocateQtyRequired => 'Quantity is required';
+
+  @override
+  String get detailAllocatePidInvalid =>
+      'Product ID must be a positive integer';
+
+  @override
+  String get detailAllocateQtyInvalid => 'Quantity must be a positive number';
+
+  @override
+  String get detailApprovedAt => 'Approved At';
+
+  @override
+  String get detailBasicInfo => 'Basic Info';
+
+  @override
+  String detailConfirmOp(String action) {
+    return 'Confirm “$action”?';
+  }
+
+  @override
+  String get detailCreatedAt => 'Created At';
+
+  @override
+  String get detailCurrentNode => 'Current Node';
+
+  @override
+  String get detailFulfillments => 'Fulfillments';
+
+  @override
+  String get detailItems => 'Items';
+
+  @override
+  String get detailOrderRef => 'Related Order';
+
+  @override
+  String get detailPackTask => 'Pack Task';
+
+  @override
+  String get detailPickTask => 'Pick Task';
+
+  @override
+  String get detailReceivedAt => 'Received At';
+
+  @override
+  String get detailRecords => 'Approval Records';
+
+  @override
+  String get detailRefCustomer => 'Customer Info';
+
+  @override
+  String get detailRefOrder => 'Order';
+
+  @override
+  String get detailRefPack => 'Pack Task';
+
+  @override
+  String get detailRefPick => 'Pick Task';
+
+  @override
+  String get detailRefProduct => 'Product Info';
+
+  @override
+  String get detailRefShipment => 'Shipment';
+
+  @override
+  String get detailRefSupplier => 'Supplier Info';
+
+  @override
+  String get detailRefWarehouse => 'Warehouse Info';
+
+  @override
+  String get detailReturnedAt => 'Returned At';
+
+  @override
+  String get detailRmaCode => 'RMA No.';
+
+  @override
+  String get detailShipment => 'Shipment';
+
+  @override
+  String get detailSubmittedBy => 'Submitted By';
+
+  @override
+  String get detailViewDoc => 'View Document';
+
+  @override
+  String get detailWorkflowName => 'Workflow';
+
+  @override
+  String get fieldAllocatedQty => 'Allocated';
+
+  @override
+  String get fieldAmount => 'Amount';
+
+  @override
+  String get fieldBarcode => 'Barcode';
+
+  @override
+  String get fieldPackageType => 'Package Type';
+
+  @override
+  String get fieldPackedQty => 'Packed';
+
+  @override
+  String get fieldPickedQty => 'Picked';
+
+  @override
+  String get fieldShippedQty => 'Shipped';
+
+  @override
+  String get fieldTrackingNo => 'Tracking No.';
+
+  @override
+  String get fieldUnit => 'Unit';
+
+  @override
+  String get omsFulTaskAllocating => 'Allocating';
+
+  @override
+  String get omsFulTaskCancelled => 'Cancelled';
+
+  @override
+  String get omsFulTaskPacking => 'Packing';
+
+  @override
+  String get omsFulTaskPending => 'Pending';
+
+  @override
+  String get omsFulTaskReadyToShip => 'Ready to Ship';
+
+  @override
+  String get omsOrderAllocate => 'Allocate Stock';
+
+  @override
+  String get omsOrderCancel => 'Cancel Order';
+
+  @override
+  String get omsRmaApprove => 'Approve';
+
+  @override
+  String get omsRmaReason => 'Reason';
+
+  @override
+  String get omsRmaReceive => 'Confirm Receipt';
+
+  @override
+  String get omsRmaRefund => 'Refund';
+
+  @override
+  String get omsRmaRefundAmount => 'Refund Amount';
+
+  @override
+  String get omsRmaReject => 'Reject';
+
+  @override
+  String get omsRmaReturnShippingFee => 'Return Shipping Fee';
+
+  @override
+  String get omsRmaStatusApproved => 'Approved';
+
+  @override
+  String get omsRmaStatusPending => 'Pending Review';
+
+  @override
+  String get omsRmaStatusReceived => 'Received';
+
+  @override
+  String get omsRmaStatusRefunded => 'Refunded';
+
+  @override
+  String get omsRmaStatusRejected => 'Rejected';
+
+  @override
+  String get omsRmaStatusReturned => 'Returned';
+
+  @override
+  String get omsRmaTypeExchange => 'Exchange';
+
+  @override
+  String get omsRmaTypeRepair => 'Repair';
+
+  @override
+  String get omsRmaTypeReturn => 'Return';
+
+  @override
+  String get tmsShipStatusDelivered => 'Delivered';
+
+  @override
+  String get tmsShipStatusException => 'Exception';
+
+  @override
+  String get tmsShipStatusInTransit => 'In Transit';
+
+  @override
+  String get tmsShipStatusPickedUp => 'Picked Up';
+
+  @override
+  String get tmsShipStatusReturned => 'Returned';
+
+  @override
+  String get wmsPackStatusPending => 'Pending Pack';
+
+  @override
+  String get wmsPickStatusPending => 'Pending Pick';
+
+  @override
+  String get wmsPickTypeByBatch => 'Pick by Batch';
+
+  @override
+  String get wmsPickTypeByOrder => 'Pick by Order';
+
+  @override
+  String get wmsPickTypeByWave => 'Pick by Wave';
+
+  @override
+  String get wmsPickTypeByZone => 'Pick by Zone';
+
+  @override
+  String get wmsStatusDone => 'Done';
 }

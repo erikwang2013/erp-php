@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
@@ -313,6 +314,15 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     return (i >= 0 && i < _paymentLabels.length) ? _paymentLabels[i] : '$s';
   }
 
+  /// 详情页入口：动作成功后详情页回传 changed=true → 刷新本列表。
+  Future<void> _detail(Map<String, dynamic> row) async {
+    final changed = await Get.toNamed('/oms/order/detail', arguments: {
+      'id': '${row['id']}',
+      'title': '${row['channel_order_no'] ?? ''}',
+    });
+    if (changed == true && mounted) _load();
+  }
+
   @override
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
@@ -367,6 +377,11 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          IconButton(
+            icon: const Icon(Icons.visibility_outlined, size: 18),
+            tooltip: l.commonDetail,
+            onPressed: () => _detail(r),
+          ),
           IconButton(
             icon: Icon(
               Icons.local_shipping,

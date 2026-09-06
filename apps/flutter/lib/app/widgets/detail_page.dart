@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_l10n.dart';
 import '../services/api_service.dart';
 import '../theme/app_tokens.dart';
+import 'status_badge.dart';
 
 /// 详情页通用骨架：GET 拉取 → 加载/错误/重试 → 内容区。
 class DetailPage extends StatefulWidget {
@@ -83,11 +84,13 @@ class DetailCard extends StatelessWidget {
 }
 
 /// 单字段行：左侧标签、右侧值（空值显示 -）。
+/// [onTap] 非空时值以可点击的链接样式渲染（引用卡等下钻入口）。
 class DetailRow extends StatelessWidget {
   final String label;
   final String value;
+  final VoidCallback? onTap;
 
-  const DetailRow({super.key, required this.label, required this.value});
+  const DetailRow({super.key, required this.label, required this.value, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -100,20 +103,32 @@ class DetailRow extends StatelessWidget {
             width: 140,
             child: Text(label,
                 style: TextStyle(fontSize: 12, color: hint))),
-        Expanded(
-            child: Text(value.isEmpty ? '-' : value,
-                style: value.isEmpty ? TextStyle(color: hint) : null)),
+        Expanded(child: _value(context, hint)),
       ]),
+    );
+  }
+
+  Widget _value(BuildContext context, Color hint) {
+    if (value.isEmpty) {
+      return Text('-', style: TextStyle(color: hint));
+    }
+    if (onTap == null) return Text(value);
+    return InkWell(
+      onTap: onTap,
+      child: Text(value, style: TextStyle(color: Theme.of(context).colorScheme.primary)),
     );
   }
 }
 
 /// 明细表格：columns 为（表头, 数据 key）列表，rows 内以 key 取值。
+/// [cell] 可选：key 为列数据 key，返回该格自定义 Widget（返回 null 时回落
+/// 纯文本默认值）。
 class DetailItemsTable extends StatelessWidget {
   final List<(String, String)> columns;
   final List<Map<String, dynamic>> rows;
+  final Widget? Function(Map<String, dynamic> row, String key)? cell;
 
-  const DetailItemsTable({super.key, required this.columns, required this.rows});
+  const DetailItemsTable({super.key, required this.columns, required this.rows, this.cell});
 
   @override
   Widget build(BuildContext context) {
@@ -133,13 +148,37 @@ class DetailItemsTable extends StatelessWidget {
             columns: [for (final c in columns) DataColumn(label: Text(c.$1))],
             rows: [
               for (final r in rows)
-                DataRow(cells: [for (final c in columns) DataCell(Text('${r[c.$2] ?? ''}'))]),
+                DataRow(cells: [
+                  for (final c in columns)
+                    DataCell(cell?.call(r, c.$2) ??
+                        Text('${r[c.$2] ?? ''}')),
+                ]),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+/// 状态徽标行（label 左列 + StatusBadge），text 空时整行隐藏。各页状态色
+/// 自持（§2.4 域色约定），文本与列表页 chips 同 key 同源。
+Widget detailStatusRow(BuildContext context,
+    {required String label,
+    required String text,
+    required Color bg,
+    required Color fg}) {
+  if (text.isEmpty) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      SizedBox(
+          width: 140,
+          child: Text(label,
+              style: TextStyle(fontSize: 12, color: AppColors.of(context).textHint))),
+      StatusBadge(label: text, bg: bg, fg: fg),
+    ]),
+  );
 }
 
 /// 从 data 取值构造字段行（空值显示 -）。

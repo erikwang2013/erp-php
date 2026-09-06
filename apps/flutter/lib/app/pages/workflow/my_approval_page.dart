@@ -1,5 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
@@ -99,6 +100,10 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
         ],
       ),
     );
+    // showDialog future 在 pop 时即完成，但路由退场动画期间 TextField 仍引用
+    // 控制器 —— 立即 dispose 触发「used after being disposed」（F4）。
+    // ponytail: 固定 350ms > 默认 dialog 转场(~200ms)；若换长转场需随之调整。
+    await Future<void>.delayed(const Duration(milliseconds: 350));
     commentCtrl.dispose();
   }
 
@@ -155,6 +160,15 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
     };
   }
 
+  /// 详情页入口：详情页动作成功后回传 changed=true → 刷新本列表。
+  Future<void> _detail(Map<String, dynamic> row) async {
+    final changed = await Get.toNamed('/approval/detail', arguments: {
+      'id': '${row['id']}',
+      'title': '${row['target_id'] ?? ''}',
+    });
+    if (changed == true && mounted) _load();
+  }
+
   @override
   Widget build(BuildContext context) => DataTableWrapper(
     columns: _columns(),
@@ -184,6 +198,8 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
       l10n.commonStatus: _chip(r['status']),
       l10n.fieldSubmitTime: r['submitted_at'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
+        IconButton(icon: const Icon(Icons.visibility_outlined, size: 18),
+          tooltip: l10n.commonDetail, onPressed: () => _detail(r)),
         if (pending) ...[
           IconButton(icon: Icon(Icons.check_circle, size: 18, color: AppColors.of(context).success),
             tooltip: l10n.workflowApprove, onPressed: () => _approve(r)),
