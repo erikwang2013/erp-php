@@ -66,5 +66,6 @@ export struct DetailCard {
     .width('100%')
     .backgroundColor($r('app.color.surface'))
     .borderRadius(8)
+    .border({ width: 1, color: $r('app.color.border') }) // F 批：与列表卡同款 1px 发丝 chrome
   }
 }

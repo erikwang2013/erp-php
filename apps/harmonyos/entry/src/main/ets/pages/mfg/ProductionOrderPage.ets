@@ -10,6 +10,7 @@ import { LoadingView, ErrorView, EmptyView } from '../../common/Components';
 import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
+import { DetailCard } from '../../common/DetailCard';
 
 /**
  * 生产工单列表项（与后端 /admin/mfg/production 返回字段对齐）
@@ -365,174 +366,167 @@ struct ProductionOrderPage {
   buildForm() {
     Scroll() {
       Column() {
-        Text(this.formMode === 'create' ? $r('app.string.production_form_add') : $r('app.string.production_form_edit'))
-          .fontSize(16)
-          .fontWeight(FontWeight.Bold)
-          .width('100%')
-          .textAlign(TextAlign.Center)
-          .padding({ top: 16, bottom: 16 })
+        // F 批：inline 表单分组卡——单 DetailCard 套列表卡同款卡容器（标题复用既有表单 key）
+        DetailCard({ title: L10n.str(this.getUIContext(), this.formMode === 'create' ? 'production_form_add' : 'production_form_edit') }) {
+          Column() {
 
-        Row() {
-          Text($r('app.string.production_code'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
+            Row() {
+              Text($r('app.string.production_code'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
 
-          TextInput({ placeholder: $r('app.string.production_code_hint'), text: this.formCode })
-            .fontSize(15)
-            .onChange((v: string) => { this.formCode = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
+              TextInput({ placeholder: $r('app.string.production_code_hint'), text: this.formCode })
+                .fontSize(15)
+                .onChange((v: string) => { this.formCode = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
 
-        Row() {
-          Text($r('app.string.production_bom_id'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
+            Row() {
+              Text($r('app.string.production_bom_id'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
 
-          TextInput({ placeholder: $r('app.string.production_bom_id_hint'), text: this.formBomId })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formBomId = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
+              TextInput({ placeholder: $r('app.string.production_bom_id_hint'), text: this.formBomId })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formBomId = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
 
-        Row() {
-          Text($r('app.string.production_warehouse_id'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
+            Row() {
+              Text($r('app.string.production_warehouse_id'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
 
-          TextInput({ placeholder: $r('app.string.production_warehouse_id_hint'), text: this.formWarehouseId })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formWarehouseId = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
+              TextInput({ placeholder: $r('app.string.production_warehouse_id_hint'), text: this.formWarehouseId })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formWarehouseId = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
 
-        Row() {
-          Text($r('app.string.production_planned_quantity'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
+            Row() {
+              Text($r('app.string.production_planned_quantity'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
 
-          TextInput({ placeholder: $r('app.string.production_planned_quantity_hint'), text: this.formPlannedQuantity })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formPlannedQuantity = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
+              TextInput({ placeholder: $r('app.string.production_planned_quantity_hint'), text: this.formPlannedQuantity })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formPlannedQuantity = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
 
-        Row() {
-          Text($r('app.string.production_status'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
+            Row() {
+              Text($r('app.string.production_status'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
 
-          Row() {
-            Button($r('app.string.status_enabled'))
-              .fontSize(13)
-              .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
-              .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
-              .borderRadius(4)
-              .height(32)
-              .onClick(() => { this.formStatus = 1; })
+              Row() {
+                Button($r('app.string.status_enabled'))
+                  .fontSize(13)
+                  .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+                  .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
+                  .borderRadius(4)
+                  .height(32)
+                  .onClick(() => { this.formStatus = 1; })
 
-            Button($r('app.string.status_disabled'))
-              .fontSize(13)
-              .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
-              .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
-              .borderRadius(4)
-              .height(32)
-              .margin({ left: 12 })
-              .onClick(() => { this.formStatus = 0; })
+                Button($r('app.string.status_disabled'))
+                  .fontSize(13)
+                  .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+                  .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
+                  .borderRadius(4)
+                  .height(32)
+                  .margin({ left: 12 })
+                  .onClick(() => { this.formStatus = 0; })
+              }
+              .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.production_planned_start'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.production_planned_start_hint'), text: this.formPlannedStart })
+                .fontSize(15)
+                .onChange((v: string) => { this.formPlannedStart = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.production_planned_end'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.production_planned_end_hint'), text: this.formPlannedEnd })
+                .fontSize(15)
+                .onChange((v: string) => { this.formPlannedEnd = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.production_remark'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.production_remark_hint'), text: this.formRemark })
+                .fontSize(15)
+                .onChange((v: string) => { this.formRemark = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
           }
-          .layoutWeight(1)
+          .width('100%')
         }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.production_planned_start'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.production_planned_start_hint'), text: this.formPlannedStart })
-            .fontSize(15)
-            .onChange((v: string) => { this.formPlannedStart = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.production_planned_end'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.production_planned_end_hint'), text: this.formPlannedEnd })
-            .fontSize(15)
-            .onChange((v: string) => { this.formPlannedEnd = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.production_remark'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.production_remark_hint'), text: this.formRemark })
-            .fontSize(15)
-            .onChange((v: string) => { this.formRemark = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -557,9 +551,10 @@ struct ProductionOrderPage {
             .onClick(() => { this.save(); })
         }
         .width('100%')
-        .padding({ left: 16, right: 16, top: 32, bottom: 32 })
+        .padding({ left: 12, right: 12, top: 24, bottom: 32 })
       }
       .width('100%')
+      .padding({ left: 12, right: 12, top: 12, bottom: 12 })
     }
     .width('100%')
     .layoutWeight(1)

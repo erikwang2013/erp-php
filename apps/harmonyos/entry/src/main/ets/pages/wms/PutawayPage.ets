@@ -10,6 +10,7 @@ import { LoadingView, ErrorView, EmptyView } from '../../common/Components';
 import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
+import { DetailCard } from '../../common/DetailCard';
 
 /**
  * 上架单列表项（与后端 /admin/wms/putaway 返回字段对齐）
@@ -360,156 +361,150 @@ struct PutawayPage {
   buildForm() {
     Scroll() {
       Column() {
-        Text(this.formMode === 'create' ? $r('app.string.putaway_form_add') : $r('app.string.putaway_form_edit'))
-          .fontSize(16)
-          .fontWeight(FontWeight.Bold)
-          .width('100%')
-          .textAlign(TextAlign.Center)
-          .padding({ top: 16, bottom: 16 })
+        // F 批：inline 表单分组卡——单 DetailCard 套列表卡同款卡容器（标题复用既有表单 key）
+        DetailCard({ title: L10n.str(this.getUIContext(), this.formMode === 'create' ? 'putaway_form_add' : 'putaway_form_edit') }) {
+          Column() {
 
-        Row() {
-          Text($r('app.string.putaway_code'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
+            Row() {
+              Text($r('app.string.putaway_code'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
 
-          TextInput({ placeholder: $r('app.string.putaway_code_hint'), text: this.formCode })
-            .fontSize(15)
-            .onChange((v: string) => { this.formCode = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
+              TextInput({ placeholder: $r('app.string.putaway_code_hint'), text: this.formCode })
+                .fontSize(15)
+                .onChange((v: string) => { this.formCode = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
 
-        Row() {
-          Text($r('app.string.putaway_warehouse_id'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
+            Row() {
+              Text($r('app.string.putaway_warehouse_id'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
 
-          TextInput({ placeholder: $r('app.string.putaway_warehouse_id_hint'), text: this.formWarehouseId })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formWarehouseId = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
+              TextInput({ placeholder: $r('app.string.putaway_warehouse_id_hint'), text: this.formWarehouseId })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formWarehouseId = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
 
-        Row() {
-          Text($r('app.string.putaway_receiving_id'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
+            Row() {
+              Text($r('app.string.putaway_receiving_id'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
 
-          TextInput({ placeholder: $r('app.string.putaway_receiving_id_hint'), text: this.formReceivingId })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formReceivingId = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
+              TextInput({ placeholder: $r('app.string.putaway_receiving_id_hint'), text: this.formReceivingId })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formReceivingId = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
 
-        Row() {
-          Text($r('app.string.putaway_status'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
+            Row() {
+              Text($r('app.string.putaway_status'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
 
-          Row() {
-            Button($r('app.string.status_enabled'))
-              .fontSize(13)
-              .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
-              .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
-              .borderRadius(4)
-              .height(32)
-              .onClick(() => { this.formStatus = 1; })
+              Row() {
+                Button($r('app.string.status_enabled'))
+                  .fontSize(13)
+                  .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+                  .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
+                  .borderRadius(4)
+                  .height(32)
+                  .onClick(() => { this.formStatus = 1; })
 
-            Button($r('app.string.status_disabled'))
-              .fontSize(13)
-              .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
-              .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
-              .borderRadius(4)
-              .height(32)
-              .margin({ left: 12 })
-              .onClick(() => { this.formStatus = 0; })
+                Button($r('app.string.status_disabled'))
+                  .fontSize(13)
+                  .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+                  .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
+                  .borderRadius(4)
+                  .height(32)
+                  .margin({ left: 12 })
+                  .onClick(() => { this.formStatus = 0; })
+              }
+              .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.putaway_strategy'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.putaway_strategy_hint'), text: this.formStrategy })
+                .fontSize(15)
+                .onChange((v: string) => { this.formStrategy = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.putaway_assigned_to'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.putaway_assigned_to_hint'), text: this.formAssignedTo })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formAssignedTo = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.putaway_completed_at'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.putaway_completed_at_hint'), text: this.formCompletedAt })
+                .fontSize(15)
+                .onChange((v: string) => { this.formCompletedAt = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
           }
-          .layoutWeight(1)
+          .width('100%')
         }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.putaway_strategy'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.putaway_strategy_hint'), text: this.formStrategy })
-            .fontSize(15)
-            .onChange((v: string) => { this.formStrategy = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.putaway_assigned_to'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.putaway_assigned_to_hint'), text: this.formAssignedTo })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formAssignedTo = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.putaway_completed_at'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.putaway_completed_at_hint'), text: this.formCompletedAt })
-            .fontSize(15)
-            .onChange((v: string) => { this.formCompletedAt = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -534,9 +529,10 @@ struct PutawayPage {
             .onClick(() => { this.save(); })
         }
         .width('100%')
-        .padding({ left: 16, right: 16, top: 32, bottom: 32 })
+        .padding({ left: 12, right: 12, top: 24, bottom: 32 })
       }
       .width('100%')
+      .padding({ left: 12, right: 12, top: 12, bottom: 12 })
     }
     .width('100%')
     .layoutWeight(1)

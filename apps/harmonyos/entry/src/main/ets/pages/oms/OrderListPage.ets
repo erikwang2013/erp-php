@@ -10,6 +10,7 @@ import { LoadingView, ErrorView, EmptyView } from '../../common/Components';
 import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
+import { DetailCard } from '../../common/DetailCard';
 
 /**
  * OMS 订单列表项（与后端 /admin/oms/order 返回字段对齐）
@@ -423,251 +424,239 @@ struct OrderListPage {
   buildForm() {
     Scroll() {
       Column() {
-        Text(this.formMode === 'create' ? $r('app.string.order_form_add') : $r('app.string.order_form_edit'))
-          .fontSize(16)
-          .fontWeight(FontWeight.Bold)
+        // F 批：inline 表单分组卡——单 DetailCard 套列表卡同款卡容器（标题复用既有表单 key）
+        DetailCard({ title: L10n.str(this.getUIContext(), this.formMode === 'create' ? 'order_form_add' : 'order_form_edit') }) {
+          Column() {
+
+            Row() {
+              Text($r('app.string.order_code'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_code_hint'), text: this.formCode })
+                .fontSize(15)
+                .onChange((v: string) => { this.formCode = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_sales_id'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_sales_id_hint'), text: this.formOrderId })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formOrderId = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_channel'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_channel_hint'), text: this.formChannel })
+                .fontSize(15)
+                .onChange((v: string) => { this.formChannel = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_channel_no'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_channel_no_hint'), text: this.formChannelOrderNo })
+                .fontSize(15)
+                .onChange((v: string) => { this.formChannelOrderNo = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_channel_store'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_channel_store_hint'), text: this.formChannelStore })
+                .fontSize(15)
+                .onChange((v: string) => { this.formChannelStore = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_ff_status'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_range_0to3_hint'), text: this.formFulfillmentStatus })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formFulfillmentStatus = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_payment_status'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_range_0to3_hint'), text: this.formPaymentStatus })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formPaymentStatus = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_shipping_method'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_shipping_method_hint'), text: this.formShippingMethod })
+                .fontSize(15)
+                .onChange((v: string) => { this.formShippingMethod = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_shipping_fee'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_shipping_fee_hint'), text: this.formShippingFee })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formShippingFee = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_buyer_note'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_buyer_note_hint'), text: this.formBuyerMessage })
+                .fontSize(15)
+                .onChange((v: string) => { this.formBuyerMessage = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_seller_note'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_seller_note_hint'), text: this.formSellerNote })
+                .fontSize(15)
+                .onChange((v: string) => { this.formSellerNote = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_priority'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_priority_hint'), text: this.formPriority })
+                .fontSize(15)
+                .type(InputType.Number)
+                .onChange((v: string) => { this.formPriority = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+            Row() {
+              Text($r('app.string.order_hold_until'))
+              .fontSize(15)
+              .fontColor($r('app.color.text_primary'))
+              .width(80)
+
+              TextInput({ placeholder: $r('app.string.order_hold_until_hint'), text: this.formHoldUntil })
+                .fontSize(15)
+                .onChange((v: string) => { this.formHoldUntil = v; })
+                .layoutWeight(1)
+            }
+            .width('100%')
+            .constraintSize({ minHeight: 56 })
+            .backgroundColor($r('app.color.surface'))
+            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
+            .alignItems(VerticalAlign.Center)
+
+          }
           .width('100%')
-          .textAlign(TextAlign.Center)
-          .padding({ top: 16, bottom: 16 })
-
-        Row() {
-          Text($r('app.string.order_code'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_code_hint'), text: this.formCode })
-            .fontSize(15)
-            .onChange((v: string) => { this.formCode = v; })
-            .layoutWeight(1)
         }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_sales_id'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_sales_id_hint'), text: this.formOrderId })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formOrderId = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_channel'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_channel_hint'), text: this.formChannel })
-            .fontSize(15)
-            .onChange((v: string) => { this.formChannel = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_channel_no'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_channel_no_hint'), text: this.formChannelOrderNo })
-            .fontSize(15)
-            .onChange((v: string) => { this.formChannelOrderNo = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_channel_store'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_channel_store_hint'), text: this.formChannelStore })
-            .fontSize(15)
-            .onChange((v: string) => { this.formChannelStore = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_ff_status'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_range_0to3_hint'), text: this.formFulfillmentStatus })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formFulfillmentStatus = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_payment_status'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_range_0to3_hint'), text: this.formPaymentStatus })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formPaymentStatus = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_shipping_method'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_shipping_method_hint'), text: this.formShippingMethod })
-            .fontSize(15)
-            .onChange((v: string) => { this.formShippingMethod = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_shipping_fee'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_shipping_fee_hint'), text: this.formShippingFee })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formShippingFee = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_buyer_note'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_buyer_note_hint'), text: this.formBuyerMessage })
-            .fontSize(15)
-            .onChange((v: string) => { this.formBuyerMessage = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_seller_note'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_seller_note_hint'), text: this.formSellerNote })
-            .fontSize(15)
-            .onChange((v: string) => { this.formSellerNote = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_priority'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_priority_hint'), text: this.formPriority })
-            .fontSize(15)
-            .type(InputType.Number)
-            .onChange((v: string) => { this.formPriority = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
-
-        Row() {
-          Text($r('app.string.order_hold_until'))
-          .fontSize(15)
-          .fontColor($r('app.color.text_primary'))
-          .width(80)
-
-          TextInput({ placeholder: $r('app.string.order_hold_until_hint'), text: this.formHoldUntil })
-            .fontSize(15)
-            .onChange((v: string) => { this.formHoldUntil = v; })
-            .layoutWeight(1)
-        }
-        .width('100%')
-        .constraintSize({ minHeight: 56 })
-        .padding({ left: 16, right: 16 })
-        .backgroundColor($r('app.color.surface'))
-        .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-        .alignItems(VerticalAlign.Center)
 
         // 操作按钮
         Row() {
@@ -692,9 +681,10 @@ struct OrderListPage {
             .onClick(() => { this.save(); })
         }
         .width('100%')
-        .padding({ left: 16, right: 16, top: 32, bottom: 32 })
+        .padding({ left: 12, right: 12, top: 24, bottom: 32 })
       }
       .width('100%')
+      .padding({ left: 12, right: 12, top: 12, bottom: 12 })
     }
     .width('100%')
     .layoutWeight(1)
