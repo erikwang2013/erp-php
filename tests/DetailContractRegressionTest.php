@@ -325,6 +325,62 @@ class DetailContractRegressionTest extends TestCase
         }
     }
 
+    /* ======================== sales order store/update 解码（批3 mini-fix） ======================== */
+
+    public function testSalesOrderStorePersistsDecodedCustomerId(): void
+    {
+        $suffix = $this->randSuffix();
+        $customerId = SnowflakeService::generate();
+        $orderId = null;
+        try {
+            $resp = (new SalesOrderController())->store(new FakeRequest([
+                'code' => 'B3SOS-' . $suffix,
+                'customer_id' => $this->encodeId($customerId),
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $data = $body['data'] ?? [];
+            $orderId = HashidsService::decode((string) ($data['id'] ?? ''));
+            // 响应形状与历史一致仅编码 id，customer_id 出 raw int（解码后的值）
+            $this->assertSame($customerId, $data['customer_id'] ?? null);
+
+            $row = SalesOrder::find($orderId);
+            $this->assertSame($customerId, (int) $row->customer_id, 'store 落库 customer_id 应为解码后的 int（fill 不得用 hash 串覆写）');
+        } finally {
+            if ($orderId !== null) {
+                SalesOrder::where('id', $orderId)->forceDelete();
+            }
+        }
+    }
+
+    public function testSalesOrderUpdatePersistsDecodedCustomerId(): void
+    {
+        $suffix = $this->randSuffix();
+        $customerA = SnowflakeService::generate();
+        $customerB = SnowflakeService::generate();
+        $orderId = SnowflakeService::generate();
+        try {
+            $order = new SalesOrder();
+            $order->id = $orderId;
+            $order->code = 'B3SOU-' . $suffix;
+            $order->customer_id = $customerA;
+            $order->save();
+
+            $resp = (new SalesOrderController())->update(
+                new FakeRequest(['customer_id' => $this->encodeId($customerB)]),
+                $this->encodeId($orderId)
+            );
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $this->assertSame($customerB, $body['data']['customer_id'] ?? null);
+
+            $row = SalesOrder::find($orderId);
+            $this->assertSame($customerB, (int) $row->customer_id, 'update 落库 customer_id 应为解码后的 int');
+        } finally {
+            SalesOrder::where('id', $orderId)->forceDelete();
+        }
+    }
+
     /* ======================== oms fulfillment ======================== */
 
     public function testFulfillmentIndexFiltersByOmsOrderIdWithWarehouseName(): void

@@ -74,7 +74,7 @@ class OrderController extends BaseController
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("销售管理")]
 #[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"订单编号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", require:true, desc:"客户ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", require:true, desc:"客户ID（hashid，后端解码）")]
 #[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"订单编号")]
 #[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:1, desc:"状态")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
@@ -84,18 +84,20 @@ class OrderController extends BaseController
     public function store(Request $request): Response
     {
         // 表无 name 列（erp_sales_order 仅 code/customer_id 等，见 install.sql），仅校验真实列
-        $validator = validator($request->all(), [
-            'code' => 'required|string|max:50',
-            'customer_id' => 'required|integer',
-        ]);
+        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        // 信用控制前置拦截：带客户且金额可识别时校验（冻结恒生效；额度未启用自动放行）
+        // customer_id 入参为 hashid 串（缺省/无效 → 422）；解码 int 供信用控制并覆写落库
         $customerId = $this->decodeIdSafe((string) $request->input('customer_id', ''));
+        if ($customerId === null || $customerId < 1) {
+            return $this->fail('customer_id 无效', 422);
+        }
+
+        // 信用控制前置拦截：带客户且金额可识别时校验（冻结恒生效；额度未启用自动放行）
         $totalAmount = $request->input('total_amount', '0');
-        if ($customerId !== null && $customerId > 0 && is_numeric($totalAmount)) {
+        if (is_numeric($totalAmount)) {
             try {
                 Container::get(CreditControlService::class)->assertOrderCreate($customerId, (string) $totalAmount);
             } catch (CreditControlException $e) {
@@ -106,6 +108,8 @@ class OrderController extends BaseController
         $item = new SalesOrder();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 解码 int 须在 fill 之后覆写：customer_id 非 guarded，先赋会被请求里的 hash 串直填覆写（崩/脏数据）
+        $item->customer_id = $customerId;
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
@@ -176,6 +180,15 @@ class OrderController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
+        // 同 store：customer_id 非 guarded，fill 会把请求 hash 串直填列——提供时解码 int 覆写（部分更新）
+        $customerRaw = $request->input('customer_id', null);
+        if ($customerRaw !== null && $customerRaw !== '') {
+            $customerId = $this->decodeIdSafe((string) $customerRaw);
+            if ($customerId === null || $customerId < 1) {
+                return $this->fail('customer_id 无效', 422);
+            }
+            $item->customer_id = $customerId;
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');

@@ -151,7 +151,7 @@ class OrderController extends BaseController
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("采购管理")]
 #[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"采购订单hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"订单名称")]
+#[\erikwang2013\apidoc\annotation\Param(name:"supplier_id", type:"int", default:"", desc:"供应商ID（hashid，后端解码）")]
 #[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"订单编号")]
 #[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
