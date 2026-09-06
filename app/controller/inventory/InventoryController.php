@@ -26,18 +26,17 @@ class InventoryController extends BaseController
      * })
      */
 #[\erikwang2013\apidoc\annotation\Title("库存列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取库存分页列表，支持关键字搜索和状态筛选")]
+#[\erikwang2013\apidoc\annotation\Desc("获取库存分页列表，支持按商品名称/编码/批次号关键字搜索")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("库存管理")]
 #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
 #[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(商品名称/编码/批次号)")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"库存列表")]
+#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"库存列表(含 product_name/product_code/warehouse_name)")]
 #[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
 #[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
 #[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
@@ -47,22 +46,26 @@ class InventoryController extends BaseController
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
-        $status = $request->input('status');
 
-        $query = Inventory::query();
+        // erp_inventory 实列仅 product_id/sku_id/warehouse_id/location_id/batch_code/
+        // quantity/cost_price（见 install.sql，无 name/code/status 幻列）；商品名称/编码
+        // 与仓库名称经 leftJoin 带出，关键字搜 product.name/product.code/inventory.batch_code
+        $query = Inventory::query()
+            ->leftJoin('product', 'product.id', '=', 'inventory.product_id')
+            ->leftJoin('warehouse', 'warehouse.id', '=', 'inventory.warehouse_id')
+            ->select('inventory.*', 'product.name as product_name',
+                'product.code as product_code', 'warehouse.name as warehouse_name');
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
+                $q->where('product.name', 'like', "%{$keyword}%")
+                  ->orWhere('product.code', 'like', "%{$keyword}%")
+                  ->orWhere('inventory.batch_code', 'like', "%{$keyword}%");
             });
-        }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
         }
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
+            ->limit($limit)->orderBy('inventory.id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
 
         return $this->successPage($list, $total, $page, $limit);

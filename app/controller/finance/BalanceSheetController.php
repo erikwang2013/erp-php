@@ -56,15 +56,30 @@ class BalanceSheetController extends BaseController
             ->first();
 
         if ($snapshot) {
-            return $this->success($this->encodeIds($snapshot->toArray()));
+            $data = $this->encodeIds($snapshot->toArray());
+            // DB JSON 列读出为串，出口统一为对象（契约见批1 报表对象化）
+            $data['report_data'] = $this->decodeReportData($data['report_data'] ?? null);
+
+            return $this->success($data);
         }
 
         // 无快照：从已审核凭证按账套实时重算（科目类型为权威口径，见 LedgerBalanceService）
         $report = (new LedgerBalanceService())->computeBalanceSheet($scope['ledger_id'], $year, $month);
         $reportData = $report;
-        $reportData['report_data'] = json_encode($report['report_data'], JSON_UNESCAPED_UNICODE);
+        $reportData['report_data'] = $this->decodeReportData($report['report_data'] ?? null);
 
         return $this->success($reportData, '报表已从凭证实时生成（未保存为快照）');
+    }
+
+    /** 报表出口归一：report_data 一律为数组；空串/损坏 JSON → [] 兜底（DB 存储不动） */
+    private function decodeReportData(mixed $reportData): array
+    {
+        if (is_array($reportData)) {
+            return $reportData;
+        }
+        $decoded = json_decode((string) ($reportData ?? ''), true);
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     /**

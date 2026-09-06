@@ -79,7 +79,7 @@ class OrderController extends BaseController
 
     public function store(Request $request): Response
     {
-        // 校验真实表列（原 name 必填校验指向不存在的列：表无 name，且模型仅 $guarded 无白名单，假列必致校验恒失败/INSERT SQL 错）
+        // 表无 name 列（erp_sales_order 仅 code/customer_id 等，见 install.sql），仅校验真实列
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
             'customer_id' => 'required|integer',

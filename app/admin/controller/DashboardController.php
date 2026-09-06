@@ -153,9 +153,10 @@ class DashboardController extends BaseController
 
         return [
             'dates' => $dates,
+            // series_key：稳定英文蛇形键，供前端 sparkline 摆脱 label 字符串匹配
             'series' => [
-                ['name' => '累计用户', 'data' => $userGrowth, 'color' => '#1677FF'],
-                ['name' => '操作日志', 'data' => $logCounts, 'color' => '#52C41A'],
+                ['series_key' => 'users', 'name' => '累计用户', 'data' => $userGrowth, 'color' => '#1677FF'],
+                ['series_key' => 'logs', 'name' => '操作日志', 'data' => $logCounts, 'color' => '#52C41A'],
             ],
         ];
     }
@@ -241,6 +242,7 @@ class DashboardController extends BaseController
             ->groupBy('customer_id')->orderByDesc('total')->limit(10)
             ->get();
         $customerNames = Customer::whereIn('id', $topCustomers->pluck('customer_id'))->pluck('name', 'id');
+        // today_sales/month_sales/top_customers/funnel 双端（Flutter/HOS）零消费，保留待 BI 消费（勿删勿改结构）
         $data = [
             'today_sales' => SalesOrder::whereDate('ordered_at', $today)->where('status', '!=', 4)->sum('total_amount') ?? 0,
             'month_sales' => SalesOrder::whereBetween('ordered_at', [date('Y-m-01'), $today])->where('status', '!=', 4)->sum('total_amount') ?? 0,

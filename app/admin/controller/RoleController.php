@@ -79,12 +79,22 @@ class RoleController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $role = AdminRole::find($id);
+        // 与 index 同口径（超集）：users_count + permissions(hashid id 数组)
+        $role = AdminRole::withCount('users')
+            ->with(['permissions' => fn ($q) => $q->select(['id', 'name', 'slug', 'type', 'parent_id'])])
+            ->find($id);
         if (!$role) {
             return $this->fail('角色不存在', 404);
         }
 
-        return $this->success($this->encodeIds($role->toArray()));
+        $data = $role->toArray();
+        // 同 index：permissions 由全列对象数组 → hashid id 数组（编辑弹框预选只比对 id）
+        $data['permissions'] = $role->permissions
+            ->pluck('id')
+            ->map(fn ($pid) => $this->encodeId((int) $pid))
+            ->values();
+
+        return $this->success($this->encodeIds($data));
     }
 
     /**

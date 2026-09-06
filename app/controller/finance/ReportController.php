@@ -97,12 +97,12 @@ class ReportController extends BaseController
      * 多币种报表合并
      */
 #[\erikwang2013\apidoc\annotation\Title("多币种合并")]
-#[\erikwang2013\apidoc\annotation\Desc("按期末汇率将外币报表折算为本位币")]
+#[\erikwang2013\apidoc\annotation\Desc("按期末汇率将外币报表折算为本位币。每项须含 ledger_id 或 company_id 且 report_year≥2000、report_month 1-12，各期间须一致（校验口径见 ConsolidationService::consolidate）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/report/consolidate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"subsidiary_reports", type:"array", desc:"子公司报表列表")]
+#[\erikwang2013\apidoc\annotation\Param(name:"subsidiary_reports", type:"array", require:true, desc:"子公司报表列表（非空）：每项 {ledger_id|company_id, report_year, report_month}，账套优先，company_id 回落到其默认账套")]
 #[\erikwang2013\apidoc\annotation\Param(name:"base_currency", type:"string", desc:"本位币，默认CNY")]
 
     public function consolidate(Request $request): Response
@@ -110,6 +110,9 @@ class ReportController extends BaseController
         $subsidiaryReports = $request->input('subsidiary_reports', []);
         if (!is_array($subsidiaryReports)) {
             return $this->fail('subsidiary_reports 必须为数组', 422);
+        }
+        if ($subsidiaryReports === []) {
+            return $this->fail('subsidiary_reports 不能为空', 422);
         }
         $baseCurrency = (string) $request->input('base_currency', 'CNY');
 
