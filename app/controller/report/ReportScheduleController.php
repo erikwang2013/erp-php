@@ -8,7 +8,9 @@ declare(strict_types=1);
 namespace app\controller\report;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
 use app\model\ReportSchedule;
+use app\model\ReportTemplate;
 use support\Request;
 use support\Response;
 
@@ -46,17 +48,39 @@ class ReportScheduleController extends BaseController
         $enabled = $request->input('enabled');
 
         $query = ReportSchedule::query();
-        if ($templateId) {
-            $query->where('template_id', (int) $templateId);
+        if ($templateId !== null && $templateId !== '') {
+            $query->where('template_id', $this->decodeIdSafe((string) $templateId) ?? (int) $templateId);
         }
         if ($enabled !== null && $enabled !== '') {
             $query->where('enabled', (int) $enabled);
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $rows = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $item->toArray())->all();
+
+        // 行级展示名 + FK 编码：template_id 供编辑弹窗回填同源选项；recipients 为 int 列表
+        $templateIds = array_values(array_unique(array_map(fn ($r) => (int) ($r['template_id'] ?? 0), $rows)));
+        $templateNames = ReportTemplate::whereIn('id', $templateIds)->pluck('name', 'id');
+        $userIds = [];
+        foreach ($rows as $row) {
+            foreach ($this->recipientTokens((string) ($row['recipients'] ?? '')) as $uid) {
+                $userIds[] = $uid;
+            }
+        }
+        $userNames = AdminUser::whereIn('id', array_values(array_unique($userIds)))->pluck('real_name', 'id');
+        $list = array_map(function ($row) use ($templateNames, $userNames) {
+            $row['template_name'] = (string) ($templateNames[(int) ($row['template_id'] ?? 0)] ?? '');
+            $row['recipients_names'] = implode(', ', array_map(
+                fn ($uid) => (string) ($userNames[$uid] ?? $uid),
+                $this->recipientTokens((string) ($row['recipients'] ?? ''))
+            ));
+            $row = $this->encodeIds($row, ['id', 'template_id']);
+            $row['recipients'] = $this->encodeRecipients((string) $row['recipients']);
+
+            return $row;
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -81,9 +105,9 @@ class ReportScheduleController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'template_id' => 'required|integer',
+            'template_id' => 'required|string',
             'name' => 'required|string|max:200',
-            'frequency' => 'required|integer',
+            'frequency' => 'required|integer|in:1,2,3',
             'recipients' => 'required|string',
         ]);
         if ($validator->fails()) {
@@ -92,12 +116,13 @@ class ReportScheduleController extends BaseController
 
         $item = new ReportSchedule();
         $item->id = $this->generateId();
+        $this->decodeFkIntoRequest($request);
         $this->fillModelFromRequest($item, $request);
 
         $item->next_run_at = $this->calcNextRun((int) $item->frequency);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeScheduleItem($item->toArray()), '创建成功');
     }
 
     /**
@@ -124,7 +149,7 @@ class ReportScheduleController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        return $this->success($this->encodeScheduleItem($item->toArray()));
     }
 
     /**
@@ -152,6 +177,7 @@ class ReportScheduleController extends BaseController
         }
 
         $oldFreq = $item->frequency;
+        $this->decodeFkIntoRequest($request);
         $this->fillModelFromRequest($item, $request);
 
         if ((int) $item->frequency !== (int) $oldFreq) {
@@ -160,7 +186,7 @@ class ReportScheduleController extends BaseController
 
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeScheduleItem($item->toArray()), '更新成功');
     }
 
     /**
@@ -212,5 +238,72 @@ class ReportScheduleController extends BaseController
             3 => date('Y-m-d H:i:s', strtotime('+1 month', $now)),
             default => date('Y-m-d H:i:s', strtotime('+1 day', $now)),
         };
+    }
+
+    /**
+     * hashid 兼容解码：template_id/recipients 为表单下发的 hashid（/admin/v1/report、
+     * /admin/v1/user 列表行），解码为 int 合并回请求，fill 落库即为 int（recipients 逗号分隔列表）。
+     */
+    private function decodeFkIntoRequest(Request $request): void
+    {
+        $templateId = $request->input('template_id', '');
+        if ($templateId !== null && $templateId !== '') {
+            $request->merge(['template_id' => $this->decodeIdSafe((string) $templateId) ?? (int) $templateId]);
+        }
+        $recipients = $request->input('recipients', '');
+        if ($recipients !== null && $recipients !== '') {
+            $tokens = array_map(
+                fn ($t) => (string) ($this->decodeIdSafe(trim((string) $t)) ?? (int) trim((string) $t)),
+                explode(',', (string) $recipients)
+            );
+            $request->merge(['recipients' => implode(',', $tokens)]);
+        }
+    }
+
+    /**
+     * 出参编码：id/template_id → hashid，recipients int 列表逐项 → hashid（与下拉选项同源）。
+     */
+    private function encodeScheduleItem(array $item): array
+    {
+        $data = $this->encodeIds($item, ['id', 'template_id']);
+        $data['recipients'] = $this->encodeRecipients((string) ($data['recipients'] ?? ''));
+
+        return $data;
+    }
+
+    /**
+     * recipients 原值解析为 int 列表（兼容历史 raw int 与新写入的 hashid 两种形态）。
+     *
+     * @return int[]
+     */
+    private function recipientTokens(string $raw): array
+    {
+        $out = [];
+        foreach (explode(',', $raw) as $token) {
+            $token = trim($token);
+            if ($token === '') {
+                continue;
+            }
+            $out[] = ctype_digit($token) ? (int) $token : ($this->decodeIdSafe($token) ?? 0);
+        }
+
+        return array_filter($out, fn ($id) => $id > 0);
+    }
+
+    /**
+     * recipients int 列表逐项编码为 hashid（非数字 token 原样保留）。
+     */
+    private function encodeRecipients(string $raw): string
+    {
+        $out = [];
+        foreach (explode(',', $raw) as $token) {
+            $token = trim($token);
+            if ($token === '') {
+                continue;
+            }
+            $out[] = ctype_digit($token) && (int) $token > 0 ? $this->encodeId((int) $token) : $token;
+        }
+
+        return implode(',', $out);
     }
 }

@@ -132,11 +132,14 @@ class _ReportListPageState extends State<ReportListPage> {
     );
   }
 
+  // 字段与后端 ReportController::store 契约对齐：name/code/module 必填
+  // （报表模板的 module=关联模块分组文本；erp_report_template 无其他必填列）。
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
       FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
-      FormFieldConfig(name: 'code', label: l10n.fieldCode),
+      FormFieldConfig(name: 'code', label: l10n.fieldCode, required: true),
+      FormFieldConfig(name: 'module', label: l10n.fieldModule, required: true),
     ];
   }
 
@@ -159,7 +162,7 @@ class _ReportListPageState extends State<ReportListPage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.fieldName, l10n.fieldCode, l10n.commonAction];
+    return [l10n.fieldName, l10n.fieldCode, l10n.fieldModule, l10n.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
@@ -167,6 +170,7 @@ class _ReportListPageState extends State<ReportListPage> {
     return {
       l10n.fieldName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
+      l10n.fieldModule: r['module'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: Icon(Icons.play_arrow, size: 18, color: AppColors.of(context).primary),
           tooltip: l10n.reportExecute, onPressed: () => _execute(r)),

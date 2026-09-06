@@ -3554,6 +3554,48 @@ abstract class AppLocalizations {
   /// **'时间'**
   String get fieldTime;
 
+  /// No description provided for @fieldFrequency.
+  ///
+  /// In zh, this message translates to:
+  /// **'频率'**
+  String get fieldFrequency;
+
+  /// No description provided for @fieldModule.
+  ///
+  /// In zh, this message translates to:
+  /// **'模块'**
+  String get fieldModule;
+
+  /// No description provided for @fieldTemplate.
+  ///
+  /// In zh, this message translates to:
+  /// **'模板'**
+  String get fieldTemplate;
+
+  /// No description provided for @fieldReceiver.
+  ///
+  /// In zh, this message translates to:
+  /// **'接收人'**
+  String get fieldReceiver;
+
+  /// No description provided for @freqDaily.
+  ///
+  /// In zh, this message translates to:
+  /// **'每天'**
+  String get freqDaily;
+
+  /// No description provided for @freqWeekly.
+  ///
+  /// In zh, this message translates to:
+  /// **'每周'**
+  String get freqWeekly;
+
+  /// No description provided for @freqMonthly.
+  ///
+  /// In zh, this message translates to:
+  /// **'每月'**
+  String get freqMonthly;
+
   /// No description provided for @fieldRemark.
   ///
   /// In zh, this message translates to:

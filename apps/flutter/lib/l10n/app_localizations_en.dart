@@ -1815,6 +1815,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldTime => 'Time';
 
   @override
+  String get fieldFrequency => 'Frequency';
+
+  @override
+  String get fieldModule => 'Module';
+
+  @override
+  String get fieldTemplate => 'Template';
+
+  @override
+  String get fieldReceiver => 'Recipient';
+
+  @override
+  String get freqDaily => 'Daily';
+
+  @override
+  String get freqWeekly => 'Weekly';
+
+  @override
+  String get freqMonthly => 'Monthly';
+
+  @override
   String get fieldRemark => 'Notes';
 
   @override

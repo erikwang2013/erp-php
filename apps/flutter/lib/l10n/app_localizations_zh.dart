@@ -1794,6 +1794,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fieldTime => '时间';
 
   @override
+  String get fieldFrequency => '频率';
+
+  @override
+  String get fieldModule => '模块';
+
+  @override
+  String get fieldTemplate => '模板';
+
+  @override
+  String get fieldReceiver => '接收人';
+
+  @override
+  String get freqDaily => '每天';
+
+  @override
+  String get freqWeekly => '每周';
+
+  @override
+  String get freqMonthly => '每月';
+
+  @override
   String get fieldRemark => '备注';
 
   @override
