@@ -3,6 +3,7 @@
  */
 
 import { ApiService } from '../../service/ApiService';
+import { L10n } from '../../utils/L10n';
 
 @Entry
 @Component
@@ -36,7 +37,7 @@ struct FreightInvoicePage {
     } catch (e) {
       // M4: 原无错误处理（失败会静默成空列表）；此处展示真实错误不吞，UNAUTHORIZED/空 message 用友好文案（§0.8）
       const raw: string = e instanceof Error ? e.message : '';
-      this.errMsg = raw.length > 0 && raw !== 'UNAUTHORIZED' ? raw : '登录已过期，请重新登录';
+      this.errMsg = raw.length > 0 && raw !== 'UNAUTHORIZED' ? raw : L10n.str(this.getUIContext(), 'login_expired');
     } finally {
       this.loading = false;
       this.isRefreshing = false;
@@ -46,11 +47,11 @@ struct FreightInvoicePage {
   build() {
     Column() {
       Row() {
-        Text('运费发票')
+        Text($r('app.string.freight_invoice_list_title'))
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
         Blank()
-        Button('刷新')
+        Button($r('app.string.refresh'))
           .fontSize(13)
           .fontColor($r('app.color.primary'))
           .backgroundColor($r('app.color.primary_bg'))
@@ -69,7 +70,7 @@ struct FreightInvoicePage {
           Text(this.errMsg)
             .fontSize(14)
             .fontColor($r('app.color.text_hint'))
-          Button('重试')
+          Button($r('app.string.retry'))
             .fontSize(14)
             .fontColor($r('app.color.primary'))
             .backgroundColor(Color.Transparent)

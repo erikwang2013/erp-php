@@ -1123,6 +1123,318 @@
     {
       "name": "asn_list_title",
       "value": "预到货通知"
+    },
+    {
+      "name": "shipment_list_title",
+      "value": "运单管理"
+    },
+    {
+      "name": "shipment_empty",
+      "value": "暂无运单数据"
+    },
+    {
+      "name": "shipment_tracking_fmt",
+      "value": "跟踪号: %1$s"
+    },
+    {
+      "name": "shipment_delete_msg",
+      "value": "确定要删除该运单吗？删除后不可恢复。"
+    },
+    {
+      "name": "shipment_form_add",
+      "value": "新增运单"
+    },
+    {
+      "name": "shipment_form_edit",
+      "value": "编辑运单"
+    },
+    {
+      "name": "shipment_code",
+      "value": "运单号"
+    },
+    {
+      "name": "shipment_code_hint",
+      "value": "请输入运单号（必填）"
+    },
+    {
+      "name": "shipment_code_required",
+      "value": "请输入运单号"
+    },
+    {
+      "name": "shipment_carrier_service_id",
+      "value": "承运商服务ID"
+    },
+    {
+      "name": "shipment_carrier_service_id_hint",
+      "value": "承运商服务数字ID，留空为0"
+    },
+    {
+      "name": "shipment_tracking_no",
+      "value": "物流跟踪号"
+    },
+    {
+      "name": "shipment_tracking_no_hint",
+      "value": "请输入物流跟踪号"
+    },
+    {
+      "name": "shipment_status",
+      "value": "状态"
+    },
+    {
+      "name": "shipment_shipping_label_url",
+      "value": "面单URL"
+    },
+    {
+      "name": "shipment_shipping_label_url_hint",
+      "value": "请输入面单URL"
+    },
+    {
+      "name": "shipment_estimated_delivery_at",
+      "value": "预计送达时间"
+    },
+    {
+      "name": "shipment_estimated_delivery_at_hint",
+      "value": "格式: YYYY-MM-DD HH:mm:ss，可留空"
+    },
+    {
+      "name": "shipment_actual_delivery_at",
+      "value": "实际送达时间"
+    },
+    {
+      "name": "shipment_actual_delivery_at_hint",
+      "value": "格式: YYYY-MM-DD HH:mm:ss，可留空"
+    },
+    {
+      "name": "shipment_total_weight_kg",
+      "value": "总重量kg"
+    },
+    {
+      "name": "shipment_total_weight_kg_hint",
+      "value": "请输入总重量，如 1.5"
+    },
+    {
+      "name": "shipment_package_count",
+      "value": "包裹数量"
+    },
+    {
+      "name": "shipment_package_count_hint",
+      "value": "包裹数量，默认1"
+    },
+    {
+      "name": "shipment_freight_charge",
+      "value": "运费"
+    },
+    {
+      "name": "shipment_freight_charge_hint",
+      "value": "请输入运费"
+    },
+    {
+      "name": "shipment_insurance_charge",
+      "value": "保价费"
+    },
+    {
+      "name": "shipment_insurance_charge_hint",
+      "value": "请输入保价费"
+    },
+    {
+      "name": "shipment_currency",
+      "value": "币种"
+    },
+    {
+      "name": "shipment_currency_hint",
+      "value": "默认 CNY"
+    },
+    {
+      "name": "department_list_title",
+      "value": "部门管理"
+    },
+    {
+      "name": "department_empty",
+      "value": "暂无部门数据"
+    },
+    {
+      "name": "department_code_fmt",
+      "value": "编码: %1$s"
+    },
+    {
+      "name": "department_delete_msg",
+      "value": "确定要删除该部门吗？删除后不可恢复。"
+    },
+    {
+      "name": "department_form_add",
+      "value": "新增部门"
+    },
+    {
+      "name": "department_form_edit",
+      "value": "编辑部门"
+    },
+    {
+      "name": "department_name",
+      "value": "部门名称"
+    },
+    {
+      "name": "department_name_hint",
+      "value": "请输入部门名称（必填）"
+    },
+    {
+      "name": "department_name_required",
+      "value": "请输入部门名称"
+    },
+    {
+      "name": "department_code",
+      "value": "部门编码"
+    },
+    {
+      "name": "department_code_hint",
+      "value": "请输入部门编码（必填）"
+    },
+    {
+      "name": "department_code_required",
+      "value": "请输入部门编码"
+    },
+    {
+      "name": "department_parent_id",
+      "value": "上级部门ID"
+    },
+    {
+      "name": "department_parent_id_hint",
+      "value": "上级部门数字ID，留空为0"
+    },
+    {
+      "name": "department_manager_user_id",
+      "value": "负责人ID"
+    },
+    {
+      "name": "department_manager_user_id_hint",
+      "value": "负责人用户数字ID，留空为0"
+    },
+    {
+      "name": "department_status",
+      "value": "状态"
+    },
+    {
+      "name": "employee_list_title",
+      "value": "员工管理"
+    },
+    {
+      "name": "employee_empty",
+      "value": "暂无员工数据"
+    },
+    {
+      "name": "employee_department_fmt",
+      "value": "部门ID: %1$s"
+    },
+    {
+      "name": "employee_delete_msg",
+      "value": "确定要删除该员工吗？删除后不可恢复。"
+    },
+    {
+      "name": "employee_form_add",
+      "value": "新增员工"
+    },
+    {
+      "name": "employee_form_edit",
+      "value": "编辑员工"
+    },
+    {
+      "name": "employee_name",
+      "value": "姓名"
+    },
+    {
+      "name": "employee_name_hint",
+      "value": "请输入员工姓名（必填）"
+    },
+    {
+      "name": "employee_name_required",
+      "value": "请输入员工姓名"
+    },
+    {
+      "name": "employee_code",
+      "value": "工号"
+    },
+    {
+      "name": "employee_code_hint",
+      "value": "请输入工号（必填）"
+    },
+    {
+      "name": "employee_code_required",
+      "value": "请输入工号"
+    },
+    {
+      "name": "employee_department_id",
+      "value": "部门ID"
+    },
+    {
+      "name": "employee_department_id_hint",
+      "value": "部门数字ID，留空为0"
+    },
+    {
+      "name": "employee_position_id",
+      "value": "职位ID"
+    },
+    {
+      "name": "employee_position_id_hint",
+      "value": "职位数字ID，留空为0"
+    },
+    {
+      "name": "employee_gender",
+      "value": "性别"
+    },
+    {
+      "name": "employee_gender_hint",
+      "value": "0未知/1男/2女，留空为0"
+    },
+    {
+      "name": "employee_phone",
+      "value": "电话"
+    },
+    {
+      "name": "employee_phone_hint",
+      "value": "请输入联系电话"
+    },
+    {
+      "name": "employee_email",
+      "value": "邮箱"
+    },
+    {
+      "name": "employee_email_hint",
+      "value": "请输入邮箱"
+    },
+    {
+      "name": "employee_hire_date",
+      "value": "入职日期"
+    },
+    {
+      "name": "employee_hire_date_hint",
+      "value": "YYYY-MM-DD，可留空"
+    },
+    {
+      "name": "employee_status",
+      "value": "状态"
+    },
+    {
+      "name": "employee_status_active",
+      "value": "在职"
+    },
+    {
+      "name": "employee_status_resigned",
+      "value": "离职"
+    },
+    {
+      "name": "freight_rate_list_title",
+      "value": "运费费率"
+    },
+    {
+      "name": "freight_invoice_list_title",
+      "value": "运费发票"
+    },
+    {
+      "name": "tracking_list_title",
+      "value": "物流轨迹"
+    },
+    {
+      "name": "attendance_list_title",
+      "value": "考勤管理"
     }
   ]
 }

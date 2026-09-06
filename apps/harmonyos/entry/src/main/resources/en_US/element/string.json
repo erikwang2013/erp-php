@@ -1123,6 +1123,318 @@
     {
       "name": "asn_list_title",
       "value": "Advance Shipment Notice"
+    },
+    {
+      "name": "shipment_list_title",
+      "value": "Shipments"
+    },
+    {
+      "name": "shipment_empty",
+      "value": "No shipments yet"
+    },
+    {
+      "name": "shipment_tracking_fmt",
+      "value": "Tracking No.: %1$s"
+    },
+    {
+      "name": "shipment_delete_msg",
+      "value": "Delete this shipment? This cannot be undone."
+    },
+    {
+      "name": "shipment_form_add",
+      "value": "New Shipment"
+    },
+    {
+      "name": "shipment_form_edit",
+      "value": "Edit Shipment"
+    },
+    {
+      "name": "shipment_code",
+      "value": "Waybill No."
+    },
+    {
+      "name": "shipment_code_hint",
+      "value": "Enter the waybill No. (required)"
+    },
+    {
+      "name": "shipment_code_required",
+      "value": "Waybill No. is required"
+    },
+    {
+      "name": "shipment_carrier_service_id",
+      "value": "Carrier Service ID"
+    },
+    {
+      "name": "shipment_carrier_service_id_hint",
+      "value": "Carrier service numeric ID, leave blank for 0"
+    },
+    {
+      "name": "shipment_tracking_no",
+      "value": "Tracking No."
+    },
+    {
+      "name": "shipment_tracking_no_hint",
+      "value": "Enter a tracking No."
+    },
+    {
+      "name": "shipment_status",
+      "value": "Status"
+    },
+    {
+      "name": "shipment_shipping_label_url",
+      "value": "Label URL"
+    },
+    {
+      "name": "shipment_shipping_label_url_hint",
+      "value": "Enter the label URL"
+    },
+    {
+      "name": "shipment_estimated_delivery_at",
+      "value": "Estimated Delivery At"
+    },
+    {
+      "name": "shipment_estimated_delivery_at_hint",
+      "value": "Format: YYYY-MM-DD HH:mm:ss, optional"
+    },
+    {
+      "name": "shipment_actual_delivery_at",
+      "value": "Actual Delivery At"
+    },
+    {
+      "name": "shipment_actual_delivery_at_hint",
+      "value": "Format: YYYY-MM-DD HH:mm:ss, optional"
+    },
+    {
+      "name": "shipment_total_weight_kg",
+      "value": "Total Weight (kg)"
+    },
+    {
+      "name": "shipment_total_weight_kg_hint",
+      "value": "Enter the total weight, e.g. 1.5"
+    },
+    {
+      "name": "shipment_package_count",
+      "value": "Package Count"
+    },
+    {
+      "name": "shipment_package_count_hint",
+      "value": "Package count, defaults to 1"
+    },
+    {
+      "name": "shipment_freight_charge",
+      "value": "Freight Charge"
+    },
+    {
+      "name": "shipment_freight_charge_hint",
+      "value": "Enter the freight charge"
+    },
+    {
+      "name": "shipment_insurance_charge",
+      "value": "Insurance Charge"
+    },
+    {
+      "name": "shipment_insurance_charge_hint",
+      "value": "Enter the insurance charge"
+    },
+    {
+      "name": "shipment_currency",
+      "value": "Currency"
+    },
+    {
+      "name": "shipment_currency_hint",
+      "value": "Default: CNY"
+    },
+    {
+      "name": "department_list_title",
+      "value": "Departments"
+    },
+    {
+      "name": "department_empty",
+      "value": "No departments yet"
+    },
+    {
+      "name": "department_code_fmt",
+      "value": "Code: %1$s"
+    },
+    {
+      "name": "department_delete_msg",
+      "value": "Delete this department? This cannot be undone."
+    },
+    {
+      "name": "department_form_add",
+      "value": "New Department"
+    },
+    {
+      "name": "department_form_edit",
+      "value": "Edit Department"
+    },
+    {
+      "name": "department_name",
+      "value": "Department Name"
+    },
+    {
+      "name": "department_name_hint",
+      "value": "Enter a department name (required)"
+    },
+    {
+      "name": "department_name_required",
+      "value": "Department name is required"
+    },
+    {
+      "name": "department_code",
+      "value": "Department Code"
+    },
+    {
+      "name": "department_code_hint",
+      "value": "Enter a department code (required)"
+    },
+    {
+      "name": "department_code_required",
+      "value": "Department code is required"
+    },
+    {
+      "name": "department_parent_id",
+      "value": "Parent Department ID"
+    },
+    {
+      "name": "department_parent_id_hint",
+      "value": "Parent department numeric ID, leave blank for 0"
+    },
+    {
+      "name": "department_manager_user_id",
+      "value": "Manager User ID"
+    },
+    {
+      "name": "department_manager_user_id_hint",
+      "value": "Manager user numeric ID, leave blank for 0"
+    },
+    {
+      "name": "department_status",
+      "value": "Status"
+    },
+    {
+      "name": "employee_list_title",
+      "value": "Employees"
+    },
+    {
+      "name": "employee_empty",
+      "value": "No employees yet"
+    },
+    {
+      "name": "employee_department_fmt",
+      "value": "Department ID: %1$s"
+    },
+    {
+      "name": "employee_delete_msg",
+      "value": "Delete this employee? This cannot be undone."
+    },
+    {
+      "name": "employee_form_add",
+      "value": "New Employee"
+    },
+    {
+      "name": "employee_form_edit",
+      "value": "Edit Employee"
+    },
+    {
+      "name": "employee_name",
+      "value": "Name"
+    },
+    {
+      "name": "employee_name_hint",
+      "value": "Enter a name (required)"
+    },
+    {
+      "name": "employee_name_required",
+      "value": "Name is required"
+    },
+    {
+      "name": "employee_code",
+      "value": "Employee No."
+    },
+    {
+      "name": "employee_code_hint",
+      "value": "Enter an employee No. (required)"
+    },
+    {
+      "name": "employee_code_required",
+      "value": "Employee No. is required"
+    },
+    {
+      "name": "employee_department_id",
+      "value": "Department ID"
+    },
+    {
+      "name": "employee_department_id_hint",
+      "value": "Department numeric ID, leave blank for 0"
+    },
+    {
+      "name": "employee_position_id",
+      "value": "Position ID"
+    },
+    {
+      "name": "employee_position_id_hint",
+      "value": "Position numeric ID, leave blank for 0"
+    },
+    {
+      "name": "employee_gender",
+      "value": "Gender"
+    },
+    {
+      "name": "employee_gender_hint",
+      "value": "0 unknown / 1 male / 2 female, leave blank for 0"
+    },
+    {
+      "name": "employee_phone",
+      "value": "Phone"
+    },
+    {
+      "name": "employee_phone_hint",
+      "value": "Enter a contact phone No."
+    },
+    {
+      "name": "employee_email",
+      "value": "Email"
+    },
+    {
+      "name": "employee_email_hint",
+      "value": "Enter an email"
+    },
+    {
+      "name": "employee_hire_date",
+      "value": "Hire Date"
+    },
+    {
+      "name": "employee_hire_date_hint",
+      "value": "YYYY-MM-DD, optional"
+    },
+    {
+      "name": "employee_status",
+      "value": "Status"
+    },
+    {
+      "name": "employee_status_active",
+      "value": "Active"
+    },
+    {
+      "name": "employee_status_resigned",
+      "value": "Resigned"
+    },
+    {
+      "name": "freight_rate_list_title",
+      "value": "Freight Rates"
+    },
+    {
+      "name": "freight_invoice_list_title",
+      "value": "Freight Invoices"
+    },
+    {
+      "name": "tracking_list_title",
+      "value": "Tracking"
+    },
+    {
+      "name": "attendance_list_title",
+      "value": "Attendance"
     }
   ]
 }

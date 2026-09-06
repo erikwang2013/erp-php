@@ -5,6 +5,7 @@
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { ApiService } from '../../service/ApiService';
+import { L10n } from '../../utils/L10n';
 import { LoadingView, ErrorView, EmptyView } from '../../common/Components';
 import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
@@ -44,7 +45,7 @@ struct ShipmentListPage {
   @State total: number = 0;
   @State page: number = 1;
   @State hasError: boolean = false;
-  @State errMsg: string = '加载失败'; // M4: 错误展示文案（取后端/网络 message，空则保底）
+  @State errMsg: string = ''; // M4: 错误展示文案（取后端/网络 message，空则保底）
   @State isRefreshing: boolean = false;
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
@@ -100,7 +101,7 @@ struct ShipmentListPage {
       }
       this.hasError = true;
       // M4: 不吞错误，把 message 传给错误位与 toast；UNAUTHORIZED/空 message 显示友好文案（§0.8）
-      this.errMsg = e instanceof Error && e.message.length > 0 && e.message !== 'UNAUTHORIZED' ? e.message : '登录已过期，请重新登录';
+      this.errMsg = e instanceof Error && e.message.length > 0 && e.message !== 'UNAUTHORIZED' ? e.message : L10n.str(this.getUIContext(), 'login_expired');
       promptAction.showToast({ message: this.errMsg });
     } finally {
       this.loading = false;
@@ -163,7 +164,7 @@ struct ShipmentListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '加载详情失败' });
+      promptAction.showToast({ message: L10n.str(this.getUIContext(), 'load_detail_failed') });
     } finally {
       this.loading = false;
     }
@@ -174,7 +175,7 @@ struct ShipmentListPage {
    */
   async save(): Promise<void> {
     if (!this.formCode.trim()) {
-      promptAction.showToast({ message: '请输入运单号' });
+      promptAction.showToast({ message: $r('app.string.shipment_code_required') });
       return;
     }
 
@@ -197,10 +198,10 @@ struct ShipmentListPage {
     try {
       if (this.formMode === 'create') {
         await this.api.post<Object>('/admin/tms/shipment', body);
-        promptAction.showToast({ message: '创建成功' });
+        promptAction.showToast({ message: $r('app.string.create_success') });
       } else {
         await this.api.put<Object>(`/admin/tms/shipment/${this.formId}`, body);
-        promptAction.showToast({ message: '更新成功' });
+        promptAction.showToast({ message: $r('app.string.update_success') });
       }
       this.showForm = false;
       // 刷新列表（回到第一页）
@@ -210,7 +211,7 @@ struct ShipmentListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '保存失败' });
+      promptAction.showToast({ message: L10n.str(this.getUIContext(), 'save_failed') });
     } finally {
       this.isSubmitting = false;
     }
@@ -227,8 +228,8 @@ struct ShipmentListPage {
   confirmDelete(id: string): void {
     this.dialogController = new CustomDialogController({
       builder: ConfirmDialog({
-        title: '确认删除',
-        message: '确定要删除该运单吗？删除后不可恢复。',
+        title: $r('app.string.delete_confirm'),
+        message: $r('app.string.shipment_delete_msg'),
         onConfirm: () => {
           this.deleteItem(id);
         },
@@ -245,14 +246,14 @@ struct ShipmentListPage {
   async deleteItem(id: string): Promise<void> {
     try {
       await this.api.delete<Object>(`/admin/tms/shipment/${id}`);
-      promptAction.showToast({ message: '删除成功' });
+      promptAction.showToast({ message: $r('app.string.delete_success') });
       this.loadData(true);
     } catch (e) {
       if (e instanceof Error && e.message === 'UNAUTHORIZED') {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: '删除失败' });
+      promptAction.showToast({ message: L10n.str(this.getUIContext(), 'delete_failed') });
     }
   }
 
@@ -260,8 +261,8 @@ struct ShipmentListPage {
     Column() {
       // 顶栏（骨架收敛：TopBar 替代手写行，docs/mobile-ui-design.md 5.1）
       TopBar({
-        title: '运单管理',
-        actions: [new TopBarAction('+ 新增')],
+        title: $r('app.string.shipment_list_title'),
+        actions: [new TopBarAction($r('app.string.user_add'))],
         onAction: () => this.openCreate(),
         onRefresh: () => this.loadData(true),
         refreshing: this.isRefreshing || this.loading,
@@ -288,7 +289,7 @@ struct ShipmentListPage {
     } else if (this.hasError) {
       ErrorView({ message: this.errMsg, onRetry: () => this.loadData(true) });
     } else if (this.items.length === 0) {
-      EmptyView({ message: '暂无运单数据' });
+      EmptyView({ message: $r('app.string.shipment_empty') });
     } else {
       Refresh({ refreshing: $$this.isRefreshing }) {
         List() {
@@ -303,7 +304,7 @@ struct ShipmentListPage {
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-                  Text(`跟踪号: ${item.tracking_no || '-'}`)
+                  Text(L10n.str(this.getUIContext(), 'shipment_tracking_fmt', item.tracking_no || '-'))
                     .fontSize(12)
                     .fontColor($r('app.color.text_hint'))
                     .margin({ top: 2 })
@@ -314,7 +315,7 @@ struct ShipmentListPage {
                 .layoutWeight(1)
 
                 // 状态
-                Text(item.status === 1 ? '启用' : '禁用')
+                Text(item.status === 1 ? $r('app.string.status_enabled') : $r('app.string.status_disabled'))
                   .fontSize(10)
                   .fontColor(item.status === 1 ? $r('app.color.success_text') : $r('app.color.danger_text'))
                   .backgroundColor(item.status === 1 ? $r('app.color.success_bg') : $r('app.color.danger_bg'))
@@ -322,7 +323,7 @@ struct ShipmentListPage {
                   .padding({ left: 6, right: 6, top: 2, bottom: 2 })
 
                 // 操作
-                Button('编辑')
+                Button($r('app.string.edit'))
                   .fontSize(12)
                   .fontColor($r('app.color.primary'))
                   .backgroundColor($r('app.color.primary_bg'))
@@ -331,7 +332,7 @@ struct ShipmentListPage {
                   .margin({ left: 8 })
                   .onClick(() => this.openEdit(item.id))
 
-                Button('删除')
+                Button($r('app.string.delete'))
                   .fontSize(12)
                   .fontColor($r('app.color.danger_text'))
                   .backgroundColor($r('app.color.danger_bg'))
@@ -351,11 +352,11 @@ struct ShipmentListPage {
           ListItem() {
             Row() {
               if (this.items.length >= this.total) {
-                Text('— 没有更多了 —')
+                Text('— ' + L10n.str(this.getUIContext(), 'no_more') + ' —')
                   .fontSize(12)
                   .fontColor($r('app.color.text_disabled'))
               } else {
-                Button('加载更多')
+                Button($r('app.string.load_more'))
                   .fontSize(13)
                   .fontColor($r('app.color.primary'))
                   .backgroundColor(Color.Transparent)
@@ -384,7 +385,7 @@ struct ShipmentListPage {
   buildForm() {
     Scroll() {
       Column() {
-        Text(this.formMode === 'create' ? '新增运单' : '编辑运单')
+        Text(this.formMode === 'create' ? $r('app.string.shipment_form_add') : $r('app.string.shipment_form_edit'))
           .fontSize(16)
           .fontWeight(FontWeight.Bold)
           .width('100%')
@@ -392,12 +393,12 @@ struct ShipmentListPage {
           .padding({ top: 16, bottom: 16 })
 
         Row() {
-          Text('运单号')
+          Text($r('app.string.shipment_code'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入运单号（必填）', text: this.formCode })
+          TextInput({ placeholder: $r('app.string.shipment_code_hint'), text: this.formCode })
             .fontSize(15)
             .onChange((v: string) => { this.formCode = v; })
             .layoutWeight(1)
@@ -410,12 +411,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('承运商服务ID')
+          Text($r('app.string.shipment_carrier_service_id'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '承运商服务数字ID，留空为0', text: this.formCarrierServiceId })
+          TextInput({ placeholder: $r('app.string.shipment_carrier_service_id_hint'), text: this.formCarrierServiceId })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formCarrierServiceId = v; })
@@ -429,12 +430,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('物流跟踪号')
+          Text($r('app.string.shipment_tracking_no'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入物流跟踪号', text: this.formTrackingNo })
+          TextInput({ placeholder: $r('app.string.shipment_tracking_no_hint'), text: this.formTrackingNo })
             .fontSize(15)
             .onChange((v: string) => { this.formTrackingNo = v; })
             .layoutWeight(1)
@@ -447,13 +448,13 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('状态')
+          Text($r('app.string.shipment_status'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
           Row() {
-            Button('启用')
+            Button($r('app.string.status_enabled'))
               .fontSize(13)
               .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
               .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
@@ -461,7 +462,7 @@ struct ShipmentListPage {
               .height(32)
               .onClick(() => { this.formStatus = 1; })
 
-            Button('禁用')
+            Button($r('app.string.status_disabled'))
               .fontSize(13)
               .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
               .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
@@ -480,12 +481,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('面单URL')
+          Text($r('app.string.shipment_shipping_label_url'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入面单URL', text: this.formShippingLabelUrl })
+          TextInput({ placeholder: $r('app.string.shipment_shipping_label_url_hint'), text: this.formShippingLabelUrl })
             .fontSize(15)
             .onChange((v: string) => { this.formShippingLabelUrl = v; })
             .layoutWeight(1)
@@ -498,12 +499,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('预计送达时间')
+          Text($r('app.string.shipment_estimated_delivery_at'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss，可留空', text: this.formEstimatedDeliveryAt })
+          TextInput({ placeholder: $r('app.string.shipment_estimated_delivery_at_hint'), text: this.formEstimatedDeliveryAt })
             .fontSize(15)
             .onChange((v: string) => { this.formEstimatedDeliveryAt = v; })
             .layoutWeight(1)
@@ -516,12 +517,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('实际送达时间')
+          Text($r('app.string.shipment_actual_delivery_at'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '格式: YYYY-MM-DD HH:mm:ss，可留空', text: this.formActualDeliveryAt })
+          TextInput({ placeholder: $r('app.string.shipment_actual_delivery_at_hint'), text: this.formActualDeliveryAt })
             .fontSize(15)
             .onChange((v: string) => { this.formActualDeliveryAt = v; })
             .layoutWeight(1)
@@ -534,12 +535,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('总重量kg')
+          Text($r('app.string.shipment_total_weight_kg'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入总重量，如 1.5', text: this.formTotalWeightKg })
+          TextInput({ placeholder: $r('app.string.shipment_total_weight_kg_hint'), text: this.formTotalWeightKg })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formTotalWeightKg = v; })
@@ -553,12 +554,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('包裹数量')
+          Text($r('app.string.shipment_package_count'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '包裹数量，默认1', text: this.formPackageCount })
+          TextInput({ placeholder: $r('app.string.shipment_package_count_hint'), text: this.formPackageCount })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formPackageCount = v; })
@@ -572,12 +573,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('运费')
+          Text($r('app.string.shipment_freight_charge'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入运费', text: this.formFreightCharge })
+          TextInput({ placeholder: $r('app.string.shipment_freight_charge_hint'), text: this.formFreightCharge })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formFreightCharge = v; })
@@ -591,12 +592,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('保价费')
+          Text($r('app.string.shipment_insurance_charge'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '请输入保价费', text: this.formInsuranceCharge })
+          TextInput({ placeholder: $r('app.string.shipment_insurance_charge_hint'), text: this.formInsuranceCharge })
             .fontSize(15)
             .type(InputType.Number)
             .onChange((v: string) => { this.formInsuranceCharge = v; })
@@ -610,12 +611,12 @@ struct ShipmentListPage {
         .alignItems(VerticalAlign.Center)
 
         Row() {
-          Text('币种')
+          Text($r('app.string.shipment_currency'))
           .fontSize(15)
           .fontColor($r('app.color.text_primary'))
           .width(80)
 
-          TextInput({ placeholder: '默认 CNY', text: this.formCurrency })
+          TextInput({ placeholder: $r('app.string.shipment_currency_hint'), text: this.formCurrency })
             .fontSize(15)
             .onChange((v: string) => { this.formCurrency = v; })
             .layoutWeight(1)
@@ -629,7 +630,7 @@ struct ShipmentListPage {
 
         // 操作按钮
         Row() {
-          Button('取 消')
+          Button($r('app.string.cancel'))
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
@@ -638,7 +639,7 @@ struct ShipmentListPage {
             .borderRadius(8)
             .onClick(() => { this.showForm = false; })
 
-          Button('保 存')
+          Button($r('app.string.save'))
             .layoutWeight(1)
             .height(44)
             .fontSize(15)
