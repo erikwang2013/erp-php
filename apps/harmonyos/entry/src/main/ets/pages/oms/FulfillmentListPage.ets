@@ -2,11 +2,12 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
+import router from '@ohos.router';
 import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
+import { ListRow, RowAction, RowBadge, ListSectionHeader } from '../../common/ListRow';
 
 @Entry
 @Component
@@ -93,6 +94,12 @@ struct FulfillmentListPage {
                       subtitle: item['warehouse_name'] != null ? ((item['oms_order_id'] as string) ?? '') : '',
                       icon: ((item['warehouse_name'] as string) || (item['oms_order_id'] as string) || '-') as string,
                       badge: this.ffBadge(item),
+                      actions: [
+                        new RowAction($r('app.string.act_view_detail'), 'primary', (): void => {
+                          router.pushUrl({ url: 'pages/oms/FulfillmentDetailPage',
+                            params: { id: String(item['id'] ?? '') } });
+                        })
+                      ],
                       isLast: index === this.items.length - 1
                     })
                   }

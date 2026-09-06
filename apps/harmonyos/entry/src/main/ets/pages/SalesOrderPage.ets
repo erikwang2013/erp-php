@@ -117,12 +117,18 @@ struct SalesOrderPage {
     this.loadData();
   }
 
-  /** 行徽章：启用 success / 停用 danger（kind 同源驱动行 icon 圆徽色） */
+  /** 行徽章：DDL 0待审核/1已审核/2部分发货/3已发货/4已取消（详情页同款口径） */
   private salesBadge(item: SalesOrderItem): RowBadge {
-    if (item.status === 1) {
-      return new RowBadge('success', $r('app.string.status_enabled'));
+    const code: number = item.status;
+    let kind: string = 'neutral';
+    if (code === 0 || code === 2) {
+      kind = 'warning';
+    } else if (code === 1 || code === 3) {
+      kind = 'success';
+    } else if (code === 4) {
+      kind = 'danger';
     }
-    return new RowBadge('danger', $r('app.string.status_disabled'));
+    return new RowBadge(kind, L10n.str(this.getUIContext(), `sales_status_${code}`));
   }
 
   /**
@@ -305,6 +311,9 @@ struct SalesOrderPage {
                     icon: item.customer_name || item.code || '-',
                     badge: this.salesBadge(item),
                     actions: [
+                      new RowAction($r('app.string.act_view_detail'), 'text', (): void => {
+                        router.pushUrl({ url: 'pages/SalesOrderDetailPage', params: { id: item.id } });
+                      }),
                       new RowAction($r('app.string.edit'), 'primary', (): void => {
                         this.openEdit(item.id);
                       }),

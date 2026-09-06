@@ -6,12 +6,20 @@ import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, ListSectionHeader } from '../../common/ListRow';
+import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
+
+/** 波次行（与 /admin/wms/wave 列表字段对齐：无 join，仅波次表自身列） */
+interface WaveRow {
+  id: string;
+  code: string;
+  status: number;
+  scheduled_at: string;
+}
 
 @Entry
 @Component
 struct WavePage {
-  @State items: Array<Object> = [];
+  @State items: Array<WaveRow> = [];
   @State loading: boolean = true;
   @State errMsg: string = ''; // M4: 加载失败的真实错误文案（空 = 无错误）
   @State isRefreshing: boolean = false; // 刷新进行中
@@ -35,7 +43,7 @@ struct WavePage {
     try {
       const res = await this.api.get<Record<string, Object>>(`/admin/wms/wave?page=${this.page}&limit=${this.limit}`);
       const data = res.data as Record<string, Object>;
-      this.items = (data['list'] as Array<Object>) ?? [];
+      this.items = ((data['list'] as Array<Object>) ?? []).map((it: Object) => it as WaveRow);
       this.total = (data['total'] as number) ?? 0;
     } catch (e) {
       // M4: 错误不再吞掉——真实 message 优先展示，空信息/UNAUTHORIZED 给友好提示
@@ -45,6 +53,19 @@ struct WavePage {
       this.loading = false;
       this.isRefreshing = false;
     }
+  }
+
+  /** 行徽章：0 待处理 neutral、1 处理中 warning、2 已完成 success；
+   *  发布波次需 items 明细（无行内读取端点）→ 行内不接线（债务登记） */
+  private badge(item: WaveRow): RowBadge {
+    const code: number = item.status;
+    let kind: string = 'neutral';
+    if (code === 1) {
+      kind = 'warning';
+    } else if (code === 2) {
+      kind = 'success';
+    }
+    return new RowBadge(kind, L10n.str(this.getUIContext(), `wave_status_${code}`));
   }
 
   build() {
@@ -68,16 +89,17 @@ struct WavePage {
 
             Refresh({ refreshing: $$this.isRefreshing }) {
               List() {
-                ForEach(this.items, (item: Record<string, Object>, index: number) => {
+                ForEach(this.items, (item: WaveRow, index: number) => {
                   ListItem() {
                     ListRow({
-                      title: (item['name'] as string) || (item['code'] as string) || '-',
-                      subtitle: (item['code'] as string) ?? '',
-                      icon: (item['name'] as string) || (item['code'] as string) || '-',
+                      title: item.code || item.id || '-',
+                      subtitle: item.scheduled_at || '',
+                      icon: item.code || item.id || '-',
+                      badge: this.badge(item),
                       isLast: index === this.items.length - 1
                     })
                   }
-                })
+                }, (item: WaveRow) => item.id)
               }
               .width('100%')
               .layoutWeight(1)

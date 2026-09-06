@@ -2,26 +2,47 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
+import router from '@ohos.router';
 import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, ListSectionHeader } from '../../common/ListRow';
+import { ListRow, RowAction, RowBadge, ListSectionHeader } from '../../common/ListRow';
+
+interface RmaRow {
+  id: string;
+  code: string;
+  order_id: number;
+  type: number;
+  status: number;
+  reason: string;
+  refund_amount: number;
+  created_at: string;
+}
 
 @Entry
 @Component
 struct RmaListPage {
-  @State items: Array<Object> = [];
+  @State items: Array<RmaRow> = [];
   @State loading: boolean = true;
   @State errMsg: string = ''; // M4: 非空表示加载失败，展示真实错误信息
   @State isRefreshing: boolean = false; // 刷新进行中
   @State total: number = 0;
   @State page: number = 1;
+  private pageShown: boolean = false; // 首次 onPageShow 不重复加载
   private api: ApiService = new ApiService();
   private readonly limit: number = 20;
 
   aboutToAppear() {
     this.loadData();
+  }
+
+  onPageShow(): void {
+    // 详情页动作（批准/拒绝/收货/退款）返回后静默刷新
+    if (this.pageShown) {
+      this.loadData(true);
+    }
+    this.pageShown = true;
   }
 
   async loadData(isRefresh: boolean = false) {
@@ -35,7 +56,7 @@ struct RmaListPage {
     try {
       const res = await this.api.get<Record<string, Object>>(`/admin/oms/rma?page=${this.page}&limit=${this.limit}`);
       const data = res.data as Record<string, Object>;
-      this.items = (data['list'] as Array<Object>) ?? [];
+      this.items = ((data['list'] as Array<Object>) ?? []).map((it: Object) => it as RmaRow);
       this.total = (data['total'] as number) ?? 0;
     } catch (e) {
       // M4: 原无错误处理（失败会静默成空列表）；此处展示真实错误不吞，UNAUTHORIZED/空 message 用友好文案（§0.8）
@@ -46,6 +67,24 @@ struct RmaListPage {
       this.loading = false;
       this.isRefreshing = false;
     }
+  }
+
+  /** 行徽章：0 待审核/2 已退回/3 已收货 warning、1 已批准/4 已退款 success、5 已拒绝 danger */
+  private badge(item: RmaRow): RowBadge {
+    const code: number = item.status;
+    let kind: string = 'neutral';
+    if (code === 0 || code === 2 || code === 3) {
+      kind = 'warning';
+    } else if (code === 1 || code === 4) {
+      kind = 'success';
+    } else if (code === 5) {
+      kind = 'danger';
+    }
+    return new RowBadge(kind, L10n.str(this.getUIContext(), `rma_status_${code}`));
+  }
+
+  private typeLabel(item: RmaRow): string {
+    return L10n.str(this.getUIContext(), `rma_type_${item.type}`);
   }
 
   build() {
@@ -69,16 +108,22 @@ struct RmaListPage {
 
             Refresh({ refreshing: $$this.isRefreshing }) {
               List() {
-                ForEach(this.items, (item: Record<string, Object>, index: number) => {
+                ForEach(this.items, (item: RmaRow, index: number) => {
                   ListItem() {
                     ListRow({
-                      title: (item['name'] as string) || (item['code'] as string) || '-',
-                      subtitle: (item['code'] as string) ?? '',
-                      icon: (item['name'] as string) || (item['code'] as string) || '-',
+                      title: item.code || item.id || '-',
+                      subtitle: this.rowSub(item),
+                      icon: item.code || item.id || '-',
+                      badge: this.badge(item),
+                      actions: [
+                        new RowAction($r('app.string.act_view_detail'), 'primary', (): void => {
+                          router.pushUrl({ url: 'pages/oms/RmaDetailPage', params: { id: item.id } });
+                        })
+                      ],
                       isLast: index === this.items.length - 1
                     })
                   }
-                })
+                }, (item: RmaRow) => item.id)
               }
               .width('100%')
               .layoutWeight(1)
@@ -103,5 +148,11 @@ struct RmaListPage {
     .width('100%')
     .height('100%')
     .backgroundColor($r('app.color.bg_page'))
+  }
+
+  /** 副行：类型 + 原因（reason 可能为空） */
+  private rowSub(item: RmaRow): string {
+    const reason: string = item.reason ? ` · ${item.reason}` : '';
+    return `${this.typeLabel(item)}${reason}`;
   }
 }

@@ -2,11 +2,12 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
+import router from '@ohos.router';
 import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
+import { ListRow, RowAction, RowBadge, ListSectionHeader } from '../../common/ListRow';
 
 /** 单据类型 → l10n 键（registry 注释：sales_order/purchase_apply/purchase_order/expense/leave/other） */
 const TARGET_TYPE_KEYS: Record<string, string> = {
@@ -27,11 +28,20 @@ struct ApprovalPage {
   @State isRefreshing: boolean = false; // 刷新进行中
   @State total: number = 0;
   @State page: number = 1;
+  private pageShown: boolean = false; // 首次 onPageShow 不重复加载
   private api: ApiService = new ApiService();
   private readonly limit: number = 20;
 
   aboutToAppear() {
     this.loadData();
+  }
+
+  onPageShow(): void {
+    // 详情页动作（通过/驳回/撤回）返回后静默刷新待办
+    if (this.pageShown) {
+      this.loadData(true);
+    }
+    this.pageShown = true;
   }
 
   async loadData(isRefresh: boolean = false) {
@@ -104,6 +114,12 @@ struct ApprovalPage {
                       subtitle: ((item['submitted_at'] as string) ?? '') as string,
                       icon: this.typeLabel(item),
                       badge: this.pendingBadge(),
+                      actions: [
+                        new RowAction($r('app.string.act_view_detail'), 'primary', (): void => {
+                          router.pushUrl({ url: 'pages/workflow/ApprovalDetailPage',
+                            params: { id: String(item['id'] ?? '') } });
+                        })
+                      ],
                       isLast: index === this.items.length - 1
                     })
                   }

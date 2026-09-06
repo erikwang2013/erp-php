@@ -1851,6 +1851,562 @@
     {
       "name": "approval_status_pending",
       "value": "审批中"
+    },
+    {
+      "name": "act_approve",
+      "value": "通过"
+    },
+    {
+      "name": "act_reject",
+      "value": "驳回"
+    },
+    {
+      "name": "act_view_detail",
+      "value": "详情"
+    },
+    {
+      "name": "act_view_ref",
+      "value": "查看单据"
+    },
+    {
+      "name": "act_withdraw",
+      "value": "撤回"
+    },
+    {
+      "name": "approval_comment",
+      "value": "审批意见"
+    },
+    {
+      "name": "approval_comment_hint",
+      "value": "选填"
+    },
+    {
+      "name": "approval_comment_required",
+      "value": "驳回意见不能为空"
+    },
+    {
+      "name": "approval_confirm_approve",
+      "value": "确认通过该审批？"
+    },
+    {
+      "name": "approval_confirm_reject",
+      "value": "驳回后需重新发起审批，确认驳回？"
+    },
+    {
+      "name": "approval_confirm_withdraw",
+      "value": "确认撤回该审批？"
+    },
+    {
+      "name": "approval_d_completed",
+      "value": "完成时间"
+    },
+    {
+      "name": "approval_d_node",
+      "value": "当前节点"
+    },
+    {
+      "name": "approval_d_status",
+      "value": "状态"
+    },
+    {
+      "name": "approval_d_submitted",
+      "value": "提交时间"
+    },
+    {
+      "name": "approval_d_type",
+      "value": "单据类型"
+    },
+    {
+      "name": "approval_d_workflow",
+      "value": "审批流程"
+    },
+    {
+      "name": "approval_detail_title",
+      "value": "审批详情"
+    },
+    {
+      "name": "approval_record_action_1",
+      "value": "通过"
+    },
+    {
+      "name": "approval_record_action_2",
+      "value": "驳回"
+    },
+    {
+      "name": "approval_record_action_3",
+      "value": "转交"
+    },
+    {
+      "name": "approval_records_title",
+      "value": "审批记录"
+    },
+    {
+      "name": "approval_status_passed",
+      "value": "已通过"
+    },
+    {
+      "name": "approval_status_rejected",
+      "value": "已驳回"
+    },
+    {
+      "name": "approval_status_withdrawn",
+      "value": "已撤回"
+    },
+    {
+      "name": "ff_item_qty_fmt",
+      "value": "分配 %1$s · 拣货 %2$s · 打包 %3$s · 发货 %4$s"
+    },
+    {
+      "name": "fulfillment_d_created",
+      "value": "创建时间"
+    },
+    {
+      "name": "fulfillment_d_oms",
+      "value": "关联订单"
+    },
+    {
+      "name": "fulfillment_d_pack",
+      "value": "打包任务"
+    },
+    {
+      "name": "fulfillment_d_pick",
+      "value": "拣货任务"
+    },
+    {
+      "name": "fulfillment_d_shipment",
+      "value": "物流单"
+    },
+    {
+      "name": "fulfillment_d_status",
+      "value": "状态"
+    },
+    {
+      "name": "fulfillment_d_warehouse",
+      "value": "发货仓库"
+    },
+    {
+      "name": "fulfillment_detail_title",
+      "value": "履约详情"
+    },
+    {
+      "name": "oms_cancel_confirm",
+      "value": "取消后不可恢复，确认取消该订单？"
+    },
+    {
+      "name": "oms_d_buyer",
+      "value": "买家留言"
+    },
+    {
+      "name": "oms_d_channel",
+      "value": "渠道"
+    },
+    {
+      "name": "oms_d_channel_no",
+      "value": "渠道单号"
+    },
+    {
+      "name": "oms_d_channel_store",
+      "value": "店铺"
+    },
+    {
+      "name": "oms_d_code",
+      "value": "单号"
+    },
+    {
+      "name": "oms_d_created",
+      "value": "创建时间"
+    },
+    {
+      "name": "oms_d_ff",
+      "value": "履约状态"
+    },
+    {
+      "name": "oms_d_hold",
+      "value": "保留至"
+    },
+    {
+      "name": "oms_d_order",
+      "value": "关联销售单"
+    },
+    {
+      "name": "oms_d_pay",
+      "value": "支付状态"
+    },
+    {
+      "name": "oms_d_priority",
+      "value": "优先级"
+    },
+    {
+      "name": "oms_d_seller",
+      "value": "卖家备注"
+    },
+    {
+      "name": "oms_d_shipping_fee",
+      "value": "运费"
+    },
+    {
+      "name": "oms_d_shipping_method",
+      "value": "配送方式"
+    },
+    {
+      "name": "oms_order_detail_title",
+      "value": "订单详情"
+    },
+    {
+      "name": "op_failed",
+      "value": "操作失败"
+    },
+    {
+      "name": "op_success",
+      "value": "操作成功"
+    },
+    {
+      "name": "pack_complete",
+      "value": "完成打包"
+    },
+    {
+      "name": "pack_confirm_complete",
+      "value": "确认完成打包？"
+    },
+    {
+      "name": "pack_status_0",
+      "value": "待打包"
+    },
+    {
+      "name": "pack_status_1",
+      "value": "打包中"
+    },
+    {
+      "name": "pack_status_2",
+      "value": "已完成"
+    },
+    {
+      "name": "payment_status_0",
+      "value": "待支付"
+    },
+    {
+      "name": "payment_status_1",
+      "value": "已支付"
+    },
+    {
+      "name": "payment_status_2",
+      "value": "部分退款"
+    },
+    {
+      "name": "payment_status_3",
+      "value": "已退款"
+    },
+    {
+      "name": "pick_confirm_start",
+      "value": "开始后生成拣货明细，确认开始拣货？"
+    },
+    {
+      "name": "pick_start",
+      "value": "开始拣货"
+    },
+    {
+      "name": "pick_status_0",
+      "value": "待拣货"
+    },
+    {
+      "name": "pick_status_1",
+      "value": "拣货中"
+    },
+    {
+      "name": "pick_status_2",
+      "value": "已完成"
+    },
+    {
+      "name": "pick_status_3",
+      "value": "已取消"
+    },
+    {
+      "name": "purchase_d_apply",
+      "value": "关联申请"
+    },
+    {
+      "name": "purchase_d_code",
+      "value": "单号"
+    },
+    {
+      "name": "purchase_d_ordered_at",
+      "value": "下单时间"
+    },
+    {
+      "name": "purchase_d_remark",
+      "value": "备注"
+    },
+    {
+      "name": "purchase_d_status",
+      "value": "状态"
+    },
+    {
+      "name": "purchase_d_supplier",
+      "value": "供应商"
+    },
+    {
+      "name": "purchase_d_total",
+      "value": "订单金额"
+    },
+    {
+      "name": "purchase_d_warehouse",
+      "value": "仓库"
+    },
+    {
+      "name": "purchase_order_detail_title",
+      "value": "采购订单详情"
+    },
+    {
+      "name": "purchase_status_0",
+      "value": "待审核"
+    },
+    {
+      "name": "purchase_status_1",
+      "value": "已审核"
+    },
+    {
+      "name": "purchase_status_2",
+      "value": "部分收货"
+    },
+    {
+      "name": "purchase_status_3",
+      "value": "已收货"
+    },
+    {
+      "name": "purchase_status_4",
+      "value": "已取消"
+    },
+    {
+      "name": "rma_approve",
+      "value": "批准"
+    },
+    {
+      "name": "rma_confirm_approve",
+      "value": "批准该售后单？"
+    },
+    {
+      "name": "rma_confirm_receive",
+      "value": "确认已收到退回商品？"
+    },
+    {
+      "name": "rma_confirm_refund",
+      "value": "确认执行退款？"
+    },
+    {
+      "name": "rma_confirm_reject",
+      "value": "拒绝该售后单？"
+    },
+    {
+      "name": "rma_d_approved",
+      "value": "批准时间"
+    },
+    {
+      "name": "rma_d_code",
+      "value": "单号"
+    },
+    {
+      "name": "rma_d_created",
+      "value": "提交时间"
+    },
+    {
+      "name": "rma_d_fee",
+      "value": "退回运费"
+    },
+    {
+      "name": "rma_d_order",
+      "value": "关联订单"
+    },
+    {
+      "name": "rma_d_reason",
+      "value": "原因"
+    },
+    {
+      "name": "rma_d_received",
+      "value": "收货时间"
+    },
+    {
+      "name": "rma_d_refund",
+      "value": "退款金额"
+    },
+    {
+      "name": "rma_d_returned",
+      "value": "退回时间"
+    },
+    {
+      "name": "rma_d_status",
+      "value": "状态"
+    },
+    {
+      "name": "rma_d_type",
+      "value": "类型"
+    },
+    {
+      "name": "rma_detail_title",
+      "value": "售后单详情"
+    },
+    {
+      "name": "rma_receive",
+      "value": "收货"
+    },
+    {
+      "name": "rma_refund",
+      "value": "退款"
+    },
+    {
+      "name": "rma_reject",
+      "value": "拒绝"
+    },
+    {
+      "name": "rma_status_0",
+      "value": "待审核"
+    },
+    {
+      "name": "rma_status_1",
+      "value": "已批准"
+    },
+    {
+      "name": "rma_status_2",
+      "value": "已退回"
+    },
+    {
+      "name": "rma_status_3",
+      "value": "已收货"
+    },
+    {
+      "name": "rma_status_4",
+      "value": "已退款"
+    },
+    {
+      "name": "rma_status_5",
+      "value": "已拒绝"
+    },
+    {
+      "name": "rma_type_1",
+      "value": "退货"
+    },
+    {
+      "name": "rma_type_2",
+      "value": "换货"
+    },
+    {
+      "name": "rma_type_3",
+      "value": "维修"
+    },
+    {
+      "name": "sales_d_code",
+      "value": "单号"
+    },
+    {
+      "name": "sales_d_customer",
+      "value": "客户"
+    },
+    {
+      "name": "sales_d_discount",
+      "value": "优惠金额"
+    },
+    {
+      "name": "sales_d_ordered_at",
+      "value": "下单时间"
+    },
+    {
+      "name": "sales_d_quotation",
+      "value": "关联报价"
+    },
+    {
+      "name": "sales_d_remark",
+      "value": "备注"
+    },
+    {
+      "name": "sales_d_status",
+      "value": "状态"
+    },
+    {
+      "name": "sales_d_total",
+      "value": "订单金额"
+    },
+    {
+      "name": "sales_d_warehouse",
+      "value": "仓库"
+    },
+    {
+      "name": "sales_order_detail_title",
+      "value": "销售订单详情"
+    },
+    {
+      "name": "sales_status_0",
+      "value": "待审核"
+    },
+    {
+      "name": "sales_status_1",
+      "value": "已审核"
+    },
+    {
+      "name": "sales_status_2",
+      "value": "部分发货"
+    },
+    {
+      "name": "sales_status_3",
+      "value": "已发货"
+    },
+    {
+      "name": "sales_status_4",
+      "value": "已取消"
+    },
+    {
+      "name": "sec_basic",
+      "value": "基本信息"
+    },
+    {
+      "name": "sec_items",
+      "value": "明细"
+    },
+    {
+      "name": "wave_status_0",
+      "value": "待处理"
+    },
+    {
+      "name": "wave_status_1",
+      "value": "处理中"
+    },
+    {
+      "name": "wave_status_2",
+      "value": "已完成"
+    },
+    {
+      "name": "ref_customer_title",
+      "value": "客户信息"
+    },
+    {
+      "name": "ref_supplier_title",
+      "value": "供应商信息"
+    },
+    {
+      "name": "ref_product_title",
+      "value": "商品信息"
+    },
+    {
+      "name": "ref_code",
+      "value": "编码"
+    },
+    {
+      "name": "ref_name",
+      "value": "名称"
+    },
+    {
+      "name": "ref_contact",
+      "value": "联系人"
+    },
+    {
+      "name": "ref_address",
+      "value": "地址"
+    },
+    {
+      "name": "ref_remark",
+      "value": "备注"
+    },
+    {
+      "name": "ref_tax_no",
+      "value": "税号"
     }
   ]
 }

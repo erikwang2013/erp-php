@@ -34,6 +34,12 @@
     "pages/hr/DepartmentPage",
     "pages/hr/EmployeeListPage",
     "pages/hr/AttendancePage",
-    "pages/workflow/ApprovalPage"
+    "pages/workflow/ApprovalPage",
+    "pages/SalesOrderDetailPage",
+    "pages/PurchaseOrderDetailPage",
+    "pages/oms/OrderDetailPage",
+    "pages/oms/FulfillmentDetailPage",
+    "pages/oms/RmaDetailPage",
+    "pages/workflow/ApprovalDetailPage"
   ]
 }

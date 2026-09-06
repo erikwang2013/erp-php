@@ -1851,6 +1851,562 @@
     {
       "name": "approval_status_pending",
       "value": "Pending Approval"
+    },
+    {
+      "name": "act_approve",
+      "value": "Approve"
+    },
+    {
+      "name": "act_reject",
+      "value": "Reject"
+    },
+    {
+      "name": "act_view_detail",
+      "value": "Details"
+    },
+    {
+      "name": "act_view_ref",
+      "value": "View Document"
+    },
+    {
+      "name": "act_withdraw",
+      "value": "Withdraw"
+    },
+    {
+      "name": "approval_comment",
+      "value": "Comment"
+    },
+    {
+      "name": "approval_comment_hint",
+      "value": "Optional"
+    },
+    {
+      "name": "approval_comment_required",
+      "value": "Comment is required for rejection"
+    },
+    {
+      "name": "approval_confirm_approve",
+      "value": "Approve this application?"
+    },
+    {
+      "name": "approval_confirm_reject",
+      "value": "The application must be re-submitted after rejection. Confirm rejection?"
+    },
+    {
+      "name": "approval_confirm_withdraw",
+      "value": "Withdraw this approval?"
+    },
+    {
+      "name": "approval_d_completed",
+      "value": "Completed At"
+    },
+    {
+      "name": "approval_d_node",
+      "value": "Current Node"
+    },
+    {
+      "name": "approval_d_status",
+      "value": "Status"
+    },
+    {
+      "name": "approval_d_submitted",
+      "value": "Submitted At"
+    },
+    {
+      "name": "approval_d_type",
+      "value": "Document Type"
+    },
+    {
+      "name": "approval_d_workflow",
+      "value": "Workflow"
+    },
+    {
+      "name": "approval_detail_title",
+      "value": "Approval Detail"
+    },
+    {
+      "name": "approval_record_action_1",
+      "value": "Approve"
+    },
+    {
+      "name": "approval_record_action_2",
+      "value": "Reject"
+    },
+    {
+      "name": "approval_record_action_3",
+      "value": "Transfer"
+    },
+    {
+      "name": "approval_records_title",
+      "value": "Approval Records"
+    },
+    {
+      "name": "approval_status_passed",
+      "value": "Passed"
+    },
+    {
+      "name": "approval_status_rejected",
+      "value": "Rejected"
+    },
+    {
+      "name": "approval_status_withdrawn",
+      "value": "Withdrawn"
+    },
+    {
+      "name": "ff_item_qty_fmt",
+      "value": "Allocated %1$s · Picked %2$s · Packed %3$s · Shipped %4$s"
+    },
+    {
+      "name": "fulfillment_d_created",
+      "value": "Created At"
+    },
+    {
+      "name": "fulfillment_d_oms",
+      "value": "Order"
+    },
+    {
+      "name": "fulfillment_d_pack",
+      "value": "Pack Task"
+    },
+    {
+      "name": "fulfillment_d_pick",
+      "value": "Pick Task"
+    },
+    {
+      "name": "fulfillment_d_shipment",
+      "value": "Shipment"
+    },
+    {
+      "name": "fulfillment_d_status",
+      "value": "Status"
+    },
+    {
+      "name": "fulfillment_d_warehouse",
+      "value": "Shipping Warehouse"
+    },
+    {
+      "name": "fulfillment_detail_title",
+      "value": "Fulfillment Detail"
+    },
+    {
+      "name": "oms_cancel_confirm",
+      "value": "The order cannot be restored once cancelled. Confirm cancelling this order?"
+    },
+    {
+      "name": "oms_d_buyer",
+      "value": "Buyer Message"
+    },
+    {
+      "name": "oms_d_channel",
+      "value": "Channel"
+    },
+    {
+      "name": "oms_d_channel_no",
+      "value": "Channel Order No."
+    },
+    {
+      "name": "oms_d_channel_store",
+      "value": "Store"
+    },
+    {
+      "name": "oms_d_code",
+      "value": "Order No."
+    },
+    {
+      "name": "oms_d_created",
+      "value": "Created At"
+    },
+    {
+      "name": "oms_d_ff",
+      "value": "Fulfillment Status"
+    },
+    {
+      "name": "oms_d_hold",
+      "value": "Hold Until"
+    },
+    {
+      "name": "oms_d_order",
+      "value": "Sales Order"
+    },
+    {
+      "name": "oms_d_pay",
+      "value": "Payment Status"
+    },
+    {
+      "name": "oms_d_priority",
+      "value": "Priority"
+    },
+    {
+      "name": "oms_d_seller",
+      "value": "Seller Note"
+    },
+    {
+      "name": "oms_d_shipping_fee",
+      "value": "Shipping Fee"
+    },
+    {
+      "name": "oms_d_shipping_method",
+      "value": "Shipping Method"
+    },
+    {
+      "name": "oms_order_detail_title",
+      "value": "Order Detail"
+    },
+    {
+      "name": "op_failed",
+      "value": "Operation failed"
+    },
+    {
+      "name": "op_success",
+      "value": "Operation successful"
+    },
+    {
+      "name": "pack_complete",
+      "value": "Complete Packing"
+    },
+    {
+      "name": "pack_confirm_complete",
+      "value": "Confirm completing the packing?"
+    },
+    {
+      "name": "pack_status_0",
+      "value": "Pending Pack"
+    },
+    {
+      "name": "pack_status_1",
+      "value": "Packing"
+    },
+    {
+      "name": "pack_status_2",
+      "value": "Completed"
+    },
+    {
+      "name": "payment_status_0",
+      "value": "Unpaid"
+    },
+    {
+      "name": "payment_status_1",
+      "value": "Paid"
+    },
+    {
+      "name": "payment_status_2",
+      "value": "Partially Refunded"
+    },
+    {
+      "name": "payment_status_3",
+      "value": "Refunded"
+    },
+    {
+      "name": "pick_confirm_start",
+      "value": "Pick items will be generated. Confirm starting the pick?"
+    },
+    {
+      "name": "pick_start",
+      "value": "Start Picking"
+    },
+    {
+      "name": "pick_status_0",
+      "value": "Pending Pick"
+    },
+    {
+      "name": "pick_status_1",
+      "value": "Picking"
+    },
+    {
+      "name": "pick_status_2",
+      "value": "Completed"
+    },
+    {
+      "name": "pick_status_3",
+      "value": "Cancelled"
+    },
+    {
+      "name": "purchase_d_apply",
+      "value": "Purchase Request"
+    },
+    {
+      "name": "purchase_d_code",
+      "value": "Order No."
+    },
+    {
+      "name": "purchase_d_ordered_at",
+      "value": "Order Time"
+    },
+    {
+      "name": "purchase_d_remark",
+      "value": "Remark"
+    },
+    {
+      "name": "purchase_d_status",
+      "value": "Status"
+    },
+    {
+      "name": "purchase_d_supplier",
+      "value": "Supplier"
+    },
+    {
+      "name": "purchase_d_total",
+      "value": "Order Amount"
+    },
+    {
+      "name": "purchase_d_warehouse",
+      "value": "Warehouse"
+    },
+    {
+      "name": "purchase_order_detail_title",
+      "value": "Purchase Order Detail"
+    },
+    {
+      "name": "purchase_status_0",
+      "value": "Pending Review"
+    },
+    {
+      "name": "purchase_status_1",
+      "value": "Approved"
+    },
+    {
+      "name": "purchase_status_2",
+      "value": "Partially Received"
+    },
+    {
+      "name": "purchase_status_3",
+      "value": "Received"
+    },
+    {
+      "name": "purchase_status_4",
+      "value": "Cancelled"
+    },
+    {
+      "name": "rma_approve",
+      "value": "Approve"
+    },
+    {
+      "name": "rma_confirm_approve",
+      "value": "Approve this RMA?"
+    },
+    {
+      "name": "rma_confirm_receive",
+      "value": "Confirm the returned items are received?"
+    },
+    {
+      "name": "rma_confirm_refund",
+      "value": "Confirm processing the refund?"
+    },
+    {
+      "name": "rma_confirm_reject",
+      "value": "Reject this RMA?"
+    },
+    {
+      "name": "rma_d_approved",
+      "value": "Approved At"
+    },
+    {
+      "name": "rma_d_code",
+      "value": "Code"
+    },
+    {
+      "name": "rma_d_created",
+      "value": "Submitted At"
+    },
+    {
+      "name": "rma_d_fee",
+      "value": "Return Shipping Fee"
+    },
+    {
+      "name": "rma_d_order",
+      "value": "Order"
+    },
+    {
+      "name": "rma_d_reason",
+      "value": "Reason"
+    },
+    {
+      "name": "rma_d_received",
+      "value": "Received At"
+    },
+    {
+      "name": "rma_d_refund",
+      "value": "Refund Amount"
+    },
+    {
+      "name": "rma_d_returned",
+      "value": "Returned At"
+    },
+    {
+      "name": "rma_d_status",
+      "value": "Status"
+    },
+    {
+      "name": "rma_d_type",
+      "value": "Type"
+    },
+    {
+      "name": "rma_detail_title",
+      "value": "RMA Detail"
+    },
+    {
+      "name": "rma_receive",
+      "value": "Receive"
+    },
+    {
+      "name": "rma_refund",
+      "value": "Refund"
+    },
+    {
+      "name": "rma_reject",
+      "value": "Reject"
+    },
+    {
+      "name": "rma_status_0",
+      "value": "Pending Review"
+    },
+    {
+      "name": "rma_status_1",
+      "value": "Approved"
+    },
+    {
+      "name": "rma_status_2",
+      "value": "Returned"
+    },
+    {
+      "name": "rma_status_3",
+      "value": "Received"
+    },
+    {
+      "name": "rma_status_4",
+      "value": "Refunded"
+    },
+    {
+      "name": "rma_status_5",
+      "value": "Rejected"
+    },
+    {
+      "name": "rma_type_1",
+      "value": "Return"
+    },
+    {
+      "name": "rma_type_2",
+      "value": "Exchange"
+    },
+    {
+      "name": "rma_type_3",
+      "value": "Repair"
+    },
+    {
+      "name": "sales_d_code",
+      "value": "Order No."
+    },
+    {
+      "name": "sales_d_customer",
+      "value": "Customer"
+    },
+    {
+      "name": "sales_d_discount",
+      "value": "Discount Amount"
+    },
+    {
+      "name": "sales_d_ordered_at",
+      "value": "Order Time"
+    },
+    {
+      "name": "sales_d_quotation",
+      "value": "Quotation"
+    },
+    {
+      "name": "sales_d_remark",
+      "value": "Remark"
+    },
+    {
+      "name": "sales_d_status",
+      "value": "Status"
+    },
+    {
+      "name": "sales_d_total",
+      "value": "Order Amount"
+    },
+    {
+      "name": "sales_d_warehouse",
+      "value": "Warehouse"
+    },
+    {
+      "name": "sales_order_detail_title",
+      "value": "Sales Order Detail"
+    },
+    {
+      "name": "sales_status_0",
+      "value": "Pending Review"
+    },
+    {
+      "name": "sales_status_1",
+      "value": "Approved"
+    },
+    {
+      "name": "sales_status_2",
+      "value": "Partially Shipped"
+    },
+    {
+      "name": "sales_status_3",
+      "value": "Shipped"
+    },
+    {
+      "name": "sales_status_4",
+      "value": "Cancelled"
+    },
+    {
+      "name": "sec_basic",
+      "value": "Basic Info"
+    },
+    {
+      "name": "sec_items",
+      "value": "Items"
+    },
+    {
+      "name": "wave_status_0",
+      "value": "Pending"
+    },
+    {
+      "name": "wave_status_1",
+      "value": "Processing"
+    },
+    {
+      "name": "wave_status_2",
+      "value": "Completed"
+    },
+    {
+      "name": "ref_customer_title",
+      "value": "Customer Info"
+    },
+    {
+      "name": "ref_supplier_title",
+      "value": "Supplier Info"
+    },
+    {
+      "name": "ref_product_title",
+      "value": "Product Info"
+    },
+    {
+      "name": "ref_code",
+      "value": "Code"
+    },
+    {
+      "name": "ref_name",
+      "value": "Name"
+    },
+    {
+      "name": "ref_contact",
+      "value": "Contact"
+    },
+    {
+      "name": "ref_address",
+      "value": "Address"
+    },
+    {
+      "name": "ref_remark",
+      "value": "Remark"
+    },
+    {
+      "name": "ref_tax_no",
+      "value": "Tax No."
     }
   ]
 }

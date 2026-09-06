@@ -60,6 +60,7 @@ struct OrderListPage {
   @State hasError: boolean = false;
   @State errMsg: string = ''; // M4: 错误展示文案（取后端/网络 message，空则保底）
   @State isRefreshing: boolean = false;
+  private pageShown: boolean = false; // 首次 onPageShow 不重复加载
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
 
@@ -86,6 +87,14 @@ struct OrderListPage {
 
   aboutToAppear(): void {
     this.loadData();
+  }
+
+  onPageShow(): void {
+    // 详情页动作（取消订单后返回）静默刷新列表
+    if (this.pageShown) {
+      this.loadData(true);
+    }
+    this.pageShown = true;
   }
 
   async loadData(isRefresh: boolean = false): Promise<void> {
@@ -364,6 +373,9 @@ struct OrderListPage {
                       || (item.order_id != null ? String(item.order_id) : '') || '-',
                     badge: this.ffBadge(item.fulfillment_status),
                     actions: [
+                      new RowAction($r('app.string.act_view_detail'), 'text', (): void => {
+                        router.pushUrl({ url: 'pages/oms/OrderDetailPage', params: { id: item.id } });
+                      }),
                       new RowAction($r('app.string.edit'), 'primary', (): void => {
                         this.openEdit(item.id);
                       }),

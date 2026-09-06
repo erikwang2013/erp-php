@@ -69,8 +69,9 @@ export function moduleAccent(moduleKey: string): Resource {
   return $r('app.color.chart_1');
 }
 
-/** badge/icon tint 底色：kind 走 *_bg（neutral 走灰阶 surface_alt；未知 kind 回退） */
-function kindTint(kind: string): Resource {
+/** badge/icon tint 底色：kind 走 *_bg（neutral 走灰阶 surface_alt；未知 kind 回退）。
+ *  导出供详情页状态胶囊等行外组件复用（联动批） */
+export function kindTint(kind: string): Resource {
   if (kind === 'success') {
     return $r('app.color.success_bg');
   }
@@ -84,7 +85,7 @@ function kindTint(kind: string): Resource {
 }
 
 /** badge/icon 深字色：kind 走 *_text（neutral 走 text_secondary；未知 kind 回退） */
-function kindInk(kind: string): Resource {
+export function kindInk(kind: string): Resource {
   if (kind === 'success') {
     return $r('app.color.success_text');
   }

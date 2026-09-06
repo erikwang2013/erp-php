@@ -2,16 +2,32 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
+import promptAction from '@ohos.promptAction';
 import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
 import { ErrorView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
-import { ListRow, ListSectionHeader } from '../../common/ListRow';
+import { ConfirmDialog } from '../../common/FormDialog';
+import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
+
+/** POST body：完成打包零字段（ArkTS 禁裸对象字面量传参） */
+class EmptyBody {
+}
+
+/** 打包任务行（与 /admin/wms/pack 列表字段对齐：无 join，仅任务表自身列） */
+
+interface PackRow {
+  id: string;
+  code: string;
+  status: number;
+  package_type: string;
+  created_at: string;
+}
 
 @Entry
 @Component
 struct PackPage {
-  @State items: Array<Object> = [];
+  @State items: Array<PackRow> = [];
   @State loading: boolean = true;
   @State errMsg: string = ''; // M4: 加载失败的真实错误文案（空 = 无错误）
   @State isRefreshing: boolean = false; // 刷新进行中
@@ -19,6 +35,7 @@ struct PackPage {
   @State page: number = 1;
   private api: ApiService = new ApiService();
   private readonly limit: number = 20;
+  dialogController: CustomDialogController | null = null;
 
   aboutToAppear() {
     this.loadData();
@@ -35,7 +52,7 @@ struct PackPage {
     try {
       const res = await this.api.get<Record<string, Object>>(`/admin/wms/pack?page=${this.page}&limit=${this.limit}`);
       const data = res.data as Record<string, Object>;
-      this.items = (data['list'] as Array<Object>) ?? [];
+      this.items = ((data['list'] as Array<Object>) ?? []).map((it: Object) => it as PackRow);
       this.total = (data['total'] as number) ?? 0;
     } catch (e) {
       // M4: 错误不再吞掉——真实 message 优先展示，空信息/UNAUTHORIZED 给友好提示
@@ -44,6 +61,45 @@ struct PackPage {
     } finally {
       this.loading = false;
       this.isRefreshing = false;
+    }
+  }
+
+  /** 行徽章：0 待打包 neutral（需仓库侧启动，行内不可操作）、1 打包中 warning（行内可完成）、2 已完成 success */
+  private badge(item: PackRow): RowBadge {
+    const code: number = item.status;
+    let kind: string = 'neutral';
+    if (code === 1) {
+      kind = 'warning';
+    } else if (code === 2) {
+      kind = 'success';
+    }
+    return new RowBadge(kind, L10n.str(this.getUIContext(), `pack_status_${code}`));
+  }
+
+  /** 完成打包：ConfirmDialog → POST /admin/wms/pack/{id}/complete（后端校验 status===1，零 body） */
+  confirmComplete(id: string): void {
+    this.dialogController = new CustomDialogController({
+      builder: ConfirmDialog({
+        title: $r('app.string.pack_complete'),
+        message: $r('app.string.pack_confirm_complete'),
+        onConfirm: () => {
+          this.completePack(id);
+        },
+      }),
+      alignment: DialogAlignment.Center,
+      autoCancel: true,
+    });
+    this.dialogController.open();
+  }
+
+  async completePack(id: string) {
+    try {
+      await this.api.post<Object>(`/admin/wms/pack/${id}/complete`, new EmptyBody());
+      promptAction.showToast({ message: $r('app.string.op_success') });
+      this.loadData(true);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : '';
+      promptAction.showToast({ message: msg.length > 0 && msg !== 'UNAUTHORIZED' ? msg : L10n.str(this.getUIContext(), 'op_failed') });
     }
   }
 
@@ -68,16 +124,22 @@ struct PackPage {
 
             Refresh({ refreshing: $$this.isRefreshing }) {
               List() {
-                ForEach(this.items, (item: Record<string, Object>, index: number) => {
+                ForEach(this.items, (item: PackRow, index: number) => {
                   ListItem() {
                     ListRow({
-                      title: (item['name'] as string) || (item['code'] as string) || '-',
-                      subtitle: (item['code'] as string) ?? '',
-                      icon: (item['name'] as string) || (item['code'] as string) || '-',
+                      title: item.code || item.id || '-',
+                      subtitle: item.package_type || item.created_at || '',
+                      icon: item.code || item.id || '-',
+                      badge: this.badge(item),
+                      actions: item.status === 1 ? [
+                        new RowAction($r('app.string.pack_complete'), 'primary', (): void => {
+                          this.confirmComplete(item.id);
+                        })
+                      ] : [],
                       isLast: index === this.items.length - 1
                     })
                   }
-                })
+                }, (item: PackRow) => item.id)
               }
               .width('100%')
               .layoutWeight(1)
