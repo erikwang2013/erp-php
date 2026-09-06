@@ -206,16 +206,22 @@ export struct FormDialog {
     if (!field || field.options.length === 0) {
       return;
     }
-    const sheets = field.options.map((opt: string) => ({ title: opt }));
+    // 现代 ActionMenu API：buttons 定长元组 ≤6 + Promise（旧 sheets/responseCallback 为 @ohos.prompt 遗留形态）
+    const menuButtons: Array<promptAction.Button> = [];
+    for (let i = 0; i < field.options.length && menuButtons.length < 6; i++) {
+      menuButtons.push({ text: field.options[i], color: $r('app.color.text_primary') });
+    }
     promptAction.showActionMenu({
       title: field.label,
-      sheets: sheets,
-      responseCallback: (ret) => {
-        const idx = ret.index;
-        if (idx >= 0 && idx < field.options.length) {
-          this.setValue(index, field.options[idx]);
-        }
-      },
+      buttons: menuButtons as [promptAction.Button, promptAction.Button?, promptAction.Button?,
+        promptAction.Button?, promptAction.Button?, promptAction.Button?],
+    }).then((ret: promptAction.ActionMenuSuccessResponse) => {
+      const idx: number = ret.index;
+      if (idx >= 0 && idx < field.options.length) {
+        this.setValue(index, field.options[idx]);
+      }
+    }).catch(() => {
+      // 取消菜单等失败路径不处理
     });
   }
 
@@ -284,9 +290,9 @@ export struct FormDialog {
                 TextInput({
                   placeholder: field.placeholder,
                   text: this.values[index],
-                  type: field.type === 'number' ? InputType.Number :
-                    (field.type === 'password' ? InputType.Password : InputType.Normal),
                 })
+                  .type(field.type === 'number' ? InputType.Number :
+                    (field.type === 'password' ? InputType.Password : InputType.Normal))
                   .fontSize(14)
                   .fontColor($r('app.color.text_primary'))
                   .placeholderColor($r('app.color.text_hint'))

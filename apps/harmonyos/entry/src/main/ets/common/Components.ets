@@ -60,7 +60,7 @@ export struct StatCard {
     .padding(16)
     .backgroundColor($r('app.color.surface'))
     .borderRadius(8)
-    .shadow({ radius: 4, color: '#00000010', offsetY: 2 })
+    .shadow({ radius: 4, color: '#10000000', offsetY: 2 })
   }
 }
 

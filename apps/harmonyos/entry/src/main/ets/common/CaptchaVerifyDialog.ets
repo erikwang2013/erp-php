@@ -226,7 +226,7 @@ export struct CaptchaVerifyDialog {
 
           ForEach(this.markers, (m: ClickMarker) => {
             Circle({ width: 26, height: 26 })
-              .fill('#1677FFCC')
+              .fill('#CC1677FF')
               .position({ x: m.x - 13, y: m.y - 13 })
             Text(`${m.order}`)
               .fontSize(13)
