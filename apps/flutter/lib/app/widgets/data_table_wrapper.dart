@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import '../l10n/app_l10n.dart';
+import 'empty_state.dart';
 
 class DataTableWrapper extends StatelessWidget {
   final List<String> columns;
@@ -58,76 +59,100 @@ class DataTableWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     // limit<=0(如整页取数、无分页调用方传 0)时 0/0=NaN,.ceil() 抛异常 → 兜底为 1
     final tp = limit <= 0 ? 1 : (total / limit).ceil();
-    return LayoutBuilder(builder: (context, constraints) {
-      final compact = constraints.maxWidth < 768;
-      final scheme = Theme.of(context).colorScheme;
-      final toolbar = <Widget>[
-        if (onSearch != null)
-          SizedBox(
-            width: compact ? double.infinity : 240,
-            child: _SearchField(initialText: keyword, onSearch: onSearch),
-          ),
-        if (filterBar != null) ...[const SizedBox(width: 12), filterBar!],
-        const Spacer(),
-        // 下拉刷新等价入口:工具栏刷新按钮,loading 中禁用(防重复请求)
-        if (onRefresh != null)
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: AppL10n.of(context).commonRefresh,
-            onPressed: loading ? null : onRefresh,
-          ),
-        ...?actions,
-      ];
-      return Column(children: [
-        if (onSearch != null || actions != null || onRefresh != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(children: toolbar),
-          ),
-        Expanded(
-          // onRefresh == null 保持旧结构;非 null 时内容区整体可下拉,四态各自
-          // 为可滚动体(表格态用 DataTable2 内部滚动,其余态 AlwaysScrollable
-          // 撑满视口居中)——data_table_2 文档禁外层无界滚动包裹。
-          child: onRefresh == null
-              ? _stateBody(context, compact, scheme)
-              : LayoutBuilder(builder: (context, c) {
-                  final viewportH = c.maxHeight;
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      // 加载中(骨架态)下拉不重复触发;按钮已在 loading 禁用
-                      if (loading) return;
-                      await onRefresh?.call();
-                    },
-                    // DataTable2 内部垂直滚动体在自嵌套 scrollable 之下,
-                    // 放宽 depth,只认纵向通知
-                    notificationPredicate: (n) =>
-                        n.metrics.axis == Axis.vertical,
-                    child:
-                        _refreshBody(context, compact, scheme, viewportH),
-                  );
-                }),
-        ),
-        if (tp > 1)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              Text(AppL10n.of(context).commonTotalPages(total),
-                  style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
-              const SizedBox(width: 16),
-              IconButton(
-                  icon: const Icon(Icons.chevron_left, size: 20),
-                  onPressed:
-                      page > 1 ? () => onPageChanged?.call(page - 1) : null),
-              Text('$page/${tp > 0 ? tp : 1}',
-                  style: TextStyle(fontSize: 13, color: scheme.onSurface)),
-              IconButton(
-                  icon: const Icon(Icons.chevron_right, size: 20),
-                  onPressed:
-                      page < tp ? () => onPageChanged?.call(page + 1) : null),
-            ]),
-          ),
-      ]);
-    });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 768;
+        final scheme = Theme.of(context).colorScheme;
+        final toolbar = <Widget>[
+          if (onSearch != null)
+            SizedBox(
+              width: compact ? double.infinity : 240,
+              child: _SearchField(initialText: keyword, onSearch: onSearch),
+            ),
+          if (filterBar != null) ...[const SizedBox(width: 12), filterBar!],
+          const Spacer(),
+          // 下拉刷新等价入口:工具栏刷新按钮,loading 中禁用(防重复请求)
+          if (onRefresh != null)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: AppL10n.of(context).commonRefresh,
+              onPressed: loading ? null : onRefresh,
+            ),
+          ...?actions,
+        ];
+        return Column(
+          children: [
+            if (onSearch != null || actions != null || onRefresh != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(children: toolbar),
+              ),
+            Expanded(
+              // onRefresh == null 保持旧结构;非 null 时内容区整体可下拉,四态各自
+              // 为可滚动体(表格态用 DataTable2 内部滚动,其余态 AlwaysScrollable
+              // 撑满视口居中)——data_table_2 文档禁外层无界滚动包裹。
+              child: onRefresh == null
+                  ? _stateBody(context, compact, scheme)
+                  : LayoutBuilder(
+                      builder: (context, c) {
+                        final viewportH = c.maxHeight;
+                        return RefreshIndicator(
+                          onRefresh: () async {
+                            // 加载中(骨架态)下拉不重复触发;按钮已在 loading 禁用
+                            if (loading) return;
+                            await onRefresh?.call();
+                          },
+                          // DataTable2 内部垂直滚动体在自嵌套 scrollable 之下,
+                          // 放宽 depth,只认纵向通知
+                          notificationPredicate: (n) =>
+                              n.metrics.axis == Axis.vertical,
+                          child: _refreshBody(
+                            context,
+                            compact,
+                            scheme,
+                            viewportH,
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            if (tp > 1)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      AppL10n.of(context).commonTotalPages(total),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_left, size: 20),
+                      onPressed: page > 1
+                          ? () => onPageChanged?.call(page - 1)
+                          : null,
+                    ),
+                    Text(
+                      '$page/${tp > 0 ? tp : 1}',
+                      style: TextStyle(fontSize: 13, color: scheme.onSurface),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right, size: 20),
+                      onPressed: page < tp
+                          ? () => onPageChanged?.call(page + 1)
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
+    );
   }
 
   /// 无刷新设施时的原版四态(直接交给 Expanded)。
@@ -138,8 +163,12 @@ class DataTableWrapper extends StatelessWidget {
   /// 下拉刷新版内容:表格态返回 DataTable2(内部滚动,禁外层无界包裹);
   /// 骨架/错误/空态用 AlwaysScrollable 滚动体撑满视口,保持居中语义,
   /// 内容高度不足视口时下拉仍可触发。
-  Widget _refreshBody(BuildContext context, bool compact, ColorScheme scheme,
-      double viewportH) {
+  Widget _refreshBody(
+    BuildContext context,
+    bool compact,
+    ColorScheme scheme,
+    double viewportH,
+  ) {
     final content = _stateContent(context, compact, scheme);
     if (content is _DataTable) {
       // DataTable2 不暴露 physics 参数:其内部滚动体在平台钳制物理下不接受
@@ -162,49 +191,52 @@ class DataTableWrapper extends StatelessWidget {
   Widget _stateContent(BuildContext context, bool compact, ColorScheme scheme) {
     if (loading) {
       // 加载态:3 行骨架(行高同数据行,surface_alt 50%),禁整页菊花(§5.2)
-      return Column(children: [
-        for (var i = 0; i < 3; i++)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Container(
-              height: compact ? 56 : 48,
-              decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(6),
+      return Column(
+        children: [
+          for (var i = 0; i < 3; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                height: compact ? 56 : 48,
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(6),
+                ),
               ),
             ),
-          ),
-      ]);
+        ],
+      );
     }
     if (error != null) {
       // 加载失败与「暂无数据」必须可区分:错误态带重试按钮
-      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.error_outline, color: scheme.error, size: 36),
-        const SizedBox(height: 8),
-        Text(error!, style: TextStyle(fontSize: 14, color: scheme.error)),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: onRetry,
-          style: OutlinedButton.styleFrom(minimumSize: const Size(72, 32)),
-          icon: const Icon(Icons.refresh, size: 16),
-          label: Text(AppL10n.of(context).commonRetry),
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline, color: scheme.error, size: 36),
+            const SizedBox(height: 8),
+            Text(error!, style: TextStyle(fontSize: 14, color: scheme.error)),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: onRetry,
+              style: OutlinedButton.styleFrom(minimumSize: const Size(72, 32)),
+              icon: const Icon(Icons.refresh, size: 16),
+              label: Text(AppL10n.of(context).commonRetry),
+            ),
+          ],
         ),
-      ]));
+      );
     }
     if (rows.isEmpty) {
-      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.inbox_outlined,
-            size: 48, color: scheme.onSurfaceVariant),
-        const SizedBox(height: 12),
-        Text(AppL10n.of(context).commonNoData,
-            style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: scheme.onSurfaceVariant)),
-      ]));
+      // 空数据态:共享 EmptyState(灰阶 mascot + 「暂无数据」),与错误态区分
+      return EmptyState();
     }
-    return _DataTable(columns: columns, rows: rows, compact: compact,
-        rightAlign: rightAlignColumns);
+    return _DataTable(
+      columns: columns,
+      rows: rows,
+      compact: compact,
+      rightAlign: rightAlignColumns,
+    );
   }
 }
 
@@ -228,11 +260,12 @@ class _DataTable extends StatelessWidget {
   /// 右对齐列索引;走 data_table_2 的 numeric 列语义(表头与单元格右对齐)。
   final List<int> rightAlign;
 
-  const _DataTable(
-      {required this.columns,
-      required this.rows,
-      required this.compact,
-      this.rightAlign = const []});
+  const _DataTable({
+    required this.columns,
+    required this.rows,
+    required this.compact,
+    this.rightAlign = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -245,23 +278,26 @@ class _DataTable extends StatelessWidget {
         for (var i = 0; i < columns.length; i++)
           DataColumn2(
             numeric: right(i),
-            label: Text(columns[i],
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+            label: Text(
+              columns[i],
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
       ],
       rows: rows
-          .map((r) => DataRow2(cells: [
+          .map(
+            (r) => DataRow2(
+              cells: [
                 for (var i = 0; i < columns.length; i++)
                   DataCell(_cell(r[columns[i]], right(i))),
-              ]))
+              ],
+            ),
+          )
           .toList(),
     );
     if (!compact) return table;
     return DataTableTheme(
-      data: DataTableThemeData(
-        dataRowMinHeight: 56,
-        dataRowMaxHeight: 56,
-      ),
+      data: DataTableThemeData(dataRowMinHeight: 56, dataRowMaxHeight: 56),
       child: table,
     );
   }
@@ -270,10 +306,12 @@ class _DataTable extends StatelessWidget {
   /// (§3:数字一律 tabular figures),文字色/字号仍走 dataTableTheme。
   Widget _cell(dynamic v, bool right) {
     if (v is Widget) return v;
-    return Text('${v ?? ''}',
-        style: right
-            ? const TextStyle(fontFeatures: [FontFeature.tabularFigures()])
-            : null);
+    return Text(
+      '${v ?? ''}',
+      style: right
+          ? const TextStyle(fontFeatures: [FontFeature.tabularFigures()])
+          : null,
+    );
   }
 }
 
@@ -288,8 +326,9 @@ class _SearchField extends StatefulWidget {
 }
 
 class _SearchFieldState extends State<_SearchField> {
-  late final TextEditingController _controller =
-      TextEditingController(text: widget.initialText);
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initialText,
+  );
 
   @override
   void dispose() {

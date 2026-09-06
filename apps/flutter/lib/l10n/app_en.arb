@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "loginTitle": "Open ERP Admin",
+  "loginSlogan": "One platform for all your business",
   "loginUsername": "Username",
   "loginPassword": "Password",
   "loginCaptchaPrompt": "Click the characters in the image in order: {text}",

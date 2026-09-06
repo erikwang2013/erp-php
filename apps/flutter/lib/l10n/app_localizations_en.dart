@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginTitle => 'Open ERP Admin';
 
   @override
+  String get loginSlogan => 'One platform for all your business';
+
+  @override
   String get loginUsername => 'Username';
 
   @override

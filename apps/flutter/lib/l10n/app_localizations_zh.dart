@@ -12,6 +12,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loginTitle => '开放管理后台';
 
   @override
+  String get loginSlogan => '一个平台，管好全部业务';
+
+  @override
   String get loginUsername => '用户名';
 
   @override

@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'开放管理后台'**
   String get loginTitle;
 
+  /// No description provided for @loginSlogan.
+  ///
+  /// In zh, this message translates to:
+  /// **'一个平台，管好全部业务'**
+  String get loginSlogan;
+
   /// No description provided for @loginUsername.
   ///
   /// In zh, this message translates to:

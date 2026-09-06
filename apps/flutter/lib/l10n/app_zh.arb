@@ -2,6 +2,7 @@
   "@@locale": "zh",
 
   "loginTitle": "开放管理后台",
+  "loginSlogan": "一个平台，管好全部业务",
   "loginUsername": "用户名",
   "loginPassword": "密码",
   "loginCaptchaPrompt": "请按顺序点击图中文字: {text}",

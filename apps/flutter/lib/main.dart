@@ -8,6 +8,7 @@ import 'app/l10n/app_l10n.dart';
 import 'l10n/app_localizations.dart';
 import 'app/layouts/admin_layout.dart';
 import 'app/config/menu_config.dart';
+import 'app/theme/page_transitions.dart';
 import 'app/pages/login/login_page.dart';
 import 'app/pages/dashboard/dashboard_page.dart';
 import 'app/pages/profile/profile_page.dart';
@@ -271,16 +272,23 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/dms/document': () => const DocumentListPage(),
 };
 
+/// 统一页面转场:250ms 淡入 + 4px 上移(视觉 2.0 动效,见 page_transitions.dart)。
+GetPage fadeUpPage(String name, Widget Function() page) => GetPage(
+  name: name,
+  page: page,
+  transitionDuration: const Duration(milliseconds: 250),
+  customTransition: FadeUpPageTransition(),
+);
+
 /// Routes without a dedicated page yet render a placeholder inside the
 /// admin layout so the menu navigation works end-to-end.
 final List<GetPage> _menuRoutes = () {
   final routes = <GetPage>[];
   for (final entry in buildRouteMap().entries) {
-    final builder = _pageBuilders[entry.key] ?? () => PlaceholderPage(label: entry.value, route: entry.key);
-    routes.add(GetPage(
-      name: entry.key,
-      page: () => AdminLayout(child: builder()),
-    ));
+    final builder =
+        _pageBuilders[entry.key] ??
+        () => PlaceholderPage(label: entry.value, route: entry.key);
+    routes.add(fadeUpPage(entry.key, () => AdminLayout(child: builder())));
   }
   return routes;
 }();
@@ -318,8 +326,8 @@ class AdminApp extends StatelessWidget {
           ],
         ),
         getPages: [
-          GetPage(name: '/login', page: () => const LoginPage()),
-          GetPage(name: '/profile', page: () => const ProfilePage()),
+          fadeUpPage('/login', () => const LoginPage()),
+          fadeUpPage('/profile', () => const ProfilePage()),
           ..._menuRoutes,
         ],
         initialRoute: '/login',
@@ -340,14 +348,21 @@ class PlaceholderPage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.construction,
-              size: 56, color: Theme.of(context).colorScheme.outline),
+          Icon(
+            Icons.construction,
+            size: 56,
+            color: Theme.of(context).colorScheme.outline,
+          ),
           const SizedBox(height: 12),
-          Text(label,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 4),
-          Text(route,
-              style: TextStyle(color: Theme.of(context).colorScheme.outline)),
+          Text(
+            route,
+            style: TextStyle(color: Theme.of(context).colorScheme.outline),
+          ),
           const SizedBox(height: 4),
           // 后续 i18n：占位页文案暂保留硬编码中文
           const Text('页面开发中，敬请期待'),
