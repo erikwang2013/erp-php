@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
+use app\model\Customer;
 use app\model\FinanceReceipt;
 use support\Request;
 use support\Response;
@@ -58,9 +59,16 @@ class ReceiptController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $models = $query->offset(($page - 1) * $limit)
+            ->limit($limit)->orderBy('id', 'desc')->get();
+        // 行补客户名（表无 name 列）；FK 编码供编辑弹窗下拉回填 hashid 匹配
+        $names = Customer::whereIn('id', $models->pluck('customer_id')->all())
+            ->pluck('name', 'id')->all();
+        $list = $models->map(function ($item) use ($names) {
+            $row = $this->encodeIds($item->toArray(), ['id', 'customer_id', 'bank_account_id']);
+            $row['customer_name'] = $names[$item->customer_id] ?? '';
+            return $row;
+        });
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -87,7 +95,7 @@ class ReceiptController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'customer_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
+        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'customer_id' => 'required|string', 'amount' => 'required|numeric|min:0']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -95,8 +103,13 @@ class ReceiptController extends BaseController
         $item = new FinanceReceipt();
         $item->id = $this->generateId();
         $item->code = $request->input('code');
-        $item->customer_id = $this->decodeId($request->input('customer_id'));
-        $item->bank_account_id = $this->decodeId($request->input('bank_account_id', '0'));
+        // customer_id/bank_account_id 双模：hashid 串解码，原生数字直用；垃圾串 422 拒绝
+        $customerId = $this->decodeFlexibleId((string) $request->input('customer_id'));
+        if ($customerId === null) {
+            return $this->fail('客户ID无效', 422);
+        }
+        $item->customer_id = $customerId;
+        $item->bank_account_id = $this->decodeFlexibleId((string) $request->input('bank_account_id', '0')) ?? 0;
         $item->amount = (float) $request->input('amount');
         $item->method = $request->input('method', 'bank');
         $item->remark = $request->input('remark', '');
@@ -167,10 +180,14 @@ class ReceiptController extends BaseController
             $item->code = $request->input('code');
         }
         if ($request->input('customer_id') !== null) {
-            $item->customer_id = $this->decodeId($request->input('customer_id'));
+            $customerId = $this->decodeFlexibleId((string) $request->input('customer_id'));
+            if ($customerId === null) {
+                return $this->fail('客户ID无效', 422);
+            }
+            $item->customer_id = $customerId;
         }
-        if ($request->input('bank_account_id') !== null) {
-            $item->bank_account_id = $this->decodeId($request->input('bank_account_id', '0'));
+        if ($request->input('bank_account_id') !== null && $request->input('bank_account_id') !== '') {
+            $item->bank_account_id = $this->decodeFlexibleId((string) $request->input('bank_account_id')) ?? 0;
         }
         if ($request->input('amount') !== null) {
             $item->amount = (float) $request->input('amount');

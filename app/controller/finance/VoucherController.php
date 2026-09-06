@@ -43,10 +43,8 @@ class VoucherController extends BaseController
 
         $query = FinanceVoucher::query();
         if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
+            // 表无 name 列（此前按 name 搜索必然 SQL 500）
+            $query->where('code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
@@ -76,7 +74,8 @@ class VoucherController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        // 表无 name 列：旧规则要求必填属幻列（name 永不落库）；code 由客户端自动生成必填
+        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -101,6 +100,9 @@ class VoucherController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $this->decodeLedgerId($request, $item);
         $item->status = 0; // 草稿创建；审核仅可经 update 0→1
+        if (!$item->voucher_date) {
+            $item->voucher_date = date('Y-m-d'); // 无 items 直建兜底（表列 NOT NULL 无默认）
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');

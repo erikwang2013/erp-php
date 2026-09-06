@@ -1284,6 +1284,75 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get financeReceiptCode => '收款单号';
+
+  @override
+  String get financeReceiptCodeHint => '留空自动生成 RCV+时间戳';
+
+  @override
+  String get financePaymentCode => '付款单号';
+
+  @override
+  String get financePaymentCodeHint => '留空自动生成 PAY+时间戳';
+
+  @override
+  String get financeMethod => '方式';
+
+  @override
+  String get financeMethodCash => '现金';
+
+  @override
+  String get financeMethodBank => '银行';
+
+  @override
+  String get financeMethodWechat => '微信';
+
+  @override
+  String get financeMethodAlipay => '支付宝';
+
+  @override
+  String get financeReceivedAt => '收款时间';
+
+  @override
+  String get financePaidAt => '付款时间';
+
+  @override
+  String get financeStatusPending => '待审核';
+
+  @override
+  String get financeStatusApproved => '已审核';
+
+  @override
+  String get fieldSupplier => '供应商';
+
+  @override
+  String get financeArApType => '类型';
+
+  @override
+  String get financeArApReceivable => '应收';
+
+  @override
+  String get financeArApPayable => '应付';
+
+  @override
+  String get financeArApPartner => '往来单位';
+
+  @override
+  String get financeArApDueDate => '到期日';
+
+  @override
+  String get financeArApStatusOpen => '未核销';
+
+  @override
+  String get financeArApStatusPartial => '部分核销';
+
+  @override
+  String get financeArApStatusSettled => '已核销';
+
+  @override
+  String get financeArApPartnerMismatch => '往来单位与所选类型不匹配，请重新选择';
+
+  @override
   String get financeVoucherAdd => '新增记账凭证';
 
   @override

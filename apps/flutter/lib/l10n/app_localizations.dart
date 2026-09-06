@@ -2576,6 +2576,144 @@ abstract class AppLocalizations {
   /// **'确定要删除银行账户「{name}」吗？'**
   String financeBankAccountDeleteMsg(String name);
 
+  /// No description provided for @financeReceiptCode.
+  ///
+  /// In zh, this message translates to:
+  /// **'收款单号'**
+  String get financeReceiptCode;
+
+  /// No description provided for @financeReceiptCodeHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'留空自动生成 RCV+时间戳'**
+  String get financeReceiptCodeHint;
+
+  /// No description provided for @financePaymentCode.
+  ///
+  /// In zh, this message translates to:
+  /// **'付款单号'**
+  String get financePaymentCode;
+
+  /// No description provided for @financePaymentCodeHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'留空自动生成 PAY+时间戳'**
+  String get financePaymentCodeHint;
+
+  /// No description provided for @financeMethod.
+  ///
+  /// In zh, this message translates to:
+  /// **'方式'**
+  String get financeMethod;
+
+  /// No description provided for @financeMethodCash.
+  ///
+  /// In zh, this message translates to:
+  /// **'现金'**
+  String get financeMethodCash;
+
+  /// No description provided for @financeMethodBank.
+  ///
+  /// In zh, this message translates to:
+  /// **'银行'**
+  String get financeMethodBank;
+
+  /// No description provided for @financeMethodWechat.
+  ///
+  /// In zh, this message translates to:
+  /// **'微信'**
+  String get financeMethodWechat;
+
+  /// No description provided for @financeMethodAlipay.
+  ///
+  /// In zh, this message translates to:
+  /// **'支付宝'**
+  String get financeMethodAlipay;
+
+  /// No description provided for @financeReceivedAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'收款时间'**
+  String get financeReceivedAt;
+
+  /// No description provided for @financePaidAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'付款时间'**
+  String get financePaidAt;
+
+  /// No description provided for @financeStatusPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待审核'**
+  String get financeStatusPending;
+
+  /// No description provided for @financeStatusApproved.
+  ///
+  /// In zh, this message translates to:
+  /// **'已审核'**
+  String get financeStatusApproved;
+
+  /// No description provided for @fieldSupplier.
+  ///
+  /// In zh, this message translates to:
+  /// **'供应商'**
+  String get fieldSupplier;
+
+  /// No description provided for @financeArApType.
+  ///
+  /// In zh, this message translates to:
+  /// **'类型'**
+  String get financeArApType;
+
+  /// No description provided for @financeArApReceivable.
+  ///
+  /// In zh, this message translates to:
+  /// **'应收'**
+  String get financeArApReceivable;
+
+  /// No description provided for @financeArApPayable.
+  ///
+  /// In zh, this message translates to:
+  /// **'应付'**
+  String get financeArApPayable;
+
+  /// No description provided for @financeArApPartner.
+  ///
+  /// In zh, this message translates to:
+  /// **'往来单位'**
+  String get financeArApPartner;
+
+  /// No description provided for @financeArApDueDate.
+  ///
+  /// In zh, this message translates to:
+  /// **'到期日'**
+  String get financeArApDueDate;
+
+  /// No description provided for @financeArApStatusOpen.
+  ///
+  /// In zh, this message translates to:
+  /// **'未核销'**
+  String get financeArApStatusOpen;
+
+  /// No description provided for @financeArApStatusPartial.
+  ///
+  /// In zh, this message translates to:
+  /// **'部分核销'**
+  String get financeArApStatusPartial;
+
+  /// No description provided for @financeArApStatusSettled.
+  ///
+  /// In zh, this message translates to:
+  /// **'已核销'**
+  String get financeArApStatusSettled;
+
+  /// No description provided for @financeArApPartnerMismatch.
+  ///
+  /// In zh, this message translates to:
+  /// **'往来单位与所选类型不匹配，请重新选择'**
+  String get financeArApPartnerMismatch;
+
   /// No description provided for @financeVoucherAdd.
   ///
   /// In zh, this message translates to:

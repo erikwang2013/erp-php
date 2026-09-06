@@ -77,6 +77,19 @@ class BaseController
     }
 
     /**
+     * 双模解码：hashid 串解码；原生数字直用；其余垃圾串返回 null（调用方 422 拒绝，
+     * 避免 (int)'abc'=0 静默写入无 FK 约束的关联列产生孤儿行）
+     */
+    protected function decodeFlexibleId(string $raw): ?int
+    {
+        $decoded = $this->decodeIdSafe($raw);
+        if ($decoded !== null) {
+            return $decoded;
+        }
+        return is_numeric($raw) ? (int) $raw : null;
+    }
+
+    /**
      * 批量编码数组中的 ID 字段
      */
     protected function encodeIds(array $data, array $idFields = ['id']): array

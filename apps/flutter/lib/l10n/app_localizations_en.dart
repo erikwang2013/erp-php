@@ -1300,6 +1300,78 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get financeReceiptCode => 'Receipt No.';
+
+  @override
+  String get financeReceiptCodeHint =>
+      'Leave blank to auto-generate RCV+timestamp';
+
+  @override
+  String get financePaymentCode => 'Payment No.';
+
+  @override
+  String get financePaymentCodeHint =>
+      'Leave blank to auto-generate PAY+timestamp';
+
+  @override
+  String get financeMethod => 'Method';
+
+  @override
+  String get financeMethodCash => 'Cash';
+
+  @override
+  String get financeMethodBank => 'Bank';
+
+  @override
+  String get financeMethodWechat => 'WeChat';
+
+  @override
+  String get financeMethodAlipay => 'Alipay';
+
+  @override
+  String get financeReceivedAt => 'Received At';
+
+  @override
+  String get financePaidAt => 'Paid At';
+
+  @override
+  String get financeStatusPending => 'Pending Review';
+
+  @override
+  String get financeStatusApproved => 'Reviewed';
+
+  @override
+  String get fieldSupplier => 'Supplier';
+
+  @override
+  String get financeArApType => 'Type';
+
+  @override
+  String get financeArApReceivable => 'Receivable';
+
+  @override
+  String get financeArApPayable => 'Payable';
+
+  @override
+  String get financeArApPartner => 'Counterparty';
+
+  @override
+  String get financeArApDueDate => 'Due Date';
+
+  @override
+  String get financeArApStatusOpen => 'Unsettled';
+
+  @override
+  String get financeArApStatusPartial => 'Partially Settled';
+
+  @override
+  String get financeArApStatusSettled => 'Settled';
+
+  @override
+  String get financeArApPartnerMismatch =>
+      'Counterparty does not match the selected type, please re-select';
+
+  @override
   String get financeVoucherAdd => 'Add Voucher';
 
   @override

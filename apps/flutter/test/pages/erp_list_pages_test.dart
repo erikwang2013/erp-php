@@ -145,13 +145,13 @@ void main() {
   });
 
   group('财务应收应付列表', () {
-    testWidgets('渲染往来单位名称与编码', (tester) async {
+    testWidgets('渲染类型、往来单位名与金额状态（无 name/code 幻列）', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
         '/admin/v1/finance/ar-ap': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
-              {'id': 1, 'name': '华东供应商', 'code': 'SUP-001'},
+              {'id': 1, 'type': 1, 'partner_id': 'cust-hash', 'partner_name': '华东客户', 'amount': '1200.00', 'status': 0},
             ],
             'total': 1,
           },
@@ -160,8 +160,10 @@ void main() {
 
       await pump(tester, const ArApListPage());
 
-      expect(find.text('华东供应商'), findsOneWidget);
-      expect(find.text('SUP-001'), findsOneWidget);
+      expect(find.text('应收'), findsOneWidget);
+      expect(find.text('华东客户'), findsOneWidget);
+      expect(find.text('1200.00'), findsOneWidget);
+      expect(find.text('未核销'), findsOneWidget);
     });
   });
 

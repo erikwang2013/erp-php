@@ -67,7 +67,7 @@ class _VoucherListPageState extends State<VoucherListPage> {
   }
 
   // 后端 erp_finance_voucher 字段: code/voucher_date/status(0草稿/1已审核)/remark
-  // store() 同时校验 name 必填；传 items 时走 DoubleEntryService::createVoucher，
+  // （表无 name 列，store 不再要求）；传 items 时走 DoubleEntryService::createVoucher，
   // 接收 items[{account_id|account_subject_id, summary, debit_amount, credit_amount}]
   // 并校验借贷平衡（借方合计 == 贷方合计）。
   static List<String> get _statusLabels => [AppL10n.current.financeVoucherDraft, AppL10n.current.financeVoucherReviewed];
@@ -77,7 +77,6 @@ class _VoucherListPageState extends State<VoucherListPage> {
     String pad(int v) => v.toString().padLeft(2, '0');
     final defaultDate = '${now.year}-${pad(now.month)}-${pad(now.day)}';
     return [
-      FormFieldConfig(name: 'name', label: AppL10n.of(context).financeVoucherName, required: true, hint: AppL10n.of(context).commonRequiredBackend),
       FormFieldConfig(name: 'code', label: AppL10n.of(context).financeVoucherCode, hint: AppL10n.of(context).financeVoucherCodeHint),
       FormFieldConfig(name: 'voucher_date', label: AppL10n.of(context).financeVoucherDate, required: true, initialValue: defaultDate,
         hint: AppL10n.of(context).commonDateFormat),
@@ -102,7 +101,6 @@ class _VoucherListPageState extends State<VoucherListPage> {
     }
     final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
     final payload = <String, dynamic>{
-      'name': data['name'],
       'code': code,
       'voucher_date': data['voucher_date']?.trim(),
       'status': statusRaw,

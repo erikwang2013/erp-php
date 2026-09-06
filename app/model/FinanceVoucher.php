@@ -25,4 +25,7 @@ class FinanceVoucher extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+    // guarded-only 时 getFillable()=[]，fill() 不落任何列 → 无 items 建单时
+    // NOT NULL(code/voucher_date) 缺省直插 500。显式列白名单（表无 name 列）。
+    protected $fillable = ['code', 'voucher_date', 'remark'];
 }

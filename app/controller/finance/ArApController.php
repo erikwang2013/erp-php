@@ -8,7 +8,9 @@ declare(strict_types=1);
 namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
+use app\model\Customer;
 use app\model\FinanceArAp;
+use app\model\Supplier;
 use app\service\finance\FinanceService;
 use support\Request;
 use support\Response;
@@ -43,16 +45,35 @@ class ArApController extends BaseController
 
         $query = FinanceArAp::query();
         if ($keyword) {
-            $query->where('partner_id', $this->decodeId($keyword));
+            // 关键词可能是往来方 hashid/数字ID，也可能是来源类型文本；
+            // 非 hashid 时 decodeIdSafe 返回 null（不抛 500）
+            $partnerId = is_numeric($keyword) ? (int) $keyword : $this->decodeIdSafe((string) $keyword);
+            $query->where(function ($q) use ($keyword, $partnerId) {
+                $q->where('source_type', 'like', "%{$keyword}%");
+                if ($partnerId !== null) {
+                    $q->orWhere('partner_id', $partnerId);
+                }
+            });
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $models = $query->offset(($page - 1) * $limit)
+            ->limit($limit)->orderBy('id', 'desc')->get();
+        // 行补往来方名（按类型分客户/供应商，表无 name 列）；partner_id 编码供弹窗回填
+        $customerNames = Customer::whereIn('id', $models->pluck('partner_id')->all())
+            ->pluck('name', 'id')->all();
+        $supplierNames = Supplier::whereIn('id', $models->pluck('partner_id')->all())
+            ->pluck('name', 'id')->all();
+        $list = $models->map(function ($item) use ($customerNames, $supplierNames) {
+            $row = $this->encodeIds($item->toArray(), ['id', 'partner_id']);
+            $row['partner_name'] = ((int) $item->type === 1)
+                ? ($customerNames[$item->partner_id] ?? '')
+                : ($supplierNames[$item->partner_id] ?? '');
+            return $row;
+        });
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -78,25 +99,40 @@ class ArApController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['type' => 'required|integer|in:1,2', 'partner_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
+        $validator = validator($request->all(), ['type' => 'required|integer|in:1,2', 'partner_id' => 'required|string', 'amount' => 'required|numeric|min:0']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+
+        // partner_id 双模：hashid 串解码，原生数字直用；垃圾串 422 拒绝
+        $partnerId = $this->decodeFlexibleId((string) $request->input('partner_id'));
+        if ($partnerId === null) {
+            return $this->fail('往来方ID无效', 422);
+        }
+        // 手建无来源单据：uk_source(source_type,source_id) 唯一约束要求来源必填，
+        // 空来源会与首条手动记录碰撞 → 置 'manual' + snowflake 占位（每次唯一）
+        $sourceType = $request->input('source_type', '');
+        if ($sourceType === '' || $sourceType === null) {
+            $sourceType = 'manual';
+            $sourceId = $this->generateId();
+        } else {
+            $sourceId = $this->decodeIdSafe((string) $request->input('source_id', '0')) ?? (int) $request->input('source_id', '0');
         }
 
         try {
             $service = new FinanceService();
             $id = (int) $request->input('type') === 1
                 ? $service->createAr(
-                    $this->decodeId($request->input('partner_id')),
-                    $request->input('source_type', ''),
-                    $this->decodeId($request->input('source_id', '0')),
+                    $partnerId,
+                    (string) $sourceType,
+                    (int) $sourceId,
                     (float) $request->input('amount'),
                     $request->input('due_date')
                 )
                 : $service->createAp(
-                    $this->decodeId($request->input('partner_id')),
-                    $request->input('source_type', ''),
-                    $this->decodeId($request->input('source_id', '0')),
+                    $partnerId,
+                    (string) $sourceType,
+                    (int) $sourceId,
                     (float) $request->input('amount'),
                     $request->input('due_date')
                 );
@@ -162,7 +198,11 @@ class ArApController extends BaseController
         }
 
         if ($request->input('partner_id') !== null) {
-            $item->partner_id = $this->decodeId($request->input('partner_id'));
+            $partnerId = $this->decodeFlexibleId((string) $request->input('partner_id'));
+            if ($partnerId === null) {
+                return $this->fail('往来方ID无效', 422);
+            }
+            $item->partner_id = $partnerId;
         }
         if ($request->input('amount') !== null) {
             $item->amount = (float) $request->input('amount');

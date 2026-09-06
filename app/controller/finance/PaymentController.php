@@ -9,6 +9,7 @@ namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
 use app\model\FinancePayment;
+use app\model\Supplier;
 use support\Request;
 use support\Response;
 #[\erikwang2013\apidoc\annotation\Title("付款单")]
@@ -49,9 +50,16 @@ class PaymentController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $models = $query->offset(($page - 1) * $limit)
+            ->limit($limit)->orderBy('id', 'desc')->get();
+        // 行补供应商名（表无 name 列）；FK 编码供编辑弹窗下拉回填 hashid 匹配
+        $names = Supplier::whereIn('id', $models->pluck('supplier_id')->all())
+            ->pluck('name', 'id')->all();
+        $list = $models->map(function ($item) use ($names) {
+            $row = $this->encodeIds($item->toArray(), ['id', 'supplier_id', 'bank_account_id']);
+            $row['supplier_name'] = $names[$item->supplier_id] ?? '';
+            return $row;
+        });
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -77,7 +85,7 @@ class PaymentController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'supplier_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
+        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'supplier_id' => 'required|string', 'amount' => 'required|numeric|min:0']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -85,8 +93,13 @@ class PaymentController extends BaseController
         $item = new FinancePayment();
         $item->id = $this->generateId();
         $item->code = $request->input('code');
-        $item->supplier_id = $this->decodeId($request->input('supplier_id'));
-        $item->bank_account_id = $this->decodeId($request->input('bank_account_id', '0'));
+        // supplier_id/bank_account_id 双模：hashid 串解码，原生数字直用；垃圾串 422 拒绝
+        $supplierId = $this->decodeFlexibleId((string) $request->input('supplier_id'));
+        if ($supplierId === null) {
+            return $this->fail('供应商ID无效', 422);
+        }
+        $item->supplier_id = $supplierId;
+        $item->bank_account_id = $this->decodeFlexibleId((string) $request->input('bank_account_id', '0')) ?? 0;
         $item->amount = (float) $request->input('amount');
         $item->method = $request->input('method', 'bank');
         $item->remark = $request->input('remark', '');
@@ -152,10 +165,14 @@ class PaymentController extends BaseController
             $item->code = $request->input('code');
         }
         if ($request->input('supplier_id') !== null) {
-            $item->supplier_id = $this->decodeId($request->input('supplier_id'));
+            $supplierId = $this->decodeFlexibleId((string) $request->input('supplier_id'));
+            if ($supplierId === null) {
+                return $this->fail('供应商ID无效', 422);
+            }
+            $item->supplier_id = $supplierId;
         }
-        if ($request->input('bank_account_id') !== null) {
-            $item->bank_account_id = $this->decodeId($request->input('bank_account_id', '0'));
+        if ($request->input('bank_account_id') !== null && $request->input('bank_account_id') !== '') {
+            $item->bank_account_id = $this->decodeFlexibleId((string) $request->input('bank_account_id')) ?? 0;
         }
         if ($request->input('amount') !== null) {
             $item->amount = (float) $request->input('amount');
