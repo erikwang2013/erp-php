@@ -23,6 +23,10 @@ class _ProductListPageState extends State<ProductListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 分类选项（id→名称），打开新增/编辑弹窗前懒加载一次。
+  Map<String, String> _categoryOptions = {};
+  bool _categoryLoaded = false;
+
   @override
   void initState() { super.initState(); _load(); }
 
@@ -40,7 +44,27 @@ class _ProductListPageState extends State<ProductListPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
+  /// 加载分类选项（POST/PUT 的 category_id 必填且为 hashid，取自 /admin/v1/category 列表行 id）。
+  Future<bool> _ensureCategories() async {
+    if (_categoryLoaded) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/category', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _categoryOptions = {
+        for (final c in list) '${c['id']}': '${c['name'] ?? ''}',
+      };
+      _categoryLoaded = true;
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
+    if (!await _ensureCategories() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/product', data: data);
@@ -49,6 +73,7 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureCategories() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/product/${row['id']}', data: data);
@@ -64,11 +89,23 @@ class _ProductListPageState extends State<ProductListPage> {
     });
   }
 
+  // 字段与后端 ProductController::store 契约对齐：
+  // name/code/category_id/unit 必填（422 消息源），spec 自由文本（无规格字典，无下拉可选），
+  // price 为标量售价（erp_product 无 price 列，落 erp_product_price 产品级默认价）。
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
       FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
+      FormFieldConfig(
+        name: 'category',
+        label: l10n.fieldCategory,
+        required: true,
+        type: FormFieldType.dropdown,
+        options: _categoryOptions.keys.toList(),
+        optionLabels: _categoryOptions,
+      ),
+      FormFieldConfig(name: 'unit', label: l10n.fieldUnit, required: true),
       FormFieldConfig(name: 'spec', label: l10n.fieldSpec),
       FormFieldConfig(name: 'price', label: l10n.fieldPrice, type: FormFieldType.number),
     ];

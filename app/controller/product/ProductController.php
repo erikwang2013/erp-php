@@ -65,9 +65,22 @@ class ProductController extends BaseController
         $result = $this->product()->list(Product::class, $filters, $page, $limit, [
             'searchFields' => ['name', 'code', 'barcode'],
             'eqFilters' => ['status', 'category_id'],
-            'with' => ['category', 'brand'],
+            'with' => ['category', 'brand', 'prices'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'category_id', 'brand_id']), $result['list']);
+        // erp_product 无 price 列：列表价 = 产品级默认价（sku_id=0 且 price_type=default），
+        // 经关联带出后收敛为标量 price（嵌套 prices 不下发列表）
+        $list = array_map(function ($item) {
+            $price = '';
+            foreach ($item['prices'] ?? [] as $p) {
+                if ((int) ($p['sku_id'] ?? 1) === 0 && ($p['price_type'] ?? '') === 'default') {
+                    $price = $p['price'] ?? '';
+                    break;
+                }
+            }
+            unset($item['prices']);
+
+            return $this->encodeIds($item, ['id', 'category_id', 'brand_id']) + ['price' => $price];
+        }, $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -109,6 +122,15 @@ class ProductController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // 兼容标量 price（表单只传 price 时）：按产品级默认价（sku_id=0/price_type=default）写入价格表
+        $prices = is_array($request->input('prices')) ? $request->input('prices') : [];
+        if (empty($prices)) {
+            $scalarPrice = $request->input('price', '');
+            if ($scalarPrice !== '' && $scalarPrice !== null) {
+                $prices[] = ['price_type' => 'default', 'price' => (string) $scalarPrice];
+            }
+        }
+
         try {
             $product = $this->product()->createProductWithRelations([
                 'code' => $request->input('code'),
@@ -121,7 +143,7 @@ class ProductController extends BaseController
                 'image' => $request->input('image', ''),
                 'description' => $request->input('description', ''),
                 'status' => (int) $request->input('status', 1),
-            ], is_array($request->input('skus')) ? $request->input('skus') : [], is_array($request->input('prices')) ? $request->input('prices') : []);
+            ], is_array($request->input('skus')) ? $request->input('skus') : [], $prices);
 
             return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('created'));
         } catch (Throwable $e) {
@@ -173,6 +195,7 @@ class ProductController extends BaseController
 #[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态:0禁用1启用")]
 #[\erikwang2013\apidoc\annotation\Param(name:"category_id", type:"string", default:"", desc:"分类ID(hashid)")]
 #[\erikwang2013\apidoc\annotation\Param(name:"brand_id", type:"string", default:"", desc:"品牌ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"price", type:"number", default:"", desc:"售价标量；非空时替换产品级默认价(price_type=default)")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
 #[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的商品信息")]

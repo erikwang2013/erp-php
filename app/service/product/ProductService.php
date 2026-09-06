@@ -113,6 +113,21 @@ class ProductService extends AbstractCrudService
         }
         $product->save();
 
+        // 标量 price：替换产品级默认价（sku_id=0/price_type=default）；空串不更新
+        if (array_key_exists('price', $input) && trim((string) $input['price']) !== '') {
+            ProductPrice::where('product_id', $product->id)
+                ->where('sku_id', 0)
+                ->where('price_type', 'default')
+                ->delete();
+            $priceRow = new ProductPrice();
+            $priceRow->id = $this->generateId();
+            $priceRow->product_id = $product->id;
+            $priceRow->sku_id = 0;
+            $priceRow->price_type = 'default';
+            $priceRow->price = (float) $input['price'];
+            $priceRow->save();
+        }
+
         return $product;
     }
 
