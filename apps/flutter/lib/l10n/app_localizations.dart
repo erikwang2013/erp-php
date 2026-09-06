@@ -2747,7 +2747,7 @@ abstract class AppLocalizations {
   /// No description provided for @financeConsolidateJsonHint.
   ///
   /// In zh, this message translates to:
-  /// **'JSON 数组，每项含 name（子公司名）、currency（币种）、amount（金额）字段，如 name=子公司A, currency=USD, amount=1000'**
+  /// **'非空 JSON 数组，每项须含 ledger_id 或 company_id（后端数字ID，非 hashid）与 report_year（≥2000）、report_month（1-12）'**
   String get financeConsolidateJsonHint;
 
   /// No description provided for @financeBaseCurrency.
@@ -4909,6 +4909,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'实时库存'**
   String get inventoryListTitle;
+
+  /// No description provided for @inventoryProductCode.
+  ///
+  /// In zh, this message translates to:
+  /// **'商品编码'**
+  String get inventoryProductCode;
+
+  /// No description provided for @inventoryBatchCode.
+  ///
+  /// In zh, this message translates to:
+  /// **'批次号'**
+  String get inventoryBatchCode;
+
+  /// No description provided for @inventoryCostPrice.
+  ///
+  /// In zh, this message translates to:
+  /// **'成本价'**
+  String get inventoryCostPrice;
+
+  /// No description provided for @inventorySearchHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索商品名称/编码/批次号'**
+  String get inventorySearchHint;
 
   /// No description provided for @inventoryFlowTitle.
   ///

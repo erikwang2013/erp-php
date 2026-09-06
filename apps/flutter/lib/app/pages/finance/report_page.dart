@@ -6,14 +6,14 @@ import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 
 /// 财务报表页 — 覆盖端点：
-/// GET  /admin/finance/report/profit            （利润报表）
-/// GET  /admin/finance/report/balance-sheet     （资产负债表）
-/// GET  /admin/finance/report/cash-flow         （现金流量表）
-/// GET  /admin/finance/report/trial-balance     （试算平衡表）
-/// GET  /admin/finance/report/account-balance   （科目余额）
-/// POST /admin/finance/report/close-period      （期末结转）
-/// POST /admin/finance/report/consolidate       （多币种合并）
-/// POST /admin/finance/report/ratios            （财务比率）
+/// GET  /admin/v1/finance/report/profit          （利润报表）
+/// GET  /admin/v1/finance/report/balance-sheet   （资产负债表）
+/// GET  /admin/v1/finance/report/cash-flow       （现金流量表）
+/// GET  /admin/v1/finance/report/trial-balance   （试算平衡表）
+/// GET  /admin/v1/finance/report/account-balance （科目余额）
+/// POST /admin/v1/finance/report/close-period    （期末结转）
+/// POST /admin/v1/finance/report/consolidate     （多币种合并）
+/// POST /admin/v1/finance/report/ratios          （财务比率）
 class FinanceReportPage extends StatefulWidget {
   const FinanceReportPage({super.key});
   @override
@@ -106,6 +106,18 @@ class _ConsolidateTabState extends State<_ConsolidateTab> {
     super.dispose();
   }
 
+  /// 真实响应 data{base_currency, report_year, report_month, total_assets,
+  /// total_liabilities, total_equity, revenue, net_profit,
+  /// report_data:{generated_from, base_currency, subsidiaries[{ledger_id,
+  /// company_id, code, name, currency, rate, source, 五项金额}]}}
+  /// （见 ConsolidationService::consolidate 出口）；空/非数组请求 → 422 文案直接呈现。
+  List<dynamic> get _subsidiaries {
+    final rd = _result['report_data'];
+    return (rd is Map && rd['subsidiaries'] is List)
+        ? rd['subsidiaries'] as List
+        : <dynamic>[];
+  }
+
   Future<void> _run() async {
     setState(() { _loading = true; _error = null; _result = {}; });
     try {
@@ -119,47 +131,54 @@ class _ConsolidateTabState extends State<_ConsolidateTab> {
       });
       if (mounted) setState(() { _result = Map<String, dynamic>.from(res['data']); _loading = false; });
     } catch (e) {
-      if (mounted) setState(() { _loading = false; _error = '$e'; });
+      // ApiException 只取 message（如 422/501 的业务文案），友好呈现
+      if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final consolidated = _result['consolidated'] is List ? _result['consolidated'] as List : <dynamic>[];
+    final subsidiaries = _subsidiaries;
+    final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
     return SingleChildScrollView(child: Padding(
       padding: const EdgeInsets.all(8),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SizedBox(width: 420, child: _JsonInput(
           controller: _reportsCtrl,
-          label: AppL10n.of(context).financeConsolidateJsonLabel,
-          hint: AppL10n.of(context).financeConsolidateJsonHint,
+          label: l10n.financeConsolidateJsonLabel,
+          hint: l10n.financeConsolidateJsonHint,
         )),
         const SizedBox(height: 12),
         Row(children: [
           SizedBox(width: 140, child: TextField(
             controller: _currencyCtrl,
-            decoration: InputDecoration(labelText: AppL10n.of(context).financeBaseCurrency, isDense: true, border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: l10n.financeBaseCurrency, isDense: true, border: OutlineInputBorder()),
           )),
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: _loading ? null : _run,
             icon: const Icon(Icons.merge_type, size: 18),
-            label: Text(_loading ? AppL10n.of(context).financeConsolidating : AppL10n.of(context).financeExecuteConsolidate),
+            label: Text(_loading ? l10n.financeConsolidating : l10n.financeExecuteConsolidate),
           ),
         ]),
         const SizedBox(height: 8),
-        if (_error != null) Text(_error!, style: TextStyle(color: AppColors.of(context).danger)),
+        if (_error != null) Text(_error!, style: TextStyle(color: c.danger)),
         if (_result.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(children: [
-            _MetricCard(label: AppL10n.of(context).financeBaseCurrency, value: _result['base_currency'], color: AppColors.of(context).primary),
-            _MetricCard(label: AppL10n.of(context).financeExchangeGainLoss, value: _result['exchange_gain_loss'], color: AppColors.of(context).warning),
+            _MetricCard(label: l10n.financeBaseCurrency, value: _result['base_currency'], color: c.primary),
+            _MetricCard(label: l10n.financeYear, value: _result['report_year'], color: c.primary),
+            _MetricCard(label: l10n.financeMonth, value: _result['report_month'], color: c.primary),
+            _MetricCard(label: l10n.financeTotalAssets, value: _result['total_assets'], color: c.success),
+            _MetricCard(label: l10n.financeTotalLiabilities, value: _result['total_liabilities'], color: c.warning),
+            _MetricCard(label: l10n.financeEquity, value: _result['total_equity'], color: c.warning),
+            _MetricCard(label: l10n.financeRevenue, value: _result['revenue'], color: c.success),
+            _MetricCard(label: l10n.financeYearProfit, value: _result['net_profit'], color: c.primary),
           ]),
-          if (_result['message'] != null)
-            Padding(padding: const EdgeInsets.only(top: 4), child: Text('${_result['message']}')),
-          if (consolidated.isNotEmpty) ...[
+          if (subsidiaries.isNotEmpty) ...[
             const SizedBox(height: 8),
-            _ItemsTable(consolidated),
+            _ItemsTable(subsidiaries),
           ],
         ],
       ]),
@@ -324,6 +343,49 @@ class _MetricCard extends StatelessWidget {
   }
 }
 
+/// report_data 对象化明细（批1 契约）：report_data 已是对象而非 JSON 串——
+/// 标量键逐行 key: value，值为 List 的键（如 lines/subsidiaries）用 _ItemsTable
+/// 平铺；空串/损坏 JSON（后端兜底 []）渲染空态文案。
+class _ReportDataDetail extends StatelessWidget {
+  final dynamic reportData;
+  const _ReportDataDetail(this.reportData);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final c = AppColors.of(context);
+    if (reportData is! Map || reportData.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Text(l10n.financeNoDetailData, style: TextStyle(fontSize: 12, color: c.textHint)),
+      );
+    }
+    final rd = Map<String, dynamic>.from(reportData as Map);
+    final scalars = <MapEntry<String, dynamic>>[];
+    final lists = <MapEntry<String, List<dynamic>>>[];
+    for (final e in rd.entries) {
+      if (e.value is List && (e.value as List).isNotEmpty) {
+        lists.add(MapEntry(e.key, (e.value as List)));
+      } else if (e.value is! List) {
+        scalars.add(e);
+      }
+    }
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      for (final e in scalars)
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text('${e.key}: ${e.value ?? ''}', style: TextStyle(fontSize: 12, color: c.textSecondary)),
+        ),
+      for (final e in lists) ...[
+        const SizedBox(height: 6),
+        Text('${e.key} (${e.value.length})', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: c.textSecondary)),
+        const SizedBox(height: 4),
+        _ItemsTable(e.value),
+      ],
+    ]);
+  }
+}
+
 /// 通用列表表格（items 为 Map 列表时渲染，用于试算平衡表明细）。
 class _ItemsTable extends StatelessWidget {
   final List<dynamic> items;
@@ -472,7 +534,8 @@ class _BalanceSheetTabState extends State<_BalanceSheetTab> {
       });
       setState(() { _data = Map<String, dynamic>.from(res['data']); _loading = false; });
     } catch (e) {
-      if (mounted) setState(() { _loading = false; _error = '$e'; });
+      // ApiException → 服务端 message（422 等友好文案），其余转通用网络文案
+      if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); });
     }
   }
 
@@ -497,8 +560,8 @@ class _BalanceSheetTabState extends State<_BalanceSheetTab> {
             _MetricCard(label: AppL10n.of(context).financeEquity, value: _data['total_equity'], color: AppColors.of(context).primary),
           ]),
           const SizedBox(height: 4),
-          if (_data['report_data'] != null)
-            Text(AppL10n.of(context).financeReportNote('${_data['report_data']}'), style: TextStyle(fontSize: 12, color: AppColors.of(context).textHint)),
+          // report_data 已是对象(lines[] 科目明细)——结构化渲染替代直显 JSON 串
+          _ReportDataDetail(_data['report_data']),
         ],
       ]),
     ));
@@ -535,7 +598,8 @@ class _CashFlowTabState extends State<_CashFlowTab> {
       });
       setState(() { _data = Map<String, dynamic>.from(res['data']); _loading = false; });
     } catch (e) {
-      if (mounted) setState(() { _loading = false; _error = '$e'; });
+      // ApiException → 服务端 message（422 等友好文案），其余转通用网络文案
+      if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); });
     }
   }
 
@@ -564,8 +628,8 @@ class _CashFlowTabState extends State<_CashFlowTab> {
             _MetricCard(label: AppL10n.of(context).financeEndingCash, value: _data['ending_cash'], color: AppColors.of(context).primary),
           ]),
           const SizedBox(height: 4),
-          if (_data['report_data'] != null)
-            Text(AppL10n.of(context).financeReportNote('${_data['report_data']}'), style: TextStyle(fontSize: 12, color: AppColors.of(context).textHint)),
+          // report_data 对象(voucher_count/generated_from)——结构化渲染替代直显 JSON 串
+          _ReportDataDetail(_data['report_data']),
         ],
       ]),
     ));

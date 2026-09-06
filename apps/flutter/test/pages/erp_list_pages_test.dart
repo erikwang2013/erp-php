@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:admin_app/app/pages/finance/ar_ap_list_page.dart';
 import 'package:admin_app/app/pages/inventory/alert_list_page.dart';
+import 'package:admin_app/app/pages/inventory/inventory_list_page.dart';
 import 'package:admin_app/app/pages/product/product_list_page.dart';
 import 'package:admin_app/app/pages/project/project_list_page.dart';
 import 'package:admin_app/app/pages/sales/order_list_page.dart';
@@ -70,7 +71,7 @@ void main() {
           'code': 0,
           'data': {
             'list': [
-              {'id': 1, 'code': 'SO20260801', 'customer_id': '1001', 'total_amount': '1280.00', 'status': 3},
+              {'id': 1, 'code': 'SO20260801', 'customer_id': '1001', 'customer_name': '华南科技', 'total_amount': '1280.00', 'status': 3},
             ],
             'total': 1,
           },
@@ -82,9 +83,42 @@ void main() {
       expect(find.text('订单编号'), findsOneWidget);
       expect(find.text('SO20260801'), findsOneWidget);
       expect(find.text('1280.00'), findsOneWidget);
+      // 批3：客户名由列表 leftJoin 的 customer_name 带出（行无 name 列）
+      expect(find.text('华南科技'), findsOneWidget);
       // 状态筛选已改为 chips 行(§5.2)，同一文案会同时出现在筛选 chips 与行内
       // StatusBadge —— 此处断言行内徽标，而非裸文本
       expect(find.descendant(of: find.byType(StatusBadge), matching: find.text('已发货')), findsOneWidget);
+    });
+  });
+
+  group('库存列表', () {
+    testWidgets('渲染真实库存列（批3：product_name/product_code/warehouse_name/batch_code/quantity/cost_price）', (tester) async {
+      await installApi(FakeHttpClientAdapter(routes: {
+        '/admin/v1/inventory': (o) async => FakeHttpClientAdapter.jsonResponse({
+          'code': 0,
+          'data': {
+            'list': [
+              {'id': 1, 'product_name': '内存条 8G', 'product_code': 'MEM-8G', 'warehouse_name': '主仓', 'batch_code': 'B2026-01', 'quantity': '120', 'cost_price': '320.00'},
+            ],
+            'total': 1,
+          },
+        }),
+      }));
+
+      await pump(tester, const InventoryListPage());
+
+      expect(find.text('商品名称'), findsOneWidget);
+      expect(find.text('商品编码'), findsOneWidget);
+      expect(find.text('仓库'), findsOneWidget);
+      expect(find.text('批次号'), findsOneWidget);
+      expect(find.text('数量'), findsOneWidget);
+      expect(find.text('成本价'), findsOneWidget);
+      expect(find.text('内存条 8G'), findsOneWidget);
+      expect(find.text('MEM-8G'), findsOneWidget);
+      expect(find.text('主仓'), findsOneWidget);
+      expect(find.text('B2026-01'), findsOneWidget);
+      expect(find.text('120'), findsOneWidget);
+      expect(find.text('320.00'), findsOneWidget);
     });
   });
 

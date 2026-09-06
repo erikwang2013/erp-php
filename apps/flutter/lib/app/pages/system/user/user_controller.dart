@@ -37,7 +37,7 @@ class UserController extends GetxController {
 
       final resp = await api.get('/admin/v1/user', params: params);
       users.value = resp['data']['list'] as List<dynamic>;
-      total.value = resp['data']['total'] as int;
+      total.value = (resp['data']['total'] as num?)?.toInt() ?? 0;
     } catch (e) {
       final l10n = AppL10n.current;
       Get.snackbar(l10n.commonSnackError, l10n.systemUserLoadFailedMsg('$e'));

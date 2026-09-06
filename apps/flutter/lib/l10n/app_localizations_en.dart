@@ -1393,7 +1393,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get financeConsolidateJsonHint =>
-      'JSON array; each item has name (subsidiary), currency and amount fields, e.g. name=Subsidiary A, currency=USD, amount=1000';
+      'Non-empty JSON array; each item must have ledger_id or company_id (numeric backend ID, not hashid) plus report_year (≥2000) and report_month (1-12)';
 
   @override
   String get financeBaseCurrency => 'Base Currency';
@@ -2547,6 +2547,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inventoryListTitle => 'Stock on Hand';
+
+  @override
+  String get inventoryProductCode => 'Product Code';
+
+  @override
+  String get inventoryBatchCode => 'Batch No.';
+
+  @override
+  String get inventoryCostPrice => 'Unit Cost';
+
+  @override
+  String get inventorySearchHint => 'Search product name, code or batch';
 
   @override
   String get inventoryFlowTitle => 'Stock Movements';

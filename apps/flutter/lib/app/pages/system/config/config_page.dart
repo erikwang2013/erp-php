@@ -26,7 +26,7 @@ class ConfigController extends GetxController {
     try {
       final resp = await api.get('/admin/v1/config', params: {'page': page.value, 'limit': limit.value});
       configs.value = resp['data']['list'] as List<dynamic>;
-      total.value = resp['data']['total'] as int;
+      total.value = (resp['data']['total'] as num?)?.toInt() ?? 0;
     } catch (e) {
       final l10n = AppL10n.current;
       Get.snackbar(l10n.commonSnackError, l10n.commonLoadFailedMsg('$e'));

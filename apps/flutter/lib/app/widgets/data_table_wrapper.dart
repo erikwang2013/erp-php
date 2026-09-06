@@ -45,6 +45,10 @@ class DataTableWrapper extends StatelessWidget {
   /// Current search keyword; the search box is seeded with it so the text
   /// survives reloads.
   final String keyword;
+
+  /// 搜索框占位提示；缺省用通用 commonSearchHint。语义特化的页面
+  /// （如库存按商品名/编码/批次号）传后端 keyword 语义一致的文案。
+  final String? keywordHint;
   final Widget? filterBar;
   final List<Widget>? actions;
 
@@ -78,6 +82,7 @@ class DataTableWrapper extends StatelessWidget {
     this.onPageChanged,
     this.onSearch,
     this.keyword = '',
+    this.keywordHint,
     this.filterBar,
     this.actions,
     this.rightAlignColumns = const [],
@@ -98,7 +103,7 @@ class DataTableWrapper extends StatelessWidget {
           if (onSearch != null)
             SizedBox(
               width: compact ? double.infinity : 240,
-              child: _SearchField(initialText: keyword, onSearch: onSearch),
+              child: _SearchField(initialText: keyword, onSearch: onSearch, hint: keywordHint),
             ),
           if (filterBar != null) ...[const SizedBox(width: 12), filterBar!],
           const Spacer(),
@@ -441,7 +446,8 @@ class _DataTable extends StatelessWidget {
 class _SearchField extends StatefulWidget {
   final String initialText;
   final ValueChanged<String>? onSearch;
-  const _SearchField({required this.initialText, this.onSearch});
+  final String? hint;
+  const _SearchField({required this.initialText, this.onSearch, this.hint});
 
   @override
   State<_SearchField> createState() => _SearchFieldState();
@@ -464,7 +470,7 @@ class _SearchFieldState extends State<_SearchField> {
       controller: _controller,
       // 边框/圆角/聚焦色走全局 inputDecorationTheme(§4:r6/primary 1.5)
       decoration: InputDecoration(
-        hintText: AppL10n.of(context).commonSearchHint,
+        hintText: widget.hint ?? AppL10n.of(context).commonSearchHint,
         prefixIcon: const Icon(Icons.search, size: 20),
       ),
       onSubmitted: widget.onSearch,

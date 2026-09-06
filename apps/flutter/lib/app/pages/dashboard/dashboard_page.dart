@@ -623,14 +623,35 @@ class DashboardPage extends GetView<DashboardController> {
     );
   }
 
-  /// KPI 迷你 sparkline 数据映射:同名 30 日序列(如「操作日志」)优先;
-  /// icon=people 的用户总数卡取「累计*」序列(累计曲线即总数走势);无则 null。
+  /// KPI 迷你 sparkline 数据映射(批1 契约):趋势序列带 series_key(users/logs)、
+  /// 统计卡带 icon 字符串(people/description)——按 icon→series_key 推导优先,
+  /// 断开 label 字符串耦合;无 series_key 的旧缓存/夹具保持原 name==label 与
+  /// icon=people「累计*」两重 fallback,行为不变。无则 null。
   List<double>? _seriesDataFor(Map<String, dynamic> stat) {
     final series = <Map<String, dynamic>>[
       for (final s
           in (controller.trends['series'] as List<dynamic>?) ?? const [])
         Map<String, dynamic>.from(s as Map),
     ];
+    final byKey = <String, List<Map<String, dynamic>>>{};
+    for (final s in series) {
+      final k = s['series_key'];
+      if (k is String && k.isNotEmpty) {
+        byKey.putIfAbsent(k, () => []).add(s);
+      }
+    }
+    // 统计图标 → 序列语义键(与后端 bi stats/trends 同源)
+    final statKey = switch (stat['icon']) {
+      'people' => 'users',
+      'description' => 'logs',
+      _ => null,
+    };
+    if (statKey != null) {
+      for (final s in byKey[statKey] ?? const <Map<String, dynamic>>[]) {
+        final d = _numList(s['data']);
+        if (d != null) return d;
+      }
+    }
     for (final s in series) {
       if (s['name'] == stat['label']) {
         return _numList(s['data']);

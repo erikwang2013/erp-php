@@ -6,10 +6,10 @@ import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/status_badge.dart';
 import '../../l10n/app_l10n.dart';
 
-/// 我的审批页 — 覆盖 GET /admin/approval/my 及动作端点：
-/// POST /admin/approval/{id}/approve
-/// POST /admin/approval/{id}/reject
-/// POST /admin/approval/{id}/withdraw
+/// 我的审批页 — 覆盖 GET /admin/v1/approval/my 及动作端点：
+/// POST /admin/v1/approval/{id}/approve
+/// POST /admin/v1/approval/{id}/reject
+/// POST /admin/v1/approval/{id}/withdraw
 class MyApprovalPage extends StatefulWidget {
   const MyApprovalPage({super.key});
   @override

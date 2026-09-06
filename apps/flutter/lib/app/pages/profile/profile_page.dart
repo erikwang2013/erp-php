@@ -8,6 +8,7 @@ import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../l10n/app_l10n.dart';
+import '../system/role/role_controller.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -108,6 +109,9 @@ class _ProfilePageState extends State<ProfilePage> {
     if (ok != true) return;
     try { await _api.post('/admin/v1/profile/logout'); } catch (_) {}
     await AuthService.clearToken();
+    // 权限树会话缓存（模块级 static）不受 deleteAll 影响——换号登录不得复用
+    // 旧账号权限树，随登出显式清空
+    RoleController.clearPermissionCache();
     // GetView 挂载的 controller 不随路由销毁（GetX 4.7.3 语义），登出必须清理，
     // 否则下一账号登录会继承上一个管理员的筛选/分页/勾选状态与缓存列表。
     Get.deleteAll(force: true);

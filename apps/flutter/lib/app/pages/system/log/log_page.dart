@@ -29,7 +29,7 @@ class LogController extends GetxController {
       if (pathFilter.value.isNotEmpty) params['path'] = pathFilter.value;
       final resp = await api.get('/admin/v1/log', params: params);
       logs.value = resp['data']['list'] as List<dynamic>;
-      total.value = resp['data']['total'] as int;
+      total.value = (resp['data']['total'] as num?)?.toInt() ?? 0;
     } catch (e) {
       final l10n = AppL10n.current;
       Get.snackbar(l10n.commonSnackError, l10n.commonLoadFailedMsg('$e'));

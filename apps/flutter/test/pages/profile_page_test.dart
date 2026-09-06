@@ -7,9 +7,27 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:admin_app/app/pages/profile/profile_page.dart';
+import 'package:admin_app/app/pages/system/role/role_controller.dart';
 import 'package:admin_app/app/services/api_service.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
+
+/// 权限树样例（缓存对内容透明，仅需非空）。
+List<dynamic> permTree() => [
+      {
+        'id': 't1',
+        'name': '销售',
+        'children': [
+          {
+            'id': 'm1',
+            'name': '订单',
+            'children': [
+              {'id': 'l1', 'name': '查看'},
+            ],
+          },
+        ],
+      },
+    ];
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -20,12 +38,20 @@ void main() {
     Get.testMode = true;
     Get.reset();
     SharedPreferences.setMockInitialValues({});
+    // 模块级缓存跨测试残留，每测从冷缓存起步保证确定性
+    RoleController.clearPermissionCache();
     adapter = FakeHttpClientAdapter(routes: {
       '/admin/v1/profile': (o) async => FakeHttpClientAdapter.jsonResponse({'code': 0, 'data': {}}),
       '/admin/v1/profile/password': (o) async => FakeHttpClientAdapter.jsonResponse({'code': 0, 'data': {}}),
+      '/admin/v1/profile/logout': (o) async => FakeHttpClientAdapter.jsonResponse({'code': 0, 'data': {}}),
+      '/admin/v1/permission': (o) async => FakeHttpClientAdapter.jsonResponse({'code': 0, 'data': permTree()}),
     });
     ApiService.instance.dio.httpClientAdapter = adapter;
   });
+
+  int permGets() => adapter.requests
+      .where((r) => r.method == 'GET' && r.path == '/admin/v1/permission')
+      .length;
 
   Future<void> pumpProfile(WidgetTester tester) async {
     // GetMaterialApp 注册 Get.key 导航，使保存成功后的 Get.snackbar 可正常弹出
@@ -90,6 +116,43 @@ void main() {
 
       await tester.tap(find.text('取消'));
       await tester.pump();
+      await settleSnackbars(tester);
+    });
+
+    testWidgets('登出清空权限树会话缓存（批3：换号登录不得复用旧权限树）', (tester) async {
+      // 先灌入会话缓存：拉取一次权限树（裸调 + pump 惯例，dio 请求由 pump 推进）
+      final ctrl = RoleController();
+      ctrl.loadPermissions();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(permGets(), 1, reason: '冷启动应发一次请求');
+      expect(ctrl.permissions, hasLength(1));
+
+      await tester.pumpWidget(GetMaterialApp(
+        home: const Scaffold(body: ProfilePage()),
+        // 登出 offAllNamed('/login')，需预注册目标路由
+        getPages: [GetPage(name: '/login', page: () => const Scaffold(body: SizedBox()))],
+      ));
+      await tester.pump();
+
+      await tester.tap(find.text('退出登录'));
+      await tester.pump();
+      expect(find.text('确定退出'), findsOneWidget);
+      await tester.tap(find.text('确定退出'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(
+        adapter.requests.where((r) => r.path == '/admin/v1/profile/logout'),
+        hasLength(1),
+      );
+
+      // 缓存已随登出清空：同会话新控制器再拉权限树应重新发请求
+      final ctrl2 = RoleController();
+      ctrl2.loadPermissions();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(permGets(), 2, reason: '登出清缓存后二次拉取应重新请求');
       await settleSnackbars(tester);
     });
   });

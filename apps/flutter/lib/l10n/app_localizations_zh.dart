@@ -1375,7 +1375,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get financeConsolidateJsonHint =>
-      'JSON 数组，每项含 name（子公司名）、currency（币种）、amount（金额）字段，如 name=子公司A, currency=USD, amount=1000';
+      '非空 JSON 数组，每项须含 ledger_id 或 company_id（后端数字ID，非 hashid）与 report_year（≥2000）、report_month（1-12）';
 
   @override
   String get financeBaseCurrency => '本位币';
@@ -2526,6 +2526,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get inventoryListTitle => '实时库存';
+
+  @override
+  String get inventoryProductCode => '商品编码';
+
+  @override
+  String get inventoryBatchCode => '批次号';
+
+  @override
+  String get inventoryCostPrice => '成本价';
+
+  @override
+  String get inventorySearchHint => '搜索商品名称/编码/批次号';
 
   @override
   String get inventoryFlowTitle => '库存流水';

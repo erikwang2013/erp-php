@@ -98,7 +98,7 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
   }
 
   // 后端 erp_sales_order 字段: code/customer_id/warehouse_id/total_amount/
-  // discount_amount/status/remark/ordered_at（store() 同时校验 name 必填）
+  // discount_amount/status/remark/ordered_at（无 name 列；客户名 customer_name 由列表 leftJoin 带出）
   static List<String> get _statusLabels => [AppL10n.current.salesOrderPending, AppL10n.current.salesOrderReviewed, AppL10n.current.salesOrderPartShipped, AppL10n.current.salesOrderShipped, AppL10n.current.salesOrderCancelled];
 
   List<FormFieldConfig> _formFields() {
@@ -107,7 +107,6 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
     final defaultOrderedAt =
         '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
     return [
-      FormFieldConfig(name: 'name', label: AppL10n.of(context).salesOrderName, required: true, hint: AppL10n.of(context).commonRequiredBackend),
       FormFieldConfig(name: 'code', label: AppL10n.of(context).salesOrderNo, hint: AppL10n.of(context).salesOrderCodeHint),
       FormFieldConfig(name: 'customer_id', label: AppL10n.of(context).salesCustomerId, required: true, hint: AppL10n.of(context).salesCustomerIdHint),
       FormFieldConfig(name: 'warehouse_id', label: AppL10n.of(context).salesWarehouseId, hint: AppL10n.of(context).salesWarehouseIdHint),
@@ -130,8 +129,8 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
     }
     final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
     return {
-      'name': data['name'],
       'code': code,
+      // customer_id 原样传 hashid 串（后端 store/update 已解码落库）
       'customer_id': data['customer_id']?.trim(),
       'warehouse_id': (data['warehouse_id']?.trim().isEmpty ?? true) ? '0' : data['warehouse_id']!.trim(),
       'total_amount': (data['total_amount']?.trim().isEmpty ?? true) ? '0' : data['total_amount']!.trim(),
@@ -180,11 +179,12 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
     rightAlignColumns: [2],
   );
 
-  List<String> _columns() => [AppL10n.current.salesOrderNo, AppL10n.current.salesCustomerId, AppL10n.current.salesTotalAmount, AppL10n.current.commonStatus, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.salesOrderNo, AppL10n.current.partnerCustomerTitle, AppL10n.current.salesTotalAmount, AppL10n.current.commonStatus, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.salesOrderNo: r['code'] ?? '',
-    AppL10n.current.salesCustomerId: r['customer_id'] ?? '',
+    // 列表行无 name 列，客户名由 customer_name 带出；旧响应/软删兜底回 hashid
+    AppL10n.current.partnerCustomerTitle: r['customer_name'] ?? r['customer_id'] ?? '',
     AppL10n.current.salesTotalAmount: r['total_amount'] ?? '',
     AppL10n.current.commonStatus: _chip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

@@ -2,7 +2,6 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../../services/api_service.dart';
 import '../../../l10n/app_l10n.dart';
@@ -35,7 +34,7 @@ class RoleController extends GetxController {
     try {
       final resp = await api.get('/admin/v1/role', params: {'page': page.value, 'limit': limit.value});
       roles.value = resp['data']['list'] as List<dynamic>;
-      total.value = resp['data']['total'] as int;
+      total.value = (resp['data']['total'] as num?)?.toInt() ?? 0;
     } catch (e) {
       final l10n = AppL10n.current;
       Get.snackbar(l10n.commonSnackError, l10n.systemRoleLoadFailedMsg('$e'));
@@ -83,8 +82,8 @@ class RoleController extends GetxController {
     }
   }
 
-  /// 清空会话缓存（仅测试用；正常流程 force 重拉即覆盖）。
-  @visibleForTesting
+  /// 清空会话缓存：登出换号必须清（同进程新 token 会复用旧账号权限树）；
+  /// 正常流程内 force 重拉即覆盖。
   static void clearPermissionCache() => _permissionTreeCache = null;
 
   Future<bool> createRole(String name, String slug, String desc, List<String> permIds, {int status = 1}) async {

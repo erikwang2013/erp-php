@@ -86,15 +86,31 @@ class _InventoryListPageState extends State<InventoryListPage> {
     pageTitle: AppL10n.of(context).inventoryListTitle,
     moduleKey: 'inventory',
     primaryColumnIndex: 0,
+    // keyword 语义 = 后端（商品名称/编码/批次号）
+    keywordHint: AppL10n.of(context).inventorySearchHint,
+    rightAlignColumns: const [4, 5],
   );
 
+  // 后端 erp_inventory 行: id=hashid、product_id/sku_id/warehouse_id/location_id=int、
+  // batch_code/quantity/cost_price + product_name/product_code/warehouse_name（无 name/code/status 列）
   List<String> _columns() => [
-    AppL10n.of(context).commonName,
-    AppL10n.of(context).commonCode,
+    AppL10n.of(context).fieldProductName,
+    AppL10n.of(context).inventoryProductCode,
+    AppL10n.of(context).fieldWarehouse,
+    AppL10n.of(context).inventoryBatchCode,
+    AppL10n.of(context).fieldQty,
+    AppL10n.of(context).inventoryCostPrice,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
-    return {l.commonName: r['name'] ?? '', l.commonCode: r['code'] ?? ''};
+    return {
+      l.fieldProductName: r['product_name'] ?? '',
+      l.inventoryProductCode: r['product_code'] ?? '',
+      l.fieldWarehouse: r['warehouse_name'] ?? '',
+      l.inventoryBatchCode: r['batch_code'] ?? '',
+      l.fieldQty: r['quantity'] ?? '',
+      l.inventoryCostPrice: r['cost_price'] ?? '',
+    };
   }
 }

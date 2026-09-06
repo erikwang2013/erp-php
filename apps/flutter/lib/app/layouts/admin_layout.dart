@@ -5,6 +5,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import '../services/auth_service.dart';
 import '../config/menu_config.dart';
 import '../l10n/app_l10n.dart';
+import '../pages/system/role/role_controller.dart';
 
 class AdminLayout extends StatefulWidget {
   final Widget child;
@@ -288,7 +289,8 @@ class _AdminLayoutState extends State<AdminLayout> {
         children: [
           const CircleAvatar(radius: 14, child: Icon(Icons.person, size: 16)),
           const SizedBox(width: 8),
-          Text(l10n.navAdministrator, style: const TextStyle(fontSize: 14)),
+          // 顶栏用户名：登录名（后端不提供 real_name 展示字段）；无缓存回退固定文案
+          Flexible(child: _UsernameLabel()),
           const Icon(Icons.arrow_drop_down, size: 20),
         ],
       ),
@@ -310,6 +312,8 @@ class _AdminLayoutState extends State<AdminLayout> {
                   onPressed: () async {
                     Navigator.pop(ctx);
                     await AuthService.clearToken();
+                    // 换号登录不得复用旧账号权限树（模块级缓存，deleteAll 清不到）
+                    RoleController.clearPermissionCache();
                     Get.offAllNamed('/login');
                   },
                   child: Text(
@@ -485,4 +489,33 @@ class _AdminLayoutState extends State<AdminLayout> {
       ),
     );
   }
+}
+
+/// 顶栏用户名（视觉 3.0 批3）：展示登录用户名（prefs 异步读一次，内存缓存）；
+/// 无缓存（旧会话/异常清空）回退「管理员」固定文案。超长省略。
+class _UsernameLabel extends StatefulWidget {
+  const _UsernameLabel();
+
+  @override
+  State<_UsernameLabel> createState() => _UsernameLabelState();
+}
+
+class _UsernameLabelState extends State<_UsernameLabel> {
+  String? _name;
+
+  @override
+  void initState() {
+    super.initState();
+    AuthService.getUsername().then((n) {
+      if (mounted && n != null && n.isNotEmpty) setState(() => _name = n);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => Text(
+        _name ?? AppL10n.of(context).navAdministrator,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontSize: 14),
+      );
 }

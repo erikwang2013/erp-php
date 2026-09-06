@@ -104,7 +104,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
   }
 
   // 后端 erp_purchase_order 字段: code/apply_id/supplier_id/warehouse_id/
-  // total_amount/status/remark/ordered_at（store() 同时校验 name 必填）
+  // total_amount/status/remark/ordered_at（无 name 列；供应商名 supplier_name 由列表 leftJoin 带出）
   List<String> get _statusLabels => [
     AppL10n.current.purchaseOrderStatusPending,
     AppL10n.current.purchaseOrderStatusApproved,
@@ -132,8 +132,8 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     final defaultOrderedAt =
         '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
     return [
-      FormFieldConfig(name: 'name', label: l10n.purchaseOrderName, required: true, hint: l10n.purchaseOrderNameRequiredHint),
       FormFieldConfig(name: 'code', label: l10n.purchaseOrderCode, hint: l10n.purchaseOrderCodeHint),
+      // supplier_id 原样传 hashid 串（后端 store/update 已解码落库）
       FormFieldConfig(name: 'supplier_id', label: l10n.purchaseSupplierId, required: true, hint: l10n.purchaseSupplierIdHint),
       FormFieldConfig(name: 'apply_id', label: l10n.purchaseApplyId, hint: l10n.purchaseZeroHint),
       FormFieldConfig(name: 'warehouse_id', label: l10n.purchaseWarehouseId, hint: l10n.purchaseZeroHint),
@@ -155,8 +155,8 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     }
     final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
     return {
-      'name': data['name'],
       'code': code,
+      // supplier_id 原样传 hashid 串（后端 store/update 已解码落库）
       'supplier_id': data['supplier_id']?.trim(),
       'apply_id': (data['apply_id']?.trim().isEmpty ?? true) ? '0' : data['apply_id']!.trim(),
       'warehouse_id': (data['warehouse_id']?.trim().isEmpty ?? true) ? '0' : data['warehouse_id']!.trim(),
@@ -200,11 +200,12 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     rightAlignColumns: [2],
   );
 
-  List<String> _columns() => [AppL10n.current.purchaseOrderCode, AppL10n.current.purchaseSupplierId, AppL10n.current.purchaseTotalAmount, AppL10n.current.commonStatus, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.purchaseOrderCode, AppL10n.current.partnerSupplierTitle, AppL10n.current.purchaseTotalAmount, AppL10n.current.commonStatus, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.purchaseOrderCode: r['code'] ?? '',
-    AppL10n.current.purchaseSupplierId: r['supplier_id'] ?? '',
+    // 列表行无 name 列，供应商名由 supplier_name 带出；旧响应/软删兜底回 hashid
+    AppL10n.current.partnerSupplierTitle: r['supplier_name'] ?? r['supplier_id'] ?? '',
     AppL10n.current.purchaseTotalAmount: r['total_amount'] ?? '',
     AppL10n.current.commonStatus: _statusChip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
