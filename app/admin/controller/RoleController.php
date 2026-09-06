@@ -36,7 +36,8 @@ class RoleController extends BaseController
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
 
-        $query = AdminRole::withCount('users')->with('permissions');
+        $query = AdminRole::withCount('users')
+            ->with(['permissions' => fn ($q) => $q->select(['id', 'name', 'slug', 'type', 'parent_id'])]);
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
                       ->limit($limit)
@@ -44,10 +45,12 @@ class RoleController extends BaseController
                       ->get()
                       ->map(function ($role) {
                           $data = $role->toArray();
-                          // 客户端编辑弹框按 role['permissions'] 预选权限；
-                          // 不加载该关系时字段恒缺 → 保存 sync([]) 会静默清空角色全部权限。
+                          // P3 瘦身：permissions 由全列对象数组 → hashid id 数组。
+                          // 编辑弹框预选只比对 id（整树经 GET /permission 拉取）；
+                          // 该关系不加载时字段恒缺 → 保存 sync([]) 会静默清空，勿删此行。
                           $data['permissions'] = $role->permissions
-                              ->map(fn ($p) => $this->encodeIds($p->toArray()))
+                              ->pluck('id')
+                              ->map(fn ($id) => $this->encodeId((int) $id))
                               ->values();
                           return $this->encodeIds($data);
                       });

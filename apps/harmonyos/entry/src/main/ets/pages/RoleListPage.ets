@@ -118,12 +118,12 @@ struct RoleListPage {
     return undefined;
   }
 
-  /** 编辑预选：角色已授权平铺集逐条 id（含中间目录），递归标记交给树组件 */
+  /** 编辑预选：角色已授权 id 数组（P3 起后端下发 hashid 串数组，含中间目录），递归标记交给树组件 */
   private grantedIds(role: RoleItem): Array<string> {
     const list: Array<string> = [];
     if (role.permissions) {
-      role.permissions.forEach((p: PermissionNode) => {
-        list.push(p.id);
+      role.permissions.forEach((id: string) => {
+        list.push(id);
       });
     }
     return list;

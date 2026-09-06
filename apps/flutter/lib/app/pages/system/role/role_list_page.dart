@@ -114,11 +114,11 @@ class RoleListPage extends GetView<RoleController> {
   Future<void> _showRoleDialog(BuildContext context, RoleController ctrl, {dynamic role}) async {
     final l10n = AppL10n.of(context);
     final isEdit = role != null;
-    // 预选:role['permissions'] 为平铺完整权限 map 列表(后端已按角色授权逐条下发,
-    // 含中间目录),取 id 集合后交给树组件递归标记 —— 修复旧实现「只比顶层、
-    // 叶子权限保存即静默清空」的问题。id 同为 hashid 字符串,原样比较。
+    // 预选:role['permissions'] 为后端下发 hashid id 数组(含中间目录;整树经
+    // GET /permission 拉取),直接作 id 集合交给树组件递归标记 —— 修复旧实现
+    // 「只比顶层、叶子权限保存即静默清空」的问题。id 同为 hashid 字符串,原样比较。
     final grantedIds = (role?['permissions'] as List<dynamic>?)
-            ?.map((p) => '${p['id']}')
+            ?.map((p) => '$p')
             .toSet() ??
         <String>{};
     var permIds = grantedIds.toSet();

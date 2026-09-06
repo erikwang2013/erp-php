@@ -31,7 +31,10 @@ class PermissionController extends BaseController
 
     public function index(Request $request): Response
     {
-        $permissions = AdminPermission::orderBy('sort', 'asc')
+        // P3 瘦身：树构建仅需列子集（buildTree 递归只读 id/parent_id，
+        // 叶子节点展示 name/slug/type/icon/path/sort），不再下发时间戳。
+        $permissions = AdminPermission::select(['id', 'parent_id', 'name', 'slug', 'type', 'icon', 'path', 'sort'])
+            ->orderBy('sort', 'asc')
             ->orderBy('id', 'asc')
             ->get()
             ->toArray();

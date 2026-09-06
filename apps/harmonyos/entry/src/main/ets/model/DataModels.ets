@@ -188,12 +188,13 @@ export interface PermissionNode {
 }
 
 /**
- * 角色列表行（/admin/role 每行附 users_count 与平铺已授权限
- * permissions——编辑弹框按该平铺集预选，防"只比顶层"静默清空）
+ * 角色列表行（/admin/role 每行附 users_count 与已授权限 id 数组
+ * permissions——P3 起为 hashid 串数组；编辑弹框按该集预选，
+ * 防"只比顶层"静默清空）
  */
 export interface RoleItem extends Role {
   users_count?: number;
-  permissions?: PermissionNode[];
+  permissions?: string[];
 }
 
 export interface RoleListResult extends PageResult<RoleItem> {}
