@@ -132,6 +132,8 @@ class RoleController extends BaseController
         $validator = validator($request->all(), [
             'name' => 'required|string|max:50',
             'slug' => 'required|string|max:50',
+            'description' => 'string',
+            'status' => 'integer',
         ]);
 
         if ($validator->fails()) {

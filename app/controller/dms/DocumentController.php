@@ -99,6 +99,7 @@ class DocumentController extends BaseController
             'title' => 'required|string|max:200',
             'category' => 'required|string|max:50',
             'status' => 'nullable|integer|between:0,1',
+            'content' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

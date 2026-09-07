@@ -131,6 +131,7 @@ class ReceiveController extends BaseController
             'items.*.order_item_id' => 'required',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.price' => 'required|numeric|min:0',
+            'remark' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

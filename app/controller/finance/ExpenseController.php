@@ -110,6 +110,9 @@ class ExpenseController extends BaseController
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
             'amount' => 'nullable|numeric|min:0',
+            'apply_user_id' => 'string',
+            'account_id' => 'string',
+            'remark' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

@@ -144,6 +144,12 @@ class FinanceBillController extends BaseController
             'due_date' => 'required|date',
             'issue_date' => 'nullable|date',
             'source_type' => 'nullable|string|max:30',
+            'drawer' => 'string',
+            'payee' => 'string',
+            'acceptor' => 'string',
+            'bank_account_id' => 'string',
+            'source_id' => 'string',
+            'remark' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

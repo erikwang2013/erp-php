@@ -86,7 +86,7 @@ class FlowController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'code' => 'string', 'status' => 'integer']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

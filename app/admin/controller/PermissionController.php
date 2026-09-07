@@ -100,6 +100,10 @@ class PermissionController extends BaseController
             'name' => 'required|string|max:50',
             'slug' => 'required|string|max:100',
             'type' => 'required|in:1,2,3',
+            'parent_id' => 'string',
+            'icon' => 'string',
+            'path' => 'string',
+            'sort' => 'integer',
         ]);
 
         if ($validator->fails()) {

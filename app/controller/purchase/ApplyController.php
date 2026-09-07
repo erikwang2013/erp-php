@@ -89,6 +89,8 @@ class ApplyController extends BaseController
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
             'apply_user_id' => 'required|integer',
+            'department' => 'string',
+            'status' => 'integer',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

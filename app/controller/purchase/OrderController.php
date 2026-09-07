@@ -93,7 +93,7 @@ class OrderController extends BaseController
     {
         // 表无 name 列（erp_purchase_order 仅 code/apply_id/supplier_id 等，见 install.sql）；
         // supplier_id 无 DB 默认值且入参为 hashid，缺省/无效直插会 1364 崩——解码落库为 int
-        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
+        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'supplier_id' => 'string', 'status' => 'integer']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

@@ -84,7 +84,7 @@ class VoucherController extends BaseController
     public function store(Request $request): Response
     {
         // 表无 name 列：旧规则要求必填属幻列（name 永不落库）；code 由客户端自动生成必填
-        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
+        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'name' => 'required|string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

@@ -329,7 +329,7 @@ class TicketController extends BaseController
             return $this->fail('工单不存在', 404);
         }
 
-        $validator = validator($request->all(), ['content' => 'required|string']);
+        $validator = validator($request->all(), ['content' => 'required|string', 'is_internal' => 'integer']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

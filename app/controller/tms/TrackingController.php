@@ -92,7 +92,7 @@ class TrackingController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['shipment_id' => 'required|string']);
+        $validator = validator($request->all(), ['shipment_id' => 'required|string', 'status_code' => 'string', 'description' => 'string', 'location' => 'string', 'event_time' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

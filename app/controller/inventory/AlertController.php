@@ -91,6 +91,9 @@ class AlertController extends BaseController
             'min_quantity' => 'nullable|numeric|min:0',
             'max_quantity' => 'nullable|numeric|min:0',
             'enabled' => 'nullable|integer|in:0,1',
+            'product_id' => 'string',
+            'sku_id' => 'string',
+            'warehouse_id' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

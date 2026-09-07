@@ -132,6 +132,7 @@ class BankReconController extends BaseController
             'bank_account_id' => 'required',
             'from' => 'required|date',
             'to' => 'required|date',
+            'window_days' => 'integer',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

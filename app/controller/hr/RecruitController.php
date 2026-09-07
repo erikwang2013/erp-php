@@ -77,6 +77,8 @@ class RecruitController extends BaseController
         $validator = validator($request->all(), [
             'job_title' => 'required|string|max:100',
             'headcount' => 'integer|min:0',
+            'department_id' => 'string',
+            'requirement' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -244,6 +246,9 @@ class RecruitController extends BaseController
         $validator = validator($request->all(), [
             'name' => 'required|string|max:100',
             'job_id' => 'required|integer',
+            'phone' => 'string',
+            'source' => 'string',
+            'expected_salary' => 'numeric',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -302,7 +307,7 @@ class RecruitController extends BaseController
 
     public function candidateAdvance(Request $request, string $id): Response
     {
-        $validator = validator($request->all(), ['status' => 'required|integer|between:0,5']);
+        $validator = validator($request->all(), ['status' => 'required|integer|between:0,5', 'source' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -393,6 +398,7 @@ class RecruitController extends BaseController
             'candidate_id' => 'required|integer',
             'interview_date' => 'required|date_format:Y-m-d',
             'round_no' => 'integer|min:1',
+            'result' => 'integer',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -417,6 +423,7 @@ class RecruitController extends BaseController
     {
         $validator = validator($request->all(), [
             'result' => 'required|integer|between:1,2',
+            'comment' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -480,6 +487,7 @@ class RecruitController extends BaseController
         $validator = validator($request->all(), [
             'candidate_id' => 'required|integer',
             'offered_salary' => 'required',
+            'onboard_date' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

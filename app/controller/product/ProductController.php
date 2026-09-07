@@ -127,6 +127,14 @@ class ProductController extends BaseController
             'code' => 'required|string|max:50',
             'category_id' => 'required|string',
             'unit' => 'required|string|max:20',
+            'brand_id' => 'string',
+            'barcode' => 'string',
+            'spec' => 'string',
+            'image' => 'string',
+            'description' => 'string',
+            'status' => 'integer',
+            'skus' => 'array',
+            'prices' => 'array',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

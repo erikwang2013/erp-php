@@ -123,6 +123,8 @@ class UserController extends BaseController
             'password' => 'required|string|min:6|max:32',
             'real_name' => 'required|string|max:50',
             'status' => 'in:0,1',
+            'phone' => 'string',
+            'email' => 'string',
         ]);
 
         if ($validator->fails()) {

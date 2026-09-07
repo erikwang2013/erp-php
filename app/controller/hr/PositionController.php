@@ -94,6 +94,7 @@ class PositionController extends BaseController
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
             'name' => 'required|string|max:100',
+            'department_id' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

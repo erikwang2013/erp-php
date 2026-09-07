@@ -63,6 +63,7 @@ class TaxController extends BaseController
             'name' => 'required|string|max:100',
             'rate' => 'required|numeric',
             'type' => 'required|string|max:30',
+            'id' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

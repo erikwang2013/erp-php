@@ -88,7 +88,7 @@ class ContractController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'customer_id' => 'required|string']);
+        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'customer_id' => 'required|string', 'items' => 'array']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

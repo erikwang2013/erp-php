@@ -126,7 +126,7 @@ class LocationController extends BaseController
     {
         // 库位旧表单以仓库名（幻列 warehouse）代替 warehouse_id 提交 → 引用永不落库；
         // 现改为显式赋值：warehouse_id 必填且 hashid/原生数字双模解码，垃圾串 422 拒绝
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'code' => 'string', 'warehouse_id' => 'string', 'status' => 'integer']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

@@ -120,6 +120,12 @@ class ProjectCostController extends BaseController
             'project_id' => 'required|string',
             'work_date' => 'required|date',
             'category' => 'required|integer|in:1,2,3',
+            'hours' => 'required|numeric',
+            'rate' => 'numeric',
+            'cost' => 'required|numeric',
+            'task_id' => 'string',
+            'employee_id' => 'string',
+            'remark' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

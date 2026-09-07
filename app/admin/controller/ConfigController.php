@@ -91,6 +91,8 @@ class ConfigController extends BaseController
             'group' => 'required|string|max:100',
             'key' => 'required|string|max:100',
             'value' => 'required|string',
+            'type' => 'string',
+            'description' => 'string',
         ]);
 
         if ($validator->fails()) {

@@ -90,6 +90,7 @@ class CapacityController extends BaseController
             'date' => 'required|date_format:Y-m-d',
             'hours' => 'required',
             'remark' => 'nullable|string|max:200',
+            'workstation_id' => 'required|string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -125,7 +126,7 @@ class CapacityController extends BaseController
         if ($wsId === null) {
             return $this->fail('工作站ID不能为空', 422);
         }
-        $validator = validator($request->all(), ['date' => 'required|date_format:Y-m-d']);
+        $validator = validator($request->all(), ['date' => 'required|date_format:Y-m-d', 'workstation_id' => 'required|string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

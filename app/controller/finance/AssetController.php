@@ -98,7 +98,7 @@ class AssetController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'code' => 'string', 'category' => 'string', 'purchase_date' => 'string', 'purchase_amount' => 'numeric', 'salvage_value' => 'numeric', 'useful_life' => 'integer', 'depreciation_method' => 'integer']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

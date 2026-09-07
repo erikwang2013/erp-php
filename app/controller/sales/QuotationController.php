@@ -97,6 +97,7 @@ class QuotationController extends BaseController
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
             'customer_id' => 'required|string',
+            'status' => 'integer',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

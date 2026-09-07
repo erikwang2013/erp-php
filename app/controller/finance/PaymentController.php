@@ -94,7 +94,7 @@ class PaymentController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'supplier_id' => 'required|string', 'amount' => 'required|numeric|min:0']);
+        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'supplier_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'bank_account_id' => 'string', 'method' => 'string', 'remark' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

@@ -91,6 +91,7 @@ class AnalyticsController extends BaseController
             'type' => 'required|string|max:30',
             'period_year' => 'required|integer',
             'period_value' => 'required|integer',
+            'period_type' => 'integer',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -195,6 +196,7 @@ class AnalyticsController extends BaseController
             'name' => 'required|string|max:100',
             'key' => 'required|string|max:50',
             'type' => 'required|string|max:30',
+            'id' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

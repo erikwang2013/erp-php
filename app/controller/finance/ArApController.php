@@ -108,7 +108,7 @@ class ArApController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['type' => 'required|integer|in:1,2', 'partner_id' => 'required|string', 'amount' => 'required|numeric|min:0']);
+        $validator = validator($request->all(), ['type' => 'required|integer|in:1,2', 'partner_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'source_type' => 'string', 'source_id' => 'string', 'due_date' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

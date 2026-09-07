@@ -88,7 +88,7 @@ class WorkflowController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:100', 'code' => 'required|string|max:50', 'target_type' => 'required|string|max:30']);
+        $validator = validator($request->all(), ['name' => 'required|string|max:100', 'code' => 'required|string|max:50', 'target_type' => 'required|string|max:30', 'nodes' => 'array']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

@@ -96,6 +96,7 @@ class BudgetController extends BaseController
         $validator = validator($request->all(), [
             'name' => 'required|string|max:200',
             'period_year' => 'required|integer',
+            'items' => 'array',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

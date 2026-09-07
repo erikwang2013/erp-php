@@ -106,7 +106,7 @@ class ReturnController extends BaseController
     {
         // 表无 name 列：旧规则要求必填属幻列（name 永不落库）；模型仅 $guarded 时
         // fill 会把请求任意键直写列 → 显式赋值只落真实列（配合 $fillable 白名单）
-        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
+        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'delivery_id' => 'string', 'customer_id' => 'string', 'warehouse_id' => 'string', 'total_amount' => 'numeric', 'remark' => 'string', 'returned_at' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

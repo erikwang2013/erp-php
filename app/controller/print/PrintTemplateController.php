@@ -90,6 +90,9 @@ class PrintTemplateController extends BaseController
             'code' => 'required|string|max:50',
             'name' => 'required|string|max:100',
             'content' => 'required|string',
+            'target_type' => 'string',
+            'paper_size' => 'string',
+            'orientation' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

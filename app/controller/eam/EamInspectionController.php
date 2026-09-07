@@ -104,6 +104,9 @@ class EamInspectionController extends BaseController
         $validator = validator($request->all(), [
             'equipment_id' => 'required|string',
             'task_date' => 'required|date',
+            'source_plan_id' => 'string',
+            'assignee_id' => 'string',
+            'remark' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

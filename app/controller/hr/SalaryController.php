@@ -116,6 +116,11 @@ class SalaryController extends BaseController
             'employee_id' => 'required|integer',
             'period_year' => 'required|integer',
             'period_month' => 'required|integer',
+            'base_salary' => 'numeric',
+            'performance' => 'numeric',
+            'overtime' => 'numeric',
+            'deduction' => 'numeric',
+            'tax' => 'numeric',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

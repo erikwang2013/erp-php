@@ -96,7 +96,7 @@ class QuotationController extends BaseController
         // 校验真实表列（表无 name 列；页面幻键经 $fillable 静默过滤）。
         // customer_id 必填且为 hashid/原生数字双模（原 required|integer 拒绝 hashid → 422）
         $data = $request->all();
-        $validator = validator($data, ['customer_id' => 'required|string']);
+        $validator = validator($data, ['customer_id' => 'required|string', 'items' => 'array']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

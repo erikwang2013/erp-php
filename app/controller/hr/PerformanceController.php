@@ -71,7 +71,7 @@ class PerformanceController extends BaseController
 
     public function templateStore(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:100']);
+        $validator = validator($request->all(), ['name' => 'required|string|max:100', 'period_type' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -115,7 +115,7 @@ class PerformanceController extends BaseController
 
     public function templateUpdate(Request $request, string $id): Response
     {
-        $validator = validator($request->all(), ['name' => 'sometimes|string|max:100']);
+        $validator = validator($request->all(), ['name' => 'sometimes|string|max:100', 'period_type' => 'string', 'items' => 'array']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -221,6 +221,7 @@ class PerformanceController extends BaseController
             'template_id' => 'required|integer',
             'period_start' => 'required|date_format:Y-m-d',
             'period_end' => 'required|date_format:Y-m-d',
+            'created_by' => 'integer',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -284,6 +285,7 @@ class PerformanceController extends BaseController
             'employee_id' => 'required|integer',
             'rater_type' => 'required|integer|between:1,3',
             'scores' => 'required|array|min:1',
+            'rater_id' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
