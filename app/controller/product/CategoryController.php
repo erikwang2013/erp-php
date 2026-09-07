@@ -74,7 +74,6 @@ class CategoryController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-
         $item = $this->product()->create(Category::class, $request->all());
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
