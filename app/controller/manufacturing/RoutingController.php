@@ -72,16 +72,26 @@ class RoutingController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'product_id' => 'required|integer',
+            'product_id' => 'required|string',
             'name' => 'required|string|max:100',
             'seq' => 'required|integer',
-            'workstation_id' => 'required|integer',
+            'workstation_id' => 'required|string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->mfg()->create(MfgRouting::class, $request->all(), ['created_at' => date('Y-m-d H:i:s')]);
+        // 两个 FK：hashid/原生数字双模解码，垃圾串 422 拒绝（防孤儿行）
+        $data = $request->all();
+        foreach (['product_id' => '商品ID', 'workstation_id' => '工位ID'] as $field => $label) {
+            $decoded = $this->decodeFlexibleId((string) $data[$field]);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($label . '无效', 422);
+            }
+            $data[$field] = $decoded;
+        }
+
+        $item = $this->mfg()->create(MfgRouting::class, $data, ['created_at' => date('Y-m-d H:i:s')]);
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -126,7 +136,18 @@ class RoutingController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->mfg()->update(MfgRouting::class, $id, $request->all());
+        // FK 双模解码（缺省/留空=不改动）
+        $data = $request->all();
+        foreach (['product_id' => '商品ID', 'workstation_id' => '工位ID'] as $field => $label) {
+            if (isset($data[$field]) && $data[$field] !== '') {
+                $decoded = $this->decodeFlexibleId((string) $data[$field]);
+                if ($decoded === null || $decoded < 1) {
+                    return $this->fail($label . '无效', 422);
+                }
+                $data[$field] = $decoded;
+            }
+        }
+        $item = $this->mfg()->update(MfgRouting::class, $id, $data);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }

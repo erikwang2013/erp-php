@@ -86,14 +86,22 @@ class ProductionController extends BaseController
     {
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
-            'bom_id' => 'required|integer',
+            'bom_id' => 'required|string',
             'planned_quantity' => 'required|numeric',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->mfg()->create(MfgProductionOrder::class, $request->all(), [
+        // bom_id 为 FK：hashid/原生数字双模解码，垃圾串 422 拒绝（防孤儿行）
+        $data = $request->all();
+        $bomId = $this->decodeFlexibleId((string) $data['bom_id']);
+        if ($bomId === null || $bomId < 1) {
+            return $this->fail('BOM无效', 422);
+        }
+        $data['bom_id'] = $bomId;
+
+        $item = $this->mfg()->create(MfgProductionOrder::class, $data, [
             'status' => 0,
             'completed_quantity' => 0,
         ]);
@@ -157,7 +165,17 @@ class ProductionController extends BaseController
             return $this->fail('只能修改待生产状态的工单', 422);
         }
 
-        $item = $this->mfg()->update(MfgProductionOrder::class, $id, $request->all(), ['status', 'completed_quantity']);
+        // bom_id 双模解码（缺省/留空=不改动）
+        $data = $request->all();
+        if (isset($data['bom_id']) && $data['bom_id'] !== '') {
+            $bomId = $this->decodeFlexibleId((string) $data['bom_id']);
+            if ($bomId === null || $bomId < 1) {
+                return $this->fail('BOM无效', 422);
+            }
+            $data['bom_id'] = $bomId;
+        }
+
+        $item = $this->mfg()->update(MfgProductionOrder::class, $id, $data, ['status', 'completed_quantity']);
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }

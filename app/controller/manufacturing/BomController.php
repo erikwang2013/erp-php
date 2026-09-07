@@ -86,7 +86,7 @@ class BomController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'product_id' => 'required|integer',
+            'product_id' => 'required|string',
             'code' => 'required|string|max:50',
             'name' => 'required|string|max:200',
         ]);
@@ -94,7 +94,15 @@ class BomController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->mfg()->create(MfgBom::class, $request->all(), ['status' => 0]); // 草稿
+        // product_id 为 FK：hashid/原生数字双模解码，垃圾串 422 拒绝（防孤儿行）
+        $data = $request->all();
+        $productId = $this->decodeFlexibleId((string) $data['product_id']);
+        if ($productId === null || $productId < 1) {
+            return $this->fail('商品ID无效', 422);
+        }
+        $data['product_id'] = $productId;
+
+        $item = $this->mfg()->create(MfgBom::class, $data, ['status' => 0]); // 草稿
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -152,7 +160,17 @@ class BomController extends BaseController
             return $this->fail('已生效的BOM不可直接修改，请创建新版本', 422);
         }
 
-        $item = $this->mfg()->update(MfgBom::class, $id, $request->all(), ['status']); // 状态仅能通过 activate() 变更
+        // product_id 双模解码（缺省/留空=不改动）
+        $data = $request->all();
+        if (isset($data['product_id']) && $data['product_id'] !== '') {
+            $productId = $this->decodeFlexibleId((string) $data['product_id']);
+            if ($productId === null || $productId < 1) {
+                return $this->fail('商品ID无效', 422);
+            }
+            $data['product_id'] = $productId;
+        }
+
+        $item = $this->mfg()->update(MfgBom::class, $id, $data, ['status']); // 状态仅能通过 activate() 变更
 
         return $this->success($this->encodeIds($item->toArray()), '更新成功');
     }

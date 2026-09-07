@@ -76,7 +76,21 @@ class CustomerController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->product()->create(Customer::class, $request->all());
+        // level_id 为可选 FK（0=无等级）：双模解码，缺省/0/留空=不传走模型默认 0；垃圾串 422 拒绝
+        $data = $request->all();
+        $levelRaw = $request->input('level_id');
+        $levelStr = $levelRaw === null ? '' : (string) $levelRaw;
+        if ($levelStr === '' || $levelStr === '0') {
+            unset($data['level_id']);
+        } else {
+            $levelId = $this->decodeFlexibleId($levelStr);
+            if ($levelId === null || $levelId < 1) {
+                return $this->fail('客户等级无效', 422);
+            }
+            $data['level_id'] = $levelId;
+        }
+
+        $item = $this->product()->create(Customer::class, $data);
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -121,7 +135,20 @@ class CustomerController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->product()->update(Customer::class, $id, $request->all());
+        // level_id 双模解码（缺省/0/留空=不改动）
+        $data = $request->all();
+        $levelRaw = $request->input('level_id');
+        $levelStr = $levelRaw === null ? '' : (string) $levelRaw;
+        if ($levelStr === '' || $levelStr === '0') {
+            unset($data['level_id']);
+        } else {
+            $levelId = $this->decodeFlexibleId($levelStr);
+            if ($levelId === null || $levelId < 1) {
+                return $this->fail('客户等级无效', 422);
+            }
+            $data['level_id'] = $levelId;
+        }
+        $item = $this->product()->update(Customer::class, $id, $data);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }

@@ -98,7 +98,24 @@ class EmployeeController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->hr()->create(HrEmployee::class, $request->all());
+        // department_id/position_id 为可选 FK（DDL DEFAULT 0）：双模解码，
+        // 缺省/0/留空=不传走模型默认 0；垃圾串 422 拒绝（防孤儿行）
+        $data = $request->all();
+        foreach (['department_id' => '部门ID', 'position_id' => '职位ID'] as $field => $label) {
+            $raw = $request->input($field);
+            $rawStr = $raw === null ? '' : (string) $raw;
+            if ($rawStr === '' || $rawStr === '0') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($rawStr);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($label . '无效', 422);
+            }
+            $data[$field] = $decoded;
+        }
+
+        $item = $this->hr()->create(HrEmployee::class, $data);
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -149,7 +166,22 @@ class EmployeeController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->hr()->update(HrEmployee::class, $id, $request->all());
+        // 可选 FK 双模解码（缺省/0/留空=不改动）
+        $data = $request->all();
+        foreach (['department_id' => '部门ID', 'position_id' => '职位ID'] as $field => $label) {
+            $raw = $request->input($field);
+            $rawStr = $raw === null ? '' : (string) $raw;
+            if ($rawStr === '' || $rawStr === '0') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($rawStr);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($label . '无效', 422);
+            }
+            $data[$field] = $decoded;
+        }
+        $item = $this->hr()->update(HrEmployee::class, $id, $data);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }

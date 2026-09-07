@@ -124,7 +124,11 @@ class LocationController extends BaseController
         $item = new Location();
         $item->id = $this->generateId();
         $item->warehouse_id = $warehouseId;
+        // code 留空自动生成（uk(warehouse_id,code)：时间戳+随机后缀降低同仓同秒碰撞）
         $item->code = (string) $request->input('code', '');
+        if ($item->code === '') {
+            $item->code = 'LOC' . date('YmdHis') . mt_rand(10, 99);
+        }
         $item->name = (string) $request->input('name', '');
         $statusRaw = $request->input('status');
         $item->status = ($statusRaw === null || $statusRaw === '') ? 1 : (int) $statusRaw;
