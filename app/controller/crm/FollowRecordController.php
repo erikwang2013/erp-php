@@ -39,6 +39,15 @@ class FollowRecordController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $customerId = $request->input('customer_id');
@@ -82,6 +91,12 @@ class FollowRecordController extends BaseController
 
     public function store(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'name' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         // 校验真实表列（表无 name/code/status 列，页面幻键经 $fillable 静默过滤）
         $data = $request->all();
         // customer_id/follow_user_id 均 NOT NULL 无默认：hashid/原生数字双模解码，垃圾串 422 拒绝
@@ -125,6 +140,12 @@ class FollowRecordController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmFollowRecord::class, $id);
         if (!$item) {
@@ -149,6 +170,12 @@ class FollowRecordController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmFollowRecord::class, $id);
         if (!$item) {
@@ -195,6 +222,12 @@ class FollowRecordController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmFollowRecord::class, $id);
         if (!$item) {

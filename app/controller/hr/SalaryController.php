@@ -51,6 +51,17 @@ class SalaryController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'employee_id' => 'string',
+            'period_year' => 'integer',
+            'period_month' => 'integer',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $employeeId = $request->input('employee_id');
@@ -134,6 +145,12 @@ class SalaryController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrSalary::class, $id, ['employee']);
         if (!$item) {
@@ -163,6 +180,12 @@ class SalaryController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
 
         try {
@@ -193,6 +216,12 @@ class SalaryController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrSalary::class, $id);
         if (!$item) {
@@ -228,6 +257,12 @@ class SalaryController extends BaseController
 
     public function pay(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
 
         try {
@@ -260,6 +295,14 @@ class SalaryController extends BaseController
 
     public function batchGenerate(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'period_year' => 'integer',
+            'period_month' => 'integer',
+            'department_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $periodYear = (int) $request->input('period_year', (int) date('Y'));
         $periodMonth = (int) $request->input('period_month', (int) date('m'));
         $departmentId = $request->input('department_id') ? (int) $request->input('department_id') : null;
@@ -289,6 +332,16 @@ class SalaryController extends BaseController
 
     public function calculate(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'base_salary' => 'numeric',
+            'performance' => 'numeric',
+            'overtime' => 'numeric',
+            'piece_wage' => 'numeric',
+            'deduction' => 'numeric',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $baseSalary = (float) $request->input('base_salary', 0);
         if ($baseSalary < 0) {
             return $this->fail('base_salary 不能为负数', 422);
@@ -324,6 +377,12 @@ class SalaryController extends BaseController
 
     public function payrollFile(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'bank_code' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $records = $request->input('records', []);
         if (!is_array($records)) {
             return $this->fail('records 必须为数组', 422);
@@ -406,6 +465,12 @@ class SalaryController extends BaseController
 
     public function itemShow(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrSalaryItem::class, $id);
         if (!$item) {
@@ -430,6 +495,12 @@ class SalaryController extends BaseController
 
     public function itemUpdate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->update(HrSalaryItem::class, $id, $request->all());
         if (!$item) {
@@ -455,6 +526,12 @@ class SalaryController extends BaseController
 
     public function itemDestroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrSalaryItem::class, $id);
         if (!$item) {
@@ -487,6 +564,12 @@ class SalaryController extends BaseController
 
     public function payslipView(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $payload = Container::get(PayslipService::class)->view($id);
         if ($payload === null) {

@@ -42,6 +42,13 @@ class PerformanceController extends BaseController
 
     public function templateIndex(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'status' => 'integer',
+            'name' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $result = $this->perf()->list(HrKpiTemplate::class, [
             'status' => $request->input('status'),
             'name' => $request->input('name'),
@@ -83,6 +90,13 @@ class PerformanceController extends BaseController
 
     public function templateShow(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'name' => 'required|string',
+            'period_type' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         try {
             $template = $this->perf()->templateShow($this->decodeId($id));
         } catch (InvalidArgumentException $e) {
@@ -120,6 +134,14 @@ class PerformanceController extends BaseController
 
     public function templateEnable(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'name' => 'string',
+            'period_type' => 'string',
+            'items' => 'array',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         try {
             $template = $this->perf()->templateEnable($this->decodeId($id));
         } catch (InvalidArgumentException $e) {
@@ -165,6 +187,13 @@ class PerformanceController extends BaseController
 
     public function planIndex(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'status' => 'integer',
+            'template_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $result = $this->perf()->list(HrPerfPlan::class, [
             'status' => $request->input('status'),
             'template_id' => $request->input('template_id'),
@@ -284,6 +313,14 @@ class PerformanceController extends BaseController
 
     public function scoreIndex(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'plan_id' => 'string',
+            'employee_id' => 'string',
+            'rater_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $result = $this->perf()->list(HrPerfScore::class, [
             'plan_id' => $request->input('plan_id'),
             'employee_id' => $request->input('employee_id'),
@@ -306,6 +343,14 @@ class PerformanceController extends BaseController
 
     public function summary(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'rater_id' => 'string',
+            'plan_id' => 'string',
+            'employee_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         try {
             $summary = $this->perf()->summary(
                 (int) $request->input('plan_id', 0),

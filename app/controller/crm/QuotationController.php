@@ -40,6 +40,16 @@ class QuotationController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'status' => 'integer',
+            'customer_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
@@ -143,6 +153,12 @@ class QuotationController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmQuotation::class, $id);
         if (!$item) {
@@ -168,6 +184,13 @@ class QuotationController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'items' => 'array',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmQuotation::class, $id);
         if (!$item) {
@@ -223,6 +246,12 @@ class QuotationController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmQuotation::class, $id);
         if (!$item) {
@@ -258,6 +287,15 @@ class QuotationController extends BaseController
 
     public function toContract(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'code' => 'string',
+            'name' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $quotation = $this->crm()->find(CrmQuotation::class, $id);
         if (!$quotation) {

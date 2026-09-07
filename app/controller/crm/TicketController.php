@@ -43,6 +43,19 @@ class TicketController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'status' => 'integer',
+            'priority' => 'integer',
+            'category' => 'string',
+            'customer_id' => 'string',
+            'assignee_user_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
@@ -126,6 +139,12 @@ class TicketController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmTicket::class, $id);
         if (!$item) {
@@ -155,6 +174,12 @@ class TicketController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->update(CrmTicket::class, $id, $this->normalizeFkData($request->all()));
         if (!$item) {
@@ -180,6 +205,12 @@ class TicketController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmTicket::class, $id);
         if (!$item) {
@@ -213,6 +244,13 @@ class TicketController extends BaseController
 
     public function assign(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'assignee_user_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
 
         // 兼容解码：/admin/v1/user 列表行 id 为 hashid（客户端原串提交），历史裸 int 亦兼容
@@ -246,6 +284,13 @@ class TicketController extends BaseController
 
     public function resolve(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'content' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $userId = $request->adminId ?? 0;
 

@@ -47,6 +47,16 @@ class EmployeeController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'status' => 'integer',
+            'department_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
@@ -135,6 +145,12 @@ class EmployeeController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrEmployee::class, $id, ['department', 'position']);
         if (!$item) {
@@ -165,6 +181,12 @@ class EmployeeController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         // 可选 FK 双模解码（缺省/0/留空=不改动）
         $data = $request->all();
@@ -205,6 +227,13 @@ class EmployeeController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'password' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrEmployee::class, $id);
         if (!$item) {

@@ -41,6 +41,14 @@ class SocialSecurityController extends BaseController
 
     public function ruleList(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'city' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $result = $this->social()->listRules(
             $request->only(['city']),
             (int) $request->input('page', 1),
@@ -66,6 +74,12 @@ class SocialSecurityController extends BaseController
 
     public function ruleShow(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $rule = $this->social()->ruleDetail($id);
         if (!$rule) {
@@ -94,6 +108,15 @@ class SocialSecurityController extends BaseController
 
     public function createRule(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'city' => 'required|string',
+            'rule_name' => 'required|string',
+            'social_base_min' => 'string',
+            'social_base_max' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $rates = $request->input('rates', []);
         if (!is_array($rates)) {
             return $this->fail('rates 必须为数组', 422);
@@ -126,6 +149,16 @@ class SocialSecurityController extends BaseController
 
     public function updateRule(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'city' => 'string',
+            'rule_name' => 'string',
+            'social_base_min' => 'string',
+            'social_base_max' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         try {
             $rule = $this->social()->updateRule($id, $request->all());
@@ -151,6 +184,12 @@ class SocialSecurityController extends BaseController
 
     public function destroyRule(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         try {
             $this->social()->destroyRule($id);
@@ -179,6 +218,15 @@ class SocialSecurityController extends BaseController
 
     public function setRate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'insurance_type' => 'string',
+            'personal_rate' => 'string',
+            'company_rate' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $ruleId = $this->decodeId($id);
         try {
             $rate = $this->social()->setRate(
@@ -210,6 +258,13 @@ class SocialSecurityController extends BaseController
 
     public function removeRate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'insurance_type' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $ruleId = $this->decodeId($id);
         try {
             $this->social()->removeRate($ruleId, (string) $request->input('insurance_type', ''));
@@ -238,6 +293,14 @@ class SocialSecurityController extends BaseController
 
     public function bind(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'employee_id' => 'string',
+            'rule_id' => 'string',
+            'base_amount' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         try {
             $binding = $this->social()->bind(
                 (int) $request->input('employee_id', 0),
@@ -267,6 +330,12 @@ class SocialSecurityController extends BaseController
 
     public function unbind(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'employee_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         try {
             $this->social()->unbind((int) $request->input('employee_id', 0));
         } catch (InvalidArgumentException $e) {
@@ -291,6 +360,12 @@ class SocialSecurityController extends BaseController
 
     public function employeeSocialDetail(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $employeeId = $this->decodeId($id);
         $detail = $this->social()->employeeSocialDetail($employeeId);
         if (!$detail) {
@@ -315,6 +390,12 @@ class SocialSecurityController extends BaseController
 
     public function calculate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $employeeId = $this->decodeId($id);
         try {
             [$payload, $message] = $this->social()->calculate($employeeId);

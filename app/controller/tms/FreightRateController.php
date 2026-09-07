@@ -36,6 +36,14 @@ class FreightRateController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $status = $request->input('status');
@@ -123,6 +131,12 @@ class FreightRateController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
@@ -150,6 +164,12 @@ class FreightRateController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
@@ -195,6 +215,12 @@ class FreightRateController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail($this->trans('invalid_id'), 400);
@@ -231,6 +257,14 @@ class FreightRateController extends BaseController
 
     public function calculate(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'carrier_service_id' => 'string',
+            'dest_country' => 'string',
+            'weight_kg' => 'numeric',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $carrierServiceId = (int) $request->input('carrier_service_id', 0);
         $weightKg = (float) $request->input('weight_kg', 0);
         if ($carrierServiceId <= 0 || $weightKg <= 0) {
@@ -257,6 +291,13 @@ class FreightRateController extends BaseController
 
     public function rateShop(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'dest_country' => 'string',
+            'weight_kg' => 'numeric',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $weightKg = (float) $request->input('weight_kg', 0);
         if ($weightKg <= 0) {
             return $this->fail('weight_kg 必须大于0', 422);

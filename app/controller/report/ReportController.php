@@ -52,6 +52,15 @@ class ReportController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'module' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
@@ -126,6 +135,12 @@ class ReportController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail('无效ID', 400);
@@ -161,6 +176,12 @@ class ReportController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail('无效ID', 400);
@@ -192,6 +213,13 @@ class ReportController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'password' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail('无效ID', 400);
@@ -237,6 +265,12 @@ class ReportController extends BaseController
 
     public function fields(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $templateId = $this->decodeIdSafe($id);
         if (!$templateId) {
             return $this->fail('无效ID', 400);
@@ -301,6 +335,12 @@ class ReportController extends BaseController
 
     public function deleteField(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail('无效ID', 400);
@@ -334,6 +374,12 @@ class ReportController extends BaseController
 
     public function filters(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $templateId = $this->decodeIdSafe($id);
         if (!$templateId) {
             return $this->fail('无效ID', 400);
@@ -396,6 +442,12 @@ class ReportController extends BaseController
 
     public function deleteFilter(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
             return $this->fail('无效ID', 400);
@@ -431,6 +483,12 @@ class ReportController extends BaseController
 
     public function execute(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $templateId = $this->decodeIdSafe($id);
         if (!$templateId) {
             return $this->fail('无效ID', 400);
@@ -714,6 +772,13 @@ class ReportController extends BaseController
 
     public function result(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'dataset_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         // 支持按模板ID或数据集ID查看
         $id = $this->decodeIdSafe($id);
         $datasetId = $request->input('dataset_id');

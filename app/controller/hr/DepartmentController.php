@@ -40,6 +40,13 @@ class DepartmentController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'keyword' => 'string',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
@@ -103,6 +110,12 @@ class DepartmentController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrDepartment::class, $id);
         if (!$item) {
@@ -127,6 +140,12 @@ class DepartmentController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->update(HrDepartment::class, $id, $request->all());
         if (!$item) {
@@ -152,6 +171,12 @@ class DepartmentController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrDepartment::class, $id);
         if (!$item) {

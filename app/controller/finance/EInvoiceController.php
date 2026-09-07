@@ -38,6 +38,12 @@ class EInvoiceController extends BaseController
 
     public function issue(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         $invoiceId = $this->decodeId($id);
         if (!FinanceInvoice::find($invoiceId)) {
@@ -70,6 +76,13 @@ class EInvoiceController extends BaseController
 
     public function void(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'reason' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         $invoiceId = $this->decodeId($id);
         if (!FinanceInvoice::find($invoiceId)) {
@@ -100,6 +113,12 @@ class EInvoiceController extends BaseController
 
     public function logs(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $invoiceId = $this->decodeId($id);
         if (!FinanceInvoice::find($invoiceId)) {
             return $this->fail('发票不存在', 404);

@@ -59,6 +59,12 @@ class PermissionController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $permission = AdminPermission::find($id);
         if (!$permission) {
@@ -133,6 +139,16 @@ class PermissionController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'name' => 'string',
+            'icon' => 'string',
+            'path' => 'string',
+            'sort' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $perm = AdminPermission::find($id);
         if (!$perm) {
@@ -164,6 +180,12 @@ class PermissionController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $perm = AdminPermission::find($id);
         if (!$perm) {

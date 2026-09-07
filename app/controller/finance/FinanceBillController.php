@@ -46,6 +46,17 @@ class FinanceBillController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'direction' => 'integer',
+            'type' => 'integer',
+            'status' => 'integer',
+            'keyword' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = max(1, (int) $request->input('page', 1));
         $limit = (int) $request->input('limit', 15);
         $query = FinanceBill::query();
@@ -86,6 +97,13 @@ class FinanceBillController extends BaseController
 
     public function dueWarnings(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'days' => 'integer',
+            'direction' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $days = (int) $request->input('days', 7);
         $direction = (int) $request->input('direction', 0);
         $list = array_map(
@@ -211,6 +229,12 @@ class FinanceBillController extends BaseController
 
     public function endorse(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'endorsee' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         if (($error = $this->service()->endorse($this->decodeId($id), (string) $request->input('endorsee', ''))) !== null) {
             return $this->fail($error, 422);
         }
@@ -227,6 +251,13 @@ class FinanceBillController extends BaseController
 
     public function discount(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'endorsee' => 'string',
+            'fee' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         if (($error = $this->service()->discount($this->decodeId($id), (string) $request->input('fee', ''))) !== null) {
             return $this->fail($error, 422);
         }
@@ -243,6 +274,13 @@ class FinanceBillController extends BaseController
 
     public function collect(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'fee' => 'string',
+            'bank_account_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $accountId = $request->input('bank_account_id', '') !== ''
             ? $this->decodeMaybe((string) $request->input('bank_account_id')) : 0;
         if (($error = $this->service()->collect($this->decodeId($id), $accountId)) !== null) {
@@ -260,6 +298,12 @@ class FinanceBillController extends BaseController
 
     public function cash(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'bank_account_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         if (($error = $this->service()->cash($this->decodeId($id))) !== null) {
             return $this->fail($error, 422);
         }

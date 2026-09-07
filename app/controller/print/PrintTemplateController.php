@@ -42,6 +42,15 @@ class PrintTemplateController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'target_type' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $result = $this->printService()->listTemplates(
@@ -180,6 +189,12 @@ class PrintTemplateController extends BaseController
 
     public function render(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'code' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $code = (string) $request->input('code', '');
         $data = $request->input('data', []);
         if ($code === '') {
@@ -212,6 +227,12 @@ class PrintTemplateController extends BaseController
 
     public function pdf(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'code' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $code = (string) $request->input('code', '');
         $data = $request->input('data', []);
         if ($code === '') {

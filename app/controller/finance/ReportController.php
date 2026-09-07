@@ -38,6 +38,13 @@ class ReportController extends BaseController
 
     public function profit(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'year' => 'integer',
+            'month' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $year = (int) $request->input('year', (int) date('Y'));
         $month = $request->input('month');
 
@@ -84,6 +91,13 @@ class ReportController extends BaseController
 
     public function closePeriod(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'year' => 'integer',
+            'month' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $year = (int) $request->input('year', (int) date('Y'));
         $month = (int) $request->input('month', (int) date('m'));
         if ($month < 1 || $month > 12) {
@@ -107,6 +121,14 @@ class ReportController extends BaseController
 
     public function consolidate(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'month' => 'integer',
+            'subsidiary_reports' => 'array',
+            'base_currency' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $subsidiaryReports = $request->input('subsidiary_reports', []);
         if (!is_array($subsidiaryReports)) {
             return $this->fail('subsidiary_reports 必须为数组', 422);
@@ -159,6 +181,12 @@ class ReportController extends BaseController
 
     public function trialBalance(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'period' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $period = (string) $request->input('period', date('Y-m'));
 
         try {
@@ -182,6 +210,13 @@ class ReportController extends BaseController
 
     public function accountBalance(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'period' => 'string',
+            'account_subject_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $accountSubjectId = (int) $request->input('account_subject_id', 0);
         if ($accountSubjectId <= 0) {
             return $this->fail('account_subject_id 必须大于0', 422);

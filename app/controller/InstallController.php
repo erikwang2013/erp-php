@@ -96,6 +96,15 @@ class InstallController
 
     public function testDb(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'host' => 'string',
+            'port' => 'integer',
+            'database' => 'string',
+            'username' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         if ($this->isInstalled()) {
             return json(['code' => 1, 'message' => '系统已安装，禁止调用']);
         }

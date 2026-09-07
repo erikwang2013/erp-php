@@ -36,6 +36,15 @@ class NotificationController extends BaseController
 
     public function myNotifications(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'is_read' => 'integer',
+            'type' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $isRead = $request->input('is_read');
@@ -74,6 +83,12 @@ class NotificationController extends BaseController
 
     public function markRead(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $userId = (int)($request->adminId ?? 0);
         NotificationService::markRead($id, $userId);

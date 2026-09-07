@@ -38,6 +38,15 @@ class PoolController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'level_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $uri = $request->uri();
         if (str_contains($uri, '/pool/rules')) {
             return $this->rules($request);
@@ -81,6 +90,13 @@ class PoolController extends BaseController
 
     public function claim(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $adminId = $request->adminId ?? 0;
 
@@ -112,6 +128,13 @@ class PoolController extends BaseController
 
     public function release(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $adminId = $request->adminId ?? 0;
 
@@ -128,6 +151,13 @@ class PoolController extends BaseController
      */
     public function rules(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
 
@@ -178,6 +208,12 @@ class PoolController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmPoolRule::class, $id);
         if (!$item) {
@@ -202,6 +238,12 @@ class PoolController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->update(CrmPoolRule::class, $id, $request->all());
         if (!$item) {
@@ -227,6 +269,12 @@ class PoolController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmPoolRule::class, $id);
         if (!$item) {

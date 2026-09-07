@@ -42,6 +42,14 @@ class WebhookController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'app_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = max((int) $request->get('page', 1), 1);
         $limit = (int) $request->get('limit', 10);
         $limit = min(max($limit, 1), 100);
@@ -88,6 +96,12 @@ class WebhookController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $sub = WebhookSubscription::find($this->decodeId($id));
         if (!$sub) {
             return $this->fail('订阅不存在', 404);
@@ -241,6 +255,13 @@ class WebhookController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'password' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $error = $this->confirmPassword((int) ($request->adminId ?? 0), (string) $request->input('password', ''), $request);
         if ($error !== null) {
             return $this->fail($error, 422);
@@ -272,6 +293,12 @@ class WebhookController extends BaseController
 
     public function test(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $sub = WebhookSubscription::find($this->decodeId($id));
         if (!$sub) {
             return $this->fail('订阅不存在', 404);
@@ -299,6 +326,14 @@ class WebhookController extends BaseController
 
     public function logs(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'page' => 'integer',
+            'limit' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $subId = $this->decodeIdSafe($id);
         if ($subId === null) {
             return $this->fail('订阅不存在', 404);

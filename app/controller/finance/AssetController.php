@@ -37,6 +37,16 @@ class AssetController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'status' => 'integer',
+            'category' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
@@ -123,6 +133,12 @@ class AssetController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = FinanceAsset::find($id);
         if (!$item) {
@@ -153,6 +169,18 @@ class AssetController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'name' => 'string',
+            'code' => 'string',
+            'category' => 'string',
+            'purchase_amount' => 'numeric',
+            'salvage_value' => 'numeric',
+            'useful_life' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = FinanceAsset::find($id);
         if (!$item) {
@@ -187,6 +215,12 @@ class AssetController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = FinanceAsset::find($id);
         if (!$item) {
@@ -221,6 +255,14 @@ class AssetController extends BaseController
 
     public function depreciate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'period_year' => 'integer',
+            'period_month' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $asset = FinanceAsset::find($id);
         if (!$asset) {
@@ -279,6 +321,12 @@ class AssetController extends BaseController
 
     public function depreciation(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $list = FinanceAssetDepreciation::where('asset_id', $id)
             ->orderBy('period_year', 'desc')->orderBy('period_month', 'desc')

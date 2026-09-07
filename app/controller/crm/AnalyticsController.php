@@ -40,6 +40,15 @@ class AnalyticsController extends BaseController
 
     public function reports(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'type' => 'string',
+            'period_year' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $type = $request->input('type', '');
@@ -122,6 +131,12 @@ class AnalyticsController extends BaseController
 
     public function reportShow(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmAnalyticsReport::class, $id);
         if (!$item) {

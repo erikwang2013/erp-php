@@ -46,6 +46,16 @@ class EamInspectionController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'equipment_id' => 'string',
+            'task_date' => 'string',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $query = EamInspectionTask::query();
@@ -129,6 +139,12 @@ class EamInspectionController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $task = EamInspectionTask::query()->find($id);
         if (!$task) {
@@ -160,6 +176,15 @@ class EamInspectionController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'task_date' => 'string',
+            'assignee_id' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $data = $request->all();
         if (array_key_exists('assignee_id', $data) && $data['assignee_id'] !== '') {
             $data['assignee_id'] = $this->decodeId((string) $data['assignee_id']);
@@ -188,6 +213,12 @@ class EamInspectionController extends BaseController
 
     public function cancel(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         try {
             $task = $this->inspection()->cancelTask($this->decodeId($id));
         } catch (InvalidArgumentException|RuntimeException $e) {

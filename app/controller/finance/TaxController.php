@@ -105,6 +105,12 @@ class TaxController extends BaseController
 
     public function destroyRate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = FinanceTaxRate::find($id);
         if (!$item) {
@@ -137,6 +143,16 @@ class TaxController extends BaseController
 
     public function records(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'tax_rate_id' => 'string',
+            'source_type' => 'string',
+            'period_year' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $taxRateId = $request->input('tax_rate_id');

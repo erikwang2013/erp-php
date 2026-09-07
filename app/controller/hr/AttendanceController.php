@@ -48,6 +48,16 @@ class AttendanceController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'employee_id' => 'string',
+            'work_date' => 'string',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $employeeId = $request->input('employee_id');
@@ -89,6 +99,12 @@ class AttendanceController extends BaseController
 
     public function clockIn(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'employee_id' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $employeeId = (int) $request->input('employee_id');
         if (!$this->hr()->find(HrEmployee::class, $employeeId)) {
             return $this->fail('员工不存在', 404);
@@ -119,6 +135,12 @@ class AttendanceController extends BaseController
 
     public function clockOut(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'employee_id' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $employeeId = (int) $request->input('employee_id');
         if (!$this->hr()->find(HrEmployee::class, $employeeId)) {
             return $this->fail('员工不存在', 404);
@@ -155,6 +177,16 @@ class AttendanceController extends BaseController
 
     public function leaveIndex(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'employee_id' => 'string',
+            'type' => 'integer',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $employeeId = $request->input('employee_id');
@@ -230,6 +262,12 @@ class AttendanceController extends BaseController
 
     public function leaveShow(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrLeave::class, $id, ['employee']);
         if (!$item) {
@@ -259,6 +297,12 @@ class AttendanceController extends BaseController
 
     public function leaveUpdate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrLeave::class, $id);
         if (!$item) {
@@ -289,6 +333,12 @@ class AttendanceController extends BaseController
 
     public function leaveDestroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrLeave::class, $id);
         if (!$item) {
@@ -322,6 +372,13 @@ class AttendanceController extends BaseController
 
     public function approveLeave(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'action' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $action = (string) $request->input('action', 'approve');
 

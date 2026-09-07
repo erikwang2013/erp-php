@@ -39,6 +39,12 @@ class RoutingController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'product_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $productId = $request->input('product_id');
 
         $list = $this->mfg()->all(MfgRouting::class, [
@@ -111,6 +117,12 @@ class RoutingController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgRouting::class, $id);
         if (!$item) {
@@ -135,6 +147,12 @@ class RoutingController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         // FK 双模解码（缺省/留空=不改动）
         $data = $request->all();
@@ -171,6 +189,12 @@ class RoutingController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgRouting::class, $id);
         if (!$item) {

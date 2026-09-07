@@ -38,6 +38,13 @@ class CustomFieldController extends BaseController
 
     public function list(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'entity_type' => 'string',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $result = $this->customField()->list(
             $request->input('entity_type') !== null ? (string) $request->input('entity_type') : null,
             $request->input('status') !== null ? (int) $request->input('status') : null
@@ -61,6 +68,12 @@ class CustomFieldController extends BaseController
 
     public function create(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         try {
             [$data, $err] = $this->customField()->create($request->all());
         } catch (InvalidArgumentException $e) {

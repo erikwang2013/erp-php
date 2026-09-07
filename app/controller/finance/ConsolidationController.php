@@ -36,6 +36,15 @@ class ConsolidationController extends BaseController
 
     public function draft(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'company_id' => 'string',
+            'report_year' => 'integer',
+            'report_month' => 'integer',
+            'base_currency' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $companyId = $this->decodeIdSafe((string) $request->input('company_id', ''));
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
@@ -71,6 +80,14 @@ class ConsolidationController extends BaseController
 
     public function latest(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'company_id' => 'string',
+            'report_year' => 'integer',
+            'report_month' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $companyId = $this->decodeIdSafe((string) $request->input('company_id', ''));
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
@@ -100,6 +117,14 @@ class ConsolidationController extends BaseController
 
     public function list(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'company_id' => 'string',
+            'report_year' => 'integer',
+            'report_month' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $companyId = $this->decodeIdSafe((string) $request->input('company_id', ''));
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
@@ -128,6 +153,12 @@ class ConsolidationController extends BaseController
 
     public function eliminations(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'report_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $reportId = $this->decodeIdSafe((string) $request->input('report_id', ''));
         $rows = $request->input('eliminations', []);
         if ($reportId === null || !is_array($rows) || $rows === []) {
@@ -155,6 +186,12 @@ class ConsolidationController extends BaseController
 
     public function issue(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'report_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $reportId = $this->decodeIdSafe((string) $request->input('report_id', ''));
         if ($reportId === null) {
             return $this->fail('report_id 必填', 422);

@@ -45,6 +45,12 @@ class TraceController extends BaseController
 
     public function forward(Request $request, string $batchCode): Response
     {
+        $validator = validator($request->all(), [
+            'batchCode' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         return $this->run(fn (): array => $this->trace()->forward(trim((string) $batchCode)));
     }
 
@@ -63,6 +69,12 @@ class TraceController extends BaseController
 
     public function backward(Request $request, string $batchCode): Response
     {
+        $validator = validator($request->all(), [
+            'batchCode' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         return $this->run(fn (): array => $this->trace()->backward(trim((string) $batchCode)));
     }
 
@@ -81,6 +93,13 @@ class TraceController extends BaseController
 
     public function serial(Request $request, string $serialCode): Response
     {
+        $validator = validator($request->all(), [
+            'batchCode' => 'string',
+            'serialCode' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         return $this->run(fn (): array => $this->trace()->serial(trim((string) $serialCode)));
     }
 
@@ -100,6 +119,13 @@ class TraceController extends BaseController
 
     public function expiry(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'serialCode' => 'string',
+            'days' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $days = (int) $request->input('days', 90);
 
         return $this->run(fn (): array => $this->trace()->expiryAlert($days));

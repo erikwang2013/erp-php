@@ -47,6 +47,16 @@ class BomController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'status' => 'integer',
+            'product_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
@@ -122,6 +132,12 @@ class BomController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgBom::class, $id, ['items']);
         if (!$item) {
@@ -151,6 +167,12 @@ class BomController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgBom::class, $id);
         if (!$item) {
@@ -191,6 +213,13 @@ class BomController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'password' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgBom::class, $id);
         if (!$item) {
@@ -227,6 +256,14 @@ class BomController extends BaseController
 
     public function newVersion(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'source_id' => 'string',
+            'version' => 'string',
+            'effective_date' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $sourceId = (int) $request->input('source_id');
         $version = (string) $request->input('version', '');
 
@@ -257,6 +294,12 @@ class BomController extends BaseController
 
     public function activate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
 
         try {

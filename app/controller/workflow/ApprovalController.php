@@ -62,6 +62,12 @@ class ApprovalController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $instanceId = $this->decodeIdSafe($id);
         if (!$instanceId) {
             return $this->fail('无效的审批实例ID', 400);
@@ -122,6 +128,14 @@ class ApprovalController extends BaseController
 
     public function submit(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'target_type' => 'string',
+            'target_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $workflowId = $this->decodeId($id);
         $workflow = ApprovalWorkflow::find($workflowId);
         if (!$workflow || !$workflow->enabled) {
@@ -175,6 +189,13 @@ class ApprovalController extends BaseController
 
     public function approve(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'comment' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $instanceId = $this->decodeId($id);
         $instance = ApprovalInstance::find($instanceId);
         if (!$instance) {
@@ -230,6 +251,13 @@ class ApprovalController extends BaseController
 
     public function reject(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'comment' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $instanceId = $this->decodeId($id);
         $instance = ApprovalInstance::find($instanceId);
         if (!$instance) {
@@ -278,6 +306,12 @@ class ApprovalController extends BaseController
 
     public function withdraw(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $instanceId = $this->decodeId($id);
         $instance = ApprovalInstance::find($instanceId);
         if (!$instance) {
@@ -320,6 +354,13 @@ class ApprovalController extends BaseController
 
     public function myApprovals(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $approverId = (int)($request->adminId ?? 0);

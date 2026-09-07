@@ -68,6 +68,12 @@ class OpenController
 
     public function apps(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $app = $request->openapiApp;
         if ((string) $app->id !== $id) {
             return json(['code' => 403, 'message' => '无权访问其他应用信息', 'data' => []])->withStatus(403);

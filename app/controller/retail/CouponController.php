@@ -38,6 +38,13 @@ class CouponController extends BaseController
 
     public function issue(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'member_id' => 'string',
+            'template_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         [$data, $error] = $this->service()->issueCoupon(
             $this->decodeMaybe((string) $request->input('member_id', '0')),
@@ -65,6 +72,13 @@ class CouponController extends BaseController
 
     public function redeem(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'coupon_id' => 'string',
+            'order_source' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         [$data, $error] = $this->service()->redeemCoupon(
             $this->decodeMaybe((string) $request->input('coupon_id', '0')),

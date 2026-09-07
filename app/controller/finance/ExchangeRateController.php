@@ -36,6 +36,16 @@ class ExchangeRateController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'from_currency_id' => 'string',
+            'to_currency_id' => 'string',
+            'effective_date' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $fromCurrencyId = $request->input('from_currency_id');
@@ -113,6 +123,12 @@ class ExchangeRateController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = FinanceExchangeRate::find($id);
         if (!$item) {
@@ -137,6 +153,12 @@ class ExchangeRateController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = FinanceExchangeRate::find($id);
         if (!$item) {
@@ -165,6 +187,12 @@ class ExchangeRateController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $item = FinanceExchangeRate::find($id);
         if (!$item) {

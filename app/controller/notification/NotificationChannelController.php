@@ -55,6 +55,16 @@ class NotificationChannelController extends BaseController
 
     public function send(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'channel' => 'string',
+            'to' => 'string',
+            'subject' => 'string',
+            'content' => 'string',
+            'operator_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $result = $this->service->send(
             (string) $request->input('channel', ''),
             (string) $request->input('to', ''),
@@ -95,6 +105,16 @@ class NotificationChannelController extends BaseController
 
     public function logs(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'channel' => 'string',
+            'status' => 'integer',
+            'to' => 'string',
+            'page' => 'integer',
+            'page_size' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $data = $this->service->sendLogs(
             [
                 'channel' => (string) $request->input('channel', ''),
@@ -125,6 +145,13 @@ class NotificationChannelController extends BaseController
 
     public function retry(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'channel' => 'string',
+            'limit' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $result = $this->service->retryFailures(
             (string) $request->input('channel', ''),
             (int) $request->input('limit', 50)

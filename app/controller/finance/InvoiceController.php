@@ -49,6 +49,17 @@ class InvoiceController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'type' => 'string',
+            'biz_type' => 'string',
+            'status' => 'string',
+            'keyword' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $query = FinanceInvoice::query();

@@ -70,6 +70,16 @@ class CompanyController extends BaseController
 
     public function create(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'name' => 'string',
+            'code' => 'string',
+            'base_currency' => 'string',
+            'parent_id' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $name = trim((string) $request->input('name', ''));
         $code = trim((string) $request->input('code', ''));
         if ($name === '' || $code === '') {
@@ -115,6 +125,13 @@ class CompanyController extends BaseController
 
     public function toggle(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeIdSafe((string) $request->input('id', ''));
         $status = (int) $request->input('status', -1);
         if ($id === null || $status < 0 || $status > 1) {

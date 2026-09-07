@@ -48,6 +48,18 @@ class BankReconController extends BaseController
 
     public function statementIndex(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'bank_account_id' => 'string',
+            'from' => 'string',
+            'to' => 'string',
+            'batch' => 'string',
+            'matched' => 'integer',
+            'page' => 'integer',
+            'limit' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = max(1, (int) $request->input('page', 1));
         $limit = min(100, max(1, (int) $request->input('limit', 15)));
         $accountId = $this->decodeMaybe((string) $request->input('bank_account_id', '0'));
@@ -220,6 +232,14 @@ class BankReconController extends BaseController
 
     public function report(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'bank_account_id' => 'string',
+            'from' => 'string',
+            'to' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $result = $this->service()->reconReport(
             $this->decodeMaybe((string) $request->input('bank_account_id', '0')),
             (string) $request->input('from', ''),

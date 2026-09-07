@@ -41,6 +41,13 @@ class RecruitController extends BaseController
 
     public function jobIndex(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'status' => 'integer',
+            'job_title' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $result = $this->recruit()->list(HrJob::class, [
@@ -86,6 +93,15 @@ class RecruitController extends BaseController
 
     public function jobShow(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'job_title' => 'required|string',
+            'department_id' => 'string',
+            'headcount' => 'integer',
+            'requirement' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $job = $this->recruit()->find(HrJob::class, $this->decodeId($id));
         if (!$job) {
             return $this->fail('记录不存在', 404);
@@ -102,6 +118,13 @@ class RecruitController extends BaseController
 
     public function jobUpdate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'job_title' => 'string',
+            'headcount' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $job = $this->recruit()->update(HrJob::class, $this->decodeId($id), $request->all(), ['status']);
         if (!$job) {
             return $this->fail('记录不存在', 404);
@@ -117,6 +140,13 @@ class RecruitController extends BaseController
 
     public function jobDestroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'job_title' => 'string',
+            'headcount' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $job = $this->recruit()->find(HrJob::class, $this->decodeId($id));
         if (!$job) {
             return $this->fail('记录不存在', 404);
@@ -175,6 +205,14 @@ class RecruitController extends BaseController
 
     public function candidateIndex(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'status' => 'integer',
+            'job_id' => 'string',
+            'name' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $result = $this->recruit()->list(HrCandidate::class, [
@@ -242,6 +280,13 @@ class RecruitController extends BaseController
 
     public function candidateUpdate(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'phone' => 'string',
+            'source' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $candidate = $this->recruit()->update(HrCandidate::class, $this->decodeId($id), $request->all(), ['status']);
         if (!$candidate) {
             return $this->fail('记录不存在', 404);
@@ -278,6 +323,12 @@ class RecruitController extends BaseController
 
     public function candidateDestroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $candidateId = $this->decodeId($id);
         if (!$this->recruit()->find(HrCandidate::class, $candidateId)) {
             return $this->fail('记录不存在', 404);
@@ -308,6 +359,12 @@ class RecruitController extends BaseController
 
     public function interviewIndex(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'candidate_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $result = $this->recruit()->list(HrInterview::class, [
@@ -389,6 +446,13 @@ class RecruitController extends BaseController
 
     public function offerIndex(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'candidate_id' => 'string',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $result = $this->recruit()->list(HrOffer::class, [
@@ -486,6 +550,13 @@ class RecruitController extends BaseController
 
     public function funnel(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'from' => 'string',
+            'to' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $from = (string) $request->input('from', '');
         $to = (string) $request->input('to', '');
 

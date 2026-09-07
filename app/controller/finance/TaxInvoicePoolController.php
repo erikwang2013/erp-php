@@ -51,6 +51,22 @@ class TaxInvoicePoolController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'seller_name' => 'string',
+            'seller_tax_no' => 'string',
+            'verify_status' => 'integer',
+            'deduct_status' => 'integer',
+            'source' => 'string',
+            'deduct_period' => 'string',
+            'issue_date_from' => 'string',
+            'issue_date_to' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $filters = [
             'keyword' => (string) $request->input('keyword', ''),
             'seller_name' => (string) $request->input('seller_name', ''),
@@ -96,6 +112,23 @@ class TaxInvoicePoolController extends BaseController
 
     public function store(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'invoice_code' => 'string',
+            'invoice_no' => 'string',
+            'issue_date' => 'string',
+            'seller_name' => 'string',
+            'seller_tax_no' => 'string',
+            'buyer_name' => 'string',
+            'buyer_tax_no' => 'string',
+            'amount' => 'string',
+            'untaxed_amount' => 'string',
+            'tax_amount' => 'string',
+            'source' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         [$row, $error] = $this->service()->registerOne($this->collectPayload($request));
         if ($error !== null) {
             return $this->fail($error, 422);
@@ -116,6 +149,16 @@ class TaxInvoicePoolController extends BaseController
 
     public function batch(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'untaxed_amount' => 'string',
+            'tax_amount' => 'string',
+            'source' => 'string',
+            'remark' => 'string',
+            'rows' => 'array',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $rows = $request->post('rows', []);
         if (is_string($rows)) {
             $decoded = json_decode($rows, true);
@@ -140,6 +183,12 @@ class TaxInvoicePoolController extends BaseController
 
     public function verify(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $row = TaxInputInvoice::find($this->decodeId($id));
         if (!$row) {
             return $this->fail('发票不存在', 404);
@@ -162,6 +211,12 @@ class TaxInvoicePoolController extends BaseController
 
     public function check(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $row = TaxInputInvoice::find($this->decodeId($id));
         if (!$row) {
             return $this->fail('发票不存在', 404);
@@ -185,6 +240,13 @@ class TaxInvoicePoolController extends BaseController
 
     public function deduct(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'deduct_period' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $row = TaxInputInvoice::find($this->decodeId($id));
         if (!$row) {
             return $this->fail('发票不存在', 404);
@@ -208,6 +270,12 @@ class TaxInvoicePoolController extends BaseController
 
     public function deductStats(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'deduct_period' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         return $this->success(['items' => $this->service()->deductStats()]);
     }
 

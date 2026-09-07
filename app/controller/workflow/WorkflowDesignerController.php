@@ -42,6 +42,12 @@ class WorkflowDesignerController extends BaseController
 
     public function load(Request $request, string $workflowId): Response
     {
+        $validator = validator($request->all(), [
+            'workflowId' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeWorkflowId($workflowId);
         if ($id === null) {
             return $this->fail('工作流ID不合法', 422);
@@ -69,6 +75,14 @@ class WorkflowDesignerController extends BaseController
 
     public function save(Request $request, string $workflowId): Response
     {
+        $validator = validator($request->all(), [
+            'workflowId' => 'string',
+            'nodes' => 'array',
+            'edges' => 'array',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeWorkflowId($workflowId);
         if ($id === null) {
             return $this->fail('工作流ID不合法', 422);
@@ -107,6 +121,12 @@ class WorkflowDesignerController extends BaseController
 
     public function validate(Request $request, string $workflowId): Response
     {
+        $validator = validator($request->all(), [
+            'workflowId' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeWorkflowId($workflowId);
         if ($id === null) {
             return $this->fail('工作流ID不合法', 422);
@@ -134,6 +154,13 @@ class WorkflowDesignerController extends BaseController
 
     public function route(Request $request, string $workflowId): Response
     {
+        $validator = validator($request->all(), [
+            'workflowId' => 'string',
+            'context' => 'array',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeWorkflowId($workflowId);
         if ($id === null) {
             return $this->fail('工作流ID不合法', 422);

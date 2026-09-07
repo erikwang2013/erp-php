@@ -43,6 +43,15 @@ class ProfileController extends BaseController
 
     public function updateProfile(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'real_name' => 'string',
+            'phone' => 'string',
+            'email' => 'string',
+            'avatar' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         $user = AdminUser::find($adminId);
         if (!$user) {
@@ -85,6 +94,12 @@ class ProfileController extends BaseController
 
     public function updatePassword(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'new_password' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         $user = AdminUser::find($adminId);
         if (!$user) {

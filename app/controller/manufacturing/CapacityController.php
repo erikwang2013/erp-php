@@ -41,6 +41,14 @@ class CapacityController extends BaseController
 
     public function calendar(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'workstation_id' => 'required|string',
+            'from' => 'string',
+            'to' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $wsId = $this->decodeWsId($request->input('workstation_id'));
         if ($wsId === null) {
             return $this->fail('工作站ID不能为空', 422);
@@ -153,6 +161,14 @@ class CapacityController extends BaseController
 
     public function report(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'workstation_id' => 'string',
+            'from' => 'string',
+            'to' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $wsId = $this->decodeWsId($request->input('workstation_id'));   // 缺省 null=全部启用站
         [$from, $to] = $this->rangeFromRequest($request);
         try {

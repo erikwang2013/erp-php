@@ -42,6 +42,17 @@ class MemberController extends BaseController
 
     public function open(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'phone' => 'string',
+            'name' => 'string',
+            'level' => 'integer',
+            'customer_id' => 'string',
+            'source' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $payload = $request->post();
         if (array_key_exists('customer_id', $payload) && (string) $payload['customer_id'] !== '') {
             $payload['customer_id'] = (string) $this->decodeMaybe((string) $payload['customer_id']);
@@ -66,6 +77,12 @@ class MemberController extends BaseController
 
     public function overview(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'member_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         [$data, $error] = $this->service()->memberOverview(
             $this->decodeMaybe((string) $request->input('member_id', '0'))
         );
@@ -90,6 +107,14 @@ class MemberController extends BaseController
 
     public function recharge(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'member_id' => 'string',
+            'amount' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         [$data, $error] = $this->service()->recharge(
             $this->decodeMaybe((string) $request->input('member_id', '0')),
@@ -118,6 +143,14 @@ class MemberController extends BaseController
 
     public function consume(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'member_id' => 'string',
+            'amount' => 'string',
+            'biz_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         [$data, $error] = $this->service()->consume(
             $this->decodeMaybe((string) $request->input('member_id', '0')),
@@ -146,6 +179,14 @@ class MemberController extends BaseController
 
     public function refund(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'member_id' => 'string',
+            'amount' => 'string',
+            'biz_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         [$data, $error] = $this->service()->refund(
             $this->decodeMaybe((string) $request->input('member_id', '0')),
@@ -174,6 +215,14 @@ class MemberController extends BaseController
 
     public function pointsEarn(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'member_id' => 'string',
+            'points' => 'integer',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         [$data, $error] = $this->service()->earnPoints(
             $this->decodeMaybe((string) $request->input('member_id', '0')),
@@ -202,6 +251,14 @@ class MemberController extends BaseController
 
     public function pointsConsume(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'member_id' => 'string',
+            'points' => 'integer',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         [$data, $error] = $this->service()->consumePoints(
             $this->decodeMaybe((string) $request->input('member_id', '0')),
@@ -230,6 +287,14 @@ class MemberController extends BaseController
 
     public function pointsExpire(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'member_id' => 'string',
+            'points' => 'integer',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $adminId = $request->adminId ?? 0;
         [$data, $error] = $this->service()->expirePoints(
             $this->decodeMaybe((string) $request->input('member_id', '0')),

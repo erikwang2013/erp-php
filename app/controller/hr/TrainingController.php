@@ -44,6 +44,17 @@ class TrainingController extends BaseController
 
     public function listCourses(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'status' => 'integer',
+            'course_type' => 'string',
+            'min_credits' => 'integer',
+            'keyword' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $result = $this->training()->listCourses(
             $request->only(['status', 'course_type', 'min_credits', 'keyword']),
             (int) $request->input('page', 1),
@@ -75,6 +86,17 @@ class TrainingController extends BaseController
 
     public function createCourse(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'title' => 'required|string',
+            'course_type' => 'required|string',
+            'lecturer' => 'string',
+            'credits' => 'integer',
+            'duration_hours' => 'numeric',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         try {
             $course = $this->training()->createCourse($request->all());
         } catch (InvalidArgumentException $e) {
@@ -99,6 +121,12 @@ class TrainingController extends BaseController
 
     public function updateCourse(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         try {
             $course = $this->training()->updateCourse($id, $request->all());
@@ -124,6 +152,12 @@ class TrainingController extends BaseController
 
     public function destroyCourse(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         try {
             $this->training()->destroyCourse($id);
@@ -150,6 +184,13 @@ class TrainingController extends BaseController
 
     public function enroll(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'employee_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $courseId = $this->decodeId($id);
         $employeeId = (int) $request->input('employee_id', 0);
         $operatorId = (int) ($request->adminId ?? 0);
@@ -178,6 +219,13 @@ class TrainingController extends BaseController
 
     public function cancel(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'employee_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $courseId = $this->decodeId($id);
         $employeeId = (int) $request->input('employee_id', 0);
         $operatorId = (int) ($request->adminId ?? 0);
@@ -206,6 +254,13 @@ class TrainingController extends BaseController
 
     public function complete(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'employee_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $courseId = $this->decodeId($id);
         $employeeId = (int) $request->input('employee_id', 0);
         $operatorId = (int) ($request->adminId ?? 0);
@@ -233,6 +288,12 @@ class TrainingController extends BaseController
 
     public function employeeCredits(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $employeeId = $this->decodeId($id);
         try {
             $result = $this->training()->employeeCredits($employeeId);

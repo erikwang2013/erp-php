@@ -42,6 +42,15 @@ class OpenApiController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = max((int) $request->get('page', 1), 1);
         $limit = (int) $request->get('limit', 10);
         $limit = min(max($limit, 1), 100);
@@ -85,6 +94,12 @@ class OpenApiController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $app = OpenApiApp::find($this->decodeId($id));
         if (!$app) {
             return $this->fail('应用不存在', 404);
@@ -209,6 +224,13 @@ class OpenApiController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'password' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $error = $this->confirmPassword((int) ($request->adminId ?? 0), (string) $request->input('password', ''), $request);
         if ($error !== null) {
             return $this->fail($error, 422);
@@ -241,6 +263,13 @@ class OpenApiController extends BaseController
 
     public function resetSecret(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'password' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $error = $this->confirmPassword((int) ($request->adminId ?? 0), (string) $request->input('password', ''), $request);
         if ($error !== null) {
             return $this->fail($error, 422);
@@ -277,6 +306,12 @@ class OpenApiController extends BaseController
 
     public function toggleStatus(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $app = OpenApiApp::find($this->decodeId($id));
         if (!$app) {
             return $this->fail('应用不存在', 404);

@@ -51,6 +51,13 @@ class TenantController extends BaseController
 
     public function list(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'status' => 'integer',
+            'company_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $query = Tenant::query();
         $status = $request->input('status', '');
         if ($status !== '' && in_array((int) $status, [0, 1, 2, 3], true)) {
@@ -88,6 +95,16 @@ class TenantController extends BaseController
 
     public function provision(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'company_id' => 'string',
+            'tenant_code' => 'string',
+            'plan' => 'required|integer',
+            'expire_at' => 'string',
+            'remark' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $companyId = $this->decodeCompanyId((string) $request->input('company_id', ''));
         if ($companyId === null) {
             return $this->fail('公司不能为空', 422);
@@ -121,6 +138,12 @@ class TenantController extends BaseController
 
     public function suspend(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         [$tenant, $error] = $this->service->suspend($this->tenantId($request));
         if ($error !== null) {
             return $this->fail($error, 422);
@@ -142,6 +165,12 @@ class TenantController extends BaseController
 
     public function resume(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         [$tenant, $error] = $this->service->resume($this->tenantId($request));
         if ($error !== null) {
             return $this->fail($error, 422);
@@ -163,6 +192,12 @@ class TenantController extends BaseController
 
     public function expireMark(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         [$tenant, $error] = $this->service->expireMark($this->tenantId($request));
         if ($error !== null) {
             return $this->fail($error, 422);
@@ -185,6 +220,13 @@ class TenantController extends BaseController
 
     public function renew(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'days' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         [$tenant, $error] = $this->service->renew(
             $this->tenantId($request),
             (int) $request->input('days', 0)
@@ -211,6 +253,12 @@ class TenantController extends BaseController
 
     public function expiryWarnings(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'days' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         [$rows, $error] = $this->service->expiryWarnings((int) $request->input('days', 30));
         if ($error !== null) {
             return $this->fail($error, 422);

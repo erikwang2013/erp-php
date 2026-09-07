@@ -35,6 +35,13 @@ class BalanceSheetController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'report_year' => 'integer',
+            'report_month' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $year = (int) $request->input('report_year', (int) date('Y'));
         $month = (int) $request->input('report_month', (int) date('m'));
 
@@ -99,6 +106,13 @@ class BalanceSheetController extends BaseController
 
     public function store(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'report_year' => 'integer',
+            'report_month' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $year = (int) $request->input('report_year', (int) date('Y'));
         $month = (int) $request->input('report_month', (int) date('m'));
 

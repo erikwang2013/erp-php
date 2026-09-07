@@ -44,6 +44,14 @@ class ExportController extends BaseController
 
     public function excel(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'table' => 'string',
+            'columns' => 'array',
+            'title' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $table = $request->input('table', 'admin_user');
         $columns = $request->input('columns', []);
         $conditions = $request->input('conditions', []);
@@ -149,6 +157,13 @@ class ExportController extends BaseController
 
     public function pdf(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'type' => 'string',
+            'title' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $type = $request->input('type', 'table');
         $title = $request->input('title', '数据导出');
         $data = $request->input('data', []);

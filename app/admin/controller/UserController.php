@@ -44,6 +44,15 @@ class UserController extends BaseController
 
     public function index(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'page' => 'integer',
+            'limit' => 'integer',
+            'keyword' => 'string',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
@@ -156,6 +165,12 @@ class UserController extends BaseController
 
     public function show(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
@@ -189,6 +204,17 @@ class UserController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'real_name' => 'string',
+            'status' => 'integer',
+            'password' => 'string',
+            'phone' => 'string',
+            'email' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
@@ -232,6 +258,13 @@ class UserController extends BaseController
 
     public function destroy(Request $request, string $id): Response
     {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'password' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
@@ -267,6 +300,13 @@ class UserController extends BaseController
 
     public function batchDestroy(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'ids' => 'array',
+            'password' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $ids = $request->input('ids', []);
         $password = $request->input('password', '');
 
@@ -316,6 +356,13 @@ class UserController extends BaseController
 
     public function batchStatus(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'ids' => 'array',
+            'status' => 'integer',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $ids = $request->input('ids', []);
         $status = (int) $request->input('status', 0);
 

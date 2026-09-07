@@ -35,6 +35,13 @@ class LedgerPeriodController extends BaseController
 
     public function list(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'company_id' => 'string',
+            'ledger_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         try {
             $scope = $this->resolveScope($request);
         } catch (\RuntimeException $e) {
@@ -67,6 +74,14 @@ class LedgerPeriodController extends BaseController
 
     public function open(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'company_id' => 'string',
+            'ledger_id' => 'string',
+            'period' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $period = trim((string) $request->input('period', ''));
         try {
             $scope = $this->resolveScope($request);
@@ -94,6 +109,14 @@ class LedgerPeriodController extends BaseController
 
     public function close(Request $request): Response
     {
+        $validator = validator($request->all(), [
+            'company_id' => 'string',
+            'ledger_id' => 'string',
+            'period' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
         $period = trim((string) $request->input('period', ''));
         try {
             $scope = $this->resolveScope($request);
