@@ -34,4 +34,6 @@ class FinanceInvoice extends Model
     {
         return $this->hasMany(FinanceInvoiceItem::class, 'invoice_id');
     }
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['invoice_no', 'electronic_no', 'issue_status', 'type', 'customer_id', 'supplier_id', 'biz_type', 'source_id', 'invoice_date', 'untaxed_amount', 'tax_amount', 'amount', 'currency', 'status', 'void_reason', 'audited_by', 'audited_at', 'remark'];
 }

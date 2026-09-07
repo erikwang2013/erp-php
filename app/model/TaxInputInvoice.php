@@ -26,4 +26,6 @@ class TaxInputInvoice extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['invoice_code', 'invoice_no', 'issue_date', 'seller_name', 'seller_tax_no', 'buyer_name', 'buyer_tax_no', 'amount', 'untaxed_amount', 'tax_amount', 'verify_status', 'verify_at', 'deduct_status', 'deduct_period', 'source', 'remark'];
 }

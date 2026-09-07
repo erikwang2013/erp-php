@@ -19,4 +19,6 @@ class NotificationSetting extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['user_id', 'notify_type', 'in_app', 'email', 'sms'];
 }

@@ -20,4 +20,6 @@ class FinanceAsset extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['code', 'name', 'category', 'purchase_date', 'purchase_amount', 'salvage_value', 'useful_life', 'depreciation_method', 'monthly_depreciation', 'accumulated_depreciation', 'net_value', 'status', 'remark'];
 }

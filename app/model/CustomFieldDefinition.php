@@ -49,4 +49,6 @@ class CustomFieldDefinition extends Model
     protected $casts = [
         'options' => 'array',
     ];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['entity_type', 'field_key', 'label', 'field_type', 'options', 'is_required', 'sort', 'status'];
 }

@@ -21,5 +21,8 @@ class Category extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
-    protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+    protected $guarded = ['id', 'name','parent_id', 'sort','status','created_at','updated_at', 'deleted_at'];
+    // $guarded 误含业务列（name/parent_id/sort/status）→ fill 全丢弃 → INSERT 只剩
+    // id/时间戳 → NOT NULL name 直插 500。显式列白名单与 $guarded 共存（fillable 优先）。
+    protected $fillable = ['name', 'code', 'parent_id', 'sort', 'status'];
 }

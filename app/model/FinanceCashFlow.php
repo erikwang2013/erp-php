@@ -29,4 +29,6 @@ class FinanceCashFlow extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['company_id', 'ledger_id', 'report_year', 'report_month', 'operating_inflow', 'operating_outflow', 'operating_net', 'investing_inflow', 'investing_outflow', 'investing_net', 'financing_inflow', 'financing_outflow', 'financing_net', 'beginning_cash', 'ending_cash', 'report_data'];
 }

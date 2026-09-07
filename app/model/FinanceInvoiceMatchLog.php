@@ -21,4 +21,6 @@ class FinanceInvoiceMatchLog extends Model
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     protected $casts = ['detail' => 'array'];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['invoice_id', 'source_type', 'source_id', 'invoiced_total', 'result', 'detail'];
 }

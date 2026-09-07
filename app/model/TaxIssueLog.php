@@ -31,4 +31,6 @@ class TaxIssueLog extends Model
         'request' => 'array',
         'response' => 'array',
     ];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['invoice_id', 'action', 'bill_no', 'platform', 'request', 'response', 'success', 'error', 'operator_id'];
 }

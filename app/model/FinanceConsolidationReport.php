@@ -22,4 +22,6 @@ class FinanceConsolidationReport extends Model
     protected $casts = [
         'report_data' => 'array',
     ];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['company_id', 'report_year', 'report_month', 'base_currency', 'status', 'total_assets', 'total_liabilities', 'total_equity', 'revenue', 'net_profit', 'report_data', 'issued_at', 'remark'];
 }

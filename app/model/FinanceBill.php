@@ -28,4 +28,6 @@ class FinanceBill extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['bill_no', 'type', 'direction', 'drawer', 'payee', 'acceptor', 'endorsee', 'issue_date', 'due_date', 'amount', 'discount_fee', 'bank_account_id', 'status', 'source_type', 'source_id', 'endorsed_at', 'discounted_at', 'collected_at', 'cashed_at', 'returned_at', 'remark'];
 }

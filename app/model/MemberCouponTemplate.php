@@ -22,4 +22,6 @@ class MemberCouponTemplate extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['name', 'coupon_type', 'threshold_amount', 'discount_value', 'valid_days', 'total_qty', 'issued_qty', 'status'];
 }

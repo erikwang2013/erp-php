@@ -27,4 +27,6 @@ class PurchaseRfqQuote extends Model
     {
         return $this->hasMany(PurchaseRfqQuoteItem::class, 'quote_id');
     }
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['rfq_id', 'supplier_id', 'amount', 'quote_date', 'valid_until', 'awarded', 'status', 'remark'];
 }

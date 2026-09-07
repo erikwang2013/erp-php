@@ -27,4 +27,6 @@ class FinanceBankReconMatch extends Model
     protected $guarded = ['id', 'created_at'];
     // 表仅 created_at 列（无 updated_at），关闭自动维护避免插入报错
     public const UPDATED_AT = null;
+    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
+    protected $fillable = ['bank_account_id', 'statement_id', 'cash_journal_id', 'match_type', 'created_by'];
 }
