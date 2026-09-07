@@ -23,6 +23,29 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 客户选项（id→名称，id 为客户列表行 hashid），打开新增/编辑弹窗前懒加载一次。
+  Map<String, String> _customerOptions = {};
+  bool _customersLoaded = false;
+
+  /// 加载客户下拉选项（customer_id 必填且为 hashid，取自 /admin/v1/customer 列表行 id）。
+  Future<bool> _ensureCustomers() async {
+    if (_customersLoaded) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/customer', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _customerOptions = {
+        for (final c in list) '${c['id']}': '${c['name'] ?? c['code'] ?? ''}',
+      };
+      _customersLoaded = true;
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   @override
   void initState() { super.initState(); _load(); }
 
@@ -42,16 +65,18 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
 
   Future<void> _create() async {
     final l10n = AppL10n.current;
+    if (!await _ensureCustomers() || !mounted) return;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/v1/crm/quotation', data: data);
+      await ApiService.instance.post('/admin/v1/crm/quotation', data: _buildPayload(data));
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
+    if (!await _ensureCustomers() || !mounted) return;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/v1/crm/quotation/${row['id']}', data: data);
+      await ApiService.instance.put('/admin/v1/crm/quotation/${row['id']}', data: _buildPayload(data));
       _load(); return true;
     });
   }
@@ -59,7 +84,7 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
   Future<void> _delete(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
     await ConfirmDialog.show(context, title: l10n.commonDeleteConfirm,
-        content: l10n.crmDeleteConfirmMsg('${row['name'] ?? row['code'] ?? row['id']}'),
+        content: l10n.crmDeleteConfirmMsg('${row['code'] ?? row['id']}'),
         onConfirm: (password) async {
       await ApiService.instance.delete('/admin/v1/crm/quotation/${row['id']}', data: {'password': password});
       _load(); return true;
@@ -83,10 +108,36 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
     });
   }
 
+  // 与后端契约对齐（erp_crm_quotation）：code/customer_id/owner_user_id NOT NULL（负责人由后端
+  // 默认当前管理员）；表无 name 列（幻键已移除）。单号留空自动生成 QT+时间戳。
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.current.crmName, required: true),
-    FormFieldConfig(name: 'code', label: AppL10n.current.crmCode),
+    FormFieldConfig(name: 'code', label: AppL10n.current.crmCode, hint: AppL10n.current.salesQuotationCodeHint),
+    FormFieldConfig(
+      name: 'customer_id',
+      label: AppL10n.current.fieldCustomer,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: _customerOptions.keys.toList(),
+      optionLabels: _customerOptions,
+    ),
+    FormFieldConfig(name: 'total_amount', label: AppL10n.current.crmAmount, type: FormFieldType.number),
   ];
+
+  /// 组装后端 store()/update() 接收的参数（仅真实表列；幻键 name 不再发送）。
+  Map<String, dynamic> _buildPayload(Map<String, String> data) {
+    var code = data['code']?.trim() ?? '';
+    if (code.isEmpty) {
+      final now = DateTime.now();
+      code = 'QT${now.year}${_p2(now.month)}${_p2(now.day)}${_p2(now.hour)}${_p2(now.minute)}${_p2(now.second)}';
+    }
+    return {
+      'code': code,
+      'customer_id': data['customer_id']?.trim() ?? '',
+      'total_amount': (data['total_amount']?.trim().isEmpty ?? true) ? '' : data['total_amount']!.trim(),
+    };
+  }
+
+  String _p2(int v) => v.toString().padLeft(2, '0');
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
@@ -106,11 +157,12 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
     ],
   );
 
-  List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.crmCode, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.crmCode, AppL10n.current.fieldCustomer, AppL10n.current.crmAmount, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.crmName: r['name'] ?? '',
     AppL10n.current.crmCode: r['code'] ?? '',
+    AppL10n.current.fieldCustomer: r['customer_name'] ?? r['customer_id'] ?? '',
+    AppL10n.current.crmAmount: r['total_amount'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: Icon(Icons.handshake, size: 18, color: AppColors.of(context).primary),
         tooltip: AppL10n.current.crmQuotationConvert, onPressed: () => _toContract(r)),

@@ -10,6 +10,7 @@ namespace app\controller\crm;
 use app\admin\controller\BaseController;
 use app\model\CrmQuotation;
 use app\model\CrmQuotationItem;
+use app\model\Customer;
 use app\service\crm\CrmService;
 use support\Container;
 use support\Request;
@@ -53,7 +54,14 @@ class QuotationController extends BaseController
             'searchFields' => ['code'],
             'eqFilters' => ['status', 'customer_id'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        // FK 编码为 hashid（与客户下拉选项同源，供编辑弹窗回填）+ 客户名称展示（表无 name 列）
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'opportunity_id']), $result['list']);
+        $customerIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['customer_id'] ?? 0), $list)));
+        $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
+        $list = array_map(function ($row) use ($customerNames) {
+            $row['customer_name'] = (string) ($customerNames[(int) ($row['customer_id'] ?? 0)] ?? '');
+            return $row;
+        }, $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -75,19 +83,49 @@ class QuotationController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['customer_id' => 'required|integer']);
+        // 校验真实表列（表无 name 列；页面幻键经 $fillable 静默过滤）。
+        // customer_id 必填且为 hashid/原生数字双模（原 required|integer 拒绝 hashid → 422）
+        $data = $request->all();
+        $validator = validator($data, ['customer_id' => 'required|string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        foreach (['customer_id' => '客户ID', 'opportunity_id' => '商机ID'] as $field => $label) {
+            $raw = (string) ($data[$field] ?? '');
+            if ($raw === '') {
+                if ($field === 'customer_id') {
+                    return $this->fail($label . '无效', 422);
+                }
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($raw);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($label . '无效', 422);
+            }
+            $data[$field] = $decoded;
+        }
+        // 单号留空自动生成（uk_code 唯一）；负责人 NOT NULL 无默认 → 当前登录管理员
+        $code = (string) ($data['code'] ?? '');
+        if ($code === '') {
+            $data['code'] = 'QT' . date('YmdHis');
+        }
+        $data['owner_user_id'] = (int) ($request->adminId ?? 0);
+        // 可空/可缺省列：空串按缺省处理（'' 不直插 DATE/DECIMAL）
+        foreach (['total_amount', 'remark', 'quoted_at', 'valid_until'] as $field) {
+            if (isset($data[$field]) && $data[$field] === '') {
+                unset($data[$field]);
+            }
+        }
 
-        $item = $this->crm()->create(CrmQuotation::class, $request->all(), ['status' => 0]);
+        $item = $this->crm()->create(CrmQuotation::class, $data, ['status' => 0]);
 
         $items = $request->input('items', []);
         if (is_array($items)) {
             $this->crm()->replaceItems(CrmQuotationItem::class, 'quotation_id', $item->id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'opportunity_id']), '创建成功');
     }
 
     /**
@@ -111,7 +149,7 @@ class QuotationController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'opportunity_id']));
     }
 
     /**
@@ -136,18 +174,37 @@ class QuotationController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        if ($item->status !== 0) {
+        if ((int) $item->status !== 0) {
             return $this->fail('仅草稿状态可编辑', 422);
         }
 
-        $item = $this->crm()->update(CrmQuotation::class, $id, $request->all());
+        $data = $request->all();
+        foreach (['customer_id' => '客户ID', 'opportunity_id' => '商机ID'] as $field => $label) {
+            $raw = $data[$field] ?? '';
+            if ($raw === '') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId((string) $raw);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($label . '无效', 422);
+            }
+            $data[$field] = $decoded;
+        }
+        foreach (['total_amount', 'remark', 'quoted_at', 'valid_until'] as $field) {
+            if (isset($data[$field]) && $data[$field] === '') {
+                unset($data[$field]);
+            }
+        }
+
+        $item = $this->crm()->update(CrmQuotation::class, $id, $data);
 
         $items = $request->input('items', []);
         if (!empty($items)) {
             $this->crm()->replaceItems(CrmQuotationItem::class, 'quotation_id', $id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'opportunity_id']), '更新成功');
     }
 
     /**

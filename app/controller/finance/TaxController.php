@@ -70,7 +70,11 @@ class TaxController extends BaseController
 
         $hashid = $request->input('id', '');
         if ($hashid) {
-            $id = $this->decodeId($id);
+            // 原实现误用未定义 $id 解码（必然 TypeError 500），应为请求体 hashid 参数
+            $id = $this->decodeIdSafe((string) $hashid);
+            if (!$id) {
+                return $this->fail('记录不存在', 404);
+            }
             $item = FinanceTaxRate::find($id);
             if (!$item) {
                 return $this->fail('记录不存在', 404);

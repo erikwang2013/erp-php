@@ -1,12 +1,17 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 import 'package:flutter/material.dart';
+import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
-import '../../l10n/app_l10n.dart';
+import '../../widgets/status_badge.dart';
 
+// erp_tms_tracking_event 真实列：shipment_id/status_code/description/location/
+// event_time/raw_data。无 name/code/status 列（幻列已删）：运单号由后端随行带回
+// shipment_code；status_code 为字符串状态码 picked_up/in_transit/out_for_delivery/
+// delivered/exception（labels 走 tmsShipStatus*，out_for_delivery 暂无 key）。
 class TrackingPage extends StatefulWidget {
   const TrackingPage({super.key});
   @override
@@ -17,11 +22,20 @@ class _TrackingPageState extends State<TrackingPage> {
   List<Map<String, dynamic>> _rows = [];
   int _total = 0, _page = 1;
   final int _limit = 20;
-  String _keyword = '';
 
   bool _loading = true;
   String? _error;
   int _reqSeq = 0;
+
+  /// 运单下拉 /admin/v1/tms/shipment（行 code 为运单号；失败降级空表）。
+  Future<List<Map<String, dynamic>>> _loadShipments() async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/tms/shipment', params: {'limit': '500'});
+      return List<Map<String, dynamic>>.from(res['data']?['list'] ?? []);
+    } catch (_) {
+      return [];
+    }
+  }
 
   @override
   void initState() {
@@ -33,16 +47,7 @@ class _TrackingPageState extends State<TrackingPage> {
     final seq = ++_reqSeq;
     setState(() => _loading = true);
     try {
-      final params = <String, String>{
-        'page': '$_page',
-        'limit': '$_limit',
-        'keyword': _keyword,
-      };
-
-      final res = await ApiService.instance.get(
-        '/admin/v1/tms/tracking',
-        params: params,
-      );
+      final res = await ApiService.instance.get('/admin/v1/tms/tracking', params: {'page': '$_page', 'limit': '$_limit'});
       final d = res['data'];
       if (seq != _reqSeq || !mounted) return;
       setState(() {
@@ -66,13 +71,31 @@ class _TrackingPageState extends State<TrackingPage> {
     }
   }
 
+  /// 弹窗前预取运单；编辑时原运单不在列表则补一行原值。
+  Future<List<FormFieldConfig>> _fieldsFor({Map<String, dynamic>? row}) async {
+    final shipments = await _loadShipments();
+    if (!mounted) return _formFields([]);
+    var options = [
+      for (final s in shipments) '${s['id']} - ${s['code'] ?? s['tracking_no'] ?? s['id']}',
+    ];
+    if (row != null) {
+      final sid = '${row['shipment_id'] ?? ''}';
+      if (sid.isNotEmpty && !options.any((o) => o.startsWith('$sid - '))) {
+        options = ['$sid - ${row['shipment_code'] ?? sid}', ...options];
+      }
+    }
+    return _formFields(options);
+  }
+
   Future<void> _create() async {
+    final fields = await _fieldsFor();
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonAdd,
-      fields: _formFields(),
+      fields: fields,
       onSubmit: (data) async {
-        await ApiService.instance.post('/admin/v1/tms/tracking', data: data);
+        await ApiService.instance.post('/admin/v1/tms/tracking', data: _buildPayload(data));
         _load();
         return true;
       },
@@ -80,16 +103,15 @@ class _TrackingPageState extends State<TrackingPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    final fields = await _fieldsFor(row: row);
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonEdit,
-      fields: _formFields(),
-      initialData: row,
+      fields: fields,
+      initialData: _toEditData(row),
       onSubmit: (data) async {
-        await ApiService.instance.put(
-          '/admin/v1/tms/tracking/${row['id']}',
-          data: data,
-        );
+        await ApiService.instance.put('/admin/v1/tms/tracking/${row['id']}', data: _buildPayload(data));
         _load();
         return true;
       },
@@ -100,28 +122,80 @@ class _TrackingPageState extends State<TrackingPage> {
     await ConfirmDialog.show(
       context,
       title: AppL10n.of(context).commonDeleteConfirm,
-      content: AppL10n.of(
-        context,
-      ).commonDeleteMsg('${row['name'] ?? row['code'] ?? row['id']}'),
+      content: AppL10n.of(context).commonDeleteMsg('${row['shipment_code'] ?? row['id']}'),
       onConfirm: (password) async {
-        await ApiService.instance.delete(
-          '/admin/v1/tms/tracking/${row['id']}',
-          data: {'password': password},
-        );
+        await ApiService.instance.delete('/admin/v1/tms/tracking/${row['id']}', data: {'password': password});
         _load();
         return true;
       },
     );
   }
 
-  List<FormFieldConfig> _formFields() => [
+  List<FormFieldConfig> _formFields(List<String> shipmentOptions) => [
     FormFieldConfig(
-      name: 'name',
-      label: AppL10n.of(context).commonName,
+      name: 'shipment_id',
+      label: AppL10n.of(context).fieldTrackingNo,
       required: true,
+      type: FormFieldType.dropdown,
+      options: shipmentOptions,
     ),
-    FormFieldConfig(name: 'code', label: AppL10n.of(context).commonCode),
+    FormFieldConfig(
+      name: 'status_code',
+      label: AppL10n.of(context).commonStatus,
+      type: FormFieldType.dropdown,
+      options: _statusOptions,
+      initialValue: 'in_transit - ${_statusText('in_transit')}',
+    ),
+    FormFieldConfig(name: 'description', label: AppL10n.of(context).fieldDescription, type: FormFieldType.multiline),
+    FormFieldConfig(name: 'event_time', label: AppL10n.of(context).fieldTime),
   ];
+
+  List<String> get _statusOptions => [
+    for (final code in const ['picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'exception'])
+      '$code - ${_statusText(code)}',
+  ];
+
+  /// 状态码 → 文案（缺失 key 的码原样展示，避免误导性借用）。
+  String _statusText(String code) {
+    final l = AppL10n.of(context);
+    switch (code) {
+      case 'picked_up':
+        return l.tmsShipStatusPickedUp;
+      case 'in_transit':
+        return l.tmsShipStatusInTransit;
+      case 'delivered':
+        return l.tmsShipStatusDelivered;
+      case 'exception':
+        return l.tmsShipStatusException;
+      default:
+        return code;
+    }
+  }
+
+  /// 组装后端接收参数：shipment_id/status_code 均取码段；时间可空留空即 null。
+  Map<String, dynamic> _buildPayload(Map<String, String> data) {
+    String pick(String key) => (data[key] ?? '').split(' - ').first.trim();
+    final time = data['event_time']?.trim();
+    return {
+      'shipment_id': pick('shipment_id'),
+      'status_code': pick('status_code'),
+      'description': data['description']?.trim() ?? '',
+      'event_time': (time == null || time.isEmpty) ? null : time,
+    };
+  }
+
+  /// 编辑回填：FK/状态码转选项文案。
+  Map<String, dynamic> _toEditData(Map<String, dynamic> row) {
+    final d = Map<String, dynamic>.from(row);
+    final sid = '${row['shipment_id'] ?? ''}';
+    final sc = row['shipment_code'];
+    d['shipment_id'] = sid.isEmpty ? '' : (sc == null || '$sc'.isEmpty ? sid : '$sid - $sc');
+    final code = '${row['status_code'] ?? ''}';
+    if (code.isNotEmpty) {
+      d['status_code'] = '$code - ${_statusText(code)}';
+    }
+    return d;
+  }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
@@ -133,12 +207,6 @@ class _TrackingPageState extends State<TrackingPage> {
     loading: _loading,
     error: _error,
     onRetry: _load, onRefresh: _load,
-    keyword: _keyword,
-    onSearch: (v) {
-      _keyword = v;
-      _page = 1;
-      _load();
-    },
     onPageChanged: (p) {
       _page = p;
       _load();
@@ -156,17 +224,18 @@ class _TrackingPageState extends State<TrackingPage> {
     ],
   );
 
-  List<String> _columns() => [
-    AppL10n.of(context).commonName,
-    AppL10n.of(context).commonCode,
-    AppL10n.of(context).commonAction,
-  ];
+  List<String> _columns() {
+    final l = AppL10n.of(context);
+    return [l.fieldTrackingNo, l.commonStatus, l.fieldTime, l.fieldDescription, l.commonAction];
+  }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
     return {
-      l.commonName: r['name'] ?? '',
-      l.commonCode: r['code'] ?? '',
+      l.fieldTrackingNo: r['shipment_code'] ?? '',
+      l.commonStatus: _chip('${r['status_code'] ?? ''}'),
+      l.fieldTime: r['event_time'] ?? '',
+      l.fieldDescription: r['description'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -181,5 +250,18 @@ class _TrackingPageState extends State<TrackingPage> {
         ],
       ),
     };
+  }
+
+  Widget _chip(String code) {
+    final l = AppL10n.of(context);
+    final c = AppColors.of(context);
+    final (text, bg, fg) = switch (code) {
+      'picked_up' => (l.tmsShipStatusPickedUp, c.primaryBg, c.primaryPressed),
+      'in_transit' => (l.tmsShipStatusInTransit, c.primaryBg, c.primaryPressed),
+      'delivered' => (l.tmsShipStatusDelivered, c.successBg, c.successText),
+      'exception' => (l.tmsShipStatusException, c.dangerBg, c.dangerText),
+      _ => (code, c.warningBg, c.warningText),
+    };
+    return StatusBadge(label: text, bg: bg, fg: fg);
   }
 }

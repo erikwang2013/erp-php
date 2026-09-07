@@ -19,4 +19,7 @@ class CrmFunnelStage extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    // guarded-only 时 getFillable()=[]，AbstractCrudService::create() 不落任何列 →
+    // 真实 NOT NULL(name) 缺省直插 500。显式列白名单（表无 code 列，页面幻键被静默过滤）。
+    protected $fillable = ['name', 'sort', 'win_rate', 'status'];
 }

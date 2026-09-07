@@ -93,8 +93,9 @@ class BudgetController extends BaseController
 
         $item = new FinanceBudget();
         $item->id = $this->generateId();
-        $item->status = 0;
         $this->fillModelFromRequest($item, $request);
+        // 新建一律草稿，客户端不可直建已审批状态
+        $item->status = 0;
         $item->save();
 
         // 保存预算明细

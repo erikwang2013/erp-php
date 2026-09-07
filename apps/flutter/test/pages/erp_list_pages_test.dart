@@ -123,13 +123,13 @@ void main() {
   });
 
   group('库存预警列表', () {
-    testWidgets('渲染预警名称与编码', (tester) async {
+    testWidgets('渲染商品/仓库/阈值与启用状态（无 name/code 幻列）', (tester) async {
       await installApi(FakeHttpClientAdapter(routes: {
         '/admin/v1/inventory/alert': (o) async => FakeHttpClientAdapter.jsonResponse({
           'code': 0,
           'data': {
             'list': [
-              {'id': 1, 'name': '内存条', 'code': 'MEM-8G'},
+              {'id': 1, 'product_id': 11, 'product_name': '内存条', 'warehouse_name': '华东仓', 'min_quantity': '50.00', 'max_quantity': '200.00', 'enabled': 1},
             ],
             'total': 1,
           },
@@ -138,9 +138,10 @@ void main() {
 
       await pump(tester, const InventoryAlertListPage());
 
-      expect(find.text('名称'), findsOneWidget);
       expect(find.text('内存条'), findsOneWidget);
-      expect(find.text('MEM-8G'), findsOneWidget);
+      expect(find.text('华东仓'), findsOneWidget);
+      expect(find.text('50.00'), findsOneWidget);
+      expect(find.text('200.00'), findsOneWidget);
     });
   });
 

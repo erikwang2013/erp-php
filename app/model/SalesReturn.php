@@ -19,4 +19,6 @@ class SalesReturn extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    // $fillable 显式白名单（与 $guarded 并存）：fill 仅落真实表列，杜绝幻列/任意键写入
+    protected $fillable = ['code', 'delivery_id', 'customer_id', 'warehouse_id', 'total_amount', 'status', 'remark', 'returned_at'];
 }

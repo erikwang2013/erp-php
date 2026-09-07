@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\tms;
 
 use app\admin\controller\BaseController;
+use app\model\TmsCarrierService;
 use app\model\TmsFreightRate;
 use app\service\tms\FreightCalculatorService;
 use support\Request;
@@ -37,7 +38,6 @@ class FreightRateController extends BaseController
     {
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
-        $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
         $query = TmsFreightRate::query();
@@ -47,9 +47,19 @@ class FreightRateController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $models = $query->offset(($page - 1) * $limit)
+            ->limit($limit)->orderBy('id', 'desc')->get();
+        // 行补承运服务名/编码（费率卡无名称列）；FK 编码供编辑弹窗回填 hashid
+        $services = TmsCarrierService::whereIn('id', $models->pluck('carrier_service_id')->all())
+            ->pluck('name', 'id')->all();
+        $serviceCodes = TmsCarrierService::whereIn('id', $models->pluck('carrier_service_id')->all())
+            ->pluck('code', 'id')->all();
+        $list = $models->map(function ($item) use ($services, $serviceCodes) {
+            $row = $this->encodeIds($item->toArray(), ['id', 'carrier_service_id']);
+            $row['carrier_service_name'] = $services[$item->carrier_service_id] ?? '';
+            $row['carrier_service_code'] = $serviceCodes[$item->carrier_service_id] ?? '';
+            return $row;
+        });
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -58,30 +68,44 @@ class FreightRateController extends BaseController
      * 创建运费费率
      */
 #[\erikwang2013\apidoc\annotation\Title("创建运费费率")]
-#[\erikwang2013\apidoc\annotation\Desc("创建运费费率，编码必填，其余字段按业务传入")]
+#[\erikwang2013\apidoc\annotation\Desc("创建运费费率，承运服务与生效日期必填，其余字段按业务传入（表无 code 列）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/freight-rate")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"费率编码，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"carrier_service_id", type:"string", require:true, desc:"承运商服务ID（hashid）")]
+#[\erikwang2013\apidoc\annotation\Param(name:"valid_from", type:"string", require:true, desc:"生效日期")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
 #[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        $validator = validator($request->all(), [
+            'carrier_service_id' => 'required|string',
+            'valid_from' => 'required|date',
+            'valid_to' => 'nullable|date',
+            'status' => 'nullable|integer|in:0,1',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
         $item = new TmsFreightRate();
         $item->id = $this->generateId();
+        // 真实列先按请求填充（模型 $fillable 白名单），FK 解码覆盖防 hashid 串入库
         $this->fillModelFromRequest($item, $request);
-
+        $serviceId = $this->decodeFlexibleId((string) $request->input('carrier_service_id'));
+        if ($serviceId === null || $serviceId < 1) {
+            return $this->fail('承运服务ID无效', 422);
+        }
+        $item->carrier_service_id = $serviceId;
+        if ($request->input('valid_to') === '') {
+            $item->valid_to = null;
+        }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('created'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'carrier_service_id']), $this->trans('created'));
     }
 
     /**
@@ -134,11 +158,25 @@ class FreightRateController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
-        $this->fillModelFromRequest($item, $request);
 
+        $this->fillModelFromRequest($item, $request);
+        // FK 仅可改绑合法承运服务（hashid/原生数字双模，垃圾串 422）
+        $rawServiceId = $request->input('carrier_service_id');
+        if ($rawServiceId !== null && $rawServiceId !== '') {
+            $serviceId = $this->decodeFlexibleId((string) $rawServiceId);
+            if ($serviceId === null || $serviceId < 1) {
+                return $this->fail('承运服务ID无效', 422);
+            }
+            $item->carrier_service_id = $serviceId;
+        }
+        // valid_to 为可空 DATE 列：空白串转 null（datetime cast 直存 '' 会抛异常）；
+        // valid_from NOT NULL 不可清空，留空保持原值
+        if ($request->input('valid_to') === '') {
+            $item->valid_to = null;
+        }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('updated'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'carrier_service_id']), $this->trans('updated'));
     }
 
     /**

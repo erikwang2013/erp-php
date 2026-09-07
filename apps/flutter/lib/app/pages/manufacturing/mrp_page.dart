@@ -59,16 +59,21 @@ class _MrpPageState extends State<MrpPage> {
   Future<void> _delete(Map<String, dynamic> row) async {
     final l10n = AppL10n.of(context);
     await ConfirmDialog.show(context, title: l10n.commonDeleteConfirm,
-      content: l10n.manufacturingDeleteConfirmMsg('${row['name'] ?? row['code'] ?? '${row['id']}'}'),
+      content: l10n.manufacturingDeleteConfirmMsg('${row['code'] ?? row['id']}'),
       onConfirm: (password) async {
       await ApiService.instance.delete('/admin/v1/mfg/mrp/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
 
+  // 与后端契约对齐（erp_mfg_mrp_plan）：code/period_year/period_month NOT NULL 且 store()
+  // 均 required；表无 name 列（幻键已移除）。period_year/period_month 新增时默认当前年月。
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.current.manufacturingName, required: true),
-    FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode),
+    FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode, required: true),
+    FormFieldConfig(name: 'period_year', label: AppL10n.current.financeYear, required: true, type: FormFieldType.number,
+        initialValue: '${DateTime.now().year}'),
+    FormFieldConfig(name: 'period_month', label: AppL10n.current.financeMonth, required: true, type: FormFieldType.number,
+        initialValue: '${DateTime.now().month}'),
   ];
 
   @override
@@ -92,14 +97,16 @@ class _MrpPageState extends State<MrpPage> {
   }
 
   List<String> _columns() => [
-    AppL10n.current.manufacturingName,
     AppL10n.current.manufacturingCode,
+    AppL10n.current.financeYear,
+    AppL10n.current.financeMonth,
     AppL10n.current.commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.manufacturingName: r['name'] ?? '',
     AppL10n.current.manufacturingCode: r['code'] ?? '',
+    AppL10n.current.financeYear: r['period_year'] ?? '',
+    AppL10n.current.financeMonth: r['period_month'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

@@ -65,10 +65,11 @@ class _FunnelListPageState extends State<FunnelListPage> {
     });
   }
 
+  // 与后端契约对齐（erp_crm_funnel_stage）：name/sort/win_rate/status——无 code 列（幻键已移除），
+  // 排序字段真实列名为 sort（原 sort_order 属页面幻键，落库被 $fillable 静默过滤）
   List<FormFieldConfig> _formFields() => [
     FormFieldConfig(name: 'name', label: AppL10n.current.crmFunnelStageName, required: true),
-    FormFieldConfig(name: 'code', label: AppL10n.current.crmCode),
-    FormFieldConfig(name: 'sort_order', label: AppL10n.current.crmFunnelSortOrder),
+    FormFieldConfig(name: 'sort', label: AppL10n.current.crmFunnelSortOrder, type: FormFieldType.number),
   ];
 
   @override
@@ -88,12 +89,11 @@ class _FunnelListPageState extends State<FunnelListPage> {
     ],
   );
 
-  List<String> _columns() => [AppL10n.current.crmFunnelStageName, AppL10n.current.crmCode, AppL10n.current.crmFunnelSortOrder, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.crmFunnelStageName, AppL10n.current.crmFunnelSortOrder, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.crmFunnelStageName: r['name'] ?? '',
-    AppL10n.current.crmCode: r['code'] ?? '',
-    AppL10n.current.crmFunnelSortOrder: r['sort_order'] ?? '',
+    AppL10n.current.crmFunnelSortOrder: r['sort'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

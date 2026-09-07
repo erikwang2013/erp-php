@@ -46,7 +46,8 @@ class FunnelStageController extends BaseController
             'keyword' => $keyword,
             'status' => $status,
         ], $page, $limit, [
-            'searchFields' => ['name', 'code'],
+            // 表无 code 列（erp_crm_funnel_stage：name/sort/win_rate/status），按 code 搜索必 SQL 错
+            'searchFields' => ['name'],
             'eqFilters' => ['status'],
         ]);
         $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);

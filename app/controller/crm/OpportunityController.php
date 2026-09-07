@@ -8,7 +8,9 @@ declare(strict_types=1);
 namespace app\controller\crm;
 
 use app\admin\controller\BaseController;
+use app\model\CrmFunnelStage;
 use app\model\CrmOpportunity;
+use app\model\Customer;
 use app\service\crm\CrmService;
 use support\Container;
 use support\Request;
@@ -46,12 +48,32 @@ class OpportunityController extends BaseController
             'keyword' => $keyword,
             'status' => $status,
         ], $page, $limit, [
-            'searchFields' => ['name', 'code'],
+            // 表无 code 列（erp_crm_opportunity：customer_id/stage_id/name/estimated_amount 等）
+            'searchFields' => ['name'],
             'eqFilters' => ['status'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        // FK 编码为 hashid（与客户/漏斗下拉选项同源，供编辑弹窗回填）+ 引用名展示
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'stage_id']), $result['list']);
+        $list = $this->enrichNames($list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
+    }
+
+    /**
+     * 列表行补引用名：客户名称/阶段名称（表无名称类列，仅 FK 展示用）
+     */
+    private function enrichNames(array $list): array
+    {
+        $customerIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['customer_id'] ?? 0), $list)));
+        $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
+        $stageIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['stage_id'] ?? 0), $list)));
+        $stageNames = CrmFunnelStage::whereIn('id', $stageIds)->pluck('name', 'id');
+
+        return array_map(function ($row) use ($customerNames, $stageNames) {
+            $row['customer_name'] = (string) ($customerNames[(int) ($row['customer_id'] ?? 0)] ?? '');
+            $row['stage_name'] = (string) ($stageNames[(int) ($row['stage_id'] ?? 0)] ?? '');
+            return $row;
+        }, $list);
     }
 
     /**
@@ -70,14 +92,30 @@ class OpportunityController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        // 校验真实表列（表无 code/amount/stage 列，页面幻键经 $fillable 静默过滤）
+        $data = $request->all();
+        $validator = validator($data, ['name' => 'required|string|max:200']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        // customer_id/stage_id 均 NOT NULL 无默认：hashid/原生数字双模解码，垃圾串 422 拒绝
+        foreach (['customer_id' => '客户ID', 'stage_id' => '漏斗阶段ID'] as $field => $label) {
+            $decoded = $this->decodeFlexibleId((string) ($data[$field] ?? ''));
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($label . '无效', 422);
+            }
+            $data[$field] = $decoded;
+        }
+        // 可空/可缺省列：空串按缺省处理（避免 '' 直插 DATE/DECIMAL 触发严格模式 500）
+        foreach (['estimated_amount', 'probability', 'expected_close_date', 'remark', 'owner_user_id'] as $field) {
+            if (isset($data[$field]) && $data[$field] === '') {
+                unset($data[$field]);
+            }
+        }
 
-        $item = $this->crm()->create(CrmOpportunity::class, $request->all());
+        $item = $this->crm()->create(CrmOpportunity::class, $data);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']), '创建成功');
     }
 
     /**
@@ -101,7 +139,7 @@ class OpportunityController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']));
     }
 
     /**
@@ -120,12 +158,32 @@ class OpportunityController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->crm()->update(CrmOpportunity::class, $id, $request->all());
+        $item = $this->crm()->find(CrmOpportunity::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        $data = $request->all();
+        foreach (['customer_id' => '客户ID', 'stage_id' => '漏斗阶段ID'] as $field => $label) {
+            if (isset($data[$field]) && $data[$field] !== '') {
+                $decoded = $this->decodeFlexibleId((string) $data[$field]);
+                if ($decoded === null || $decoded < 1) {
+                    return $this->fail($label . '无效', 422);
+                }
+                $data[$field] = $decoded;
+            } else {
+                unset($data[$field]);
+            }
+        }
+        foreach (['estimated_amount', 'probability', 'expected_close_date', 'remark', 'owner_user_id'] as $field) {
+            if (isset($data[$field]) && $data[$field] === '') {
+                unset($data[$field]);
+            }
+        }
+
+        $item = $this->crm()->update(CrmOpportunity::class, $id, $data);
+
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']), '更新成功');
     }
 
     /**

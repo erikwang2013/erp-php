@@ -105,7 +105,7 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
       context,
       title: AppL10n.of(context).commonDeleteConfirm,
       content: AppL10n.of(context).commonDeleteMsg(
-        '${row['channel_order_no'] ?? row['code'] ?? row['id']}',
+        '${row['channel_order_no'] ?? row['id']}',
       ),
       onConfirm: (password) async {
         await ApiService.instance.delete(
@@ -144,7 +144,7 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
 
   // 后端 erp_oms_order 字段: order_id/channel/channel_order_no/channel_store/
   // fulfillment_status/payment_status/shipping_method/shipping_fee/
-  // buyer_message/seller_note/priority/hold_until（store() 同时校验 code 必填）
+  // buyer_message/seller_note/priority/hold_until（表无 code 列：后端校验 order_id）
   static const List<String> _channelOptions = [
     'manual',
     'web',
@@ -193,12 +193,6 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
   List<FormFieldConfig> _formFields() {
     final l = AppL10n.of(context);
     return [
-      FormFieldConfig(
-        name: 'code',
-        label: l.omsOrderCode,
-        required: true,
-        hint: l.omsOrderCodeHint,
-      ),
       FormFieldConfig(
         name: 'order_id',
         label: l.omsOrderId,
@@ -264,7 +258,6 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
   Map<String, dynamic> _buildPayload(Map<String, String> data) {
     String pick(String key) => (data[key] ?? '').split(' - ').first.trim();
     return {
-      'code': data['code']?.trim() ?? '',
       'order_id': data['order_id']?.trim(),
       'channel': data['channel']?.trim(),
       'channel_order_no': data['channel_order_no']?.trim() ?? '',

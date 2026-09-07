@@ -66,9 +66,14 @@ class _BomListPageState extends State<BomListPage> {
     });
   }
 
+  // 与后端契约对齐（erp_mfg_bom）：product_id/code/name NOT NULL；store() 要求三字段齐备。
+  // product_id 为整数 FK（后端 required|integer），与 quality 模块同款数字输入（行内 id 即原生值，
+  // 下拉选项为 hashid 不可回填，故不用下拉）。
   List<FormFieldConfig> _formFields() => [
+    FormFieldConfig(name: 'product_id', label: AppL10n.current.fieldProductId, required: true, type: FormFieldType.number),
     FormFieldConfig(name: 'name', label: AppL10n.current.manufacturingName, required: true),
-    FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode),
+    // code NOT NULL 无默认且 store() required：页面必填（与 workstation 页 code 同规则）
+    FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode, required: true),
   ];
 
   @override
@@ -94,12 +99,14 @@ class _BomListPageState extends State<BomListPage> {
   List<String> _columns() => [
     AppL10n.current.manufacturingName,
     AppL10n.current.manufacturingCode,
+    AppL10n.current.fieldProductId,
     AppL10n.current.commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.manufacturingName: r['name'] ?? '',
     AppL10n.current.manufacturingCode: r['code'] ?? '',
+    AppL10n.current.fieldProductId: r['product_id'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

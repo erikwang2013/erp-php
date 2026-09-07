@@ -9,6 +9,7 @@ namespace app\controller\product;
 
 use app\admin\controller\BaseController;
 use app\model\Location;
+use app\model\Warehouse;
 use app\service\product\ProductService;
 use support\Container;
 use support\Request;
@@ -49,7 +50,14 @@ class LocationController extends BaseController
             'searchFields' => ['name', 'code'],
             'eqFilters' => ['status'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'warehouse_id']), $result['list']);
+        // 行补引用名：仓库名（表无仓库名列，页面展示此前取幻列 warehouse 恒为空）
+        $warehouseNames = Warehouse::whereIn('id', array_unique(array_column($result['list'], 'warehouse_id')))
+            ->pluck('name', 'id')->all();
+        $list = array_map(function ($item) use ($warehouseNames) {
+            $row = $this->encodeIds($item, ['id', 'warehouse_id']);
+            $row['warehouse_name'] = $warehouseNames[$item['warehouse_id']] ?? '';
+            return $row;
+        }, $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -101,12 +109,26 @@ class LocationController extends BaseController
 
     public function store(Request $request): Response
     {
+        // 库位旧表单以仓库名（幻列 warehouse）代替 warehouse_id 提交 → 引用永不落库；
+        // 现改为显式赋值：warehouse_id 必填且 hashid/原生数字双模解码，垃圾串 422 拒绝
         $validator = validator($request->all(), ['name' => 'required|string|max:200']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->product()->create(Location::class, $request->all());
+        $warehouseId = $this->decodeFlexibleId((string) $request->input('warehouse_id', ''));
+        if ($warehouseId === null || $warehouseId < 1) {
+            return $this->fail('仓库ID无效', 422);
+        }
+
+        $item = new Location();
+        $item->id = $this->generateId();
+        $item->warehouse_id = $warehouseId;
+        $item->code = (string) $request->input('code', '');
+        $item->name = (string) $request->input('name', '');
+        $statusRaw = $request->input('status');
+        $item->status = ($statusRaw === null || $statusRaw === '') ? 1 : (int) $statusRaw;
+        $item->save();
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), '创建成功');
     }
@@ -155,10 +177,30 @@ class LocationController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->product()->update(Location::class, $id, $request->all());
+        $item = Location::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
+
+        if ($request->input('code') !== null) {
+            $item->code = (string) $request->input('code');
+        }
+        if ($request->input('name') !== null) {
+            $item->name = (string) $request->input('name');
+        }
+        $warehouseRaw = $request->input('warehouse_id');
+        if ($warehouseRaw !== null && $warehouseRaw !== '') {
+            $warehouseId = $this->decodeFlexibleId((string) $warehouseRaw);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail('仓库ID无效', 422);
+            }
+            $item->warehouse_id = $warehouseId;
+        }
+        $statusRaw = $request->input('status');
+        if ($statusRaw !== null && $statusRaw !== '') {
+            $item->status = (int) $statusRaw;
+        }
+        $item->save();
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), '更新成功');
     }

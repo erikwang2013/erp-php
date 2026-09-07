@@ -98,11 +98,12 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
     ],
   );
 
-  List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.crmCode];
+  // 报表行（erp_crm_analytics_report）无 code 列（幻键已移除），次列展示真实 type（后端存储值）
+  List<String> _columns() => [AppL10n.current.crmAnalyticsReportName, AppL10n.current.crmAnalyticsReportType];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.crmName: r['name'] ?? '',
-    AppL10n.current.crmCode: r['code'] ?? '',
+    AppL10n.current.crmAnalyticsReportName: r['name'] ?? '',
+    AppL10n.current.crmAnalyticsReportType: r['type'] ?? '',
   };
 
 }

@@ -66,9 +66,14 @@ class _RoutingPageState extends State<RoutingPage> {
     });
   }
 
+  // 与后端契约对齐（erp_mfg_routing）：product_id/name/seq/workstation_id NOT NULL 且 store()
+  // 均 required；表无 code 列（幻键已移除）。FK 为整数（后端 required|integer），与 quality
+  // 模块同款数字输入（行内 id 即原生值，下拉选项为 hashid 不可回填，故不用下拉）。
   List<FormFieldConfig> _formFields() => [
+    FormFieldConfig(name: 'product_id', label: AppL10n.current.fieldProductId, required: true, type: FormFieldType.number),
     FormFieldConfig(name: 'name', label: AppL10n.current.manufacturingName, required: true),
-    FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode),
+    FormFieldConfig(name: 'seq', label: AppL10n.current.manufacturingSeq, required: true, type: FormFieldType.number),
+    FormFieldConfig(name: 'workstation_id', label: AppL10n.current.fieldWorkstationId, required: true, type: FormFieldType.number),
   ];
 
   @override
@@ -93,13 +98,17 @@ class _RoutingPageState extends State<RoutingPage> {
 
   List<String> _columns() => [
     AppL10n.current.manufacturingName,
-    AppL10n.current.manufacturingCode,
+    AppL10n.current.fieldProductId,
+    AppL10n.current.manufacturingSeq,
+    AppL10n.current.fieldWorkstationId,
     AppL10n.current.commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.manufacturingName: r['name'] ?? '',
-    AppL10n.current.manufacturingCode: r['code'] ?? '',
+    AppL10n.current.fieldProductId: r['product_id'] ?? '',
+    AppL10n.current.manufacturingSeq: r['seq'] ?? '',
+    AppL10n.current.fieldWorkstationId: r['workstation_id'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

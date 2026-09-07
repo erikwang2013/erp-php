@@ -8,7 +8,9 @@ declare(strict_types=1);
 namespace app\controller\crm;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
 use app\model\CrmFollowRecord;
+use app\model\Customer;
 use app\service\crm\CrmService;
 use support\Container;
 use support\Request;
@@ -39,17 +41,27 @@ class FollowRecordController extends BaseController
     {
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
-        $keyword = $request->input('keyword', '');
-        $status = $request->input('status');
+        $customerId = $request->input('customer_id');
 
+        // 表无 name/code/status 列（erp_crm_follow_record：customer_id/method/content 等），
+        // 原按幻列的关键词搜索/状态筛选整体移除，仅保留客户维度筛选
         $result = $this->crm()->list(CrmFollowRecord::class, [
-            'keyword' => $keyword,
-            'status' => $status,
+            'customer_id' => $customerId,
         ], $page, $limit, [
-            'searchFields' => ['name', 'code'],
-            'eqFilters' => ['status'],
+            'eqFilters' => ['customer_id'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        // FK 编码为 hashid（与客户下拉选项同源，供编辑弹窗回填）+ 引用名展示
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']), $result['list']);
+
+        $customerIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['customer_id'] ?? 0), $list)));
+        $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
+        $userIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['follow_user_id'] ?? 0), $list)));
+        $userNames = AdminUser::whereIn('id', $userIds)->pluck('real_name', 'id');
+        $list = array_map(function ($row) use ($customerNames, $userNames) {
+            $row['customer_name'] = (string) ($customerNames[(int) ($row['customer_id'] ?? 0)] ?? '');
+            $row['follow_user_name'] = (string) ($userNames[(int) ($row['follow_user_id'] ?? 0)] ?? '');
+            return $row;
+        }, $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -70,14 +82,32 @@ class FollowRecordController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
-        if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
+        // 校验真实表列（表无 name/code/status 列，页面幻键经 $fillable 静默过滤）
+        $data = $request->all();
+        // customer_id/follow_user_id 均 NOT NULL 无默认：hashid/原生数字双模解码，垃圾串 422 拒绝
+        foreach (['customer_id' => '客户ID', 'follow_user_id' => '跟进人ID'] as $field => $label) {
+            $raw = $data[$field] ?? '';
+            if ($field === 'follow_user_id' && ($raw === '' || $raw === null)) {
+                // 客户端未指定跟进人时默认当前登录管理员
+                $data[$field] = (int) ($request->adminId ?? 0);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId((string) $raw);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($label . '无效', 422);
+            }
+            $data[$field] = $decoded;
+        }
+        // 可空/可缺省列：空串按缺省处理（'' 不直插 DATE/TEXT/VARCHAR）
+        foreach (['contact_id', 'opportunity_id', 'method', 'content', 'next_plan', 'next_follow_at', 'followed_at'] as $field) {
+            if (isset($data[$field]) && $data[$field] === '') {
+                unset($data[$field]);
+            }
         }
 
-        $item = $this->crm()->create(CrmFollowRecord::class, $request->all());
+        $item = $this->crm()->create(CrmFollowRecord::class, $data);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']), '创建成功');
     }
 
     /**
@@ -101,7 +131,7 @@ class FollowRecordController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']));
     }
 
     /**
@@ -120,12 +150,33 @@ class FollowRecordController extends BaseController
     public function update(Request $request, string $id): Response
     {
         $id = $this->decodeId($id);
-        $item = $this->crm()->update(CrmFollowRecord::class, $id, $request->all());
+        $item = $this->crm()->find(CrmFollowRecord::class, $id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        $data = $request->all();
+        // 跟进人仅在显式传值时允许修改（hashid/原生数字双模解码）
+        foreach (['customer_id' => '客户ID', 'follow_user_id' => '跟进人ID'] as $field => $label) {
+            if (isset($data[$field]) && $data[$field] !== '') {
+                $decoded = $this->decodeFlexibleId((string) $data[$field]);
+                if ($decoded === null || $decoded < 1) {
+                    return $this->fail($label . '无效', 422);
+                }
+                $data[$field] = $decoded;
+            } else {
+                unset($data[$field]);
+            }
+        }
+        foreach (['contact_id', 'opportunity_id', 'method', 'content', 'next_plan', 'next_follow_at', 'followed_at'] as $field) {
+            if (isset($data[$field]) && $data[$field] === '') {
+                unset($data[$field]);
+            }
+        }
+
+        $item = $this->crm()->update(CrmFollowRecord::class, $id, $data);
+
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']), '更新成功');
     }
 
     /**

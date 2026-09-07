@@ -1265,5 +1265,17 @@
   "purchaseReturnNoHint": "留空自动生成 PRN+时间戳",
   "purchaseReturnedAt": "退货时间",
   "purchaseReturnStatusPending": "待出库",
-  "purchaseReturnStatusDone": "已出库"
+  "purchaseReturnStatusDone": "已出库",
+  "salesReturnNoHint": "留空自动生成 SRN+时间戳",
+  "salesDeliveryNo": "发货单号",
+  "manufacturingSeq": "工序号",
+  "mfgBom": "BOM",
+  "manufacturingPlannedQty": "计划生产数量",
+  "financeStatusPaid": "已打款",
+  "financeBudgetStatusClosed": "已关闭",
+  "financeTaxRate": "税率",
+  "inventoryAlertMaxQuantity": "最高库存",
+  "tmsShipStatusOutForDelivery": "派送中",
+  "tmsFreightBaseRate": "起步价",
+  "tmsFreightPerKgRate": "每公斤单价"
 }

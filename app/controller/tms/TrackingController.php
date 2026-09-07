@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\tms;
 
 use app\admin\controller\BaseController;
+use app\model\TmsShipment;
 use app\model\TmsTrackingEvent;
 use support\Request;
 use support\Response;
@@ -20,14 +21,14 @@ class TrackingController extends BaseController
      * 物流轨迹列表（分页）
      */
 #[\erikwang2013\apidoc\annotation\Title("物流轨迹列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取物流轨迹列表，支持分页和状态筛选")]
+#[\erikwang2013\apidoc\annotation\Desc("获取物流轨迹列表，支持分页（表无 name/code/status 列，状态码为 status_code 字符串）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/tracking")]
 #[\erikwang2013\apidoc\annotation\Method("GET")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
 #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
 #[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
+#[\erikwang2013\apidoc\annotation\Param(name:"shipment_id", type:"string", default:"", desc:"按运单过滤(hashid)")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
 #[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
@@ -36,19 +37,29 @@ class TrackingController extends BaseController
     {
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
-        $keyword = $request->input('keyword', '');
-        $status = $request->input('status');
+        $shipmentId = $request->input('shipment_id', '');
 
         $query = TmsTrackingEvent::query();
-
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+        if ($shipmentId !== null && $shipmentId !== '') {
+            // 过滤参数接收 hashid：解码失败/非正数一律 422 明确文案
+            $decodedShipmentId = $this->decodeIdSafe((string) $shipmentId);
+            if ($decodedShipmentId === null || $decodedShipmentId < 1) {
+                return $this->fail('无效的 shipment_id', 422);
+            }
+            $query->where('shipment_id', $decodedShipmentId);
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+        $models = $query->offset(($page - 1) * $limit)
+            ->limit($limit)->orderBy('id', 'desc')->get();
+        // 行补运单号（轨迹无名称列，运单号为其归属标识）；FK 编码供编辑回填 hashid
+        $shipmentCodes = TmsShipment::whereIn('id', $models->pluck('shipment_id')->all())
+            ->pluck('code', 'id')->all();
+        $list = $models->map(function ($item) use ($shipmentCodes) {
+            $row = $this->encodeIds($item->toArray(), ['id', 'shipment_id']);
+            $row['shipment_code'] = $shipmentCodes[$item->shipment_id] ?? '';
+            return $row;
+        });
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -57,30 +68,42 @@ class TrackingController extends BaseController
      * 创建物流轨迹
      */
 #[\erikwang2013\apidoc\annotation\Title("创建物流轨迹")]
-#[\erikwang2013\apidoc\annotation\Desc("创建物流轨迹记录，编码必填，其余字段按业务传入")]
+#[\erikwang2013\apidoc\annotation\Desc("创建物流轨迹记录，运单必填，其余字段按业务传入（表无 code 列）")]
 #[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/tracking")]
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"轨迹编码，必填")]
+#[\erikwang2013\apidoc\annotation\Param(name:"shipment_id", type:"string", require:true, desc:"运单ID（hashid）")]
+#[\erikwang2013\apidoc\annotation\Param(name:"status_code", type:"string", default:"", desc:"状态码: picked_up/in_transit/out_for_delivery/delivered/exception")]
+#[\erikwang2013\apidoc\annotation\Param(name:"description", type:"string", default:"", desc:"事件描述")]
+#[\erikwang2013\apidoc\annotation\Param(name:"location", type:"string", default:"", desc:"发生地点")]
+#[\erikwang2013\apidoc\annotation\Param(name:"event_time", type:"string", default:"", desc:"事件时间")]
 #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
 #[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
 #[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        $validator = validator($request->all(), ['shipment_id' => 'required|string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
         $item = new TmsTrackingEvent();
         $item->id = $this->generateId();
+        // 真实列按请求填充（$fillable 白名单），NOT NULL FK 解码覆盖防 hashid 串入库
         $this->fillModelFromRequest($item, $request);
-
+        $shipmentId = $this->decodeFlexibleId((string) $request->input('shipment_id'));
+        if ($shipmentId === null || $shipmentId < 1) {
+            return $this->fail('运单ID无效', 422);
+        }
+        $item->shipment_id = $shipmentId;
+        if ($request->input('event_time') === '') {
+            $item->event_time = null;
+        }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('created'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'shipment_id']), $this->trans('created'));
     }
 
     /**
@@ -133,11 +156,24 @@ class TrackingController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('not_found'), 404);
         }
-        $this->fillModelFromRequest($item, $request);
 
+        $this->fillModelFromRequest($item, $request);
+        // FK 仅可改绑合法运单（hashid/原生数字双模，垃圾串 422）
+        $rawShipmentId = $request->input('shipment_id');
+        if ($rawShipmentId !== null && $rawShipmentId !== '') {
+            $shipmentId = $this->decodeFlexibleId((string) $rawShipmentId);
+            if ($shipmentId === null || $shipmentId < 1) {
+                return $this->fail('运单ID无效', 422);
+            }
+            $item->shipment_id = $shipmentId;
+        }
+        // event_time 可空：空白串转 null（datetime cast 直存 '' 会抛异常）
+        if ($request->input('event_time') === '') {
+            $item->event_time = null;
+        }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('updated'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'shipment_id']), $this->trans('updated'));
     }
 
     /**

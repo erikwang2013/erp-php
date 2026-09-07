@@ -1328,5 +1328,17 @@
   "purchaseReturnNoHint": "Auto PRN+timestamp when blank",
   "purchaseReturnedAt": "Returned At",
   "purchaseReturnStatusPending": "Pending Issue",
-  "purchaseReturnStatusDone": "Issued"
+  "purchaseReturnStatusDone": "Issued",
+  "salesReturnNoHint": "Auto SRN+timestamp when blank",
+  "salesDeliveryNo": "Delivery No.",
+  "manufacturingSeq": "Seq",
+  "mfgBom": "BOM",
+  "manufacturingPlannedQty": "Planned Quantity",
+  "financeStatusPaid": "Paid",
+  "financeBudgetStatusClosed": "Closed",
+  "financeTaxRate": "Tax Rate",
+  "inventoryAlertMaxQuantity": "Max Stock",
+  "tmsShipStatusOutForDelivery": "Out for Delivery",
+  "tmsFreightBaseRate": "Base Rate",
+  "tmsFreightPerKgRate": "Per-kg Rate"
 }

@@ -20,4 +20,7 @@ class FinanceBudget extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+    // guarded-only 时 getFillable()=[]，fill() 不落任何列 → NOT NULL(name/period_year)
+    // 缺省直插 500。显式列白名单。
+    protected $fillable = ['code', 'name', 'period_year', 'cost_center_id', 'status', 'remark'];
 }

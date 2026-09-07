@@ -19,4 +19,7 @@ class InventoryAlertRule extends Model
     public $incrementing = false;
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    // guarded-only 时 getFillable()=[]，fill() 不落任何列 → NOT NULL(product_id) 直插 500。
+    // 显式列白名单（表无 name/code/status 列：启用语义列是 enabled）。
+    protected $fillable = ['product_id', 'sku_id', 'warehouse_id', 'min_quantity', 'max_quantity', 'enabled'];
 }

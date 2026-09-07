@@ -5785,6 +5785,78 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'已出库'**
   String get purchaseReturnStatusDone;
+
+  /// No description provided for @salesReturnNoHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'留空自动生成 SRN+时间戳'**
+  String get salesReturnNoHint;
+
+  /// No description provided for @salesDeliveryNo.
+  ///
+  /// In zh, this message translates to:
+  /// **'发货单号'**
+  String get salesDeliveryNo;
+
+  /// No description provided for @manufacturingSeq.
+  ///
+  /// In zh, this message translates to:
+  /// **'工序号'**
+  String get manufacturingSeq;
+
+  /// No description provided for @mfgBom.
+  ///
+  /// In zh, this message translates to:
+  /// **'BOM'**
+  String get mfgBom;
+
+  /// No description provided for @manufacturingPlannedQty.
+  ///
+  /// In zh, this message translates to:
+  /// **'计划生产数量'**
+  String get manufacturingPlannedQty;
+
+  /// No description provided for @financeStatusPaid.
+  ///
+  /// In zh, this message translates to:
+  /// **'已打款'**
+  String get financeStatusPaid;
+
+  /// No description provided for @financeBudgetStatusClosed.
+  ///
+  /// In zh, this message translates to:
+  /// **'已关闭'**
+  String get financeBudgetStatusClosed;
+
+  /// No description provided for @financeTaxRate.
+  ///
+  /// In zh, this message translates to:
+  /// **'税率'**
+  String get financeTaxRate;
+
+  /// No description provided for @inventoryAlertMaxQuantity.
+  ///
+  /// In zh, this message translates to:
+  /// **'最高库存'**
+  String get inventoryAlertMaxQuantity;
+
+  /// No description provided for @tmsShipStatusOutForDelivery.
+  ///
+  /// In zh, this message translates to:
+  /// **'派送中'**
+  String get tmsShipStatusOutForDelivery;
+
+  /// No description provided for @tmsFreightBaseRate.
+  ///
+  /// In zh, this message translates to:
+  /// **'起步价'**
+  String get tmsFreightBaseRate;
+
+  /// No description provided for @tmsFreightPerKgRate.
+  ///
+  /// In zh, this message translates to:
+  /// **'每公斤单价'**
+  String get tmsFreightPerKgRate;
 }
 
 class _AppLocalizationsDelegate

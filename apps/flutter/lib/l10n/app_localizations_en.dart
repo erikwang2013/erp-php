@@ -2991,4 +2991,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchaseReturnStatusDone => 'Issued';
+
+  @override
+  String get salesReturnNoHint => 'Auto SRN+timestamp when blank';
+
+  @override
+  String get salesDeliveryNo => 'Delivery No.';
+
+  @override
+  String get manufacturingSeq => 'Seq';
+
+  @override
+  String get mfgBom => 'BOM';
+
+  @override
+  String get manufacturingPlannedQty => 'Planned Quantity';
+
+  @override
+  String get financeStatusPaid => 'Paid';
+
+  @override
+  String get financeBudgetStatusClosed => 'Closed';
+
+  @override
+  String get financeTaxRate => 'Tax Rate';
+
+  @override
+  String get inventoryAlertMaxQuantity => 'Max Stock';
+
+  @override
+  String get tmsShipStatusOutForDelivery => 'Out for Delivery';
+
+  @override
+  String get tmsFreightBaseRate => 'Base Rate';
+
+  @override
+  String get tmsFreightPerKgRate => 'Per-kg Rate';
 }

@@ -68,11 +68,16 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
     });
   }
 
+  // 幻键修正：department/position（部门/职位名）非表列，提交后被 $fillable 白名单
+  // 静默丢弃 → 员工部门/职位永不落库。现改用真实列 department_id/position_id：
+  // EmployeeController 不做 id 解码且模型按 integer 存储，故用数字输入填原生 ID
+  //（/admin/v1/hr/department|position 仅暴露 hashid，无法作下拉值回填）。
   List<FormFieldConfig> _formFields() => [
+    FormFieldConfig(name: 'code', label: AppL10n.current.commonCode, required: true), // 后端 store 必填 code，旧表单缺此键致新增恒 422
     FormFieldConfig(name: 'name', label: AppL10n.current.hrEmpName, required: true),
-    FormFieldConfig(name: 'department', label: AppL10n.current.hrEmpDepartment),
+    FormFieldConfig(name: 'department_id', label: AppL10n.current.hrEmpDepartment, type: FormFieldType.number),
     FormFieldConfig(name: 'phone', label: AppL10n.current.hrEmpPhone),
-    FormFieldConfig(name: 'position', label: AppL10n.current.hrEmpPosition),
+    FormFieldConfig(name: 'position_id', label: AppL10n.current.hrEmpPosition, type: FormFieldType.number),
   ];
 
   @override
@@ -105,13 +110,24 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.hrEmpName: r['name'] ?? '',
-    AppL10n.current.hrEmpDepartment: r['department'] ?? '',
+    // department/position 为后端带出的嵌套关联对象（含 name），取名称展示，缺失回退原生 ID
+    AppL10n.current.hrEmpDepartment: _relName(r['department'], r['department_id']),
     AppL10n.current.hrEmpPhone: r['phone'] ?? '',
-    AppL10n.current.hrEmpPosition: r['position'] ?? '',
+    AppL10n.current.hrEmpPosition: _relName(r['position'], r['position_id']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),
   };
+
+  /// 关联对象存在时优先显示其名称，否则回退行内原生 ID（0/空则留空）。
+  static String _relName(dynamic rel, dynamic fallback) {
+    if (rel is Map<String, dynamic>) {
+      final v = rel['name'];
+      if (v != null && '$v'.isNotEmpty) return '$v';
+    }
+    final id = fallback;
+    return (id == null || '$id' == '0' || '$id' == '') ? '' : '$id';
+  }
 
 }

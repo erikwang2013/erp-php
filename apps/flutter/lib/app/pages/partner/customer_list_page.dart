@@ -64,13 +64,16 @@ class _CustomerListPageState extends State<CustomerListPage> {
     });
   }
 
+  // 幻键修正：contact→contact_person、level→level_id（erp_customer 真实列），
+  // 旧键永不落库导致联系人/等级被静默抹除；level_id 为原生数字（等级接口仅暴露 hashid，
+  // 后端 CustomerController 不做解码，故用数字输入而非下拉）
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
       FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
-      FormFieldConfig(name: 'contact', label: l10n.fieldContact),
-      FormFieldConfig(name: 'level', label: l10n.fieldLevel),
+      FormFieldConfig(name: 'contact_person', label: l10n.fieldContact),
+      FormFieldConfig(name: 'level_id', label: l10n.fieldLevel, type: FormFieldType.number),
     ];
   }
 
@@ -98,11 +101,13 @@ class _CustomerListPageState extends State<CustomerListPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
+    final levelId = r['level_id'];
     return {
       l10n.fieldName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
-      l10n.fieldContact: r['contact'] ?? '',
-      l10n.fieldLevel: r['level'] ?? '',
+      // 列表行无等级名称关联（后端未 enrich），等级列展示原生 level_id；0=无等级留空
+      l10n.fieldContact: r['contact_person'] ?? '',
+      l10n.fieldLevel: (levelId == null || '$levelId' == '0') ? '' : '$levelId',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
         IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

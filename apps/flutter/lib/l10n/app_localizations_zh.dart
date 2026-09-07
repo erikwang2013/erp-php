@@ -2966,4 +2966,40 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get purchaseReturnStatusDone => '已出库';
+
+  @override
+  String get salesReturnNoHint => '留空自动生成 SRN+时间戳';
+
+  @override
+  String get salesDeliveryNo => '发货单号';
+
+  @override
+  String get manufacturingSeq => '工序号';
+
+  @override
+  String get mfgBom => 'BOM';
+
+  @override
+  String get manufacturingPlannedQty => '计划生产数量';
+
+  @override
+  String get financeStatusPaid => '已打款';
+
+  @override
+  String get financeBudgetStatusClosed => '已关闭';
+
+  @override
+  String get financeTaxRate => '税率';
+
+  @override
+  String get inventoryAlertMaxQuantity => '最高库存';
+
+  @override
+  String get tmsShipStatusOutForDelivery => '派送中';
+
+  @override
+  String get tmsFreightBaseRate => '起步价';
+
+  @override
+  String get tmsFreightPerKgRate => '每公斤单价';
 }

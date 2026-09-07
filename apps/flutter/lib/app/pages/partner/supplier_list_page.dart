@@ -69,7 +69,7 @@ class _SupplierListPageState extends State<SupplierListPage> {
     return [
       FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
-      FormFieldConfig(name: 'contact', label: l10n.fieldContact),
+      FormFieldConfig(name: 'contact_person', label: l10n.fieldContact), // 幻键修正：contact 永不落库
       FormFieldConfig(name: 'phone', label: l10n.fieldPhone),
     ];
   }
@@ -101,7 +101,7 @@ class _SupplierListPageState extends State<SupplierListPage> {
     return {
       l10n.fieldName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
-      l10n.fieldContact: r['contact'] ?? '',
+      l10n.fieldContact: r['contact_person'] ?? '', // 幻键修正：contact 恒空
       l10n.fieldPhone: r['phone'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),

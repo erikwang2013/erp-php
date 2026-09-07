@@ -7,6 +7,10 @@ import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../l10n/app_l10n.dart';
 
+/// 库位页 — 覆盖 GET/POST/PUT/DELETE /admin/v1/location
+/// 契约（erp_location）：warehouse_id/code/name/status。
+/// 旧表单以仓库名（幻列 warehouse）提交 → 引用永不落库；现改为
+/// warehouse_id 下拉（/admin/v1/warehouse，值=hashid，后端双模解码）。
 class LocationListPage extends StatefulWidget {
   const LocationListPage({super.key});
   @override
@@ -22,6 +26,9 @@ class _LocationListPageState extends State<LocationListPage> {
   bool _loading = true;
   String? _error;
   int _reqSeq = 0;
+
+  /// 仓库选项：id(hashid)→名称，取自 /admin/v1/warehouse（懒加载）。
+  Map<String, String> _warehouseLabels = {};
 
   @override
   void initState() { super.initState(); _load(); }
@@ -40,18 +47,36 @@ class _LocationListPageState extends State<LocationListPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
+  /// 加载仓库下拉（warehouse_id 必填；行内 warehouse_id 为 hashid，与下拉值同形可回填）。
+  Future<bool> _ensureWarehouses() async {
+    if (_warehouseLabels.isNotEmpty) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/warehouse', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _warehouseLabels = { for (final r in list) '${r['id']}': '${r['name'] ?? r['code'] ?? ''}' };
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
+    if (!await _ensureWarehouses() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
-      await ApiService.instance.post('/admin/v1/location', data: data);
+      await ApiService.instance.post('/admin/v1/location', data: _buildPayload(data));
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureWarehouses() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
-      await ApiService.instance.put('/admin/v1/location/${row['id']}', data: data);
+      await ApiService.instance.put('/admin/v1/location/${row['id']}', data: _buildPayload(data));
       _load(); return true;
     });
   }
@@ -64,12 +89,26 @@ class _LocationListPageState extends State<LocationListPage> {
     });
   }
 
+  /// 仅提交真实表列：warehouse_id 必填下拉（hashid），code/name 文本，空值后端落 ''。
+  Map<String, dynamic> _buildPayload(Map<String, String> data) => {
+    'warehouse_id': data['warehouse_id']?.trim() ?? '',
+    'code': data['code']?.trim() ?? '',
+    'name': data['name']?.trim() ?? '',
+  };
+
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
       FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
-      FormFieldConfig(name: 'warehouse', label: l10n.fieldWarehouse),
+      FormFieldConfig(
+        name: 'warehouse_id',
+        label: l10n.fieldWarehouse,
+        required: true,
+        type: FormFieldType.dropdown,
+        options: _warehouseLabels.keys.toList(),
+        optionLabels: _warehouseLabels,
+      ),
     ];
   }
 
@@ -100,7 +139,8 @@ class _LocationListPageState extends State<LocationListPage> {
     return {
       l10n.fieldName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
-      l10n.fieldWarehouse: r['warehouse'] ?? '',
+      // 仓库列：后端已按 warehouse_id 补名称；旧幻列 warehouse 恒空
+      l10n.fieldWarehouse: '${r['warehouse_name'] ?? r['warehouse_id'] ?? ''}',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
         IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

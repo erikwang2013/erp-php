@@ -59,16 +59,21 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
   Future<void> _delete(Map<String, dynamic> row) async {
     final l10n = AppL10n.of(context);
     await ConfirmDialog.show(context, title: l10n.commonDeleteConfirm,
-      content: l10n.manufacturingDeleteConfirmMsg('${row['name'] ?? row['code'] ?? '${row['id']}'}'),
+      content: l10n.manufacturingDeleteConfirmMsg('${row['code'] ?? row['id']}'),
       onConfirm: (password) async {
       await ApiService.instance.delete('/admin/v1/mfg/production/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
 
+  // 与后端契约对齐（erp_mfg_production_order）：code/bom_id NOT NULL、store() 均 required；
+  // planned_quantity 亦 required；表无 name 列（幻键已移除）。bom_id 为整数 FK
+  // （后端 required|integer），与 quality 模块同款数字输入（行内 id 即原生值，下拉选项为
+  // hashid 不可回填，故不用下拉）。
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.current.manufacturingName, required: true),
-    FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode),
+    FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode, required: true),
+    FormFieldConfig(name: 'bom_id', label: AppL10n.current.mfgBom, required: true, type: FormFieldType.number),
+    FormFieldConfig(name: 'planned_quantity', label: AppL10n.current.manufacturingPlannedQty, required: true, type: FormFieldType.number),
   ];
 
   @override
@@ -92,14 +97,16 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
   }
 
   List<String> _columns() => [
-    AppL10n.current.manufacturingName,
     AppL10n.current.manufacturingCode,
+    AppL10n.current.mfgBom,
+    AppL10n.current.manufacturingPlannedQty,
     AppL10n.current.commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.manufacturingName: r['name'] ?? '',
     AppL10n.current.manufacturingCode: r['code'] ?? '',
+    AppL10n.current.mfgBom: r['bom_id'] ?? '',
+    AppL10n.current.manufacturingPlannedQty: r['planned_quantity'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
