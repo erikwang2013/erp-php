@@ -11,7 +11,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     // 初始路由为 /login，应展示登录页标题与登录按钮
-    expect(find.text('开放管理后台'), findsOneWidget);
+    expect(find.text('erp开放管理后台'), findsOneWidget);
     expect(find.text('登 录'), findsOneWidget);
   });
 }

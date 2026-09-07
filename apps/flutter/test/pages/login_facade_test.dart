@@ -29,7 +29,7 @@ void main() {
     await tester.pumpWidget(wrap());
     await settle(tester);
 
-    expect(find.text('开放管理后台'), findsOneWidget);
+    expect(find.text('erp开放管理后台'), findsOneWidget);
     expect(find.text('一个平台，管好全部业务'), findsOneWidget);
     expect(find.byWidgetPredicate(isMascot), findsOneWidget);
     expect(find.byType(TextField), findsNWidgets(2));
@@ -49,7 +49,7 @@ void main() {
     await tester.pumpWidget(wrap());
     await settle(tester);
 
-    expect(find.text('开放管理后台'), findsOneWidget);
+    expect(find.text('erp开放管理后台'), findsOneWidget);
     expect(find.text('一个平台，管好全部业务'), findsOneWidget);
     expect(find.byWidgetPredicate(isMascot), findsOneWidget);
     expect(find.byType(TextField), findsNWidgets(2));

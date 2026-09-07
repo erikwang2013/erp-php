@@ -23,7 +23,7 @@ void main() {
     testWidgets('渲染标题、用户名/密码输入框与登录按钮', (tester) async {
       await pumpLogin(tester);
 
-      expect(find.text('开放管理后台'), findsOneWidget);
+      expect(find.text('erp开放管理后台'), findsOneWidget);
       expect(find.text('用户名'), findsOneWidget);
       expect(find.text('密码'), findsOneWidget);
       expect(find.byType(FilledButton), findsOneWidget);

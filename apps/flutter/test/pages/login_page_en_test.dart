@@ -38,7 +38,7 @@ void main() {
     expect(find.text('Password'), findsOneWidget);
     expect(find.text('Log In'), findsOneWidget);
     // 中文文案不应出现
-    expect(find.text('开放管理后台'), findsNothing);
+    expect(find.text('erp开放管理后台'), findsNothing);
     expect(find.text('登 录'), findsNothing);
   });
 
