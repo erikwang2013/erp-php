@@ -27,6 +27,37 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
   @override
   void initState() { super.initState(); _load(); }
 
+  /// 部门/职位下拉选项：id(hashid)→名称（缺失回退编码），懒加载一次。
+  Map<String, String> _departmentLabels = {};
+  Map<String, String> _positionLabels = {};
+
+  /// 加载部门/职位下拉（可选 FK；值为 hashid，后端双模解码，0=无）。
+  Future<bool> _ensureRefs() async {
+    if (_departmentLabels.isNotEmpty && _positionLabels.isNotEmpty) return true;
+    try {
+      if (_departmentLabels.isEmpty) {
+        final d = await ApiService.instance.get('/admin/v1/hr/department', params: {'limit': '500'});
+        _departmentLabels = {
+          for (final r in List<Map<String, dynamic>>.from((d['data'] ?? {})['list'] ?? []))
+            '${r['id']}': '${r['name'] ?? r['code'] ?? ''}',
+        };
+      }
+      if (_positionLabels.isEmpty) {
+        final p = await ApiService.instance.get('/admin/v1/hr/position', params: {'limit': '500'});
+        _positionLabels = {
+          for (final r in List<Map<String, dynamic>>.from((p['data'] ?? {})['list'] ?? []))
+            '${r['id']}': '${r['name'] ?? r['code'] ?? ''}',
+        };
+      }
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _load() async {
     final seq = ++_reqSeq;
     setState(() => _loading = true);
@@ -43,6 +74,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
   }
 
   Future<void> _create() async {
+    if (!await _ensureRefs() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/hr/employee', data: data);
@@ -51,6 +83,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureRefs() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/hr/employee/${row['id']}', data: data);
@@ -69,15 +102,27 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
   }
 
   // 幻键修正：department/position（部门/职位名）非表列，提交后被 $fillable 白名单
-  // 静默丢弃 → 员工部门/职位永不落库。现改用真实列 department_id/position_id：
-  // EmployeeController 不做 id 解码且模型按 integer 存储，故用数字输入填原生 ID
-  //（/admin/v1/hr/department|position 仅暴露 hashid，无法作下拉值回填）。
+  // 静默丢弃 → 员工部门/职位永不落库。现改用真实列 department_id/position_id 并下拉选择
+  //（值=hashid，后端双模解码；0/留空=无，后端跳过写默认）。列表行 FK 为原生整数不可
+  // 回填 hashid 下拉 → 编辑时下拉为空（FormDialog null-fallback 契约）。
   List<FormFieldConfig> _formFields() => [
     FormFieldConfig(name: 'code', label: AppL10n.current.commonCode, required: true), // 后端 store 必填 code，旧表单缺此键致新增恒 422
     FormFieldConfig(name: 'name', label: AppL10n.current.hrEmpName, required: true),
-    FormFieldConfig(name: 'department_id', label: AppL10n.current.hrEmpDepartment, type: FormFieldType.number),
+    FormFieldConfig(
+      name: 'department_id',
+      label: AppL10n.current.hrEmpDepartment,
+      type: FormFieldType.dropdown,
+      options: _departmentLabels.keys.toList(),
+      optionLabels: _departmentLabels,
+    ),
     FormFieldConfig(name: 'phone', label: AppL10n.current.hrEmpPhone),
-    FormFieldConfig(name: 'position_id', label: AppL10n.current.hrEmpPosition, type: FormFieldType.number),
+    FormFieldConfig(
+      name: 'position_id',
+      label: AppL10n.current.hrEmpPosition,
+      type: FormFieldType.dropdown,
+      options: _positionLabels.keys.toList(),
+      optionLabels: _positionLabels,
+    ),
   ];
 
   @override

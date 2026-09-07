@@ -11,7 +11,8 @@ import '../../widgets/status_badge.dart';
 // erp_tms_tracking_event 真实列：shipment_id/status_code/description/location/
 // event_time/raw_data。无 name/code/status 列（幻列已删）：运单号由后端随行带回
 // shipment_code；status_code 为字符串状态码 picked_up/in_transit/out_for_delivery/
-// delivered/exception（labels 走 tmsShipStatus*，out_for_delivery 暂无 key）。
+// delivered/exception（labels 走 tmsShipStatus*，out_for_delivery 已补 key）；
+// location 发生地点已暴露（raw_data 为承运商回传原始 JSON，不落表展示）。
 class TrackingPage extends StatefulWidget {
   const TrackingPage({super.key});
   @override
@@ -147,6 +148,7 @@ class _TrackingPageState extends State<TrackingPage> {
       initialValue: 'in_transit - ${_statusText('in_transit')}',
     ),
     FormFieldConfig(name: 'description', label: AppL10n.of(context).fieldDescription, type: FormFieldType.multiline),
+    FormFieldConfig(name: 'location', label: AppL10n.of(context).fieldLocation),
     FormFieldConfig(name: 'event_time', label: AppL10n.of(context).fieldTime),
   ];
 
@@ -163,6 +165,8 @@ class _TrackingPageState extends State<TrackingPage> {
         return l.tmsShipStatusPickedUp;
       case 'in_transit':
         return l.tmsShipStatusInTransit;
+      case 'out_for_delivery':
+        return l.tmsShipStatusOutForDelivery;
       case 'delivered':
         return l.tmsShipStatusDelivered;
       case 'exception':
@@ -172,7 +176,8 @@ class _TrackingPageState extends State<TrackingPage> {
     }
   }
 
-  /// 组装后端接收参数：shipment_id/status_code 均取码段；时间可空留空即 null。
+  /// 组装后端接收参数：shipment_id/status_code 均取码段；location 原样；
+  /// 时间可空留空即 null（后端 ''→null 已覆盖）。
   Map<String, dynamic> _buildPayload(Map<String, String> data) {
     String pick(String key) => (data[key] ?? '').split(' - ').first.trim();
     final time = data['event_time']?.trim();
@@ -180,6 +185,7 @@ class _TrackingPageState extends State<TrackingPage> {
       'shipment_id': pick('shipment_id'),
       'status_code': pick('status_code'),
       'description': data['description']?.trim() ?? '',
+      'location': data['location']?.trim() ?? '',
       'event_time': (time == null || time.isEmpty) ? null : time,
     };
   }
@@ -226,7 +232,7 @@ class _TrackingPageState extends State<TrackingPage> {
 
   List<String> _columns() {
     final l = AppL10n.of(context);
-    return [l.fieldTrackingNo, l.commonStatus, l.fieldTime, l.fieldDescription, l.commonAction];
+    return [l.fieldTrackingNo, l.commonStatus, l.fieldTime, l.fieldLocation, l.fieldDescription, l.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
@@ -235,6 +241,7 @@ class _TrackingPageState extends State<TrackingPage> {
       l.fieldTrackingNo: r['shipment_code'] ?? '',
       l.commonStatus: _chip('${r['status_code'] ?? ''}'),
       l.fieldTime: r['event_time'] ?? '',
+      l.fieldLocation: r['location'] ?? '',
       l.fieldDescription: r['description'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
@@ -258,6 +265,7 @@ class _TrackingPageState extends State<TrackingPage> {
     final (text, bg, fg) = switch (code) {
       'picked_up' => (l.tmsShipStatusPickedUp, c.primaryBg, c.primaryPressed),
       'in_transit' => (l.tmsShipStatusInTransit, c.primaryBg, c.primaryPressed),
+      'out_for_delivery' => (l.tmsShipStatusOutForDelivery, c.primaryBg, c.primaryPressed),
       'delivered' => (l.tmsShipStatusDelivered, c.successBg, c.successText),
       'exception' => (l.tmsShipStatusException, c.dangerBg, c.dangerText),
       _ => (code, c.warningBg, c.warningText),

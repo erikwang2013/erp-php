@@ -1968,6 +1968,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldLastLogin => 'Last Login';
 
   @override
+  String get fieldLocation => 'Location';
+
+  @override
   String get fieldProductName => 'Product Name';
 
   @override
@@ -3017,6 +3020,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get financeTaxRate => 'Tax Rate';
 
   @override
+  String get financeTaxTypeVat => 'Value-Added Tax';
+
+  @override
+  String get financeTaxTypeCit => 'Corporate Income Tax';
+
+  @override
+  String get financeTaxTypePit => 'Individual Income Tax';
+
+  @override
+  String get financeTaxTypeStamp => 'Stamp Duty';
+
+  @override
+  String get financeTaxTypeOther => 'Other';
+
+  @override
   String get inventoryAlertMaxQuantity => 'Max Stock';
 
   @override
@@ -3027,4 +3045,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tmsFreightPerKgRate => 'Per-kg Rate';
+
+  @override
+  String get tmsCarrierService => 'Carrier Service';
+
+  @override
+  String get tmsFreightOriginCountry => 'Origin Country';
+
+  @override
+  String get tmsFreightOriginZone => 'Origin Zone';
+
+  @override
+  String get tmsFreightDestCountry => 'Destination Country';
+
+  @override
+  String get tmsFreightDestZone => 'Destination Zone';
+
+  @override
+  String get tmsFreightWeightFromKg => 'Weight From (kg)';
+
+  @override
+  String get tmsFreightWeightToKg => 'Weight To (kg)';
+
+  @override
+  String get tmsFreightFuelSurchargePct => 'Fuel Surcharge (%)';
+
+  @override
+  String get tmsFreightCurrency => 'Currency';
+
+  @override
+  String get tmsFreightValidTo => 'Valid To';
 }

@@ -1944,6 +1944,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fieldLastLogin => '最后登录';
 
   @override
+  String get fieldLocation => '地点';
+
+  @override
   String get fieldProductName => '商品名称';
 
   @override
@@ -2992,6 +2995,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get financeTaxRate => '税率';
 
   @override
+  String get financeTaxTypeVat => '增值税';
+
+  @override
+  String get financeTaxTypeCit => '企业所得税';
+
+  @override
+  String get financeTaxTypePit => '个人所得税';
+
+  @override
+  String get financeTaxTypeStamp => '印花税';
+
+  @override
+  String get financeTaxTypeOther => '其他';
+
+  @override
   String get inventoryAlertMaxQuantity => '最高库存';
 
   @override
@@ -3002,4 +3020,34 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tmsFreightPerKgRate => '每公斤单价';
+
+  @override
+  String get tmsCarrierService => '承运服务';
+
+  @override
+  String get tmsFreightOriginCountry => '起始国家';
+
+  @override
+  String get tmsFreightOriginZone => '起始区域';
+
+  @override
+  String get tmsFreightDestCountry => '目的国家';
+
+  @override
+  String get tmsFreightDestZone => '目的区域';
+
+  @override
+  String get tmsFreightWeightFromKg => '起始重量(kg)';
+
+  @override
+  String get tmsFreightWeightToKg => '截止重量(kg)';
+
+  @override
+  String get tmsFreightFuelSurchargePct => '燃油附加费(%)';
+
+  @override
+  String get tmsFreightCurrency => '币种';
+
+  @override
+  String get tmsFreightValidTo => '失效日期';
 }

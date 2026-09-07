@@ -26,6 +26,25 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
   @override
   void initState() { super.initState(); _load(); }
 
+  /// BOM 下拉选项：id(hashid)→名称（缺失回退编码），取自 /admin/v1/mfg/bom（懒加载一次）。
+  Map<String, String> _bomLabels = {};
+
+  /// 加载 BOM 下拉（bom_id 必填；选项值为行 id hashid，后端双模解码）。
+  Future<bool> _ensureBoms() async {
+    if (_bomLabels.isNotEmpty) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/mfg/bom', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _bomLabels = { for (final r in list) '${r['id']}': '${r['name'] ?? r['code'] ?? ''}' };
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _load() async {
     final seq = ++_reqSeq;
     setState(() => _loading = true);
@@ -41,6 +60,7 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
   }
 
   Future<void> _create() async {
+    if (!await _ensureBoms() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/mfg/production', data: data);
@@ -49,6 +69,7 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureBoms() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/mfg/production/${row['id']}', data: data);
@@ -67,12 +88,18 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
   }
 
   // 与后端契约对齐（erp_mfg_production_order）：code/bom_id NOT NULL、store() 均 required；
-  // planned_quantity 亦 required；表无 name 列（幻键已移除）。bom_id 为整数 FK
-  // （后端 required|integer），与 quality 模块同款数字输入（行内 id 即原生值，下拉选项为
-  // hashid 不可回填，故不用下拉）。
+  // planned_quantity 亦 required；表无 name 列（幻键已移除）。bom_id 为 FK：下拉选 BOM
+  // （值=hashid，后端双模解码）；列表行 bom_id 为原生整数不可回填 → 编辑时下拉为空需重选。
   List<FormFieldConfig> _formFields() => [
     FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode, required: true),
-    FormFieldConfig(name: 'bom_id', label: AppL10n.current.mfgBom, required: true, type: FormFieldType.number),
+    FormFieldConfig(
+      name: 'bom_id',
+      label: AppL10n.current.mfgBom,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: _bomLabels.keys.toList(),
+      optionLabels: _bomLabels,
+    ),
     FormFieldConfig(name: 'planned_quantity', label: AppL10n.current.manufacturingPlannedQty, required: true, type: FormFieldType.number),
   ];
 

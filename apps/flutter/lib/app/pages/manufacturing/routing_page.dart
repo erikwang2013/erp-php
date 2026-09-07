@@ -26,6 +26,39 @@ class _RoutingPageState extends State<RoutingPage> {
   @override
   void initState() { super.initState(); _load(); }
 
+  /// 商品下拉选项：id(hashid)→名称（缺失回退编码），取自 /admin/v1/product（懒加载一次）。
+  Map<String, String> _productLabels = {};
+
+  /// 工作站下拉选项：id(hashid)→名称（缺失回退编码），取自 /admin/v1/mfg/workstation。
+  Map<String, String> _workstationLabels = {};
+
+  /// 加载商品/工作站下拉（product_id/workstation_id 必填；值=hashid，后端双模解码）。
+  Future<bool> _ensureRefs() async {
+    if (_productLabels.isNotEmpty && _workstationLabels.isNotEmpty) return true;
+    try {
+      if (_productLabels.isEmpty) {
+        final p = await ApiService.instance.get('/admin/v1/product', params: {'limit': '500'});
+        _productLabels = {
+          for (final r in List<Map<String, dynamic>>.from((p['data'] ?? {})['list'] ?? []))
+            '${r['id']}': '${r['name'] ?? r['code'] ?? ''}',
+        };
+      }
+      if (_workstationLabels.isEmpty) {
+        final w = await ApiService.instance.get('/admin/v1/mfg/workstation', params: {'limit': '500'});
+        _workstationLabels = {
+          for (final r in List<Map<String, dynamic>>.from((w['data'] ?? {})['list'] ?? []))
+            '${r['id']}': '${r['name'] ?? r['code'] ?? ''}',
+        };
+      }
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _load() async {
     final seq = ++_reqSeq;
     setState(() => _loading = true);
@@ -41,6 +74,7 @@ class _RoutingPageState extends State<RoutingPage> {
   }
 
   Future<void> _create() async {
+    if (!await _ensureRefs() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/mfg/routing', data: data);
@@ -49,6 +83,7 @@ class _RoutingPageState extends State<RoutingPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureRefs() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/mfg/routing/${row['id']}', data: data);
@@ -67,13 +102,27 @@ class _RoutingPageState extends State<RoutingPage> {
   }
 
   // 与后端契约对齐（erp_mfg_routing）：product_id/name/seq/workstation_id NOT NULL 且 store()
-  // 均 required；表无 code 列（幻键已移除）。FK 为整数（后端 required|integer），与 quality
-  // 模块同款数字输入（行内 id 即原生值，下拉选项为 hashid 不可回填，故不用下拉）。
+  // 均 required；表无 code 列（幻键已移除）。FK 改下拉（值=hashid，后端双模解码）；列表行
+  // FK 为原生整数不可回填 → 编辑时下拉为空需重选（FormDialog null-fallback 契约）。
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'product_id', label: AppL10n.current.fieldProductId, required: true, type: FormFieldType.number),
+    FormFieldConfig(
+      name: 'product_id',
+      label: AppL10n.current.fieldProductId,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: _productLabels.keys.toList(),
+      optionLabels: _productLabels,
+    ),
     FormFieldConfig(name: 'name', label: AppL10n.current.manufacturingName, required: true),
     FormFieldConfig(name: 'seq', label: AppL10n.current.manufacturingSeq, required: true, type: FormFieldType.number),
-    FormFieldConfig(name: 'workstation_id', label: AppL10n.current.fieldWorkstationId, required: true, type: FormFieldType.number),
+    FormFieldConfig(
+      name: 'workstation_id',
+      label: AppL10n.current.fieldWorkstationId,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: _workstationLabels.keys.toList(),
+      optionLabels: _workstationLabels,
+    ),
   ];
 
   @override

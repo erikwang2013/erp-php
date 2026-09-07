@@ -3854,6 +3854,12 @@ abstract class AppLocalizations {
   /// **'最后登录'**
   String get fieldLastLogin;
 
+  /// No description provided for @fieldLocation.
+  ///
+  /// In zh, this message translates to:
+  /// **'地点'**
+  String get fieldLocation;
+
   /// No description provided for @fieldProductName.
   ///
   /// In zh, this message translates to:
@@ -5834,6 +5840,36 @@ abstract class AppLocalizations {
   /// **'税率'**
   String get financeTaxRate;
 
+  /// No description provided for @financeTaxTypeVat.
+  ///
+  /// In zh, this message translates to:
+  /// **'增值税'**
+  String get financeTaxTypeVat;
+
+  /// No description provided for @financeTaxTypeCit.
+  ///
+  /// In zh, this message translates to:
+  /// **'企业所得税'**
+  String get financeTaxTypeCit;
+
+  /// No description provided for @financeTaxTypePit.
+  ///
+  /// In zh, this message translates to:
+  /// **'个人所得税'**
+  String get financeTaxTypePit;
+
+  /// No description provided for @financeTaxTypeStamp.
+  ///
+  /// In zh, this message translates to:
+  /// **'印花税'**
+  String get financeTaxTypeStamp;
+
+  /// No description provided for @financeTaxTypeOther.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他'**
+  String get financeTaxTypeOther;
+
   /// No description provided for @inventoryAlertMaxQuantity.
   ///
   /// In zh, this message translates to:
@@ -5857,6 +5893,66 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'每公斤单价'**
   String get tmsFreightPerKgRate;
+
+  /// No description provided for @tmsCarrierService.
+  ///
+  /// In zh, this message translates to:
+  /// **'承运服务'**
+  String get tmsCarrierService;
+
+  /// No description provided for @tmsFreightOriginCountry.
+  ///
+  /// In zh, this message translates to:
+  /// **'起始国家'**
+  String get tmsFreightOriginCountry;
+
+  /// No description provided for @tmsFreightOriginZone.
+  ///
+  /// In zh, this message translates to:
+  /// **'起始区域'**
+  String get tmsFreightOriginZone;
+
+  /// No description provided for @tmsFreightDestCountry.
+  ///
+  /// In zh, this message translates to:
+  /// **'目的国家'**
+  String get tmsFreightDestCountry;
+
+  /// No description provided for @tmsFreightDestZone.
+  ///
+  /// In zh, this message translates to:
+  /// **'目的区域'**
+  String get tmsFreightDestZone;
+
+  /// No description provided for @tmsFreightWeightFromKg.
+  ///
+  /// In zh, this message translates to:
+  /// **'起始重量(kg)'**
+  String get tmsFreightWeightFromKg;
+
+  /// No description provided for @tmsFreightWeightToKg.
+  ///
+  /// In zh, this message translates to:
+  /// **'截止重量(kg)'**
+  String get tmsFreightWeightToKg;
+
+  /// No description provided for @tmsFreightFuelSurchargePct.
+  ///
+  /// In zh, this message translates to:
+  /// **'燃油附加费(%)'**
+  String get tmsFreightFuelSurchargePct;
+
+  /// No description provided for @tmsFreightCurrency.
+  ///
+  /// In zh, this message translates to:
+  /// **'币种'**
+  String get tmsFreightCurrency;
+
+  /// No description provided for @tmsFreightValidTo.
+  ///
+  /// In zh, this message translates to:
+  /// **'失效日期'**
+  String get tmsFreightValidTo;
 }
 
 class _AppLocalizationsDelegate

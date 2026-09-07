@@ -26,6 +26,25 @@ class _CustomerListPageState extends State<CustomerListPage> {
   @override
   void initState() { super.initState(); _load(); }
 
+  /// 客户等级下拉选项：id(hashid)→名称，取自 /admin/v1/customer-level（懒加载一次）。
+  Map<String, String> _levelLabels = {};
+
+  /// 加载客户等级下拉（level_id 可选，0=无等级；值为 hashid，后端双模解码）。
+  Future<bool> _ensureLevels() async {
+    if (_levelLabels.isNotEmpty) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/customer-level');
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _levelLabels = { for (final r in list) '${r['id']}': '${r['name'] ?? ''}' };
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _load() async {
     final seq = ++_reqSeq;
     setState(() => _loading = true);
@@ -41,6 +60,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
   }
 
   Future<void> _create() async {
+    if (!await _ensureLevels() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/customer', data: data);
@@ -49,6 +69,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureLevels() || !mounted) return;
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/customer/${row['id']}', data: data);
@@ -65,15 +86,21 @@ class _CustomerListPageState extends State<CustomerListPage> {
   }
 
   // 幻键修正：contact→contact_person、level→level_id（erp_customer 真实列），
-  // 旧键永不落库导致联系人/等级被静默抹除；level_id 为原生数字（等级接口仅暴露 hashid，
-  // 后端 CustomerController 不做解码，故用数字输入而非下拉）
+  // 旧键永不落库导致联系人/等级被静默抹除；level_id 改下拉选等级（值=hashid，
+  // 后端双模解码；0/留空=无等级）。列表行 level_id 为原生整数不可回填 → 编辑时下拉为空。
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
       FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
       FormFieldConfig(name: 'contact_person', label: l10n.fieldContact),
-      FormFieldConfig(name: 'level_id', label: l10n.fieldLevel, type: FormFieldType.number),
+      FormFieldConfig(
+        name: 'level_id',
+        label: l10n.fieldLevel,
+        type: FormFieldType.dropdown,
+        options: _levelLabels.keys.toList(),
+        optionLabels: _levelLabels,
+      ),
     ];
   }
 

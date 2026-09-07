@@ -97,24 +97,35 @@ class _TaxPageState extends State<TaxPage> {
   }
 
   // 编辑弹窗同时带密码框（与删除同一密码确认语义，后端 destroy 要求）。
-  List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.of(context).fieldName, required: true),
-    FormFieldConfig(name: 'rate', label: AppL10n.of(context).financeRate, type: FormFieldType.number),
-    FormFieldConfig(
-      name: 'type',
-      label: AppL10n.of(context).fieldType,
-      type: FormFieldType.dropdown,
-      options: _typeValues,
-      initialValue: 'vat',
-    ),
-    FormFieldConfig(
-      name: 'enabled',
-      label: AppL10n.of(context).commonStatus,
-      type: FormFieldType.dropdown,
-      options: _enabledOptions,
-      initialValue: '1 - ${AppL10n.of(context).commonEnabled}',
-    ),
-  ];
+  List<FormFieldConfig> _formFields() {
+    final l = AppL10n.of(context);
+    return [
+      FormFieldConfig(name: 'name', label: l.fieldName, required: true),
+      FormFieldConfig(name: 'rate', label: l.financeRate, type: FormFieldType.number),
+      FormFieldConfig(
+        name: 'type',
+        label: l.fieldType,
+        type: FormFieldType.dropdown,
+        options: _typeValues,
+        // 税种枚举值标签（新 l10n key 待批：financeTaxTypeVat/Cit/Pit/Stamp/Other）
+        optionLabels: {
+          'vat': l.financeTaxTypeVat,
+          'cit': l.financeTaxTypeCit,
+          'pit': l.financeTaxTypePit,
+          'stamp': l.financeTaxTypeStamp,
+          'other': l.financeTaxTypeOther,
+        },
+        initialValue: 'vat',
+      ),
+      FormFieldConfig(
+        name: 'enabled',
+        label: l.commonStatus,
+        type: FormFieldType.dropdown,
+        options: _enabledOptions,
+        initialValue: '1 - ${l.commonEnabled}',
+      ),
+    ];
+  }
 
   List<String> get _enabledOptions {
     final l = AppL10n.of(context);

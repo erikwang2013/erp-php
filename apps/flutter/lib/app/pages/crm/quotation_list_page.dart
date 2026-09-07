@@ -109,7 +109,8 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
   }
 
   // 与后端契约对齐（erp_crm_quotation）：code/customer_id/owner_user_id NOT NULL（负责人由后端
-  // 默认当前管理员）；表无 name 列（幻键已移除）。单号留空自动生成 QT+时间戳。
+  // 默认当前管理员）；表无 name 列（幻键已移除）。单号留空由服务端统一生成 QT+时间戳
+  // （客户端不再自拼，避免双源生码漂移；提示文案见 salesQuotationCodeHint）。
   List<FormFieldConfig> _formFields() => [
     FormFieldConfig(name: 'code', label: AppL10n.current.crmCode, hint: AppL10n.current.salesQuotationCodeHint),
     FormFieldConfig(
@@ -124,20 +125,16 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
   ];
 
   /// 组装后端 store()/update() 接收的参数（仅真实表列；幻键 name 不再发送）。
+  /// code 仅在用户输入时下发：留空不发键 → store 由服务端统一生成 QT+时间戳，
+  /// update 不改动原单号（编辑弹窗行码已预填，清空不会误写）。
   Map<String, dynamic> _buildPayload(Map<String, String> data) {
-    var code = data['code']?.trim() ?? '';
-    if (code.isEmpty) {
-      final now = DateTime.now();
-      code = 'QT${now.year}${_p2(now.month)}${_p2(now.day)}${_p2(now.hour)}${_p2(now.minute)}${_p2(now.second)}';
-    }
+    final code = data['code']?.trim() ?? '';
     return {
-      'code': code,
+      if (code.isNotEmpty) 'code': code,
       'customer_id': data['customer_id']?.trim() ?? '',
       'total_amount': (data['total_amount']?.trim().isEmpty ?? true) ? '' : data['total_amount']!.trim(),
     };
   }
-
-  String _p2(int v) => v.toString().padLeft(2, '0');
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(

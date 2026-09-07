@@ -26,6 +26,25 @@ class _BomListPageState extends State<BomListPage> {
   @override
   void initState() { super.initState(); _load(); }
 
+  /// 商品下拉选项：id(hashid)→名称（缺失回退编码），取自 /admin/v1/product（懒加载一次）。
+  Map<String, String> _productLabels = {};
+
+  /// 加载商品下拉（product_id 必填；选项值为行 id hashid，后端双模解码）。
+  Future<bool> _ensureProducts() async {
+    if (_productLabels.isNotEmpty) return true;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/product', params: {'limit': '500'});
+      final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+      _productLabels = { for (final r in list) '${r['id']}': '${r['name'] ?? r['code'] ?? ''}' };
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _load() async {
     final seq = ++_reqSeq;
     setState(() => _loading = true);
@@ -41,6 +60,7 @@ class _BomListPageState extends State<BomListPage> {
   }
 
   Future<void> _create() async {
+    if (!await _ensureProducts() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/mfg/bom', data: data);
@@ -49,6 +69,7 @@ class _BomListPageState extends State<BomListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureProducts() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/mfg/bom/${row['id']}', data: data);
@@ -67,10 +88,17 @@ class _BomListPageState extends State<BomListPage> {
   }
 
   // 与后端契约对齐（erp_mfg_bom）：product_id/code/name NOT NULL；store() 要求三字段齐备。
-  // product_id 为整数 FK（后端 required|integer），与 quality 模块同款数字输入（行内 id 即原生值，
-  // 下拉选项为 hashid 不可回填，故不用下拉）。
+  // product_id 为 FK：下拉选商品（值=hashid，后端双模解码）。列表行 product_id 为原生整数，
+  // 与 hashid 下拉选项不可互解 → 编辑时下拉为空需重选（FormDialog null-fallback 契约）。
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'product_id', label: AppL10n.current.fieldProductId, required: true, type: FormFieldType.number),
+    FormFieldConfig(
+      name: 'product_id',
+      label: AppL10n.current.fieldProductId,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: _productLabels.keys.toList(),
+      optionLabels: _productLabels,
+    ),
     FormFieldConfig(name: 'name', label: AppL10n.current.manufacturingName, required: true),
     // code NOT NULL 无默认且 store() required：页面必填（与 workstation 页 code 同规则）
     FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode, required: true),
