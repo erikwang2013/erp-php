@@ -22,6 +22,4 @@ class ApprovalRecord extends Model
     // 仅 $guarded 时 getFillable()=[] → fillableOnly/create 静默丢弃全部字段，NOT NULL 无默认列直插 500。
     protected $fillable = ['instance_id', 'node_id', 'approver_id', 'action', 'comment'];
     public $timestamps = false;
-    // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
-    protected $fillable = ['instance_id', 'node_id', 'approver_id', 'action', 'comment'];
 }

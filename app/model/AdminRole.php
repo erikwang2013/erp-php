@@ -24,11 +24,11 @@ class AdminRole extends Model
 
     public function permissions()
     {
-        return $this->belongsToMany(AdminPermission::class, 'erp_admin_role_permission', 'role_id', 'permission_id');
+        return $this->belongsToMany(AdminPermission::class, 'admin_role_permission', 'role_id', 'permission_id');
     }
 
     public function users()
     {
-        return $this->belongsToMany(AdminUser::class, 'erp_admin_user_role', 'role_id', 'user_id');
+        return $this->belongsToMany(AdminUser::class, 'admin_user_role', 'role_id', 'user_id');
     }
 }

@@ -42,7 +42,7 @@ class AdminUser extends Model
 
     public function roles()
     {
-        return $this->belongsToMany(AdminRole::class, 'erp_admin_user_role', 'user_id', 'role_id');
+        return $this->belongsToMany(AdminRole::class, 'admin_user_role', 'user_id', 'role_id');
     }
 
     public function toSearchableArray(): array
