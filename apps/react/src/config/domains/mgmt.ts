@@ -186,6 +186,44 @@ export const mgmtMenus: MenuGroup[] = [
     ],
   },
   {
+    label: '培训社保',
+    icon: 'calendar',
+    moduleKey: 'hr',
+    children: [
+      {
+        label: '培训课程',
+        path: '/hr/course',
+        cfg: res('培训课程', '/admin/v1/hr/course', {
+          moduleKey: 'hr',
+          filters: { key: 'status', label: '状态', options: [{ label: '全部', value: null }, { label: '草稿', value: 0 }, { label: '上架', value: 1 }, { label: '下架', value: 2 }] },
+          fields: [
+            { key: 'title', label: '课程标题', required: true },
+            { key: 'course_type', label: '课程类型', required: true, type: 'select', defaultValue: 'internal', options: [{ label: '内训', value: 'internal' }, { label: '外训', value: 'external' }, { label: '线上', value: 'online' }] },
+            { key: 'lecturer', label: '讲师' },
+            { key: 'credits', label: '学分', type: 'number' },
+            { key: 'duration_hours', label: '课时(小时)', type: 'number' },
+            { key: 'status', label: '状态', type: 'select', defaultValue: 0, options: [{ label: '草稿', value: 0 }, { label: '上架', value: 1 }, { label: '下架', value: 2 }] },
+          ],
+          // 报名/取消/完成按员工维度（employee_id 必填），非课程行操作，留待员工学习记录页
+        }),
+      },
+      {
+        label: '社保规则',
+        path: '/hr/social-rule',
+        cfg: res('社保规则', '/admin/v1/hr/social-rule', {
+          moduleKey: 'hr',
+          fields: [
+            { key: 'city', label: '城市', required: true, placeholder: '如 上海' },
+            { key: 'rule_name', label: '规则名称', required: true },
+            { key: 'social_base_min', label: '缴费基数下限', placeholder: '两位小数，如 5000.00' },
+            { key: 'social_base_max', label: '缴费基数上限', placeholder: '两位小数，如 30000.00' },
+          ],
+          // 险种比例（rate 子接口按 insurance_type+比例参数）留待规则详情编辑 UI
+        }),
+      },
+    ],
+  },
+  {
     label: '项目管理',
     icon: 'folder',
     moduleKey: 'project',
@@ -193,6 +231,25 @@ export const mgmtMenus: MenuGroup[] = [
       { label: '项目列表', path: '/project/list', cfg: res('项目管理', '/admin/v1/project', { moduleKey: 'project', filters: DOC_FILTER, fields: [{ key: 'name', label: '项目名称', required: true }, { key: 'code', label: '项目编号', required: true }, { key: 'manager_user_id', label: '负责人', required: true, source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }] }) },
       { label: '任务管理', path: '/project/task', cfg: res('任务管理', '/admin/v1/project/task', { moduleKey: 'project', filters: DOC_FILTER, fields: [{ key: 'project_id', label: '所属项目', required: true, source: { endpoint: '/admin/v1/project', labelKey: 'name' } }, { key: 'name', label: '任务名称', required: true }, { key: 'parent_id', label: '父任务', type: 'number' }, { key: 'assignee_user_id', label: '负责人', source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }] }) },
       { label: '工时记录', path: '/project/timesheet', cfg: res('工时记录', '/admin/v1/project/timesheet', { moduleKey: 'project', fields: [{ key: 'project_id', label: '所属项目', source: { endpoint: '/admin/v1/project', labelKey: 'name' } }, { key: 'user_id', label: '用户', source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }, { key: 'work_date', label: '工作日期', required: true, type: 'date' }, { key: 'hours', label: '工时数', required: true, type: 'number' }] }) },
+      {
+        label: '项目成本',
+        path: '/project/cost',
+        cfg: res('项目成本', '/admin/v1/project/cost', {
+          moduleKey: 'project',
+          deleteNeedsPassword: true,
+          fields: [
+            { key: 'project_id', label: '所属项目', required: true, source: { endpoint: '/admin/v1/project', labelKey: 'name' } },
+            { key: 'work_date', label: '发生日期', required: true, type: 'date' },
+            { key: 'category', label: '成本类别', required: true, type: 'select', options: [{ label: '人工', value: 1 }, { label: '材料', value: 2 }, { label: '其他', value: 3 }] },
+            { key: 'hours', label: '工时', type: 'number' },
+            { key: 'rate', label: '费率(元/小时)', type: 'number' },
+            { key: 'cost', label: '金额', type: 'number' },
+            { key: 'task_id', label: '关联任务', source: { endpoint: '/admin/v1/project/task', labelKey: 'name' } },
+            { key: 'employee_id', label: '员工', source: { endpoint: '/admin/v1/hr/employee', labelKey: 'name' } },
+            { key: 'remark', label: '备注', type: 'textarea', full: true },
+          ],
+        }),
+      },
     ],
   },
   {
@@ -251,6 +308,27 @@ export const mgmtMenus: MenuGroup[] = [
       { label: '开放应用', path: '/platform/app', cfg: res('开放应用', '/admin/v1/openapi/app', { fields: [{ key: 'app_name', label: '应用名称', required: true }, { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] }], actions: [{ label: '重置密钥', icon: 'refresh', path: (r) => `/admin/v1/openapi/app/${String(r.id)}/reset-secret`, message: '密钥已重置' }, { label: '启停', icon: 'settings', path: (r) => `/admin/v1/openapi/app/${String(r.id)}/toggle-status`, message: '状态已切换' }] }) },
       { label: 'Webhook', path: '/platform/webhook', cfg: res('Webhook', '/admin/v1/openapi/webhook', { fields: [{ key: 'app_id', label: '所属应用', required: true, source: { endpoint: '/admin/v1/openapi/app', labelKey: 'app_name' } }, { key: 'target_url', label: '回调地址', required: true }, { key: 'enabled', label: '是否启用', type: 'select', defaultValue: 1, options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] }], actions: [{ label: '测试投递', icon: 'send', path: (r) => `/admin/v1/openapi/webhook/${String(r.id)}/test`, message: '投递测试完成' }] }) },
       { label: '自定义字段', path: '/platform/custom-field', cfg: res('自定义字段', '/admin/v1/platform/custom-field') },
+    ],
+  },
+  {
+    label: '租户管理',
+    icon: 'grid',
+    moduleKey: 'system',
+    children: [
+      {
+        label: '租户列表',
+        path: '/platform/tenant',
+        cfg: res('租户列表', '/admin/v1/platform/tenant/list', {
+          canDelete: false,
+          filters: { key: 'status', label: '状态', options: [{ label: '全部', value: null }, { label: '待开通', value: 0 }, { label: '启用', value: 1 }, { label: '停用', value: 2 }, { label: '到期', value: 3 }] },
+          // 开通走专用 provision（自动建租户），续费需天数输入，均非泛型 CRUD 语义
+          actions: [
+            { label: '停用', icon: 'close', variant: 'icon-danger', path: (r) => (Number(r.status) === 1 ? '/admin/v1/platform/tenant/suspend' : null), body: (r) => ({ id: r.id }), message: '租户已停用' },
+            { label: '启用', icon: 'check', path: (r) => (Number(r.status) === 2 || Number(r.status) === 3 ? '/admin/v1/platform/tenant/resume' : null), body: (r) => ({ id: r.id }), message: '租户已启用' },
+          ],
+        }),
+      },
+      { label: '到期预警', path: '/platform/tenant-expiry', cfg: res('到期预警', '/admin/v1/platform/tenant/expiry-warnings', { canDelete: false, params: { days: 30 } }) },
     ],
   },
 ];
