@@ -106,4 +106,34 @@ export const financeMenus: MenuGroup[] = [
       { label: '进项发票池', path: '/finance/tax-input-invoice', cfg: f('进项发票池', '/admin/v1/finance/tax-input-invoice', { actions: [{ label: '验真', icon: 'shield', path: (r) => `/admin/v1/finance/tax-input-invoice/${String(r.id)}/verify` }, { label: '勾选', icon: 'check', path: (r) => `/admin/v1/finance/tax-input-invoice/${String(r.id)}/check` }, { label: '抵扣', icon: 'dollar', path: (r) => `/admin/v1/finance/tax-input-invoice/${String(r.id)}/deduct` }] }) },
     ],
   },
+  {
+    label: '集团财务',
+    icon: 'grid',
+    moduleKey: 'finance',
+    children: [
+      {
+        label: '多组织公司',
+        path: '/finance/company',
+        cfg: f('多组织公司', '/admin/v1/finance/company/list', {
+          canDelete: false,
+          // 新增走专用 /finance/company/create（自动建账套+开账），不在泛型 CRUD 语义内
+          actions: [
+            { label: '启停', icon: 'activity', path: () => '/admin/v1/finance/company/toggle', body: (r) => ({ id: r.id, status: Number(r.status) === 1 ? 0 : 1 }), message: '状态已切换' },
+          ],
+        }),
+      },
+      {
+        label: '账套期间',
+        path: '/finance/ledger-period',
+        cfg: f('账套期间', '/admin/v1/finance/ledger/period-list', {
+          canDelete: false,
+          // 开账走专用 period-open（新期间非行操作），此处仅结账
+          actions: [
+            { label: '结账', icon: 'check', path: () => '/admin/v1/finance/ledger/period-close', body: (r) => ({ ledger_id: r.ledger_id, period: r.period }), message: '期间已结账' },
+          ],
+        }),
+      },
+      { label: '合并报表', path: '/finance/consolidation', cfg: f('合并报表', '/admin/v1/finance/consolidation/list', { canDelete: false }) },
+    ],
+  },
 ];
