@@ -84,6 +84,37 @@ export const mfgMenus: MenuGroup[] = [
       },
       { label: '成本归集', path: '/mfg/cost-entry', cfg: m('成本归集', '/admin/v1/mfg/cost-entry', { fields: [{ key: 'order_id', label: '生产工单', required: true, source: { endpoint: '/admin/v1/mfg/production', labelKey: 'code' } }, { key: 'entry_type', label: '费用类型', required: true, type: 'select', options: [{ label: '人工', value: 1 }, { label: '制费', value: 2 }, { label: '其他', value: 3 }] }, { key: 'amount', label: '金额', required: true, type: 'number' }, { key: 'entry_date', label: '归集日期', type: 'date' }, { key: 'summary', label: '摘要' }], actions: [{ label: '审核', icon: 'check', path: (r) => `/admin/v1/mfg/cost-entry/${String(r.id)}/audit`, message: '已审核' }] }) },
       { label: '委外加工', path: '/mfg/subcontract', cfg: m('委外加工', '/admin/v1/mfg/subcontract', { filters: DOC_FILTER, fields: [{ key: 'supplier_id', label: '供应商', required: true, source: { endpoint: '/admin/v1/supplier' } }, { key: 'product_id', label: '委外产品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'warehouse_id', label: '收料仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'quantity', label: '委外数量', required: true, type: 'number' }, { key: 'unit_price', label: '加工单价', required: true, type: 'number' }, { key: 'remark', label: '备注', type: 'textarea', full: true }] }) },
+      {
+        label: '委外发料',
+        path: '/mfg/subcontract-issue',
+        cfg: m('委外发料', '/admin/v1/mfg/subcontract-issue', {
+          filters: DOC_FILTER,
+          fields: [
+            { key: 'code', label: '发料单号', required: true },
+            { key: 'subcontract_id', label: '委外订单', required: true, source: { endpoint: '/admin/v1/mfg/subcontract', labelKey: 'code' } },
+            { key: 'warehouse_id', label: '发料仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } },
+            { key: 'issue_date', label: '发料日期', type: 'date' },
+            { key: 'remark', label: '备注', type: 'textarea', full: true },
+          ],
+          actions: [{ label: '审核', icon: 'check', path: (r) => `/admin/v1/mfg/subcontract-issue/${String(r.id)}/audit`, message: '发料单已审核' }],
+        }),
+      },
+      {
+        label: '委外收货',
+        path: '/mfg/subcontract-receive',
+        cfg: m('委外收货', '/admin/v1/mfg/subcontract-receive', {
+          filters: DOC_FILTER,
+          fields: [
+            { key: 'code', label: '收料单号', required: true },
+            { key: 'subcontract_id', label: '委外订单', required: true, source: { endpoint: '/admin/v1/mfg/subcontract', labelKey: 'code' } },
+            { key: 'warehouse_id', label: '收料仓库', source: { endpoint: '/admin/v1/warehouse' } },
+            { key: 'receive_date', label: '收料日期', type: 'date' },
+            { key: 'quantity', label: '收料数量', required: true, type: 'number' },
+            { key: 'remark', label: '备注', type: 'textarea', full: true },
+          ],
+          actions: [{ label: '审核', icon: 'check', path: (r) => `/admin/v1/mfg/subcontract-receive/${String(r.id)}/audit`, message: '收料单已审核' }],
+        }),
+      },
     ],
   },
   {

@@ -160,6 +160,7 @@ export const tradeMenus: MenuGroup[] = [
       { label: '库存调拨', path: '/inventory/transfer', cfg: { title: '库存调拨', moduleKey: 'inventory', endpoint: '/admin/v1/inventory/transfer', filters: DOC_FILTER, columns: docCols('调出仓库', 'from_warehouse_name', [dateCol('transfer_date', '调拨日期')]), fields: [{ key: 'code', label: '调拨单号' }, { key: 'remark', label: '备注', type: 'textarea', full: true }] } },
       { label: '盘点任务', path: '/inventory/check', cfg: { title: '盘点任务', moduleKey: 'inventory', endpoint: '/admin/v1/inventory/check', filters: DOC_FILTER, fields: [{ key: 'name', label: '盘点任务名称', required: true }, { key: 'code', label: '盘点单号' }] } },
       { label: '库存预警', path: '/inventory/alert', cfg: res('库存预警', '/admin/v1/inventory/alert', { fields: [{ key: 'product_id', label: '产品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'sku_id', label: 'SKU ID', placeholder: '0=全部' }, { key: 'warehouse_id', label: '仓库', source: { endpoint: '/admin/v1/warehouse' } }, { key: 'min_quantity', label: '最小库存阈值', type: 'number' }, { key: 'max_quantity', label: '最大库存阈值', type: 'number' }, { key: 'enabled', label: '是否启用', type: 'select', defaultValue: 1, options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] }] }) },
+      { label: '批次效期预警', path: '/inventory/expiry', cfg: res('批次效期预警', '/admin/v1/trace/expiry', { moduleKey: 'inventory', canDelete: false, params: { days: 90 } }) },
     ],
   },
 ];
