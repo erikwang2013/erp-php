@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ *
+ * 设计 token —— 与 apps/flutter/lib/app/theme/app_tokens.dart 同源同值。
+ * 改这里必须同步改 app_tokens.dart（双端单一视觉事实源约定）。
+ */
+
+:root {
+  /* 主色：主色只做「可点」 */
+  --primary: #1677ff;
+  --primary-pressed: #0958d9;
+  --primary-disabled: #99bbff;
+  --primary-bg: #e6f0ff;
+
+  /* 语义色（浅底徽标三件套） */
+  --success: #52c41a;
+  --success-text: #389e0d;
+  --success-bg: #e6fff0;
+  --warning: #fa8c16;
+  --warning-text: #d46b08;
+  --warning-bg: #fffbe6;
+  --danger: #ff4d4f;
+  --danger-text: #cf1322;
+  --danger-bg: #ffe6e6;
+
+  /* 文字四级（标题靠字重区分，不加黑） */
+  --text-1: #333333;
+  --text-2: #666666;
+  --text-3: #999999;
+  --text-4: #cccccc;
+
+  /* 面 */
+  --text-on-primary: #ffffff;
+  --bg-page: #f5f5f5;
+  --surface: #ffffff;
+  --surface-alt: #f0f0f0;
+  --divider: #eeeeee;
+  --border: #d9d9d9;
+
+  /* 品牌渐变（登录 hero / 品牌带） */
+  --brand-grad: linear-gradient(135deg, #001d66, #1677ff, #69b1ff);
+  --shadow-facade: 0 12px 32px rgba(0, 29, 102, 0.122);
+
+  /* 模块强调色（moduleAccent 双端同源） */
+  --accent-system: #1677ff;
+  --accent-hr: #722ed1;
+  --accent-tms: #722ed1;
+  --accent-oms: #13c2c2;
+  --accent-wms: #13c2c2;
+  --accent-purchase: #fa8c16;
+  --accent-mfg: #52c41a;
+  --accent-finance: #ff4d4f;
+
+  /* 图表序列色 */
+  --chart-1: #1677ff;
+  --chart-2: #52c41a;
+  --chart-3: #fa8c16;
+  --chart-4: #ff4d4f;
+  --chart-5: #722ed1;
+  --chart-6: #13c2c2;
+
+  /* 间距 / 圆角 / 尺寸（4px 网格） */
+  --page-pad: 16px;
+  --gap: 16px;
+  --gap-sm: 12px;
+  --pad-card: 16px;
+  --r-facade: 16px;
+  --r-card: 12px;
+  --r-ctrl: 6px;
+  --r-chip: 16px;
+  --ctrl-h: 36px;
+  --row-h: 44px;
+  --head-h: 40px;
+  --sidebar-w: 240px;
+  --sidebar-w-fold: 64px;
+  --topbar-h: 56px;
+
+  /* 字号阶梯 */
+  --fs-xs: 10px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-base: 14px;
+  --fs-lg: 16px;
+  --fs-page: 18px;
+  --fs-xl: 20px;
+  --fs-stat: 24px;
+}
