@@ -69,6 +69,123 @@ export const mgmtMenus: MenuGroup[] = [
     ],
   },
   {
+    label: '招聘管理',
+    icon: 'send',
+    moduleKey: 'hr',
+    children: [
+      {
+        label: '招聘职位',
+        path: '/hr/recruit/job',
+        cfg: res('招聘职位', '/admin/v1/hr/recruit/job', {
+          moduleKey: 'hr',
+          deleteNeedsPassword: true,
+          filters: { key: 'status', label: '状态', options: [{ label: '全部', value: null }, { label: '草稿', value: 0 }, { label: '发布中', value: 1 }, { label: '已关闭', value: 2 }] },
+          fields: [
+            { key: 'job_title', label: '职位名称', required: true },
+            { key: 'department_id', label: '招聘部门', source: { endpoint: '/admin/v1/hr/department' } },
+            { key: 'headcount', label: '招聘人数', type: 'number' },
+            { key: 'requirement', label: '任职要求', type: 'textarea', full: true },
+          ],
+          actions: [
+            { label: '发布', icon: 'send', path: (r) => `/admin/v1/hr/recruit/job/${String(r.id)}/publish`, message: '职位已发布' },
+            { label: '关闭', icon: 'close', variant: 'icon-danger', path: (r) => `/admin/v1/hr/recruit/job/${String(r.id)}/close`, message: '职位已关闭' },
+          ],
+        }),
+      },
+      {
+        label: '招聘候选人',
+        path: '/hr/recruit/candidate',
+        cfg: res('招聘候选人', '/admin/v1/hr/recruit/candidate', {
+          moduleKey: 'hr',
+          deleteNeedsPassword: true,
+          filters: { key: 'status', label: '阶段', options: [{ label: '全部', value: null }, { label: '新简历', value: 0 }, { label: '初筛通过', value: 1 }, { label: '面试中', value: 2 }, { label: '已发 Offer', value: 3 }, { label: '已入职', value: 4 }, { label: '已淘汰', value: 5 }] },
+          fields: [
+            { key: 'name', label: '姓名', required: true },
+            { key: 'phone', label: '手机号' },
+            { key: 'source', label: '来源渠道' },
+            { key: 'job_id', label: '应聘职位', required: true, source: { endpoint: '/admin/v1/hr/recruit/job', labelKey: 'job_title' } },
+            { key: 'expected_salary', label: '期望薪资', type: 'number' },
+          ],
+          // 推进状态需选择目标阶段，泛型确认弹层不承载下拉，留待专用动作弹层
+        }),
+      },
+      {
+        label: '招聘面试',
+        path: '/hr/recruit/interview',
+        cfg: res('招聘面试', '/admin/v1/hr/recruit/interview', {
+          moduleKey: 'hr',
+          canDelete: false, // 后端无 interview destroy 路由
+
+          fields: [
+            { key: 'candidate_id', label: '候选人', required: true, source: { endpoint: '/admin/v1/hr/recruit/candidate', labelKey: 'name' } },
+            { key: 'interview_date', label: '面试日期', required: true, type: 'date' },
+            { key: 'round_no', label: '轮次', type: 'number' },
+            { key: 'result', label: '结果', type: 'select', defaultValue: 0, options: [{ label: '待定', value: 0 }, { label: '通过', value: 1 }, { label: '不通过', value: 2 }] },
+          ],
+        }),
+      },
+      {
+        label: '录用 Offer',
+        path: '/hr/recruit/offer',
+        cfg: res('录用 Offer', '/admin/v1/hr/recruit/offer', {
+          moduleKey: 'hr',
+          canDelete: false,
+          filters: { key: 'status', label: '状态', options: [{ label: '全部', value: null }, { label: '草稿', value: 0 }, { label: '已发出', value: 1 }, { label: '已接受', value: 2 }, { label: '已拒绝', value: 3 }] },
+          fields: [
+            { key: 'candidate_id', label: '候选人', required: true, source: { endpoint: '/admin/v1/hr/recruit/candidate', labelKey: 'name' } },
+            { key: 'offered_salary', label: 'Offer 薪资', required: true, type: 'number' },
+            { key: 'onboard_date', label: '入职日期', type: 'date' },
+          ],
+          actions: [{ label: '发出', icon: 'send', path: (r) => `/admin/v1/hr/recruit/offer/${String(r.id)}/send`, message: 'Offer 已发出' }],
+        }),
+      },
+    ],
+  },
+  {
+    label: '绩效考核',
+    icon: 'star',
+    moduleKey: 'hr',
+    children: [
+      {
+        label: '绩效模板',
+        path: '/hr/perf/template',
+        cfg: res('绩效模板', '/admin/v1/hr/perf/template', {
+          moduleKey: 'hr',
+          deleteNeedsPassword: true,
+          filters: { key: 'status', label: '状态', options: [{ label: '全部', value: null }, { label: '草稿', value: 0 }, { label: '启用', value: 1 }] },
+          fields: [
+            { key: 'name', label: '模板名称', required: true },
+            { key: 'period_type', label: '周期类型', type: 'select', defaultValue: 'monthly', options: [{ label: '月度', value: 'monthly' }, { label: '季度', value: 'quarterly' }, { label: '年度', value: 'yearly' }] },
+          ],
+          actions: [{ label: '启用', icon: 'check', path: (r) => `/admin/v1/hr/perf/template/${String(r.id)}/enable`, requirePassword: true, message: '模板已启用' }],
+        }),
+      },
+      {
+        label: '考核计划',
+        path: '/hr/perf/plan',
+        cfg: res('考核计划', '/admin/v1/hr/perf/plan', {
+          moduleKey: 'hr',
+          canDelete: false,
+          filters: { key: 'status', label: '状态', options: [{ label: '全部', value: null }, { label: '草稿', value: 0 }, { label: '进行中', value: 1 }, { label: '已归档', value: 2 }] },
+          // 计划创建无 PUT/DELETE 路由（planStore 后仅 start/archive），泛型表单会导编辑/删除 404，只读+动作
+          actions: [
+            { label: '启动', icon: 'send', path: (r) => `/admin/v1/hr/perf/plan/${String(r.id)}/start`, message: '考核批次已启动' },
+            { label: '归档', icon: 'folder', path: (r) => `/admin/v1/hr/perf/plan/${String(r.id)}/archive`, message: '考核批次已归档' },
+          ],
+        }),
+      },
+      {
+        label: '考核评分',
+        path: '/hr/perf/score',
+        cfg: res('考核评分', '/admin/v1/hr/perf/score', {
+          moduleKey: 'hr',
+          canDelete: false,
+          // 评分提交按 plan+employee+评分人维度，非资源型 CRUD，仅浏览明细
+        }),
+      },
+    ],
+  },
+  {
     label: '项目管理',
     icon: 'folder',
     moduleKey: 'project',
