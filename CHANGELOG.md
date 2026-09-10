@@ -2,6 +2,32 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.13.0 (2026-09-10)
+
+技术债清偿批：文档统计对齐、Angular 结构 CSS 去重、Flutter 令牌三端统一。
+
+### 平台与架构
+
+- **doc-stats 文档统计对齐**：`docs/**` 与 README 共 **28 个文件 202 处** `<!-- stats:key=value -->`
+  标注按实测值刷新（php_files 339→479、controllers 122→158、tables 163→226、models 161→223、
+  services 27→63、modules 19→23、test_files 59→107、tests 500→948、assertions 2226→2063），
+  覆盖全部 12 种语言翻译档；`scripts/doc-stats.sh --check` 归零，CI 的 Docs 作业由红转绿
+- **Angular 结构 CSS 上提去重**：`dashboard-page.less` 与 `resource-page.less` 逐字节重复的
+  React 镜像结构类（`.page-head`/`.head-bar`/`.page-title`/`.card`/`.table`/`.center-block` 等）
+  上提全局 `app.css` 单一来源；`resource-page.less` 组件样式预算警告清零
+- **Flutter 令牌三端统一**：`apps/flutter/lib/app/theme/app_tokens.dart` 的 light 调色板全面镜像
+  Web `tokens.css`（墨青主色族、暖纸面、暖灰文字、语义色三件套、r-card 10/r-facade 14/r-chip 999），
+  品牌渐变与圆角同步；dark 仅主色族与圆角跟随（V3 设计为亮色，dark 语义色保留既有深色变体）
+
+### 其他
+
+- 质量门：React `tsc` + `vite build`；Angular `tsc` + `ngc` + `ng build`；Flutter `flutter analyze`
+  无告警 + 令牌组件测试全过
+- 顺手修复 `captcha_verify_dialog.dart` 既有 `curly_braces_in_flow_control_structures` lint
+- 遗留：`shell.less` 超 4 kB 预算 406 B（纯布局 CSS，无共享结构类可上提，未剥注释凑预算）；
+  profile/notification 两页结构类因细微差异未纳入本轮上提；CI 的 PHPStan 静态分析、E2E 数据库种子
+  两项为环境类红点，与本次改动无关
+
 ## v1.12.0 (2026-09-10)
 
 设计系统「经营台账 V3」落地 Web 两端（React + Angular），含设计稿产物与页面交互升级。
