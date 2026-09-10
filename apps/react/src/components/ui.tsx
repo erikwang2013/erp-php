@@ -348,22 +348,24 @@ export function StatCard({
   label,
   value,
   icon = 'box',
-  color = '#1677FF',
+  color = 'var(--primary)',
   trend,
+  hero,
 }: {
   label: string;
   value: ReactNode;
   icon?: IconName;
   color?: string;
   trend?: number | null;
+  hero?: boolean;
 }) {
   const t = useTr();
   const good = trend === null || trend === undefined ? null : trend >= 0;
   return (
-    <div className="stat-card">
+    <div className={`stat-card${hero ? ' hero' : ''}`}>
       <div
         className="stat-icon"
-        style={{ background: `${color}1F`, color }}
+        style={{ color, background: `color-mix(in srgb, ${color} 14%, var(--surface))` }}
       >
         <Icon name={icon} size={20} />
       </div>

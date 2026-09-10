@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, computed, signal } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { http } from '../../core/api.service';
@@ -51,8 +51,8 @@ const ICON_MAP: Record<string, string> = {
   cart: 'cart',
 };
 
-/** 分布条 / 图例交替双色（React 内联 ['#1677FF','#FF4D4F'][i % 2]） */
-const DIST_COLORS = ['#1677FF', '#FF4D4F'];
+/** 分布条 / 图例交替双色（吃 token：主色 墨青 + 语义红） */
+const DIST_COLORS = ['var(--chart-1)', 'var(--chart-4)'];
 
 /** 折线图几何（与 React LineChart 常量同值） */
 const W = 640;
@@ -71,8 +71,54 @@ interface ChartModel {
   series: { key: string; color: string; line: string; area: string }[];
 }
 
+/**
+ * KPI 数值滚动：仅纯数字（可选千分位/小数）动画，货币等其余文本原样渲染。
+ * signal 每次 rAF 更新驱动模板；一次变更只起一轮动画，不引动画库。
+ */
 @Component({
-  imports: [TrPipe, NzButtonModule, NzIconModule, IconComponent],
+  selector: 'count-up',
+  standalone: true,
+  template: `{{ display() }}`,
+})
+export class CountUpComponent implements OnChanges {
+  @Input() text = '';
+  private readonly val = signal<number | null>(null);
+  private readonly dec = computed(() =>
+    this.text.includes('.') ? (this.text.split('.')[1] ?? '').length : 0,
+  );
+  private readonly grouping = computed(() => this.text.includes(','));
+
+  protected readonly display = computed(() => {
+    const v = this.val();
+    if (v === null) return this.text;
+    return v.toLocaleString('en-US', {
+      minimumFractionDigits: this.dec(),
+      maximumFractionDigits: this.dec(),
+      useGrouping: this.grouping(),
+    });
+  });
+
+  ngOnChanges(): void {
+    const trimmed = this.text.trim();
+    const animatable = /^[\d.,]+$/.test(trimmed);
+    const target = parseFloat(trimmed.replace(/[^0-9.-]/g, ''));
+    if (!animatable || Number.isNaN(target)) {
+      this.val.set(null);
+      return;
+    }
+    this.val.set(0);
+    const start = performance.now();
+    const step = (now: number): void => {
+      const p = Math.min(1, (now - start) / 640);
+      this.val.set(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+}
+
+@Component({
+  imports: [TrPipe, NzButtonModule, NzIconModule, IconComponent, CountUpComponent],
   selector: 'app-dashboard-page',
   styleUrl: './dashboard-page.less',
   templateUrl: './dashboard-page.html',
@@ -100,6 +146,9 @@ export class DashboardPage implements OnInit {
   protected readonly abs = (n: number): number => Math.abs(n);
   protected readonly iconOf = (icon: string): string => ICON_MAP[icon] ?? 'box';
   protected readonly distColor = (i: number): string => DIST_COLORS[i % DIST_COLORS.length];
+  /** 图标瓦片浅底：后端色 14% 混入纸面（替代 hex+alpha 拼串，任意颜色值都可用） */
+  protected readonly iconBg = (color: string): string =>
+    `color-mix(in srgb, ${color} 14%, var(--surface))`;
 
   ngOnInit(): void {
     void this.load();

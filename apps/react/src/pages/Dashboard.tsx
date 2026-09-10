@@ -81,14 +81,15 @@ export function Dashboard() {
       {data && (
         <>
           <div className="stat-grid">
-            {(data.stats ?? []).map((s) => (
+            {(data.stats ?? []).map((s, i) => (
               <StatCard
                 key={s.label}
                 label={s.label}
-                value={s.value}
+                value={<CountUp text={s.value} />}
                 icon={ICON_MAP[s.icon] ?? 'box'}
                 color={s.color}
                 trend={s.trend ?? null}
+                hero={i === 0}
               />
             ))}
           </div>
@@ -124,7 +125,7 @@ export function Dashboard() {
                         key={d.name}
                         style={{
                           width: `${distTotal ? (d.value / distTotal) * 100 : 0}%`,
-                          background: ['#1677FF', '#FF4D4F'][i % 2],
+                          background: ['var(--chart-1)', 'var(--chart-4)'][i % 2],
                           transition: 'width .3s',
                         }}
                       />
@@ -132,7 +133,7 @@ export function Dashboard() {
                   </div>
                   {dist.map((d, i) => (
                     <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 'var(--fs-md)', marginBottom: 6 }}>
-                      <i style={{ width: 8, height: 8, borderRadius: 2, background: ['#1677FF', '#FF4D4F'][i % 2], display: 'inline-block' }} />
+                      <i style={{ width: 8, height: 8, borderRadius: 2, background: ['var(--chart-1)', 'var(--chart-4)'][i % 2], display: 'inline-block' }} />
                       <span style={{ color: 'var(--text-2)' }}>{d.name}</span>
                       <span style={{ marginLeft: 'auto', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{int(d.value)}</span>
                     </div>
@@ -179,6 +180,40 @@ export function Dashboard() {
   );
 }
 
+/** KPI 数值滚动：仅纯数字（可选千分位/小数）动画，货币等其余文本原样渲染 */
+function CountUp({ text, duration = 640 }: { text: string; duration?: number }) {
+  const trimmed = text.trim();
+  const animatable = /^[\d.,]+$/.test(trimmed);
+  const target = parseFloat(trimmed.replace(/[^0-9.-]/g, ''));
+  const [val, setVal] = useState<number | null>(animatable && !Number.isNaN(target) ? 0 : null);
+
+  useEffect(() => {
+    if (val === null || !animatable || Number.isNaN(target)) return;
+    setVal(0);
+    const start = performance.now();
+    let raf = 0;
+    const step = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      setVal(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, animatable, duration]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (val === null) return <>{text}</>;
+  const dec = trimmed.includes('.') ? (trimmed.split('.')[1] ?? '').length : 0;
+  return (
+    <>
+      {val.toLocaleString('en-US', {
+        minimumFractionDigits: dec,
+        maximumFractionDigits: dec,
+        useGrouping: trimmed.includes(','),
+      })}
+    </>
+  );
+}
+
 /** 多序列折线图（纯 SVG，无图表依赖） */
 function LineChart({
   dates,
@@ -220,16 +255,25 @@ function LineChart({
         ) : null,
       )}
 
-      {series.map((s) => {
+      {series.map((s, si) => {
         const pts = s.data.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
         return (
           <g key={s.name}>
             <polygon
+              className="area-fade"
               points={`${padL},${H - padB} ${pts} ${x(n - 1).toFixed(1)},${H - padB}`}
               fill={s.color}
-              opacity="0.08"
+              opacity="0.1"
             />
-            <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2" />
+            <polyline
+              className="line-draw"
+              pathLength={1}
+              points={pts}
+              fill="none"
+              stroke={s.color}
+              strokeWidth="2"
+              style={{ animationDelay: `${si * 140}ms` }}
+            />
           </g>
         );
       })}

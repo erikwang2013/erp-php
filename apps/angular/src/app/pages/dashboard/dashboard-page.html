@@ -34,14 +34,14 @@
 
 @if (hasData()) {
   <div class="stat-grid">
-    @for (s of stats(); track s.label) {
-      <div class="stat-card">
-        <div class="stat-icon" [style.background]="s.color + '1F'" [style.color]="s.color">
+    @for (s of stats(); track s.label; let i = $index) {
+      <div class="stat-card" [class.hero]="i === 0">
+        <div class="stat-icon" [style.background]="iconBg(s.color)" [style.color]="s.color">
           <app-icon [name]="iconOf(s.icon)" />
         </div>
         <div class="stat-body">
           <div class="stat-label">{{ s.label | tr }}</div>
-          <div class="stat-value">{{ s.value }}</div>
+          <div class="stat-value"><count-up [text]="s.value" /></div>
           @if (s.trend !== null && s.trend !== undefined) {
             <div class="stat-trend" [style.color]="s.trend >= 0 ? 'var(--success)' : 'var(--danger)'">
               {{ s.trend >= 0 ? '↑' : '↓' }} {{ abs(s.trend) }}% {{ '较昨日' | tr }}
@@ -96,13 +96,21 @@
               text-anchor="middle"
             >{{ l.text }}</text>
           }
-          @for (s of c.series; track s.key) {
-            <polygon [attr.points]="s.area" [attr.fill]="s.color" opacity="0.08"></polygon>
+          @for (s of c.series; track s.key; let si = $index) {
+            <polygon
+              class="area-fade"
+              [attr.points]="s.area"
+              [attr.fill]="s.color"
+              opacity="0.1"
+            ></polygon>
             <polyline
+              class="line-draw"
+              [attr.pathLength]="1"
               [attr.points]="s.line"
               fill="none"
               [attr.stroke]="s.color"
               stroke-width="2"
+              [style.animation-delay.ms]="si * 140"
             ></polyline>
           }
         </svg>

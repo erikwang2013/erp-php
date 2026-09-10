@@ -7,43 +7,48 @@
  */
 
 :root {
-  /* 主色：主色只做「可点」 */
-  --primary: #1677ff;
-  --primary-pressed: #0958d9;
-  --primary-disabled: #99bbff;
-  --primary-bg: #e6f0ff;
+  /* 主色：墨青，只做「可点」 */
+  --primary: #0e7a6f;
+  --primary-pressed: #0a5a51;
+  --primary-disabled: #9dc9c2;
+  --primary-bg: #e4f2ef;
 
   /* 语义色（浅底徽标三件套） */
-  --success: #52c41a;
-  --success-text: #389e0d;
-  --success-bg: #e6fff0;
-  --warning: #fa8c16;
-  --warning-text: #d46b08;
-  --warning-bg: #fffbe6;
-  --danger: #ff4d4f;
-  --danger-text: #cf1322;
-  --danger-bg: #ffe6e6;
+  --success: #2f7d3f;
+  --success-text: #256633;
+  --success-bg: #eaf6ec;
+  --warning: #a76b1b;
+  --warning-text: #8c5715;
+  --warning-bg: #fbf3e4;
+  --danger: #b02e2e;
+  --danger-text: #942525;
+  --danger-bg: #fbeaea;
 
-  /* 文字四级（标题靠字重区分，不加黑） */
-  --text-1: #333333;
-  --text-2: #666666;
-  --text-3: #999999;
-  --text-4: #cccccc;
+  /* 文字四级（暖灰阶，标题靠字重区分，不加黑） */
+  --text-1: #1f2320;
+  --text-2: #4b524d;
+  --text-3: #7a837c;
+  --text-4: #a7aea8;
 
-  /* 面 */
+  /* 面（暖纸地面） */
   --text-on-primary: #ffffff;
-  --bg-page: #f5f5f5;
+  --bg-page: #f5f6f4;
   --surface: #ffffff;
-  --surface-alt: #f0f0f0;
-  --divider: #eeeeee;
-  --border: #d9d9d9;
+  --surface-alt: #eff1ee;
+  --divider: #e1e4e0;
+  --border: #c9cec9;
 
-  /* 品牌渐变（登录 hero / 品牌带） */
-  --brand-grad: linear-gradient(135deg, #001d66, #1677ff, #69b1ff);
-  --shadow-facade: 0 12px 32px rgba(0, 29, 102, 0.122);
+  /* 品牌渐变（登录 hero / 品牌带 / 页题 accent 条） */
+  --brand-grad: linear-gradient(135deg, #0e7a6f, #17a08f);
+  --shadow-facade: 0 10px 30px rgba(28, 36, 31, 0.12);
+
+  /* 三阶柔影：卡片静息 / 卡片抬起 */
+  --shadow-1: 0 1px 2px rgba(28, 36, 31, 0.05), 0 1px 1px rgba(28, 36, 31, 0.03);
+  --shadow-2: 0 2px 6px rgba(28, 36, 31, 0.07), 0 6px 16px rgba(28, 36, 31, 0.06);
+  --ring: 0 0 0 3px rgba(14, 122, 111, 0.18);
 
   /* 模块强调色（moduleAccent 双端同源） */
-  --accent-system: #1677ff;
+  --accent-system: #0e7a6f;
   --accent-hr: #722ed1;
   --accent-tms: #722ed1;
   --accent-oms: #13c2c2;
@@ -53,22 +58,28 @@
   --accent-finance: #ff4d4f;
 
   /* 图表序列色 */
-  --chart-1: #1677ff;
+  --chart-1: #0e7a6f;
   --chart-2: #52c41a;
   --chart-3: #fa8c16;
   --chart-4: #ff4d4f;
   --chart-5: #722ed1;
   --chart-6: #13c2c2;
 
-  /* 间距 / 圆角 / 尺寸（4px 网格） */
+  /* 间距刻度 / 圆角 / 尺寸（4px 网格） */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
   --page-pad: 16px;
   --gap: 16px;
   --gap-sm: 12px;
   --pad-card: 16px;
-  --r-facade: 16px;
-  --r-card: 12px;
+  --r-facade: 14px;
+  --r-card: 10px;
   --r-ctrl: 6px;
-  --r-chip: 16px;
+  --r-chip: 999px;
   --ctrl-h: 36px;
   --row-h: 44px;
   --head-h: 40px;
@@ -77,7 +88,7 @@
   --topbar-h: 56px;
 
   /* 字号阶梯 */
-  --fs-xs: 10px;
+  --fs-xs: 11px;
   --fs-sm: 12px;
   --fs-md: 13px;
   --fs-base: 14px;
@@ -85,6 +96,14 @@
   --fs-page: 18px;
   --fs-xl: 20px;
   --fs-stat: 24px;
+  --fs-hero: 30px;
+
+  /* 动效时长 / 缓动 */
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 260ms;
+  --ease: cubic-bezier(0.2, 0.6, 0.3, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ============ 人机验证 ============ */
@@ -110,7 +129,7 @@
   height: 18px;
   line-height: 18px;
   border-radius: 50%;
-  background: rgba(22, 119, 255, 0.9);
+  background: color-mix(in srgb, var(--primary) 90%, transparent);
   border: 1px solid #fff;
   color: #fff;
   font-size: 11px;

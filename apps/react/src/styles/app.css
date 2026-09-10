@@ -407,10 +407,23 @@ td.num {
   background: var(--surface);
   border: 1px solid var(--divider);
   border-radius: var(--r-card);
+  box-shadow: var(--shadow-1);
 }
 
 .card.body {
   padding: var(--pad-card);
+}
+
+/* 可抬升卡片：KPI 等交互卡加 .lift，hover 抬起一档 */
+.card.lift {
+  transition:
+    transform var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+}
+
+.card.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
 }
 
 .page-head {
@@ -424,7 +437,7 @@ td.num {
   width: 8px;
   height: 16px;
   border-radius: 2px;
-  background: var(--accent, var(--accent-system));
+  background: var(--accent, var(--brand-grad));
   flex-shrink: 0;
 }
 
@@ -625,17 +638,35 @@ td.num {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  transition:
+    background var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
 }
 
 .chip:hover {
   border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* 计数徽标：胶囊内右侧的数量 */
+.chip .n {
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+  font-weight: 400;
 }
 
 .chip.active {
-  background: var(--primary-bg);
+  background: var(--primary);
   border-color: transparent;
-  color: var(--primary-pressed);
+  color: var(--text-on-primary);
   font-weight: 500;
+}
+
+.chip.active .n {
+  color: var(--primary-bg);
 }
 
 /* ============ 表格 ============ */
@@ -657,7 +688,7 @@ td.num {
   font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--text-2);
-  background: rgba(240, 240, 240, 0.4);
+  background: rgba(28, 36, 31, 0.028);
   border-bottom: 1px solid var(--divider);
   white-space: nowrap;
 }
@@ -670,16 +701,20 @@ td.num {
   vertical-align: middle;
 }
 
+.table tbody tr {
+  transition: background var(--dur-1) var(--ease);
+}
+
 .table tbody tr:hover {
-  background: rgba(240, 240, 240, 0.45);
+  background: rgba(28, 36, 31, 0.04);
 }
 
 .table tbody tr:nth-child(even) {
-  background: rgba(240, 240, 240, 0.35);
+  background: rgba(28, 36, 31, 0.02);
 }
 
 .table tbody tr:nth-child(even):hover {
-  background: rgba(240, 240, 240, 0.6);
+  background: rgba(28, 36, 31, 0.04);
 }
 
 .table td.primary {
@@ -701,6 +736,20 @@ td.num {
 .row-actions {
   display: flex;
   gap: 2px;
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease);
+}
+
+/* 行 hover 时右滑露出行内动作 */
+.table tbody tr:hover .row-actions {
+  opacity: 1;
+}
+
+/* 触屏/无悬停设备恒显，否则动作不可达 */
+@media (hover: none) {
+  .row-actions {
+    opacity: 1;
+  }
 }
 
 /* ============ 状态徽标 ============ */
@@ -911,6 +960,45 @@ td.num {
   display: flex;
   align-items: center;
   gap: 12px;
+  box-shadow: var(--shadow-1);
+  transition:
+    transform var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+
+/* 首卡 hero：渐变图标瓦片 + 左侧 3px 键线 */
+.stat-card.hero {
+  border-left: 3px solid transparent;
+  border-image: var(--brand-grad) 1;
+}
+
+/* 折线图 draw-in：配合 SVG pathLength=1 使用 */
+.line-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: line-draw 720ms var(--ease-out) forwards;
+}
+
+.area-fade {
+  opacity: 0;
+  animation: area-fade 480ms var(--ease-out) 360ms forwards;
+}
+
+@keyframes line-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes area-fade {
+  to {
+    opacity: 1;
+  }
 }
 
 .stat-icon {

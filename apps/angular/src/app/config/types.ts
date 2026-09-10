@@ -20,7 +20,7 @@ export const MODULE_ACCENT: Record<string, string> = {
 };
 
 export const accentOf = (moduleKey?: string): string | undefined =>
-  moduleKey ? (MODULE_ACCENT[moduleKey] ?? '#1677FF') : undefined;
+  moduleKey ? (MODULE_ACCENT[moduleKey] ?? '#0E7A6F') : undefined;
 
 export interface FieldOption {
   label: string;

@@ -49,6 +49,7 @@
   background: var(--surface);
   border: 1px solid var(--divider);
   border-radius: var(--r-card);
+  box-shadow: var(--shadow-1);
 
   &.body {
     padding: var(--pad-card);
@@ -80,7 +81,7 @@
 .input:focus,
 .select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+  box-shadow: var(--ring);
 }
 
 .input::placeholder {
@@ -132,16 +133,34 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  transition:
+    background var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
 
   &:hover {
     border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  /* 计数徽标：胶囊内右侧的数量 */
+  .n {
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+    font-weight: 400;
   }
 
   &.active {
-    background: var(--primary-bg);
+    background: var(--primary);
     border-color: transparent;
-    color: var(--primary-pressed);
+    color: var(--text-on-primary);
     font-weight: 500;
+
+    .n {
+      color: var(--primary-bg);
+    }
   }
 }
 
@@ -200,7 +219,7 @@
     font-size: var(--fs-sm);
     font-weight: 600;
     color: var(--text-2);
-    background: rgba(240, 240, 240, 0.4);
+    background: rgba(28, 36, 31, 0.028);
     border-bottom: 1px solid var(--divider);
     white-space: nowrap;
   }
@@ -213,15 +232,19 @@
     vertical-align: middle;
   }
 
+  tbody tr {
+    transition: background var(--dur-1) var(--ease);
+  }
+
   tbody tr:hover {
-    background: rgba(240, 240, 240, 0.45);
+    background: rgba(28, 36, 31, 0.04);
   }
 
   tbody tr:nth-child(even) {
-    background: rgba(240, 240, 240, 0.35);
+    background: rgba(28, 36, 31, 0.02);
 
     &:hover {
-      background: rgba(240, 240, 240, 0.6);
+      background: rgba(28, 36, 31, 0.04);
     }
   }
 
@@ -239,6 +262,20 @@
   display: flex;
   align-items: center;
   gap: 2px;
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease);
+}
+
+/* 行 hover 时右滑露出行内动作 */
+.table tbody tr:hover .row-actions {
+  opacity: 1;
+}
+
+/* 触屏/无悬停设备恒显，否则动作不可达 */
+@media (hover: none) {
+  .row-actions {
+    opacity: 1;
+  }
 }
 
 /* ── 分页 ── */
