@@ -4,7 +4,7 @@
 
 ## Ringkasan
 
-Sistem ERP Terbuka (open-erp) mencakup 19 domain bisnis <!-- stats:modules=19 -->, 163 tabel data <!-- stats:tables=163 -->, menyediakan sistem manajemen perusahaan full-stack mulai dari pembelian-penjualan-stok hingga manufaktur produksi, dari pembukuan keuangan hingga sumber daya manusia. Internasionalisasi: dukungan bilingual 中文/English, peralihan otomatis melalui header permintaan Accept-Language.
+Sistem ERP Terbuka (open-erp) mencakup 19 domain bisnis <!-- stats:modules=23 -->, 163 tabel data <!-- stats:tables=226 -->, menyediakan sistem manajemen perusahaan full-stack mulai dari pembelian-penjualan-stok hingga manufaktur produksi, dari pembukuan keuangan hingga sumber daya manusia. Internasionalisasi: dukungan bilingual 中文/English, peralihan otomatis melalui header permintaan Accept-Language.
 
 > Dokumen API: setelah layanan dimulai, akses `http://localhost:8788/apidoc` untuk melihat dokumen antarmuka interaktif (dihasilkan otomatis oleh hg/apidoc)
 
@@ -493,18 +493,18 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | Dimensi | Jumlah |
 |------|------|
-| Modul bisnis | 19 <!-- stats:modules=19 --> |
-| Tabel database | 163 <!-- stats:tables=163 --> |
-| Model data | 161 <!-- stats:models=161 --> |
-| Controller | 123 <!-- stats:controllers=122 --> |
-| Layanan bisnis | 27 <!-- stats:services=27 --> |
+| Modul bisnis | 19 <!-- stats:modules=23 --> |
+| Tabel database | 163 <!-- stats:tables=226 --> |
+| Model data | 161 <!-- stats:models=223 --> |
+| Controller | 123 <!-- stats:controllers=158 --> |
+| Layanan bisnis | 27 <!-- stats:services=63 --> |
 | Route API | 198 (dibuat dinamis, lihat `scripts/check-endpoints.php`, tidak ikut validasi doc-stats) |
 | Middleware | 11 <!-- stats:middleware=11 --> |
-| File sumber PHP | 343 <!-- stats:php_files=339 --> |
+| File sumber PHP | 343 <!-- stats:php_files=479 --> |
 | Skrip instalasi database | file tunggal `database/install.sql` (163 tabel, semua migrasi telah digabungkan) |
 | Halaman frontend (Flutter) | 7 (statistik frontend, tidak masuk validasi doc-stats) |
 | Halaman frontend (HarmonyOS) | 4 (statistik frontend, tidak masuk validasi doc-stats) |
-| Unit test | 50 file pengujian <!-- stats:test_files=59 --> / 442 kasus pengujian / 2238 asersi (tests/assertions mengambang mengikuti versi patch dan ekstensi PHP, tidak ikut validasi akurat stats) |
+| Unit test | 50 file pengujian <!-- stats:test_files=107 --> / 442 kasus pengujian / 2238 asersi (tests/assertions mengambang mengikuti versi patch dan ekstensi PHP, tidak ikut validasi akurat stats) |
 
 > Angka di atas diukur langsung oleh `bash scripts/doc-stats.sh`; item yang ditandai `<!-- stats:key=value -->` diverifikasi otomatis oleh CI
 > (job docs di `.github/workflows/ci.yml`) agar konsisten dengan fakta kode, penyimpangan berarti merah.

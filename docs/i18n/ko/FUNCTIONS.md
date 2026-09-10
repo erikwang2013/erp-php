@@ -4,7 +4,7 @@
 
 ## 개요
 
-오픈ERP 시스템(open-erp)은 19개 업무 도메인 <!-- stats:modules=19 -->, 163개 데이터 테이블 <!-- stats:tables=163 -->을 포괄하며, 매입·판매·재고부터 생산 제조, 재무 회계부터 인사 관리까지의 풀스택 기업 관리 시스템을 제공합니다. 국제화: 중문/English 이중 언어 지원, Accept-Language 요청 헤더로 자동 전환됩니다.
+오픈ERP 시스템(open-erp)은 19개 업무 도메인 <!-- stats:modules=23 -->, 163개 데이터 테이블 <!-- stats:tables=226 -->을 포괄하며, 매입·판매·재고부터 생산 제조, 재무 회계부터 인사 관리까지의 풀스택 기업 관리 시스템을 제공합니다. 국제화: 중문/English 이중 언어 지원, Accept-Language 요청 헤더로 자동 전환됩니다.
 
 > API 문서: 서비스 시작 후 `http://localhost:8788/apidoc`에 접속하면 인터랙티브 인터페이스 문서를 볼 수 있습니다(hg/apidoc 자동 생성)
 
@@ -493,18 +493,18 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 차원 | 수량 |
 |------|------|
-| 업무 모듈 | 19 <!-- stats:modules=19 --> |
-| 데이터베이스 테이블 | 163 <!-- stats:tables=163 --> |
-| 데이터 모델 | 161 <!-- stats:models=161 --> |
-| 컨트롤러 | 123 <!-- stats:controllers=122 --> |
-| 업무 서비스 | 27 <!-- stats:services=27 --> |
+| 업무 모듈 | 19 <!-- stats:modules=23 --> |
+| 데이터베이스 테이블 | 163 <!-- stats:tables=226 --> |
+| 데이터 모델 | 161 <!-- stats:models=223 --> |
+| 컨트롤러 | 123 <!-- stats:controllers=158 --> |
+| 업무 서비스 | 27 <!-- stats:services=63 --> |
 | API 라우트 | 198(동적 생성, `scripts/check-endpoints.php` 참고, doc-stats 검증 미포함) |
 | 미들웨어 | 11 <!-- stats:middleware=11 --> |
-| PHP 소스 파일 | 343 <!-- stats:php_files=339 --> |
+| PHP 소스 파일 | 343 <!-- stats:php_files=479 --> |
 | 데이터베이스 설치 스크립트 | 단일 파일 `database/install.sql`(163개 테이블, 전체 마이그레이션 병합 완료) |
 | 프론트엔드 페이지 (Flutter) | 7(프론트엔드 통계, doc-stats 검증 미포함) |
 | 프론트엔드 페이지 (HarmonyOS) | 4(프론트엔드 통계, doc-stats 검증 미포함) |
-| 단위 테스트 | 50개 테스트 파일 <!-- stats:test_files=59 --> / 442개 테스트 케이스 / 2238개 assertion(tests/assertions는 PHP 패치 버전과 확장에 따라 변동, stats 정밀 검증 미참여) |
+| 단위 테스트 | 50개 테스트 파일 <!-- stats:test_files=107 --> / 442개 테스트 케이스 / 2238개 assertion(tests/assertions는 PHP 패치 버전과 확장에 따라 변동, stats 정밀 검증 미참여) |
 
 > 위 숫자는 `bash scripts/doc-stats.sh`가 실측한 값입니다. `<!-- stats:key=value -->`로 표기된 항목은 CI
 > (`.github/workflows/ci.yml` docs 작업)가 코드 사실과의 일치를 자동 검증하며, 어긋나면 빨간불이 켜집니다.

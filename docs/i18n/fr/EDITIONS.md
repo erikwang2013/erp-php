@@ -14,9 +14,9 @@ Le système ERP Open est proposé en trois versions pour répondre aux besoins d
 | Dimension | Lite | Standard | Full |
 |------|:---:|:---:|:---:|
 | Branche | `lite` | `standard` | `full` |
-| Tables de données | 62 (valeur planifiée) | 72 (valeur planifiée) | 163 <!-- stats:tables=163 --> |
-| Contrôleurs | 48 (valeur planifiée) | 42 (valeur planifiée) | 123 <!-- stats:controllers=122 --> |
-| Modules métier | 6 (valeur planifiée) | 6 (valeur planifiée) | 19 <!-- stats:modules=19 --> |
+| Tables de données | 62 (valeur planifiée) | 72 (valeur planifiée) | 163 <!-- stats:tables=226 --> |
+| Contrôleurs | 48 (valeur planifiée) | 42 (valeur planifiée) | 123 <!-- stats:controllers=158 --> |
+| Modules métier | 6 (valeur planifiée) | 6 (valeur planifiée) | 19 <!-- stats:modules=23 --> |
 
 > **Méthodologie** : le dépôt n'implémente actuellement que la version complète (Full) en une seule base de code ; les colonnes Lite/Standard sont des valeurs de planification produit (aucune branche correspondante dans le code) et ne participent pas à la validation doc-stats. Les chiffres de la colonne Full sont mesurés par `scripts/doc-stats.sh` (163 tables / 123 contrôleurs / 19 modules métier), conformément à l'annexe de `docs/FUNCTIONS.md`.
 
@@ -140,7 +140,7 @@ Le système ERP Open est proposé en trois versions pour répondre aux besoins d
 |------|--------------------------|------|
 | Lite | 62 tables / 6 modules métier (valeur planifiée) | Pas d'approbation / notifications / RH / production / rapports |
 | Standard | 72 tables / 6 modules métier (valeur planifiée) | Modèle de données plus allégé |
-| Full | 163 tables <!-- stats:tables=163 --> / 19 modules métier <!-- stats:modules=19 --> | Capacités complètes de plateforme d'entreprise |
+| Full | 163 tables <!-- stats:tables=226 --> / 19 modules métier <!-- stats:modules=23 --> | Capacités complètes de plateforme d'entreprise |
 
 ---
 

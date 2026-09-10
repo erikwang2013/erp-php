@@ -14,9 +14,9 @@ Das Open-ERP-System wird in drei Versionen angeboten, um den Anforderungen unter
 | Dimension | Lite (vereinfacht) | Standard | Full (vollständig) |
 |------|:---:|:---:|:---:|
 | Branch | `lite` | `standard` | `full` |
-| Datentabellen | 62 (Planwert) | 72 (Planwert) | 163 <!-- stats:tables=163 --> |
-| Controller | 48 (Planwert) | 42 (Planwert) | 123 <!-- stats:controllers=122 --> |
-| Geschäftsmodule | 6 (Planwert) | 6 (Planwert) | 19 <!-- stats:modules=19 --> |
+| Datentabellen | 62 (Planwert) | 72 (Planwert) | 163 <!-- stats:tables=226 --> |
+| Controller | 48 (Planwert) | 42 (Planwert) | 123 <!-- stats:controllers=158 --> |
+| Geschäftsmodule | 6 (Planwert) | 6 (Planwert) | 19 <!-- stats:modules=23 --> |
 
 > **Statistik-Basis**: Das Repository implementiert derzeit nur die vollständige Version (Full) als einzigen Codebestand; die Spalten Lite/Standard sind Produktplanwerte (im Codebestand existieren keine entsprechenden Branches) und
 > nehmen nicht an der doc-stats-Prüfung teil. Die Zahlen der Full-Spalte werden von `scripts/doc-stats.sh` real gemessen (163 Tabellen / 123 Controller / 19 Geschäftsmodule)
@@ -142,7 +142,7 @@ Das Open-ERP-System wird in drei Versionen angeboten, um den Anforderungen unter
 |------|--------------------------|------|
 | Lite (vereinfacht) | 62 Tabellen / 6 Geschäftsmodule (Planwerte) | Keine Genehmigung/Benachrichtigungen/HR/Produktion/Berichte |
 | Standard | 72 Tabellen / 6 Geschäftsmodule (Planwerte) | Schlankeres Datenmodell |
-| Full (vollständig) | 163 Tabellen <!-- stats:tables=163 --> / 19 Geschäftsmodule <!-- stats:modules=19 --> | Umfassende Unternehmensplattform-Fähigkeiten |
+| Full (vollständig) | 163 Tabellen <!-- stats:tables=226 --> / 19 Geschäftsmodule <!-- stats:modules=23 --> | Umfassende Unternehmensplattform-Fähigkeiten |
 
 ---
 

@@ -14,9 +14,9 @@ Sistem ERP Terbuka menyediakan tiga edisi, menyesuaikan kebutuhan perusahaan dar
 | Dimensi | Edisi Ringkas (Lite) | Edisi Standar (Standard) | Edisi Lengkap (Full) |
 |------|:---:|:---:|:---:|
 | Cabang | `lite` | `standard` | `full` |
-| Tabel data | 62 (nilai rencana) | 72 (nilai rencana) | 163 <!-- stats:tables=163 --> |
-| Controller | 48 (nilai rencana) | 42 (nilai rencana) | 123 <!-- stats:controllers=122 --> |
-| Modul bisnis | 6 (nilai rencana) | 6 (nilai rencana) | 19 <!-- stats:modules=19 --> |
+| Tabel data | 62 (nilai rencana) | 72 (nilai rencana) | 163 <!-- stats:tables=226 --> |
+| Controller | 48 (nilai rencana) | 42 (nilai rencana) | 123 <!-- stats:controllers=158 --> |
+| Modul bisnis | 6 (nilai rencana) | 6 (nilai rencana) | 19 <!-- stats:modules=23 --> |
 
 > **Metodologi statistik**: repositori saat ini hanya mengimplementasikan satu set kode edisi Lengkap (Full); kolom Lite/Standard adalah nilai perencanaan produk (tidak ada cabang terkait di codebase),
 > tidak ikut validasi doc-stats. Angka kolom Full diukur oleh `scripts/doc-stats.sh` (163 tabel / 123 controller / 19 modul bisnis),
@@ -142,7 +142,7 @@ Sistem ERP Terbuka menyediakan tiga edisi, menyesuaikan kebutuhan perusahaan dar
 |------|--------------------------|------|
 | Lite (Ringkas) | 62 tabel / 6 modul bisnis (nilai rencana) | Tanpa persetujuan/notifikasi/HR/manufaktur/laporan |
 | Standard (Standar) | 72 tabel / 6 modul bisnis (nilai rencana) | Model data lebih ringkas |
-| Full (Lengkap) | 163 tabel <!-- stats:tables=163 --> / 19 modul bisnis <!-- stats:modules=19 --> | Kapabilitas platform perusahaan menyeluruh |
+| Full (Lengkap) | 163 tabel <!-- stats:tables=226 --> / 19 modul bisnis <!-- stats:modules=23 --> | Kapabilitas platform perusahaan menyeluruh |
 
 ---
 
