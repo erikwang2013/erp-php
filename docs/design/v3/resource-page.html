@@ -1,0 +1,236 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>商品资料 · 资源列表原型</title>
+<style>
+:root{
+/* 主色：深青绿「墨青」——台账/财务信任感，替代 Ant 默认蓝 #1677ff */
+--primary:#0E7A6F;--primary-pressed:#0A5A51;--primary-disabled:#9DC9C2;--primary-bg:#E4F2EF;
+/* 语义色（浅底徽标三件套） */
+--success:#2F7D3F;--success-text:#256633;--success-bg:#EAF6EC;
+--warning:#A76B1B;--warning-text:#8C5715;--warning-bg:#FBF3E4;
+--danger:#B02E2E;--danger-text:#942525;--danger-bg:#FBEAEA;
+/* 墨色阶（暖灰，四级文字） */
+--text-1:#1F2320;--text-2:#4B524D;--text-3:#7A837C;--text-4:#A7AEA8;
+--text-on-primary:#fff;--bg-page:#F5F6F4;--surface:#fff;--surface-alt:#EFF1EE;
+--divider:#E1E4E0;--border:#C9CEC9;
+/* 品牌渐变（唯一渐变，与主色同源） */
+--brand-grad:linear-gradient(135deg,#0E7A6F,#17A08F);
+/* 阴影三阶：浅层卡 / hover 卡 / 浮层；焦点环 */
+--shadow-1:0 1px 2px rgba(28,36,31,.05),0 1px 1px rgba(28,36,31,.03);
+--shadow-2:0 2px 6px rgba(28,36,31,.07),0 6px 16px rgba(28,36,31,.06);
+--shadow-facade:0 10px 30px rgba(28,36,31,.12);
+--ring:0 0 0 3px rgba(14,122,111,.18);
+/* 间距(4px 网格) / 圆角 / 行高 */
+--page-pad:16px;--gap:16px;--gap-sm:12px;--pad-card:16px;
+--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;
+--r-facade:14px;--r-card:10px;--r-ctrl:6px;--r-chip:999px;
+--ctrl-h:36px;--row-h:44px;--head-h:40px;
+/* 字号阶梯 */
+--fs-xs:11px;--fs-sm:12px;--fs-md:13px;--fs-base:14px;--fs-lg:16px;--fs-page:18px;--fs-xl:20px;--fs-stat:24px;--fs-hero:30px;
+/* 动效 */
+--dur-1:120ms;--dur-2:180ms;--dur-3:260ms;
+--ease:cubic-bezier(.2,.6,.3,1);--ease-out:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-page);color:var(--text-1);font:14px/1.55 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;padding:var(--page-pad)}
+.page{max-width:1200px;margin:0 auto;display:grid;gap:var(--gap)}
+.page-head{display:flex;align-items:center;gap:10px;margin:2px 0 4px}
+.head-bar{width:8px;height:16px;border-radius:2px;background:var(--brand-grad)}
+.page-title{font-size:var(--fs-page);font-weight:600;letter-spacing:.3px}
+.page-total{font-size:var(--fs-sm);color:var(--text-3)}
+.head-actions{margin-left:auto;display:flex;gap:var(--sp-2);align-items:center}
+.btn{height:var(--ctrl-h);padding:0 14px;border-radius:var(--r-ctrl);border:1px solid var(--border);
+background:var(--surface);color:var(--text-1);font-size:var(--fs-base);cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+transition:border-color var(--dur-1) var(--ease),box-shadow var(--dur-2) var(--ease),transform var(--dur-1) var(--ease)}
+.btn:hover{border-color:var(--primary);box-shadow:var(--ring);transform:translateY(-1px)}
+.btn-primary{background:var(--brand-grad);border:none;color:#fff;box-shadow:0 2px 6px rgba(14,122,111,.28)}
+.btn-primary:hover{box-shadow:var(--ring),0 3px 8px rgba(14,122,111,.32)}
+.btn:focus-visible{outline:none;box-shadow:var(--ring)}
+.ic{width:15px;height:15px;flex:none}.ic.s{width:13px;height:13px}
+/* 卡片 + 工具栏 */
+.card{background:var(--surface);border:1px solid var(--divider);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--shadow-1)}
+.toolbar{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-4)}
+.search-wrap{position:relative}
+.search-wrap .ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-3);pointer-events:none}
+.search-input{height:var(--ctrl-h);width:260px;padding:0 12px 0 32px;border:1px solid var(--border);border-radius:var(--r-ctrl);
+background:var(--surface);color:var(--text-1);font-size:var(--fs-base);transition:border-color var(--dur-1) var(--ease),box-shadow var(--dur-1) var(--ease)}
+.search-input:focus{outline:none;border-color:var(--primary);box-shadow:var(--ring)}
+.ctrl-select{height:var(--ctrl-h);padding:0 10px;border:1px solid var(--border);border-radius:var(--r-ctrl);background:var(--surface);color:var(--text-2);font-size:var(--fs-md);cursor:pointer}
+.ctrl-select:focus{outline:none;border-color:var(--primary)}
+.toolbar .spacer{flex:1}
+/* 状态筛选 Chips */
+.chips{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-3);flex-wrap:wrap}
+.chip{height:30px;padding:0 14px;border:1px solid var(--border);border-radius:var(--r-chip);background:var(--surface);color:var(--text-2);font-size:var(--fs-md);cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+transition:all var(--dur-2) var(--ease)}
+.chip .cnt{color:var(--text-3);font-size:var(--fs-xs)}
+.chip:hover{border-color:var(--primary);color:var(--primary)}
+.chip.on{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 2px 6px rgba(14,122,111,.25)}
+.chip.on .cnt{color:rgba(255,255,255,.75)}
+/* 表格 */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:var(--fs-base)}
+thead th{height:var(--head-h);text-align:left;font-weight:500;color:var(--text-3);font-size:var(--fs-sm);border-bottom:1px solid var(--divider);padding:0 var(--sp-3);white-space:nowrap}
+tbody td{height:var(--row-h);padding:0 var(--sp-3);border-bottom:1px solid var(--divider);color:var(--text-2);white-space:nowrap}
+tbody tr{transition:background var(--dur-1) var(--ease)}
+tbody tr:hover{background:var(--primary-faint,#F2F9F8)}
+tbody tr:last-child td{border-bottom:none}
+.cell-code{font-family:"SF Mono",Consolas,monospace;font-size:var(--fs-sm);color:var(--text-3)}
+.cell-name{color:var(--text-1);font-weight:500}
+.cell-warn{color:var(--danger-text);font-weight:600}
+/* 行内动作：hover 展开 */
+.row-actions{display:flex;gap:2px;opacity:0;transform:translateX(8px);transition:opacity var(--dur-2) var(--ease),transform var(--dur-2) var(--ease)}
+tbody tr:hover .row-actions{opacity:1;transform:none}
+.ia{width:30px;height:30px;border:none;background:transparent;color:var(--text-3);border-radius:var(--r-ctrl);cursor:pointer;display:grid;place-items:center;transition:background var(--dur-1) var(--ease),color var(--dur-1) var(--ease)}
+.ia:hover{background:var(--primary-bg);color:var(--primary)}
+.ia.ok{color:var(--success-text)}
+.ia.ok:hover{background:var(--success-bg);color:var(--success-text)}
+.ia.danger:hover{background:var(--danger-bg);color:var(--danger)}
+@media(hover:none){.row-actions{opacity:1;transform:none}}
+/* 徽标 */
+.b{display:inline-flex;align-items:center;gap:5px;padding:1px 10px;border-radius:var(--r-chip);font-size:var(--fs-sm);font-weight:500}
+.b::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.b-s{background:var(--success-bg);color:var(--success-text)}
+.b-w{background:var(--warning-bg);color:var(--warning-text)}
+.b-d{background:var(--danger-bg);color:var(--danger-text)}
+/* 分页 */
+.pager{display:flex;align-items:center;justify-content:flex-end;gap:var(--sp-2);margin-top:var(--sp-4);font-size:var(--fs-sm);color:var(--text-3)}
+.pager .pcount{margin-right:var(--sp-2)}
+.pager button{min-width:30px;height:30px;border:1px solid var(--border);border-radius:var(--r-ctrl);background:var(--surface);color:var(--text-2);cursor:pointer;display:grid;place-items:center;transition:all var(--dur-1) var(--ease)}
+.pager button:hover:not(:disabled){border-color:var(--primary);color:var(--primary)}
+.pager button:disabled{opacity:.4;cursor:not-allowed}
+.pager .page-now{display:inline-flex;align-items:center;gap:2px;margin:0 var(--sp-1);color:var(--text-2)}
+.pager .page-now b{color:var(--primary)}
+/* 采购单副卡 */
+.sec-title{font-size:var(--fs-base);font-weight:600;margin-bottom:var(--sp-2);display:flex;align-items:center;gap:8px}
+.sec-title .dot{width:5px;height:5px;border-radius:50%;background:var(--primary)}
+.mini{font-size:var(--fs-sm);color:var(--text-3)}
+.amt{font-weight:600;color:var(--text-1)}
+/* 提示 */
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);background:var(--text-1);color:#fff;padding:9px 16px;border-radius:var(--r-ctrl);font-size:var(--fs-md);opacity:0;pointer-events:none;transition:opacity var(--dur-2) var(--ease),transform var(--dur-2) var(--ease);box-shadow:var(--shadow-facade)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{animation:rise .5s var(--ease-out) both}
+@media(max-width:900px){.search-input{width:100%}.toolbar{flex-direction:column;align-items:stretch}.toolbar .spacer{display:none}}
+</style>
+</head><body>
+<div class="page">
+  <div class="page-head">
+    <span class="head-bar"></span>
+    <h1 class="page-title">商品资料</h1>
+    <span class="page-total" id="total">共 8 条</span>
+    <div class="head-actions">
+      <button class="btn" id="btnRefresh" aria-label="刷新"><svg class="ic"><use href="#i-refresh"/></svg>刷新</button>
+      <button class="btn btn-primary" aria-label="新增"><svg class="ic"><use href="#i-plus"/></svg>新增商品</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <span class="search-wrap"><svg class="ic"><use href="#i-search"/></svg>
+        <input class="search-input" id="kw" placeholder="搜索编码 / 名称" aria-label="搜索">
+      </span>
+      <select class="ctrl-select" id="limit" title="每页条数" aria-label="每页条数"><option value="15">15 条/页</option><option value="5">5 条/页</option></select>
+      <span class="spacer"></span>
+      <button class="btn" aria-label="导出"><svg class="ic"><use href="#i-download"/></svg>导出</button>
+    </div>
+
+    <div class="chips" id="chips" role="tablist" aria-label="状态筛选">
+      <button class="chip on" data-f="all" role="tab" aria-selected="true">全部 <span class="cnt" id="c-all">8</span></button>
+      <button class="chip" data-f="s" role="tab" aria-selected="false">在售 <span class="cnt" id="c-s">5</span></button>
+      <button class="chip" data-f="w" role="tab" aria-selected="false">缺货预警 <span class="cnt" id="c-w">2</span></button>
+      <button class="chip" data-f="d" role="tab" aria-selected="false">停用 <span class="cnt" id="c-d">1</span></button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>编码</th><th>商品名称</th><th>分类</th><th>规格</th><th>单位</th><th>库存</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody id="rows">
+          <tr data-st="s"><td class="cell-code">SKU-1001</td><td class="cell-name">无线蓝牙耳机 Pro</td><td>数码配件</td><td>白色 标准版</td><td>台</td><td>386</td><td><span class="b b-s">在售</span></td><td><span class="row-actions"><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button><button class="ia" title="编辑"><svg class="ic s"><use href="#i-edit"/></svg></button><button class="ia danger" title="删除"><svg class="ic s"><use href="#i-trash"/></svg></button></span></td></tr>
+          <tr data-st="s"><td class="cell-code">SKU-1002</td><td class="cell-name">机械键盘 K87</td><td>外设</td><td>茶轴</td><td>把</td><td>152</td><td><span class="b b-s">在售</span></td><td><span class="row-actions"><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button><button class="ia" title="编辑"><svg class="ic s"><use href="#i-edit"/></svg></button><button class="ia danger" title="删除"><svg class="ic s"><use href="#i-trash"/></svg></button></span></td></tr>
+          <tr data-st="s"><td class="cell-code">SKU-1003</td><td class="cell-name">27 英寸 4K 显示器</td><td>显示设备</td><td>27" 2.5K</td><td>台</td><td>23</td><td><span class="b b-s">在售</span></td><td><span class="row-actions"><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button><button class="ia" title="编辑"><svg class="ic s"><use href="#i-edit"/></svg></button><button class="ia danger" title="删除"><svg class="ic s"><use href="#i-trash"/></svg></button></span></td></tr>
+          <tr data-st="w"><td class="cell-code">SKU-1004</td><td class="cell-name">USB-C 扩展坞 8 合 1</td><td>数码配件</td><td>标准版</td><td>个</td><td class="cell-warn">0</td><td><span class="b b-w">缺货预警</span></td><td><span class="row-actions"><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button><button class="ia" title="编辑"><svg class="ic s"><use href="#i-edit"/></svg></button><button class="ia danger" title="删除"><svg class="ic s"><use href="#i-trash"/></svg></button></span></td></tr>
+          <tr data-st="s"><td class="cell-code">SKU-1005</td><td class="cell-name">人体工学椅</td><td>家具</td><td>黑色</td><td>张</td><td>41</td><td><span class="b b-s">在售</span></td><td><span class="row-actions"><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button><button class="ia" title="编辑"><svg class="ic s"><use href="#i-edit"/></svg></button><button class="ia danger" title="删除"><svg class="ic s"><use href="#i-trash"/></svg></button></span></td></tr>
+          <tr data-st="s"><td class="cell-code">SKU-1006</td><td class="cell-name">双频 Wi-Fi 6 路由器</td><td>网络设备</td><td>AX6000</td><td>台</td><td>12</td><td><span class="b b-s">在售</span></td><td><span class="row-actions"><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button><button class="ia" title="编辑"><svg class="ic s"><use href="#i-edit"/></svg></button><button class="ia danger" title="删除"><svg class="ic s"><use href="#i-trash"/></svg></button></span></td></tr>
+          <tr data-st="w"><td class="cell-code">SKU-1007</td><td class="cell-name">防蓝光眼镜</td><td>数码配件</td><td>通用</td><td>副</td><td class="cell-warn">4</td><td><span class="b b-w">缺货预警</span></td><td><span class="row-actions"><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button><button class="ia" title="编辑"><svg class="ic s"><use href="#i-edit"/></svg></button><button class="ia danger" title="删除"><svg class="ic s"><use href="#i-trash"/></svg></button></span></td></tr>
+          <tr data-st="d"><td class="cell-code">SKU-1008</td><td class="cell-name">有线鼠标 M90</td><td>外设</td><td>黑色 老款</td><td>个</td><td>0</td><td><span class="b b-d">停用</span></td><td><span class="row-actions"><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button><button class="ia" title="编辑"><svg class="ic s"><use href="#i-edit"/></svg></button><button class="ia danger" title="删除"><svg class="ic s"><use href="#i-trash"/></svg></button></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      <span class="pcount" id="pcount">共 8 条</span>
+      <button id="prev" aria-label="上一页"><svg class="ic s"><use href="#i-chev-l"/></svg></button>
+      <span class="page-now">第 <b id="pn">1</b> 页 / 共 1 页</span>
+      <button id="next" aria-label="下一页" disabled><svg class="ic s"><use href="#i-chev-r"/></svg></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title"><span class="dot"></span>待处理采购订单 <span class="mini">审批通过后自动更新库存</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>单据号</th><th>供应商</th><th>采购内容</th><th>金额</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody id="poRows">
+          <tr data-st="w"><td class="cell-code">PO-20260901-018</td><td>华南电子</td><td>无线蓝牙耳机 Pro ×500</td><td class="amt">¥32,500</td><td><span class="b b-w">待审核</span></td><td><span class="row-actions"><button class="ia ok" title="审核"><svg class="ic s"><use href="#i-check"/></svg></button><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button></span></td></tr>
+          <tr data-st="w"><td class="cell-code">PO-20260902-031</td><td>联创显示</td><td>27 英寸 4K 显示器 ×120</td><td class="amt">¥84,000</td><td><span class="b b-w">待审核</span></td><td><span class="row-actions"><button class="ia ok" title="审核"><svg class="ic s"><use href="#i-check"/></svg></button><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button></span></td></tr>
+          <tr data-st="s"><td class="cell-code">PO-20260903-004</td><td>捷信线材</td><td>USB-C 扩展坞 ×800</td><td class="amt">¥36,000</td><td><span class="b b-s">已到货</span></td><td><span class="row-actions"><button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<svg style="display:none"><defs>
+<symbol id="i-refresh" viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5V6h-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="i-search" viewBox="0 0 16 16"><circle cx="6.8" cy="6.8" r="4.3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-download" viewBox="0 0 16 16"><path d="M8 2v7M5 6.5L8 9.5l3-3M3 13h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-eye" viewBox="0 0 16 16"><path d="M1.5 8s2.5-4.3 6.5-4.3S14.5 8 14.5 8 12 12.3 8 12.3 1.5 8 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+<symbol id="i-edit" viewBox="0 0 16 16"><path d="M11.5 2.5l2 2L6 12l-2.8.8L4 10z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+<symbol id="i-trash" viewBox="0 0 16 16"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.7 8.5h5.6l.7-8.5M6.7 7v4M9.3 7v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+<symbol id="i-check" viewBox="0 0 16 16"><path d="M3 8.5L6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-chev-l" viewBox="0 0 16 16"><path d="M10 3l-5 5 5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-chev-r" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const rows=[...document.querySelectorAll('#rows tr')], poRows=[...document.querySelectorAll('#poRows tr')];
+const $=id=>document.getElementById(id);
+let cur='all', kw='', lim=15;
+const badge={s:'<span class="b b-s">在售</span>',w:'<span class="b b-w">缺货预警</span>',d:'<span class="b b-d">停用</span>'};
+
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800)}
+
+function apply(){
+  let vis=rows.filter(r=>(cur==='all'||r.dataset.st===cur)&&(!kw||(r.cells[0].textContent+r.cells[1].textContent).toLowerCase().includes(kw)));
+  const hidden=lim<rows.length&&vis.length>lim;
+  rows.forEach(r=>r.style.display='none');
+  (hidden?vis.slice(0,lim):vis).forEach(r=>r.style.display='');
+  $('pcount').textContent='共 '+vis.length+' 条';
+  $('total').textContent='共 '+vis.length+' 条';
+}
+$('kw').addEventListener('input',e=>{kw=e.target.value.trim().toLowerCase();apply()});
+$('limit').addEventListener('change',e=>{lim=+e.target.value;apply()});
+$('chips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  cur=c.dataset.f;
+  document.querySelectorAll('.chip').forEach(x=>{x.classList.toggle('on',x===c);x.setAttribute('aria-selected',x===c)});
+  apply();
+});
+document.querySelectorAll('.ia[title="删除"]').forEach(b=>b.addEventListener('click',()=>{
+  const tr=b.closest('tr');toast('已删除 '+tr.cells[0].textContent);
+  tr.style.transition='opacity .25s ease,transform .25s ease';tr.style.opacity=0;tr.style.transform='translateX(8px)';
+  setTimeout(()=>{tr.remove();apply()},260)}));
+document.querySelectorAll('#poRows .ia[title="审核"]').forEach(b=>b.addEventListener('click',()=>{
+  const tr=b.closest('tr');
+  tr.cells[4].innerHTML='<span class="b b-s">已审核</span>';
+  tr.dataset.st='s';b.closest('.row-actions').innerHTML='<button class="ia" title="详情"><svg class="ic s"><use href="#i-eye"/></svg></button>';
+  toast('已审核 '+tr.cells[0].textContent)}));
+$('btnRefresh').addEventListener('click',()=>{
+  document.querySelectorAll('.card').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation=''});
+  toast('列表已刷新')});
+$('prev').addEventListener('click',()=>toast('已是第一页'));
+</script>
+</body></html>
