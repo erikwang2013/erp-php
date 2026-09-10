@@ -10,61 +10,7 @@
   display: block;
 }
 
-/* ── 页头 ── */
-.page-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.head-bar {
-  width: 8px;
-  height: 16px;
-  border-radius: 2px;
-  background: var(--accent, var(--brand-grad));
-  flex-shrink: 0;
-}
-
-.page-title {
-  font-size: var(--fs-page);
-  font-weight: 600;
-  color: var(--text-1);
-  line-height: 1.4;
-}
-
-.sp {
-  flex: 1;
-}
-
 /* ── 卡片 ── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--divider);
-  border-radius: var(--r-card);
-  box-shadow: var(--shadow-1);
-
-  &.body {
-    padding: var(--pad-card);
-  }
-
-  &.gap-top {
-    margin-top: 16px;
-  }
-
-  /* 可抬升卡片：hover 抬起一档 */
-  &.lift {
-    transition:
-      transform var(--dur-2) var(--ease),
-      box-shadow var(--dur-2) var(--ease);
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-2);
-    }
-  }
-}
-
 .card-head {
   display: flex;
   align-items: center;
@@ -223,76 +169,13 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── 表格 ── */
-.table-wrap {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--fs-base);
-
-  th {
-    height: var(--head-h);
-    padding: 0 12px;
-    text-align: left;
-    font-size: var(--fs-sm);
-    font-weight: 600;
-    color: var(--text-2);
-    background: rgba(28, 36, 31, 0.028);
-    border-bottom: 1px solid var(--divider);
-    white-space: nowrap;
-  }
-
-  td {
-    height: var(--row-h);
-    padding: 0 12px;
-    color: var(--text-1);
-    border-bottom: 1px solid var(--divider);
-    vertical-align: middle;
-  }
-
-  tbody tr {
-    transition: background var(--dur-1) var(--ease);
-  }
-
-  tbody tr:hover {
-    background: rgba(28, 36, 31, 0.04);
-  }
-
-  tbody tr:nth-child(even) {
-    background: rgba(28, 36, 31, 0.02);
-
-    &:hover {
-      background: rgba(28, 36, 31, 0.04);
-    }
-  }
-
-  td.primary {
-    font-weight: 600;
-  }
-}
+/* ── 表格：.table 基础样式已上提全局 app.css ── */
 
 .muted-text {
   color: var(--text-3);
 }
 
 /* ── 状态块 ── */
-.center-block {
-  padding: 48px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-}
-
-.empty-title {
-  font-size: var(--fs-base);
-  font-weight: 500;
-  color: var(--text-2);
-}
 
 .danger-text {
   color: var(--danger);

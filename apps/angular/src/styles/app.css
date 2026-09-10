@@ -106,6 +106,131 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ============ 页面结构类（dashboard/resource 共享，V3 上提自组件 less 去重） ============ */
+
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.head-bar {
+  width: 8px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--accent, var(--brand-grad));
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: var(--fs-page);
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.4;
+}
+
+.page-total {
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.sp,
+.grow {
+  flex: 1;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-1);
+}
+
+.card.body {
+  padding: var(--pad-card);
+}
+
+.card.gap-top {
+  margin-top: 16px;
+}
+
+.card.lift {
+  transition:
+    transform var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+}
+
+.card.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-base);
+}
+
+.table th {
+  height: var(--head-h);
+  padding: 0 12px;
+  text-align: left;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-2);
+  background: rgba(28, 36, 31, 0.028);
+  border-bottom: 1px solid var(--divider);
+  white-space: nowrap;
+}
+
+.table td {
+  height: var(--row-h);
+  padding: 0 12px;
+  color: var(--text-1);
+  border-bottom: 1px solid var(--divider);
+  vertical-align: middle;
+}
+
+.table tbody tr {
+  transition: background var(--dur-1) var(--ease);
+}
+
+.table tbody tr:hover {
+  background: rgba(28, 36, 31, 0.04);
+}
+
+.table tbody tr:nth-child(even) {
+  background: rgba(28, 36, 31, 0.02);
+}
+
+.table tbody tr:nth-child(even):hover {
+  background: rgba(28, 36, 31, 0.04);
+}
+
+.table td.primary {
+  font-weight: 600;
+}
+
+.center-block {
+  padding: 48px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.empty-title {
+  font-size: var(--fs-base);
+  font-weight: 500;
+  color: var(--text-2);
+}
+
 /* ============ 人机验证 ============ */
 
 .captcha-box {

@@ -126,8 +126,9 @@ class _CaptchaVerifyDialogState extends State<CaptchaVerifyDialog> {
   }
 
   void _onImageTap(TapUpDetails detail) {
-    if (_data == null || _loading || _clicks.length >= _data!.targets.length)
+    if (_data == null || _loading || _clicks.length >= _data!.targets.length) {
       return;
+    }
 
     // 弹框内坐标 → 服务端逻辑图坐标
     final imgX = (detail.localPosition.dx * _imgW / _viewW).round();

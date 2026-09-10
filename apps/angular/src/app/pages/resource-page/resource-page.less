@@ -11,51 +11,7 @@
   display: block;
 }
 
-/* ── 页头 ── */
-.page-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.head-bar {
-  width: 8px;
-  height: 16px;
-  border-radius: 2px;
-  background: var(--accent, var(--accent-system));
-  flex-shrink: 0;
-}
-
-.page-title {
-  font-size: var(--fs-page);
-  font-weight: 600;
-  color: var(--text-1);
-  line-height: 1.4;
-}
-
-.page-total {
-  font-size: var(--fs-sm);
-  color: var(--text-3);
-}
-
-.sp,
-.grow {
-  flex: 1;
-}
-
-/* ── 卡片 / 工具条 ── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--divider);
-  border-radius: var(--r-card);
-  box-shadow: var(--shadow-1);
-
-  &.body {
-    padding: var(--pad-card);
-  }
-}
-
+/* ── 卡片 / 工具条（.page-head/.card 基础已上提全局 app.css） ── */
 .toolbar {
   display: flex;
   align-items: center;
@@ -176,25 +132,10 @@
   }
 }
 
-/* ── 空态 / 错误态 ── */
-.center-block {
-  padding: 48px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-}
-
+/* ── 空态 / 错误态（.center-block/.empty-title 已上提全局 app.css） ── */
 .block-icon {
   font-size: 40px;
   color: var(--text-4);
-}
-
-.empty-title {
-  font-size: var(--fs-base);
-  font-weight: 500;
-  color: var(--text-2);
 }
 
 .block-text {
@@ -202,60 +143,11 @@
   color: var(--text-3);
 }
 
-/* ── 表格 ── */
-.table-wrap {
-  overflow-x: auto;
-}
+/* ── 表格：.table 基础样式已上提全局 app.css，仅保留页内扩展 ── */
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--fs-base);
-
-  th {
-    height: var(--head-h);
-    padding: 0 12px;
-    text-align: left;
-    font-size: var(--fs-sm);
-    font-weight: 600;
-    color: var(--text-2);
-    background: rgba(28, 36, 31, 0.028);
-    border-bottom: 1px solid var(--divider);
-    white-space: nowrap;
-  }
-
-  td {
-    height: var(--row-h);
-    padding: 0 12px;
-    color: var(--text-1);
-    border-bottom: 1px solid var(--divider);
-    vertical-align: middle;
-  }
-
-  tbody tr {
-    transition: background var(--dur-1) var(--ease);
-  }
-
-  tbody tr:hover {
-    background: rgba(28, 36, 31, 0.04);
-  }
-
-  tbody tr:nth-child(even) {
-    background: rgba(28, 36, 31, 0.02);
-
-    &:hover {
-      background: rgba(28, 36, 31, 0.04);
-    }
-  }
-
-  td.primary {
-    font-weight: 600;
-  }
-
-  td.num {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
+.table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .row-actions {
