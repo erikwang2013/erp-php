@@ -1661,6 +1661,18 @@
       "value": "Clicked %1$s/%2$s"
     },
     {
+      "name": "captcha_rotate_hint",
+      "value": "Rotate the image upright, then submit"
+    },
+    {
+      "name": "captcha_slider_hint",
+      "value": "Drag the puzzle piece to the gap, then submit"
+    },
+    {
+      "name": "captcha_submit",
+      "value": "Submit"
+    },
+    {
       "name": "total_count_fmt",
       "value": "Total %1$s"
     },

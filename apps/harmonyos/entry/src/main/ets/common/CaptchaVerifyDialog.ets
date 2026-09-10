@@ -1,24 +1,16 @@
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ *
+ * 人机验证弹框（click 点击 / rotate 旋转 / slider 滑块，随服务端下发
+ * data.type 分支渲染）。打开即 POST /api/v1/captcha/generate { type:'random',
+ * difficulty:'medium' }，由服务端三型随机定型（rotate 方形 200×200，其余
+ * 300×200）。作答完成后关闭并回传 CaptchaResult，调用方（如 LoginPage）须：
+ *   1) 先 POST /api/v1/captcha/verify 校验作答（click=clicks 坐标序列 /
+ *      rotate=angle 0-359 / slider=distance 原生 px，通过后服务端写一次性
+ *      放行凭证 captcha_pass:<key>）；
+ *   2) 再凭 key 调业务接口（登录不再接收/比对坐标）。
+ * 用户取消（点遮罩/右上角取消）回传 null。
  */
-// 点击验证码弹框（后端契约 v2：验证码生成与校验均为独立接口）。
-// 打开即请求 POST /api/v1/captcha/generate 取图；用户点满目标字后自动
-// 关闭并回传 { key, clicks }。调用方必须：
-//   1) 先 POST /api/v1/captcha/verify 校验坐标（通过后服务端写一次性
-//      放行凭证 captcha_pass:<key>，坐标比对仅发生在本接口）；
-//   2) 再凭 captcha_key 调业务接口（登录/注册不再接收/比对坐标）。
-// 取消（右上角"取消"）回传 null。
-//
-// 用法（调用方持有 controller，打开前重建以保证弹框内状态干净）：
-//   this.dialogController = new CustomDialogController({
-//     builder: CaptchaVerifyDialog({
-//       baseUrl: BASE_URL,
-//       onResult: (r: CaptchaResult | null) => { this.onCaptchaResult(r); },
-//     }),
-//     autoCancel: false,
-//   });
-//   this.dialogController.open();
-
 import http from '@ohos.net.http';
 import { L10n } from '../utils/L10n';
 
@@ -34,24 +26,28 @@ export interface ClickPoint {
 
 export interface CaptchaResult {
   key: string;
+  /** click / rotate / slider（服务端实际定型） */
+  type: string;
+  /** click 型作答：按目标顺序的点击坐标（原图像素，300×200 尺度） */
   clicks: ClickPoint[];
+  /** rotate 型作答：顺时针旋钮读数 0-359 */
+  angle?: number;
+  /** slider 型作答：拼图左缘原生 px 位移（0..300-puzzle_w） */
+  distance?: number;
 }
 
-// 服务端响应：坐标不下发，仅 key + image + extra.targets(order+text)
-interface CaptchaRespExtra {
+interface CaptchaExtra {
   targets?: CaptchaTarget[];
+  puzzle?: string;
+  puzzle_w?: number;
+  puzzle_h?: number;
 }
 
 interface CaptchaRespData {
   key: string;
-  image: string; // 单层 base64 PNG（服务端已从 data URI 还原）
-  extra?: CaptchaRespExtra;
-}
-
-interface CaptchaResp {
-  code: number;
-  message: string;
-  data: CaptchaRespData;
+  type?: string;
+  image: string;
+  extra?: CaptchaExtra;
 }
 
 interface ClickMarker {
@@ -60,30 +56,44 @@ interface ClickMarker {
   order: number;
 }
 
-// 与后端出图逻辑尺寸一致（后端画布固定 300x200，见 poster-php AbstractCaptcha），点击坐标换算回该坐标系后回传
+/** 服务端图片原生尺寸（click/slider 300×200；rotate 方形 200×200） */
 const IMG_W = 300;
 const IMG_H = 200;
-// 弹框内固定显示尺寸（等比 1.6:1，避免依赖测量导致布局抖动）
+const IMG_ROT = 200;
+/** 弹框内固定显示尺寸（等比；rotate 用方形视图） */
 const VIEW_W = 320;
 const VIEW_H = 200;
+const VIEW_ROT = 200;
+
+/** 点击撤销半径（原生 px）：再点最后标记处撤销该步 */
+const UNDO_RADIUS = 14;
 
 @CustomDialog
 export struct CaptchaVerifyDialog {
-  // 由调用方在 CustomDialogController.builder 构造时注入
+  /** API 前缀，如 http://127.0.0.1:8787/api/v1 */
   baseUrl: string = '';
-  onResult: (result: CaptchaResult | null) => void = (result: CaptchaResult | null) => {};
-
+  /** 作答完成回调：result 携带 key+按类型作答；用户取消传 null */
+  onResult: (result: CaptchaResult | null) => void = () => {
+  };
   controller?: CustomDialogController;
 
-  @State image: string = '';
-  @State targets: CaptchaTarget[] = [];
   @State loading: boolean = true;
   @State failed: boolean = false;
+  @State type: string = 'click';
+  @State image: string = '';
+  @State targets: CaptchaTarget[] = [];
+  @State puzzleImg: string = '';
+  @State puzzleW: number = 50;
+  @State puzzleH: number = 50;
   @State clicks: ClickPoint[] = [];
   @State markers: ClickMarker[] = [];
+  @State rotAngle: number = 0;
+  @State sliderNative: number = 0;
 
   private httpClient: http.HttpRequest = http.createHttp();
   private captchaKey: string = '';
+  /** click 点满后延迟关框窗口（防最后一枚标记来不及绘制） */
+  private closing: boolean = false;
 
   aboutToAppear(): void {
     this.load();
@@ -93,172 +103,320 @@ export struct CaptchaVerifyDialog {
     this.httpClient.destroy();
   }
 
-  async load(): Promise<void> {
+  /** 拉取随机验证码挑战；type='random' 由服务端三型分发，实际型见 data.type */
+  load(): void {
     this.loading = true;
     this.failed = false;
+    this.closing = false;
     this.clicks = [];
     this.markers = [];
+    this.rotAngle = 0;
+    this.sliderNative = 0;
+    this.puzzleImg = '';
 
-    try {
-      const resp = await this.httpClient.request(`${this.baseUrl}/api/v1/captcha/generate`, {
+    const req = http.createHttp();
+    req.request(
+      `${this.baseUrl}/captcha/generate`,
+      {
         method: http.RequestMethod.POST,
-        header: { 'Content-Type': 'application/json', 'API-Version': 'v1', 'X-Client-Platform': 'harmonyos' },
-        extraData: JSON.stringify({ difficulty: 'medium' }),
+        header: { 'content-type': 'application/json' },
+        extraData: JSON.stringify({ type: 'random', difficulty: 'medium' }),
         connectTimeout: 10000,
-        readTimeout: 10000
-      });
-      const result = JSON.parse(resp.result as string) as CaptchaResp;
-      if (result.code === 0) {
-        // 目标字位于 data.extra.targets，按 order 升序提示
-        const targets = (result.data.extra?.targets ?? []).slice()
-          .sort((a: CaptchaTarget, b: CaptchaTarget) => a.order - b.order);
-        this.captchaKey = result.data.key;
-        this.image = result.data.image;
-        this.targets = targets;
+        readTimeout: 10000,
+      },
+      (err, resp) => {
+        req.destroy();
+        if (err || resp.result === undefined) {
+          this.onLoadFailed();
+          return;
+        }
+        const body = JSON.parse(resp.result as string) as { code: number; data: CaptchaRespData };
+        if (body.code !== 0 || !body.data) {
+          this.onLoadFailed();
+          return;
+        }
+        const d = body.data;
+        const type = d.type === 'rotate' || d.type === 'slider' ? d.type : 'click';
+        const extra = d.extra ?? {};
+        this.captchaKey = d.key;
+        this.type = type;
+        this.image = d.image;
+        this.targets = extra.targets ?? [];
+        this.puzzleW = extra.puzzle_w ?? 50;
+        this.puzzleH = extra.puzzle_h ?? 50;
+        this.puzzleImg = extra.puzzle ?? '';
         this.loading = false;
-        return;
-      }
-      this.failed = true;
-    } catch (e) {
-      this.failed = true;
-    }
-    this.loading = false;
+        this.failed = false;
+      });
   }
 
-  onImageClick(event: ClickEvent): void {
-    if (this.loading || this.failed || this.captchaKey === ''
-      || this.clicks.length >= this.targets.length) {
+  private onLoadFailed(): void {
+    this.loading = false;
+    this.failed = true;
+  }
+
+  /** 提示文案按类型分支 */
+  private promptText(): string {
+    if (this.type === 'rotate') {
+      return L10n.str(this.getUIContext(), 'captcha_rotate_hint');
+    }
+    if (this.type === 'slider') {
+      return L10n.str(this.getUIContext(), 'captcha_slider_hint');
+    }
+    if (this.type === 'click') {
+      const seq = this.targets.map((t) => `"${t.text}"`).join(' → ');
+      if (seq !== '') {
+        return L10n.str(this.getUIContext(), 'captcha_prompt_fmt', seq);
+      }
+    }
+    return L10n.str(this.getUIContext(), 'captcha_prompt_fmt', '…');
+  }
+
+  /** click：点击图内任意位置（换算回原图 300×200 坐标） */
+  private onImageClick(event: ClickEvent): void {
+    if (this.loading || this.failed || this.closing) {
       return;
     }
-    // 视图坐标 → 服务端逻辑图坐标
+    if (this.type !== 'click') {
+      return;
+    }
     const imgX = Math.round(event.x * IMG_W / VIEW_W);
     const imgY = Math.round(event.y * IMG_H / VIEW_H);
-    const order = this.clicks.length + 1;
-    this.clicks = this.clicks.concat([{ x: imgX, y: imgY }]);
-    this.markers = this.markers.concat([{ x: event.x, y: event.y, order: order }]);
-
+    const last = this.markers[this.markers.length - 1];
+    if (last !== undefined) {
+      const dx = last.x - imgX;
+      const dy = last.y - imgY;
+      if (Math.sqrt(dx * dx + dy * dy) <= UNDO_RADIUS) {
+        // 再点最后标记处 = 撤销该步
+        this.markers = this.markers.slice(0, -1);
+        this.clicks = this.clicks.slice(0, -1);
+        return;
+      }
+    }
+    if (this.markers.length >= this.targets.length) {
+      return;
+    }
+    this.markers = [...this.markers, { x: imgX, y: imgY, order: this.markers.length + 1 }];
+    this.clicks = [...this.clicks, { x: imgX, y: imgY }];
     if (this.clicks.length >= this.targets.length) {
-      // 点满即快照 key+clicks（快照后即使再触发"换一张"也不影响提交结果），
-      // 延时关闭让最后一枚标记绘制完成
+      // 点满自动提交；延时 300ms 让最后一枚标记绘制出来
       const key = this.captchaKey;
-      const clicks = this.clicks.slice();
+      const finalClicks = this.clicks.slice();
+      this.closing = true;
       setTimeout(() => {
-        this.controller?.close();
-        this.onResult({ key: key, clicks: clicks });
+        if (this.controller) {
+          this.controller.close();
+        }
+        this.onResult({ key: key, type: 'click', clicks: finalClicks });
       }, 300);
     }
   }
 
-  cancel(): void {
-    this.controller?.close();
+  /** slider：pan 手势 → 显示 px → 原生 px（0..300-puzzle_w，垂直居中） */
+  private onSliderPan(event: GestureEvent): void {
+    if (this.loading || this.failed || this.closing) {
+      return;
+    }
+    const pw = this.puzzleW;
+    const maxNative = IMG_W - pw;
+    const pieceW = pw * VIEW_W / IMG_W;
+    const maxDisp = VIEW_W - pieceW;
+    const disp = Math.min(maxDisp, Math.max(0, event.offsetX));
+    this.sliderNative = Math.round(disp * IMG_W / VIEW_W);
+    if (this.sliderNative > maxNative) {
+      this.sliderNative = maxNative;
+    }
+  }
+
+  /** rotate/slider 作答完成：关闭并回传按类型 payload */
+  private submit(): void {
+    const key = this.captchaKey;
+    if (this.controller) {
+      this.controller.close();
+    }
+    if (this.type === 'rotate') {
+      this.onResult({ key: key, type: 'rotate', clicks: [], angle: this.rotAngle });
+    } else {
+      this.onResult({ key: key, type: 'slider', clicks: [], distance: this.sliderNative });
+    }
+  }
+
+  private cancel(): void {
+    if (this.controller) {
+      this.controller.close();
+    }
     this.onResult(null);
   }
 
-  promptText(): string {
-    const parts = this.targets.map((t: CaptchaTarget) => `"${t.text}"`);
-    return parts.length > 0 ? L10n.str(this.getUIContext(), 'captcha_prompt_fmt', parts.join(' → ')) : '';
+  /** slider 拼图块显示位置（px，相对轨道左缘） */
+  private pieceLeft(): number {
+    const pw = this.puzzleW;
+    return this.sliderNative * VIEW_W / IMG_W;
+  }
+
+  /** slider 拼图块显示宽度（px） */
+  private pieceDispW(): number {
+    return this.puzzleW * VIEW_W / IMG_W;
+  }
+
+  private pieceDispH(): number {
+    return this.puzzleH * VIEW_H / IMG_H;
+  }
+
+  private decodeSrc(b64: string): string {
+    if (b64.startsWith('data:')) {
+      return b64;
+    }
+    return `data:image/png;base64,${b64}`;
   }
 
   build() {
-    Column() {
-      // 标题行
+    Column({ space: 12 }) {
       Row() {
-        Text($r('app.string.captcha_verify_title'))
-          .fontSize(16)
-          .fontWeight(FontWeight.Bold)
-          .fontColor($r('app.color.text_primary'))
-        Blank()
-        Text($r('app.string.cancel'))
-          .fontSize(14)
-          .fontColor($r('app.color.primary'))
-          .onClick(() => { this.cancel(); })
-      }
-      .width('100%')
-      .margin({ bottom: 12 })
-
-      if (this.loading) {
-        Column() {
-          LoadingProgress()
-            .width(36)
-            .height(36)
-            .color($r('app.color.primary'))
-          Text($r('app.string.captcha_loading'))
-            .fontSize(12)
-            .fontColor($r('app.color.text_hint'))
-            .margin({ top: 8 })
-        }
-        .width('100%')
-        .height(VIEW_H)
-        .justifyContent(FlexAlign.Center)
-      } else if (this.failed || this.image === '') {
-        Column() {
-          Text($r('app.string.captcha_load_failed'))
-            .fontSize(13)
-            .fontColor($r('app.color.text_hint'))
-          Button($r('app.string.retry'))
-            .fontSize(13)
-            .fontColor($r('app.color.primary'))
-            .backgroundColor(Color.Transparent)
-            .margin({ top: 4 })
-            .onClick(() => { this.load(); })
-        }
-        .width('100%')
-        .height(VIEW_H)
-        .justifyContent(FlexAlign.Center)
-      } else {
-        // 目标提示
         Text(this.promptText())
-          .fontSize(13)
-          .fontColor($r('app.color.text_secondary'))
-          .width('100%')
+          .fontSize(14)
+          .fontColor(Color.Black)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .margin({ bottom: 8 })
+          .layoutWeight(1)
+        Button(L10n.str(this.getUIContext(), 'cancel'))
+          .fontSize(13)
+          .fontColor(Color.Gray)
+          .backgroundColor(Color.Transparent)
+          .onClick(() => this.cancel())
+      }
+      .width('100%')
 
-        // 验证码图 + 点击标记
+      if (this.loading) {
+        LoadingProgress()
+          .width(28)
+          .height(28)
+          .color(Color.Blue)
+          .margin({ top: VIEW_H / 2 - 40, bottom: VIEW_H / 2 - 20 })
+      } else if (this.failed || this.image === '') {
+        Column({ space: 6 }) {
+          Text(L10n.str(this.getUIContext(), 'captcha_load_failed'))
+            .fontSize(13)
+            .fontColor(Color.Gray)
+          Button(L10n.str(this.getUIContext(), 'retry'))
+            .fontSize(13)
+            .onClick(() => this.load())
+        }
+        .width('100%')
+        .height(VIEW_H)
+        .justifyContent(FlexAlign.Center)
+      } else if (this.type === 'click') {
+        // click：整幅图点击作答
         Stack() {
-          Image(`data:image/png;base64,${this.image}`)
+          Image(this.decodeSrc(this.image))
             .width(VIEW_W)
             .height(VIEW_H)
-            .objectFit(ImageFit.Fill)
-            .borderRadius(8)
-            .border({ width: 1, color: $r('app.color.divider') })
-            .onClick((event: ClickEvent) => { this.onImageClick(event); })
-
           ForEach(this.markers, (m: ClickMarker) => {
-            Circle({ width: 26, height: 26 })
-              .fill('#CC1677FF')
-              .position({ x: m.x - 13, y: m.y - 13 })
             Text(`${m.order}`)
               .fontSize(13)
               .fontColor(Color.White)
-              .fontWeight(FontWeight.Bold)
-              .position({ x: m.x - 3, y: m.y - 8 })
-          }, (m: ClickMarker) => `${m.order}`)
+              .textAlign(TextAlign.Center)
+              .width(26)
+              .height(26)
+              .borderRadius(13)
+              .backgroundColor(Color.Blue)
+              .position({ x: m.x * VIEW_W / IMG_W - 13, y: m.y * VIEW_H / IMG_H - 13 })
+          }, (m: ClickMarker) => `${m.x}-${m.y}`)
         }
         .width(VIEW_W)
         .height(VIEW_H)
-        .margin({ bottom: 6 })
+        .clip(true)
+        .onClick((event: ClickEvent) => this.onImageClick(event))
+      } else if (this.type === 'rotate') {
+        // rotate：方形画布（内容为圆遮罩透明角，旋转溢出无需裁剪到圆）
+        Column({ space: 8 }) {
+          Stack() {
+            Image(this.decodeSrc(this.image))
+              .width(VIEW_ROT)
+              .height(VIEW_ROT)
+              .rotate({ angle: this.rotAngle })
+          }
+          .width(VIEW_ROT)
+          .height(VIEW_ROT)
+          .clip(true)
+          Row({ space: 8 }) {
+            Slider({ value: this.rotAngle, min: 0, max: 359, step: 1 })
+              .layoutWeight(1)
+              .onChange((value: number) => {
+                this.rotAngle = Math.round(value);
+              })
+            Text(`${this.rotAngle}°`)
+              .fontSize(13)
+              .fontColor(Color.Gray)
+          }
+          .width('100%')
+          Row({ space: 8 }) {
+            Blank()
+            Button(L10n.str(this.getUIContext(), 'captcha_submit'))
+              .fontSize(13)
+              .onClick(() => this.submit())
+            Button(L10n.str(this.getUIContext(), 'captcha_refresh'))
+              .fontSize(13)
+              .onClick(() => this.load())
+          }
+          .width('100%')
+        }
+      } else {
+        // slider：背景图 + 拼图块横向拖动
+        Column({ space: 8 }) {
+          Stack() {
+            Image(this.decodeSrc(this.image))
+              .width(VIEW_W)
+              .height(VIEW_H)
+            if (this.puzzleImg !== '') {
+              Image(this.decodeSrc(this.puzzleImg))
+                .width(this.pieceDispW())
+                .height(this.pieceDispH())
+                .position({ x: this.pieceLeft(), y: (VIEW_H - this.pieceDispH()) / 2 })
+            }
+          }
+          .width(VIEW_W)
+          .height(VIEW_H)
+          .clip(true)
+          .gesture(
+            PanGesture()
+              .onActionUpdate((event: GestureEvent) => this.onSliderPan(event))
+          )
+          Row({ space: 8 }) {
+            Text(`${this.sliderNative} px`)
+              .fontSize(13)
+              .fontColor(Color.Gray)
+            Blank()
+            Button(L10n.str(this.getUIContext(), 'captcha_submit'))
+              .fontSize(13)
+              .enabled(this.sliderNative > 0)
+              .onClick(() => this.submit())
+            Button(L10n.str(this.getUIContext(), 'captcha_refresh'))
+              .fontSize(13)
+              .onClick(() => this.load())
+          }
+          .width('100%')
+        }
+      }
 
-        // 操作行：计数 + 换一张
+      // 底部操作行（click 另成行；rotate/slider 的提交/刷新在各自体内）
+      if (!this.loading && !this.failed && this.type === 'click') {
         Row() {
-          Text(L10n.str(this.getUIContext(), 'captcha_clicked_fmt',
-            String(this.clicks.length), String(this.targets.length)))
-            .fontSize(12)
-            .fontColor($r('app.color.text_hint'))
+          Text(
+            L10n.str(this.getUIContext(), 'captcha_clicked_fmt',
+              `${this.clicks.length}`, `${this.targets.length}`)
+          )
+            .fontSize(13)
+            .fontColor(Color.Gray)
           Blank()
-          Button($r('app.string.captcha_refresh'))
-            .fontSize(12)
-            .fontColor($r('app.color.primary'))
-            .backgroundColor(Color.Transparent)
-            .onClick(() => { this.load(); })
+          Button(L10n.str(this.getUIContext(), 'captcha_refresh'))
+            .fontSize(13)
+            .onClick(() => this.load())
         }
         .width('100%')
       }
     }
-    .width(352)
+    .width('100%')
     .padding(16)
-    .backgroundColor(Color.White)
-    .borderRadius(12)
   }
 }

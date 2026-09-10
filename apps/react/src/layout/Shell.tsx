@@ -9,6 +9,7 @@ import { Btn, Input } from '@/components/ui';
 import { MENUS, NOTIFICATION_PATH, RESOURCE_ROUTES, SCREENS, SPECIAL_ROUTES } from '@/config/menu';
 import { http } from '@/lib/api';
 import { useAuth } from '@/state/auth';
+import { useTr } from '@/lib/i18n';
 import { PageTabs } from '@/layout/PageTabs';
 
 /**
@@ -20,6 +21,7 @@ export function Shell() {
   const { user, logout } = useAuth();
   const nav = useNavigate();
   const loc = useLocation();
+  const t = useTr();
 
   const [folded, setFolded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -94,28 +96,28 @@ export function Shell() {
     <div className="shell">
       <aside className={`sidebar${folded ? ' folded' : ''}`}>
         <div className="brand">
-          <div className="brand-logo">开</div>
-          <span className="brand-name">管理后台</span>
+          <div className="brand-logo">erp</div>
+          <span className="brand-name">{t('管理后台')}</span>
         </div>
         <nav className="nav">
           {!folded && (
             <div className="nav-search">
               <Input
                 className="search-input"
-                placeholder="搜索菜单"
+                placeholder={t('搜索菜单')}
                 value={menuQuery}
                 onChange={(e) => setMenuQuery(e.target.value)}
-                aria-label="搜索菜单"
+                aria-label={t('搜索菜单')}
               />
             </div>
           )}
 
           {SPECIAL_ROUTES.map((s) => (
-            <NavLink key={s.path} to={s.path} className="nav-item" title={s.label}>
+            <NavLink key={s.path} to={s.path} className="nav-item" title={t(s.label)}>
               <span className="nav-icon">
                 <Icon name={s.icon} size={18} />
               </span>
-              <span className="nav-label">{s.label}</span>
+              <span className="nav-label">{t(s.label)}</span>
             </NavLink>
           ))}
 
@@ -125,7 +127,7 @@ export function Shell() {
               <div key={g.label} className="nav-group">
                 <div
                   className="nav-item"
-                  title={g.label}
+                  title={t(g.label)}
                   onClick={() => {
                     setOpen((s) => {
                       const n = new Set(s);
@@ -138,15 +140,15 @@ export function Shell() {
                   <span className="nav-icon">
                     <Icon name={g.icon} size={18} />
                   </span>
-                  <span className="nav-label">{g.label}</span>
+                  <span className="nav-label">{t(g.label)}</span>
                   <span className="nav-caret">
                     <Icon name="chevRight" size={11} style={{ transform: expanded ? 'rotate(90deg)' : undefined, transition: 'transform .15s' }} />
                   </span>
                 </div>
                 {expanded && !folded && g.children.map((c) => (
-                  <NavLink key={c.path} to={c.path} className="nav-item" title={c.label}>
+                  <NavLink key={c.path} to={c.path} className="nav-item" title={t(c.label)}>
                     <span className="nav-label" style={{ paddingLeft: 10 }}>
-                      {c.label}
+                      {t(c.label)}
                     </span>
                   </NavLink>
                 ))}
@@ -154,28 +156,28 @@ export function Shell() {
             );
           })}
 
-          <NavLink to={NOTIFICATION_PATH} className="nav-item" title="通知中心">
+          <NavLink to={NOTIFICATION_PATH} className="nav-item" title={t('通知中心')}>
             <span className="nav-icon">
               <Icon name="bell" size={18} />
             </span>
-            <span className="nav-label">通知中心</span>
+            <span className="nav-label">{t('通知中心')}</span>
           </NavLink>
         </nav>
       </aside>
 
       <div className="main">
         <header className="topbar">
-          <Btn variant="icon" icon="menu" title={folded ? '展开菜单' : '收起菜单'} onClick={() => setFolded((v) => !v)} />
-          <nav className="crumbs" aria-label="面包屑">
+          <Btn variant="icon" icon="menu" title={folded ? t('展开菜单') : t('收起菜单')} onClick={() => setFolded((v) => !v)} />
+          <nav className="crumbs" aria-label={t('管理后台')}>
             {crumbs.map((c, i) => (
               <span key={c} className={`crumb${i === crumbs.length - 1 ? ' current' : ''}`}>
                 {i > 0 && <Icon name="chevRight" size={10} className="crumb-sep" />}
-                {c}
+                {t(c)}
               </span>
             ))}
           </nav>
 
-          <Btn variant="icon" icon="bell" title="通知中心" onClick={() => nav(NOTIFICATION_PATH)}>
+          <Btn variant="icon" icon="bell" title={t('通知中心')} onClick={() => nav(NOTIFICATION_PATH)}>
             {unread > 0 && (
               <span
                 style={{
@@ -226,7 +228,7 @@ export function Shell() {
                   }}
                 >
                   <Icon name="user" size={15} />
-                  <span>个人中心</span>
+                  <span>{t('个人中心')}</span>
                 </div>
                 <div
                   className="nav-item"
@@ -234,14 +236,14 @@ export function Shell() {
                   onClick={doLogout}
                 >
                   <Icon name="logout" size={15} />
-                  <span>退出登录</span>
+                  <span>{t('退出登录')}</span>
                 </div>
               </div>
             )}
           </div>
         </header>
 
-        <nav className="screens" aria-label="业务模块">
+        <nav className="screens" aria-label={t('业务模块')}>
           {SCREENS.map((s, i) => (
             <button
               key={s.label}
@@ -250,7 +252,7 @@ export function Shell() {
               onClick={() => setScreen(i)}
             >
               <Icon name={s.icon} size={15} />
-              <span>{s.label}</span>
+              <span>{t(s.label)}</span>
             </button>
           ))}
         </nav>

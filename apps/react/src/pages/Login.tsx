@@ -8,6 +8,7 @@ import { CaptchaDialog } from '@/components/CaptchaDialog';
 import { Btn, Input } from '@/components/ui';
 import { useToast } from '@/lib/toast';
 import { useAuth } from '@/state/auth';
+import { useTr } from '@/lib/i18n';
 
 /**
  * 登录页。
@@ -20,6 +21,7 @@ export function Login() {
   const { login } = useAuth();
   const nav = useNavigate();
   const toast = useToast();
+  const t = useTr();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -34,12 +36,19 @@ export function Login() {
       setCaptchaOpen(true);
       return;
     }
+    setCaptchaOpen(false);
+    await doLogin(captchaKey);
+  };
+
+  /** 用已通过的验证 key 直接登录；失败后 key 作废并重弹验证 */
+  const doLogin = async (key: string) => {
+    if (busy) return;
     setBusy(true);
     try {
-      await login(username, password, captchaKey);
+      await login(username, password, key);
       nav('/dashboard', { replace: true });
     } catch (e) {
-      toast(e instanceof Error ? e.message : '登录失败');
+      toast(e instanceof Error ? e.message : t('登录失败'));
       // 失败后重新验证（挑战已一次性消费）
       setCaptchaKey('');
       setCaptchaOpen(true);
@@ -51,12 +60,12 @@ export function Login() {
   return (
     <div className="login">
       <div className="login-card">
-        <h1 className="login-title">erp开放管理后台</h1>
-        <p className="login-sub">Open ERP · Web 控制台</p>
+        <h1 className="login-title">{t('erp开放管理后台')}</h1>
+        <p className="login-sub">{t('Open ERP · Web 控制台')}</p>
 
         <div className="field">
           <Input
-            placeholder="用户名"
+            placeholder={t('用户名')}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
@@ -65,7 +74,7 @@ export function Login() {
         <div className="field">
           <Input
             type="password"
-            placeholder="密码"
+            placeholder={t('密码')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
@@ -76,28 +85,33 @@ export function Login() {
         {captchaKey ? (
           <div className="field" style={{ marginTop: 14 }}>
             <span style={{ color: 'var(--success-text)', fontSize: 'var(--fs-sm)' }}>
-              已完成人机验证，点击「登 录」继续
+              {t('已完成人机验证，点击「登 录」继续')}
             </span>
           </div>
         ) : (
           <div className="field" style={{ marginTop: 14 }}>
             <span style={{ color: 'var(--text-2)', fontSize: 'var(--fs-sm)' }}>
-              登录需先完成人机验证
+              {t('登录需先完成人机验证')}
             </span>
           </div>
         )}
 
         <Btn variant="primary" loading={busy} onClick={() => void submit()} style={{ width: '100%', justifyContent: 'center', marginTop: 6 }}>
-          登 录
+          {t('登 录')}
         </Btn>
       </div>
 
       <CaptchaDialog
         open={captchaOpen}
-        onClose={() => setCaptchaOpen(false)}
+        onClose={() => {
+          // 验证弹窗是登录前置门槛：按序点击校验通过才自动提交登录，不允许直接关闭后空跑
+          if (busy) return;
+          setCaptchaOpen(false);
+        }}
         onSuccess={(key) => {
           setCaptchaKey(key);
           setCaptchaOpen(false);
+          void doLogin(key);
         }}
       />
     </div>

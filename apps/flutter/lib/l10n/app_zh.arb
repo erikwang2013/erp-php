@@ -14,6 +14,8 @@
   "loginCaptchaRequired": "请加载验证码",
   "loginCaptchaLoadFailed": "验证码加载失败",
   "loginCaptchaFailed": "验证码错误，请重试",
+  "loginCaptchaRotate": "旋转图片至正位",
+  "loginCaptchaSlider": "拖动拼图对齐缺口",
   "loginClickTarget": "请按顺序点击图中文字『{text}』",
   "loginNetworkError": "网络错误，请检查连接",
 

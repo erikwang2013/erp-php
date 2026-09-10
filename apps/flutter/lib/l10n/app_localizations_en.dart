@@ -52,6 +52,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginCaptchaFailed => 'Incorrect captcha, please retry';
 
   @override
+  String get loginCaptchaRotate => 'Rotate the image until it is upright';
+
+  @override
+  String get loginCaptchaSlider => 'Drag the puzzle to align with the notch';
+
+  @override
   String loginClickTarget(String text) {
     return 'Click the character \'$text\' in order';
   }

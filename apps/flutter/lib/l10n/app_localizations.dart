@@ -176,6 +176,18 @@ abstract class AppLocalizations {
   /// **'验证码错误，请重试'**
   String get loginCaptchaFailed;
 
+  /// No description provided for @loginCaptchaRotate.
+  ///
+  /// In zh, this message translates to:
+  /// **'旋转图片至正位'**
+  String get loginCaptchaRotate;
+
+  /// No description provided for @loginCaptchaSlider.
+  ///
+  /// In zh, this message translates to:
+  /// **'拖动拼图对齐缺口'**
+  String get loginCaptchaSlider;
+
   /// No description provided for @loginClickTarget.
   ///
   /// In zh, this message translates to:

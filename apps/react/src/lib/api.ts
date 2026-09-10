@@ -12,7 +12,7 @@
  * - 鉴权：Authorization: Bearer <access_token>，401 时用 refresh_token 续期一次
  */
 
-import { acceptLanguage } from '@/lib/i18n';
+import { acceptLanguage, tr } from '@/lib/i18n';
 
 export interface Envelope<T = unknown> {
   code: number;
@@ -130,7 +130,7 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
   });
 
   const env = (await res.json().catch(() => null)) as Envelope<T> | null;
-  if (!env) throw new ApiError(res.status, `请求失败（${res.status}）`);
+  if (!env) throw new ApiError(res.status, tr('请求失败（{code}）', { code: res.status }));
 
   if (env.code !== 0) {
     // 令牌过期：续期一次后重放原请求
@@ -138,7 +138,7 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
       if (await ensureRefreshed()) return api(path, opts);
       // 续期失败 = 会话真的没了：广播让外壳清理并回登录页，否则用户只会反复看到失败提示
       window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
-      throw new ApiError(401, '登录已过期，请重新登录');
+      throw new ApiError(401, tr('登录已过期，请重新登录'));
     }
     throw new ApiError(env.code, env.message);
   }
@@ -172,7 +172,7 @@ export async function downloadFile(path: string, filename: string, body?: unknow
   const res = await fetch(path, { method: 'POST', headers, body: JSON.stringify(body ?? {}) });
   if (!res.ok) {
     const env = (await res.json().catch(() => null)) as Envelope | null;
-    throw new ApiError(env?.code ?? res.status, env?.message ?? `下载失败（${res.status}）`);
+    throw new ApiError(env?.code ?? res.status, env?.message ?? tr('下载失败（{code}）', { code: res.status }));
   }
 
   const blob = await res.blob();

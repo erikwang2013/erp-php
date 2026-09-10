@@ -4,6 +4,7 @@
 
 import { Badge } from '@/components/ui';
 import { dateTime, money, statusText, statusTone, yesNo } from '@/lib/format';
+import { tr } from '@/lib/i18n';
 import type { MenuGroup } from '@/config/types';
 
 /** 系统管理域：用户 / 角色 / 权限 / 配置 / 日志 */
@@ -94,7 +95,7 @@ export const systemMenus: MenuGroup[] = [
             {
               key: 'type',
               title: '类型',
-              render: (r) => ({ 1: '目录', 2: '菜单', 3: '按钮' }[Number(r.type)] ?? '-'),
+              render: (r) => tr({ 1: '目录', 2: '菜单', 3: '按钮' }[Number(r.type)] ?? '-'),
             },
             { key: 'path', title: '路径' },
             { key: 'sort', title: '排序', align: 'right' },

@@ -11,6 +11,7 @@ import { NOTIFICATION_PATH, RESOURCE_ROUTES } from '@/config/menu';
 import { Dashboard } from '@/pages/Dashboard';
 import { Notification } from '@/pages/Notification';
 import { Profile } from '@/pages/Profile';
+import { useTr } from '@/lib/i18n';
 
 /**
  * 多标签页容器。
@@ -39,6 +40,7 @@ function labelOf(path: string): string | null {
 export function PageTabs() {
   const nav = useNavigate();
   const { pathname } = useLocation();
+  const tt = useTr();
   const [tabs, setTabs] = useState<TabItem[]>([{ path: HOME, label: '仪表盘' }]);
 
   /** 路由变化 → 若页面有效且未开，追加标签（当前激活即 URL，无需单独状态） */
@@ -88,11 +90,11 @@ export function PageTabs() {
               className={`pagetab${t.path === pathname ? ' active' : ''}`}
               onClick={() => t.path !== pathname && nav(t.path)}
             >
-              <span>{t.label}</span>
+              <span>{tt(t.label)}</span>
               {t.path !== HOME && (
                 <span
                   className="pagetab-close"
-                  title="关闭标签"
+                  title={tt('关闭标签')}
                   onClick={(e) => {
                     e.stopPropagation();
                     closeTab(t.path);
@@ -106,11 +108,11 @@ export function PageTabs() {
         </div>
         {tabs.length > 1 && (
           <div className="pagetabs-ops">
-            <Btn variant="sm" icon="close" onClick={closeOthers} title="关闭其他标签">
-              关闭其他
+            <Btn variant="sm" icon="close" onClick={closeOthers} title={tt('关闭其他标签')}>
+              {tt('关闭其他')}
             </Btn>
-            <Btn variant="sm" icon="trash" onClick={closeAll} title="关闭全部标签">
-              关闭全部
+            <Btn variant="sm" icon="trash" onClick={closeAll} title={tt('关闭全部标签')}>
+              {tt('关闭全部')}
             </Btn>
           </div>
         )}
@@ -126,8 +128,8 @@ export function PageTabs() {
         {!tabs.some((t) => t.path === pathname) && (
           <section className="tabpane">
             <div className="center-block" style={{ paddingTop: 48 }}>
-              <div className="empty-title">页面不存在</div>
-              <div className="empty-desc">当前路由未注册</div>
+              <div className="empty-title">{tt('页面不存在')}</div>
+              <div className="empty-desc">{tt('当前路由未注册')}</div>
             </div>
           </section>
         )}

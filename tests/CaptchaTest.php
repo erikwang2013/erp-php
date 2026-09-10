@@ -39,6 +39,16 @@ class CaptchaTest extends TestCase
         return $stored['targets'];
     }
 
+    private function storedField(string $key, string $field): mixed
+    {
+        $storage = StorageFactory::create(PosterConfig::get('captcha.storage'));
+        $stored = $storage->get($key);
+        $this->assertIsArray($stored, '存储中应存在该验证码数据');
+        $this->assertArrayHasKey($field, $stored);
+
+        return $stored[$field];
+    }
+
     #[Test]
     public function captcha_generate_returns_valid_structure(): void
     {
@@ -127,5 +137,35 @@ class CaptchaTest extends TestCase
         $r2 = captcha_create('click');
 
         $this->assertNotEquals($r1['key'], $r2['key'], '每次生成的 key 应不同');
+    }
+
+    #[Test]
+    public function captcha_rotate_verify_round_trip(): void
+    {
+        $result = captcha_create('rotate', ['difficulty' => 'easy']);
+        $this->assertSame('rotate', $result['type']);
+
+        $angle = $this->storedField($result['key'], 'angle');
+
+        $wrong = captcha_verify($result['key'], 'rotate', $angle + 180);
+        $this->assertFalse($wrong, '错误角度应验证失败');
+
+        $correct = captcha_verify($result['key'], 'rotate', $angle);
+        $this->assertTrue($correct, '正确角度应验证通过');
+    }
+
+    #[Test]
+    public function captcha_slider_verify_round_trip(): void
+    {
+        $result = captcha_create('slider', ['difficulty' => 'medium']);
+        $this->assertSame('slider', $result['type']);
+
+        $x = $this->storedField($result['key'], 'x');
+
+        $wrong = captcha_verify($result['key'], 'slider', $x + 50);
+        $this->assertFalse($wrong, '错误拖动距离应验证失败');
+
+        $correct = captcha_verify($result['key'], 'slider', $x);
+        $this->assertTrue($correct, '正确拖动距离应验证通过');
     }
 }

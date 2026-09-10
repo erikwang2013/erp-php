@@ -23,7 +23,20 @@ let localeNow: Locale = readLocale();
 interface I18nCtx {
   locale: Locale;
   setLocale: (l: Locale) => void;
-  tr: (zh: string) => string;
+  tr: TrFn;
+}
+
+/** 中文原文（可含 {param} 占位符）→ 英文；占位符由 vars 替换，缺词条回退原文 */
+export type TrFn = (zh: string, vars?: Record<string, string | number>) => string;
+
+function translate(zh: string, vars?: Record<string, string | number>): string {
+  let v = localeNow === 'en' ? (zhEn[zh] ?? zh) : zh;
+  if (localeNow === 'en' && vars && v.includes('{')) {
+    for (const [k, val] of Object.entries(vars)) {
+      v = v.split(`{${k}}`).join(String(val));
+    }
+  }
+  return v;
 }
 
 const Ctx = createContext<I18nCtx | null>(null);
@@ -50,7 +63,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const tr = useCallback((zh: string) => (locale === 'en' ? zhEn[zh] ?? zh : zh), [locale]);
+  const tr = useCallback<TrFn>((zh, vars) => {
+    let v = locale === 'en' ? (zhEn[zh] ?? zh) : zh;
+    if (locale === 'en' && vars && v.includes('{')) {
+      for (const [k, val] of Object.entries(vars)) {
+        v = v.split(`{${k}}`).join(String(val));
+      }
+    }
+    return v;
+  }, [locale]);
 
   const value = useMemo<I18nCtx>(() => ({ locale, setLocale, tr }), [locale, setLocale, tr]);
 
@@ -74,12 +95,10 @@ export function acceptLanguage(): string {
 }
 
 /** 非组件环境直接翻译（词典缺失回退原文） */
-export function tr(zh: string): string {
-  return localeNow === 'en' ? (zhEn[zh] ?? zh) : zh;
-}
+export const tr: TrFn = translate;
 
 /** 组件内使用：语言切换时触发重渲染 */
-export function useTr(): (zh: string) => string {
+export function useTr(): TrFn {
   const { tr } = useI18n();
   return tr;
 }

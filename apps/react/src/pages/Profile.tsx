@@ -116,7 +116,7 @@ export function Profile() {
               <Input type="password" value={oldPw} onChange={(e) => setOldPw(e.target.value)} placeholder={t('请输入当前密码')} />
             </Field>
             <Field label={t('新密码')} required>
-              <Input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="6-32 位" />
+              <Input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder={t('6-32 位')} />
             </Field>
             <Field label={t('确认新密码')} required>
               <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder={t('再次输入新密码')} />

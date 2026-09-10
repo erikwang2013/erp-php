@@ -259,6 +259,7 @@ export function Modal({
   footer?: ReactNode;
   wide?: boolean;
 }) {
+  const t = useTr();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -274,7 +275,7 @@ export function Modal({
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="modal-head">
-          {title}
+          {t(title)}
           <span className="sp" />
           <Btn variant="icon" icon="close" onClick={onClose} />
         </div>
@@ -356,6 +357,7 @@ export function StatCard({
   color?: string;
   trend?: number | null;
 }) {
+  const t = useTr();
   const good = trend === null || trend === undefined ? null : trend >= 0;
   return (
     <div className="stat-card">
@@ -366,11 +368,11 @@ export function StatCard({
         <Icon name={icon} size={20} />
       </div>
       <div className="stat-body">
-        <div className="stat-label">{label}</div>
+        <div className="stat-label">{t(label)}</div>
         <div className="stat-value">{value}</div>
         {trend !== null && trend !== undefined && (
           <div className="stat-trend" style={{ color: good ? 'var(--success)' : 'var(--danger)' }}>
-            {good ? '↑' : '↓'} {Math.abs(trend)}% 较昨日
+            {good ? '↑' : '↓'} {Math.abs(trend)}% {t('较昨日')}
           </div>
         )}
       </div>

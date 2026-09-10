@@ -45,10 +45,13 @@ interface VerifyResp {
   data?: VerifyData;
 }
 
-// 独立校验接口 /api/v1/captcha/verify 请求体（坐标唯一校验点）
+// 独立校验接口 /api/v1/captcha/verify 请求体（按弹框回传 type 携带对应作答：
+// click=clicks 坐标序列 / rotate=angle / slider=distance，唯一校验点）
 interface VerifyPayload {
   key: string;
-  clicks: ClickPoint[];
+  clicks?: ClickPoint[];
+  angle?: number;
+  distance?: number;
 }
 
 // 登录请求体：不携带坐标，仅凭 captcha_key 消费放行凭证
@@ -133,8 +136,16 @@ struct LoginPage {
     this.isLoading = true;
     this.loginError = '';
     try {
-      // 1) 坐标唯一校验点：/api/v1/captcha/verify 通过后服务端写一次性放行凭证
-      const verifyPayload: VerifyPayload = { key: result.key, clicks: result.clicks };
+      // 1) 校验唯一入口：/api/v1/captcha/verify，按弹框回传 type 携带作答，
+      //    通过后服务端写一次性放行凭证（captcha_pass:<key>）
+      const verifyPayload: VerifyPayload = { key: result.key };
+      if (result.type === 'rotate') {
+        verifyPayload.angle = result.angle;
+      } else if (result.type === 'slider') {
+        verifyPayload.distance = result.distance;
+      } else {
+        verifyPayload.clicks = result.clicks;
+      }
       const verify = JSON.parse(await this.postJson(`${BASE_URL}/api/v1/captcha/verify`, verifyPayload)) as VerifyResp;
       if (verify.code !== 0 || !verify.data?.valid) {
         // 服务端 message 直通；缺失时用本地文案兜底

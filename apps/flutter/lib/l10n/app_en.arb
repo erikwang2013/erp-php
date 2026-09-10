@@ -13,6 +13,8 @@
   "loginCaptchaRequired": "Please load the captcha",
   "loginCaptchaLoadFailed": "Failed to load captcha",
   "loginCaptchaFailed": "Incorrect captcha, please retry",
+  "loginCaptchaRotate": "Rotate the image until it is upright",
+  "loginCaptchaSlider": "Drag the puzzle to align with the notch",
   "loginClickTarget": "Click the character '{text}' in order",
   "loginNetworkError": "Network error, please check your connection",
   "navDashboard": "Dashboard",

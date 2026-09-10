@@ -1661,6 +1661,18 @@
       "value": "已点击 %1$s/%2$s"
     },
     {
+      "name": "captcha_rotate_hint",
+      "value": "旋转图片使其摆正后提交"
+    },
+    {
+      "name": "captcha_slider_hint",
+      "value": "拖动拼图块对齐缺口后提交"
+    },
+    {
+      "name": "captcha_submit",
+      "value": "提交"
+    },
+    {
       "name": "total_count_fmt",
       "value": "共 %1$s 条"
     },

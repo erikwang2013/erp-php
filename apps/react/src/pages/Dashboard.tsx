@@ -7,6 +7,7 @@ import type { IconName } from '@/components/Icon';
 import { Btn, PageHead, StatCard } from '@/components/ui';
 import { http } from '@/lib/api';
 import { dateTime, int, text } from '@/lib/format';
+import { useTr } from '@/lib/i18n';
 
 /**
  * 经营总览。GET /admin/v1/dashboard
@@ -31,6 +32,7 @@ const ICON_MAP: Record<string, IconName> = {
 };
 
 export function Dashboard() {
+  const t = useTr();
   const [data, setData] = useState<DashData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,7 @@ export function Dashboard() {
     http
       .get<DashData>('/admin/v1/dashboard')
       .then(setData)
-      .catch((e) => setError(e instanceof Error ? e.message : '加载失败'))
+      .catch((e) => setError(e instanceof Error ? e.message : t('加载失败')))
       .finally(() => setLoading(false));
   };
 
@@ -53,9 +55,9 @@ export function Dashboard() {
 
   return (
     <>
-      <PageHead title="仪表盘">
+      <PageHead title={t('仪表盘')}>
         <Btn variant="outline" icon="refresh" onClick={load}>
-          刷新
+          {t('刷新')}
         </Btn>
       </PageHead>
 
@@ -64,7 +66,7 @@ export function Dashboard() {
           <div className="center-block">
             <div className="empty-title" style={{ color: 'var(--danger)' }}>{error}</div>
             <Btn variant="outline" icon="refresh" onClick={load}>
-              重试
+              {t('重试')}
             </Btn>
           </div>
         </div>
@@ -72,7 +74,7 @@ export function Dashboard() {
 
       {!error && !data && (
         <div className="card body" style={{ padding: 16 }}>
-          {loading ? '加载中…' : ''}
+          {loading ? t('加载中…') : ''}
         </div>
       )}
 
@@ -94,7 +96,7 @@ export function Dashboard() {
           <div className="grid-2">
             <div className="card body">
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-                <span style={{ fontWeight: 600 }}>近 30 天趋势</span>
+                <span style={{ fontWeight: 600 }}>{t('近 30 天趋势')}</span>
                 <span style={{ flex: 1 }} />
                 {(trend?.series ?? []).map((s) => (
                   <span key={s.series_key} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 'var(--fs-sm)', color: 'var(--text-2)', marginLeft: 12 }}>
@@ -106,14 +108,14 @@ export function Dashboard() {
               {trend && trend.dates.length > 0 ? (
                 <LineChart dates={trend.dates} series={trend.series} />
               ) : (
-                <div className="empty-desc">暂无趋势数据</div>
+                <div className="empty-desc">{t('暂无趋势数据')}</div>
               )}
             </div>
 
             <div className="card body">
-              <div style={{ fontWeight: 600, marginBottom: 12 }}>账户状态分布</div>
+              <div style={{ fontWeight: 600, marginBottom: 12 }}>{t('账户状态分布')}</div>
               {dist.length === 0 ? (
-                <div className="empty-desc">暂无数据</div>
+                <div className="empty-desc">{t('暂无数据')}</div>
               ) : (
                 <>
                   <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: 'var(--surface-alt)', marginBottom: 12 }}>
@@ -141,19 +143,19 @@ export function Dashboard() {
           </div>
 
           <div className="card body" style={{ marginTop: 16 }}>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>最近操作日志</div>
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>{t('最近操作日志')}</div>
             {(data.recent_logs ?? []).length === 0 ? (
-              <div className="empty-desc">暂无日志</div>
+              <div className="empty-desc">{t('暂无日志')}</div>
             ) : (
               <div className="table-wrap">
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>操作人</th>
-                      <th>方法</th>
-                      <th>路径</th>
+                      <th>{t('操作人')}</th>
+                      <th>{t('方法')}</th>
+                      <th>{t('路径')}</th>
                       <th>IP</th>
-                      <th>时间</th>
+                      <th>{t('时间')}</th>
                     </tr>
                   </thead>
                   <tbody>

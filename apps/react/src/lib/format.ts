@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { tr } from '@/lib/i18n';
+import { currentLocale, tr } from '@/lib/i18n';
 
 /** 通用展示格式化 */
 
@@ -74,7 +74,9 @@ export const COMMON_STATUS: Record<number, string> = {
 export function statusText(status: unknown, dict?: Record<number, string>): string {
   const n = Number(status);
   if (Number.isNaN(n)) return text(status);
-  return tr(dict?.[n] ?? COMMON_STATUS[n] ?? `状态${n}`);
+  const label = dict?.[n] ?? COMMON_STATUS[n];
+  if (label) return tr(label);
+  return currentLocale() === 'en' ? `Status ${n}` : `状态${n}`;
 }
 
 /** 布尔 → 启用/禁用 */

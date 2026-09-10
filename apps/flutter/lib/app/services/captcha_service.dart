@@ -9,8 +9,11 @@ class CaptchaService {
 
   CaptchaService(this._dio);
 
+  /// 生成时指定 random，由服务端按机率下发 click/rotate/slider 具体类型
+  /// （响应 data.type 为具体类型，客户端据此分支渲染）。
   Future<CaptchaData> generate({String difficulty = 'medium'}) async {
     final resp = await _dio.post('/api/v1/captcha/generate', data: {
+      'type': 'random',
       'difficulty': difficulty,
     });
     final body = resp.data;
@@ -31,11 +34,26 @@ class CaptchaService {
   }
 
   /// 校验失败/异常一律返回 false 并留日志（弹框失败路径文案由调用方统一处理）。
-  Future<bool> verify(String key, List<Offset> clicks) async {
+  /// [clicks] 仅 click 型使用；rotate/slider 分别传 [angle]/[distance]。
+  Future<bool> verify(
+    String key,
+    List<Offset> clicks, {
+    String type = 'click',
+    int? angle,
+    int? distance,
+  }) async {
     try {
       final resp = await _dio.post('/api/v1/captcha/verify', data: {
         'key': key,
-        'clicks': clicks.map((c) => {'x': c.dx.round(), 'y': c.dy.round()}).toList(),
+        'type': type,
+        if (type == 'rotate')
+          'angle': angle
+        else if (type == 'slider')
+          'distance': distance
+        else
+          'clicks': clicks
+              .map((c) => {'x': c.dx.round(), 'y': c.dy.round()})
+              .toList(),
       });
       final body = resp.data;
       if (body is! Map || body['code'] != 0) {
@@ -53,17 +71,35 @@ class CaptchaService {
 class CaptchaData {
   final String key;
   final String imageBase64;
+  final String type;
   final List<CaptchaTarget> targets;
+  // slider 型：缺口拼图片（服务端不下发缺口坐标，仅需横向位移距离作答）
+  final String? puzzleBase64;
+  final int? puzzleW;
+  final int? puzzleH;
 
-  CaptchaData({required this.key, required this.imageBase64, required this.targets});
+  CaptchaData({
+    required this.key,
+    required this.imageBase64,
+    this.type = 'click',
+    required this.targets,
+    this.puzzleBase64,
+    this.puzzleW,
+    this.puzzleH,
+  });
 
   factory CaptchaData.fromJson(Map<String, dynamic> json) {
+    final extra = json['extra'] as Map<String, dynamic>?;
     return CaptchaData(
       key: json['key'] as String,
       imageBase64: json['image'] as String,
-      targets: (json['extra']?['targets'] as List?)
+      type: (json['type'] as String?) ?? 'click',
+      targets: (extra?['targets'] as List?)
           ?.map((t) => CaptchaTarget.fromJson(t))
           .toList() ?? [],
+      puzzleBase64: extra?['puzzle'] as String?,
+      puzzleW: extra?['puzzle_w'] as int?,
+      puzzleH: extra?['puzzle_h'] as int?,
     );
   }
 }

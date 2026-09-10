@@ -52,6 +52,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loginCaptchaFailed => '验证码错误，请重试';
 
   @override
+  String get loginCaptchaRotate => '旋转图片至正位';
+
+  @override
+  String get loginCaptchaSlider => '拖动拼图对齐缺口';
+
+  @override
   String loginClickTarget(String text) {
     return '请按顺序点击图中文字『$text』';
   }

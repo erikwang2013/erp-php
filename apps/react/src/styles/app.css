@@ -1011,8 +1011,24 @@ td.num {
 .captcha-box img {
   display: block;
   width: 100%;
-  height: 120px;
-  object-fit: cover;
+  height: auto;
+}
+
+.captcha-mark {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  border-radius: 50%;
+  background: rgba(22, 119, 255, 0.9);
+  border: 1px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .captcha-hint {
@@ -1033,6 +1049,139 @@ td.num {
   color: var(--text-3);
   margin: 6px 0 0;
 }
+/* loading/失败占位：.captcha-stage 内无图可盖，hint 脱离 absolute 占满图位 */
+.captcha-stage > .captcha-hint {
+  position: static;
+  width: 320px;
+  height: 200px;
+}
+
+/* ============ 人机验证 · 非点击型（rotate/slider） ============ */
+
+/* 挑战区相对容器：slider 轨道/引导线绝对定位覆盖在背景图上。
+   width:fit-content 关键：stage 若撑满弹框（block），inset:0 的轨道会宽于
+   320px 背景图，拼图块可拖出图外、永远对不上缺口 */
+.captcha-stage {
+  position: relative;
+  width: fit-content;
+}
+
+/* 视图画布：固定显示尺寸（click/slider 300×200 → 320×200，rotate 200×200 → 320×320，
+   三型画布同宽 320，弹框尺寸不随类型跳变） */
+.captcha-box--view {
+  width: 320px;
+  height: 200px;
+  cursor: default;
+}
+.captcha-box--view img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+/* click 画布需保留可点光标（--view 的 default 仅适用于非点击展示图） */
+.captcha-box--click {
+  cursor: pointer;
+}
+/* rotate：方形画布（原生 200×200 内容等比放大到 320×320，无畸变；旋转在方形内即可） */
+.captcha-box--sq {
+  width: 320px;
+  height: 320px;
+}
+
+/* rotate：旋钮行 + 角度读数 */
+.captcha-knob-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 320px;
+  margin-top: 8px;
+}
+.captcha-knob {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--primary);
+}
+.captcha-degree {
+  min-width: 3ch;
+  text-align: right;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* slider：轨道覆盖在背景图上，拼图块流内起点=图左缘（内联 translateX 位移） */
+.captcha-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  cursor: grab;
+  user-select: none;
+}
+.captcha-track:active {
+  cursor: grabbing;
+}
+.captcha-piece {
+  /* 绝对定位：top 由内联 style 指定为缺口纵坐标（两块同高）；横向位移走 translateX */
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* 拼图块是背景原图同色裁片：无描边时低对比几近隐形，用户找不到可拖处。
+     ⚠️ 描边必须用不占内容的外圈 box-shadow（0 0 0 1px），不能用 border：
+        border 在 border-box 里把内容区挤小 2px，块图纹与缺口图纹缩放错位 → 永远无法完全对齐
+     白圈与缺口亮描边（服务端同宽 1px）对称 → 两块视觉尺寸完全一致；投影只保留可抓感，克制不溢价 */
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.9),
+    0 1px 3px rgba(0, 0, 0, 0.3);
+  touch-action: none;
+  outline: none;
+  -webkit-user-drag: none;
+}
+/* 拖拽中提示线（服务端容差 4px 内即命中） */
+.captcha-guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--primary);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* 图下滑动条：整条即拖拽区，手柄与图上拼图块同轴联动（共用 dist） */
+.captcha-slider-bar {
+  position: relative;
+  width: 320px;
+  height: 36px;
+  margin-top: 10px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.captcha-slider-bar:active {
+  cursor: grabbing;
+}
+.captcha-slider-handle {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: 15px;
+  line-height: 1;
+  pointer-events: none;
+}
+
 
 /* ============ 轻提示 ============ */
 

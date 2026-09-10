@@ -20,6 +20,7 @@ import {
 import { api, http, qs, type PageData } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { text } from '@/lib/format';
+import { useTr } from '@/lib/i18n';
 import { accentOf, type ActionDef, type FieldOption, type FieldSource, type FormField, type Row } from '@/config/types';
 import { inferColumns, inferDetailItems } from '@/lib/defaults';
 
@@ -47,6 +48,7 @@ export function ResourcePage({
 }) {
   const toast = useToast();
   const nav = useNavigate();
+  const t = useTr();
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -120,7 +122,7 @@ export function ResourcePage({
         method: 'DELETE',
         body: cfg.deleteNeedsPassword ? { password } : undefined,
       });
-      toast('删除成功', 'ok');
+      toast(t('删除成功'), 'ok');
       setPending(null);
       refresh();
     } catch (e) {
@@ -139,7 +141,7 @@ export function ResourcePage({
       if (act.method === 'GET') await api(path);
       else if (act.method === 'PUT') await api(path, { method: 'PUT', body });
       else await api(path, { method: 'POST', body });
-      toast(act.message ?? '操作成功', 'ok');
+      toast(act.message ? t(act.message) : t('操作成功'), 'ok');
       setPending(null);
       refresh();
       if (act.navTo) nav(act.navTo(row));
@@ -152,9 +154,9 @@ export function ResourcePage({
 
   const actions = (row: Row) => (
     <div className="row-actions">
-      <Btn variant="icon" icon="eye" title="详情" onClick={() => setDetail(row)} />
+      <Btn variant="icon" icon="eye" title={t('详情')} onClick={() => setDetail(row)} />
       {cfg.fields && (
-        <Btn variant="icon" icon="edit" title="编辑" onClick={() => setEditing(row)} />
+        <Btn variant="icon" icon="edit" title={t('编辑')} onClick={() => setEditing(row)} />
       )}
       {cfg.actions?.map((a) => {
         if (a.path && a.path(row) === null) return null;
@@ -164,10 +166,10 @@ export function ResourcePage({
             key={a.label}
             variant={a.variant ?? 'sm'}
             icon={a.icon}
-            title={a.label}
+            title={t(a.label)}
             onClick={() => setPending({ kind: 'action', row, act: a })}
           >
-            {iconOnly ? null : a.label}
+            {iconOnly ? null : t(a.label)}
           </Btn>
         );
       })}
@@ -175,7 +177,7 @@ export function ResourcePage({
         <Btn
           variant="icon-danger"
           icon="trash"
-          title="删除"
+          title={t('删除')}
           onClick={() => setPending({ kind: 'delete', row })}
         />
       )}
@@ -195,12 +197,12 @@ export function ResourcePage({
   return (
     <>
       <PageHead title={cfg.title} total={paginated ? total : undefined} accent={accentOf(cfg.moduleKey)}>
-        <Btn variant="outline" icon="refresh" onClick={refresh} title="刷新">
-          刷新
+        <Btn variant="outline" icon="refresh" onClick={refresh} title={t('刷新')}>
+          {t('刷新')}
         </Btn>
         {cfg.fields && (
           <Btn variant="primary" icon="plus" onClick={() => setEditing('new')}>
-            新增
+            {t('新增')}
           </Btn>
         )}
       </PageHead>
@@ -209,7 +211,7 @@ export function ResourcePage({
         <div className="toolbar">
           <Input
             className="search-input"
-            placeholder={cfg.searchPlaceholder ?? '输入关键词搜索'}
+            placeholder={cfg.searchPlaceholder ? t(cfg.searchPlaceholder) : t('输入关键词搜索')}
             value={keyword}
             onChange={(e) => {
               setKeyword(e.target.value);
@@ -229,7 +231,7 @@ export function ResourcePage({
           >
             {[15, 30, 50, 100].map((n) => (
               <option key={n} value={n}>
-                {n} 条/页
+                {n} {t('条/页')}
               </option>
             ))}
           </Select>
@@ -285,11 +287,11 @@ export function ResourcePage({
 
       {pending && (
         <ConfirmDialog
-          title={pending.kind === 'delete' ? '确认删除' : (pending.act?.label ?? '确认操作')}
+          title={pending.kind === 'delete' ? t('确认删除') : (pending.act?.label ? t(pending.act.label) : t('确认操作'))}
           message={
             pending.kind === 'delete'
-              ? `确定删除「${text(rowLabel(pending.row))}」？该操作不可恢复。`
-              : `确定执行「${pending.act?.label}」吗？`
+              ? t('确定删除「{name}」？该操作不可恢复。', { name: text(rowLabel(pending.row)) })
+              : t('确定执行「{act}」吗？', { act: pending.act?.label ?? '' })
           }
           requirePassword={
             pending.kind === 'delete'
@@ -338,6 +340,7 @@ function FormDialog({
   onSaved: () => void;
 }) {
   const toast = useToast();
+  const t = useTr();
   const isNew = row === null;
   const [vals, setVals] = useState<Record<string, unknown>>(() => {
     const init: Record<string, unknown> = {};
@@ -389,7 +392,7 @@ function FormDialog({
       if (isNew && f.editOnly) continue;
       if (!isNew && f.createOnly) continue;
       if (f.required && (vals[f.key] === '' || vals[f.key] === null || vals[f.key] === undefined)) {
-        toast(`请填写「${f.label}」`);
+        toast(t('请填写「{label}」', { label: f.label }));
         return;
       }
     }
@@ -406,7 +409,7 @@ function FormDialog({
     try {
       if (isNew) await http.post(cfg.endpoint, body);
       else await http.put(`${cfg.endpoint}/${String(row?.id)}`, body);
-      toast(isNew ? '新增成功' : '保存成功', 'ok');
+      toast(isNew ? t('新增成功') : t('保存成功'), 'ok');
       onSaved();
     } catch (e) {
       toast(msg(e));
@@ -417,14 +420,18 @@ function FormDialog({
 
   return (
     <Modal
-      title={isNew ? (cfg.createTitle ?? `新增${cfg.title.replace(/管理|列表/g, '')}`) : (cfg.editTitle ?? `编辑${cfg.title.replace(/管理|列表/g, '')}`)}
+      title={
+        isNew
+          ? (cfg.createTitle ? t(cfg.createTitle) : t('新增{name}', { name: cfg.title.replace(/管理|列表/g, '') }))
+          : (cfg.editTitle ? t(cfg.editTitle) : t('编辑{name}', { name: cfg.title.replace(/管理|列表/g, '') }))
+      }
       onClose={onClose}
       wide={(cfg.fields ?? []).some((f) => f.full || f.type === 'textarea')}
       footer={
         <>
-          <Btn onClick={onClose}>取消</Btn>
+          <Btn onClick={onClose}>{t('取消')}</Btn>
           <Btn variant="primary" loading={busy} onClick={submit}>
-            {isNew ? '保存' : '保存'}
+            {t('保存')}
           </Btn>
         </>
       }
@@ -437,7 +444,7 @@ function FormDialog({
             const common = {
               value: val as string,
               disabled: f.disabled,
-              placeholder: f.placeholder,
+              placeholder: f.placeholder ? t(f.placeholder) : undefined,
               onChange: (e: { target: { value: string } }) =>
                 set(f.key, f.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value),
             };
@@ -447,10 +454,10 @@ function FormDialog({
                   <Textarea {...common} />
                 ) : f.type === 'select' || f.source ? (
                   <Select {...common}>
-                    <option value="">请选择</option>
+                    <option value="">{t('请选择')}</option>
                     {(f.options ?? remote[f.key] ?? []).map((o) => (
                       <option key={String(o.value)} value={String(o.value)}>
-                        {o.label}
+                        {t(o.label)}
                       </option>
                     ))}
                   </Select>

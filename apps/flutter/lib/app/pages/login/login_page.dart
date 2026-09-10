@@ -48,17 +48,22 @@ class _LoginPageState extends State<LoginPage> {
     }
     setState(() => _error = null);
 
-    // 点「登录」才弹验证码（通用模块），点完自动关闭并带回 key+clicks。
-    // 坐标比对只在独立接口 /api/v1/captcha/verify 做一次；登录不再回传 clicks，
-    // 仅凭 captcha_key 消费服务端写好的放行凭证。
+    // 点「登录」才弹验证码（通用模块），点完自动关闭并带回 key + 按类型作答
+    // （click=clicks / rotate=angle / slider=distance）。作答校验只在独立接口
+    // /api/v1/captcha/verify 做一次；登录不再回传作答，仅凭 captcha_key 消费
+    // 服务端写好的放行凭证。
     final result = await showCaptchaVerifyDialog(context);
     if (result == null || !mounted) return; // 用户关闭弹窗 = 取消登录
 
     setState(() => _loading = true);
     try {
-      final verified = await CaptchaService(
-        _dio,
-      ).verify(result.key, result.clicks);
+      final verified = await CaptchaService(_dio).verify(
+        result.key,
+        result.clicks,
+        type: result.type,
+        angle: result.angle,
+        distance: result.distance,
+      );
       if (!verified) {
         setState(() => _error = AppL10n.of(context).loginCaptchaFailed);
         return;
