@@ -2,6 +2,33 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.12.0 (2026-09-10)
+
+设计系统「经营台账 V3」落地 Web 两端（React + Angular），含设计稿产物与页面交互升级。
+
+### 平台与架构
+
+- **设计语言「经营台账 V3」**：暖纸地面 + 发丝分隔线 + 三阶柔影；墨青 `#0E7A6F` 替代默认蓝作唯一主色，
+  层级靠 1px 描边与留白建立。设计稿三件套入档 `docs/design/v3/`（dashboard.html / resource-page.html /
+  DESIGN.md，零外部依赖，浏览器可直接打开）
+- **令牌双轨落地**：React `tokens.css` 与 Angular `app.css :root` + `theme.less` 同值；
+  新增 `--shadow-1/2`、`--ring`、`--sp-*` 间距刻度、`--dur-*`/`--ease` 动效、`--fs-hero` 字号阶
+- **Flutter 未跟随**：`app_tokens.dart` 与 Web 端令牌分叉（有意为之，三端统一待单独跨端批）
+
+### 业务覆盖
+
+- **仪表盘**：KPI 计数滚动（rAF/signal，货币等非纯数字原样渲染）、首卡 hero 渐变键线、
+  SVG 折线 draw-in + 面积淡入、分布/图表色吃令牌、图标瓦片改 `color-mix` 浅底（替代 hex-alpha 拼串）
+- **资源列表页**（139 页共用模板）：状态胶囊实底选中 + 计数位 `.n`、行内动作 hover 右滑露出
+  （`@media(hover:none)` 触屏恒显兜底）、表格暖色发丝、焦点环 `--ring`、卡片三阶柔影
+- 两端硬编码 `#1677FF` 残留清零（含 accent 回退、焦点环、验证码标记）
+
+### 其他
+
+- 质量门：React `tsc --noEmit` + `vite build`；Angular `tsc --noEmit` + `ngc` + `ng build` 全绿
+- 已知取舍：芯片分类计数需后端返回计数（CSS 就位、接口未动）；`resource-page.less` 超 4 kB 预算 503 B
+  （交互样式所致，按债务政策未调阈值，待结构 CSS 上提消解）
+
 ## v1.11.0 (2026-09-10)
 
 新增 Angular 22 管理端页面层（第 4 个前端端），图形验证码升级为 click/rotate/slider 三型并跨端对齐。
