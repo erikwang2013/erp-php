@@ -2,6 +2,34 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.11.0 (2026-09-10)
+
+新增 Angular 22 管理端页面层（第 4 个前端端），图形验证码升级为 click/rotate/slider 三型并跨端对齐。
+
+### 平台与架构
+
+- **Angular 22 管理端页面层**：`apps/angular/` 从脚手架基线补齐页面层（73 文件，提交 `47a3a7a`）——
+  壳层 Shell + PageTabs（八业务屏切换 + 标签页）、登录（图形验证码）/仪表盘/通知中心/个人中心；
+  **config 驱动资源页引擎**：菜单=路由=资源配置单一事实源，一个 `ResourcePage` 渲染全部资源页，
+  配 `resource-form` 新建/编辑；核心 api（envelope `code===0` 解包 + 401 单飞刷新）、auth、
+  i18n（`TrPipe` 非纯，词典反查）、format、toast
+- **跨端人机验证（click / rotate / slider 三型）**：`CaptchaController` 生成时定类型，三型共用一次性
+  `captchaKey` 校验后即焚；Flutter / HarmonyOS / React 三端弹窗与本地化词条同步对齐（提交 `9721129`）
+- **poster 图像驱动改回 `auto`**：`config/poster.php` 重写为分区注释版，`driver` 恢复自动检测
+  （随 poster-php 升至 `v1.2.10`）
+
+### 业务覆盖
+
+- React 端配套：`CaptchaDialog` 三型交互、`zhEn` 词典补齐，登录 / Shell / PageTabs / 仪表盘 /
+  通知中心 / 个人中心随动
+
+### 其他
+
+- 质量门：Angular 侧 `tsc --noEmit` + `ngc` + `ng build` 全绿（初始 1.24 MB，懒加载分包）；
+  后端 `tests/CaptchaTest.php` 增补三型断言
+- 遗留：Angular 结构 CSS 待上提全局层（`shell.less` 4.41 kB 超 4 kB 预算 406 B，warning 非 error）、
+  弹窗外壳双实现（手写 `cap-*` vs `nz-modal`）待统一、PageTabs 无 keep-alive、`core/zh-en.ts` 1461 行待拆
+
 ## v1.10.0 (2026-09-08)
 
 开放管理后台新增 Web 端（React + Vite）。
