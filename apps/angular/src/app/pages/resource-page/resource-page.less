@@ -1,0 +1,347 @@
+/*
+ * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ *
+ * 说明：React 端这些结构类（.card/.toolbar/.table/.mask…）写在全局 app.css；
+ * 本端 app.css 只有 :root token，故按 React styles/app.css 同值在本组件作用域内重建。
+ * 弹窗骨架（.mask/.modal 系列）在 resource-form.less 里有一份同值副本：
+ * 组件样式默认隔离，抽公共 sheet 要新开全局文件，不值得。
+ */
+
+:host {
+  display: block;
+}
+
+/* ── 页头 ── */
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.head-bar {
+  width: 8px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--accent, var(--accent-system));
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: var(--fs-page);
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.4;
+}
+
+.page-total {
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.sp,
+.grow {
+  flex: 1;
+}
+
+/* ── 卡片 / 工具条 ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-card);
+
+  &.body {
+    padding: var(--pad-card);
+  }
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.input,
+.select {
+  height: var(--ctrl-h);
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-ctrl);
+  background: var(--surface);
+  color: var(--text-1);
+  font-size: var(--fs-base);
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+}
+
+.input:focus,
+.select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+}
+
+.input::placeholder {
+  color: var(--text-3);
+}
+
+.input:disabled,
+.select:disabled {
+  color: var(--text-4);
+  background: var(--surface-alt);
+}
+
+.search-input {
+  width: 260px;
+  max-width: 100%;
+}
+
+/* React 用内联 style 给每页条数下拉定宽 */
+.toolbar .select {
+  width: 108px;
+  flex: none;
+}
+
+/* zorro 给相邻按钮加了外边距，动作列宽度按 React 的 32px/颗算，这里抵掉 */
+.row-actions button + button,
+.pager button + button,
+.page-head button + button,
+.modal-foot button + button {
+  margin-left: 0;
+}
+
+/* ── 状态筛选胶囊 ── */
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.chip {
+  height: 32px;
+  padding: 0 16px;
+  border-radius: var(--r-chip);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: var(--fs-base);
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover {
+    border-color: var(--primary);
+  }
+
+  &.active {
+    background: var(--primary-bg);
+    border-color: transparent;
+    color: var(--primary-pressed);
+    font-weight: 500;
+  }
+}
+
+/* ── 加载骨架 ── */
+.skeleton {
+  height: 28px;
+  border-radius: var(--r-ctrl);
+  background: rgba(240, 240, 240, 0.5);
+  margin-bottom: 8px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* ── 空态 / 错误态 ── */
+.center-block {
+  padding: 48px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.block-icon {
+  font-size: 40px;
+  color: var(--text-4);
+}
+
+.empty-title {
+  font-size: var(--fs-base);
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.block-text {
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+/* ── 表格 ── */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-base);
+
+  th {
+    height: var(--head-h);
+    padding: 0 12px;
+    text-align: left;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text-2);
+    background: rgba(240, 240, 240, 0.4);
+    border-bottom: 1px solid var(--divider);
+    white-space: nowrap;
+  }
+
+  td {
+    height: var(--row-h);
+    padding: 0 12px;
+    color: var(--text-1);
+    border-bottom: 1px solid var(--divider);
+    vertical-align: middle;
+  }
+
+  tbody tr:hover {
+    background: rgba(240, 240, 240, 0.45);
+  }
+
+  tbody tr:nth-child(even) {
+    background: rgba(240, 240, 240, 0.35);
+
+    &:hover {
+      background: rgba(240, 240, 240, 0.6);
+    }
+  }
+
+  td.primary {
+    font-weight: 600;
+  }
+
+  td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ── 分页 ── */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 0 2px;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+/* ── 弹窗骨架 ── */
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--r-card);
+  width: 520px;
+  max-width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-facade);
+
+  &.wide {
+    width: 720px;
+  }
+}
+
+.modal-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--divider);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal-foot {
+  padding: 12px 16px;
+  border-top: 1px solid var(--divider);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ── 详情字段（React DescList 的两列栅格） ── */
+.desc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+}
+
+.desc-item {
+  display: flex;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--divider);
+  font-size: var(--fs-md);
+}
+
+.desc-k {
+  width: 120px;
+  flex-shrink: 0;
+  color: var(--text-2);
+}
+
+.desc-v {
+  flex: 1;
+  word-break: break-all;
+}
+
+/* ── 二次确认 ── */
+.confirm-text {
+  color: var(--text-2);
+  word-break: break-all;
+}
+
+.cf-label {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+
+  em {
+    color: var(--danger);
+    font-style: normal;
+  }
+
+  .input {
+    margin-top: 6px;
+  }
+}

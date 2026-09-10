@@ -1,0 +1,113 @@
+/*
+ * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ *
+ * 验证码弹窗外壳（cap-* 前缀本文件私有）。
+ * 画布/滑条/标记等结构类一律复用 styles/app.css 的 .captcha-* 全局层
+ * （那层由 React 镜像而来），此处只补 React .mask/.modal 那圈壳层，
+ * 用独立前缀避免与团队后续维护的全局类撞名。
+ */
+
+/* 宿主不生成盒子：登录页是 grid 居中，多一个空宿主元素会多占一行把卡片顶偏；
+   同时让 .cap-mask 直接以视口为包含块（display:contents 后 fixed 定位不受宿主影响） */
+:host {
+  display: contents;
+}
+
+.cap-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.cap-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 520px;
+  max-width: 100%;
+  max-height: 90vh;
+  background: var(--surface);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-facade);
+}
+
+.cap-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--divider);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.cap-sp {
+  flex: 1;
+}
+
+.cap-close {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-ctrl);
+  background: transparent;
+  color: var(--text-3);
+  font-size: var(--fs-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cap-close:hover:not(:disabled) {
+  background: var(--surface-alt);
+  color: var(--text-1);
+}
+
+.cap-close:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.cap-body {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.cap-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--divider);
+}
+
+/* 题头：型名 + 状态/提示（提示色与 React 行内样式同源） */
+.cap-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+  /* 值同 React 全局 .field-label（Angular 全局层未收录该类，故就地落值） */
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.cap-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--success-text);
+  font-size: var(--fs-xs);
+}
+
+.cap-hint {
+  color: var(--primary);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}

@@ -1,0 +1,90 @@
+<!--
+  ~ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+  -->
+
+<div class="page-head">
+  <span class="head-bar"></span>
+  <span class="page-title">{{ '个人中心' | tr }}</span>
+  <span class="sp"></span>
+  <div class="field">
+    <div class="field-label">{{ '界面语言' | tr }}</div>
+    <nz-select class="lang-select" [ngModel]="locale()" (ngModelChange)="changeLocale($event)">
+      <nz-option nzValue="zh" nzLabel="中文" />
+      <nz-option nzValue="en" nzLabel="English" />
+    </nz-select>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card body">
+    <div class="card-title">{{ '基本资料' | tr }}</div>
+    <div class="fields">
+      <div class="field full">
+        <div class="field-label">{{ '用户名' | tr }}</div>
+        <input nz-input [value]="user()?.username ?? ''" disabled />
+      </div>
+      <div class="field">
+        <div class="field-label">{{ '姓名' | tr }}</div>
+        <input nz-input [(ngModel)]="name" [placeholder]="'真实姓名' | tr" />
+      </div>
+      <div class="field">
+        <div class="field-label">{{ '手机' | tr }}</div>
+        <input nz-input [(ngModel)]="phone" [placeholder]="'未设置' | tr" />
+      </div>
+      <div class="field full">
+        <div class="field-label">{{ '邮箱' | tr }}</div>
+        <input nz-input [(ngModel)]="email" [placeholder]="'未设置' | tr" />
+      </div>
+    </div>
+    <div class="form-foot">
+      <button
+        nz-button
+        nzType="primary"
+        [nzLoading]="saving()"
+        [disabled]="saving()"
+        (click)="saveProfile()"
+      >
+        {{ '保存资料' | tr }}
+      </button>
+    </div>
+  </div>
+
+  <div class="card body">
+    <div class="card-title">{{ '修改密码' | tr }}</div>
+    <div class="fields">
+      <div class="field full">
+        <div class="field-label">{{ '当前密码' | tr }}<span class="req">*</span></div>
+        <input
+          nz-input
+          type="password"
+          [(ngModel)]="oldPw"
+          [placeholder]="'请输入当前密码' | tr"
+        />
+      </div>
+      <div class="field">
+        <div class="field-label">{{ '新密码' | tr }}<span class="req">*</span></div>
+        <input nz-input type="password" [(ngModel)]="newPw" [placeholder]="'6-32 位' | tr" />
+      </div>
+      <div class="field">
+        <div class="field-label">{{ '确认新密码' | tr }}<span class="req">*</span></div>
+        <input
+          nz-input
+          type="password"
+          [(ngModel)]="confirm"
+          [placeholder]="'再次输入新密码' | tr"
+        />
+      </div>
+    </div>
+    <div class="form-foot">
+      <button
+        nz-button
+        nzType="primary"
+        [nzLoading]="pwBusy()"
+        [disabled]="!oldPw() || !newPw() || !confirm() || pwBusy()"
+        (click)="savePassword()"
+      >
+        {{ '修改密码' | tr }}
+      </button>
+    </div>
+  </div>
+</div>

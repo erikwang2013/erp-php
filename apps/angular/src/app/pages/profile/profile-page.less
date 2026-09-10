@@ -1,0 +1,106 @@
+/*
+ * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ *
+ * 说明：React 端这些结构类（.card/.page-head/.fields…）写在全局 app.css；
+ * 本端 app.css 只有 :root token，故按 React 同值在本组件作用域内重建所需子集，
+ * 避免 ::ng-deep 越界与全局污染。数值与 React styles/app.css 逐条对齐。
+ */
+
+:host {
+  display: block;
+}
+
+/* ── 页头 ── */
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.head-bar {
+  width: 8px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--accent, var(--accent-system));
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: var(--fs-page);
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.4;
+}
+
+.sp {
+  flex: 1;
+}
+
+/* React：<Select style={{width:140}}> */
+.lang-select {
+  width: 140px;
+}
+
+/* ── 卡片 / 栅格 ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-card);
+
+  &.body {
+    padding: var(--pad-card);
+  }
+}
+
+/* React：inline style={{fontWeight:600, marginBottom:14}} */
+.card-title {
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+
+/* ── 表单 ── */
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &.full {
+    grid-column: 1 / -1;
+  }
+}
+
+.field-label {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+
+  .req {
+    color: var(--danger);
+    margin-left: 2px;
+  }
+}
+
+/* React：inline style={{display:'flex', justifyContent:'flex-end', marginTop:14}} */
+.form-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+@media (max-width: 1100px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}

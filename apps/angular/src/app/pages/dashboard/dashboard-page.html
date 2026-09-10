@@ -1,0 +1,174 @@
+<!--
+  ~ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+  -->
+
+<div class="page-head">
+  <span class="head-bar"></span>
+  <span class="page-title">{{ '仪表盘' | tr }}</span>
+  <span class="sp"></span>
+  <button nz-button nzType="default" (click)="load()">
+    <nz-icon nzType="reload" />
+    {{ '刷新' | tr }}
+  </button>
+</div>
+
+@if (error(); as err) {
+  <div class="card body">
+    <div class="center-block">
+      <div class="empty-title danger-text">{{ err }}</div>
+      <button nz-button nzType="default" (click)="load()">
+        <nz-icon nzType="reload" />
+        {{ '重试' | tr }}
+      </button>
+    </div>
+  </div>
+}
+
+@if (!error() && !hasData()) {
+  <div class="card body">
+    @if (loading()) {
+      {{ '加载中…' | tr }}
+    }
+  </div>
+}
+
+@if (hasData()) {
+  <div class="stat-grid">
+    @for (s of stats(); track s.label) {
+      <div class="stat-card">
+        <div class="stat-icon" [style.background]="s.color + '1F'" [style.color]="s.color">
+          <app-icon [name]="iconOf(s.icon)" />
+        </div>
+        <div class="stat-body">
+          <div class="stat-label">{{ s.label | tr }}</div>
+          <div class="stat-value">{{ s.value }}</div>
+          @if (s.trend !== null && s.trend !== undefined) {
+            <div class="stat-trend" [style.color]="s.trend >= 0 ? 'var(--success)' : 'var(--danger)'">
+              {{ s.trend >= 0 ? '↑' : '↓' }} {{ abs(s.trend) }}% {{ '较昨日' | tr }}
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="grid-2">
+    <div class="card body">
+      <div class="card-head">
+        <span class="card-title">{{ '近 30 天趋势' | tr }}</span>
+        <span class="sp"></span>
+        @for (s of trend()?.series ?? []; track s.series_key) {
+          <span class="legend">
+            <i class="dot" [style.background]="s.color"></i>{{ s.name }}
+          </span>
+        }
+      </div>
+      @if (chart(); as c) {
+        <svg
+          [attr.viewBox]="'0 0 ' + c.w + ' ' + c.h"
+          class="chart"
+          role="img"
+          [attr.aria-label]="'近 30 天趋势' | tr"
+        >
+          @for (g of c.grid; track $index) {
+            <line
+              [attr.x1]="c.padL"
+              [attr.x2]="c.w - 4"
+              [attr.y1]="g.y"
+              [attr.y2]="g.y"
+              stroke="var(--divider)"
+              stroke-width="1"
+            ></line>
+            <text
+              [attr.x]="c.padL - 6"
+              [attr.y]="g.y + 3"
+              font-size="9"
+              fill="var(--text-3)"
+              text-anchor="end"
+            >{{ g.label }}</text>
+          }
+          @for (l of c.xLabels; track $index) {
+            <text
+              [attr.x]="l.x"
+              [attr.y]="c.h - 6"
+              font-size="9"
+              fill="var(--text-3)"
+              text-anchor="middle"
+            >{{ l.text }}</text>
+          }
+          @for (s of c.series; track s.key) {
+            <polygon [attr.points]="s.area" [attr.fill]="s.color" opacity="0.08"></polygon>
+            <polyline
+              [attr.points]="s.line"
+              fill="none"
+              [attr.stroke]="s.color"
+              stroke-width="2"
+            ></polyline>
+          }
+        </svg>
+      } @else {
+        <div class="empty-desc">{{ '暂无趋势数据' | tr }}</div>
+      }
+    </div>
+
+    <div class="card body">
+      <div class="card-head">
+        <span class="card-title">{{ '账户状态分布' | tr }}</span>
+      </div>
+      @if (dist().length === 0) {
+        <div class="empty-desc">{{ '暂无数据' | tr }}</div>
+      } @else {
+        <div class="stack">
+          @for (d of dist(); track $index) {
+            <div
+              class="seg"
+              [style.width.%]="distTotal() ? (d.value / distTotal()) * 100 : 0"
+              [style.background]="distColor($index)"
+            ></div>
+          }
+        </div>
+        @for (d of dist(); track $index) {
+          <div class="legend-row">
+            <i class="dot" [style.background]="distColor($index)"></i>
+            <span class="legend-name">{{ d.name }}</span>
+            <span class="legend-value">{{ int(d.value) }}</span>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="card body gap-top">
+    <div class="card-head">
+      <span class="card-title">{{ '最近操作日志' | tr }}</span>
+    </div>
+    @if (logs().length === 0) {
+      <div class="empty-desc">{{ '暂无日志' | tr }}</div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{{ '操作人' | tr }}</th>
+              <th>{{ '方法' | tr }}</th>
+              <th>{{ '路径' | tr }}</th>
+              <th>IP</th>
+              <th>{{ '时间' | tr }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of logs(); track r['id'] ?? $index) {
+              <tr>
+                <td class="primary">{{ text(r['user_name']) }}</td>
+                <td>{{ text(r['method']) }}</td>
+                <td>{{ text(r['path']) }}</td>
+                <td>{{ text(r['ip']) }}</td>
+                <td class="muted-text">{{ dateTime(r['created_at']) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

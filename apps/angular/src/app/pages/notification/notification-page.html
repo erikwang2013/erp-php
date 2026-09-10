@@ -1,0 +1,174 @@
+<!--
+  ~ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+  -->
+
+<div class="page-head">
+  <span class="head-bar"></span>
+  <span class="page-title">{{ '通知中心' | tr }}</span>
+  @if (paginated()) {
+    <span class="page-total">{{ '共' | tr }} {{ total() }} {{ '条' | tr }}</span>
+  }
+  <span class="sp"></span>
+  <button nz-button (click)="load()">
+    <nz-icon nzType="reload" />
+    {{ '刷新' | tr }}
+  </button>
+</div>
+
+<div class="card body">
+  <div class="toolbar">
+    <input
+      nz-input
+      class="search-input"
+      [placeholder]="'搜索通知内容' | tr"
+      [ngModel]="keyword()"
+      (ngModelChange)="onKeyword($event)"
+    />
+    <span class="grow"></span>
+    <button nz-button (click)="readAll()" [nzLoading]="busy()" [disabled]="busy()">
+      <app-icon name="check" />
+      {{ '全部已读' | tr }}
+    </button>
+    <nz-select
+      class="limit-select"
+      [ngModel]="limit()"
+      (ngModelChange)="changeLimit($event)"
+      [nzDisabled]="!paginated()"
+    >
+      @for (n of limits; track n) {
+        <nz-option [nzValue]="n" [nzLabel]="n + ' ' + ('条/页' | tr)" />
+      }
+    </nz-select>
+  </div>
+
+  @if (loading()) {
+    <div class="skeleton-wrap" role="status" [attr.aria-label]="'加载中…' | tr">
+      @for (i of skeletonRows; track i) {
+        <div class="skeleton" aria-hidden="true"></div>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="center-block">
+      <div class="empty-icon danger-text">!</div>
+      <div class="empty-title">{{ error() }}</div>
+      <button nz-button (click)="load()">
+        <nz-icon nzType="reload" />
+        {{ '重试' | tr }}
+      </button>
+    </div>
+  } @else if (!rows().length) {
+    <div class="center-block">
+      <app-icon class="empty-icon" name="box" />
+      <div class="empty-title">{{ '暂无数据' | tr }}</div>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{{ '标题' | tr }}</th>
+            <th>{{ '内容' | tr }}</th>
+            <th>{{ '状态' | tr }}</th>
+            <th>{{ '时间' | tr }}</th>
+            <th>{{ '操作' | tr }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row['id'] ?? $index) {
+            <tr>
+              <td class="primary">{{ row['title'] }}</td>
+              <td><span class="muted-text">{{ row['content'] }}</span></td>
+              <td>
+                <span
+                  class="badge solid"
+                  [class.badge-solid-i]="isRead(row)"
+                  [class.badge-solid-w]="!isRead(row)"
+                >
+                  {{ (isRead(row) ? '已读' : '未读') | tr }}
+                </span>
+              </td>
+              <td>{{ row['created_at'] }}</td>
+              <td>
+                <div class="row-actions">
+                  <button
+                    nz-button
+                    nzSize="small"
+                    [title]="'详情' | tr"
+                    [attr.aria-label]="'详情' | tr"
+                    (click)="detail.set(row)"
+                  >
+                    <app-icon name="eye" />
+                  </button>
+                  <button
+                    nz-button
+                    nzSize="small"
+                    [title]="'标记已读' | tr"
+                    [attr.aria-label]="'标记已读' | tr"
+                    (click)="pending.set(row)"
+                  >
+                    <app-icon name="check" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (paginated()) {
+      <div class="pager">
+        <span>
+          {{ '第' | tr }} {{ page() }} {{ '页' | tr }} / {{ '共' | tr }} {{ pages() }}
+          {{ '页' | tr }}（{{ total() }} {{ '条' | tr }}）
+        </span>
+        <button nz-button nzSize="small" [disabled]="page() <= 1" (click)="goPage(page() - 1)">
+          {{ '上一页' | tr }}
+        </button>
+        <button
+          nz-button
+          nzSize="small"
+          [disabled]="page() >= pages()"
+          (click)="goPage(page() + 1)"
+        >
+          {{ '下一页' | tr }}
+        </button>
+      </div>
+    }
+  }
+</div>
+
+<!-- 详情弹窗：React DetailModal wide=720，标题即页面标题，底部无按钮 -->
+<nz-modal
+  [nzVisible]="detail() !== null"
+  [nzTitle]="'通知中心' | tr"
+  [nzWidth]="720"
+  [nzFooter]="null"
+  (nzOnCancel)="detail.set(null)"
+>
+  <div *nzModalContent class="desc">
+    @for (item of detailItems(); track item.k) {
+      <div class="row">
+        <div class="k">{{ item.k }}</div>
+        <div class="v">{{ item.v }}</div>
+      </div>
+    }
+  </div>
+</nz-modal>
+
+<!-- 动作确认：React ConfirmDialog（无需二次密码），失败时保持打开便于重试 -->
+<nz-modal
+  [nzVisible]="pending() !== null"
+  [nzTitle]="'标记已读' | tr"
+  [nzWidth]="420"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="cancelRead()"
+>
+  <div *nzModalContent class="confirm-msg">{{ confirmMessage() }}</div>
+  <div *nzModalFooter>
+    <button nz-button (click)="cancelRead()">{{ '取消' | tr }}</button>
+    <button nz-button nzType="primary" [nzLoading]="pendingBusy()" (click)="confirmRead()">
+      {{ '确定' | tr }}
+    </button>
+  </div>
+</nz-modal>

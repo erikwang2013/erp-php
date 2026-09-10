@@ -1,0 +1,58 @@
+/*
+ * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ *
+ * 登录页版式 —— 值镜像 apps/react/src/styles/app.css 的 .login 段
+ * （全局层没收录登录块，属本页私有，故就地落在组件样式里）。
+ */
+
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--brand-grad);
+}
+
+.login-card {
+  width: 420px;
+  max-width: 100%;
+  padding: 28px 28px 24px;
+  background: var(--surface);
+  border-radius: var(--r-facade);
+  box-shadow: var(--shadow-facade);
+}
+
+.login-title {
+  margin: 0 0 4px;
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.login-sub {
+  margin: 0 0 20px;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+/* 验证状态行：React 行内 marginTop:14 + 语义色，落成类样式 */
+.field-status {
+  margin-top: 14px;
+  font-size: var(--fs-sm);
+}
+
+.status-ok {
+  color: var(--success-text);
+}
+
+.status-wait {
+  color: var(--text-2);
+}
+
+.login-submit {
+  margin-top: 6px;
+}

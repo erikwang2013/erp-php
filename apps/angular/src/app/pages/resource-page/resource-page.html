@@ -1,0 +1,275 @@
+<!--
+  Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+  模板只做展示：取值、格式化、显隐判定全部在 resource-page.ts / columns.ts 里算好。
+  原因：ngc 的模板检查不在验收命令（tsc --noEmit）覆盖范围内，逻辑留在 TS 才能被类型系统兜住。
+  控件刻意不用 nz-table / nz-modal / nz-empty：它们的内建文案绑定 zorro 的 zh_CN，切英文不会跟着走。
+-->
+@if (cfg(); as c) {
+  <div class="page-head" [style.--accent]="accent()">
+    <span class="head-bar"></span>
+    <span class="page-title">{{ title() | tr }}</span>
+    @if (paged()) {
+      <span class="page-total">{{ '共' | tr }} {{ total() }} {{ '条' | tr }}</span>
+    }
+    <span class="sp"></span>
+    <button nz-button (click)="refresh()">
+      <app-icon name="reload" />
+      {{ '刷新' | tr }}
+    </button>
+    @if (c.fields) {
+      <button nz-button nzType="primary" (click)="openNew()">
+        <app-icon name="plus" />
+        {{ '新增' | tr }}
+      </button>
+    }
+  </div>
+
+  <div class="card body">
+    <div class="toolbar">
+      <input
+        class="input search-input"
+        [value]="keyword()"
+        (input)="onKeyword($event)"
+        [placeholder]="(c.searchPlaceholder || '输入关键词搜索') | tr"
+      />
+      <span class="grow"></span>
+      <select class="select" [disabled]="!paged()" (change)="onLimit($event)">
+        @for (n of pageSizes; track n) {
+          <option [value]="n" [selected]="n === limit()">{{ n }} {{ '条/页' | tr }}</option>
+        }
+      </select>
+    </div>
+
+    @if (c.filters; as f) {
+      <!-- 「全部」胶囊来自配置（filters.options 首项 value=null），引擎不额外补 -->
+      <div class="chips">
+        @for (o of f.options; track $index) {
+          <button
+            type="button"
+            class="chip"
+            [class.active]="o.value === filter()"
+            (click)="onFilter(o.value)"
+          >
+            {{ o.label | tr }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="skeleton-wrap">
+        @for (i of skeleton; track i) {
+          <div class="skeleton"></div>
+        }
+      </div>
+    } @else if (error()) {
+      <div class="center-block">
+        <app-icon name="exception" class="block-icon" />
+        <div class="block-text">{{ error() }}</div>
+        <button nz-button (click)="refresh()">{{ '重试' | tr }}</button>
+      </div>
+    } @else if (!view().length) {
+      <div class="center-block">
+        <app-icon name="box" class="block-icon" />
+        <div class="empty-title">{{ '暂无数据' | tr }}</div>
+        @if (c.emptyDesc) {
+          <div class="block-text">{{ c.emptyDesc | tr }}</div>
+        }
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              @for (col of cols(); track $index) {
+                <th
+                  [style.text-align]="col.align === 'right' ? 'right' : null"
+                  [style.width.px]="col.width"
+                >
+                  {{ col.title | tr }}
+                </th>
+              }
+              <th [style.width.px]="actionWidth()">{{ '操作' | tr }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of view(); track $index) {
+              <tr>
+                @for (cell of r.cells; track $index) {
+                  <td [class.primary]="cell.primary" [class.num]="cell.right">
+                    @if (cell.tone) {
+                      <nz-tag [nzColor]="tone(cell.tone)">{{ cell.text }}</nz-tag>
+                    } @else {
+                      {{ cell.text }}
+                    }
+                  </td>
+                }
+                <td>
+                  <div class="row-actions">
+                    <button
+                      nz-button
+                      nzType="text"
+                      nzSize="small"
+                      [title]="'详情' | tr"
+                      [attr.aria-label]="'详情' | tr"
+                      (click)="openDetail(r.row)"
+                    >
+                      <app-icon name="eye" />
+                    </button>
+                    @if (c.fields) {
+                      <button
+                        nz-button
+                        nzType="text"
+                        nzSize="small"
+                        [title]="'编辑' | tr"
+                        [attr.aria-label]="'编辑' | tr"
+                        (click)="openEdit(r.row)"
+                      >
+                        <app-icon name="edit" />
+                      </button>
+                    }
+                    @for (a of (c.actions ?? []); track $index) {
+                      @if (showAction(a, r.row)) {
+                        @if (showLabel(a)) {
+                          <button
+                            nz-button
+                            nzSize="small"
+                            [nzDanger]="a.variant === 'danger' || a.variant === 'icon-danger'"
+                            (click)="askAction(r.row, a)"
+                          >
+                            @if (a.icon) {
+                              <app-icon [name]="a.icon" />
+                            }
+                            {{ a.label | tr }}
+                          </button>
+                        } @else {
+                          <button
+                            nz-button
+                            nzType="text"
+                            nzSize="small"
+                            [nzDanger]="a.variant === 'icon-danger'"
+                            [title]="a.label | tr"
+                            [attr.aria-label]="a.label | tr"
+                            (click)="askAction(r.row, a)"
+                          >
+                            <app-icon [name]="a.icon ?? 'send'" />
+                          </button>
+                        }
+                      }
+                    }
+                    @if (c.canDelete !== false) {
+                      <button
+                        nz-button
+                        nzType="text"
+                        nzSize="small"
+                        nzDanger
+                        [title]="'删除' | tr"
+                        [attr.aria-label]="'删除' | tr"
+                        (click)="askDelete(r.row)"
+                      >
+                        <app-icon name="delete" />
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (paged()) {
+        <div class="pager">
+          <span class="pager-text">
+            {{ '第' | tr }} {{ page() }} {{ '页' | tr }} / {{ '共' | tr }} {{ pages() }}
+            {{ '页' | tr }}（{{ total() }} {{ '条' | tr }}）
+          </span>
+          <button nz-button nzSize="small" [disabled]="page() <= 1" (click)="go(page() - 1)">
+            {{ '上一页' | tr }}
+          </button>
+          <button nz-button nzSize="small" [disabled]="page() >= pages()" (click)="go(page() + 1)">
+            {{ '下一页' | tr }}
+          </button>
+        </div>
+      }
+    }
+  </div>
+
+  @if (editing(); as e) {
+    <app-resource-form
+      [cfg]="c"
+      [row]="e === 'new' ? null : e"
+      (closed)="closeForm()"
+      (saved)="onSaved()"
+    />
+  }
+
+  <!-- 详情：React 的 cfg.detail 自定义渲染在 Angular 配置里没有，一律走字段推断 -->
+  @if (detail(); as d) {
+    <div class="mask" (mousedown)="closeDetail()">
+      <div class="modal wide" role="dialog" aria-modal="true" (mousedown)="$event.stopPropagation()">
+        <div class="modal-head">
+          {{ title() | tr }}
+          <span class="sp"></span>
+          <button
+            nz-button
+            nzType="text"
+            nzSize="small"
+            [attr.aria-label]="'关闭' | tr"
+            (click)="closeDetail()"
+          >
+            <app-icon name="close" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="desc-grid">
+            @for (it of detailItems(); track $index) {
+              <div class="desc-item">
+                <span class="desc-k">{{ it.k | tr }}</span>
+                <!-- 值在 columns.ts 里已格式化，不能再过 tr -->
+                <span class="desc-v">{{ it.v }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (pending(); as p) {
+    <div class="mask" (mousedown)="closePending()">
+      <div class="modal" role="dialog" aria-modal="true" (mousedown)="$event.stopPropagation()">
+        <div class="modal-head">{{ pendingTitle() }}</div>
+        <div class="modal-body">
+          <div class="confirm-text">{{ pendingMsg() }}</div>
+          @if (needPassword()) {
+            <label class="cf-label">
+              {{ '当前密码' | tr }} <em>*</em>
+              <input
+                class="input"
+                type="password"
+                [value]="pw()"
+                (input)="onPw($event)"
+                [placeholder]="'请输入登录密码确认操作' | tr"
+                autofocus
+              />
+            </label>
+          }
+        </div>
+        <div class="modal-foot">
+          <button nz-button [disabled]="busy()" (click)="closePending()">{{ '取消' | tr }}</button>
+          <button
+            nz-button
+            nzType="primary"
+            nzDanger
+            [disabled]="(needPassword() && !pw()) || busy()"
+            [nzLoading]="busy()"
+            (click)="confirm()"
+          >
+            {{ '确定' | tr }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+}

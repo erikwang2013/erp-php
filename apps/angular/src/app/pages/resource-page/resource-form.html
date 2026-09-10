@@ -1,0 +1,91 @@
+<!--
+  Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+  模板只做展示：控件类型、type 属性、选项统一在 resource-form.ts 的 views() 里算好，
+  模板只做 @switch —— ngc 的模板检查不在验收命令（tsc --noEmit）覆盖范围内，逻辑留在 TS 才被类型系统兜住。
+  控件用原生 input/select/textarea + 本项目样式（本端没有 FormsModule/ngModel，取值写值走 vals signal）；
+  弹窗骨架 .mask/.modal 是 resource-page.less 的同值副本（组件样式默认隔离，见本目录 less 注释）。
+  不用 nz-form/nz-modal：内建校验与文案绑定 zorro 的 zh_CN，切英文不跟随。
+-->
+<div class="mask" (mousedown)="close()">
+  <div
+    class="modal"
+    [class.wide]="wide()"
+    role="dialog"
+    aria-modal="true"
+    (mousedown)="$event.stopPropagation()"
+  >
+    <div class="modal-head">
+      {{ title() }}
+      <span class="sp"></span>
+      <button
+        nz-button
+        nzType="text"
+        nzSize="small"
+        [title]="'关闭' | tr"
+        [attr.aria-label]="'关闭' | tr"
+        (click)="close()"
+      >
+        <app-icon name="close" />
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="fields">
+        @for (v of views(); track v.f.key) {
+          <div class="field" [class.full]="v.f.full">
+            <div class="field-label">
+              {{ v.f.label | tr }}@if (v.f.required) {<span class="req">*</span>}
+            </div>
+            @switch (v.kind) {
+              @case ('textarea') {
+                <textarea
+                  class="textarea"
+                  [value]="valOf(v.f)"
+                  [disabled]="!!v.f.disabled"
+                  [attr.placeholder]="v.f.placeholder ? (v.f.placeholder | tr) : null"
+                  (input)="onInput(v.f, $event)"
+                ></textarea>
+              }
+              @case ('select') {
+                <select
+                  class="select"
+                  [disabled]="!!v.f.disabled"
+                  (change)="onInput(v.f, $event)"
+                >
+                  <!-- 空值选项与 React 一致，value 用空串（原生 select 没有 null 值） -->
+                  <option value="" [selected]="valOf(v.f) === ''">{{ '请选择' | tr }}</option>
+                  @for (o of v.options; track $index) {
+                    <option [value]="o.value" [selected]="valOf(v.f) === o.value">
+                      {{ o.label | tr }}
+                    </option>
+                  }
+                </select>
+              }
+              @default {
+                <input
+                  class="input"
+                  [type]="v.type"
+                  [value]="valOf(v.f)"
+                  [disabled]="!!v.f.disabled"
+                  [attr.placeholder]="v.f.placeholder ? (v.f.placeholder | tr) : null"
+                  (input)="onInput(v.f, $event)"
+                />
+              }
+            }
+            @if (v.f.help) {
+              <div class="empty-desc">{{ v.f.help | tr }}</div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button nz-button [disabled]="busy()" (click)="close()">{{ '取消' | tr }}</button>
+      <button nz-button nzType="primary" [nzLoading]="busy()" (click)="submit()">
+        {{ '保存' | tr }}
+      </button>
+    </div>
+  </div>
+</div>

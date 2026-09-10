@@ -1,0 +1,56 @@
+<!--
+  Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+-->
+
+<div class="login">
+  <div class="login-card">
+    <h1 class="login-title">{{ 'erp开放管理后台' | tr }}</h1>
+    <p class="login-sub">{{ 'Open ERP · Web 控制台' | tr }}</p>
+
+    <div class="field">
+      <input
+        nz-input
+        [placeholder]="'用户名' | tr"
+        [value]="username()"
+        autocomplete="username"
+        (input)="onUsername($event)"
+      />
+    </div>
+    <div class="field">
+      <input
+        nz-input
+        type="password"
+        [placeholder]="'密码' | tr"
+        [value]="password()"
+        autocomplete="current-password"
+        (input)="onPassword($event)"
+        (keydown.enter)="submit()"
+      />
+    </div>
+
+    <div class="field field-status">
+      @if (captchaKey()) {
+        <span class="status-ok">{{ '已完成人机验证，点击「登 录」继续' | tr }}</span>
+      } @else {
+        <span class="status-wait">{{ '登录需先完成人机验证' | tr }}</span>
+      }
+    </div>
+
+    <button
+      type="button"
+      nz-button
+      nzType="primary"
+      nzBlock
+      class="login-submit"
+      [nzLoading]="busy()"
+      [disabled]="busy()"
+      (click)="submit()"
+    >{{ '登 录' | tr }}</button>
+  </div>
+
+  <app-captcha-dialog
+    [open]="captchaOpen()"
+    (closed)="onCaptchaClose()"
+    (success)="onCaptchaSuccess($event)"
+  />
+</div>

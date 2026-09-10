@@ -1,0 +1,8 @@
+{
+  "/admin": { "target": "http://localhost:8788", "changeOrigin": true },
+  "/api": { "target": "http://localhost:8788", "changeOrigin": true },
+  "/open": { "target": "http://localhost:8788", "changeOrigin": true },
+  "/health": { "target": "http://localhost:8788", "changeOrigin": true },
+  "/metrics": { "target": "http://localhost:8788", "changeOrigin": true },
+  "/install": { "target": "http://localhost:8788", "changeOrigin": true }
+}

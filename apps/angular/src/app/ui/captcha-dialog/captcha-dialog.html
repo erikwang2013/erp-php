@@ -1,0 +1,167 @@
+<!--
+  Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+-->
+
+@if (open()) {
+  <!-- 遮罩按下即关（弹框内按下被拦下），与 React Modal 同源 -->
+  <div class="cap-mask" (mousedown)="requestClose()">
+    <div class="cap-dialog" (mousedown)="$event.stopPropagation()">
+      <div class="cap-head">
+        <span>{{ '人机验证' | tr }}</span>
+        <span class="cap-sp"></span>
+        <button
+          type="button"
+          class="cap-close"
+          [attr.aria-label]="'关闭' | tr"
+          [disabled]="busy()"
+          (click)="requestClose()"
+        >×</button>
+      </div>
+
+      <div class="cap-body">
+        <div class="cap-label">
+          <span>{{ typeKey() | tr }}</span>
+          @if (verified()) {
+            <span class="cap-ok">
+              <span nz-icon nzType="check"></span> {{ '已通过' | tr }}
+            </span>
+          } @else if (challenge()?.type === 'click') {
+            <span class="cap-hint">
+              {{ '按顺序点击' | tr }}
+              @for (tp of targets(); track $index; let i = $index) {
+                @if (i > 0) { → }
+                <b
+                  [style.font-weight]="i === clicks().length ? 700 : 500"
+                  [style.color]="i < clicks().length ? 'var(--text-3)' : i === clicks().length ? 'var(--danger)' : 'var(--primary)'"
+                  [style.text-decoration]="i < clicks().length ? 'line-through' : null"
+                >{{ tp.text }}</b>
+              }
+              （{{ clicks().length }}/{{ targets().length }}）
+            </span>
+          } @else if (challenge()) {
+            <span class="cap-hint">
+              {{ (challenge()?.type === 'rotate' ? '转动图片使其摆正后提交' : '拖动拼图块使其对齐图中缺口') | tr }}
+            </span>
+          }
+        </div>
+
+        <!-- .captcha-stage 恒挂：loading/失败占位靠它拿到 320×200 固定位（无图可盖时也算出图位） -->
+        <div class="captcha-stage" #stage>
+          @if (loading() || !challenge()) {
+            <div class="captcha-box captcha-hint">
+              {{ (loading() ? '验证码加载中…' : '验证码加载失败') | tr }}
+            </div>
+          } @else if (challenge()?.type === 'click') {
+            <div
+              class="captcha-box captcha-box--view captcha-box--click"
+              [style.opacity]="verified() ? 0.55 : null"
+            >
+              <img
+                [src]="'data:image/png;base64,' + image()"
+                [alt]="typeKey() | tr"
+                draggable="false"
+                (click)="onImageClick($event)"
+              />
+              @for (c of clicks(); track $index; let i = $index) {
+                <span
+                  class="captcha-mark"
+                  [style.left.%]="(c.x / 300) * 100"
+                  [style.top.%]="(c.y / 200) * 100"
+                >{{ i + 1 }}</span>
+              }
+            </div>
+          } @else if (challenge()?.type === 'rotate') {
+            <div
+              class="captcha-box captcha-box--view captcha-box--sq"
+              [style.opacity]="verified() ? 0.55 : null"
+            >
+              <img
+                [src]="'data:image/png;base64,' + image()"
+                [alt]="typeKey() | tr"
+                draggable="false"
+                [style.transform]="'rotate(' + angle() + 'deg)'"
+              />
+            </div>
+            <!-- 无提交按钮：值停稳 400ms 自动校验（range 原生拖动吞 pointerup，防抖是最稳的停止信号） -->
+            <div class="captcha-knob-row">
+              <input
+                type="range"
+                class="captcha-knob"
+                min="0"
+                max="359"
+                step="1"
+                [value]="angle()"
+                [disabled]="busy() || verified()"
+                [attr.aria-label]="'转动图片使其摆正后提交' | tr"
+                (input)="onAngleInput($event)"
+              />
+              <span class="captcha-degree">{{ angle() }}°</span>
+            </div>
+          } @else {
+            <div class="captcha-box captcha-box--view" [style.opacity]="verified() ? 0.55 : null">
+              <img
+                [src]="'data:image/png;base64,' + image()"
+                [alt]="typeKey() | tr"
+                draggable="false"
+              />
+            </div>
+            <!-- 轨道即拖拽区：仅拼图块可抓时命中区太小，按住轨道任意处即可横向拖动 -->
+            <div
+              class="captcha-track"
+              (pointerdown)="onPiecePointerDown($event, track)"
+              (pointermove)="onPiecePointerMove($event)"
+              (pointerup)="onPiecePointerUp()"
+              (pointercancel)="onPiecePointerCancel()"
+              #track
+            >
+              <img
+                class="captcha-piece"
+                [src]="'data:image/png;base64,' + puzzle()"
+                alt=""
+                draggable="false"
+                role="slider"
+                tabIndex="0"
+                [attr.aria-label]="'拖动拼图块使其对齐图中缺口' | tr"
+                [attr.aria-valuemin]="0"
+                [attr.aria-valuemax]="ariaMax()"
+                [attr.aria-valuenow]="ariaNow()"
+                [style.width.%]="(puzzleW() / 300) * 100"
+                [style.height.%]="(puzzleH() / 200) * 100"
+                [style.top.px]="pieceTop()"
+                [style.transform]="'translateX(' + dist() + 'px)'"
+                (keydown)="onPieceKeyDown($event)"
+              />
+            </div>
+            <!-- 图下滑条与图上拼图块同轴联动（共用 dist），给出显式可滑控件 -->
+            <div
+              class="captcha-slider-bar"
+              (pointerdown)="onPiecePointerDown($event, bar)"
+              (pointermove)="onPiecePointerMove($event)"
+              (pointerup)="onPiecePointerUp()"
+              (pointercancel)="onPiecePointerCancel()"
+              #bar
+            >
+              <span class="captcha-slider-handle" [style.left.px]="dist()" aria-hidden="true">→</span>
+            </div>
+            @if (dragging() && !verified()) {
+              <span class="captcha-guide" [style.left.px]="dist()"></span>
+            }
+          }
+        </div>
+      </div>
+
+      <div class="cap-foot">
+        <button
+          type="button"
+          nz-button
+          nzSize="small"
+          [disabled]="loading() || busy()"
+          (click)="loadCaptcha()"
+        >
+          <span nz-icon nzType="reload" [nzSpin]="loading()"></span>
+          {{ (loading() ? '加载中…' : '换一张') | tr }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,122 @@
+<!--
+  Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+-->
+
+<div class="shell">
+  <aside class="sidebar" [class.folded]="folded()">
+    <div class="brand">
+      <div class="brand-logo">erp</div>
+      <span class="brand-name">{{ '管理后台' | tr }}</span>
+    </div>
+
+    <nav class="nav">
+      @if (!folded()) {
+        <div class="nav-search">
+          <input
+            class="search-input"
+            [placeholder]="'搜索菜单' | tr"
+            [attr.aria-label]="'搜索菜单' | tr"
+            [value]="query()"
+            (input)="onSearch($event)"
+          />
+        </div>
+      }
+
+      @for (s of SPECIAL_ROUTES; track s.path) {
+        <div class="nav-item" [class.active]="url() === s.path" [title]="s.label | tr" (click)="go(s.path)">
+          <span class="nav-icon"><app-icon [name]="s.icon" /></span>
+          <span class="nav-label">{{ s.label | tr }}</span>
+        </div>
+      }
+
+      @for (g of menus(); track g.label) {
+        <div class="nav-group">
+          <div class="nav-item" [title]="g.label | tr" (click)="toggleGroup(g.label)">
+            <span class="nav-icon"><app-icon [name]="g.icon" /></span>
+            <span class="nav-label">{{ g.label | tr }}</span>
+            <span class="nav-caret">
+              <app-icon name="chevRight" [style.transform]="isOpen(g.label) ? 'rotate(90deg)' : null" />
+            </span>
+          </div>
+          @if (isOpen(g.label) && !folded()) {
+            @for (c of g.children; track c.path) {
+              <div class="nav-item" [class.active]="url() === c.path" [title]="c.label | tr" (click)="go(c.path)">
+                <span class="nav-label child">{{ c.label | tr }}</span>
+              </div>
+            }
+          }
+        </div>
+      }
+
+      <div class="nav-item" [class.active]="url() === NOTIFICATION_PATH" [title]="'通知中心' | tr" (click)="go(NOTIFICATION_PATH)">
+        <span class="nav-icon"><app-icon name="bell" /></span>
+        <span class="nav-label">{{ '通知中心' | tr }}</span>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button
+        type="button"
+        class="btn-icon"
+        [title]="(folded() ? '展开菜单' : '收起菜单') | tr"
+        (click)="folded.set(!folded())"
+      >
+        <app-icon name="menu" />
+      </button>
+
+      <nav class="crumbs" [attr.aria-label]="'管理后台' | tr">
+        @for (c of crumbs(); track c; let i = $index) {
+          <span class="crumb" [class.current]="i === crumbs().length - 1">
+            @if (i > 0) {
+              <span class="crumb-sep"><app-icon name="chevRight" /></span>
+            }
+            {{ c | tr }}
+          </span>
+        }
+      </nav>
+
+      <button type="button" class="btn-icon" [title]="'通知中心' | tr" (click)="go(NOTIFICATION_PATH)">
+        <app-icon name="bell" />
+        @if (unread() > 0) {
+          <span class="unread-badge">{{ unread() > 99 ? '99+' : unread() }}</span>
+        }
+      </button>
+
+      <div class="topbar-user" (click)="userOpen.set(!userOpen())">
+        <div class="avatar">{{ initial() }}</div>
+        <span>{{ user()?.real_name || user()?.username }}</span>
+        @if (userOpen()) {
+          <div class="user-menu" (click)="$event.stopPropagation()">
+            <div class="nav-item" (click)="go('/profile'); userOpen.set(false)">
+              <app-icon name="user" />
+              <span>{{ '个人中心' | tr }}</span>
+            </div>
+            <div class="nav-item" (click)="toggleLocale($event)">
+              <app-icon name="global" />
+              <span>{{ '中英切换' | tr }}</span>
+            </div>
+            <div class="nav-item danger" (click)="doLogout()">
+              <app-icon name="logout" />
+              <span>{{ '退出登录' | tr }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </header>
+
+    <nav class="screens" [attr.aria-label]="'业务模块' | tr">
+      @for (s of SCREENS; track s.label; let i = $index) {
+        <button type="button" class="screen-tab" [class.active]="i === screen()" (click)="screen.set(i)">
+          <app-icon [name]="s.icon" />
+          <span>{{ s.label | tr }}</span>
+        </button>
+      }
+    </nav>
+
+    <main class="content">
+      <app-page-tabs />
+    </main>
+  </div>
+</div>

@@ -1,0 +1,119 @@
+/*
+ * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ */
+
+// 页签条样式：逐条对齐 React styles/app.css 的 .pagetabs/.pagetab/.tabbody。
+// 本组件是 ViewEncapsulation.None（见 page-tabs.ts 注释），故全部规则收在 .page-tabs 宿主类下，
+// 避免无封装样式外溢到别的组件。宿主类由 host: { class: 'page-tabs' } 挂上。
+
+.page-tabs {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  .pagetabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  .pagetabs-list {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pagetab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 8px 0 12px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.12s, color 0.12s;
+
+    &:hover {
+      color: var(--text-1);
+    }
+
+    &.active {
+      background: var(--primary-bg);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+  }
+
+  .pagetab-close {
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    color: var(--text-2);
+    font-size: 10px;
+
+    &:hover {
+      background: var(--surface-alt);
+      color: var(--danger);
+    }
+  }
+
+  .pagetabs-ops {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+
+    app-icon {
+      font-size: 12px;
+    }
+  }
+
+  // 小按钮（React Btn variant="sm" 渲染成 btn + btn-sm，这里只用到 btn-sm）
+  .btn-sm {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    border-radius: var(--r-ctrl);
+    background: var(--surface-alt);
+    color: var(--text-1);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--border);
+    }
+  }
+
+  .tabbody {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    // 路由宿主是外部组件，需无封装才能命中；排除 router-outlet 元素本身（它是零高度锚点，
+    // 若一并 flex:1 会把高度分走一半）。
+    > *:not(router-outlet) {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+}

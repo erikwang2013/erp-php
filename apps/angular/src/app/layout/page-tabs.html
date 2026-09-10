@@ -1,0 +1,38 @@
+<!--
+  Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+-->
+
+<div class="pagetabs">
+  <div class="pagetabs-list">
+    @for (t of tabs(); track t.path) {
+      <button
+        type="button"
+        class="pagetab"
+        [class.active]="t.path === path()"
+        (click)="go(t.path)"
+      >
+        <span>{{ t.label | tr }}</span>
+        @if (t.path !== HOME) {
+          <span class="pagetab-close" [title]="'关闭标签' | tr" (click)="closeTab(t.path, $event)">
+            <app-icon name="close" />
+          </span>
+        }
+      </button>
+    }
+  </div>
+  @if (tabs().length > 1) {
+    <div class="pagetabs-ops">
+      <button type="button" class="btn-sm" [title]="'关闭其他标签' | tr" (click)="closeOthers()">
+        <app-icon name="close" />
+        <span>{{ '关闭其他' | tr }}</span>
+      </button>
+      <button type="button" class="btn-sm" [title]="'关闭全部标签' | tr" (click)="closeAll()">
+        <app-icon name="trash" />
+        <span>{{ '关闭全部' | tr }}</span>
+      </button>
+    </div>
+  }
+</div>
+<div class="tabbody">
+  <router-outlet />
+</div>

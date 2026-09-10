@@ -1,0 +1,247 @@
+/*
+ * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ *
+ * 说明：React 端这些结构类（.card/.page-head/.table/.badge…）写在全局 app.css；
+ * 本端 app.css 只有 :root token，故按 React 同值在本组件作用域内重建所需子集，
+ * 避免 ::ng-deep 越界与全局污染。数值与 React styles/app.css 逐条对齐。
+ */
+
+:host {
+  display: block;
+}
+
+/* ── 页头 ── */
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.head-bar {
+  width: 8px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--accent, var(--accent-system));
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: var(--fs-page);
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.4;
+}
+
+/* React：分页时标题右侧显示「共 N 条」 */
+.page-total {
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.sp {
+  flex: 1;
+}
+
+/* ── 卡片 ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-card);
+
+  &.body {
+    padding: var(--pad-card);
+  }
+}
+
+/* ── 工具栏（搜索 / 全部已读 / 每页条数） ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.grow {
+  flex: 1;
+}
+
+.search-input {
+  width: 260px;
+  max-width: 100%;
+}
+
+.limit-select {
+  width: 108px;
+}
+
+/* ── 表格 ── */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-base);
+
+  th {
+    height: var(--head-h);
+    padding: 0 12px;
+    text-align: left;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text-2);
+    background: rgba(240, 240, 240, 0.4);
+    border-bottom: 1px solid var(--divider);
+    white-space: nowrap;
+  }
+
+  td {
+    height: var(--row-h);
+    padding: 0 12px;
+    color: var(--text-1);
+    border-bottom: 1px solid var(--divider);
+    vertical-align: middle;
+  }
+
+  tbody tr:hover {
+    background: rgba(240, 240, 240, 0.45);
+  }
+
+  tbody tr:nth-child(even) {
+    background: rgba(240, 240, 240, 0.35);
+
+    &:hover {
+      background: rgba(240, 240, 240, 0.6);
+    }
+  }
+
+  td.primary {
+    font-weight: 600;
+  }
+}
+
+.muted-text {
+  color: var(--text-3);
+}
+
+/* ── 徽标 ── */
+.badge {
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--r-chip);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 实底徽标（状态列）：已读=主色 / 未读=警示色（同 React Badge solid i/w） */
+.badge.solid {
+  height: 18px;
+  padding: 0 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-on-primary);
+  font-weight: 500;
+}
+
+.badge-solid-i {
+  background: var(--primary);
+}
+
+.badge-solid-w {
+  background: var(--warning);
+}
+
+/* ── 行内动作 ── */
+.row-actions {
+  display: flex;
+  gap: 2px;
+}
+
+/* ── 骨架屏（React SkeletonRows rows={4}） ── */
+.skeleton {
+  height: 28px;
+  border-radius: var(--r-ctrl);
+  background: rgba(240, 240, 240, 0.5);
+  margin-bottom: 8px;
+}
+
+/* ── 状态块 ── */
+.center-block {
+  padding: 48px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 40px;
+  line-height: 1;
+  color: var(--text-4);
+}
+
+.empty-title {
+  font-size: var(--fs-base);
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.danger-text {
+  color: var(--danger);
+}
+
+/* ── 分页条 ── */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 0 2px;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+/* ── 弹窗 ── */
+/* 详情（React DescList：宽屏两列键值） */
+.desc {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.desc .row {
+  display: flex;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--divider);
+  font-size: var(--fs-md);
+}
+
+.desc .k {
+  width: 120px;
+  flex-shrink: 0;
+  color: var(--text-2);
+}
+
+.desc .v {
+  flex: 1;
+  word-break: break-all;
+}
+
+.confirm-msg {
+  font-size: var(--fs-base);
+  line-height: 1.6;
+}
+
+@media (max-width: 1100px) {
+  .desc {
+    grid-template-columns: 1fr;
+  }
+}
