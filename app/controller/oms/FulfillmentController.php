@@ -172,7 +172,7 @@ class FulfillmentController extends BaseController
             ->select('oms_fulfillment_item.*', 'product.name as product_name', 'product.code as product_code')
             ->orderBy('oms_fulfillment_item.id')
             ->get()
-            ->map(fn ($row) => $this->encodeIds($row->toArray(), ['id', 'product_id']));
+            ->map(fn ($row) => $this->encodeIds($row->toArray(), ['id', 'product_id', 'order_item_id']));
         $data['items'] = $items->all();
 
         return $this->success($data);

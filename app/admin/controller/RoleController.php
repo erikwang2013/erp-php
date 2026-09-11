@@ -140,6 +140,15 @@ class RoleController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // 先归一权限再落库：含无效项直接 422，不留「角色已建、权限未同步」的半成品
+        $permissionIds = null;
+        if ($request->has('permission_ids')) {
+            $permissionIds = $this->normalizePermissionIds($request->input('permission_ids', []));
+            if ($permissionIds === null) {
+                return $this->fail('permission_ids 含无效ID', 422);
+            }
+        }
+
         $role = new AdminRole();
         $role->id = $this->generateId();
         $role->name = $request->input('name');
@@ -148,9 +157,9 @@ class RoleController extends BaseController
         $role->status = (int) $request->input('status', 1);
         $role->save();
 
-        // 同步权限
-        if ($request->has('permission_ids')) {
-            $role->permissions()->sync($this->normalizePermissionIds($request->input('permission_ids', [])));
+        // 同步权限（$permissionIds 为 null = 未提交该字段，保持关联不动）
+        if ($permissionIds !== null) {
+            $role->permissions()->sync($permissionIds);
         }
 
         return $this->success($this->encodeIds($role->toArray()), '创建成功');
@@ -189,32 +198,51 @@ class RoleController extends BaseController
             return $this->fail('角色不存在', 404);
         }
 
+        // 先归一权限再改字段：含无效项直接 422，不留「字段已改、权限未同步」的半成品
+        $permissionIds = null;
+        if ($request->has('permission_ids')) {
+            $permissionIds = $this->normalizePermissionIds($request->input('permission_ids', []));
+            if ($permissionIds === null) {
+                return $this->fail('permission_ids 含无效ID', 422);
+            }
+        }
+
         $role->name = $request->input('name', $role->name);
         $role->description = $request->input('description', $role->description);
         $role->status = (int) $request->input('status', $role->status);
         $role->save();
 
-        if ($request->has('permission_ids')) {
-            $role->permissions()->sync($this->normalizePermissionIds($request->input('permission_ids', [])));
+        // 同步权限（$permissionIds 为 null = 未提交该字段，保持关联不动）
+        if ($permissionIds !== null) {
+            $role->permissions()->sync($permissionIds);
         }
 
         return $this->success($this->encodeIds($role->toArray()), '更新成功');
     }
 
     /**
-     * permission_ids 归一为原始 snowflake id 数组。
-     * 兼容两种客户端形态：数字（原始 id，含数字串）直通；
-     * 字符串（API 下发的 hashid）逐项解码，解码失败退化原值防误伤。
+     * permission_ids 归一为原始 snowflake id 数组；含无效项返回 null（调用方 422）。
+     * 判定顺序与 BaseController::decodeFlexibleId 一致（hashid 优先、数字兜底）：
+     * 传输层契约是 hashid 字符串数组（三端均按 string 集合下发），而 hashid 字母表含 0-9，
+     * 纯数字 hashid 真实存在（id=9 → '69'），is_numeric 先行会把它误读成 id=69 授错权限。
+     * 关联表无 FK 约束，放行垃圾值只会静默写入孤儿行 —— 故拒绝而非退化。
      */
-    private function normalizePermissionIds($ids): array
+    private function normalizePermissionIds($ids): ?array
     {
-        return array_map(function ($v) {
-            if (is_numeric($v)) {
-                return (int) $v;
+        $normalized = [];
+        foreach ((array) $ids as $v) {
+            // 只收 int/string 两种合法形态：PHP 里 (int)[] === 1，数组元素会凭空变成权限 id=1
+            if (!is_string($v) && !is_int($v)) {
+                return null;
             }
+            $decoded = $this->decodeFlexibleId((string) $v);
+            if ($decoded === null) {
+                return null;
+            }
+            $normalized[] = $decoded;
+        }
 
-            return $this->decodeIdSafe((string) $v) ?? (int) $v;
-        }, (array) $ids);
+        return $normalized;
     }
 
     /**

@@ -64,7 +64,7 @@ class RmaController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'order_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -98,7 +98,7 @@ class RmaController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('created'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'order_id']), $this->trans('created'));
     }
 
     /**
@@ -131,7 +131,7 @@ class RmaController extends BaseController
             return $this->fail($this->trans('not_found'), 404);
         }
 
-        $data = $this->encodeIds($item->toArray());
+        $data = $this->encodeIds($item->toArray(), ['id', 'order_id']);
         // 嵌套明细：行级 id/product_id hashid + 商品名/编码 join（product 缺失 null 兜底不丢行）
         $items = OmsRmaItem::query()
             ->leftJoin('product', 'product.id', '=', 'oms_rma_item.product_id')
@@ -139,7 +139,7 @@ class RmaController extends BaseController
             ->select('oms_rma_item.*', 'product.name as product_name', 'product.code as product_code')
             ->orderBy('oms_rma_item.id')
             ->get()
-            ->map(fn ($row) => $this->encodeIds($row->toArray(), ['id', 'product_id']));
+            ->map(fn ($row) => $this->encodeIds($row->toArray(), ['id', 'product_id', 'order_item_id']));
         $data['items'] = $items->all();
 
         return $this->success($data);
@@ -178,7 +178,7 @@ class RmaController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('updated'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'order_id']), $this->trans('updated'));
     }
 
     /**
@@ -267,7 +267,7 @@ class RmaController extends BaseController
         }
         $rma->save();
 
-        return $this->success($this->encodeIds($rma->toArray()), $approved ? '已批准' : '已拒绝');
+        return $this->success($this->encodeIds($rma->toArray(), ['id', 'order_id']), $approved ? '已批准' : '已拒绝');
     }
 
     /**
@@ -308,7 +308,7 @@ class RmaController extends BaseController
         $rma->received_at = date('Y-m-d H:i:s');
         $rma->save();
 
-        return $this->success($this->encodeIds($rma->toArray()), '收货确认成功');
+        return $this->success($this->encodeIds($rma->toArray(), ['id', 'order_id']), '收货确认成功');
     }
 
     /**
@@ -348,6 +348,6 @@ class RmaController extends BaseController
         $rma->status = 4;
         $rma->save();
 
-        return $this->success($this->encodeIds($rma->toArray()), '退款完成');
+        return $this->success($this->encodeIds($rma->toArray(), ['id', 'order_id']), '退款完成');
     }
 }

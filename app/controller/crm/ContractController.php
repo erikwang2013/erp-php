@@ -65,7 +65,7 @@ class ContractController extends BaseController
             'eqFilters' => ['status', 'customer_id'],
             'with' => ['items'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'owner_user_id']), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'owner_user_id', 'quotation_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -107,7 +107,7 @@ class ContractController extends BaseController
             $this->crm()->replaceItems(CrmContractItem::class, 'contract_id', $item->id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id']), '创建成功');
     }
 
     /**
@@ -137,7 +137,7 @@ class ContractController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id']));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id']));
     }
 
     /**
@@ -180,7 +180,7 @@ class ContractController extends BaseController
             $this->crm()->replaceItems(CrmContractItem::class, 'contract_id', $id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'quotation_id']), '更新成功');
     }
 
     /**
@@ -257,7 +257,7 @@ class ContractController extends BaseController
             return $this->fail('记录不存在', 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '状态更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'quotation_id']), '状态更新成功');
     }
 
     /**

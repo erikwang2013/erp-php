@@ -264,6 +264,55 @@ class FieldContractRegressionTest extends TestCase
         }
     }
 
+    /* ==================== Role permission_ids 解码顺序契约 ==================== */
+
+    /**
+     * permission_ids 判定顺序：hashid 优先、数字兜底（同 BaseController::decodeFlexibleId）。
+     * hashid 字母表含 0-9，纯数字 hashid 真实存在（当前 salt 下 id=9 → '69'）；
+     * is_numeric 先行会把它读成 id=69 → 授错权限。垃圾串必须 422，不得退化成 (int)'abc'=0
+     * 静默写入无 FK 约束的 erp_admin_role_permission。
+     */
+    public function testRoleStoreDecodesNumericHashidAsHashidAndRejectsGarbage(): void
+    {
+        // 靶值随 salt 变化，运行期取样，绝不写死
+        $numericHashid = $this->encodeId(9);
+        if (!is_numeric($numericHashid)) {
+            $this->markTestSkipped("当前 HASHIDS_SALT 下 id=9 的 hashid 非纯数字串（{$numericHashid}），顺序陷阱无靶可打");
+        }
+
+        $suffix = (string) mt_rand(100000, 999999);
+        $roleId = null;
+        try {
+            $resp = (new RoleController())->store(new FakeRequest([
+                'name' => '批1角色' . $suffix,
+                'slug' => 'batch1.role.' . $suffix,
+                'permission_ids' => [$numericHashid],
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $roleId = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                [9],
+                array_map('intval', Capsule::connection()->table('admin_role_permission')
+                    ->where('role_id', $roleId)->pluck('permission_id')->all()),
+                "'{$numericHashid}' 必须按 hashid 解码为 9，而非按数字直读成 " . $numericHashid
+            );
+
+            // 垃圾串：422 拒绝（旧码 (int)'abc'=0 → 静默孤儿行）
+            $bad = (new RoleController())->store(new FakeRequest([
+                'name' => '批1角色bad' . $suffix,
+                'slug' => 'batch1.role.bad.' . $suffix,
+                'permission_ids' => ['abc'],
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 hashid 必须 422');
+        } finally {
+            if ($roleId) {
+                Capsule::connection()->table('admin_role_permission')->where('role_id', $roleId)->delete();
+                AdminRole::where('id', $roleId)->delete();
+            }
+        }
+    }
+
     /* ======================== consolidate 入参契约 ======================== */
 
     public function testConsolidateRejectsEmptyAndNonArray(): void

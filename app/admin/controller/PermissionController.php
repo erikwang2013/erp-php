@@ -33,7 +33,7 @@ class PermissionController extends BaseController
     {
         // P3 瘦身：树构建仅需列子集（buildTree 递归只读 id/parent_id，
         // 叶子节点展示 name/slug/type/icon/path/sort），不再下发时间戳。
-        $permissions = AdminPermission::select(['id', 'parent_id', 'name', 'slug', 'type', 'icon', 'path', 'sort'])
+        $permissions = AdminPermission::query()->select(['id', 'parent_id', 'name', 'slug', 'type', 'icon', 'path', 'sort'])
             ->orderBy('sort', 'asc')
             ->orderBy('id', 'asc')
             ->get()
@@ -123,7 +123,7 @@ class PermissionController extends BaseController
             }
             // 解得出数字不等于节点存在（别的资源的 hashid 也能解出正整数）：
             // 挂到不存在的父级上，这节点在 buildTree 里永远匹配不上，管理端看不见也删不掉
-            if (!AdminPermission::where('id', $parentId)->exists()) {
+            if (!AdminPermission::query()->where('id', $parentId)->exists()) {
                 return $this->fail('父级权限不存在', 422);
             }
         }
@@ -190,7 +190,7 @@ class PermissionController extends BaseController
                 if ($parentId === null || $parentId < 1) {
                     return $this->fail('父级权限无效', 422);
                 }
-                if (!AdminPermission::where('id', $parentId)->exists()) {
+                if (!AdminPermission::query()->where('id', $parentId)->exists()) {
                     return $this->fail('父级权限不存在', 422);
                 }
                 if ($parentId === $id) {
@@ -265,7 +265,7 @@ class PermissionController extends BaseController
             if ($nodeId === $rootId) {
                 return true;
             }
-            $nodeId = (int) (AdminPermission::where('id', $nodeId)->value('parent_id') ?? 0);
+            $nodeId = (int) (AdminPermission::query()->where('id', $nodeId)->value('parent_id') ?? 0);
         }
 
         return false;
