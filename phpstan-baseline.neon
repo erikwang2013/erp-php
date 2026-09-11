@@ -446,7 +446,7 @@ parameters:
 		-
 			message: '#^Call to an undefined static method app\\model\\AdminRole\:\:withCount\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 1
+			count: 2
 			path: app/admin/controller/RoleController.php
 
 		-
@@ -1640,7 +1640,7 @@ parameters:
 		-
 			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
 			identifier: method.nonObject
-			count: 1
+			count: 2
 			path: app/controller/oms/FulfillmentController.php
 
 		-
@@ -1682,7 +1682,7 @@ parameters:
 		-
 			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
 			identifier: method.nonObject
-			count: 1
+			count: 2
 			path: app/controller/oms/RmaController.php
 
 		-
@@ -2564,7 +2564,7 @@ parameters:
 		-
 			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
 			identifier: method.nonObject
-			count: 1
+			count: 2
 			path: app/controller/sales/OrderController.php
 
 		-
@@ -3074,7 +3074,7 @@ parameters:
 		-
 			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
 			identifier: method.nonObject
-			count: 1
+			count: 2
 			path: app/controller/workflow/ApprovalController.php
 
 		-
@@ -5102,31 +5102,31 @@ parameters:
 		-
 			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/service/product/ProductService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$price\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/service/product/ProductService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$price_type\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/service/product/ProductService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$product_id\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/service/product/ProductService.php
 
 		-
 			message: '#^Access to an undefined property app\\model\\ProductPrice\:\:\$sku_id\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/service/product/ProductService.php
 
 		-
@@ -8758,7 +8758,7 @@ parameters:
 		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
-			count: 3
+			count: 4
 			path: app/service/sales/CreditControlService.php
 
 		-
@@ -10743,3 +10743,813 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: app/service/hr/TrainingService.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/admin/controller/DashboardController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/admin/controller/DocsController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/admin/controller/MetricsController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/admin/controller/UserController.php
+
+		-
+			message: '#^Call to an undefined static method support\\Redis\:\:setex\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/api/v1/controller/CaptchaController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/bi/DashboardController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/bi/DatasetController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/bi/WidgetController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\AdminUser\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/crm/FollowRecordController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/crm/FollowRecordController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\CrmFunnelStage\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/crm/OpportunityController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/crm/OpportunityController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/crm/QuotationController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/crm/TicketController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/dms/DocumentController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/eam/EamInspectionController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/eam/EquipmentController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/eam/MaintenancePlanController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/eam/RepairOrderController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/eam/SparePartController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/ArApController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Supplier\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/ArApController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/finance/BankReconController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/finance/EInvoiceController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceExpense\:\:\$account_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/finance/ExpenseController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceExpense\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/finance/ExpenseController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceExpense\:\:\$apply_user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/finance/ExpenseController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceExpense\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/finance/ExpenseController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceExpense\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/finance/ExpenseController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceExpense\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/finance/ExpenseController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/finance/ExpenseController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\FinanceAccount\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/ExpenseController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\HrEmployee\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/ExpenseController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/finance/FinanceBillController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/finance/InvoiceController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Supplier\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/PaymentController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/finance/ReceiptController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/finance/ReceiptController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/finance/TaxInvoicePoolController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\FinanceVoucher\:\:\$voucher_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/finance/VoucherController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/hr/AttendanceController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/hr/DepartmentController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/hr/EmployeeController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/hr/PerformanceController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/hr/PositionController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/hr/RecruitController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/hr/SalaryController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryAlertRule\:\:\$enabled\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/inventory/AlertController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryAlertRule\:\:\$max_quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/inventory/AlertController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryAlertRule\:\:\$min_quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/inventory/AlertController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryAlertRule\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/inventory/AlertController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryAlertRule\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/inventory/AlertController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\InventoryAlertRule\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/inventory/AlertController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/inventory/InventoryController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/BomController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/CapacityController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/CostEntryController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/MaterialIssueController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/MrpController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/PieceWageController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/ProductionController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/RoutingController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/SubcontractController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/SubcontractIssueController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/SubcontractReceiveController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/WorkReportController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/manufacturing/WorkstationController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsFulfillment\:\:\$oms_order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/oms/FulfillmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsFulfillment\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/oms/FulfillmentController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\OmsFulfillment\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/oms/FulfillmentController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsOrder\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/oms/FulfillmentController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\OmsOrder\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/oms/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Location\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/product/LocationController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Location\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/product/LocationController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Location\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/product/LocationController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Location\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/product/LocationController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\Location\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/product/LocationController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Location\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/product/LocationController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Warehouse\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/product/LocationController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/product/ProductController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/project/ProjectController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\AdminUser\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/project/ProjectController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/project/ProjectCostController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Project\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/project/TaskController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\AdminUser\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/project/TimesheetController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Project\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/project/TimesheetController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$apply_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/purchase/ReceiveController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReturn\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReturn\:\:\$receive_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReturn\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReturn\:\:\$returned_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReturn\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReturn\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReturn\:\:\$total_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseReturn\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\PurchaseReceive\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Supplier\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Warehouse\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/purchase/ReturnController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/quality/FinalCheckController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/quality/IncomingCheckController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/quality/InspectionStandardController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/quality/NonconformityController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/quality/ProcessCheckController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/report/ReportController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/report/ReportScheduleController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\AdminUser\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/report/ReportScheduleController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\ReportTemplate\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/report/ReportScheduleController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/retail/CouponController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/retail/MemberController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/sales/DeliveryController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrder\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/sales/QuotationController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesReturn\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesReturn\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesReturn\:\:\$delivery_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesReturn\:\:\$remark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesReturn\:\:\$returned_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesReturn\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesReturn\:\:\$total_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesReturn\:\:\$warehouse_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Customer\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\SalesDelivery\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\Warehouse\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/sales/ReturnController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsFreightRate\:\:\$carrier_service_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/FreightRateController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsFreightRate\:\:\$valid_to\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/FreightRateController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsCarrierService\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/controller/tms/FreightRateController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$event_time\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/TrackingController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\TmsTrackingEvent\:\:\$shipment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/tms/TrackingController.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\TmsShipment\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/controller/tms/TrackingController.php
+
+		-
+			message: '#^Attribute class erikwang2013\\apidoc\\annotation\\Tag does not have the class target\.$#'
+			identifier: attribute.target
+			count: 1
+			path: app/controller/workflow/ApprovalController.php
+
+		-
+			message: '#^Access to an undefined property Webman\\Http\\Request\:\:\$cspNonce\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/middleware/Cors.php
+
+		-
+			message: '#^Call to an undefined static method app\\model\\ProductPrice\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/service/product/ProductService.php
