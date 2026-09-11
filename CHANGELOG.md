@@ -2,6 +2,51 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.14.0 (2026-09-12)
+
+五端并行批：Angular 规格属性可视化、HOS/Flutter 超长文件拆分、后端 hashid 解码修正、CI E2E 根因修复。
+
+### 平台与架构
+
+- **Angular 商品详情展示 SKU 规格属性**：`erp_product_sku.spec_attrs`（JSON 字符串）解析为只读胶囊，
+  渲染于商品详情弹层；引擎新增 `detailFetch?: boolean` opt-in（不配 = 零请求零回归），详情请求序号
+  与列表分离（共用会让"打开详情"把在飞的列表刷新判过期，骨架屏永久卡住）；
+  `scripts/check-ng-spec-attrs.mjs` 18 例自检（抽真身跑，非复制副本）
+- **Angular 结构 CSS 上提收官**：`shell.less`（347 行）整块上提并拆出新 `styles/shell.css`，
+  `anyComponentStyle` 超预算 warning 清零（v1.13.0 遗留的 406 B 就此消解）；`mask`/`modal`
+  弹窗骨架去重；**预算阈值未动**（4kB/8kB 原样），主包 423.6→418.0 kB
+- **Angular 翻译词典按域拆分**：`core/zh-en.ts`（1463 行）→ `core/zh-en/{index,part1..4}`，
+  1442 词条合并前后 deep-equal，导入路径 `'./zh-en'` 未变（目录 index 解析）；
+  `scripts/check-ng-i18n-dict.mjs` 守跨切片重名（重名会静默覆盖，TS1117 只拦同一字面量）
+- **HOS 超长页拆分**：`OrderListPage` 705→457、`ShipmentListPage` 642→398、`DashboardPage` 645→474，
+  抽出三个子组件（ArkTS 无 `part`，用 `@Link` 逐项绑定 + `onSubmit/onCancel` 回调）；17 个列表页补空态；
+  subtitle `String()` 三处 null 兜底；`check_hos_l10n.sh` 修复三元兄弟 key 漏收
+  （392 static refs / 158 dynamic keys / 605 双语 key 一致）
+- **Flutter 超长页拆分**：`dashboard_page` 992→223、`report_page` 847→56（`part` 拆分，对外导入路径不变）；
+  KPI 下拉刷新重滚（闸门改挂数据空而非 loading）、路由转场补 reduce-motion 分支、语义重复 key 收敛
+  （`hrName`→`commonName` 68 调用点）、oms chip 改按枚举 index 匹配
+- **后端 hashid 解码顺序统一**：`RoleController::normalizePermissionIds` 原为 `is_numeric` 先行，
+  纯数字 hashid 会被当原生 id 直通（枚举 1..200000 实测 279 个命中，如 `9→'69'`）→ **授错权限**；
+  统一为 `decodeFlexibleId` 同序（hashid 优先、数字兜底）；`store/update` 归一失败改 422 拒绝
+  （原为退化原值静默写脏值，致"角色已建、权限未同步"半成品）
+- **后端 FK 编码下发补齐**：CRM 合同 / OMS 退货 / OMS 履约三控制器补 `encodeIds` 字段
+- **CI E2E 根因修复**：`SCOUT_DRIVER` 的 sed 用字面量 `=elasticsearch`，而 `.env.example` 自 `93a20f0`
+  起默认值是 `opensearch` —— 字面量静默不匹配（exit 0 无输出）→ 驱动原样带入 → 登录 `save()` 触发
+  scout 同步 → 打向 CI 里不存在的 OpenSearch（127.0.0.1:6205）连接失败 500。改通配替换，订正两处与
+  事实不符的注释，清理三处 `CHANGE_ME_` 死步骤（`.env.example` 已无该占位值）
+
+### 其他
+
+- 质量门：Angular `ng build` exit 0 / WARNING 0；Flutter `analyze` 0 issue、`test` 与基线同数（+158 −9，
+  9 红均为登录/验证码既有红）；HOS `BUILD SUCCESSFUL` ERROR 0；phpunit 951 tests / 2689 assertions
+  0 failure；`phpstan` 175→170（本批只清回归 5 处，**配置未动**）；`doc-stats --check` 202/202 归零
+- 自检脚本矩阵：`check-ng-tree-semantics.mjs`、`check-ng-i18n-dict.mjs`、`check-ng-spec-attrs.mjs`、
+  `tools/check_hos_l10n.sh`
+- 遗留：PHPStan 历史基线 **170 处**（多为模型魔法属性的 `property.notFound`）仍在，CI php 作业继续红；
+  后端 i18n 链路 `I18n::getLocale()` 零调用方 + 1065 处裸中文未走 `trans()`（多语从未生效）；
+  `perm:{adminId}` 缓存全仓无失效路径（改权限最长 60s 生效）；HOS 九个表单页按钮行在 `DetailCard` 卡外
+  （九页一致的统一惯例，未擅自改动）
+
 ## v1.13.0 (2026-09-10)
 
 技术债清偿批：文档统计对齐、Angular 结构 CSS 去重、Flutter 令牌三端统一。
