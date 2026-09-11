@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace app\common;
 
-use support\Request;
+use Webman\Http\Request;
 
 class I18n
 {
@@ -22,16 +22,17 @@ class I18n
         if ($request) {
             $header = $request->header('Accept-Language', '');
             if ($header) {
-                $locale = strtolower(substr(trim(strtok($header, ',')), 0, 5));
-                $locale = str_replace('-', '_', $locale);
-                if (str_starts_with($locale, 'zh')) {
+                // 浏览器按偏好降序排列语言标签（q 值无需解析），取首个即可；
+                // 只保留主语言子标签：翻译目录除 zh_CN 外均为 2 字母（de/fr/ja…），
+                // 带地区的完整标签（de-DE => de_de）没有对应目录，会白白落回 zh_CN。
+                $tag = str_replace('_', '-', strtolower(trim((string) strtok($header, ','))));
+                $primary = explode('-', $tag)[0];
+                if ($primary === 'zh') {
                     return 'zh_CN';
                 }
-                if (str_starts_with($locale, 'en')) {
-                    return 'en';
+                if ($primary !== '') {
+                    return $primary;
                 }
-
-                return $locale;
             }
         }
 
@@ -43,7 +44,9 @@ class I18n
      */
     public static function trans(string $key, array $replace = [], ?string $locale = null): string
     {
-        $locale = $locale ?? config('translation.locale', 'zh_CN');
+        // 未显式指定时取当前请求的 Accept-Language；无请求上下文（CLI/队列/测试）时
+        // request() 返回 null，getLocale() 落回 translation.locale 配置，行为与改造前一致。
+        $locale = $locale ?? self::getLocale(request());
         $fallback = config('translation.fallback_locale', ['zh_CN', 'en']);
         $path = config('translation.path', base_path() . '/resource/translations');
 
