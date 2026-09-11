@@ -218,7 +218,7 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
     // ---- 3. 登录（自动完成点击验证码） ----
     // extra.targets 仅含 order+text（目标坐标属服务端秘密）；E2E 用测试口令跳过点击验证
     $E2E_CAPTCHA_CODE = getenv('E2E_CAPTCHA_CODE') ?: '';
-    $cap = httpRequest('POST', "{$base}/api/captcha/generate", ['difficulty' => 'easy']);
+    $cap = httpRequest('POST', "{$base}/api/v1/captcha/generate", ['difficulty' => 'easy']);
     $detail = '';
     $capKey = $E2E_CAPTCHA_CODE !== '' ? $E2E_CAPTCHA_CODE : ($cap['body']['data']['key'] ?? '');
     if (($E2E_CAPTCHA_CODE !== '' || (bizCode($cap) === 0 && isset($cap['body']['data']['key']))) && $capKey !== '') {
@@ -230,7 +230,7 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
         } else {
             $clicks = [['x' => 0, 'y' => 0], ['x' => 0, 'y' => 0]]; // 登录校验要求 clicks min:2
         }
-        $login = httpRequest('POST', "{$base}/api/auth/login", [
+        $login = httpRequest('POST', "{$base}/api/v1/auth/login", [
             'username' => $user, 'password' => $pass,
             'captcha_key' => $capKey, 'clicks' => $clicks,
         ]);
@@ -245,7 +245,7 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
     } else {
         $detail = sprintf('验证码生成失败 HTTP %d code=%d (%s)', $cap['status'], bizCode($cap), $cap['body']['message'] ?? '');
     }
-    $results[] = ['name' => '3. POST /api/auth/login', 'verdict' => $token !== null ? 'PASS' : 'FAIL', 'detail' => $detail];
+    $results[] = ['name' => '3. POST /api/v1/auth/login', 'verdict' => $token !== null ? 'PASS' : 'FAIL', 'detail' => $detail];
     $auth = fn (): array => $token ? ['Authorization' => 'Bearer ' . $token] : [];
 
     // ---- 4. 系统管理读操作 ----
@@ -316,17 +316,17 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
 
     // ---- 6. 刷新 token 并可继续使用 ----
     if ($token !== null && $refreshToken !== '') {
-        $resp = httpRequest('POST', "{$base}/api/auth/refresh", ['refresh_token' => $refreshToken]);
+        $resp = httpRequest('POST', "{$base}/api/v1/auth/refresh", ['refresh_token' => $refreshToken]);
         $code = bizCode($resp);
         $newToken = $resp['body']['data']['access_token'] ?? null;
         $probe = $code === 0 && is_string($newToken) && $newToken !== ''
             ? httpRequest('GET', "{$base}/admin/user?page=1&limit=1", [], ['Authorization' => 'Bearer ' . $newToken])
             : null;
         $ok = $code === 0 && $probe !== null && bizCode($probe) === 0;
-        $results[] = ['name' => '6. POST /api/auth/refresh', 'verdict' => $ok ? 'PASS' : 'FAIL',
+        $results[] = ['name' => '6. POST /api/v1/auth/refresh', 'verdict' => $ok ? 'PASS' : 'FAIL',
             'detail' => sprintf('HTTP %d, code=%d%s', $resp['status'], $code, $probe !== null ? ', 新token访问 code=' . bizCode($probe) : '')];
     } else {
-        $results[] = ['name' => '6. POST /api/auth/refresh', 'verdict' => 'SKIP', 'detail' => '前置登录失败'];
+        $results[] = ['name' => '6. POST /api/v1/auth/refresh', 'verdict' => 'SKIP', 'detail' => '前置登录失败'];
     }
 
     // ---- 7. 业务模块矩阵遍历 ----

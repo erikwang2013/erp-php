@@ -16,7 +16,7 @@
  *
  * 说明:
  * - 登录需点击验证码（captcha_key + clicks），脚本自动调用
- *   POST /api/captcha/generate 获取 targets 坐标并回填，无需人工预置；
+ *   POST /api/v1/captcha/generate 获取 targets 坐标并回填，无需人工预置；
  * - 服务端 .env 设置 E2E_CAPTCHA_CODE 时（CI 专用），脚本用该口令直通
  *   AuthController 的 E2E 旁路，跳过点击验证。
  * - 10 条链路相互独立执行，任一失败不中断后续；全部通过 exit 0，有失败 exit 1。
@@ -187,7 +187,7 @@ function runAll(array $config): int
     $ok = false;
     $detail = '';
     // 2a. 生成验证码
-    $cap = httpRequest('POST', "{$base}/api/captcha/generate", ['difficulty' => 'easy']);
+    $cap = httpRequest('POST', "{$base}/api/v1/captcha/generate", ['difficulty' => 'easy']);
     // extra.targets 仅含 order+text（目标坐标属服务端秘密）；E2E 用测试口令跳过点击验证
     $capKey = $E2E_CAPTCHA_CODE !== '' ? $E2E_CAPTCHA_CODE : ($cap['body']['data']['key'] ?? '');
     if (($E2E_CAPTCHA_CODE !== '' || (bizCode($cap) === 0 && isset($cap['body']['data']['key']))) && $capKey !== '') {
@@ -205,7 +205,7 @@ function runAll(array $config): int
             'captcha_key' => $capKey,
             'clicks' => $clicks,
         ];
-        $login = httpRequest('POST', "{$base}/api/auth/login", $loginBody);
+        $login = httpRequest('POST', "{$base}/api/v1/auth/login", $loginBody);
         $code = bizCode($login);
         if ($code === 0 && isset($login['body']['data']['access_token'])) {
             $shared['token'] = $login['body']['data']['access_token'];
@@ -352,7 +352,7 @@ function runAll(array $config): int
     $name = '10.auth/refresh 刷新token';
     $ok = false;
     if ($shared['token'] !== null && $shared['refresh_token'] !== '') {
-        $resp = httpRequest('POST', "{$base}/api/auth/refresh", ['refresh_token' => $shared['refresh_token']]);
+        $resp = httpRequest('POST', "{$base}/api/v1/auth/refresh", ['refresh_token' => $shared['refresh_token']]);
         $code = bizCode($resp);
         $newToken = $resp['body']['data']['access_token'] ?? null;
         if ($code === 0 && is_string($newToken) && $newToken !== '') {
@@ -394,7 +394,7 @@ function listChains(): void
 {
     $chains = [
         '1.  GET  /health                   健康检查返回 200 且 code=0 (db/redis ok)',
-        '2.  POST /api/auth/login           登录(自动完成点击验证码) 获取 access_token',
+        '2.  POST /api/v1/auth/login           登录(自动完成点击验证码) 获取 access_token',
         '3.  GET  /admin/user                带 token 访问受保护列表成功',
         '4.  GET  /admin/user                不带 token 被拒 (body.code 401/403)',
         '5.  POST /admin/user                创建资源成功并返回 id',
@@ -402,7 +402,7 @@ function listChains(): void
         '7.  PUT  /admin/user/{id}           更新资源成功',
         '8.  DELETE /admin/user/{id}         删除资源成功(需密码二次确认)',
         '9.  GET  /admin/dashboard           仪表盘返回业务数据 (stats)',
-        '10. POST /api/auth/refresh          刷新 token, 新 token 可访问受保护端点',
+        '10. POST /api/v1/auth/refresh          刷新 token, 新 token 可访问受保护端点',
     ];
     echo "===== Open ERP E2E 冒烟测试 — 10 条链路 =====\n";
     foreach ($chains as $c) {
