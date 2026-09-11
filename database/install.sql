@@ -4351,6 +4351,7 @@ CREATE TABLE IF NOT EXISTS `erp_dms_document_version` (
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000205, 0, 'BI看板', 'bi', 1, 'dashboard_customize', '/admin/bi', 17, NOW(), NOW()),
 (31000000000000206, 0, '设备管理(EAM)', 'eam', 1, 'build', '/admin/eam', 18, NOW(), NOW()),
+(31000000000000207, 0, '文档管理(DMS)', 'dms', 1, 'folder', '/admin/dms', 19, NOW(), NOW());
 -- 子域目录 (type=1) — 挂载域菜单 id=31000000000000207 之下，叶子重挂各目录
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000700, 31000000000000205, 'BI看板', 'bi.dashboard', 1, '', '', 1, NOW(), NOW()),
@@ -4361,7 +4362,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000726, 31000000000000206, '维修工单', 'eam.repair', 1, '', '', 3, NOW(), NOW());
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000730, 31000000000000207, '文档', 'dms.document', 1, '', '', 1, NOW(), NOW());
-(31000000000000207, 0, '文档管理(DMS)', 'dms', 1, 'folder', '/admin/dms', 19, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — BI 看板
