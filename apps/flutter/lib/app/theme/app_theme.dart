@@ -4,7 +4,9 @@
 import 'package:flutter/material.dart';
 import 'app_tokens.dart';
 
-ThemeData _build(Brightness brightness) {
+/// [controlH] 为控件最小高度：宽屏走 AppMetrics.controlH(36)，
+/// 窄屏(<768)走 AppMetrics.controlHMobile(44)——可点区下限，见 main.dart builder。
+ThemeData _build(Brightness brightness, {double controlH = AppMetrics.controlH}) {
   final c = brightness == Brightness.light ? AppColors.light : AppColors.dark;
   final scheme = ColorScheme.fromSeed(
     seedColor: const Color(0xFF1677FF),
@@ -22,7 +24,7 @@ ThemeData _build(Brightness brightness) {
 
   // 主按钮:primary 底白字,禁用 primaryDisabled 白字,按压 primaryPressed(§5.6)
   final primaryBtn = ButtonStyle(
-    minimumSize: const WidgetStatePropertyAll(Size(64, AppMetrics.controlH)),
+    minimumSize: WidgetStatePropertyAll(Size(64, controlH)),
     textStyle: const WidgetStatePropertyAll(
         TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
     foregroundColor: WidgetStatePropertyAll(c.textOnPrimary),
@@ -37,7 +39,7 @@ ThemeData _build(Brightness brightness) {
 
   // 次按钮:白底 border 描边,按压 surface_alt(§5.6)
   final secondaryBtn = ButtonStyle(
-    minimumSize: const WidgetStatePropertyAll(Size(64, AppMetrics.controlH)),
+    minimumSize: WidgetStatePropertyAll(Size(64, controlH)),
     textStyle: const WidgetStatePropertyAll(
         TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
     foregroundColor: WidgetStateProperty.resolveWith(
@@ -169,4 +171,12 @@ ThemeData _build(Brightness brightness) {
 class AppTheme {
   static final ThemeData light = _build(Brightness.light);
   static final ThemeData dark = _build(Brightness.dark);
+
+  /// 窄屏(<768)变体：控件高 44（可点区下限），其余与 [light]/[dark] 同规则。
+  static final ThemeData lightNarrow = _build(Brightness.light, controlH: AppMetrics.controlHMobile);
+  static final ThemeData darkNarrow = _build(Brightness.dark, controlH: AppMetrics.controlHMobile);
+
+  /// 按当前亮度取窄屏变体（供 main.dart 的 <768 分支使用）。
+  static ThemeData narrowOf(Brightness brightness) =>
+      brightness == Brightness.light ? lightNarrow : darkNarrow;
 }

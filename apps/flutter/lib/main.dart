@@ -304,6 +304,24 @@ final List<GetPage> _menuRoutes = () {
   return routes;
 }();
 
+/// 全局响应式外壳：窄屏(<768，与 DataTableWrapper 同一断点)套用控件高 44 的主题变体，
+/// 宽屏原样返回（主题实例不变，桌面端按钮尺寸保持 36）。
+Widget _responsiveShell(BuildContext context, Widget? child) {
+  final shell = ResponsiveBreakpoints.builder(
+    child: child!,
+    breakpoints: [
+      const Breakpoint(start: 0, end: 767, name: PHONE),
+      const Breakpoint(start: 768, end: 1199, name: TABLET),
+      const Breakpoint(start: 1200, end: 4500, name: DESKTOP),
+    ],
+  );
+  if (MediaQuery.sizeOf(context).width >= 768) return shell;
+  return Theme(
+    data: AppTheme.narrowOf(Theme.of(context).brightness),
+    child: shell,
+  );
+}
+
 class AdminApp extends StatelessWidget {
   const AdminApp({super.key});
 
@@ -329,14 +347,10 @@ class AdminApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
           AppLocalizations.delegate,
         ],
-        builder: (context, child) => ResponsiveBreakpoints.builder(
-          child: child!,
-          breakpoints: [
-            const Breakpoint(start: 0, end: 767, name: PHONE),
-            const Breakpoint(start: 768, end: 1199, name: TABLET),
-            const Breakpoint(start: 1200, end: 4500, name: DESKTOP),
-          ],
-        ),
+        // 窄屏(<768)换用控件高 44 的主题变体（可点区下限）：在此处换，
+        // 是因为 builder 位于 MediaQuery 之下、Navigator 之上——弹窗/新路由的按钮同样生效；
+        // 宽屏返回原 child，主题仍是 AppTheme.light/dark 同实例，尺寸不变。
+        builder: (context, child) => _responsiveShell(context, child),
         getPages: [
           fadeUpPage('/login', () => const LoginPage()),
           fadeUpPage('/profile', () => const ProfilePage()),
