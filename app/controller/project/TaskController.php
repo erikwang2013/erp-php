@@ -120,7 +120,7 @@ class TaskController extends BaseController
         $item->id = $this->generateId();
         // project_id 兼容 hashid/raw 双态：先解码合并回请求，fill 落库即为 int
         $projectIdHash = $request->input('project_id');
-        $request->merge(['project_id' => $this->decodeIdSafe((string) $projectIdHash) ?? (int) $projectIdHash]);
+        $request->setGet('project_id', $this->decodeIdSafe((string) $projectIdHash) ?? (int) $projectIdHash);
 
         $this->fillModelFromRequest($item, $request);
         $item->save();
@@ -194,7 +194,7 @@ class TaskController extends BaseController
         }
 
         if ($request->input('project_id', '') !== '') {
-            $request->merge(['project_id' => $this->decodeIdSafe((string) $request->input('project_id')) ?? (int) $request->input('project_id')]);
+            $request->setGet('project_id', $this->decodeIdSafe((string) $request->input('project_id')) ?? (int) $request->input('project_id'));
         }
 
         $this->fillModelFromRequest($item, $request);

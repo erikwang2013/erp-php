@@ -72,7 +72,7 @@ class OpenController
             'id' => 'integer',
         ]);
         if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
+            return json(['code' => 422, 'message' => $validator->errors()->first(), 'data' => []])->withStatus(422);
         }
         $app = $request->openapiApp;
         if ((string) $app->id !== $id) {

@@ -228,7 +228,7 @@ class QuotationController extends BaseController
     {
         $customerId = $request->input('customer_id', '');
         if ($customerId !== null && $customerId !== '') {
-            $request->merge(['customer_id' => $this->decodeIdSafe((string) $customerId) ?? (int) $customerId]);
+            $request->setGet('customer_id', $this->decodeIdSafe((string) $customerId) ?? (int) $customerId);
         }
     }
 }

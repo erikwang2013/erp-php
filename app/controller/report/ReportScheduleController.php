@@ -275,7 +275,7 @@ class ReportScheduleController extends BaseController
     {
         $templateId = $request->input('template_id', '');
         if ($templateId !== null && $templateId !== '') {
-            $request->merge(['template_id' => $this->decodeIdSafe((string) $templateId) ?? (int) $templateId]);
+            $request->setGet('template_id', $this->decodeIdSafe((string) $templateId) ?? (int) $templateId);
         }
         $recipients = $request->input('recipients', '');
         if ($recipients !== null && $recipients !== '') {
@@ -283,7 +283,7 @@ class ReportScheduleController extends BaseController
                 fn ($t) => (string) ($this->decodeIdSafe(trim((string) $t)) ?? (int) trim((string) $t)),
                 explode(',', (string) $recipients)
             );
-            $request->merge(['recipients' => implode(',', $tokens)]);
+            $request->setGet('recipients', implode(',', $tokens));
         }
     }
 

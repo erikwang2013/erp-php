@@ -171,7 +171,7 @@ class TimesheetController extends BaseController
         foreach (['project_id', 'task_id', 'user_id'] as $key) {
             $value = $request->input($key, '');
             if ($value !== null && $value !== '') {
-                $request->merge([$key => $this->decodeIdSafe((string) $value) ?? (int) $value]);
+                $request->setGet($key, $this->decodeIdSafe((string) $value) ?? (int) $value);
             }
         }
     }

@@ -102,7 +102,7 @@ class FollowRecordController extends BaseController
         // customer_id/follow_user_id 均 NOT NULL 无默认：hashid/原生数字双模解码，垃圾串 422 拒绝
         foreach (['customer_id' => '客户ID', 'follow_user_id' => '跟进人ID'] as $field => $label) {
             $raw = $data[$field] ?? '';
-            if ($field === 'follow_user_id' && ($raw === '' || $raw === null)) {
+            if ($field === 'follow_user_id' && $raw === '') {
                 // 客户端未指定跟进人时默认当前登录管理员
                 $data[$field] = (int) ($request->adminId ?? 0);
                 continue;

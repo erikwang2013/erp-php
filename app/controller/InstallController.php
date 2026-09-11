@@ -103,7 +103,7 @@ class InstallController
             'username' => 'string',
         ]);
         if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
+            return json(['code' => 1, 'message' => $validator->errors()->first()]);
         }
         if ($this->isInstalled()) {
             return json(['code' => 1, 'message' => '系统已安装，禁止调用']);
@@ -316,7 +316,7 @@ class InstallController
         ];
         foreach ($labels as [$k, $label]) {
             $v = $old[$k] ?? '';
-            if ($v === '' || $v === null) {
+            if ($v === '') {
                 continue;
             }
             $summary[] = [$label, (string) $v];

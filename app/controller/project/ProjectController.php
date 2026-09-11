@@ -122,7 +122,7 @@ class ProjectController extends BaseController
         $item = new Project();
         $item->id = $this->generateId();
         // manager_user_id 接受 /admin/v1/user 列表下发的 hashid，先解码回 int 再 fill
-        $request->merge(['manager_user_id' => $this->decodeIdSafe((string) $request->input('manager_user_id')) ?? 0]);
+        $request->setGet('manager_user_id', $this->decodeIdSafe((string) $request->input('manager_user_id')) ?? 0);
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
@@ -190,7 +190,7 @@ class ProjectController extends BaseController
         }
 
         if ($request->input('manager_user_id', '') !== '') {
-            $request->merge(['manager_user_id' => $this->decodeIdSafe((string) $request->input('manager_user_id')) ?? 0]);
+            $request->setGet('manager_user_id', $this->decodeIdSafe((string) $request->input('manager_user_id')) ?? 0);
         }
 
         $this->fillModelFromRequest($item, $request);
