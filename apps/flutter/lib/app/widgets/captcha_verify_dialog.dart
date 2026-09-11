@@ -234,15 +234,19 @@ class _CaptchaVerifyDialogState extends State<CaptchaVerifyDialog> {
             else
               _buildSliderBody(l10n),
             const SizedBox(height: 4),
-            // 底行：click 计数+刷新；rotate/slider 作答读数+提交+刷新
+            // 底行：click 计数+刷新；rotate/slider 作答读数+提交+刷新。
+            // 数据未就绪（加载中/加载失败）时计数无值可显示，只留刷新入口
+            // （加载中禁用防重复请求；失败态中央另有重试按钮）。
             if (isClick)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    l10n.loginCaptchaClicked(_clicks.length, _data!.targets.length),
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
+                  if (_data != null)
+                    Text(
+                      l10n.loginCaptchaClicked(
+                          _clicks.length, _data!.targets.length),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
                   TextButton.icon(
                     icon: const Icon(Icons.refresh, size: 16),
                     label: Text(l10n.loginRefresh),
