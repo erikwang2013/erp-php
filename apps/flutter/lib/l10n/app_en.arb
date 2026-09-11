@@ -181,7 +181,6 @@
   "omsPriorityHigh": "Highest",
   "omsPriorityNormal": "Normal",
   "omsPriorityLow": "Lowest",
-  "hrName": "Name",
   "hrCode": "Code",
   "hrEmpName": "Employee Name",
   "hrEmpDepartment": "Department",
@@ -358,7 +357,6 @@
       }
     }
   },
-  "crmName": "Name",
   "crmCode": "Code",
   "crmPhone": "Phone",
   "crmEmail": "Email",
@@ -427,7 +425,6 @@
   "crmTicketResolve": "Resolve",
   "crmTicketResolveNote": "Resolution Notes",
   "crmTicketConfirmResolve": "Confirm Resolution",
-  "purchaseName": "Name",
   "purchaseCode": "Code",
   "purchaseRemark": "Notes",
   "purchaseDeleteConfirmMsg": "Are you sure you want to delete \"{name}\"?",
@@ -761,7 +758,6 @@
       }
     }
   },
-  "fieldName": "Name",
   "fieldCode": "Code",
   "fieldTitle": "Title",
   "fieldContent": "Content",

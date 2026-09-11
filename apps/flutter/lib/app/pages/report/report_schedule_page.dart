@@ -122,7 +122,7 @@ class _ReportSchedulePageState extends State<ReportSchedulePage> {
         options: _templateOptions.keys.toList(),
         optionLabels: _templateOptions,
       ),
-      FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
+      FormFieldConfig(name: 'name', label: l10n.commonName, required: true),
       FormFieldConfig(
         name: 'frequency',
         label: l10n.fieldFrequency,
@@ -165,13 +165,13 @@ class _ReportSchedulePageState extends State<ReportSchedulePage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.fieldName, l10n.fieldTemplate, l10n.fieldReceiver, l10n.fieldFrequency, l10n.commonAction];
+    return [l10n.commonName, l10n.fieldTemplate, l10n.fieldReceiver, l10n.fieldFrequency, l10n.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     return {
-      l10n.fieldName: r['name'] ?? '',
+      l10n.commonName: r['name'] ?? '',
       l10n.fieldTemplate: r['template_name'] ?? '',
       l10n.fieldReceiver: r['recipients_names'] ?? '',
       l10n.fieldFrequency: _freqLabel(int.tryParse('${r['frequency'] ?? ''}') ?? 0),

@@ -68,7 +68,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
   }
 
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.current.hrName, required: true),
+    FormFieldConfig(name: 'name', label: AppL10n.current.commonName, required: true),
     FormFieldConfig(name: 'code', label: AppL10n.current.hrCode),
   ];
 
@@ -93,13 +93,13 @@ class _DepartmentPageState extends State<DepartmentPage> {
   }
 
   List<String> _columns() => [
-    AppL10n.current.hrName,
+    AppL10n.current.commonName,
     AppL10n.current.hrCode,
     AppL10n.current.commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.hrName: r['name'] ?? '',
+    AppL10n.current.commonName: r['name'] ?? '',
     AppL10n.current.hrCode: r['code'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),

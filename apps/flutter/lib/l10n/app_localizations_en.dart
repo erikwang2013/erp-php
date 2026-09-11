@@ -391,9 +391,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get omsPriorityLow => 'Lowest';
 
   @override
-  String get hrName => 'Name';
-
-  @override
   String get hrCode => 'Code';
 
   @override
@@ -798,9 +795,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get crmName => 'Name';
-
-  @override
   String get crmCode => 'Code';
 
   @override
@@ -987,9 +981,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get crmTicketConfirmResolve => 'Confirm Resolution';
-
-  @override
-  String get purchaseName => 'Name';
 
   @override
   String get purchaseCode => 'Code';
@@ -1867,9 +1858,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String commonPageInfo(int page, int pages, int total) {
     return 'Page $page of $pages ($total records)';
   }
-
-  @override
-  String get fieldName => 'Name';
 
   @override
   String get fieldCode => 'Code';

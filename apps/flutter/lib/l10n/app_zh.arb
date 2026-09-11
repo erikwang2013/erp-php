@@ -173,7 +173,6 @@
   "omsPriorityNormal": "正常",
   "omsPriorityLow": "最低",
 
-  "hrName": "名称",
   "hrCode": "编码",
   "hrEmpName": "姓名",
   "hrEmpDepartment": "部门",
@@ -342,7 +341,6 @@
     }
   },
 
-  "crmName": "名称",
   "crmCode": "编码",
   "crmPhone": "电话",
   "crmEmail": "邮箱",
@@ -418,7 +416,6 @@
   "crmTicketResolveNote": "解决说明",
   "crmTicketConfirmResolve": "确认解决",
 
-  "purchaseName": "名称",
   "purchaseCode": "编码",
   "purchaseRemark": "备注",
   "purchaseDeleteConfirmMsg": "确定要删除「{name}」吗？",
@@ -753,7 +750,6 @@
     }
   },
 
-  "fieldName": "名称",
   "fieldCode": "编码",
   "fieldTitle": "标题",
   "fieldContent": "内容",

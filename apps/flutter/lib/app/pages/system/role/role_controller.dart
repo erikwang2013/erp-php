@@ -65,6 +65,8 @@ class RoleController extends GetxController {
       permLoadFailed.value = false;
       return;
     }
+    // 重入闸：拉取中再点(连点刷新/失败重试)不叠加请求，直接忽略。
+    if (isPermLoading.value) return;
     isPermLoading.value = true;
     permLoadFailed.value = false;
     try {

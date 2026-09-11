@@ -18,6 +18,8 @@ class FadeUpPageTransition extends CustomTransition {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
+    // 减少动态效果(无障碍):直接给原始子树,不做淡入/位移。
+    if (MediaQuery.disableAnimationsOf(context)) return child;
     final curved = curve == null
         ? animation
         : CurvedAnimation(

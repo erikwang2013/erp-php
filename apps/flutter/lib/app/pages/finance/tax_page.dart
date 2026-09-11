@@ -100,7 +100,7 @@ class _TaxPageState extends State<TaxPage> {
   List<FormFieldConfig> _formFields() {
     final l = AppL10n.of(context);
     return [
-      FormFieldConfig(name: 'name', label: l.fieldName, required: true),
+      FormFieldConfig(name: 'name', label: l.commonName, required: true),
       FormFieldConfig(name: 'rate', label: l.financeRate, type: FormFieldType.number),
       FormFieldConfig(
         name: 'type',
@@ -184,13 +184,13 @@ class _TaxPageState extends State<TaxPage> {
 
   List<String> _columns() {
     final l = AppL10n.of(context);
-    return [l.fieldName, l.fieldType, l.commonStatus, l.commonAction];
+    return [l.commonName, l.fieldType, l.commonStatus, l.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
     return {
-      l.fieldName: r['name'] ?? '',
+      l.commonName: r['name'] ?? '',
       l.fieldType: '${r['type'] ?? ''} / ${r['rate'] ?? 0}',
       l.commonStatus: _chip(r['enabled']),
       l.commonAction: Row(

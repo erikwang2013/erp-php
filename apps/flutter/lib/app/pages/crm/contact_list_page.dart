@@ -67,7 +67,7 @@ class _ContactListPageState extends State<ContactListPage> {
   }
 
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.current.crmName, required: true),
+    FormFieldConfig(name: 'name', label: AppL10n.current.commonName, required: true),
     FormFieldConfig(name: 'phone', label: AppL10n.current.crmPhone),
     FormFieldConfig(name: 'email', label: AppL10n.current.crmEmail),
   ];
@@ -90,10 +90,10 @@ class _ContactListPageState extends State<ContactListPage> {
     ],
   );
 
-  List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.crmPhone, AppL10n.current.crmEmail, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.commonName, AppL10n.current.crmPhone, AppL10n.current.crmEmail, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.crmName: r['name'] ?? '',
+    AppL10n.current.commonName: r['name'] ?? '',
     AppL10n.current.crmPhone: r['phone'] ?? '',
     AppL10n.current.crmEmail: r['email'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

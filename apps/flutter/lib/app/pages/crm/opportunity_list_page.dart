@@ -126,7 +126,7 @@ class _OpportunityListPageState extends State<OpportunityListPage> {
   // 与后端契约对齐（erp_crm_opportunity）：name/customer_id/stage_id NOT NULL；
   // 表无 code 列，金额列名为 estimated_amount（幻键 code/amount/stage 已移除）
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'name', label: AppL10n.current.crmName, required: true),
+    FormFieldConfig(name: 'name', label: AppL10n.current.commonName, required: true),
     FormFieldConfig(
       name: 'customer_id',
       label: AppL10n.current.fieldCustomer,
@@ -165,10 +165,10 @@ class _OpportunityListPageState extends State<OpportunityListPage> {
     rightAlignColumns: [2],
   );
 
-  List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.fieldCustomer, AppL10n.current.crmAmount, AppL10n.current.crmOpportunityStage, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.commonName, AppL10n.current.fieldCustomer, AppL10n.current.crmAmount, AppL10n.current.crmOpportunityStage, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.crmName: r['name'] ?? '',
+    AppL10n.current.commonName: r['name'] ?? '',
     AppL10n.current.fieldCustomer: r['customer_name'] ?? r['customer_id'] ?? '',
     AppL10n.current.crmAmount: r['estimated_amount'] ?? '',
     AppL10n.current.crmOpportunityStage: r['stage_name'] ?? r['stage_id'] ?? '',

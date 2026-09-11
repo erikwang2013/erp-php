@@ -157,11 +157,15 @@ class DataTableWrapper extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        AppL10n.of(context).commonTotalPages(total),
-                        style: TextStyle(fontSize: 13, color: c.textSecondary),
-                      ),
+                      // 单页时分页条不出计数，页头这枚就是唯一；多页时页脚已带
+                      // 「共 N 条」，页头再显示会同一屏出现两处（P4①）。
+                      if (tp <= 1) ...[
+                        const SizedBox(width: 12),
+                        Text(
+                          AppL10n.of(context).commonTotalPages(total),
+                          style: TextStyle(fontSize: 13, color: c.textSecondary),
+                        ),
+                      ],
                     ],
                   ),
                 ),

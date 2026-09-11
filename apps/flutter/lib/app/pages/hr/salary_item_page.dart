@@ -58,7 +58,7 @@ class _SalaryItemPageState extends State<SalaryItemPage> {
 
   List<FormFieldConfig> _formFields() => [
     FormFieldConfig(name: 'code', label: AppL10n.current.hrCode, required: true),
-    FormFieldConfig(name: 'name', label: AppL10n.current.hrName, required: true),
+    FormFieldConfig(name: 'name', label: AppL10n.current.commonName, required: true),
     FormFieldConfig(name: 'type', label: AppL10n.current.hrSalaryItemType),
     FormFieldConfig(name: 'is_taxable', label: AppL10n.current.hrSalaryItemTaxable),
     FormFieldConfig(name: 'default_amount', label: AppL10n.current.hrSalaryItemDefault),
@@ -88,7 +88,7 @@ class _SalaryItemPageState extends State<SalaryItemPage> {
 
   List<String> _columns() => [
     AppL10n.current.hrCode,
-    AppL10n.current.hrName,
+    AppL10n.current.commonName,
     AppL10n.current.hrSalaryItemTypeShort,
     AppL10n.current.hrSalaryItemTaxShort,
     AppL10n.current.hrSalaryItemDefault,
@@ -97,7 +97,7 @@ class _SalaryItemPageState extends State<SalaryItemPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.hrCode: r['code'] ?? '',
-    AppL10n.current.hrName: r['name'] ?? '',
+    AppL10n.current.commonName: r['name'] ?? '',
     AppL10n.current.hrSalaryItemTypeShort: _typeText(r['type']),
     AppL10n.current.hrSalaryItemTaxShort: '${r['is_taxable'] ?? ''}' == '1'
         ? AppL10n.current.hrYes : AppL10n.current.hrNo,

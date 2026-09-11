@@ -126,7 +126,7 @@ class RoleListPage extends GetView<RoleController> {
     final fields = <FormFieldConfig>[
       FormFieldConfig(
         name: 'name',
-        label: l10n.fieldName,
+        label: l10n.commonName,
         required: true,
         enabled: !isEdit, // 名称/slug:slug 后端不可改;名称编辑沿用旧交互(只读)
       ),
@@ -158,10 +158,15 @@ class RoleListPage extends GetView<RoleController> {
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(width: 4),
               // 页内刷新/失败重试：force 重拉（会话缓存命中时普通调用不触网）
-              InkWell(
-                onTap: () => ctrl.loadPermissions(force: true),
-                child: Icon(Icons.refresh,
-                    size: 16, color: Theme.of(context).colorScheme.outline),
+              // 拉取中禁用（树已有数据时页内无 loading 反馈，不禁会连点）
+              Obx(
+                () => InkWell(
+                  onTap: ctrl.isPermLoading.value
+                      ? null
+                      : () => ctrl.loadPermissions(force: true),
+                  child: Icon(Icons.refresh,
+                      size: 16, color: Theme.of(context).colorScheme.outline),
+                ),
               ),
             ],
           ),
@@ -184,7 +189,9 @@ class RoleListPage extends GetView<RoleController> {
                             color: Theme.of(context).colorScheme.error),
                       ),
                       TextButton.icon(
-                        onPressed: () => ctrl.loadPermissions(force: true),
+                        onPressed: ctrl.isPermLoading.value
+                            ? null
+                            : () => ctrl.loadPermissions(force: true),
                         icon: const Icon(Icons.refresh, size: 16),
                         label: Text(l10n.commonRetry),
                       ),
@@ -228,9 +235,10 @@ class RoleListPage extends GetView<RoleController> {
       ),
       onSubmit: (data) async {
         final status = int.tryParse(data['status'] ?? '') ?? 1;
+        // 编辑不回传 name：名称字段只读(后端 PUT 的 name 也非必填，
+        // 缺省保持原值)，_submit 收集的只读值回传属冗余。
         return isEdit
             ? ctrl.updateRole(role['id'],
-                name: data['name'] ?? '',
                 desc: data['description'] ?? '',
                 status: status,
                 permIds: permIds.toList())

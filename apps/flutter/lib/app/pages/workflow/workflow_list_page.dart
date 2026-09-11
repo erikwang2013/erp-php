@@ -67,7 +67,7 @@ class _WorkflowListPageState extends State<WorkflowListPage> {
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
-      FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
+      FormFieldConfig(name: 'name', label: l10n.commonName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
     ];
   }
@@ -116,13 +116,13 @@ class _WorkflowListPageState extends State<WorkflowListPage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.fieldName, l10n.fieldCode, l10n.commonAction];
+    return [l10n.commonName, l10n.fieldCode, l10n.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     return {
-      l10n.fieldName: r['name'] ?? '',
+      l10n.commonName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: Icon(Icons.send, size: 18, color: AppColors.of(context).primary), tooltip: l10n.workflowSubmit, onPressed: () => _submit(r)),

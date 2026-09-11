@@ -91,7 +91,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
-      FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
+      FormFieldConfig(name: 'name', label: l10n.commonName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
       FormFieldConfig(name: 'contact_person', label: l10n.fieldContact),
       FormFieldConfig(
@@ -123,14 +123,14 @@ class _CustomerListPageState extends State<CustomerListPage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.fieldName, l10n.fieldCode, l10n.fieldContact, l10n.fieldLevel, l10n.commonAction];
+    return [l10n.commonName, l10n.fieldCode, l10n.fieldContact, l10n.fieldLevel, l10n.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     final levelId = r['level_id'];
     return {
-      l10n.fieldName: r['name'] ?? '',
+      l10n.commonName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
       // 列表行无等级名称关联（后端未 enrich），等级列展示原生 level_id；0=无等级留空
       l10n.fieldContact: r['contact_person'] ?? '',

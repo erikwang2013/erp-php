@@ -388,9 +388,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get omsPriorityLow => '最低';
 
   @override
-  String get hrName => '名称';
-
-  @override
   String get hrCode => '编码';
 
   @override
@@ -793,9 +790,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get crmName => '名称';
-
-  @override
   String get crmCode => '编码';
 
   @override
@@ -979,9 +973,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get crmTicketConfirmResolve => '确认解决';
-
-  @override
-  String get purchaseName => '名称';
 
   @override
   String get purchaseCode => '编码';
@@ -1843,9 +1834,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String commonPageInfo(int page, int pages, int total) {
     return '第 $page 页 / 共 $pages 页 ($total 条)';
   }
-
-  @override
-  String get fieldName => '名称';
 
   @override
   String get fieldCode => '编码';

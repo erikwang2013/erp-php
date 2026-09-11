@@ -73,10 +73,10 @@ class _PoolPageState extends State<PoolPage> {
     primaryColumnIndex: 0,
   );
 
-  List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.crmCode, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.commonName, AppL10n.current.crmCode, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.crmName: r['name'] ?? '',
+    AppL10n.current.commonName: r['name'] ?? '',
     AppL10n.current.crmCode: r['code'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.person_add, size: 18), tooltip: AppL10n.current.crmPoolClaim, onPressed: () => _claim(r)),

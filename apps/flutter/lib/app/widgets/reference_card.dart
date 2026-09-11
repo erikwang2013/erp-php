@@ -132,7 +132,7 @@ class _ReferenceCardDialogState extends State<_ReferenceCardDialog> {
     switch (widget.resource) {
       case 'customer':
         return [
-          _fieldRow(l.fieldName, d['name']),
+          _fieldRow(l.commonName, d['name']),
           _fieldRow(l.fieldCode, d['code']),
           _fieldRow(l.fieldContact, d['contact_person']),
           _fieldRow(l.fieldPhone, d['phone']),
@@ -142,7 +142,7 @@ class _ReferenceCardDialogState extends State<_ReferenceCardDialog> {
         ];
       case 'supplier':
         return [
-          _fieldRow(l.fieldName, d['name']),
+          _fieldRow(l.commonName, d['name']),
           _fieldRow(l.fieldCode, d['code']),
           _fieldRow(l.fieldContact, d['contact_person']),
           _fieldRow(l.fieldPhone, d['phone']),
@@ -152,7 +152,7 @@ class _ReferenceCardDialogState extends State<_ReferenceCardDialog> {
         ];
       case 'warehouse':
         return [
-          _fieldRow(l.fieldName, d['name']),
+          _fieldRow(l.commonName, d['name']),
           _fieldRow(l.fieldCode, d['code']),
           _fieldRow(l.fieldManager, d['manager']),
           _fieldRow(l.fieldPhone, d['phone']),
@@ -161,7 +161,7 @@ class _ReferenceCardDialogState extends State<_ReferenceCardDialog> {
         ];
       case 'product':
         return [
-          _fieldRow(l.fieldName, d['name']),
+          _fieldRow(l.commonName, d['name']),
           _fieldRow(l.fieldCode, d['code']),
           _fieldRow(l.fieldBarcode, d['barcode']),
           _fieldRow(l.fieldSpec, d['spec']),

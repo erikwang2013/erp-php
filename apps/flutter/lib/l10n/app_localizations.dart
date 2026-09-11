@@ -824,12 +824,6 @@ abstract class AppLocalizations {
   /// **'最低'**
   String get omsPriorityLow;
 
-  /// No description provided for @hrName.
-  ///
-  /// In zh, this message translates to:
-  /// **'名称'**
-  String get hrName;
-
   /// No description provided for @hrCode.
   ///
   /// In zh, this message translates to:
@@ -1610,12 +1604,6 @@ abstract class AppLocalizations {
   /// **'确定要删除「{name}」吗？'**
   String manufacturingDeleteConfirmMsg(String name);
 
-  /// No description provided for @crmName.
-  ///
-  /// In zh, this message translates to:
-  /// **'名称'**
-  String get crmName;
-
   /// No description provided for @crmCode.
   ///
   /// In zh, this message translates to:
@@ -1981,12 +1969,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'确认解决'**
   String get crmTicketConfirmResolve;
-
-  /// No description provided for @purchaseName.
-  ///
-  /// In zh, this message translates to:
-  /// **'名称'**
-  String get purchaseName;
 
   /// No description provided for @purchaseCode.
   ///
@@ -3655,12 +3637,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'第 {page} 页 / 共 {pages} 页 ({total} 条)'**
   String commonPageInfo(int page, int pages, int total);
-
-  /// No description provided for @fieldName.
-  ///
-  /// In zh, this message translates to:
-  /// **'名称'**
-  String get fieldName;
 
   /// No description provided for @fieldCode.
   ///

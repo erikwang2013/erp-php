@@ -67,7 +67,7 @@ class _BrandListPageState extends State<BrandListPage> {
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
-      FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
+      FormFieldConfig(name: 'name', label: l10n.commonName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
       FormFieldConfig(name: 'description', label: l10n.fieldDescription, type: FormFieldType.multiline),
     ];
@@ -92,13 +92,13 @@ class _BrandListPageState extends State<BrandListPage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.fieldName, l10n.fieldCode, l10n.fieldDescription, l10n.commonAction];
+    return [l10n.commonName, l10n.fieldCode, l10n.fieldDescription, l10n.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     return {
-      l10n.fieldName: r['name'] ?? '',
+      l10n.commonName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
       l10n.fieldDescription: r['description'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

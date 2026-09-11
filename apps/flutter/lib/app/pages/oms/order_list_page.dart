@@ -365,8 +365,8 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     return {
       l.omsChannelOrderNo: r['channel_order_no'] ?? '',
       l.omsChannel: r['channel'] ?? '',
-      l.omsFulfillStatus: _chip(_fulfillmentText(r['fulfillment_status'])),
-      l.omsPaymentStatus: _chip(_paymentText(r['payment_status'])),
+      l.omsFulfillStatus: _fulfillChip(r['fulfillment_status']),
+      l.omsPaymentStatus: _payChip(r['payment_status']),
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -397,29 +397,32 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     };
   }
 
-  Widget _chip(String s) {
-    final l = AppL10n.of(context);
+  // §2.4：状态色按枚举 index 取(与 fulfillment_list_page 同法)，不再按本地化文案匹配——
+  // 文案随语言变化，匹配会漏色。
+  // 履约 0未分配=待办(warning)/1已分配·2拣货中·3已打包=进行中(primary)/4已发货·5已签收=终态(success)
+  Widget _fulfillChip(dynamic s) {
     final c = AppColors.of(context);
-    // §2.4：待支付/未分配=待办(warning)，拣货中/已打包/已分配/部分退款=进行中(primary)，
-    // 已发货/已签收/已支付=终态(success)，已退款=失败(danger)
-    var bg = c.primaryBg;
-    var fg = c.primaryPressed;
-    if (s == l.omsPayPending || s == l.omsFulUnassigned) {
-      bg = c.warningBg;
-      fg = c.warningText;
-    } else if (s == l.omsFulPicking ||
-        s == l.omsFulPacked ||
-        s == l.omsFulAssigned ||
-        s == l.omsPayPartialRefund) {
-      bg = c.primaryBg;
-      fg = c.primaryPressed;
-    } else if (s == l.omsFulShipped || s == l.omsFulSigned || s == l.omsPayPaid) {
-      bg = c.successBg;
-      fg = c.successText;
-    } else if (s == l.omsPayRefunded) {
-      bg = c.dangerBg;
-      fg = c.dangerText;
-    }
-    return StatusBadge(label: s, bg: bg, fg: fg);
+    final i = s is int ? s : int.tryParse('$s') ?? -1;
+    final (bg, fg) = switch (i) {
+      0 => (c.warningBg, c.warningText),
+      1 || 2 || 3 => (c.primaryBg, c.primaryPressed),
+      4 || 5 => (c.successBg, c.successText),
+      _ => (c.primaryBg, c.primaryPressed),
+    };
+    return StatusBadge(label: _fulfillmentText(s), bg: bg, fg: fg);
+  }
+
+  // 支付 0待支付=待办(warning)/1已支付=终态(success)/2部分退款=进行中(primary)/3已退款=失败(danger)
+  Widget _payChip(dynamic s) {
+    final c = AppColors.of(context);
+    final i = s is int ? s : int.tryParse('$s') ?? -1;
+    final (bg, fg) = switch (i) {
+      0 => (c.warningBg, c.warningText),
+      1 => (c.successBg, c.successText),
+      2 => (c.primaryBg, c.primaryPressed),
+      3 => (c.dangerBg, c.dangerText),
+      _ => (c.primaryBg, c.primaryPressed),
+    };
+    return StatusBadge(label: _paymentText(s), bg: bg, fg: fg);
   }
 }

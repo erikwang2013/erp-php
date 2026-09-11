@@ -180,7 +180,7 @@ class _ContractListPageState extends State<ContractListPage> {
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
-      FormFieldConfig(name: 'name', label: l10n.crmName, required: true),
+      FormFieldConfig(name: 'name', label: l10n.commonName, required: true),
       FormFieldConfig(
         name: 'customer_id',
         label: l10n.fieldCustomer,
@@ -210,10 +210,10 @@ class _ContractListPageState extends State<ContractListPage> {
     ],
   );
 
-  List<String> _columns() => [AppL10n.current.crmName, AppL10n.current.crmCode, AppL10n.current.commonStatus, AppL10n.current.commonAction];
+  List<String> _columns() => [AppL10n.current.commonName, AppL10n.current.crmCode, AppL10n.current.commonStatus, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.crmName: r['name'] ?? '',
+    AppL10n.current.commonName: r['name'] ?? '',
     AppL10n.current.crmCode: r['code'] ?? '',
     AppL10n.current.commonStatus: _statusChip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

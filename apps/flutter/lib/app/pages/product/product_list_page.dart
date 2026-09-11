@@ -95,7 +95,7 @@ class _ProductListPageState extends State<ProductListPage> {
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
-      FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
+      FormFieldConfig(name: 'name', label: l10n.commonName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
       FormFieldConfig(
         name: 'category',

@@ -67,7 +67,7 @@ class _CategoryListPageState extends State<CategoryListPage> {
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
-      FormFieldConfig(name: 'name', label: l10n.fieldName, required: true),
+      FormFieldConfig(name: 'name', label: l10n.commonName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
       FormFieldConfig(name: 'sort', label: l10n.fieldSort, type: FormFieldType.number),
     ];
@@ -92,13 +92,13 @@ class _CategoryListPageState extends State<CategoryListPage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.fieldName, l10n.fieldCode, l10n.fieldSort, l10n.commonAction];
+    return [l10n.commonName, l10n.fieldCode, l10n.fieldSort, l10n.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     return {
-      l10n.fieldName: r['name'] ?? '',
+      l10n.commonName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
       l10n.fieldSort: r['sort'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
