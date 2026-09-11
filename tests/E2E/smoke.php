@@ -234,7 +234,7 @@ function runAll(array $config): int
 
     // ---- 链路 3: 带 token 访问受保护列表 ----
     $name = '3.admin/user 列表(带token)';
-    $resp = httpRequest('GET', "{$base}/admin/user?page=1&limit=5", [], $authHeaders());
+    $resp = httpRequest('GET', "{$base}/admin/v1/user?page=1&limit=5", [], $authHeaders());
     $code = bizCode($resp);
     $ok = $shared['token'] !== null && $resp['status'] === 200 && $code === 0;
     if ($shared['token'] === null) {
@@ -247,7 +247,7 @@ function runAll(array $config): int
 
     // ---- 链路 4: 不带 token 访问受保护端点被拒 ----
     $name = '4.admin/user 拒绝未授权';
-    $resp = httpRequest('GET', "{$base}/admin/user");
+    $resp = httpRequest('GET', "{$base}/admin/v1/user");
     $code = bizCode($resp);
     $ok = $resp['status'] === 401 || $resp['status'] === 403 || $code === 401 || $code === 403;
     $detail = sprintf('HTTP %d, code=%d (%s)', $resp['status'], $code, $resp['body']['message'] ?? '');
@@ -262,7 +262,7 @@ function runAll(array $config): int
         'real_name' => 'E2E测试用户',
         'status' => 1,
     ];
-    $resp = httpRequest('POST', "{$base}/admin/user", $createBody, $authHeaders());
+    $resp = httpRequest('POST', "{$base}/admin/v1/user", $createBody, $authHeaders());
     $code = bizCode($resp);
     $ok = $shared['token'] !== null && $code === 0 && !empty($resp['body']['data']['id']);
     if ($ok) {
@@ -284,7 +284,7 @@ function runAll(array $config): int
     $name = '6.admin/user/{id} 读取';
     $ok = false;
     if ($shared['token'] !== null && $shared['created_id'] !== null) {
-        $resp = httpRequest('GET', "{$base}/admin/user/{$shared['created_id']}", [], $authHeaders());
+        $resp = httpRequest('GET', "{$base}/admin/v1/user/{$shared['created_id']}", [], $authHeaders());
         $code = bizCode($resp);
         $realName = $resp['body']['data']['real_name'] ?? null;
         $ok = $code === 0 && $realName === $createBody['real_name'];
@@ -300,7 +300,7 @@ function runAll(array $config): int
     if ($shared['token'] !== null && $shared['created_id'] !== null) {
         $resp = httpRequest(
             'PUT',
-            "{$base}/admin/user/{$shared['created_id']}",
+            "{$base}/admin/v1/user/{$shared['created_id']}",
             ['real_name' => 'E2E已更新'],
             $authHeaders()
         );
@@ -319,7 +319,7 @@ function runAll(array $config): int
     if ($shared['token'] !== null && $shared['created_id'] !== null) {
         $resp = httpRequest(
             'DELETE',
-            "{$base}/admin/user/{$shared['created_id']}",
+            "{$base}/admin/v1/user/{$shared['created_id']}",
             ['password' => $pass],
             $authHeaders()
         );
@@ -336,7 +336,7 @@ function runAll(array $config): int
 
     // ---- 链路 9: 仪表盘业务数据 ----
     $name = '9.admin/dashboard 仪表盘';
-    $resp = httpRequest('GET', "{$base}/admin/dashboard", [], $authHeaders());
+    $resp = httpRequest('GET', "{$base}/admin/v1/dashboard", [], $authHeaders());
     $code = bizCode($resp);
     $hasStats = isset($resp['body']['data']['stats']) && is_array($resp['body']['data']['stats']);
     $ok = $shared['token'] !== null && $code === 0 && $hasStats;
@@ -356,9 +356,9 @@ function runAll(array $config): int
         $code = bizCode($resp);
         $newToken = $resp['body']['data']['access_token'] ?? null;
         if ($code === 0 && is_string($newToken) && $newToken !== '') {
-            $probe = httpRequest('GET', "{$base}/admin/user?page=1&limit=1", [], ['Authorization' => 'Bearer ' . $newToken]);
+            $probe = httpRequest('GET', "{$base}/admin/v1/user?page=1&limit=1", [], ['Authorization' => 'Bearer ' . $newToken]);
             $ok = bizCode($probe) === 0;
-            $detail = sprintf('HTTP %d, code=0, 新token访问 /admin/user code=%d', $resp['status'], bizCode($probe));
+            $detail = sprintf('HTTP %d, code=0, 新token访问 /admin/v1/user code=%d', $resp['status'], bizCode($probe));
         } else {
             $detail = sprintf('HTTP %d, code=%d, message=%s', $resp['status'], $code, $resp['body']['message'] ?? '');
         }
@@ -395,13 +395,13 @@ function listChains(): void
     $chains = [
         '1.  GET  /health                   健康检查返回 200 且 code=0 (db/redis ok)',
         '2.  POST /api/v1/auth/login           登录(自动完成点击验证码) 获取 access_token',
-        '3.  GET  /admin/user                带 token 访问受保护列表成功',
-        '4.  GET  /admin/user                不带 token 被拒 (body.code 401/403)',
-        '5.  POST /admin/user                创建资源成功并返回 id',
-        '6.  GET  /admin/user/{id}           读取刚创建资源, 数据一致',
-        '7.  PUT  /admin/user/{id}           更新资源成功',
-        '8.  DELETE /admin/user/{id}         删除资源成功(需密码二次确认)',
-        '9.  GET  /admin/dashboard           仪表盘返回业务数据 (stats)',
+        '3.  GET  /admin/v1/user                带 token 访问受保护列表成功',
+        '4.  GET  /admin/v1/user                不带 token 被拒 (body.code 401/403)',
+        '5.  POST /admin/v1/user                创建资源成功并返回 id',
+        '6.  GET  /admin/v1/user/{id}           读取刚创建资源, 数据一致',
+        '7.  PUT  /admin/v1/user/{id}           更新资源成功',
+        '8.  DELETE /admin/v1/user/{id}         删除资源成功(需密码二次确认)',
+        '9.  GET  /admin/v1/dashboard           仪表盘返回业务数据 (stats)',
         '10. POST /api/v1/auth/refresh          刷新 token, 新 token 可访问受保护端点',
     ];
     echo "===== Open ERP E2E 冒烟测试 — 10 条链路 =====\n";

@@ -158,38 +158,38 @@ function emitResult(string $name, string $verdict, string $detail): void
 // ============================================================
 
 $MATRIX = [
-    ['系统管理', '/admin', ['/user', '/role', '/permission'],
+    ['系统管理', '/admin/v1', ['/user', '/role', '/permission'],
         ['/config', '/log', '/dashboard', '/dashboard/sales', '/dashboard/inventory', '/dashboard/finance', '/dashboard/oms', '/dashboard/wms', '/dashboard/tms']],
-    ['商品基础', '/admin', ['/product', '/category', '/brand', '/warehouse', '/location', '/supplier', '/customer'], ['/customer-level']],
-    ['采购', '/admin', ['/purchase/apply', '/purchase/order', '/purchase/receive', '/purchase/return', '/purchase/settlement'], []],
-    ['销售', '/admin', ['/sales/quotation', '/sales/order', '/sales/delivery', '/sales/return', '/sales/settlement'], []],
-    ['库存', '/admin', ['/inventory/transfer', '/inventory/check', '/inventory/alert'], ['/inventory', '/inventory/flow']],
-    ['财务', '/admin', ['/finance/ar-ap', '/finance/voucher', '/finance/receipt', '/finance/payment', '/finance/expense',
+    ['商品基础', '/admin/v1', ['/product', '/category', '/brand', '/warehouse', '/location', '/supplier', '/customer'], ['/customer-level']],
+    ['采购', '/admin/v1', ['/purchase/apply', '/purchase/order', '/purchase/receive', '/purchase/return', '/purchase/settlement'], []],
+    ['销售', '/admin/v1', ['/sales/quotation', '/sales/order', '/sales/delivery', '/sales/return', '/sales/settlement'], []],
+    ['库存', '/admin/v1', ['/inventory/transfer', '/inventory/check', '/inventory/alert'], ['/inventory', '/inventory/flow']],
+    ['财务', '/admin/v1', ['/finance/ar-ap', '/finance/voucher', '/finance/receipt', '/finance/payment', '/finance/expense',
         '/finance/bank-account', '/finance/asset', '/finance/currency', '/finance/exchange-rate', '/finance/budget',
         '/finance/cost-center', '/finance/profit-center'],
         ['/finance/cash-journal', '/finance/general-ledger', '/finance/subsidiary-ledger', '/finance/tax-rate',
             '/finance/tax-record', '/finance/report/balance-sheet', '/finance/report/cash-flow',
             '/finance/report/trial-balance', '/finance/report/account-balance?account_subject_id=1', '/finance/report/profit']],
-    ['CRM', '/admin', ['/crm/opportunity', '/crm/follow', '/crm/funnel', '/crm/contact', '/crm/contract',
+    ['CRM', '/admin/v1', ['/crm/opportunity', '/crm/follow', '/crm/funnel', '/crm/contact', '/crm/contract',
         '/crm/quotation', '/crm/campaign', '/crm/ticket'],
         ['/crm/pool', '/crm/pool/rules', '/crm/analytics/report', '/crm/analytics/metric']],
-    ['审批工作流', '/admin', ['/workflow'], ['/approval/my']],
-    ['通知', '/admin', [], ['/notification/my', '/notification/unread-count']],
-    ['项目管理', '/admin', ['/project', '/project/task', '/project/timesheet'], []],
-    ['人力资源', '/admin', ['/hr/department', '/hr/employee', '/hr/position', '/hr/salary', '/hr/salary-item'],
+    ['审批工作流', '/admin/v1', ['/workflow'], ['/approval/my']],
+    ['通知', '/admin/v1', [], ['/notification/my', '/notification/unread-count']],
+    ['项目管理', '/admin/v1', ['/project', '/project/task', '/project/timesheet'], []],
+    ['人力资源', '/admin/v1', ['/hr/department', '/hr/employee', '/hr/position', '/hr/salary', '/hr/salary-item'],
         ['/hr/attendance', '/hr/leave']],
-    ['生产制造', '/admin', ['/mfg/bom', '/mfg/production', '/mfg/routing', '/mfg/workstation', '/mfg/mrp'], []],
-    ['自定义报表', '/admin', ['/report', '/report/schedule'], []],
-    ['OMS', '/admin', ['/oms/order', '/oms/fulfillment', '/oms/rma', '/oms/channel'], []],
-    ['WMS', '/admin', ['/wms/zone', '/wms/location', '/wms/asn', '/wms/receiving', '/wms/putaway',
+    ['生产制造', '/admin/v1', ['/mfg/bom', '/mfg/production', '/mfg/routing', '/mfg/workstation', '/mfg/mrp'], []],
+    ['自定义报表', '/admin/v1', ['/report', '/report/schedule'], []],
+    ['OMS', '/admin/v1', ['/oms/order', '/oms/fulfillment', '/oms/rma', '/oms/channel'], []],
+    ['WMS', '/admin/v1', ['/wms/zone', '/wms/location', '/wms/asn', '/wms/receiving', '/wms/putaway',
         '/wms/wave', '/wms/pick', '/wms/pack'], []],
-    ['TMS', '/admin', ['/tms/carrier', '/tms/service', '/tms/freight-rate', '/tms/shipment',
+    ['TMS', '/admin/v1', ['/tms/carrier', '/tms/service', '/tms/freight-rate', '/tms/shipment',
         '/tms/tracking', '/tms/freight-invoice'], ['/tms/freight-rate/rate-shop?weight_kg=1']],
-    ['质量管理', '/admin', ['/quality/standard', '/quality/iqc', '/quality/ipqc', '/quality/oqc',
+    ['质量管理', '/admin/v1', ['/quality/standard', '/quality/iqc', '/quality/ipqc', '/quality/oqc',
         '/quality/nonconformity'], []],
-    ['设备管理', '/admin', ['/eam/equipment', '/eam/maintenance', '/eam/repair', '/eam/spare-part'], []],
-    ['文档管理', '/admin', ['/dms/document'], ['/dms/categories']],
-    ['BI 数据看板', '/admin', ['/bi/dashboard', '/bi/widget', '/bi/dataset'], []],
+    ['设备管理', '/admin/v1', ['/eam/equipment', '/eam/maintenance', '/eam/repair', '/eam/spare-part'], []],
+    ['文档管理', '/admin/v1', ['/dms/document'], ['/dms/categories']],
+    ['BI 数据看板', '/admin/v1', ['/bi/dashboard', '/bi/widget', '/bi/dataset'], []],
 ];
 
 // ============================================================
@@ -209,10 +209,10 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
         'detail' => sprintf('HTTP %d, code=%d', $resp['status'], bizCode($resp))];
 
     // ---- 2. 未授权访问被拒 ----
-    $resp = httpRequest('GET', "{$base}/admin/user");
+    $resp = httpRequest('GET', "{$base}/admin/v1/user");
     $code = bizCode($resp);
     $ok = $resp['status'] === 401 || $resp['status'] === 403 || $code === 401 || $code === 403;
-    $results[] = ['name' => '2. GET /admin/user 无token被拒', 'verdict' => $ok ? 'PASS' : 'FAIL',
+    $results[] = ['name' => '2. GET /admin/v1/user 无token被拒', 'verdict' => $ok ? 'PASS' : 'FAIL',
         'detail' => sprintf('HTTP %d, code=%d', $resp['status'], $code)];
 
     // ---- 3. 登录（自动完成点击验证码） ----
@@ -250,14 +250,14 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
 
     // ---- 4. 系统管理读操作 ----
     $sysEndpoints = [
-        ['name' => '4.1 GET /admin/user 列表', 'path' => '/admin/user'],
-        ['name' => '4.2 GET /admin/role 列表', 'path' => '/admin/role'],
-        ['name' => '4.3 GET /admin/permission 列表', 'path' => '/admin/permission'],
-        ['name' => '4.4 GET /admin/config 配置列表', 'path' => '/admin/config'],
-        ['name' => '4.5 GET /admin/log 操作日志', 'path' => '/admin/log'],
-        ['name' => '4.6 GET /admin/dashboard 仪表盘', 'path' => '/admin/dashboard'],
+        ['name' => '4.1 GET /admin/v1/user 列表', 'path' => '/admin/v1/user'],
+        ['name' => '4.2 GET /admin/v1/role 列表', 'path' => '/admin/v1/role'],
+        ['name' => '4.3 GET /admin/v1/permission 列表', 'path' => '/admin/v1/permission'],
+        ['name' => '4.4 GET /admin/v1/config 配置列表', 'path' => '/admin/v1/config'],
+        ['name' => '4.5 GET /admin/v1/log 操作日志', 'path' => '/admin/v1/log'],
+        ['name' => '4.6 GET /admin/v1/dashboard 仪表盘', 'path' => '/admin/v1/dashboard'],
     ];
-    $firstIds = ['/admin/user' => null, '/admin/role' => null, '/admin/permission' => null];
+    $firstIds = ['/admin/v1/user' => null, '/admin/v1/role' => null, '/admin/v1/permission' => null];
     $selfId = null;
     foreach ($sysEndpoints as $e) {
         if ($token === null) {
@@ -287,7 +287,7 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
         }
     }
     foreach ($firstIds as $path => $id) {
-        $label = ['/admin/user' => '用户', '/admin/role' => '角色', '/admin/permission' => '权限'][$path];
+        $label = ['/admin/v1/user' => '用户', '/admin/v1/role' => '角色', '/admin/v1/permission' => '权限'][$path];
         if ($id === null) {
             $results[] = ['name' => "4.7 GET {$path}/{id} {$label}详情", 'verdict' => $token === null ? 'SKIP' : 'SKIP',
                 'detail' => $token === null ? '前置登录失败' : '列表无数据, 跳过详情'];
@@ -303,15 +303,15 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
 
     // ---- 5. 个人中心（用自身当前 real_name 幂等回写，无副作用） ----
     if ($token !== null && $selfId !== null) {
-        $me = httpRequest('GET', "{$base}/admin/user/{$selfId}", [], $auth());
+        $me = httpRequest('GET', "{$base}/admin/v1/user/{$selfId}", [], $auth());
         $realName = $me['body']['data']['real_name'] ?? '';
-        $up = httpRequest('PUT', "{$base}/admin/profile", ['real_name' => $realName], $auth());
+        $up = httpRequest('PUT', "{$base}/admin/v1/profile", ['real_name' => $realName], $auth());
         $code = bizCode($up);
         $ok = $code === 0 && ($up['body']['data']['real_name'] ?? null) === $realName;
-        $results[] = ['name' => '5. PUT /admin/profile 个人中心(幂等回写)', 'verdict' => $ok ? 'PASS' : 'FAIL',
+        $results[] = ['name' => '5. PUT /admin/v1/profile 个人中心(幂等回写)', 'verdict' => $ok ? 'PASS' : 'FAIL',
             'detail' => sprintf('HTTP %d, code=%d', $up['status'], $code)];
     } else {
-        $results[] = ['name' => '5. PUT /admin/profile 个人中心', 'verdict' => 'SKIP', 'detail' => '前置登录失败或未找到自身用户'];
+        $results[] = ['name' => '5. PUT /admin/v1/profile 个人中心', 'verdict' => 'SKIP', 'detail' => '前置登录失败或未找到自身用户'];
     }
 
     // ---- 6. 刷新 token 并可继续使用 ----
@@ -320,7 +320,7 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
         $code = bizCode($resp);
         $newToken = $resp['body']['data']['access_token'] ?? null;
         $probe = $code === 0 && is_string($newToken) && $newToken !== ''
-            ? httpRequest('GET', "{$base}/admin/user?page=1&limit=1", [], ['Authorization' => 'Bearer ' . $newToken])
+            ? httpRequest('GET', "{$base}/admin/v1/user?page=1&limit=1", [], ['Authorization' => 'Bearer ' . $newToken])
             : null;
         $ok = $code === 0 && $probe !== null && bizCode($probe) === 0;
         $results[] = ['name' => '6. POST /api/v1/auth/refresh', 'verdict' => $ok ? 'PASS' : 'FAIL',
@@ -426,15 +426,15 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
 
     // ---- 9. 登出并验证 token 失效 ----
     if ($token !== null) {
-        $resp = httpRequest('POST', "{$base}/admin/profile/logout", [], $auth());
+        $resp = httpRequest('POST', "{$base}/admin/v1/profile/logout", [], $auth());
         $code = bizCode($resp);
-        $probe = httpRequest('GET', "{$base}/admin/user?page=1&limit=1", [], $auth());
+        $probe = httpRequest('GET', "{$base}/admin/v1/user?page=1&limit=1", [], $auth());
         $pCode = bizCode($probe);
         $ok = $code === 0 && ($pCode === 401 || $pCode === 403);
-        $results[] = ['name' => '9. POST /admin/profile/logout', 'verdict' => $ok ? 'PASS' : 'FAIL',
+        $results[] = ['name' => '9. POST /admin/v1/profile/logout', 'verdict' => $ok ? 'PASS' : 'FAIL',
             'detail' => sprintf('登出 code=%d, 登出后访问 code=%d', $code, $pCode)];
     } else {
-        $results[] = ['name' => '9. POST /admin/profile/logout', 'verdict' => 'SKIP', 'detail' => '前置登录失败'];
+        $results[] = ['name' => '9. POST /admin/v1/profile/logout', 'verdict' => 'SKIP', 'detail' => '前置登录失败'];
     }
 
     // ---- 汇总 ----
