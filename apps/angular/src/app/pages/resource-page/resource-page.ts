@@ -30,6 +30,7 @@ import {
   flattenTree,
   inferColumns,
   inferDetailItems,
+  specTags,
   take,
   type Cell,
 } from './columns';
@@ -109,6 +110,8 @@ export class ResourcePage implements OnInit {
   // ── 弹窗状态 ──
   readonly editing = signal<Row | 'new' | null>(null);
   readonly detail = signal<Row | null>(null);
+  /** 详情接口回包（cfg.detailFetch 时才拉）：列表行没有关系数据，规格属性只在这份里 */
+  readonly detailFull = signal<Row | null>(null);
   readonly pending = signal<Pending | null>(null);
   readonly pw = signal('');
   readonly busy = signal(false);
@@ -118,6 +121,12 @@ export class ResourcePage implements OnInit {
 
   /** 请求序号：丢弃过期响应（对齐 React 的 alive 标记） */
   private reqSeq = 0;
+  /**
+   * 详情请求序号：**必须与列表的 reqSeq 分开** —— 共用一个序号时，
+   * 打开详情会把在飞的列表 reload 判成过期，它的 finally 不再复位 loading，
+   * 骨架屏就永久卡住了。
+   */
+  private detailSeq = 0;
   /**
    * 后端整表下发（裸数组 / 无 total 的 list，含权限树）时的全量行缓存：
    * 切页只在本地切片，不再重拉；筛选条件变了（指纹不符）才重新请求。
@@ -146,6 +155,18 @@ export class ResourcePage implements OnInit {
   readonly detailItems = computed(() => {
     const d = this.detail();
     return d ? inferDetailItems(d) : [];
+  });
+  /**
+   * 规格属性胶囊：详情行上各 SKU 的 `spec_attrs`（JSON 字符串）摊平成一排「键:值」。
+   * 解析全部在 columns.specTags 里，这里只负责喂数据；解析结果直接可渲染，模板不过 tr
+   * （键是用户数据，不是词典词条）。
+   */
+  readonly detailSpecs = computed(() => {
+    const skus = this.detailFull()?.['skus'];
+    if (!Array.isArray(skus)) return [];
+    return skus.flatMap((s) =>
+      s && typeof s === 'object' ? specTags((s as Row)['spec_attrs']) : [],
+    );
   });
   /** 页面标题：路由带的 label 只做兜底（配置必有 title） */
   readonly title = computed(() => this.cfg()?.title || this.label());
@@ -322,10 +343,33 @@ export class ResourcePage implements OnInit {
 
   openDetail(row: Row): void {
     this.detail.set(row);
+    this.detailFull.set(null);
+    if (this.cfg()?.detailFetch) void this.loadDetail(row);
   }
 
   closeDetail(): void {
+    // 序号自增：关掉后回来的响应直接作废，不再写信号
+    this.detailSeq++;
     this.detail.set(null);
+    this.detailFull.set(null);
+  }
+
+  /**
+   * 详情接口回包：列表行缺关系数据（如 skus）时按需补拉。
+   * 失败静默 —— 弹层照旧显示列表行字段，只是没有规格属性，不打断查看。
+   */
+  private async loadDetail(row: Row): Promise<void> {
+    const cfg = this.cfg();
+    const id = String(take(row, 'id') ?? '');
+    if (!cfg || !id) return;
+    const seq = ++this.detailSeq;
+    try {
+      const full = await http.get<Row>(`${cfg.endpoint}/${id}`);
+      if (seq !== this.detailSeq) return;
+      this.detailFull.set(full);
+    } catch {
+      // 详见方法注释：静默降级
+    }
   }
 
   askDelete(row: Row): void {

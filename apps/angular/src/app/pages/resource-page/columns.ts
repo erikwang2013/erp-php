@@ -173,6 +173,43 @@ export function inferDetailItems(row: Row): { k: string; v: string }[] {
     }));
 }
 
+/* spec-attrs:start —— 解析器无依赖、纯函数；scripts/check-ng-spec-attrs.mjs 抽取本段真身自检 */
+
+/** 单个值 → 文本：对象/数组降级为 JSON 原文（绝不出 [object Object]） */
+function specVal(v: unknown): string {
+  if (v === null || v === undefined) return '';
+  return typeof v === 'object' ? JSON.stringify(v) : String(v);
+}
+
+/**
+ * `spec_attrs`（后端 `json_encode` 存的字符串）→ 一批「键:值」文本，供详情弹层渲染胶囊。
+ * 线上取值很脏，六种形状全兜住：`{"颜色":"红"}` / `[]` / `""` / `null` / `{a:{b:1}}` / `not-json`。
+ * 契约：**永不抛异常**；空值一律 `[]`（不渲染，`"[]"` 是后端默认值不是异常）；
+ * 非对象或解析失败原样回一条原文，不丢弃不改写（脏数据要看得见才好排查）。
+ * 用显式 null/undefined 判定而非真值判定，`0`/`false` 值照常显示。
+ */
+export function specTags(raw: unknown): string[] {
+  const s =
+    typeof raw === 'string'
+      ? raw.trim()
+      : raw === null || raw === undefined
+        ? ''
+        : (JSON.stringify(raw) ?? '');
+  if (s === '') return [];
+  let val: unknown;
+  try {
+    val = JSON.parse(s);
+  } catch {
+    return [s];
+  }
+  if (val === null || val === undefined) return [];
+  if (Array.isArray(val)) return val.length ? [s] : [];
+  if (typeof val !== 'object') return [s];
+  const obj = val as Record<string, unknown>;
+  return Object.entries(obj).map(([k, v]) => `${k}:${specVal(v)}`);
+}
+/* spec-attrs:end */
+
 /** 单元格：文本 + 展示标记，读法与列定义解耦，模板不必再回查 ColumnDef */
 export interface Cell {
   text: string;

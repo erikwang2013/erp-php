@@ -38,14 +38,7 @@ export interface FieldSource {
 }
 
 export type FieldType =
-  | 'text'
-  | 'number'
-  | 'textarea'
-  | 'select'
-  | 'password'
-  | 'date'
-  | 'datetime'
-  | 'tree';
+  'text' | 'number' | 'textarea' | 'select' | 'password' | 'date' | 'datetime' | 'tree';
 
 export interface FormField {
   key: string;
@@ -141,6 +134,11 @@ export interface ResourceConfig {
   emptyDesc?: string;
   /** 额外查询参数（固定筛选） */
   params?: Record<string, string | number>;
+  /**
+   * 详情弹层额外拉取 `GET {endpoint}/{id}`（列表接口不带关系数据时用）。
+   * 不配 = 只展示列表行字段，零请求零回归；配了则响应含 `skus` 时渲染规格属性胶囊。
+   */
+  detailFetch?: boolean;
 }
 
 /** 菜单叶子：路由 + 该页的 ResourceConfig */

@@ -236,6 +236,18 @@
               </div>
             }
           </div>
+          <!-- 规格属性：跨 SKU 摊平一排胶囊，取自详情接口（列表行没有 skus），空则整行不渲染 -->
+          @if (detailSpecs().length) {
+            <div class="desc-item">
+              <span class="desc-k">{{ '规格属性' | tr }}</span>
+              <!-- 胶囊文本是用户数据（键:值），同样不过 tr -->
+              <span class="desc-v">
+                @for (t of detailSpecs(); track $index) {
+                  <nz-tag>{{ t }}</nz-tag>
+                }
+              </span>
+            </div>
+          }
         </div>
       </div>
     </div>

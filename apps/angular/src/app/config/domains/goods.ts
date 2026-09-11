@@ -22,6 +22,8 @@ export const goodsMenus: MenuGroup[] = [
         label: '商品列表',
         path: '/product/product',
         cfg: res('商品管理', '/admin/v1/product', {
+          // 列表接口不带 skus，详情弹层按需补拉 GET /admin/v1/product/{id} 才有规格属性
+          detailFetch: true,
           fields: [
             { key: 'name', label: '商品名称', required: true },
             { key: 'code', label: '商品编码', required: true },
