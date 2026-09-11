@@ -2,7 +2,8 @@
 #
 # HOS 双语资源一致性校验（base/zh ↔ en_US）
 #
-# 1) 全 ets 收集引用 key：$r('app.string.<key>') 静态引用 + L10n.str(ui, '<key>') 动态 key；
+# 1) 全 ets 收集引用 key：$r('app.string.<key>') 静态引用 + L10n.str(ui, '<key>') 动态 key
+#    （含三元兄弟 key：cond ? 'k1' : 'k2'；模板串 `` `k_${x}` `` 为运行时拼 key，静态无法收录）；
 # 2) 引用 key 在 base 与 en_US 双文件中必须存在；
 # 3) base 与 en_US 的 key 集完全一致（en_US 无孤儿、无缺失）；
 # 4) en_US 值零 CJK；
@@ -28,8 +29,12 @@ base_file = main_dir + '/resources/base/element/string.json'
 en_file = main_dir + '/resources/en_US/element/string.json'
 
 REF_RE = re.compile(r"\$r\(['\"]app\.string\.([a-z0-9_]+)['\"]\)")
-# L10n.str(ui, 'key', ...) 动态 key：运行时经 resourceManager 解析，须双文件齐备
-DYN_RE = re.compile(r"L10n\.str\([^,]*,\s*'([a-z0-9_]+)'")
+# L10n.str(ui, 'key', ...) 动态 key：运行时经 resourceManager 解析，须双文件齐备。
+# 先取整个第二实参（嵌套括号视为整体，顶层逗号止），再只在该实参的「取值位」
+# 取 key 字面量——实参开头 / `?` 分支 / `:` 分支。这样三元兄弟 key 不漏，
+# 而比较字面量（x === 'create'）与下标字面量（row['status']）不会被误当 key。
+DYN_CALL_RE = re.compile(r"L10n\.str\(\s*(?:[^(),]|\([^()]*\))*,\s*((?:[^(),]|\([^()]*\))*)")
+DYN_KEY_RE = re.compile(r"(?:^|[?:])\s*'([a-z0-9_]+)'")
 CJK_RE = re.compile(r'[㐀-䶿一-鿿豈-﫿]')
 TOKEN_RE = re.compile(r'%(?:\d+\$)?[a-z%]')
 
@@ -42,7 +47,8 @@ def collect_refs():
                 with open(base + '/' + f, encoding='utf-8') as fh:
                     content = fh.read()
                 refs.update(REF_RE.findall(content))
-                dyn.update(DYN_RE.findall(content))
+                for arg in DYN_CALL_RE.findall(content):
+                    dyn.update(DYN_KEY_RE.findall(arg))
     return refs, dyn
 
 def load_strings(path):

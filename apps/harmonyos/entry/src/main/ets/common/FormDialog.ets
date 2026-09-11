@@ -61,7 +61,9 @@ export class FormField {
 
 /**
  * 危险操作确认弹窗（设计 5.7）：标题 16/600 + 正文 14 次要色 + 取消 / 危险实心主操作。
- * 提交级错误按 5.4 由页面在 close 后用 toast 反馈（对话框状态不跨次提交保留）。
+ * needPassword 通道：onConfirmPwd 返回 Promise，成功才 close；422 等提交级错误由本弹窗
+ * toast 后端 message 并保留弹窗（密码留在框内，可改了重试）——不再静默关闭丢输入。
+ * 其余通道（onConfirm 同步）仍按 5.4 由页面在 close 后 toast 反馈。
  */
 @CustomDialog
 export struct ConfirmDialog {
@@ -72,14 +74,32 @@ export struct ConfirmDialog {
   @Prop kind: string = 'danger'; // 'danger' 实心危险主操作 | 'primary' 主色
   @Prop needPassword: boolean = false; // 敏感删除的密码二次确认（后端 422 校验）
   @State pwd: string = '';
+  @State submitting: boolean = false; // 密码确认往返中（防重复提交；失败复位可重试）
   onConfirm?: () => void;
-  onConfirmPwd?: (password: string) => void;
+  onConfirmPwd?: (password: string) => Promise<void>;
   onCancel?: () => void;
   controller?: CustomDialogController;
 
   private close(): void {
     if (this.controller) {
       this.controller.close();
+    }
+  }
+
+  /** needPassword 通道：成功才 close；失败 toast 后端 message 并保留弹窗待重试 */
+  private async runConfirmPwd(): Promise<void> {
+    try {
+      if (this.onConfirmPwd) {
+        await this.onConfirmPwd(this.pwd);
+      }
+      this.close();
+    } catch (e) {
+      this.submitting = false;
+      let msg: ResourceStr = $r('app.string.delete_failed');
+      if (e instanceof Error && e.message.length > 0 && e.message !== 'UNAUTHORIZED') {
+        msg = e.message;
+      }
+      promptAction.showToast({ message: msg });
     }
   }
 
@@ -91,7 +111,9 @@ export struct ConfirmDialog {
         return;
       }
       if (this.onConfirmPwd) {
-        this.onConfirmPwd(this.pwd);
+        this.submitting = true;
+        this.runConfirmPwd();
+        return;
       }
     } else if (this.onConfirm) {
       this.onConfirm();
@@ -171,6 +193,7 @@ export struct ConfirmDialog {
           .height(40)
           .layoutWeight(1)
           .margin({ left: 12 })
+          .enabled(!this.submitting)
           .onClick(() => {
             this.submit();
           })

@@ -269,9 +269,7 @@ struct RoleListPage {
         message: L10n.str(this.getUIContext(), 'role_delete_msg_fmt', role.name || '-'),
         needPassword: true,
         confirmText: $r('app.string.delete'),
-        onConfirmPwd: (pwd: string) => {
-          this.deleteRole(role.id, pwd);
-        },
+        onConfirmPwd: (pwd: string) => this.deleteRole(role.id, pwd),
       }),
       alignment: DialogAlignment.Center,
       autoCancel: true,
@@ -289,8 +287,8 @@ struct RoleListPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: (e instanceof Error && e.message)
-        ? e.message : L10n.str(this.getUIContext(), 'delete_failed') });
+      // 422（密码错 / 关联约束等）交回 ConfirmDialog：toast 后端 message 且弹窗保留可重试
+      throw new Error(e instanceof Error ? e.message : '');
     }
   }
 

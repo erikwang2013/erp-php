@@ -525,7 +525,6 @@ struct PurchaseOrderPage {
             .width('100%')
             .constraintSize({ minHeight: 56 })
             .backgroundColor($r('app.color.surface'))
-            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
             .alignItems(VerticalAlign.Center)
 
           }
@@ -555,7 +554,7 @@ struct PurchaseOrderPage {
             .onClick(() => { this.save(); })
         }
         .width('100%')
-        .padding({ left: 12, right: 12, top: 24, bottom: 32 })
+        .margin({ top: 24, bottom: 32 })
       }
       .width('100%')
       .padding({ left: 12, right: 12, top: 12, bottom: 12 })

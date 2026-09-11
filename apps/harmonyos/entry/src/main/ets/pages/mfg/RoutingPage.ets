@@ -4,7 +4,7 @@
 
 import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
-import { ErrorView } from '../../common/Components';
+import { ErrorView, EmptyView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
 import { ListRow, ListSectionHeader } from '../../common/ListRow';
 
@@ -60,6 +60,8 @@ struct RoutingPage {
       } else if (this.errMsg !== '') {
         // 失败错误位：真实文案 + 重试（ErrorView 内建）
         ErrorView({ message: this.errMsg, onRetry: (): void => { this.loadData(); } })
+      } else if (this.items.length === 0) {
+        EmptyView();
       } else {
         // 3.0 卡层级：surface 列表卡（内容头行 + 行列表）悬浮 bg_page，圆角 + 发丝边框
         Column() {
