@@ -12,6 +12,7 @@
  * 用户取消（点遮罩/右上角取消）回传 null。
  */
 import http from '@ohos.net.http';
+import { ApiResponse } from '../model/DataModels';
 import { L10n } from '../utils/L10n';
 
 export interface CaptchaTarget {
@@ -130,7 +131,7 @@ export struct CaptchaVerifyDialog {
           this.onLoadFailed();
           return;
         }
-        const body = JSON.parse(resp.result as string) as { code: number; data: CaptchaRespData };
+        const body = JSON.parse(resp.result as string) as ApiResponse<CaptchaRespData>;
         if (body.code !== 0 || !body.data) {
           this.onLoadFailed();
           return;
