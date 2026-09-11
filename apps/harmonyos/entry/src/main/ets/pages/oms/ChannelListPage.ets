@@ -424,32 +424,33 @@ struct ChannelListPage {
 
           }
           .width('100%')
+
+          // 操作按钮
+          Row() {
+            Button($r('app.string.cancel'))
+              .layoutWeight(1)
+              .height(44)
+              .fontSize(15)
+              .fontColor($r('app.color.text_secondary'))
+              .backgroundColor($r('app.color.surface_alt'))
+              .borderRadius(8)
+              .onClick(() => { this.showForm = false; })
+
+            Button($r('app.string.save'))
+              .layoutWeight(1)
+              .height(44)
+              .fontSize(15)
+              .fontColor($r('app.color.text_on_primary'))
+              .backgroundColor(this.isSubmitting ? $r('app.color.primary_disabled') : $r('app.color.primary'))
+              .borderRadius(8)
+              .margin({ left: 16 })
+              .enabled(!this.isSubmitting)
+              .onClick(() => { this.save(); })
+          }
+          .width('100%')
+          .margin({ top: 8 })
         }
 
-        // 操作按钮
-        Row() {
-          Button($r('app.string.cancel'))
-            .layoutWeight(1)
-            .height(44)
-            .fontSize(15)
-            .fontColor($r('app.color.text_secondary'))
-            .backgroundColor($r('app.color.surface_alt'))
-            .borderRadius(8)
-            .onClick(() => { this.showForm = false; })
-
-          Button($r('app.string.save'))
-            .layoutWeight(1)
-            .height(44)
-            .fontSize(15)
-            .fontColor($r('app.color.text_on_primary'))
-            .backgroundColor(this.isSubmitting ? $r('app.color.primary_disabled') : $r('app.color.primary'))
-            .borderRadius(8)
-            .margin({ left: 16 })
-            .enabled(!this.isSubmitting)
-            .onClick(() => { this.save(); })
-        }
-        .width('100%')
-        .margin({ top: 24, bottom: 32 })
       }
       .width('100%')
       .padding({ left: 12, right: 12, top: 12, bottom: 12 })
