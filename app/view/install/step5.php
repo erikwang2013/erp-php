@@ -1,4 +1,4 @@
-<?php $h = static fn (string $k, string $d = '') => htmlspecialchars((string) ($old[$k] ?? $d), ENT_QUOTES); ?>
+<?php /* Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz */ $h = static fn (string $k, string $d = '') => htmlspecialchars((string) ($old[$k] ?? $d), ENT_QUOTES); ?>
 <h1 class="step-title">确认安装</h1>
 <div class="summary-card">
   <div class="sum-head">📋 安装配置总览</div>

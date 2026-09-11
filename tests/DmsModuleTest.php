@@ -146,9 +146,10 @@ class DmsModuleTest extends TestCase
 
     public function testDmsModelsUseSnowflakePrimaryKey(): void
     {
-        foreach (['DmsDocument', 'DmsDocumentVersion', 'DmsCategory'] as $m) {
+        $models = ['DmsDocument' => 'dms_document', 'DmsDocumentVersion' => 'dms_document_version', 'DmsCategory' => 'dms_category'];
+        foreach ($models as $m => $table) {
             $source = file_get_contents(__DIR__ . "/../app/model/{$m}.php");
-            $this->assertStringContainsString('erp_dms_', $source, "{$m} 表应使用 erp_dms_ 前缀");
+            $this->assertStringContainsString("protected \$table = '{$table}'", $source, "{$m} 表名应为 {$table}（erp_ 前缀由连接层 config/database.php 施加）");
             $this->assertStringContainsString('$incrementing = false', $source, "{$m} 应关闭自增主键");
             $this->assertStringContainsString("keyType = 'int'", $source, "{$m} 主键类型应为 int");
         }

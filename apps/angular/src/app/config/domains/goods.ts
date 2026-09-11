@@ -25,7 +25,12 @@ export const goodsMenus: MenuGroup[] = [
           fields: [
             { key: 'name', label: '商品名称', required: true },
             { key: 'code', label: '商品编码', required: true },
-            { key: 'category_id', label: '分类', required: true, source: { endpoint: '/admin/v1/category' } },
+            {
+              key: 'category_id',
+              label: '分类',
+              required: true,
+              source: { endpoint: '/admin/v1/category' },
+            },
             { key: 'unit', label: '单位', required: true },
             { key: 'brand_id', label: '品牌', source: { endpoint: '/admin/v1/brand' } },
             { key: 'barcode', label: '条码' },
@@ -38,7 +43,9 @@ export const goodsMenus: MenuGroup[] = [
       {
         label: '商品分类',
         path: '/product/category',
-        cfg: res('商品分类', '/admin/v1/category', { fields: [{ key: 'name', label: '分类名称', required: true }] }),
+        cfg: res('商品分类', '/admin/v1/category', {
+          fields: [{ key: 'name', label: '分类名称', required: true }],
+        }),
       },
       {
         label: '品牌管理',
@@ -48,6 +55,17 @@ export const goodsMenus: MenuGroup[] = [
             { key: 'name', label: '品牌名称', required: true },
             { key: 'logo', label: 'LOGO 地址' },
             { key: 'description', label: '品牌描述', type: 'textarea', full: true },
+            { key: 'sort', label: '排序', type: 'number', defaultValue: 0 },
+            { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: ON_OFF },
+          ],
+        }),
+      },
+      {
+        label: '商品规格',
+        path: '/product/spec',
+        cfg: res('商品规格', '/admin/v1/spec', {
+          fields: [
+            { key: 'name', label: '规格名称', required: true },
             { key: 'sort', label: '排序', type: 'number', defaultValue: 0 },
             { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: ON_OFF },
           ],
@@ -153,4 +171,3 @@ export const goodsMenus: MenuGroup[] = [
     ],
   },
 ];
-

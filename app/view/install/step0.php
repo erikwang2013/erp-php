@@ -1,3 +1,4 @@
+<?php /* Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz */ ?>
 <h1>环境检查</h1>
 <table class="env-table">
 <?php foreach ($envs as $e): ?>

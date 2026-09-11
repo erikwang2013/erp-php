@@ -198,10 +198,10 @@ class EamModuleTest extends TestCase
 
     public function testEamModelsUseSnowflakePrimaryKey(): void
     {
-        $models = ['EamEquipment', 'EamMaintenancePlan', 'EamRepairOrder'];
-        foreach ($models as $m) {
+        $models = ['EamEquipment' => 'eam_equipment', 'EamMaintenancePlan' => 'eam_maintenance_plan', 'EamRepairOrder' => 'eam_repair_order'];
+        foreach ($models as $m => $table) {
             $source = file_get_contents(__DIR__ . "/../app/model/{$m}.php");
-            $this->assertStringContainsString('erp_eam_', $source, "{$m} 表应使用 erp_eam_ 前缀");
+            $this->assertStringContainsString("protected \$table = '{$table}'", $source, "{$m} 表名应为 {$table}（erp_ 前缀由连接层 config/database.php 施加）");
             $this->assertStringContainsString('$incrementing = false', $source, "{$m} 应关闭自增主键");
             $this->assertStringContainsString("keyType = 'int'", $source, "{$m} 主键类型应为 int");
         }
@@ -211,7 +211,7 @@ class EamModuleTest extends TestCase
     {
         // EamSparePart 未声明 $incrementing/keyType（潜在缺陷，已单独上报）
         $source = file_get_contents(__DIR__ . '/../app/model/EamSparePart.php');
-        $this->assertStringContainsString('erp_eam_spare_part', $source);
+        $this->assertStringContainsString("protected \$table = 'eam_spare_part'", $source);
         $this->assertStringContainsString('class EamSparePart extends Model', $source);
         $this->assertStringContainsString('stock_qty', $source, '备件应包含库存字段');
         $this->assertStringContainsString('min_stock', $source, '备件应包含最低库存字段');

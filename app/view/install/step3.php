@@ -1,4 +1,4 @@
-<?php $h = static fn (string $k, string $d = '') => htmlspecialchars((string) ($old[$k] ?? $d), ENT_QUOTES); ?>
+<?php /* Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz */ $h = static fn (string $k, string $d = '') => htmlspecialchars((string) ($old[$k] ?? $d), ENT_QUOTES); ?>
 <h1 class="step-title">搜索引擎（可选）</h1>
 <form method="post" action="/install" id="engine-form">
 <input type="hidden" name="step" value="3">

@@ -120,9 +120,10 @@ class BiModuleTest extends TestCase
 
     public function testBiModelsUseSnowflakePrimaryKey(): void
     {
-        foreach (['BiDashboard', 'BiWidget'] as $m) {
+        $models = ['BiDashboard' => 'bi_dashboard', 'BiWidget' => 'bi_widget'];
+        foreach ($models as $m => $table) {
             $source = file_get_contents(__DIR__ . "/../app/model/{$m}.php");
-            $this->assertStringContainsString('erp_bi_', $source, "{$m} 表应使用 erp_bi_ 前缀");
+            $this->assertStringContainsString("protected \$table = '{$table}'", $source, "{$m} 表名应为 {$table}（erp_ 前缀由连接层 config/database.php 施加）");
             $this->assertStringContainsString('$incrementing = false', $source, "{$m} 应关闭自增主键");
             $this->assertStringContainsString("keyType = 'int'", $source, "{$m} 主键类型应为 int");
         }

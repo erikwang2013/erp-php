@@ -177,10 +177,10 @@ class ProjectModuleTest extends TestCase
 
     public function testProjectModelsUseSnowflakePrimaryKey(): void
     {
-        $models = ['Project', 'ProjectTask', 'ProjectTimesheet'];
-        foreach ($models as $name) {
+        $models = ['Project' => 'project', 'ProjectTask' => 'project_task', 'ProjectTimesheet' => 'project_timesheet'];
+        foreach ($models as $name => $table) {
             $source = file_get_contents(__DIR__ . "/../app/model/{$name}.php");
-            $this->assertStringContainsString('erp_project', $source, "{$name} 表必须使用 erp_project 前缀");
+            $this->assertStringContainsString("protected \$table = '{$table}'", $source, "{$name} 表名应为 {$table}（erp_ 前缀由连接层 config/database.php 施加）");
             $this->assertStringContainsString('public $incrementing = false', $source, "{$name} 必须使用非自增主键");
             $this->assertStringContainsString("protected \$keyType = 'int'", $source, "{$name} 主键类型必须为 int");
         }

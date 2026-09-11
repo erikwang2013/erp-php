@@ -200,6 +200,20 @@ CREATE TABLE IF NOT EXISTS `erp_brand` (
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='品牌表';
 
+CREATE TABLE IF NOT EXISTS `erp_product_spec` (
+    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
+    `name` VARCHAR(200) NOT NULL COMMENT '规格名称',
+    `sort` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序值，越小越靠前',
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
+    PRIMARY KEY (`id`),
+    KEY `idx_sort` (`sort`),
+    KEY `idx_status` (`status`),
+    KEY `idx_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='产品规格表';
+
 CREATE TABLE IF NOT EXISTS `erp_product` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `category_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '产品分类ID',
@@ -3067,7 +3081,8 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000040, 31000000000000001, '仓库', 'product.warehouse', 1, '', '', 4, NOW(), NOW()),
 (31000000000000050, 31000000000000001, '库位', 'product.location', 1, '', '', 5, NOW(), NOW()),
 (31000000000000060, 31000000000000001, '供应商', 'product.supplier', 1, '', '', 6, NOW(), NOW()),
-(31000000000000070, 31000000000000001, '客户', 'product.customer', 1, '', '', 7, NOW(), NOW());
+(31000000000000070, 31000000000000001, '客户', 'product.customer', 1, '', '', 7, NOW(), NOW()),
+(31000000000000085, 31000000000000001, '商品规格', 'product.spec', 1, '', '', 8, NOW(), NOW());
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000080, 31000000000000002, '采购申请', 'purchase.apply', 1, '', '', 1, NOW(), NOW()),
 (31000000000000090, 31000000000000002, '采购订单', 'purchase.order', 1, '', '', 2, NOW(), NOW()),
@@ -3172,7 +3187,11 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000072, 31000000000000070, '客户-创建',   'post.admin/customer', 3, '', '', 27, NOW(), NOW()),
 (31000000000000073, 31000000000000070, '客户-更新',   'put.admin/customer', 3, '', '', 28, NOW(), NOW()),
 (31000000000000074, 31000000000000070, '客户-删除',   'delete.admin/customer', 3, '', '', 29, NOW(), NOW()),
-(31000000000000075, 31000000000000001, '客户等级',    'any.admin/customer-level', 3, '', '', 30, NOW(), NOW());
+(31000000000000075, 31000000000000001, '客户等级',    'any.admin/customer-level', 3, '', '', 30, NOW(), NOW()),
+(31000000000000086, 31000000000000085, '商品规格-查看', 'get.admin/spec', 3, '', '', 1, NOW(), NOW()),
+(31000000000000087, 31000000000000085, '商品规格-创建', 'post.admin/spec', 3, '', '', 2, NOW(), NOW()),
+(31000000000000088, 31000000000000085, '商品规格-更新', 'put.admin/spec', 3, '', '', 3, NOW(), NOW()),
+(31000000000000089, 31000000000000085, '商品规格-删除', 'delete.admin/spec', 3, '', '', 4, NOW(), NOW());
 
 -- ============================================================
 -- ERP模块API权限 (type=3) — 采购

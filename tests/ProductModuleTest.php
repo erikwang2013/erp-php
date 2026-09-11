@@ -15,6 +15,7 @@ use app\model\Location;
 use app\model\Product;
 use app\model\ProductPrice;
 use app\model\ProductSku;
+use app\model\ProductSpec;
 use app\model\ProductUnit;
 use app\model\Supplier;
 use app\model\Warehouse;
@@ -92,17 +93,18 @@ class ProductModuleTest extends TestCase
     public function testProductModelsInstantiateWithExpectedTables(): void
     {
         $models = [
-            Product::class => 'erp_product',
-            ProductSku::class => 'erp_product_sku',
-            ProductPrice::class => 'erp_product_price',
-            ProductUnit::class => 'erp_product_unit',
-            Brand::class => 'erp_brand',
-            Category::class => 'erp_category',
-            Warehouse::class => 'erp_warehouse',
-            Supplier::class => 'erp_supplier',
-            Customer::class => 'erp_customer',
-            CustomerLevel::class => 'erp_customer_level',
-            Location::class => 'erp_location',
+            Product::class => 'product',
+            ProductSku::class => 'product_sku',
+            ProductPrice::class => 'product_price',
+            ProductUnit::class => 'product_unit',
+            Brand::class => 'brand',
+            Category::class => 'category',
+            Warehouse::class => 'warehouse',
+            Supplier::class => 'supplier',
+            Customer::class => 'customer',
+            CustomerLevel::class => 'customer_level',
+            Location::class => 'location',
+            ProductSpec::class => 'product_spec',
         ];
         foreach ($models as $class => $table) {
             $this->assertTrue(class_exists($class), "模型 {$class} 应存在");

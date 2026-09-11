@@ -5276,6 +5276,12 @@ abstract class AppLocalizations {
   /// **'品牌管理'**
   String get productBrandTitle;
 
+  /// No description provided for @productSpecTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'商品规格'**
+  String get productSpecTitle;
+
   /// No description provided for @biDashboardTitle.
   ///
   /// In zh, this message translates to:

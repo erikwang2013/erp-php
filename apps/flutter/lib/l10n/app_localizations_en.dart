@@ -2735,6 +2735,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productBrandTitle => 'Brands';
 
   @override
+  String get productSpecTitle => 'Specs';
+
+  @override
   String get biDashboardTitle => 'Dashboard';
 
   @override

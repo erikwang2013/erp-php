@@ -211,15 +211,15 @@ class QualityModuleTest extends TestCase
     public function testQualityModelsUseSnowflakePrimaryKey(): void
     {
         $models = [
-            'QualityInspectionStandard',
-            'QualityIqcRecord',
-            'QualityIpcqRecord',
-            'QualityOqcRecord',
-            'QualityNonconformity',
+            'QualityInspectionStandard' => 'quality_inspection_standard',
+            'QualityIqcRecord' => 'quality_iqc_record',
+            'QualityIpcqRecord' => 'quality_ipqc_record',
+            'QualityOqcRecord' => 'quality_oqc_record',
+            'QualityNonconformity' => 'quality_nonconformity',
         ];
-        foreach ($models as $name) {
+        foreach ($models as $name => $table) {
             $source = file_get_contents(__DIR__ . "/../app/model/{$name}.php");
-            $this->assertStringContainsString('erp_quality', $source, "{$name} 表必须使用 erp_quality 前缀");
+            $this->assertStringContainsString("protected \$table = '{$table}'", $source, "{$name} 表名应为 {$table}（erp_ 前缀由连接层 config/database.php 施加）");
             $this->assertStringContainsString('public $incrementing = false', $source, "{$name} 必须使用非自增主键");
             $this->assertStringContainsString("protected \$keyType = 'int'", $source, "{$name} 主键类型必须为 int");
         }

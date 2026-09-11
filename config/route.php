@@ -98,6 +98,7 @@ Route::group('/admin/v1', function () {
     Route::resource('/product', app\controller\product\ProductController::class);
     Route::resource('/category', app\controller\product\CategoryController::class);
     Route::resource('/brand', app\controller\product\BrandController::class);
+    Route::resource('/spec', app\controller\product\ProductSpecController::class);
     Route::resource('/warehouse', app\controller\product\WarehouseController::class);
     Route::get('/warehouse/{id}/locations', [app\controller\product\LocationController::class, 'byWarehouse']);
     Route::resource('/location', app\controller\product\LocationController::class);

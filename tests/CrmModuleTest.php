@@ -355,22 +355,22 @@ class CrmModuleTest extends TestCase
     public function testCrmModelsInstantiateWithExpectedTables(): void
     {
         $models = [
-            CrmOpportunity::class => 'erp_crm_opportunity',
-            CrmContact::class => 'erp_crm_contact',
-            CrmPoolRule::class => 'erp_crm_customer_pool_rule',
-            CrmPoolRecord::class => 'erp_crm_pool_record',
-            CrmFollowRecord::class => 'erp_crm_follow_record',
-            CrmContract::class => 'erp_crm_contract',
-            CrmContractItem::class => 'erp_crm_contract_item',
-            CrmQuotation::class => 'erp_crm_quotation',
-            CrmQuotationItem::class => 'erp_crm_quotation_item',
-            CrmCampaign::class => 'erp_crm_campaign',
-            CrmCampaignParticipant::class => 'erp_crm_campaign_participant',
-            CrmTicket::class => 'erp_crm_ticket',
-            CrmTicketReply::class => 'erp_crm_ticket_reply',
-            CrmFunnelStage::class => 'erp_crm_funnel_stage',
-            CrmAnalyticsReport::class => 'erp_crm_analytics_report',
-            CrmAnalyticsMetric::class => 'erp_crm_analytics_metric',
+            CrmOpportunity::class => 'crm_opportunity',
+            CrmContact::class => 'crm_contact',
+            CrmPoolRule::class => 'crm_customer_pool_rule',
+            CrmPoolRecord::class => 'crm_pool_record',
+            CrmFollowRecord::class => 'crm_follow_record',
+            CrmContract::class => 'crm_contract',
+            CrmContractItem::class => 'crm_contract_item',
+            CrmQuotation::class => 'crm_quotation',
+            CrmQuotationItem::class => 'crm_quotation_item',
+            CrmCampaign::class => 'crm_campaign',
+            CrmCampaignParticipant::class => 'crm_campaign_participant',
+            CrmTicket::class => 'crm_ticket',
+            CrmTicketReply::class => 'crm_ticket_reply',
+            CrmFunnelStage::class => 'crm_funnel_stage',
+            CrmAnalyticsReport::class => 'crm_analytics_report',
+            CrmAnalyticsMetric::class => 'crm_analytics_metric',
         ];
         foreach ($models as $class => $table) {
             $this->assertTrue(class_exists($class), "模型 {$class} 应存在");

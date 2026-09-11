@@ -23,6 +23,7 @@ import 'app/pages/system/log/log_page.dart';
 import 'app/pages/product/product_list_page.dart';
 import 'app/pages/product/category_list_page.dart';
 import 'app/pages/product/brand_list_page.dart';
+import 'app/pages/product/spec_list_page.dart';
 
 // 往来单位
 import 'app/pages/partner/supplier_list_page.dart';
@@ -171,6 +172,7 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/product/list': () => const ProductListPage(),
   '/product/category': () => const CategoryListPage(),
   '/product/brand': () => const BrandListPage(),
+  '/product/spec': () => const SpecListPage(),
   // 往来单位
   '/partner/supplier': () => const SupplierListPage(),
   '/partner/customer': () => const CustomerListPage(),

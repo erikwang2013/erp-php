@@ -53,6 +53,17 @@ export const goodsMenus: MenuGroup[] = [
           ],
         }),
       },
+      {
+        label: '商品规格',
+        path: '/product/spec',
+        cfg: res('商品规格', '/admin/v1/spec', {
+          fields: [
+            { key: 'name', label: '规格名称', required: true },
+            { key: 'sort', label: '排序', type: 'number', defaultValue: 0 },
+            { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: ON_OFF },
+          ],
+        }),
+      },
     ],
   },
   {

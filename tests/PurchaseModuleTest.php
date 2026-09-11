@@ -213,16 +213,16 @@ class PurchaseModuleTest extends TestCase
     public function testPurchaseModelsUseSnowflakePrimaryKey(): void
     {
         $models = [
-            'PurchaseApply',
-            'PurchaseOrder',
-            'PurchaseReceive',
-            'PurchaseReceiveItem',
-            'PurchaseReturn',
-            'PurchaseSettlement',
+            'PurchaseApply' => 'purchase_apply',
+            'PurchaseOrder' => 'purchase_order',
+            'PurchaseReceive' => 'purchase_receive',
+            'PurchaseReceiveItem' => 'purchase_receive_item',
+            'PurchaseReturn' => 'purchase_return',
+            'PurchaseSettlement' => 'purchase_settlement',
         ];
-        foreach ($models as $name) {
+        foreach ($models as $name => $table) {
             $source = file_get_contents(__DIR__ . "/../app/model/{$name}.php");
-            $this->assertStringContainsString('erp_purchase', $source, "{$name} 表必须使用 erp_purchase 前缀");
+            $this->assertStringContainsString("protected \$table = '{$table}'", $source, "{$name} 表名应为 {$table}（erp_ 前缀由连接层 config/database.php 施加）");
             $this->assertStringContainsString('public $incrementing = false', $source, "{$name} 必须使用非自增主键");
             $this->assertStringContainsString("protected \$keyType = 'int'", $source, "{$name} 主键类型必须为 int");
         }

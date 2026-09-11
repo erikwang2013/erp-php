@@ -47,6 +47,7 @@ const List<MenuItem> menuConfig = [
       MenuItem(label: '商品列表', icon: Icons.list_alt, route: '/product/list'),
       MenuItem(label: '商品分类', icon: Icons.category, route: '/product/category'),
       MenuItem(label: '品牌管理', icon: Icons.bookmark, route: '/product/brand'),
+      MenuItem(label: '商品规格', icon: Icons.straighten, route: '/product/spec'),
     ],
   ),
   MenuItem(
@@ -412,6 +413,7 @@ const Map<String, String> menuLabelsEn = {
   '商品列表': 'Product List',
   '商品分类': 'Categories',
   '品牌管理': 'Brands',
+  '商品规格': 'Specs',
   // 往来单位
   '往来单位': 'Partners',
   '供应商': 'Suppliers',

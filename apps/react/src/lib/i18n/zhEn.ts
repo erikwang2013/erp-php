@@ -55,6 +55,7 @@ export const zhEn: Record<string, string> = {
   '员工档案': 'Employees', '品牌': 'Brand', '品牌管理': 'Brands', '商品': 'Product',
   '商品ID': 'Product ID', '商品ID须为正整数': 'Product ID must be a positive integer', '商品ID（数字）': 'Product ID (numeric)', '商品信息': 'Product Info',
   '商品分类': 'Categories', '商品列表': 'Product List', '商品名称': 'Product Name', '商品明细': 'Items',
+  '商品规格': 'Product Specs', '规格名称': 'Spec Name',
   '商品编码': 'Product Code', '商机': 'Opportunity', '商机管理': 'Opportunities', '固定': 'Fixed',
   '固定资产': 'Fixed Asset', '图表名称': 'Chart Name', '图表管理': 'Manage Charts', '图表管理 — {name}': 'Manage Charts — {name}',
   '图表类型': 'Chart Type', '地址': 'Address', '地点': 'Location', '型号': 'Model',

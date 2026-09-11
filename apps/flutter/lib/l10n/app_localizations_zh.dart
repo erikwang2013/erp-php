@@ -2711,6 +2711,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get productBrandTitle => '品牌管理';
 
   @override
+  String get productSpecTitle => '商品规格';
+
+  @override
   String get biDashboardTitle => '仪表盘';
 
   @override
