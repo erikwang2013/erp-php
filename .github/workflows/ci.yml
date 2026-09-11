@@ -74,10 +74,8 @@ jobs:
       - name: Create .env from example
         run: cp .env.example .env
 
-      # C1 强校验拒绝 CHANGE_ME_ 占位值启动，CI 需模拟真实部署生成随机密钥
-      - name: Generate random secrets for placeholder check
+      - name: Prepare .env for CI
         run: |
-          sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 16)/g" .env
           # DB_PASSWORD 置空：本 job 的 mysql service 为 root 空口令（与 e2e job 同款处理），
           # 不置空则 app config 连接（CrmModuleTest/CrmServiceTest 分析报表走此路径）必 1045 access denied
           sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=/' .env
@@ -205,7 +203,6 @@ jobs:
             sleep 5
           done
           set -e
-          set -e
           printf '%s\n' "$out"
           if [ $code -ne 0 ]; then
             echo "::error::$(printf '%s' "$out" | tail -25 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
@@ -248,9 +245,6 @@ jobs:
 
       - name: Create .env from example
         run: cp .env.example .env
-
-      - name: Generate random secrets for placeholder check
-        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 16)/g" .env
 
       - name: Docs stats check
         # 单元测试无需 MySQL/Redis：集成用例在缺少 TEST_DB_* / TEST_REDIS_* 时
@@ -325,11 +319,6 @@ jobs:
       - name: Create .env from example
         run: cp .env.example .env
 
-      # C1 强校验拒绝 CHANGE_ME_ 占位值启动，CI 需模拟真实部署生成随机密钥
-      # （与 php job 的 sed 做法一致，避免为每个 CHANGE_ME_ 单独写一条替换）
-      - name: Generate random secrets for placeholder check
-        run: sed -i -E "s/CHANGE_ME_[0-9a-f]+/$(openssl rand -hex 16)/g" .env
-
       - name: Initialize database (full seed + test account)
         # 遗留#2：已由最小种子升级为全量 database/install.sql（163 张表 + 全部种子），
         # 让 api-coverage 全模块遍历真正覆盖（最小种子缺业务表会 SKIP）。
@@ -348,16 +337,19 @@ jobs:
       - name: Start webman service
         # 端口与 config/process.php 的 listen（8788）保持一致
         # SCOUT_DRIVER=null：CI 不安装 ES 客户端包（composer 未引入 elasticsearch/elasticsearch），
-        # 而登录路径会 save 用户模型触发 Searchable trait 同步 —— 默认 elasticsearch 驱动下
-        # EngineManager 直接抛异常致登录 500。E2E 不测搜索，切 null 驱动（webman-scout 文档化禁用开关）。
-        # DB_PASSWORD 置空：Generate random secrets 会把 .env.example 的 CHANGE_ME_ 口令替换为
-        # 随机 hex，而 CI MySQL 是 MYSQL_ALLOW_EMPTY_PASSWORD（root 空口令）—— 不置空则
-        # webman 带随机密码连接必 Access denied（health 仍 200，db=unavailable，登录 500）。
+        # 而登录路径会 save 用户模型触发 Searchable trait 同步 —— 非 null 驱动下 EngineManager
+        # 直接抛异常致登录 500。E2E 不测搜索，切 null 驱动（webman-scout 文档化禁用开关）。
+        # 注意：必须用 `^SCOUT_DRIVER=.*` 通配替换，不可写成匹配 `=elasticsearch` 的字面量 ——
+        # .env.example 的该键默认值是 opensearch（93a20f0 起），字面量 sed 静默不匹配（exit 0 无输出），
+        # 于是驱动原样带进服务，登录同步打到不存在的 OpenSearch（127.0.0.1:6205）连接失败 500。
+        # DB_PASSWORD 置空：.env.example 自带非空口令，而 CI MySQL 是 MYSQL_ALLOW_EMPTY_PASSWORD
+        #（root 空口令）—— 不置空则 webman 带该密码连接必 Access denied
+        #（health 仍 200，db=unavailable，登录 500）。
         # 开发环境 env_secret 允许空口令（env_is_production() 门控），此改动仅影响 E2E 场景。
         # E2E_CAPTCHA_CODE：AuthController 的 E2E 旁路口令（登录时 captcha_key 与之相等则跳过点击验证），
         # 验证码目标坐标属服务端秘密，E2E 脚本无法自行求解，故由 CI 注入测试口令。
         run: |
-          sed -i 's/^SCOUT_DRIVER=elasticsearch/SCOUT_DRIVER=null/' .env
+          sed -i 's/^SCOUT_DRIVER=.*/SCOUT_DRIVER=null/' .env
           sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=/' .env
           echo 'E2E_CAPTCHA_CODE=e2e-test-code' >> .env
           php start.php start -d
