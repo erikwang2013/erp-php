@@ -44,23 +44,35 @@ class B47AdversarialIntegrationTest extends IntegrationTestCase
         $this->requireTestDatabase();
         self::createTableIfMissing(self::LOG_TABLE, static function (Blueprint $table): void {
             $table->unsignedBigInteger('id')->primary();
-            $table->string('channel', 20); $table->string('to', 200);
-            $table->string('subject', 200)->default(''); $table->text('content');
-            $table->char('content_hash', 64)->default(''); $table->unsignedTinyInteger('status')->default(0);
-            $table->string('message_id', 80)->default(''); $table->string('error', 500)->default('');
-            $table->dateTime('sent_at')->useCurrent(); $table->unsignedBigInteger('operator_id')->default(0);
-            $table->timestamp('created_at')->useCurrent(); $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
-            $table->index(['channel', 'status']); $table->index('to');
+            $table->string('channel', 20);
+            $table->string('to', 200);
+            $table->string('subject', 200)->default('');
+            $table->text('content');
+            $table->char('content_hash', 64)->default('');
+            $table->unsignedTinyInteger('status')->default(0);
+            $table->string('message_id', 80)->default('');
+            $table->string('error', 500)->default('');
+            $table->dateTime('sent_at')->useCurrent();
+            $table->unsignedBigInteger('operator_id')->default(0);
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->index(['channel', 'status']);
+            $table->index('to');
             $table->index('content_hash');
         });
         Capsule::table(self::LOG_TABLE)->where('content', 'like', 'B47T%')->delete();
         self::createTableIfMissing(self::DEF_TABLE, static function (Blueprint $table): void {
             $table->unsignedBigInteger('id')->primary();
-            $table->string('entity_type', 30); $table->string('field_key', 50);
-            $table->string('label', 100); $table->string('field_type', 20);
-            $table->json('options')->nullable(); $table->unsignedTinyInteger('is_required')->default(0);
-            $table->unsignedInteger('sort')->default(0); $table->unsignedTinyInteger('status')->default(1);
-            $table->timestamp('created_at')->useCurrent(); $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->string('entity_type', 30);
+            $table->string('field_key', 50);
+            $table->string('label', 100);
+            $table->string('field_type', 20);
+            $table->json('options')->nullable();
+            $table->unsignedTinyInteger('is_required')->default(0);
+            $table->unsignedInteger('sort')->default(0);
+            $table->unsignedTinyInteger('status')->default(1);
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             // 唯一键必须命名 uk_entity_field（服务按该名捕重复）
             $table->unique(['entity_type', 'field_key'], 'uk_entity_field');
         });
@@ -108,6 +120,7 @@ class B47AdversarialIntegrationTest extends IntegrationTestCase
         [$def, $error] = $this->fields->create($data);
         $this->assertNull($error, 'create 应成功: ' . (string) $error);
         $this->assertNotNull($def);
+
         return $def;
     }
 
@@ -119,6 +132,7 @@ class B47AdversarialIntegrationTest extends IntegrationTestCase
             'is_required' => (int) $def->is_required, 'sort' => (int) $def->sort, 'status' => (int) $def->status,
         ], $overrides));
         $this->assertNull($error, 'update 应成功: ' . (string) $error);
+
         return $model;
     }
 

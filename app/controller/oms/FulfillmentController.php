@@ -13,27 +13,28 @@ use app\model\OmsFulfillmentItem;
 use app\model\OmsOrder;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("履约单")]
-#[\erikwang2013\apidoc\annotation\Group("订单管理OMS")]
+
+#[\erikwang2013\apidoc\annotation\Title('履约单')]
+#[\erikwang2013\apidoc\annotation\Group('订单管理OMS')]
 
 class FulfillmentController extends BaseController
 {
     /**
      * 履约单列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("履约单列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取发货履约单列表，支持分页和状态/订单筛选（表无文本可搜列）")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/oms/fulfillment")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("履约管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[\erikwang2013\apidoc\annotation\Param(name:"oms_order_id", type:"string", default:"", desc:"按 OMS 订单过滤(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"履约单列表数据")]
+    #[\erikwang2013\apidoc\annotation\Title('履约单列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取发货履约单列表，支持分页和状态/订单筛选（表无文本可搜列）')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/oms/fulfillment')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('履约管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'oms_order_id', type:'string', default:'', desc:'按 OMS 订单过滤(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'履约单列表数据')]
 
     public function index(Request $request): Response
     {
@@ -77,6 +78,7 @@ class FulfillmentController extends BaseController
         $list = $models->map(function ($item) use ($orderNos) {
             $row = $this->encodeIds($item->toArray(), ['id', 'oms_order_id', 'warehouse_id']);
             $row['order_channel_no'] = $orderNos[$item->oms_order_id] ?? '';
+
             return $row;
         });
 
@@ -86,17 +88,17 @@ class FulfillmentController extends BaseController
     /**
      * 创建履约单
      */
-#[\erikwang2013\apidoc\annotation\Title("创建履约单")]
-#[\erikwang2013\apidoc\annotation\Desc("新增一条发货履约单（表无 code 列），订单与仓库必填")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/oms/fulfillment")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("履约管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"oms_order_id", type:"string", require:true, desc:"OMS订单ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"warehouse_id", type:"string", require:true, desc:"发货仓库ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"创建的履约单记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建履约单')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增一条发货履约单（表无 code 列），订单与仓库必填')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/oms/fulfillment')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('履约管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'oms_order_id', type:'string', require:true, desc:'OMS订单ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'string', require:true, desc:'发货仓库ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'创建的履约单记录')]
 
     public function store(Request $request): Response
     {
@@ -129,15 +131,15 @@ class FulfillmentController extends BaseController
     /**
      * 履约单详情
      */
-#[\erikwang2013\apidoc\annotation\Title("履约单详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID获取发货履约单详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("履约管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"履约单hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"履约单详情")]
+    #[\erikwang2013\apidoc\annotation\Title('履约单详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID获取发货履约单详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('履约管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'履约单hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'履约单详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -181,17 +183,17 @@ class FulfillmentController extends BaseController
     /**
      * 更新履约单
      */
-#[\erikwang2013\apidoc\annotation\Title("更新履约单")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID更新履约单信息（发货后仅可调仓库/订单归属）")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("履约管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"履约单hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"oms_order_id", type:"string", default:"", desc:"OMS订单ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"warehouse_id", type:"string", default:"", desc:"发货仓库ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的履约单记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新履约单')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID更新履约单信息（发货后仅可调仓库/订单归属）')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('履约管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'履约单hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'oms_order_id', type:'string', default:'', desc:'OMS订单ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'string', default:'', desc:'发货仓库ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的履约单记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -235,16 +237,16 @@ class FulfillmentController extends BaseController
     /**
      * 删除履约单（软删除）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除履约单")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID软删除履约单，需管理员密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("履约管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"履约单hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除履约单')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID软删除履约单，需管理员密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('履约管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'履约单hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {

@@ -13,29 +13,30 @@ use app\model\Project;
 use app\model\ProjectTimesheet;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("工时记录")]
-#[\erikwang2013\apidoc\annotation\Group("项目管理")]
+
+#[\erikwang2013\apidoc\annotation\Title('工时记录')]
+#[\erikwang2013\apidoc\annotation\Group('项目管理')]
 
 class TimesheetController extends BaseController
 {
     /**
      * 工时记录列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("工时记录列表")]
-#[\erikwang2013\apidoc\annotation\Desc("分页查询工时记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/timesheet")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"project_id", type:"int", desc:"项目ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"task_id", type:"int", desc:"任务ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"user_id", type:"int", desc:"用户ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"work_date", type:"string", desc:"工作日期")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('工时记录列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('分页查询工时记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/project/timesheet')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'project_id', type:'int', desc:'项目ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'task_id', type:'int', desc:'任务ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'user_id', type:'int', desc:'用户ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'work_date', type:'string', desc:'工作日期')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -95,19 +96,19 @@ class TimesheetController extends BaseController
     /**
      * 记录工时
      */
-#[\erikwang2013\apidoc\annotation\Title("记录工时")]
-#[\erikwang2013\apidoc\annotation\Desc("新增工时记录，自动聚合更新任务实际工时")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/timesheet")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"project_id", type:"string", desc:"项目ID(hashid)，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"user_id", type:"string", desc:"用户ID(hashid)，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"hours", type:"float", desc:"工时数，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"work_date", type:"string", desc:"工作日期，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('记录工时')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增工时记录，自动聚合更新任务实际工时')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/project/timesheet')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'project_id', type:'string', desc:'项目ID(hashid)，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'user_id', type:'string', desc:'用户ID(hashid)，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'hours', type:'float', desc:'工时数，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'work_date', type:'string', desc:'工作日期，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -135,15 +136,15 @@ class TimesheetController extends BaseController
     /**
      * 工时详情
      */
-#[\erikwang2013\apidoc\annotation\Title("工时详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看工时记录详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工时ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('工时详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看工时记录详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工时ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -179,15 +180,15 @@ class TimesheetController extends BaseController
     /**
      * 更新工时
      */
-#[\erikwang2013\apidoc\annotation\Title("更新工时")]
-#[\erikwang2013\apidoc\annotation\Desc("修改工时记录，自动更新任务实际工时")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工时ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新工时')]
+    #[\erikwang2013\apidoc\annotation\Desc('修改工时记录，自动更新任务实际工时')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工时ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -215,16 +216,16 @@ class TimesheetController extends BaseController
     /**
      * 删除工时
      */
-#[\erikwang2013\apidoc\annotation\Title("删除工时")]
-#[\erikwang2013\apidoc\annotation\Desc("删除工时记录，自动更新任务实际工时，需密码确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工时ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除工时')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除工时记录，自动更新任务实际工时，需密码确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工时ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function destroy(Request $request, string $id): Response
     {

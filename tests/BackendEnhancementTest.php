@@ -30,7 +30,7 @@ class BackendEnhancementTest extends TestCase
             '基于 API-Version 请求头的中间件应已删除'
         );
         $this->assertStringContainsString(
-            "app\\api\\v1\\controller\\AuthController::class",
+            'app\\api\\v1\\controller\\AuthController::class',
             $source,
             '/api/v1 路由应直接绑定 v1 控制器（无需版本头）'
         );

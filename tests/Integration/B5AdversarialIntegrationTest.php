@@ -413,8 +413,11 @@ class B5AdversarialIntegrationTest extends IntegrationTestCase
         $this->assertCount(1, $wins, '同公司并发开通恰一成功');
         $this->assertSame('race-', substr($wins[0][0]['tenant_code'], 0, 5), '赢家编码合法');
         $this->assertCount(1, $fails);
-        $this->assertContains($fails[0][1], ['公司已开通租户', '公司已开通租户或租户编码已存在'],
-            '败者消息：预检拦截或 1062 兜底（视调度串行化）');
+        $this->assertContains(
+            $fails[0][1],
+            ['公司已开通租户', '公司已开通租户或租户编码已存在'],
+            '败者消息：预检拦截或 1062 兜底（视调度串行化）'
+        );
         $this->assertSame(1, (int) Capsule::table(self::REGISTRY_TABLE)
             ->where('company_id', 8401)->whereNull('deleted_at')->count(), '同公司仅一行落库');
         $this->assertSame(1, (int) Capsule::table(self::REGISTRY_TABLE)

@@ -16,22 +16,22 @@ use support\Response;
 /**
  * 账套会计期间管理（F1）——开账/关账/期间列表。
  */
-#[\erikwang2013\apidoc\annotation\Title("期间")]
-#[\erikwang2013\apidoc\annotation\Group("财务管理")]
+#[\erikwang2013\apidoc\annotation\Title('期间')]
+#[\erikwang2013\apidoc\annotation\Group('财务管理')]
 class LedgerPeriodController extends BaseController
 {
     /**
      * 期间列表
      */
-#[\erikwang2013\apidoc\annotation\Title("期间列表")]
-#[\erikwang2013\apidoc\annotation\Desc("指定账套（缺省回落到公司默认/存量默认账套）的会计期间，倒序")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ledger/period-list")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"company_id", type:"string", desc:"公司ID(hashid)，可选")]
-#[\erikwang2013\apidoc\annotation\Param(name:"ledger_id", type:"string", desc:"账套ID(hashid)，可选，优先于company_id")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"期间列表")]
+    #[\erikwang2013\apidoc\annotation\Title('期间列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('指定账套（缺省回落到公司默认/存量默认账套）的会计期间，倒序')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/ledger/period-list')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'company_id', type:'string', desc:'公司ID(hashid)，可选')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'ledger_id', type:'string', desc:'账套ID(hashid)，可选，优先于company_id')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'期间列表')]
 
     public function list(Request $request): Response
     {
@@ -62,15 +62,15 @@ class LedgerPeriodController extends BaseController
     /**
      * 开账
      */
-#[\erikwang2013\apidoc\annotation\Title("开账")]
-#[\erikwang2013\apidoc\annotation\Desc("账套下开一个会计期间 YYYY-MM（重复开账 → 业务异常）")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ledger/period-open")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"company_id", type:"string", desc:"公司ID(hashid)，可选")]
-#[\erikwang2013\apidoc\annotation\Param(name:"ledger_id", type:"string", desc:"账套ID(hashid)，可选")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period", type:"string", desc:"期间 YYYY-MM，必填")]
+    #[\erikwang2013\apidoc\annotation\Title('开账')]
+    #[\erikwang2013\apidoc\annotation\Desc('账套下开一个会计期间 YYYY-MM（重复开账 → 业务异常）')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/ledger/period-open')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'company_id', type:'string', desc:'公司ID(hashid)，可选')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'ledger_id', type:'string', desc:'账套ID(hashid)，可选')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period', type:'string', desc:'期间 YYYY-MM，必填')]
 
     public function open(Request $request): Response
     {
@@ -96,16 +96,16 @@ class LedgerPeriodController extends BaseController
     /**
      * 关账
      */
-#[\erikwang2013\apidoc\annotation\Title("关账")]
-#[\erikwang2013\apidoc\annotation\Desc("实时重算三张单体快照并落库，期间置为已关；前置拒绝期间内未审核凭证")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/ledger/period-close")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"company_id", type:"string", desc:"公司ID(hashid)，可选")]
-#[\erikwang2013\apidoc\annotation\Param(name:"ledger_id", type:"string", desc:"账套ID(hashid)，可选")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period", type:"string", desc:"期间 YYYY-MM，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"三张快照行ID(hashid)")]
+    #[\erikwang2013\apidoc\annotation\Title('关账')]
+    #[\erikwang2013\apidoc\annotation\Desc('实时重算三张单体快照并落库，期间置为已关；前置拒绝期间内未审核凭证')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/ledger/period-close')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'company_id', type:'string', desc:'公司ID(hashid)，可选')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'ledger_id', type:'string', desc:'账套ID(hashid)，可选')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period', type:'string', desc:'期间 YYYY-MM，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'三张快照行ID(hashid)')]
 
     public function close(Request $request): Response
     {

@@ -17,9 +17,9 @@ use support\Response;
 /**
  * 项目管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Title("项目")]
-#[\erikwang2013\apidoc\annotation\Group("项目管理")]
+#[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+#[\erikwang2013\apidoc\annotation\Title('项目')]
+#[\erikwang2013\apidoc\annotation\Group('项目管理')]
 
 class ProjectController extends BaseController
 {
@@ -27,23 +27,23 @@ class ProjectController extends BaseController
      * 项目列表（分页）
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("项目列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取项目分页列表，支持关键字/状态/负责人筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/project")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[\erikwang2013\apidoc\annotation\Param(name:"manager_user_id", type:"string", default:"", desc:"负责人ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"项目列表(含进度)")]
-#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
-#[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
-#[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
+    #[\erikwang2013\apidoc\annotation\Title('项目列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取项目分页列表，支持关键字/状态/负责人筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/project')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词(名称/编码)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'manager_user_id', type:'string', default:'', desc:'负责人ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('list', type:'array', desc:'项目列表(含进度)')]
+    #[\erikwang2013\apidoc\annotation\Returned('total', type:'int', desc:'总条数')]
+    #[\erikwang2013\apidoc\annotation\Returned('page', type:'int', desc:'当前页码')]
+    #[\erikwang2013\apidoc\annotation\Returned('limit', type:'int', desc:'每页条数')]
 
     public function index(Request $request): Response
     {
@@ -99,18 +99,18 @@ class ProjectController extends BaseController
     /**
      * 创建项目
      */
-#[\erikwang2013\apidoc\annotation\Title("创建项目")]
-#[\erikwang2013\apidoc\annotation\Desc("创建一个新项目")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/project")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"项目名称")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"项目编号(唯一)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"manager_user_id", type:"string", require:true, desc:"负责人用户ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"项目信息")]
+    #[\erikwang2013\apidoc\annotation\Title('创建项目')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建一个新项目')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/project')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', require:true, desc:'项目名称')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'项目编号(唯一)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'manager_user_id', type:'string', require:true, desc:'负责人用户ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'项目信息')]
 
     public function store(Request $request): Response
     {
@@ -132,15 +132,15 @@ class ProjectController extends BaseController
     /**
      * 项目详情
      */
-#[\erikwang2013\apidoc\annotation\Title("项目详情")]
-#[\erikwang2013\apidoc\annotation\Desc("获取指定项目的详细信息，包含计算后的进度")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"项目ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"项目详情(含进度)")]
+    #[\erikwang2013\apidoc\annotation\Title('项目详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取指定项目的详细信息，包含计算后的进度')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'项目ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'项目详情(含进度)')]
 
     public function show(Request $request, string $id): Response
     {
@@ -165,15 +165,15 @@ class ProjectController extends BaseController
     /**
      * 更新项目
      */
-#[\erikwang2013\apidoc\annotation\Title("更新项目")]
-#[\erikwang2013\apidoc\annotation\Desc("更新指定项目的信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"项目ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的项目信息")]
+    #[\erikwang2013\apidoc\annotation\Title('更新项目')]
+    #[\erikwang2013\apidoc\annotation\Desc('更新指定项目的信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'项目ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的项目信息')]
 
     public function update(Request $request, string $id): Response
     {
@@ -202,16 +202,16 @@ class ProjectController extends BaseController
     /**
      * 删除项目
      */
-#[\erikwang2013\apidoc\annotation\Title("删除项目")]
-#[\erikwang2013\apidoc\annotation\Desc("软删除指定项目，需要密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"项目ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除项目')]
+    #[\erikwang2013\apidoc\annotation\Desc('软删除指定项目，需要密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'项目ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'当前管理员密码(二次确认)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {

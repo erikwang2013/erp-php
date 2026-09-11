@@ -12,26 +12,27 @@ use app\model\TmsShipment;
 use app\model\TmsTrackingEvent;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("物流轨迹")]
-#[\erikwang2013\apidoc\annotation\Group("运输管理TMS")]
+
+#[\erikwang2013\apidoc\annotation\Title('物流轨迹')]
+#[\erikwang2013\apidoc\annotation\Group('运输管理TMS')]
 
 class TrackingController extends BaseController
 {
     /**
      * 物流轨迹列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("物流轨迹列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取物流轨迹列表，支持分页（表无 name/code/status 列，状态码为 status_code 字符串）")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/tracking")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"shipment_id", type:"string", default:"", desc:"按运单过滤(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('物流轨迹列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取物流轨迹列表，支持分页（表无 name/code/status 列，状态码为 status_code 字符串）')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/tms/tracking')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'shipment_id', type:'string', default:'', desc:'按运单过滤(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -66,6 +67,7 @@ class TrackingController extends BaseController
         $list = $models->map(function ($item) use ($shipmentCodes) {
             $row = $this->encodeIds($item->toArray(), ['id', 'shipment_id']);
             $row['shipment_code'] = $shipmentCodes[$item->shipment_id] ?? '';
+
             return $row;
         });
 
@@ -75,20 +77,20 @@ class TrackingController extends BaseController
     /**
      * 创建物流轨迹
      */
-#[\erikwang2013\apidoc\annotation\Title("创建物流轨迹")]
-#[\erikwang2013\apidoc\annotation\Desc("创建物流轨迹记录，运单必填，其余字段按业务传入（表无 code 列）")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/tracking")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"shipment_id", type:"string", require:true, desc:"运单ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status_code", type:"string", default:"", desc:"状态码: picked_up/in_transit/out_for_delivery/delivered/exception")]
-#[\erikwang2013\apidoc\annotation\Param(name:"description", type:"string", default:"", desc:"事件描述")]
-#[\erikwang2013\apidoc\annotation\Param(name:"location", type:"string", default:"", desc:"发生地点")]
-#[\erikwang2013\apidoc\annotation\Param(name:"event_time", type:"string", default:"", desc:"事件时间")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('创建物流轨迹')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建物流轨迹记录，运单必填，其余字段按业务传入（表无 code 列）')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/tms/tracking')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'shipment_id', type:'string', require:true, desc:'运单ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status_code', type:'string', default:'', desc:'状态码: picked_up/in_transit/out_for_delivery/delivered/exception')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'description', type:'string', default:'', desc:'事件描述')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'location', type:'string', default:'', desc:'发生地点')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'event_time', type:'string', default:'', desc:'事件时间')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -117,15 +119,15 @@ class TrackingController extends BaseController
     /**
      * 物流轨迹详情
      */
-#[\erikwang2013\apidoc\annotation\Title("物流轨迹详情")]
-#[\erikwang2013\apidoc\annotation\Desc("按 ID 获取物流轨迹详情")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('物流轨迹详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('按 ID 获取物流轨迹详情')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'记录ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -150,15 +152,15 @@ class TrackingController extends BaseController
     /**
      * 更新物流轨迹
      */
-#[\erikwang2013\apidoc\annotation\Title("更新物流轨迹")]
-#[\erikwang2013\apidoc\annotation\Desc("按 ID 更新物流轨迹信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新物流轨迹')]
+    #[\erikwang2013\apidoc\annotation\Desc('按 ID 更新物流轨迹信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'记录ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -199,16 +201,16 @@ class TrackingController extends BaseController
     /**
      * 删除物流轨迹
      */
-#[\erikwang2013\apidoc\annotation\Title("删除物流轨迹")]
-#[\erikwang2013\apidoc\annotation\Desc("按 ID 删除物流轨迹，需操作密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"操作密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除物流轨迹')]
+    #[\erikwang2013\apidoc\annotation\Desc('按 ID 删除物流轨迹，需操作密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'记录ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'操作密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -239,17 +241,17 @@ class TrackingController extends BaseController
     /**
      * 承运商轨迹回调
      */
-#[\erikwang2013\apidoc\annotation\Title("承运商轨迹回调")]
-#[\erikwang2013\apidoc\annotation\Desc("承运商轨迹回传（公开接口，HMAC 签名验证），按运单号写入轨迹事件")]
-#[\erikwang2013\apidoc\annotation\Url("/api/tms/tracking/callback")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"tracking_no", type:"string", desc:"运单号，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"events", type:"array", desc:"轨迹事件数组，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('承运商轨迹回调')]
+    #[\erikwang2013\apidoc\annotation\Desc('承运商轨迹回传（公开接口，HMAC 签名验证），按运单号写入轨迹事件')]
+    #[\erikwang2013\apidoc\annotation\Url('/api/tms/tracking/callback')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'tracking_no', type:'string', desc:'运单号，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'events', type:'array', desc:'轨迹事件数组，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function callbackWebhook(Request $request): Response
     {

@@ -214,11 +214,15 @@ class CreditControlIntegrationTest extends IntegrationTestCase
 
         $this->assertCreditRejected(
             fn () => $this->svc()->assertOrderCreate($customerId, '1.00'),
-            '冻结客户甲', '已冻结信用', '销售订单'
+            '冻结客户甲',
+            '已冻结信用',
+            '销售订单'
         );
         $this->assertCreditRejected(
             fn () => $this->svc()->assertDeliveryCreate($customerId),
-            '冻结客户甲', '已冻结信用', '销售发货'
+            '冻结客户甲',
+            '已冻结信用',
+            '销售发货'
         );
 
         // 解冻 → 额度未启用时恢复 fail-open
@@ -242,7 +246,11 @@ class CreditControlIntegrationTest extends IntegrationTestCase
 
         $this->assertCreditRejected(
             fn () => $this->svc()->assertOrderCreate($customerId, '5000.01'),
-            '信用额度拦截', '超限客户乙', '信用占用 ¥5000.01 超过允许额度 ¥5000', '本次订单被拒绝', '请先收款核销'
+            '信用额度拦截',
+            '超限客户乙',
+            '信用占用 ¥5000.01 超过允许额度 ¥5000',
+            '本次订单被拒绝',
+            '请先收款核销'
         );
     }
 
@@ -258,7 +266,9 @@ class CreditControlIntegrationTest extends IntegrationTestCase
 
         $this->assertCreditRejected(
             fn () => $this->svc()->assertOrderCreate($customerId, '5500.01'),
-            '信用额度拦截', '信用占用 ¥5500.01 超过允许额度 ¥5500.00', '超限比例 10%'
+            '信用额度拦截',
+            '信用占用 ¥5500.01 超过允许额度 ¥5500.00',
+            '超限比例 10%'
         );
     }
 
@@ -352,11 +362,16 @@ class CreditControlIntegrationTest extends IntegrationTestCase
 
         $this->assertCreditRejected(
             fn () => $this->svc()->assertOrderCreate($customerId, '0.01'),
-            '账期超期拦截', '超期客户丙', '超期未收 ¥300.00 超过允许上限 ¥0', '本次订单被拒绝', '请先收款核销或调高容忍上限'
+            '账期超期拦截',
+            '超期客户丙',
+            '超期未收 ¥300.00 超过允许上限 ¥0',
+            '本次订单被拒绝',
+            '请先收款核销或调高容忍上限'
         );
         $this->assertCreditRejected(
             fn () => $this->svc()->assertDeliveryCreate($customerId),
-            '账期超期拦截', '本次发货被拒绝'
+            '账期超期拦截',
+            '本次发货被拒绝'
         );
     }
 
@@ -407,7 +422,9 @@ class CreditControlIntegrationTest extends IntegrationTestCase
         $this->createAr($overCustomer, '6000.00');
         $this->assertCreditRejected(
             fn () => $this->svc()->assertDeliveryCreate($overCustomer),
-            '信用额度拦截', '信用占用 ¥6000.00 超过允许额度 ¥5000', '本次发货被拒绝'
+            '信用额度拦截',
+            '信用占用 ¥6000.00 超过允许额度 ¥5000',
+            '本次发货被拒绝'
         );
 
         // 在途订单全额占用 → 发货拒绝（发货为占用→应收平移，不加本次金额）
@@ -415,7 +432,9 @@ class CreditControlIntegrationTest extends IntegrationTestCase
         $this->createOrder($occCustomer, '6000.00', 1);
         $this->assertCreditRejected(
             fn () => $this->svc()->assertDeliveryCreate($occCustomer),
-            '信用额度拦截', '信用占用 ¥6000.00 超过允许额度 ¥5000', '本次发货被拒绝'
+            '信用额度拦截',
+            '信用占用 ¥6000.00 超过允许额度 ¥5000',
+            '本次发货被拒绝'
         );
 
         // 账期 15 天 + 额度未启用 → 返回到期日（供应收 due_date 写入）

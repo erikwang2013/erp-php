@@ -11,27 +11,28 @@ use app\admin\controller\BaseController;
 use app\model\TmsCarrierService;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("承运商服务")]
-#[\erikwang2013\apidoc\annotation\Group("运输管理TMS")]
+
+#[\erikwang2013\apidoc\annotation\Title('承运商服务')]
+#[\erikwang2013\apidoc\annotation\Group('运输管理TMS')]
 
 class ServiceController extends BaseController
 {
     /**
      * 承运商服务列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("承运商服务列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取承运商服务列表，支持分页、关键词搜索和状态筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/service")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（名称）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选（0=禁用,1=启用）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('承运商服务列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取承运商服务列表，支持分页、关键词搜索和状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/tms/service')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（名称）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选（0=禁用,1=启用）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -71,16 +72,16 @@ class ServiceController extends BaseController
     /**
      * 创建承运商服务
      */
-#[\erikwang2013\apidoc\annotation\Title("创建承运商服务")]
-#[\erikwang2013\apidoc\annotation\Desc("创建承运商服务，名称必填，其余字段按业务传入")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/tms/service")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"服务名称，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('创建承运商服务')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建承运商服务，名称必填，其余字段按业务传入')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/tms/service')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'服务名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -101,15 +102,15 @@ class ServiceController extends BaseController
     /**
      * 承运商服务详情
      */
-#[\erikwang2013\apidoc\annotation\Title("承运商服务详情")]
-#[\erikwang2013\apidoc\annotation\Desc("按 ID 获取承运商服务详情")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('承运商服务详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('按 ID 获取承运商服务详情')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'记录ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -134,15 +135,15 @@ class ServiceController extends BaseController
     /**
      * 更新承运商服务
      */
-#[\erikwang2013\apidoc\annotation\Title("更新承运商服务")]
-#[\erikwang2013\apidoc\annotation\Desc("按 ID 更新承运商服务信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新承运商服务')]
+    #[\erikwang2013\apidoc\annotation\Desc('按 ID 更新承运商服务信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'记录ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -170,16 +171,16 @@ class ServiceController extends BaseController
     /**
      * 删除承运商服务
      */
-#[\erikwang2013\apidoc\annotation\Title("删除承运商服务")]
-#[\erikwang2013\apidoc\annotation\Desc("按 ID 删除承运商服务，需操作密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("运输管理(TMS)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"操作密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除承运商服务')]
+    #[\erikwang2013\apidoc\annotation\Desc('按 ID 删除承运商服务，需操作密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'记录ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'操作密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function destroy(Request $request, string $id): Response
     {

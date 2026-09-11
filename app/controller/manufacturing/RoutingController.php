@@ -17,25 +17,25 @@ use support\Response;
 /**
  * 工艺路线管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Title("工艺路线")]
-#[\erikwang2013\apidoc\annotation\Group("生产制造")]
+#[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+#[\erikwang2013\apidoc\annotation\Title('工艺路线')]
+#[\erikwang2013\apidoc\annotation\Group('生产制造')]
 
 class RoutingController extends BaseController
 {
     /**
      * 工艺路线列表
      */
-#[\erikwang2013\apidoc\annotation\Title("工艺路线列表")]
-#[\erikwang2013\apidoc\annotation\Desc("按产品分组查询工艺路线，按seq排序")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/routing")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"product_id", type:"int", desc:"产品ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('工艺路线列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('按产品分组查询工艺路线，按seq排序')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/routing')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'product_id', type:'int', desc:'产品ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -61,19 +61,19 @@ class RoutingController extends BaseController
     /**
      * 添加工序
      */
-#[\erikwang2013\apidoc\annotation\Title("添加工艺工序")]
-#[\erikwang2013\apidoc\annotation\Desc("新增工艺路线工序记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/routing")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"product_id", type:"int", desc:"产品ID，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"工序名称，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"seq", type:"int", desc:"工序序号，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"workstation_id", type:"int", desc:"工作站ID，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('添加工艺工序')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增工艺路线工序记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/routing')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'product_id', type:'int', desc:'产品ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'工序名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'seq', type:'int', desc:'工序序号，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'workstation_id', type:'int', desc:'工作站ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -105,15 +105,15 @@ class RoutingController extends BaseController
     /**
      * 工序详情
      */
-#[\erikwang2013\apidoc\annotation\Title("工艺工序详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看工艺路线工序详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工序ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('工艺工序详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看工艺路线工序详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工序ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -135,15 +135,15 @@ class RoutingController extends BaseController
     /**
      * 更新工序
      */
-#[\erikwang2013\apidoc\annotation\Title("更新工艺工序")]
-#[\erikwang2013\apidoc\annotation\Desc("修改工艺路线工序信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工序ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新工艺工序')]
+    #[\erikwang2013\apidoc\annotation\Desc('修改工艺路线工序信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工序ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -176,16 +176,16 @@ class RoutingController extends BaseController
     /**
      * 删除工序
      */
-#[\erikwang2013\apidoc\annotation\Title("删除工艺工序")]
-#[\erikwang2013\apidoc\annotation\Desc("删除工艺路线工序记录，需密码确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工序ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除工艺工序')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除工艺路线工序记录，需密码确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工序ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function destroy(Request $request, string $id): Response
     {

@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace tests\Integration;
 
 use app\model\HrCandidate;
-use app\model\HrInterview;
 use app\model\HrKpiTemplateItem;
 use app\model\HrOffer;
 use app\model\HrPerfScore;
@@ -106,8 +105,11 @@ class H1H2HrIntegrationTest extends H1H2Scaffold
         foreach ([0, 2, 4] as $reviveTo) {
             $this->assertServiceThrows(
                 fn () => $this->recruit()->advanceCandidate($gone, $reviveTo),
-                sprintf('候选人状态不允许从 已淘汰(5) 推进到 %s(%d)：仅支持逐级推进 0→1→2→3→4，或任意状态淘汰至 5',
-                    RecruitService::CANDIDATE_STATUS_TEXT[$reviveTo], $reviveTo)
+                sprintf(
+                    '候选人状态不允许从 已淘汰(5) 推进到 %s(%d)：仅支持逐级推进 0→1→2→3→4，或任意状态淘汰至 5',
+                    RecruitService::CANDIDATE_STATUS_TEXT[$reviveTo],
+                    $reviveTo
+                )
             );
         }
 

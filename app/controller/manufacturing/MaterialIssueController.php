@@ -24,26 +24,26 @@ use support\Response;
 /**
  * 领料单管理 — CRUD + 审核（出库）
  */
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Title("领料单")]
-#[\erikwang2013\apidoc\annotation\Group("生产制造")]
+#[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+#[\erikwang2013\apidoc\annotation\Title('领料单')]
+#[\erikwang2013\apidoc\annotation\Group('生产制造')]
 
 class MaterialIssueController extends BaseController
 {
     /**
      * 领料单列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("领料单列表")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/material-issue")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"编码关键词")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态 0草稿/1已审核")]
-#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"int", desc:"生产工单ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+    #[\erikwang2013\apidoc\annotation\Title('领料单列表')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/material-issue')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', desc:'编码关键词')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态 0草稿/1已审核')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'order_id', type:'int', desc:'生产工单ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
 
     public function index(Request $request): Response
     {
@@ -77,17 +77,17 @@ class MaterialIssueController extends BaseController
     /**
      * 创建领料单（草稿，含明细）
      */
-#[\erikwang2013\apidoc\annotation\Title("创建领料单")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/material-issue")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"领料单编码，必填，唯一")]
-#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"int", desc:"生产工单ID，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"issue_date", type:"string", desc:"领料日期 Y-m-d，默认当天")]
-#[\erikwang2013\apidoc\annotation\Param(name:"warehouse_id", type:"int", desc:"出库仓库ID，缺省取工单仓库")]
-#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", desc:"备注")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+    #[\erikwang2013\apidoc\annotation\Title('创建领料单')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/material-issue')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'领料单编码，必填，唯一')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'order_id', type:'int', desc:'生产工单ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'issue_date', type:'string', desc:'领料日期 Y-m-d，默认当天')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'int', desc:'出库仓库ID，缺省取工单仓库')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', desc:'备注')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
 
     public function store(Request $request): Response
     {
@@ -161,12 +161,12 @@ class MaterialIssueController extends BaseController
     /**
      * 领料单详情
      */
-#[\erikwang2013\apidoc\annotation\Title("领料单详情")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"领料单ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+    #[\erikwang2013\apidoc\annotation\Title('领料单详情')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'领料单ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
 
     public function show(Request $request, string $id): Response
     {
@@ -195,12 +195,12 @@ class MaterialIssueController extends BaseController
     /**
      * 更新领料单（仅草稿：表头字段 + 整单替换明细）
      */
-#[\erikwang2013\apidoc\annotation\Title("更新领料单")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"领料单ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+    #[\erikwang2013\apidoc\annotation\Title('更新领料单')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'领料单ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
 
     public function update(Request $request, string $id): Response
     {
@@ -265,13 +265,13 @@ class MaterialIssueController extends BaseController
     /**
      * 删除领料单（仅草稿，需密码确认）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除领料单")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"领料单ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+    #[\erikwang2013\apidoc\annotation\Title('删除领料单')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'领料单ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -306,12 +306,12 @@ class MaterialIssueController extends BaseController
     /**
      * 审核领料单（出库扣减库存并归集 WIP 材料成本）
      */
-#[\erikwang2013\apidoc\annotation\Title("审核领料单")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"领料单ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+    #[\erikwang2013\apidoc\annotation\Title('审核领料单')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'领料单ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
 
     public function audit(Request $request, string $id): Response
     {

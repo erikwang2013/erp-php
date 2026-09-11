@@ -15,31 +15,32 @@ use InvalidArgumentException;
 use support\Container;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("服务工单")]
-#[\erikwang2013\apidoc\annotation\Group("CRM")]
+
+#[\erikwang2013\apidoc\annotation\Title('服务工单')]
+#[\erikwang2013\apidoc\annotation\Group('CRM')]
 
 class TicketController extends BaseController
 {
     /**
      * 工单列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("服务工单列表")]
-#[\erikwang2013\apidoc\annotation\Desc("分页查询服务工单记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/ticket")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"关键词")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态")]
-#[\erikwang2013\apidoc\annotation\Param(name:"priority", type:"int", desc:"优先级")]
-#[\erikwang2013\apidoc\annotation\Param(name:"category", type:"string", desc:"工单分类")]
-#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", desc:"客户ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"assignee_user_id", type:"int", desc:"指派人ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('服务工单列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('分页查询服务工单记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/ticket')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', desc:'关键词')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'priority', type:'int', desc:'优先级')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'category', type:'string', desc:'工单分类')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'int', desc:'客户ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'assignee_user_id', type:'int', desc:'指派人ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -83,6 +84,7 @@ class TicketController extends BaseController
         $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
         $list = array_map(function ($item) use ($customerNames) {
             $item['customer_name'] = (string) ($customerNames[(int) ($item['customer_id'] ?? 0)] ?? '');
+
             return $this->encodeIds($item, ['id', 'customer_id']);
         }, $result['list']);
 
@@ -92,17 +94,17 @@ class TicketController extends BaseController
     /**
      * 创建工单
      */
-#[\erikwang2013\apidoc\annotation\Title("创建服务工单")]
-#[\erikwang2013\apidoc\annotation\Desc("新增服务工单记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/ticket")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"title", type:"string", desc:"工单标题，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", desc:"客户ID，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('创建服务工单')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增服务工单记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/ticket')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'title', type:'string', desc:'工单标题，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'int', desc:'客户ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -127,15 +129,15 @@ class TicketController extends BaseController
     /**
      * 工单详情
      */
-#[\erikwang2013\apidoc\annotation\Title("服务工单详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看服务工单详细信息，含回复列表")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工单ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('服务工单详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看服务工单详细信息，含回复列表')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工单ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -162,15 +164,15 @@ class TicketController extends BaseController
     /**
      * 更新工单
      */
-#[\erikwang2013\apidoc\annotation\Title("更新服务工单")]
-#[\erikwang2013\apidoc\annotation\Desc("修改服务工单信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工单ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新服务工单')]
+    #[\erikwang2013\apidoc\annotation\Desc('修改服务工单信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工单ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -192,16 +194,16 @@ class TicketController extends BaseController
     /**
      * 删除工单
      */
-#[\erikwang2013\apidoc\annotation\Title("删除服务工单")]
-#[\erikwang2013\apidoc\annotation\Desc("删除服务工单，连回复记录一起删除，需密码确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工单ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除服务工单')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除服务工单，连回复记录一起删除，需密码确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工单ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -231,16 +233,16 @@ class TicketController extends BaseController
     /**
      * 指派工单
      */
-#[\erikwang2013\apidoc\annotation\Title("指派工单")]
-#[\erikwang2013\apidoc\annotation\Desc("将工单指派给指定处理人")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工单ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"assignee_user_id", type:"int", desc:"指派人用户ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('指派工单')]
+    #[\erikwang2013\apidoc\annotation\Desc('将工单指派给指定处理人')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工单ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'assignee_user_id', type:'int', desc:'指派人用户ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function assign(Request $request, string $id): Response
     {
@@ -271,16 +273,16 @@ class TicketController extends BaseController
     /**
      * 解决工单
      */
-#[\erikwang2013\apidoc\annotation\Title("解决工单")]
-#[\erikwang2013\apidoc\annotation\Desc("将工单标记为已解决，可附带解决回复")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工单ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"content", type:"string", desc:"解决说明")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('解决工单')]
+    #[\erikwang2013\apidoc\annotation\Desc('将工单标记为已解决，可附带解决回复')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工单ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'content', type:'string', desc:'解决说明')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function resolve(Request $request, string $id): Response
     {
@@ -309,17 +311,17 @@ class TicketController extends BaseController
     /**
      * 添加工单回复
      */
-#[\erikwang2013\apidoc\annotation\Title("添加工单回复")]
-#[\erikwang2013\apidoc\annotation\Desc("为工单添加回复记录")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"工单ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"content", type:"string", desc:"回复内容，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"is_internal", type:"int", desc:"是否内部备注:0=公开1=内部")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('添加工单回复')]
+    #[\erikwang2013\apidoc\annotation\Desc('为工单添加回复记录')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'工单ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'content', type:'string', desc:'回复内容，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'is_internal', type:'int', desc:'是否内部备注:0=公开1=内部')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function reply(Request $request, string $id): Response
     {

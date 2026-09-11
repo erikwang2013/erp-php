@@ -12,27 +12,28 @@ use app\model\Customer;
 use app\model\SalesQuotation;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("销售报价")]
-#[\erikwang2013\apidoc\annotation\Group("销售管理")]
+
+#[\erikwang2013\apidoc\annotation\Title('销售报价')]
+#[\erikwang2013\apidoc\annotation\Group('销售管理')]
 
 class QuotationController extends BaseController
 {
     /**
      * 销售报价列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("销售报价列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取销售报价列表，支持分页、关键词搜索和状态筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/quotation")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（报价单号）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('销售报价列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取销售报价列表，支持分页、关键词搜索和状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/sales/quotation')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（报价单号）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -69,6 +70,7 @@ class QuotationController extends BaseController
         $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
         $list = array_map(function ($row) use ($customerNames) {
             $row['customer_name'] = (string) ($customerNames[(int) ($row['customer_id'] ?? 0)] ?? '');
+
             return $this->encodeIds($row, ['id', 'customer_id']);
         }, $rows);
 
@@ -78,18 +80,18 @@ class QuotationController extends BaseController
     /**
      * 创建销售报价
      */
-#[\erikwang2013\apidoc\annotation\Title("创建销售报价")]
-#[\erikwang2013\apidoc\annotation\Desc("新增一个销售报价记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/quotation")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"报价单号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", require:true, desc:"客户ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:1, desc:"状态")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"销售报价记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建销售报价')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增一个销售报价记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/sales/quotation')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'报价单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'int', require:true, desc:'客户ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:1, desc:'状态')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'销售报价记录')]
 
     public function store(Request $request): Response
     {
@@ -115,15 +117,15 @@ class QuotationController extends BaseController
     /**
      * 销售报价详情
      */
-#[\erikwang2013\apidoc\annotation\Title("销售报价详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID获取销售报价详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售报价hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"销售报价详情")]
+    #[\erikwang2013\apidoc\annotation\Title('销售报价详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID获取销售报价详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'销售报价hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'销售报价详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -145,18 +147,18 @@ class QuotationController extends BaseController
     /**
      * 更新销售报价
      */
-#[\erikwang2013\apidoc\annotation\Title("更新销售报价")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID更新销售报价信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售报价hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"报价单号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", default:"", desc:"客户ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的销售报价记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新销售报价')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID更新销售报价信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'销售报价hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'报价单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'int', default:'', desc:'客户ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的销售报价记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -185,16 +187,16 @@ class QuotationController extends BaseController
     /**
      * 删除销售报价（软删除）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除销售报价")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID软删除销售报价，需管理员密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售报价hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除销售报价')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID软删除销售报价，需管理员密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'销售报价hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {

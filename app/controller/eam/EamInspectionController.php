@@ -20,29 +20,29 @@ use support\Response;
 /**
  * 设备点检执行（扫码闭环）
  */
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Title("点检任务")]
-#[\erikwang2013\apidoc\annotation\Group("设备管理EAM")]
+#[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+#[\erikwang2013\apidoc\annotation\Title('点检任务')]
+#[\erikwang2013\apidoc\annotation\Group('设备管理EAM')]
 
 class EamInspectionController extends BaseController
 {
     /**
      * 点检任务列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("点检任务列表")]
-#[\erikwang2013\apidoc\annotation\Desc("按设备/日期/状态分页查询点检任务")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/inspection")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"equipment_id", type:"string", desc:"设备ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"task_date", type:"string", desc:"点检日期 Y-m-d")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态: 0待执行 1已完成 2异常待维修 3已取消")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('点检任务列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('按设备/日期/状态分页查询点检任务')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/eam/inspection')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'equipment_id', type:'string', desc:'设备ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'task_date', type:'string', desc:'点检日期 Y-m-d')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态: 0待执行 1已完成 2异常待维修 3已取消')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -84,20 +84,20 @@ class EamInspectionController extends BaseController
     /**
      * 生成点检任务
      */
-#[\erikwang2013\apidoc\annotation\Title("生成点检任务")]
-#[\erikwang2013\apidoc\annotation\Desc("按计划或人工补单生成点检任务；扫码自动生成请走扫码执行接口")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/inspection")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"equipment_id", type:"string", desc:"设备ID(hashid)，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"task_date", type:"string", desc:"点检日期 Y-m-d，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"source_plan_id", type:"string", desc:"来源保养计划ID(hashid)，选填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"assignee_id", type:"string", desc:"负责人ID(hashid)，选填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", desc:"备注")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('生成点检任务')]
+    #[\erikwang2013\apidoc\annotation\Desc('按计划或人工补单生成点检任务；扫码自动生成请走扫码执行接口')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/eam/inspection')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'equipment_id', type:'string', desc:'设备ID(hashid)，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'task_date', type:'string', desc:'点检日期 Y-m-d，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'source_plan_id', type:'string', desc:'来源保养计划ID(hashid)，选填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'assignee_id', type:'string', desc:'负责人ID(hashid)，选填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', desc:'备注')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -130,15 +130,15 @@ class EamInspectionController extends BaseController
     /**
      * 点检任务详情（含结果明细）
      */
-#[\erikwang2013\apidoc\annotation\Title("点检任务详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看点检任务及扫码结果明细")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"任务ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('点检任务详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看点检任务及扫码结果明细')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'任务ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -164,18 +164,18 @@ class EamInspectionController extends BaseController
     /**
      * 改期/改派/改备注（仅待执行任务可改）
      */
-#[\erikwang2013\apidoc\annotation\Title("修改点检任务")]
-#[\erikwang2013\apidoc\annotation\Desc("改期、更换负责人或备注；仅待执行任务可修改")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"任务ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"task_date", type:"string", desc:"点检日期 Y-m-d")]
-#[\erikwang2013\apidoc\annotation\Param(name:"assignee_id", type:"string", desc:"负责人ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", desc:"备注")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('修改点检任务')]
+    #[\erikwang2013\apidoc\annotation\Desc('改期、更换负责人或备注；仅待执行任务可修改')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'任务ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'task_date', type:'string', desc:'点检日期 Y-m-d')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'assignee_id', type:'string', desc:'负责人ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', desc:'备注')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -204,15 +204,15 @@ class EamInspectionController extends BaseController
     /**
      * 取消点检任务
      */
-#[\erikwang2013\apidoc\annotation\Title("取消点检任务")]
-#[\erikwang2013\apidoc\annotation\Desc("仅待执行任务可取消；已完成的点检不可取消")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"任务ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('取消点检任务')]
+    #[\erikwang2013\apidoc\annotation\Desc('仅待执行任务可取消；已完成的点检不可取消')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'任务ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function cancel(Request $request, string $id): Response
     {
@@ -234,18 +234,18 @@ class EamInspectionController extends BaseController
     /**
      * 扫码点检执行
      */
-#[\erikwang2013\apidoc\annotation\Title("扫码点检执行")]
-#[\erikwang2013\apidoc\annotation\Desc("扫码提交当日点检结果；无任务自动生成，异常项自动创建维修单")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/inspection/scan-execute")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"equipment_id", type:"string", desc:"设备ID(hashid)，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"task_date", type:"string", desc:"点检日期 Y-m-d，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"items", type:"array", desc:"点检项数组，必填，元素含 item_name/result(0正常1异常)/remark")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('扫码点检执行')]
+    #[\erikwang2013\apidoc\annotation\Desc('扫码提交当日点检结果；无任务自动生成，异常项自动创建维修单')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/eam/inspection/scan-execute')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'equipment_id', type:'string', desc:'设备ID(hashid)，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'task_date', type:'string', desc:'点检日期 Y-m-d，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'items', type:'array', desc:'点检项数组，必填，元素含 item_name/result(0正常1异常)/remark')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function scanExecute(Request $request): Response
     {

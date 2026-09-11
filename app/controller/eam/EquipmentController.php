@@ -15,29 +15,29 @@ use support\Response;
 /**
  * 设备台账管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Title("设备")]
-#[\erikwang2013\apidoc\annotation\Group("设备管理EAM")]
+#[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+#[\erikwang2013\apidoc\annotation\Title('设备')]
+#[\erikwang2013\apidoc\annotation\Group('设备管理EAM')]
 
 class EquipmentController extends BaseController
 {
     /**
      * 设备列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("设备列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取设备列表，支持分页、名称/编码/序列号关键词搜索及状态/分类筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/equipment")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（名称/编码/序列号）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[\erikwang2013\apidoc\annotation\Param(name:"category", type:"string", default:"", desc:"设备分类筛选")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"设备列表数据")]
+    #[\erikwang2013\apidoc\annotation\Title('设备列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取设备列表，支持分页、名称/编码/序列号关键词搜索及状态/分类筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/eam/equipment')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（名称/编码/序列号）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'category', type:'string', default:'', desc:'设备分类筛选')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'设备列表数据')]
 
     public function index(Request $request): Response
     {
@@ -79,17 +79,17 @@ class EquipmentController extends BaseController
     /**
      * 创建设备
      */
-#[\erikwang2013\apidoc\annotation\Title("创建设备")]
-#[\erikwang2013\apidoc\annotation\Desc("新增设备档案，设备编码/名称必填")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/equipment")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"设备编码（必填）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"设备名称（必填）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"创建设备记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建设备')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增设备档案，设备编码/名称必填')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/eam/equipment')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'设备编码（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', default:'', desc:'设备名称（必填）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'创建设备记录')]
 
     public function store(Request $request): Response
     {
@@ -111,15 +111,15 @@ class EquipmentController extends BaseController
     /**
      * 设备详情
      */
-#[\erikwang2013\apidoc\annotation\Title("设备详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID获取设备详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"设备hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"设备详情")]
+    #[\erikwang2013\apidoc\annotation\Title('设备详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID获取设备详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'设备hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'设备详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -138,15 +138,15 @@ class EquipmentController extends BaseController
     /**
      * 更新设备
      */
-#[\erikwang2013\apidoc\annotation\Title("更新设备")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID更新设备档案信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"设备hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的设备记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新设备')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID更新设备档案信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'设备hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的设备记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -170,16 +170,16 @@ class EquipmentController extends BaseController
     /**
      * 删除设备（软删除）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除设备")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID软删除设备档案，需管理员密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"设备hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除设备')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID软删除设备档案，需管理员密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'设备hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {

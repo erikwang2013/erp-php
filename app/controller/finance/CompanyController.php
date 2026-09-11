@@ -17,22 +17,22 @@ use support\Response;
 /**
  * 组织/公司管理（F1）——多组织与账套的入口。
  */
-#[\erikwang2013\apidoc\annotation\Title("公司")]
-#[\erikwang2013\apidoc\annotation\Group("财务管理")]
+#[\erikwang2013\apidoc\annotation\Title('公司')]
+#[\erikwang2013\apidoc\annotation\Group('财务管理')]
 class CompanyController extends BaseController
 {
     /**
      * 公司列表
      */
-#[\erikwang2013\apidoc\annotation\Title("公司列表")]
-#[\erikwang2013\apidoc\annotation\Desc("全量公司列表，含各自默认账套摘要")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/company/list")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"公司列表")]
+    #[\erikwang2013\apidoc\annotation\Title('公司列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('全量公司列表，含各自默认账套摘要')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/company/list')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'公司列表')]
 
     public function list(Request $request): Response
     {
@@ -56,17 +56,17 @@ class CompanyController extends BaseController
     /**
      * 新增公司（含默认账套与当期开账，一事务）
      */
-#[\erikwang2013\apidoc\annotation\Title("新增公司")]
-#[\erikwang2013\apidoc\annotation\Desc("创建组织并自动创建默认账套、开启当前自然月期间")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/company/create")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"公司名称，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"公司编码(2-50位字母/数字/_-)，必填且全局唯一")]
-#[\erikwang2013\apidoc\annotation\Param(name:"base_currency", type:"string", desc:"本位币，默认CNY")]
-#[\erikwang2013\apidoc\annotation\Param(name:"parent_id", type:"string", desc:"上级组织ID(hashid或数字)，0=顶级")]
-#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", desc:"备注")]
+    #[\erikwang2013\apidoc\annotation\Title('新增公司')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建组织并自动创建默认账套、开启当前自然月期间')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/company/create')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'公司名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'公司编码(2-50位字母/数字/_-)，必填且全局唯一')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'base_currency', type:'string', desc:'本位币，默认CNY')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'parent_id', type:'string', desc:'上级组织ID(hashid或数字)，0=顶级')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', desc:'备注')]
 
     public function create(Request $request): Response
     {
@@ -114,14 +114,14 @@ class CompanyController extends BaseController
     /**
      * 启用/停用公司
      */
-#[\erikwang2013\apidoc\annotation\Title("启用/停用公司")]
-#[\erikwang2013\apidoc\annotation\Desc("status 0=停用 1=启用")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/company/toggle")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"公司ID(hashid)，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"0=停用 1=启用")]
+    #[\erikwang2013\apidoc\annotation\Title('启用/停用公司')]
+    #[\erikwang2013\apidoc\annotation\Desc('status 0=停用 1=启用')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/company/toggle')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'公司ID(hashid)，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'0=停用 1=启用')]
 
     public function toggle(Request $request): Response
     {

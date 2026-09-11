@@ -18,9 +18,9 @@ use support\Response;
 /**
  * 审批管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("审批工作流")]
-#[\erikwang2013\apidoc\annotation\Title("审批")]
-#[\erikwang2013\apidoc\annotation\Group("审批工作流")]
+#[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
+#[\erikwang2013\apidoc\annotation\Title('审批')]
+#[\erikwang2013\apidoc\annotation\Group('审批工作流')]
 
 class ApprovalController extends BaseController
 {
@@ -49,16 +49,16 @@ class ApprovalController extends BaseController
     /**
      * 审批详情
      */
-#[\erikwang2013\apidoc\annotation\Title("审批详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID获取审批实例详情：实例平字段 + 流程/当前节点名称 + 审批记录时间线 + target_ref 单据引用")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/approval/{id}")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("审批工作流")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"审批实例ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"审批详情(含 records 时间线与 workflow_name/current_node_name/target_ref)")]
+    #[\erikwang2013\apidoc\annotation\Title('审批详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID获取审批实例详情：实例平字段 + 流程/当前节点名称 + 审批记录时间线 + target_ref 单据引用')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/approval/{id}')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'审批实例ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'审批详情(含 records 时间线与 workflow_name/current_node_name/target_ref)')]
 
     public function show(Request $request, string $id): Response
     {
@@ -114,17 +114,17 @@ class ApprovalController extends BaseController
     /**
      * 提交审批
      */
-#[\erikwang2013\apidoc\annotation\Title("提交审批")]
-#[\erikwang2013\apidoc\annotation\Desc("将指定单据提交到工作流审批，创建审批实例并进入第一个审批节点")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("审批工作流")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"工作流ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"target_type", type:"string", require:true, desc:"单据类型")]
-#[\erikwang2013\apidoc\annotation\Param(name:"target_id", type:"int", require:true, desc:"单据ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"审批实例")]
+    #[\erikwang2013\apidoc\annotation\Title('提交审批')]
+    #[\erikwang2013\apidoc\annotation\Desc('将指定单据提交到工作流审批，创建审批实例并进入第一个审批节点')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'工作流ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'target_type', type:'string', require:true, desc:'单据类型')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'target_id', type:'int', require:true, desc:'单据ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'审批实例')]
 
     public function submit(Request $request, string $id): Response
     {
@@ -176,16 +176,16 @@ class ApprovalController extends BaseController
     /**
      * 审批通过
      */
-#[\erikwang2013\apidoc\annotation\Title("审批通过")]
-#[\erikwang2013\apidoc\annotation\Desc("通过当前节点的审批，流转到下一个节点或完成审批")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("审批工作流")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"审批实例ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"comment", type:"string", default:"", desc:"审批意见")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('审批通过')]
+    #[\erikwang2013\apidoc\annotation\Desc('通过当前节点的审批，流转到下一个节点或完成审批')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'审批实例ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'comment', type:'string', default:'', desc:'审批意见')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function approve(Request $request, string $id): Response
     {
@@ -238,16 +238,16 @@ class ApprovalController extends BaseController
     /**
      * 驳回
      */
-#[\erikwang2013\apidoc\annotation\Title("驳回审批")]
-#[\erikwang2013\apidoc\annotation\Desc("驳回当前审批实例，需要填写驳回意见")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("审批工作流")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"审批实例ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"comment", type:"string", require:true, desc:"驳回意见")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('驳回审批')]
+    #[\erikwang2013\apidoc\annotation\Desc('驳回当前审批实例，需要填写驳回意见')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'审批实例ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'comment', type:'string', require:true, desc:'驳回意见')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function reject(Request $request, string $id): Response
     {
@@ -294,15 +294,15 @@ class ApprovalController extends BaseController
     /**
      * 撤回审批
      */
-#[\erikwang2013\apidoc\annotation\Title("撤回审批")]
-#[\erikwang2013\apidoc\annotation\Desc("撤回由当前用户提交的审批实例，仅提交人可操作")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("审批工作流")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"审批实例ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('撤回审批')]
+    #[\erikwang2013\apidoc\annotation\Desc('撤回由当前用户提交的审批实例，仅提交人可操作')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'审批实例ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function withdraw(Request $request, string $id): Response
     {
@@ -337,20 +337,20 @@ class ApprovalController extends BaseController
      * 我的审批列表
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("我的审批列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取当前用户待审批的审批实例分页列表")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/approval/my")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("审批工作流")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"待审批列表")]
-#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
-#[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
-#[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
+    #[\erikwang2013\apidoc\annotation\Title('我的审批列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取当前用户待审批的审批实例分页列表')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/approval/my')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('list', type:'array', desc:'待审批列表')]
+    #[\erikwang2013\apidoc\annotation\Returned('total', type:'int', desc:'总条数')]
+    #[\erikwang2013\apidoc\annotation\Returned('page', type:'int', desc:'当前页码')]
+    #[\erikwang2013\apidoc\annotation\Returned('limit', type:'int', desc:'每页条数')]
 
     public function myApprovals(Request $request): Response
     {

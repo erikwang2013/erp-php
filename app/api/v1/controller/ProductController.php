@@ -11,26 +11,27 @@ use app\admin\controller\BaseController;
 use app\model\Product;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("商品")]
-#[\erikwang2013\apidoc\annotation\Group("客户端公开")]
+
+#[\erikwang2013\apidoc\annotation\Title('商品')]
+#[\erikwang2013\apidoc\annotation\Group('客户端公开')]
 
 class ProductController extends BaseController
 {
     /**
      * 商品列表
      */
-#[\erikwang2013\apidoc\annotation\Title("商品列表")]
-#[\erikwang2013\apidoc\annotation\Desc("客户端公开商品列表(仅启用商品)，支持关键词搜索，分页返回")]
-#[\erikwang2013\apidoc\annotation\Url("/api/v1/product")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("客户端 API")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:"1", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:"20", desc:"每页数量")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"商品名称或编码关键字")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"分页列表(list/total/page/limit),list含id(hashid)/code/name/barcode/spec/unit/image")]
+    #[\erikwang2013\apidoc\annotation\Title('商品列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('客户端公开商品列表(仅启用商品)，支持关键词搜索，分页返回')]
+    #[\erikwang2013\apidoc\annotation\Url('/api/v1/product')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('客户端 API')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:'1', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:'20', desc:'每页数量')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', desc:'商品名称或编码关键字')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'分页列表(list/total/page/limit),list含id(hashid)/code/name/barcode/spec/unit/image')]
 
     public function index(Request $request): Response
     {
@@ -57,16 +58,16 @@ class ProductController extends BaseController
     /**
      * 商品详情
      */
-#[\erikwang2013\apidoc\annotation\Title("商品详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查询启用商品详情，含启用 SKU 与批发/零售价")]
-#[\erikwang2013\apidoc\annotation\Url("/api/v1/product/{hashid}")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("客户端 API")]
-#[\erikwang2013\apidoc\annotation\Param(name:"hashid", type:"string", require:true, desc:"商品ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"商品详情(hashid),含skus与prices(wholesale/retail)")]
+    #[\erikwang2013\apidoc\annotation\Title('商品详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查询启用商品详情，含启用 SKU 与批发/零售价')]
+    #[\erikwang2013\apidoc\annotation\Url('/api/v1/product/{hashid}')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('客户端 API')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'hashid', type:'string', require:true, desc:'商品ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'商品详情(hashid),含skus与prices(wholesale/retail)')]
 
     public function show(Request $request, string $hashid): Response
     {

@@ -12,30 +12,31 @@ use app\model\Project;
 use app\model\ProjectTask;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("项目任务")]
-#[\erikwang2013\apidoc\annotation\Group("项目管理")]
+
+#[\erikwang2013\apidoc\annotation\Title('项目任务')]
+#[\erikwang2013\apidoc\annotation\Group('项目管理')]
 
 class TaskController extends BaseController
 {
     /**
      * 项目任务列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("项目任务列表")]
-#[\erikwang2013\apidoc\annotation\Desc("分页查询项目任务，支持按项目筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/task")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"project_id", type:"string", desc:"项目ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"parent_id", type:"int", desc:"父任务ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态")]
-#[\erikwang2013\apidoc\annotation\Param(name:"assignee_user_id", type:"int", desc:"负责人ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"关键词")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('项目任务列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('分页查询项目任务，支持按项目筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/project/task')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'project_id', type:'string', desc:'项目ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'parent_id', type:'int', desc:'父任务ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'assignee_user_id', type:'int', desc:'负责人ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', desc:'关键词')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -97,17 +98,17 @@ class TaskController extends BaseController
     /**
      * 创建项目任务
      */
-#[\erikwang2013\apidoc\annotation\Title("创建项目任务")]
-#[\erikwang2013\apidoc\annotation\Desc("新增项目任务记录，自动更新上级项目进度")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/project/task")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"任务名称，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"project_id", type:"string", desc:"项目ID，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('创建项目任务')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增项目任务记录，自动更新上级项目进度')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/project/task')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'任务名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'project_id', type:'string', desc:'项目ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -133,15 +134,15 @@ class TaskController extends BaseController
     /**
      * 任务详情
      */
-#[\erikwang2013\apidoc\annotation\Title("项目任务详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看项目任务详细信息，含子任务列表")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"任务ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('项目任务详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看项目任务详细信息，含子任务列表')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'任务ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -169,15 +170,15 @@ class TaskController extends BaseController
     /**
      * 更新任务
      */
-#[\erikwang2013\apidoc\annotation\Title("更新项目任务")]
-#[\erikwang2013\apidoc\annotation\Desc("修改项目任务信息，自动更新上级项目进度")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"任务ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新项目任务')]
+    #[\erikwang2013\apidoc\annotation\Desc('修改项目任务信息，自动更新上级项目进度')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'任务ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -208,16 +209,16 @@ class TaskController extends BaseController
     /**
      * 删除任务
      */
-#[\erikwang2013\apidoc\annotation\Title("删除项目任务")]
-#[\erikwang2013\apidoc\annotation\Desc("删除项目任务，自动更新上级项目进度，需密码确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("项目管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"任务ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除项目任务')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除项目任务，自动更新上级项目进度，需密码确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('项目管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'任务ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function destroy(Request $request, string $id): Response
     {

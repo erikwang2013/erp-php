@@ -5,7 +5,7 @@
 <?php foreach (['host','port','database','username','password','prefix','jwt_secret','encryption_key','encryptable_key','hashids_salt','hashids_alt_salt','http_port','ws_port','rabbitmq_password','engine_driver','engine_host','engine_username','engine_password'] as $k): ?>
 <input type="hidden" name="<?= $k ?>" value="<?= htmlspecialchars((string) ($old[$k] ?? ''), ENT_QUOTES) ?>">
 <?php endforeach; ?>
-<div class="form-group"><label>管理员用户名</label><input type="text" name="admin_username" value="<?= $h('admin_username','admin') ?>" required minlength="3"></div>
+<div class="form-group"><label>管理员用户名</label><input type="text" name="admin_username" value="<?= $h('admin_username', 'admin') ?>" required minlength="3"></div>
 <div class="form-group"><label>管理员密码</label>
   <div class="pw-wrap"><input type="password" name="admin_password" id="ap-pass" data-pw required minlength="6" placeholder="至少6位">
   <button type="button" class="pw-eye" data-eye="ap-pass" aria-label="显示/隐藏密码">👁</button></div>

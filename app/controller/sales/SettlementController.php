@@ -19,8 +19,8 @@ use support\Response;
  * 销售结算 = erp_finance_ar_ap（source_type=sales_delivery）的薄视图，
  * 状态由 settled_amount/amount 推导；核销走 FinanceService::settleReceipt。
  */
-#[\erikwang2013\apidoc\annotation\Title("销售结算")]
-#[\erikwang2013\apidoc\annotation\Group("销售管理")]
+#[\erikwang2013\apidoc\annotation\Title('销售结算')]
+#[\erikwang2013\apidoc\annotation\Group('销售管理')]
 class SettlementController extends BaseController
 {
     private const AR_TYPE = 1;
@@ -29,19 +29,19 @@ class SettlementController extends BaseController
     /**
      * 销售结算列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("销售结算列表")]
-#[\erikwang2013\apidoc\annotation\Desc("基于应收记录查询销售结算，状态按已核销金额推导")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/settlement")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（客户名称）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态: 0=未结算 1=部分结算 2=已结算（服务端推导）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('销售结算列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('基于应收记录查询销售结算，状态按已核销金额推导')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/sales/settlement')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（客户名称）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态: 0=未结算 1=部分结算 2=已结算（服务端推导）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -97,18 +97,18 @@ class SettlementController extends BaseController
     /**
      * 销售结算核销（经服务层）
      */
-#[\erikwang2013\apidoc\annotation\Title("创建销售结算核销")]
-#[\erikwang2013\apidoc\annotation\Desc("对发货单应收记录执行收款核销，状态由服务层推导，客户端传 status 一律忽略")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/settlement")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"delivery_id", type:"string", default:"", desc:"发货单ID hashid（必填）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"receipt_payment_id", type:"string", default:"", desc:"收款单ID hashid（必填，需已审核）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"amount", type:"number", default:"", desc:"核销金额（必填）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('创建销售结算核销')]
+    #[\erikwang2013\apidoc\annotation\Desc('对发货单应收记录执行收款核销，状态由服务层推导，客户端传 status 一律忽略')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/sales/settlement')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'delivery_id', type:'string', default:'', desc:'发货单ID hashid（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'receipt_payment_id', type:'string', default:'', desc:'收款单ID hashid（必填，需已审核）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'amount', type:'number', default:'', desc:'核销金额（必填）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -146,15 +146,15 @@ class SettlementController extends BaseController
     /**
      * 销售结算详情
      */
-#[\erikwang2013\apidoc\annotation\Title("销售结算详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据应收记录ID获取销售结算详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"应收记录hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"销售结算详情")]
+    #[\erikwang2013\apidoc\annotation\Title('销售结算详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据应收记录ID获取销售结算详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'应收记录hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'销售结算详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -178,16 +178,16 @@ class SettlementController extends BaseController
     /**
      * 更新销售结算（仅应收金额）
      */
-#[\erikwang2013\apidoc\annotation\Title("更新销售结算")]
-#[\erikwang2013\apidoc\annotation\Desc("仅允许调整应收金额，且不得小于已核销金额；状态由服务端推导")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"应收记录hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"amount", type:"number", default:"", desc:"应收金额")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的销售结算记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新销售结算')]
+    #[\erikwang2013\apidoc\annotation\Desc('仅允许调整应收金额，且不得小于已核销金额；状态由服务端推导')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'应收记录hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'amount', type:'number', default:'', desc:'应收金额')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的销售结算记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -222,16 +222,16 @@ class SettlementController extends BaseController
     /**
      * 删除销售结算（仅未核销记录）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除销售结算")]
-#[\erikwang2013\apidoc\annotation\Desc("删除未核销的应收记录，需管理员密码二次确认；已核销记录不可删除")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"应收记录hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除销售结算')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除未核销的应收记录，需管理员密码二次确认；已核销记录不可删除')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'应收记录hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {

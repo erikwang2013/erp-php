@@ -17,9 +17,9 @@ use support\Response;
 /**
  * 费用支出管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Title("费用")]
-#[\erikwang2013\apidoc\annotation\Group("财务管理")]
+#[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+#[\erikwang2013\apidoc\annotation\Title('费用')]
+#[\erikwang2013\apidoc\annotation\Group('财务管理')]
 
 class ExpenseController extends BaseController
 {
@@ -27,22 +27,22 @@ class ExpenseController extends BaseController
      * 费用列表（分页）
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("费用列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取费用支出分页列表，支持关键字搜索和状态筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/expense")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"费用列表")]
-#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
-#[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
-#[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
+    #[\erikwang2013\apidoc\annotation\Title('费用列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取费用支出分页列表，支持关键字搜索和状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/expense')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词(名称/编码)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('list', type:'array', desc:'费用列表')]
+    #[\erikwang2013\apidoc\annotation\Returned('total', type:'int', desc:'总条数')]
+    #[\erikwang2013\apidoc\annotation\Returned('page', type:'int', desc:'当前页码')]
+    #[\erikwang2013\apidoc\annotation\Returned('limit', type:'int', desc:'每页条数')]
 
     public function index(Request $request): Response
     {
@@ -81,6 +81,7 @@ class ExpenseController extends BaseController
             $row = $this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']);
             $row['apply_user_name'] = $applyNames[$item->apply_user_id] ?? '';
             $row['account_name'] = $accountNames[$item->account_id] ?? '';
+
             return $row;
         });
 
@@ -90,20 +91,20 @@ class ExpenseController extends BaseController
     /**
      * 创建费用记录
      */
-#[\erikwang2013\apidoc\annotation\Title("创建费用记录")]
-#[\erikwang2013\apidoc\annotation\Desc("创建一条新的费用支出记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/expense")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"报销单号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"apply_user_id", type:"string", require:true, desc:"申请人ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"account_id", type:"string", require:true, desc:"费用科目ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"amount", type:"float", default:0, desc:"报销金额")]
-#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", default:"", desc:"备注")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"费用记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建费用记录')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建一条新的费用支出记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/expense')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'报销单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'apply_user_id', type:'string', require:true, desc:'申请人ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'account_id', type:'string', require:true, desc:'费用科目ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'amount', type:'float', default:0, desc:'报销金额')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', default:'', desc:'备注')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'费用记录')]
 
     public function store(Request $request): Response
     {
@@ -140,15 +141,15 @@ class ExpenseController extends BaseController
     /**
      * 费用详情
      */
-#[\erikwang2013\apidoc\annotation\Title("费用详情")]
-#[\erikwang2013\apidoc\annotation\Desc("获取指定费用记录的详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"费用记录ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"费用详情")]
+    #[\erikwang2013\apidoc\annotation\Title('费用详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取指定费用记录的详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'费用记录ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'费用详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -170,21 +171,21 @@ class ExpenseController extends BaseController
     /**
      * 更新费用记录
      */
-#[\erikwang2013\apidoc\annotation\Title("更新费用记录")]
-#[\erikwang2013\apidoc\annotation\Desc("更新指定费用记录的信息（已批准不可修改）")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"费用记录ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"报销单号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"apply_user_id", type:"string", default:"", desc:"申请人ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"account_id", type:"string", default:"", desc:"费用科目ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"amount", type:"float", default:"", desc:"报销金额")]
-#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", default:"", desc:"备注")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态：仅支持 1 审批通过")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的费用记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新费用记录')]
+    #[\erikwang2013\apidoc\annotation\Desc('更新指定费用记录的信息（已批准不可修改）')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'费用记录ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'报销单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'apply_user_id', type:'string', default:'', desc:'申请人ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'account_id', type:'string', default:'', desc:'费用科目ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'amount', type:'float', default:'', desc:'报销金额')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', default:'', desc:'备注')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态：仅支持 1 审批通过')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的费用记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -245,16 +246,16 @@ class ExpenseController extends BaseController
     /**
      * 删除费用记录
      */
-#[\erikwang2013\apidoc\annotation\Title("删除费用记录")]
-#[\erikwang2013\apidoc\annotation\Desc("软删除指定费用记录，需要密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"费用记录ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除费用记录')]
+    #[\erikwang2013\apidoc\annotation\Desc('软删除指定费用记录，需要密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'费用记录ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'当前管理员密码(二次确认)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {

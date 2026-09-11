@@ -18,8 +18,8 @@ use support\Response;
 /**
  * BOM管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Group("生产制造")]
+#[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+#[\erikwang2013\apidoc\annotation\Group('生产制造')]
 
 class BomController extends BaseController
 {
@@ -27,23 +27,23 @@ class BomController extends BaseController
      * BOM列表（分页）
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("BOM列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取BOM分页列表，支持关键字/状态/产品筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/bom")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选:0草稿1已生效2已失效")]
-#[\erikwang2013\apidoc\annotation\Param(name:"product_id", type:"int", default:"", desc:"产品ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"BOM列表")]
-#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
-#[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
-#[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
+    #[\erikwang2013\apidoc\annotation\Title('BOM列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取BOM分页列表，支持关键字/状态/产品筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/bom')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词(名称/编码)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选:0草稿1已生效2已失效')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'product_id', type:'int', default:'', desc:'产品ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('list', type:'array', desc:'BOM列表')]
+    #[\erikwang2013\apidoc\annotation\Returned('total', type:'int', desc:'总条数')]
+    #[\erikwang2013\apidoc\annotation\Returned('page', type:'int', desc:'当前页码')]
+    #[\erikwang2013\apidoc\annotation\Returned('limit', type:'int', desc:'每页条数')]
 
     public function index(Request $request): Response
     {
@@ -80,18 +80,18 @@ class BomController extends BaseController
     /**
      * 创建BOM
      */
-#[\erikwang2013\apidoc\annotation\Title("创建BOM")]
-#[\erikwang2013\apidoc\annotation\Desc("创建一个新的BOM，状态默认为草稿")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/bom")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"product_id", type:"int", require:true, desc:"产品ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"BOM编码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"BOM名称")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"BOM信息")]
+    #[\erikwang2013\apidoc\annotation\Title('创建BOM')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建一个新的BOM，状态默认为草稿')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/bom')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'product_id', type:'int', require:true, desc:'产品ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'BOM编码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', require:true, desc:'BOM名称')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'BOM信息')]
 
     public function store(Request $request): Response
     {
@@ -120,15 +120,15 @@ class BomController extends BaseController
     /**
      * BOM详情
      */
-#[\erikwang2013\apidoc\annotation\Title("BOM详情")]
-#[\erikwang2013\apidoc\annotation\Desc("获取指定BOM的详细信息，包含物料明细")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"BOM ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"BOM详情(含明细)")]
+    #[\erikwang2013\apidoc\annotation\Title('BOM详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取指定BOM的详细信息，包含物料明细')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'BOM ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'BOM详情(含明细)')]
 
     public function show(Request $request, string $id): Response
     {
@@ -155,15 +155,15 @@ class BomController extends BaseController
     /**
      * 更新BOM
      */
-#[\erikwang2013\apidoc\annotation\Title("更新BOM")]
-#[\erikwang2013\apidoc\annotation\Desc("更新BOM信息，已生效的BOM不可直接修改")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"BOM ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的BOM信息")]
+    #[\erikwang2013\apidoc\annotation\Title('更新BOM')]
+    #[\erikwang2013\apidoc\annotation\Desc('更新BOM信息，已生效的BOM不可直接修改')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'BOM ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的BOM信息')]
 
     public function update(Request $request, string $id): Response
     {
@@ -200,16 +200,16 @@ class BomController extends BaseController
     /**
      * 删除BOM
      */
-#[\erikwang2013\apidoc\annotation\Title("删除BOM")]
-#[\erikwang2013\apidoc\annotation\Desc("软删除指定BOM及其关联明细，需要密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"BOM ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除BOM')]
+    #[\erikwang2013\apidoc\annotation\Desc('软删除指定BOM及其关联明细，需要密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'BOM ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'当前管理员密码(二次确认)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -241,18 +241,18 @@ class BomController extends BaseController
     /**
      * 新增BOM版本
      */
-#[\erikwang2013\apidoc\annotation\Title("新增BOM版本")]
-#[\erikwang2013\apidoc\annotation\Desc("基于源BOM创建新版本，复制所有明细，旧版本自动设为失效")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/bom/new-version")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"source_id", type:"int", require:true, desc:"源BOM ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"version", type:"string", require:true, desc:"新版本号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"effective_date", type:"string", default:"", desc:"生效日期")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"新版本BOM信息")]
+    #[\erikwang2013\apidoc\annotation\Title('新增BOM版本')]
+    #[\erikwang2013\apidoc\annotation\Desc('基于源BOM创建新版本，复制所有明细，旧版本自动设为失效')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/bom/new-version')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'source_id', type:'int', require:true, desc:'源BOM ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'version', type:'string', require:true, desc:'新版本号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'effective_date', type:'string', default:'', desc:'生效日期')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'新版本BOM信息')]
 
     public function newVersion(Request $request): Response
     {
@@ -282,15 +282,15 @@ class BomController extends BaseController
     /**
      * 生效BOM
      */
-#[\erikwang2013\apidoc\annotation\Title("生效BOM")]
-#[\erikwang2013\apidoc\annotation\Desc("将指定BOM设为生效状态，同一产品的其他已生效BOM自动设为失效")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"BOM ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"已生效的BOM信息")]
+    #[\erikwang2013\apidoc\annotation\Title('生效BOM')]
+    #[\erikwang2013\apidoc\annotation\Desc('将指定BOM设为生效状态，同一产品的其他已生效BOM自动设为失效')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'BOM ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'已生效的BOM信息')]
 
     public function activate(Request $request, string $id): Response
     {

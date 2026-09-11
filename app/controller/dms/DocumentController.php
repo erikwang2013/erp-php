@@ -17,9 +17,9 @@ use support\Response;
 /**
  * 文档管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
-#[\erikwang2013\apidoc\annotation\Title("文档")]
-#[\erikwang2013\apidoc\annotation\Group("文档管理DMS")]
+#[\erikwang2013\apidoc\annotation\Tag('文档管理')]
+#[\erikwang2013\apidoc\annotation\Title('文档')]
+#[\erikwang2013\apidoc\annotation\Group('文档管理DMS')]
 
 class DocumentController extends BaseController
 {
@@ -28,20 +28,20 @@ class DocumentController extends BaseController
      */
     private const CATEGORIES = ['制度规范', '流程文档', '技术文档', '合同协议', '培训材料', '其他'];
 
-#[\erikwang2013\apidoc\annotation\Title("文档列表")]
-#[\erikwang2013\apidoc\annotation\Desc("分页查询文档，支持标题/编码关键字、分类与状态筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/dms/document")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:"1", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:"15", desc:"每页数量")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"标题或文档编码关键字")]
-#[\erikwang2013\apidoc\annotation\Param(name:"category", type:"string", desc:"文档分类")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态,0=草稿,1=发布")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"分页列表(list/total/page/limit)")]
+    #[\erikwang2013\apidoc\annotation\Title('文档列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('分页查询文档，支持标题/编码关键字、分类与状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/dms/document')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('文档管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:'1', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:'15', desc:'每页数量')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', desc:'标题或文档编码关键字')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'category', type:'string', desc:'文档分类')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态,0=草稿,1=发布')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'分页列表(list/total/page/limit)')]
 
     public function index(Request $request): Response
     {
@@ -79,19 +79,19 @@ class DocumentController extends BaseController
         return $this->successPage($list, $total, $page, $limit);
     }
 
-#[\erikwang2013\apidoc\annotation\Title("创建文档")]
-#[\erikwang2013\apidoc\annotation\Desc("新建文档，自动生成文档编码(DOC-日期-随机)并记录初始版本")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/dms/document")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"title", type:"string", require:true, desc:"文档标题(≤200字符)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"category", type:"string", require:true, desc:"文档分类(≤50字符)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"0", desc:"状态,0=草稿,1=发布")]
-#[\erikwang2013\apidoc\annotation\Param(name:"content", type:"string", desc:"文档内容")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"文档详情(hashid)")]
+    #[\erikwang2013\apidoc\annotation\Title('创建文档')]
+    #[\erikwang2013\apidoc\annotation\Desc('新建文档，自动生成文档编码(DOC-日期-随机)并记录初始版本')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/dms/document')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('文档管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'title', type:'string', require:true, desc:'文档标题(≤200字符)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'category', type:'string', require:true, desc:'文档分类(≤50字符)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'0', desc:'状态,0=草稿,1=发布')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'content', type:'string', desc:'文档内容')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'文档详情(hashid)')]
 
     public function store(Request $request): Response
     {
@@ -123,15 +123,15 @@ class DocumentController extends BaseController
     /**
      * 文档详情
      */
-#[\erikwang2013\apidoc\annotation\Title("文档详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看文档详情及其全部版本历史")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"文档ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"文档详情,含versions版本数组")]
+    #[\erikwang2013\apidoc\annotation\Title('文档详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看文档详情及其全部版本历史')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('文档管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'文档ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'文档详情,含versions版本数组')]
 
     public function show(Request $request, string $id): Response
     {
@@ -156,19 +156,19 @@ class DocumentController extends BaseController
     /**
      * 更新文档
      */
-#[\erikwang2013\apidoc\annotation\Title("更新文档")]
-#[\erikwang2013\apidoc\annotation\Desc("更新文档信息，内容变更时自动生成新版本并记录变更说明")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"文档ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"title", type:"string", desc:"文档标题")]
-#[\erikwang2013\apidoc\annotation\Param(name:"category", type:"string", desc:"文档分类")]
-#[\erikwang2013\apidoc\annotation\Param(name:"content", type:"string", desc:"文档内容(变更时自动生成新版本)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"change_note", type:"string", desc:"版本变更说明")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后文档详情(hashid)")]
+    #[\erikwang2013\apidoc\annotation\Title('更新文档')]
+    #[\erikwang2013\apidoc\annotation\Desc('更新文档信息，内容变更时自动生成新版本并记录变更说明')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('文档管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'文档ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'title', type:'string', desc:'文档标题')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'category', type:'string', desc:'文档分类')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'content', type:'string', desc:'文档内容(变更时自动生成新版本)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'change_note', type:'string', desc:'版本变更说明')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后文档详情(hashid)')]
 
     public function update(Request $request, string $id): Response
     {
@@ -205,16 +205,16 @@ class DocumentController extends BaseController
     /**
      * 删除文档
      */
-#[\erikwang2013\apidoc\annotation\Title("删除文档")]
-#[\erikwang2013\apidoc\annotation\Desc("删除文档并级联删除其全部版本记录，需二次密码确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("文档管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"文档ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"操作密码(二次确认)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除文档')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除文档并级联删除其全部版本记录，需二次密码确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('文档管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'文档ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'操作密码(二次确认)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -244,8 +244,8 @@ class DocumentController extends BaseController
     /**
      * 文档版本历史
      */
-#[\erikwang2013\apidoc\annotation\Title("文档版本历史")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
+    #[\erikwang2013\apidoc\annotation\Title('文档版本历史')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
 
     public function versions(Request $request, string $id): Response
     {
@@ -258,9 +258,9 @@ class DocumentController extends BaseController
     /**
      * 文档分类列表
      */
-#[\erikwang2013\apidoc\annotation\Title("文档分类列表")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/dms/categories")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
+    #[\erikwang2013\apidoc\annotation\Title('文档分类列表')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/dms/categories')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
 
     public function categories(Request $request): Response
     {

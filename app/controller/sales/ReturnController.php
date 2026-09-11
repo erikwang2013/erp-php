@@ -14,27 +14,28 @@ use app\model\SalesReturn;
 use app\model\Warehouse;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("销售退货")]
-#[\erikwang2013\apidoc\annotation\Group("销售管理")]
+
+#[\erikwang2013\apidoc\annotation\Title('销售退货')]
+#[\erikwang2013\apidoc\annotation\Group('销售管理')]
 
 class ReturnController extends BaseController
 {
     /**
      * 销售退货列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("销售退货列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取销售退货列表，支持分页、关键词搜索（仅单号）和状态筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/return")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（单号）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('销售退货列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取销售退货列表，支持分页、关键词搜索（仅单号）和状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/sales/return')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（单号）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -76,6 +77,7 @@ class ReturnController extends BaseController
             $row['delivery_code'] = $deliveryCodes[$item->delivery_id] ?? '';
             $row['customer_name'] = $customerNames[$item->customer_id] ?? '';
             $row['warehouse_name'] = $warehouseNames[$item->warehouse_id] ?? '';
+
             return $row;
         });
 
@@ -85,22 +87,22 @@ class ReturnController extends BaseController
     /**
      * 创建销售退货
      */
-#[\erikwang2013\apidoc\annotation\Title("创建销售退货")]
-#[\erikwang2013\apidoc\annotation\Desc("新增一个销售退货记录（表无 name 列）")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/sales/return")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"退货单号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"delivery_id", type:"string", require:true, desc:"发货单ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"string", require:true, desc:"客户ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"warehouse_id", type:"string", require:true, desc:"退货仓库ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"total_amount", type:"float", default:0, desc:"退货总金额")]
-#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", desc:"备注")]
-#[\erikwang2013\apidoc\annotation\Param(name:"returned_at", type:"string", desc:"退货时间")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"销售退货记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建销售退货')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增一个销售退货记录（表无 name 列）')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/sales/return')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'退货单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'delivery_id', type:'string', require:true, desc:'发货单ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'string', require:true, desc:'客户ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'string', require:true, desc:'退货仓库ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'total_amount', type:'float', default:0, desc:'退货总金额')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', desc:'备注')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'returned_at', type:'string', desc:'退货时间')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'销售退货记录')]
 
     public function store(Request $request): Response
     {
@@ -134,15 +136,15 @@ class ReturnController extends BaseController
     /**
      * 销售退货详情
      */
-#[\erikwang2013\apidoc\annotation\Title("销售退货详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID获取销售退货详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售退货hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"销售退货详情")]
+    #[\erikwang2013\apidoc\annotation\Title('销售退货详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID获取销售退货详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'销售退货hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'销售退货详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -164,19 +166,19 @@ class ReturnController extends BaseController
     /**
      * 更新销售退货
      */
-#[\erikwang2013\apidoc\annotation\Title("更新销售退货")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID更新销售退货信息（已入库不可改）")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售退货hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"退货单号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"delivery_id", type:"string", desc:"发货单ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"total_amount", type:"float", desc:"退货总金额")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态：仅支持 1 入库确认")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的销售退货记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新销售退货')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID更新销售退货信息（已入库不可改）')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'销售退货hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'退货单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'delivery_id', type:'string', desc:'发货单ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'total_amount', type:'float', desc:'退货总金额')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态：仅支持 1 入库确认')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的销售退货记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -236,16 +238,16 @@ class ReturnController extends BaseController
     /**
      * 删除销售退货
      */
-#[\erikwang2013\apidoc\annotation\Title("删除销售退货")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID删除销售退货，需管理员密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("销售管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"销售退货hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除销售退货')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID删除销售退货，需管理员密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('销售管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'销售退货hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {

@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 namespace app\model;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Erikwang2013\WebmanScout\Searchable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
 class FinanceAsset extends Model

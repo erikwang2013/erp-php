@@ -18,28 +18,28 @@ use support\Response;
 /**
  * MRP计划管理 — 计划生成 + 列表
  */
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Group("生产制造")]
+#[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+#[\erikwang2013\apidoc\annotation\Group('生产制造')]
 
 class MrpController extends BaseController
 {
     /**
      * MRP计划列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("MRP计划列表")]
-#[\erikwang2013\apidoc\annotation\Desc("分页查询MRP计划记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/mrp")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_year", type:"int", desc:"计划年度")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_month", type:"int", desc:"计划月份")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('MRP计划列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('分页查询MRP计划记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/mrp')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_year', type:'int', desc:'计划年度')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_month', type:'int', desc:'计划月份')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -75,18 +75,18 @@ class MrpController extends BaseController
     /**
      * 创建MRP计划头
      */
-#[\erikwang2013\apidoc\annotation\Title("创建MRP计划")]
-#[\erikwang2013\apidoc\annotation\Desc("新增MRP计划头记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/mrp")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", desc:"计划编码，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_year", type:"int", desc:"计划年度，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_month", type:"int", desc:"计划月份，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('创建MRP计划')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增MRP计划头记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/mrp')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'计划编码，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_year', type:'int', desc:'计划年度，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_month', type:'int', desc:'计划月份，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -107,15 +107,15 @@ class MrpController extends BaseController
     /**
      * MRP计划详情
      */
-#[\erikwang2013\apidoc\annotation\Title("MRP计划详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看MRP计划详细信息，含明细")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"计划ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('MRP计划详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看MRP计划详细信息，含明细')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'计划ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -142,15 +142,15 @@ class MrpController extends BaseController
     /**
      * 更新MRP计划
      */
-#[\erikwang2013\apidoc\annotation\Title("更新MRP计划")]
-#[\erikwang2013\apidoc\annotation\Desc("修改MRP计划，已确认不可修改")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"计划ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新MRP计划')]
+    #[\erikwang2013\apidoc\annotation\Desc('修改MRP计划，已确认不可修改')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'计划ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -177,16 +177,16 @@ class MrpController extends BaseController
     /**
      * 删除MRP计划
      */
-#[\erikwang2013\apidoc\annotation\Title("删除MRP计划")]
-#[\erikwang2013\apidoc\annotation\Desc("删除MRP计划，连明细一起删除，需密码确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"计划ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除MRP计划')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除MRP计划，连明细一起删除，需密码确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'计划ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -216,15 +216,15 @@ class MrpController extends BaseController
     /**
      * 生成MRP计划明细
      */
-#[\erikwang2013\apidoc\annotation\Title("生成MRP明细")]
-#[\erikwang2013\apidoc\annotation\Desc("基于各产品BOM与库存计算净需求，生成MRP计划明细")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"计划ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('生成MRP明细')]
+    #[\erikwang2013\apidoc\annotation\Desc('基于各产品BOM与库存计算净需求，生成MRP计划明细')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'计划ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function generate(Request $request, string $id): Response
     {

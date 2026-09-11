@@ -26,22 +26,22 @@ use support\Response;
  * 注意：追溯接口返回原始 snowflake id 与 source_id（不 hashid 编码），
  * 便于前端直接以 source_id 定位上游/下游业务单据。
  */
-#[\erikwang2013\apidoc\annotation\Title("批次正向追溯")]
-#[\erikwang2013\apidoc\annotation\Group("库存管理")]
+#[\erikwang2013\apidoc\annotation\Title('批次正向追溯')]
+#[\erikwang2013\apidoc\annotation\Group('库存管理')]
 class TraceController extends BaseController
 {
     /**
      * 正向追溯：该批次全部流水按方向分组，出库侧展开下游去向
      */
-#[\erikwang2013\apidoc\annotation\Title("批次正向追溯")]
-#[\erikwang2013\apidoc\annotation\Desc("按批次号查询全部出入库流水，出库侧展开下游去向（单据类型/source_id）")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"batchCode", type:"string", require:true, desc:"批次号")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"批次追溯结果")]
+    #[\erikwang2013\apidoc\annotation\Title('批次正向追溯')]
+    #[\erikwang2013\apidoc\annotation\Desc('按批次号查询全部出入库流水，出库侧展开下游去向（单据类型/source_id）')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'batchCode', type:'string', require:true, desc:'批次号')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'批次追溯结果')]
 
     public function forward(Request $request, string $batchCode): Response
     {
@@ -51,21 +51,22 @@ class TraceController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+
         return $this->run(fn (): array => $this->trace()->forward(trim((string) $batchCode)));
     }
 
     /**
      * 反向追溯：该批次入库流水的来源 → 上游单据
      */
-#[\erikwang2013\apidoc\annotation\Title("批次反向追溯")]
-#[\erikwang2013\apidoc\annotation\Desc("按批次号查询入库来源链（来源单据类型/source_id）")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"batchCode", type:"string", require:true, desc:"批次号")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"批次来源链")]
+    #[\erikwang2013\apidoc\annotation\Title('批次反向追溯')]
+    #[\erikwang2013\apidoc\annotation\Desc('按批次号查询入库来源链（来源单据类型/source_id）')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'batchCode', type:'string', require:true, desc:'批次号')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'批次来源链')]
 
     public function backward(Request $request, string $batchCode): Response
     {
@@ -75,21 +76,22 @@ class TraceController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+
         return $this->run(fn (): array => $this->trace()->backward(trim((string) $batchCode)));
     }
 
     /**
      * 序列号链：入库/出库两端流水明细
      */
-#[\erikwang2013\apidoc\annotation\Title("序列号追溯")]
-#[\erikwang2013\apidoc\annotation\Desc("按序列号查询入出库两端流水明细")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"serialCode", type:"string", require:true, desc:"序列号")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"序列号追溯结果")]
+    #[\erikwang2013\apidoc\annotation\Title('序列号追溯')]
+    #[\erikwang2013\apidoc\annotation\Desc('按序列号查询入出库两端流水明细')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'serialCode', type:'string', require:true, desc:'序列号')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'序列号追溯结果')]
 
     public function serial(Request $request, string $serialCode): Response
     {
@@ -100,22 +102,23 @@ class TraceController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+
         return $this->run(fn (): array => $this->trace()->serial(trim((string) $serialCode)));
     }
 
     /**
      * 近效期预警：expiry_date 非空且 <= 今天+days，且批次仍有在库
      */
-#[\erikwang2013\apidoc\annotation\Title("近效期预警")]
-#[\erikwang2013\apidoc\annotation\Desc("查询未来 N 天内到期且有在库的批次")]
-#[\erikwang2013\apidoc\annotation\Url("/trace/expiry")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"days", type:"int", default:90, desc:"预警窗口天数")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"近效期批次列表")]
+    #[\erikwang2013\apidoc\annotation\Title('近效期预警')]
+    #[\erikwang2013\apidoc\annotation\Desc('查询未来 N 天内到期且有在库的批次')]
+    #[\erikwang2013\apidoc\annotation\Url('/trace/expiry')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'days', type:'int', default:90, desc:'预警窗口天数')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'近效期批次列表')]
 
     public function expiry(Request $request): Response
     {

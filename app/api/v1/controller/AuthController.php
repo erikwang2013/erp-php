@@ -17,8 +17,9 @@ use support\Redis;
 use support\Request;
 use support\Response;
 use Throwable;
-#[\erikwang2013\apidoc\annotation\Title("用户登录")]
-#[\erikwang2013\apidoc\annotation\Group("客户端认证")]
+
+#[\erikwang2013\apidoc\annotation\Title('用户登录')]
+#[\erikwang2013\apidoc\annotation\Group('客户端认证')]
 
 class AuthController
 {
@@ -32,23 +33,23 @@ class AuthController
      *     }),
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("用户登录")]
-#[\erikwang2013\apidoc\annotation\Desc("用户名密码登录；人机验证在独立接口 /api/v1/captcha/verify 完成（一次性放行凭证），本接口凭 captcha_key 消费放行、不比对坐标；连续失败 5 次账号锁定 15 分钟")]
-#[\erikwang2013\apidoc\annotation\Url("/api/v1/auth/login")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("客户端 API")]
-#[\erikwang2013\apidoc\annotation\Param(name:"username", type:"string", require:true, desc:"用户名(3-50字符)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"密码(6-32字符)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"captcha_key", type:"string", require:true, desc:"验证码标识(来自生成接口)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("access_token", type:"string", desc:"访问令牌")]
-#[\erikwang2013\apidoc\annotation\Returned("refresh_token", type:"string", desc:"刷新令牌")]
-#[\erikwang2013\apidoc\annotation\Returned("expires_in", type:"int", desc:"访问令牌有效期(秒)")]
-#[\erikwang2013\apidoc\annotation\Returned("id", type:"string", desc:"用户ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("username", type:"string", desc:"用户名")]
-#[\erikwang2013\apidoc\annotation\Returned("real_name", type:"string", desc:"姓名")]
+    #[\erikwang2013\apidoc\annotation\Title('用户登录')]
+    #[\erikwang2013\apidoc\annotation\Desc('用户名密码登录；人机验证在独立接口 /api/v1/captcha/verify 完成（一次性放行凭证），本接口凭 captcha_key 消费放行、不比对坐标；连续失败 5 次账号锁定 15 分钟')]
+    #[\erikwang2013\apidoc\annotation\Url('/api/v1/auth/login')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('客户端 API')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'username', type:'string', require:true, desc:'用户名(3-50字符)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'密码(6-32字符)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'captcha_key', type:'string', require:true, desc:'验证码标识(来自生成接口)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('access_token', type:'string', desc:'访问令牌')]
+    #[\erikwang2013\apidoc\annotation\Returned('refresh_token', type:'string', desc:'刷新令牌')]
+    #[\erikwang2013\apidoc\annotation\Returned('expires_in', type:'int', desc:'访问令牌有效期(秒)')]
+    #[\erikwang2013\apidoc\annotation\Returned('id', type:'string', desc:'用户ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('username', type:'string', desc:'用户名')]
+    #[\erikwang2013\apidoc\annotation\Returned('real_name', type:'string', desc:'姓名')]
 
     public function login(Request $request): Response
     {
@@ -161,26 +162,26 @@ class AuthController
      *     }),
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("用户注册")]
-#[\erikwang2013\apidoc\annotation\Desc("注册；人机验证须先在独立接口 /api/v1/captcha/verify 完成（凭 captcha_key 消费放行、不比对坐标）；受 REGISTRATION_ENABLED:1 配置开关控制，默认关闭")]
-#[\erikwang2013\apidoc\annotation\Url("/api/v1/auth/register")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("客户端 API")]
-#[\erikwang2013\apidoc\annotation\Param(name:"username", type:"string", require:true, desc:"用户名(3-50字符)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"密码(6-32字符)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"real_name", type:"string", require:true, desc:"姓名(≤50字符)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"captcha_key", type:"string", require:true, desc:"验证码标识(来自生成接口)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"phone", type:"string", desc:"手机号(选填)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"email", type:"string", desc:"邮箱(选填)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("access_token", type:"string", desc:"访问令牌")]
-#[\erikwang2013\apidoc\annotation\Returned("refresh_token", type:"string", desc:"刷新令牌")]
-#[\erikwang2013\apidoc\annotation\Returned("expires_in", type:"int", desc:"访问令牌有效期(秒)")]
-#[\erikwang2013\apidoc\annotation\Returned("id", type:"string", desc:"用户ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("username", type:"string", desc:"用户名")]
-#[\erikwang2013\apidoc\annotation\Returned("real_name", type:"string", desc:"姓名")]
+    #[\erikwang2013\apidoc\annotation\Title('用户注册')]
+    #[\erikwang2013\apidoc\annotation\Desc('注册；人机验证须先在独立接口 /api/v1/captcha/verify 完成（凭 captcha_key 消费放行、不比对坐标）；受 REGISTRATION_ENABLED:1 配置开关控制，默认关闭')]
+    #[\erikwang2013\apidoc\annotation\Url('/api/v1/auth/register')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('客户端 API')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'username', type:'string', require:true, desc:'用户名(3-50字符)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'密码(6-32字符)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'real_name', type:'string', require:true, desc:'姓名(≤50字符)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'captcha_key', type:'string', require:true, desc:'验证码标识(来自生成接口)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'phone', type:'string', desc:'手机号(选填)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'email', type:'string', desc:'邮箱(选填)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('access_token', type:'string', desc:'访问令牌')]
+    #[\erikwang2013\apidoc\annotation\Returned('refresh_token', type:'string', desc:'刷新令牌')]
+    #[\erikwang2013\apidoc\annotation\Returned('expires_in', type:'int', desc:'访问令牌有效期(秒)')]
+    #[\erikwang2013\apidoc\annotation\Returned('id', type:'string', desc:'用户ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('username', type:'string', desc:'用户名')]
+    #[\erikwang2013\apidoc\annotation\Returned('real_name', type:'string', desc:'姓名')]
 
     public function register(Request $request): Response
     {
@@ -250,18 +251,18 @@ class AuthController
      * 刷新令牌
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("刷新令牌")]
-#[\erikwang2013\apidoc\annotation\Desc("用刷新令牌换取新的访问令牌与刷新令牌，仅接受 refresh 类型令牌")]
-#[\erikwang2013\apidoc\annotation\Url("/api/v1/auth/refresh")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("客户端 API")]
-#[\erikwang2013\apidoc\annotation\Param(name:"refresh_token", type:"string", require:true, desc:"刷新令牌")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("access_token", type:"string", desc:"新访问令牌")]
-#[\erikwang2013\apidoc\annotation\Returned("refresh_token", type:"string", desc:"新刷新令牌")]
-#[\erikwang2013\apidoc\annotation\Returned("expires_in", type:"int", desc:"访问令牌有效期(秒)")]
+    #[\erikwang2013\apidoc\annotation\Title('刷新令牌')]
+    #[\erikwang2013\apidoc\annotation\Desc('用刷新令牌换取新的访问令牌与刷新令牌，仅接受 refresh 类型令牌')]
+    #[\erikwang2013\apidoc\annotation\Url('/api/v1/auth/refresh')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('客户端 API')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'refresh_token', type:'string', require:true, desc:'刷新令牌')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('access_token', type:'string', desc:'新访问令牌')]
+    #[\erikwang2013\apidoc\annotation\Returned('refresh_token', type:'string', desc:'新刷新令牌')]
+    #[\erikwang2013\apidoc\annotation\Returned('expires_in', type:'int', desc:'访问令牌有效期(秒)')]
 
     public function refresh(Request $request): Response
     {

@@ -57,8 +57,11 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         [$again, $e3] = $svc->consume($memberId, '5.00', $bizA, 1001);
         $this->assertNull($e3);
         $this->assertSame('15.00', $again['balance_after'], '同 biz 二次消费照常扣款');
-        $this->assertRowCount('erp_member_balance_log',
-            ['member_id' => $memberId, 'biz_type' => 'consume', 'biz_id' => (int) $bizA], 2);
+        $this->assertRowCount(
+            'erp_member_balance_log',
+            ['member_id' => $memberId, 'biz_type' => 'consume', 'biz_id' => (int) $bizA],
+            2
+        );
 
         // 金额形态矩阵：全部事务前拒绝，账户行都未建（零副作用）
         $m2 = $this->seedMember();
@@ -110,8 +113,11 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         [$dup, $e3] = $svc->refund($memberId, '10.00', $biz, 1001);
         $this->assertNull($dup);
         $this->assertSame('该业务单已退款', $e3, '同单判重仍生效');
-        $this->assertRowCount('erp_member_balance_log',
-            ['member_id' => $memberId, 'biz_type' => 'refund', 'biz_id' => (int) $biz], 1);
+        $this->assertRowCount(
+            'erp_member_balance_log',
+            ['member_id' => $memberId, 'biz_type' => 'refund', 'biz_id' => (int) $biz],
+            1
+        );
         $this->assertSame('150.00', (string) Capsule::table('erp_member_balance_account')
             ->where('member_id', $memberId)->value('balance'));
     }
@@ -338,8 +344,12 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertSame('储值余额不足', $fails[0][1]);
         $this->assertSame('40.00', (string) Capsule::table('erp_member_balance_account')
             ->where('member_id', $memberId)->value('balance'), '余额永不为负（不超扣）');
-        $this->assertRowCount('erp_member_balance_log',
-            ['member_id' => $memberId, 'biz_type' => 'consume'], 1, '仅一单留流水');
+        $this->assertRowCount(
+            'erp_member_balance_log',
+            ['member_id' => $memberId, 'biz_type' => 'consume'],
+            1,
+            '仅一单留流水'
+        );
     }
 
     /** 并发：同 biz 双进程并发退款——判重在账户行锁内复查，恒恰一单退成 */
@@ -361,8 +371,11 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertSame('100.00', $wins[0][0]['balance_after']);
         $this->assertCount(1, $fails);
         $this->assertSame('该业务单已退款', $fails[0][1]);
-        $this->assertRowCount('erp_member_balance_log',
-            ['member_id' => $memberId, 'biz_type' => 'refund', 'biz_id' => (int) $biz], 1);
+        $this->assertRowCount(
+            'erp_member_balance_log',
+            ['member_id' => $memberId, 'biz_type' => 'refund', 'biz_id' => (int) $biz],
+            1
+        );
         $this->assertSame('100.00', (string) Capsule::table('erp_member_balance_account')
             ->where('member_id', $memberId)->value('balance'));
     }
@@ -441,7 +454,9 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
                 $procs[$i] = proc_open(
                     [PHP_BINARY, $script, json_encode($job, JSON_UNESCAPED_UNICODE)],
                     [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-                    $pipes[$i], $root, $env
+                    $pipes[$i],
+                    $root,
+                    $env
                 );
                 $this->assertIsResource($procs[$i], "无法启动并发子进程 #{$i}");
             }

@@ -18,19 +18,20 @@ use Illuminate\Support\Facades\DB;
 use support\Container;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("询价单")]
-#[\erikwang2013\apidoc\annotation\Group("采购管理")]
+
+#[\erikwang2013\apidoc\annotation\Title('询价单')]
+#[\erikwang2013\apidoc\annotation\Group('采购管理')]
 
 class RfqController extends BaseController
 {
     /**
      * 询价单列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("询价单列表")]
-#[\erikwang2013\apidoc\annotation\Desc("询比价单列表，支持状态筛选与 rfq_no 关键词")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/rfq")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
+    #[\erikwang2013\apidoc\annotation\Title('询价单列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('询比价单列表，支持状态筛选与 rfq_no 关键词')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/purchase/rfq')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Tag('寻源采购')]
 
     public function index(Request $request): Response
     {
@@ -58,11 +59,11 @@ class RfqController extends BaseController
     /**
      * 创建询价单（头 + 明细同事务）
      */
-#[\erikwang2013\apidoc\annotation\Title("创建询价单")]
-#[\erikwang2013\apidoc\annotation\Desc("询价单头与明细行（product_id/quantity/unit/target_price）一并保存")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/purchase/rfq")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
+    #[\erikwang2013\apidoc\annotation\Title('创建询价单')]
+    #[\erikwang2013\apidoc\annotation\Desc('询价单头与明细行（product_id/quantity/unit/target_price）一并保存')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/purchase/rfq')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Tag('寻源采购')]
 
     public function store(Request $request): Response
     {
@@ -102,9 +103,9 @@ class RfqController extends BaseController
     /**
      * 询价单详情（含明细与报价）
      */
-#[\erikwang2013\apidoc\annotation\Title("询价单详情")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
+    #[\erikwang2013\apidoc\annotation\Title('询价单详情')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Tag('寻源采购')]
 
     public function show(Request $request, string $id): Response
     {
@@ -126,9 +127,9 @@ class RfqController extends BaseController
     /**
      * 更新询价单（仅草稿可改头与明细）
      */
-#[\erikwang2013\apidoc\annotation\Title("更新询价单")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
+    #[\erikwang2013\apidoc\annotation\Title('更新询价单')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Tag('寻源采购')]
 
     public function update(Request $request, string $id): Response
     {
@@ -170,9 +171,9 @@ class RfqController extends BaseController
     /**
      * 删除询价单（软删除，仅草稿，需管理员密码二次确认）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除询价单")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
+    #[\erikwang2013\apidoc\annotation\Title('删除询价单')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Tag('寻源采购')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -195,9 +196,9 @@ class RfqController extends BaseController
     /**
      * 发布询价（草稿 → 已发布，开放报价登记）
      */
-#[\erikwang2013\apidoc\annotation\Title("发布询价")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
+    #[\erikwang2013\apidoc\annotation\Title('发布询价')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Tag('寻源采购')]
 
     public function submit(Request $request, string $id): Response
     {
@@ -217,10 +218,10 @@ class RfqController extends BaseController
     /**
      * 比价汇总：报价按金额升序（bccomp）+ 行单价对比目标价
      */
-#[\erikwang2013\apidoc\annotation\Title("比价汇总")]
-#[\erikwang2013\apidoc\annotation\Desc("全部有效报价按总额升序排列并标注最低价；逐行给出各供应商单价与目标价对比")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
+    #[\erikwang2013\apidoc\annotation\Title('比价汇总')]
+    #[\erikwang2013\apidoc\annotation\Desc('全部有效报价按总额升序排列并标注最低价；逐行给出各供应商单价与目标价对比')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Tag('寻源采购')]
 
     public function compare(Request $request, string $id): Response
     {
@@ -290,10 +291,10 @@ class RfqController extends BaseController
     /**
      * 中标：选中报价 → 生成采购订单草稿（RfqService->award 事务）
      */
-#[\erikwang2013\apidoc\annotation\Title("中标")]
-#[\erikwang2013\apidoc\annotation\Desc("报价置中标、询价单置已中标，并按中标行生成 erp_purchase_order 草稿（状态 0 待审核）")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
+    #[\erikwang2013\apidoc\annotation\Title('中标')]
+    #[\erikwang2013\apidoc\annotation\Desc('报价置中标、询价单置已中标，并按中标行生成 erp_purchase_order 草稿（状态 0 待审核）')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Tag('寻源采购')]
 
     public function award(Request $request, string $id): Response
     {
@@ -315,9 +316,9 @@ class RfqController extends BaseController
     /**
      * 关闭询价单：已发布/已中标 → 关闭；草稿 → 取消
      */
-#[\erikwang2013\apidoc\annotation\Title("关闭询价单")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Tag("寻源采购")]
+    #[\erikwang2013\apidoc\annotation\Title('关闭询价单')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Tag('寻源采购')]
 
     public function close(Request $request, string $id): Response
     {

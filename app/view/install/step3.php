@@ -7,14 +7,14 @@
 <?php endforeach; ?>
 <div class="form-group"><label>搜索引擎（数据同步由 erikwang2013/webman-scout 驱动）</label>
 <select name="engine_driver" id="engine-driver">
-  <option value="none"<?= $h('engine_driver','none') === 'none' ? ' selected' : '' ?>>不启用（安装后可在 .env 中随时启用）</option>
+  <option value="none"<?= $h('engine_driver', 'none') === 'none' ? ' selected' : '' ?>>不启用（安装后可在 .env 中随时启用）</option>
   <option value="opensearch"<?= $h('engine_driver') === 'opensearch' ? ' selected' : '' ?>>OpenSearch</option>
   <option value="elasticsearch"<?= $h('engine_driver') === 'elasticsearch' ? ' selected' : '' ?>>Elasticsearch</option>
 </select>
 <div class="hint">「不启用」将写入 SCOUT_DRIVER=null 走空引擎；后续要启用：安装后修改 .env 的 SCOUT_DRIVER 及相关连接变量并重启</div>
 </div>
-<div id="engine-params"<?= ($h('engine_driver','none') === 'none') ? ' style="display:none"' : '' ?>>
-  <div class="form-group"><label>服务地址</label><input name="engine_host" id="engine-host" value="<?= $h('engine_host','https://localhost:9200') ?>" placeholder="https://localhost:9200" autocomplete="off"><div class="hint">需带协议与端口，如 http://127.0.0.1:9200</div></div>
+<div id="engine-params"<?= ($h('engine_driver', 'none') === 'none') ? ' style="display:none"' : '' ?>>
+  <div class="form-group"><label>服务地址</label><input name="engine_host" id="engine-host" value="<?= $h('engine_host', 'https://localhost:9200') ?>" placeholder="https://localhost:9200" autocomplete="off"><div class="hint">需带协议与端口，如 http://127.0.0.1:9200</div></div>
   <div class="form-row">
     <div class="form-group"><label>用户名</label><input name="engine_username" id="engine-user" value="<?= $h('engine_username') ?>" autocomplete="off"></div>
     <div class="form-group"><label>密码</label>

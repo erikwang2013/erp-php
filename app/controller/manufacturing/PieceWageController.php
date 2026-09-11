@@ -20,26 +20,26 @@ use support\Response;
  * 数据由报工审核自动写入（WorkReportService::audit → PieceWageService::accumulate），
  * HR 薪资批量生成（HrService::batchGenerateSalaries）按员工+期间并入。
  */
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Title("计件工资台账")]
-#[\erikwang2013\apidoc\annotation\Group("生产制造")]
+#[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+#[\erikwang2013\apidoc\annotation\Title('计件工资台账')]
+#[\erikwang2013\apidoc\annotation\Group('生产制造')]
 
 class PieceWageController extends BaseController
 {
     /**
      * 计件工资台账（分页，按员工/期间筛选）
      */
-#[\erikwang2013\apidoc\annotation\Title("计件工资台账")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/mfg/piece-wage")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("生产制造")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"employee_id", type:"int", desc:"员工ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_year", type:"int", desc:"归集年份，如 2026")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_month", type:"int", desc:"归集月份 1-12")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+    #[\erikwang2013\apidoc\annotation\Title('计件工资台账')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/mfg/piece-wage')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'employee_id', type:'int', desc:'员工ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_year', type:'int', desc:'归集年份，如 2026')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_month', type:'int', desc:'归集月份 1-12')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
 
     public function index(Request $request): Response
     {

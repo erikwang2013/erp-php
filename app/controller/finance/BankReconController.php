@@ -19,9 +19,9 @@ use support\Response;
  * 对账目标 = 现金日记账 erp_finance_cash_journal：只写核销匹配轨，不改动日记账。
  * 匹配严格 1:1；批次导入按 (账户,批次) 幂等；同条件两次自动核销结果一致。
  */
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Title("对账单行")]
-#[\erikwang2013\apidoc\annotation\Group("财务管理")]
+#[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+#[\erikwang2013\apidoc\annotation\Title('对账单行')]
+#[\erikwang2013\apidoc\annotation\Group('财务管理')]
 
 class BankReconController extends BaseController
 {
@@ -33,18 +33,18 @@ class BankReconController extends BaseController
     /**
      * 对账单行列表（日期范围必填；批次/对账状态筛选）
      */
-#[\erikwang2013\apidoc\annotation\Title("对账单行列表")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-statement")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("财务管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"from", type:"string", required:true, desc:"起始日期 Y-m-d")]
-#[\erikwang2013\apidoc\annotation\Param(name:"to", type:"string", required:true, desc:"截止日期 Y-m-d")]
-#[\erikwang2013\apidoc\annotation\Param(name:"batch", type:"string", default:"", desc:"导入批次")]
-#[\erikwang2013\apidoc\annotation\Param(name:"matched", type:"int", default:-1, desc:"对账状态(-1全部 0未对账 1已对账)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
+    #[\erikwang2013\apidoc\annotation\Title('对账单行列表')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/bank-statement')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'bank_account_id', type:'string', required:true, desc:'银行账户(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'from', type:'string', required:true, desc:'起始日期 Y-m-d')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'to', type:'string', required:true, desc:'截止日期 Y-m-d')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'batch', type:'string', default:'', desc:'导入批次')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'matched', type:'int', default:-1, desc:'对账状态(-1全部 0未对账 1已对账)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
 
     public function statementIndex(Request $request): Response
     {
@@ -84,11 +84,11 @@ class BankReconController extends BaseController
     /**
      * 导入对账单行（整批原子；同账户同批次重复导入整批跳过）
      */
-#[\erikwang2013\apidoc\annotation\Title("导入对账单")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-statement/import")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"batch", type:"string", required:true, desc:"导入批次号(幂等键)")]
+    #[\erikwang2013\apidoc\annotation\Title('导入对账单')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/bank-statement/import')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'bank_account_id', type:'string', required:true, desc:'银行账户(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'batch', type:'string', required:true, desc:'导入批次号(幂等键)')]
 
     public function import(Request $request): Response
     {
@@ -118,13 +118,13 @@ class BankReconController extends BaseController
     /**
      * 自动核销（金额+日期窗口±N 天 → 摘要，候选唯一才落库；返回匹配/人工候选/未达清单）
      */
-#[\erikwang2013\apidoc\annotation\Title("自动核销")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-recon/auto")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"from", type:"string", required:true, desc:"流水起始日期 Y-m-d")]
-#[\erikwang2013\apidoc\annotation\Param(name:"to", type:"string", required:true, desc:"流水截止日期 Y-m-d")]
-#[\erikwang2013\apidoc\annotation\Param(name:"window_days", type:"int", default:3, desc:"日期容差天数(0~30)")]
+    #[\erikwang2013\apidoc\annotation\Title('自动核销')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/bank-recon/auto')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'bank_account_id', type:'string', required:true, desc:'银行账户(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'from', type:'string', required:true, desc:'流水起始日期 Y-m-d')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'to', type:'string', required:true, desc:'流水截止日期 Y-m-d')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'window_days', type:'int', default:3, desc:'日期容差天数(0~30)')]
 
     public function auto(Request $request): Response
     {
@@ -161,12 +161,12 @@ class BankReconController extends BaseController
     /**
      * 手工核销（金额与方向必须一致）
      */
-#[\erikwang2013\apidoc\annotation\Title("手工核销")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-recon/manual")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"statement_id", type:"string", required:true, desc:"对账单行(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"cash_journal_id", type:"string", required:true, desc:"日记账行(hashid)")]
+    #[\erikwang2013\apidoc\annotation\Title('手工核销')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/bank-recon/manual')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'bank_account_id', type:'string', required:true, desc:'银行账户(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'statement_id', type:'string', required:true, desc:'对账单行(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'cash_journal_id', type:'string', required:true, desc:'日记账行(hashid)')]
 
     public function manual(Request $request): Response
     {
@@ -195,11 +195,11 @@ class BankReconController extends BaseController
     /**
      * 取消核销
      */
-#[\erikwang2013\apidoc\annotation\Title("取消核销")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-recon/unreconcile")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"statement_id", type:"string", required:true, desc:"对账单行(hashid)")]
+    #[\erikwang2013\apidoc\annotation\Title('取消核销')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/bank-recon/unreconcile')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'bank_account_id', type:'string', required:true, desc:'银行账户(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'statement_id', type:'string', required:true, desc:'对账单行(hashid)')]
 
     public function unreconcile(Request $request): Response
     {
@@ -224,12 +224,12 @@ class BankReconController extends BaseController
     /**
      * 对账报告（已对清单 + 双方未达清单 + 分向汇总）
      */
-#[\erikwang2013\apidoc\annotation\Title("对账报告")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/finance/bank-recon/report")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Param(name:"bank_account_id", type:"string", required:true, desc:"银行账户(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"from", type:"string", required:true, desc:"起始日期 Y-m-d")]
-#[\erikwang2013\apidoc\annotation\Param(name:"to", type:"string", required:true, desc:"截止日期 Y-m-d")]
+    #[\erikwang2013\apidoc\annotation\Title('对账报告')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/bank-recon/report')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'bank_account_id', type:'string', required:true, desc:'银行账户(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'from', type:'string', required:true, desc:'起始日期 Y-m-d')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'to', type:'string', required:true, desc:'截止日期 Y-m-d')]
 
     public function report(Request $request): Response
     {

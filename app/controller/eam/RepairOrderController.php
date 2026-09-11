@@ -15,9 +15,9 @@ use support\Response;
 /**
  * 维修工单管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Title("维修工单")]
-#[\erikwang2013\apidoc\annotation\Group("设备管理EAM")]
+#[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+#[\erikwang2013\apidoc\annotation\Title('维修工单')]
+#[\erikwang2013\apidoc\annotation\Group('设备管理EAM')]
 
 class RepairOrderController extends BaseController
 {
@@ -34,20 +34,20 @@ class RepairOrderController extends BaseController
     /**
      * 维修工单列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("维修工单列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取维修工单列表，支持分页、工单号/故障描述关键词搜索及状态/设备筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/repair")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（工单号/故障描述）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"string", default:"", desc:"状态筛选: open/in_progress/completed/cancelled")]
-#[\erikwang2013\apidoc\annotation\Param(name:"equipment_id", type:"string", default:"", desc:"设备hashid筛选")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"维修工单列表数据")]
+    #[\erikwang2013\apidoc\annotation\Title('维修工单列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取维修工单列表，支持分页、工单号/故障描述关键词搜索及状态/设备筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/eam/repair')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（工单号/故障描述）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'string', default:'', desc:'状态筛选: open/in_progress/completed/cancelled')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'equipment_id', type:'string', default:'', desc:'设备hashid筛选')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'维修工单列表数据')]
 
     public function index(Request $request): Response
     {
@@ -88,19 +88,19 @@ class RepairOrderController extends BaseController
     /**
      * 创建维修工单
      */
-#[\erikwang2013\apidoc\annotation\Title("创建维修工单")]
-#[\erikwang2013\apidoc\annotation\Desc("新增维修工单，工单号/设备ID/故障描述/维修类型必填，初始状态为 open")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/repair")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"维修工单号（必填）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"equipment_id", type:"int", default:"", desc:"设备ID（必填）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"fault_description", type:"string", default:"", desc:"故障描述（必填）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"repair_type", type:"string", default:"", desc:"维修类型（必填）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"创建的维修工单记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建维修工单')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增维修工单，工单号/设备ID/故障描述/维修类型必填，初始状态为 open')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/eam/repair')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'维修工单号（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'equipment_id', type:'int', default:'', desc:'设备ID（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'fault_description', type:'string', default:'', desc:'故障描述（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'repair_type', type:'string', default:'', desc:'维修类型（必填）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'创建的维修工单记录')]
 
     public function store(Request $request): Response
     {
@@ -125,15 +125,15 @@ class RepairOrderController extends BaseController
     /**
      * 维修工单详情
      */
-#[\erikwang2013\apidoc\annotation\Title("维修工单详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID获取维修工单详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"维修工单hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"维修工单详情")]
+    #[\erikwang2013\apidoc\annotation\Title('维修工单详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID获取维修工单详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'维修工单hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'维修工单详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -152,15 +152,15 @@ class RepairOrderController extends BaseController
     /**
      * 更新维修工单
      */
-#[\erikwang2013\apidoc\annotation\Title("更新维修工单")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID更新维修工单信息，已完成/已取消的工单不允许编辑")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"维修工单hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的维修工单记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新维修工单')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID更新维修工单信息，已完成/已取消的工单不允许编辑')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'维修工单hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的维修工单记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -188,16 +188,16 @@ class RepairOrderController extends BaseController
     /**
      * 删除维修工单（软删除）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除维修工单")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID软删除维修工单，需管理员密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"维修工单hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除维修工单')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID软删除维修工单，需管理员密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'维修工单hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -225,9 +225,9 @@ class RepairOrderController extends BaseController
     /**
      * 状态流转
      */
-#[\erikwang2013\apidoc\annotation\Title("维修工单状态流转")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"string", require:true, desc:"目标状态: in_progress/completed/cancelled")]
+    #[\erikwang2013\apidoc\annotation\Title('维修工单状态流转')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'string', require:true, desc:'目标状态: in_progress/completed/cancelled')]
 
     public function transition(Request $request, string $id): Response
     {

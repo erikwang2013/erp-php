@@ -16,8 +16,8 @@
 </div>
 <div class="form-group"><label>ID 混淆盐（备用）</label><input name="hashids_alt_salt" value="<?= $h('hashids_alt_salt') ?>" placeholder="留空自动生成（推荐）"><div class="hint">独立于主盐的备用盐，编码另一组业务 ID；写入 .env 的 HASHIDS_ALT_SALT</div></div>
 <div class="form-row">
-  <div class="form-group"><label>启动端口（HTTP）</label><input name="http_port" value="<?= $h('http_port','8788') ?>" placeholder="默认 8788"><div class="hint">写入 .env 的 APP_HTTP_PORT</div></div>
-  <div class="form-group"><label>WebSocket 端口</label><input name="ws_port" value="<?= $h('ws_port','8282') ?>" placeholder="默认 8282"><div class="hint">写入 .env 的 APP_WS_PORT</div></div>
+  <div class="form-group"><label>启动端口（HTTP）</label><input name="http_port" value="<?= $h('http_port', '8788') ?>" placeholder="默认 8788"><div class="hint">写入 .env 的 APP_HTTP_PORT</div></div>
+  <div class="form-group"><label>WebSocket 端口</label><input name="ws_port" value="<?= $h('ws_port', '8282') ?>" placeholder="默认 8282"><div class="hint">写入 .env 的 APP_WS_PORT</div></div>
 </div>
 <div style="font-weight:700;color:#4338ca;padding:14px 0 6px;border-top:1px dashed #c7d2fe;margin-top:8px;font-size:14px">🔌 服务账号密码</div>
 <div class="hint" style="margin:-2px 0 10px;color:#94a3b8;font-size:12px">需与部署环境（docker-compose 等）中的口令一致；留空则沿用 .env.example 原值，不会自动生成</div>

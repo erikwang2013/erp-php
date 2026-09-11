@@ -15,29 +15,29 @@ use support\Response;
 /**
  * 备品备件管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Title("备品备件")]
-#[\erikwang2013\apidoc\annotation\Group("设备管理EAM")]
+#[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+#[\erikwang2013\apidoc\annotation\Title('备品备件')]
+#[\erikwang2013\apidoc\annotation\Group('设备管理EAM')]
 
 class SparePartController extends BaseController
 {
     /**
      * 备品备件列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("备品备件列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取备品备件列表，支持分页、名称/编码/存放位置关键词搜索及状态/设备筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/spare-part")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（名称/编码/存放位置）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选")]
-#[\erikwang2013\apidoc\annotation\Param(name:"equipment_id", type:"int", default:"", desc:"设备ID筛选（整数）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"备品备件列表数据")]
+    #[\erikwang2013\apidoc\annotation\Title('备品备件列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取备品备件列表，支持分页、名称/编码/存放位置关键词搜索及状态/设备筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/eam/spare-part')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（名称/编码/存放位置）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'equipment_id', type:'int', default:'', desc:'设备ID筛选（整数）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'备品备件列表数据')]
 
     public function index(Request $request): Response
     {
@@ -79,17 +79,17 @@ class SparePartController extends BaseController
     /**
      * 创建备品备件
      */
-#[\erikwang2013\apidoc\annotation\Title("创建备品备件")]
-#[\erikwang2013\apidoc\annotation\Desc("新增备品备件档案，编码/名称必填")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/eam/spare-part")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", default:"", desc:"备件编码（必填）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"备件名称（必填）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"创建的备品备件记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建备品备件')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增备品备件档案，编码/名称必填')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/eam/spare-part')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'备件编码（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', default:'', desc:'备件名称（必填）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'创建的备品备件记录')]
 
     public function store(Request $request): Response
     {
@@ -111,15 +111,15 @@ class SparePartController extends BaseController
     /**
      * 备品备件详情
      */
-#[\erikwang2013\apidoc\annotation\Title("备品备件详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID获取备品备件详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"备品备件hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"备品备件详情")]
+    #[\erikwang2013\apidoc\annotation\Title('备品备件详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID获取备品备件详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'备品备件hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'备品备件详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -138,15 +138,15 @@ class SparePartController extends BaseController
     /**
      * 更新备品备件
      */
-#[\erikwang2013\apidoc\annotation\Title("更新备品备件")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID更新备品备件信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"备品备件hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的备品备件记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新备品备件')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID更新备品备件信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'备品备件hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的备品备件记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -170,16 +170,16 @@ class SparePartController extends BaseController
     /**
      * 删除备品备件（软删除）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除备品备件")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID软删除备品备件档案，需管理员密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("设备管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"备品备件hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除备品备件')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID软删除备品备件档案，需管理员密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('设备管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'备品备件hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {

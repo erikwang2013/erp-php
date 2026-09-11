@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace app\model;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Erikwang2013\WebmanScout\Searchable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use support\Model;
 
 /**

@@ -15,28 +15,29 @@ use InvalidArgumentException;
 use support\Container;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("合同")]
-#[\erikwang2013\apidoc\annotation\Group("CRM")]
+
+#[\erikwang2013\apidoc\annotation\Title('合同')]
+#[\erikwang2013\apidoc\annotation\Group('CRM')]
 
 class ContractController extends BaseController
 {
     /**
      * 合同列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("合同列表")]
-#[\erikwang2013\apidoc\annotation\Desc("分页查询合同记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/contract")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"关键词")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态")]
-#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", desc:"客户ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('合同列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('分页查询合同记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/contract')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', desc:'关键词')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'int', desc:'客户ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -73,18 +74,18 @@ class ContractController extends BaseController
     /**
      * 创建合同
      */
-#[\erikwang2013\apidoc\annotation\Title("创建合同")]
-#[\erikwang2013\apidoc\annotation\Desc("新增合同记录，含合同明细")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/contract")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"合同名称，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"customer_id", type:"int", desc:"客户ID，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"items", type:"array", desc:"合同明细列表")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('创建合同')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增合同记录，含合同明细')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/contract')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'合同名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'int', desc:'客户ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'items', type:'array', desc:'合同明细列表')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -113,15 +114,15 @@ class ContractController extends BaseController
     /**
      * 合同详情
      */
-#[\erikwang2013\apidoc\annotation\Title("合同详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看合同详细信息，含合同明细")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"合同ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('合同详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看合同详细信息，含合同明细')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'合同ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -143,16 +144,16 @@ class ContractController extends BaseController
     /**
      * 更新合同
      */
-#[\erikwang2013\apidoc\annotation\Title("更新合同")]
-#[\erikwang2013\apidoc\annotation\Desc("修改合同信息，仅草稿状态可编辑")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"合同ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"items", type:"array", desc:"合同明细列表")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新合同')]
+    #[\erikwang2013\apidoc\annotation\Desc('修改合同信息，仅草稿状态可编辑')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'合同ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'items', type:'array', desc:'合同明细列表')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -186,16 +187,16 @@ class ContractController extends BaseController
     /**
      * 删除合同
      */
-#[\erikwang2013\apidoc\annotation\Title("删除合同")]
-#[\erikwang2013\apidoc\annotation\Desc("删除合同记录，需密码确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"合同ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除合同')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除合同记录，需密码确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'合同ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -225,16 +226,16 @@ class ContractController extends BaseController
     /**
      * 合同状态流转
      */
-#[\erikwang2013\apidoc\annotation\Title("合同状态流转")]
-#[\erikwang2013\apidoc\annotation\Desc("推进合同状态: 0草稿 1待审批 2已审批 3执行中 4已完成 5已终止")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"合同ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"to_status", type:"int", desc:"目标状态")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('合同状态流转')]
+    #[\erikwang2013\apidoc\annotation\Desc('推进合同状态: 0草稿 1待审批 2已审批 3执行中 4已完成 5已终止')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'合同ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'to_status', type:'int', desc:'目标状态')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function transition(Request $request, string $id): Response
     {

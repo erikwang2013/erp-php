@@ -10,8 +10,9 @@ namespace app\admin\controller;
 
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("文件上传")]
-#[\erikwang2013\apidoc\annotation\Group("系统管理")]
+
+#[\erikwang2013\apidoc\annotation\Title('文件上传')]
+#[\erikwang2013\apidoc\annotation\Group('系统管理')]
 
 class UploadController extends BaseController
 {
@@ -22,16 +23,16 @@ class UploadController extends BaseController
      * 文件上传
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("文件上传")]
-#[\erikwang2013\apidoc\annotation\Desc("上传文件到服务器，支持jpg/jpeg/png/gif/pdf/xlsx/docx格式，最大10MB")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/upload")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("上传管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"file", type:"file", require:true, desc:"上传文件(最大10MB)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("url", type:"string", desc:"文件访问相对路径")]
+    #[\erikwang2013\apidoc\annotation\Title('文件上传')]
+    #[\erikwang2013\apidoc\annotation\Desc('上传文件到服务器，支持jpg/jpeg/png/gif/pdf/xlsx/docx格式，最大10MB')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/upload')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('上传管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'file', type:'file', require:true, desc:'上传文件(最大10MB)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('url', type:'string', desc:'文件访问相对路径')]
 
     public function upload(Request $request): Response
     {

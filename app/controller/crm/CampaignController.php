@@ -13,28 +13,29 @@ use app\service\crm\CrmService;
 use support\Container;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("营销活动")]
-#[\erikwang2013\apidoc\annotation\Group("CRM")]
+
+#[\erikwang2013\apidoc\annotation\Title('营销活动')]
+#[\erikwang2013\apidoc\annotation\Group('CRM')]
 
 class CampaignController extends BaseController
 {
     /**
      * 营销活动列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("营销活动列表")]
-#[\erikwang2013\apidoc\annotation\Desc("分页查询营销活动记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/campaign")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", desc:"关键词")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态")]
-#[\erikwang2013\apidoc\annotation\Param(name:"type", type:"string", desc:"活动类型")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('营销活动列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('分页查询营销活动记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/campaign')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', desc:'关键词')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'type', type:'string', desc:'活动类型')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -71,17 +72,17 @@ class CampaignController extends BaseController
     /**
      * 创建营销活动
      */
-#[\erikwang2013\apidoc\annotation\Title("创建营销活动")]
-#[\erikwang2013\apidoc\annotation\Desc("新增营销活动记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/campaign")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"活动名称，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"owner_user_id", type:"int", desc:"负责人用户ID，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('创建营销活动')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增营销活动记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/campaign')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'活动名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'owner_user_id', type:'int', desc:'负责人用户ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
@@ -102,15 +103,15 @@ class CampaignController extends BaseController
     /**
      * 活动详情
      */
-#[\erikwang2013\apidoc\annotation\Title("营销活动详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看营销活动详细信息，含参与统计")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"活动ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('营销活动详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看营销活动详细信息，含参与统计')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'活动ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function show(Request $request, string $id): Response
     {
@@ -139,15 +140,15 @@ class CampaignController extends BaseController
     /**
      * 更新活动
      */
-#[\erikwang2013\apidoc\annotation\Title("更新营销活动")]
-#[\erikwang2013\apidoc\annotation\Desc("修改营销活动信息，仅计划中或进行中可编辑")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"活动ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新营销活动')]
+    #[\erikwang2013\apidoc\annotation\Desc('修改营销活动信息，仅计划中或进行中可编辑')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'活动ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
@@ -175,16 +176,16 @@ class CampaignController extends BaseController
     /**
      * 删除活动
      */
-#[\erikwang2013\apidoc\annotation\Title("删除营销活动")]
-#[\erikwang2013\apidoc\annotation\Desc("删除营销活动，连参与记录一起删除，需密码确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"活动ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除营销活动')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除营销活动，连参与记录一起删除，需密码确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'活动ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function destroy(Request $request, string $id): Response
     {

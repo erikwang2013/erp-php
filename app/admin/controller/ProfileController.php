@@ -14,8 +14,9 @@ use support\Log;
 use support\Redis;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("更新个人")]
-#[\erikwang2013\apidoc\annotation\Group("系统管理")]
+
+#[\erikwang2013\apidoc\annotation\Title('更新个人')]
+#[\erikwang2013\apidoc\annotation\Group('系统管理')]
 
 class ProfileController extends BaseController
 {
@@ -27,19 +28,19 @@ class ProfileController extends BaseController
     /**
      * 更新个人信息
      */
-#[\erikwang2013\apidoc\annotation\Title("更新个人信息")]
-#[\erikwang2013\apidoc\annotation\Desc("更新当前登录用户的真实姓名、手机号和邮箱")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/profile")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("个人中心")]
-#[\erikwang2013\apidoc\annotation\Param(name:"real_name", type:"string", default:"", desc:"真实姓名")]
-#[\erikwang2013\apidoc\annotation\Param(name:"phone", type:"string", default:"", desc:"手机号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"email", type:"string", default:"", desc:"邮箱")]
-#[\erikwang2013\apidoc\annotation\Param(name:"avatar", type:"string", default:"", desc:"头像URL")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的用户信息(脱敏)")]
+    #[\erikwang2013\apidoc\annotation\Title('更新个人信息')]
+    #[\erikwang2013\apidoc\annotation\Desc('更新当前登录用户的真实姓名、手机号和邮箱')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/profile')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('个人中心')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'real_name', type:'string', default:'', desc:'真实姓名')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'phone', type:'string', default:'', desc:'手机号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'email', type:'string', default:'', desc:'邮箱')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'avatar', type:'string', default:'', desc:'头像URL')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的用户信息(脱敏)')]
 
     public function updateProfile(Request $request): Response
     {
@@ -80,17 +81,17 @@ class ProfileController extends BaseController
     /**
      * 修改密码
      */
-#[\erikwang2013\apidoc\annotation\Title("修改密码")]
-#[\erikwang2013\apidoc\annotation\Desc("修改当前登录用户的登录密码，需验证旧密码")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/profile/password")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("个人中心")]
-#[\erikwang2013\apidoc\annotation\Param(name:"old_password", type:"string", require:true, desc:"旧密码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"new_password", type:"string", require:true, desc:"新密码(6-32位)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('修改密码')]
+    #[\erikwang2013\apidoc\annotation\Desc('修改当前登录用户的登录密码，需验证旧密码')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/profile/password')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('个人中心')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'old_password', type:'string', require:true, desc:'旧密码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'new_password', type:'string', require:true, desc:'新密码(6-32位)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function updatePassword(Request $request): Response
     {
@@ -130,15 +131,15 @@ class ProfileController extends BaseController
     /**
      * 登出
      */
-#[\erikwang2013\apidoc\annotation\Title("登出")]
-#[\erikwang2013\apidoc\annotation\Desc("退出当前登录，将当前JWT令牌加入黑名单使其立即失效")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/profile/logout")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("个人中心")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('登出')]
+    #[\erikwang2013\apidoc\annotation\Desc('退出当前登录，将当前JWT令牌加入黑名单使其立即失效')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/profile/logout')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('个人中心')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function logout(Request $request): Response
     {

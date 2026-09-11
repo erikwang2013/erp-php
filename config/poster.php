@@ -53,7 +53,7 @@ return [
 
         // 验证误差容忍 / Verification tolerance
         'tolerance' => [
-            'click'  => 18,   // 点击验证像素半径 / Click: pixel radius
+            'click' => 18,   // 点击验证像素半径 / Click: pixel radius
             'rotate' => 5,    // 旋转验证角度 / Rotate: degrees
             // slider 4→8：人工拖动目视对齐即过（原生 300 宽 ≈ 显示 8.5px），
             // 避免"看着已对齐却被判失败"的挫败；块图纹已与缺口 1:1，命中即无缝
@@ -63,7 +63,7 @@ return [
         // Redis 存储配置（storage=redis 时生效）/ Redis config (effective when storage=redis)
         'redis' => [
             // Redis key prefix / Redis 键前缀
-            'prefix'     => 'poster:captcha:',
+            'prefix' => 'poster:captcha:',
             // Redis connection name (framework-specific) / Redis 连接名（框架相关）
             'connection' => 'default',
         ],
@@ -101,15 +101,15 @@ return [
             '花',
             '好',
             '月',
-            '圆'
+            '圆',
 
-        ]
+        ],
     ],
 
     // ── Poster Module 海报生成模块 ──
     'poster' => [
         // 画布默认宽高（px）/ Default canvas width & height
-        'default_width'  => 750,
+        'default_width' => 750,
         'default_height' => 1334,
 
         // 默认字体路径 / Default font path（同上：null=包内置字体）

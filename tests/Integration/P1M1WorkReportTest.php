@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace tests\Integration;
 
-use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Group;
 
 /**

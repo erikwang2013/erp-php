@@ -21,7 +21,7 @@ use support\Response;
  * 管理端基础控制器
  * 提供统一响应格式、ID编解码、snowflake ID 生成
  */
-#[\erikwang2013\apidoc\annotation\Group("系统管理")]
+#[\erikwang2013\apidoc\annotation\Group('系统管理')]
 class BaseController
 {
     /**
@@ -86,6 +86,7 @@ class BaseController
         if ($decoded !== null) {
             return $decoded;
         }
+
         return is_numeric($raw) ? (int) $raw : null;
     }
 

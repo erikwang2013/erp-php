@@ -9,8 +9,8 @@ declare(strict_types=1);
 namespace app\model;
 
 use Erikwang2013\Encryptable\Encryptable;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Erikwang2013\WebmanScout\Searchable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
 class HrEmployee extends Model

@@ -420,7 +420,9 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
                 $procs[$i] = proc_open(
                     [PHP_BINARY, $script, (string) $invoiceId],
                     [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-                    $pipes[$i], $root, $env
+                    $pipes[$i],
+                    $root,
+                    $env
                 );
                 $this->assertIsResource($procs[$i], '无法启动并发子进程');
             }

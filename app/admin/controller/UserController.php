@@ -15,9 +15,9 @@ use support\Response;
 /**
  * 用户管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
-#[\erikwang2013\apidoc\annotation\Title("用户")]
-#[\erikwang2013\apidoc\annotation\Group("系统管理")]
+#[\erikwang2013\apidoc\annotation\Tag('用户管理')]
+#[\erikwang2013\apidoc\annotation\Title('用户')]
+#[\erikwang2013\apidoc\annotation\Group('系统管理')]
 
 class UserController extends BaseController
 {
@@ -25,22 +25,22 @@ class UserController extends BaseController
      * 用户列表（分页）
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("用户列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取用户分页列表，支持关键字搜索和状态筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/user")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(用户名/姓名)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态筛选:0禁用1启用")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"用户列表")]
-#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
-#[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
-#[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
+    #[\erikwang2013\apidoc\annotation\Title('用户列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取用户分页列表，支持关键字搜索和状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/user')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('用户管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词(用户名/姓名)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选:0禁用1启用')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('list', type:'array', desc:'用户列表')]
+    #[\erikwang2013\apidoc\annotation\Returned('total', type:'int', desc:'总条数')]
+    #[\erikwang2013\apidoc\annotation\Returned('page', type:'int', desc:'当前页码')]
+    #[\erikwang2013\apidoc\annotation\Returned('limit', type:'int', desc:'每页条数')]
 
     public function index(Request $request): Response
     {
@@ -100,21 +100,21 @@ class UserController extends BaseController
     /**
      * 创建用户
      */
-#[\erikwang2013\apidoc\annotation\Title("创建用户")]
-#[\erikwang2013\apidoc\annotation\Desc("创建一个新的管理后台用户")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/user")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"username", type:"string", require:true, desc:"用户名(3-50字符)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"密码(6-32字符)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"real_name", type:"string", require:true, desc:"真实姓名")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:1, desc:"状态:0禁用1启用")]
-#[\erikwang2013\apidoc\annotation\Param(name:"phone", type:"string", default:"", desc:"手机号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"email", type:"string", default:"", desc:"邮箱")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"用户信息")]
+    #[\erikwang2013\apidoc\annotation\Title('创建用户')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建一个新的管理后台用户')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/user')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('用户管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'username', type:'string', require:true, desc:'用户名(3-50字符)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'密码(6-32字符)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'real_name', type:'string', require:true, desc:'真实姓名')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:1, desc:'状态:0禁用1启用')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'phone', type:'string', default:'', desc:'手机号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'email', type:'string', default:'', desc:'邮箱')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'用户信息')]
 
     public function store(Request $request): Response
     {
@@ -155,15 +155,15 @@ class UserController extends BaseController
     /**
      * 用户详情
      */
-#[\erikwang2013\apidoc\annotation\Title("用户详情")]
-#[\erikwang2013\apidoc\annotation\Desc("获取指定用户的详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"用户ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"用户详情")]
+    #[\erikwang2013\apidoc\annotation\Title('用户详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取指定用户的详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('用户管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'用户ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'用户详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -189,20 +189,20 @@ class UserController extends BaseController
     /**
      * 更新用户
      */
-#[\erikwang2013\apidoc\annotation\Title("更新用户")]
-#[\erikwang2013\apidoc\annotation\Desc("更新指定用户的信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"用户ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"real_name", type:"string", default:"", desc:"真实姓名")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"状态:0禁用1启用")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"新密码(留空不修改)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"phone", type:"string", default:"", desc:"手机号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"email", type:"string", default:"", desc:"邮箱")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的用户信息")]
+    #[\erikwang2013\apidoc\annotation\Title('更新用户')]
+    #[\erikwang2013\apidoc\annotation\Desc('更新指定用户的信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('用户管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'用户ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'real_name', type:'string', default:'', desc:'真实姓名')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态:0禁用1启用')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'新密码(留空不修改)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'phone', type:'string', default:'', desc:'手机号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'email', type:'string', default:'', desc:'邮箱')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的用户信息')]
 
     public function update(Request $request, string $id): Response
     {
@@ -247,16 +247,16 @@ class UserController extends BaseController
     /**
      * 删除用户（软删除，需密码二次确认）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除用户")]
-#[\erikwang2013\apidoc\annotation\Desc("软删除指定用户，需要密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"用户ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除用户')]
+    #[\erikwang2013\apidoc\annotation\Desc('软删除指定用户，需要密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('用户管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'用户ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'当前管理员密码(二次确认)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -288,17 +288,17 @@ class UserController extends BaseController
      * 批量删除
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("批量删除用户")]
-#[\erikwang2013\apidoc\annotation\Desc("批量软删除多个用户，需要密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/user/batch/destroy")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"ids", type:"array", require:true, desc:"用户ID列表(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("count", type:"int", desc:"删除数量")]
+    #[\erikwang2013\apidoc\annotation\Title('批量删除用户')]
+    #[\erikwang2013\apidoc\annotation\Desc('批量软删除多个用户，需要密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/user/batch/destroy')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('用户管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'ids', type:'array', require:true, desc:'用户ID列表(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'当前管理员密码(二次确认)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('count', type:'int', desc:'删除数量')]
 
     public function batchDestroy(Request $request): Response
     {
@@ -344,17 +344,17 @@ class UserController extends BaseController
      * 批量启用/禁用
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("批量启用/禁用用户")]
-#[\erikwang2013\apidoc\annotation\Desc("批量修改用户启用/禁用状态")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/user/batch/status")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("用户管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"ids", type:"array", require:true, desc:"用户ID列表(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", require:true, desc:"目标状态:0禁用1启用")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("count", type:"int", desc:"操作数量")]
+    #[\erikwang2013\apidoc\annotation\Title('批量启用/禁用用户')]
+    #[\erikwang2013\apidoc\annotation\Desc('批量修改用户启用/禁用状态')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/user/batch/status')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('用户管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'ids', type:'array', require:true, desc:'用户ID列表(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', require:true, desc:'目标状态:0禁用1启用')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('count', type:'int', desc:'操作数量')]
 
     public function batchStatus(Request $request): Response
     {

@@ -23,8 +23,8 @@ use support\Response;
  * ID 出入参约定：租户 id 一律 hashid 字符串；company_id 兼容 hashid 或数字
  * （decodeIdSafe，同 CompanyController 双解码惯例）。
  */
-#[\erikwang2013\apidoc\annotation\Title("租户")]
-#[\erikwang2013\apidoc\annotation\Group("平台管理")]
+#[\erikwang2013\apidoc\annotation\Title('租户')]
+#[\erikwang2013\apidoc\annotation\Group('平台管理')]
 class TenantController extends BaseController
 {
     private TenantService $service;
@@ -37,17 +37,17 @@ class TenantController extends BaseController
     /**
      * 租户列表
      */
-#[\erikwang2013\apidoc\annotation\Title("租户列表")]
-#[\erikwang2013\apidoc\annotation\Desc("按状态/公司过滤的租户列表，倒序")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/list")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("平台管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态过滤: 0=待开通 1=启用 2=停用 3=到期，缺省全部")]
-#[\erikwang2013\apidoc\annotation\Param(name:"company_id", type:"string", desc:"公司ID(hashid或数字)，缺省全部")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"data.list:租户行数组；data.total:行数")]
+    #[\erikwang2013\apidoc\annotation\Title('租户列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('按状态/公司过滤的租户列表，倒序')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/tenant/list')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('平台管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态过滤: 0=待开通 1=启用 2=停用 3=到期，缺省全部')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'company_id', type:'string', desc:'公司ID(hashid或数字)，缺省全部')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'data.list:租户行数组；data.total:行数')]
 
     public function list(Request $request): Response
     {
@@ -81,17 +81,17 @@ class TenantController extends BaseController
     /**
      * 开通租户（创建即启用）
      */
-#[\erikwang2013\apidoc\annotation\Title("开通租户")]
-#[\erikwang2013\apidoc\annotation\Desc("公司 1:1 开通租户：plan/套餐 + 到期日，创建即 status:1 启用")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/provision")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("平台管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"company_id", type:"string", desc:"公司ID(hashid或数字)，必填，一个公司至多一个租户")]
-#[\erikwang2013\apidoc\annotation\Param(name:"tenant_code", type:"string", desc:"租户编码(2-50位字母/数字/_/-)，必填且全局唯一")]
-#[\erikwang2013\apidoc\annotation\Param(name:"plan", type:"int", desc:"套餐: 1=标准 2=专业 3=旗舰，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"expire_at", type:"string", desc:"到期日 Y-m-d，必填且不早于今天")]
-#[\erikwang2013\apidoc\annotation\Param(name:"remark", type:"string", desc:"备注")]
+    #[\erikwang2013\apidoc\annotation\Title('开通租户')]
+    #[\erikwang2013\apidoc\annotation\Desc('公司 1:1 开通租户：plan/套餐 + 到期日，创建即 status:1 启用')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/tenant/provision')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('平台管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'company_id', type:'string', desc:'公司ID(hashid或数字)，必填，一个公司至多一个租户')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'tenant_code', type:'string', desc:'租户编码(2-50位字母/数字/_/-)，必填且全局唯一')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'plan', type:'int', desc:'套餐: 1=标准 2=专业 3=旗舰，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'expire_at', type:'string', desc:'到期日 Y-m-d，必填且不早于今天')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', desc:'备注')]
 
     public function provision(Request $request): Response
     {
@@ -128,13 +128,13 @@ class TenantController extends BaseController
     /**
      * 停用租户
      */
-#[\erikwang2013\apidoc\annotation\Title("停用租户")]
-#[\erikwang2013\apidoc\annotation\Desc("仅 1启用 → 2停用")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/suspend")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("平台管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"租户ID(hashid)，必填")]
+    #[\erikwang2013\apidoc\annotation\Title('停用租户')]
+    #[\erikwang2013\apidoc\annotation\Desc('仅 1启用 → 2停用')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/tenant/suspend')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('平台管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'租户ID(hashid)，必填')]
 
     public function suspend(Request $request): Response
     {
@@ -155,13 +155,13 @@ class TenantController extends BaseController
     /**
      * 恢复启用租户
      */
-#[\erikwang2013\apidoc\annotation\Title("恢复启用租户")]
-#[\erikwang2013\apidoc\annotation\Desc("仅 2停用 → 1启用；到期(3)恢复须走续费(renew)")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/resume")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("平台管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"租户ID(hashid)，必填")]
+    #[\erikwang2013\apidoc\annotation\Title('恢复启用租户')]
+    #[\erikwang2013\apidoc\annotation\Desc('仅 2停用 → 1启用；到期(3)恢复须走续费(renew)')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/tenant/resume')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('平台管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'租户ID(hashid)，必填')]
 
     public function resume(Request $request): Response
     {
@@ -182,13 +182,13 @@ class TenantController extends BaseController
     /**
      * 标记租户到期
      */
-#[\erikwang2013\apidoc\annotation\Title("标记租户到期")]
-#[\erikwang2013\apidoc\annotation\Desc("1启用/2停用 → 3到期（重复标记拒绝）")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/expire-mark")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("平台管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"租户ID(hashid)，必填")]
+    #[\erikwang2013\apidoc\annotation\Title('标记租户到期')]
+    #[\erikwang2013\apidoc\annotation\Desc('1启用/2停用 → 3到期（重复标记拒绝）')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/tenant/expire-mark')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('平台管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'租户ID(hashid)，必填')]
 
     public function expireMark(Request $request): Response
     {
@@ -209,14 +209,14 @@ class TenantController extends BaseController
     /**
      * 租户续费（叠加天数）
      */
-#[\erikwang2013\apidoc\annotation\Title("租户续费")]
-#[\erikwang2013\apidoc\annotation\Desc("到期日向后叠加 N 天；已到期(3)续费自动恢复启用，停用(2)续费仅延长期限")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/renew")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("平台管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"租户ID(hashid)，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"days", type:"int", desc:"续费天数 1-3650，必填")]
+    #[\erikwang2013\apidoc\annotation\Title('租户续费')]
+    #[\erikwang2013\apidoc\annotation\Desc('到期日向后叠加 N 天；已到期(3)续费自动恢复启用，停用(2)续费仅延长期限')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/tenant/renew')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('平台管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'租户ID(hashid)，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'days', type:'int', desc:'续费天数 1-3650，必填')]
 
     public function renew(Request $request): Response
     {
@@ -241,15 +241,15 @@ class TenantController extends BaseController
     /**
      * 到期预警列表
      */
-#[\erikwang2013\apidoc\annotation\Title("到期预警")]
-#[\erikwang2013\apidoc\annotation\Desc("启用中且 N 天内到期的租户（含今天与边界日），到期日升序")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/tenant/expiry-warnings")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("平台管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"days", type:"int", desc:"预警窗口天数 1-365，缺省 30")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"data.list:预警租户行数组")]
+    #[\erikwang2013\apidoc\annotation\Title('到期预警')]
+    #[\erikwang2013\apidoc\annotation\Desc('启用中且 N 天内到期的租户（含今天与边界日），到期日升序')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/tenant/expiry-warnings')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('平台管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'days', type:'int', desc:'预警窗口天数 1-365，缺省 30')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'data.list:预警租户行数组')]
 
     public function expiryWarnings(Request $request): Response
     {

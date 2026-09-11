@@ -194,19 +194,47 @@ class M6TraceTest extends IntegrationTestCase
         $noExpiry = 'M6-EXP-NULL';
 
         // 窗口内（今天+10）、已过期、窗口内但零库存、超窗口、无有效期
-        $this->stockIn($p, $inWindow, '8', '5.00', 'purchase_receive', [],
+        $this->stockIn(
+            $p,
+            $inWindow,
+            '8',
+            '5.00',
+            'purchase_receive',
+            [],
             date('Y-m-d', strtotime('-30 day', strtotime($today))),
-            date('Y-m-d', strtotime('+10 day', strtotime($today))));
-        $this->stockIn($p, $past, '5', '5.00', 'purchase_receive', [],
+            date('Y-m-d', strtotime('+10 day', strtotime($today)))
+        );
+        $this->stockIn(
+            $p,
+            $past,
+            '5',
+            '5.00',
+            'purchase_receive',
+            [],
             date('Y-m-d', strtotime('-60 day', strtotime($today))),
-            date('Y-m-d', strtotime('-3 day', strtotime($today))));
-        $this->stockIn($p, $zeroStock, '2', '5.00', 'purchase_receive', [],
+            date('Y-m-d', strtotime('-3 day', strtotime($today)))
+        );
+        $this->stockIn(
+            $p,
+            $zeroStock,
+            '2',
+            '5.00',
+            'purchase_receive',
+            [],
             date('Y-m-d', strtotime('-40 day', strtotime($today))),
-            date('Y-m-d', strtotime('+5 day', strtotime($today))));
+            date('Y-m-d', strtotime('+5 day', strtotime($today)))
+        );
         $this->stockOut($p, $zeroStock, '2', 'sales_delivery');
-        $this->stockIn($p, $beyond, '3', '5.00', 'purchase_receive', [],
+        $this->stockIn(
+            $p,
+            $beyond,
+            '3',
+            '5.00',
+            'purchase_receive',
+            [],
             date('Y-m-d', strtotime('-10 day', strtotime($today))),
-            date('Y-m-d', strtotime('+120 day', strtotime($today))));
+            date('Y-m-d', strtotime('+120 day', strtotime($today)))
+        );
         $this->stockIn($p, $noExpiry, '3', '5.00', 'purchase_receive');
 
         $rows = $this->trace()->expiryAlert(10);
@@ -304,8 +332,17 @@ class M6TraceTest extends IntegrationTestCase
 
         $this->assertThrowsMessage(
             fn () => $this->inventory()->stockIn(
-                $p['product_id'], $p['sku_id'], self::WH_ID, self::LOCATION_ID, $batch,
-                10.0, 5.0, 'purchase_receive', $this->nextId(), [], '2026/01/01'
+                $p['product_id'],
+                $p['sku_id'],
+                self::WH_ID,
+                self::LOCATION_ID,
+                $batch,
+                10.0,
+                5.0,
+                'purchase_receive',
+                $this->nextId(),
+                [],
+                '2026/01/01'
             ),
             'production_date 须为合法日期 YYYY-MM-DD'
         );
@@ -369,9 +406,18 @@ class M6TraceTest extends IntegrationTestCase
     ): int {
         $this->batchCodes[] = $batch;
         $flowId = $this->inventory()->stockIn(
-            $p['product_id'], $p['sku_id'], self::WH_ID, self::LOCATION_ID, $batch,
-            (float) $qty, (float) $cost, $sourceType, $this->nextId(), $serials,
-            $productionDate, $expiryDate
+            $p['product_id'],
+            $p['sku_id'],
+            self::WH_ID,
+            self::LOCATION_ID,
+            $batch,
+            (float) $qty,
+            (float) $cost,
+            $sourceType,
+            $this->nextId(),
+            $serials,
+            $productionDate,
+            $expiryDate
         );
         $this->flowIds[] = $flowId;
         foreach ($serials as $code) {
@@ -389,8 +435,15 @@ class M6TraceTest extends IntegrationTestCase
     {
         $this->batchCodes[] = $batch;
         $flowId = $this->inventory()->stockOut(
-            $p['product_id'], $p['sku_id'], self::WH_ID, self::LOCATION_ID, $batch,
-            (float) $qty, $sourceType, $this->nextId(), $serials
+            $p['product_id'],
+            $p['sku_id'],
+            self::WH_ID,
+            self::LOCATION_ID,
+            $batch,
+            (float) $qty,
+            $sourceType,
+            $this->nextId(),
+            $serials
         );
         $this->flowIds[] = $flowId;
 

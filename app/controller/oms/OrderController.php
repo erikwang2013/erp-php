@@ -12,26 +12,27 @@ use app\model\OmsOrder;
 use app\service\oms\OmsOrderService;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("销售订单")]
-#[\erikwang2013\apidoc\annotation\Group("订单管理OMS")]
+
+#[\erikwang2013\apidoc\annotation\Title('销售订单')]
+#[\erikwang2013\apidoc\annotation\Group('订单管理OMS')]
 
 class OrderController extends BaseController
 {
     /**
      * 销售订单列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("销售订单列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取销售订单列表，支持分页、订单号/渠道单号关键词搜索")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/oms/order")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("OMS订单")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词（订单号/渠道单号）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"订单列表数据")]
+    #[\erikwang2013\apidoc\annotation\Title('销售订单列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取销售订单列表，支持分页、订单号/渠道单号关键词搜索')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/oms/order')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('OMS订单')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（订单号/渠道单号）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'订单列表数据')]
 
     public function index(Request $request): Response
     {
@@ -71,16 +72,16 @@ class OrderController extends BaseController
     /**
      * 创建销售订单
      */
-#[\erikwang2013\apidoc\annotation\Title("创建销售订单")]
-#[\erikwang2013\apidoc\annotation\Desc("新增一条销售订单 OMS 扩展记录，order_id（关联销售订单）必填")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/oms/order")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("OMS订单")]
-#[\erikwang2013\apidoc\annotation\Param(name:"order_id", type:"int", default:"", desc:"关联销售订单ID（必填，uk 唯一）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"创建的订单记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建销售订单')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增一条销售订单 OMS 扩展记录，order_id（关联销售订单）必填')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/oms/order')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('OMS订单')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'order_id', type:'int', default:'', desc:'关联销售订单ID（必填，uk 唯一）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'创建的订单记录')]
 
     public function store(Request $request): Response
     {
@@ -105,15 +106,15 @@ class OrderController extends BaseController
     /**
      * 销售订单详情
      */
-#[\erikwang2013\apidoc\annotation\Title("销售订单详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID获取销售订单详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("OMS订单")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"订单hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"订单详情")]
+    #[\erikwang2013\apidoc\annotation\Title('销售订单详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID获取销售订单详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('OMS订单')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'订单hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'订单详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -143,15 +144,15 @@ class OrderController extends BaseController
     /**
      * 更新销售订单
      */
-#[\erikwang2013\apidoc\annotation\Title("更新销售订单")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID更新销售订单信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("OMS订单")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"订单hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的订单记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新销售订单')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID更新销售订单信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('OMS订单')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'订单hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的订单记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -179,16 +180,16 @@ class OrderController extends BaseController
     /**
      * 删除销售订单（软删除）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除销售订单")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID软删除销售订单，需管理员密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("OMS订单")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"订单hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除销售订单')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID软删除销售订单，需管理员密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('OMS订单')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'订单hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -219,16 +220,16 @@ class OrderController extends BaseController
     /**
      * 订单库存分配
      */
-#[\erikwang2013\apidoc\annotation\Title("订单库存分配")]
-#[\erikwang2013\apidoc\annotation\Desc("为销售订单分配可用库存明细")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("OMS订单")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"订单hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"items", type:"array", default:"", desc:"分配明细列表（必填）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('订单库存分配')]
+    #[\erikwang2013\apidoc\annotation\Desc('为销售订单分配可用库存明细')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('OMS订单')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'订单hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'items', type:'array', default:'', desc:'分配明细列表（必填）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function allocate(Request $request, string $id): Response
     {
@@ -264,16 +265,16 @@ class OrderController extends BaseController
     /**
      * 创建发货履约单
      */
-#[\erikwang2013\apidoc\annotation\Title("创建履约(发货)")]
-#[\erikwang2013\apidoc\annotation\Desc("为订单生成发货履约单，需指定发货仓库")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("OMS订单")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"订单hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"warehouse_id", type:"string", default:"", desc:"发货仓库hashid（必填）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"生成的履约单记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建履约(发货)')]
+    #[\erikwang2013\apidoc\annotation\Desc('为订单生成发货履约单，需指定发货仓库')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('OMS订单')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'订单hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'string', default:'', desc:'发货仓库hashid（必填）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'生成的履约单记录')]
 
     public function fulfill(Request $request, string $id): Response
     {
@@ -309,15 +310,15 @@ class OrderController extends BaseController
     /**
      * 取消订单
      */
-#[\erikwang2013\apidoc\annotation\Title("取消订单")]
-#[\erikwang2013\apidoc\annotation\Desc("取消指定销售订单并释放已占用库存")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("OMS订单")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"订单hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('取消订单')]
+    #[\erikwang2013\apidoc\annotation\Desc('取消指定销售订单并释放已占用库存')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('OMS订单')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'订单hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function cancel(Request $request, string $id): Response
     {

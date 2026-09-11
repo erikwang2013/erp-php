@@ -24,20 +24,20 @@ use support\Response;
  * （状态推进/面试联动/Offer 锁定与回退），status 一律经动作接口变更，禁止直改。
  * 统一返回 {code,message,data}；Tag 见类注解。
  */
-#[\erikwang2013\apidoc\annotation\Tag("人力资源")]
-#[\erikwang2013\apidoc\annotation\Title("职位")]
-#[\erikwang2013\apidoc\annotation\Group("人力资源")]
+#[\erikwang2013\apidoc\annotation\Tag('人力资源')]
+#[\erikwang2013\apidoc\annotation\Title('职位')]
+#[\erikwang2013\apidoc\annotation\Group('人力资源')]
 
 class RecruitController extends BaseController
 {
     // ---------- 职位（erp_hr_job，软删除） ----------
 
-    #[\erikwang2013\apidoc\annotation\Title("职位列表")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/recruit/job")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态:0草稿1发布中2已关闭")]
-#[\erikwang2013\apidoc\annotation\Param(name:"job_title", type:"string", desc:"职位名称（等值）")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('职位列表')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/hr/recruit/job')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态:0草稿1发布中2已关闭')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'job_title', type:'string', desc:'职位名称（等值）')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function jobIndex(Request $request): Response
     {
@@ -63,14 +63,14 @@ class RecruitController extends BaseController
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("新建职位")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/recruit/job")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"job_title", type:"string", desc:"职位名称，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"department_id", type:"int", desc:"部门ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"headcount", type:"int", desc:"招聘人数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"requirement", type:"string", desc:"任职要求")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('新建职位')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/hr/recruit/job')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'job_title', type:'string', desc:'职位名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'department_id', type:'int', desc:'部门ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'headcount', type:'int', desc:'招聘人数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'requirement', type:'string', desc:'任职要求')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function jobStore(Request $request): Response
     {
@@ -89,9 +89,9 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($job->toArray()), '创建成功');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("职位详情")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('职位详情')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function jobShow(Request $request, string $id): Response
     {
@@ -112,11 +112,11 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($job->toArray()));
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("更新职位")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Param(name:"job_title", type:"string", desc:"职位名称")]
-#[\erikwang2013\apidoc\annotation\Param(name:"headcount", type:"int", desc:"招聘人数")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新职位')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'job_title', type:'string', desc:'职位名称')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'headcount', type:'int', desc:'招聘人数')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function jobUpdate(Request $request, string $id): Response
     {
@@ -135,10 +135,10 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($job->toArray()), '更新成功');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("删除职位")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除职位')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function jobDestroy(Request $request, string $id): Response
     {
@@ -165,9 +165,9 @@ class RecruitController extends BaseController
         return $this->success([], '删除成功');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("发布职位")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('发布职位')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function jobPublish(Request $request, string $id): Response
     {
@@ -180,9 +180,9 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($job), '职位已发布');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("关闭职位")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('关闭职位')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function jobClose(Request $request, string $id): Response
     {
@@ -197,13 +197,13 @@ class RecruitController extends BaseController
 
     // ---------- 候选人（erp_hr_candidate） ----------
 
-    #[\erikwang2013\apidoc\annotation\Title("候选人列表")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/recruit/candidate")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态:0新简历1初筛通过2面试中3已发Offer4已入职5已淘汰")]
-#[\erikwang2013\apidoc\annotation\Param(name:"job_id", type:"int", desc:"职位ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"姓名（等值）")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('候选人列表')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/hr/recruit/candidate')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态:0新简历1初筛通过2面试中3已发Offer4已入职5已淘汰')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'job_id', type:'int', desc:'职位ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'姓名（等值）')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function candidateIndex(Request $request): Response
     {
@@ -231,15 +231,15 @@ class RecruitController extends BaseController
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("新建候选人")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/recruit/candidate")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"姓名，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"phone", type:"string", desc:"手机号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"source", type:"string", desc:"来源渠道")]
-#[\erikwang2013\apidoc\annotation\Param(name:"job_id", type:"int", desc:"应聘职位ID，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"expected_salary", type:"float", desc:"期望薪资")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('新建候选人')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/hr/recruit/candidate')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'姓名，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'phone', type:'string', desc:'手机号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'source', type:'string', desc:'来源渠道')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'job_id', type:'int', desc:'应聘职位ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'expected_salary', type:'float', desc:'期望薪资')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function candidateStore(Request $request): Response
     {
@@ -263,9 +263,9 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($candidate, ['id', 'job_id']), '创建成功');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("候选人详情")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('候选人详情')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function candidateShow(Request $request, string $id): Response
     {
@@ -277,11 +277,11 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($candidate->toArray(), ['id', 'job_id']));
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("更新候选人")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Param(name:"phone", type:"string", desc:"手机号")]
-#[\erikwang2013\apidoc\annotation\Param(name:"source", type:"string", desc:"来源渠道")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('更新候选人')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'phone', type:'string', desc:'手机号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'source', type:'string', desc:'来源渠道')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function candidateUpdate(Request $request, string $id): Response
     {
@@ -300,10 +300,10 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($candidate->toArray(), ['id', 'job_id']), '更新成功');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("推进候选人状态")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"目标状态:0新简历1初筛通过2面试中3已发Offer4已入职5已淘汰")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('推进候选人状态')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'目标状态:0新简历1初筛通过2面试中3已发Offer4已入职5已淘汰')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function candidateAdvance(Request $request, string $id): Response
     {
@@ -321,10 +321,10 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($candidate), '状态已更新');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("删除候选人")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", desc:"管理员密码")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('删除候选人')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', desc:'管理员密码')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function candidateDestroy(Request $request, string $id): Response
     {
@@ -356,11 +356,11 @@ class RecruitController extends BaseController
 
     // ---------- 面试（erp_hr_interview） ----------
 
-    #[\erikwang2013\apidoc\annotation\Title("面试记录列表")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/recruit/interview")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Param(name:"candidate_id", type:"int", desc:"候选人ID")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('面试记录列表')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/hr/recruit/interview')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'candidate_id', type:'int', desc:'候选人ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function interviewIndex(Request $request): Response
     {
@@ -383,14 +383,14 @@ class RecruitController extends BaseController
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("记录面试")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/recruit/interview")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"candidate_id", type:"int", desc:"候选人ID，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"interview_date", type:"string", desc:"面试日期 Y-m-d，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"result", type:"int", desc:"结果:0待定1通过2不通过")]
-#[\erikwang2013\apidoc\annotation\Param(name:"round_no", type:"int", desc:"轮次，缺省自动取最大轮次+1")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('记录面试')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/hr/recruit/interview')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'candidate_id', type:'int', desc:'候选人ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'interview_date', type:'string', desc:'面试日期 Y-m-d，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'result', type:'int', desc:'结果:0待定1通过2不通过')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'round_no', type:'int', desc:'轮次，缺省自动取最大轮次+1')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function interviewStore(Request $request): Response
     {
@@ -413,11 +413,11 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($interview), '面试已记录');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("变更面试结果")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Param(name:"result", type:"int", desc:"结果:1通过2不通过，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"comment", type:"string", desc:"评价")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('变更面试结果')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'result', type:'int', desc:'结果:1通过2不通过，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'comment', type:'string', desc:'评价')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function interviewUpdate(Request $request, string $id): Response
     {
@@ -444,12 +444,12 @@ class RecruitController extends BaseController
 
     // ---------- Offer（erp_hr_offer） ----------
 
-    #[\erikwang2013\apidoc\annotation\Title("Offer列表")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/recruit/offer")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Param(name:"candidate_id", type:"int", desc:"候选人ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"状态:0草稿1已发出2已接受3已拒绝")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('Offer列表')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/hr/recruit/offer')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'candidate_id', type:'int', desc:'候选人ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态:0草稿1已发出2已接受3已拒绝')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function offerIndex(Request $request): Response
     {
@@ -474,13 +474,13 @@ class RecruitController extends BaseController
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("发起Offer")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/recruit/offer")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Param(name:"candidate_id", type:"int", desc:"候选人ID，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"offered_salary", type:"float", desc:"Offer薪资，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"onboard_date", type:"string", desc:"入职日期 Y-m-d")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('发起Offer')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/hr/recruit/offer')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'candidate_id', type:'int', desc:'候选人ID，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'offered_salary', type:'float', desc:'Offer薪资，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'onboard_date', type:'string', desc:'入职日期 Y-m-d')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function offerStore(Request $request): Response
     {
@@ -502,9 +502,9 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($offer), 'Offer 草稿已创建');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("发出Offer")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('发出Offer')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function offerSend(Request $request, string $id): Response
     {
@@ -517,9 +517,9 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($offer), 'Offer 已发出');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("接受Offer")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('接受Offer')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function offerAccept(Request $request, string $id): Response
     {
@@ -532,9 +532,9 @@ class RecruitController extends BaseController
         return $this->success($this->encodeIds($offer), 'Offer 已接受，候选人已入职');
     }
 
-    #[\erikwang2013\apidoc\annotation\Title("拒绝Offer")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('拒绝Offer')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function offerReject(Request $request, string $id): Response
     {
@@ -549,12 +549,12 @@ class RecruitController extends BaseController
 
     // ---------- 漏斗统计 ----------
 
-    #[\erikwang2013\apidoc\annotation\Title("招聘漏斗统计")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/hr/recruit/funnel")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Param(name:"from", type:"string", desc:"开始日期 Y-m-d，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"to", type:"string", desc:"结束日期 Y-m-d，必填")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('招聘漏斗统计')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/hr/recruit/funnel')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'from', type:'string', desc:'开始日期 Y-m-d，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'to', type:'string', desc:'结束日期 Y-m-d，必填')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function funnel(Request $request): Response
     {

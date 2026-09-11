@@ -11,26 +11,27 @@ use app\admin\controller\BaseController;
 use app\model\InventoryAlertRule;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("库存预警规则")]
-#[\erikwang2013\apidoc\annotation\Group("库存管理")]
+
+#[\erikwang2013\apidoc\annotation\Title('库存预警规则')]
+#[\erikwang2013\apidoc\annotation\Group('库存管理')]
 
 class AlertController extends BaseController
 {
     /**
      * 库存预警规则列表（分页）
      */
-#[\erikwang2013\apidoc\annotation\Title("库存预警规则列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取库存预警规则列表，支持分页和启用状态筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory/alert")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", default:"", desc:"启用状态筛选（0=禁用,1=启用）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('库存预警规则列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取库存预警规则列表，支持分页和启用状态筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/inventory/alert')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'启用状态筛选（0=禁用,1=启用）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function index(Request $request): Response
     {
@@ -67,21 +68,21 @@ class AlertController extends BaseController
     /**
      * 创建库存预警规则
      */
-#[\erikwang2013\apidoc\annotation\Title("创建库存预警规则")]
-#[\erikwang2013\apidoc\annotation\Desc("新增一个库存预警规则记录（表无 name/code 列）")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/inventory/alert")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"product_id", type:"string", require:true, desc:"产品ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"sku_id", type:"string", default:"0", desc:"SKU ID（hashid，0=全部）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"warehouse_id", type:"string", default:"0", desc:"仓库ID（hashid，0=全部仓库）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"min_quantity", type:"float", default:0, desc:"最小库存阈值")]
-#[\erikwang2013\apidoc\annotation\Param(name:"max_quantity", type:"float", default:0, desc:"最大库存阈值")]
-#[\erikwang2013\apidoc\annotation\Param(name:"enabled", type:"int", default:1, desc:"是否启用（0=禁用,1=启用）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"库存预警规则记录")]
+    #[\erikwang2013\apidoc\annotation\Title('创建库存预警规则')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增一个库存预警规则记录（表无 name/code 列）')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/inventory/alert')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'product_id', type:'string', require:true, desc:'产品ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'sku_id', type:'string', default:'0', desc:'SKU ID（hashid，0=全部）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'string', default:'0', desc:'仓库ID（hashid，0=全部仓库）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'min_quantity', type:'float', default:0, desc:'最小库存阈值')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'max_quantity', type:'float', default:0, desc:'最大库存阈值')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'enabled', type:'int', default:1, desc:'是否启用（0=禁用,1=启用）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'库存预警规则记录')]
 
     public function store(Request $request): Response
     {
@@ -119,15 +120,15 @@ class AlertController extends BaseController
     /**
      * 库存预警规则详情
      */
-#[\erikwang2013\apidoc\annotation\Title("库存预警规则详情")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID获取库存预警规则详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"预警规则hashid")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"库存预警规则详情")]
+    #[\erikwang2013\apidoc\annotation\Title('库存预警规则详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID获取库存预警规则详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'预警规则hashid')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'库存预警规则详情')]
 
     public function show(Request $request, string $id): Response
     {
@@ -149,21 +150,21 @@ class AlertController extends BaseController
     /**
      * 更新库存预警规则
      */
-#[\erikwang2013\apidoc\annotation\Title("更新库存预警规则")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID更新库存预警规则信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"预警规则hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"product_id", type:"string", default:"", desc:"产品ID（hashid）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"sku_id", type:"string", default:"", desc:"SKU ID（hashid，0=全部）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"warehouse_id", type:"string", default:"", desc:"仓库ID（hashid，0=全部仓库）")]
-#[\erikwang2013\apidoc\annotation\Param(name:"min_quantity", type:"float", default:"", desc:"最小库存阈值")]
-#[\erikwang2013\apidoc\annotation\Param(name:"max_quantity", type:"float", default:"", desc:"最大库存阈值")]
-#[\erikwang2013\apidoc\annotation\Param(name:"enabled", type:"int", default:"", desc:"是否启用（0=禁用,1=启用）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的库存预警规则记录")]
+    #[\erikwang2013\apidoc\annotation\Title('更新库存预警规则')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID更新库存预警规则信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'预警规则hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'product_id', type:'string', default:'', desc:'产品ID（hashid）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'sku_id', type:'string', default:'', desc:'SKU ID（hashid，0=全部）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'string', default:'', desc:'仓库ID（hashid，0=全部仓库）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'min_quantity', type:'float', default:'', desc:'最小库存阈值')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'max_quantity', type:'float', default:'', desc:'最大库存阈值')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'enabled', type:'int', default:'', desc:'是否启用（0=禁用,1=启用）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的库存预警规则记录')]
 
     public function update(Request $request, string $id): Response
     {
@@ -224,16 +225,16 @@ class AlertController extends BaseController
     /**
      * 删除库存预警规则（软删除）
      */
-#[\erikwang2013\apidoc\annotation\Title("删除库存预警规则")]
-#[\erikwang2013\apidoc\annotation\Desc("根据ID软删除库存预警规则，需管理员密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("库存管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", default:"", desc:"预警规则hashid")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", default:"", desc:"管理员密码（二次确认）")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除库存预警规则')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据ID软删除库存预警规则，需管理员密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'预警规则hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {

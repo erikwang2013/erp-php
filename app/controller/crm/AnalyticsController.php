@@ -14,8 +14,9 @@ use app\service\crm\CrmService;
 use support\Container;
 use support\Request;
 use support\Response;
-#[\erikwang2013\apidoc\annotation\Title("分析报表")]
-#[\erikwang2013\apidoc\annotation\Group("CRM")]
+
+#[\erikwang2013\apidoc\annotation\Title('分析报表')]
+#[\erikwang2013\apidoc\annotation\Group('CRM')]
 
 class AnalyticsController extends BaseController
 {
@@ -24,19 +25,19 @@ class AnalyticsController extends BaseController
     /**
      * 报表列表
      */
-#[\erikwang2013\apidoc\annotation\Title("分析报表列表")]
-#[\erikwang2013\apidoc\annotation\Desc("分页查询分析报表记录")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/analytics")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"type", type:"string", desc:"报表类型")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_year", type:"int", desc:"报表年度")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('分析报表列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('分页查询分析报表记录')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/analytics')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'type', type:'string', desc:'报表类型')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_year', type:'int', desc:'报表年度')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function reports(Request $request): Response
     {
@@ -69,20 +70,20 @@ class AnalyticsController extends BaseController
     /**
      * 生成分析报表
      */
-#[\erikwang2013\apidoc\annotation\Title("生成分析报表")]
-#[\erikwang2013\apidoc\annotation\Desc("根据类型生成模拟分析报表数据并保存")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/analytics")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"报表名称，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"type", type:"string", desc:"报表类型:customer/order/revenue/activity/retention，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_year", type:"int", desc:"报表年度，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_value", type:"int", desc:"期间值，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"period_type", type:"int", desc:"期间类型:1=月2=季3=年")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('生成分析报表')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据类型生成模拟分析报表数据并保存')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/analytics')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'报表名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'type', type:'string', desc:'报表类型:customer/order/revenue/activity/retention，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_year', type:'int', desc:'报表年度，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_value', type:'int', desc:'期间值，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'period_type', type:'int', desc:'期间类型:1=月2=季3=年')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function generate(Request $request): Response
     {
@@ -120,15 +121,15 @@ class AnalyticsController extends BaseController
     /**
      * 报表详情
      */
-#[\erikwang2013\apidoc\annotation\Title("报表详情")]
-#[\erikwang2013\apidoc\annotation\Desc("查看分析报表详细信息")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"报表ID")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('报表详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看分析报表详细信息')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'报表ID')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function reportShow(Request $request, string $id): Response
     {
@@ -155,15 +156,15 @@ class AnalyticsController extends BaseController
     /**
      * 指标列表
      */
-#[\erikwang2013\apidoc\annotation\Title("分析指标列表")]
-#[\erikwang2013\apidoc\annotation\Desc("查询全部分析指标配置")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/analytics")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('分析指标列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('查询全部分析指标配置')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/analytics')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function metrics(Request $request): Response
     {
@@ -176,19 +177,19 @@ class AnalyticsController extends BaseController
     /**
      * 创建/更新指标
      */
-#[\erikwang2013\apidoc\annotation\Title("创建或更新分析指标")]
-#[\erikwang2013\apidoc\annotation\Desc("有id则更新，无id则创建分析指标")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/crm/analytics")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("CRM")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", desc:"指标名称，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"key", type:"string", desc:"指标键名，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"type", type:"string", desc:"指标类型，必填")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", desc:"记录ID，传则更新")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"业务数据")]
+    #[\erikwang2013\apidoc\annotation\Title('创建或更新分析指标')]
+    #[\erikwang2013\apidoc\annotation\Desc('有id则更新，无id则创建分析指标')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/crm/analytics')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('CRM')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'指标名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'key', type:'string', desc:'指标键名，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'type', type:'string', desc:'指标类型，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'记录ID，传则更新')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function storeMetric(Request $request): Response
     {

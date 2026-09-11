@@ -19,9 +19,9 @@ use support\Response;
 /**
  * 自定义报表管理
  */
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Title("报表模板")]
-#[\erikwang2013\apidoc\annotation\Group("自定义报表")]
+#[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+#[\erikwang2013\apidoc\annotation\Title('报表模板')]
+#[\erikwang2013\apidoc\annotation\Group('自定义报表')]
 
 class ReportController extends BaseController
 {
@@ -33,22 +33,22 @@ class ReportController extends BaseController
      * 报表模板列表（分页）
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("报表模板列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取报表模板分页列表，支持关键字和模块筛选")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/report")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", default:1, desc:"页码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"limit", type:"int", default:15, desc:"每页条数")]
-#[\erikwang2013\apidoc\annotation\Param(name:"keyword", type:"string", default:"", desc:"搜索关键词(名称/编码)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"module", type:"string", default:"", desc:"模块筛选")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"模板列表")]
-#[\erikwang2013\apidoc\annotation\Returned("total", type:"int", desc:"总条数")]
-#[\erikwang2013\apidoc\annotation\Returned("page", type:"int", desc:"当前页码")]
-#[\erikwang2013\apidoc\annotation\Returned("limit", type:"int", desc:"每页条数")]
+    #[\erikwang2013\apidoc\annotation\Title('报表模板列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取报表模板分页列表，支持关键字和模块筛选')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/report')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词(名称/编码)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'module', type:'string', default:'', desc:'模块筛选')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('list', type:'array', desc:'模板列表')]
+    #[\erikwang2013\apidoc\annotation\Returned('total', type:'int', desc:'总条数')]
+    #[\erikwang2013\apidoc\annotation\Returned('page', type:'int', desc:'当前页码')]
+    #[\erikwang2013\apidoc\annotation\Returned('limit', type:'int', desc:'每页条数')]
 
     public function index(Request $request): Response
     {
@@ -88,18 +88,18 @@ class ReportController extends BaseController
     /**
      * 创建报表模板
      */
-#[\erikwang2013\apidoc\annotation\Title("创建报表模板")]
-#[\erikwang2013\apidoc\annotation\Desc("创建一个新的报表模板")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/report")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"code", type:"string", require:true, desc:"模板编码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"模板名称")]
-#[\erikwang2013\apidoc\annotation\Param(name:"module", type:"string", require:true, desc:"所属模块")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"模板信息")]
+    #[\erikwang2013\apidoc\annotation\Title('创建报表模板')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建一个新的报表模板')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/report')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'模板编码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', require:true, desc:'模板名称')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'module', type:'string', require:true, desc:'所属模块')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'模板信息')]
 
     public function store(Request $request): Response
     {
@@ -123,15 +123,15 @@ class ReportController extends BaseController
     /**
      * 报表模板详情
      */
-#[\erikwang2013\apidoc\annotation\Title("报表模板详情")]
-#[\erikwang2013\apidoc\annotation\Desc("获取指定报表模板的详细信息，包含字段和筛选条件")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"模板ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"模板详情(含字段/筛选)")]
+    #[\erikwang2013\apidoc\annotation\Title('报表模板详情')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取指定报表模板的详细信息，包含字段和筛选条件')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'模板ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'模板详情(含字段/筛选)')]
 
     public function show(Request $request, string $id): Response
     {
@@ -164,15 +164,15 @@ class ReportController extends BaseController
     /**
      * 更新报表模板
      */
-#[\erikwang2013\apidoc\annotation\Title("更新报表模板")]
-#[\erikwang2013\apidoc\annotation\Desc("更新指定报表模板的信息")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"模板ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"更新后的模板信息")]
+    #[\erikwang2013\apidoc\annotation\Title('更新报表模板')]
+    #[\erikwang2013\apidoc\annotation\Desc('更新指定报表模板的信息')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'模板ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的模板信息')]
 
     public function update(Request $request, string $id): Response
     {
@@ -200,16 +200,16 @@ class ReportController extends BaseController
     /**
      * 删除报表模板
      */
-#[\erikwang2013\apidoc\annotation\Title("删除报表模板")]
-#[\erikwang2013\apidoc\annotation\Desc("软删除指定报表模板及其关联字段、筛选条件和数据集，需要密码二次确认")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"模板ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"password", type:"string", require:true, desc:"当前管理员密码(二次确认)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除报表模板')]
+    #[\erikwang2013\apidoc\annotation\Desc('软删除指定报表模板及其关联字段、筛选条件和数据集，需要密码二次确认')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'模板ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', require:true, desc:'当前管理员密码(二次确认)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -253,15 +253,15 @@ class ReportController extends BaseController
      * 获取模板字段列表
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("模板字段列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取指定报表模板的所有字段")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"模板ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"字段列表")]
+    #[\erikwang2013\apidoc\annotation\Title('模板字段列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取指定报表模板的所有字段')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'模板ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('list', type:'array', desc:'字段列表')]
 
     public function fields(Request $request, string $id): Response
     {
@@ -285,19 +285,19 @@ class ReportController extends BaseController
     /**
      * 添加字段
      */
-#[\erikwang2013\apidoc\annotation\Title("添加报表字段")]
-#[\erikwang2013\apidoc\annotation\Desc("向指定模板添加一个报表字段")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/report/field")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"template_id", type:"int", require:true, desc:"模板ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"字段名")]
-#[\erikwang2013\apidoc\annotation\Param(name:"field", type:"string", require:true, desc:"数据库字段")]
-#[\erikwang2013\apidoc\annotation\Param(name:"label", type:"string", require:true, desc:"显示标签")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"字段信息")]
+    #[\erikwang2013\apidoc\annotation\Title('添加报表字段')]
+    #[\erikwang2013\apidoc\annotation\Desc('向指定模板添加一个报表字段')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/report/field')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'template_id', type:'int', require:true, desc:'模板ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', require:true, desc:'字段名')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'field', type:'string', require:true, desc:'数据库字段')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'label', type:'string', require:true, desc:'显示标签')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'字段信息')]
 
     public function addField(Request $request): Response
     {
@@ -323,15 +323,15 @@ class ReportController extends BaseController
     /**
      * 删除字段
      */
-#[\erikwang2013\apidoc\annotation\Title("删除报表字段")]
-#[\erikwang2013\apidoc\annotation\Desc("删除指定的报表字段")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"字段ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除报表字段')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除指定的报表字段')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'字段ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function deleteField(Request $request, string $id): Response
     {
@@ -362,15 +362,15 @@ class ReportController extends BaseController
      * 获取模板筛选条件列表
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("模板筛选条件列表")]
-#[\erikwang2013\apidoc\annotation\Desc("获取指定报表模板的所有筛选条件")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"模板ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("list", type:"array", desc:"筛选条件列表")]
+    #[\erikwang2013\apidoc\annotation\Title('模板筛选条件列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('获取指定报表模板的所有筛选条件')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'模板ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('list', type:'array', desc:'筛选条件列表')]
 
     public function filters(Request $request, string $id): Response
     {
@@ -394,18 +394,18 @@ class ReportController extends BaseController
     /**
      * 添加筛选条件
      */
-#[\erikwang2013\apidoc\annotation\Title("添加筛选条件")]
-#[\erikwang2013\apidoc\annotation\Desc("向指定模板添加一个筛选条件")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/report/filter")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"template_id", type:"int", require:true, desc:"模板ID")]
-#[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"筛选条件名")]
-#[\erikwang2013\apidoc\annotation\Param(name:"field", type:"string", require:true, desc:"数据库字段")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"筛选条件信息")]
+    #[\erikwang2013\apidoc\annotation\Title('添加筛选条件')]
+    #[\erikwang2013\apidoc\annotation\Desc('向指定模板添加一个筛选条件')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/report/filter')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'template_id', type:'int', require:true, desc:'模板ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', require:true, desc:'筛选条件名')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'field', type:'string', require:true, desc:'数据库字段')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'筛选条件信息')]
 
     public function addFilter(Request $request): Response
     {
@@ -430,15 +430,15 @@ class ReportController extends BaseController
     /**
      * 删除筛选条件
      */
-#[\erikwang2013\apidoc\annotation\Title("删除筛选条件")]
-#[\erikwang2013\apidoc\annotation\Desc("删除指定的报表筛选条件")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"筛选条件ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"array", desc:"空数组")]
+    #[\erikwang2013\apidoc\annotation\Title('删除筛选条件')]
+    #[\erikwang2013\apidoc\annotation\Desc('删除指定的报表筛选条件')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'筛选条件ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
 
     public function deleteFilter(Request $request, string $id): Response
     {
@@ -469,17 +469,17 @@ class ReportController extends BaseController
      * 执行报表查询
      * })
      */
-#[\erikwang2013\apidoc\annotation\Title("执行报表查询")]
-#[\erikwang2013\apidoc\annotation\Desc("根据模板配置和筛选参数执行SQL查询，结果保存为数据集。支持text/date_range/number_range/select筛选类型。最多返回1000行。")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"模板ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("dataset_id", type:"string", desc:"数据集ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Returned("rows_count", type:"int", desc:"结果行数")]
-#[\erikwang2013\apidoc\annotation\Returned("query_sql", type:"string", desc:"执行的SQL")]
+    #[\erikwang2013\apidoc\annotation\Title('执行报表查询')]
+    #[\erikwang2013\apidoc\annotation\Desc('根据模板配置和筛选参数执行SQL查询，结果保存为数据集。支持text/date_range/number_range/select筛选类型。最多返回1000行。')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'模板ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('dataset_id', type:'string', desc:'数据集ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('rows_count', type:'int', desc:'结果行数')]
+    #[\erikwang2013\apidoc\annotation\Returned('query_sql', type:'string', desc:'执行的SQL')]
 
     public function execute(Request $request, string $id): Response
     {
@@ -759,16 +759,16 @@ class ReportController extends BaseController
     /**
      * 查看报表执行结果
      */
-#[\erikwang2013\apidoc\annotation\Title("查看报表结果")]
-#[\erikwang2013\apidoc\annotation\Desc("查看最近一次执行结果，或通过dataset_id查看指定数据集")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("自定义报表")]
-#[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"模板ID(hashid)")]
-#[\erikwang2013\apidoc\annotation\Param(name:"dataset_id", type:"string", default:"", desc:"数据集ID(hashid)，不传则取最新")]
-#[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码")]
-#[\erikwang2013\apidoc\annotation\Returned("message", type:"string", desc:"业务信息")]
-#[\erikwang2013\apidoc\annotation\Returned("data", type:"object", desc:"数据集详情(含查询结果)")]
+    #[\erikwang2013\apidoc\annotation\Title('查看报表结果')]
+    #[\erikwang2013\apidoc\annotation\Desc('查看最近一次执行结果，或通过dataset_id查看指定数据集')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('自定义报表')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'模板ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'dataset_id', type:'string', default:'', desc:'数据集ID(hashid)，不传则取最新')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'数据集详情(含查询结果)')]
 
     public function result(Request $request, string $id): Response
     {

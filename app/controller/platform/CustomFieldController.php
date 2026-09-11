@@ -20,21 +20,21 @@ use support\Response;
  * 定义 CRUD + 动态 schema（applySchema 供前端渲染）+ 值校验（validate 由单据
  * 服务在保存 custom_fields 前调用）。
  */
-#[\erikwang2013\apidoc\annotation\Title("自定义字段定义")]
-#[\erikwang2013\apidoc\annotation\Group("平台管理")]
+#[\erikwang2013\apidoc\annotation\Title('自定义字段定义')]
+#[\erikwang2013\apidoc\annotation\Group('平台管理')]
 class CustomFieldController extends BaseController
 {
     /**
      * 字段定义列表
      */
-#[\erikwang2013\apidoc\annotation\Title("自定义字段定义列表")]
-#[\erikwang2013\apidoc\annotation\Desc("按实体类型与启用状态查询字段定义")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/custom-field")]
-#[\erikwang2013\apidoc\annotation\Method("GET")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("低代码")]
-#[\erikwang2013\apidoc\annotation\Param(name:"entity_type", type:"string", desc:"实体类型，空=全部")]
-#[\erikwang2013\apidoc\annotation\Param(name:"status", type:"int", desc:"1=仅启用")]
+    #[\erikwang2013\apidoc\annotation\Title('自定义字段定义列表')]
+    #[\erikwang2013\apidoc\annotation\Desc('按实体类型与启用状态查询字段定义')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/custom-field')]
+    #[\erikwang2013\apidoc\annotation\Method('GET')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('低代码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'entity_type', type:'string', desc:'实体类型，空=全部')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'1=仅启用')]
 
     public function list(Request $request): Response
     {
@@ -59,12 +59,12 @@ class CustomFieldController extends BaseController
     /**
      * 新建字段定义
      */
-#[\erikwang2013\apidoc\annotation\Title("新建自定义字段定义")]
-#[\erikwang2013\apidoc\annotation\Desc("entity_type/field_key 白名单；同实体同 key 唯一")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/custom-field")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("低代码")]
+    #[\erikwang2013\apidoc\annotation\Title('新建自定义字段定义')]
+    #[\erikwang2013\apidoc\annotation\Desc('entity_type/field_key 白名单；同实体同 key 唯一')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/custom-field')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('低代码')]
 
     public function create(Request $request): Response
     {
@@ -89,10 +89,10 @@ class CustomFieldController extends BaseController
     /**
      * 更新字段定义
      */
-#[\erikwang2013\apidoc\annotation\Title("更新自定义字段定义")]
-#[\erikwang2013\apidoc\annotation\Method("PUT")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("低代码")]
+    #[\erikwang2013\apidoc\annotation\Title('更新自定义字段定义')]
+    #[\erikwang2013\apidoc\annotation\Method('PUT')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('低代码')]
 
     public function update(Request $request, string $id): Response
     {
@@ -112,10 +112,10 @@ class CustomFieldController extends BaseController
     /**
      * 删除字段定义
      */
-#[\erikwang2013\apidoc\annotation\Title("删除自定义字段定义")]
-#[\erikwang2013\apidoc\annotation\Method("DELETE")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("低代码")]
+    #[\erikwang2013\apidoc\annotation\Title('删除自定义字段定义')]
+    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('低代码')]
 
     public function destroy(Request $request, string $id): Response
     {
@@ -131,12 +131,12 @@ class CustomFieldController extends BaseController
     /**
      * 实体自定义字段校验
      */
-#[\erikwang2013\apidoc\annotation\Title("校验实体自定义字段值")]
-#[\erikwang2013\apidoc\annotation\Desc("单据保存前调用：按启用定义校验并返回归一化值；未知 key 宽容忽略")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/custom-field/validate")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("低代码")]
+    #[\erikwang2013\apidoc\annotation\Title('校验实体自定义字段值')]
+    #[\erikwang2013\apidoc\annotation\Desc('单据保存前调用：按启用定义校验并返回归一化值；未知 key 宽容忽略')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/custom-field/validate')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('低代码')]
 
     public function validate(Request $request): Response
     {
@@ -157,12 +157,12 @@ class CustomFieldController extends BaseController
     /**
      * 动态表单 schema
      */
-#[\erikwang2013\apidoc\annotation\Title("实体自定义字段动态表单")]
-#[\erikwang2013\apidoc\annotation\Desc("返回实体全部启用定义 + 既有值合并，供前端渲染")]
-#[\erikwang2013\apidoc\annotation\Url("/admin/v1/platform/custom-field/schema")]
-#[\erikwang2013\apidoc\annotation\Method("POST")]
-#[\erikwang2013\apidoc\annotation\Author("erik")]
-#[\erikwang2013\apidoc\annotation\Tag("低代码")]
+    #[\erikwang2013\apidoc\annotation\Title('实体自定义字段动态表单')]
+    #[\erikwang2013\apidoc\annotation\Desc('返回实体全部启用定义 + 既有值合并，供前端渲染')]
+    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/platform/custom-field/schema')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('低代码')]
 
     public function schema(Request $request): Response
     {

@@ -3,16 +3,16 @@
 <form method="post" action="/install" id="db-form">
 <input type="hidden" name="step" value="1">
 <div class="form-row">
-  <div class="form-group" style="flex:2"><label>主机地址</label><input type="text" name="host" required value="<?= $h('host','127.0.0.1') ?>"></div>
-  <div class="form-group" style="flex:1"><label>端口</label><input type="number" name="port" required value="<?= $h('port','3306') ?>"></div>
+  <div class="form-group" style="flex:2"><label>主机地址</label><input type="text" name="host" required value="<?= $h('host', '127.0.0.1') ?>"></div>
+  <div class="form-group" style="flex:1"><label>端口</label><input type="number" name="port" required value="<?= $h('port', '3306') ?>"></div>
 </div>
-<div class="form-group"><label>数据库名</label><input type="text" name="database" required value="<?= $h('database','erp') ?>" placeholder="不存在将自动创建"></div>
-<div class="form-group"><label>用户名</label><input type="text" name="username" required value="<?= $h('username','root') ?>"></div>
+<div class="form-group"><label>数据库名</label><input type="text" name="database" required value="<?= $h('database', 'erp') ?>" placeholder="不存在将自动创建"></div>
+<div class="form-group"><label>用户名</label><input type="text" name="username" required value="<?= $h('username', 'root') ?>"></div>
 <div class="form-group"><label>密码</label>
   <div class="pw-wrap"><input type="password" name="password" id="db-pass" data-pw value="<?= $h('password') ?>">
   <button type="button" class="pw-eye" data-eye="db-pass" aria-label="显示/隐藏密码">👁</button></div>
 </div>
-<div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="<?= $h('prefix','erp_') ?>" required></div>
+<div class="form-group"><label>表前缀</label><input type="text" name="prefix" value="<?= $h('prefix', 'erp_') ?>" required></div>
 <div class="hint" style="color:#94a3b8;font-size:12.5px;margin-top:-4px;">密钥、启动端口与搜索引擎等高级配置将在后续步骤中单独完成</div>
 
 <div class="form-actions">
