@@ -4,7 +4,7 @@
 
 ## Resumen
 
-El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:modules=23 --> y 163 tablas de datos <!-- stats:tables=226 -->, y ofrece un sistema de gestión empresarial full-stack que va desde compra-venta-inventario hasta producción y fabricación, y desde contabilidad financiera hasta recursos humanos. Internacionalización: soporte bilingüe chino/inglés, con cambio automático de idioma mediante el encabezado de solicitud Accept-Language.
+El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:modules=23 --> y 163 tablas de datos <!-- stats:tables=227 -->, y ofrece un sistema de gestión empresarial full-stack que va desde compra-venta-inventario hasta producción y fabricación, y desde contabilidad financiera hasta recursos humanos. Internacionalización: soporte bilingüe chino/inglés, con cambio automático de idioma mediante el encabezado de solicitud Accept-Language.
 
 > Documentación de API: tras iniciar el servicio, visite `http://localhost:8788/apidoc` para consultar la documentación interactiva de interfaces (generada automáticamente por hg/apidoc)
 
@@ -494,13 +494,13 @@ Registro de horas → agregación a la tarea → acumulación en el coste del pr
 | Dimensión | Cantidad |
 |------|------|
 | Módulos de negocio | 19 <!-- stats:modules=23 --> |
-| Tablas de base de datos | 163 <!-- stats:tables=226 --> |
-| Modelos de datos | 161 <!-- stats:models=223 --> |
-| Controladores | 123 <!-- stats:controllers=158 --> |
+| Tablas de base de datos | 163 <!-- stats:tables=227 --> |
+| Modelos de datos | 161 <!-- stats:models=224 --> |
+| Controladores | 123 <!-- stats:controllers=159 --> |
 | Servicios de negocio | 27 <!-- stats:services=63 --> |
 | Rutas de API | 198 (generadas dinámicamente; ver `scripts/check-endpoints.php`, no participan en la verificación de doc-stats) |
 | Middlewares | 11 <!-- stats:middleware=11 --> |
-| Archivos fuente PHP | 343 <!-- stats:php_files=479 --> |
+| Archivos fuente PHP | 343 <!-- stats:php_files=481 --> |
 | Script de instalación de base de datos | Archivo único `database/install.sql` (163 tablas, todas las migraciones consolidadas) |
 | Páginas frontend (Flutter) | 7 (estadísticas del frontend, no incluidas en la verificación de doc-stats) |
 | Páginas frontend (HarmonyOS) | 4 (estadísticas del frontend, no incluidas en la verificación de doc-stats) |

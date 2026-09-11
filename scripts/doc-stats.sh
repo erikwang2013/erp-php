@@ -8,10 +8,12 @@
 #   - 默认模式：输出稳定 key=value 行（每行一个统计键），供文档与 CI 解析；
 #   - --check 模式：生成当前统计后，扫描 docs/**/*.md 与根 README.md 中形如
 #     <!-- stats:key=value --> 的注释标注，逐键比对，漂移即非零退出。
+#   - --fix 模式：同样先采集，再就地把标注改写为实测值，最后复验（漂移自愈）。
 #
 # 用法：
 #   bash scripts/doc-stats.sh                 # 输出 key=value 统计
 #   bash scripts/doc-stats.sh --check [docs]  # 校验 docs 标注与实测一致（默认 docs/）
+#   bash scripts/doc-stats.sh --fix [docs]    # 就地改写 docs 标注为实测值后复验
 #   bash scripts/doc-stats.sh --help
 #
 # CI 集成：.github/workflows/ci.yml 的 docs 作业执行
@@ -176,15 +178,78 @@ check_docs() {
 }
 
 # ------------------------------------------------------------
+# fix_docs —— 把 docs/**/*.md 中的 <!-- stats:key=value --> 标注改写为实测值。
+# 只对齐文档中「已出现」的键（不为未使用的键无中生有）；实测不可用
+# （unknown/空，如无 vendor 时 phpunit 解析失败）时保留原值，宁可不改也不写坏数字。
+# 改完立即交由 check_docs 复验，因此返回码即最终一致性结论。
+# ------------------------------------------------------------
+fix_docs() {
+  local docs_dir="${1:-$ROOT/docs}"
+  local keys expr script f key val
+
+  if [[ ! -d "$docs_dir" ]]; then
+    echo "✗ 文档目录不存在: $docs_dir"
+    return 1
+  fi
+
+  echo "== 文档统计对齐 =="
+  echo "统计来源: bash scripts/doc-stats.sh（实时采集）"
+  echo "对齐范围: $docs_dir + 根目录 README.md"
+  echo ""
+
+  keys="$(grep -rhoE '<!-- stats:[a-zA-Z0-9_]+=' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null \
+    | sed -E 's/.*stats:([a-zA-Z0-9_]+)=/\1/' | sort -u || true)"
+  if [[ -z "$keys" ]]; then
+    echo "✗ 未找到任何 <!-- stats:key=value --> 标注（无可对齐项）"
+    return 1
+  fi
+
+  # 逐键生成 sed 表达式。标注格式固定为 `<!-- stats:key=value -->`（单空格），
+  # 按完整 key + = 精确匹配，故 controllers 不会误伤 controllers_admin。
+  expr=""
+  while IFS= read -r key; do
+    [[ -z "$key" ]] && continue
+    val="$(grep -m1 "^${key}=" "$STATS_FILE" | cut -d= -f2- || true)"
+    if [[ -z "$val" || "$val" == "unknown" ]]; then
+      echo "! stats:${key} 实测不可用（${val:-空}），保留原值跳过"
+      continue
+    fi
+    expr+="s|<!-- stats:${key}=[0-9]+ -->|<!-- stats:${key}=${val} -->|g"$'\n'
+  done <<< "$keys"
+
+  if [[ -z "$expr" ]]; then
+    echo "✗ 无可用实测值，未做任何修改"
+    return 1
+  fi
+
+  script="$(mktemp)"
+  printf '%s' "$expr" > "$script"
+  while IFS= read -r f; do
+    [[ -z "$f" ]] && continue
+    if grep -qE '<!-- stats:[a-zA-Z0-9_]+=[0-9]+ -->' "$f"; then
+      sed -i -E -f "$script" "$f" && echo "  ✓ $f"
+    fi
+  done < <(grep -rlE '<!-- stats:[a-zA-Z0-9_]+=' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null || true)
+  rm -f "$script"
+  echo ""
+
+  check_docs "$docs_dir"
+}
+
+# ------------------------------------------------------------
 # 入口
 # ------------------------------------------------------------
 case "${1:-}" in
   --help|-h)
-    sed -n '2,24p' "$0"
+    sed -n '2,21p' "$0"
     ;;
   --check)
     collect > "$STATS_FILE"
     check_docs "${2:-$ROOT/docs}"
+    ;;
+  --fix)
+    collect > "$STATS_FILE"
+    fix_docs "${2:-$ROOT/docs}"
     ;;
   *)
     collect

@@ -4,7 +4,7 @@
 
 ## 概要
 
-オープンERPシステム (open-erp) は 19 の業務ドメイン <!-- stats:modules=23 -->、163 のデータテーブル <!-- stats:tables=226 --> をカバーし、進銷存（仕入・在庫・販売）から生産製造、財務会計から人事管理までを提供するフルスタック企業管理システムです。国際化: 中国語/English のバイリンガル対応、Accept-Language リクエストヘッダーで自動切替。
+オープンERPシステム (open-erp) は 19 の業務ドメイン <!-- stats:modules=23 -->、163 のデータテーブル <!-- stats:tables=227 --> をカバーし、進銷存（仕入・在庫・販売）から生産製造、財務会計から人事管理までを提供するフルスタック企業管理システムです。国際化: 中国語/English のバイリンガル対応、Accept-Language リクエストヘッダーで自動切替。
 
 > API ドキュメント: サービス起動後に `http://localhost:8788/apidoc` へアクセスして対話型インターフェースドキュメントを確認（hg/apidoc 自動生成）
 
@@ -494,13 +494,13 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 観点 | 数量 |
 |------|------|
 | 業務モジュール | 19 <!-- stats:modules=23 --> |
-| データベーステーブル | 163 <!-- stats:tables=226 --> |
-| データモデル | 161 <!-- stats:models=223 --> |
-| コントローラー | 123 <!-- stats:controllers=158 --> |
+| データベーステーブル | 163 <!-- stats:tables=227 --> |
+| データモデル | 161 <!-- stats:models=224 --> |
+| コントローラー | 123 <!-- stats:controllers=159 --> |
 | 業務サービス | 27 <!-- stats:services=63 --> |
 | API ルート | 198（動的生成、`scripts/check-endpoints.php` を参照、doc-stats 検証対象外）|
 | ミドルウェア | 11 <!-- stats:middleware=11 --> |
-| PHP ソースファイル | 343 <!-- stats:php_files=479 --> |
+| PHP ソースファイル | 343 <!-- stats:php_files=481 --> |
 | データベースインストールスクリプト | 単一ファイル `database/install.sql`（163 テーブル、全マイグレーション統合済み）|
 | フロントエンドページ (Flutter) | 7（フロントエンド統計、doc-stats 検証対象外）|
 | フロントエンドページ (HarmonyOS) | 4（フロントエンド統計、doc-stats 検証対象外）|

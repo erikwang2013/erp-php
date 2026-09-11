@@ -4,7 +4,7 @@
 
 ## Présentation
 
-Le système ERP Open (open-erp) couvre 19 domaines métier <!-- stats:modules=23 --> et 163 tables de données <!-- stats:tables=226 -->, et fournit un système de gestion d'entreprise full-stack, des achats-stocks-ventes à la production, de la comptabilité aux ressources humaines. Internationalisation : prise en charge bilingue chinois / anglais, bascule automatique via l'en-tête de requête Accept-Language.
+Le système ERP Open (open-erp) couvre 19 domaines métier <!-- stats:modules=23 --> et 163 tables de données <!-- stats:tables=227 -->, et fournit un système de gestion d'entreprise full-stack, des achats-stocks-ventes à la production, de la comptabilité aux ressources humaines. Internationalisation : prise en charge bilingue chinois / anglais, bascule automatique via l'en-tête de requête Accept-Language.
 
 > Documentation API : après le démarrage du service, accédez à `http://localhost:8788/apidoc` pour consulter la documentation interactive des interfaces (générée automatiquement par hg/apidoc)
 
@@ -494,13 +494,13 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Dimension | Nombre |
 |------|------|
 | Modules métier | 19 <!-- stats:modules=23 --> |
-| Tables de base de données | 163 <!-- stats:tables=226 --> |
-| Modèles de données | 161 <!-- stats:models=223 --> |
-| Contrôleurs | 123 <!-- stats:controllers=158 --> |
+| Tables de base de données | 163 <!-- stats:tables=227 --> |
+| Modèles de données | 161 <!-- stats:models=224 --> |
+| Contrôleurs | 123 <!-- stats:controllers=159 --> |
 | Services métier | 27 <!-- stats:services=63 --> |
 | Routes API | 198 (générées dynamiquement, voir `scripts/check-endpoints.php`, ne participent pas à la validation doc-stats) |
 | Middlewares | 11 <!-- stats:middleware=11 --> |
-| Fichiers sources PHP | 343 <!-- stats:php_files=479 --> |
+| Fichiers sources PHP | 343 <!-- stats:php_files=481 --> |
 | Script d'installation de la base de données | Fichier unique `database/install.sql` (163 tables, toutes les migrations fusionnées) |
 | Pages frontend (Flutter) | 7 (statistiques frontend, non incluses dans la validation doc-stats) |
 | Pages frontend (HarmonyOS) | 4 (statistiques frontend, non incluses dans la validation doc-stats) |
