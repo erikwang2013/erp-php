@@ -219,11 +219,13 @@ jobs:
   # 文档校验（D5）：统计数字与代码事实一致性
   # ------------------------------------------------------------
   # 运行 scripts/doc-stats.sh --check：
-  #   1) 实时采集代码统计（控制器/服务/模型/中间件/表/模块/测试数等）；
+  #   1) 采集代码统计（控制器/服务/模型/中间件/表/模块/测试数等，全部为源码静态计数）；
   #   2) 扫描 docs/**/*.md 中 <!-- stats:key=value --> 注释标注并逐键比对；
   #   3) 文档数字与代码事实漂移即红（文档数据治理 D2/D3/D4/D5）。
-  # 注意：doc-stats 需要 phpunit 输出（vendor/bin/phpunit --no-coverage），
-  #       故本作业先安装依赖并创建 .env，由脚本内部执行 phpunit 取真实值。
+  # 注意：doc-stats 全部统计键均为源码静态计数（find/grep/wc），不执行 phpunit、
+  #       不连数据库，故本作业无需 PHP/vendor/MySQL/.env —— 与开发机量出的值完全相同。
+  #       （2026-09-12 前为实测 phpunit 输出，同一份代码在本机/CI 会量出不同
+  #       tests/assertions，文档写死哪边都有一边红；口径见 scripts/doc-stats.sh）
   # 本地等价命令：bash scripts/doc-stats.sh --check
   # ============================================================
   docs:
@@ -232,29 +234,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          # 与 php job 保持同一扩展集（bcmath/gmp 供 Hashids 测试，缺则断言数漂移）
-          extensions: pdo, pdo_mysql, pcntl, mbstring, gd, xml, dom, xmlwriter, redis, bcmath, gmp
-          tools: composer:v2
-
-      - name: Install dependencies
-        run: composer install --no-interaction
-
-      - name: Create .env from example
-        run: cp .env.example .env
-
       - name: Docs stats check
-        # 单元测试无需 MySQL/Redis：集成用例在缺少 TEST_DB_* / TEST_REDIS_* 时
-        # 会 markTestSkipped 优雅跳过，跳过用例仍计入 tests 总数，不影响比对。
         # 失败时输出经 ::error:: 写入 check-run annotations（API 匿名可读），
-        # 便于定位 CI/本地环境差异（本地 18/18 通过、CI 曾确定性红）。
+        # 便于定位漂移的标注位置。
         # 注意：GH Actions 默认 bash -e，命令替换内脚本失败会直接终止步骤
         # （printf / ::error:: 均不执行）—— 必须 set +e 包住捕获行。
         run: |
-          mkdir -p runtime
           set +e
           out="$(bash scripts/doc-stats.sh --check 2>&1)"
           code=$?

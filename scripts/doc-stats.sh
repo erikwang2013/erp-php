@@ -10,6 +10,9 @@
 #     <!-- stats:key=value --> 的注释标注，逐键比对，漂移即非零退出。
 #   - --fix 模式：同样先采集，再就地把标注改写为实测值，最后复验（漂移自愈）。
 #
+# 口径：全部统计键都是「源码静态计数」，不执行 phpunit、不连数据库、不读环境变量，
+#   因此本地与 CI 任何机器量出的值都相同（原因见 collect() 中 tests/assertions 注释）。
+#
 # 用法：
 #   bash scripts/doc-stats.sh                 # 输出 key=value 统计
 #   bash scripts/doc-stats.sh --check [docs]  # 校验 docs 标注与实测一致（默认 docs/）
@@ -18,6 +21,7 @@
 #
 # CI 集成：.github/workflows/ci.yml 的 docs 作业执行
 #   bash scripts/doc-stats.sh --check
+# 该作业无需 PHP/vendor/数据库（全部键为静态计数，仅用 find/grep/wc）。
 # ============================================================
 
 set -uo pipefail
@@ -88,36 +92,26 @@ collect() {
   v="$(find tests -name '*Test.php' -type f 2>/dev/null | wc -l | tr -d ' ')"
   echo "test_files=${v:-0}"
 
-  # 测试方法数 / 断言数：优先实测 vendor/bin/phpunit --no-coverage 解析输出；
-  # 无 vendor 时回退读取 .phpunit.result.cache 的方法数（断言数无法从缓存取得）。
-  local tests="" assertions=""
-  if [[ -x vendor/bin/phpunit ]]; then
-    local raw out
-    raw="$(php vendor/bin/phpunit --no-coverage 2>&1 || true)"
-    # 剥离 ANSI 颜色码，兼容 phpunit.xml colors=true 的输出
-    out="$(printf '%s' "$raw" | sed -E $'s/\x1B\\[[0-9;]*[mK]//g')"
-    if [[ "$out" =~ OK\ \(([0-9]+)\ tests?,\ ([0-9]+)\ assertions?\) ]]; then
-      tests="${BASH_REMATCH[1]}"
-      assertions="${BASH_REMATCH[2]}"
-    elif [[ "$out" =~ Tests:\ ([0-9]+),\ Assertions:\ ([0-9]+) ]]; then
-      tests="${BASH_REMATCH[1]}"
-      assertions="${BASH_REMATCH[2]}"
-    fi
-    # 解析失败时输出 phpunit 尾部供 CI 诊断。
-    # collect() 的 stdout 被重定向进 $STATS_FILE，故走 stderr ——
-    # ci.yml 的 `2>&1` 捕获会把它带进 ::error:: 注解。
-    if [[ -z "$tests" || -z "$assertions" ]]; then
-      echo "!! phpunit 输出无法解析（尾部 20 行如下）:" >&2
-      printf '%s\n' "$out" | tail -20 >&2
-    fi
-  fi
-  if [[ -z "$tests" && -f .phpunit.result.cache ]]; then
-    tests="$(php -r '$d=json_decode(file_get_contents(".phpunit.result.cache"), true); echo count($d["times"] ?? []);' 2>/dev/null || true)"
-  fi
-  [[ -z "$tests" ]] && tests="unknown"
-  [[ -z "$assertions" ]] && assertions="unknown"
-  echo "tests=${tests}"
-  echo "assertions=${assertions}"
+  # 测试方法数 / 断言调用点数：源码静态计数（不执行 phpunit）。
+  # 为什么不用 `phpunit --no-coverage` 的实测值（2026-09-12 改）：
+  #   实测值是环境函数而非代码事实 —— 同一份代码在本机与 CI 会量出不同的 (tests, assertions)：
+  #     * 集成用例由 TEST_DB_*/TEST_REDIS_* 环境变量开关（tests/Integration/IntegrationTestCase.php），
+  #       未配置即 markTestSkipped；跳过用例计入 tests 总数、断言数为 0；
+  #     * 扩展集/PHP 补丁版本不同（本机无 gmp、CI docs 作业装 gmp+bcmath）会改变执行路径；
+  #     * 数据提供器（#[DataProvider]）在运行时按行展开，静态只有 1 个方法。
+  #   于是文档里写死哪个数都必然有一边红。静态计数只取决于源码，任何环境（含
+  #   无 vendor、无数据库的 CI docs 作业）都得出同一个数。
+  # 代价（口径变化，文档须同步措辞）：计的是「测试方法数 / assert* 调用点」而非
+  #   「本次执行的方法数 / 断言数」——提供器展开不计（全仓仅 tests/Integration/B5TenantTest.php
+  #   一处，1 方法 12 行），循环体内的断言只按 1 个调用点计，`->assertXxx()` 项目自有
+  #   断言辅助方法（如 assertBcEquals/assertServiceThrows）同样计入调用点。
+  local tests assertions attributed
+  tests="$(grep -rhoE 'public[[:space:]]+function[[:space:]]+test[A-Za-z0-9_]*[[:space:]]*\(' tests --include='*Test.php' | wc -l | tr -d ' ')"
+  # PHPUnit 11+ 的 #[Test] 属性写法：方法名不必以 test 开头，按属性数补计（两者不重叠）
+  attributed="$(grep -rhoE '#\[Test\]' tests --include='*Test.php' | wc -l | tr -d ' ')"
+  echo "tests=$(( ${tests:-0} + ${attributed:-0} ))"
+  assertions="$(grep -rhoE '(->|::)assert[A-Za-z0-9_]*[[:space:]]*\(' tests --include='*Test.php' | wc -l | tr -d ' ')"
+  echo "assertions=${assertions:-0}"
 }
 
 # ------------------------------------------------------------
@@ -241,7 +235,7 @@ fix_docs() {
 # ------------------------------------------------------------
 case "${1:-}" in
   --help|-h)
-    sed -n '2,21p' "$0"
+    sed -n '2,25p' "$0"
     ;;
   --check)
     collect > "$STATS_FILE"
