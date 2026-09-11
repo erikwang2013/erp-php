@@ -115,7 +115,7 @@ export function inferColumns(rows: Row[], endpoint: string, limit = 8): ColumnDe
   const keys: string[] = [];
   for (const r of rows.slice(0, 3)) {
     for (const k of Object.keys(r)) {
-      if (HIDDEN.has(k)) continue;
+      if (HIDDEN.has(k) || k.startsWith('__')) continue;
       const v = r[k];
       // 嵌套对象/数组是关系字段，渲染出来只会是 [object Object]
       if (v !== null && typeof v === 'object') continue;
@@ -147,10 +147,26 @@ export function inferColumns(rows: Row[], endpoint: string, limit = 8): ColumnDe
   });
 }
 
-/** 详情弹窗条目（全字段，只跳过 id 与嵌套关系） */
+/**
+ * 树形响应 → 平铺行：children 递归展开，节点带 `__depth`（列按深度缩进），
+ * 展开后的 children 从行上摘掉，避免再被当成关系字段渲染/推断。
+ */
+export function flattenTree(rows: Row[], depth = 0): Row[] {
+  const out: Row[] = [];
+  for (const row of rows) {
+    const kids = Array.isArray(row['children']) ? (row['children'] as Row[]) : [];
+    const flat: Row = { ...row, __depth: depth };
+    delete flat['children'];
+    out.push(flat);
+    if (kids.length) out.push(...flattenTree(kids, depth + 1));
+  }
+  return out;
+}
+
+/** 详情弹窗条目（全字段，只跳过 id、内部标记与嵌套关系） */
 export function inferDetailItems(row: Row): { k: string; v: string }[] {
   return Object.entries(row)
-    .filter(([k, v]) => k !== 'id' && !(v !== null && typeof v === 'object'))
+    .filter(([k, v]) => k !== 'id' && !k.startsWith('__') && !(v !== null && typeof v === 'object'))
     .map(([k, v]) => ({
       k: keyTitle(k),
       v: isDate(k) ? dateTime(v) : isMoney(k) ? money(v) : text(v),
@@ -164,12 +180,16 @@ export interface Cell {
   tone?: BadgeTone;
   primary?: boolean;
   right?: boolean;
+  /** 树形平铺层级（模板据此缩进；undefined = 不缩进） */
+  depth?: number;
 }
 
 /** 按 kind 取单元格 —— 与 React cells.tsx / DataTable 默认渲染逐支对应 */
 export function cellOf(c: ColumnDef, row: Row): Cell {
   const v = take(row, c.key);
   const cell: Cell = { text: '', primary: c.primary === true, right: c.align === 'right' };
+  // 树形平铺（flattenTree）后的层级；非树响应没有 __depth，保持 undefined 不缩进
+  if (c.indent && row['__depth'] !== undefined) cell.depth = Number(row['__depth']) || 0;
   switch (c.kind) {
     case 'money':
       cell.text = money(v);

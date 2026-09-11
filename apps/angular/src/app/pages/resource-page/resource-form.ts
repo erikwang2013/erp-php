@@ -4,7 +4,9 @@
 
 import { Component, OnInit, computed, effect, inject, input, output, signal } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import type { FieldOption, FormField, ResourceConfig, Row } from '../../config/types';
+import { NzTreeModule } from 'ng-zorro-antd/tree';
+import type { NzFormatEmitEvent, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
+import type { FieldOption, FieldSource, FormField, ResourceConfig, Row } from '../../config/types';
 import { http, qs } from '../../core/api.service';
 import { date, dateTime } from '../../core/format';
 import { tr } from '../../core/i18n.service';
@@ -15,13 +17,22 @@ import { IconComponent } from '../../ui/icon';
 /** 联动下拉一次拉多少 —— 与 React 端 `${source.endpoint}?limit=100` 同值 */
 const SOURCE_LIMIT = 100;
 
-/** React 的 JSX 三选一：Textarea / Select / Input */
-type CtrlKind = 'textarea' | 'select' | 'input';
+/** React 的 JSX 三选一：Textarea / Select / Input；tree 是本端新增的权限树控件 */
+type CtrlKind = 'textarea' | 'select' | 'input' | 'tree';
 
 /** 下拉选项（值统一成字符串，模板里才能和控件值直接比相等） */
 interface OptView {
   label: string;
   value: string;
+}
+
+/** 权限树（zorro 只认 {title,key,children}）：附带子树成员的 key */
+interface TreeData {
+  nodes: NzTreeNodeOptions[];
+  /** 节点 key → 「自身 + 全部后代」的 key：勾选/取消按整棵子树生效 */
+  subtree: Record<string, string[]>;
+  /** 有子节点的 key：数据是异步到的，nzExpandAll 只作用于首帧，只能显式给展开键 */
+  expanded: string[];
 }
 
 /** 字段视图：控件类型、type 属性、选项都在 TS 里算好，模板只做 @switch */
@@ -31,13 +42,48 @@ interface FieldView {
   /** input 的 type 属性 */
   type: string;
   options: OptView[];
+  /** kind='tree'：树数据与三种键（多选读勾选，单选读选中） */
+  nodes: NzTreeNodeOptions[];
+  expandedKeys: string[];
+  checkedKeys: string[];
+  selectedKeys: string[];
 }
 
 function controlKind(f: FormField): CtrlKind {
   if (f.type === 'textarea') return 'textarea';
+  if (f.type === 'tree') return 'tree';
   // source 联动也是下拉（React 同款分支判断）
   if (f.type === 'select' || f.source) return 'select';
   return 'input';
+}
+
+/**
+ * 嵌套行 → zorro 树节点：labelKey/valueKey 取值，children 递归；
+ * 顺带记下子树成员与父节点 key（默认展开），一趟递归完成。
+ */
+function buildTreeData(rows: Row[], src: FieldSource): TreeData {
+  const data: TreeData = { nodes: [], subtree: {}, expanded: [] };
+  const walk = (list: Row[]): NzTreeNodeOptions[] =>
+    list.map((r) => {
+      const key = String(r[src.valueKey ?? 'id'] ?? '');
+      const kids = Array.isArray(r['children']) ? (r['children'] as Row[]) : [];
+      const node: NzTreeNodeOptions = {
+        title: String(r[src.labelKey ?? 'name'] ?? ''),
+        key,
+      };
+      if (kids.length) {
+        data.expanded.push(key);
+        node.children = walk(kids);
+      }
+      // 后序写入：算到自己时子节点的子树已在表里
+      data.subtree[key] = [
+        key,
+        ...(node.children ?? []).flatMap((c) => data.subtree[String(c.key)] ?? []),
+      ];
+      return node;
+    });
+  data.nodes = walk(rows);
+  return data;
 }
 
 function inputType(f: FormField): string {
@@ -61,6 +107,13 @@ function initVals(cfg: ResourceConfig, row: Row | null): Record<string, unknown>
   const vals: Record<string, unknown> = {};
   for (const f of cfg.fields ?? []) {
     if (row === null ? f.editOnly : f.createOnly) continue;
+    // 树多选：编辑态勾选集取 initKey（permission_ids ← row.permissions）。
+    // 关系未加载时行上没这个字段，留空串而不是 [] —— 提交空数组等于 sync([]) 清空授权
+    if (controlKind(f) === 'tree' && f.multiple) {
+      const raw = row ? row[f.initKey ?? f.key] : undefined;
+      vals[f.key] = Array.isArray(raw) ? raw.map(String) : '';
+      continue;
+    }
     vals[f.key] = f.defaultValue ?? (row ? row[f.key] : undefined) ?? '';
   }
   return vals;
@@ -80,7 +133,7 @@ function msg(e: unknown): string {
 @Component({
   selector: 'app-resource-form',
   standalone: true,
-  imports: [NzButtonModule, TrPipe, IconComponent],
+  imports: [NzButtonModule, NzTreeModule, TrPipe, IconComponent],
   templateUrl: './resource-form.html',
   styleUrl: './resource-form.less',
 })
@@ -96,6 +149,8 @@ export class ResourceForm implements OnInit {
   readonly vals = signal<Record<string, unknown>>({});
   /** source 联动拉回的选项：字段 key → 选项 */
   readonly remote = signal<Record<string, FieldOption[]>>({});
+  /** type:'tree' 字段拉回的树：字段 key → 树数据 */
+  readonly trees = signal<Record<string, TreeData>>({});
   readonly busy = signal(false);
 
   readonly isNew = computed(() => this.row() === null);
@@ -106,15 +161,27 @@ export class ResourceForm implements OnInit {
   );
 
   readonly views = computed<FieldView[]>(() =>
-    this.fields().map((f) => ({
-      f,
-      kind: controlKind(f),
-      type: inputType(f),
-      options: (f.options ?? this.remote()[f.key] ?? []).map((o) => ({
-        label: o.label,
-        value: String(o.value ?? ''),
-      })),
-    })),
+    this.fields().map((f) => {
+      const tree = this.trees()[f.key];
+      const cur = this.vals()[f.key];
+      return {
+        f,
+        kind: controlKind(f),
+        type: inputType(f),
+        options: (f.options ?? this.remote()[f.key] ?? []).map((o) => ({
+          label: o.label,
+          value: String(o.value ?? ''),
+        })),
+        nodes: tree?.nodes ?? [],
+        expandedKeys: tree?.expanded ?? [],
+        // 必须每次给新数组：树数据是异步到的，若这里回传 vals 里那个数组的同一引用，
+        // 数据到达那帧 nzCheckedKeys 的输入不会触发 ngOnChanges（Angular 按引用比对），
+        // 编辑态就会渲染成全未勾选（显示与 vals 不一致：已有授权看不见，也就无从取消）
+        checkedKeys: f.multiple && Array.isArray(cur) ? [...(cur as string[])] : [],
+        // 单选：cur 就是行上的 parent_id（hashid；0/空 = 顶级，不预选任何节点）
+        selectedKeys: !f.multiple && cur ? [String(cur)] : [],
+      };
+    }),
   );
 
   /** 有整行字段或 textarea 就加宽（React 同判定） */
@@ -140,6 +207,36 @@ export class ResourceForm implements OnInit {
 
   ngOnInit(): void {
     this.vals.set(initVals(this.cfg(), this.row()));
+  }
+
+  /**
+   * 多选树勾选：吃 nzCheckboxChange 的被点节点，按「自身 + 全部后代」增删当前集。
+   * 不用 nzCheckedKeysChange —— 它发的是 getCheckedNodeKeys()，对已勾节点无条件展开成
+   * 后代全量：库里若存着父级而子级未授权，任何一次点击都会凭空补出没授权的子级。
+   * 子级变化也不回溯父级（与 Flutter 端权限树同规则：父勾=整棵子树、输出即勾选集）；
+   * 模板上 nzCheckStrictly 开着，库的 conduct 级联被关掉，所以渲染状态恒等于这个集合。
+   */
+  onTreeCheck(f: FormField, e: NzFormatEmitEvent): void {
+    if (!f.multiple || !e.node) return;
+    const keys = this.trees()[f.key]?.subtree[String(e.node.key)] ?? [String(e.node.key)];
+    const cur = new Set<string>(
+      Array.isArray(this.vals()[f.key]) ? (this.vals()[f.key] as string[]) : [],
+    );
+    for (const k of keys) {
+      if (e.node.isChecked) cur.add(k);
+      else cur.delete(k);
+    }
+    this.vals.update((m) => ({ ...m, [f.key]: [...cur] }));
+  }
+
+  /**
+   * 单选树点节点：本版 zorro 的 nzSelectedKeysChange 从不发射（见 tree.mjs），
+   * 只能吃 nzClick 的 keys（当前选中集）；点已选节点会取消选中 → 空 = 顶级。
+   */
+  onTreeClick(f: FormField, e: NzFormatEmitEvent): void {
+    if (f.multiple) return;
+    const key = (e.keys ?? [])[0];
+    this.vals.update((m) => ({ ...m, [f.key]: key === undefined ? '' : String(key) }));
   }
 
   /** 控件显示值：表单内部存原始类型，控件只认字符串 */
@@ -179,6 +276,19 @@ export class ResourceForm implements OnInit {
     const body: Record<string, unknown> = {};
     for (const f of this.fields()) {
       if (f.noSubmit) continue;
+      if (controlKind(f) === 'tree') {
+        if (f.multiple) {
+          const v = this.vals()[f.key];
+          // 编辑态行上没带 permissions（关系未加载）时 vals 不是数组：整字段不送，
+          // 后端 has() 为假即不动；送空数组等于 sync([]) 把已有授权清空
+          if (row !== null && !Array.isArray(v)) continue;
+          body[f.key] = Array.isArray(v) ? v : [];
+        } else {
+          // 单选父级：空 = 顶级，要送 '0'；不送会被后端当成「不改动」
+          body[f.key] = String(this.vals()[f.key] ?? '') || '0';
+        }
+        continue;
+      }
       // 空串一律当「没填」，不往后端送空值
       const v = this.vals()[f.key] === '' ? undefined : this.vals()[f.key];
       if (v !== undefined) body[f.key] = v;
@@ -204,28 +314,36 @@ export class ResourceForm implements OnInit {
   private async loadSources(): Promise<void> {
     const srcs = (this.cfg().fields ?? []).filter((f) => f.source);
     if (!srcs.length) return;
-    const entries = await Promise.all(
-      srcs.map(async (f): Promise<[string, FieldOption[]]> => {
+    const opts: [string, FieldOption[]][] = [];
+    const trees: [string, TreeData][] = [];
+    await Promise.all(
+      srcs.map(async (f): Promise<void> => {
         const src = f.source;
-        if (!src) return [f.key, []];
+        if (!src) return;
         try {
           const data = await http.get<Row[] | { list?: Row[] }>(
             `${src.endpoint}${qs({ limit: SOURCE_LIMIT })}`,
           );
           const list = Array.isArray(data) ? data : (data.list ?? []);
-          return [
-            f.key,
-            list.map((r) => ({
-              label: String(r[src.labelKey ?? 'name'] ?? ''),
-              value: (r[src.valueKey ?? 'id'] ?? '') as string | number,
-            })),
-          ];
+          if (f.type === 'tree') {
+            // 树字段直接吃嵌套 children（权限接口整表下发，limit 参数被忽略）
+            trees.push([f.key, buildTreeData(list, src)]);
+          } else {
+            opts.push([
+              f.key,
+              list.map((r) => ({
+                label: String(r[src.labelKey ?? 'name'] ?? ''),
+                value: (r[src.valueKey ?? 'id'] ?? '') as string | number,
+              })),
+            ]);
+          }
         } catch {
-          return [f.key, []];
+          // 单个资源失败保持空选项/空树，不连坐其他字段
         }
       }),
     );
-    this.remote.update((m) => ({ ...m, ...Object.fromEntries(entries) }));
+    this.remote.update((m) => ({ ...m, ...Object.fromEntries(opts) }));
+    this.trees.update((m) => ({ ...m, ...Object.fromEntries(trees) }));
   }
 }
 

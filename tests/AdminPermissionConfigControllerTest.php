@@ -67,6 +67,35 @@ class AdminPermissionConfigControllerTest extends TestCase
         $this->assertSame(422, $this->code($resp));
     }
 
+    /**
+     * store() 的 parent_id 双模解码在查库之前，所以这两条拒绝路径无需 DB 即可断言。
+     * （存在性/自引用/成环三条守卫要读 admin_permission 表，集成用例才有得测，
+     * 不在本文件覆盖范围。）
+     */
+    public function testPermissionStoreRejectsGarbageParentId(): void
+    {
+        $resp = (new PermissionController())->store(new FakeRequest([
+            'name' => '创建用户',
+            'slug' => 'user:create',
+            'type' => 2,
+            'parent_id' => 'abc',
+        ]));
+        $this->assertSame(422, $this->code($resp));
+        $this->assertStringContainsString('父级权限无效', $this->message($resp));
+    }
+
+    public function testPermissionStoreRejectsNonPositiveParentId(): void
+    {
+        $resp = (new PermissionController())->store(new FakeRequest([
+            'name' => '创建用户',
+            'slug' => 'user:create',
+            'type' => 2,
+            'parent_id' => '-1',
+        ]));
+        $this->assertSame(422, $this->code($resp));
+        $this->assertStringContainsString('父级权限无效', $this->message($resp));
+    }
+
     /* ======================== ConfigController ======================== */
 
     public function testConfigStoreRejectsMissingGroup(): void

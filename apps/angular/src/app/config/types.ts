@@ -29,7 +29,7 @@ export interface FieldOption {
 
 /** 下拉选项来自其他资源的数据联动：GET endpoint 的 list 或数组，labelKey 取值做 label，valueKey（默认 id）做 value */
 export interface FieldSource {
-  /** 目标资源列表接口，如 '/admin/v1/supplier' */
+  /** 目标资源列表接口，如 '/admin/v1/supplier'；type:'tree' 时该接口返回嵌套树 */
   endpoint: string;
   /** 显示的字段名，默认 'name' */
   labelKey?: string;
@@ -38,7 +38,14 @@ export interface FieldSource {
 }
 
 export type FieldType =
-  'text' | 'number' | 'textarea' | 'select' | 'password' | 'date' | 'datetime';
+  | 'text'
+  | 'number'
+  | 'textarea'
+  | 'select'
+  | 'password'
+  | 'date'
+  | 'datetime'
+  | 'tree';
 
 export interface FormField {
   key: string;
@@ -58,6 +65,10 @@ export interface FormField {
   editOnly?: boolean;
   /** 提交时不带此字段 */
   noSubmit?: boolean;
+  /** type:'tree' 多选（勾选框，值为 id 数组）；默认单选（点节点选父级，空=顶级） */
+  multiple?: boolean;
+  /** 编辑态初值取行上的此字段（默认同 key，如 permission_ids 取 row.permissions） */
+  initKey?: string;
   help?: string;
 }
 
@@ -96,6 +107,8 @@ export interface ColumnDef {
   primary?: boolean;
   /** 缺省为裸列：String(v ?? '') 直出；text 走 '-' 兜底 */
   kind?: ColumnKind;
+  /** 树形平铺响应（行带 __depth）时按层级缩进本列 */
+  indent?: boolean;
   /** status/map 用字典：状态码 → 中文文案 */
   dict?: Record<number, string>;
 }
@@ -107,8 +120,6 @@ export interface ResourceConfig {
   moduleKey?: string;
   /** 列表/写接口前缀，如 /admin/v1/purchase/order */
   endpoint: string;
-  /** 是否分页；false 表示后端返回全量数组 */
-  paginated?: boolean;
   /** 行内动作（业务按钮） */
   actions?: ActionDef[];
   /** 表格列；省略则由引擎从行数据推断 */

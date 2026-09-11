@@ -24,7 +24,15 @@ import { tr } from '../../core/i18n.service';
 import { Toast } from '../../core/toast.service';
 import { TrPipe } from '../../core/tr.pipe';
 import { IconComponent } from '../../ui/icon';
-import { TONE_COLOR, cellOf, inferColumns, inferDetailItems, take, type Cell } from './columns';
+import {
+  TONE_COLOR,
+  cellOf,
+  flattenTree,
+  inferColumns,
+  inferDetailItems,
+  take,
+  type Cell,
+} from './columns';
 import { ResourceForm } from './resource-form';
 
 const DEFAULT_LIMIT = 15;
@@ -95,7 +103,7 @@ export class ResourcePage implements OnInit {
   readonly total = signal(0);
   readonly loading = signal(true);
   readonly error = signal('');
-  /** 模板用：分页器显隐 / 每页条数可选（由响应形状决定，数组响应自动隐藏） */
+  /** 模板用：分页器显隐（服务端分页恒显示；本地分页只有多于一页才显示） */
   readonly paged = signal(true);
 
   // ── 弹窗状态 ──
@@ -108,13 +116,15 @@ export class ResourcePage implements OnInit {
   readonly pageSizes = PAGE_SIZES;
   readonly skeleton = [0, 1, 2, 3];
 
-  /**
-   * 是否向后端发 page/limit —— 用非 signal 字段：effect 里读信号又写同一信号
-   * 会多跑一轮（首屏对非分页资源多发一次请求），React 端这里是普通 state。
-   */
-  private hasPager = true;
   /** 请求序号：丢弃过期响应（对齐 React 的 alive 标记） */
   private reqSeq = 0;
+  /**
+   * 后端整表下发（裸数组 / 无 total 的 list，含权限树）时的全量行缓存：
+   * 切页只在本地切片，不再重拉；筛选条件变了（指纹不符）才重新请求。
+   * 非 signal 字段：effect 里读信号又写同一信号会多跑一轮。
+   */
+  private local: Row[] | null = null;
+  private localKey = '';
 
   /** 显式配置优先，否则从首批行数据推断 */
   readonly cols = computed<ColumnDef[]>(() => {
@@ -182,14 +192,31 @@ export class ResourcePage implements OnInit {
       this.limit.set(DEFAULT_LIMIT);
       this.keyword.set('');
       this.filter.set(null);
-      this.hasPager = cfg.paginated !== false;
-      this.paged.set(this.hasPager);
+      this.local = null;
+      this.localKey = '';
+      this.paged.set(true);
     });
+  }
+
+  /** 查询指纹：端点/固定参数/关键词/筛选；不含 page/limit —— 本地切页不该重拉 */
+  private fetchKey(cfg: ResourceConfig): string {
+    return [
+      cfg.endpoint,
+      JSON.stringify(cfg.params ?? {}),
+      this.keyword(),
+      this.filter() ?? '',
+    ].join('|');
   }
 
   private async reload(): Promise<void> {
     const cfg = this.cfg();
     if (!cfg) return;
+    const key = this.fetchKey(cfg);
+    // 本地分页且条件没变：数据已在手，切页只重新切片
+    if (this.local && this.localKey === key) {
+      this.sliceLocal();
+      return;
+    }
     this.loading.set(true);
     this.error.set('');
     const params: Record<string, string | number | undefined | null> = {
@@ -197,23 +224,24 @@ export class ResourcePage implements OnInit {
       keyword: this.keyword() || undefined,
     };
     if (cfg.filters && this.filter() !== null) params[cfg.filters.key] = this.filter();
-    if (this.hasPager) {
-      params['page'] = this.page();
-      params['limit'] = Math.min(this.limit(), MAX_LIMIT);
-    }
+    params['page'] = this.page();
+    params['limit'] = Math.min(this.limit(), MAX_LIMIT);
     const seq = ++this.reqSeq;
     try {
       const data = await http.get<Row[] | PageData<Row>>(`${cfg.endpoint}${qs(params)}`);
       if (seq !== this.reqSeq) return;
-      // 后端两种列表形状都兼容：分页信封 or 裸数组
-      if (Array.isArray(data)) {
-        this.rows.set(data);
-        this.total.set(data.length);
-        this.paged.set(false);
-      } else {
+      // 后端三种列表形状，判据只能是「回显了 page」：真分页的接口一定会回显它。
+      // `{list,total}` 无 page 的那批（多组织/账套期间/合并报表…）照样整表下发，
+      // 按 total 判会给它们画一个翻不动的分页器（渲染几页、行永远是同一批）。
+      if (!Array.isArray(data) && data.page !== undefined) {
+        this.local = null;
+        this.localKey = '';
         this.rows.set(data.list ?? []);
-        this.total.set(data.total ?? 0);
+        this.total.set(Number(data.total ?? 0));
         this.paged.set(true);
+      } else {
+        // 裸数组、`{list}`、`{list,total}` 无 page：整表收下本地切片（权限树就是这种）
+        this.setLocal(Array.isArray(data) ? data : (data.list ?? []), key);
       }
     } catch (e) {
       if (seq === this.reqSeq) this.error.set(e instanceof Error ? e.message : '加载失败');
@@ -222,7 +250,30 @@ export class ResourcePage implements OnInit {
     }
   }
 
+  /** 整表响应转本地分页源：树形行先拍平成带 __depth 的平铺行（子节点才可见） */
+  private setLocal(rows: Row[], key: string): void {
+    this.local = rows.some((r) => Array.isArray(r['children'])) ? flattenTree(rows) : rows;
+    this.localKey = key;
+    this.sliceLocal();
+  }
+
+  /** 本地切片：rows 只放当前页，total 记全量（分页器按它算页数） */
+  private sliceLocal(): void {
+    const all = this.local ?? [];
+    const size = Math.min(this.limit(), MAX_LIMIT) || DEFAULT_LIMIT;
+    const pages = Math.max(1, Math.ceil(all.length / size));
+    // 删/刷新后行数变少可能落在空页：夹回最后一页，别跳回第 1 页
+    if (this.page() > pages) this.page.set(pages);
+    const start = (this.page() - 1) * size;
+    this.rows.set(all.slice(start, start + size));
+    this.total.set(all.length);
+    this.paged.set(all.length > size);
+  }
+
   refresh(): void {
+    // 刷新语义是「重新问后端」，本地缓存必须作废，否则本地分页会拿旧数据切片
+    this.local = null;
+    this.localKey = '';
     this.tick.update((t) => t + 1);
   }
 

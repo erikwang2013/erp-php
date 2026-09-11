@@ -24,11 +24,16 @@ export interface Envelope<T = unknown> {
   data: T;
 }
 
+/**
+ * 分页信封 —— 字段全可选：后端有三档形状，只有真分页的接口才回显 page。
+ * `{list}`（无 total/page）与 `{list,total}`（无 page）都不吃 page/limit，
+ * 判「服务端分页」只能看 page 是否存在，不能看有没有 total（见 resource-page.ts）。
+ */
 export interface PageData<T = unknown> {
   list: T[];
-  total: number;
-  page: number;
-  limit: number;
+  total?: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface RequestOptions {

@@ -137,6 +137,16 @@
   background: var(--surface-alt);
 }
 
+/* 权限树：几十到几百节点，限高内滚动，弹窗不跟着长（zorro 树样式来自全局 theme.less） */
+.tree-box {
+  border: 1px solid var(--border);
+  border-radius: var(--r-ctrl);
+  background: var(--surface);
+  padding: 4px 8px;
+  max-height: 260px;
+  overflow: auto;
+}
+
 .empty-desc {
   font-size: var(--fs-sm);
   color: var(--text-3);

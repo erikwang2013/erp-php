@@ -83,7 +83,7 @@ class PermissionController extends BaseController
 #[\erikwang2013\apidoc\annotation\Method("POST")]
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("权限管理")]
-#[\erikwang2013\apidoc\annotation\Param(name:"parent_id", type:"int", default:0, desc:"父级权限ID")]
+#[\erikwang2013\apidoc\annotation\Param(name:"parent_id", type:"string", default:0, desc:"父级权限ID(hashid；0或留空=顶级)")]
 #[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", require:true, desc:"权限名称")]
 #[\erikwang2013\apidoc\annotation\Param(name:"slug", type:"string", require:true, desc:"权限标识")]
 #[\erikwang2013\apidoc\annotation\Param(name:"type", type:"int", require:true, desc:"类型(1=目录,2=菜单,3=按钮)")]
@@ -100,7 +100,7 @@ class PermissionController extends BaseController
             'name' => 'required|string|max:50',
             'slug' => 'required|string|max:100',
             'type' => 'required|in:1,2,3',
-            'parent_id' => 'string',
+            // parent_id 不入规则：双模解码手工处理，数字 0（顶级）不应被 'string' 规则打回
             'icon' => 'string',
             'path' => 'string',
             'sort' => 'integer',
@@ -110,9 +110,27 @@ class PermissionController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // parent_id 双模解码（0/留空=顶级）：hashid 与原生数字都收，垃圾串 422 拒绝，
+        // 避免 (int)'abc'=0 把子节点静默挂成顶级
+        $parentRaw = $request->input('parent_id');
+        $parentStr = $parentRaw === null ? '' : (string) $parentRaw;
+        if ($parentStr === '' || $parentStr === '0') {
+            $parentId = 0;
+        } else {
+            $parentId = $this->decodeFlexibleId($parentStr);
+            if ($parentId === null || $parentId < 1) {
+                return $this->fail('父级权限无效', 422);
+            }
+            // 解得出数字不等于节点存在（别的资源的 hashid 也能解出正整数）：
+            // 挂到不存在的父级上，这节点在 buildTree 里永远匹配不上，管理端看不见也删不掉
+            if (!AdminPermission::where('id', $parentId)->exists()) {
+                return $this->fail('父级权限不存在', 422);
+            }
+        }
+
         $perm = new AdminPermission();
         $perm->id = $this->generateId();
-        $perm->parent_id = (int) $request->input('parent_id', 0);
+        $perm->parent_id = $parentId;
         $perm->name = $request->input('name');
         $perm->slug = $request->input('slug');
         $perm->type = (int) $request->input('type');
@@ -133,6 +151,7 @@ class PermissionController extends BaseController
 #[\erikwang2013\apidoc\annotation\Author("erik")]
 #[\erikwang2013\apidoc\annotation\Tag("权限管理")]
 #[\erikwang2013\apidoc\annotation\Param(name:"id", type:"string", require:true, desc:"权限ID(hashid)")]
+#[\erikwang2013\apidoc\annotation\Param(name:"parent_id", type:"string", desc:"父级权限ID(hashid；0=移到顶级，缺省=不改动)")]
 #[\erikwang2013\apidoc\annotation\Param(name:"name", type:"string", default:"", desc:"权限名称")]
 #[\erikwang2013\apidoc\annotation\Param(name:"icon", type:"string", default:"", desc:"图标")]
 #[\erikwang2013\apidoc\annotation\Param(name:"path", type:"string", default:"", desc:"前端路由路径")]
@@ -157,6 +176,32 @@ class PermissionController extends BaseController
         $perm = AdminPermission::find($id);
         if (!$perm) {
             return $this->fail('权限不存在', 404);
+        }
+
+        // parent_id 双模解码：缺省/留空=不改动；'0'=移到顶级；垃圾串 422 拒绝。
+        // 自引用会让该节点在 buildTree 里彻底消失（永不被匹配为任何父级的子节点），故拦下
+        $parentRaw = $request->input('parent_id');
+        if ($parentRaw !== null && (string) $parentRaw !== '') {
+            $parentStr = (string) $parentRaw;
+            if ($parentStr === '0') {
+                $perm->parent_id = 0;
+            } else {
+                $parentId = $this->decodeFlexibleId($parentStr);
+                if ($parentId === null || $parentId < 1) {
+                    return $this->fail('父级权限无效', 422);
+                }
+                if (!AdminPermission::where('id', $parentId)->exists()) {
+                    return $this->fail('父级权限不存在', 422);
+                }
+                if ($parentId === $id) {
+                    return $this->fail('父级不能是自己', 422);
+                }
+                // 挂到自己的后代下会成环：buildTree 递归回到自身，接口直接挂死
+                if ($this->isInSubtree($parentId, $id)) {
+                    return $this->fail('父级不能是自己的子级', 422);
+                }
+                $perm->parent_id = $parentId;
+            }
         }
 
         $perm->name = $request->input('name', $perm->name);
@@ -211,6 +256,22 @@ class PermissionController extends BaseController
     }
 
     /**
+     * $nodeId 是否落在 $rootId 这棵子树里（自底向上走父链）。
+     * ponytail: 逐级查库，深度上限 50 —— 层级不会更深；上限同时兜住库里已存在的环
+     */
+    private function isInSubtree(int $nodeId, int $rootId): bool
+    {
+        for ($depth = 0; $depth < 50 && $nodeId > 0; $depth++) {
+            if ($nodeId === $rootId) {
+                return true;
+            }
+            $nodeId = (int) (AdminPermission::where('id', $nodeId)->value('parent_id') ?? 0);
+        }
+
+        return false;
+    }
+
+    /**
      * 构建权限树
      */
     private function buildTree(array $permissions, int $parentId = 0): array
@@ -218,8 +279,14 @@ class PermissionController extends BaseController
         $tree = [];
         foreach ($permissions as $perm) {
             if ($perm['parent_id'] == $parentId) {
+                // 原始 id 先在编码前捕获：递归匹配走原始值
                 $originalId = $perm['id'];
                 $perm = $this->encodeIds($perm);
+                // parent_id 一并转 hashid（0=顶级保持 0）：客户端用它和树节点 key
+                // 比对才能预选父级；编码在递归之后，不影响匹配
+                if ((int) $perm['parent_id'] > 0) {
+                    $perm['parent_id'] = $this->encodeId((int) $perm['parent_id']);
+                }
                 $children = $this->buildTree($permissions, $originalId);
                 if ($children) {
                     $perm['children'] = $children;

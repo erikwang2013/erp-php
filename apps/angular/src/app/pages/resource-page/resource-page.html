@@ -97,7 +97,12 @@
             @for (r of view(); track $index) {
               <tr>
                 @for (cell of r.cells; track $index) {
-                  <td [class.primary]="cell.primary" [class.num]="cell.right">
+                  <!-- 树形平铺行按 __depth 缩进（基准 12px 与 .table td 的 padding 对齐） -->
+                  <td
+                    [class.primary]="cell.primary"
+                    [class.num]="cell.right"
+                    [style.padding-left.px]="cell.depth ? 12 + cell.depth * 16 : null"
+                  >
                     @if (cell.tone) {
                       <nz-tag [nzColor]="tone(cell.tone)">{{ cell.text }}</nz-tag>
                     } @else {

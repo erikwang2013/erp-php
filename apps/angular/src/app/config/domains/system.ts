@@ -70,9 +70,7 @@ export const systemMenus: MenuGroup[] = [
           title: '角色权限',
           moduleKey: 'system',
           endpoint: '/admin/v1/role',
-          paginated: false,
           deleteNeedsPassword: true,
-          // ponytail: 权限勾选走权限树弹层，需专门组件；此处先给基础档案字段
           columns: [
             { key: 'name', title: '角色名', primary: true },
             { key: 'slug', title: '标识' },
@@ -95,6 +93,17 @@ export const systemMenus: MenuGroup[] = [
               ],
             },
             { key: 'description', label: '描述', type: 'textarea', full: true },
+            {
+              key: 'permission_ids',
+              label: '权限',
+              type: 'tree',
+              multiple: true,
+              // 编辑态勾选集取行上的 permissions（hashid id 数组），不是表单字段名
+              initKey: 'permissions',
+              source: { endpoint: '/admin/v1/permission' },
+              full: true,
+              help: '勾选父级即全选其下所有子项',
+            },
           ],
         },
       },
@@ -105,10 +114,10 @@ export const systemMenus: MenuGroup[] = [
           title: '权限管理',
           moduleKey: 'system',
           endpoint: '/admin/v1/permission',
-          paginated: false,
           deleteNeedsPassword: true,
           columns: [
-            { key: 'name', title: '权限名', primary: true },
+            // 后端发的是树：引擎拍平后按 __depth 缩进这一列（子节点才可见）
+            { key: 'name', title: '权限名', primary: true, indent: true },
             { key: 'slug', title: '标识' },
             { key: 'type', title: '类型', kind: 'map', dict: { 1: '目录', 2: '菜单', 3: '按钮' } },
             { key: 'path', title: '路径' },
@@ -130,7 +139,14 @@ export const systemMenus: MenuGroup[] = [
               ],
             },
             { key: 'path', label: '路径', placeholder: '/admin/user' },
-            { key: 'parent_id', label: '父级 ID', placeholder: '0 为顶级' },
+            {
+              key: 'parent_id',
+              label: '父级',
+              type: 'tree',
+              source: { endpoint: '/admin/v1/permission' },
+              full: true,
+              help: '点节点选父级；点已选节点取消（空 = 顶级）',
+            },
             { key: 'icon', label: '图标' },
             { key: 'sort', label: '排序', type: 'number', defaultValue: 0 },
           ],

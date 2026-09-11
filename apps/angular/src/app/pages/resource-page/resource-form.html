@@ -62,6 +62,32 @@
                   }
                 </select>
               }
+              @case ('tree') {
+                <!--
+                  权限树：多选走勾选框（nzCheckable + nzCheckStrictly），单选走点节点选父级（nzSelectMode）。
+                  nzCheckStrictly 必开：库默认勾父级会 conductDown 把整棵子树一起勾上（seed 那帧就发生），
+                  库里「有父级、子级未授权」的数据会被渲染成全勾，子级还取消不掉；开了 strict 后渲染状态
+                  就恒等于 vals 里的集合。代价是父级半选不再显示虚线框（库的 halfChecked 也不参与）。
+                  注意：别把本组件包进 @if —— nzCheckStrictly 变化那帧会 conductCheck(null) 清空勾选，
+                  现在它只出现在首帧（数据还没到，树是空的）才无害；若与数据同帧就会把预选冲掉。
+                  展开键显式传（数据异步到，nzExpandAll 只作用于首帧）。
+                  多选吃 nzCheckboxChange（被点节点）而非 nzCheckedKeysChange：后者对已勾节点无条件
+                  展开成后代全量，会把库里没授权的子级一起补出来（见 .ts 注释）。
+                -->
+                <div class="tree-box">
+                  <nz-tree
+                    [nzData]="v.nodes"
+                    [nzCheckable]="!!v.f.multiple"
+                    [nzCheckStrictly]="!!v.f.multiple"
+                    [nzSelectMode]="!v.f.multiple"
+                    [nzCheckedKeys]="v.checkedKeys"
+                    [nzSelectedKeys]="v.selectedKeys"
+                    [nzExpandedKeys]="v.expandedKeys"
+                    (nzCheckboxChange)="onTreeCheck(v.f, $event)"
+                    (nzClick)="onTreeClick(v.f, $event)"
+                  ></nz-tree>
+                </div>
+              }
               @default {
                 <input
                   class="input"
