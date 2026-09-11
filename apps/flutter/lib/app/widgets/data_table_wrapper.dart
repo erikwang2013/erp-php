@@ -7,10 +7,11 @@
 // 且内容区支持下拉刷新(RefreshIndicator)。数据页须显式传入以证明覆盖。
 // 视觉 3.0 全部加性:pageTitle/moduleKey/primaryColumnIndex 不传时旧渲染不变。
 import 'package:flutter/material.dart';
-import 'package:data_table_2/data_table_2.dart';
 import '../l10n/app_l10n.dart';
 import '../theme/app_tokens.dart';
+import 'data_table_view.dart';
 import 'empty_state.dart';
+import 'stacked_row_list.dart';
 
 /// 模块→模块色(页头 8px 竖条;与 HOS V0-h moduleAccent 同源同值):
 /// system/sales 蓝、hr/tms 紫、oms/wms 青、purchase 橙、mfg 绿、finance 红。
@@ -68,6 +69,15 @@ class DataTableWrapper extends StatelessWidget {
   /// 值为 Widget 的单元格原样保留。不传(-1)时渲染与旧版完全一致。
   final int primaryColumnIndex;
 
+  /// 窄屏(<768)行堆叠开关(设计 §5.2);默认 false = 窄屏仍走横向滚动表格,
+  /// 与旧渲染完全一致。只在 compact 分支生效,宽屏渲染不读此字段。
+  final bool stackOnNarrow;
+
+  /// 堆叠渲染的动作列索引(仅 [stackOnNarrow] 生效);-1 表示不单出动作行
+  /// (动作仍按普通列渲染)。动作单元格 Widget 原样渲染在卡片底部右对齐,
+  /// 见 [StackedRowList]。
+  final int actionColumnIndex;
+
   const DataTableWrapper({
     super.key,
     required this.columns,
@@ -89,6 +99,8 @@ class DataTableWrapper extends StatelessWidget {
     this.pageTitle,
     this.moduleKey = 'system',
     this.primaryColumnIndex = -1,
+    this.stackOnNarrow = false,
+    this.actionColumnIndex = -1,
   });
 
   @override
@@ -263,7 +275,7 @@ class DataTableWrapper extends StatelessWidget {
     double viewportH,
   ) {
     final content = _stateContent(context, compact, scheme);
-    if (content is _DataTable) {
+    if (content is DataTableView) {
       // DataTable2 不暴露 physics 参数:其内部滚动体在平台钳制物理下不接受
       // 拖拽(短表内容零滚动范围),下拉无法触发 → 注入 AlwaysScrollable。
       return ScrollConfiguration(
@@ -271,6 +283,9 @@ class DataTableWrapper extends StatelessWidget {
         child: content,
       );
     }
+    // 堆叠态自带 ListView(AlwaysScrollable 物理),直接交给 RefreshIndicator:
+    // 落到下面的 SingleChildScrollView 会给 ListView 无界高度 → 布局崩溃。
+    if (content is StackedRowList) return content;
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       child: ConstrainedBox(
@@ -324,7 +339,17 @@ class DataTableWrapper extends StatelessWidget {
       // 空数据态:共享 EmptyState(灰阶 mascot + 「暂无数据」),与错误态区分
       return EmptyState();
     }
-    return _DataTable(
+    // 移动端行堆叠(opt-in,§5.2):窄屏且显式开启时不出表格;
+    // 标题列兜底 0——主业务列未声明时取首列(各页首列即单号/编码/名称)。
+    if (compact && stackOnNarrow) {
+      return StackedRowList(
+        columns: columns,
+        rows: rows,
+        titleColumn: primaryColumnIndex >= 0 ? primaryColumnIndex : 0,
+        actionColumn: actionColumnIndex,
+      );
+    }
+    return DataTableView(
       columns: columns,
       rows: rows,
       compact: compact,
@@ -352,98 +377,6 @@ class _PullScrollBehavior extends MaterialScrollBehavior {
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) =>
       AlwaysScrollableScrollPhysics(parent: super.getScrollPhysics(context));
-}
-
-/// 断点行高:移动 56 / 桌面 44(§4/§5.2 + 视觉 3.0),表头样式走全局 dataTableTheme;
-/// 视觉 3.0:表头行底 surfaceAlt 40%、偶行斑马纹低透明叠底、主业务列 w600。
-class _DataTable extends StatelessWidget {
-  final List<String> columns;
-  final List<Map<String, dynamic>> rows;
-  final bool compact;
-
-  /// 右对齐列索引;走 data_table_2 的 numeric 列语义(表头与单元格右对齐)。
-  final List<int> rightAlign;
-
-  /// 主业务列索引(w600 强调);-1 不强调。
-  final int primaryColumn;
-
-  const _DataTable({
-    required this.columns,
-    required this.rows,
-    required this.compact,
-    this.rightAlign = const [],
-    this.primaryColumn = -1,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final right = rightAlign.contains;
-    final table = DataTable2(
-      // 表头行底:surfaceAlt 40%(视觉 3.0)
-      headingRowColor: WidgetStatePropertyAll(
-        c.surfaceAlt.withValues(alpha: 0.4),
-      ),
-      columnSpacing: 12,
-      horizontalMargin: 12,
-      minWidth: columns.length * 130.0,
-      columns: [
-        for (var i = 0; i < columns.length; i++)
-          DataColumn2(
-            numeric: right(i),
-            label: Text(
-              columns[i],
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-      ],
-      rows: [
-        for (var i = 0; i < rows.length; i++)
-          DataRow2(
-            // 斑马纹:偶行(第 2/4/6…)surfaceAlt 低透明叠底
-            color: i.isOdd
-                ? WidgetStatePropertyAll(c.surfaceAlt.withValues(alpha: 0.35))
-                : null,
-            cells: [
-              for (var j = 0; j < columns.length; j++)
-                DataCell(
-                  _cell(
-                    rows[i][columns[j]],
-                    right(j),
-                    emphasize: j == primaryColumn,
-                  ),
-                ),
-            ],
-          ),
-      ],
-    );
-    if (!compact) return table;
-    return DataTableTheme(
-      data: DataTableThemeData(
-        dataRowMinHeight: AppMetrics.rowMobile,
-        dataRowMaxHeight: AppMetrics.rowMobile,
-      ),
-      child: table,
-    );
-  }
-
-  /// 单元格:Widget 原样保留(不包不套);纯文本在右对齐列补等宽数字特性
-  /// (§3:数字一律 tabular figures),主业务列文本 w600 强调(视觉 3.0)。
-  /// 文字色/字号仍走 dataTableTheme。
-  Widget _cell(dynamic v, bool right, {bool emphasize = false}) {
-    if (v is Widget) return v;
-    TextStyle? style;
-    if (emphasize) {
-      style = const TextStyle(fontWeight: FontWeight.w600);
-    }
-    if (right) {
-      const tabular = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
-      style = style == null
-          ? tabular
-          : style.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
-    }
-    return Text('${v ?? ''}', style: style);
-  }
 }
 
 /// Search input that keeps its text across wrapper rebuilds.

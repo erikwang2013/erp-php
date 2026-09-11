@@ -339,6 +339,11 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     pageTitle: AppL10n.of(context).omsOrderTitle,
     moduleKey: 'oms',
     primaryColumnIndex: 0,
+    // 移动端行堆叠试点(设计 §5.2):窄屏(<768)改为纵向卡片流,不再横向滚表格。
+    // 标题列取 primaryColumnIndex(0=渠道单号);动作列 4=commonAction(末列),
+    // 单元格 Widget(4 枚图标)原样落卡片底部右对齐。
+    stackOnNarrow: true,
+    actionColumnIndex: 4,
 
     actions: [
       ElevatedButton.icon(

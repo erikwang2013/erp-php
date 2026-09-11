@@ -15,6 +15,13 @@ void main() {
         ),
       );
 
+  // 窄屏(<768)：驱动 compact 分支
+  Widget wrapNarrow(Widget child) => MaterialApp(
+        home: Scaffold(
+          body: SizedBox(width: 375, height: 600, child: child),
+        ),
+      );
+
   const columns = ['ID', '用户名', '状态'];
   final rows = [
     {'ID': 1, '用户名': 'admin', '状态': '启用'},
@@ -359,6 +366,46 @@ void main() {
       expect(moduleAccent('system'), const Color(0xFF1677FF));
       expect(moduleAccent('sales'), const Color(0xFF1677FF));
       expect(moduleAccent('whatever'), const Color(0xFF1677FF));
+    });
+  });
+
+  group('DataTableWrapper — 窄屏堆叠与下拉刷新(堆叠态/表格态刷新体分支)', () {
+    testWidgets('窄屏 + stackOnNarrow + onRefresh:出堆叠卡片流,不再渲染 DataTable2',
+        (tester) async {
+      await tester.pumpWidget(wrapNarrow(DataTableWrapper(
+        columns: columns,
+        rows: rows,
+        total: 2,
+        page: 1,
+        limit: 10,
+        onRefresh: () async {},
+        stackOnNarrow: true,
+        primaryColumnIndex: 1, // 用户名作卡片标题
+        actionColumnIndex: 2, // 状态列落卡片底部动作行
+      )));
+
+      // 堆叠态核心断言:不是表格(此路径曾无测试覆盖)
+      expect(find.byType(DataTable2), findsNothing);
+      expect(find.byType(RefreshIndicator), findsOneWidget);
+      // 数据仍可见:标题列 + 动作列
+      expect(find.text('admin'), findsOneWidget);
+      expect(find.text('启用'), findsOneWidget);
+    });
+
+    testWidgets('窄屏 + 默认(不堆叠) + onRefresh:仍走 DataTable2,布局不抛异常',
+        (tester) async {
+      await tester.pumpWidget(wrapNarrow(DataTableWrapper(
+        columns: columns,
+        rows: rows,
+        total: 2,
+        page: 1,
+        limit: 10,
+        onRefresh: () async {},
+      )));
+
+      // 无 stackOnNarrow 时行为与旧渲染一致(默认关闭的证据)
+      expect(find.byType(DataTable2), findsOneWidget);
+      expect(find.text('admin'), findsOneWidget);
     });
   });
 }
