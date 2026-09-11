@@ -107,18 +107,18 @@ open-erp/
 │   │   ├── CaptchaController.php   # 点击验证码
 │   │   ├── AuthController.php      # 登录/注册/刷新
 │   │   └── ProductController.php   # 商品查询（不含进价）
-│   ├── controller/              # 业务模块控制器（104 个，含 InstallController）
-│   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户 (7个)
-│   │   ├── purchase/            # 采购申请/订单/收货/退货/结算 (5个)
+│   ├── controller/              # 业务模块控制器（139 个，含顶层 InstallController / IndexController）
+│   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户/规格 (8个)
+│   │   ├── purchase/            # 申请/询价/报价/订单/收货/退货/结算/供应商评估 (8个)
 │   │   ├── sales/               # 销售报价/订单/发货/退货/结算 (5个)
-│   │   ├── inventory/           # 库存/流水/调拨/盘点/预警 (5个)
-│   │   ├── finance/             # 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算/成本利润中心 (20个)
+│   │   ├── inventory/           # 库存/流水/调拨/盘点/预警/追溯 (6个)
+│   │   ├── finance/             # 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算/成本利润中心/银行账户对账/费用/发票结算/合并报表/账期 (28个)
 │   │   ├── crm/                 # 商机/跟进/漏斗/联系人/公海池/报价/合同/营销/工单/分析 (10个)
-│   │   ├── workflow/            # 工作流定义/审批提交/批准/拒绝/撤回 (2个)
-│   │   ├── notification/        # 通知列表/已读/未读计数 (1个)
-│   │   ├── project/             # 项目/任务/工时记录 (3个)
-│   │   ├── hr/                  # 部门/员工/职位/考勤/请假/薪资 (5个)
-│   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP (5个)
+│   │   ├── workflow/            # 工作流定义/设计器/审批提交/批准/拒绝/撤回 (3个)
+│   │   ├── notification/        # 通知列表/已读/未读计数/通知渠道 (2个)
+│   │   ├── project/             # 项目/任务/工时记录/项目成本 (4个)
+│   │   ├── hr/                  # 部门/员工/职位/考勤/薪资/绩效/招聘/社保/培训 (9个)
+│   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP/产能/领料/报工/计件工资/成本录入/委外及收发 (13个)
 │   │   ├── report/              # 报表模板/数据集/执行/定时调度 (2个)
 │   │   ├── oms/                 # 订单/履约/库存预占/RMA/渠道 (4个)
 │   │   ├── wms/                 # 库区库位/ASN收货/上架/波次/拣货/打包 (8个)
@@ -126,8 +126,12 @@ open-erp/
 │   │   ├── quality/             # IQC/IPQC/OQC/检验标准/不合格品 (5个)
 │   │   ├── eam/                 # 设备/保养计划/维修工单/备件 (4个)
 │   │   ├── dms/                 # 文档分类/文档/版本 (2个)
+│   │   ├── open/                # 开放 API (1个)
+│   │   ├── platform/            # 自定义字段/租户 (2个)
+│   │   ├── print/               # 打印模板 (1个)
+│   │   ├── retail/              # 优惠券/会员 (2个)
 │   │   └── bi/                  # BI看板/图表组件 (3个)
-│   ├── service/                 # 业务逻辑层（容器注册，27 个）
+│   ├── service/                 # 业务逻辑层（63 个服务类）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
 │   │   ├── notification/        # NotificationService: 通知发送
@@ -148,7 +152,7 @@ open-erp/
 │   │   ├── TracingId.php        # 全链路 TraceId
 │   │   ├── TrackingSignature.php# 请求签名校验
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
-│   ├── model/                   # 数据模型（223 个）
+│   ├── model/                   # 数据模型（225 个）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, Monitor)
 ├── apps/
@@ -165,7 +169,7 @@ open-erp/
 │   ├── translation.php          # 语言配置
 │   └── plugin/                  # 插件配置（erikwang2013/* + hg/*）
 ├── database/
-│   ├── install.sql              # 完整安装SQL（226 + 种子数据，全部迁移已并入）
+│   ├── install.sql              # 完整安装SQL（227 张表 + 种子数据，全部迁移已并入）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
@@ -261,17 +265,19 @@ Redis 滑动窗口（Lua 原子化），默认 60 次/分钟/IP/路由：
 
 ## 已知技术债
 
-> 以下清单由 `grep -rn "new .*Service(" app/controller/` 实测（27 处），与代码事实一致。
+> 以下清单由 `grep -rn "new .*Service(" app/controller/` 实测（44 处），与代码事实一致。
 > **P5 不重构**：控制器直建服务为既有模式，仅在新建代码时改走容器注入（`support\Container`），存量代码维持现状。
 
 | 模块 | 直建服务数 | 说明 |
 |------|-----------|------|
+| finance | 22 | 应收应付/核销/日记账/结转/合并报表 |
 | wms | 8 | 收货/上架/波次/拣货/打包等流程服务 |
-| finance | 7 | 应收应付/核销/日记账/结转/合并报表 |
 | tms | 5 | 运单/比价/轨迹/运费发票 |
 | oms | 3 | 履约/预占/RMA |
 | quality | 2 | 检验/不合格品处理 |
 | hr | 2 | 薪资/考勤 |
+| platform | 1 | 租户 |
+| notification | 1 | 通知渠道 |
 
 ## 部署
 
