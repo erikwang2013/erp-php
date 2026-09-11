@@ -1,9 +1,19 @@
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ *
+ * 页面级结构层：外壳（app-shell）+ 弹窗骨架（.mask/.modal）。
+ * 与 React styles/app.css 的「外壳」「弹窗」区块同值同构；V3 期分别从 shell.less 与
+ * resource-page/resource-form.less 上提而来 —— 组件样式（emulated 封装）要计入
+ * angular.json 的 anyComponentStyle 预算，全局层不计，且类名与模板一一对应无串色前提。
+ * 加载顺序：angular.json styles 中排在 app.css 之后（层叠结果与原「区块置于 app.css 末尾」一致）。
  */
 
-// 外壳样式：逐条对齐 React styles/app.css 的 shell 区块（.shell/.sidebar/.nav/.topbar/...）。
-// 本组件是默认封装（emulated），宿主元素即 app-shell，无动态路由组件参与，故不需要 ViewEncapsulation.None。
+/* ============ 外壳（app-shell：侧边栏 / 顶栏 / 业务屏切换条 / 内容区） ============ */
+
+/* 逐条对齐 React styles/app.css 的外壳/顶栏区块。
+   上提原因：组件样式（emulated 封装）要计入 angular.json 的 anyComponentStyle 预算，
+   而外壳是页面级独一份的结构层，放全局与 React 同构；全局类无 _ngcontent 后缀，
+   选择器与模板一一对应，不存在同名跨组件串色的前提（外壳类名仅 shell.html 使用）。 */
 
 .shell {
   display: flex;
@@ -20,10 +30,10 @@
   display: flex;
   flex-direction: column;
   transition: width 0.15s;
+}
 
-  &.folded {
-    width: 64px;
-  }
+.sidebar.folded {
+  width: 64px;
 }
 
 .brand {
@@ -63,26 +73,26 @@
 
 .nav-search {
   padding: 0 12px 8px;
+}
 
-  .search-input {
-    width: 100%;
-    height: 32px;
-    padding: 0 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-ctrl);
-    background: var(--surface);
-    color: var(--text-1);
-    font-size: var(--fs-base);
-    outline: none;
+.nav-search .search-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-ctrl);
+  background: var(--surface);
+  color: var(--text-1);
+  font-size: var(--fs-base);
+  outline: none;
+}
 
-    &:focus {
-      border-color: var(--primary);
-    }
+.nav-search .search-input:focus {
+  border-color: var(--primary);
+}
 
-    &::placeholder {
-      color: var(--text-3);
-    }
-  }
+.nav-search .search-input::placeholder {
+  color: var(--text-3);
 }
 
 .nav-item {
@@ -99,16 +109,16 @@
   font-size: var(--fs-base);
   cursor: pointer;
   user-select: none;
+}
 
-  &:hover {
-    background: var(--surface-alt);
-    color: var(--text-1);
-  }
+.nav-item:hover {
+  background: var(--surface-alt);
+  color: var(--text-1);
+}
 
-  &.active {
-    background: var(--primary-bg);
-    color: var(--primary);
-  }
+.nav-item.active {
+  background: var(--primary-bg);
+  color: var(--primary);
 }
 
 .nav-group > .nav-item {
@@ -127,11 +137,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
 
-  // 子项缩进（React 是 inline style paddingLeft: 10）
-  &.child {
-    padding-left: 10px;
-  }
+/* 子项缩进（React 是 inline style paddingLeft: 10） */
+.nav-label.child {
+  padding-left: 10px;
 }
 
 .sidebar.folded .nav-label,
@@ -144,11 +154,11 @@
   color: var(--text-3);
   flex-shrink: 0;
   display: inline-flex;
+}
 
-  // 旋转绑在 app-icon 上（模板 [style.transform]），故过渡也放这里
-  app-icon {
-    transition: transform 0.15s;
-  }
+/* 旋转绑在 app-icon 上（模板 [style.transform]），故过渡也放这里 */
+.nav-caret app-icon {
+  transition: transform 0.15s;
 }
 
 .main {
@@ -157,6 +167,8 @@
   flex-direction: column;
   min-width: 0;
 }
+
+/* ── 顶栏 ── */
 
 .topbar {
   height: var(--topbar-h);
@@ -183,11 +195,11 @@
   color: var(--text-2);
   font-size: 15px;
   cursor: pointer;
+}
 
-  &:hover:not(:disabled) {
-    background: var(--surface-alt);
-    color: var(--primary);
-  }
+.btn-icon:hover:not(:disabled) {
+  background: var(--surface-alt);
+  color: var(--primary);
 }
 
 .unread-badge {
@@ -221,11 +233,11 @@
   gap: 4px;
   font-size: var(--fs-md);
   color: var(--text-2);
+}
 
-  &.current {
-    color: var(--text-1);
-    font-weight: 600;
-  }
+.crumb.current {
+  color: var(--text-1);
+  font-weight: 600;
 }
 
 .crumb-sep {
@@ -243,10 +255,10 @@
   border-radius: var(--r-chip);
   cursor: pointer;
   color: var(--text-2);
+}
 
-  &:hover {
-    background: var(--surface-alt);
-  }
+.topbar-user:hover {
+  background: var(--surface-alt);
 }
 
 .avatar {
@@ -274,18 +286,20 @@
   overflow: hidden;
   z-index: 50;
   padding: 4px 0;
-
-  .nav-item {
-    margin: 0;
-    height: 36px;
-    font-size: var(--fs-md);
-    width: 100%;
-
-    &.danger {
-      color: var(--danger);
-    }
-  }
 }
+
+.user-menu .nav-item {
+  margin: 0;
+  height: 36px;
+  font-size: var(--fs-md);
+  width: 100%;
+}
+
+.user-menu .nav-item.danger {
+  color: var(--danger);
+}
+
+/* ── 业务屏切换条 ── */
 
 .screens {
   height: 44px;
@@ -311,31 +325,33 @@
   cursor: pointer;
   white-space: nowrap;
   position: relative;
-
-  app-icon {
-    font-size: 15px;
-  }
-
-  &:hover {
-    color: var(--primary);
-  }
-
-  &.active {
-    color: var(--primary);
-    font-weight: 600;
-
-    &::after {
-      content: '';
-      position: absolute;
-      left: 12px;
-      right: 12px;
-      bottom: 0;
-      height: 2px;
-      border-radius: 2px 2px 0 0;
-      background: var(--primary);
-    }
-  }
 }
+
+.screen-tab app-icon {
+  font-size: 15px;
+}
+
+.screen-tab:hover {
+  color: var(--primary);
+}
+
+.screen-tab.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.screen-tab.active::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--primary);
+}
+
+/* ── 内容区 ── */
 
 .content {
   flex: 1;
@@ -344,4 +360,59 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* ============ 弹窗骨架（.mask/.modal，V3 上提自 resource 页 less 去重） ============ */
+
+/* 与 React styles/app.css 的「弹窗」区块同值（含 .modal.wide）。
+   上提原因同外壳：组件样式计入 anyComponentStyle 预算，且此前 resource-page.less 与
+   resource-form.less 各存一份同值副本（emulated 封装互不可见）。
+   注意 .modal-foot button + button 的 zorro 间距覆盖**不上提**：它要靠组件级的
+   _ngcontent 属性提升权重才能压过 zorro 的相邻按钮规则，放全局反而失效。 */
+
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--r-card);
+  width: 520px;
+  max-width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-facade);
+}
+
+.modal.wide {
+  width: 720px;
+}
+
+.modal-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--divider);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal-foot {
+  padding: 12px 16px;
+  border-top: 1px solid var(--divider);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }

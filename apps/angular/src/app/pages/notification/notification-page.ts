@@ -140,9 +140,7 @@ export class NotificationPage implements OnInit {
   /** 「全部已读」按钮 loading */
   protected readonly busy = signal(false);
 
-  protected readonly pages = computed(() =>
-    Math.max(1, Math.ceil(this.total() / this.limit())),
-  );
+  protected readonly pages = computed(() => Math.max(1, Math.ceil(this.total() / this.limit())));
   protected readonly confirmMessage = computed(() =>
     tr('确定执行「{act}」吗？', { act: tr('标记已读') }),
   );

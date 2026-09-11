@@ -35,13 +35,15 @@ function screenOf(path: string): number {
  *
  * 路由同步（React 里是 effect）在这里收成一条 NavigationEnd 订阅：切屏、展开命中分组、刷新面包屑。
  * 侧边栏菜单搜索只搜「当前屏」（与 React 相同）：命中分组名时该组仍按过滤后的子项渲染（可能为空）。
+ *
+ * 样式不在此组件：外壳是页面级唯一的结构层，样式上提到 src/styles/app.css 的「外壳」区块
+ * （与 React 把 shell 写在全局 styles/app.css 同构）——组件样式要计入 anyComponentStyle 预算，全局层不计。
  */
 @Component({
   selector: 'app-shell',
   standalone: true,
   imports: [TrPipe, IconComponent, PageTabs],
   templateUrl: './shell.html',
-  styleUrl: './shell.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Shell implements OnInit, OnDestroy {

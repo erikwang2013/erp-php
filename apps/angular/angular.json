@@ -53,7 +53,8 @@
             ],
             "styles": [
               "src/styles/theme.less",
-              "src/styles/app.css"
+              "src/styles/app.css",
+              "src/styles/shell.css"
             ]
           },
           "configurations": {

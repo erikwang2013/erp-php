@@ -2,8 +2,11 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  *
  * 说明：React 端这些结构类（.card/.page-head/.table/.badge…）写在全局 app.css；
- * 本端 app.css 只有 :root token，故按 React 同值在本组件作用域内重建所需子集，
- * 避免 ::ng-deep 越界与全局污染。数值与 React styles/app.css 逐条对齐。
+ * 本端全局 src/styles/app.css 现已含同类结构（页面结构类/外壳/弹窗骨架区块），
+ * 但本文件仍是按 React 同值的组件作用域内重建。与全局层有 6 处已知数值偏差：
+ * .head-bar 回退色 / .table th 底色 / tbody tr:hover / nth-child(even) 斑马 /
+ * .card 缺 box-shadow / .search-input 定宽——去留待定夺，暂不动。
+ * 数值以 React styles/app.css 为准。
  */
 
 :host {

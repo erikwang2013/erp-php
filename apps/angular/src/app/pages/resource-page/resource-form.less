@@ -1,68 +1,20 @@
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  *
- * 为什么这里有一份和 resource-page.less 重复的样式：Angular 组件样式默认隔离（emulated），
- * 父组件 sheet 里的 .mask/.modal/.input 不会作用于本组件模板。抽公共 sheet 要新开全局文件、
- * 改 angular.json 的 style 数组 —— 只为两个类不值得，故同值复制，值以 React styles/app.css 为准。
+ * 弹窗骨架（.mask/.modal 系列）已上提全局 src/styles/app.css（React 同样写在全局 app.css），
+ * 此前与 resource-page.less 的同值副本已去重，本文件只留新建/编辑表单页独有样式。
+ * 值以 React styles/app.css 为准。
  */
 
 :host {
   display: block;
 }
 
-/* ── 弹窗骨架 ── */
-.mask {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: grid;
-  place-items: center;
-  z-index: 100;
-  padding: 16px;
-}
+/* 弹窗骨架（.mask/.modal/.modal-head/.modal-body/.modal-foot）已上提全局 app.css；
+   .sp 全局亦有同值定义。此处只留 zorro 覆盖。 */
 
-.modal {
-  background: var(--surface);
-  border-radius: var(--r-card);
-  width: 520px;
-  max-width: 100%;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-facade);
-
-  &.wide {
-    width: 720px;
-  }
-}
-
-.modal-head {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--divider);
-  font-size: var(--fs-lg);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-}
-
-.sp {
-  flex: 1;
-}
-
-.modal-body {
-  padding: 16px;
-  overflow-y: auto;
-}
-
-.modal-foot {
-  padding: 12px 16px;
-  border-top: 1px solid var(--divider);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-/* zorro 给相邻按钮加了外边距，弹窗按钮间距按 React 的 8px gap 算 */
+/* zorro 给相邻按钮加了外边距，弹窗按钮间距按 React 的 8px gap 算。
+   注意：本规则依赖组件级 _ngcontent 权重压过 zorro，不能上提全局。 */
 .modal-foot button + button {
   margin-left: 0;
 }
