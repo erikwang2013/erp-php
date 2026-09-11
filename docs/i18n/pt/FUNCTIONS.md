@@ -504,7 +504,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Script de instalação do banco | Arquivo único `database/install.sql` (163 tabelas, todas as migrações incorporadas) |
 | Páginas front-end (Flutter) | 7 (estatística do front-end, não incluída na validação do doc-stats) |
 | Páginas front-end (HarmonyOS) | 4 (estatística do front-end, não incluída na validação do doc-stats) |
-| Testes unitários | 50 arquivos de teste <!-- stats:test_files=107 --> / 442 casos de teste / 2238 asserções (tests/assertions flutuam com as versões de patch do PHP e extensões, não participam da validação precisa do stats) |
+| Testes unitários | 50 arquivos de teste <!-- stats:test_files=108 --> / 442 casos de teste / 2238 asserções (tests/assertions flutuam com as versões de patch do PHP e extensões, não participam da validação precisa do stats) |
 
 > Os números acima são medidos por `bash scripts/doc-stats.sh`; os itens marcados com `<!-- stats:key=value -->` são validados automaticamente pelo CI
 > (job docs em `.github/workflows/ci.yml`) contra os fatos do código — qualquer divergência fica vermelha.

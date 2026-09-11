@@ -504,7 +504,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | データベースインストールスクリプト | 単一ファイル `database/install.sql`（163 テーブル、全マイグレーション統合済み）|
 | フロントエンドページ (Flutter) | 7（フロントエンド統計、doc-stats 検証対象外）|
 | フロントエンドページ (HarmonyOS) | 4（フロントエンド統計、doc-stats 検証対象外）|
-| ユニットテスト | 50 テストファイル <!-- stats:test_files=107 --> / 442 テストケース / 2238 アサーション（tests/assertions は PHP パッチバージョンと拡張により変動、stats の厳密検証対象外）|
+| ユニットテスト | 50 テストファイル <!-- stats:test_files=108 --> / 442 テストケース / 2238 アサーション（tests/assertions は PHP パッチバージョンと拡張により変動、stats の厳密検証対象外）|
 
 > 上記の数字は `bash scripts/doc-stats.sh` による実測値です。`<!-- stats:key=value -->` で注記された項目は CI
 > （`.github/workflows/ci.yml` の docs ジョブ）がコードの事実との一致を自動検証し、乖離があれば即レッドになります。

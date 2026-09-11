@@ -504,7 +504,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Database install script | Single file `database/install.sql` (163 tables, all migrations merged in) |
 | Frontend pages (Flutter) | 7 (frontend statistics, not included in doc-stats validation) |
 | Frontend pages (HarmonyOS) | 4 (frontend statistics, not included in doc-stats validation) |
-| Unit tests | 50 test files <!-- stats:test_files=107 --> / 442 test cases / 2238 assertions (tests/assertions fluctuate with PHP patch versions and extensions, not subject to precise stats validation) |
+| Unit tests | 50 test files <!-- stats:test_files=108 --> / 442 test cases / 2238 assertions (tests/assertions fluctuate with PHP patch versions and extensions, not subject to precise stats validation) |
 
 > The numbers above are measured by `bash scripts/doc-stats.sh`; items marked `<!-- stats:key=value -->` are automatically
 > validated by CI (the docs job in `.github/workflows/ci.yml`) against code facts; drift turns red.
