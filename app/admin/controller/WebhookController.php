@@ -175,7 +175,7 @@ class WebhookController extends BaseController
             'id' => $this->encodeId((int) $sub->id),
             'app_id' => $this->encodeId((int) $sub->app_id),
             'secret' => $secret, // 仅此一次展示
-        ], '创建成功，secret 仅展示一次，请转发给接收方用于验签');
+        ], $this->trans('Created successfully; the secret is shown only once, please forward it to the recipient for signature verification'));
     }
 
     /**
@@ -236,7 +236,7 @@ class WebhookController extends BaseController
         }
         $sub->save();
 
-        return $this->success($this->encodeIds($sub->toArray()), '更新成功');
+        return $this->success($this->encodeIds($sub->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -275,7 +275,7 @@ class WebhookController extends BaseController
         WebhookDeliveryLog::query()->where('subscription_id', $sub->id)->delete();
         $sub->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -306,7 +306,7 @@ class WebhookController extends BaseController
 
         $result = (new WebhookService())->testDeliver($sub);
 
-        return $this->success($result, $result['status'] === 'success' ? '测试事件投递成功' : '测试事件投递失败（详情见日志）');
+        return $this->success($result, $result['status'] === 'success' ? $this->trans('Test event delivered successfully') : $this->trans('Test event delivery failed (see logs for details)'));
     }
 
     /**

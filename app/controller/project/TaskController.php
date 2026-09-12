@@ -128,7 +128,7 @@ class TaskController extends BaseController
 
         $this->updateProjectProgress($item->project_id);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -155,7 +155,7 @@ class TaskController extends BaseController
         $id = $this->decodeId($id);
         $item = ProjectTask::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $result = $this->encodeIds($item->toArray(), ['id', 'project_id']);
@@ -191,7 +191,7 @@ class TaskController extends BaseController
         $id = $this->decodeId($id);
         $item = ProjectTask::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         if ($request->input('project_id', '') !== '') {
@@ -203,7 +203,7 @@ class TaskController extends BaseController
 
         $this->updateProjectProgress($item->project_id);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -231,7 +231,7 @@ class TaskController extends BaseController
         $id = $this->decodeId($id);
         $item = ProjectTask::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -244,7 +244,7 @@ class TaskController extends BaseController
         $item->delete();
         $this->updateProjectProgress($projectId);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

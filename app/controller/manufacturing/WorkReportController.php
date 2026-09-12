@@ -167,7 +167,7 @@ class WorkReportController extends BaseController
             throw $e;
         }
 
-        return $this->success($this->encodeIds(['id' => $id]), '创建成功');
+        return $this->success($this->encodeIds(['id' => $id]), $this->trans('Created successfully'));
     }
 
     /**
@@ -191,7 +191,7 @@ class WorkReportController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->service()->find(MfgWorkReport::class, $id, ['order', 'routing', 'workstation', 'employee']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $data = $item->toArray();
         foreach (['order', 'routing', 'workstation', 'employee'] as $rel) {
@@ -224,7 +224,7 @@ class WorkReportController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgWorkReport::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
             return $this->fail($this->trans('Audited work reports cannot be modified'), 422);
@@ -249,7 +249,7 @@ class WorkReportController extends BaseController
             }
         }
 
-        return $this->success($this->encodeIds($data), '更新成功');
+        return $this->success($this->encodeIds($data), $this->trans('Updated successfully'));
     }
 
     /**
@@ -274,7 +274,7 @@ class WorkReportController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgWorkReport::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
             return $this->fail($this->trans('Audited work reports cannot be deleted'), 422);
@@ -286,7 +286,7 @@ class WorkReportController extends BaseController
         }
         MfgWorkReport::query()->where('id', $id)->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -314,7 +314,7 @@ class WorkReportController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '审核成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Audited successfully'));
     }
 
     /** 唯一键冲突判定（与成本服务同实现） */

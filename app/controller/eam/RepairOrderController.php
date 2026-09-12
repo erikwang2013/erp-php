@@ -119,7 +119,7 @@ class RepairOrderController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -146,7 +146,7 @@ class RepairOrderController extends BaseController
         $id = $this->decodeId($id);
         $item = EamRepairOrder::find($id);
 
-        return $item ? $this->success($this->encodeIds($item->toArray())) : $this->fail('记录不存在', 404);
+        return $item ? $this->success($this->encodeIds($item->toArray())) : $this->fail($this->trans('Record not found'), 404);
     }
 
     /**
@@ -173,7 +173,7 @@ class RepairOrderController extends BaseController
         $id = $this->decodeId($id);
         $item = EamRepairOrder::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         // 已完成/已取消的工单不允许编辑
         if (in_array($item->status, ['completed', 'cancelled'], true)) {
@@ -182,7 +182,7 @@ class RepairOrderController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -210,7 +210,7 @@ class RepairOrderController extends BaseController
         $id = $this->decodeId($id);
         $item = EamRepairOrder::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
@@ -219,7 +219,7 @@ class RepairOrderController extends BaseController
         }
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -240,7 +240,7 @@ class RepairOrderController extends BaseController
         $id = $this->decodeId($id);
         $item = EamRepairOrder::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $target = $request->input('status', '');
@@ -248,7 +248,7 @@ class RepairOrderController extends BaseController
             return $this->fail($this->trans('Invalid current status'), 422);
         }
         if (!in_array($target, self::STATUS_TRANSITIONS[$item->status], true)) {
-            return $this->fail("不允许从「{$item->status}」流转到「{$target}」", 422);
+            return $this->fail($this->trans('Cannot transition from ":from" to ":to"', ['from' => $item->status, 'to' => $target]), 422);
         }
 
         $item->status = $target;
@@ -257,6 +257,6 @@ class RepairOrderController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '状态更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Status updated successfully'));
     }
 }

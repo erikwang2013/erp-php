@@ -111,7 +111,7 @@ class QuotationController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -138,7 +138,7 @@ class QuotationController extends BaseController
         $id = $this->decodeId($id);
         $item = SalesQuotation::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']));
@@ -174,14 +174,14 @@ class QuotationController extends BaseController
         $id = $this->decodeId($id);
         $item = SalesQuotation::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->decodeCustomerId($request);
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -209,7 +209,7 @@ class QuotationController extends BaseController
         $id = $this->decodeId($id);
         $item = SalesQuotation::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -220,7 +220,7 @@ class QuotationController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

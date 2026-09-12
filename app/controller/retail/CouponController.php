@@ -56,7 +56,7 @@ class CouponController extends BaseController
         }
         $data['coupon_id'] = $this->encodeId((int) $data['coupon_id']);
 
-        return $this->success($data, '发券成功');
+        return $this->success($data, $this->trans('Coupon issued successfully'));
     }
 
     /**
@@ -89,7 +89,7 @@ class CouponController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($data, '核销成功');
+        return $this->success($data, $this->trans('Written off successfully'));
     }
 
     /** hashid 优先，兼容直传数字 */

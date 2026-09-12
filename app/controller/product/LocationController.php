@@ -151,7 +151,7 @@ class LocationController extends BaseController
         $item->status = ($statusRaw === null || $statusRaw === '') ? 1 : (int) $statusRaw;
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -178,7 +178,7 @@ class LocationController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->product()->find(Location::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']));
@@ -216,7 +216,7 @@ class LocationController extends BaseController
         $id = $this->decodeId($id);
         $item = Location::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         if ($request->input('code') !== null) {
@@ -239,7 +239,7 @@ class LocationController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'warehouse_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -267,7 +267,7 @@ class LocationController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->product()->find(Location::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -278,7 +278,7 @@ class LocationController extends BaseController
 
         $this->product()->delete(Location::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

@@ -101,7 +101,7 @@ class CapacityController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '设置成功');
+        return $this->success([], $this->trans('Settings saved successfully'));
     }
 
     /**
@@ -141,7 +141,7 @@ class CapacityController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

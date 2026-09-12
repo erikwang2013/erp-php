@@ -97,7 +97,7 @@ class RfqController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($rfq->toArray(), ['id', 'buyer_id']), '创建成功');
+        return $this->success($this->encodeIds($rfq->toArray(), ['id', 'buyer_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -165,7 +165,7 @@ class RfqController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($rfq->toArray(), ['id', 'buyer_id']), '更新成功');
+        return $this->success($this->encodeIds($rfq->toArray(), ['id', 'buyer_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -190,7 +190,7 @@ class RfqController extends BaseController
         }
         $rfq->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -212,7 +212,7 @@ class RfqController extends BaseController
         $rfq->status = PurchaseRfq::STATUS_SUBMITTED;
         $rfq->save();
 
-        return $this->success($this->encodeIds($rfq->toArray(), ['id', 'buyer_id']), '发布成功');
+        return $this->success($this->encodeIds($rfq->toArray(), ['id', 'buyer_id']), $this->trans('Published successfully'));
     }
 
     /**
@@ -310,7 +310,7 @@ class RfqController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($order->toArray(), ['id', 'supplier_id']), '中标成功，采购订单草稿已生成');
+        return $this->success($this->encodeIds($order->toArray(), ['id', 'supplier_id']), $this->trans('Awarded successfully; a draft purchase order has been created'));
     }
 
     /**
@@ -333,7 +333,7 @@ class RfqController extends BaseController
         $rfq->status = $status === PurchaseRfq::STATUS_DRAFT ? PurchaseRfq::STATUS_CANCELLED : PurchaseRfq::STATUS_CLOSED;
         $rfq->save();
 
-        return $this->success($this->encodeIds($rfq->toArray(), ['id', 'buyer_id']), '操作成功');
+        return $this->success($this->encodeIds($rfq->toArray(), ['id', 'buyer_id']), $this->trans('Operation successful'));
     }
 
     /** 保存明细行（事务内调用，新行插入；整体替换由调用方先删除旧行） */

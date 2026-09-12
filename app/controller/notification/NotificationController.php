@@ -94,7 +94,7 @@ class NotificationController extends BaseController
         $userId = (int)($request->adminId ?? 0);
         NotificationService::markRead($id, $userId);
 
-        return $this->success([], '已标记为已读');
+        return $this->success([], $this->trans('Marked as read'));
     }
 
     /**
@@ -115,7 +115,7 @@ class NotificationController extends BaseController
         $userId = (int)($request->adminId ?? 0);
         NotificationService::markAllRead($userId);
 
-        return $this->success([], '全部已标记为已读');
+        return $this->success([], $this->trans('All marked as read'));
     }
 
     /**

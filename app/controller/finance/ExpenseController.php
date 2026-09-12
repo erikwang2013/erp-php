@@ -126,7 +126,7 @@ class ExpenseController extends BaseController
         foreach (['apply_user_id' => '申请人ID', 'account_id' => '账户ID'] as $field => $label) {
             $decoded = $this->decodeFlexibleId((string) $request->input($field, ''));
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $item->{$field} = $decoded;
         }
@@ -135,7 +135,7 @@ class ExpenseController extends BaseController
         $item->remark = (string) $request->input('remark', '');
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -162,7 +162,7 @@ class ExpenseController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceExpense::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']));
@@ -204,7 +204,7 @@ class ExpenseController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceExpense::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $item->status === 1) {
             return $this->fail($this->trans('Approved records cannot be modified'), 422);
@@ -218,7 +218,7 @@ class ExpenseController extends BaseController
             if ($raw !== null && $raw !== '') {
                 $decoded = $this->decodeFlexibleId((string) $raw);
                 if ($decoded === null || $decoded < 1) {
-                    return $this->fail($label . '无效', 422);
+                    return $this->fail($label . $this->trans('Invalid'), 422);
                 }
                 $item->{$field} = $decoded;
             }
@@ -240,7 +240,7 @@ class ExpenseController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -269,7 +269,7 @@ class ExpenseController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceExpense::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -280,6 +280,6 @@ class ExpenseController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

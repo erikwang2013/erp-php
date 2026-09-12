@@ -99,7 +99,7 @@ class EInvoiceController extends BaseController
             'issue_status' => $result['issue_status'],
         ];
 
-        return $this->success($data, '红冲成功');
+        return $this->success($data, $this->trans('Reversal succeeded'));
     }
 
     /**

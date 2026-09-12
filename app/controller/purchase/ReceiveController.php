@@ -250,7 +250,7 @@ class ReceiveController extends BaseController
 
             return $this->success(
                 $this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']),
-                '收货成功，已入库并生成应付记录'
+                $this->trans('Receipt succeeded; goods stocked in and a payable record was created')
             );
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -373,7 +373,7 @@ class ReceiveController extends BaseController
         }
         $receive->save();
 
-        return $this->success($this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']), '更新成功');
+        return $this->success($this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -416,6 +416,6 @@ class ReceiveController extends BaseController
 
         $receive->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

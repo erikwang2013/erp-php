@@ -243,7 +243,7 @@ class ShipmentController extends BaseController
             $svc = new \app\service\tms\TmsShipmentService();
             $svc->confirmShip($id, $request->input('fulfillment_id', 0), $request->input('oms_order_id', 0));
 
-            return $this->success([], '发货确认完成');
+            return $this->success([], $this->trans('Shipment confirmation completed'));
         } catch (\Throwable $e) {
             $this->logError('确认发货', $e);
 
@@ -278,6 +278,6 @@ class ShipmentController extends BaseController
             return $this->fail($this->trans('Invalid ID'), 400);
         }
 
-        return $this->success(['label_url' => '/api/shipping-label/' . $id], '面单生成请求已提交');
+        return $this->success(['label_url' => '/api/shipping-label/' . $id], $this->trans('Waybill generation request submitted'));
     }
 }

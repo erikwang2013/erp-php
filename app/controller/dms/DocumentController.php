@@ -117,7 +117,7 @@ class DocumentController extends BaseController
         // 记录初始版本
         $this->createVersion($item, $request, '初始版本');
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -144,7 +144,7 @@ class DocumentController extends BaseController
         $id = $this->decodeId($id);
         $item = DmsDocument::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $data = $this->encodeIds($item->toArray());
         $versions = DmsDocumentVersion::where('document_id', $id)->orderBy('id', 'desc')->get()->map(fn ($v) => $this->encodeIds($v->toArray()));
@@ -185,7 +185,7 @@ class DocumentController extends BaseController
         $id = $this->decodeId($id);
         $item = DmsDocument::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         // 内容变更时自动生成新版本
@@ -199,7 +199,7 @@ class DocumentController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -228,7 +228,7 @@ class DocumentController extends BaseController
         $id = $this->decodeId($id);
         $item = DmsDocument::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
@@ -238,7 +238,7 @@ class DocumentController extends BaseController
         DmsDocumentVersion::where('document_id', $id)->delete();
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

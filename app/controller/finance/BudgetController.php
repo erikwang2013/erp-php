@@ -124,7 +124,7 @@ class BudgetController extends BaseController
             $detail->save();
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -151,7 +151,7 @@ class BudgetController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceBudget::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $items = FinanceBudgetItem::where('budget_id', $id)->orderBy('period_month', 'asc')->get()
@@ -190,7 +190,7 @@ class BudgetController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceBudget::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         if ((int) $item->status !== 0) {
@@ -217,7 +217,7 @@ class BudgetController extends BaseController
             }
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -245,7 +245,7 @@ class BudgetController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceBudget::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -257,7 +257,7 @@ class BudgetController extends BaseController
         FinanceBudgetItem::where('budget_id', $id)->delete();
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

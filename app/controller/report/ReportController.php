@@ -117,7 +117,7 @@ class ReportController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -147,7 +147,7 @@ class ReportController extends BaseController
         }
         $item = ReportTemplate::with(['fields', 'filters'])->find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $item->toArray();
@@ -188,13 +188,13 @@ class ReportController extends BaseController
         }
         $item = ReportTemplate::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -226,7 +226,7 @@ class ReportController extends BaseController
         }
         $item = ReportTemplate::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -242,7 +242,7 @@ class ReportController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     // ============================================================
@@ -317,7 +317,7 @@ class ReportController extends BaseController
         $item->created_at = date('Y-m-d H:i:s');
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '字段添加成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Field added successfully'));
     }
 
     /**
@@ -347,11 +347,11 @@ class ReportController extends BaseController
         }
         $item = ReportField::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     // ============================================================
@@ -424,7 +424,7 @@ class ReportController extends BaseController
         $item->created_at = date('Y-m-d H:i:s');
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '筛选条件添加成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Filter condition added successfully'));
     }
 
     /**
@@ -454,11 +454,11 @@ class ReportController extends BaseController
         }
         $item = ReportFilter::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     // ============================================================
@@ -500,7 +500,7 @@ class ReportController extends BaseController
 
         $queryConfig = $template->query_config;
         if (!$queryConfig || empty($queryConfig['table'])) {
-            return $this->fail('报表查询配置不完整，缺少table定义', 422);
+            return $this->fail($this->trans('The report query configuration is incomplete; missing the table definition'), 422);
         }
 
         // 构建SQL查询
@@ -574,7 +574,7 @@ class ReportController extends BaseController
             foreach ($template->filters as $filter) {
                 $value = $request->input($filter->name, $filter->default_value);
                 if ($filter->required && ($value === null || $value === '')) {
-                    return $this->fail("筛选条件「{$filter->name}」为必填", 422);
+                    return $this->fail($this->trans('Filter condition ":name" is required', ['name' => $filter->name]), 422);
                 }
                 if ($value !== null && $value !== '') {
                     $filterRef = $this->quoteColumn($filter->field);
@@ -675,12 +675,12 @@ class ReportController extends BaseController
                 'dataset_id' => $this->encodeId($dataset->id),
                 'rows_count' => $rowCount,
                 'query_sql' => $sql,
-            ], '查询执行成功');
+            ], $this->trans('Query executed successfully'));
         } catch (\Throwable $e) {
             // 不回显原始异常信息（可能泄露表结构/SQL），详情记录服务端日志
             $this->logError('执行报表查询', $e);
 
-            return $this->fail('查询执行失败，请查看服务端日志', 500);
+            return $this->fail($this->trans('Query execution failed; please check the server logs for details'), 500);
         }
     }
 
@@ -799,7 +799,7 @@ class ReportController extends BaseController
         }
 
         if (!$dataset) {
-            return $this->fail('未找到报表数据，请先执行查询', 404);
+            return $this->fail($this->trans('No report data; please run the query first'), 404);
         }
 
         $data = $dataset->toArray();

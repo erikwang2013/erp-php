@@ -97,7 +97,7 @@ class FlowController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -124,7 +124,7 @@ class FlowController extends BaseController
         $id = $this->decodeId($id);
         $item = InventoryFlow::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -160,13 +160,13 @@ class FlowController extends BaseController
         $id = $this->decodeId($id);
         $item = InventoryFlow::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -194,7 +194,7 @@ class FlowController extends BaseController
         $id = $this->decodeId($id);
         $item = InventoryFlow::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -205,6 +205,6 @@ class FlowController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

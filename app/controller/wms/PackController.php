@@ -238,7 +238,7 @@ class PackController extends BaseController
         try {
             $pack = (new \app\service\wms\WmsOutboundService())->startPack($warehouseId, $request->all());
 
-            return $this->success($this->encodeIds($pack->toArray()), '打包任务已创建');
+            return $this->success($this->encodeIds($pack->toArray()), $this->trans('Packing task created'));
         } catch (\Throwable $e) {
             $this->logError('创建打包任务', $e);
 
@@ -274,7 +274,7 @@ class PackController extends BaseController
         try {
             $pack = (new \app\service\wms\WmsOutboundService())->completePack($id, $request->all());
 
-            return $this->success($this->encodeIds($pack->toArray()), '打包完成');
+            return $this->success($this->encodeIds($pack->toArray()), $this->trans('Packing completed'));
         } catch (\Throwable $e) {
             $this->logError('完成打包', $e);
 

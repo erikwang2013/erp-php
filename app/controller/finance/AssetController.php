@@ -116,7 +116,7 @@ class AssetController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -143,7 +143,7 @@ class AssetController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceAsset::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -185,7 +185,7 @@ class AssetController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceAsset::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->fillModelFromRequest($item, $request);
@@ -197,7 +197,7 @@ class AssetController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -225,7 +225,7 @@ class AssetController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceAsset::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -236,7 +236,7 @@ class AssetController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -304,7 +304,7 @@ class AssetController extends BaseController
         $asset->net_value = $depr->net_value;
         $asset->save();
 
-        return $this->success($this->encodeIds($depr->toArray()), '折旧计提成功');
+        return $this->success($this->encodeIds($depr->toArray()), $this->trans('Depreciation accrued successfully'));
     }
 
     /**

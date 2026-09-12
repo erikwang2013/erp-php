@@ -89,7 +89,7 @@ class SupplierAssessmentController extends BaseController
         $assessment->remark = (string) $request->input('remark', '');
         $assessment->save();
 
-        return $this->success($this->encodeIds($assessment->toArray(), ['id', 'supplier_id', 'assessor_id']), '评分成功');
+        return $this->success($this->encodeIds($assessment->toArray(), ['id', 'supplier_id', 'assessor_id']), $this->trans('Rating submitted successfully'));
     }
 
     /**
@@ -142,7 +142,7 @@ class SupplierAssessmentController extends BaseController
         }
         $assessment->save();
 
-        return $this->success($this->encodeIds($assessment->toArray(), ['id', 'supplier_id', 'assessor_id']), '更新成功');
+        return $this->success($this->encodeIds($assessment->toArray(), ['id', 'supplier_id', 'assessor_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -164,6 +164,6 @@ class SupplierAssessmentController extends BaseController
         }
         $assessment->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

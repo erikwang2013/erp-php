@@ -83,7 +83,7 @@ class CustomFieldController extends BaseController
             return $this->fail((string) $err, 422);
         }
 
-        return $this->success($data, '创建成功');
+        return $this->success($data, $this->trans('Created successfully'));
     }
 
     /**
@@ -106,7 +106,7 @@ class CustomFieldController extends BaseController
             return $this->fail((string) $err, 422);
         }
 
-        return $this->success($data, '更新成功');
+        return $this->success($data, $this->trans('Updated successfully'));
     }
 
     /**
@@ -125,7 +125,7 @@ class CustomFieldController extends BaseController
             return $this->fail((string) $err, 422);
         }
 
-        return $this->success($data, '删除成功');
+        return $this->success($data, $this->trans('Deleted successfully'));
     }
 
     /**
@@ -151,7 +151,7 @@ class CustomFieldController extends BaseController
             return $this->fail(implode('; ', $errors), 422);
         }
 
-        return $this->success([], '校验通过');
+        return $this->success([], $this->trans('Validation passed'));
     }
 
     /**

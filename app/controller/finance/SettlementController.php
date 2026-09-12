@@ -102,7 +102,7 @@ class SettlementController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '创建成功');
+        return $this->success([], $this->trans('Created successfully'));
     }
 
     /**
@@ -129,7 +129,7 @@ class SettlementController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceSettlement::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));

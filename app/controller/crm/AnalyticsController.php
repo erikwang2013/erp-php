@@ -115,7 +115,7 @@ class AnalyticsController extends BaseController
             $reportData
         );
 
-        return $this->success($this->encodeIds($report->toArray()), '报表生成成功');
+        return $this->success($this->encodeIds($report->toArray()), $this->trans('Report generated successfully'));
     }
 
     /**
@@ -142,7 +142,7 @@ class AnalyticsController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmAnalyticsReport::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $this->encodeIds($item->toArray());
@@ -209,10 +209,10 @@ class AnalyticsController extends BaseController
 
         $item = $this->crm()->upsertMetric($metricId, $request->all());
         if ($item === null) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), $hashid !== '' ? '更新成功' : '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $hashid !== '' ? $this->trans('Updated successfully') : $this->trans('Created successfully'));
     }
 
     /**

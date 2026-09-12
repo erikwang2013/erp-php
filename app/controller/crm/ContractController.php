@@ -108,7 +108,7 @@ class ContractController extends BaseController
             $this->crm()->replaceItems(CrmContractItem::class, 'contract_id', $item->id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -135,7 +135,7 @@ class ContractController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmContract::class, $id, ['items']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id']));
@@ -167,7 +167,7 @@ class ContractController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmContract::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         if ($item->status !== 0) {
@@ -181,7 +181,7 @@ class ContractController extends BaseController
             $this->crm()->replaceItems(CrmContractItem::class, 'contract_id', $id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'quotation_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'quotation_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -209,7 +209,7 @@ class ContractController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmContract::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -220,7 +220,7 @@ class ContractController extends BaseController
 
         $this->crm()->delete(CrmContract::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -255,10 +255,10 @@ class ContractController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'quotation_id']), '状态更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'quotation_id']), $this->trans('Status updated successfully'));
     }
 
     /**

@@ -126,7 +126,7 @@ class ProjectController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'manager_user_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'manager_user_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -153,7 +153,7 @@ class ProjectController extends BaseController
         $id = $this->decodeId($id);
         $item = Project::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $result = $this->encodeIds($item->toArray(), ['id', 'manager_user_id']);
@@ -186,7 +186,7 @@ class ProjectController extends BaseController
         $id = $this->decodeId($id);
         $item = Project::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         if ($request->input('manager_user_id', '') !== '') {
@@ -196,7 +196,7 @@ class ProjectController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'manager_user_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'manager_user_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -225,7 +225,7 @@ class ProjectController extends BaseController
         $id = $this->decodeId($id);
         $item = Project::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -236,7 +236,7 @@ class ProjectController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

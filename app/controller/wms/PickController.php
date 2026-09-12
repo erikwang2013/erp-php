@@ -238,7 +238,7 @@ class PickController extends BaseController
         try {
             (new \app\service\wms\WmsOutboundService())->startPick($id, $request->adminId ?? 0);
 
-            return $this->success([], '拣货任务已开始');
+            return $this->success([], $this->trans('Picking task started'));
         } catch (\Throwable $e) {
             $this->logError('开始拣货', $e);
 
@@ -280,7 +280,7 @@ class PickController extends BaseController
         try {
             (new \app\service\wms\WmsOutboundService())->confirmPick($id, $actuals);
 
-            return $this->success([], '拣货确认完成');
+            return $this->success([], $this->trans('Picking confirmation completed'));
         } catch (\Throwable $e) {
             $this->logError('确认拣货', $e);
 

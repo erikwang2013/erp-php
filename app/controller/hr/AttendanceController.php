@@ -116,7 +116,7 @@ class AttendanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($result, '打卡成功');
+        return $this->success($result, $this->trans('Clocked in successfully'));
     }
 
     /**
@@ -152,7 +152,7 @@ class AttendanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($result, '打卡成功');
+        return $this->success($result, $this->trans('Clocked in successfully'));
     }
 
     // 请假管理
@@ -244,7 +244,7 @@ class AttendanceController extends BaseController
 
         $item = $this->hr()->create(HrLeave::class, $request->all(), ['status' => 0]);
 
-        return $this->success($this->encodeIds($item->toArray()), '请假申请已提交');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Leave request submitted'));
     }
 
     /**
@@ -271,7 +271,7 @@ class AttendanceController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrLeave::class, $id, ['employee']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $item->toArray();
@@ -306,7 +306,7 @@ class AttendanceController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrLeave::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ($item->status !== 0) {
             return $this->fail($this->trans('Only leave requests pending approval can be modified'), 422);
@@ -314,7 +314,7 @@ class AttendanceController extends BaseController
 
         $item = $this->hr()->update(HrLeave::class, $id, $request->all(), ['status']);
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -342,7 +342,7 @@ class AttendanceController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrLeave::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -353,7 +353,7 @@ class AttendanceController extends BaseController
 
         $this->hr()->delete(HrLeave::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -388,10 +388,10 @@ class AttendanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), $item->status === 1 ? '已批准' : '已驳回');
+        return $this->success($this->encodeIds($item->toArray()), $item->status === 1 ? $this->trans('Approved') : $this->trans('Rejected'));
     }
 
     /**

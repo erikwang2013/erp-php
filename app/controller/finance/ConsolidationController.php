@@ -62,7 +62,7 @@ class ConsolidationController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($report->toArray(), ['id', 'company_id']), '合并草稿生成成功');
+        return $this->success($this->encodeIds($report->toArray(), ['id', 'company_id']), $this->trans('Consolidation draft generated successfully'));
     }
 
     /**
@@ -170,7 +170,7 @@ class ConsolidationController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($report->toArray(), ['id', 'company_id']), '抵销分录已保存');
+        return $this->success($this->encodeIds($report->toArray(), ['id', 'company_id']), $this->trans('Elimination entries saved'));
     }
 
     /**
@@ -202,6 +202,6 @@ class ConsolidationController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($report->toArray(), ['id', 'company_id']), '出表成功');
+        return $this->success($this->encodeIds($report->toArray(), ['id', 'company_id']), $this->trans('Statement generated successfully'));
     }
 }

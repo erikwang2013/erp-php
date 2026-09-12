@@ -90,7 +90,7 @@ class LedgerPeriodController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($row->toArray(), ['id', 'ledger_id']), '期间开账成功');
+        return $this->success($this->encodeIds($row->toArray(), ['id', 'ledger_id']), $this->trans('Period opened successfully'));
     }
 
     /**
@@ -126,7 +126,7 @@ class LedgerPeriodController extends BaseController
         }
         $result = $this->encodeIds($result, ['balance_sheet_id', 'profit_id', 'cash_flow_id']);
 
-        return $this->success($result, $period . ' 期间关账成功');
+        return $this->success($result, $period . $this->trans(' period closed successfully'));
     }
 
     /**

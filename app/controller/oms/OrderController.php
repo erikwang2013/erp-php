@@ -254,7 +254,7 @@ class OrderController extends BaseController
             $service = new OmsOrderService();
             $service->allocateOrder($id, $items);
 
-            return $this->success([], '库存分配成功');
+            return $this->success([], $this->trans('Inventory allocated successfully'));
         } catch (\Throwable $e) {
             $this->logError('库存分配', $e);
 
@@ -299,7 +299,7 @@ class OrderController extends BaseController
             $service = new OmsOrderService();
             $fulfillment = $service->createFulfillment($id, $warehouseId);
 
-            return $this->success($this->encodeIds($fulfillment->toArray()), '履约创建成功');
+            return $this->success($this->encodeIds($fulfillment->toArray()), $this->trans('Fulfillment created successfully'));
         } catch (\Throwable $e) {
             $this->logError('创建履约', $e);
 
@@ -337,7 +337,7 @@ class OrderController extends BaseController
             $service = new OmsOrderService();
             $service->cancelOrder($id);
 
-            return $this->success([], '订单已取消');
+            return $this->success([], $this->trans('Order cancelled'));
         } catch (\Throwable $e) {
             $this->logError('取消订单', $e);
 

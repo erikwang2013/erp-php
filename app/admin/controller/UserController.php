@@ -149,7 +149,7 @@ class UserController extends BaseController
         $data = $user->toArray();
         unset($data['password'], $data['id_card']);
 
-        return $this->success($this->encodeIds($data), '创建成功');
+        return $this->success($this->encodeIds($data), $this->trans('Created successfully'));
     }
 
     /**
@@ -241,7 +241,7 @@ class UserController extends BaseController
         $data = $user->toArray();
         unset($data['password'], $data['id_card']);
 
-        return $this->success($this->encodeIds($data), '更新成功');
+        return $this->success($this->encodeIds($data), $this->trans('Updated successfully'));
     }
 
     /**
@@ -281,7 +281,7 @@ class UserController extends BaseController
 
         $user->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -337,7 +337,7 @@ class UserController extends BaseController
 
         AdminUser::whereIn('id', $decodedIds)->delete();
 
-        return $this->success(['count' => count($decodedIds)], '删除成功');
+        return $this->success(['count' => count($decodedIds)], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -393,6 +393,6 @@ class UserController extends BaseController
 
         $label = $status === 1 ? '启用' : '禁用';
 
-        return $this->success(['count' => count($decodedIds)], "批量{$label}成功");
+        return $this->success(['count' => count($decodedIds)], $this->trans('Batch :label succeeded', ['label' => $label]));
     }
 }

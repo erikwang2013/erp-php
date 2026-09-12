@@ -113,7 +113,7 @@ class RfqQuoteController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($quote->toArray(), ['id', 'rfq_id', 'supplier_id']), '报价成功');
+        return $this->success($this->encodeIds($quote->toArray(), ['id', 'rfq_id', 'supplier_id']), $this->trans('Quotation submitted successfully'));
     }
 
     /**
@@ -149,11 +149,11 @@ class RfqQuoteController extends BaseController
             return $this->fail($this->trans('Quotation not found'), 404);
         }
         if ((int) $quote->awarded === 1) {
-            return $this->fail('该报价已中标，不可修改', 422);
+            return $this->fail($this->trans('This quotation has been awarded; it cannot be modified'), 422);
         }
         $rfq = PurchaseRfq::find((int) $quote->rfq_id);
         if (!$rfq || (int) $rfq->status !== PurchaseRfq::STATUS_SUBMITTED) {
-            return $this->fail('询价单已不在询价中，不可修改报价', 422);
+            return $this->fail($this->trans('The RFQ is no longer open; the quotation cannot be edited'), 422);
         }
 
         try {
@@ -181,7 +181,7 @@ class RfqQuoteController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($quote->toArray(), ['id', 'rfq_id', 'supplier_id']), '更新成功');
+        return $this->success($this->encodeIds($quote->toArray(), ['id', 'rfq_id', 'supplier_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -198,11 +198,11 @@ class RfqQuoteController extends BaseController
             return $this->fail($this->trans('Quotation not found'), 404);
         }
         if ((int) $quote->awarded === 1) {
-            return $this->fail('该报价已中标，不可删除', 422);
+            return $this->fail($this->trans('This quotation has been awarded; it cannot be deleted'), 422);
         }
         $quote->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

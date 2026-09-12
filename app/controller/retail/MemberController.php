@@ -62,7 +62,7 @@ class MemberController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->encodeIds($data, ['id', 'customer_id']), '开卡成功');
+        return $this->success($this->encodeIds($data, ['id', 'customer_id']), $this->trans('Card opened successfully'));
     }
 
     /**
@@ -126,7 +126,7 @@ class MemberController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($data, '充值成功');
+        return $this->success($data, $this->trans('Recharged successfully'));
     }
 
     /**
@@ -162,7 +162,7 @@ class MemberController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($data, '消费成功');
+        return $this->success($data, $this->trans('Consumed successfully'));
     }
 
     /**
@@ -198,7 +198,7 @@ class MemberController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($data, '退款成功');
+        return $this->success($data, $this->trans('Refund succeeded'));
     }
 
     /**
@@ -234,7 +234,7 @@ class MemberController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($data, '积分入账成功');
+        return $this->success($data, $this->trans('Points credited successfully'));
     }
 
     /**
@@ -270,7 +270,7 @@ class MemberController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($data, '积分抵扣成功');
+        return $this->success($data, $this->trans('Points deducted successfully'));
     }
 
     /**
@@ -306,7 +306,7 @@ class MemberController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($data, '积分作废成功');
+        return $this->success($data, $this->trans('Points voided successfully'));
     }
 
     /** hashid 优先，兼容直传数字 */

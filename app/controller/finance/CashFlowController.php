@@ -82,7 +82,7 @@ class CashFlowController extends BaseController
         $reportData = $report;
         $reportData['report_data'] = $this->decodeReportData($report['report_data'] ?? null);
 
-        return $this->success($reportData, '报表已从凭证实时生成（未保存为快照）');
+        return $this->success($reportData, $this->trans('Report generated from vouchers in real time (not saved as a snapshot)'));
     }
 
     /** 报表出口归一：report_data 一律为数组；空串/损坏 JSON → [] 兜底（DB 存储不动） */
@@ -135,6 +135,6 @@ class CashFlowController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '快照保存成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Snapshot saved successfully'));
     }
 }

@@ -47,7 +47,7 @@ class UploadController extends BaseController
 
         $ext = strtolower($file->getUploadExtension() ?: 'bin');
         if (!in_array($ext, $this->allowExts, true)) {
-            return $this->fail('不支持的文件类型: .' . $ext, 422);
+            return $this->fail($this->trans('Unsupported file type: .') . $ext, 422);
         }
 
         // 嗅探真实 MIME，防止伪造扩展名上传可执行内容
@@ -62,7 +62,7 @@ class UploadController extends BaseController
         ];
         $realMime = (new \finfo(FILEINFO_MIME_TYPE))->file($file->getRealPath());
         if (!$realMime || !in_array($realMime, $mimeMap[$ext] ?? [], true)) {
-            return $this->fail('文件内容与扩展名不匹配，已拒绝上传', 422);
+            return $this->fail($this->trans('File content does not match the file extension; upload rejected'), 422);
         }
 
         if ($file->getSize() > $this->maxSize) {
@@ -80,6 +80,6 @@ class UploadController extends BaseController
 
         $file->move($absoluteDir . '/' . $filename);
 
-        return $this->success(['url' => $relativePath], '上传成功');
+        return $this->success(['url' => $relativePath], $this->trans('Upload successful'));
     }
 }

@@ -125,7 +125,7 @@ class SettlementController extends BaseController
         $arAp = FinanceArAp::where('type', self::AR_TYPE)->where('source_type', self::SOURCE_TYPE)
             ->where('source_id', $deliveryId)->first();
         if (!$arAp) {
-            return $this->fail('发货单应收记录不存在，请先确认发货已审核', 404);
+            return $this->fail($this->trans('No receivable record exists for this shipment; please confirm the shipment is audited first'), 404);
         }
 
         try {
@@ -140,7 +140,7 @@ class SettlementController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '核销成功');
+        return $this->success([], $this->trans('Written off successfully'));
     }
 
     /**
@@ -167,7 +167,7 @@ class SettlementController extends BaseController
         $item = FinanceArAp::where('id', $this->decodeId($id))
             ->where('type', self::AR_TYPE)->where('source_type', self::SOURCE_TYPE)->first();
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $settledAt = FinanceSettlement::where('ar_ap_id', $item->id)->max('settled_at');
@@ -201,7 +201,7 @@ class SettlementController extends BaseController
         $item = FinanceArAp::where('id', $this->decodeId($id))
             ->where('type', self::AR_TYPE)->where('source_type', self::SOURCE_TYPE)->first();
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         if ($request->input('amount') !== null && $request->input('amount') !== '') {
@@ -216,7 +216,7 @@ class SettlementController extends BaseController
 
         $settledAt = FinanceSettlement::where('ar_ap_id', $item->id)->max('settled_at');
 
-        return $this->success($this->format($item, $settledAt), '更新成功');
+        return $this->success($this->format($item, $settledAt), $this->trans('Updated successfully'));
     }
 
     /**
@@ -244,7 +244,7 @@ class SettlementController extends BaseController
         $item = FinanceArAp::where('id', $this->decodeId($id))
             ->where('type', self::AR_TYPE)->where('source_type', self::SOURCE_TYPE)->first();
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if (bccomp(bc_norm($item->settled_amount), '0', 4) > 0) {
             return $this->fail($this->trans('Written-off records cannot be deleted'), 422);
@@ -258,7 +258,7 @@ class SettlementController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     private function format(FinanceArAp $item, ?string $settledAt): array

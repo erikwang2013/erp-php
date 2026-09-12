@@ -130,7 +130,7 @@ class TimesheetController extends BaseController
 
         $this->updateTaskActualHours($item->task_id);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'task_id', 'user_id']), '工时记录成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'task_id', 'user_id']), $this->trans('Work hours recorded successfully'));
     }
 
     /**
@@ -157,7 +157,7 @@ class TimesheetController extends BaseController
         $id = $this->decodeId($id);
         $item = ProjectTimesheet::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'task_id', 'user_id']));
@@ -201,7 +201,7 @@ class TimesheetController extends BaseController
         $id = $this->decodeId($id);
         $item = ProjectTimesheet::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->decodeFkIntoRequest($request);
@@ -210,7 +210,7 @@ class TimesheetController extends BaseController
 
         $this->updateTaskActualHours($item->task_id);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'task_id', 'user_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'task_id', 'user_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -238,7 +238,7 @@ class TimesheetController extends BaseController
         $id = $this->decodeId($id);
         $item = ProjectTimesheet::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -251,7 +251,7 @@ class TimesheetController extends BaseController
         $item->delete();
         $this->updateTaskActualHours($taskId);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

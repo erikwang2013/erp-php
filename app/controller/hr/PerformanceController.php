@@ -81,7 +81,7 @@ class PerformanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($template), '创建成功');
+        return $this->success($this->encodeIds($template), $this->trans('Created successfully'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('模板详情')]
@@ -125,7 +125,7 @@ class PerformanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeTemplate($template), '更新成功');
+        return $this->success($this->encodeTemplate($template), $this->trans('Updated successfully'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('启用模板')]
@@ -148,7 +148,7 @@ class PerformanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeTemplate($template), '模板已启用');
+        return $this->success($this->encodeTemplate($template), $this->trans('Template enabled'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('删除模板')]
@@ -160,7 +160,7 @@ class PerformanceController extends BaseController
     {
         $templateId = $this->decodeId($id);
         if (!$this->perf()->find(HrKpiTemplate::class, $templateId)) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
@@ -173,7 +173,7 @@ class PerformanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     // ---------- 考核批次（erp_hr_perf_plan） ----------
@@ -234,7 +234,7 @@ class PerformanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($plan), '创建成功');
+        return $this->success($this->encodeIds($plan), $this->trans('Created successfully'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('启动考核批次')]
@@ -249,7 +249,7 @@ class PerformanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($plan), '批次已启动');
+        return $this->success($this->encodeIds($plan), $this->trans('Batch started'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('归档考核批次')]
@@ -264,7 +264,7 @@ class PerformanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($plan), '批次已归档');
+        return $this->success($this->encodeIds($plan), $this->trans('Batch archived'));
     }
 
     // ---------- 评分（erp_hr_perf_score） ----------
@@ -302,7 +302,7 @@ class PerformanceController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success(['count' => $count], '评分已提交');
+        return $this->success(['count' => $count], $this->trans('Rating submitted'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('评分记录列表')]
@@ -362,7 +362,7 @@ class PerformanceController extends BaseController
             return $this->fail($e->getMessage(), 404);
         }
 
-        return $this->success($summary ?? null, $summary === null ? '该员工暂无评分记录' : '请求成功');
+        return $this->success($summary ?? null, $summary === null ? $this->trans('No rating records for this employee') : $this->trans('Request successful'));
     }
 
     /** 模板 payload：顶层 id 与 items[].id 均 hashid 化。 */

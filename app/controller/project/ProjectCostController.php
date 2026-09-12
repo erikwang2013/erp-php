@@ -146,7 +146,7 @@ class ProjectCostController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($cost->toArray()), '创建成功');
+        return $this->success($this->encodeIds($cost->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -188,7 +188,7 @@ class ProjectCostController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -232,7 +232,7 @@ class ProjectCostController extends BaseController
         }
         unset($detail);
 
-        return $this->success($result, '归集完成');
+        return $this->success($result, $this->trans('Cost collection completed'));
     }
 
     /**

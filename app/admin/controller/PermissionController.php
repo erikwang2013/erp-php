@@ -140,7 +140,7 @@ class PermissionController extends BaseController
         $perm->sort = (int) $request->input('sort', 0);
         $perm->save();
 
-        return $this->success($this->encodeIds($perm->toArray()), '创建成功');
+        return $this->success($this->encodeIds($perm->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -211,7 +211,7 @@ class PermissionController extends BaseController
         $perm->sort = (int) $request->input('sort', $perm->sort);
         $perm->save();
 
-        return $this->success($this->encodeIds($perm->toArray()), '更新成功');
+        return $this->success($this->encodeIds($perm->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -253,7 +253,7 @@ class PermissionController extends BaseController
         $perm->roles()->detach();
         $perm->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

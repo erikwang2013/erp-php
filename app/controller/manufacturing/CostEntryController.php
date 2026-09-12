@@ -129,7 +129,7 @@ class CostEntryController extends BaseController
             throw $e;
         }
 
-        return $this->success($this->encodeIds(['id' => $id]), '创建成功');
+        return $this->success($this->encodeIds(['id' => $id]), $this->trans('Created successfully'));
     }
 
     /**
@@ -153,7 +153,7 @@ class CostEntryController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->cost()->find(MfgCostEntry::class, $id, ['order']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $data = $item->toArray();
         if ($item->relationLoaded('order') && $item->order) {
@@ -184,7 +184,7 @@ class CostEntryController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgCostEntry::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
             return $this->fail($this->trans('Audited cost collection orders cannot be modified'), 422);
@@ -193,7 +193,7 @@ class CostEntryController extends BaseController
         unset($data['code'], $data['status']);
         $item = $this->cost()->update(MfgCostEntry::class, $id, $data, ['status', 'audit_at']);
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -218,7 +218,7 @@ class CostEntryController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgCostEntry::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
             return $this->fail($this->trans('Audited cost collection orders cannot be deleted'), 422);
@@ -230,7 +230,7 @@ class CostEntryController extends BaseController
         }
         $doc->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -258,7 +258,7 @@ class CostEntryController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '审核成功，已归集');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Audited successfully; costs collected'));
     }
 
     /** 成本核算服务 */

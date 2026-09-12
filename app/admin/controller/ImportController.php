@@ -63,7 +63,7 @@ class ImportController extends BaseController
         $required = ['username', 'password', 'real_name'];
         foreach ($required as $col) {
             if (!isset($colMap[$col])) {
-                return $this->fail("缺少必填列: {$col}", 422);
+                return $this->fail($this->trans('Missing required column: :col', ['col' => $col]), 422);
             }
         }
 
@@ -136,6 +136,6 @@ class ImportController extends BaseController
             'success' => $success,
             'failed' => $failed,
             'errors' => $errors,
-        ], '导入完成');
+        ], $this->trans('Import completed'));
     }
 }

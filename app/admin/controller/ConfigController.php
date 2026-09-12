@@ -116,7 +116,7 @@ class ConfigController extends BaseController
         $config->description = $request->input('description', '');
         $config->save();
 
-        return $this->success($this->encodeIds($config->toArray()), '创建成功');
+        return $this->success($this->encodeIds($config->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -164,7 +164,7 @@ class ConfigController extends BaseController
 
         $config->save();
 
-        return $this->success($this->encodeIds($config->toArray()), '更新成功');
+        return $this->success($this->encodeIds($config->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -203,6 +203,6 @@ class ConfigController extends BaseController
 
         $config->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

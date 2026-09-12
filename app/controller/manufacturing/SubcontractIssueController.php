@@ -120,10 +120,10 @@ class SubcontractIssueController extends BaseController
         $items = (array) $request->input('items', []);
         foreach ($items as $i => $row) {
             if (bccomp(bc_norm((string) ($row['quantity'] ?? '0')), '0', 4) <= 0) {
-                return $this->fail($this->trans('Detail row ') . ($i + 1) . '行发料数量必须大于0', 422);
+                return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('Issue quantity per row must be greater than 0'), 422);
             }
             if (!ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->exists()) {
-                return $this->fail($this->trans('Detail row ') . ($i + 1) . '行SKU不存在', 422);
+                return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('SKU does not exist on the row'), 422);
             }
         }
 
@@ -155,12 +155,12 @@ class SubcontractIssueController extends BaseController
             });
         } catch (QueryException $e) {
             if ($this->service()->isDuplicateKey($e)) {
-                return $this->fail($this->trans('Material issue number already exists'), 422);
+                return $this->fail($this->trans('Material dispatch number already exists'), 422);
             }
             throw $e;
         }
 
-        return $this->success($this->encodeIds(['id' => $id]), '创建成功');
+        return $this->success($this->encodeIds(['id' => $id]), $this->trans('Created successfully'));
     }
 
     /**
@@ -184,7 +184,7 @@ class SubcontractIssueController extends BaseController
         $id = $this->decodeId($id);
         $doc = $this->service()->find(MfgSubcontractIssue::class, $id, ['items', 'subcontract']);
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $data = $doc->toArray();
         if (isset($data['items'])) {
@@ -218,10 +218,10 @@ class SubcontractIssueController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgSubcontractIssue::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail($this->trans('Audited material issues cannot be modified'), 422);
+            return $this->fail($this->trans('Audited material dispatches cannot be modified'), 422);
         }
         $data = $request->all();
         unset($data['code'], $data['subcontract_id'], $data['status']);
@@ -231,7 +231,7 @@ class SubcontractIssueController extends BaseController
             $this->service()->update(MfgSubcontractIssue::class, $id, $data, ['code', 'subcontract_id', 'status', 'total_cost', 'audit_at']);
         } catch (QueryException $e) {
             if ($this->service()->isDuplicateKey($e)) {
-                return $this->fail($this->trans('Material issue number already exists'), 422);
+                return $this->fail($this->trans('Material dispatch number already exists'), 422);
             }
             throw $e;
         }
@@ -241,10 +241,10 @@ class SubcontractIssueController extends BaseController
             }
             foreach ($items as $i => $row) {
                 if (bccomp(bc_norm((string) ($row['quantity'] ?? '0')), '0', 4) <= 0) {
-                    return $this->fail($this->trans('Detail row ') . ($i + 1) . '行发料数量必须大于0', 422);
+                    return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('Issue quantity per row must be greater than 0'), 422);
                 }
                 if (!ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->exists()) {
-                    return $this->fail($this->trans('Detail row ') . ($i + 1) . '行SKU不存在', 422);
+                    return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('SKU does not exist on the row'), 422);
                 }
             }
             DB::transaction(function () use ($id, $items) {
@@ -263,7 +263,7 @@ class SubcontractIssueController extends BaseController
             });
         }
 
-        return $this->success($this->encodeIds(['id' => $id]), '更新成功');
+        return $this->success($this->encodeIds(['id' => $id]), $this->trans('Updated successfully'));
     }
 
     /**
@@ -288,10 +288,10 @@ class SubcontractIssueController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgSubcontractIssue::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail($this->trans('Audited material issues cannot be deleted'), 422);
+            return $this->fail($this->trans('Audited material dispatches cannot be deleted'), 422);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
@@ -304,7 +304,7 @@ class SubcontractIssueController extends BaseController
             MfgSubcontractIssue::query()->where('id', $id)->delete();
         });
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -332,7 +332,7 @@ class SubcontractIssueController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '审核成功，已出库');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Audited successfully; goods issued'));
     }
 
     /** 委外服务 */

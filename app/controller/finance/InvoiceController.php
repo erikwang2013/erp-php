@@ -116,7 +116,7 @@ class InvoiceController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->present($invoice), '创建成功');
+        return $this->success($this->present($invoice), $this->trans('Created successfully'));
     }
 
     /**
@@ -170,7 +170,7 @@ class InvoiceController extends BaseController
             $totals = $service->totalsFromLines($lines);
             $info = $service->balanceInfo($invoice->biz_type, (int) $invoice->source_id, $id);
             if ($service->resultOf($totals['amount'], $info['balance']) === 'over') {
-                return $this->fail("发票金额 {$totals['amount']} 超出未开票余额 {$info['balance']}", 422);
+                return $this->fail($this->trans('Invoice amount :amount exceeds the uninvoiced balance :balance', ['amount' => $totals['amount'], 'balance' => $info['balance']]), 422);
             }
         }
         $service->replaceLines($id, $lines);
@@ -179,7 +179,7 @@ class InvoiceController extends BaseController
         $invoice->remark = $request->input('remark', '');
         $invoice->save();
 
-        return $this->success($this->present(FinanceInvoice::with('items')->find($id)), '更新成功');
+        return $this->success($this->present(FinanceInvoice::with('items')->find($id)), $this->trans('Updated successfully'));
     }
 
     /**
@@ -205,7 +205,7 @@ class InvoiceController extends BaseController
         FinanceInvoiceItem::where('invoice_id', $id)->delete();
         $invoice->delete();
 
-        return $this->success(null, '删除成功');
+        return $this->success(null, $this->trans('Deleted successfully'));
     }
 
     /**
@@ -220,7 +220,7 @@ class InvoiceController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '提交成功');
+        return $this->success(null, $this->trans('Submitted successfully'));
     }
 
     /**
@@ -236,7 +236,7 @@ class InvoiceController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '审核入账成功');
+        return $this->success(null, $this->trans('Audit posting succeeded'));
     }
 
     /**
@@ -252,7 +252,7 @@ class InvoiceController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '作废成功');
+        return $this->success(null, $this->trans('Voided successfully'));
     }
 
     /**

@@ -164,7 +164,7 @@ class RoleController extends BaseController
             $role->permissions()->sync($permissionIds);
         }
 
-        return $this->success($this->encodeIds($role->toArray()), '创建成功');
+        return $this->success($this->encodeIds($role->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -219,7 +219,7 @@ class RoleController extends BaseController
             $role->permissions()->sync($permissionIds);
         }
 
-        return $this->success($this->encodeIds($role->toArray()), '更新成功');
+        return $this->success($this->encodeIds($role->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -285,6 +285,6 @@ class RoleController extends BaseController
         $role->users()->detach();
         $role->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

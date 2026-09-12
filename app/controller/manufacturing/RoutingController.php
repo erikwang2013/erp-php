@@ -92,14 +92,14 @@ class RoutingController extends BaseController
         foreach (['product_id' => '商品ID', 'workstation_id' => '工位ID'] as $field => $label) {
             $decoded = $this->decodeFlexibleId((string) $data[$field]);
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $data[$field] = $decoded;
         }
 
         $item = $this->mfg()->create(MfgRouting::class, $data, ['created_at' => date('Y-m-d H:i:s')]);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -126,7 +126,7 @@ class RoutingController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgRouting::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -160,17 +160,17 @@ class RoutingController extends BaseController
             if (isset($data[$field]) && $data[$field] !== '') {
                 $decoded = $this->decodeFlexibleId((string) $data[$field]);
                 if ($decoded === null || $decoded < 1) {
-                    return $this->fail($label . '无效', 422);
+                    return $this->fail($label . $this->trans('Invalid'), 422);
                 }
                 $data[$field] = $decoded;
             }
         }
         $item = $this->mfg()->update(MfgRouting::class, $id, $data);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -198,7 +198,7 @@ class RoutingController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgRouting::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -209,7 +209,7 @@ class RoutingController extends BaseController
 
         $this->mfg()->delete(MfgRouting::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

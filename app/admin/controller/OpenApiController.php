@@ -157,7 +157,7 @@ class OpenApiController extends BaseController
             'id' => $this->encodeId((int) $app->id),
             'app_key' => $app->app_key,
             'app_secret' => $secret, // 仅此一次展示，请妥善保存
-        ], '创建成功，app_secret 仅展示一次，请立即保存');
+        ], $this->trans('Created successfully; app_secret is shown only once, please save it now'));
     }
 
     /**
@@ -205,7 +205,7 @@ class OpenApiController extends BaseController
         }
         $app->save();
 
-        return $this->success($this->encodeIds($app->toArray()), '更新成功');
+        return $this->success($this->encodeIds($app->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -244,7 +244,7 @@ class OpenApiController extends BaseController
         WebhookSubscription::query()->where('app_id', $app->id)->update(['enabled' => 0]);
         $app->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -288,7 +288,7 @@ class OpenApiController extends BaseController
         return $this->success([
             'id' => $this->encodeId((int) $app->id),
             'app_secret' => $secret,
-        ], '密钥已重置，新密钥仅展示一次，请立即保存');
+        ], $this->trans('Secret reset; the new secret is shown only once, please save it now'));
     }
 
     /**
@@ -322,7 +322,7 @@ class OpenApiController extends BaseController
 
         return $this->success(
             ['id' => $this->encodeId((int) $app->id), 'status' => $app->status],
-            $app->status === 1 ? '已启用' : '已禁用'
+            $app->status === 1 ? $this->trans('Enabled') : $this->trans('Disabled')
         );
     }
 

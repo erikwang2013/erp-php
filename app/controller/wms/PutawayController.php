@@ -241,7 +241,7 @@ class PutawayController extends BaseController
             $service = new WmsInboundService();
             $service->startPutaway($id, $request->adminId ?? 0);
 
-            return $this->success([], '上架任务已开始');
+            return $this->success([], $this->trans('Putaway task started'));
         } catch (\Throwable $e) {
             $this->logError('开始上架', $e);
 
@@ -279,7 +279,7 @@ class PutawayController extends BaseController
             $service = new WmsInboundService();
             $service->confirmPutaway($id);
 
-            return $this->success([], '上架完成，库存已更新');
+            return $this->success([], $this->trans('Putaway completed; inventory updated'));
         } catch (\Throwable $e) {
             $this->logError('确认上架', $e);
 

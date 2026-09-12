@@ -117,7 +117,7 @@ class FulfillmentController extends BaseController
         foreach (['oms_order_id' => 'OMS订单ID', 'warehouse_id' => '仓库ID'] as $field => $label) {
             $decoded = $this->decodeFlexibleId((string) $request->input($field, ''));
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $item->{$field} = $decoded;
         }
@@ -225,7 +225,7 @@ class FulfillmentController extends BaseController
             }
             $decoded = $this->decodeFlexibleId((string) $raw);
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $item->{$field} = $decoded;
         }

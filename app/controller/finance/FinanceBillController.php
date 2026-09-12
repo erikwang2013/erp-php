@@ -160,7 +160,7 @@ class FinanceBillController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->present($bill), '登记成功');
+        return $this->success($this->present($bill), $this->trans('Registered successfully'));
     }
 
     /**
@@ -197,7 +197,7 @@ class FinanceBillController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->present(FinanceBill::find($id)), '更新成功');
+        return $this->success($this->present(FinanceBill::find($id)), $this->trans('Updated successfully'));
     }
 
     /**
@@ -223,7 +223,7 @@ class FinanceBillController extends BaseController
         }
         $bill->delete();
 
-        return $this->success(null, '删除成功');
+        return $this->success(null, $this->trans('Deleted successfully'));
     }
 
     /**
@@ -245,7 +245,7 @@ class FinanceBillController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '背书成功');
+        return $this->success(null, $this->trans('Endorsed successfully'));
     }
 
     /**
@@ -268,7 +268,7 @@ class FinanceBillController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '贴现成功');
+        return $this->success(null, $this->trans('Discounted successfully'));
     }
 
     /**
@@ -293,7 +293,7 @@ class FinanceBillController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '托收成功');
+        return $this->success(null, $this->trans('Collection submitted successfully'));
     }
 
     /**
@@ -314,7 +314,7 @@ class FinanceBillController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '确认兑付成功');
+        return $this->success(null, $this->trans('Payment confirmation succeeded'));
     }
 
     /**
@@ -329,7 +329,7 @@ class FinanceBillController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '退票成功');
+        return $this->success(null, $this->trans('Bill returned successfully'));
     }
 
     /** 组装服务入参（source 相关 id 均走 hashid→int） */

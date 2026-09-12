@@ -132,7 +132,7 @@ class SalaryController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -159,7 +159,7 @@ class SalaryController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrSalary::class, $id, ['employee']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $item->toArray();
@@ -199,10 +199,10 @@ class SalaryController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -230,7 +230,7 @@ class SalaryController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrSalary::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ($item->status === 1) {
             return $this->fail($this->trans('Paid payroll records cannot be deleted'), 422);
@@ -244,7 +244,7 @@ class SalaryController extends BaseController
 
         $this->hr()->delete(HrSalary::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -276,10 +276,10 @@ class SalaryController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '薪资已发放');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Payroll paid'));
     }
 
     /**
@@ -314,7 +314,7 @@ class SalaryController extends BaseController
 
         $created = $this->hr()->batchGenerateSalaries($periodYear, $periodMonth, $departmentId);
 
-        return $this->success(['created' => $created], "批量生成完成，共 {$created} 条");
+        return $this->success(['created' => $created], $this->trans('Batch generation completed with :count rows', ['count' => $created]));
     }
 
     /**
@@ -363,7 +363,7 @@ class SalaryController extends BaseController
             $pieceWage
         );
 
-        return $this->success($result, '试算完成');
+        return $this->success($result, $this->trans('Trial calculation completed'));
     }
 
     /**
@@ -395,11 +395,11 @@ class SalaryController extends BaseController
         $service = new BankPayrollService();
         $validation = $service->validateAccounts($records);
         if (!$validation['valid']) {
-            return $this->success(['valid' => false, 'errors' => $validation['errors'], 'file' => ''], '账号校验未通过');
+            return $this->success(['valid' => false, 'errors' => $validation['errors'], 'file' => ''], $this->trans('Account verification failed'));
         }
         $file = $service->generatePayrollFile($records, (string) $request->input('bank_code', 'ICBC'));
 
-        return $this->success(['valid' => true, 'file' => $file], '代发文件已生成');
+        return $this->success(['valid' => true, 'file' => $file], $this->trans('Payroll disbursement file generated'));
     }
 
     // 薪资项管理
@@ -452,7 +452,7 @@ class SalaryController extends BaseController
 
         $item = $this->hr()->create(HrSalaryItem::class, $request->all());
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -479,7 +479,7 @@ class SalaryController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrSalaryItem::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -509,10 +509,10 @@ class SalaryController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->update(HrSalaryItem::class, $id, $request->all());
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -540,7 +540,7 @@ class SalaryController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrSalaryItem::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -551,7 +551,7 @@ class SalaryController extends BaseController
 
         $this->hr()->delete(HrSalaryItem::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -578,7 +578,7 @@ class SalaryController extends BaseController
         $id = $this->decodeId($id);
         $payload = Container::get(PayslipService::class)->view($id);
         if ($payload === null) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $payload['salary'] = $this->encodeIds($payload['salary']);
         $payload['salary']['employee'] = !empty($payload['salary']['employee']) ? $this->encodeIds($payload['salary']['employee']) : null;

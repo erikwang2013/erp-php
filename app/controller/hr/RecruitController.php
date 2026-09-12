@@ -86,7 +86,7 @@ class RecruitController extends BaseController
 
         $job = $this->recruit()->create(HrJob::class, $request->all(), ['status' => 0]);
 
-        return $this->success($this->encodeIds($job->toArray()), '创建成功');
+        return $this->success($this->encodeIds($job->toArray()), $this->trans('Created successfully'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('职位详情')]
@@ -106,7 +106,7 @@ class RecruitController extends BaseController
         }
         $job = $this->recruit()->find(HrJob::class, $this->decodeId($id));
         if (!$job) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($job->toArray()));
@@ -129,10 +129,10 @@ class RecruitController extends BaseController
         }
         $job = $this->recruit()->update(HrJob::class, $this->decodeId($id), $request->all(), ['status']);
         if (!$job) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($job->toArray()), '更新成功');
+        return $this->success($this->encodeIds($job->toArray()), $this->trans('Updated successfully'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('删除职位')]
@@ -151,7 +151,7 @@ class RecruitController extends BaseController
         }
         $job = $this->recruit()->find(HrJob::class, $this->decodeId($id));
         if (!$job) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -162,7 +162,7 @@ class RecruitController extends BaseController
 
         $this->recruit()->delete(HrJob::class, (int) $job->id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('发布职位')]
@@ -177,7 +177,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($job), '职位已发布');
+        return $this->success($this->encodeIds($job), $this->trans('Position published'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('关闭职位')]
@@ -192,7 +192,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($job), '职位已关闭');
+        return $this->success($this->encodeIds($job), $this->trans('Position closed'));
     }
 
     // ---------- 候选人（erp_hr_candidate） ----------
@@ -260,7 +260,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($candidate, ['id', 'job_id']), '创建成功');
+        return $this->success($this->encodeIds($candidate, ['id', 'job_id']), $this->trans('Created successfully'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('候选人详情')]
@@ -271,7 +271,7 @@ class RecruitController extends BaseController
     {
         $candidate = $this->recruit()->find(HrCandidate::class, $this->decodeId($id));
         if (!$candidate) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($candidate->toArray(), ['id', 'job_id']));
@@ -294,10 +294,10 @@ class RecruitController extends BaseController
         }
         $candidate = $this->recruit()->update(HrCandidate::class, $this->decodeId($id), $request->all(), ['status']);
         if (!$candidate) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($candidate->toArray(), ['id', 'job_id']), '更新成功');
+        return $this->success($this->encodeIds($candidate->toArray(), ['id', 'job_id']), $this->trans('Updated successfully'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('推进候选人状态')]
@@ -318,7 +318,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($candidate), '状态已更新');
+        return $this->success($this->encodeIds($candidate), $this->trans('Status updated'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('删除候选人')]
@@ -336,7 +336,7 @@ class RecruitController extends BaseController
         }
         $candidateId = $this->decodeId($id);
         if (!$this->recruit()->find(HrCandidate::class, $candidateId)) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -351,7 +351,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     // ---------- 面试（erp_hr_interview） ----------
@@ -410,7 +410,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($interview), '面试已记录');
+        return $this->success($this->encodeIds($interview), $this->trans('Interview recorded'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('变更面试结果')]
@@ -439,7 +439,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($interview), '结果已更新');
+        return $this->success($this->encodeIds($interview), $this->trans('Result updated'));
     }
 
     // ---------- Offer（erp_hr_offer） ----------
@@ -499,7 +499,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($offer), 'Offer 草稿已创建');
+        return $this->success($this->encodeIds($offer), $this->trans('Offer draft created'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('发出Offer')]
@@ -514,7 +514,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($offer), 'Offer 已发出');
+        return $this->success($this->encodeIds($offer), $this->trans('Offer sent'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('接受Offer')]
@@ -529,7 +529,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($offer), 'Offer 已接受，候选人已入职');
+        return $this->success($this->encodeIds($offer), $this->trans('Offer accepted; the candidate has been onboarded'));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('拒绝Offer')]
@@ -544,7 +544,7 @@ class RecruitController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($offer), 'Offer 已拒绝，候选人回到面试中');
+        return $this->success($this->encodeIds($offer), $this->trans('Offer rejected; the candidate returned to the interview stage'));
     }
 
     // ---------- 漏斗统计 ----------

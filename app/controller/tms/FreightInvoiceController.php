@@ -242,7 +242,7 @@ class FreightInvoiceController extends BaseController
         $item->status = 1;
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '运费发票已确认');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Freight invoice confirmed'));
     }
 
     /**
@@ -280,6 +280,6 @@ class FreightInvoiceController extends BaseController
         $item->status = 2;
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '运费发票已付款');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Freight invoice paid'));
     }
 }

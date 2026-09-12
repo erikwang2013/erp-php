@@ -93,7 +93,7 @@ class CostCenterController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -120,7 +120,7 @@ class CostCenterController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceCostCenter::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $this->encodeIds($item->toArray());
@@ -157,13 +157,13 @@ class CostCenterController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceCostCenter::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -191,13 +191,13 @@ class CostCenterController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceCostCenter::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         // 检查是否有子级
         $hasChildren = FinanceCostCenter::where('parent_id', $id)->exists();
         if ($hasChildren) {
-            return $this->fail('存在子级成本中心，请先删除子级', 422);
+            return $this->fail($this->trans('Child cost centers exist, please delete them first'), 422);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -208,7 +208,7 @@ class CostCenterController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

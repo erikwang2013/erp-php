@@ -108,7 +108,7 @@ class CompanyController extends BaseController
             $row['default_ledger'] = $this->encodeIds($ledger->toArray(), ['id', 'company_id']);
         }
 
-        return $this->success($row, '公司创建成功');
+        return $this->success($row, $this->trans('Company created successfully'));
     }
 
     /**
@@ -146,7 +146,7 @@ class CompanyController extends BaseController
 
         return $this->success(
             $this->encodeIds($company->toArray(), ['id', 'parent_id']),
-            $status === 1 ? '公司已启用' : '公司已停用'
+            $status === 1 ? $this->trans('Company enabled') : $this->trans('Company disabled')
         );
     }
 }

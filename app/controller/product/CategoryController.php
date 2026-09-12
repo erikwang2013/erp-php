@@ -86,7 +86,7 @@ class CategoryController extends BaseController
         }
         $item = $this->product()->create(Category::class, $request->all());
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -113,7 +113,7 @@ class CategoryController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->product()->find(Category::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -143,10 +143,10 @@ class CategoryController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->product()->update(Category::class, $id, $request->all());
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -174,7 +174,7 @@ class CategoryController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->product()->find(Category::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -185,7 +185,7 @@ class CategoryController extends BaseController
 
         $this->product()->delete(Category::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

@@ -120,7 +120,7 @@ class ReturnController extends BaseController
         foreach (['delivery_id' => '发货单ID', 'customer_id' => '客户ID', 'warehouse_id' => '仓库ID'] as $field => $label) {
             $decoded = $this->decodeFlexibleId((string) $request->input($field, ''));
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $item->{$field} = $decoded;
         }
@@ -130,7 +130,7 @@ class ReturnController extends BaseController
         $item->returned_at = $request->input('returned_at');
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'delivery_id', 'customer_id', 'warehouse_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'delivery_id', 'customer_id', 'warehouse_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -157,7 +157,7 @@ class ReturnController extends BaseController
         $id = $this->decodeId($id);
         $item = SalesReturn::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'delivery_id', 'customer_id', 'warehouse_id']));
@@ -195,7 +195,7 @@ class ReturnController extends BaseController
         $id = $this->decodeId($id);
         $item = SalesReturn::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $item->status === 1) {
             return $this->fail($this->trans('Stocked-in records cannot be modified'), 422);
@@ -209,7 +209,7 @@ class ReturnController extends BaseController
             if ($raw !== null && $raw !== '') {
                 $decoded = $this->decodeFlexibleId((string) $raw);
                 if ($decoded === null || $decoded < 1) {
-                    return $this->fail($label . '无效', 422);
+                    return $this->fail($label . $this->trans('Invalid'), 422);
                 }
                 $item->{$field} = $decoded;
             }
@@ -232,7 +232,7 @@ class ReturnController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'delivery_id', 'customer_id', 'warehouse_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'delivery_id', 'customer_id', 'warehouse_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -260,7 +260,7 @@ class ReturnController extends BaseController
         $id = $this->decodeId($id);
         $item = SalesReturn::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -271,6 +271,6 @@ class ReturnController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

@@ -101,7 +101,7 @@ class MrpController extends BaseController
 
         $item = $this->mfg()->create(MfgMrpPlan::class, $request->all());
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -128,7 +128,7 @@ class MrpController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgMrpPlan::class, $id, ['items']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $item->toArray();
@@ -163,7 +163,7 @@ class MrpController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgMrpPlan::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ($item->status === 2) {
             return $this->fail($this->trans('Confirmed plans cannot be modified'), 422);
@@ -171,7 +171,7 @@ class MrpController extends BaseController
 
         $item = $this->mfg()->update(MfgMrpPlan::class, $id, $request->all(), ['status']);
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -199,7 +199,7 @@ class MrpController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgMrpPlan::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -210,7 +210,7 @@ class MrpController extends BaseController
 
         $this->mfg()->deleteMrpPlanWithItems($id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -245,7 +245,7 @@ class MrpController extends BaseController
             return $this->fail($this->trans('Plan not found'), 404);
         }
 
-        return $this->success(['items_count' => $itemCount], "MRP计划生成完成，共 {$itemCount} 条明细");
+        return $this->success(['items_count' => $itemCount], $this->trans('MRP plan generated with :count detail rows', ['count' => $itemCount]));
     }
 
     /**

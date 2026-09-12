@@ -153,7 +153,7 @@ class ArApController extends BaseController
 
         $item = FinanceArAp::find($id);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -180,7 +180,7 @@ class ArApController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceArAp::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -218,7 +218,7 @@ class ArApController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceArAp::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if (bccomp(bc_norm($item->settled_amount ?? 0), '0', 4) > 0 || (int) $item->status >= 1) {
             return $this->fail($this->trans('Written-off records cannot be modified'), 422);
@@ -240,7 +240,7 @@ class ArApController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -268,7 +268,7 @@ class ArApController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceArAp::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if (bccomp(bc_norm($item->settled_amount ?? 0), '0', 4) > 0 || (int) $item->status >= 1) {
             return $this->fail($this->trans('Written-off records cannot be deleted'), 422);
@@ -282,6 +282,6 @@ class ArApController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

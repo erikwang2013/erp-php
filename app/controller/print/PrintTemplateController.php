@@ -104,7 +104,7 @@ class PrintTemplateController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($tpl->toArray()), '创建成功');
+        return $this->success($this->encodeIds($tpl->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -148,7 +148,7 @@ class PrintTemplateController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($tpl->toArray()), '更新成功');
+        return $this->success($this->encodeIds($tpl->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -175,7 +175,7 @@ class PrintTemplateController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

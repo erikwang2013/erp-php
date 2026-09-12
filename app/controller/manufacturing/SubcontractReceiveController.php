@@ -135,7 +135,7 @@ class SubcontractReceiveController extends BaseController
             throw $e;
         }
 
-        return $this->success($this->encodeIds(['id' => $id]), '创建成功');
+        return $this->success($this->encodeIds(['id' => $id]), $this->trans('Created successfully'));
     }
 
     /**
@@ -159,7 +159,7 @@ class SubcontractReceiveController extends BaseController
         $id = $this->decodeId($id);
         $doc = $this->service()->find(MfgSubcontractReceive::class, $id, ['subcontract']);
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $data = $doc->toArray();
         if ($doc->relationLoaded('subcontract') && $doc->subcontract) {
@@ -190,7 +190,7 @@ class SubcontractReceiveController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgSubcontractReceive::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
             return $this->fail($this->trans('Audited receipts cannot be modified'), 422);
@@ -211,7 +211,7 @@ class SubcontractReceiveController extends BaseController
             throw $e;
         }
 
-        return $this->success($this->encodeIds($updated->toArray()), '更新成功');
+        return $this->success($this->encodeIds($updated->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -236,7 +236,7 @@ class SubcontractReceiveController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgSubcontractReceive::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
             return $this->fail($this->trans('Audited receipts cannot be deleted'), 422);
@@ -249,7 +249,7 @@ class SubcontractReceiveController extends BaseController
 
         MfgSubcontractReceive::query()->where('id', $id)->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -277,7 +277,7 @@ class SubcontractReceiveController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '审核成功，已入库');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Audited successfully; goods received'));
     }
 
     /** 委外服务 */

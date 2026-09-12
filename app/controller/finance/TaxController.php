@@ -75,11 +75,11 @@ class TaxController extends BaseController
             // 原实现误用未定义 $id 解码（必然 TypeError 500），应为请求体 hashid 参数
             $id = $this->decodeIdSafe((string) $hashid);
             if (!$id) {
-                return $this->fail('记录不存在', 404);
+                return $this->fail($this->trans('Record not found'), 404);
             }
             $item = FinanceTaxRate::find($id);
             if (!$item) {
-                return $this->fail('记录不存在', 404);
+                return $this->fail($this->trans('Record not found'), 404);
             }
         } else {
             $item = new FinanceTaxRate();
@@ -89,7 +89,7 @@ class TaxController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $hashid ? '更新成功' : '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $hashid ? $this->trans('Updated successfully') : $this->trans('Created successfully'));
     }
 
     /**
@@ -116,11 +116,11 @@ class TaxController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceTaxRate::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     // 税务记录

@@ -118,7 +118,7 @@ class PaymentController extends BaseController
         $item->paid_at = $request->input('paid_at') ?: date('Y-m-d H:i:s');
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -145,7 +145,7 @@ class PaymentController extends BaseController
         $id = $this->decodeId($id);
         $item = FinancePayment::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -181,7 +181,7 @@ class PaymentController extends BaseController
         $id = $this->decodeId($id);
         $item = FinancePayment::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $item->status === 1) {
             return $this->fail($this->trans('Audited records cannot be modified'), 422);
@@ -221,7 +221,7 @@ class PaymentController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -249,7 +249,7 @@ class PaymentController extends BaseController
         $id = $this->decodeId($id);
         $item = FinancePayment::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -260,6 +260,6 @@ class PaymentController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

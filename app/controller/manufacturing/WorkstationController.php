@@ -91,7 +91,7 @@ class WorkstationController extends BaseController
 
         $item = $this->mfg()->create(MfgWorkstation::class, $request->all(), ['created_at' => date('Y-m-d H:i:s')]);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -118,7 +118,7 @@ class WorkstationController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgWorkstation::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -148,10 +148,10 @@ class WorkstationController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->update(MfgWorkstation::class, $id, $request->all());
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -179,7 +179,7 @@ class WorkstationController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgWorkstation::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -190,7 +190,7 @@ class WorkstationController extends BaseController
 
         $this->mfg()->delete(MfgWorkstation::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

@@ -103,7 +103,7 @@ class WorkflowDesignerController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeDesign($result), '保存成功');
+        return $this->success($this->encodeDesign($result), $this->trans('Saved successfully'));
     }
 
     /**

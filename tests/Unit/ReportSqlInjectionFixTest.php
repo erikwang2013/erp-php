@@ -127,10 +127,10 @@ class ReportSqlInjectionFixTest extends TestCase
         $source = file_get_contents(__DIR__ . '/../../app/controller/report/ReportController.php');
         // 异常回显必须是固定文案，不得拼接 $e->getMessage()
         $this->assertMatchesRegularExpression(
-            "/fail\('查询执行失败，请查看服务端日志', 500\)/",
+            "/fail\(\\\$this->trans\('Query execution failed; please check the server logs for details'\), 500\)/",
             $source
         );
-        $this->assertStringNotContainsString("'查询执行失败: ' . \$e->getMessage()", $source);
+        $this->assertStringNotContainsString("\$this->trans('Query execution failed; please check the server logs for details') . \$e->getMessage()", $source);
         // group_by / join.on / filter.field 拼接前均有白名单校验（含 alias.col 点号形式）
         $this->assertStringContainsString('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', $source);
         $this->assertStringContainsString('Illegal JOIN ON condition', $source);

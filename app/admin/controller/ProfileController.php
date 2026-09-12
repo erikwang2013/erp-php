@@ -75,7 +75,7 @@ class ProfileController extends BaseController
         unset($data['password'], $data['id_card']);
         // phone/email 由 Encryptable cast 自动加解密，无需额外处理
 
-        return $this->success($this->encodeIds($data), '更新成功');
+        return $this->success($this->encodeIds($data), $this->trans('Updated successfully'));
     }
 
     /**
@@ -125,7 +125,7 @@ class ProfileController extends BaseController
         $user->password = password_hash($newPassword, PASSWORD_BCRYPT);
         $user->save();
 
-        return $this->success([], '密码修改成功');
+        return $this->success([], $this->trans('Password changed successfully'));
     }
 
     /**
@@ -156,7 +156,7 @@ class ProfileController extends BaseController
         } catch (\Throwable $e) {
             Log::warning('登出：令牌已失效，按幂等成功处理 | TraceId: ' . trace_id());
 
-            return $this->success([], '已登出');
+            return $this->success([], $this->trans('Logged out'));
         }
 
         // 黑名单写入失败：令牌可能仍有效，不能谎报登出成功（fail-closed）
@@ -166,9 +166,9 @@ class ProfileController extends BaseController
         } catch (\Throwable $e) {
             Log::error('登出失败：JWT 黑名单写入异常: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
 
-            return $this->fail('登出失败，请稍后重试', 500);
+            return $this->fail($this->trans('Failed to log out, please try again later'), 500);
         }
 
-        return $this->success([], '已登出');
+        return $this->success([], $this->trans('Logged out'));
     }
 }

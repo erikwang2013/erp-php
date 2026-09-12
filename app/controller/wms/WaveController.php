@@ -248,7 +248,7 @@ class WaveController extends BaseController
             $svc = new \app\service\wms\WaveService();
             $pickTask = $svc->releaseWave($id, $pickItems);
 
-            return $this->success($this->encodeIds($pickTask->toArray()), '波次已释放，拣货任务已生成');
+            return $this->success($this->encodeIds($pickTask->toArray()), $this->trans('Wave released; picking tasks have been created'));
         } catch (\Throwable $e) {
             $this->logError('释放波次', $e);
 

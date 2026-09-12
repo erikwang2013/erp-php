@@ -113,7 +113,7 @@ class OrderController extends BaseController
         $item->warehouse_id = $this->decodeFlexibleId((string) $request->input('warehouse_id', '0')) ?? 0;
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -144,7 +144,7 @@ class OrderController extends BaseController
             ->select('purchase_order.*', 'supplier.name as supplier_name')
             ->first();
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $this->encodeIds($item->toArray(), ['id', 'supplier_id']);
@@ -191,7 +191,7 @@ class OrderController extends BaseController
         $id = $this->decodeId($id);
         $item = PurchaseOrder::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->fillModelFromRequest($item, $request);
@@ -212,7 +212,7 @@ class OrderController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -240,7 +240,7 @@ class OrderController extends BaseController
         $id = $this->decodeId($id);
         $item = PurchaseOrder::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -251,6 +251,6 @@ class OrderController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

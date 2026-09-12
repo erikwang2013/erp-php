@@ -270,7 +270,7 @@ class TrackingController extends BaseController
         try {
             (new \app\service\tms\TrackingService())->processWebhook($trackingNo, $events);
 
-            return $this->success([], '轨迹已更新');
+            return $this->success([], $this->trans('Tracking updated'));
         } catch (\Throwable $e) {
             $this->logError('处理轨迹回传', $e);
 

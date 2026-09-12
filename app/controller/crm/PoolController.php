@@ -110,7 +110,7 @@ class PoolController extends BaseController
             return $this->fail($this->trans('Customer not found'), 404);
         }
 
-        return $this->success($this->encodeIds($customer->toArray()), '领取成功');
+        return $this->success($this->encodeIds($customer->toArray()), $this->trans('Claimed successfully'));
     }
 
     /**
@@ -144,7 +144,7 @@ class PoolController extends BaseController
             return $this->fail($this->trans('Customer not found'), 404);
         }
 
-        return $this->success($this->encodeIds($customer->toArray()), '释放成功');
+        return $this->success($this->encodeIds($customer->toArray()), $this->trans('Released successfully'));
     }
 
     /**
@@ -191,7 +191,7 @@ class PoolController extends BaseController
 
         $item = $this->crm()->create(CrmPoolRule::class, $request->all());
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -218,7 +218,7 @@ class PoolController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmPoolRule::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -248,10 +248,10 @@ class PoolController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->update(CrmPoolRule::class, $id, $request->all());
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -279,7 +279,7 @@ class PoolController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmPoolRule::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -290,7 +290,7 @@ class PoolController extends BaseController
 
         $this->crm()->delete(CrmPoolRule::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

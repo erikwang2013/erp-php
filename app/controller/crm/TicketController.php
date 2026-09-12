@@ -123,7 +123,7 @@ class TicketController extends BaseController
         }
         $item = $this->crm()->create(CrmTicket::class, $data, ['status' => 0]);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -150,7 +150,7 @@ class TicketController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmTicket::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $this->encodeIds($item->toArray(), ['id', 'customer_id']);
@@ -185,10 +185,10 @@ class TicketController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->update(CrmTicket::class, $id, $this->normalizeFkData($request->all()));
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -216,7 +216,7 @@ class TicketController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmTicket::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -227,7 +227,7 @@ class TicketController extends BaseController
 
         $this->crm()->deleteTicketWithReplies($id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -264,10 +264,10 @@ class TicketController extends BaseController
 
         $item = $this->crm()->assignTicket($id, $assigneeUserId);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), '指派成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), $this->trans('Assigned successfully'));
     }
 
     /**
@@ -302,10 +302,10 @@ class TicketController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '工单已解决');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Work order resolved'));
     }
 
     /**
@@ -343,7 +343,7 @@ class TicketController extends BaseController
             (int) $request->input('is_internal', 0)
         );
 
-        return $this->success($this->encodeIds($reply->toArray()), '回复成功');
+        return $this->success($this->encodeIds($reply->toArray()), $this->trans('Reply submitted successfully'));
     }
 
     /**

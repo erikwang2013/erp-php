@@ -93,7 +93,7 @@ class DepartmentController extends BaseController
 
         $item = $this->hr()->create(HrDepartment::class, $request->all());
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -120,7 +120,7 @@ class DepartmentController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrDepartment::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -150,10 +150,10 @@ class DepartmentController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->update(HrDepartment::class, $id, $request->all());
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -181,11 +181,11 @@ class DepartmentController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrDepartment::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         if ($this->hr()->hasChildDepartments($id)) {
-            return $this->fail('存在子部门，请先删除子部门', 422);
+            return $this->fail($this->trans('Child departments exist, please delete them first'), 422);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -196,7 +196,7 @@ class DepartmentController extends BaseController
 
         $this->hr()->delete(HrDepartment::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

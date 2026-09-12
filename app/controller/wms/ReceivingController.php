@@ -248,7 +248,7 @@ class ReceivingController extends BaseController
             $service = new WmsInboundService();
             $putaway = $service->completeReceiving($id, $actuals);
 
-            return $this->success($this->encodeIds($putaway->toArray()), '收货完成，已生成上架任务');
+            return $this->success($this->encodeIds($putaway->toArray()), $this->trans('Receipt completed; a putaway task has been created'));
         } catch (\Throwable $e) {
             $this->logError('完成收货', $e);
 

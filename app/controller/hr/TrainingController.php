@@ -103,7 +103,7 @@ class TrainingController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($course), '创建成功');
+        return $this->success($this->encodeIds($course), $this->trans('Created successfully'));
     }
 
     /**
@@ -134,7 +134,7 @@ class TrainingController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($course), '更新成功');
+        return $this->success($this->encodeIds($course), $this->trans('Updated successfully'));
     }
 
     /**
@@ -165,7 +165,7 @@ class TrainingController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -200,7 +200,7 @@ class TrainingController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($enrollment), '报名成功');
+        return $this->success($this->encodeIds($enrollment), $this->trans('Enrolled successfully'));
     }
 
     /**
@@ -235,7 +235,7 @@ class TrainingController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($enrollment), '已取消报名');
+        return $this->success($this->encodeIds($enrollment), $this->trans('Enrollment cancelled'));
     }
 
     /**
@@ -270,7 +270,7 @@ class TrainingController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($enrollment), '已完成');
+        return $this->success($this->encodeIds($enrollment), $this->trans('Completed'));
     }
 
     /**

@@ -82,7 +82,7 @@ class NotificationChannelController extends BaseController
             'log_id' => $result['log_id'],
             'message_id' => $result['message_id'],
             'dedup' => $result['dedup'],
-        ], $result['dedup'] ? '命中幂等记录，未重复发送' : '发送成功');
+        ], $result['dedup'] ? $this->trans('Idempotent record hit; not sent again') : $this->trans('Sent successfully'));
     }
 
     /**
@@ -164,6 +164,6 @@ class NotificationChannelController extends BaseController
             'attempted' => $result['attempted'],
             'succeeded' => $result['succeeded'],
             'failed' => $result['failed'],
-        ], '重试完成');
+        ], $this->trans('Retry completed'));
     }
 }

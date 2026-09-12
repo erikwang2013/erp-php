@@ -268,7 +268,7 @@ class RmaController extends BaseController
         }
         $rma->save();
 
-        return $this->success($this->encodeIds($rma->toArray(), ['id', 'order_id']), $approved ? '已批准' : '已拒绝');
+        return $this->success($this->encodeIds($rma->toArray(), ['id', 'order_id']), $approved ? $this->trans('Approved') : $this->trans('Declined'));
     }
 
     /**
@@ -309,7 +309,7 @@ class RmaController extends BaseController
         $rma->received_at = date('Y-m-d H:i:s');
         $rma->save();
 
-        return $this->success($this->encodeIds($rma->toArray(), ['id', 'order_id']), '收货确认成功');
+        return $this->success($this->encodeIds($rma->toArray(), ['id', 'order_id']), $this->trans('Receipt confirmation succeeded'));
     }
 
     /**
@@ -349,6 +349,6 @@ class RmaController extends BaseController
         $rma->status = 4;
         $rma->save();
 
-        return $this->success($this->encodeIds($rma->toArray(), ['id', 'order_id']), '退款完成');
+        return $this->success($this->encodeIds($rma->toArray(), ['id', 'order_id']), $this->trans('Refund completed'));
     }
 }

@@ -97,7 +97,7 @@ class FinalCheckController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -124,7 +124,7 @@ class FinalCheckController extends BaseController
         $id = $this->decodeId($id);
         $item = QualityOqcRecord::find($id);
 
-        return $item ? $this->success($this->encodeIds($item->toArray())) : $this->fail('记录不存在', 404);
+        return $item ? $this->success($this->encodeIds($item->toArray())) : $this->fail($this->trans('Record not found'), 404);
     }
 
     /**
@@ -151,12 +151,12 @@ class FinalCheckController extends BaseController
         $id = $this->decodeId($id);
         $item = QualityOqcRecord::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -184,7 +184,7 @@ class FinalCheckController extends BaseController
         $id = $this->decodeId($id);
         $item = QualityOqcRecord::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
@@ -193,6 +193,6 @@ class FinalCheckController extends BaseController
         }
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

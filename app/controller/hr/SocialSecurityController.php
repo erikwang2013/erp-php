@@ -83,7 +83,7 @@ class SocialSecurityController extends BaseController
         $id = $this->decodeId($id);
         $rule = $this->social()->ruleDetail($id);
         if (!$rule) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeRule($rule));
@@ -127,7 +127,7 @@ class SocialSecurityController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeRule($rule), '创建成功');
+        return $this->success($this->encodeRule($rule), $this->trans('Created successfully'));
     }
 
     /**
@@ -166,7 +166,7 @@ class SocialSecurityController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeRule($rule), '更新成功');
+        return $this->success($this->encodeRule($rule), $this->trans('Updated successfully'));
     }
 
     /**
@@ -197,7 +197,7 @@ class SocialSecurityController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -239,7 +239,7 @@ class SocialSecurityController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($rate), '保存成功');
+        return $this->success($this->encodeIds($rate), $this->trans('Saved successfully'));
     }
 
     /**
@@ -272,7 +272,7 @@ class SocialSecurityController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -311,7 +311,7 @@ class SocialSecurityController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeBinding($binding), '绑定成功');
+        return $this->success($this->encodeBinding($binding), $this->trans('Bound successfully'));
     }
 
     /**
@@ -342,7 +342,7 @@ class SocialSecurityController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '解绑成功');
+        return $this->success([], $this->trans('Unbound successfully'));
     }
 
     /**
@@ -369,7 +369,7 @@ class SocialSecurityController extends BaseController
         $employeeId = $this->decodeId($id);
         $detail = $this->social()->employeeSocialDetail($employeeId);
         if (!$detail) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeBinding($detail));

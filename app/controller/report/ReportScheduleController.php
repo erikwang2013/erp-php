@@ -131,7 +131,7 @@ class ReportScheduleController extends BaseController
         $item->next_run_at = $this->calcNextRun((int) $item->frequency);
         $item->save();
 
-        return $this->success($this->encodeScheduleItem($item->toArray()), '创建成功');
+        return $this->success($this->encodeScheduleItem($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -161,7 +161,7 @@ class ReportScheduleController extends BaseController
         }
         $item = ReportSchedule::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeScheduleItem($item->toArray()));
@@ -194,7 +194,7 @@ class ReportScheduleController extends BaseController
         }
         $item = ReportSchedule::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $oldFreq = $item->frequency;
@@ -207,7 +207,7 @@ class ReportScheduleController extends BaseController
 
         $item->save();
 
-        return $this->success($this->encodeScheduleItem($item->toArray()), '更新成功');
+        return $this->success($this->encodeScheduleItem($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -238,7 +238,7 @@ class ReportScheduleController extends BaseController
         }
         $item = ReportSchedule::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -249,7 +249,7 @@ class ReportScheduleController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

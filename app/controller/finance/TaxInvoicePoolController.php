@@ -134,7 +134,7 @@ class TaxInvoicePoolController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->present($row), '登记成功');
+        return $this->success($this->present($row), $this->trans('Registered successfully'));
     }
 
     /**
@@ -169,7 +169,7 @@ class TaxInvoicePoolController extends BaseController
         }
         [$ok, $fail, $errors] = $this->service()->registerBatch($rows);
 
-        return $this->success(['success_count' => $ok, 'fail_count' => $fail, 'errors' => $errors], '批量登记完成');
+        return $this->success(['success_count' => $ok, 'fail_count' => $fail, 'errors' => $errors], $this->trans('Batch registration completed'));
     }
 
     /**
@@ -197,7 +197,7 @@ class TaxInvoicePoolController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->present($row), '验真完成');
+        return $this->success($this->present($row), $this->trans('Verification completed'));
     }
 
     /**
@@ -225,7 +225,7 @@ class TaxInvoicePoolController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->present($row), '勾选成功');
+        return $this->success($this->present($row), $this->trans('Selection submitted successfully'));
     }
 
     /**
@@ -256,7 +256,7 @@ class TaxInvoicePoolController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->present($row), '抵扣成功');
+        return $this->success($this->present($row), $this->trans('Deduction succeeded'));
     }
 
     /**

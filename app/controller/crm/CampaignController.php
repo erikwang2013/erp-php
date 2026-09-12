@@ -97,7 +97,7 @@ class CampaignController extends BaseController
         $data = $this->normalizeFkData($request->all());
         $item = $this->crm()->create(CrmCampaign::class, $data, ['status' => 0]);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'owner_user_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'owner_user_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -124,7 +124,7 @@ class CampaignController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmCampaign::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $this->encodeIds($item->toArray(), ['id', 'owner_user_id']);
@@ -161,7 +161,7 @@ class CampaignController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmCampaign::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         if ((int) $item->status !== 0 && (int) $item->status !== 1) {
@@ -170,7 +170,7 @@ class CampaignController extends BaseController
 
         $item = $this->crm()->update(CrmCampaign::class, $id, $this->normalizeFkData($request->all()));
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'owner_user_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'owner_user_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -198,7 +198,7 @@ class CampaignController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmCampaign::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -209,7 +209,7 @@ class CampaignController extends BaseController
 
         $this->crm()->deleteCampaignWithParticipants($id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

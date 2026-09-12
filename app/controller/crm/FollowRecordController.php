@@ -111,7 +111,7 @@ class FollowRecordController extends BaseController
             }
             $decoded = $this->decodeFlexibleId((string) $raw);
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $data[$field] = $decoded;
         }
@@ -124,7 +124,7 @@ class FollowRecordController extends BaseController
 
         $item = $this->crm()->create(CrmFollowRecord::class, $data);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -151,7 +151,7 @@ class FollowRecordController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmFollowRecord::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']));
@@ -181,7 +181,7 @@ class FollowRecordController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmFollowRecord::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $request->all();
@@ -190,7 +190,7 @@ class FollowRecordController extends BaseController
             if (isset($data[$field]) && $data[$field] !== '') {
                 $decoded = $this->decodeFlexibleId((string) $data[$field]);
                 if ($decoded === null || $decoded < 1) {
-                    return $this->fail($label . '无效', 422);
+                    return $this->fail($label . $this->trans('Invalid'), 422);
                 }
                 $data[$field] = $decoded;
             } else {
@@ -205,7 +205,7 @@ class FollowRecordController extends BaseController
 
         $item = $this->crm()->update(CrmFollowRecord::class, $id, $data);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -233,7 +233,7 @@ class FollowRecordController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmFollowRecord::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -244,7 +244,7 @@ class FollowRecordController extends BaseController
 
         $this->crm()->delete(CrmFollowRecord::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

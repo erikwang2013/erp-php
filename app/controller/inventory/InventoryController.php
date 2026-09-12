@@ -137,7 +137,7 @@ class InventoryController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success([], '入库成功');
+        return $this->success([], $this->trans('Stocked in successfully'));
     }
 
     /**
@@ -164,7 +164,7 @@ class InventoryController extends BaseController
         $id = $this->decodeId($id);
         $item = Inventory::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -194,19 +194,19 @@ class InventoryController extends BaseController
         $id = $this->decodeId($id);
         $item = Inventory::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         // 禁止直接改数量：会绕开库存流水与移动加权平均成本重算（账实不符的源头）。
         // 需要按实际库存修正请走盘点/入库调整，那会生成盘盈盘亏流水。
         if ($request->input('quantity') !== null) {
-            return $this->fail('不能直接修改库存数量（会绕开库存流水与成本重算）；请通过盘点或库存调整修正', 422);
+            return $this->fail($this->trans('Inventory quantity cannot be modified directly (it would bypass the inventory ledger and cost recalculation); please correct it via a stocktake or inventory adjustment'), 422);
         }
 
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -235,7 +235,7 @@ class InventoryController extends BaseController
         $id = $this->decodeId($id);
         $item = Inventory::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -246,6 +246,6 @@ class InventoryController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

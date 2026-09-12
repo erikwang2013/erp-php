@@ -120,14 +120,14 @@ class EmployeeController extends BaseController
             }
             $decoded = $this->decodeFlexibleId($rawStr);
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $data[$field] = $decoded;
         }
 
         $item = $this->hr()->create(HrEmployee::class, $data);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -154,7 +154,7 @@ class EmployeeController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrEmployee::class, $id, ['department', 'position']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $item->toArray();
@@ -199,16 +199,16 @@ class EmployeeController extends BaseController
             }
             $decoded = $this->decodeFlexibleId($rawStr);
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $data[$field] = $decoded;
         }
         $item = $this->hr()->update(HrEmployee::class, $id, $data);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -237,7 +237,7 @@ class EmployeeController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->hr()->find(HrEmployee::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -248,7 +248,7 @@ class EmployeeController extends BaseController
 
         $this->hr()->delete(HrEmployee::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

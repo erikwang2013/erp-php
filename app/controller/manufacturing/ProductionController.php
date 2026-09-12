@@ -116,7 +116,7 @@ class ProductionController extends BaseController
             'completed_quantity' => 0,
         ]);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -143,7 +143,7 @@ class ProductionController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgProductionOrder::class, $id, ['items', 'bom']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $item->toArray();
@@ -181,7 +181,7 @@ class ProductionController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgProductionOrder::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ($item->status !== 0) {
             return $this->fail($this->trans('Only work orders pending production can be modified'), 422);
@@ -199,7 +199,7 @@ class ProductionController extends BaseController
 
         $item = $this->mfg()->update(MfgProductionOrder::class, $id, $data, ['status', 'completed_quantity']);
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -227,7 +227,7 @@ class ProductionController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgProductionOrder::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if (in_array($item->status, [1, 2])) {
             return $this->fail($this->trans('Work orders in production or completed cannot be deleted'), 422);
@@ -241,7 +241,7 @@ class ProductionController extends BaseController
 
         $this->mfg()->deleteProductionOrderWithItems($id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -273,10 +273,10 @@ class ProductionController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '生产已开始');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Production started'));
     }
 
     /**
@@ -313,7 +313,7 @@ class ProductionController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '生产已完成');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Production completed'));
     }
 
     /**

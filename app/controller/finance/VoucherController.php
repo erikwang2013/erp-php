@@ -99,7 +99,7 @@ class VoucherController extends BaseController
                     $ledgerId ? $this->decodeIdSafe((string) $ledgerId) : null
                 );
 
-                return $this->success($this->encodeIds($voucher->toArray()), '创建成功');
+                return $this->success($this->encodeIds($voucher->toArray()), $this->trans('Created successfully'));
             } catch (\RuntimeException $e) {
                 return $this->fail($e->getMessage(), 422);
             }
@@ -115,7 +115,7 @@ class VoucherController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -142,7 +142,7 @@ class VoucherController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceVoucher::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -172,7 +172,7 @@ class VoucherController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceVoucher::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $item->status === 1) {
             return $this->fail($this->trans('Audited vouchers cannot be modified'), 422);
@@ -192,7 +192,7 @@ class VoucherController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -220,7 +220,7 @@ class VoucherController extends BaseController
         $id = $this->decodeId($id);
         $item = FinanceVoucher::find($id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $item->status === 1) {
             return $this->fail($this->trans('Audited vouchers cannot be deleted'), 422);
@@ -234,7 +234,7 @@ class VoucherController extends BaseController
 
         $item->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /** ledger_id 入参为 hashid 编码串；通用 fill 会直写原串污染 BIGINT 列，这里统一解码（无效=默认账套） */

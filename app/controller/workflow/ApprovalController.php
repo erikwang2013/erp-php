@@ -170,7 +170,7 @@ class ApprovalController extends BaseController
         $instance->submitted_at = date('Y-m-d H:i:s');
         $instance->save();
 
-        return $this->success($this->encodeIds($instance->toArray()), '提交成功');
+        return $this->success($this->encodeIds($instance->toArray()), $this->trans('Submitted successfully'));
     }
 
     /**
@@ -232,7 +232,7 @@ class ApprovalController extends BaseController
         }
         $instance->save();
 
-        return $this->success([], '审批通过');
+        return $this->success([], $this->trans('Approval approved'));
     }
 
     /**
@@ -288,7 +288,7 @@ class ApprovalController extends BaseController
         $instance->completed_at = date('Y-m-d H:i:s');
         $instance->save();
 
-        return $this->success([], '已驳回');
+        return $this->success([], $this->trans('Rejected'));
     }
 
     /**
@@ -330,7 +330,7 @@ class ApprovalController extends BaseController
         $instance->completed_at = date('Y-m-d H:i:s');
         $instance->save();
 
-        return $this->success([], '已撤回');
+        return $this->success([], $this->trans('Withdrawn'));
     }
 
     /**

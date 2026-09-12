@@ -122,7 +122,7 @@ class TenantController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->row($tenant), '租户开通成功');
+        return $this->success($this->row($tenant), $this->trans('Tenant provisioned successfully'));
     }
 
     /**
@@ -149,7 +149,7 @@ class TenantController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->row($tenant), '租户已停用');
+        return $this->success($this->row($tenant), $this->trans('Tenant disabled'));
     }
 
     /**
@@ -176,7 +176,7 @@ class TenantController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->row($tenant), '租户已恢复启用');
+        return $this->success($this->row($tenant), $this->trans('Tenant re-enabled'));
     }
 
     /**
@@ -203,7 +203,7 @@ class TenantController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->row($tenant), '租户已标记到期');
+        return $this->success($this->row($tenant), $this->trans('Tenant marked as expired'));
     }
 
     /**
@@ -235,7 +235,7 @@ class TenantController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success($this->row($tenant), '租户续费成功');
+        return $this->success($this->row($tenant), $this->trans('Tenant renewal succeeded'));
     }
 
     /**

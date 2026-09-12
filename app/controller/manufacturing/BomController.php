@@ -114,7 +114,7 @@ class BomController extends BaseController
 
         $item = $this->mfg()->create(MfgBom::class, $data, ['status' => 0]); // 草稿
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -141,7 +141,7 @@ class BomController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgBom::class, $id, ['items']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $item->toArray();
@@ -176,10 +176,10 @@ class BomController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgBom::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ($item->status === 1) {
-            return $this->fail('已生效的BOM不可直接修改，请创建新版本', 422);
+            return $this->fail($this->trans('An effective BOM cannot be edited directly; please create a new version'), 422);
         }
 
         // product_id 双模解码（缺省/留空=不改动）
@@ -194,7 +194,7 @@ class BomController extends BaseController
 
         $item = $this->mfg()->update(MfgBom::class, $id, $data, ['status']); // 状态仅能通过 activate() 变更
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -223,7 +223,7 @@ class BomController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->mfg()->find(MfgBom::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -235,7 +235,7 @@ class BomController extends BaseController
         // 删除关联明细
         $this->mfg()->deleteBomWithItems($id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -276,7 +276,7 @@ class BomController extends BaseController
             return $this->fail($this->trans('Source BOM not found'), 404);
         }
 
-        return $this->success($this->encodeIds($bom->toArray()), '新版本创建成功');
+        return $this->success($this->encodeIds($bom->toArray()), $this->trans('New version created successfully'));
     }
 
     /**
@@ -308,10 +308,10 @@ class BomController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), 'BOM已生效');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('BOM is now effective'));
     }
 
     /**

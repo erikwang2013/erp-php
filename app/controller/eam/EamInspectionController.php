@@ -124,7 +124,7 @@ class EamInspectionController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($task->toArray()), '创建成功');
+        return $this->success($this->encodeIds($task->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -198,7 +198,7 @@ class EamInspectionController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($task->toArray()), '更新成功');
+        return $this->success($this->encodeIds($task->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -228,7 +228,7 @@ class EamInspectionController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($task->toArray()), '取消成功');
+        return $this->success($this->encodeIds($task->toArray()), $this->trans('Cancelled successfully'));
     }
 
     /**
@@ -274,7 +274,7 @@ class EamInspectionController extends BaseController
             $result['repair_order_id'] = $this->encodeId((int) $result['repair_order_id']);
         }
 
-        return $this->success($result, $result['abnormal'] ? '点检完成，存在异常项，已生成维修单' : '点检完成');
+        return $this->success($result, $result['abnormal'] ? $this->trans('Inspection completed with exceptions; a repair order has been created') : $this->trans('Inspection completed'));
     }
 
     /**

@@ -120,7 +120,7 @@ class WorkflowController extends BaseController
             $node->save();
         }
 
-        return $this->success($this->encodeIds($workflow->toArray()), '创建成功');
+        return $this->success($this->encodeIds($workflow->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -147,7 +147,7 @@ class WorkflowController extends BaseController
         $id = $this->decodeId($id);
         $workflow = ApprovalWorkflow::find($id);
         if (!$workflow) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $nodes = ApprovalNode::where('workflow_id', $workflow->id)->orderBy('seq')->get()
@@ -185,7 +185,7 @@ class WorkflowController extends BaseController
         $id = $this->decodeId($id);
         $workflow = ApprovalWorkflow::find($id);
         if (!$workflow) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         foreach (['code', 'name', 'target_type', 'enabled', 'remark'] as $k) {
@@ -215,7 +215,7 @@ class WorkflowController extends BaseController
             }
         }
 
-        return $this->success($this->encodeIds($workflow->toArray()), '更新成功');
+        return $this->success($this->encodeIds($workflow->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -243,7 +243,7 @@ class WorkflowController extends BaseController
         $id = $this->decodeId($id);
         $workflow = ApprovalWorkflow::find($id);
         if (!$workflow) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -254,6 +254,6 @@ class WorkflowController extends BaseController
 
         $workflow->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

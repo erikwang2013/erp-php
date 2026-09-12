@@ -155,7 +155,7 @@ class BankReconController extends BaseController
         unset($cand);
         $data['unmatched_journals'] = array_map(fn ($j) => $this->encodeIds($j, ['id']), $data['unmatched_journals']);
 
-        return $this->success($data, '自动核销完成');
+        return $this->success($data, $this->trans('Automatic write-off completed'));
     }
 
     /**
@@ -189,7 +189,7 @@ class BankReconController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '核销成功');
+        return $this->success(null, $this->trans('Written off successfully'));
     }
 
     /**
@@ -218,7 +218,7 @@ class BankReconController extends BaseController
             return $this->fail($error, 422);
         }
 
-        return $this->success(null, '取消核销成功');
+        return $this->success(null, $this->trans('Write-off cancelled successfully'));
     }
 
     /**

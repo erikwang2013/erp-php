@@ -106,14 +106,14 @@ class QuotationController extends BaseController
             $raw = (string) ($data[$field] ?? '');
             if ($raw === '') {
                 if ($field === 'customer_id') {
-                    return $this->fail($label . '无效', 422);
+                    return $this->fail($label . $this->trans('Invalid'), 422);
                 }
                 unset($data[$field]);
                 continue;
             }
             $decoded = $this->decodeFlexibleId($raw);
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $data[$field] = $decoded;
         }
@@ -137,7 +137,7 @@ class QuotationController extends BaseController
             $this->crm()->replaceItems(CrmQuotationItem::class, 'quotation_id', $item->id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'opportunity_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'opportunity_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -164,7 +164,7 @@ class QuotationController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmQuotation::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'opportunity_id']));
@@ -196,7 +196,7 @@ class QuotationController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmQuotation::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         if ((int) $item->status !== 0) {
@@ -212,7 +212,7 @@ class QuotationController extends BaseController
             }
             $decoded = $this->decodeFlexibleId((string) $raw);
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $data[$field] = $decoded;
         }
@@ -229,7 +229,7 @@ class QuotationController extends BaseController
             $this->crm()->replaceItems(CrmQuotationItem::class, 'quotation_id', $id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'opportunity_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'opportunity_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -257,7 +257,7 @@ class QuotationController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmQuotation::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -268,7 +268,7 @@ class QuotationController extends BaseController
 
         $this->crm()->delete(CrmQuotation::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -314,7 +314,7 @@ class QuotationController extends BaseController
         return $this->success([
             'quotation' => $this->encodeIds($result['quotation']->toArray()),
             'contract' => $this->encodeIds($result['contract']->toArray()),
-        ], '报价已转为合同');
+        ], $this->trans('Quotation converted to contract'));
     }
 
     /**

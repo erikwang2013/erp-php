@@ -262,7 +262,7 @@ class DeliveryController extends BaseController
 
             return $this->success(
                 $this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']),
-                '发货成功，已出库并生成应收记录'
+                $this->trans('Shipment succeeded; goods issued and a receivable record was created')
             );
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -385,7 +385,7 @@ class DeliveryController extends BaseController
         }
         $delivery->save();
 
-        return $this->success($this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']), '更新成功');
+        return $this->success($this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -428,6 +428,6 @@ class DeliveryController extends BaseController
 
         $delivery->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

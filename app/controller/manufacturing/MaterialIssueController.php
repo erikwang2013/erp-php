@@ -109,11 +109,11 @@ class MaterialIssueController extends BaseController
         foreach ((array) $request->input('items', []) as $i => $row) {
             $qty = bc_norm((string) ($row['quantity'] ?? '0'));
             if (bccomp($qty, '0', 4) <= 0) {
-                return $this->fail($this->trans('Detail row ') . ($i + 1) . '行领料数量必须大于0', 422);
+                return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('Requisition quantity per row must be greater than 0'), 422);
             }
             $sku = ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->first();
             if (!$sku) {
-                return $this->fail($this->trans('Detail row ') . ($i + 1) . '行SKU不存在', 422);
+                return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('SKU does not exist on the row'), 422);
             }
             $items[] = ['sku_id' => (int) $sku->id, 'product_id' => (int) $sku->product_id, 'quantity' => $qty];
         }
@@ -155,7 +155,7 @@ class MaterialIssueController extends BaseController
             throw $e;
         }
 
-        return $this->success($this->encodeIds(['id' => $id]), '创建成功');
+        return $this->success($this->encodeIds(['id' => $id]), $this->trans('Created successfully'));
     }
 
     /**
@@ -179,7 +179,7 @@ class MaterialIssueController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->cost()->find(MfgMaterialIssue::class, $id, ['items', 'order']);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $data = $item->toArray();
         if (isset($data['items'])) {
@@ -213,7 +213,7 @@ class MaterialIssueController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgMaterialIssue::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
             return $this->fail($this->trans('Audited material issues cannot be modified'), 422);
@@ -228,11 +228,11 @@ class MaterialIssueController extends BaseController
             foreach ($rawItems as $i => $row) {
                 $qty = bc_norm((string) ($row['quantity'] ?? '0'));
                 if (bccomp($qty, '0', 4) <= 0) {
-                    return $this->fail($this->trans('Detail row ') . ($i + 1) . '行领料数量必须大于0', 422);
+                    return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('Requisition quantity per row must be greater than 0'), 422);
                 }
                 $sku = ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->first();
                 if (!$sku) {
-                    return $this->fail($this->trans('Detail row ') . ($i + 1) . '行SKU不存在', 422);
+                    return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('SKU does not exist on the row'), 422);
                 }
                 $rows[] = ['sku_id' => (int) $sku->id, 'product_id' => (int) $sku->product_id, 'quantity' => $qty];
             }
@@ -259,7 +259,7 @@ class MaterialIssueController extends BaseController
         $data = $doc->toArray();
         $data['items'] = array_map(fn ($i) => $this->encodeIds($i), $data['items'] ?? []);
 
-        return $this->success($this->encodeIds($data), '更新成功');
+        return $this->success($this->encodeIds($data), $this->trans('Updated successfully'));
     }
 
     /**
@@ -284,7 +284,7 @@ class MaterialIssueController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgMaterialIssue::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
             return $this->fail($this->trans('Audited material issues cannot be deleted'), 422);
@@ -300,7 +300,7 @@ class MaterialIssueController extends BaseController
             MfgMaterialIssue::query()->where('id', $id)->delete();
         });
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -328,7 +328,7 @@ class MaterialIssueController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '审核成功，已出库');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Audited successfully; goods issued'));
     }
 
     /** 成本核算服务 */

@@ -94,7 +94,7 @@ class ProductSpecController extends BaseController
 
         $item = $this->product()->create(ProductSpec::class, $data);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -121,7 +121,7 @@ class ProductSpecController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->product()->find(ProductSpec::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -156,10 +156,10 @@ class ProductSpecController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->product()->update(ProductSpec::class, $id, $data);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()), '更新成功');
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -187,7 +187,7 @@ class ProductSpecController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->product()->find(ProductSpec::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -198,7 +198,7 @@ class ProductSpecController extends BaseController
 
         $this->product()->delete(ProductSpec::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

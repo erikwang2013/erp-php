@@ -146,7 +146,7 @@ class SubcontractController extends BaseController
             throw $e;
         }
 
-        return $this->success($this->encodeIds(['id' => $id]), '创建成功');
+        return $this->success($this->encodeIds(['id' => $id]), $this->trans('Created successfully'));
     }
 
     /**
@@ -170,7 +170,7 @@ class SubcontractController extends BaseController
         $id = $this->decodeId($id);
         $doc = $this->service()->find(MfgSubcontract::class, $id, ['supplier', 'issues', 'receives']);
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $data = $doc->toArray();
         foreach (['issues', 'receives'] as $rel) {
@@ -206,10 +206,10 @@ class SubcontractController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgSubcontract::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('委外订单已发料，不可修改', 422);
+            return $this->fail($this->trans('Material has been issued for this subcontract order, so it cannot be modified'), 422);
         }
         $data = $request->all();
         unset($data['code'], $data['status']);
@@ -230,7 +230,7 @@ class SubcontractController extends BaseController
             throw $e;
         }
 
-        return $this->success($this->encodeIds($updated->toArray()), '更新成功');
+        return $this->success($this->encodeIds($updated->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -255,14 +255,14 @@ class SubcontractController extends BaseController
         $id = $this->decodeId($id);
         $doc = MfgSubcontract::query()->where('id', $id)->first();
         if (!$doc) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('委外订单已发料，不可删除', 422);
+            return $this->fail($this->trans('Material has been issued for this subcontract order, so it cannot be deleted'), 422);
         }
         if (MfgSubcontractIssue::query()->where('subcontract_id', $id)->exists()
             || MfgSubcontractReceive::query()->where('subcontract_id', $id)->exists()) {
-            return $this->fail('存在关联发料单或收料单，不可删除', 422);
+            return $this->fail($this->trans('Related material issue or receipt notes exist; it cannot be deleted'), 422);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
@@ -272,7 +272,7 @@ class SubcontractController extends BaseController
 
         MfgSubcontract::query()->where('id', $id)->delete();
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /** 委外服务 */

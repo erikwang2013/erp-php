@@ -113,7 +113,7 @@ class OpportunityController extends BaseController
         foreach (['customer_id' => '客户ID', 'stage_id' => '漏斗阶段ID'] as $field => $label) {
             $decoded = $this->decodeFlexibleId((string) ($data[$field] ?? ''));
             if ($decoded === null || $decoded < 1) {
-                return $this->fail($label . '无效', 422);
+                return $this->fail($label . $this->trans('Invalid'), 422);
             }
             $data[$field] = $decoded;
         }
@@ -126,7 +126,7 @@ class OpportunityController extends BaseController
 
         $item = $this->crm()->create(CrmOpportunity::class, $data);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']), '创建成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -153,7 +153,7 @@ class OpportunityController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmOpportunity::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']));
@@ -183,7 +183,7 @@ class OpportunityController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmOpportunity::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $request->all();
@@ -191,7 +191,7 @@ class OpportunityController extends BaseController
             if (isset($data[$field]) && $data[$field] !== '') {
                 $decoded = $this->decodeFlexibleId((string) $data[$field]);
                 if ($decoded === null || $decoded < 1) {
-                    return $this->fail($label . '无效', 422);
+                    return $this->fail($label . $this->trans('Invalid'), 422);
                 }
                 $data[$field] = $decoded;
             } else {
@@ -206,7 +206,7 @@ class OpportunityController extends BaseController
 
         $item = $this->crm()->update(CrmOpportunity::class, $id, $data);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']), '更新成功');
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -234,7 +234,7 @@ class OpportunityController extends BaseController
         $id = $this->decodeId($id);
         $item = $this->crm()->find(CrmOpportunity::class, $id);
         if (!$item) {
-            return $this->fail('记录不存在', 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -245,7 +245,7 @@ class OpportunityController extends BaseController
 
         $this->crm()->delete(CrmOpportunity::class, $id);
 
-        return $this->success([], '删除成功');
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
