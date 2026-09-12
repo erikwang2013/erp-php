@@ -112,7 +112,7 @@ class RfqController extends BaseController
         $rfq = PurchaseRfq::with(['items', 'quotes' => fn ($q) => $q->with('items')->orderBy('id', 'desc')])
             ->find($this->decodeId($id));
         if (!$rfq) {
-            return $this->fail('询价单不存在', 404);
+            return $this->fail($this->trans('RFQ not found'), 404);
         }
 
         $data = $this->encodeIds($rfq->toArray(), ['id', 'buyer_id', 'awarded_quote_id', 'auditor_id']);
@@ -135,10 +135,10 @@ class RfqController extends BaseController
     {
         $rfq = PurchaseRfq::find($this->decodeId($id));
         if (!$rfq) {
-            return $this->fail('询价单不存在', 404);
+            return $this->fail($this->trans('RFQ not found'), 404);
         }
         if ((int) $rfq->status !== PurchaseRfq::STATUS_DRAFT) {
-            return $this->fail('仅草稿状态的询价单可编辑', 422);
+            return $this->fail($this->trans('Only draft RFQs can be edited'), 422);
         }
 
         try {
@@ -179,10 +179,10 @@ class RfqController extends BaseController
     {
         $rfq = PurchaseRfq::find($this->decodeId($id));
         if (!$rfq) {
-            return $this->fail('询价单不存在', 404);
+            return $this->fail($this->trans('RFQ not found'), 404);
         }
         if ((int) $rfq->status !== PurchaseRfq::STATUS_DRAFT) {
-            return $this->fail('仅草稿状态的询价单可删除', 422);
+            return $this->fail($this->trans('Only draft RFQs can be deleted'), 422);
         }
         $error = $this->confirmPassword((int) ($request->adminId ?? 0), (string) $request->input('password', ''), $request);
         if ($error !== null) {
@@ -204,10 +204,10 @@ class RfqController extends BaseController
     {
         $rfq = PurchaseRfq::find($this->decodeId($id));
         if (!$rfq) {
-            return $this->fail('询价单不存在', 404);
+            return $this->fail($this->trans('RFQ not found'), 404);
         }
         if ((int) $rfq->status !== PurchaseRfq::STATUS_DRAFT) {
-            return $this->fail('仅草稿状态的询价单可发布', 422);
+            return $this->fail($this->trans('Only draft RFQs can be published'), 422);
         }
         $rfq->status = PurchaseRfq::STATUS_SUBMITTED;
         $rfq->save();
@@ -227,7 +227,7 @@ class RfqController extends BaseController
     {
         $rfq = PurchaseRfq::with('items')->find($this->decodeId($id));
         if (!$rfq) {
-            return $this->fail('询价单不存在', 404);
+            return $this->fail($this->trans('RFQ not found'), 404);
         }
         $quotes = PurchaseRfqQuote::with('items')
             ->where('rfq_id', $rfq->id)->where('status', 0)
@@ -300,7 +300,7 @@ class RfqController extends BaseController
     {
         $quoteId = $this->decodeIdSafe((string) $request->input('quote_id', ''));
         if ($quoteId === null || $quoteId <= 0) {
-            return $this->fail('缺少有效的 quote_id', 422);
+            return $this->fail($this->trans('Missing a valid quote_id'), 422);
         }
         try {
             $order = Container::get(RfqService::class)->award($this->decodeId($id), $quoteId, (int) ($request->adminId ?? 0));
@@ -324,11 +324,11 @@ class RfqController extends BaseController
     {
         $rfq = PurchaseRfq::find($this->decodeId($id));
         if (!$rfq) {
-            return $this->fail('询价单不存在', 404);
+            return $this->fail($this->trans('RFQ not found'), 404);
         }
         $status = (int) $rfq->status;
         if (in_array($status, [PurchaseRfq::STATUS_CLOSED, PurchaseRfq::STATUS_CANCELLED], true)) {
-            return $this->fail('询价单已关闭或取消', 422);
+            return $this->fail($this->trans('The RFQ has been closed or cancelled'), 422);
         }
         $rfq->status = $status === PurchaseRfq::STATUS_DRAFT ? PurchaseRfq::STATUS_CANCELLED : PurchaseRfq::STATUS_CLOSED;
         $rfq->save();

@@ -174,7 +174,7 @@ class ProjectCostController extends BaseController
         $id = $this->decodeId($id);
         $item = ProjectCost::query()->find($id);
         if (!$item) {
-            return $this->fail('成本记录不存在', 404);
+            return $this->fail($this->trans('Cost record not found'), 404);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);

@@ -81,8 +81,8 @@ class WorkflowModuleTest extends TestCase
             $this->assertNotSame(0, $s);
         }
         $source = file_get_contents(__DIR__ . '/../app/controller/workflow/ApprovalController.php');
-        $this->assertStringContainsString('当前状态不可审批', $source);
-        $this->assertStringContainsString('当前状态不可撤回', $source);
+        $this->assertStringContainsString('The current status cannot be approved', $source);
+        $this->assertStringContainsString('The current status cannot be withdrawn', $source);
     }
 
     public function testRejectRequiresComment(): void
@@ -93,7 +93,7 @@ class WorkflowModuleTest extends TestCase
         $this->assertFalse(empty($comment2));
 
         $source = file_get_contents(__DIR__ . '/../app/controller/workflow/ApprovalController.php');
-        $this->assertStringContainsString('驳回意见不能为空', $source);
+        $this->assertStringContainsString('The rejection comment cannot be empty', $source);
     }
 
     public function testRejectMarksInstanceRejected(): void
@@ -117,7 +117,7 @@ class WorkflowModuleTest extends TestCase
         $this->assertTrue((int) $submitterId === (int) $submitterId, '提交人本人可撤回');
 
         $source = file_get_contents(__DIR__ . '/../app/controller/workflow/ApprovalController.php');
-        $this->assertStringContainsString('仅提交人可撤回', $source);
+        $this->assertStringContainsString('Only the submitter can withdraw', $source);
         $this->assertStringContainsString('403', $source);
     }
 
@@ -145,7 +145,7 @@ class WorkflowModuleTest extends TestCase
         $this->assertTrue((bool) $validType && (bool) $validId, '合法的类型与ID应通过');
 
         $source = file_get_contents(__DIR__ . '/../app/controller/workflow/ApprovalController.php');
-        $this->assertStringContainsString('单据类型和ID不能为空', $source);
+        $this->assertStringContainsString('Document type and ID cannot be empty', $source);
     }
 
     public function testSubmitStartsAtFirstNodeWithStatusPending(): void
@@ -170,7 +170,7 @@ class WorkflowModuleTest extends TestCase
         $this->assertTrue((bool) $enabled['enabled']);
 
         $source = file_get_contents(__DIR__ . '/../app/controller/workflow/ApprovalController.php');
-        $this->assertStringContainsString('工作流不存在或已禁用', $source);
+        $this->assertStringContainsString('Workflow not found or disabled', $source);
     }
 
     public function testSubmitDuplicateInstanceRejected(): void
@@ -180,7 +180,7 @@ class WorkflowModuleTest extends TestCase
         $this->assertTrue($exists, '重复提交应被拒绝');
 
         $source = file_get_contents(__DIR__ . '/../app/controller/workflow/ApprovalController.php');
-        $this->assertStringContainsString('该单据已提交审批', $source);
+        $this->assertStringContainsString('This document has already been submitted for approval', $source);
 
         $migration = file_get_contents(__DIR__ . '/../database/install.sql');
         $this->assertStringContainsString('uk_target', $migration, 'target_type+target_id 应唯一');
@@ -193,7 +193,7 @@ class WorkflowModuleTest extends TestCase
         $this->assertNull($firstNode, '无节点时首节点为空');
 
         $source = file_get_contents(__DIR__ . '/../app/controller/workflow/ApprovalController.php');
-        $this->assertStringContainsString('工作流未配置审批节点', $source);
+        $this->assertStringContainsString('The workflow has no approval nodes configured', $source);
     }
 
     public function testWorkflowNodeDefaultsFromNodeData(): void

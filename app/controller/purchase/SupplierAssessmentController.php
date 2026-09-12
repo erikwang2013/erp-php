@@ -103,7 +103,7 @@ class SupplierAssessmentController extends BaseController
     {
         $assessment = SupplierAssessment::find($this->decodeId($id));
         if (!$assessment) {
-            return $this->fail('评分记录不存在', 404);
+            return $this->fail($this->trans('Rating record not found'), 404);
         }
 
         return $this->success($this->encodeIds($assessment->toArray(), ['id', 'supplier_id', 'assessor_id']));
@@ -120,7 +120,7 @@ class SupplierAssessmentController extends BaseController
     {
         $assessment = SupplierAssessment::find($this->decodeId($id));
         if (!$assessment) {
-            return $this->fail('评分记录不存在', 404);
+            return $this->fail($this->trans('Rating record not found'), 404);
         }
 
         if ($request->has('total_score')) {
@@ -156,7 +156,7 @@ class SupplierAssessmentController extends BaseController
     {
         $assessment = SupplierAssessment::find($this->decodeId($id));
         if (!$assessment) {
-            return $this->fail('评分记录不存在', 404);
+            return $this->fail($this->trans('Rating record not found'), 404);
         }
         $error = $this->confirmPassword((int) ($request->adminId ?? 0), (string) $request->input('password', ''), $request);
         if ($error !== null) {

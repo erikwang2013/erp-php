@@ -113,17 +113,17 @@ class SubcontractController extends BaseController
         }
         $quantity = bc_norm((string) $request->input('quantity'));
         if (bccomp($quantity, '0', 4) <= 0) {
-            return $this->fail('委外数量必须大于0', 422);
+            return $this->fail($this->trans('Subcontract quantity must be greater than 0'), 422);
         }
         $unitPrice = bc_norm((string) $request->input('unit_price'));
         if (bccomp($unitPrice, '0', 4) < 0) {
-            return $this->fail('加工单价不能为负数', 422);
+            return $this->fail($this->trans('Processing unit price cannot be negative'), 422);
         }
         if (!Supplier::query()->where('id', (int) $request->input('supplier_id'))->exists()) {
-            return $this->fail('供应商不存在', 422);
+            return $this->fail($this->trans('Supplier not found'), 422);
         }
         if (!ProductSku::query()->where('product_id', (int) $request->input('product_id'))->exists()) {
-            return $this->fail('委外产品不存在或未建SKU', 422);
+            return $this->fail($this->trans('The subcontract product does not exist or has no SKU'), 422);
         }
 
         $id = $this->generateId();
@@ -141,7 +141,7 @@ class SubcontractController extends BaseController
             $doc->save();
         } catch (QueryException $e) {
             if ($this->service()->isDuplicateKey($e)) {
-                return $this->fail('委外单号已存在', 422);
+                return $this->fail($this->trans('Subcontract order number already exists'), 422);
             }
             throw $e;
         }
@@ -225,7 +225,7 @@ class SubcontractController extends BaseController
             ]);
         } catch (QueryException $e) {
             if ($this->service()->isDuplicateKey($e)) {
-                return $this->fail('委外单号已存在', 422);
+                return $this->fail($this->trans('Subcontract order number already exists'), 422);
             }
             throw $e;
         }

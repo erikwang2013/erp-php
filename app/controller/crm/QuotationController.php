@@ -200,7 +200,7 @@ class QuotationController extends BaseController
         }
 
         if ((int) $item->status !== 0) {
-            return $this->fail('仅草稿状态可编辑', 422);
+            return $this->fail($this->trans('Only draft records can be edited'), 422);
         }
 
         $data = $request->all();
@@ -301,7 +301,7 @@ class QuotationController extends BaseController
         $id = $this->decodeId($id);
         $quotation = $this->crm()->find(CrmQuotation::class, $id);
         if (!$quotation) {
-            return $this->fail('报价不存在', 404);
+            return $this->fail($this->trans('Quotation not found'), 404);
         }
 
         $result = $this->crm()->convertQuotationToContract(

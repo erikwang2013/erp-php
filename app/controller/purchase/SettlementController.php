@@ -123,7 +123,7 @@ class SettlementController extends BaseController
 
         $receiveId = $this->decodeFlexibleId((string) $request->input('receive_id'));
         if ($receiveId === null || $receiveId < 1) {
-            return $this->fail('收货单ID无效', 422);
+            return $this->fail($this->trans('Invalid receipt ID'), 422);
         }
         $arAp = FinanceArAp::where('type', self::AP_TYPE)->where('source_type', self::SOURCE_TYPE)
             ->where('source_id', $receiveId)->first();
@@ -210,7 +210,7 @@ class SettlementController extends BaseController
         if ($request->input('amount') !== null && $request->input('amount') !== '') {
             $amount = bc_norm($request->input('amount'));
             if (bccomp($amount, bc_norm($item->settled_amount), 4) < 0) {
-                return $this->fail('金额不能小于已核销金额', 422);
+                return $this->fail($this->trans('The amount cannot be less than the written-off amount'), 422);
             }
             $item->amount = $amount;
             // status 由核销流程(FinanceService)维护、format() 推导，此处不写避免双源
@@ -250,7 +250,7 @@ class SettlementController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if (bccomp(bc_norm($item->settled_amount), '0', 4) > 0) {
-            return $this->fail('已核销记录不可删除', 422);
+            return $this->fail($this->trans('Written-off records cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

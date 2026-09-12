@@ -82,7 +82,7 @@ class ProductController extends BaseController
         ])->find($id);
 
         if (!$product) {
-            return $this->fail('商品不存在', 404);
+            return $this->fail($this->trans('Product not found'), 404);
         }
 
         return $this->success($this->encodeIds($product->toArray()));

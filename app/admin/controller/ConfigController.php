@@ -104,7 +104,7 @@ class ConfigController extends BaseController
                               ->where('key', $request->input('key'))
                               ->exists();
         if ($exists) {
-            return $this->fail('配置项已存在', 422);
+            return $this->fail($this->trans('Config key already exists'), 422);
         }
 
         $config = new SystemConfig();
@@ -149,7 +149,7 @@ class ConfigController extends BaseController
         $id = $this->decodeId($id);
         $config = SystemConfig::find($id);
         if (!$config) {
-            return $this->fail('配置项不存在', 404);
+            return $this->fail($this->trans('Config key not found'), 404);
         }
 
         if ($request->has('value')) {
@@ -192,7 +192,7 @@ class ConfigController extends BaseController
         $id = $this->decodeId($id);
         $config = SystemConfig::find($id);
         if (!$config) {
-            return $this->fail('配置项不存在', 404);
+            return $this->fail($this->trans('Config key not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;

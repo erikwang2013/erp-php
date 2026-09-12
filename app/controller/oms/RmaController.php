@@ -255,7 +255,7 @@ class RmaController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         if ($rma->status !== 0) {
-            return $this->fail('当前状态不可审批', 400);
+            return $this->fail($this->trans('The current status cannot be approved'), 400);
         }
 
         $approved = $request->input('approved', true);
@@ -302,7 +302,7 @@ class RmaController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         if ($rma->status !== 2) {
-            return $this->fail('请等待退货寄回后再确认收货', 400);
+            return $this->fail($this->trans('Please wait for the returned goods to arrive before confirming receipt'), 400);
         }
 
         $rma->status = 3;
@@ -343,7 +343,7 @@ class RmaController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         if ($rma->status !== 3 && $rma->status !== 1) {
-            return $this->fail('当前状态不可退款', 400);
+            return $this->fail($this->trans('The current status cannot be refunded'), 400);
         }
 
         $rma->status = 4;

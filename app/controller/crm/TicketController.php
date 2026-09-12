@@ -259,7 +259,7 @@ class TicketController extends BaseController
         $raw = $request->input('assignee_user_id', 0);
         $assigneeUserId = $this->decodeIdSafe((string) $raw) ?? (int) $raw;
         if ($assigneeUserId <= 0) {
-            return $this->fail('请指定指派人', 422);
+            return $this->fail($this->trans('Please assign an owner'), 422);
         }
 
         $item = $this->crm()->assignTicket($id, $assigneeUserId);
@@ -328,7 +328,7 @@ class TicketController extends BaseController
         $id = $this->decodeId($id);
         $ticket = $this->crm()->find(CrmTicket::class, $id);
         if (!$ticket) {
-            return $this->fail('工单不存在', 404);
+            return $this->fail($this->trans('Work order not found'), 404);
         }
 
         $validator = validator($request->all(), ['content' => 'required|string', 'is_internal' => 'integer']);

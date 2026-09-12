@@ -107,7 +107,7 @@ class FreightRateController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $serviceId = $this->decodeFlexibleId((string) $request->input('carrier_service_id'));
         if ($serviceId === null || $serviceId < 1) {
-            return $this->fail('承运服务ID无效', 422);
+            return $this->fail($this->trans('Invalid carrier service ID'), 422);
         }
         $item->carrier_service_id = $serviceId;
         if ($request->input('valid_to') === '') {
@@ -187,7 +187,7 @@ class FreightRateController extends BaseController
         if ($rawServiceId !== null && $rawServiceId !== '') {
             $serviceId = $this->decodeFlexibleId((string) $rawServiceId);
             if ($serviceId === null || $serviceId < 1) {
-                return $this->fail('承运服务ID无效', 422);
+                return $this->fail($this->trans('Invalid carrier service ID'), 422);
             }
             $item->carrier_service_id = $serviceId;
         }
@@ -270,7 +270,7 @@ class FreightRateController extends BaseController
         $carrierServiceId = (int) $request->input('carrier_service_id', 0);
         $weightKg = (float) $request->input('weight_kg', 0);
         if ($carrierServiceId <= 0 || $weightKg <= 0) {
-            return $this->fail('carrier_service_id 与 weight_kg 必须大于0', 422);
+            return $this->fail($this->trans('carrier_service_id and weight_kg must be greater than 0'), 422);
         }
 
         return $this->success((new FreightCalculatorService())->calculate($carrierServiceId, (string) $request->input('dest_country', ''), $weightKg));
@@ -302,7 +302,7 @@ class FreightRateController extends BaseController
         }
         $weightKg = (float) $request->input('weight_kg', 0);
         if ($weightKg <= 0) {
-            return $this->fail('weight_kg 必须大于0', 422);
+            return $this->fail($this->trans('weight_kg must be greater than 0'), 422);
         }
 
         return $this->success(['list' => (new FreightCalculatorService())->rateShop((string) $request->input('dest_country', ''), $weightKg)]);

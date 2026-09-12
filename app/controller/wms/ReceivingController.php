@@ -241,7 +241,7 @@ class ReceivingController extends BaseController
 
         $actuals = $request->input('items', []);
         if (empty($actuals)) {
-            return $this->fail('请提供收货明细', 422);
+            return $this->fail($this->trans('Please provide receipt details'), 422);
         }
 
         try {

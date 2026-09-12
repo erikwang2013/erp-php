@@ -61,7 +61,7 @@ class FulfillmentController extends BaseController
             // 过滤参数接收 hashid：解码失败/非正数一律 422 明确文案（防 raw 数字被 decodeId 误解）
             $decodedOrderId = $this->decodeIdSafe((string) $omsOrderId);
             if ($decodedOrderId === null || $decodedOrderId < 1) {
-                return $this->fail('无效的 oms_order_id', 422);
+                return $this->fail($this->trans('Invalid oms_order_id'), 422);
             }
             $query->where('oms_fulfillment.oms_order_id', $decodedOrderId);
         }
@@ -214,7 +214,7 @@ class FulfillmentController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $item->status >= 5) {
-            return $this->fail('已发货记录不可修改', 422);
+            return $this->fail($this->trans('Shipped records cannot be modified'), 422);
         }
 
         // 两个 FK 双模解码防孤儿行；status/WMS/TMS 任务引用不在编辑入口暴露

@@ -275,7 +275,7 @@ class FreightInvoiceController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         if ($item->status !== 1) {
-            return $this->fail('请先确认运费发票', 400);
+            return $this->fail($this->trans('Please confirm the freight invoice first'), 400);
         }
         $item->status = 2;
         $item->save();

@@ -49,7 +49,7 @@ class ConsolidationController extends BaseController
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
         if ($companyId === null) {
-            return $this->fail('company_id 必填', 422);
+            return $this->fail($this->trans('company_id is required'), 422);
         }
         try {
             $report = (new ConsolidationService())->generateDraft(
@@ -92,11 +92,11 @@ class ConsolidationController extends BaseController
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
         if ($companyId === null) {
-            return $this->fail('company_id 必填', 422);
+            return $this->fail($this->trans('company_id is required'), 422);
         }
         $report = (new ConsolidationService())->latest($companyId, $year, $month);
         if (!$report) {
-            return $this->fail('该集团与期间暂无合并报表', 404);
+            return $this->fail($this->trans('No consolidated report exists for this group and period'), 404);
         }
 
         return $this->success($this->encodeIds($report->toArray(), ['id', 'company_id']));
@@ -129,7 +129,7 @@ class ConsolidationController extends BaseController
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
         if ($companyId === null) {
-            return $this->fail('company_id 必填', 422);
+            return $this->fail($this->trans('company_id is required'), 422);
         }
         $rows = (new ConsolidationService())->list($companyId, $year, $month);
         $items = [];
@@ -162,7 +162,7 @@ class ConsolidationController extends BaseController
         $reportId = $this->decodeIdSafe((string) $request->input('report_id', ''));
         $rows = $request->input('eliminations', []);
         if ($reportId === null || !is_array($rows) || $rows === []) {
-            return $this->fail('report_id 与 eliminations 必填', 422);
+            return $this->fail($this->trans('report_id and eliminations are required'), 422);
         }
         try {
             $report = (new ConsolidationService())->addElimination($reportId, $rows);
@@ -194,7 +194,7 @@ class ConsolidationController extends BaseController
         }
         $reportId = $this->decodeIdSafe((string) $request->input('report_id', ''));
         if ($reportId === null) {
-            return $this->fail('report_id 必填', 422);
+            return $this->fail($this->trans('report_id is required'), 422);
         }
         try {
             $report = (new ConsolidationService())->issue($reportId);

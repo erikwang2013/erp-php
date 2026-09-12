@@ -173,7 +173,7 @@ class FinanceBillController extends BaseController
     {
         $bill = FinanceBill::find($this->decodeId($id));
         if (!$bill) {
-            return $this->fail('票据不存在', 404);
+            return $this->fail($this->trans('Bill not found'), 404);
         }
 
         return $this->success($this->present($bill));
@@ -189,7 +189,7 @@ class FinanceBillController extends BaseController
     {
         $id = $this->decodeId($id);
         if (!FinanceBill::find($id)) {
-            return $this->fail('票据不存在', 404);
+            return $this->fail($this->trans('Bill not found'), 404);
         }
         $data = $this->collectPayload($request);
         unset($data['bill_no'], $data['type'], $data['direction'], $data['source_type'], $data['source_id']);
@@ -212,10 +212,10 @@ class FinanceBillController extends BaseController
         $id = $this->decodeId($id);
         $bill = FinanceBill::find($id);
         if (!$bill) {
-            return $this->fail('票据不存在', 404);
+            return $this->fail($this->trans('Bill not found'), 404);
         }
         if ((int) $bill->status !== 0) {
-            return $this->fail('仅 在库 票据可删除', 422);
+            return $this->fail($this->trans('Only bills in stock can be deleted'), 422);
         }
         $adminId = $request->adminId ?? 0;
         if (($error = $this->confirmPassword($adminId, $request->input('password', ''), $request)) !== null) {

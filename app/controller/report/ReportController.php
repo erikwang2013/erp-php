@@ -143,7 +143,7 @@ class ReportController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = ReportTemplate::with(['fields', 'filters'])->find($id);
         if (!$item) {
@@ -184,7 +184,7 @@ class ReportController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = ReportTemplate::find($id);
         if (!$item) {
@@ -222,7 +222,7 @@ class ReportController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = ReportTemplate::find($id);
         if (!$item) {
@@ -273,7 +273,7 @@ class ReportController extends BaseController
         }
         $templateId = $this->decodeIdSafe($id);
         if (!$templateId) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $fields = ReportField::where('template_id', $templateId)
             ->orderBy('sort_order', 'asc')
@@ -343,7 +343,7 @@ class ReportController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = ReportField::find($id);
         if (!$item) {
@@ -382,7 +382,7 @@ class ReportController extends BaseController
         }
         $templateId = $this->decodeIdSafe($id);
         if (!$templateId) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $filters = ReportFilter::where('template_id', $templateId)
             ->orderBy('id', 'asc')
@@ -450,7 +450,7 @@ class ReportController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = ReportFilter::find($id);
         if (!$item) {
@@ -491,11 +491,11 @@ class ReportController extends BaseController
         }
         $templateId = $this->decodeIdSafe($id);
         if (!$templateId) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $template = ReportTemplate::with(['fields', 'filters'])->find($templateId);
         if (!$template) {
-            return $this->fail('报表模板不存在', 404);
+            return $this->fail($this->trans('Report template not found'), 404);
         }
 
         $queryConfig = $template->query_config;
@@ -513,7 +513,7 @@ class ReportController extends BaseController
         $allowedTables = array_unique($m[1]);
 
         if (!in_array($table, $allowedTables, true)) {
-            return $this->fail('不允许的表名: ' . $table, 422);
+            return $this->fail($this->trans('Disallowed table name: ') . $table, 422);
         }
 
         // 校验字段/聚合函数/筛选字段/group_by/join 标识符（白名单，拒绝任何函数/表达式片段）
@@ -555,13 +555,13 @@ class ReportController extends BaseController
                 $joinTable = (string) ($join['table'] ?? '');
                 $joinOn = (string) ($join['on'] ?? '');
                 if (!in_array($joinType, ['LEFT', 'RIGHT', 'INNER'], true)) {
-                    return $this->fail('不支持的 JOIN 类型: ' . $joinType, 422);
+                    return $this->fail($this->trans('Unsupported JOIN type: ') . $joinType, 422);
                 }
                 if (!in_array($joinTable, $allowedTables, true)) {
-                    return $this->fail('不允许的表名: ' . $joinTable, 422);
+                    return $this->fail($this->trans('Disallowed table name: ') . $joinTable, 422);
                 }
                 if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?\s*(=|<=>|<|>|<=|>=|!=)\s*[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', $joinOn)) {
-                    return $this->fail('JOIN ON 条件非法：仅支持 "列 操作符 列"', 422);
+                    return $this->fail($this->trans('Illegal JOIN ON condition: only "column operator column" is supported'), 422);
                 }
                 $sql .= " {$joinType} JOIN {$joinTable} ON {$joinOn}";
             }
@@ -623,11 +623,11 @@ class ReportController extends BaseController
         if (!empty($queryConfig['where'])) {
             foreach ($queryConfig['where'] as $w) {
                 if (!is_array($w)) {
-                    return $this->fail('where 条件必须为结构化字段条件（field/op/value）', 422);
+                    return $this->fail($this->trans('where conditions must be structured field conditions (field/op/value)'), 422);
                 }
                 $clause = $this->buildWhereClause($w);
                 if ($clause === null) {
-                    return $this->fail('where 条件非法：仅支持白名单字段与 eq/neq/gt/gte/lt/lte/like/between/in 操作符', 422);
+                    return $this->fail($this->trans('Illegal where condition: only whitelisted fields and eq/neq/gt/gte/lt/lte/like/between/in operators are supported'), 422);
                 }
                 $whereClauses[] = $clause[0];
                 array_push($params, ...$clause[1]);
@@ -641,7 +641,7 @@ class ReportController extends BaseController
         // GROUP BY（仅允许单个/逗号分隔的列名，拒绝函数/表达式；每段可带 alias. 前缀）
         if ($groupBy) {
             if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?(\s*,\s*[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?)*$/', $groupBy)) {
-                return $this->fail('GROUP BY 字段非法', 422);
+                return $this->fail($this->trans('Illegal GROUP BY field'), 422);
             }
             $groupBySql = implode(', ', array_map(fn (string $g) => $this->quoteColumn(trim($g)), explode(',', $groupBy)));
             $sql .= ' GROUP BY ' . $groupBySql;
@@ -786,12 +786,12 @@ class ReportController extends BaseController
         if ($datasetId) {
             $datasetId = $this->decodeIdSafe($datasetId);
             if (!$datasetId) {
-                return $this->fail('无效ID', 400);
+                return $this->fail($this->trans('Invalid ID'), 400);
             }
             $dataset = ReportDataset::find($datasetId);
         } else {
             if (!$id) {
-                return $this->fail('无效ID', 400);
+                return $this->fail($this->trans('Invalid ID'), 400);
             }
             // 获取该模板最新的数据集
             $dataset = ReportDataset::where('template_id', $id)

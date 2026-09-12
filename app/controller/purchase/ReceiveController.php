@@ -140,7 +140,7 @@ class ReceiveController extends BaseController
         $orderId = $this->decodeId($request->input('order_id'));
         $order = PurchaseOrder::find($orderId);
         if (!$order) {
-            return $this->fail('采购订单不存在', 404);
+            return $this->fail($this->trans('Purchase order not found'), 404);
         }
 
         // 预取订单明细（按 id 索引），供归属校验与超收校验使用
@@ -256,7 +256,7 @@ class ReceiveController extends BaseController
             DB::rollBack();
             $this->logError('执行收货', $e);
 
-            return $this->fail('收货失败: ' . $e->getMessage(), 500);
+            return $this->fail($this->trans('Receipt failed: ') . $e->getMessage(), 500);
         }
     }
 
@@ -333,7 +333,7 @@ class ReceiveController extends BaseController
         $id = $this->decodeId($id);
         $receive = PurchaseReceive::with(['items', 'order', 'supplier', 'warehouse'])->find($id);
         if (!$receive) {
-            return $this->fail('收货单不存在', 404);
+            return $this->fail($this->trans('Receipt not found'), 404);
         }
 
         return $this->success($this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']));
@@ -365,7 +365,7 @@ class ReceiveController extends BaseController
         $id = $this->decodeId($id);
         $receive = PurchaseReceive::find($id);
         if (!$receive) {
-            return $this->fail('收货单不存在', 404);
+            return $this->fail($this->trans('Receipt not found'), 404);
         }
 
         if ($request->input('remark') !== null) {
@@ -402,10 +402,10 @@ class ReceiveController extends BaseController
         $id = $this->decodeId($id);
         $receive = PurchaseReceive::find($id);
         if (!$receive) {
-            return $this->fail('收货单不存在', 404);
+            return $this->fail($this->trans('Receipt not found'), 404);
         }
         if ($receive->status === 1) {
-            return $this->fail('已入库的收货单不可删除', 422);
+            return $this->fail($this->trans('Received stock-in receipts cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

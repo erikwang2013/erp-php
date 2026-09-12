@@ -165,7 +165,7 @@ class CampaignController extends BaseController
         }
 
         if ((int) $item->status !== 0 && (int) $item->status !== 1) {
-            return $this->fail('仅计划中或进行中状态可编辑', 422);
+            return $this->fail($this->trans('Only planned or in-progress records can be edited'), 422);
         }
 
         $item = $this->crm()->update(CrmCampaign::class, $id, $this->normalizeFkData($request->all()));

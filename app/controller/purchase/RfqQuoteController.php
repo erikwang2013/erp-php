@@ -65,7 +65,7 @@ class RfqQuoteController extends BaseController
         $rfqId = $this->decodeIdSafe((string) $request->input('rfq_id', ''));
         $supplierId = $this->decodeIdSafe((string) $request->input('supplier_id', ''));
         if ($rfqId === null || $supplierId === null) {
-            return $this->fail('缺少有效的 rfq_id 或 supplier_id', 422);
+            return $this->fail($this->trans('Missing a valid rfq_id or supplier_id'), 422);
         }
         $validator = validator($request->all(), [
             'items' => 'required|array|min:1',
@@ -127,7 +127,7 @@ class RfqQuoteController extends BaseController
     {
         $quote = PurchaseRfqQuote::with('items')->find($this->decodeId($id));
         if (!$quote) {
-            return $this->fail('报价不存在', 404);
+            return $this->fail($this->trans('Quotation not found'), 404);
         }
         $data = $this->encodeIds($quote->toArray(), ['id', 'rfq_id', 'supplier_id']);
         $data['items'] = array_map(fn ($i) => $this->encodeIds($i, ['id', 'quote_id', 'rfq_item_id', 'product_id']), $data['items'] ?? []);
@@ -146,7 +146,7 @@ class RfqQuoteController extends BaseController
     {
         $quote = PurchaseRfqQuote::find($this->decodeId($id));
         if (!$quote) {
-            return $this->fail('报价不存在', 404);
+            return $this->fail($this->trans('Quotation not found'), 404);
         }
         if ((int) $quote->awarded === 1) {
             return $this->fail('该报价已中标，不可修改', 422);
@@ -195,7 +195,7 @@ class RfqQuoteController extends BaseController
     {
         $quote = PurchaseRfqQuote::find($this->decodeId($id));
         if (!$quote) {
-            return $this->fail('报价不存在', 404);
+            return $this->fail($this->trans('Quotation not found'), 404);
         }
         if ((int) $quote->awarded === 1) {
             return $this->fail('该报价已中标，不可删除', 422);

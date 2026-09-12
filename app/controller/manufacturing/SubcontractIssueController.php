@@ -115,15 +115,15 @@ class SubcontractIssueController extends BaseController
         }
         $subcontractId = (int) $request->input('subcontract_id');
         if (!MfgSubcontract::query()->where('id', $subcontractId)->exists()) {
-            return $this->fail('委外订单不存在', 422);
+            return $this->fail($this->trans('Subcontract order not found'), 422);
         }
         $items = (array) $request->input('items', []);
         foreach ($items as $i => $row) {
             if (bccomp(bc_norm((string) ($row['quantity'] ?? '0')), '0', 4) <= 0) {
-                return $this->fail('明细第' . ($i + 1) . '行发料数量必须大于0', 422);
+                return $this->fail($this->trans('Detail row ') . ($i + 1) . '行发料数量必须大于0', 422);
             }
             if (!ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->exists()) {
-                return $this->fail('明细第' . ($i + 1) . '行SKU不存在', 422);
+                return $this->fail($this->trans('Detail row ') . ($i + 1) . '行SKU不存在', 422);
             }
         }
 
@@ -155,7 +155,7 @@ class SubcontractIssueController extends BaseController
             });
         } catch (QueryException $e) {
             if ($this->service()->isDuplicateKey($e)) {
-                return $this->fail('发料单号已存在', 422);
+                return $this->fail($this->trans('Material issue number already exists'), 422);
             }
             throw $e;
         }
@@ -221,7 +221,7 @@ class SubcontractIssueController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的发料单不可修改', 422);
+            return $this->fail($this->trans('Audited material issues cannot be modified'), 422);
         }
         $data = $request->all();
         unset($data['code'], $data['subcontract_id'], $data['status']);
@@ -231,20 +231,20 @@ class SubcontractIssueController extends BaseController
             $this->service()->update(MfgSubcontractIssue::class, $id, $data, ['code', 'subcontract_id', 'status', 'total_cost', 'audit_at']);
         } catch (QueryException $e) {
             if ($this->service()->isDuplicateKey($e)) {
-                return $this->fail('发料单号已存在', 422);
+                return $this->fail($this->trans('Material issue number already exists'), 422);
             }
             throw $e;
         }
         if ($items !== null) {
             if (count($items) === 0) {
-                return $this->fail('明细不能为空', 422);
+                return $this->fail($this->trans('Details cannot be empty'), 422);
             }
             foreach ($items as $i => $row) {
                 if (bccomp(bc_norm((string) ($row['quantity'] ?? '0')), '0', 4) <= 0) {
-                    return $this->fail('明细第' . ($i + 1) . '行发料数量必须大于0', 422);
+                    return $this->fail($this->trans('Detail row ') . ($i + 1) . '行发料数量必须大于0', 422);
                 }
                 if (!ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->exists()) {
-                    return $this->fail('明细第' . ($i + 1) . '行SKU不存在', 422);
+                    return $this->fail($this->trans('Detail row ') . ($i + 1) . '行SKU不存在', 422);
                 }
             }
             DB::transaction(function () use ($id, $items) {
@@ -291,7 +291,7 @@ class SubcontractIssueController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的发料单不可删除', 422);
+            return $this->fail($this->trans('Audited material issues cannot be deleted'), 422);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);

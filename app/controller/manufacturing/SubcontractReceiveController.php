@@ -106,11 +106,11 @@ class SubcontractReceiveController extends BaseController
         }
         $quantity = bc_norm((string) $request->input('quantity'));
         if (bccomp($quantity, '0', 4) <= 0) {
-            return $this->fail('收料数量必须大于0', 422);
+            return $this->fail($this->trans('Receipt quantity must be greater than 0'), 422);
         }
         $subcontract = MfgSubcontract::query()->where('id', (int) $request->input('subcontract_id'))->first();
         if (!$subcontract) {
-            return $this->fail('委外订单不存在', 422);
+            return $this->fail($this->trans('Subcontract order not found'), 422);
         }
         $warehouseId = $request->input('warehouse_id')
             ? (int) $request->input('warehouse_id')
@@ -130,7 +130,7 @@ class SubcontractReceiveController extends BaseController
             $doc->save();
         } catch (QueryException $e) {
             if ($this->service()->isDuplicateKey($e)) {
-                return $this->fail('收料单号已存在', 422);
+                return $this->fail($this->trans('Receipt number already exists'), 422);
             }
             throw $e;
         }
@@ -193,7 +193,7 @@ class SubcontractReceiveController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的收料单不可修改', 422);
+            return $this->fail($this->trans('Audited receipts cannot be modified'), 422);
         }
         $data = $request->all();
         unset($data['code'], $data['subcontract_id'], $data['status']);
@@ -206,7 +206,7 @@ class SubcontractReceiveController extends BaseController
             ]);
         } catch (QueryException $e) {
             if ($this->service()->isDuplicateKey($e)) {
-                return $this->fail('收料单号已存在', 422);
+                return $this->fail($this->trans('Receipt number already exists'), 422);
             }
             throw $e;
         }
@@ -239,7 +239,7 @@ class SubcontractReceiveController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的收料单不可删除', 422);
+            return $this->fail($this->trans('Audited receipts cannot be deleted'), 422);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);

@@ -121,7 +121,7 @@ class BalanceSheetController extends BaseController
             ->where('report_month', $month)
             ->first();
         if ($existing) {
-            return $this->fail('该期间已存在资产负债表快照', 422);
+            return $this->fail($this->trans('A balance sheet snapshot already exists for this period'), 422);
         }
 
         $item = new FinanceBalanceSheet();

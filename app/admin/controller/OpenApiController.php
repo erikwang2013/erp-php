@@ -102,7 +102,7 @@ class OpenApiController extends BaseController
         }
         $app = OpenApiApp::find($this->decodeId($id));
         if (!$app) {
-            return $this->fail('应用不存在', 404);
+            return $this->fail($this->trans('Application not found'), 404);
         }
 
         return $this->success($this->encodeIds($app->toArray()));
@@ -138,7 +138,7 @@ class OpenApiController extends BaseController
 
         $scopes = $this->sanitizeScopes($request->input('scopes'));
         if ($scopes === false) {
-            return $this->fail('scopes 须为以 / 开头的路径前缀数组', 422);
+            return $this->fail($this->trans('scopes must be an array of path prefixes starting with /'), 422);
         }
 
         $secret = bin2hex(random_bytes(32));
@@ -180,7 +180,7 @@ class OpenApiController extends BaseController
     {
         $app = OpenApiApp::find($this->decodeId($id));
         if (!$app) {
-            return $this->fail('应用不存在', 404);
+            return $this->fail($this->trans('Application not found'), 404);
         }
 
         $validator = validator($request->all(), [
@@ -195,7 +195,7 @@ class OpenApiController extends BaseController
 
         $scopes = $this->sanitizeScopes($request->input('scopes'));
         if ($scopes === false) {
-            return $this->fail('scopes 须为以 / 开头的路径前缀数组', 422);
+            return $this->fail($this->trans('scopes must be an array of path prefixes starting with /'), 422);
         }
 
         $app->app_name = trim((string) $request->input('app_name'));
@@ -238,7 +238,7 @@ class OpenApiController extends BaseController
 
         $app = OpenApiApp::find($this->decodeId($id));
         if (!$app) {
-            return $this->fail('应用不存在', 404);
+            return $this->fail($this->trans('Application not found'), 404);
         }
 
         WebhookSubscription::query()->where('app_id', $app->id)->update(['enabled' => 0]);
@@ -277,7 +277,7 @@ class OpenApiController extends BaseController
 
         $app = OpenApiApp::find($this->decodeId($id));
         if (!$app) {
-            return $this->fail('应用不存在', 404);
+            return $this->fail($this->trans('Application not found'), 404);
         }
 
         $secret = bin2hex(random_bytes(32));
@@ -314,7 +314,7 @@ class OpenApiController extends BaseController
         }
         $app = OpenApiApp::find($this->decodeId($id));
         if (!$app) {
-            return $this->fail('应用不存在', 404);
+            return $this->fail($this->trans('Application not found'), 404);
         }
 
         $app->status = (int) $app->status === 1 ? 0 : 1;

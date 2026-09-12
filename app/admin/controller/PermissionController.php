@@ -69,7 +69,7 @@ class PermissionController extends BaseController
         $id = $this->decodeId($id);
         $permission = AdminPermission::find($id);
         if (!$permission) {
-            return $this->fail('权限不存在', 404);
+            return $this->fail($this->trans('Permission not found'), 404);
         }
 
         return $this->success($this->encodeIds($permission->toArray()));
@@ -120,12 +120,12 @@ class PermissionController extends BaseController
         } else {
             $parentId = $this->decodeFlexibleId($parentStr);
             if ($parentId === null || $parentId < 1) {
-                return $this->fail('父级权限无效', 422);
+                return $this->fail($this->trans('Invalid parent permission'), 422);
             }
             // 解得出数字不等于节点存在（别的资源的 hashid 也能解出正整数）：
             // 挂到不存在的父级上，这节点在 buildTree 里永远匹配不上，管理端看不见也删不掉
             if (!AdminPermission::query()->where('id', $parentId)->exists()) {
-                return $this->fail('父级权限不存在', 422);
+                return $this->fail($this->trans('Parent permission not found'), 422);
             }
         }
 
@@ -176,7 +176,7 @@ class PermissionController extends BaseController
         $id = $this->decodeId($id);
         $perm = AdminPermission::find($id);
         if (!$perm) {
-            return $this->fail('权限不存在', 404);
+            return $this->fail($this->trans('Permission not found'), 404);
         }
 
         // parent_id 双模解码：缺省/留空=不改动；'0'=移到顶级；垃圾串 422 拒绝。
@@ -189,17 +189,17 @@ class PermissionController extends BaseController
             } else {
                 $parentId = $this->decodeFlexibleId($parentStr);
                 if ($parentId === null || $parentId < 1) {
-                    return $this->fail('父级权限无效', 422);
+                    return $this->fail($this->trans('Invalid parent permission'), 422);
                 }
                 if (!AdminPermission::query()->where('id', $parentId)->exists()) {
-                    return $this->fail('父级权限不存在', 422);
+                    return $this->fail($this->trans('Parent permission not found'), 422);
                 }
                 if ($parentId === $id) {
-                    return $this->fail('父级不能是自己', 422);
+                    return $this->fail($this->trans('Parent cannot be itself'), 422);
                 }
                 // 挂到自己的后代下会成环：buildTree 递归回到自身，接口直接挂死
                 if ($this->isInSubtree($parentId, $id)) {
-                    return $this->fail('父级不能是自己的子级', 422);
+                    return $this->fail($this->trans('Parent cannot be its own descendant'), 422);
                 }
                 $perm->parent_id = $parentId;
             }
@@ -239,7 +239,7 @@ class PermissionController extends BaseController
         $id = $this->decodeId($id);
         $perm = AdminPermission::find($id);
         if (!$perm) {
-            return $this->fail('权限不存在', 404);
+            return $this->fail($this->trans('Permission not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;

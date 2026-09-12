@@ -95,7 +95,7 @@ class CustomerController extends BaseController
         } else {
             $levelId = $this->decodeFlexibleId($levelStr);
             if ($levelId === null || $levelId < 1) {
-                return $this->fail('客户等级无效', 422);
+                return $this->fail($this->trans('Invalid customer level'), 422);
             }
             $data['level_id'] = $levelId;
         }
@@ -166,7 +166,7 @@ class CustomerController extends BaseController
         } else {
             $levelId = $this->decodeFlexibleId($levelStr);
             if ($levelId === null || $levelId < 1) {
-                return $this->fail('客户等级无效', 422);
+                return $this->fail($this->trans('Invalid customer level'), 422);
             }
             $data['level_id'] = $levelId;
         }

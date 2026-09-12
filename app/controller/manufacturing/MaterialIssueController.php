@@ -109,17 +109,17 @@ class MaterialIssueController extends BaseController
         foreach ((array) $request->input('items', []) as $i => $row) {
             $qty = bc_norm((string) ($row['quantity'] ?? '0'));
             if (bccomp($qty, '0', 4) <= 0) {
-                return $this->fail('明细第' . ($i + 1) . '行领料数量必须大于0', 422);
+                return $this->fail($this->trans('Detail row ') . ($i + 1) . '行领料数量必须大于0', 422);
             }
             $sku = ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->first();
             if (!$sku) {
-                return $this->fail('明细第' . ($i + 1) . '行SKU不存在', 422);
+                return $this->fail($this->trans('Detail row ') . ($i + 1) . '行SKU不存在', 422);
             }
             $items[] = ['sku_id' => (int) $sku->id, 'product_id' => (int) $sku->product_id, 'quantity' => $qty];
         }
         $order = MfgProductionOrder::query()->where('id', (int) $request->input('order_id'))->first();
         if (!$order) {
-            return $this->fail('生产工单不存在', 422);
+            return $this->fail($this->trans('Production order not found'), 422);
         }
         $warehouseId = (int) ($request->input('warehouse_id') !== null ? $request->input('warehouse_id') : $order->warehouse_id);
 
@@ -150,7 +150,7 @@ class MaterialIssueController extends BaseController
             });
         } catch (QueryException $e) {
             if ($this->cost()->isDuplicateKey($e)) {
-                return $this->fail('领料单号已存在', 422);
+                return $this->fail($this->trans('Material issue number already exists'), 422);
             }
             throw $e;
         }
@@ -216,7 +216,7 @@ class MaterialIssueController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的领料单不可修改', 422);
+            return $this->fail($this->trans('Audited material issues cannot be modified'), 422);
         }
         $data = $request->all();
         unset($data['code'], $data['order_id'], $data['status']);
@@ -228,16 +228,16 @@ class MaterialIssueController extends BaseController
             foreach ($rawItems as $i => $row) {
                 $qty = bc_norm((string) ($row['quantity'] ?? '0'));
                 if (bccomp($qty, '0', 4) <= 0) {
-                    return $this->fail('明细第' . ($i + 1) . '行领料数量必须大于0', 422);
+                    return $this->fail($this->trans('Detail row ') . ($i + 1) . '行领料数量必须大于0', 422);
                 }
                 $sku = ProductSku::query()->where('id', (int) ($row['sku_id'] ?? 0))->first();
                 if (!$sku) {
-                    return $this->fail('明细第' . ($i + 1) . '行SKU不存在', 422);
+                    return $this->fail($this->trans('Detail row ') . ($i + 1) . '行SKU不存在', 422);
                 }
                 $rows[] = ['sku_id' => (int) $sku->id, 'product_id' => (int) $sku->product_id, 'quantity' => $qty];
             }
             if ($rows === []) {
-                return $this->fail('明细不能为空', 422);
+                return $this->fail($this->trans('Details cannot be empty'), 422);
             }
             DB::transaction(function () use ($rows, $id) {
                 MfgMaterialIssueItem::query()->where('issue_id', $id)->delete();
@@ -287,7 +287,7 @@ class MaterialIssueController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的领料单不可删除', 422);
+            return $this->fail($this->trans('Audited material issues cannot be deleted'), 422);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);

@@ -108,7 +108,7 @@ class BomController extends BaseController
         $data = $request->all();
         $productId = $this->decodeFlexibleId((string) $data['product_id']);
         if ($productId === null || $productId < 1) {
-            return $this->fail('商品ID无效', 422);
+            return $this->fail($this->trans('Invalid product ID'), 422);
         }
         $data['product_id'] = $productId;
 
@@ -187,7 +187,7 @@ class BomController extends BaseController
         if (isset($data['product_id']) && $data['product_id'] !== '') {
             $productId = $this->decodeFlexibleId((string) $data['product_id']);
             if ($productId === null || $productId < 1) {
-                return $this->fail('商品ID无效', 422);
+                return $this->fail($this->trans('Invalid product ID'), 422);
             }
             $data['product_id'] = $productId;
         }
@@ -273,7 +273,7 @@ class BomController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if (!$bom) {
-            return $this->fail('源BOM不存在', 404);
+            return $this->fail($this->trans('Source BOM not found'), 404);
         }
 
         return $this->success($this->encodeIds($bom->toArray()), '新版本创建成功');

@@ -117,29 +117,29 @@ class WorkReportController extends BaseController
         // 数量/合格数与存在性前置校验（bcmath）
         $quantity = bc_norm((string) $request->input('quantity'));
         if (bccomp($quantity, '0', 4) <= 0) {
-            return $this->fail('报工数量必须大于0', 422);
+            return $this->fail($this->trans('Reported quantity must be greater than 0'), 422);
         }
         $qualified = $request->input('qualified_qty') !== null ? bc_norm((string) $request->input('qualified_qty')) : $quantity;
         if (bccomp($qualified, '0', 4) < 0 || bccomp($qualified, $quantity, 4) > 0) {
-            return $this->fail('合格数量必须在0与报工数量之间', 422);
+            return $this->fail($this->trans('Qualified quantity must be between 0 and the reported quantity'), 422);
         }
         $routing = MfgRouting::query()->where('id', (int) $request->input('routing_id'))->first();
         if (!$routing) {
-            return $this->fail('工序不存在', 422);
+            return $this->fail($this->trans('Operation not found'), 422);
         }
         if ((int) $routing->product_id !== (int) $request->input('product_id')) {
-            return $this->fail('产品与工序所属产品不匹配', 422);
+            return $this->fail($this->trans('Product does not match the operation product'), 422);
         }
         $order = MfgProductionOrder::query()->where('id', (int) $request->input('order_id'))->first();
         if (!$order) {
-            return $this->fail('生产工单不存在', 422);
+            return $this->fail($this->trans('Production order not found'), 422);
         }
         if (!HrEmployee::query()->where('id', (int) $request->input('employee_id'))->exists()) {
-            return $this->fail('员工不存在', 422);
+            return $this->fail($this->trans('Employee not found'), 422);
         }
         $workstationId = (int) $request->input('workstation_id', 0);
         if ($workstationId > 0 && !MfgWorkstation::query()->where('id', $workstationId)->exists()) {
-            return $this->fail('工作站不存在', 422);
+            return $this->fail($this->trans('Workstation not found'), 422);
         }
 
         $id = $this->generateId();
@@ -162,7 +162,7 @@ class WorkReportController extends BaseController
             $doc->save();
         } catch (QueryException $e) {
             if ($this->isDuplicateKey($e)) {
-                return $this->fail('报工单号已存在', 422);
+                return $this->fail($this->trans('Work report number already exists'), 422);
             }
             throw $e;
         }
@@ -227,15 +227,15 @@ class WorkReportController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的报工单不可修改', 422);
+            return $this->fail($this->trans('Audited work reports cannot be modified'), 422);
         }
         $quantity = $request->input('quantity') !== null ? bc_norm((string) $request->input('quantity')) : null;
         $qualified = $request->input('qualified_qty') !== null ? bc_norm((string) $request->input('qualified_qty')) : null;
         if ($quantity !== null && bccomp($quantity, '0', 4) <= 0) {
-            return $this->fail('报工数量必须大于0', 422);
+            return $this->fail($this->trans('Reported quantity must be greater than 0'), 422);
         }
         if ($qualified !== null && (bccomp($qualified, '0', 4) < 0 || bccomp($qualified, $quantity ?? bc_norm($doc->quantity), 4) > 0)) {
-            return $this->fail('合格数量必须在0与报工数量之间', 422);
+            return $this->fail($this->trans('Qualified quantity must be between 0 and the reported quantity'), 422);
         }
         $data = $request->all();
         unset($data['code'], $data['order_id'], $data['product_id'], $data['routing_id'], $data['employee_id'], $data['status']);
@@ -277,7 +277,7 @@ class WorkReportController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的报工单不可删除', 422);
+            return $this->fail($this->trans('Audited work reports cannot be deleted'), 422);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);

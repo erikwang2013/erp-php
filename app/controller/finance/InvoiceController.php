@@ -129,7 +129,7 @@ class InvoiceController extends BaseController
     {
         $invoice = FinanceInvoice::with('items')->find($this->decodeId($id));
         if (!$invoice) {
-            return $this->fail('发票不存在', 404);
+            return $this->fail($this->trans('Invoice not found'), 404);
         }
 
         return $this->success($this->present($invoice));
@@ -146,10 +146,10 @@ class InvoiceController extends BaseController
         $id = $this->decodeId($id);
         $invoice = FinanceInvoice::find($id);
         if (!$invoice) {
-            return $this->fail('发票不存在', 404);
+            return $this->fail($this->trans('Invoice not found'), 404);
         }
         if ($invoice->status !== 'draft') {
-            return $this->fail('仅开票申请(draft)状态可修改', 422);
+            return $this->fail($this->trans('Only draft invoice requests can be modified'), 422);
         }
         $validator = validator($request->all(), [
             'invoice_date' => 'nullable|date',
@@ -193,10 +193,10 @@ class InvoiceController extends BaseController
         $id = $this->decodeId($id);
         $invoice = FinanceInvoice::find($id);
         if (!$invoice) {
-            return $this->fail('发票不存在', 404);
+            return $this->fail($this->trans('Invoice not found'), 404);
         }
         if ($invoice->status !== 'draft') {
-            return $this->fail('仅开票申请(draft)状态可删除', 422);
+            return $this->fail($this->trans('Only draft invoice requests can be deleted'), 422);
         }
         $adminId = $request->adminId ?? 0;
         if (($error = $this->confirmPassword($adminId, $request->input('password', ''), $request)) !== null) {

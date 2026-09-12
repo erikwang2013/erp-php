@@ -102,7 +102,7 @@ class OrderController extends BaseController
         // customer_id 入参为 hashid 串（缺省/无效 → 422）；解码 int 供信用控制并覆写落库
         $customerId = $this->decodeIdSafe((string) $request->input('customer_id', ''));
         if ($customerId === null || $customerId < 1) {
-            return $this->fail('customer_id 无效', 422);
+            return $this->fail($this->trans('Invalid customer_id'), 422);
         }
 
         // 信用控制前置拦截：带客户且金额可识别时校验（冻结恒生效；额度未启用自动放行）
@@ -210,7 +210,7 @@ class OrderController extends BaseController
         if ($customerRaw !== null && $customerRaw !== '') {
             $customerId = $this->decodeIdSafe((string) $customerRaw);
             if ($customerId === null || $customerId < 1) {
-                return $this->fail('customer_id 无效', 422);
+                return $this->fail($this->trans('Invalid customer_id'), 422);
             }
             $item->customer_id = $customerId;
         }

@@ -143,7 +143,7 @@ class CustomFieldController extends BaseController
         $entityType = (string) $request->input('entity_type', '');
         $values = $request->input('custom_fields', []);
         if ($entityType === '' || !is_array($values)) {
-            return $this->fail('entity_type 与 custom_fields 必填', 422);
+            return $this->fail($this->trans('entity_type and custom_fields are required'), 422);
         }
 
         $errors = $this->customField()->validate($entityType, $values);
@@ -169,7 +169,7 @@ class CustomFieldController extends BaseController
         $entityType = (string) $request->input('entity_type', '');
         $values = $request->input('custom_fields', []);
         if ($entityType === '' || !is_array($values)) {
-            return $this->fail('entity_type 与 custom_fields 必填', 422);
+            return $this->fail($this->trans('entity_type and custom_fields are required'), 422);
         }
 
         [$normalized, $errors] = $this->customField()->applySchema($entityType, $values);

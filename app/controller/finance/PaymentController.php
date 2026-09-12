@@ -107,7 +107,7 @@ class PaymentController extends BaseController
         // supplier_id/bank_account_id 双模：hashid 串解码，原生数字直用；垃圾串 422 拒绝
         $supplierId = $this->decodeFlexibleId((string) $request->input('supplier_id'));
         if ($supplierId === null) {
-            return $this->fail('供应商ID无效', 422);
+            return $this->fail($this->trans('Invalid supplier ID'), 422);
         }
         $item->supplier_id = $supplierId;
         $item->bank_account_id = $this->decodeFlexibleId((string) $request->input('bank_account_id', '0')) ?? 0;
@@ -184,7 +184,7 @@ class PaymentController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $item->status === 1) {
-            return $this->fail('已审核记录不可修改', 422);
+            return $this->fail($this->trans('Audited records cannot be modified'), 422);
         }
 
         if ($request->input('code') !== null) {
@@ -193,7 +193,7 @@ class PaymentController extends BaseController
         if ($request->input('supplier_id') !== null) {
             $supplierId = $this->decodeFlexibleId((string) $request->input('supplier_id'));
             if ($supplierId === null) {
-                return $this->fail('供应商ID无效', 422);
+                return $this->fail($this->trans('Invalid supplier ID'), 422);
             }
             $item->supplier_id = $supplierId;
         }
@@ -212,7 +212,7 @@ class PaymentController extends BaseController
         // status 仅可 0→1（审核动作），客户端传其他值一律拒绝
         if ($request->input('status') !== null) {
             if ((int) $request->input('status') !== 1) {
-                return $this->fail('状态仅支持审核(1)', 422);
+                return $this->fail($this->trans('Only audited status (1) is supported'), 422);
             }
             $item->status = 1;
         }

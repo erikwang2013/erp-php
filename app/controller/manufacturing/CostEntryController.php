@@ -105,7 +105,7 @@ class CostEntryController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         if (!MfgProductionOrder::query()->where('id', (int) $request->input('order_id'))->exists()) {
-            return $this->fail('生产工单不存在', 422);
+            return $this->fail($this->trans('Production order not found'), 422);
         }
 
         $id = $this->generateId();
@@ -124,7 +124,7 @@ class CostEntryController extends BaseController
             });
         } catch (QueryException $e) {
             if ($this->cost()->isDuplicateKey($e)) {
-                return $this->fail('费用归集单号已存在', 422);
+                return $this->fail($this->trans('Cost collection number already exists'), 422);
             }
             throw $e;
         }
@@ -187,7 +187,7 @@ class CostEntryController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的费用归集单不可修改', 422);
+            return $this->fail($this->trans('Audited cost collection orders cannot be modified'), 422);
         }
         $data = $request->all();
         unset($data['code'], $data['status']);
@@ -221,7 +221,7 @@ class CostEntryController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $doc->status !== 0) {
-            return $this->fail('已审核的费用归集单不可删除', 422);
+            return $this->fail($this->trans('Audited cost collection orders cannot be deleted'), 422);
         }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);

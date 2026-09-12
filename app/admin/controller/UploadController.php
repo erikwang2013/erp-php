@@ -38,11 +38,11 @@ class UploadController extends BaseController
     {
         $file = $request->file('file');
         if (!$file) {
-            return $this->fail('请选择文件', 422);
+            return $this->fail($this->trans('Please select a file'), 422);
         }
 
         if (!$file->isValid()) {
-            return $this->fail('文件上传失败', 500);
+            return $this->fail($this->trans('File upload failed'), 500);
         }
 
         $ext = strtolower($file->getUploadExtension() ?: 'bin');
@@ -66,7 +66,7 @@ class UploadController extends BaseController
         }
 
         if ($file->getSize() > $this->maxSize) {
-            return $this->fail('文件大小不能超过 10MB', 422);
+            return $this->fail($this->trans('File size must not exceed 10MB'), 422);
         }
 
         $dateDir = date('Y-m-d');

@@ -121,7 +121,7 @@ class PrintTemplateController extends BaseController
         $id = $this->decodeId($id);
         $tpl = $this->printService()->getById($id);
         if (!$tpl) {
-            return $this->fail('模板不存在', 404);
+            return $this->fail($this->trans('Template not found'), 404);
         }
 
         $data = $this->encodeIds($tpl->toArray());
@@ -201,10 +201,10 @@ class PrintTemplateController extends BaseController
         $code = (string) $request->input('code', '');
         $data = $request->input('data', []);
         if ($code === '') {
-            return $this->fail('模板编码不能为空', 422);
+            return $this->fail($this->trans('Template code cannot be empty'), 422);
         }
         if (!is_array($data)) {
-            return $this->fail('data 必须是对象', 422);
+            return $this->fail($this->trans('data must be an object'), 422);
         }
 
         try {
@@ -239,10 +239,10 @@ class PrintTemplateController extends BaseController
         $code = (string) $request->input('code', '');
         $data = $request->input('data', []);
         if ($code === '') {
-            return $this->fail('模板编码不能为空', 422);
+            return $this->fail($this->trans('Template code cannot be empty'), 422);
         }
         if (!is_array($data)) {
-            return $this->fail('data 必须是对象', 422);
+            return $this->fail($this->trans('data must be an object'), 422);
         }
 
         try {

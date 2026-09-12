@@ -107,7 +107,7 @@ class ProductionController extends BaseController
         $data = $request->all();
         $bomId = $this->decodeFlexibleId((string) $data['bom_id']);
         if ($bomId === null || $bomId < 1) {
-            return $this->fail('BOM无效', 422);
+            return $this->fail($this->trans('Invalid BOM'), 422);
         }
         $data['bom_id'] = $bomId;
 
@@ -184,7 +184,7 @@ class ProductionController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ($item->status !== 0) {
-            return $this->fail('只能修改待生产状态的工单', 422);
+            return $this->fail($this->trans('Only work orders pending production can be modified'), 422);
         }
 
         // bom_id 双模解码（缺省/留空=不改动）
@@ -192,7 +192,7 @@ class ProductionController extends BaseController
         if (isset($data['bom_id']) && $data['bom_id'] !== '') {
             $bomId = $this->decodeFlexibleId((string) $data['bom_id']);
             if ($bomId === null || $bomId < 1) {
-                return $this->fail('BOM无效', 422);
+                return $this->fail($this->trans('Invalid BOM'), 422);
             }
             $data['bom_id'] = $bomId;
         }
@@ -230,7 +230,7 @@ class ProductionController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if (in_array($item->status, [1, 2])) {
-            return $this->fail('生产中或已完成的工单不可删除', 422);
+            return $this->fail($this->trans('Work orders in production or completed cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

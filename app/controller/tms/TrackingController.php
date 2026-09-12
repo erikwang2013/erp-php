@@ -53,7 +53,7 @@ class TrackingController extends BaseController
             // 过滤参数接收 hashid：解码失败/非正数一律 422 明确文案
             $decodedShipmentId = $this->decodeIdSafe((string) $shipmentId);
             if ($decodedShipmentId === null || $decodedShipmentId < 1) {
-                return $this->fail('无效的 shipment_id', 422);
+                return $this->fail($this->trans('Invalid shipment_id'), 422);
             }
             $query->where('shipment_id', $decodedShipmentId);
         }
@@ -105,7 +105,7 @@ class TrackingController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $shipmentId = $this->decodeFlexibleId((string) $request->input('shipment_id'));
         if ($shipmentId === null || $shipmentId < 1) {
-            return $this->fail('运单ID无效', 422);
+            return $this->fail($this->trans('Invalid waybill ID'), 422);
         }
         $item->shipment_id = $shipmentId;
         if ($request->input('event_time') === '') {
@@ -185,7 +185,7 @@ class TrackingController extends BaseController
         if ($rawShipmentId !== null && $rawShipmentId !== '') {
             $shipmentId = $this->decodeFlexibleId((string) $rawShipmentId);
             if ($shipmentId === null || $shipmentId < 1) {
-                return $this->fail('运单ID无效', 422);
+                return $this->fail($this->trans('Invalid waybill ID'), 422);
             }
             $item->shipment_id = $shipmentId;
         }
@@ -265,7 +265,7 @@ class TrackingController extends BaseController
         $trackingNo = $request->input('tracking_no', '');
         $events = $request->input('events', []);
         if (!$trackingNo || empty($events)) {
-            return $this->fail('参数不完整', 422);
+            return $this->fail($this->trans('Incomplete parameters'), 422);
         }
         try {
             (new \app\service\tms\TrackingService())->processWebhook($trackingNo, $events);

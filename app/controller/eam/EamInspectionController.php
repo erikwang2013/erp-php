@@ -151,7 +151,7 @@ class EamInspectionController extends BaseController
         $id = $this->decodeId($id);
         $task = EamInspectionTask::query()->find($id);
         if (!$task) {
-            return $this->fail('点检任务不存在', 404);
+            return $this->fail($this->trans('Inspection task not found'), 404);
         }
         $data = $this->encodeIds($task->toArray());
         $data['results'] = EamInspectionResult::query()

@@ -70,7 +70,7 @@ class ApprovalController extends BaseController
         }
         $instanceId = $this->decodeIdSafe($id);
         if (!$instanceId) {
-            return $this->fail('无效的审批实例ID', 400);
+            return $this->fail($this->trans('Invalid approval instance ID'), 400);
         }
 
         // 平字段 + workflow 名称 + 当前节点名称（current_node_id=0 或节点已删 → leftJoin 得 null）
@@ -88,7 +88,7 @@ class ApprovalController extends BaseController
             )
             ->first();
         if (!$row) {
-            return $this->fail('审批实例不存在', 404);
+            return $this->fail($this->trans('Approval instance not found'), 404);
         }
 
         $data = $this->encodeIds($row->toArray(), ['id', 'workflow_id', 'submitter_id', 'current_node_id']);
@@ -139,24 +139,24 @@ class ApprovalController extends BaseController
         $workflowId = $this->decodeId($id);
         $workflow = ApprovalWorkflow::find($workflowId);
         if (!$workflow || !$workflow->enabled) {
-            return $this->fail('工作流不存在或已禁用', 404);
+            return $this->fail($this->trans('Workflow not found or disabled'), 404);
         }
 
         $targetType = $request->input('target_type', '');
         $targetId = (int) $request->input('target_id', 0);
         if (!$targetType || !$targetId) {
-            return $this->fail('单据类型和ID不能为空', 422);
+            return $this->fail($this->trans('Document type and ID cannot be empty'), 422);
         }
 
         // 检查是否已有审批实例
         $exists = ApprovalInstance::where('target_type', $targetType)->where('target_id', $targetId)->first();
         if ($exists) {
-            return $this->fail('该单据已提交审批', 422);
+            return $this->fail($this->trans('This document has already been submitted for approval'), 422);
         }
 
         $firstNode = ApprovalNode::where('workflow_id', $workflow->id)->orderBy('seq')->first();
         if (!$firstNode) {
-            return $this->fail('工作流未配置审批节点', 422);
+            return $this->fail($this->trans('The workflow has no approval nodes configured'), 422);
         }
 
         $instance = new ApprovalInstance();
@@ -199,10 +199,10 @@ class ApprovalController extends BaseController
         $instanceId = $this->decodeId($id);
         $instance = ApprovalInstance::find($instanceId);
         if (!$instance) {
-            return $this->fail('审批实例不存在', 404);
+            return $this->fail($this->trans('Approval instance not found'), 404);
         }
         if ($instance->status !== 0) {
-            return $this->fail('当前状态不可审批', 422);
+            return $this->fail($this->trans('The current status cannot be approved'), 422);
         }
 
         $comment = $request->input('comment', '');
@@ -261,15 +261,15 @@ class ApprovalController extends BaseController
         $instanceId = $this->decodeId($id);
         $instance = ApprovalInstance::find($instanceId);
         if (!$instance) {
-            return $this->fail('审批实例不存在', 404);
+            return $this->fail($this->trans('Approval instance not found'), 404);
         }
         if ($instance->status !== 0) {
-            return $this->fail('当前状态不可审批', 422);
+            return $this->fail($this->trans('The current status cannot be approved'), 422);
         }
 
         $comment = $request->input('comment', '');
         if (empty($comment)) {
-            return $this->fail('驳回意见不能为空', 422);
+            return $this->fail($this->trans('The rejection comment cannot be empty'), 422);
         }
 
         $approverId = (int)($request->adminId ?? 0);
@@ -315,15 +315,15 @@ class ApprovalController extends BaseController
         $instanceId = $this->decodeId($id);
         $instance = ApprovalInstance::find($instanceId);
         if (!$instance) {
-            return $this->fail('审批实例不存在', 404);
+            return $this->fail($this->trans('Approval instance not found'), 404);
         }
         if ($instance->status !== 0) {
-            return $this->fail('当前状态不可撤回', 422);
+            return $this->fail($this->trans('The current status cannot be withdrawn'), 422);
         }
 
         $submitterId = (int)($request->adminId ?? 0);
         if ((int) $instance->submitter_id !== $submitterId) {
-            return $this->fail('仅提交人可撤回', 403);
+            return $this->fail($this->trans('Only the submitter can withdraw'), 403);
         }
 
         $instance->status = 3;

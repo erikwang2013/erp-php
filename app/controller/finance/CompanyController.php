@@ -83,7 +83,7 @@ class CompanyController extends BaseController
         $name = trim((string) $request->input('name', ''));
         $code = trim((string) $request->input('code', ''));
         if ($name === '' || $code === '') {
-            return $this->fail('name/code 必填', 422);
+            return $this->fail($this->trans('name and code are required'), 422);
         }
         $parentInput = $request->input('parent_id', 0);
         $parentId = is_numeric($parentInput)
@@ -135,11 +135,11 @@ class CompanyController extends BaseController
         $id = $this->decodeIdSafe((string) $request->input('id', ''));
         $status = (int) $request->input('status', -1);
         if ($id === null || $status < 0 || $status > 1) {
-            return $this->fail('id 与 status(0/1) 必填', 422);
+            return $this->fail($this->trans('id and status(0/1) are required'), 422);
         }
         $company = Company::find($id);
         if (!$company) {
-            return $this->fail('公司不存在', 404);
+            return $this->fail($this->trans('Company not found'), 404);
         }
         $company->status = $status;
         $company->save();

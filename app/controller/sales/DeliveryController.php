@@ -142,7 +142,7 @@ class DeliveryController extends BaseController
         $orderId = $this->decodeId($request->input('order_id'));
         $order = SalesOrder::find($orderId);
         if (!$order) {
-            return $this->fail('销售订单不存在', 404);
+            return $this->fail($this->trans('Sales order not found'), 404);
         }
 
         // 预取订单明细（按 id 索引），供归属校验与超发校验使用
@@ -268,7 +268,7 @@ class DeliveryController extends BaseController
             DB::rollBack();
             $this->logError('执行发货', $e);
 
-            return $this->fail('发货失败: ' . $e->getMessage(), 500);
+            return $this->fail($this->trans('Shipment failed: ') . $e->getMessage(), 500);
         }
     }
 
@@ -345,7 +345,7 @@ class DeliveryController extends BaseController
         $id = $this->decodeId($id);
         $delivery = SalesDelivery::with(['items', 'order', 'customer', 'warehouse'])->find($id);
         if (!$delivery) {
-            return $this->fail('发货单不存在', 404);
+            return $this->fail($this->trans('Shipment not found'), 404);
         }
 
         return $this->success($this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']));
@@ -377,7 +377,7 @@ class DeliveryController extends BaseController
         $id = $this->decodeId($id);
         $delivery = SalesDelivery::find($id);
         if (!$delivery) {
-            return $this->fail('发货单不存在', 404);
+            return $this->fail($this->trans('Shipment not found'), 404);
         }
 
         if ($request->input('remark') !== null) {
@@ -414,10 +414,10 @@ class DeliveryController extends BaseController
         $id = $this->decodeId($id);
         $delivery = SalesDelivery::find($id);
         if (!$delivery) {
-            return $this->fail('发货单不存在', 404);
+            return $this->fail($this->trans('Shipment not found'), 404);
         }
         if ($delivery->status === 1) {
-            return $this->fail('已发货的发货单不可删除', 422);
+            return $this->fail($this->trans('Shipped delivery notes cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

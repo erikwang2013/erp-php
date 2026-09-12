@@ -245,7 +245,7 @@ class IncomingCheckController extends BaseController
     {
         $records = $request->input('records', []);
         if (!is_array($records)) {
-            return $this->fail('records 必须为数组', 422);
+            return $this->fail($this->trans('records must be an array'), 422);
         }
 
         return $this->success(['pass_rate' => (new QmsInspectionService())->calculatePassRate($records)]);

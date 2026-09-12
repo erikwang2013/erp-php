@@ -171,7 +171,7 @@ class ContractController extends BaseController
         }
 
         if ($item->status !== 0) {
-            return $this->fail('仅草稿状态可编辑', 422);
+            return $this->fail($this->trans('Only draft records can be edited'), 422);
         }
 
         $item = $this->crm()->update(CrmContract::class, $id, $this->normalizeFkData($request->all()));

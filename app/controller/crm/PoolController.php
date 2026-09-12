@@ -107,7 +107,7 @@ class PoolController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if (!$customer) {
-            return $this->fail('客户不存在', 404);
+            return $this->fail($this->trans('Customer not found'), 404);
         }
 
         return $this->success($this->encodeIds($customer->toArray()), '领取成功');
@@ -141,7 +141,7 @@ class PoolController extends BaseController
 
         $customer = $this->crm()->releaseCustomer($id, $adminId, (string) $request->input('remark', ''));
         if (!$customer) {
-            return $this->fail('客户不存在', 404);
+            return $this->fail($this->trans('Customer not found'), 404);
         }
 
         return $this->success($this->encodeIds($customer->toArray()), '释放成功');

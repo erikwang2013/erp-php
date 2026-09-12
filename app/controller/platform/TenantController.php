@@ -107,7 +107,7 @@ class TenantController extends BaseController
         }
         $companyId = $this->decodeCompanyId((string) $request->input('company_id', ''));
         if ($companyId === null) {
-            return $this->fail('公司不能为空', 422);
+            return $this->fail($this->trans('Company cannot be empty'), 422);
         }
 
         [$tenant, $error] = $this->service->provision([

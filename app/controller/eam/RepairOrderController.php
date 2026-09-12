@@ -177,7 +177,7 @@ class RepairOrderController extends BaseController
         }
         // 已完成/已取消的工单不允许编辑
         if (in_array($item->status, ['completed', 'cancelled'], true)) {
-            return $this->fail('已完成或已取消的工单不允许编辑', 422);
+            return $this->fail($this->trans('Completed or cancelled work orders cannot be edited'), 422);
         }
         $this->fillModelFromRequest($item, $request);
         $item->save();
@@ -245,7 +245,7 @@ class RepairOrderController extends BaseController
 
         $target = $request->input('status', '');
         if (!isset(self::STATUS_TRANSITIONS[$item->status])) {
-            return $this->fail('当前状态无效', 422);
+            return $this->fail($this->trans('Invalid current status'), 422);
         }
         if (!in_array($target, self::STATUS_TRANSITIONS[$item->status], true)) {
             return $this->fail("不允许从「{$item->status}」流转到「{$target}」", 422);

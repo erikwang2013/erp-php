@@ -133,7 +133,7 @@ class UserController extends BaseController
 
         $exists = AdminUser::where('username', $request->input('username'))->exists();
         if ($exists) {
-            return $this->fail('用户名已存在', 422);
+            return $this->fail($this->trans('Username already exists'), 422);
         }
 
         $user = new AdminUser();
@@ -176,7 +176,7 @@ class UserController extends BaseController
         $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
-            return $this->fail('用户不存在', 404);
+            return $this->fail($this->trans('User not found'), 404);
         }
 
         $data = $user->toArray();
@@ -220,7 +220,7 @@ class UserController extends BaseController
         $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
-            return $this->fail('用户不存在', 404);
+            return $this->fail($this->trans('User not found'), 404);
         }
 
         $user->real_name = $request->input('real_name', $user->real_name);
@@ -270,7 +270,7 @@ class UserController extends BaseController
         $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
-            return $this->fail('用户不存在', 404);
+            return $this->fail($this->trans('User not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -313,7 +313,7 @@ class UserController extends BaseController
         $password = $request->input('password', '');
 
         if (empty($ids) || !is_array($ids)) {
-            return $this->fail('请选择要删除的用户', 422);
+            return $this->fail($this->trans('Please select users to delete'), 422);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -332,7 +332,7 @@ class UserController extends BaseController
             }
         }
         if (!empty($invalidIds)) {
-            return $this->fail('无效的ID: ' . implode(', ', $invalidIds), 422);
+            return $this->fail($this->trans('Invalid ID: ') . implode(', ', $invalidIds), 422);
         }
 
         AdminUser::whereIn('id', $decodedIds)->delete();
@@ -369,11 +369,11 @@ class UserController extends BaseController
         $status = (int) $request->input('status', 0);
 
         if (empty($ids) || !is_array($ids)) {
-            return $this->fail('请选择用户', 422);
+            return $this->fail($this->trans('Please select a user'), 422);
         }
 
         if (!in_array($status, [0, 1], true)) {
-            return $this->fail('状态值无效', 422);
+            return $this->fail($this->trans('Invalid status value'), 422);
         }
 
         $decodedIds = [];
@@ -386,7 +386,7 @@ class UserController extends BaseController
             }
         }
         if (!empty($invalidIds)) {
-            return $this->fail('无效的ID: ' . implode(', ', $invalidIds), 422);
+            return $this->fail($this->trans('Invalid ID: ') . implode(', ', $invalidIds), 422);
         }
 
         AdminUser::whereIn('id', $decodedIds)->update(['status' => $status]);

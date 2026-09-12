@@ -50,7 +50,7 @@ class WorkflowDesignerController extends BaseController
         }
         $id = $this->decodeWorkflowId($workflowId);
         if ($id === null) {
-            return $this->fail('工作流ID不合法', 422);
+            return $this->fail($this->trans('Invalid workflow ID'), 422);
         }
 
         $design = $this->designer()->load((string) $id);
@@ -85,13 +85,13 @@ class WorkflowDesignerController extends BaseController
         }
         $id = $this->decodeWorkflowId($workflowId);
         if ($id === null) {
-            return $this->fail('工作流ID不合法', 422);
+            return $this->fail($this->trans('Invalid workflow ID'), 422);
         }
 
         $nodes = $request->input('nodes', []);
         $edges = $request->input('edges', []);
         if (!is_array($nodes) || !is_array($edges)) {
-            return $this->fail('nodes 与 edges 必须是数组', 422);
+            return $this->fail($this->trans('nodes and edges must be arrays'), 422);
         }
 
         $decodedNodes = $this->decodeDesignIds($nodes, ['id']);
@@ -129,7 +129,7 @@ class WorkflowDesignerController extends BaseController
         }
         $id = $this->decodeWorkflowId($workflowId);
         if ($id === null) {
-            return $this->fail('工作流ID不合法', 422);
+            return $this->fail($this->trans('Invalid workflow ID'), 422);
         }
 
         $result = $this->designer()->validate((string) $id);
@@ -163,19 +163,19 @@ class WorkflowDesignerController extends BaseController
         }
         $id = $this->decodeWorkflowId($workflowId);
         if ($id === null) {
-            return $this->fail('工作流ID不合法', 422);
+            return $this->fail($this->trans('Invalid workflow ID'), 422);
         }
 
         $context = $request->input('context', []);
         if (!is_array($context)) {
-            return $this->fail('context 必须是对象', 422);
+            return $this->fail($this->trans('context must be an object'), 422);
         }
 
         // 可选：context.current_node_id 指定从哪个节点求解（hashid），缺省取图的起始节点
         if (isset($context['current_node_id']) && $context['current_node_id'] !== '') {
             $decoded = $this->decodeIdSafe((string) $context['current_node_id']);
             if ($decoded === null) {
-                return $this->fail('context.current_node_id 不合法', 422);
+                return $this->fail($this->trans('Invalid context.current_node_id'), 422);
             }
             $context['current_node_id'] = $decoded;
         }

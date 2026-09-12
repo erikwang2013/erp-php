@@ -119,7 +119,7 @@ class SocialSecurityController extends BaseController
         }
         $rates = $request->input('rates', []);
         if (!is_array($rates)) {
-            return $this->fail('rates 必须为数组', 422);
+            return $this->fail($this->trans('rates must be an array'), 422);
         }
         try {
             $rule = $this->social()->createRule($request->all(), $rates);

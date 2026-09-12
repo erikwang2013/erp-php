@@ -165,7 +165,7 @@ class TaxInvoicePoolController extends BaseController
             $rows = is_array($decoded) ? $decoded : [];
         }
         if (!is_array($rows) || $rows === []) {
-            return $this->fail('请提供至少一行发票数据', 422);
+            return $this->fail($this->trans('Please provide at least one invoice row'), 422);
         }
         [$ok, $fail, $errors] = $this->service()->registerBatch($rows);
 
@@ -191,7 +191,7 @@ class TaxInvoicePoolController extends BaseController
         }
         $row = TaxInputInvoice::find($this->decodeId($id));
         if (!$row) {
-            return $this->fail('发票不存在', 404);
+            return $this->fail($this->trans('Invoice not found'), 404);
         }
         if (($error = $this->service()->verify((int) $row->id)) !== null) {
             return $this->fail($error, 422);
@@ -219,7 +219,7 @@ class TaxInvoicePoolController extends BaseController
         }
         $row = TaxInputInvoice::find($this->decodeId($id));
         if (!$row) {
-            return $this->fail('发票不存在', 404);
+            return $this->fail($this->trans('Invoice not found'), 404);
         }
         if (($error = $this->service()->check((int) $row->id)) !== null) {
             return $this->fail($error, 422);
@@ -249,7 +249,7 @@ class TaxInvoicePoolController extends BaseController
         }
         $row = TaxInputInvoice::find($this->decodeId($id));
         if (!$row) {
-            return $this->fail('发票不存在', 404);
+            return $this->fail($this->trans('Invoice not found'), 404);
         }
         $period = (string) $request->input('deduct_period', '');
         if (($error = $this->service()->deduct((int) $row->id, $period)) !== null) {

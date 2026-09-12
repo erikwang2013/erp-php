@@ -198,7 +198,7 @@ class ReturnController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $item->status === 1) {
-            return $this->fail('已出库记录不可修改', 422);
+            return $this->fail($this->trans('Issued-out records cannot be modified'), 422);
         }
 
         if ($request->input('code') !== null) {
@@ -226,7 +226,7 @@ class ReturnController extends BaseController
         // status 仅可 0→1（出库确认），客户端传其他值一律拒绝
         if ($request->input('status') !== null) {
             if ((int) $request->input('status') !== 1) {
-                return $this->fail('状态仅支持出库确认(1)', 422);
+                return $this->fail($this->trans('Only outbound confirmation status (1) is supported'), 422);
             }
             $item->status = 1;
         }

@@ -107,7 +107,7 @@ class AttendanceController extends BaseController
         }
         $employeeId = (int) $request->input('employee_id');
         if (!$this->hr()->find(HrEmployee::class, $employeeId)) {
-            return $this->fail('员工不存在', 404);
+            return $this->fail($this->trans('Employee not found'), 404);
         }
 
         try {
@@ -143,7 +143,7 @@ class AttendanceController extends BaseController
         }
         $employeeId = (int) $request->input('employee_id');
         if (!$this->hr()->find(HrEmployee::class, $employeeId)) {
-            return $this->fail('员工不存在', 404);
+            return $this->fail($this->trans('Employee not found'), 404);
         }
 
         try {
@@ -309,7 +309,7 @@ class AttendanceController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ($item->status !== 0) {
-            return $this->fail('只能修改待审批的请假申请', 422);
+            return $this->fail($this->trans('Only leave requests pending approval can be modified'), 422);
         }
 
         $item = $this->hr()->update(HrLeave::class, $id, $request->all(), ['status']);

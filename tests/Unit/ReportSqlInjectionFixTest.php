@@ -133,7 +133,7 @@ class ReportSqlInjectionFixTest extends TestCase
         $this->assertStringNotContainsString("'查询执行失败: ' . \$e->getMessage()", $source);
         // group_by / join.on / filter.field 拼接前均有白名单校验（含 alias.col 点号形式）
         $this->assertStringContainsString('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', $source);
-        $this->assertStringContainsString('JOIN ON 条件非法', $source);
-        $this->assertStringContainsString('GROUP BY 字段非法', $source);
+        $this->assertStringContainsString('Illegal JOIN ON condition', $source);
+        $this->assertStringContainsString('Illegal GROUP BY field', $source);
     }
 }

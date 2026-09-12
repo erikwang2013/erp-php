@@ -99,7 +99,7 @@ class RoleController extends BaseController
             ->with(['permissions' => fn ($q) => $q->select(['id', 'name', 'slug', 'type', 'parent_id'])])
             ->find($id);
         if (!$role) {
-            return $this->fail('角色不存在', 404);
+            return $this->fail($this->trans('Role not found'), 404);
         }
 
         $data = $role->toArray();
@@ -147,7 +147,7 @@ class RoleController extends BaseController
         if ($request->has('permission_ids')) {
             $permissionIds = $this->normalizePermissionIds($request->input('permission_ids', []));
             if ($permissionIds === null) {
-                return $this->fail('permission_ids 含无效ID', 422);
+                return $this->fail($this->trans('permission_ids contains invalid ID(s)'), 422);
             }
         }
 
@@ -197,7 +197,7 @@ class RoleController extends BaseController
         $id = $this->decodeId($id);
         $role = AdminRole::find($id);
         if (!$role) {
-            return $this->fail('角色不存在', 404);
+            return $this->fail($this->trans('Role not found'), 404);
         }
 
         // 先归一权限再改字段：含无效项直接 422，不留「字段已改、权限未同步」的半成品
@@ -205,7 +205,7 @@ class RoleController extends BaseController
         if ($request->has('permission_ids')) {
             $permissionIds = $this->normalizePermissionIds($request->input('permission_ids', []));
             if ($permissionIds === null) {
-                return $this->fail('permission_ids 含无效ID', 422);
+                return $this->fail($this->trans('permission_ids contains invalid ID(s)'), 422);
             }
         }
 
@@ -272,7 +272,7 @@ class RoleController extends BaseController
         $id = $this->decodeId($id);
         $role = AdminRole::find($id);
         if (!$role) {
-            return $this->fail('角色不存在', 404);
+            return $this->fail($this->trans('Role not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;

@@ -166,7 +166,7 @@ class MrpController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ($item->status === 2) {
-            return $this->fail('已确认的计划不可修改', 422);
+            return $this->fail($this->trans('Confirmed plans cannot be modified'), 422);
         }
 
         $item = $this->mfg()->update(MfgMrpPlan::class, $id, $request->all(), ['status']);
@@ -242,7 +242,7 @@ class MrpController extends BaseController
             return $this->fail($e->getMessage(), 422);
         }
         if ($itemCount === null) {
-            return $this->fail('计划不存在', 404);
+            return $this->fail($this->trans('Plan not found'), 404);
         }
 
         return $this->success(['items_count' => $itemCount], "MRP计划生成完成，共 {$itemCount} 条明细");

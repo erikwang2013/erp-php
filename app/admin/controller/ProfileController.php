@@ -56,7 +56,7 @@ class ProfileController extends BaseController
         $adminId = $request->adminId ?? 0;
         $user = AdminUser::find($adminId);
         if (!$user) {
-            return $this->fail('用户不存在', 404);
+            return $this->fail($this->trans('User not found'), 404);
         }
 
         if ($request->has('real_name')) {
@@ -104,22 +104,22 @@ class ProfileController extends BaseController
         $adminId = $request->adminId ?? 0;
         $user = AdminUser::find($adminId);
         if (!$user) {
-            return $this->fail('用户不存在', 404);
+            return $this->fail($this->trans('User not found'), 404);
         }
 
         $oldPassword = $request->input('old_password', '');
         $newPassword = $request->input('new_password', '');
 
         if (empty($oldPassword) || empty($newPassword)) {
-            return $this->fail('请填写旧密码和新密码', 422);
+            return $this->fail($this->trans('Please enter both the old and new password'), 422);
         }
 
         if (!password_verify($oldPassword, $user->password)) {
-            return $this->fail('旧密码错误', 422);
+            return $this->fail($this->trans('The old password is incorrect'), 422);
         }
 
         if (strlen($newPassword) < 6 || strlen($newPassword) > 32) {
-            return $this->fail('新密码长度 6-32 位', 422);
+            return $this->fail($this->trans('The new password must be 6-32 characters long'), 422);
         }
 
         $user->password = password_hash($newPassword, PASSWORD_BCRYPT);
@@ -147,7 +147,7 @@ class ProfileController extends BaseController
         $token = str_replace('Bearer ', '', $token);
 
         if (empty($token)) {
-            return $this->fail('未登录', 401);
+            return $this->fail($this->trans('Not logged in'), 401);
         }
 
         // 令牌已失效/无效：登出本身即为幂等成功，无需写入黑名单

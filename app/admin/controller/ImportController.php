@@ -40,12 +40,12 @@ class ImportController extends BaseController
     {
         $file = $request->file('file');
         if (!$file || !$file->isValid()) {
-            return $this->fail('请上传 Excel 文件', 422);
+            return $this->fail($this->trans('Please upload an Excel file'), 422);
         }
 
         $ext = strtolower($file->getUploadExtension() ?: '');
         if (!in_array($ext, ['xlsx', 'xls'], true)) {
-            return $this->fail('仅支持 .xlsx 或 .xls 文件', 422);
+            return $this->fail($this->trans('Only .xlsx or .xls files are supported'), 422);
         }
 
         $tmpPath = $file->getRealPath();
@@ -54,7 +54,7 @@ class ImportController extends BaseController
         $rows = $sheet->toArray();
 
         if (count($rows) < 2) {
-            return $this->fail('Excel 文件无数据', 422);
+            return $this->fail($this->trans('The Excel file contains no data'), 422);
         }
 
         $headers = array_map('strtolower', array_map('trim', $rows[0]));

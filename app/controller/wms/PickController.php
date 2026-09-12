@@ -275,7 +275,7 @@ class PickController extends BaseController
         }
         $actuals = $request->input('items', []);
         if (empty($actuals)) {
-            return $this->fail('请提供拣货确认明细', 422);
+            return $this->fail($this->trans('Please provide picking confirmation details'), 422);
         }
         try {
             (new \app\service\wms\WmsOutboundService())->confirmPick($id, $actuals);

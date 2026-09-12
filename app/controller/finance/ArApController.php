@@ -118,7 +118,7 @@ class ArApController extends BaseController
         // partner_id 双模：hashid 串解码，原生数字直用；垃圾串 422 拒绝
         $partnerId = $this->decodeFlexibleId((string) $request->input('partner_id'));
         if ($partnerId === null) {
-            return $this->fail('往来方ID无效', 422);
+            return $this->fail($this->trans('Invalid partner ID'), 422);
         }
         // 手建无来源单据：uk_source(source_type,source_id) 唯一约束要求来源必填，
         // 空来源会与首条手动记录碰撞 → 置 'manual' + snowflake 占位（每次唯一）
@@ -221,13 +221,13 @@ class ArApController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if (bccomp(bc_norm($item->settled_amount ?? 0), '0', 4) > 0 || (int) $item->status >= 1) {
-            return $this->fail('已核销记录不可修改', 422);
+            return $this->fail($this->trans('Written-off records cannot be modified'), 422);
         }
 
         if ($request->input('partner_id') !== null) {
             $partnerId = $this->decodeFlexibleId((string) $request->input('partner_id'));
             if ($partnerId === null) {
-                return $this->fail('往来方ID无效', 422);
+                return $this->fail($this->trans('Invalid partner ID'), 422);
             }
             $item->partner_id = $partnerId;
         }
@@ -271,7 +271,7 @@ class ArApController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if (bccomp(bc_norm($item->settled_amount ?? 0), '0', 4) > 0 || (int) $item->status >= 1) {
-            return $this->fail('已核销记录不可删除', 422);
+            return $this->fail($this->trans('Written-off records cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

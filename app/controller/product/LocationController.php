@@ -135,7 +135,7 @@ class LocationController extends BaseController
 
         $warehouseId = $this->decodeFlexibleId((string) $request->input('warehouse_id', ''));
         if ($warehouseId === null || $warehouseId < 1) {
-            return $this->fail('仓库ID无效', 422);
+            return $this->fail($this->trans('Invalid warehouse ID'), 422);
         }
 
         $item = new Location();
@@ -229,7 +229,7 @@ class LocationController extends BaseController
         if ($warehouseRaw !== null && $warehouseRaw !== '') {
             $warehouseId = $this->decodeFlexibleId((string) $warehouseRaw);
             if ($warehouseId === null || $warehouseId < 1) {
-                return $this->fail('仓库ID无效', 422);
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
             }
             $item->warehouse_id = $warehouseId;
         }

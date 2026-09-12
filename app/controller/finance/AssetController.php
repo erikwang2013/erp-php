@@ -267,11 +267,11 @@ class AssetController extends BaseController
         $id = $this->decodeId($id);
         $asset = FinanceAsset::find($id);
         if (!$asset) {
-            return $this->fail('资产不存在', 404);
+            return $this->fail($this->trans('Asset not found'), 404);
         }
 
         if ((int) $asset->status !== 1) {
-            return $this->fail('仅使用中资产可计提折旧', 422);
+            return $this->fail($this->trans('Only assets in use can be depreciated'), 422);
         }
 
         $year = (int) $request->input('period_year', (int) date('Y'));
@@ -281,7 +281,7 @@ class AssetController extends BaseController
         $exists = FinanceAssetDepreciation::where('asset_id', $id)
             ->where('period_year', $year)->where('period_month', $month)->exists();
         if ($exists) {
-            return $this->fail('该期间已计提折旧', 422);
+            return $this->fail($this->trans('Depreciation has already been accrued for this period'), 422);
         }
 
         $amount = bc_norm($asset->monthly_depreciation ?? '0');

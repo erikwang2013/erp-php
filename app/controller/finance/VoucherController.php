@@ -175,7 +175,7 @@ class VoucherController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $item->status === 1) {
-            return $this->fail('已审核凭证不可修改', 422);
+            return $this->fail($this->trans('Audited vouchers cannot be modified'), 422);
         }
 
         $this->fillModelFromRequest($item, $request);
@@ -223,7 +223,7 @@ class VoucherController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $item->status === 1) {
-            return $this->fail('已审核凭证不可删除', 422);
+            return $this->fail($this->trans('Audited vouchers cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

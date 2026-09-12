@@ -104,7 +104,7 @@ class AlertController extends BaseController
         $item->id = $this->generateId();
         $productId = $this->decodeFlexibleId((string) $request->input('product_id', ''));
         if ($productId === null || $productId < 1) {
-            return $this->fail('商品ID无效', 422);
+            return $this->fail($this->trans('Invalid product ID'), 422);
         }
         $item->product_id = $productId;
         $item->sku_id = $this->decodeFlexibleId((string) $request->input('sku_id', '0')) ?? 0;
@@ -189,7 +189,7 @@ class AlertController extends BaseController
         if ($request->input('product_id') !== null && $request->input('product_id') !== '') {
             $decoded = $this->decodeFlexibleId((string) $request->input('product_id'));
             if ($decoded === null || $decoded < 1) {
-                return $this->fail('商品ID无效', 422);
+                return $this->fail($this->trans('Invalid product ID'), 422);
             }
             $item->product_id = $decoded;
         }
@@ -213,7 +213,7 @@ class AlertController extends BaseController
         if ($request->input('enabled') !== null) {
             $enabled = (int) $request->input('enabled');
             if ($enabled !== 0 && $enabled !== 1) {
-                return $this->fail('启用状态无效', 422);
+                return $this->fail($this->trans('Invalid enabled status'), 422);
             }
             $item->enabled = $enabled;
         }

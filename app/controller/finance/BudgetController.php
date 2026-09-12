@@ -194,7 +194,7 @@ class BudgetController extends BaseController
         }
 
         if ((int) $item->status !== 0) {
-            return $this->fail('仅草稿状态可编辑', 422);
+            return $this->fail($this->trans('Only draft records can be edited'), 422);
         }
 
         $this->fillModelFromRequest($item, $request);
@@ -284,7 +284,7 @@ class BudgetController extends BaseController
         $id = $this->decodeId($id);
         $budget = FinanceBudget::find($id);
         if (!$budget) {
-            return $this->fail('预算不存在', 404);
+            return $this->fail($this->trans('Budget not found'), 404);
         }
 
         $items = FinanceBudgetItem::where('budget_id', $id)

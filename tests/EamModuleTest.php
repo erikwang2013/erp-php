@@ -118,7 +118,7 @@ class EamModuleTest extends TestCase
 
         $source = file_get_contents(__DIR__ . '/../app/controller/eam/RepairOrderController.php');
         $this->assertStringContainsString("['completed', 'cancelled']", $source);
-        $this->assertStringContainsString('已完成或已取消的工单不允许编辑', $source);
+        $this->assertStringContainsString('Completed or cancelled work orders cannot be edited', $source);
     }
 
     public function testMaintenancePlanNextDateComputation(): void

@@ -59,7 +59,7 @@ class WebhookController extends BaseController
         if ($appId !== null && $appId !== '') {
             $decoded = $this->decodeIdSafe((string) $appId);
             if ($decoded === null) {
-                return $this->fail('app_id 无效', 422);
+                return $this->fail($this->trans('Invalid app_id'), 422);
             }
             $query->where('app_id', $decoded);
         }
@@ -104,7 +104,7 @@ class WebhookController extends BaseController
         }
         $sub = WebhookSubscription::find($this->decodeId($id));
         if (!$sub) {
-            return $this->fail('订阅不存在', 404);
+            return $this->fail($this->trans('Subscription not found'), 404);
         }
 
         return $this->success($this->encodeIds($sub->toArray()));
@@ -144,16 +144,16 @@ class WebhookController extends BaseController
 
         $app = OpenApiApp::find($this->decodeIdSafe((string) $request->input('app_id')) ?? 0);
         if (!$app) {
-            return $this->fail('应用不存在', 404);
+            return $this->fail($this->trans('Application not found'), 404);
         }
 
         $events = $this->sanitizeEvents($request->input('event'));
         if ($events === false) {
-            return $this->fail('订阅事件为空，或含非法事件名（合法字符: 字母数字._-，或 "*"）', 422);
+            return $this->fail($this->trans('Subscription events are empty or contain illegal event names (allowed: alphanumerics, ._-, or "*")'), 422);
         }
         $targetUrl = trim((string) $request->input('target_url'));
         if (!str_starts_with($targetUrl, 'http://') && !str_starts_with($targetUrl, 'https://')) {
-            return $this->fail('target_url 必须以 http:// 或 https:// 开头', 422);
+            return $this->fail($this->trans('target_url must start with http:// or https://'), 422);
         }
 
         $secret = (string) $request->input('secret');
@@ -199,7 +199,7 @@ class WebhookController extends BaseController
     {
         $sub = WebhookSubscription::find($this->decodeId($id));
         if (!$sub) {
-            return $this->fail('订阅不存在', 404);
+            return $this->fail($this->trans('Subscription not found'), 404);
         }
 
         $validator = validator($request->all(), [
@@ -216,14 +216,14 @@ class WebhookController extends BaseController
         if ($request->input('event') !== null) {
             $events = $this->sanitizeEvents($request->input('event'));
             if ($events === false) {
-                return $this->fail('订阅事件为空，或含非法事件名（合法字符: 字母数字._-，或 "*"）', 422);
+                return $this->fail($this->trans('Subscription events are empty or contain illegal event names (allowed: alphanumerics, ._-, or "*")'), 422);
             }
             $sub->event = $events;
         }
         if ($request->input('target_url') !== null) {
             $targetUrl = trim((string) $request->input('target_url'));
             if (!str_starts_with($targetUrl, 'http://') && !str_starts_with($targetUrl, 'https://')) {
-                return $this->fail('target_url 必须以 http:// 或 https:// 开头', 422);
+                return $this->fail($this->trans('target_url must start with http:// or https://'), 422);
             }
             $sub->target_url = $targetUrl;
         }
@@ -269,7 +269,7 @@ class WebhookController extends BaseController
 
         $sub = WebhookSubscription::find($this->decodeId($id));
         if (!$sub) {
-            return $this->fail('订阅不存在', 404);
+            return $this->fail($this->trans('Subscription not found'), 404);
         }
 
         WebhookDeliveryLog::query()->where('subscription_id', $sub->id)->delete();
@@ -301,7 +301,7 @@ class WebhookController extends BaseController
         }
         $sub = WebhookSubscription::find($this->decodeId($id));
         if (!$sub) {
-            return $this->fail('订阅不存在', 404);
+            return $this->fail($this->trans('Subscription not found'), 404);
         }
 
         $result = (new WebhookService())->testDeliver($sub);
@@ -336,7 +336,7 @@ class WebhookController extends BaseController
         }
         $subId = $this->decodeIdSafe($id);
         if ($subId === null) {
-            return $this->fail('订阅不存在', 404);
+            return $this->fail($this->trans('Subscription not found'), 404);
         }
 
         $page = max((int) $request->get('page', 1), 1);

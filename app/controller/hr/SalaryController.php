@@ -233,7 +233,7 @@ class SalaryController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ($item->status === 1) {
-            return $this->fail('已发放的薪资不可删除', 422);
+            return $this->fail($this->trans('Paid payroll records cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -349,11 +349,11 @@ class SalaryController extends BaseController
         }
         $baseSalary = (float) $request->input('base_salary', 0);
         if ($baseSalary < 0) {
-            return $this->fail('base_salary 不能为负数', 422);
+            return $this->fail($this->trans('base_salary cannot be negative'), 422);
         }
         $pieceWage = bc_norm((string) $request->input('piece_wage', '0'));
         if (bccomp($pieceWage, '0', 2) < 0) {
-            return $this->fail('piece_wage 不能为负数', 422);
+            return $this->fail($this->trans('piece_wage cannot be negative'), 422);
         }
         $result = (new SalaryEngineService())->calculate(
             $baseSalary,
@@ -390,7 +390,7 @@ class SalaryController extends BaseController
         }
         $records = $request->input('records', []);
         if (!is_array($records)) {
-            return $this->fail('records 必须为数组', 422);
+            return $this->fail($this->trans('records must be an array'), 422);
         }
         $service = new BankPayrollService();
         $validation = $service->validateAccounts($records);

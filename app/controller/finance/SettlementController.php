@@ -85,7 +85,7 @@ class SettlementController extends BaseController
 
         $arAp = FinanceArAp::find($arApId);
         if (!$arAp) {
-            return $this->fail('应收应付记录不存在', 404);
+            return $this->fail($this->trans('Receivable/payable record not found'), 404);
         }
 
         try {
@@ -96,7 +96,7 @@ class SettlementController extends BaseController
             } elseif ($arAp->type === 2) {
                 $service->settlePayment($receiptPaymentId, $arApId, $amount);
             } else {
-                return $this->fail('核销对象类型非法', 422);
+                return $this->fail($this->trans('Illegal write-off target type'), 422);
             }
         } catch (\Throwable $e) {
             return $this->fail($e->getMessage(), 422);

@@ -47,7 +47,7 @@ class EInvoiceController extends BaseController
         $adminId = $request->adminId ?? 0;
         $invoiceId = $this->decodeId($id);
         if (!FinanceInvoice::find($invoiceId)) {
-            return $this->fail('发票不存在', 404);
+            return $this->fail($this->trans('Invoice not found'), 404);
         }
         $result = $this->service()->issueInvoice($invoiceId, (int) $adminId);
         if (!$result['success']) {
@@ -86,7 +86,7 @@ class EInvoiceController extends BaseController
         $adminId = $request->adminId ?? 0;
         $invoiceId = $this->decodeId($id);
         if (!FinanceInvoice::find($invoiceId)) {
-            return $this->fail('发票不存在', 404);
+            return $this->fail($this->trans('Invoice not found'), 404);
         }
         $reason = (string) $request->input('reason', '');
         $result = $this->service()->voidInvoice($invoiceId, $reason, (int) $adminId);
@@ -121,7 +121,7 @@ class EInvoiceController extends BaseController
         }
         $invoiceId = $this->decodeId($id);
         if (!FinanceInvoice::find($invoiceId)) {
-            return $this->fail('发票不存在', 404);
+            return $this->fail($this->trans('Invoice not found'), 404);
         }
 
         return $this->success(['items' => $this->service()->issueLogs($invoiceId)]);

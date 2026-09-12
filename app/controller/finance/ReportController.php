@@ -102,7 +102,7 @@ class ReportController extends BaseController
         $year = (int) $request->input('year', (int) date('Y'));
         $month = (int) $request->input('month', (int) date('m'));
         if ($month < 1 || $month > 12) {
-            return $this->fail('月份必须在1-12之间', 422);
+            return $this->fail($this->trans('Month must be between 1 and 12'), 422);
         }
 
         return $this->success((new PeriodCloseService())->closeProfitAndLoss($year, $month));
@@ -132,10 +132,10 @@ class ReportController extends BaseController
         }
         $subsidiaryReports = $request->input('subsidiary_reports', []);
         if (!is_array($subsidiaryReports)) {
-            return $this->fail('subsidiary_reports 必须为数组', 422);
+            return $this->fail($this->trans('subsidiary_reports must be an array'), 422);
         }
         if ($subsidiaryReports === []) {
-            return $this->fail('subsidiary_reports 不能为空', 422);
+            return $this->fail($this->trans('subsidiary_reports cannot be empty'), 422);
         }
         $baseCurrency = (string) $request->input('base_currency', 'CNY');
 
@@ -163,7 +163,7 @@ class ReportController extends BaseController
         $balanceSheet = $request->input('balance_sheet', []);
         $profitStatement = $request->input('profit_statement', []);
         if (!is_array($balanceSheet) || !is_array($profitStatement)) {
-            return $this->fail('balance_sheet 与 profit_statement 必须为对象', 422);
+            return $this->fail($this->trans('balance_sheet and profit_statement must be objects'), 422);
         }
 
         return $this->success((new FinancialRatioService())->calculate($balanceSheet, $profitStatement));
@@ -220,7 +220,7 @@ class ReportController extends BaseController
         }
         $accountSubjectId = (int) $request->input('account_subject_id', 0);
         if ($accountSubjectId <= 0) {
-            return $this->fail('account_subject_id 必须大于0', 422);
+            return $this->fail($this->trans('account_subject_id must be greater than 0'), 422);
         }
         $period = (string) $request->input('period', '');
 

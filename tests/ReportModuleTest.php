@@ -173,7 +173,7 @@ class ReportModuleTest extends TestCase
         $this->assertStringContainsString("\$select[] = '*';", $source);
         $this->assertStringContainsString('ORDER BY 1 DESC', $source);
         $this->assertStringContainsString('LIMIT 1000', $source);
-        $this->assertStringContainsString("'不允许的表名: ' . \$table", $source);
+        $this->assertStringContainsString("trans('Disallowed table name: ') . \$table", $source);
     }
 
     public function testTableWhitelistBuiltFromMigrations(): void

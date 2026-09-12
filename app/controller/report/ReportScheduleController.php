@@ -157,7 +157,7 @@ class ReportScheduleController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = ReportSchedule::find($id);
         if (!$item) {
@@ -190,7 +190,7 @@ class ReportScheduleController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = ReportSchedule::find($id);
         if (!$item) {
@@ -234,7 +234,7 @@ class ReportScheduleController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail('无效ID', 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = ReportSchedule::find($id);
         if (!$item) {

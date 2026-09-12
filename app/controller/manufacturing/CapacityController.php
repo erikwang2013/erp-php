@@ -51,7 +51,7 @@ class CapacityController extends BaseController
         }
         $wsId = $this->decodeWsId($request->input('workstation_id'));
         if ($wsId === null) {
-            return $this->fail('工作站ID不能为空', 422);
+            return $this->fail($this->trans('Workstation ID cannot be empty'), 422);
         }
         [$from, $to] = $this->rangeFromRequest($request);
         try {
@@ -84,7 +84,7 @@ class CapacityController extends BaseController
     {
         $wsId = $this->decodeWsId($request->input('workstation_id'));
         if ($wsId === null) {
-            return $this->fail('工作站ID不能为空', 422);
+            return $this->fail($this->trans('Workstation ID cannot be empty'), 422);
         }
         $validator = validator($request->all(), [
             'date' => 'required|date_format:Y-m-d',
@@ -124,7 +124,7 @@ class CapacityController extends BaseController
     {
         $wsId = $this->decodeWsId($request->input('workstation_id'));
         if ($wsId === null) {
-            return $this->fail('工作站ID不能为空', 422);
+            return $this->fail($this->trans('Workstation ID cannot be empty'), 422);
         }
         $validator = validator($request->all(), ['date' => 'required|date_format:Y-m-d', 'workstation_id' => 'required|string']);
         if ($validator->fails()) {

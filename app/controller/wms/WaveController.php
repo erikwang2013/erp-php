@@ -241,7 +241,7 @@ class WaveController extends BaseController
 
         $pickItems = $request->input('items', []);
         if (empty($pickItems)) {
-            return $this->fail('请提供拣货明细', 422);
+            return $this->fail($this->trans('Please provide picking details'), 422);
         }
 
         try {

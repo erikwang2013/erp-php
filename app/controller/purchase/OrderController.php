@@ -100,7 +100,7 @@ class OrderController extends BaseController
         }
         $supplierId = $this->decodeIdSafe((string) $request->input('supplier_id', ''));
         if ($supplierId === null || $supplierId < 1) {
-            return $this->fail('supplier_id 无效', 422);
+            return $this->fail($this->trans('Invalid supplier_id'), 422);
         }
 
         $item = new PurchaseOrder();
@@ -200,7 +200,7 @@ class OrderController extends BaseController
         if ($supplierRaw !== null && $supplierRaw !== '') {
             $supplierId = $this->decodeIdSafe((string) $supplierRaw);
             if ($supplierId === null || $supplierId < 1) {
-                return $this->fail('supplier_id 无效', 422);
+                return $this->fail($this->trans('Invalid supplier_id'), 422);
             }
             $item->supplier_id = $supplierId;
         }

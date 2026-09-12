@@ -207,7 +207,7 @@ class ExpenseController extends BaseController
             return $this->fail('记录不存在', 404);
         }
         if ((int) $item->status === 1) {
-            return $this->fail('已批准记录不可修改', 422);
+            return $this->fail($this->trans('Approved records cannot be modified'), 422);
         }
 
         if ($request->input('code') !== null) {
@@ -232,7 +232,7 @@ class ExpenseController extends BaseController
         // status 仅可 0→1（审批动作），驳回/打款由财务侧流程驱动，客户端传其他值一律拒绝
         if ($request->input('status') !== null) {
             if ((int) $request->input('status') !== 1) {
-                return $this->fail('状态仅支持审批通过(1)', 422);
+                return $this->fail($this->trans('Only approved status (1) is supported'), 422);
             }
             $item->status = 1;
             $item->approved_by = (int) ($request->adminId ?? 0);

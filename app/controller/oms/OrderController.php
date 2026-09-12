@@ -88,10 +88,10 @@ class OrderController extends BaseController
         // 实列校验：code 为幻列（无此列，提交即丢弃），真实唯一身份 = order_id（uk_order_id）
         $validator = validator($request->all(), ['order_id' => 'required|integer|min:1']);
         if ($validator->fails()) {
-            return $this->fail('销售订单ID(order_id)不能为空', 422);
+            return $this->fail($this->trans('Sales order ID (order_id) cannot be empty'), 422);
         }
         if (OmsOrder::where('order_id', (int) $request->input('order_id'))->exists()) {
-            return $this->fail('该销售订单已存在 OMS 扩展记录', 422);
+            return $this->fail($this->trans('An OMS extension record already exists for this sales order'), 422);
         }
 
         $item = new OmsOrder();
@@ -247,7 +247,7 @@ class OrderController extends BaseController
 
         $items = $request->input('items', []);
         if (empty($items)) {
-            return $this->fail('请提供分配明细', 422);
+            return $this->fail($this->trans('Please provide allocation details'), 422);
         }
 
         try {
@@ -292,7 +292,7 @@ class OrderController extends BaseController
 
         $warehouseId = $this->decodeIdSafe($request->input('warehouse_id', ''));
         if (!$warehouseId) {
-            return $this->fail('请提供发货仓库', 422);
+            return $this->fail($this->trans('Please provide the shipping warehouse'), 422);
         }
 
         try {

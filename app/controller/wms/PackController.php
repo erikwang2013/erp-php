@@ -233,7 +233,7 @@ class PackController extends BaseController
         }
         $warehouseId = $this->decodeIdSafe($request->input('warehouse_id', ''));
         if (!$warehouseId) {
-            return $this->fail('请提供仓库ID', 422);
+            return $this->fail($this->trans('Please provide the warehouse ID'), 422);
         }
         try {
             $pack = (new \app\service\wms\WmsOutboundService())->startPack($warehouseId, $request->all());
