@@ -186,7 +186,7 @@ export function inferDetailItems(
 /* spec-attrs:start —— 解析器无依赖、纯函数；scripts/check-ng-spec-attrs.mjs 抽取本段真身自检 */
 
 /** 商品 `spec` 列宽：VARCHAR(200)。合成串超长必须拒绝提交，不静默截断 */
-const SPEC_MAX = 200;
+export const SPEC_MAX = 200;
 
 /** 任意入参 → 待解析文本（非字符串对象先 JSON.stringify；null/undefined/空白 → ''） */
 function specText(raw: unknown): string {
@@ -240,7 +240,7 @@ export function specTags(raw: unknown): string[] {
 }
 
 /** attrs JSON → 有序属性组（值列表保留供逐项勾选；空值组保留，编辑器要能补值） */
-function specGroups(raw: unknown) {
+export function specGroups(raw: unknown) {
   const val = specTryParse(specText(raw));
   if (val === null || val === undefined || typeof val !== 'object' || Array.isArray(val)) return [];
   return Object.entries(val as Record<string, unknown>).map(([k, v]) => ({ k, vs: specList(v) }));
@@ -272,7 +272,7 @@ function specJson(rows: unknown): string {
 }
 
 /** 选中项 → 商品 `spec` 字符串：组内 `/` 连接、组间空格（`颜色:红/蓝 尺寸:XL`）；空组不进串 */
-function specCompose(picked: unknown): string {
+export function specCompose(picked: unknown): string {
   const parts = [];
   for (const g of Array.isArray(picked) ? picked : []) {
     const grp = (g ?? {}) as Record<string, unknown>;
