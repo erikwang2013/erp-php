@@ -10,6 +10,7 @@ namespace app\controller\product;
 use app\admin\controller\BaseController;
 use app\model\Product;
 use app\service\product\ProductService;
+use InvalidArgumentException;
 use support\Container;
 use support\Request;
 use support\Response;
@@ -149,6 +150,12 @@ class ProductController extends BaseController
             }
         }
 
+        // SKU 行：spec_id（update 时还有 id）双模解码；任一无效直接 422，不进入事务
+        $skus = $this->decodeSkuRows(is_array($request->input('skus')) ? $request->input('skus') : []);
+        if ($skus === null) {
+            return $this->fail($this->trans('validation_failed'), 422);
+        }
+
         try {
             $product = $this->product()->createProductWithRelations([
                 'code' => $request->input('code'),
@@ -161,7 +168,7 @@ class ProductController extends BaseController
                 'image' => $request->input('image', ''),
                 'description' => $request->input('description', ''),
                 'status' => (int) $request->input('status', 1),
-            ], is_array($request->input('skus')) ? $request->input('skus') : [], $prices);
+            ], $skus, $prices);
 
             return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('created'));
         } catch (Throwable $e) {
@@ -238,6 +245,7 @@ class ProductController extends BaseController
             'category_id' => 'string',
             'brand_id' => 'string',
             'price' => 'numeric',
+            'skus' => 'array',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -254,7 +262,27 @@ class ProductController extends BaseController
             }
         }
 
-        $product = $this->product()->updateProduct($id, $input);
+        // SKU 差量同步：仅当显式传 skus 键才处理（不传 = 不动 SKU，沿用部分更新语义）
+        if (array_key_exists('skus', $input) && is_array($input['skus'])) {
+            $decodedSkus = $this->decodeSkuRows($input['skus']);
+            if ($decodedSkus === null) {
+                return $this->fail($this->trans('validation_failed'), 422);
+            }
+            $input['skus'] = $decodedSkus;
+        } else {
+            unset($input['skus']);
+        }
+
+        try {
+            $product = $this->product()->updateProduct($id, $input);
+        } catch (InvalidArgumentException $e) {
+            // SKU 差量同步的引用守卫等业务拒绝（如"SKU 已被价格记录引用"）
+            return $this->fail($e->getMessage(), 422);
+        } catch (Throwable $e) {
+            $this->logError('更新商品', $e);
+
+            return $this->fail($this->trans('fail') . ': ' . $e->getMessage(), 500);
+        }
         if (!$product) {
             return $this->fail($this->trans('not_found'), 404);
         }
@@ -305,6 +333,39 @@ class ProductController extends BaseController
     /**
      * 商品模块薄服务层实例（Container::get 走 class_exists 回退，见 config/dependence.php 注释）
      */
+    /**
+     * SKU 行归一：`id` / `spec_id` 双模解码（hashid 串或原生数字），任一无效返回 null。
+     *
+     * 缺省/空串/null 视为「未提供」并剔除该键：store 时即无 id（新建），spec_id 省略即 0（未指定规格）。
+     * 调用方拿到 null 必须直接 422 —— 否则退化原值会把垃圾串写进无 FK 约束的关联列。
+     *
+     * @param array<int|string, mixed> $rows 原始 skus 数组
+     * @return array<int, array<string, mixed>>|null
+     */
+    private function decodeSkuRows(array $rows): ?array
+    {
+        $out = [];
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                return null;
+            }
+            foreach (['id', 'spec_id'] as $fk) {
+                if (!array_key_exists($fk, $row) || $row[$fk] === '' || $row[$fk] === null) {
+                    unset($row[$fk]);
+                    continue;
+                }
+                $decoded = $this->decodeFlexibleId((string) $row[$fk]);
+                if ($decoded === null) {
+                    return null;
+                }
+                $row[$fk] = $decoded;
+            }
+            $out[] = $row;
+        }
+
+        return $out;
+    }
+
     private function product(): ProductService
     {
         return Container::get(ProductService::class);

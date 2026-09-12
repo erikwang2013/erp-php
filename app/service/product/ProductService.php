@@ -115,6 +115,11 @@ class ProductService extends AbstractCrudService
         }
         $product->save();
 
+        // SKU 差量同步：控制器仅在显式传 skus 键时放入（id/spec_id 已解码为 int）
+        if (array_key_exists('skus', $input) && is_array($input['skus'])) {
+            $this->syncSkus($product, $input['skus']);
+        }
+
         // 标量 price：替换产品级默认价（sku_id=0/price_type=default）；空串不更新
         if (array_key_exists('price', $input) && trim((string) $input['price']) !== '') {
             ProductPrice::where('product_id', $product->id)
@@ -156,12 +161,65 @@ class ProductService extends AbstractCrudService
     public function normalizeSku(array $skuData): array
     {
         return [
+            'spec_id' => (int) ($skuData['spec_id'] ?? 0),
             'sku_code' => (string) ($skuData['sku_code'] ?? ''),
             'barcode' => (string) ($skuData['barcode'] ?? ''),
             'spec_attrs' => json_encode($skuData['spec_attrs'] ?? [], JSON_UNESCAPED_UNICODE),
             'cost_price' => (float) ($skuData['cost_price'] ?? 0),
             'status' => 1,
         ];
+    }
+
+    /**
+     * SKU 差量同步（更新商品时）：按行 id 分「更新 / 新增」，本次未出现的既有行删除。
+     *
+     * 顺序很关键：**先算差量、做引用守卫，再写** —— 商品主表在调用本方法前已 save()，
+     * 若把守卫放在写循环之后，被拒时会留下「商品已更新、SKU 未同步」的半成品。
+     *
+     * 行 id 仅当属于本商品时才视为更新（防止把别的商品的 SKU 抢过来），否则一律新建。
+     * 删除前查 erp_product_price.sku_id 引用：被引用则抛 InvalidArgumentException（控制器转 422）。
+     * 行未显式带 status 时保留既有状态，避免差量更新把已禁用 SKU 悄悄启用。
+     *
+     * @param array<int, array<string, mixed>> $skus 控制器已解码的行（id/spec_id 为 int）
+     * @throws InvalidArgumentException 待删除的 SKU 仍被价格记录引用
+     */
+    private function syncSkus(Product $product, array $skus): void
+    {
+        $existing = ProductSku::where('product_id', $product->id)->get()->keyBy('id');
+
+        $incoming = [];
+        foreach ($skus as $skuData) {
+            $rawId = isset($skuData['id']) ? (int) $skuData['id'] : 0;
+            if ($rawId > 0 && $existing->has($rawId)) {
+                $incoming[] = $rawId;
+            }
+        }
+        $removed = array_values(array_diff($existing->keys()->all(), $incoming));
+        if ($removed !== [] && ProductPrice::whereIn('sku_id', $removed)->exists()) {
+            throw new InvalidArgumentException('SKU 已被价格记录引用，不能删除；请先清理相关价格');
+        }
+
+        foreach ($skus as $skuData) {
+            $rawId = isset($skuData['id']) ? (int) $skuData['id'] : 0;
+            $sku = ($rawId > 0 && $existing->has($rawId)) ? $existing->get($rawId) : null;
+            if (!$sku) {
+                $sku = new ProductSku();
+                $sku->id = $this->generateId();
+                $sku->product_id = $product->id;
+            }
+            $normalized = $this->normalizeSku($skuData);
+            if ($sku->exists && !array_key_exists('status', $skuData)) {
+                unset($normalized['status']);
+            }
+            foreach ($normalized as $field => $value) {
+                $sku->$field = $value;
+            }
+            $sku->save();
+        }
+
+        if ($removed !== []) {
+            ProductSku::whereIn('id', $removed)->delete();
+        }
     }
 
     /**

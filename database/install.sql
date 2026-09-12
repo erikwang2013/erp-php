@@ -242,6 +242,7 @@ CREATE TABLE IF NOT EXISTS `erp_product` (
 CREATE TABLE IF NOT EXISTS `erp_product_sku` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `product_id` BIGINT UNSIGNED NOT NULL COMMENT '产品ID',
+    `spec_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联商品规格ID(erp_product_spec.id)，0=未指定',
     `sku_code` VARCHAR(50) NOT NULL COMMENT 'SKU编码',
     `barcode` VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'SKU条码',
     `spec_attrs` TEXT COMMENT '规格属性JSON字符串',

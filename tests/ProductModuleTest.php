@@ -307,6 +307,22 @@ class ProductModuleTest extends TestCase
         $this->assertEquals(0.0, $costPrice, 'cost_price 缺失默认为 0.0');
     }
 
+    /**
+     * 直接调用生产代码 ProductService::normalizeSku（public 纯函数，无需 DB）。
+     * 注意与上方 testProductSkuDefaultsStatusEnabled 的区别：那条是自证式断言
+     * （assertEquals(1, 1) 之类），无论实现怎么改都会过，不构成保护；本条真跑实现。
+     */
+    public function testNormalizeSkuCarriesSpecId(): void
+    {
+        $svc = new \app\service\product\ProductService();
+
+        $withSpec = $svc->normalizeSku(['sku_code' => 'A-1', 'spec_id' => 42]);
+        $this->assertSame(42, $withSpec['spec_id'], 'spec_id 应原样带出');
+
+        $withoutSpec = $svc->normalizeSku(['sku_code' => 'A-2']);
+        $this->assertSame(0, $withoutSpec['spec_id'], '未提供 spec_id 时默认 0（未指定规格）');
+    }
+
     public function testProductPriceConvertedToFloat(): void
     {
         // store(): (float) $priceData['price']
