@@ -11,6 +11,9 @@ use Webman\Http\Request;
 
 class I18n
 {
+    /** 已知词典文件（用于识别 "file.key" 前缀；英文即 key 后句子里的点号不算前缀分隔符） */
+    private const FILES = ['common', 'modules', 'validation'];
+
     private static array $loaded = [];
 
     /**
@@ -50,12 +53,18 @@ class I18n
         $fallback = config('translation.fallback_locale', ['zh_CN', 'en']);
         $path = config('translation.path', base_path() . '/resource/translations');
 
-        // Parse "file.key" format
-        if (str_contains($key, '.')) {
-            [$file, $k] = explode('.', $key, 2);
-        } else {
-            $file = 'common';
-            $k = $key;
+        // 解析 "file.key"：**仅当点号前是已知词典文件名时**才当作文件前缀。
+        // 英文即 key 之后 key 是英文句子、本身可能含点号（如 "Record not found. Please retry"），
+        // 若沿用「按首个点号切分」会把句子前缀误当文件名，导致整条消息查不到。
+        $file = 'common';
+        $k = $key;
+        $dot = strpos($key, '.');
+        if ($dot !== false) {
+            $maybe = substr($key, 0, $dot);
+            if (in_array($maybe, self::FILES, true)) {
+                $file = $maybe;
+                $k = substr($key, $dot + 1);
+            }
         }
 
         return self::getTranslated($path, $locale, $file, $k, $replace, $fallback);

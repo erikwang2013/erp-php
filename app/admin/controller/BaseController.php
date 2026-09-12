@@ -125,12 +125,12 @@ class BaseController
     protected function confirmPassword(int $adminId, string $password, Request $request): ?string
     {
         if (empty($password)) {
-            return $this->trans('password_required');
+            return $this->trans('Password confirmation required for sensitive operations');
         }
 
         $admin = AdminUser::find($adminId);
         if (!$admin || !password_verify($password, $admin->password)) {
-            return $this->trans('password_error');
+            return $this->trans('Password verification failed');
         }
 
         return null; // 验证通过

@@ -99,7 +99,7 @@ class RmaController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'order_id']), $this->trans('created'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'order_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -125,11 +125,11 @@ class RmaController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = OmsRma::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $this->encodeIds($item->toArray(), ['id', 'order_id']);
@@ -169,17 +169,17 @@ class RmaController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = OmsRma::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'order_id']), $this->trans('updated'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'order_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -206,7 +206,7 @@ class RmaController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $err = $this->confirmPassword($request->adminId, $request->input('password', ''), $request);
         if ($err) {
@@ -215,11 +215,11 @@ class RmaController extends BaseController
 
         $item = OmsRma::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $item->delete();
 
-        return $this->success([], $this->trans('deleted'));
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -247,12 +247,12 @@ class RmaController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
 
         $rma = OmsRma::find($id);
         if (!$rma) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ($rma->status !== 0) {
             return $this->fail('当前状态不可审批', 400);
@@ -294,12 +294,12 @@ class RmaController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
 
         $rma = OmsRma::find($id);
         if (!$rma) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ($rma->status !== 2) {
             return $this->fail('请等待退货寄回后再确认收货', 400);
@@ -335,12 +335,12 @@ class RmaController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
 
         $rma = OmsRma::find($id);
         if (!$rma) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ($rma->status !== 3 && $rma->status !== 1) {
             return $this->fail('当前状态不可退款', 400);

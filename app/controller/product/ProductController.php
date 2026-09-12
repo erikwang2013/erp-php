@@ -153,7 +153,7 @@ class ProductController extends BaseController
         // SKU 行：spec_id（update 时还有 id）双模解码；任一无效直接 422，不进入事务
         $skus = $this->decodeSkuRows(is_array($request->input('skus')) ? $request->input('skus') : []);
         if ($skus === null) {
-            return $this->fail($this->trans('validation_failed'), 422);
+            return $this->fail($this->trans('Validation failed'), 422);
         }
 
         try {
@@ -170,11 +170,11 @@ class ProductController extends BaseController
                 'status' => (int) $request->input('status', 1),
             ], $skus, $prices);
 
-            return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('created'));
+            return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('Created successfully'));
         } catch (Throwable $e) {
             $this->logError('创建商品', $e);
 
-            return $this->fail($this->trans('fail') . ': ' . $e->getMessage(), 500);
+            return $this->fail($this->trans('Operation failed') . ': ' . $e->getMessage(), 500);
         }
     }
 
@@ -202,7 +202,7 @@ class ProductController extends BaseController
         $id = $this->decodeId($id);
         $product = $this->product()->findProductWithRelations($id);
         if (!$product) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']));
@@ -266,7 +266,7 @@ class ProductController extends BaseController
         if (array_key_exists('skus', $input) && is_array($input['skus'])) {
             $decodedSkus = $this->decodeSkuRows($input['skus']);
             if ($decodedSkus === null) {
-                return $this->fail($this->trans('validation_failed'), 422);
+                return $this->fail($this->trans('Validation failed'), 422);
             }
             $input['skus'] = $decodedSkus;
         } else {
@@ -281,13 +281,13 @@ class ProductController extends BaseController
         } catch (Throwable $e) {
             $this->logError('更新商品', $e);
 
-            return $this->fail($this->trans('fail') . ': ' . $e->getMessage(), 500);
+            return $this->fail($this->trans('Operation failed') . ': ' . $e->getMessage(), 500);
         }
         if (!$product) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('updated'));
+        return $this->success($this->encodeIds($product->toArray(), ['id', 'category_id', 'brand_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -316,7 +316,7 @@ class ProductController extends BaseController
         $id = $this->decodeId($id);
         $product = $this->product()->find(Product::class, $id);
         if (!$product) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -327,7 +327,7 @@ class ProductController extends BaseController
 
         $this->product()->delete(Product::class, $id);
 
-        return $this->success([], $this->trans('deleted'));
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

@@ -98,7 +98,7 @@ class ShipmentController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('created'));
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -124,11 +124,11 @@ class ShipmentController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = TmsShipment::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -157,17 +157,17 @@ class ShipmentController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = TmsShipment::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $this->fillModelFromRequest($item, $request);
 
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('updated'));
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -194,7 +194,7 @@ class ShipmentController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $err = $this->confirmPassword($request->adminId, $request->input('password', ''), $request);
         if ($err) {
@@ -203,11 +203,11 @@ class ShipmentController extends BaseController
 
         $item = TmsShipment::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $item->delete();
 
-        return $this->success([], $this->trans('deleted'));
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -237,7 +237,7 @@ class ShipmentController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         try {
             $svc = new \app\service\tms\TmsShipmentService();
@@ -275,7 +275,7 @@ class ShipmentController extends BaseController
         // 校验 hashid 合法性，同时保留原始 hash 用于面单下载地址
         $decodedId = $this->decodeIdSafe($id);
         if (!$decodedId) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
 
         return $this->success(['label_url' => '/api/shipping-label/' . $id], '面单生成请求已提交');

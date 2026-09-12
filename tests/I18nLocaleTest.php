@@ -39,18 +39,18 @@ class I18nLocaleTest extends TestCase
     {
         $this->withRequest('en-US,en;q=0.9', function (): void {
             self::assertSame('en', I18n::getLocale(request()));
-            self::assertSame('Operation successful', I18n::trans('common.success'));
+            self::assertSame('Operation successful', I18n::trans('Operation successful'));
         });
 
         $this->withRequest('zh-CN,zh;q=0.9', function (): void {
             self::assertSame('zh_CN', I18n::getLocale(request()));
-            self::assertSame('操作成功', I18n::trans('common.success'));
+            self::assertSame('操作成功', I18n::trans('Operation successful'));
         });
 
         // 带地区的 2 字母语言须剥掉地区段：de_de 无对应目录会白白落回 zh_CN
         $this->withRequest('de-DE,de;q=0.9', function (): void {
             self::assertSame('de', I18n::getLocale(request()));
-            self::assertSame('Vorgang erfolgreich', I18n::trans('common.success'));
+            self::assertSame('Vorgang erfolgreich', I18n::trans('Operation successful'));
         });
     }
 
@@ -58,13 +58,13 @@ class I18nLocaleTest extends TestCase
     {
         self::assertSame('zh_CN', I18n::getLocale());
         self::assertSame('zh_CN', I18n::getLocale(null));
-        self::assertSame('操作成功', I18n::trans('common.success'));
+        self::assertSame('操作成功', I18n::trans('Operation successful'));
     }
 
     public function testExplicitLocaleWinsOverRequest(): void
     {
         $this->withRequest('en-US,en;q=0.9', function (): void {
-            self::assertSame('操作成功', I18n::trans('common.success', [], 'zh_CN'));
+            self::assertSame('操作成功', I18n::trans('Operation successful', [], 'zh_CN'));
         });
     }
 }

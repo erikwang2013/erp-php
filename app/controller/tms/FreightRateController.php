@@ -115,7 +115,7 @@ class FreightRateController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'carrier_service_id']), $this->trans('created'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'carrier_service_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -141,11 +141,11 @@ class FreightRateController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = TmsFreightRate::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -174,11 +174,11 @@ class FreightRateController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = TmsFreightRate::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->fillModelFromRequest($item, $request);
@@ -198,7 +198,7 @@ class FreightRateController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'carrier_service_id']), $this->trans('updated'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'carrier_service_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -225,7 +225,7 @@ class FreightRateController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $err = $this->confirmPassword($request->adminId, $request->input('password', ''), $request);
         if ($err) {
@@ -234,11 +234,11 @@ class FreightRateController extends BaseController
 
         $item = TmsFreightRate::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $item->delete();
 
-        return $this->success([], $this->trans('deleted'));
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

@@ -113,7 +113,7 @@ class TrackingController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'shipment_id']), $this->trans('created'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'shipment_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -139,11 +139,11 @@ class TrackingController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = TmsTrackingEvent::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -172,11 +172,11 @@ class TrackingController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = TmsTrackingEvent::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->fillModelFromRequest($item, $request);
@@ -195,7 +195,7 @@ class TrackingController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'shipment_id']), $this->trans('updated'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'shipment_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -222,7 +222,7 @@ class TrackingController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $err = $this->confirmPassword($request->adminId, $request->input('password', ''), $request);
         if ($err) {
@@ -231,11 +231,11 @@ class TrackingController extends BaseController
 
         $item = TmsTrackingEvent::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $item->delete();
 
-        return $this->success([], $this->trans('deleted'));
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**

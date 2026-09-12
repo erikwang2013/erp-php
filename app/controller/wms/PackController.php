@@ -98,7 +98,7 @@ class PackController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('created'));
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
 
     /**
@@ -124,11 +124,11 @@ class PackController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = WmsPackTask::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         return $this->success($this->encodeIds($item->toArray()));
@@ -157,17 +157,17 @@ class PackController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = WmsPackTask::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('updated'));
+        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
     /**
@@ -194,7 +194,7 @@ class PackController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $err = $this->confirmPassword($request->adminId, $request->input('password', ''), $request);
         if ($err) {
@@ -203,11 +203,11 @@ class PackController extends BaseController
 
         $item = WmsPackTask::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $item->delete();
 
-        return $this->success([], $this->trans('deleted'));
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 
     /**
@@ -269,7 +269,7 @@ class PackController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         try {
             $pack = (new \app\service\wms\WmsOutboundService())->completePack($id, $request->all());

@@ -125,7 +125,7 @@ class FulfillmentController extends BaseController
         $item->status = 0;
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'oms_order_id', 'warehouse_id']), $this->trans('created'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'oms_order_id', 'warehouse_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -151,7 +151,7 @@ class FulfillmentController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = OmsFulfillment::query()
             ->leftJoin('warehouse', 'warehouse.id', '=', 'oms_fulfillment.warehouse_id')
@@ -159,7 +159,7 @@ class FulfillmentController extends BaseController
             ->select('oms_fulfillment.*', 'warehouse.name as warehouse_name')
             ->first();
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
 
         $data = $this->encodeIds($item->toArray(), ['id', 'oms_order_id', 'warehouse_id']);
@@ -207,11 +207,11 @@ class FulfillmentController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $item = OmsFulfillment::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         if ((int) $item->status >= 5) {
             return $this->fail('已发货记录不可修改', 422);
@@ -231,7 +231,7 @@ class FulfillmentController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'oms_order_id', 'warehouse_id']), $this->trans('updated'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'oms_order_id', 'warehouse_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -258,7 +258,7 @@ class FulfillmentController extends BaseController
         }
         $id = $this->decodeIdSafe($id);
         if (!$id) {
-            return $this->fail($this->trans('invalid_id'), 400);
+            return $this->fail($this->trans('Invalid ID'), 400);
         }
         $err = $this->confirmPassword($request->adminId, $request->input('password', ''), $request);
         if ($err) {
@@ -267,10 +267,10 @@ class FulfillmentController extends BaseController
 
         $item = OmsFulfillment::find($id);
         if (!$item) {
-            return $this->fail($this->trans('not_found'), 404);
+            return $this->fail($this->trans('Record not found'), 404);
         }
         $item->delete();
 
-        return $this->success([], $this->trans('deleted'));
+        return $this->success([], $this->trans('Deleted successfully'));
     }
 }
