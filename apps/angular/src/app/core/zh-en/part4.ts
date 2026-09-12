@@ -365,4 +365,5 @@ export const zhEnPart4: Record<string, string> = {
   中英切换: 'Chinese / English',
   '第 {count} 个字位置不准，请再点一次': 'Click #{count} again - the point missed the target',
   '仍未通过，请按顺序重新点击': 'Still not matched - click all characters in order again',
+  规格属性: 'Spec Attributes',
 };
