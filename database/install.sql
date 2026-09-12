@@ -245,7 +245,6 @@ CREATE TABLE IF NOT EXISTS `erp_product_sku` (
     `spec_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关联商品规格ID(erp_product_spec.id)，0=未指定',
     `sku_code` VARCHAR(50) NOT NULL COMMENT 'SKU编码',
     `barcode` VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'SKU条码',
-    `spec_attrs` TEXT COMMENT '规格属性JSON字符串',
     `cost_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '成本价',
     `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

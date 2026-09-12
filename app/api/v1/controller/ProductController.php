@@ -74,7 +74,7 @@ class ProductController extends BaseController
         $id = $this->decodeId($hashid);
         $product = Product::with([
             'skus' => function ($q) {
-                $q->where('status', 1)->select('id', 'product_id', 'spec_id', 'sku_code', 'barcode', 'spec_attrs');
+                $q->where('status', 1)->select('id', 'product_id', 'spec_id', 'sku_code', 'barcode')->with('spec');
             },
             'prices' => function ($q) {
                 $q->whereIn('price_type', ['wholesale', 'retail']);

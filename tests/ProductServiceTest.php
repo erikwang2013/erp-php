@@ -30,7 +30,8 @@ class ProductServiceTest extends TestCase
     }
 
     /**
-     * SKU 数据归一化：缺省字段按默认值、spec_attrs JSON 序列化、cost_price 数值化、status 固定 1
+     * SKU 数据归一化：缺省字段按默认值、spec_id 默认 0、cost_price 数值化、status 固定 1
+     * （spec_attrs 已于 2026-09-12 从 SKU 表移除，属性只存在 erp_product_spec，SKU 经 spec_id 引用）
      */
     public function testNormalizeSkuDefaults(): void
     {
@@ -38,13 +39,14 @@ class ProductServiceTest extends TestCase
         $sku = $service->normalizeSku([]);
         $this->assertSame('', $sku['sku_code']);
         $this->assertSame('', $sku['barcode']);
-        $this->assertSame('[]', $sku['spec_attrs']);
+        $this->assertSame(0, $sku['spec_id']);
         $this->assertSame(0.0, $sku['cost_price']);
         $this->assertSame(1, $sku['status']);
+        $this->assertArrayNotHasKey('spec_attrs', $sku, 'SKU 不再自带规格属性副本');
     }
 
     /**
-     * SKU 数据归一化：完整字段透传，spec_attrs 支持中文/嵌套结构
+     * SKU 数据归一化：完整字段透传（含 spec_id）
      */
     public function testNormalizeSkuFullPayload(): void
     {
@@ -52,12 +54,12 @@ class ProductServiceTest extends TestCase
         $sku = $service->normalizeSku([
             'sku_code' => 'SKU-001',
             'barcode' => '6901234567890',
-            'spec_attrs' => ['颜色' => '红色', '尺寸' => 'M'],
+            'spec_id' => 7,
             'cost_price' => '99.5',
         ]);
         $this->assertSame('SKU-001', $sku['sku_code']);
         $this->assertSame('6901234567890', $sku['barcode']);
-        $this->assertSame('{"颜色":"红色","尺寸":"M"}', $sku['spec_attrs']);
+        $this->assertSame(7, $sku['spec_id']);
         $this->assertSame(99.5, $sku['cost_price']);
         $this->assertSame(1, $sku['status']);
     }

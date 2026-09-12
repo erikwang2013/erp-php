@@ -145,7 +145,8 @@ class ProductService extends AbstractCrudService
      */
     public function findProductWithRelations(int $id): ?Product
     {
-        $query = Product::with(['category', 'brand', 'skus', 'prices', 'units']);
+        // skus.spec：SKU 不带规格属性副本，属性只在规格表，详情要经 spec_id 取
+        $query = Product::with(['category', 'brand', 'skus.spec', 'prices', 'units']);
 
         return $query->find($id);
     }
@@ -153,7 +154,7 @@ class ProductService extends AbstractCrudService
     /**
      * SKU 数据归一化（纯逻辑，可单测）
      * 与旧控制器创建 SKU 时的字段赋值语义完全一致：
-     * sku_code/barcode 缺省为空串，spec_attrs 以 JSON 存储，cost_price 缺省 0，status 固定 1。
+     * sku_code/barcode 缺省为空串，spec_id 缺省 0（未指定规格），cost_price 缺省 0，status 固定 1。
      *
      * @param array<string, mixed> $skuData 原始 SKU 数据
      * @return array<string, mixed> 归一化后的 SKU 字段
@@ -164,7 +165,6 @@ class ProductService extends AbstractCrudService
             'spec_id' => (int) ($skuData['spec_id'] ?? 0),
             'sku_code' => (string) ($skuData['sku_code'] ?? ''),
             'barcode' => (string) ($skuData['barcode'] ?? ''),
-            'spec_attrs' => json_encode($skuData['spec_attrs'] ?? [], JSON_UNESCAPED_UNICODE),
             'cost_price' => (float) ($skuData['cost_price'] ?? 0),
             'status' => 1,
         ];
@@ -225,7 +225,7 @@ class ProductService extends AbstractCrudService
     /**
      * 规格属性归一化（纯逻辑，可单测）
      * 接受 JSON 字符串或已解码的 PHP 数组/对象，统一存为 JSON 对象字符串
-     * （JSON_UNESCAPED_UNICODE，与 ProductSku::normalizeSku 的 spec_attrs 同风格）。
+     * （JSON_UNESCAPED_UNICODE）。
      *
      * 空值（null / '' / {} / []）归一化为 '{}'：AbstractCrudService::fillableOnly()
      * 用 isset() 过滤，NULL 会被静默丢弃导致"清空属性"无法保存，故用 '{}' 表达空。
