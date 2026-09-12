@@ -9,8 +9,11 @@ namespace app\controller\inventory;
 
 use app\admin\controller\BaseController;
 use app\model\Inventory;
+use app\service\inventory\InventoryService;
+use support\Container;
 use support\Request;
 use support\Response;
+use Throwable;
 
 /**
  * 库存管理
@@ -99,17 +102,42 @@ class InventoryController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        // 旧实现校验的是 name —— 而 erp_inventory 没有 name 列（模板残留）：正常库存 payload 必被
+        // 422 拒；就算传了 name 也只能被 fillable 丢弃，插入一行全零库存。这里改为校验真实列。
+        $validator = validator($request->all(), [
+            'product_id' => 'required|string',
+            'warehouse_id' => 'required|string',
+            'quantity' => 'required|numeric',
+            'sku_id' => 'string',
+            'location_id' => 'string',
+            'batch_code' => 'string',
+            'cost_price' => 'numeric',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = new Inventory();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
+        // 库存不允许裸插：必须经 InventoryService，才能同时写库存流水、更新实时库存、
+        // 重算移动加权平均成本（裸插会绕开这三件事，是账实不符的源头）。
+        try {
+            Container::get(InventoryService::class)->stockIn(
+                $this->decodeId((string) $request->input('product_id')),
+                $request->input('sku_id') ? $this->decodeId((string) $request->input('sku_id')) : 0,
+                $this->decodeId((string) $request->input('warehouse_id')),
+                $request->input('location_id') ? $this->decodeId((string) $request->input('location_id')) : 0,
+                (string) $request->input('batch_code', ''),
+                (float) $request->input('quantity'),
+                (float) $request->input('cost_price', 0),
+                'manual',
+                0,
+            );
+        } catch (Throwable $e) {
+            $this->logError('库存手工入库', $e);
 
-        return $this->success($this->encodeIds($item->toArray()), '创建成功');
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        return $this->success([], '入库成功');
     }
 
     /**
@@ -167,6 +195,12 @@ class InventoryController extends BaseController
         $item = Inventory::find($id);
         if (!$item) {
             return $this->fail('记录不存在', 404);
+        }
+
+        // 禁止直接改数量：会绕开库存流水与移动加权平均成本重算（账实不符的源头）。
+        // 需要按实际库存修正请走盘点/入库调整，那会生成盘盈盘亏流水。
+        if ($request->input('quantity') !== null) {
+            return $this->fail('不能直接修改库存数量（会绕开库存流水与成本重算）；请通过盘点或库存调整修正', 422);
         }
 
         $this->fillModelFromRequest($item, $request);
