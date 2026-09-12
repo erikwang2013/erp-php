@@ -2,6 +2,50 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.15.0 (2026-09-12)
+
+CI 由四点红转三绿 + 后端 i18n 英文化 + 商品规格属性/SKU 关联。
+
+### 平台与架构
+
+- **install.sql 语法错误修复（从零安装必失败）**：权限种子段首条 INSERT 末行 `,` 未终止、DMS 域菜单成孤儿行，
+  任何全新部署都会在 `ERROR 1064` 处中断；E2E 作业自引入起一直死在 `Initialize database`。修复后实测
+  导入建出 **227 张表**、权限种子 364 行
+- **E2E 全链路修复（两处）**：① DB 初始化（同上）② 脚本硬编码**无版本前缀**的 API 路径，`8276a1b` 版本进路径后
+  全部落入 `Route::fallback`（HTTP 200 + 业务码 404）；分两轮补齐 `/api/v1`（12 处）与 `/admin/v1`（65 处 + 矩阵 20 项）。
+  作业由**长期红转绿**
+- **Docs 作业改为确定性测量**：原 `tests`/`assertions` 靠真跑 phpunit 解析，属**环境函数**（CI 965/2478 vs
+  本地 951/2689，两种环境不可能同时满足）；改为纯静态计数，docs 作业精简为两步
+- **Flutter 作业转绿**：验证码弹框首帧 `_data!.targets.length` 空指针（`9721129` 起潜伏）导致 9 个测试派生失败；
+  修实现而非改断言，`+169` 全绿；另补 refresh 路径 2 条常驻测试（原 16 处 `onRefresh` 全为 null，该分支零覆盖）
+- **PHPStan 归零**：170 处 → 0（12 处**必 fatal** 的真缺陷已修：`$this->fail()` 用在无该方法/无基类的控制器、
+  `$request->merge()` 在 `support\Request` 上根本不存在；其余为框架盲区），**未降 level、未加宽泛 ignore**；
+  基线由官方生成器重算（净减 412 行）
+- **PHP CS Fixer 全量格式化 228 文件**：解开被它挡在 PHPUnit 之前的死结——此前 CI 的
+  `Initialize database`/`PHPUnit`/`Coverage` 三步**一直被 skipped、从未真跑**
+- **i18n 英文化（全量）**：① `getLocale()` 经 `request()` 取 `Accept-Language`，**193 调用点零改动**即让
+  `resource/translations/` 13 个语种目录首次真正生效（原地区段剥离 bug 致 11 个目录永不可达）
+  ② 词典改为**英文即 key**（13 语种重键、`en` 目录留空由引擎回键），`file.key` 前缀改为白名单以容纳英文句中的点号
+  ③ **1084 处**响应消息（`fail`/`success`）脱裸中文，`zh_CN` 补 **428 条**词条；中文路径逐字不变（176 条键逐字回解验证）
+- **商品规格属性（`erp_product_spec.attrs` JSON）**：后端全栈（归一化 + 422 边界 + 16 用例）、Angular `kind:'tags'`
+  胶囊渲染与规格页编辑；**SKU 关联规格**（`erp_product_sku.spec_id`，`update` 支持 SKU 差量同步含增/改/删与
+  价格引用守卫）；商品表「规格型号」改为规格下拉
+
+### 其他
+
+- **真缺陷修复**：库存新增接口校验**不存在的 `name` 列**（正常 payload 必 422 / 绕过则插全零行）改为经
+  `InventoryService::stockIn()` 入库；`update` 禁止直接改 `quantity`（绕开流水与成本重算）；
+  RateLimit 三处失效（版本段未归一、放行分支缺前导斜杠、`/admin/user/batch` 被短键抢先命中致 10/min 从未生效）；
+  内容区 `.content` 为 `overflow:hidden` 且各页面自身无滚动区 → 权限管理/操作日志/仪表盘滚不动
+- **测试基建**：`scripts/check-fe-endpoints.mjs` 前端端点契约探测（两端 config 声明的 API 路径逐个打真实后端，
+  401/422=已接上、404=未接上，**无需凭据**）—— 实测 **147/147 命中**；`check-ng-spec-attrs.mjs` 扩至 49 例
+- **HOS**：表单操作按钮移入 `DetailCard`（12 页）+ 8 个超 500 行页拆分（590/589/587/567/563/561/551/541 → 391–376）
+- 质量门：Angular `ng build` 退出 0 且 0 warning；React `tsc --noEmit` + `vite build` 干净；
+  HOS `BUILD SUCCESSFUL`；`phpunit 971 tests / 2728 assertions / 0 failure`；`doc-stats --check` 202/202
+- 遗留：CI 的 php 作业仍红在 `PHPUnit Tests`（**首次真正执行**后暴露的环境类红点：ES 无服务 + 集成用例表名缺
+  `erp_` 前缀 + 14 个契约失败）；`InvoiceService` 有 service 层中文返回未走 `trans()`；
+  `erp_product.spec` 存规格名而非 ID（无 FK，改规格名不回溯）
+
 ## v1.14.0 (2026-09-12)
 
 五端并行批：Angular 规格属性可视化、HOS/Flutter 超长文件拆分、后端 hashid 解码修正、CI E2E 根因修复。
