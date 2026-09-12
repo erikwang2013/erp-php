@@ -63,7 +63,12 @@ class I18n
 
     private static function getTranslated(string $path, string $locale, string $file, string $key, array $replace, array $fallbackLocales): string
     {
-        $localesToTry = array_merge([$locale], (array) $fallbackLocales);
+        // 英文即 key 语义：词典将以**英文原文**为键，故请求 en 时 key 本身就是英文渲染结果。
+        // 故 en 不参与 fallback（不落 zh_CN，否则英文用户会看到中文）：
+        //   先查 en 词典（兼容既有的语义 key 条目），查不到即返回 key（= 英文原文）。
+        $localesToTry = str_starts_with(strtolower($locale), 'en')
+            ? [$locale]
+            : array_merge([$locale], (array) $fallbackLocales);
 
         foreach ($localesToTry as $loc) {
             $cacheKey = "{$loc}.{$file}";
@@ -72,15 +77,20 @@ class I18n
                 self::$loaded[$cacheKey] = is_file($f) ? require $f : [];
             }
             if (isset(self::$loaded[$cacheKey][$key])) {
-                $value = self::$loaded[$cacheKey][$key];
-                foreach ($replace as $k => $v) {
-                    $value = str_replace(":{$k}", (string) $v, $value);
-                }
-
-                return $value;
+                return self::applyReplace((string) self::$loaded[$cacheKey][$key], $replace);
             }
         }
 
-        return $key; // Return key if not found
+        return self::applyReplace($key, $replace); // 找不到条目时返回 key 本身（英文即 key 语义下即英文原文）
+    }
+
+    /** 占位符替换：`:name` → 值 */
+    private static function applyReplace(string $value, array $replace): string
+    {
+        foreach ($replace as $k => $v) {
+            $value = str_replace(":{$k}", (string) $v, $value);
+        }
+
+        return $value;
     }
 }
