@@ -158,16 +158,23 @@ export class ResourcePage implements OnInit {
     return d ? inferDetailItems(d, this.cols()) : [];
   });
   /**
-   * 规格属性胶囊：详情行上各 SKU 的 `spec_attrs`（JSON 字符串）摊平成一排「键:值」。
-   * 解析全部在 columns.specTags 里，这里只负责喂数据；解析结果直接可渲染，模板不过 tr
-   * （键是用户数据，不是词典词条）。
+   * 规格属性胶囊：按 SKU 的 `spec_id` 取所属规格的 `attrs`（JSON 字符串），摊平成「键:值」一排。
+   *
+   * SKU 表自 2026-09-12 起不再自带 `spec_attrs` 副本（属性只存在 erp_product_spec），
+   * 故数据源改为 `skus[].spec.attrs`（后端 findProductWithRelations 已 with('skus.spec')）。
+   * 这里渲染的是**该规格声明的属性全集**，不是某个 SKU 的选中值——选中值当前无处存储。
+   * 多个 SKU 可能引用同一规格，故按文本去重（否则同一规格会被重复列一遍）。
+   * 解析全部在 columns.specTags 里；模板不过 tr（键是用户数据，不是词典词条）。
    */
   readonly detailSpecs = computed(() => {
     const skus = this.detailFull()?.['skus'];
     if (!Array.isArray(skus)) return [];
-    return skus.flatMap((s) =>
-      s && typeof s === 'object' ? specTags((s as Row)['spec_attrs']) : [],
-    );
+    const tags = skus.flatMap((s) => {
+      if (!s || typeof s !== 'object') return [];
+      const spec = (s as Row)['spec'];
+      return spec && typeof spec === 'object' ? specTags((spec as Row)['attrs']) : [];
+    });
+    return [...new Set(tags)];
   });
   /** 页面标题：路由带的 label 只做兜底（配置必有 title） */
   readonly title = computed(() => this.cfg()?.title || this.label());
