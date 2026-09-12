@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class CrudTestModel extends Model
 {
-    protected $table = 'erp_it_crud';
+    protected $table = 'it_crud';
 
     protected $primaryKey = 'id';
 

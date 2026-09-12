@@ -152,7 +152,7 @@ class F6BillTest extends F6FundScaffold
         [$bill] = $svc->store($d);
         $this->billIds[] = (int) $bill->id;
         $this->assertNull($svc->update((int) $bill->id, ['amount' => '888.88', 'drawer' => '新出票人']));
-        $fresh = Capsule::table('erp_finance_bill')->find((int) $bill->id);
+        $fresh = Capsule::table('finance_bill')->find((int) $bill->id);
         $this->assertSame('888.88', (string) $fresh->amount);
         $this->assertSame('新出票人', (string) $fresh->drawer);
 
@@ -209,7 +209,7 @@ class F6BillTest extends F6FundScaffold
         $this->billIds[] = (int) $b1->id;
         $this->assertSame('被背书人必填', $svc->endorse((int) $b1->id, '  '));
         $this->assertNull($svc->endorse((int) $b1->id, '华南实业'));
-        $this->assertSame('华南实业', (string) Capsule::table('erp_finance_bill')->find((int) $b1->id)->endorsee);
+        $this->assertSame('华南实业', (string) Capsule::table('finance_bill')->find((int) $b1->id)->endorsee);
         $this->assertSame('仅 在库 票据可背书', $svc->endorse((int) $b1->id, '再背书'));
 
         // --- 贴现 0→2：贴现息边界 0 允许、等于/大于票面拒绝、负数拒绝
@@ -221,8 +221,8 @@ class F6BillTest extends F6FundScaffold
         $this->assertSame('贴现息须在 0~票面金额之间', $svc->discount((int) $b2->id, '1000.00'));
         $this->assertSame('贴现息须在 0~票面金额之间', $svc->discount((int) $b2->id, '1000.01'));
         $this->assertNull($svc->discount((int) $b2->id, '0'));
-        $this->assertSame('0.00', (string) Capsule::table('erp_finance_bill')->find((int) $b2->id)->discount_fee);
-        $this->assertSame(2, (int) Capsule::table('erp_finance_bill')->find((int) $b2->id)->status);
+        $this->assertSame('0.00', (string) Capsule::table('finance_bill')->find((int) $b2->id)->discount_fee);
+        $this->assertSame(2, (int) Capsule::table('finance_bill')->find((int) $b2->id)->status);
         $this->assertSame('仅 在库 票据可贴现', $svc->discount((int) $b2->id, '1'));
 
         // --- 托收 0→3：未指定账户/账户不存在；兑付 3→4
@@ -232,23 +232,23 @@ class F6BillTest extends F6FundScaffold
         $this->assertSame('请先指定托收银行账户', $svc->collect((int) $b3->id, 0));
         $this->assertSame('托收银行账户不存在', $svc->collect((int) $b3->id, $this->nextId()));
         $this->assertNull($svc->collect((int) $b3->id, $accountId));
-        $this->assertSame(3, (int) Capsule::table('erp_finance_bill')->find((int) $b3->id)->status);
+        $this->assertSame(3, (int) Capsule::table('finance_bill')->find((int) $b3->id)->status);
         $this->assertSame('仅 在库 票据可托收', $svc->collect((int) $b3->id, $accountId));
         $this->assertNull($svc->cash((int) $b3->id));
-        $this->assertSame(4, (int) Capsule::table('erp_finance_bill')->find((int) $b3->id)->status);
+        $this->assertSame(4, (int) Capsule::table('finance_bill')->find((int) $b3->id)->status);
 
         // --- 退票：0→5、3→5；状态 4 不允许
         [$b4] = $svc->store($this->baseBill());
         $this->billIds[] = (int) $b4->id;
         $this->assertNull($svc->reject((int) $b4->id));
-        $this->assertSame(5, (int) Capsule::table('erp_finance_bill')->find((int) $b4->id)->status);
+        $this->assertSame(5, (int) Capsule::table('finance_bill')->find((int) $b4->id)->status);
         $this->assertSame('仅 在库/托收中 票据可退票', $svc->reject((int) $b3->id), '已兑付不可退票');
 
         [$b5] = $svc->store($this->baseBill());
         $this->billIds[] = (int) $b5->id;
         $this->assertNull($svc->collect((int) $b5->id, $accountId));
         $this->assertNull($svc->reject((int) $b5->id), '托收被拒付退回');
-        $this->assertSame(5, (int) Capsule::table('erp_finance_bill')->find((int) $b5->id)->status);
+        $this->assertSame(5, (int) Capsule::table('finance_bill')->find((int) $b5->id)->status);
     }
 
     /** 到期约束与开票(应付)方向禁用链 */
@@ -283,14 +283,14 @@ class F6BillTest extends F6FundScaffold
         $this->billIds[] = (int) $q->id;
         $this->assertNull($svc->cash((int) $q->id), '开票到期解付 0→4');
         $this->assertSame('仅 在库 票据可确认解付', $svc->cash((int) $q->id), '已解付不可重复解付');
-        $this->assertSame(4, (int) Capsule::table('erp_finance_bill')->find((int) $q->id)->status);
+        $this->assertSame(4, (int) Capsule::table('finance_bill')->find((int) $q->id)->status);
 
         $d4 = $this->baseBill();
         $d4['direction'] = 2;
         [$r] = $svc->store($d4);
         $this->billIds[] = (int) $r->id;
         $this->assertNull($svc->reject((int) $r->id), '开票对方退回 0→5');
-        $this->assertSame(5, (int) Capsule::table('erp_finance_bill')->find((int) $r->id)->status);
+        $this->assertSame(5, (int) Capsule::table('finance_bill')->find((int) $r->id)->status);
         $this->assertSame('仅 在库 票据可确认解付', $svc->cash((int) $r->id), '已退票不可解付');
     }
 
@@ -318,9 +318,9 @@ class F6BillTest extends F6FundScaffold
         $b4 = $store(1, $plus1);                     // 收票 明天到期 → 背书后(已背书)排除
         $this->assertNull($svc->endorse($b4, '下家'));
         $b5 = $store(1, $plus3);                     // 收票 → 直接置 3 托收中(夹具手段) → 命中
-        Capsule::table('erp_finance_bill')->where('id', $b5)->update(['status' => 3, 'collected_at' => date('Y-m-d H:i:s')]);
+        Capsule::table('finance_bill')->where('id', $b5)->update(['status' => 3, 'collected_at' => date('Y-m-d H:i:s')]);
         $b6 = $store(1, $plus1);                     // 置 3 后兑付 → 状态4(已兑付)从预警排除
-        Capsule::table('erp_finance_bill')->where('id', $b6)->update(['status' => 3, 'collected_at' => date('Y-m-d H:i:s')]);
+        Capsule::table('finance_bill')->where('id', $b6)->update(['status' => 3, 'collected_at' => date('Y-m-d H:i:s')]);
         $this->assertNull($svc->cash($b6), '托收中收票兑付 3→4');
 
         $ids = fn (array $rows): array => array_map(fn ($r) => (int) $r['id'], $rows);

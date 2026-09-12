@@ -132,7 +132,7 @@ class F3CostingGuardrailsTest extends F3CostingScaffold
             ['product_id' => $b['product_id'], 'sku_id' => $b['sku_id'], 'quantity' => '2'],
         ]);
         $this->auditIssue($issueId);
-        $this->assertBcEquals('50.02', (string) Capsule::table('erp_mfg_material_issue')->where('id', $issueId)->first()->total_cost, '领料单合计');
+        $this->assertBcEquals('50.02', (string) Capsule::table('mfg_material_issue')->where('id', $issueId)->first()->total_cost, '领料单合计');
 
         $this->costService()->completeWithCost($orderId, 4.0, self::WH_ID);
 
@@ -229,7 +229,7 @@ class F3CostingGuardrailsTest extends F3CostingScaffold
                 ['product_id' => $b['product_id'], 'sku_id' => $sku, 'quantity' => $qty],
             ]);
             $this->assertThrowsMessage(fn () => $this->auditIssue($issueId), '领料数量必须大于0');
-            $this->assertSame(0, (int) Capsule::table('erp_mfg_material_issue')->where('id', $issueId)->first()->status, '拒绝后仍草稿');
+            $this->assertSame(0, (int) Capsule::table('mfg_material_issue')->where('id', $issueId)->first()->status, '拒绝后仍草稿');
         }
         $this->assertBcEquals('5.00', (string) $this->stockRow($b['product_id'], $sku)->quantity, '库存未动');
 
@@ -241,7 +241,7 @@ class F3CostingGuardrailsTest extends F3CostingScaffold
         foreach (['0.00', '-5.00'] as $amount) {
             $entryId = $this->createCostEntry($orderId, 1, $amount);
             $this->assertThrowsMessage(fn () => $this->auditCostEntry($entryId), '费用金额必须大于0');
-            $this->assertSame(0, (int) Capsule::table('erp_mfg_cost_entry')->where('id', $entryId)->first()->status, '拒绝后仍草稿');
+            $this->assertSame(0, (int) Capsule::table('mfg_cost_entry')->where('id', $entryId)->first()->status, '拒绝后仍草稿');
         }
 
         // 非法费用类型
@@ -307,7 +307,7 @@ class F3CostingGuardrailsTest extends F3CostingScaffold
     {
         $dr = '0';
         $cr = '0';
-        foreach (Capsule::table('erp_finance_voucher_item')->where('voucher_id', $voucherId)->get() as $row) {
+        foreach (Capsule::table('finance_voucher_item')->where('voucher_id', $voucherId)->get() as $row) {
             $dr = bcadd($dr, bc_norm($row->debit_amount), 6);
             $cr = bcadd($cr, bc_norm($row->credit_amount), 6);
         }

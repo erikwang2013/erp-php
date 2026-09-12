@@ -20,8 +20,8 @@ use support\Container;
 #[Group('integration')]
 class H34AdversarialIntegrationTest extends IntegrationTestCase
 {
-    private const T_COURSE = 'erp_hr_course', T_ENROLL = 'erp_hr_course_enrollment', T_RULE = 'erp_hr_social_rule', T_RATE = 'erp_hr_social_rate', T_EMP_SOCIAL = 'erp_hr_employee_social';
-    private const T_EMPLOYEE = 'erp_hr_employee', OPERATOR = 300_000_000_999;
+    private const T_COURSE = 'hr_course', T_ENROLL = 'erp_hr_course_enrollment', T_RULE = 'erp_hr_social_rule', T_RATE = 'erp_hr_social_rate', T_EMP_SOCIAL = 'erp_hr_employee_social';
+    private const T_EMPLOYEE = 'hr_employee', OPERATOR = 300_000_000_999;
     private static int $seq = 0;
     private bool $dbReady = false;
     private array $courseIds = [];

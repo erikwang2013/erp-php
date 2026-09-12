@@ -51,7 +51,7 @@ class H3TrainingTest extends H3H4Scaffold
         $this->assertSame(0, $course['status'], '未传 status 应落草稿(0)');
 
         // create 返回未 refresh，其余默认列查库断言
-        $row = (array) Capsule::table('erp_hr_course')->where('id', (int) $course['id'])->first();
+        $row = (array) Capsule::table('hr_course')->where('id', (int) $course['id'])->first();
         $this->assertSame(0, (int) $row['status']);
         $this->assertSame('', $row['lecturer']);
 
@@ -136,7 +136,7 @@ class H3TrainingTest extends H3H4Scaffold
 
         // 模型默认作用域不可见软删行（Capsule::table 裸查询走不到 Eloquent 全局作用域）
         $this->assertSame(0, HrCourse::where('id', (int) $course['id'])->count());
-        $this->assertSame(1, Capsule::table('erp_hr_course')
+        $this->assertSame(1, Capsule::table('hr_course')
             ->where('id', (int) $course['id'])
             ->whereNotNull('deleted_at')->count(), '应软删除（deleted_at 落值）');
         $this->assertServiceThrows(

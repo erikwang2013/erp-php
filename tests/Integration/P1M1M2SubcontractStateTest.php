@@ -115,7 +115,7 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
         // 发料单存在但其 subcontract_id 悬空
         $danglingIssue = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_subcontract_issue')->insert([
+        Capsule::table('mfg_subcontract_issue')->insert([
             'id' => $danglingIssue,
             'code' => 'SCI-D' . $danglingIssue,
             'subcontract_id' => 99110013,
@@ -134,7 +134,7 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
 
         // 收料单存在但其 subcontract_id 悬空
         $danglingReceive = $this->nextId();
-        Capsule::table('erp_mfg_subcontract_receive')->insert([
+        Capsule::table('mfg_subcontract_receive')->insert([
             'id' => $danglingReceive,
             'code' => 'SCR-D' . $danglingReceive,
             'subcontract_id' => 99110014,
@@ -264,7 +264,7 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
     {
         $id = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_subcontract')->insert([
+        Capsule::table('mfg_subcontract')->insert([
             'id' => $id,
             'code' => 'SUB-' . $id,
             'supplier_id' => $supplierId,
@@ -293,7 +293,7 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
     {
         $id = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_subcontract_issue')->insert([
+        Capsule::table('mfg_subcontract_issue')->insert([
             'id' => $id,
             'code' => 'SCI-' . $id,
             'subcontract_id' => $subcontractId,
@@ -308,7 +308,7 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
             'deleted_at' => null,
         ]);
         foreach ($items as $row) {
-            Capsule::table('erp_mfg_subcontract_issue_item')->insert([
+            Capsule::table('mfg_subcontract_issue_item')->insert([
                 'id' => $this->nextId(),
                 'issue_id' => $id,
                 'product_id' => $row['product_id'],
@@ -329,7 +329,7 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
     {
         $id = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_subcontract_receive')->insert([
+        Capsule::table('mfg_subcontract_receive')->insert([
             'id' => $id,
             'code' => 'SCR-' . $id,
             'subcontract_id' => $subcontractId,
@@ -351,27 +351,27 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
 
     private function subcontractRow(int $id): ?object
     {
-        return Capsule::table('erp_mfg_subcontract')->where('id', $id)->first();
+        return Capsule::table('mfg_subcontract')->where('id', $id)->first();
     }
 
     private function subcontractIssueRow(int $id): ?object
     {
-        return Capsule::table('erp_mfg_subcontract_issue')->where('id', $id)->first();
+        return Capsule::table('mfg_subcontract_issue')->where('id', $id)->first();
     }
 
     private function subcontractIssueItemRows(int $issueId): array
     {
-        return array_values(Capsule::table('erp_mfg_subcontract_issue_item')->where('issue_id', $issueId)->orderBy('id')->get()->all());
+        return array_values(Capsule::table('mfg_subcontract_issue_item')->where('issue_id', $issueId)->orderBy('id')->get()->all());
     }
 
     private function subcontractReceiveRow(int $id): ?object
     {
-        return Capsule::table('erp_mfg_subcontract_receive')->where('id', $id)->first();
+        return Capsule::table('mfg_subcontract_receive')->where('id', $id)->first();
     }
 
     private function inventoryRow(int $productId, int $skuId): ?object
     {
-        return Capsule::table('erp_inventory')
+        return Capsule::table('inventory')
             ->where('product_id', $productId)
             ->where('sku_id', $skuId)
             ->where('warehouse_id', self::WH_ID)

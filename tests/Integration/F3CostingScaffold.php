@@ -130,7 +130,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
     {
         $this->createTableIfMissing($table, static function (Blueprint $t) use ($table): void {
             $t->unsignedBigInteger('id')->primary();
-            if ($table === 'erp_mfg_material_issue') {
+            if ($table === 'mfg_material_issue') {
                 $t->string('code', 50)->nullable();
                 $t->unsignedBigInteger('order_id')->nullable();
                 $t->unsignedBigInteger('warehouse_id')->nullable();
@@ -139,14 +139,14 @@ abstract class F3CostingScaffold extends IntegrationTestCase
                 $t->decimal('total_cost', 14, 2)->nullable();
                 $t->dateTime('audit_at')->nullable();
                 $t->string('remark', 500)->nullable();
-            } elseif ($table === 'erp_mfg_material_issue_item') {
+            } elseif ($table === 'mfg_material_issue_item') {
                 $t->unsignedBigInteger('issue_id')->nullable();
                 $t->unsignedBigInteger('product_id')->nullable();
                 $t->unsignedBigInteger('sku_id')->nullable();
                 $t->decimal('quantity', 12, 2)->nullable();
                 $t->decimal('unit_cost', 12, 2)->nullable();
                 $t->decimal('amount', 14, 2)->nullable();
-            } elseif ($table === 'erp_mfg_cost_entry') {
+            } elseif ($table === 'mfg_cost_entry') {
                 $t->string('code', 50)->nullable();
                 $t->unsignedBigInteger('order_id')->nullable();
                 $t->tinyInteger('entry_type')->nullable();
@@ -155,7 +155,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
                 $t->tinyInteger('status')->nullable();
                 $t->dateTime('audit_at')->nullable();
                 $t->string('summary', 500)->nullable();
-            } elseif ($table === 'erp_mfg_wip') {
+            } elseif ($table === 'mfg_wip') {
                 $t->unsignedBigInteger('order_id')->nullable();
                 $t->decimal('material_cost', 14, 2)->nullable();
                 $t->decimal('labor_cost', 14, 2)->nullable();
@@ -163,7 +163,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
                 $t->decimal('other_cost', 14, 2)->nullable();
                 $t->decimal('total_cost', 14, 2)->nullable();
                 $t->tinyInteger('status')->nullable();
-            } elseif ($table === 'erp_mfg_wip_flow') {
+            } elseif ($table === 'mfg_wip_flow') {
                 $t->unsignedBigInteger('wip_id')->nullable();
                 $t->unsignedBigInteger('order_id')->nullable();
                 $t->tinyInteger('source_type')->nullable();
@@ -171,7 +171,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
                 $t->decimal('amount', 14, 2)->nullable();
                 $t->tinyInteger('direction')->nullable();
                 $t->date('flow_date')->nullable();
-            } elseif ($table === 'erp_mfg_order_cost') {
+            } elseif ($table === 'mfg_order_cost') {
                 $t->unsignedBigInteger('order_id')->nullable();
                 $t->decimal('finished_qty', 12, 2)->nullable();
                 $t->decimal('standard_material_cost', 14, 2)->nullable();
@@ -184,7 +184,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
                 $t->decimal('unit_cost', 14, 2)->nullable();
                 $t->unsignedBigInteger('voucher_id')->nullable();
                 $t->tinyInteger('status')->nullable();
-            } elseif ($table === 'erp_finance_voucher_source') {
+            } elseif ($table === 'finance_voucher_source') {
                 $t->unsignedBigInteger('voucher_id')->nullable();
                 $t->string('source_type', 30)->nullable();
                 $t->bigInteger('source_id')->nullable();
@@ -197,7 +197,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
             if (!in_array($table, ['erp_mfg_material_issue_item', 'erp_mfg_wip_flow', 'erp_finance_voucher_source'], true)) {
                 $t->dateTime('updated_at')->nullable();
             }
-            if ($table === 'erp_mfg_material_issue' || $table === 'erp_mfg_cost_entry') {
+            if ($table === 'mfg_material_issue' || $table === 'mfg_cost_entry') {
                 $t->dateTime('deleted_at')->nullable();
             }
         });
@@ -208,7 +208,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
 
     protected function stockRow(int $productId, int $skuId): ?object
     {
-        return Capsule::table('erp_inventory')
+        return Capsule::table('inventory')
             ->where('product_id', $productId)->where('sku_id', $skuId)
             ->where('warehouse_id', self::WH_ID)->where('location_id', 0)
             ->where('batch_code', '')->first();
@@ -216,30 +216,30 @@ abstract class F3CostingScaffold extends IntegrationTestCase
 
     protected function orderRow(int $orderId): ?object
     {
-        return Capsule::table('erp_mfg_production_order')->where('id', $orderId)->first();
+        return Capsule::table('mfg_production_order')->where('id', $orderId)->first();
     }
 
     protected function wipRow(int $orderId): ?object
     {
-        return Capsule::table('erp_mfg_wip')->where('order_id', $orderId)->first();
+        return Capsule::table('mfg_wip')->where('order_id', $orderId)->first();
     }
 
     protected function ocRow(int $orderId): ?object
     {
-        return Capsule::table('erp_mfg_order_cost')->where('order_id', $orderId)->first();
+        return Capsule::table('mfg_order_cost')->where('order_id', $orderId)->first();
     }
 
     /** 完工结转凭证（含行），并登记 voucherIds 供 tearDown 清理 */
     protected function voucherOfOc(int $ocId): ?object
     {
-        $oc = Capsule::table('erp_mfg_order_cost')->where('id', $ocId)->first();
+        $oc = Capsule::table('mfg_order_cost')->where('id', $ocId)->first();
         if (!$oc || (int) $oc->voucher_id <= 0) {
             return null;
         }
         $vid = (int) $oc->voucher_id;
         $this->voucherIds[] = $vid;
 
-        return Capsule::table('erp_finance_voucher')->where('id', $vid)->first();
+        return Capsule::table('finance_voucher')->where('id', $vid)->first();
     }
 
     /** 凭证行按 account_id 建索引（顺序无关断言）：account_id => [row] */
@@ -247,7 +247,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
     {
         $this->voucherIds[] = $voucherId;
         $map = [];
-        foreach (Capsule::table('erp_finance_voucher_item')->where('voucher_id', $voucherId)->get() as $row) {
+        foreach (Capsule::table('finance_voucher_item')->where('voucher_id', $voucherId)->get() as $row) {
             $map[(int) $row->account_id] = $row;
         }
 
@@ -267,7 +267,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
         $productId = $this->nextId();
         $skuId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_product_sku')->insert([
+        Capsule::table('product_sku')->insert([
             'id' => $skuId,
             'product_id' => $productId,
             'sku_code' => 'SKU-' . $skuId,
@@ -304,7 +304,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
     {
         $bomId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_bom')->insert([
+        Capsule::table('mfg_bom')->insert([
             'id' => $bomId,
             'product_id' => $productId,
             'code' => 'BOM-' . $bomId,
@@ -317,7 +317,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
             'deleted_at' => null,
         ]);
         foreach ($components as $row) {
-            Capsule::table('erp_mfg_bom_item')->insert([
+            Capsule::table('mfg_bom_item')->insert([
                 'id' => $this->nextId(),
                 'bom_id' => $bomId,
                 'component_product_id' => $row['product_id'],
@@ -338,7 +338,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
     {
         $orderId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_production_order')->insert([
+        Capsule::table('mfg_production_order')->insert([
             'id' => $orderId,
             'code' => 'PO-' . $orderId,
             'bom_id' => $bomId,
@@ -369,7 +369,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
     {
         $issueId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_material_issue')->insert([
+        Capsule::table('mfg_material_issue')->insert([
             'id' => $issueId,
             'code' => 'MI-' . $issueId,
             'order_id' => $orderId,
@@ -383,7 +383,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
             'deleted_at' => null,
         ]);
         foreach ($lines as $row) {
-            Capsule::table('erp_mfg_material_issue_item')->insert([
+            Capsule::table('mfg_material_issue_item')->insert([
                 'id' => $this->nextId(),
                 'issue_id' => $issueId,
                 'product_id' => $row['product_id'],
@@ -409,7 +409,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
     {
         $entryId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_cost_entry')->insert([
+        Capsule::table('mfg_cost_entry')->insert([
             'id' => $entryId,
             'code' => 'CE-' . $entryId,
             'order_id' => $orderId,
@@ -436,12 +436,12 @@ abstract class F3CostingScaffold extends IntegrationTestCase
     /** 科目映射整表测试域重设（cost_type → account_id，status=1） */
     protected function configureAccounts(array $map): void
     {
-        Capsule::table('erp_finance_cost_account_config')
+        Capsule::table('finance_cost_account_config')
             ->whereIn('account_id', array_values(self::TEST_ACCOUNT_IDS))
             ->delete();
         $now = date('Y-m-d H:i:s');
         foreach ($map as $costType => $accountId) {
-            Capsule::table('erp_finance_cost_account_config')->insert([
+            Capsule::table('finance_cost_account_config')->insert([
                 'id' => $this->nextId(),
                 'cost_type' => $costType,
                 'account_id' => $accountId,

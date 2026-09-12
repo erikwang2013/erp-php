@@ -40,9 +40,9 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('integration')]
 class B7CustomFieldTest extends IntegrationTestCase
 {
-    private const DEF_TABLE = 'erp_custom_field_definition';
+    private const DEF_TABLE = 'custom_field_definition';
 
-    private const ORDER_TABLE = 'erp_sales_order';
+    private const ORDER_TABLE = 'sales_order';
 
     private CustomFieldService $service;
 

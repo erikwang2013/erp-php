@@ -65,7 +65,7 @@ class F12MultiCompanyConsolidationTest extends F12MultiCompanyScaffold
             ['account_id' => self::ACC_BANK_ID, 'credit_amount' => '100.00', 'summary' => '管理费'],
         ]);
         $ledger->openPeriod((int) $subLedger->id, '2026-08');
-        Capsule::table('erp_company')->where('id', (int) $subCompany->id)
+        Capsule::table('company')->where('id', (int) $subCompany->id)
             ->update(['parent_id' => (int) $mainCompany->id]);
         $this->insertRateUsdToCny();
 
@@ -126,7 +126,7 @@ class F12MultiCompanyConsolidationTest extends F12MultiCompanyScaffold
         $this->closeSubPeriod($ids, true);
 
         // 账套维度唯一键：MAIN/SUBUS 同关 2026-08 各自落库，互不冲突（uk_ledger_report 生效）
-        $periods = Capsule::table('erp_finance_period')
+        $periods = Capsule::table('finance_period')
             ->whereIn('ledger_id', [$ids['main_ledger_id'], $ids['sub_ledger_id']])
             ->where('period', '2026-08')->orderBy('ledger_id')->get();
         $this->assertCount(2, $periods);
@@ -302,10 +302,10 @@ class F12MultiCompanyConsolidationTest extends F12MultiCompanyScaffold
     /** 非法抵销拒绝后：latest 草稿金额/行数均未被污染 */
     private function assertEliminationState(int $reportId, string $totalAssets, int $rowCount): void
     {
-        $report = Capsule::table('erp_finance_consolidation_report')->where('id', $reportId)->first();
+        $report = Capsule::table('finance_consolidation_report')->where('id', $reportId)->first();
         $this->assertNotNull($report);
         $this->assertSame($totalAssets, $report->total_assets);
-        $this->assertSame($rowCount, Capsule::table('erp_finance_elimination_item')
+        $this->assertSame($rowCount, Capsule::table('finance_elimination_item')
             ->where('report_id', $reportId)->count());
     }
 

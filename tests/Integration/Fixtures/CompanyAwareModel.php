@@ -27,7 +27,7 @@ class CompanyAwareModel extends Model
         return true;
     }
 
-    protected $table = 'erp_it_company_data';
+    protected $table = 'it_company_data';
 
     protected $primaryKey = 'id';
 

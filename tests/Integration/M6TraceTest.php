@@ -273,7 +273,7 @@ class M6TraceTest extends IntegrationTestCase
 
         $this->stockIn($p, $batch, '10', '5.00', 'purchase_receive', [], $production, $expiry);
 
-        $batchRow = Capsule::table('erp_inventory_batch')
+        $batchRow = Capsule::table('inventory_batch')
             ->where('product_id', $p['product_id'])
             ->where('sku_id', $p['sku_id'])
             ->where('batch_code', $batch)
@@ -291,7 +291,7 @@ class M6TraceTest extends IntegrationTestCase
 
         $this->stockIn($p, $batch, '10', '5.00', 'purchase_receive');
 
-        $batchRow = Capsule::table('erp_inventory_batch')
+        $batchRow = Capsule::table('inventory_batch')
             ->where('product_id', $p['product_id'])
             ->where('sku_id', $p['sku_id'])
             ->where('batch_code', $batch)
@@ -315,7 +315,7 @@ class M6TraceTest extends IntegrationTestCase
         // 二次入库带生产日期 + 不同效期：效期不应被覆盖，生产日期应补写
         $this->stockIn($p, $batch, '5', '5.00', 'wms_putaway', [], $production, $secondExpiry);
 
-        $batchRow = Capsule::table('erp_inventory_batch')
+        $batchRow = Capsule::table('inventory_batch')
             ->where('product_id', $p['product_id'])
             ->where('sku_id', $p['sku_id'])
             ->where('batch_code', $batch)
@@ -366,7 +366,7 @@ class M6TraceTest extends IntegrationTestCase
         $productId = $this->nextId();
         $skuId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_product_sku')->insert([
+        Capsule::table('product_sku')->insert([
             'id' => $skuId,
             'product_id' => $productId,
             'sku_code' => 'SKU-' . $skuId,
@@ -421,7 +421,7 @@ class M6TraceTest extends IntegrationTestCase
         );
         $this->flowIds[] = $flowId;
         foreach ($serials as $code) {
-            $serial = Capsule::table('erp_inventory_serial')->where('serial_code', $code)->first();
+            $serial = Capsule::table('inventory_serial')->where('serial_code', $code)->first();
             if ($serial) {
                 $this->serialIds[] = (int) $serial->id;
             }

@@ -50,7 +50,7 @@ abstract class H3H4Scaffold extends IntegrationTestCase
             self::dropTableIfExists($table);
         }
         if ($this->seededEmployeeIds !== []) {
-            Capsule::table('erp_hr_employee')->whereIn('id', $this->seededEmployeeIds)->delete();
+            Capsule::table('hr_employee')->whereIn('id', $this->seededEmployeeIds)->delete();
             $this->seededEmployeeIds = [];
         }
         parent::tearDown();
@@ -84,7 +84,7 @@ abstract class H3H4Scaffold extends IntegrationTestCase
     protected function createEmployee(): int
     {
         $id = self::nextId();
-        Capsule::table('erp_hr_employee')->insert([
+        Capsule::table('hr_employee')->insert([
             'id' => $id,
             'code' => 'EMP-' . $id,
             'name' => 'H3H4测试员工',

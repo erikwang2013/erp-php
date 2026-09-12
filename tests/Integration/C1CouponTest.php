@@ -36,13 +36,13 @@ class C1CouponTest extends C1MemberScaffold
             '期限差恰为 valid_days=30 天'
         );
 
-        $row = Capsule::table('erp_member_coupon')->where('id', $couponId)->first();
+        $row = Capsule::table('member_coupon')->where('id', $couponId)->first();
         $this->assertSame($memberId, (int) $row->member_id);
         $this->assertSame($templateId, (int) $row->template_id);
         $this->assertSame(0, (int) $row->status, '初始未使用');
         $this->assertSame('', (string) $row->order_source);
         $this->assertSame((string) $data['expire_at'], (string) $row->expire_at, '返回值与落库一致');
-        $tpl = Capsule::table('erp_member_coupon_template')->where('id', $templateId)->first();
+        $tpl = Capsule::table('member_coupon_template')->where('id', $templateId)->first();
         $this->assertSame(1, (int) $tpl->issued_qty, '模板发放数 +1');
     }
 
@@ -56,7 +56,7 @@ class C1CouponTest extends C1MemberScaffold
         [$data, $err] = $svc->issueCoupon($memberId, $templateId, 1001);
         $this->assertNull($err);
         $this->assertNull($data['expire_at'], '长期券无到期日');
-        $row = Capsule::table('erp_member_coupon')->where('id', (int) $data['coupon_id'])->first();
+        $row = Capsule::table('member_coupon')->where('id', (int) $data['coupon_id'])->first();
         $this->assertNull($row->expire_at);
 
         [$ov] = $svc->memberOverview($memberId);
@@ -83,13 +83,13 @@ class C1CouponTest extends C1MemberScaffold
         $this->assertNull($d3);
         $this->assertSame('该卡券模板已发完', $e3);
         $this->assertRowCount('erp_member_coupon', ['member_id' => $memberId], 0, '拒绝不发券');
-        $this->assertSame(1, (int) Capsule::table('erp_member_coupon_template')
+        $this->assertSame(1, (int) Capsule::table('member_coupon_template')
             ->where('id', $fullTpl)->value('issued_qty'), '发放数不越限');
 
         $boundaryTpl = $this->seedTemplate(['total_qty' => 2, 'issued_qty' => 1]);
         [$b1, $b1e] = $svc->issueCoupon($memberId, $boundaryTpl, 1001); // issued 1→2 = total
         $this->assertNull($b1e);
-        $this->assertSame(2, (int) Capsule::table('erp_member_coupon_template')
+        $this->assertSame(2, (int) Capsule::table('member_coupon_template')
             ->where('id', $boundaryTpl)->value('issued_qty'));
         [$b2, $b2e] = $svc->issueCoupon($memberId, $boundaryTpl, 1001); // 2→3 越限
         $this->assertNull($b2);
@@ -100,7 +100,7 @@ class C1CouponTest extends C1MemberScaffold
         [$d4, $e4] = $svc->issueCoupon($badMember, $tpl, 1001);
         $this->assertNull($d4);
         $this->assertSame('会员不存在或已禁用', $e4);
-        $this->assertSame(0, (int) Capsule::table('erp_member_coupon_template')
+        $this->assertSame(0, (int) Capsule::table('member_coupon_template')
             ->where('id', $tpl)->value('issued_qty'), '禁用会员不发券');
     }
 
@@ -121,7 +121,7 @@ class C1CouponTest extends C1MemberScaffold
         [$ok, $okErr] = $svc->redeemCoupon($couponId, 'POS-1', 1001, $owner);
         $this->assertNull($okErr);
         $this->assertNotNull($ok['used_at']);
-        $row = Capsule::table('erp_member_coupon')->where('id', $couponId)->first();
+        $row = Capsule::table('member_coupon')->where('id', $couponId)->first();
         $this->assertSame(1, (int) $row->status, '核销置 1');
         $this->assertSame('POS-1', (string) $row->order_source, '记录核销来源单号');
         $this->assertNotNull($row->used_at);
@@ -147,7 +147,7 @@ class C1CouponTest extends C1MemberScaffold
         [$d1, $e1] = $svc->redeemCoupon($couponId, 'POS-X', 1001); // 管理端代核销 memberId=0
         $this->assertNull($d1);
         $this->assertSame('该卡券已过期', $e1);
-        $row = Capsule::table('erp_member_coupon')->where('id', $couponId)->first();
+        $row = Capsule::table('member_coupon')->where('id', $couponId)->first();
         $this->assertSame(2, (int) $row->status, '回滚事务外惰性补记过期态');
         $this->assertNull($row->used_at);
         $this->assertSame('', (string) $row->order_source);
@@ -180,7 +180,7 @@ class C1CouponTest extends C1MemberScaffold
 
         [$ok, $okErr] = $svc->redeemCoupon($couponId, 'POS-1', 1001); // 代核销（controller 形态）
         $this->assertNull($okErr);
-        $this->assertSame(1, (int) Capsule::table('erp_member_coupon')
+        $this->assertSame(1, (int) Capsule::table('member_coupon')
             ->where('id', $couponId)->value('status'));
     }
 
@@ -195,7 +195,7 @@ class C1CouponTest extends C1MemberScaffold
         [$d, $e] = $svc->redeemCoupon($couponId, 'POS-1', 1001);
         $this->assertNull($d);
         $this->assertSame('会员不存在或已禁用', $e);
-        $row = Capsule::table('erp_member_coupon')->where('id', $couponId)->first();
+        $row = Capsule::table('member_coupon')->where('id', $couponId)->first();
         $this->assertSame(0, (int) $row->status, '拒付不改券态');
         $this->assertNull($row->used_at);
     }

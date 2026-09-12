@@ -129,7 +129,7 @@ class P1ProjectCostTest extends IntegrationTestCase
     protected function createProject(string $budget = '0.00'): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_project')->insert([
+        Capsule::table('project')->insert([
             'id' => $id,
             'code' => 'PRJ-' . $id,
             'name' => '成本项目-' . $id,
@@ -145,7 +145,7 @@ class P1ProjectCostTest extends IntegrationTestCase
     /** 项目成员（hourly_rate 缺省 0.00 → 未配置费率拒绝路径） */
     protected function addMember(int $projectId, int $userId, string $hourlyRate = '0.00'): void
     {
-        Capsule::table('erp_project_member')->insert([
+        Capsule::table('project_member')->insert([
             'id' => $this->nextId(),
             'project_id' => $projectId,
             'user_id' => $userId,
@@ -156,7 +156,7 @@ class P1ProjectCostTest extends IntegrationTestCase
     protected function addTimesheet(int $projectId, int $userId, string $workDate, string $hours): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_project_timesheet')->insert([
+        Capsule::table('project_timesheet')->insert([
             'id' => $id,
             'project_id' => $projectId,
             'user_id' => $userId,
@@ -218,7 +218,7 @@ class P1ProjectCostTest extends IntegrationTestCase
         self::assertSame(ProjectCostService::SOURCE_MANUAL, (string) $row->source_type);
         self::assertSame('加班检修', (string) $row->remark, '备注去首尾空白');
         self::assertSame($projectId, (int) $row->project_id);
-        $db = Capsule::table('erp_project_cost')->where('id', $row->id)->value('cost');
+        $db = Capsule::table('project_cost')->where('id', $row->id)->value('cost');
         self::assertSame('1136.79', (string) $db, 'DECIMAL 落库为精确字符串');
     }
 
@@ -313,8 +313,8 @@ class P1ProjectCostTest extends IntegrationTestCase
             ProjectCost::query()->where('project_id', $projectId)->where('source_type', ProjectCostService::SOURCE_TIMESHEET)->count(),
             '成本行仍为 2 条',
         );
-        self::assertNotNull(Capsule::table('erp_project_cost')->where('timesheet_id', $s1)->first());
-        self::assertNotNull(Capsule::table('erp_project_cost')->where('timesheet_id', $s5)->first());
+        self::assertNotNull(Capsule::table('project_cost')->where('timesheet_id', $s1)->first());
+        self::assertNotNull(Capsule::table('project_cost')->where('timesheet_id', $s5)->first());
 
         // 区间颠倒与幽灵项目
         $this->assertThrowsMessage(

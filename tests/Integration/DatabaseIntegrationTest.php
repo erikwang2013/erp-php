@@ -33,10 +33,10 @@ use Throwable;
 class DatabaseIntegrationTest extends IntegrationTestCase
 {
     /** 测试临时表名（业务前缀保持一致） */
-    private const CRUD_TABLE = 'erp_it_crud';
+    private const CRUD_TABLE = 'it_crud';
 
     /** 真实业务表名（迁移 2026_05_22_000003 创建） */
-    private const REAL_PRODUCT_TABLE = 'erp_product';
+    private const REAL_PRODUCT_TABLE = 'product';
 
     /** 真实表测试数据的 code 前缀，用于 tearDown 兜底清理 */
     private const REAL_TABLE_TEST_CODE_PREFIX = 'IT-TEST-';

@@ -87,7 +87,7 @@ class P1M1M2PieceWageConsistencyTest extends P1M1M2CostingScaffold
             Capsule::transaction(function () use ($fixture, $firstId, &$secondId): void {
                 $this->workReportService()->audit($firstId);
                 // 删除工序使第二张报工在事务内失败（DELETE 随外层回滚复原）
-                Capsule::table('erp_mfg_routing')->where('id', $fixture['routing_id'])->delete();
+                Capsule::table('mfg_routing')->where('id', $fixture['routing_id'])->delete();
                 $secondId = $this->createWorkReport($fixture['order_id'], $fixture['product_id'], $fixture['routing_id'], $fixture['employee_id'], '5', '5', '2026-08-15');
                 $this->workReportService()->audit($secondId);
             });

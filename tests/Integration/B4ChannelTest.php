@@ -38,7 +38,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('integration')]
 class B4ChannelTest extends IntegrationTestCase
 {
-    private const LOG_TABLE = 'erp_notification_channel_log';
+    private const LOG_TABLE = 'notification_channel_log';
 
     private ChannelService $service;
 

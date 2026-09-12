@@ -53,10 +53,10 @@ use tests\Integration\Fixtures\TenantAwareModel;
 class TenantScopeIntegrationTest extends IntegrationTestCase
 {
     /** 租户隔离测试表名（租户族 fixture） */
-    private const TENANT_TABLE = 'erp_it_tenant';
+    private const TENANT_TABLE = 'it_tenant';
 
     /** 租户注册表测试表名（与 b5_tenant.sql 同构，供中间件查表） */
-    private const REGISTRY_TABLE = 'erp_tenant';
+    private const REGISTRY_TABLE = 'tenant';
 
     protected function setUp(): void
     {

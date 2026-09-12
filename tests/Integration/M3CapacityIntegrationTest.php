@@ -122,7 +122,7 @@ class M3CapacityIntegrationTest extends M3CapacityScaffold
         $sat = $this->addDays($mon, 5);
         $svc = $this->capacityService();
 
-        self::assertSame(0, Capsule::table('erp_mfg_capacity_calendar')->where('workstation_id', $ws)->count(), '前置：无日历记录');
+        self::assertSame(0, Capsule::table('mfg_capacity_calendar')->where('workstation_id', $ws)->count(), '前置：无日历记录');
         self::assertSame([], $svc->report(null, $sat, $this->addDays($sat, 1)), '无工单周末区间 → 空结果');
         self::assertSame([], $svc->report($ws, $sat, $this->addDays($sat, 1)), '指定站同样空');
 
@@ -201,7 +201,7 @@ class M3CapacityIntegrationTest extends M3CapacityScaffold
     {
         $orderId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_production_order')->insert([
+        Capsule::table('mfg_production_order')->insert([
             'id' => $orderId,
             'code' => 'POX-' . $orderId,
             'bom_id' => 0,
@@ -215,7 +215,7 @@ class M3CapacityIntegrationTest extends M3CapacityScaffold
             'updated_at' => $now,
             'deleted_at' => null,
         ]);
-        Capsule::table('erp_mfg_production_item')->insert([
+        Capsule::table('mfg_production_item')->insert([
             'id' => $this->nextId(),
             'order_id' => $orderId,
             'product_id' => $productId,

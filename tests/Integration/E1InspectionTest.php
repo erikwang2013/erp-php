@@ -92,7 +92,7 @@ class E1InspectionTest extends IntegrationTestCase
     /** 缺表时按 e1p1.sql 列结构最小化创建（全部列可空，服务层显式赋值） */
     private function createOwnTable(string $table): void
     {
-        if ($table === 'erp_eam_inspection_task') {
+        if ($table === 'eam_inspection_task') {
             $build = static function (Blueprint $t): void {
                 $t->unsignedBigInteger('id')->primary();
                 $t->unsignedBigInteger('equipment_id')->nullable();
@@ -130,7 +130,7 @@ class E1InspectionTest extends IntegrationTestCase
     {
         $id = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_eam_equipment')->insert([
+        Capsule::table('eam_equipment')->insert([
             'id' => $id,
             'code' => 'EQ-' . $id,
             'name' => '点检设备-' . $id,
@@ -150,7 +150,7 @@ class E1InspectionTest extends IntegrationTestCase
     protected function createPlan(int $equipmentId): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_eam_maintenance_plan')->insert([
+        Capsule::table('eam_maintenance_plan')->insert([
             'id' => $id,
             'equipment_id' => $equipmentId,
             'name' => '保养计划-' . $id,
@@ -251,7 +251,7 @@ class E1InspectionTest extends IntegrationTestCase
         self::assertTrue($r['abnormal']);
         self::assertSame(EamInspectionService::STATUS_ABNORMAL, $r['task_status']);
         self::assertGreaterThan(0, $r['repair_order_id']);
-        $order = Capsule::table('erp_eam_repair_order')->where('id', $r['repair_order_id'])->first();
+        $order = Capsule::table('eam_repair_order')->where('id', $r['repair_order_id'])->first();
         self::assertNotNull($order);
         self::assertStringStartsWith('RO', (string) $order->code);
         self::assertSame($equipmentId, (int) $order->equipment_id);
@@ -270,7 +270,7 @@ class E1InspectionTest extends IntegrationTestCase
         self::assertSame(2, EamInspectionResult::query()->where('task_id', $r['task_id'])->count(), '结果行整删重插刷新');
         self::assertSame(
             1,
-            Capsule::table('erp_eam_repair_order')->where('equipment_id', $equipmentId)->count(),
+            Capsule::table('eam_repair_order')->where('equipment_id', $equipmentId)->count(),
             '全程仅一张维修单',
         );
 
@@ -283,12 +283,12 @@ class E1InspectionTest extends IntegrationTestCase
         self::assertSame(EamInspectionService::STATUS_DONE, $r3['task_status']);
         self::assertSame(
             1,
-            Capsule::table('erp_eam_repair_order')->where('equipment_id', $equipmentId)->count(),
+            Capsule::table('eam_repair_order')->where('equipment_id', $equipmentId)->count(),
             '恢复正常不再建单',
         );
         self::assertSame(
             1,
-            (int) Capsule::table('erp_eam_inspection_task')->where('id', $r['task_id'])->value('status'),
+            (int) Capsule::table('eam_inspection_task')->where('id', $r['task_id'])->value('status'),
             '任务落已完成',
         );
     }

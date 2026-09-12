@@ -28,7 +28,7 @@ class F5TaxInvoicePoolTest extends F5TaxScaffold
         $this->assertSame(0, (int) $row->verify_status);
         $this->assertSame(0, (int) $row->deduct_status);
         $this->assertSame('manual', $row->source);
-        $saved = Capsule::table('erp_tax_input_invoice')->where('id', $row->id)->first();
+        $saved = Capsule::table('tax_input_invoice')->where('id', $row->id)->first();
         $this->assertNotNull($saved);
         $this->assertNull($saved->verify_at);
 
@@ -87,7 +87,7 @@ class F5TaxInvoicePoolTest extends F5TaxScaffold
         // 税号非 9 开头 → 验真通过（Mock 规则），记录 verify_at
         $pass = $this->registerPool(['seller_tax_no' => '81330100TEST1']);
         $this->assertNull($this->poolService()->verify((int) $pass->id));
-        $saved = Capsule::table('erp_tax_input_invoice')->where('id', $pass->id)->first();
+        $saved = Capsule::table('tax_input_invoice')->where('id', $pass->id)->first();
         $this->assertSame(1, (int) $saved->verify_status);
         $this->assertNotNull($saved->verify_at);
         // 验真幂等：通过后拒绝重复
@@ -96,7 +96,7 @@ class F5TaxInvoicePoolTest extends F5TaxScaffold
         // 税号 9 开头 → 验真失败
         $fail = $this->registerPool(['seller_tax_no' => '99900100TEST1']);
         $this->assertNull($this->poolService()->verify((int) $fail->id));
-        $savedFail = Capsule::table('erp_tax_input_invoice')->where('id', $fail->id)->first();
+        $savedFail = Capsule::table('tax_input_invoice')->where('id', $fail->id)->first();
         $this->assertSame(2, (int) $savedFail->verify_status);
         $this->assertNotNull($savedFail->verify_at);
         $this->assertSame('发票验真未通过，不能重复验真', $this->poolService()->verify((int) $fail->id));
@@ -129,7 +129,7 @@ class F5TaxInvoicePoolTest extends F5TaxScaffold
         $this->assertNull($this->poolService()->check((int) $row->id));
         $this->assertSame('发票已勾选待抵扣，不能重复勾选', $this->poolService()->check((int) $row->id));
         $this->assertNull($this->poolService()->deduct((int) $row->id, '2026-08'));
-        $saved = Capsule::table('erp_tax_input_invoice')->where('id', $row->id)->first();
+        $saved = Capsule::table('tax_input_invoice')->where('id', $row->id)->first();
         $this->assertSame(2, (int) $saved->deduct_status);
         $this->assertSame('2026-08', $saved->deduct_period);
         $this->assertSame('发票已抵扣，不能重复抵扣', $this->poolService()->deduct((int) $row->id, '2026-08'));
@@ -150,7 +150,7 @@ class F5TaxInvoicePoolTest extends F5TaxScaffold
         $this->assertSame('第 4 行: 销售方名称必填', $errors[1]);
 
         // 批次落库 3 行并登记清理
-        $created = Capsule::table('erp_tax_input_invoice')
+        $created = Capsule::table('tax_input_invoice')
             ->whereIn('invoice_no', [$a['invoice_no'], $b['invoice_no'], $c['invoice_no']])->get();
         $this->assertSame(3, $created->count());
         foreach ($created as $item) {

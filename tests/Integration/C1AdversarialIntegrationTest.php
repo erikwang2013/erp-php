@@ -42,13 +42,13 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertNull($e1);
         $this->assertSame('0.00', $exact['balance_after'], '恰等于余额 → 0.00 无负');
 
-        $beforeLogs = Capsule::table('erp_member_balance_log')->where('member_id', $memberId)->count();
+        $beforeLogs = Capsule::table('member_balance_log')->where('member_id', $memberId)->count();
         [$over, $e2] = $svc->consume($memberId, '0.01', (string) $this->nextId(), 1001);
         $this->assertNull($over);
         $this->assertSame('储值余额不足', $e2);
-        $this->assertSame($beforeLogs, Capsule::table('erp_member_balance_log')
+        $this->assertSame($beforeLogs, Capsule::table('member_balance_log')
             ->where('member_id', $memberId)->count(), '不足拒绝不留流水');
-        $this->assertSame('0.00', (string) Capsule::table('erp_member_balance_account')
+        $this->assertSame('0.00', (string) Capsule::table('member_balance_account')
             ->where('member_id', $memberId)->value('balance'), '账户分毫不动');
 
         // 同 biz 二次消费：无幂等闸门，余额够即再扣（POS 侧自防重，语义锁定）
@@ -118,7 +118,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
             ['member_id' => $memberId, 'biz_type' => 'refund', 'biz_id' => (int) $biz],
             1
         );
-        $this->assertSame('150.00', (string) Capsule::table('erp_member_balance_account')
+        $this->assertSame('150.00', (string) Capsule::table('member_balance_account')
             ->where('member_id', $memberId)->value('balance'));
     }
 
@@ -140,7 +140,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertNull($over);
         $this->assertSame('积分不足', $oe);
         $this->assertRowCount('erp_member_point_log', ['member_id' => $memberId], 2, '拒绝不留积分流水');
-        $this->assertSame(0, (int) Capsule::table('erp_member_point_account')
+        $this->assertSame(0, (int) Capsule::table('member_point_account')
             ->where('member_id', $memberId)->value('points'), '账户仍为 0');
 
         [$a] = $svc->earnPoints($memberId, 5, 1001);
@@ -154,11 +154,11 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
                 $this->assertTrue(true, "type gate case#$i 生效");
             }
         }
-        $this->assertSame(5, (int) Capsule::table('erp_member_point_account')
+        $this->assertSame(5, (int) Capsule::table('member_point_account')
             ->where('member_id', $memberId)->value('points'), 'TypeError 无副作用');
         $this->assertRowCount('erp_member_point_log', ['member_id' => $memberId], 3);
 
-        $logs = Capsule::table('erp_member_point_log')->where('member_id', $memberId)->orderBy('id')->get();
+        $logs = Capsule::table('member_point_log')->where('member_id', $memberId)->orderBy('id')->get();
         $sum = 0;
         foreach ($logs as $i => $log) {
             $sum += (int) $log->points;
@@ -187,7 +187,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         [$d1, $e1] = $svc->redeemCoupon($c1, 'POS-1', 1001, $other);
         $this->assertNull($d1);
         $this->assertSame('该卡券不属于该会员', $e1);
-        $row = Capsule::table('erp_member_coupon')->where('id', $c1)->first();
+        $row = Capsule::table('member_coupon')->where('id', $c1)->first();
         $this->assertSame(0, (int) $row->status, '归属错误不改券态（惰性置 2 未触发）');
         $this->assertNull($row->used_at);
 
@@ -195,7 +195,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         [$d2, $e2] = $svc->redeemCoupon($c1, 'POS-1', 1001);
         $this->assertNull($d2);
         $this->assertSame('该卡券已过期', $e2, 'expire_at == 当前秒即过期（<= 口径）');
-        $this->assertSame(2, (int) Capsule::table('erp_member_coupon')->where('id', $c1)->value('status'));
+        $this->assertSame(2, (int) Capsule::table('member_coupon')->where('id', $c1)->value('status'));
 
         // 已核销且已过期：过期先于已核销被命中；惰性置 2 不覆盖 status=1 行
         $c2 = $this->seedCoupon($memberId, $templateId, [
@@ -207,7 +207,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         [$d3, $e3] = $svc->redeemCoupon($c2, 'POS-2', 1001);
         $this->assertNull($d3);
         $this->assertSame('该卡券已过期', $e3, '过期判断先于已核销判断');
-        $row2 = Capsule::table('erp_member_coupon')->where('id', $c2)->first();
+        $row2 = Capsule::table('member_coupon')->where('id', $c2)->first();
         $this->assertSame(1, (int) $row2->status, '惰性置 2 守卫不覆盖已核销行');
         $this->assertNotNull($row2->used_at);
 
@@ -237,12 +237,12 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertNull($e2);
         $this->assertNotSame($i1['coupon_id'], $i2['coupon_id']);
         $this->assertRowCount('erp_member_coupon', ['member_id' => $memberId], 2, '同人同模板可重复领');
-        $this->assertSame(2, (int) Capsule::table('erp_member_coupon_template')
+        $this->assertSame(2, (int) Capsule::table('member_coupon_template')
             ->where('id', $templateId)->value('issued_qty'));
 
         [$ok] = $svc->redeemCoupon((int) $i1['coupon_id'], 'POS-1', 1001, $memberId);
         $this->assertNotNull($ok['used_at']);
-        $this->assertSame(2, (int) Capsule::table('erp_member_coupon_template')
+        $this->assertSame(2, (int) Capsule::table('member_coupon_template')
             ->where('id', $templateId)->value('issued_qty'), '核销不动模板发放数');
         [$ov] = $svc->memberOverview($memberId);
         $this->assertSame(1, $ov['coupons_available']);
@@ -261,10 +261,10 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertSame('120.00', $svc->consume($memberId, '9.75', (string) $this->nextId(), 1001)[0]['balance_after']);
 
         $sum = '0';
-        foreach (Capsule::table('erp_member_balance_log')->where('member_id', $memberId)->get() as $log) {
+        foreach (Capsule::table('member_balance_log')->where('member_id', $memberId)->get() as $log) {
             $sum = bcadd($sum, (string) $log->amount, 2);
         }
-        $acc = Capsule::table('erp_member_balance_account')->where('member_id', $memberId)->first();
+        $acc = Capsule::table('member_balance_account')->where('member_id', $memberId)->first();
         $this->assertBcEquals($sum, (string) $acc->balance, '账户 = Σ全量流水(独立重算)');
 
         [$ov] = $svc->memberOverview($memberId);
@@ -276,10 +276,10 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         [$p1] = $svc->earnPoints($memberId, 500, 1001);
         [$p2] = $svc->consumePoints($memberId, 200, 1001);
         $this->assertSame(300, $p2['points_after']);
-        $this->assertSame(300, (int) Capsule::table('erp_member_point_account')
+        $this->assertSame(300, (int) Capsule::table('member_point_account')
             ->where('member_id', $memberId)->value('points'));
         $pointSum = 0;
-        foreach (Capsule::table('erp_member_point_log')->where('member_id', $memberId)->get() as $log) {
+        foreach (Capsule::table('member_point_log')->where('member_id', $memberId)->get() as $log) {
             $pointSum += (int) $log->points;
         }
         $this->assertSame(300, $pointSum, 'Σ积分流水 = 账户');
@@ -303,7 +303,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $biz = (string) $this->nextId();
         $this->assertSame('0.20', $svc->consume($memberId, '0.10', $biz, 1001)[0]['balance_after']);
         $this->assertSame('0.25', $svc->refund($memberId, '0.05', $biz, 1001)[0]['balance_after']);
-        $log = Capsule::table('erp_member_balance_log')->where('biz_type', 'refund')->first();
+        $log = Capsule::table('member_balance_log')->where('biz_type', 'refund')->first();
         $this->assertSame('0.05', (string) $log->amount, '退款流水入正无尾噪');
 
         [$ov] = $svc->memberOverview($memberId);
@@ -316,9 +316,9 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $bb = (string) $this->nextId();
         [$c] = $svc->consume($big, '999999999.01', $bb, 1001);
         $this->assertSame('0.99', $c['balance_after'], '10 亿 - 999999999.01 = 0.99 精确');
-        $clog = Capsule::table('erp_member_balance_log')->where('biz_id', (int) $bb)->first();
+        $clog = Capsule::table('member_balance_log')->where('biz_id', (int) $bb)->first();
         $this->assertSame('-999999999.01', (string) $clog->amount);
-        $this->assertSame('0.99', (string) Capsule::table('erp_member_balance_account')
+        $this->assertSame('0.99', (string) Capsule::table('member_balance_account')
             ->where('member_id', $big)->value('balance'));
         [$bov] = $svc->memberOverview($big);
         $this->assertSame('1000000000.00', $bov['total_recharge']);
@@ -342,7 +342,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertSame('40.00', $wins[0][0]['balance_after']);
         $this->assertCount(1, $fails);
         $this->assertSame('储值余额不足', $fails[0][1]);
-        $this->assertSame('40.00', (string) Capsule::table('erp_member_balance_account')
+        $this->assertSame('40.00', (string) Capsule::table('member_balance_account')
             ->where('member_id', $memberId)->value('balance'), '余额永不为负（不超扣）');
         $this->assertRowCount(
             'erp_member_balance_log',
@@ -376,7 +376,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
             ['member_id' => $memberId, 'biz_type' => 'refund', 'biz_id' => (int) $biz],
             1
         );
-        $this->assertSame('100.00', (string) Capsule::table('erp_member_balance_account')
+        $this->assertSame('100.00', (string) Capsule::table('member_balance_account')
             ->where('member_id', $memberId)->value('balance'));
     }
 
@@ -395,7 +395,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertCount(1, $fails);
         $this->assertSame('该手机号已开卡，不可重复开卡', $fails[0][1]);
 
-        $winner = Capsule::table('erp_member')->where('phone', $phone)->first();
+        $winner = Capsule::table('member')->where('phone', $phone)->first();
         $this->assertNotNull($winner);
         $this->assertRowCount('erp_member', ['phone' => $phone], 1, '同号仅一行');
         $this->assertRowCount('erp_member_balance_account', ['member_id' => (int) $winner->id], 1);

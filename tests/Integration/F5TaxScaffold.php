@@ -90,7 +90,7 @@ abstract class F5TaxScaffold extends IntegrationTestCase
     protected function seedCustomer(string $tag): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_customer')->insert([
+        Capsule::table('customer')->insert([
             'id' => $id,
             'code' => self::MARKER . 'C' . $id,
             'name' => '测试客户' . $tag,
@@ -110,7 +110,7 @@ abstract class F5TaxScaffold extends IntegrationTestCase
     protected function seedAuditedArInvoice(int $customerId, string $amount, string $untaxed = '', string $tax = ''): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_finance_invoice')->insert([
+        Capsule::table('finance_invoice')->insert([
             'id' => $id,
             'invoice_no' => self::MARKER . 'I' . $id,
             'type' => 'ar',
@@ -135,7 +135,7 @@ abstract class F5TaxScaffold extends IntegrationTestCase
     protected function seedInvoice(array $overrides = []): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_finance_invoice')->insert(array_merge([
+        Capsule::table('finance_invoice')->insert(array_merge([
             'id' => $id,
             'invoice_no' => self::MARKER . 'I' . $id,
             'type' => 'ar',

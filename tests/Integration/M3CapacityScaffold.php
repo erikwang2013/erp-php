@@ -117,7 +117,7 @@ abstract class M3CapacityScaffold extends IntegrationTestCase
     protected function createWorkstation(int $status = 1): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_mfg_workstation')->insert([
+        Capsule::table('mfg_workstation')->insert([
             'id' => $id,
             'code' => 'WS-' . $id,
             'name' => '工作站-' . $id,
@@ -132,7 +132,7 @@ abstract class M3CapacityScaffold extends IntegrationTestCase
     protected function createRouting(int $productId, int $wsId, string $hours): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_mfg_routing')->insert([
+        Capsule::table('mfg_routing')->insert([
             'id' => $id,
             'product_id' => $productId,
             'name' => '工序-' . $id,
@@ -164,7 +164,7 @@ abstract class M3CapacityScaffold extends IntegrationTestCase
     ): int {
         $orderId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_production_order')->insert([
+        Capsule::table('mfg_production_order')->insert([
             'id' => $orderId,
             'code' => 'PO-' . $orderId,
             'bom_id' => 0,   // 报表口径不触及 BOM，bom_id 仅列约束占位
@@ -178,7 +178,7 @@ abstract class M3CapacityScaffold extends IntegrationTestCase
             'updated_at' => $now,
             'deleted_at' => $deleted ? $now : null,
         ]);
-        Capsule::table('erp_mfg_production_item')->insert([
+        Capsule::table('mfg_production_item')->insert([
             'id' => $this->nextId(),
             'order_id' => $orderId,
             'product_id' => $productId,

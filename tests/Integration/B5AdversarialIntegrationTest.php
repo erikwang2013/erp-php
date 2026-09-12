@@ -37,9 +37,9 @@ use Webman\Http\Request as WebRequest;
 #[Group('integration')]
 class B5AdversarialIntegrationTest extends IntegrationTestCase
 {
-    private const REGISTRY_TABLE = 'erp_tenant';
+    private const REGISTRY_TABLE = 'tenant';
 
-    private const COMPANY_TABLE = 'erp_it_company_data';
+    private const COMPANY_TABLE = 'it_company_data';
 
     /** 注册表蓝图镜像 database/b5_tenant.sql 最小结构（双 UNIQUE + deleted_at）。 */
     private function resetRegistryTable(): void

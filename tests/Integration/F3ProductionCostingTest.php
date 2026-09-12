@@ -62,7 +62,7 @@ class F3ProductionCostingTest extends F3CostingScaffold
         ]);
         $this->auditIssue($issueId);
 
-        $issue = Capsule::table('erp_mfg_material_issue')->where('id', $issueId)->first();
+        $issue = Capsule::table('mfg_material_issue')->where('id', $issueId)->first();
         $this->assertSame(1, (int) $issue->status, '领料单应已审核');
         $this->assertBcEquals('5.00', (string) $issue->total_cost, '领料单合计');
         $this->assertBcEquals('3.00', (string) $this->stockRow($b['product_id'], $b['sku_id'])->quantity, 'B 剩余');
@@ -152,7 +152,7 @@ class F3ProductionCostingTest extends F3CostingScaffold
             fn () => $this->auditIssue($lateIssue),
             '只有生产中的工单可以领料'
         );
-        $lateIssueRow = Capsule::table('erp_mfg_material_issue')->where('id', $lateIssue)->first();
+        $lateIssueRow = Capsule::table('mfg_material_issue')->where('id', $lateIssue)->first();
         $this->assertSame(0, (int) $lateIssueRow->status, '完工后的新领料单应保持草稿');
         $lateEntry = $this->createCostEntry($orderId, 3, '1.00');
         $this->assertThrowsMessage(
@@ -247,13 +247,13 @@ class F3ProductionCostingTest extends F3CostingScaffold
         $this->assertBcEquals('2.00', (string) $this->stockRow($c['product_id'], $c['sku_id'])->quantity, 'C 库存应回滚');
 
         // 单据仍草稿零值
-        $issue = Capsule::table('erp_mfg_material_issue')->where('id', $issueId)->first();
+        $issue = Capsule::table('mfg_material_issue')->where('id', $issueId)->first();
         $this->assertSame(0, (int) $issue->status, '领料单应保持草稿');
         $this->assertBcEquals('0', (string) $issue->total_cost, '领料单合计应回滚');
         $this->assertNull($issue->audit_at, '审核时间应回滚');
 
         // 明细零值
-        foreach (Capsule::table('erp_mfg_material_issue_item')->where('issue_id', $issueId)->get() as $item) {
+        foreach (Capsule::table('mfg_material_issue_item')->where('issue_id', $issueId)->get() as $item) {
             $this->assertBcEquals('0', (string) $item->unit_cost, '明细单价应回滚');
             $this->assertBcEquals('0', (string) $item->amount, '明细金额应回滚');
         }
@@ -272,7 +272,7 @@ class F3ProductionCostingTest extends F3CostingScaffold
     /** WIP 流水单笔断言：order_id + source_type(+source_id) + direction + amount */
     private function assertFlowAmount(int $orderId, int $sourceType, int $sourceId, string $direction, string $amount): void
     {
-        $query = Capsule::table('erp_mfg_wip_flow')
+        $query = Capsule::table('mfg_wip_flow')
             ->where('order_id', $orderId)
             ->where('source_type', $sourceType)
             ->where('direction', $direction);

@@ -33,7 +33,7 @@ class P1M1M2WorkReportGuardTest extends P1M1M2CostingScaffold
         $this->workReportService()->audit($reportId);
 
         // 模拟工艺路线后续调价（草稿报工才受影响；已审单据必须保持审核时点快照）
-        Capsule::table('erp_mfg_routing')->where('id', $fixture['routing_id'])->update(['piece_rate' => '99.00']);
+        Capsule::table('mfg_routing')->where('id', $fixture['routing_id'])->update(['piece_rate' => '99.00']);
 
         $row = $this->workReportRow($reportId);
         $this->assertBcEquals('2.50', (string) $row->piece_rate, '单价快照不随路由调价漂移');
@@ -53,7 +53,7 @@ class P1M1M2WorkReportGuardTest extends P1M1M2CostingScaffold
         $this->assertSame(0, (int) $this->workReportRow($reportId)->amount, '草稿金额初始为 0');
 
         // 草稿可改：数量与合格数 10 → 20（等价控制器对 status=0 单据的 update 语义）
-        Capsule::table('erp_mfg_work_report')->where('id', $reportId)->update(['quantity' => '20', 'qualified_qty' => '20']);
+        Capsule::table('mfg_work_report')->where('id', $reportId)->update(['quantity' => '20', 'qualified_qty' => '20']);
 
         $this->workReportService()->audit($reportId);
         $row = $this->workReportRow($reportId);
@@ -83,7 +83,7 @@ class P1M1M2WorkReportGuardTest extends P1M1M2CostingScaffold
         $reportId = $this->createWorkReport($fixture['order_id'], $fixture['product_id'], $fixture['routing_id'], $fixture['employee_id'], '10');
 
         // 工序删除后残留草稿报工（routing 行删除由 tearDown 二次清理兜底）
-        Capsule::table('erp_mfg_routing')->where('id', $fixture['routing_id'])->delete();
+        Capsule::table('mfg_routing')->where('id', $fixture['routing_id'])->delete();
 
         $this->assertThrowsMessage(
             fn () => $this->workReportService()->audit($reportId),
@@ -144,7 +144,7 @@ class P1M1M2WorkReportGuardTest extends P1M1M2CostingScaffold
     {
         $fixture = $this->makeInProductionOrder('2.50');
         // 手工构造已生成结转凭证的关账 WIP（status=2，成本列走默认 0）
-        Capsule::table('erp_mfg_wip')->insert([
+        Capsule::table('mfg_wip')->insert([
             'id' => $this->nextId(),
             'order_id' => $fixture['order_id'],
             'status' => 2,

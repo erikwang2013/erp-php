@@ -67,9 +67,9 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         // 胜者真正开票、败者幂等重放：bill_no 唯一且一致，平台轨迹仅 1 行
         $this->assertSame($results[0]['bill_no'], $results[1]['bill_no']);
         $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $invoiceId], 1, '并发重复开票只允许一次平台调用');
-        $log = Capsule::table('erp_tax_issue_log')->where('invoice_id', $invoiceId)->first();
+        $log = Capsule::table('tax_issue_log')->where('invoice_id', $invoiceId)->first();
         $this->assertSame(1, (int) $log->success);
-        $saved = Capsule::table('erp_finance_invoice')->where('id', $invoiceId)->first();
+        $saved = Capsule::table('finance_invoice')->where('id', $invoiceId)->first();
         $this->assertSame($results[0]['bill_no'], $saved->electronic_no);
         $this->assertSame('issued', $saved->issue_status);
     }
@@ -91,14 +91,14 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         $this->assertSame('网关超时', $fail['error']);
         $this->assertSame('none', $fail['issue_status']);
         $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $invoiceId, 'action' => 'issue', 'success' => 0], 1);
-        $this->assertSame('', (string) Capsule::table('erp_finance_invoice')->where('id', $invoiceId)->value('electronic_no'));
+        $this->assertSame('', (string) Capsule::table('finance_invoice')->where('id', $invoiceId)->value('electronic_no'));
 
         // 失败态非终态：同一服务实例重试即可成功（适配器恢复后委托成功）
         $ok = $svc->issueInvoice($invoiceId, 0);
         $this->assertTrue($ok['success'], $ok['error']);
         $this->assertSame(2, $counting->issueCalls);
         $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $invoiceId], 2);
-        $saved = Capsule::table('erp_finance_invoice')->where('id', $invoiceId)->first();
+        $saved = Capsule::table('finance_invoice')->where('id', $invoiceId)->first();
         $this->assertSame($ok['bill_no'], $saved->electronic_no);
         $this->assertSame('issued', $saved->issue_status);
     }
@@ -115,7 +115,7 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         $fail = $svc->issueInvoice($invoiceId, 0);
         $this->assertFalse($fail['success']);
         $this->assertSame('平台调用异常: 平台宕机', $fail['error']);
-        $log = Capsule::table('erp_tax_issue_log')->where('invoice_id', $invoiceId)->first();
+        $log = Capsule::table('tax_issue_log')->where('invoice_id', $invoiceId)->first();
         $this->assertNotNull($log);
         $this->assertSame(0, (int) $log->success);
         $request = json_decode((string) $log->request, true);
@@ -128,7 +128,7 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         $healthy = new EInvoiceService(new CountingEInvoiceAdapter());
         $ok = $healthy->issueInvoice($invoiceId, 0);
         $this->assertTrue($ok['success'], $ok['error']);
-        $this->assertSame('issued', Capsule::table('erp_finance_invoice')->where('id', $invoiceId)->value('issue_status'));
+        $this->assertSame('issued', Capsule::table('finance_invoice')->where('id', $invoiceId)->value('issue_status'));
     }
 
     #[TestDox('红冲失败/异常：发票保持 issued 可重试，号码不丢')]
@@ -148,14 +148,14 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         $this->assertFalse($fail['success']);
         $this->assertSame('平台拒绝红冲', $fail['error']);
         $this->assertSame('issued', $fail['issue_status']);
-        $rowA = Capsule::table('erp_finance_invoice')->where('id', $invoiceA)->first();
+        $rowA = Capsule::table('finance_invoice')->where('id', $invoiceA)->first();
         $this->assertSame('issued', $rowA->issue_status);
         $this->assertSame($rowA->electronic_no, $fail['bill_no'], '失败仍回传既有号码');
         $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $invoiceA, 'action' => 'void', 'success' => 0], 1);
         $retry = $svcFail->voidInvoice($invoiceA, '测试红冲', 0);
         $this->assertTrue($retry['success'], $retry['error']);
         $this->assertSame('voided', $retry['issue_status']);
-        $this->assertSame($rowA->electronic_no, Capsule::table('erp_finance_invoice')->where('id', $invoiceA)->value('electronic_no'), '红冲不改写号码');
+        $this->assertSame($rowA->electronic_no, Capsule::table('finance_invoice')->where('id', $invoiceA)->value('electronic_no'), '红冲不改写号码');
 
         // 平台红冲抛异常：前缀错误，同样可重试
         $invoiceB = $this->seedAuditedArInvoice($customerId, '565.00', '500.00', '65.00');
@@ -257,7 +257,7 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
             $this->assertSame($expected, $err, '断言失败: ' . $expected);
         }
         // 服务层校验失败零落库（无部分行/半行残留）
-        $this->assertSame(0, Capsule::table('erp_tax_input_invoice')->whereIn('invoice_no', $nos)->count());
+        $this->assertSame(0, Capsule::table('tax_input_invoice')->whereIn('invoice_no', $nos)->count());
     }
 
     #[TestDox('回归 KNOWN-DRIFT(已修复)：3 位小数入参整单拒绝 —— 不再分存半进位致勾稽漂移')]
@@ -294,12 +294,12 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         $b = $this->registerPool(['invoice_code' => 'CODE-X2', 'invoice_no' => $no]);
         $this->assertNotNull($a->id);
         $this->assertNotNull($b->id);
-        $this->assertSame(2, Capsule::table('erp_tax_input_invoice')->where('invoice_no', $no)->count(), '不同发票代码下同号允许登记');
+        $this->assertSame(2, Capsule::table('tax_input_invoice')->where('invoice_no', $no)->count(), '不同发票代码下同号允许登记');
 
         [$dup, $err] = $this->poolService()->registerOne($this->poolData(['invoice_code' => 'CODE-X1', 'invoice_no' => $no]));
         $this->assertNull($dup);
         $this->assertSame('该发票已登记(相同发票代码/号码)', $err);
-        $this->assertSame(2, Capsule::table('erp_tax_input_invoice')->where('invoice_no', $no)->count());
+        $this->assertSame(2, Capsule::table('tax_input_invoice')->where('invoice_no', $no)->count());
     }
 
     // ---------- 日志完整性 ----------
@@ -315,7 +315,7 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         $svc->voidInvoice($invoiceId, '测试红冲', 9002);
 
         // issue 行：请求快照含报文关键字段（服务层拼装原文），回执含 bill_no
-        $issueLog = Capsule::table('erp_tax_issue_log')->where('invoice_id', $invoiceId)->where('action', 'issue')->first();
+        $issueLog = Capsule::table('tax_issue_log')->where('invoice_id', $invoiceId)->where('action', 'issue')->first();
         $request = json_decode((string) $issueLog->request, true);
         $this->assertSame(JSON_ERROR_NONE, json_last_error());
         $this->assertIsArray($request);
@@ -329,7 +329,7 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         $this->assertSame($issue['bill_no'], $response['bill_no'] ?? '');
 
         // void 行：请求快照 = bill_no + reason
-        $voidLog = Capsule::table('erp_tax_issue_log')->where('invoice_id', $invoiceId)->where('action', 'void')->first();
+        $voidLog = Capsule::table('tax_issue_log')->where('invoice_id', $invoiceId)->where('action', 'void')->first();
         $voidRequest = json_decode((string) $voidLog->request, true);
         $this->assertSame($issue['bill_no'], $voidRequest['bill_no'] ?? '');
         $this->assertSame('测试红冲', $voidRequest['reason'] ?? '');
@@ -344,7 +344,7 @@ class F5AdversarialIntegrationTest extends F5TaxScaffold
         $result = $failSvc->issueInvoice($failInvoice, 0);
         $this->assertFalse($result['success']);
         $this->assertSame(600, mb_strlen($result['error']), '返回值保留完整错误');
-        $failLog = Capsule::table('erp_tax_issue_log')->where('invoice_id', $failInvoice)->first();
+        $failLog = Capsule::table('tax_issue_log')->where('invoice_id', $failInvoice)->first();
         $this->assertSame(500, mb_strlen((string) $failLog->error), '日志错误列截断至 500 字符');
         $this->assertSame(mb_substr($long, 0, 500), (string) $failLog->error);
     }

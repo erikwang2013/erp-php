@@ -42,10 +42,10 @@ use tests\Integration\Fixtures\CompanyAwareModel;
 class B5TenantTest extends IntegrationTestCase
 {
     /** 租户注册表测试表名（服务层查真实 Tenant 模型，须软删列与双 UNIQUE） */
-    private const REGISTRY_TABLE = 'erp_tenant';
+    private const REGISTRY_TABLE = 'tenant';
 
     /** 公司族隔离测试表名 */
-    private const COMPANY_TABLE = 'erp_it_company_data';
+    private const COMPANY_TABLE = 'it_company_data';
 
     private TenantService $service;
 

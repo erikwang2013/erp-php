@@ -25,7 +25,7 @@ class TenantAwareModel extends Model
 {
     use TenantScope;
 
-    protected $table = 'erp_it_tenant';
+    protected $table = 'it_tenant';
 
     protected $primaryKey = 'id';
 

@@ -34,7 +34,7 @@ class F6ReconTest extends F6FundScaffold
 
         $this->assertNull($r[1]);
         $this->assertSame(['imported' => 3, 'skipped' => 0, 'duplicated' => false], $r[0]);
-        $rows = Capsule::table('erp_finance_bank_statement')->where('bank_account_id', $accountId)
+        $rows = Capsule::table('finance_bank_statement')->where('bank_account_id', $accountId)
             ->orderBy('stmt_date')->get();
         $this->assertSame(3, $rows->count());
         $this->assertSame('100.50', (string) $rows[0]->amount);
@@ -246,14 +246,14 @@ class F6ReconTest extends F6FundScaffold
         $this->assertSame([], $r[0]['matched']);
         $cand = $r[0]['manual_candidates'][0];
         $this->assertCount(2, $cand['journals']);
-        $stmtId = (int) Capsule::table('erp_finance_bank_statement')->where('bank_account_id', $accountId)->value('id');
+        $stmtId = (int) Capsule::table('finance_bank_statement')->where('bank_account_id', $accountId)->value('id');
 
         // 人工选定 jA → type 3
         $err = $this->reconService()->manualReconcile($accountId, $stmtId, $jA, 9);
         $this->assertNull($err);
         $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountId, 'cash_journal_id' => $jA], 1);
-        $this->assertSame(3, (int) Capsule::table('erp_finance_bank_recon_match')->where('cash_journal_id', $jA)->value('match_type'));
-        $this->assertSame(9, (int) Capsule::table('erp_finance_bank_recon_match')->where('cash_journal_id', $jA)->value('created_by'));
+        $this->assertSame(3, (int) Capsule::table('finance_bank_recon_match')->where('cash_journal_id', $jA)->value('match_type'));
+        $this->assertSame(9, (int) Capsule::table('finance_bank_recon_match')->where('cash_journal_id', $jA)->value('created_by'));
 
         // 再跑自动：该流水已核销不参与；剩 jB 进未达
         $r2 = $this->reconService()->autoReconcile($accountId, self::D, self::D, 3);
@@ -277,7 +277,7 @@ class F6ReconTest extends F6FundScaffold
             ['stmt_date' => self::D, 'direction' => 1, 'amount' => '400.00'],
             ['stmt_date' => self::D, 'direction' => 1, 'amount' => '400.00'],
         ]);
-        $stmtIds = Capsule::table('erp_finance_bank_statement')->where('bank_account_id', $accountId)
+        $stmtIds = Capsule::table('finance_bank_statement')->where('bank_account_id', $accountId)
             ->orderBy('id')->pluck('id')->all();
 
         $svc = $this->reconService();
@@ -308,18 +308,18 @@ class F6ReconTest extends F6FundScaffold
             ['stmt_date' => self::D, 'direction' => 1, 'amount' => '50.00'],
             ['stmt_date' => self::D, 'direction' => 1, 'amount' => '50.00'],
         ]);
-        $stmtIds = Capsule::table('erp_finance_bank_statement')->where('bank_account_id', $accountId)
+        $stmtIds = Capsule::table('finance_bank_statement')->where('bank_account_id', $accountId)
             ->orderBy('id')->pluck('id')->all();
 
         // 首次写入（合法、显式 snowflake id）：成功，作为后续撞键基线
-        Capsule::table('erp_finance_bank_recon_match')->insert([
+        Capsule::table('finance_bank_recon_match')->insert([
             'id' => $this->nextId(),
             'bank_account_id' => $accountId, 'statement_id' => $stmtIds[0], 'cash_journal_id' => $jA,
             'match_type' => 3, 'created_by' => 0,
         ]);
         // uk_statement：同流水配第二笔日记账（重复 (stmt[0], jA) 撞键）
         try {
-            Capsule::table('erp_finance_bank_recon_match')->insert([
+            Capsule::table('finance_bank_recon_match')->insert([
                 'id' => $this->nextId(),
                 'bank_account_id' => $accountId, 'statement_id' => $stmtIds[0], 'cash_journal_id' => $jA,
                 'match_type' => 3, 'created_by' => 0,
@@ -330,7 +330,7 @@ class F6ReconTest extends F6FundScaffold
         }
         // uk_journal：同日记账配第二笔流水（(stmt[1], jA) 撞日记账键）
         try {
-            Capsule::table('erp_finance_bank_recon_match')->insert([
+            Capsule::table('finance_bank_recon_match')->insert([
                 'id' => $this->nextId(),
                 'bank_account_id' => $accountId, 'statement_id' => $stmtIds[1], 'cash_journal_id' => $jA,
                 'match_type' => 3, 'created_by' => 0,
@@ -352,7 +352,7 @@ class F6ReconTest extends F6FundScaffold
         ]);
         $jIn = $this->seedJournal($accountId, '2026-06-12', 1, '100.00', 'A公司货款');
         $jOut = $this->seedJournal($accountId, '2026-06-13', 2, '50.50', 'B公司付款');
-        $stmtIds = Capsule::table('erp_finance_bank_statement')->where('bank_account_id', $accountId)
+        $stmtIds = Capsule::table('finance_bank_statement')->where('bank_account_id', $accountId)
             ->orderBy('id')->pluck('id')->all();
 
         $this->assertNull($this->reconService()->manualReconcile($accountId, $stmtIds[0], $jIn, 1));
@@ -388,7 +388,7 @@ class F6ReconTest extends F6FundScaffold
             ['stmt_date' => '2026-06-11', 'direction' => 2, 'amount' => '20.00'],
         ]);
         $j = $this->seedJournal($accountId, '2026-06-12', 1, '10.00');
-        $stmtId = (int) Capsule::table('erp_finance_bank_statement')->where('bank_account_id', $accountId)->value('id');
+        $stmtId = (int) Capsule::table('finance_bank_statement')->where('bank_account_id', $accountId)->value('id');
         $this->assertNull($this->reconService()->manualReconcile($accountId, $stmtId, $j, 1));
 
         [$data, $err] = $this->reconService()->statementList($accountId, '2026-06-01', '2026-06-30');

@@ -146,7 +146,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
         $this->createTableIfMissing($table, static function (Blueprint $t) use ($table): void {
             $t->unsignedBigInteger('id')->primary();
             $hasRemark = true;
-            if ($table === 'erp_mfg_work_report') {
+            if ($table === 'mfg_work_report') {
                 $t->string('code', 50)->nullable();
                 $t->unsignedBigInteger('order_id')->nullable();
                 $t->unsignedBigInteger('product_id')->nullable();
@@ -160,14 +160,14 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
                 $t->decimal('amount', 14, 2)->nullable();
                 $t->tinyInteger('status')->nullable();
                 $t->dateTime('audit_at')->nullable();
-            } elseif ($table === 'erp_mfg_piece_wage') {
+            } elseif ($table === 'mfg_piece_wage') {
                 $t->unsignedBigInteger('employee_id')->nullable();
                 $t->integer('period_year')->nullable();
                 $t->tinyInteger('period_month')->nullable();
                 $t->decimal('quantity', 12, 2)->nullable();
                 $t->decimal('amount', 14, 2)->nullable();
                 $hasRemark = false;
-            } elseif ($table === 'erp_mfg_subcontract') {
+            } elseif ($table === 'mfg_subcontract') {
                 $t->string('code', 50)->nullable();
                 $t->unsignedBigInteger('supplier_id')->nullable();
                 $t->unsignedBigInteger('product_id')->nullable();
@@ -180,7 +180,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
                 $t->decimal('consumed_amount', 14, 2)->nullable();
                 $t->tinyInteger('status')->nullable();
                 $t->dateTime('audit_at')->nullable();
-            } elseif ($table === 'erp_mfg_subcontract_issue') {
+            } elseif ($table === 'mfg_subcontract_issue') {
                 $t->string('code', 50)->nullable();
                 $t->unsignedBigInteger('subcontract_id')->nullable();
                 $t->unsignedBigInteger('warehouse_id')->nullable();
@@ -188,7 +188,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
                 $t->decimal('total_cost', 14, 2)->nullable();
                 $t->tinyInteger('status')->nullable();
                 $t->dateTime('audit_at')->nullable();
-            } elseif ($table === 'erp_mfg_subcontract_issue_item') {
+            } elseif ($table === 'mfg_subcontract_issue_item') {
                 $t->unsignedBigInteger('issue_id')->nullable();
                 $t->unsignedBigInteger('product_id')->nullable();
                 $t->unsignedBigInteger('sku_id')->nullable();
@@ -210,7 +210,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
                 $t->string('remark', 500)->nullable();
             }
             $t->dateTime('created_at')->nullable();
-            if ($table !== 'erp_mfg_subcontract_issue_item') {
+            if ($table !== 'mfg_subcontract_issue_item') {
                 $t->dateTime('updated_at')->nullable();
             }
             if (!in_array($table, ['erp_mfg_piece_wage', 'erp_mfg_subcontract_issue_item'], true)) {
@@ -224,32 +224,32 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
 
     protected function orderRow(int $orderId): ?object
     {
-        return Capsule::table('erp_mfg_production_order')->where('id', $orderId)->first();
+        return Capsule::table('mfg_production_order')->where('id', $orderId)->first();
     }
 
     protected function wipRow(int $orderId): ?object
     {
-        return Capsule::table('erp_mfg_wip')->where('order_id', $orderId)->first();
+        return Capsule::table('mfg_wip')->where('order_id', $orderId)->first();
     }
 
     protected function wipFlowRows(int $orderId): array
     {
-        return array_values(Capsule::table('erp_mfg_wip_flow')->where('order_id', $orderId)->get()->all());
+        return array_values(Capsule::table('mfg_wip_flow')->where('order_id', $orderId)->get()->all());
     }
 
     protected function workReportRow(int $id): ?object
     {
-        return Capsule::table('erp_mfg_work_report')->where('id', $id)->first();
+        return Capsule::table('mfg_work_report')->where('id', $id)->first();
     }
 
     protected function pieceWageRow(int $employeeId): ?object
     {
-        return Capsule::table('erp_mfg_piece_wage')->where('employee_id', $employeeId)->first();
+        return Capsule::table('mfg_piece_wage')->where('employee_id', $employeeId)->first();
     }
 
     protected function salaryRows(int $employeeId): array
     {
-        return array_values(Capsule::table('erp_hr_salary')->where('employee_id', $employeeId)->get()->all());
+        return array_values(Capsule::table('hr_salary')->where('employee_id', $employeeId)->get()->all());
     }
 
     // ---------- 造数 ----------
@@ -265,7 +265,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
         $productId = $this->nextId();
         $skuId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_product_sku')->insert([
+        Capsule::table('product_sku')->insert([
             'id' => $skuId,
             'product_id' => $productId,
             'sku_code' => 'SKU-' . $skuId,
@@ -302,7 +302,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
     {
         $bomId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_bom')->insert([
+        Capsule::table('mfg_bom')->insert([
             'id' => $bomId,
             'product_id' => $productId,
             'code' => 'BOM-' . $bomId,
@@ -315,7 +315,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
             'deleted_at' => null,
         ]);
         foreach ($components as $row) {
-            Capsule::table('erp_mfg_bom_item')->insert([
+            Capsule::table('mfg_bom_item')->insert([
                 'id' => $this->nextId(),
                 'bom_id' => $bomId,
                 'component_product_id' => $row['product_id'],
@@ -336,7 +336,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
     {
         $orderId = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_mfg_production_order')->insert([
+        Capsule::table('mfg_production_order')->insert([
             'id' => $orderId,
             'code' => 'PO-' . $orderId,
             'bom_id' => $bomId,
@@ -366,7 +366,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
     protected function createWorkstation(): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_mfg_workstation')->insert([
+        Capsule::table('mfg_workstation')->insert([
             'id' => $id,
             'code' => 'WS-' . $id,
             'name' => 'P1测试工作站',
@@ -381,7 +381,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
     {
         $id = $this->nextId();
         $wsId ??= $this->createWorkstation();
-        Capsule::table('erp_mfg_routing')->insert([
+        Capsule::table('mfg_routing')->insert([
             'id' => $id,
             'product_id' => $productId,
             'name' => 'P1测试工序' . $id,
@@ -410,7 +410,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
         if ($departmentId > 0) {
             $row['department_id'] = $departmentId;
         }
-        Capsule::table('erp_hr_employee')->insert($row);
+        Capsule::table('hr_employee')->insert($row);
         $this->employeeIds[] = $id;
 
         return $id;
@@ -420,7 +420,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
     protected function createSupplier(): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_supplier')->insert([
+        Capsule::table('supplier')->insert([
             'id' => $id,
             'code' => 'SUP-' . $id,
             'name' => 'P1测试供应商',
@@ -435,7 +435,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
     protected function createWorkReport(int $orderId, int $productId, int $routingId, int $employeeId, string $quantity, ?string $qualified = null, string $reportDate = '2026-08-15'): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_mfg_work_report')->insert([
+        Capsule::table('mfg_work_report')->insert([
             'id' => $id,
             'code' => 'WR-' . $id,
             'order_id' => $orderId,

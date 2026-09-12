@@ -31,11 +31,11 @@ use Throwable;
  *    实际连接仍走 config/redis.php（REDIS_HOST 等），因此启用开关必须与
  *    REDIS_HOST 指向同一实例，避免误投递到其他 Redis。
  *
- * 3. 本基类自行引导 Eloquent Capsule（prefix 置空）：项目 config/database.php
- *    配置了 'prefix' => 'erp_'，而各模型已显式声明 $table = 'erp_xxx'，
- *    Eloquent grammar 会二次加前缀产生 erp_erp_xxx 双重前缀（既有配置问题，
- *    不在本任务修复范围）；集成测试统一使用显式全表名 + 空前缀，保证查询
- *    精确命中真实表 erp_it_crud / erp_product 等。
+ * 3. 本基类自行引导 Eloquent Capsule，**前缀与 app 一致**（`erp_`）：224 个模型声明的都是
+ *    **无前缀**表名（如 ProductSpec 的 $table = 'product_spec'），靠连接前缀拼成 erp_product_spec。
+ *    故测试里所有表名（含自建测试表）一律写**无前缀名**，由连接统一加前缀 —— 例如
+ *    self::CRUD_TABLE = 'it_crud' 实际建出 erp_it_crud，与真实表同名。
+ *    （历史注释曾称"模型已显式声明 erp_xxx、故须置空前缀"，与实测相反，已纠正。）
  */
 abstract class IntegrationTestCase extends TestCase
 {
@@ -110,8 +110,8 @@ abstract class IntegrationTestCase extends TestCase
             'database' => self::testDbDatabase(),
             'username' => self::testDbUsername(),
             'password' => self::testDbPassword(),
-            // 模型表名已显式包含 erp_ 前缀，此处必须置空，避免双重前缀
-            'prefix' => '',
+            // 与 app config/database.php 同源：模型声明无前缀表名，靠此前缀拼真实表
+            'prefix' => getenv('DB_PREFIX') ?: 'erp_',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'strict' => true,

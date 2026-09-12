@@ -226,7 +226,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
         );
 
         // 解冻 → 额度未启用时恢复 fail-open
-        Capsule::table('erp_customer')->where('id', $customerId)->update(['credit_frozen' => 0]);
+        Capsule::table('customer')->where('id', $customerId)->update(['credit_frozen' => 0]);
         $this->svc()->assertOrderCreate($customerId, '1.00');
     }
 
@@ -285,7 +285,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
         );
 
         // 全额核销（已核销 status=2 不计占用）→ 额度恢复
-        Capsule::table('erp_finance_ar_ap')->where('id', $arId)->update(['settled_amount' => '3000.00', 'status' => 2]);
+        Capsule::table('finance_ar_ap')->where('id', $arId)->update(['settled_amount' => '3000.00', 'status' => 2]);
         $this->svc()->assertOrderCreate($customerId, '5000.00');
         $this->assertCreditRejected(
             fn () => $this->svc()->assertOrderCreate($customerId, '5000.01'),
@@ -328,7 +328,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
         );
 
         // 软删在途订单 → 占用清空
-        Capsule::table('erp_sales_order')->where('id', $orderA)->update(['deleted_at' => date('Y-m-d H:i:s')]);
+        Capsule::table('sales_order')->where('id', $orderA)->update(['deleted_at' => date('Y-m-d H:i:s')]);
         $this->svc()->assertOrderCreate($customerId, '5000.00');
         $this->assertCreditRejected(
             fn () => $this->svc()->assertOrderCreate($customerId, '5000.01'),
@@ -396,7 +396,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
         );
 
         // 部分核销超期应收只计剩余：500.01 超期 → 核销 300.01 后剩 200 ≤ 500 恢复放行
-        Capsule::table('erp_finance_ar_ap')
+        Capsule::table('finance_ar_ap')
             ->where('partner_id', $customerId)->where('amount', '300.00')
             ->update(['settled_amount' => '300.00', 'status' => 2]);
         $this->svc()->assertOrderCreate($customerId, '1.00');
@@ -454,7 +454,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
         $this->assertNull($this->svc()->assertDeliveryCreate(999999999)); // 不存在
 
         $customerId = $this->createCustomer(['credit_limit' => '1.00']);
-        Capsule::table('erp_customer')->where('id', $customerId)->update(['deleted_at' => date('Y-m-d H:i:s')]);
+        Capsule::table('customer')->where('id', $customerId)->update(['deleted_at' => date('Y-m-d H:i:s')]);
         $this->svc()->assertOrderCreate($customerId, '9999.00');
         $this->assertNull($this->svc()->assertDeliveryCreate($customerId));
     }

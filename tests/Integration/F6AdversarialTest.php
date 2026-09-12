@@ -97,7 +97,7 @@ class F6AdversarialTest extends F6FundScaffold
         ]]);
         self::assertNull($err2, '合法行应导入: ' . (string) $err2);
         self::assertSame(1, (int) ($ok['imported'] ?? 0));
-        $stored = Capsule::table('erp_finance_bank_statement')
+        $stored = Capsule::table('finance_bank_statement')
             ->where('import_batch', $batch)
             ->first();
         self::assertNotNull($stored, '行落库');
@@ -109,7 +109,7 @@ class F6AdversarialTest extends F6FundScaffold
     public function testBillValidationAndEndorseEdges(): void
     {
         // 自愈：清掉历史失败 run 可能泄漏的同前缀票据
-        Capsule::table('erp_finance_bill')->where('bill_no', 'like', 'ADV-%')->delete();
+        Capsule::table('finance_bill')->where('bill_no', 'like', 'ADV-%')->delete();
 
         $svc = $this->billService();
         $today = date('Y-m-d');
@@ -122,7 +122,7 @@ class F6AdversarialTest extends F6FundScaffold
         // 过期票可登记（拦截点在背书/贴现层），登记后背书被拒
         [$d, $e] = $svc->store(['bill_no' => 'ADV-D1', 'type' => 1, 'direction' => 1, 'amount' => '100', 'due_date' => '2025-01-01']);
         self::assertNull($e, '过期票登记应成功: ' . (string) $e);
-        $billPast = (int) Capsule::table('erp_finance_bill')->where('bill_no', 'ADV-D1')->value('id');
+        $billPast = (int) Capsule::table('finance_bill')->where('bill_no', 'ADV-D1')->value('id');
         $this->billIds[] = $billPast;
         self::assertStringContainsString('已到期', (string) $svc->endorse($billPast, 'X'), '过期票登记后不可背书');
 
@@ -133,7 +133,7 @@ class F6AdversarialTest extends F6FundScaffold
         ]);
         self::assertNull($err, '收票应成功: ' . (string) $err);
         self::assertNotNull($ok, '成功返回票据模型');
-        $billId = (int) Capsule::table('erp_finance_bill')->where('bill_no', 'ADV-B1')->value('id');
+        $billId = (int) Capsule::table('finance_bill')->where('bill_no', 'ADV-B1')->value('id');
         self::assertGreaterThan(0, $billId);
         $this->billIds[] = $billId;
 
@@ -150,7 +150,7 @@ class F6AdversarialTest extends F6FundScaffold
             'amount' => '50000.00', 'due_date' => date('Y-m-d', strtotime('+30 days')),
         ]);
         self::assertNull($err2);
-        $billPayable = (int) Capsule::table('erp_finance_bill')->where('bill_no', 'ADV-B2')->value('id');
+        $billPayable = (int) Capsule::table('finance_bill')->where('bill_no', 'ADV-B2')->value('id');
         $this->billIds[] = $billPayable;
         self::assertStringContainsString('不能背书转让', (string) $svc->endorse($billPayable, 'X'));
 
@@ -159,7 +159,7 @@ class F6AdversarialTest extends F6FundScaffold
             'amount' => '100.00', 'issue_date' => date('Y-m-d', strtotime('-30 days')), 'due_date' => date('Y-m-d', strtotime('-1 day')),
         ]);
         self::assertNull($err3);
-        $billExpired = (int) Capsule::table('erp_finance_bill')->where('bill_no', 'ADV-B3')->value('id');
+        $billExpired = (int) Capsule::table('finance_bill')->where('bill_no', 'ADV-B3')->value('id');
         $this->billIds[] = $billExpired;
         self::assertStringContainsString('已到期', (string) $svc->endorse($billExpired, 'X'), '过期票据不可背书');
 

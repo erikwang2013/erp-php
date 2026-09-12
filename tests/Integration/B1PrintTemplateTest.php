@@ -43,7 +43,7 @@ class B1PrintTemplateTest extends IntegrationTestCase
         // Query\Builder 无 forceDelete；->delete() 即硬删（绕过模型软删），
         // 软删行一并清掉，否则 uk_code 与后续测试/真实数据冲突
         if ($this->tplIds !== []) {
-            Capsule::table('erp_print_template')->whereIn('id', $this->tplIds)->delete();
+            Capsule::table('print_template')->whereIn('id', $this->tplIds)->delete();
         }
         parent::tearDown();
     }
@@ -254,9 +254,9 @@ class B1PrintTemplateTest extends IntegrationTestCase
     {
         $id = $this->createTemplate('BT_CLEAN', 'x{{a}}y');
         $ids = [(int) $id];
-        self::assertSame(1, Capsule::table('erp_print_template')->whereIn('id', $ids)->count());
+        self::assertSame(1, Capsule::table('print_template')->whereIn('id', $ids)->count());
 
-        Capsule::table('erp_print_template')->whereIn('id', $ids)->delete();
-        self::assertSame(0, Capsule::table('erp_print_template')->whereIn('id', $ids)->count());
+        Capsule::table('print_template')->whereIn('id', $ids)->delete();
+        self::assertSame(0, Capsule::table('print_template')->whereIn('id', $ids)->count());
     }
 }

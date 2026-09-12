@@ -191,7 +191,7 @@ class F3ProductionCostingGuardTest extends F3CostingScaffold
         $this->auditCostEntry($entryId);
 
         // 清空测试域科目映射 → 规则抛缺少映射
-        Capsule::table('erp_finance_cost_account_config')
+        Capsule::table('finance_cost_account_config')
             ->whereIn('account_id', array_values(self::TEST_ACCOUNT_IDS))
             ->delete();
 

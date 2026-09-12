@@ -41,9 +41,9 @@ class C1MemberTest extends C1MemberScaffold
         $this->assertRowCount('erp_member', ['id' => $id], 1);
         $this->assertRowCount('erp_member_balance_account', ['member_id' => $id], 1);
         $this->assertRowCount('erp_member_point_account', ['member_id' => $id], 1);
-        $acc = Capsule::table('erp_member_balance_account')->where('member_id', $id)->first();
+        $acc = Capsule::table('member_balance_account')->where('member_id', $id)->first();
         $this->assertSame('0.00', (string) $acc->balance, '储值账户初始 0.00 字符串落库');
-        $point = Capsule::table('erp_member_point_account')->where('member_id', $id)->first();
+        $point = Capsule::table('member_point_account')->where('member_id', $id)->first();
         $this->assertSame(0, (int) $point->points, '积分账户初始 0');
     }
 
@@ -91,7 +91,7 @@ class C1MemberTest extends C1MemberScaffold
         $this->assertSame('该手机号已开卡，不可重复开卡', $dupErr);
 
         // 软删占用：withTrashed 复核仍拒绝重开
-        Capsule::table('erp_member')->where('id', (int) $member['id'])
+        Capsule::table('member')->where('id', (int) $member['id'])
             ->update(['deleted_at' => date('Y-m-d H:i:s')]);
         [$again, $againErr] = $svc->openMember(['phone' => $phone, 'name' => '王五三号']);
         $this->assertNull($again);
@@ -127,7 +127,7 @@ class C1MemberTest extends C1MemberScaffold
         [$ok, $okErr] = $svc->recharge($memberId, '100.50', 1001, '首充');
         $this->assertNull($okErr);
         $this->assertSame('100.50', $ok['balance_after'], '2 位小数字符串直出');
-        $log = Capsule::table('erp_member_balance_log')->where('member_id', $memberId)->first();
+        $log = Capsule::table('member_balance_log')->where('member_id', $memberId)->first();
         $this->assertSame('recharge', (string) $log->biz_type);
         $this->assertSame('100.50', (string) $log->amount);
         $this->assertSame('100.50', (string) $log->balance_after);
@@ -136,7 +136,7 @@ class C1MemberTest extends C1MemberScaffold
 
         [$ok2] = $svc->recharge($memberId, '49.50', 1001);
         $this->assertSame('150.00', $ok2['balance_after']);
-        $acc = Capsule::table('erp_member_balance_account')->where('member_id', $memberId)->first();
+        $acc = Capsule::table('member_balance_account')->where('member_id', $memberId)->first();
         $this->assertSame('150.00', (string) $acc->balance, '账户行与流水同步');
         $this->assertRowCount('erp_member_balance_log', ['member_id' => $memberId, 'biz_type' => 'recharge'], 2);
     }
@@ -162,21 +162,21 @@ class C1MemberTest extends C1MemberScaffold
         [$ok, $okErr] = $svc->consume($memberId, '30.00', $biz, 1001);
         $this->assertNull($okErr);
         $this->assertSame('20.00', $ok['balance_after']);
-        $log = Capsule::table('erp_member_balance_log')->where('biz_id', (int) $biz)->first();
+        $log = Capsule::table('member_balance_log')->where('biz_id', (int) $biz)->first();
         $this->assertSame('consume', (string) $log->biz_type);
         $this->assertSame('-30.00', (string) $log->amount, '消费流水出负');
 
         // 超余额：拒绝且流水数/余额分毫不动
-        $before = Capsule::table('erp_member_balance_log')->where('member_id', $memberId)->count();
+        $before = Capsule::table('member_balance_log')->where('member_id', $memberId)->count();
         [$over, $overErr] = $svc->consume($memberId, '20.01', (string) $this->nextId(), 1001);
         $this->assertNull($over);
         $this->assertSame('储值余额不足', $overErr);
         $this->assertSame(
             $before,
-            Capsule::table('erp_member_balance_log')->where('member_id', $memberId)->count(),
+            Capsule::table('member_balance_log')->where('member_id', $memberId)->count(),
             '拒绝时不留流水'
         );
-        $acc = Capsule::table('erp_member_balance_account')->where('member_id', $memberId)->first();
+        $acc = Capsule::table('member_balance_account')->where('member_id', $memberId)->first();
         $this->assertSame('20.00', (string) $acc->balance);
     }
 
@@ -211,10 +211,10 @@ class C1MemberTest extends C1MemberScaffold
         [$d3, $e3] = $svc->refund($memberId, '1.00', '', 1001);
         $this->assertSame('业务单号非法（须为纯数字）', $e3);
 
-        $log = Capsule::table('erp_member_balance_log')
+        $log = Capsule::table('member_balance_log')
             ->where('member_id', $memberId)->where('biz_type', 'refund')->first();
         $this->assertSame('30.00', (string) $log->amount, '退款流水入正');
-        $acc = Capsule::table('erp_member_balance_account')->where('member_id', $memberId)->first();
+        $acc = Capsule::table('member_balance_account')->where('member_id', $memberId)->first();
         $this->assertSame('90.00', (string) $acc->balance);
     }
 
@@ -240,7 +240,7 @@ class C1MemberTest extends C1MemberScaffold
         $this->assertNull($expErr);
         $this->assertSame(50, $exp['points_after']);
 
-        $logs = Capsule::table('erp_member_point_log')->where('member_id', $memberId)->orderBy('id')->get();
+        $logs = Capsule::table('member_point_log')->where('member_id', $memberId)->orderBy('id')->get();
         $this->assertCount(3, $logs);
         $signs = [100, -30, -20];
         $sum = 0;
@@ -249,7 +249,7 @@ class C1MemberTest extends C1MemberScaffold
             $this->assertSame(0, (int) $log->biz_id, '积分流水 biz_id 恒 0');
             $sum += (int) $log->points;
         }
-        $acc = Capsule::table('erp_member_point_account')->where('member_id', $memberId)->first();
+        $acc = Capsule::table('member_point_account')->where('member_id', $memberId)->first();
         $this->assertSame(50, (int) $acc->points);
         $this->assertSame(50, $sum, 'Σpoints = 账户积分');
 

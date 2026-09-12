@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ProductTableModel extends Model
 {
-    protected $table = 'erp_product';
+    protected $table = 'product';
 
     protected $primaryKey = 'id';
 

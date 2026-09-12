@@ -127,8 +127,8 @@ class H4SocialTest extends H3H4Scaffold
 
         // 同险种二次设置 = 覆盖（仍 1 行）
         $this->social()->setRate((int) $rule['id'], 'pension', '9.50', '15.00');
-        $this->assertSame(1, Capsule::table('erp_hr_social_rate')->where('rule_id', (int) $rule['id'])->count());
-        $row = (array) Capsule::table('erp_hr_social_rate')->where('rule_id', (int) $rule['id'])->first();
+        $this->assertSame(1, Capsule::table('hr_social_rate')->where('rule_id', (int) $rule['id'])->count());
+        $row = (array) Capsule::table('hr_social_rate')->where('rule_id', (int) $rule['id'])->first();
         $this->assertSame('9.50', $row['personal_rate']);
         $this->assertSame('15.00', $row['company_rate']);
 
@@ -165,7 +165,7 @@ class H4SocialTest extends H3H4Scaffold
 
         $this->social()->setRate((int) $rule['id'], 'pension', '8.00', '16.00');
         $this->social()->removeRate((int) $rule['id'], 'pension');
-        $this->assertSame(0, Capsule::table('erp_hr_social_rate')->where('rule_id', (int) $rule['id'])->count());
+        $this->assertSame(0, Capsule::table('hr_social_rate')->where('rule_id', (int) $rule['id'])->count());
     }
 
     public function testUpdateRuleAndGuards(): void
@@ -213,7 +213,7 @@ class H4SocialTest extends H3H4Scaffold
         $rule = $this->rule([], [$this->rate('pension', '8.00', '16.00'), $this->rate('medical', '2.00', '8.00')]);
         $this->social()->destroyRule((int) $rule['id']);
         $this->assertNull($this->social()->ruleDetail((int) $rule['id']));
-        $this->assertSame(0, Capsule::table('erp_hr_social_rate')->where('rule_id', (int) $rule['id'])->count());
+        $this->assertSame(0, Capsule::table('hr_social_rate')->where('rule_id', (int) $rule['id'])->count());
 
         // 有员工绑定：拒绝删除
         $bound = $this->rule(['rule_name' => '北京绑定规则']);
@@ -314,7 +314,7 @@ class H4SocialTest extends H3H4Scaffold
         $this->social()->setRate((int) $gone['id'], 'pension', '8.00', '16.00');
         $danglingId = $this->createEmployee();
         $this->social()->bind($danglingId, (int) $gone['id'], '0.00');
-        Capsule::table('erp_hr_social_rule')->where('id', (int) $gone['id'])->delete();
+        Capsule::table('hr_social_rule')->where('id', (int) $gone['id'])->delete();
         $this->assertServiceThrows(
             fn () => $this->social()->calculate($danglingId),
             '社保规则不存在'

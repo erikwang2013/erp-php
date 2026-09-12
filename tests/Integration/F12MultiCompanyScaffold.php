@@ -294,7 +294,7 @@ SQL,
 
     protected function insertAccount(int $id, string $code, string $name, int $type): void
     {
-        Capsule::table('erp_finance_account')->insert([
+        Capsule::table('finance_account')->insert([
             'id' => $id,
             'code' => $code,
             'name' => $name,
@@ -310,14 +310,14 @@ SQL,
      */
     protected function insertCurrency(int $fallbackId, string $code): int
     {
-        $existing = Capsule::table('erp_finance_currency')->where('code', $code)->first();
+        $existing = Capsule::table('finance_currency')->where('code', $code)->first();
         if ($existing !== null) {
             $id = (int) $existing->id;
             $this->currencyIdByCode[$code] = $id;
 
             return $id;
         }
-        Capsule::table('erp_finance_currency')->insert([
+        Capsule::table('finance_currency')->insert([
             'id' => $fallbackId,
             'code' => $code,
             'name' => $code,
@@ -337,7 +337,7 @@ SQL,
         if ($fromId === null || $toId === null) {
             throw new \RuntimeException('insertRateUsdToCny 前须先 insertCurrency(USD/CNY)');
         }
-        Capsule::table('erp_finance_exchange_rate')->insert([
+        Capsule::table('finance_exchange_rate')->insert([
             'id' => self::RATE_USD_CNY_ID,
             'from_currency_id' => $fromId,
             'to_currency_id' => $toId,

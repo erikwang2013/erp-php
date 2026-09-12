@@ -45,8 +45,8 @@ class B3WorkflowDesignerTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         if ($this->wfIds !== []) {
-            Capsule::table('erp_approval_node')->whereIn('workflow_id', $this->wfIds)->delete();
-            Capsule::table('erp_approval_workflow')->whereIn('id', $this->wfIds)->delete();
+            Capsule::table('approval_node')->whereIn('workflow_id', $this->wfIds)->delete();
+            Capsule::table('approval_workflow')->whereIn('id', $this->wfIds)->delete();
         }
         parent::tearDown();
     }
@@ -130,7 +130,7 @@ class B3WorkflowDesignerTest extends IntegrationTestCase
     public function testLoadCorruptCanvasDegrades(): void
     {
         $wf = $this->makeWorkflow('WF_CORRUPT');
-        Capsule::table('erp_approval_workflow')->where('id', $wf->id)->update(['canvas_json' => '{not json!!']);
+        Capsule::table('approval_workflow')->where('id', $wf->id)->update(['canvas_json' => '{not json!!']);
 
         $result = $this->designer()->load((string) $wf->id);
         self::assertSame([], $result['nodes'], '损坏 JSON 降级为空节点');
@@ -156,7 +156,7 @@ class B3WorkflowDesignerTest extends IntegrationTestCase
         self::assertGreaterThan(0, min($assigned), '节点 id 全部由服务分配为正整数');
         self::assertCount(count(array_unique($assigned)), $assigned, '节点 id 不重复');
 
-        $seqs = Capsule::table('erp_approval_node')->where('workflow_id', $wf->id)->orderBy('seq')->pluck('seq')->all();
+        $seqs = Capsule::table('approval_node')->where('workflow_id', $wf->id)->orderBy('seq')->pluck('seq')->all();
         self::assertSame([1, 2, 3], array_map('intval', $seqs), 'erp_approval_node seq 连续 1..3');
     }
 
@@ -174,9 +174,9 @@ class B3WorkflowDesignerTest extends IntegrationTestCase
         }
 
         // 校验在事务外发生，异常路径不应留下任何写入
-        $stored = Capsule::table('erp_approval_workflow')->where('id', $wf->id)->value('canvas_json');
+        $stored = Capsule::table('approval_workflow')->where('id', $wf->id)->value('canvas_json');
         self::assertSame('', $stored, '校验失败不落 canvas_json');
-        self::assertSame(0, Capsule::table('erp_approval_node')->where('workflow_id', $wf->id)->count());
+        self::assertSame(0, Capsule::table('approval_node')->where('workflow_id', $wf->id)->count());
     }
 
     #[TestDox('save：边引用不存在的节点 → 校验失败，既有画布与节点表保持不变')]
@@ -185,8 +185,8 @@ class B3WorkflowDesignerTest extends IntegrationTestCase
         $wf = $this->makeWorkflow('WF_ATOMIC');
         $good = $this->linearDesign();
         $this->designer()->save((string) $wf->id, $good['nodes'], $good['edges']);
-        $snapshotJson = Capsule::table('erp_approval_workflow')->where('id', $wf->id)->value('canvas_json');
-        $snapshotCount = Capsule::table('erp_approval_node')->where('workflow_id', $wf->id)->count();
+        $snapshotJson = Capsule::table('approval_workflow')->where('id', $wf->id)->value('canvas_json');
+        $snapshotCount = Capsule::table('approval_node')->where('workflow_id', $wf->id)->count();
         self::assertSame(3, $snapshotCount, '前置：合法设计已写入 3 个节点');
 
         $bad = $good;
@@ -201,10 +201,10 @@ class B3WorkflowDesignerTest extends IntegrationTestCase
 
         self::assertSame(
             $snapshotJson,
-            Capsule::table('erp_approval_workflow')->where('id', $wf->id)->value('canvas_json'),
+            Capsule::table('approval_workflow')->where('id', $wf->id)->value('canvas_json'),
             'canvas_json 未被半写入覆盖'
         );
-        self::assertSame($snapshotCount, Capsule::table('erp_approval_node')->where('workflow_id', $wf->id)->count());
+        self::assertSame($snapshotCount, Capsule::table('approval_node')->where('workflow_id', $wf->id)->count());
     }
 
     #[TestDox('save：条件边字段与操作符必须成对出现，单边缺项拒绝')]
@@ -264,7 +264,7 @@ class B3WorkflowDesignerTest extends IntegrationTestCase
         self::assertSame('reject', $loaded['edges'][1]['kind'], '驳回回边保留');
 
         // 执行真相源同步写入（->get() 返回 stdClass，用对象属性访问）
-        $dbNodes = Capsule::table('erp_approval_node')->where('workflow_id', $wf->id)->orderBy('seq')->get();
+        $dbNodes = Capsule::table('approval_node')->where('workflow_id', $wf->id)->orderBy('seq')->get();
         self::assertSame(2, $dbNodes->count());
         self::assertSame([1, 2], array_map('intval', $dbNodes->pluck('seq')->all()));
         self::assertSame('经理', $dbNodes[0]->name, '执行真相源按主路径顺序落库');
@@ -276,12 +276,12 @@ class B3WorkflowDesignerTest extends IntegrationTestCase
     {
         $wf = $this->makeWorkflow('WF_SHRINK');
         $this->designer()->save((string) $wf->id, [$this->node(51), $this->node(52), $this->node(53)], []);
-        self::assertSame(3, Capsule::table('erp_approval_node')->where('workflow_id', $wf->id)->count());
+        self::assertSame(3, Capsule::table('approval_node')->where('workflow_id', $wf->id)->count());
 
         $this->designer()->save((string) $wf->id, [$this->node(61), $this->node(62)], []);
-        $seqs = Capsule::table('erp_approval_node')->where('workflow_id', $wf->id)->orderBy('seq')->pluck('seq')->all();
+        $seqs = Capsule::table('approval_node')->where('workflow_id', $wf->id)->orderBy('seq')->pluck('seq')->all();
         self::assertSame([1, 2], array_map('intval', $seqs), '节点缩减后 seq 连续 1..2，无残留');
-        $names = Capsule::table('erp_approval_node')->where('workflow_id', $wf->id)->pluck('id')->all();
+        $names = Capsule::table('approval_node')->where('workflow_id', $wf->id)->pluck('id')->all();
         self::assertCount(2, $names);
     }
 
@@ -531,14 +531,14 @@ class B3WorkflowDesignerTest extends IntegrationTestCase
         $this->designer()->save((string) $wf->id, [$this->node(211), $this->node(212)], [$this->edge(211, 212)]);
 
         $ids = [(int) $wf->id];
-        self::assertSame(1, Capsule::table('erp_approval_workflow')->whereIn('id', $ids)->count(), '前置：工作流存在');
-        self::assertSame(2, Capsule::table('erp_approval_node')->whereIn('workflow_id', $ids)->count(), '前置：节点存在');
+        self::assertSame(1, Capsule::table('approval_workflow')->whereIn('id', $ids)->count(), '前置：工作流存在');
+        self::assertSame(2, Capsule::table('approval_node')->whereIn('workflow_id', $ids)->count(), '前置：节点存在');
 
         // 与 tearDown() 完全相同的清理语句
-        Capsule::table('erp_approval_node')->whereIn('workflow_id', $ids)->delete();
-        Capsule::table('erp_approval_workflow')->whereIn('id', $ids)->delete();
+        Capsule::table('approval_node')->whereIn('workflow_id', $ids)->delete();
+        Capsule::table('approval_workflow')->whereIn('id', $ids)->delete();
 
-        self::assertSame(0, Capsule::table('erp_approval_workflow')->whereIn('id', $ids)->count(), '工作流已清零');
-        self::assertSame(0, Capsule::table('erp_approval_node')->whereIn('workflow_id', $ids)->count(), '节点已清零');
+        self::assertSame(0, Capsule::table('approval_workflow')->whereIn('id', $ids)->count(), '工作流已清零');
+        self::assertSame(0, Capsule::table('approval_node')->whereIn('workflow_id', $ids)->count(), '节点已清零');
     }
 }

@@ -55,11 +55,11 @@ class M3CapacityTest extends M3CapacityScaffold
         self::assertSame('4.00', $rows[0]['available_hours']);
 
         $svc->setException($ws, $sat, '6.00');   // 同日 upsert，不新增行
-        self::assertSame(1, Capsule::table('erp_mfg_capacity_calendar')
+        self::assertSame(1, Capsule::table('mfg_capacity_calendar')
             ->where('workstation_id', $ws)->where('work_date', $sat)->count());
 
         $svc->removeException($ws, $sat);
-        self::assertSame(0, Capsule::table('erp_mfg_capacity_calendar')
+        self::assertSame(0, Capsule::table('mfg_capacity_calendar')
             ->where('workstation_id', $ws)->count());
         self::assertSame('default', $svc->calendar($ws, $sat, $sat)[0]['source']);
         $svc->removeException($ws, $sat);   // 幂等：无记录不报错

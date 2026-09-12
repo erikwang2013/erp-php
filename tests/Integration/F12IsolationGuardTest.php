@@ -97,7 +97,7 @@ class F12IsolationGuardTest extends F12MultiCompanyScaffold
     /** 插入科目（随机 id，记录待清理；先删同 code/id 残留行以幂等） */
     private function insertAccountFixture(string $code, string $name, int $type): int
     {
-        Capsule::table('erp_finance_account')->where('code', $code)->delete();
+        Capsule::table('finance_account')->where('code', $code)->delete();
         $id = random_int(1_000_000, 1_900_000_000);
         $this->insertAccount($id, $code, $name, $type);
         $this->accountIds[] = $id;
@@ -123,7 +123,7 @@ class F12IsolationGuardTest extends F12MultiCompanyScaffold
     private function insertRateFixture(int $fromCurrencyId, int $toCurrencyId, string $rate, string $effectiveDate): void
     {
         $id = random_int(1_000_000, 1_900_000_000);
-        Capsule::table('erp_finance_exchange_rate')->insert([
+        Capsule::table('finance_exchange_rate')->insert([
             'id' => $id,
             'from_currency_id' => $fromCurrencyId,
             'to_currency_id' => $toCurrencyId,
@@ -229,7 +229,7 @@ class F12IsolationGuardTest extends F12MultiCompanyScaffold
             ['account_id' => $capitalId, 'credit_amount' => '20.00', 'summary' => 'y'],
         ], $xLedgerId);
         $de->audit((int) $v->id);
-        $fresh = Capsule::table('erp_finance_voucher')->where('id', $v->id)->first();
+        $fresh = Capsule::table('finance_voucher')->where('id', $v->id)->first();
         $this->assertSame(1, (int) $fresh->status, '2026-09 凭证应可审核');
         $this->makeAuditedVoucher($yLedgerId, '2026-08-10', 'iso-y-aug', [
             ['account_id' => $bankId, 'debit_amount' => '30.00', 'summary' => 'z'],
@@ -257,23 +257,23 @@ class F12IsolationGuardTest extends F12MultiCompanyScaffold
             $this->ledger->closePeriod($xLedgerId, '2026-08');
         });
         // 期间保持开账态，快照未落库
-        $fp = Capsule::table('erp_finance_period')->where('ledger_id', $xLedgerId)->where('period', '2026-08')->first();
+        $fp = Capsule::table('finance_period')->where('ledger_id', $xLedgerId)->where('period', '2026-08')->first();
         $this->assertSame(0, (int) $fp->status);
-        $this->assertSame(0, Capsule::table('erp_finance_balance_sheet')
+        $this->assertSame(0, Capsule::table('finance_balance_sheet')
             ->where('ledger_id', $xLedgerId)->where('report_year', 2026)->where('report_month', 8)->count());
 
         // 审核后关账成功：期间置 1、快照行落库（资产 500/权益 500，收入 300 计入损益）
         $de->audit((int) $draft->id);
         $this->ledger->closePeriod($xLedgerId, '2026-08');
-        $fp2 = Capsule::table('erp_finance_period')->where('ledger_id', $xLedgerId)->where('period', '2026-08')->first();
+        $fp2 = Capsule::table('finance_period')->where('ledger_id', $xLedgerId)->where('period', '2026-08')->first();
         $this->assertSame(1, (int) $fp2->status);
         $this->assertNotNull($fp2->closed_at);
-        $bsRow = Capsule::table('erp_finance_balance_sheet')
+        $bsRow = Capsule::table('finance_balance_sheet')
             ->where('ledger_id', $xLedgerId)->where('report_year', 2026)->where('report_month', 8)->first();
         $this->assertNotNull($bsRow, '关账应固化资产负债表快照');
         $this->assertSame('500.00', $bsRow->total_assets);
         $this->assertSame('500.00', $bsRow->total_equity);
-        $plRow = Capsule::table('erp_finance_profit')
+        $plRow = Capsule::table('finance_profit')
             ->where('ledger_id', $xLedgerId)->where('year', 2026)->where('month', 8)->first();
         $this->assertNotNull($plRow, '关账应固化利润表快照');
         $this->assertSame('300.00', $plRow->revenue);
@@ -307,7 +307,7 @@ class F12IsolationGuardTest extends F12MultiCompanyScaffold
         $this->expectThrow('该期间已存在', fn () => $this->ledger->openPeriod((int) $ledger->id, $current));
         // 正常开一个历史月成功
         $this->ledger->openPeriod((int) $ledger->id, '2026-08');
-        $this->assertSame(1, Capsule::table('erp_finance_period')
+        $this->assertSame(1, Capsule::table('finance_period')
             ->where('ledger_id', $ledger->id)->where('period', '2026-08')->count());
     }
 

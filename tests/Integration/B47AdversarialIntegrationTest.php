@@ -30,9 +30,9 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('integration')]
 class B47AdversarialIntegrationTest extends IntegrationTestCase
 {
-    private const LOG_TABLE = 'erp_notification_channel_log';
-    private const DEF_TABLE = 'erp_custom_field_definition';
-    private const ORDER_TABLE = 'erp_sales_order';
+    private const LOG_TABLE = 'notification_channel_log';
+    private const DEF_TABLE = 'custom_field_definition';
+    private const ORDER_TABLE = 'sales_order';
 
     private ChannelService $channel;
     private CustomFieldService $fields;

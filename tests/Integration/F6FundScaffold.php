@@ -72,7 +72,7 @@ abstract class F6FundScaffold extends IntegrationTestCase
                 // 核销轨两侧都源于本脚手架数据：按跟踪日记账/批次流水清理
                 $stmtIds = [];
                 if ($this->statementBatches !== []) {
-                    $stmtIds = Capsule::table('erp_finance_bank_statement')
+                    $stmtIds = Capsule::table('finance_bank_statement')
                         ->whereIn('import_batch', $this->statementBatches)->pluck('id')->all();
                 }
                 $this->deleteIn('erp_finance_bank_recon_match', 'cash_journal_id', $this->journalIds);
@@ -98,7 +98,7 @@ abstract class F6FundScaffold extends IntegrationTestCase
     protected function seedBankAccount(string $tag): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_finance_bank_account')->insert([
+        Capsule::table('finance_bank_account')->insert([
             'id' => $id,
             'name' => self::MARKER . $tag,
             'account_number' => self::MARKER . $tag,
@@ -118,7 +118,7 @@ abstract class F6FundScaffold extends IntegrationTestCase
     protected function seedReceipt(int $bankAccountId, string $amount, int $status = 1): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_finance_receipt')->insert([
+        Capsule::table('finance_receipt')->insert([
             'id' => $id,
             'code' => self::MARKER . 'R' . $id,
             'customer_id' => $this->nextId(),
@@ -137,7 +137,7 @@ abstract class F6FundScaffold extends IntegrationTestCase
     protected function seedJournal(int $accountId, string $date, int $direction, string $amount, string $summary = ''): int
     {
         $id = $this->nextId();
-        Capsule::table('erp_finance_cash_journal')->insert([
+        Capsule::table('finance_cash_journal')->insert([
             'id' => $id,
             'bank_account_id' => $accountId,
             'direction' => $direction,

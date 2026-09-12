@@ -25,8 +25,8 @@ use support\Container;
 #[Group('integration')]
 class H34PayslipAdversarialTest extends IntegrationTestCase
 {
-    private const T_SALARY = 'erp_hr_salary', T_ITEM = 'erp_hr_salary_item', T_RULE = 'erp_hr_social_rule', T_RATE = 'erp_hr_social_rate', T_EMP_SOCIAL = 'erp_hr_employee_social';
-    private const T_EMPLOYEE = 'erp_hr_employee';
+    private const T_SALARY = 'hr_salary', T_ITEM = 'erp_hr_salary_item', T_RULE = 'erp_hr_social_rule', T_RATE = 'erp_hr_social_rate', T_EMP_SOCIAL = 'erp_hr_employee_social';
+    private const T_EMPLOYEE = 'hr_employee';
     private static int $seq = 0;
     private bool $dbReady = false;
     private array $employeeIds = [];

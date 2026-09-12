@@ -98,7 +98,7 @@ abstract class C1MemberScaffold extends IntegrationTestCase
     {
         $id = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_member')->insert(array_merge([
+        Capsule::table('member')->insert(array_merge([
             'id' => $id,
             'phone' => $this->freshPhone(),
             'name' => 'C1测试会员',
@@ -120,7 +120,7 @@ abstract class C1MemberScaffold extends IntegrationTestCase
     {
         $id = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_member_coupon_template')->insert(array_merge([
+        Capsule::table('member_coupon_template')->insert(array_merge([
             'id' => $id,
             'name' => self::MARKER . '满减券',
             'coupon_type' => 1,
@@ -143,7 +143,7 @@ abstract class C1MemberScaffold extends IntegrationTestCase
     {
         $id = $this->nextId();
         $now = date('Y-m-d H:i:s');
-        Capsule::table('erp_member_coupon')->insert(array_merge([
+        Capsule::table('member_coupon')->insert(array_merge([
             'id' => $id,
             'member_id' => $memberId,
             'template_id' => $templateId,
