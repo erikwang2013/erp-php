@@ -154,7 +154,8 @@ export class ResourcePage implements OnInit {
   readonly actionWidth = computed(() => Math.max(86, 32 * actionCount(this.cfg())));
   readonly detailItems = computed(() => {
     const d = this.detail();
-    return d ? inferDetailItems(d) : [];
+    // 传 cols：列配了 kind:'tags' 的字段（如 spec.attrs）在详情行渲染胶囊而非 JSON 原文
+    return d ? inferDetailItems(d, this.cols()) : [];
   });
   /**
    * 规格属性胶囊：详情行上各 SKU 的 `spec_attrs`（JSON 字符串）摊平成一排「键:值」。

@@ -103,7 +103,12 @@
                     [class.num]="cell.right"
                     [style.padding-left.px]="cell.depth ? 12 + cell.depth * 16 : null"
                   >
-                    @if (cell.tone) {
+                    @if (cell.tags?.length) {
+                      <!-- kind:'tags'（规格属性等）：一排「键:值」胶囊；文本由 specTags 解析，是用户数据不过 tr -->
+                      @for (t of cell.tags; track $index) {
+                        <nz-tag>{{ t }}</nz-tag>
+                      }
+                    } @else if (cell.tone) {
                       <nz-tag [nzColor]="tone(cell.tone)">{{ cell.text }}</nz-tag>
                     } @else {
                       {{ cell.text }}
@@ -232,7 +237,15 @@
               <div class="desc-item">
                 <span class="desc-k">{{ it.k | tr }}</span>
                 <!-- 值在 columns.ts 里已格式化，不能再过 tr -->
-                <span class="desc-v">{{ it.v }}</span>
+                <span class="desc-v">
+                  @if (it.tags?.length) {
+                    @for (t of it.tags; track $index) {
+                      <nz-tag>{{ t }}</nz-tag>
+                    }
+                  } @else {
+                    {{ it.v }}
+                  }
+                </span>
               </div>
             }
           </div>

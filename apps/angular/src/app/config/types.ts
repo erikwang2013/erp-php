@@ -89,7 +89,16 @@ export interface ActionDef {
 
 /** 列渲染语义（由资源页引擎按 kind 执行，规则与 React cells 渲染一致） */
 export type ColumnKind =
-  'text' | 'money' | 'int' | 'datetime' | 'date' | 'status' | 'enabled' | 'map';
+  | 'text'
+  | 'money'
+  | 'int'
+  | 'datetime'
+  | 'date'
+  | 'status'
+  | 'enabled'
+  | 'map'
+  /** 规格属性（attrs JSON 字符串）→ 一排「键:值」胶囊 */
+  | 'tags';
 
 export interface ColumnDef {
   key: string;

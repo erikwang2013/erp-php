@@ -66,8 +66,23 @@ export const goodsMenus: MenuGroup[] = [
         label: '商品规格',
         path: '/product/spec',
         cfg: res('商品规格', '/admin/v1/spec', {
+          // 显式列出列：inferColumns 只按行数据键推断，无法得知 attrs 该渲染成胶囊
+          columns: [
+            { key: 'name', title: '规格名称', primary: true },
+            { key: 'attrs', title: '规格属性', kind: 'tags' },
+            { key: 'sort', title: '排序', align: 'right' },
+            enabledCol(),
+            dateCol('created_at', '创建时间'),
+          ],
           fields: [
             { key: 'name', label: '规格名称', required: true },
+            {
+              key: 'attrs',
+              label: '规格属性',
+              type: 'textarea',
+              full: true,
+              help: 'JSON 对象：属性名 → 值数组，如 {"颜色":["红","蓝"],"尺寸":["S","M","L"]}；留空 / {} 表示无属性',
+            },
             { key: 'sort', label: '排序', type: 'number', defaultValue: 0 },
             { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: ON_OFF },
           ],
