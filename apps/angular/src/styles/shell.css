@@ -359,7 +359,11 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* 内容区即全应用唯一滚动容器：原为 overflow: hidden，而各页面自身不提供滚动区
+     （resource-page.less 全文无 overflow），超出视口的内容会被直接裁掉、滚不到。
+     React 端 .content 无此声明。页面根部均为 :host{display:block} 的常规流，
+     故改由本层滚动是安全的。 */
+  overflow-y: auto;
 }
 
 /* ============ 弹窗骨架（.mask/.modal，V3 上提自 resource 页 less 去重） ============ */
