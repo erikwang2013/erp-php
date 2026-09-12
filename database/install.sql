@@ -205,6 +205,7 @@ CREATE TABLE IF NOT EXISTS `erp_product_spec` (
     `name` VARCHAR(200) NOT NULL COMMENT '规格名称',
     `sort` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序值，越小越靠前',
     `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 0=禁用 1=启用',
+    `attrs` TEXT DEFAULT NULL COMMENT '规格属性 JSON 对象：属性名 => 值字符串数组，如 {"颜色":["红","蓝"],"尺寸":["S","M","L"]}；空为 {}',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',

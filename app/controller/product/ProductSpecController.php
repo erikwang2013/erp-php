@@ -10,6 +10,7 @@ namespace app\controller\product;
 use app\admin\controller\BaseController;
 use app\model\ProductSpec;
 use app\service\product\ProductService;
+use InvalidArgumentException;
 use support\Container;
 use support\Request;
 use support\Response;
@@ -85,7 +86,13 @@ class ProductSpecController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->product()->create(ProductSpec::class, $request->all());
+        try {
+            $data = $this->normalizeAttrs($request->all());
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $item = $this->product()->create(ProductSpec::class, $data);
 
         return $this->success($this->encodeIds($item->toArray()), '创建成功');
     }
@@ -141,8 +148,13 @@ class ProductSpecController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        try {
+            $data = $this->normalizeAttrs($request->all());
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
         $id = $this->decodeId($id);
-        $item = $this->product()->update(ProductSpec::class, $id, $request->all());
+        $item = $this->product()->update(ProductSpec::class, $id, $data);
         if (!$item) {
             return $this->fail('记录不存在', 404);
         }
@@ -195,5 +207,22 @@ class ProductSpecController extends BaseController
     private function product(): ProductService
     {
         return Container::get(ProductService::class);
+    }
+
+    /**
+     * attrs 归一化：未携带该字段时保持原样（部分更新不误清空），空值统一为 '{}'。
+     * 归一化在落库之前完成，非法入参（非 JSON 对象/值非字符串数组）抛异常由控制器转 422。
+     *
+     * @param array<string, mixed> $data 原始请求数据
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException
+     */
+    private function normalizeAttrs(array $data): array
+    {
+        if (array_key_exists('attrs', $data)) {
+            $data['attrs'] = $this->product()->normalizeSpecAttrs($data['attrs']);
+        }
+
+        return $data;
     }
 }

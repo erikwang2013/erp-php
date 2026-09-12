@@ -23,5 +23,14 @@ class ProductSpec extends Model
     protected $keyType = 'int';
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
     // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
-    protected $fillable = ['name', 'sort', 'status'];
+    protected $fillable = ['name', 'sort', 'status', 'attrs'];
+
+    /**
+     * 规格属性读取归一化：历史行/未设置行为 SQL NULL，统一读回 JSON 字符串，
+     * 保证 index/show/store/update 各读路径 attrs 恒为字符串。
+     */
+    public function getAttrsAttribute(?string $value): string
+    {
+        return $value ?? '{}';
+    }
 }

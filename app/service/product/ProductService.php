@@ -13,6 +13,8 @@ use app\model\ProductPrice;
 use app\model\ProductSku;
 use app\service\AbstractCrudService;
 use Illuminate\Database\Capsule\Manager as DB;
+use InvalidArgumentException;
+use JsonException;
 use Throwable;
 
 /**
@@ -160,5 +162,59 @@ class ProductService extends AbstractCrudService
             'cost_price' => (float) ($skuData['cost_price'] ?? 0),
             'status' => 1,
         ];
+    }
+
+    /**
+     * 规格属性归一化（纯逻辑，可单测）
+     * 接受 JSON 字符串或已解码的 PHP 数组/对象，统一存为 JSON 对象字符串
+     * （JSON_UNESCAPED_UNICODE，与 ProductSku::normalizeSku 的 spec_attrs 同风格）。
+     *
+     * 空值（null / '' / {} / []）归一化为 '{}'：AbstractCrudService::fillableOnly()
+     * 用 isset() 过滤，NULL 会被静默丢弃导致"清空属性"无法保存，故用 '{}' 表达空。
+     *
+     * @param mixed $raw 请求传入的 attrs（字符串或数组/对象）
+     * @return string 归一化后的 JSON 对象字符串，恒为对象（如 '{}'）
+     * @throws InvalidArgumentException 非 JSON 对象、值非字符串数组时抛出（控制器转 422）
+     */
+    public function normalizeSpecAttrs(mixed $raw): string
+    {
+        if ($raw === null) {
+            return '{}';
+        }
+        if (is_string($raw)) {
+            if (trim($raw) === '') {
+                return '{}';
+            }
+            try {
+                $raw = json_decode($raw, false, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException) {
+                throw new InvalidArgumentException('attrs 不是合法的 JSON 字符串');
+            }
+        }
+        if (is_object($raw)) {
+            // JSON 字符串解出的对象：{} 与 {"0":...} 的真身，取属性即可，不参与下面的 list 判定
+            $raw = get_object_vars($raw);
+        } elseif (!is_array($raw)) {
+            throw new InvalidArgumentException('attrs 必须是 JSON 对象（属性名 => 值数组）');
+        } elseif ($raw !== [] && array_is_list($raw)) {
+            // 仅 PHP 数组入参需判 list（JSON 对象已由 is_object 分支排除）；空数组视同空对象
+            throw new InvalidArgumentException('attrs 必须是 JSON 对象（属性名 => 值数组），不能是数组');
+        }
+        if ($raw === []) {
+            return '{}';
+        }
+        foreach ($raw as $name => $values) {
+            if (!is_array($values) || !array_is_list($values)) {
+                throw new InvalidArgumentException("attrs.{$name} 必须是字符串数组");
+            }
+            foreach ($values as $value) {
+                if (!is_string($value)) {
+                    throw new InvalidArgumentException("attrs.{$name} 的值必须是字符串");
+                }
+            }
+        }
+
+        // 强制对象编码：PHP 会把数字字符串键（如 {"0":[...]}）还原为 int 键，直接编码会退化成 JSON 数组
+        return json_encode((object) $raw, JSON_UNESCAPED_UNICODE);
     }
 }

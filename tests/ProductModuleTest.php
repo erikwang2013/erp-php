@@ -335,4 +335,139 @@ class ProductModuleTest extends TestCase
         $this->assertEquals('商品B', $encoded['name'], '非 ID 字段不应被编码');
         $this->assertEquals(8, $this->invokeProtected($controller, 'decodeId', $encoded['category_id']));
     }
+
+    // ---------- 7. 商品规格 attrs（JSON 对象）契约 ----------
+
+    private function specService(): \app\service\product\ProductService
+    {
+        return new \app\service\product\ProductService();
+    }
+
+    /**
+     * 读路径契约：index/show 走 $item->toArray()，历史行 attrs 为 SQL NULL 时也必须是字符串 '{}'，
+     * 不能返回 null（前端按字符串 JSON.parse）。
+     */
+    public function testSpecModelReadsNullAttrsAsEmptyJsonString(): void
+    {
+        // setRawAttributes 模拟 DB 行（历史行 attrs 为 SQL NULL），无需连接即可走读路径
+        $spec = new ProductSpec();
+        $spec->setRawAttributes(['id' => 1, 'name' => '颜色', 'attrs' => null]);
+        $this->assertSame('{}', $spec->attrs);
+        $this->assertSame('{}', $spec->toArray()['attrs']);
+
+        $spec->setRawAttributes(['id' => 1, 'name' => '颜色', 'attrs' => '{"颜色":["红"]}']);
+        $this->assertSame('{"颜色":["红"]}', $spec->toArray()['attrs']);
+        $this->assertContains('attrs', $spec->getFillable());
+    }
+
+    public function testSpecAttrsNormalizesAssocArrayToUnicodeJsonObject(): void
+    {
+        $json = $this->specService()->normalizeSpecAttrs(['颜色' => ['红', '蓝'], '尺寸' => ['S', 'M', 'L']]);
+        $this->assertSame('{"颜色":["红","蓝"],"尺寸":["S","M","L"]}', $json);
+        $this->assertStringNotContainsString('\\u', $json, 'JSON_UNESCAPED_UNICODE 下不应出现 \u 转义');
+    }
+
+    public function testSpecAttrsAcceptsJsonStringForm(): void
+    {
+        $this->assertSame('{"颜色":["红"]}', $this->specService()->normalizeSpecAttrs('{"颜色":["红"]}'));
+    }
+
+    public function testSpecAttrsEmptyValuesNormalizeToEmptyObject(): void
+    {
+        $svc = $this->specService();
+        // 空为 {} 而非 NULL：fillableOnly() 用 isset() 过滤，NULL 会被静默丢弃导致"清空属性"存不进去
+        $this->assertSame('{}', $svc->normalizeSpecAttrs(null));
+        $this->assertSame('{}', $svc->normalizeSpecAttrs(''));
+        $this->assertSame('{}', $svc->normalizeSpecAttrs('  '));
+        $this->assertSame('{}', $svc->normalizeSpecAttrs('{}'));
+        $this->assertSame('{}', $svc->normalizeSpecAttrs('[]'));
+        $this->assertSame('{}', $svc->normalizeSpecAttrs([]));
+    }
+
+    public function testSpecAttrsAllowsEmptyValueLists(): void
+    {
+        // 空值不算非法：属性值为空数组、值元素为空串都应通过
+        $this->assertSame(
+            '{"颜色":[],"尺寸":[""]}',
+            $this->specService()->normalizeSpecAttrs(['颜色' => [], '尺寸' => ['']])
+        );
+    }
+
+    public function testSpecAttrsKeepsNumericStringKeysAsObject(): void
+    {
+        // 数字字符串属性名不得退化成 JSON 数组
+        $this->assertSame('{"0":["红"]}', $this->specService()->normalizeSpecAttrs('{"0":["红"]}'));
+    }
+
+    public function testSpecAttrsRejectsJsonArray(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->specService()->normalizeSpecAttrs('["红","蓝"]');
+    }
+
+    public function testSpecAttrsRejectsPhpList(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->specService()->normalizeSpecAttrs(['红', '蓝']);
+    }
+
+    public function testSpecAttrsRejectsScalarValue(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->specService()->normalizeSpecAttrs('{"颜色":"红"}');
+    }
+
+    public function testSpecAttrsRejectsNonListValue(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->specService()->normalizeSpecAttrs(['尺寸' => ['S' => 'small']]);
+    }
+
+    public function testSpecAttrsRejectsBrokenJson(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->specService()->normalizeSpecAttrs('{"颜色":');
+    }
+
+    public function testSpecAttrsRejectsScalarInput(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->specService()->normalizeSpecAttrs(123);
+    }
+
+    /* ---- 控制器 422 分支（attrs 归一化在落库之前，无需 DB） ---- */
+
+    public function testSpecStoreRejectsBrokenJsonAttrs(): void
+    {
+        $resp = (new \app\controller\product\ProductSpecController())->store(new FakeRequest([
+            'name' => '颜色规格', 'attrs' => '{"颜色":',
+        ]));
+        $payload = json_decode($resp->rawBody(), true);
+        $this->assertSame(422, $payload['code'] ?? null);
+        $this->assertStringContainsString('JSON', (string) ($payload['message'] ?? ''));
+    }
+
+    public function testSpecStoreRejectsArrayAttrs(): void
+    {
+        $resp = (new \app\controller\product\ProductSpecController())->store(new FakeRequest([
+            'name' => '颜色规格', 'attrs' => ['红', '蓝'],
+        ]));
+        $this->assertSame(422, json_decode($resp->rawBody(), true)['code'] ?? null);
+    }
+
+    public function testSpecStoreRejectsScalarValueAttrs(): void
+    {
+        $resp = (new \app\controller\product\ProductSpecController())->store(new FakeRequest([
+            'name' => '颜色规格', 'attrs' => ['颜色' => '红'],
+        ]));
+        $this->assertSame(422, json_decode($resp->rawBody(), true)['code'] ?? null);
+    }
+
+    public function testSpecUpdateRejectsScalarAttrs(): void
+    {
+        $resp = (new \app\controller\product\ProductSpecController())->update(new FakeRequest([
+            'id' => 'abc', 'attrs' => 123,
+        ]), 'abc');
+        $this->assertSame(422, json_decode($resp->rawBody(), true)['code'] ?? null);
+    }
 }
