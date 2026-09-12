@@ -36,7 +36,13 @@ export const goodsMenus: MenuGroup[] = [
             { key: 'unit', label: '单位', required: true },
             { key: 'brand_id', label: '品牌', source: { endpoint: '/admin/v1/brand' } },
             { key: 'barcode', label: '条码' },
-            { key: 'spec', label: '规格型号' },
+            // 规格型号改为从商品规格表选（valueKey 取 name：erp_product.spec 是 VARCHAR，
+            // 存名称而非 hashid —— 列表/详情可直接显示，无需再解码）
+            {
+              key: 'spec',
+              label: '规格型号',
+              source: { endpoint: '/admin/v1/spec', valueKey: 'name' },
+            },
             { key: 'description', label: '商品描述', type: 'textarea', full: true },
             { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: ON_OFF },
           ],
