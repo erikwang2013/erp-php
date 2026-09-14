@@ -26,6 +26,8 @@ export function Shell() {
 
   const [folded, setFolded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  /** 顶栏语言菜单：独立图标入口，与用户菜单互斥 */
+  const [langOpen, setLangOpen] = useState(false);
   /** 侧边栏菜单搜索关键词；非空时自动展开命中分组 */
   const [menuQuery, setMenuQuery] = useState('');
   /** 顶部业务屏：默认跟随当前路由，用户可手动切换 */
@@ -55,6 +57,7 @@ export function Shell() {
   /** 路由变化时自动切到所属业务屏（手动切换后仍跟随；避免跳进别的屏却看不见菜单） */
   useEffect(() => {
     setScreen(screenOf(loc.pathname));
+    setLangOpen(false); // 路由变化时收起语言菜单，避免浮层跨页残留
   }, [loc.pathname]);
 
   /** 当前屏的分组（路由命中特殊页如仪表盘时回退第一屏） */
@@ -201,7 +204,52 @@ export function Shell() {
             )}
           </Btn>
 
-          <div className="topbar-user" onClick={() => setMenuOpen((v) => !v)}>
+          {/* 语言切换：独立图标入口（不塞进用户菜单），点开是 13 语种清单 */}
+          <div style={{ position: 'relative' }}>
+            <Btn
+              variant="icon"
+              icon="global"
+              title={t('界面语言')}
+              onClick={() => {
+                setMenuOpen(false);
+                setLangOpen((v) => !v);
+              }}
+            />
+            {langOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 36,
+                  right: 0,
+                  background: 'var(--surface)',
+                  border: '1px solid var(--divider)',
+                  borderRadius: 'var(--r-card)',
+                  boxShadow: 'var(--shadow-facade)',
+                  minWidth: 190,
+                  maxHeight: 420,
+                  overflowY: 'auto',
+                  zIndex: 60,
+                }}
+              >
+                {LOCALES.map((l) => (
+                  <div
+                    key={l.code}
+                    className="nav-item"
+                    style={{ margin: 0, height: 36, fontSize: 'var(--fs-md)' }}
+                    onClick={() => {
+                      setLocale(l.code);
+                      setLangOpen(false);
+                    }}
+                  >
+                    <span style={{ flex: 1 }}>{l.label}</span>
+                    {locale === l.code && <Icon name="check" size={14} />}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="topbar-user" onClick={() => { setLangOpen(false); setMenuOpen((v) => !v); }}>
             <div className="avatar">{initial}</div>
             <span>{user?.real_name || user?.username}</span>
             {menuOpen && (
@@ -232,22 +280,6 @@ export function Shell() {
                   <Icon name="user" size={15} />
                   <span>{t('个人中心')}</span>
                 </div>
-                {/* 13 语种清单：label 是各语种自称，不翻译；与个人中心的选择器同源 */}
-                {LOCALES.map((l) => (
-                  <div
-                    key={l.code}
-                    className="nav-item"
-                    title={t('界面语言')}
-                    style={{ margin: 0, height: 36, fontSize: 'var(--fs-md)' }}
-                    onClick={() => {
-                      setLocale(l.code);
-                      setMenuOpen(false);
-                    }}
-                  >
-                    <span style={{ flex: 1 }}>{l.label}</span>
-                    {locale === l.code && <Icon name="check" size={14} />}
-                  </div>
-                ))}
                 <div
                   className="nav-item"
                   style={{ margin: 0, height: 36, fontSize: 'var(--fs-md)', color: 'var(--danger)' }}
