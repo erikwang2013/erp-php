@@ -373,9 +373,10 @@ export const zhEnPart4: Record<string, string> = {
   '搜索用户/路径': 'Search user/path',
   '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -':
     'Separate multiple event names with commas or newlines; * means all; only letters, digits and . _ - are allowed',
-  '勾选父级即全选其下所有子项': 'Checking a parent selects all of its children',
+  勾选父级即全选其下所有子项: 'Checking a parent selects all of its children',
   父级: 'Parent',
-  '点节点选父级；点已选节点取消（空 = 顶级）': 'Click a node to set it as parent; click a selected node to clear (empty = top level)',
+  '点节点选父级；点已选节点取消（空 = 顶级）':
+    'Click a node to set it as parent; click a selected node to clear (empty = top level)',
   'JSON 对象：属性名 → 值数组，如 {"颜色":["红","蓝"],"尺寸":["S","M","L"]}；留空 / {} 表示无属性':
     'JSON object: attribute name → array of values, e.g. {"Color":["Red","Blue"],"Size":["S","M","L"]}; leave empty / {} for no attributes',
 };
