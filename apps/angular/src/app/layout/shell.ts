@@ -57,6 +57,8 @@ export class Shell implements OnInit, OnDestroy {
   readonly url = signal(this.router.url.split('?')[0]);
   readonly folded = signal(false);
   readonly userOpen = signal(false);
+  /** 顶栏语言菜单：独立图标入口，与用户菜单互斥 */
+  readonly langOpen = signal(false);
   readonly query = signal('');
   readonly screen = signal(screenOf(this.url()));
   /** 手工展开的分组名；搜索态下所有命中分组强制展开，不写回这里 */
@@ -102,6 +104,7 @@ export class Shell implements OnInit, OnDestroy {
         const p = this.router.url.split('?')[0];
         this.url.set(p);
         this.screen.set(screenOf(p));
+        this.langOpen.set(false); // 路由变化时收起语言菜单，避免浮层跨页残留
         const g = MENUS.find((m) => m.children.some((c) => c.path === p));
         if (g && !this.open().has(g.label)) this.open.set(new Set([g.label]));
       });
@@ -161,11 +164,23 @@ export class Shell implements OnInit, OnDestroy {
   /** 模板要读当前语种（勾选标记），而模板只能访问组件成员，故把函数挂上来 */
   readonly currentLocale = currentLocale;
 
+  /** 语言菜单开合：开此则关彼，两个浮层不叠在一起 */
+  toggleLang(e: Event): void {
+    e.stopPropagation();
+    this.userOpen.set(false);
+    this.langOpen.set(!this.langOpen());
+  }
+
+  toggleUser(): void {
+    this.langOpen.set(false);
+    this.userOpen.set(!this.userOpen());
+  }
+
   /** 切语种：模板里的中文都走 | tr（impure 管道），词典装填完成后立即重渲染 */
   pickLocale(e: Event, code: Locale): void {
     e.stopPropagation();
     setLocale(code);
-    this.userOpen.set(false);
+    this.langOpen.set(false);
   }
 
   async doLogout(): Promise<void> {

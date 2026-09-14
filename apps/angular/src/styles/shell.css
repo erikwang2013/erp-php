@@ -299,6 +299,33 @@
   color: var(--danger);
 }
 
+/* 语言菜单：锚在 globe 图标下方的独立浮层（与用户菜单互斥，不同时开） */
+.lang-wrap {
+  position: relative;
+}
+
+.lang-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-facade);
+  width: 200px;
+  max-height: 420px;
+  overflow-y: auto;
+  z-index: 60;
+  padding: 4px 0;
+}
+
+.lang-menu .nav-item {
+  margin: 0;
+  height: 36px;
+  font-size: var(--fs-md);
+  width: 100%;
+}
+
 /* ── 业务屏切换条 ── */
 
 .screens {

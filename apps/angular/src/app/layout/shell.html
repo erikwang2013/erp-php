@@ -84,25 +84,13 @@
         }
       </button>
 
-      <!-- 界面语言常驻顶栏：点开用户菜单，里面是 13 语种清单（原先只有一个中英切换项） -->
-      <button
-        type="button"
-        class="btn-icon"
-        [title]="'界面语言' | tr"
-        (click)="userOpen.set(!userOpen())"
-      >
-        <app-icon name="global" />
-      </button>
-
-      <div class="topbar-user" (click)="userOpen.set(!userOpen())">
-        <div class="avatar">{{ initial() }}</div>
-        <span>{{ user()?.real_name || user()?.username }}</span>
-        @if (userOpen()) {
-          <div class="user-menu" (click)="$event.stopPropagation()">
-            <div class="nav-item" (click)="go('/profile'); userOpen.set(false)">
-              <app-icon name="user" />
-              <span>{{ '个人中心' | tr }}</span>
-            </div>
+      <!-- 语言切换：独立图标入口（不放进用户菜单），点开是 13 语种清单 -->
+      <div class="lang-wrap">
+        <button type="button" class="btn-icon" [title]="'界面语言' | tr" (click)="toggleLang($event)">
+          <app-icon name="global" />
+        </button>
+        @if (langOpen()) {
+          <div class="lang-menu" (click)="$event.stopPropagation()">
             @for (l of locales; track l.code) {
               <div class="nav-item" (click)="pickLocale($event, l.code)">
                 <span>{{ l.label }}</span>
@@ -111,6 +99,19 @@
                 }
               </div>
             }
+          </div>
+        }
+      </div>
+
+      <div class="topbar-user" (click)="toggleUser()">
+        <div class="avatar">{{ initial() }}</div>
+        <span>{{ user()?.real_name || user()?.username }}</span>
+        @if (userOpen()) {
+          <div class="user-menu" (click)="$event.stopPropagation()">
+            <div class="nav-item" (click)="go('/profile'); userOpen.set(false)">
+              <app-icon name="user" />
+              <span>{{ '个人中心' | tr }}</span>
+            </div>
             <div class="nav-item danger" (click)="doLogout()">
               <app-icon name="logout" />
               <span>{{ '退出登录' | tr }}</span>
