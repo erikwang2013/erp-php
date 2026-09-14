@@ -1,51 +1,12 @@
 <?php
+
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-// en：键为英文原文（英文即 key）；en 目录留空由 I18n 直接回键
+declare(strict_types=1);
+
+// en · 英文即 key：键是英文原文（en 留空，引擎直接回键）
 return [
-    'Operation successful' => 'Operation successful',
-    'Operation failed' => 'Operation failed',
-    'Record not found' => 'Record not found',
-    'Created successfully' => 'Created successfully',
-    'Updated successfully' => 'Updated successfully',
-    'Deleted successfully' => 'Deleted successfully',
-    'Restored successfully' => 'Restored successfully',
-    'Batch delete successful' => 'Batch delete successful',
-    'Batch operation successful' => 'Batch operation successful',
-    'Password verification failed' => 'Password verification failed',
-    'Password confirmation required for sensitive operations' => 'Password confirmation required for sensitive operations',
-    'Invalid ID' => 'Invalid ID',
-    'Unauthorized' => 'Unauthorized',
-    'Access denied' => 'Access denied',
-    'Validation failed' => 'Validation failed',
-    'Internal server error' => 'Internal server error',
-    'Too many requests, please try again later' => 'Too many requests, please try again later',
-    'Account is locked' => 'Account is locked',
-    'Login successful' => 'Login successful',
-    'Invalid username or password' => 'Invalid username or password',
-    'Logged out successfully' => 'Logged out successfully',
-    'Token expired' => 'Token expired',
-    'Invalid token' => 'Invalid token',
-    'Upload successful' => 'Upload successful',
-    'Export successful' => 'Export successful',
-    'Import successful' => 'Import successful',
-    'Import failed' => 'Import failed',
-    'Insufficient stock' => 'Insufficient stock',
-    'Record already exists' => 'Record already exists',
-    'Amount exceeds limit' => 'Amount exceeds limit',
-    'Operation not allowed in current status' => 'Operation not allowed in current status',
-    'Save' => 'Save',
-    'Cancel' => 'Cancel',
-    'Confirm' => 'Confirm',
-    'Confirm delete' => 'Confirm delete',
-    'Yes' => 'Yes',
-    'No' => 'No',
-    'Enable' => 'Enable',
-    'Disable' => 'Disable',
-    'Submit' => 'Submit',
-    'Approve' => 'Approve',
-    'Reject' => 'Reject',
-    'Withdraw' => 'Withdraw',
+
 ];
