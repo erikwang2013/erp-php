@@ -1448,4 +1448,10 @@ export const zhDe: Record<string, string> = {
   '业务模块': 'Module',
   '第 {count} 个字位置不准，请再点一次': 'Klicke erneut auf #{count} – der Punkt hat das Ziel verfehlt',
   '仍未通过，请按顺序重新点击': 'Noch nicht übereinstimmend – klicke alle Zeichen erneut in der Reihenfolge an',
+  '费率(元/小时)': 'Satz (Yuan/Stunde)',
+  '订阅事件': 'Abonnierte Ereignisse',
+  '0=全部': '0=Alle',
+  '如 get.admin/user': 'z.B. get.admin/user',
+  '搜索用户/路径': 'Benutzer/Pfad suchen',
+  '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -': 'Mehrere Ereignisnamen mit Kommas oder Zeilenumbrüchen trennen; * bedeutet alle; nur Buchstaben, Ziffern und . _ - sind erlaubt',
 };

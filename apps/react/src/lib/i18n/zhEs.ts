@@ -1448,4 +1448,10 @@ export const zhEs: Record<string, string> = {
   '业务模块': 'Módulos',
   '第 {count} 个字位置不准，请再点一次': 'Vuelve a hacer clic en #{count}: el punto falló el objetivo',
   '仍未通过，请按顺序重新点击': 'Aún no coincide: vuelve a hacer clic en todos los caracteres en orden',
+  '费率(元/小时)': 'Tarifa (yuan/hora)',
+  '订阅事件': 'Eventos suscritos',
+  '0=全部': '0=Todos',
+  '如 get.admin/user': 'p. ej. get.admin/user',
+  '搜索用户/路径': 'Buscar usuario/ruta',
+  '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -': 'Separa varios nombres de eventos con comas o saltos de línea; * significa todos; solo se permiten letras, dígitos y . _ -',
 };

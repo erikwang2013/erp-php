@@ -32,7 +32,7 @@ export const systemMenus: MenuGroup[] = [
           title: '用户管理',
           moduleKey: 'system',
           endpoint: '/admin/v1/user',
-          searchPlaceholder: '搜索用户名 / 姓名',
+          searchPlaceholder: '搜索用户名/姓名',
           deleteNeedsPassword: true,
           filters: { key: 'status', label: '状态', options: ON_OFF },
           columns: [
@@ -142,7 +142,7 @@ export const systemMenus: MenuGroup[] = [
           title: '操作日志',
           moduleKey: 'system',
           endpoint: '/admin/v1/log',
-          searchPlaceholder: '搜索用户 / 路径',
+          searchPlaceholder: '搜索用户/路径',
           canDelete: false,
           columns: [
             { key: 'user_name', title: '操作人', primary: true },

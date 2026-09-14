@@ -366,4 +366,16 @@ export const zhEnPart4: Record<string, string> = {
   '第 {count} 个字位置不准，请再点一次': 'Click #{count} again - the point missed the target',
   '仍未通过，请按顺序重新点击': 'Still not matched - click all characters in order again',
   规格属性: 'Spec Attributes',
+  '费率(元/小时)': 'Rate (yuan/hour)',
+  订阅事件: 'Subscribed Events',
+  '0=全部': '0=All',
+  '如 get.admin/user': 'e.g. get.admin/user',
+  '搜索用户/路径': 'Search user/path',
+  '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -':
+    'Separate multiple event names with commas or newlines; * means all; only letters, digits and . _ - are allowed',
+  '勾选父级即全选其下所有子项': 'Checking a parent selects all of its children',
+  父级: 'Parent',
+  '点节点选父级；点已选节点取消（空 = 顶级）': 'Click a node to set it as parent; click a selected node to clear (empty = top level)',
+  'JSON 对象：属性名 → 值数组，如 {"颜色":["红","蓝"],"尺寸":["S","M","L"]}；留空 / {} 表示无属性':
+    'JSON object: attribute name → array of values, e.g. {"Color":["Red","Blue"],"Size":["S","M","L"]}; leave empty / {} for no attributes',
 };

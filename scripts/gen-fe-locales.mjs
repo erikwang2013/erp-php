@@ -4,19 +4,24 @@
  */
 
 /**
- * 前端词典多语生成器 —— 把 core/zh-en 的 1441 条（中文 → 英文）翻成其余语种，
- * 产出 core/zh-<code>.ts。
+ * 前端词典多语生成器 —— 把英文源词典（中文 → 英文）翻成其余 11 语种。
  *
- * 用法：
- *   node scripts/gen-fe-locales.mjs --list                 # 看各语种进度
- *   node scripts/gen-fe-locales.mjs --locale ja --limit 20 # 冒烟：先跑 20 条验通路
- *   node scripts/gen-fe-locales.mjs --all                  # 全量（可断点续跑）
+ * 用法（`--app` 默认 angular）：
+ *   node scripts/gen-fe-locales.mjs --app react --list       # 看各语种进度
+ *   node scripts/gen-fe-locales.mjs --app react --locale ja --limit 20  # 冒烟
+ *   node scripts/gen-fe-locales.mjs --app react --all        # 全量（可断点续跑）
+ *
+ * 两端源与产物：
+ *   angular：core/zh-en/part*.ts  → core/zh-<code>.ts
+ *   react  ：lib/i18n/zhEn.ts     → lib/i18n/zh<Code>.ts
  *
  * 设计：
  *  - **译文来源用英文而非中文**：zh-en 已经在手，英文作为中转语对多数语言质量更好；
  *    没有英文值的兜底用中文原文。
- *  - **断点续跑**：每条译文即时落 /tmp/fe-locales-cache/<code>.json，重跑只补缺口。
- *    跑一半断了不用重来（全量约 1.5 万条，必须可续）。
+ *  - **缓存与 app 无关**：/tmp/fe-locales-cache/<code>.json 是「中文原文 → 译文」映射，
+ *    两端共用。故换产物路径/命名规范这类改动零 API 调用即可重出；只有**新增的中文键**
+ *    才会真正请求网关（`--list` 里 have ≥ keys.length 即待译 0）。
+ *  - **断点续跑**：每条译文即时落盘，重跑只补缺口。跑一半断了不用重来（全量约 1.5 万条，必须可续）。
  *  - **凭证只读不打印**：从 ~/.claude/settings.json 的 env 块取网关地址与 token，
  *    任何日志都不输出其内容。
  *  - 输出文件由本脚本整份重写（含版权头），**不要手工编辑**。

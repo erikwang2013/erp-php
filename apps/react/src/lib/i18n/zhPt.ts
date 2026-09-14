@@ -1448,4 +1448,10 @@ export const zhPt: Record<string, string> = {
   '业务模块': 'Módulos',
   '第 {count} 个字位置不准，请再点一次': 'Clique em #{count} novamente - o ponto errou o alvo',
   '仍未通过，请按顺序重新点击': 'Ainda não corresponde - clique novamente em todos os caracteres na ordem',
+  '费率(元/小时)': 'Tarifa (yuan/hora)',
+  '订阅事件': 'Eventos subscritos',
+  '0=全部': '0=Todos',
+  '如 get.admin/user': 'ex.: get.admin/user',
+  '搜索用户/路径': 'Pesquisar usuário/caminho',
+  '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -': 'Separe vários nomes de eventos com vírgulas ou quebras de linha; * significa todos; apenas letras, dígitos e . _ - são permitidos',
 };

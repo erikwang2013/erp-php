@@ -1448,4 +1448,10 @@ export const zhId: Record<string, string> = {
   '业务模块': 'Modul',
   '第 {count} 个字位置不准，请再点一次': 'Klik #{count} lagi - titiknya meleset dari sasaran',
   '仍未通过，请按顺序重新点击': 'Masih belum cocok - klik semua karakter secara berurutan lagi',
+  '费率(元/小时)': 'Tarif (yuan/jam)',
+  '订阅事件': 'Event yang Dilanggan',
+  '0=全部': '0=Semua',
+  '如 get.admin/user': 'mis. get.admin/user',
+  '搜索用户/路径': 'Cari pengguna/path',
+  '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -': 'Pisahkan beberapa nama event dengan koma atau baris baru; * berarti semua; hanya huruf, angka, dan . _ - yang diizinkan',
 };
