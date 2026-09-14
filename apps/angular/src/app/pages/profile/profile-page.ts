@@ -9,7 +9,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { AuthStore } from '../../core/auth.store';
 import { http } from '../../core/api.service';
-import { currentLocale, setLocale, tr, type Locale } from '../../core/i18n.service';
+import { LOCALES, currentLocale, setLocale, tr, type Locale } from '../../core/i18n.service';
 import { Toast } from '../../core/toast.service';
 import { TrPipe } from '../../core/tr.pipe';
 
@@ -31,6 +31,8 @@ export class ProfilePage {
 
   protected readonly user = this.auth.user;
   protected readonly locale = signal<Locale>(currentLocale());
+  /** 语言下拉选项（模板只能访问组件成员，故把常量挂上来） */
+  protected readonly locales = LOCALES;
 
   // 基本资料：姓名以缓存值为初值，手机/邮箱后端无回读，留空表示不动
   protected readonly name = signal(this.auth.user()?.real_name ?? '');
@@ -45,7 +47,9 @@ export class ProfilePage {
   protected readonly pwBusy = signal(false);
 
   protected changeLocale(value: string): void {
-    const next: Locale = value === 'en' ? 'en' : 'zh';
+    // 只接受清单内的语种（选择器已限定，这里仍做一次校验，避免脏值写进 localStorage）
+    const next = LOCALES.find((l) => l.code === value)?.code;
+    if (!next) return;
     this.locale.set(next);
     setLocale(next);
   }

@@ -9,8 +9,9 @@
   <div class="field">
     <div class="field-label">{{ '界面语言' | tr }}</div>
     <nz-select class="lang-select" [ngModel]="locale()" (ngModelChange)="changeLocale($event)">
-      <nz-option nzValue="zh" nzLabel="中文" />
-      <nz-option nzValue="en" nzLabel="English" />
+      @for (l of locales; track l.code) {
+        <nz-option [nzValue]="l.code" [nzLabel]="l.label" />
+      }
     </nz-select>
   </div>
 </div>
