@@ -132,7 +132,8 @@ class WebhookController extends BaseController
     {
         $validator = validator($request->all(), [
             'app_id' => 'required|string',
-            'event' => 'required|array',
+            // 形状放宽为「数组或分隔串」：表单引擎没有数组控件，见 sanitizeEvents 注释
+            'event' => 'required',
             'event.*' => 'string|max:100',
             'target_url' => 'required|string|max:500',
             'secret' => 'nullable|string|min:16|max:200',
@@ -203,7 +204,7 @@ class WebhookController extends BaseController
         }
 
         $validator = validator($request->all(), [
-            'event' => 'nullable|array',
+            'event' => 'nullable',
             'event.*' => 'string|max:100',
             'target_url' => 'nullable|string|max:500',
             'secret' => 'nullable|string|min:16|max:200',
@@ -362,6 +363,14 @@ class WebhookController extends BaseController
      */
     private function sanitizeEvents($events)
     {
+        // 分隔串 → 数组：前端表单引擎没有数组控件，textarea 提交的是 `a.b,c.d` 这样的串。
+        // 只放宽「入参形状」，事件名校验（下面的白名单正则）一字未动。
+        if (is_string($events)) {
+            $events = array_values(array_filter(
+                array_map('trim', preg_split('/[,;\n\r、]+/', $events) ?: []),
+                static fn ($v) => $v !== ''
+            ));
+        }
         if (!is_array($events) || $events === []) {
             return false;
         }
