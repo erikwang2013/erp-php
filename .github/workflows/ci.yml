@@ -402,6 +402,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 防重：同一 commit 已有版本 tag 就不再递增 —— bump-version.sh 是「最新 tag +1」，
+          # 同一提交重推或 rerun 会各打一个 tag（实测：一次提交 + 一次 rerun 各打了一个，
+          # 产生 v1.17.1 与 v1.17.2 两个都指向同一 commit 的孤儿 tag）。
+          # 已有 tag 时置 SKIP_TAG，后续 Release 步骤改为补建该 tag 的 Release（幂等）。
+          if git tag --points-at "$GITHUB_SHA" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "当前 commit 已有版本 tag：$(git tag --points-at "$GITHUB_SHA" | tr '\n' ' ')，跳过创建"
+            echo "SKIP_TAG=1" >> "$GITHUB_ENV"
+            exit 0
+          fi
           set +e
           out="$(bash scripts/bump-version.sh --create 2>&1)"
           code=$?
@@ -412,12 +421,21 @@ jobs:
             exit $code
           fi
       - name: Create GitHub Release
-        # 推送规则：tag 创建后按同一最新版本增量创建 GitHub Release。
-        # 幂等：bump-version.sh 跳过已存在 tag 时 release 通常也已存在 → 跳过；
-        # 并发/手动先建了 release → gh release view 命中 → 跳过，不会报错。
-        # gh 用自动 token（permissions: contents: write 已声明）。
+        # 推送规则：按上一步的版本建 GitHub Release。
+        # 幂等：已有同名 release → gh release view 命中 → 跳过，不会报错；
+        # 上一步因「本 commit 已有 tag」跳过时，这里改为补建**该 tag** 的 Release。
+        # ⚠️ GH_TOKEN 必须显式注入：`permissions: contents: write` 只是授权，不会把 token
+        # 放进环境变量；gh CLI 缺它会直接报 "To use GitHub CLI in a GitHub Actions workflow,
+        # set the GH_TOKEN environment variable" 并 exit 4 —— 本步因此在 v1.9.2~v1.17.0 期间
+        # **从未成功过**（一直被 needs: php 挡在前面，所以从没暴露）。
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          NEW="$(bash scripts/bump-version.sh --create 2>&1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | tail -1)"
+          if [ -n "${SKIP_TAG:-}" ]; then
+            NEW="$(git tag --points-at "$GITHUB_SHA" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)"
+          else
+            NEW="$(bash scripts/bump-version.sh --create 2>&1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | tail -1)"
+          fi
           if [ -n "$NEW" ] && ! gh release view "$NEW" >/dev/null 2>&1; then
             # 标题只留 x.y.z（不带 v 前缀、不带附加文字）：tag 仍是 v 前缀以便
             # bump-version.sh 的版本递增，仅 Release 标题按纯版本号展示
