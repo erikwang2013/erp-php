@@ -43,7 +43,7 @@ cd /home/wwwroot/erp-php/service
 mysql -u root -p erp < database/install.sql
 ```
 
-`install.sql` 包含全部 163 张表的结构和初始种子数据（超级管理员角色、权限树、漏斗阶段、税率、币种、分析指标、文档分类、服务接口权限）；schema 以 database/install.sql 为唯一事实源。
+`install.sql` 包含全部 227 张表的结构和初始种子数据（超级管理员角色、权限树、漏斗阶段、税率、币种、分析指标、文档分类、服务接口权限）；schema 以 database/install.sql 为唯一事实源。
 
 ### 3. 配置环境变量
 
@@ -150,7 +150,7 @@ mysql -h mysql -u root -p erp < database/install.sql
 
 ---
 
-## 表清单（163 张表）
+## 表清单（227 张表）
 
 | 模块 | 表数 | 表名 |
 |------|------|------|

@@ -502,15 +502,18 @@
 ## 16. 国际化 (i18n)
 
 ### 16.1 语言自动检测
-- 请求头 `Accept-Language` 自动识别（zh-CN → 中文, en → 英文）
-- Locale 中间件在全局中间件链第一位执行
-- 回退链：当前语言 → 配置的 fallback_locale → 返回原始 key
+- 请求头 `Accept-Language` 自动识别（`app/common/I18n.php` 的 `getLocale()`）：只取首个语言标签（浏览器已按 q 值降序排列，不解析 q），`_` 归一为 `-` 并小写，只保留主语言子标签
+- 映射：`zh`（`zh-CN` / `zh-TW` / `zh_CN`）→ `zh_CN`；`en` / `ja` / `de` 等其余主语言原样返回（地区后缀忽略）；无请求头 → `config('translation.locale')`（`zh_CN`）
+- 支持 13 语种：`zh_CN` / `en` / `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id`
+- 回退链（`getTranslated()`）：非 en 请求 → 请求语种 → `zh_CN` → `en` → 返回 key 本身；**en 请求不落中文**（英文即 key：只查 `en` 词典，查不到即返回 key 原文）
+- 无 Locale 中间件：locale 仅在 `I18n::trans()` 调用时解析（CLI / 队列 / 测试等无请求上下文时回退配置值）
 
 ### 16.2 翻译文件
-- 目录：`resource/translations/{locale}/`
-- 通用消息：`common.php`（41 个键：成功/失败/创建/更新/删除/验证等）
-- 模块名称：`modules.php`（69 个键：商品/采购/销售/库存/财务/CRM 等）
-- 验证规则：`validation.php`（11 条规则 + 10 个字段标签）
+- 目录：`resource/translations/{locale}/`（13 个语种目录，各含 `common.php` / `modules.php` / `validation.php`）
+- 通用消息：`common.php`（428 个键：成功/失败/创建/更新/删除/验证等）
+- 模块名称：`modules.php`（84 个键：商品/采购/销售/库存/财务/CRM 等）
+- 验证规则：`validation.php`（zh_CN 12 个顶层键 / 21 个叶键；其余语种 21 个顶层键 / 30 个叶键，含 `attributes` 字段标签块）
+- `en` 词典近乎为空（`common.php` / `modules.php` 均 0 条，`validation.php` 的键为框架规则名）——英文即 key，词条查不到时返回 key 本身即英文原文
 
 ### 16.3 使用方式
 - 控制器内：`$this->trans('created')`

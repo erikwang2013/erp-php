@@ -18,7 +18,7 @@
 | 请求头 | 说明 |
 |--------|------|
 | `Authorization` | JWT Bearer Token |
-| `Accept-Language` | 国际化语言 (zh-CN/en) |
+| `Accept-Language` | 国际化语言，支持 13 语种（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id），缺省 `zh_CN` |
 
 > **版本说明**：全站路径版本化——管理端 `/admin/v1`、客户端 `/api/v1`、开放接口 `/open/v1`，
 > 版本号置于 URL 路径中，**无需任何版本请求头**；例外：`GET /api/docs`（OpenAPI 文档）与
@@ -40,22 +40,35 @@
 
 ### 国际化
 
-API 通过请求头 `Accept-Language` 自动切换语言：
+API 通过请求头 `Accept-Language` 自动切换语言，支持 13 语种：`zh_CN`（中文，默认）、`en`（English）、`ja`（日本語）、`ko`（한국어）、`de`（Deutsch）、`fr`（Français）、`es`（Español）、`pt`（Português）、`ru`（Русский）、`ar`（العربية）、`hi`（हिन्दी）、`bn`（বাংলা）、`id`（Bahasa Indonesia）。
 
-| 请求头值 | 语言 |
+| 请求头首个语言标签 | 解析为 |
 |---------|------|
-| `zh-CN`, `zh` | 中文（默认） |
-| `en`, `en-US` | English |
+| `zh`、`zh-CN`、`zh-TW` | `zh_CN` 中文（默认） |
+| `en`、`en-US` | `en` English |
+| `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id` | 对应语种（地区后缀被忽略，如 `de-DE` → `de`） |
+
+解析规则（`app/common/I18n.php` `getLocale()`）：
+
+- 浏览器按语言偏好降序排列标签，**只取首个标签**（逗号前的部分），不解析 q 值；
+- 忽略地区子标签，只保留主语言子标签（`zh-CN` → `zh`，`de-DE` → `de`）；
+- `zh*` 一律映射为 `zh_CN`；其余主语言子标签原样使用；
+- 请求头缺失或为空时使用 `config('translation.locale')` = `zh_CN`。
+
+回退链（`trans()`）：请求语种 → `zh_CN` → `en` → 返回 key 本身（英文即 key，故 key 即英文原文）。**`en` 不参与回退**——请求 `en` 时只查 `en` 词典，查不到直接返回 key（英文原文），不会落回中文。
 
 ```bash
 # 英文响应
 curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
 
+# 日文响应
+curl -H "Accept-Language: ja" http://localhost:8788/admin/v1/product
+
 # 中文响应（默认）
 curl http://localhost:8788/admin/v1/product
 ```
 
-响应中的 `message` 字段会使用对应语言返回。
+响应中的 `message` 字段会使用对应语言返回。词典文件位于 `resource/translations/<locale>/{common,modules,validation}.php`。
 
 ### 请求要求
 

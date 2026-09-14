@@ -13,6 +13,8 @@ flowchart TB
     subgraph "客户端层"
         A1["Flutter Web<br/>PC 管理后台<br/>(Port 3000)"]
         A2["HarmonyOS ArkTS<br/>手机/平板客户端"]
+        A3["Angular 22 + ng-zorro<br/>Web 管理后台"]
+        A4["React 19 + Vite<br/>Web 管理后台"]
     end
 
     subgraph "网关/边缘层 (Nginx Edge)"
@@ -20,7 +22,7 @@ flowchart TB
     end
 
     subgraph "应用层 (webman v2)"
-        C_LOC["Locale 中间件<br/>Accept-Language 自动检测"]
+        C_LOC["I18n::getLocale()<br/>Accept-Language 解析 · 13 语种"]
         C0["路径版本化<br/>/api/v1 · /admin/v1（无版本头）"]
         C1["AdminAuth 中间件<br/>JWT 验证"]
         C2["AdminPermission 中间件<br/>RBAC 权限校验"]
@@ -42,6 +44,8 @@ flowchart TB
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -57,6 +61,8 @@ flowchart TB
 
     style A1 fill:#1677FF,color:#fff
     style A2 fill:#1677FF,color:#fff
+    style A3 fill:#1677FF,color:#fff
+    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -80,7 +86,7 @@ flowchart TD
     end
 
     subgraph "中间件层 Middleware Layer"
-        M_LOC["Locale<br/>Accept-Language 自动检测<br/>zh_CN/en"]
+        M_LOC["I18n::getLocale()<br/>Accept-Language 解析（非中间件）<br/>13 语种 zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
         M_RL["RateLimit<br/>Redis 滑动窗口限流<br/>X-RateLimit 响应头"]
         M_SF["SecurityFilter<br/>攻击检测拦截<br/>XSS/SQL注入/路径遍历/CSRF"]
         M0["ApiVersion<br/>API 版本校验<br/>注入 apiVersion"]
@@ -147,8 +153,23 @@ flowchart TD
 
 | 层级 | 目录 | 说明 |
 |------|------|------|
-| 业务控制器 | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70 个，按模块划分，处理业务请求 |
-| 业务服务 | `app/service/{inventory,finance,notification}/` | 库存出入库+成本核算、财务应收应付+核销、通知发送 |
+| 业务控制器 | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 个（23 个业务域，另有顶层 Install / Index），按模块划分，处理业务请求 |
+| 业务服务 | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 个服务类 / 20 个模块子目录；含库存出入库+成本核算、财务应收应付+核销、通知发送 |
+
+### 国际化（13 语种）
+
+语种解析在 `app/common/I18n.php` 的 `getLocale()`（由 `I18n::trans()` 调用，**不是中间件**）：取请求头 `Accept-Language` 首个标签、主语言子标签映射（`zh*` → `zh_CN`）。前后端词典分工：
+
+| 端 | 词典位置 | 规模 | 生成器 |
+|----|----------|------|--------|
+| 后端 | `resource/translations/<locale>/{common,modules,validation}.php` | 13 个语种目录；11 个语种各 543 条，`zh_CN` 535、`en` 31 | `scripts/gen-be-locales.mjs` |
+| Angular | 源 `apps/angular/src/app/core/zh-en/part1..4.ts` → 产物 `core/zh-<code>.ts` | 源词典 1453 条 | `scripts/gen-fe-locales.mjs --app angular` |
+| React | 源 `apps/react/src/lib/i18n/zhEn.ts` → 产物 `lib/i18n/zh<Code>.ts` | 源词典 1447 条 | `scripts/gen-fe-locales.mjs --app react` |
+
+- 语种：`zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`。
+- 后端「英文即 key」：`en` 的 common/modules 留空；`validation.php` 的键是框架规则名，只译值。
+- 前端 11 个新语种词典各自 `import()` 动态加载为独立 chunk，缺词条回退中文原文。
+- 切换语言即切换 `Accept-Language`，后端按语种返回文案（`app/common/I18n.php` + `config/translation.php`）。
 
 ---
 
@@ -158,7 +179,7 @@ flowchart TD
 sequenceDiagram
     participant C as 客户端
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_LOC as I18n
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
     participant MW0 as ApiVersion
@@ -712,10 +733,12 @@ graph TB
         FW["Flutter Web<br/>PC管理后台"]
         FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
         HW["HarmonyOS<br/>鸿蒙原生App"]
+        NG["Angular 22 + ng-zorro<br/>Web管理后台"]
+        RC["React 19 + Vite<br/>Web管理后台"]
     end
 
     subgraph Gateway["API 网关层"]
-        MW["中间件链<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["中间件链<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>路由组：AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["业务模块层"]
@@ -742,7 +765,7 @@ graph TB
     end
 
     subgraph Data["数据层"]
-        MySQL["MySQL 8.0<br/>226张业务表"]
+        MySQL["MySQL 8.0<br/>227张业务表"]
         Redis["Redis 7<br/>缓存/限流/Session"]
         ES["Elasticsearch 8<br/>全文检索"]
     end
@@ -877,22 +900,25 @@ sequenceDiagram
 
 | 模块 | Controllers (目录) | 核心Service | 主要Model | 表数 |
 |------|-------------------|-------------|-----------|------|
-| 系统管理 | admin/controller/ (14个) | - ⚠控制器直查模型，已知技术债 | AdminUser, AdminRole, AdminPermission | 7 |
-| 商品管理 | controller/product/ (7个) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
-| 采购管理 | controller/purchase/ (5个) | InventoryService, FinanceService ⚠CRUD仍直查，已知技术债 | PurchaseOrder, PurchaseReceive | 9 |
+| 系统管理 | admin/controller/ (16个) | - ⚠控制器直查模型，已知技术债 | AdminUser, AdminRole, AdminPermission | 7 |
+| 商品管理 | controller/product/ (8个) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
+| 采购管理 | controller/purchase/ (8个) | InventoryService, FinanceService ⚠CRUD仍直查，已知技术债 | PurchaseOrder, PurchaseReceive | 9 |
 | 销售管理 | controller/sales/ (5个) | InventoryService, FinanceService ⚠CRUD仍直查，已知技术债 | SalesOrder, SalesDelivery | 9 |
-| 库存管理 | controller/inventory/ (5个) | InventoryService ⚠CRUD仍直查，已知技术债 | Inventory, InventoryFlow, CostRecord | 11 |
-| 财务管理 | controller/finance/ (20个) | FinanceService ⚠CRUD仍直查，已知技术债 | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| 库存管理 | controller/inventory/ (6个) | InventoryService ⚠CRUD仍直查，已知技术债 | Inventory, InventoryFlow, CostRecord | 11 |
+| 财务管理 | controller/finance/ (28个) | FinanceService ⚠CRUD仍直查，已知技术债 | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
 | CRM | controller/crm/ (10个) | CrmService | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
-| 审批工作流 | controller/workflow/ (2个) | - ⚠控制器直查模型，已知技术债 | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
-| 消息通知 | controller/notification/ (1个) | NotificationService ⚠CRUD仍直查，已知技术债 | Notification, NotificationSetting, NotificationTemplate | 3 |
-| 项目管理 | controller/project/ (3个) | - ⚠控制器直查模型，已知技术债 | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| 人力资源 | controller/hr/ (5个) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
-| 生产制造 | controller/manufacturing/ (5个) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| 审批工作流 | controller/workflow/ (3个) | - ⚠控制器直查模型，已知技术债 | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
+| 消息通知 | controller/notification/ (2个) | NotificationService ⚠CRUD仍直查，已知技术债 | Notification, NotificationSetting, NotificationTemplate | 3 |
+| 项目管理 | controller/project/ (4个) | - ⚠控制器直查模型，已知技术债 | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
+| 人力资源 | controller/hr/ (9个) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
+| 生产制造 | controller/manufacturing/ (13个) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
 | 自定义报表 | controller/report/ (2个) | - ⚠控制器直查模型，已知技术债 | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
-| EAM 设备管理 | controller/eam/ (4个) | - ⚠控制器直查模型，已知技术债 | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart | 4 |
+| EAM 设备管理 | controller/eam/ (5个) | - ⚠控制器直查模型，已知技术债 | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 4 |
 | DMS 文档管理 | controller/dms/ (2个) | - ⚠控制器直查模型，已知技术债 | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
 | BI 看板 | controller/bi/ (3个) | - ⚠控制器直查模型，已知技术债 | BiDashboard, BiWidget | 2 |
+
+> 本表为早期模块映射（系统管理 + 15 个业务域）；后续新增的 oms / wms / tms / quality / open / platform / print / retail 8 个域未列入，
+> 全量清单见 `docs/CLAUDE.md` 项目结构树（`app/controller/` 共 23 个模块目录 / 139 个控制器，含顶层 Install、Index）。
 
 ### 20.1 P2-F2 服务层轻量提取记录（crm/hr/manufacturing/product 已完成抽取）
 
@@ -979,10 +1005,10 @@ P0(3-4周) → P1(4-6周) → P2(1-2周) → P3(2-3周) = 总计约13周
 ### 21.3 中间件链演进
 
 ```
-现状:   Locale → Cors → SecurityFilter → RateLimit → TracingId → {路由组}
-P1 后:  Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {路由组}
-P2 后:  Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {路由组}
-P3 后:  Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {路由组}
+现状:   Cors → SecurityFilter → RateLimit → TracingId → {路由组}
+P1 后:  Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {路由组}
+P2 后:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {路由组}
+P3 后:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {路由组}
 ```
 
 ### 21.4 P0 目标架构 — Flutter Web 管理面板
@@ -1028,7 +1054,7 @@ SaaS 计费、租户自助开通等"多租户完整商业化方案"不在本项�
 决策依据（2026-08 评审）：
 - 现有部署几乎全部为单租户，接线会引入不必要的隔离复杂度与回归风险；
 - 当前骨架存在技术缺陷（见 22.4），"接线即隔离"不成立，需先完成设计修正；
-- 隔离需为 226中的业务表逐表加列、逐模型启用，成本远超"最小接线"。
+- 隔离需为 227 张业务表逐表加列、逐模型启用，成本远超"最小接线"。
 
 ### 22.2 现状事实（代码与配置核对）
 
@@ -1036,7 +1062,7 @@ SaaS 计费、租户自助开通等"多租户完整商业化方案"不在本项�
 |----|------|
 | `app/middleware/TenantScope.php` | 存在，未注册；从 `X-Tenant-Id` 头读取租户，头缺失时直接放行 |
 | `app/model/concerns/TenantScope.php` | 存在，无模型使用；`bootTenantScope()` 全局作用域仅在设置租户后过滤 |
-| `config/middleware.php` | 全局链：Locale → Cors → SecurityFilter → RateLimit → TracingId，无 TenantScope |
+| `config/middleware.php` | 全局链：Cors → SecurityFilter → RateLimit → TracingId，无 TenantScope |
 | `config/route.php` /admin 组 | AdminAuth → AdminPermission → OperationLog，无 TenantScope |
 | JWT 载荷 | 仅 `sub` / `username` / `token_type`，**无 tenant_id 声明**（`app/api/v1/controller/AuthController.php`） |
 | 数据库 | **全库无 tenant_id 列**（install.sql 亦无） |

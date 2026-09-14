@@ -82,6 +82,20 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - Web 端按 PC 管理后台风格设计（非移动端 App 风格）
 - 支持客户端和管理员端
 - HarmonyOS ArkTS，源码目录 `apps/harmonyos/`
+- Angular 22 CLI + ng-zorro-antd，源码目录 `apps/angular/`（Web 管理后台）
+- React 19 + Vite，源码目录 `apps/react/`（Web 管理后台）
+- 四端同源后端：Angular / React 与 Flutter 一样走 `/admin/v1`、`/api/v1`、`/open/v1`，开发期由各自 dev server 代理到 webman
+
+### 国际化（13 语种）
+- 语种清单：`zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
+- 后端词典：`resource/translations/<locale>/{common,modules,validation}.php`，13 个语种目录；11 个语种各 543 条，`zh_CN` 535、`en` 31
+  - 「英文即 key」：`en` 的 common/modules 留空；`validation.php` 的键是框架规则名，只译值
+  - 生成器：`scripts/gen-be-locales.mjs`
+- 前端词典（Angular）：源 `apps/angular/src/app/core/zh-en/part1..4.ts`（1453 条）→ 产物 `apps/angular/src/app/core/zh-<code>.ts`
+- 前端词典（React）：源 `apps/react/src/lib/i18n/zhEn.ts`（1447 条）→ 产物 `apps/react/src/lib/i18n/zh<Code>.ts`
+  - 11 个新语种词典各自动态 `import()` 成独立 chunk，缺词条回退中文原文
+  - 生成器：`scripts/gen-fe-locales.mjs --app angular|react`
+- 运行期：切换语言即切换请求头 `Accept-Language`，后端按语种返回文案（`app/common/I18n.php` + `config/translation.php`）
 
 ## 项目结构
 
@@ -124,7 +138,7 @@ open-erp/
 │   │   ├── wms/                 # 库区库位/ASN收货/上架/波次/拣货/打包 (8个)
 │   │   ├── tms/                 # 承运商/费率/运单/面单/轨迹 (6个)
 │   │   ├── quality/             # IQC/IPQC/OQC/检验标准/不合格品 (5个)
-│   │   ├── eam/                 # 设备/保养计划/维修工单/备件 (4个)
+│   │   ├── eam/                 # 设备/保养计划/维修工单/备件/点检 (5个)
 │   │   ├── dms/                 # 文档分类/文档/版本 (2个)
 │   │   ├── open/                # 开放 API (1个)
 │   │   ├── platform/            # 自定义字段/租户 (2个)
@@ -135,12 +149,14 @@ open-erp/
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
 │   │   ├── notification/        # NotificationService: 通知发送
-│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/  # 订单/仓储/运输/质检/人事/制造服务
-│   ├── common/                  # 公共工具类（容器注册，4 个）
+│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/…  # 订单/仓储/运输/质检/人事/制造等（共 20 个模块子目录）
+│   ├── common/                  # 公共工具类（6 个）
 │   │   ├── HashidsService.php   # ID 编解码
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
 │   │   ├── EncryptionService.php# 数据加解密 + 脱敏
-│   │   └── I18n.php             # 国际化翻译
+│   │   ├── I18n.php             # 国际化翻译
+│   │   ├── CorsPolicy.php       # CORS 策略（middleware/Cors 与 route.php 调用）
+│   │   └── AddressValidator.php # 地址校验（多国邮编格式 + 表单字段）
 │   ├── middleware/              # 中间件（11 个）
 │   │   ├── Cors.php             # 跨域
 │   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
@@ -152,7 +168,7 @@ open-erp/
 │   │   ├── TracingId.php        # 全链路 TraceId
 │   │   ├── TrackingSignature.php# 请求签名校验
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
-│   ├── model/                   # 数据模型（225 个）
+│   ├── model/                   # 数据模型（224 个；连 concerns/TenantScope trait 共 225 个文件）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, Monitor)
 ├── apps/
@@ -162,6 +178,14 @@ open-erp/
 │   │       ├── services/        # ApiService + AuthService + CaptchaService + ExportService
 │   │       ├── layouts/        # 响应式布局
 │   │       └── theme/          # Material 3 主题
+│   ├── angular/                 # Angular 22 CLI + ng-zorro-antd Web 管理后台
+│   │   └── src/app/
+│   │       ├── core/            # ApiService / AuthStore / I18n 服务 + 语种词典（zh-en/ 源，zh-<code>.ts 产物）
+│   │       └── config/ layout/ pages/ ui/
+│   ├── react/                   # React 19 + Vite Web 管理后台
+│   │   └── src/
+│   │       ├── lib/i18n/        # 源词典 zhEn.ts + 11 个语种 zh<Code>.ts（按语种懒加载）
+│   │       └── components/ layout/ pages/ state/ config/domains/ styles/
 │   └── harmonyos/              # HarmonyOS 客户端
 ├── config/                     # 配置文件
 │   ├── route.php               # 路由 + API 版本策略

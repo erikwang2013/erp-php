@@ -10,7 +10,7 @@
 
 ## 项目简介
 
-open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进销存（采购/销售/库存）、财务核算、生产制造（BOM/MRP/工序报工/产能负荷）、CRM、审批工作流、人力资源、消息通知与自定义报表等完整业务域。后端基于 webman v2 + MySQL 8.0 构建（表前缀 `erp_`，Snowflake 全局唯一主键），管理端采用 Flutter 3.x（`apps/flutter/`），移动端配套 HarmonyOS 原生客户端（`apps/harmonyos/`）。
+open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进销存（采购/销售/库存）、财务核算、生产制造（BOM/MRP/工序报工/产能负荷）、CRM、审批工作流、人力资源、消息通知与自定义报表等完整业务域。后端基于 webman v2 + MySQL 8.0 构建（表前缀 `erp_`，Snowflake 全局唯一主键），管理端提供 Angular 22（`apps/angular/`）、React 19 + Vite（`apps/react/`）与 Flutter 3.x Web（`apps/flutter/`）三套实现，移动端配套 HarmonyOS 原生客户端（`apps/harmonyos/`）。
 
 系统以**单据驱动、自动联动**为核心设计：业务单据审核自动触发库存变动、应收应付生成与成本归集；审批工作流与消息通知贯穿全部关键单据；MRP 依据销售订单与 BOM 计算物料需求并生成采购/生产建议，形成从销售接单到采购收货、从生产排产到财务结账的端到端业务闭环。
 
@@ -21,7 +21,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 - **配置化能力**：多节点审批工作流（含可视化流程设计器画布）、单据打印模板引擎（占位符渲染 + dompdf 出 PDF + 二维码标签）、客户信用额度实时拦截、批次/序列号全链路正反向追溯
 - **数据可追溯**：业务流水逐笔留痕，库存批次与序列号贯穿 入库→领用→出库→追溯 全生命周期，成本核算到单据行级
 - **部署友好**：Docker Compose v2 一键启动（MySQL/Redis/Elasticsearch），本地 `composer install` 亦可直接运行
-- **国际化**：管理端中文/英文双语界面，README 提供 12+ 语言文档，API 层 Accept-Language 自动检测
+- **国际化**：13 语种（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id），后端消息与 Angular/React 双管理端界面全覆盖，前端词典按语种懒加载，README 另提供 12 语言文档
 
 ## 功能清单
 
@@ -75,6 +75,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 | | 单据打印模板引擎 | 占位符渲染 + dompdf PDF + 二维码标签 |
 | | 表单自定义字段 | 主档表 custom_fields JSON 扩展 + 校验 |
 | | 多租户架构 | erp_tenant 租户 + TenantScope 请求上下文 + 到期计费（中间件 seam 预留未注册）|
+| | 多语言 | 13 语种（后端消息 + Angular/React 双管理端界面），词典按语种懒加载成独立 chunk，切换入口常驻顶栏 globe 与个人中心下拉 |
 
 ## ERP 模块
 
@@ -103,7 +104,9 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 | PHP 版本 | 8.3+ | |
 | 数据库 | MySQL 8.0+ | 表前缀 `erp_`，BIGINT 非自增主键 |
 | 搜索引擎 | Elasticsearch | 通过 `webman-scout` 同步与查询 |
-| 管理端前端 | Flutter 3.x | Web 端为 PC 管理后台风格（`apps/flutter/`） |
+| 管理端前端 A | Angular 22 | config 驱动资源页，`ResourcePage` 渲染引擎（`apps/angular/`） |
+| 管理端前端 B | React 19 + Vite | 与 Angular 同源的 config 驱动 + 样式令牌（`apps/react/`） |
+| 管理端前端 C | Flutter 3.x | Web 端为 PC 管理后台风格（`apps/flutter/`） |
 | 移动端 | HarmonyOS ArkTS | 鸿蒙原生客户端（`apps/harmonyos/`），支持手机/平板/2in1 |
 
 ## 核心依赖
@@ -125,7 +128,19 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 
 ## 国际化
 
-国际化 | Accept-Language 头自动检测 | 中文/English 双语支持
+系统支持 **13 语种**：`zh`（默认）、`en`、`ja`、`ko`、`de`、`fr`、`es`、`pt`、`ru`、`ar`、`hi`、`bn`、`id`。
+
+| 层 | 词典位置 | 规模 |
+|---|---------|------|
+| 后端消息 | `resource/translations/{语种}/` | 13 个语种目录，11 个新语种各 543 条，另 `zh_CN` 535、`en` 31 |
+| Angular 管理端 | `apps/angular/src/app/core/zh-*.ts`（源词典 `zh-en/`） | 源词典 1453 键 × 11 新语种 |
+| React 管理端 | `apps/react/src/lib/i18n/zh*.ts` | 源词典 1447 键 × 11 新语种 |
+
+- **后端「英文即 key」**：后端消息键本身为英文文案，`en` 只维护框架规则名等少量映射，无需完整词典
+- **按语种懒加载**：前端 12 份词典各自打包成独立 chunk，切换语言时按需拉取，不压首屏体积
+- **切换入口**：顶栏独立 globe 图标 + 个人中心下拉（Angular/React 两端一致）
+- **接口层**：请求头 `Accept-Language` 自动检测（zh-CN → 中文，en → English，其余语种按清单匹配），默认中文
+- **生成器**：`scripts/gen-be-locales.mjs`（后端）、`scripts/gen-fe-locales.mjs --app angular|react`（前端），支持断点续跑
 
 ## 项目结构
 
@@ -134,11 +149,11 @@ open-erp/
 ├── app/
 │   ├── admin/controller/       # 系统管理控制器 (16 个)
 │   ├── api/v1/controller/      # 客户端 API（版本置于路径 /api/v1，无版本请求头）
-│   ├── controller/             # 业务模块控制器 (136 个，23 域)
-│   │   ├── product/            # 商品/分类/品牌/仓库/库位/供应商/客户 (7 个)
-│   │   ├── purchase/           # 采购申请/订单/收货/退货/结算 (5 个)
+│   ├── controller/             # 业务模块控制器 (139 个，23 域)
+│   │   ├── product/            # 商品/分类/品牌/仓库/库位/供应商/客户 (8 个)
+│   │   ├── purchase/           # 采购申请/订单/收货/退货/结算 (8 个)
 │   │   ├── sales/              # 销售报价/订单/发货/退货/结算 (5 个)
-│   │   ├── inventory/          # 库存/流水/调拨/盘点/预警 (5 个)
+│   │   ├── inventory/          # 库存/流水/调拨/盘点/预警 (6 个)
 │   │   ├── finance/            # 应收应付/凭证/收付款/日记账/总账/明细账/报表/资产/税务/多币种/预算/成本利润中心/票据/对账/发票 (28 个)
 │   │   ├── crm/                # 商机/跟进/漏斗/联系人/公海池/合同/报价/营销/工单/分析 (10 个)
 │   │   ├── workflow/           # 工作流定义/审批/流程设计器 (3 个)
@@ -156,33 +171,37 @@ open-erp/
 │   │   ├── dms/                # 文档管理 (2 个)
 │   │   ├── oms/                # OMS订单/履约/RMA/渠道 (4 个)
 │   │   ├── wms/                # 库区/库位/ASN/收货/上架/波次/拣货/打包 (8 个)
-│   │   └── tms/                # 承运商/服务/费率/运单/轨迹/运费发票 (6 个)
-│   ├── service/                # 业务逻辑层
+│   │   ├── tms/                # 承运商/服务/费率/运单/轨迹/运费发票 (6 个)
+│   │   └── open/               # 开放平台接口 (1 个)
+│   ├── service/                # 业务逻辑层 (63 个)
 │   │   ├── inventory/          # 出入库 + 移动加权平均成本核算 + 库存预占/ATP
 │   │   ├── finance/            # 应收应付自动生成 + 核销
 │   │   ├── notification/       # 通知发送服务
 │   │   ├── oms/                # 订单编排/库存分配/RMA生命周期
 │   │   ├── wms/                # 入库流程(ASN→收货→上架) / 出库流程(波次→拣货→打包)
 │   │   └── tms/                # 运单管理/运费比价/物流轨迹
-│   ├── model/                  # 223 个 Eloquent 模型（多模块共用）
+│   ├── model/                  # 224 个 Eloquent 模型（多模块共用）
 │   ├── middleware/             # 11 个中间件（ApiVersion 已移除，版本走路径）
 │   ├── common/                 # Hashids/Snowflake/Encryption 服务
 │   └── queue/                  # 队列任务
 ├── apps/
+│   ├── angular/                # Angular 22 管理端（config 驱动资源页，ng serve :4200）
+│   ├── react/                  # React 19 + Vite 管理端（Vite :5173）
 │   ├── flutter/                # Flutter 跨平台（Web PC + iOS/Android/macOS/Windows/Linux）
 │   └── harmonyos/              # HarmonyOS 原生客户端
 ├── config/                     # 配置文件（含中文注释）
 │   ├── plugin/hg/apidoc/        # API 文档配置
 ├── database/
-│   ├── install.sql              # 完整安装SQL（226张表 + 种子数据）
+│   ├── install.sql              # 完整安装SQL（227张表 + 种子数据）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
 ├── tests/                      # PHPUnit 测试（<!-- stats:test_files=108 --> 个测试文件，<!-- stats:tests=960 --> 个测试方法，<!-- stats:assertions=4608 --> 条断言）
 ├── resource/
-│   └── translations/           # 翻译文件 (zh_CN, en)
-│       ├── zh_CN/              # 中文翻译 (127 键)
-│       └── en/                 # English translations (127 keys)
+│   └── translations/           # 13 语种后端消息词典 (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
+│       ├── zh_CN/              # 中文翻译 (535 条)
+│       ├── en/                 # 英文即 key，仅框架规则名等 31 条
+│       └── ja|ko|de|.../       # 其余 11 语种各 543 条（生成器 scripts/gen-be-locales.mjs）
 ├── public/                     # 公共入口
 ├── runtime/                    # 运行时文件
 └── vendor/                     # Composer 依赖
@@ -208,13 +227,13 @@ open-erp/
 
 ![Functional Modules](./docs/diagrams/functional-modules-cn.svg)
 
-**23 大业务域、226 张数据表、154 个控制器**: 涵盖认证安全、仪表盘、系统管理、安全防护、运维监控、商品管理、采购、销售、库存、财务(14子模块)、CRM(10子模块)、审批工作流、消息通知、项目管理、人力资源、生产制造(MRP)、自定义报表、订单管理(OMS)、仓储管理(WMS)、运输管理(TMS)、质量管理(QMS)、设备管理(EAM)、文档管理(DMS)、BI看板。
+**23 大业务域、227 张数据表、159 个控制器**: 涵盖认证安全、仪表盘、系统管理、安全防护、运维监控、商品管理、采购、销售、库存、财务(14子模块)、CRM(10子模块)、审批工作流、消息通知、项目管理、人力资源、生产制造(MRP)、自定义报表、订单管理(OMS)、仓储管理(WMS)、运输管理(TMS)、质量管理(QMS)、设备管理(EAM)、文档管理(DMS)、BI看板。
 
 ### 请求生命周期
 
 ![Request Lifecycle](./docs/diagrams/request-lifecycle-cn.svg)
 
-**从客户端到数据库的完整请求路径**: 客户端(Flutter/鸿蒙) → Nginx SSL终止 → 语言检测 → 跨域处理 → 安全过滤器 → 限流 → API版本校验 → [管理端: JWT认证 → RBAC权限 → 操作日志] → 控制器 → 服务层 → 模型层 → 缓存/数据库/搜索引擎 → JSON响应。图中包含缓存命中和缓存未命中两条路径。
+**从客户端到数据库的完整请求路径**: 客户端(Angular/React/Flutter/鸿蒙) → Nginx SSL终止 → 跨域处理 → 安全过滤器 → 限流 → [管理端: JWT认证 → RBAC权限 → 操作日志] → 控制器 → 服务层 → 模型层 → 缓存/数据库/搜索引擎 → JSON响应。图中包含缓存命中和缓存未命中两条路径。（API 版本已并入 URL 路径，无独立校验步骤；语种由 `app/common/I18n.php` 从 `Accept-Language` 解析。）
 
 ### 安全纵深防御架构
 
@@ -289,7 +308,7 @@ bash scripts/gen-env-keys.sh .env
 mysql -u root -p 数据库名 < database/install.sql
 ```
 
-`install.sql` 为单文件完整基线，包含全部 226 张表结构和种子数据。
+`install.sql` 为单文件完整基线，包含全部 227 张表结构和种子数据。
 
 **方式三：Docker 环境**
 
@@ -341,7 +360,7 @@ docker compose ps --format "table {{.Name}}\t{{.Status}}"
 # docker compose down -v   （⚠️ 会删除 MySQL/Redis/ES 数据，仅首次排障时使用）
 ```
 
-- `Dockerfile`: PHP 8.3 + OPcache + Composer，基于 `php:8.3-cli`
+- `Dockerfile`: PHP 8.3 + OPcache + Composer，基于 `php:8.3-cli-alpine`
 - `docker-compose.yml`: 5 个服务编排，网络隔离，数据卷持久化
 - `.env.docker`: Docker 环境专用环境变量
 
@@ -403,7 +422,7 @@ SCOUT_SOFT_DELETE=true
 
 ### 5. 多语言
 
-通过请求头 `Accept-Language` 自动切换（zh-CN / en），默认中文。
+通过请求头 `Accept-Language` 自动切换，支持 13 语种（`zh` 默认，另 `en`/`ja`/`ko`/`de`/`fr`/`es`/`pt`/`ru`/`ar`/`hi`/`bn`/`id`）；Angular/React 管理端另有顶栏 globe 图标与个人中心下拉切换。详见[国际化](#国际化)。
 
 ## 数据库规范
 
@@ -471,7 +490,7 @@ http://localhost:8788/apidoc
 
 ### 国际化
 
-请求头 `Accept-Language` 自动切换语言（zh-CN → 中文, en → English），默认中文。
+请求头 `Accept-Language` 自动切换语言，支持 13 语种（`zh` 默认，另 `en`/`ja`/`ko`/`de`/`fr`/`es`/`pt`/`ru`/`ar`/`hi`/`bn`/`id`）。
 
 ### ID 处理
 
@@ -481,14 +500,11 @@ http://localhost:8788/apidoc
 
 ### API 版本
 
-API 版本通过请求头控制，**不在 URL 中体现**：
+API 版本置于 URL 路径（如 `/admin/v1/*`、`/api/v1/*`、`/open/v1/*`），**客户端无需任何版本请求头**：
 
-```http
-```
-
-- 未携带版本号时默认使用 `v1`
-- 不支持的版本返回 `400 Bad Request`
-- 新增版本时只需创建 `app/api/{version}/controller/` 目录，中间件注册新版本即可
+- 版本化公开接口直接绑定对应版本控制器类（`app/api/v1/controller/`）
+- 新增版本时注册新的 `/api/vN` 路由分组，控制器按版本存放于 `app/api/vN/`
+- 历史的 `v()` 动态解析与 `ApiVersion` 请求头中间件均已移除
 
 ### 限流
 
@@ -500,20 +516,18 @@ API 版本通过请求头控制，**不在 URL 中体现**：
 
 ### 中间件架构
 
-全局中间件对所有请求生效，按序执行：
+全局中间件（`config/middleware.php`）对所有请求生效，按序执行：
 
 ```
-Locale（Accept-Language 自动检测，设置语言环境）
-  → Cors（跨域预处理 + 响应头）
+Cors（跨域预处理 + 响应头）
   → SecurityFilter（HTTP方法限制/请求体大小/Content-Type校验/XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截）
   → RateLimit（Redis 滑动窗口限流 + 账号锁定：5次登录失败锁定15分钟）
-  → ApiVersion（API 版本校验，/api 路由组）
-  → AdminAuth（JWT 认证 + 黑名单，/admin 路由组）
-  → AdminPermission（RBAC 鉴权，/admin 路由组）
-  → OperationLog（POST/PUT/DELETE 自动记录，含来源端检测，/admin 路由组）
+  → TracingId（链路追踪 ID）
 ```
 
-`/health` 和 `/api/docs` 和 `/install` 为公开端点，仅经过 `Locale → Cors → SecurityFilter → RateLimit`。
+路由组中间件：`/admin/v1` 挂 `AdminAuth（JWT 认证 + 黑名单）→ AdminPermission（RBAC 鉴权）→ OperationLog（POST/PUT/DELETE 自动记录，含来源端检测）`；`/open/v1` 挂 `OpenApiAuth`；TMS 轨迹回调挂 `TrackingSignature`。语种由 `app/common/I18n.php` 从 `Accept-Language` 解析，非中间件。
+
+`/health` 和 `/api/docs` 和 `/install` 为公开端点，仅经过 `Cors → SecurityFilter → RateLimit → TracingId`。
 
 安全增强：
 - **账号锁定**：连续 5 次登录失败，账号自动锁定 15 分钟，期间登录返回 429
@@ -649,7 +663,7 @@ npm run build      # tsc --noEmit + vite build，产物 dist/
 | `redis` | redis:7-alpine | 6379 |
 | `elasticsearch` | elasticsearch:8.x | 9200 |
 
-PHP 镜像通过 `Dockerfile` 构建，基础镜像 `php:8.3-cli`，启用 OPcache。
+PHP 镜像通过 `Dockerfile` 构建，基础镜像 `php:8.3-cli-alpine`，启用 OPcache。
 
 ```bash
 cp .env.docker .env

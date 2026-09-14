@@ -4,7 +4,7 @@
 
 ## 概述
 
-开放ERP系统 (open-erp) 覆盖 19 个业务域 <!-- stats:modules=23 -->，163 张数据表 <!-- stats:tables=227 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 中文/English 双语支持，Accept-Language 请求头自动切换。
+开放ERP系统 (open-erp) 覆盖 23 个业务域 <!-- stats:modules=23 -->，227 张数据表 <!-- stats:tables=227 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 13 语种支持（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia），Accept-Language 请求头自动切换。
 
 > API 文档: 启动服务后访问 `http://localhost:8788/apidoc` 查看交互式接口文档（erikwang2013/apidoc-php 自动生成）
 
@@ -586,7 +586,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 ---
 
-## 19. 模块完成度矩阵 (2026-09-05 校正)
+## 19. 模块完成度矩阵 (2026-09-05 校正；v1.17.0 批次 2026-09-15)
 
 ### 状态图例
 
@@ -646,6 +646,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 设备管理 EAM | ✅ | ✅ | ⚠️ 4/5 | 🔴 | v1.4.0 |
 | 多租户 | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 部分启用 |
 | 文档管理 DMS | ✅ | ✅ | ⚠️ 1/2 | 🔴 | 🟣 P3 |
+| 多语言 (i18n) | ✅ | ✅ | ⚠️ 仅中/英 | ⚠️ 仅中/英 | v1.17.0 |
 | 可观测性 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 | 迁移回滚/备份 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 
@@ -653,11 +654,11 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 维度 | ✅ 完成 | ⚠️ 骨架 | 🔴 缺失 | N/A | 完成率 |
 |------|---------|----------|---------|-----|--------|
-| 模块 (44) | 33 | 11 | 0 | 0 | 75% |
-| 后端 API | 39 | 4 | 1 | 0 | 89% |
-| 业务逻辑 | 33 | 7 | 4 | 0 | 75% |
-| Flutter 前端 | 12 | 11 | 19 | 2 | 29% |
-| HarmonyOS | 0 | 12 | 30 | 2 | 0%（✅ 计；12 行已有页面 ⚠️）|
+| 模块 (45) | 34 | 11 | 0 | 0 | 76% |
+| 后端 API | 40 | 4 | 1 | 0 | 89% |
+| 业务逻辑 | 34 | 7 | 4 | 0 | 76% |
+| Flutter 前端 | 12 | 12 | 19 | 2 | 28% |
+| HarmonyOS | 0 | 13 | 30 | 2 | 0%（✅ 计；13 行已有页面 ⚠️）|
 
 > **统计口径（2026-09-05 校正）**：模块行按「后端 API 与业务逻辑均实现」计——双 ✅=完成，
 > 未达双 ✅ 即计骨架 ⚠️（含「部分启用」行：多租户 B5 隔离中间件未注册等历史待补项，见代码证据）；
@@ -666,12 +667,15 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 > （`n/n` 或页数标注）；⚠️=有页面但页面文件数 < 后端控制器数（部分覆盖）；🔴=无页面；**待核**=页面存在但
 > 动作深度（增删改查闭环）未逐页核验。页面数 = 2026-08-27 实测
 > `apps/flutter/lib/app/pages/<模块>/` 与 `apps/harmonyos/entry/src/main/ets/pages/**` 文件数（Flutter 107 页、HarmonyOS 35 页），
-> 未纳入后端 doc-stats 校验；HarmonyOS 完成率 0% 系 ✅ 计数（0/42），实际 12 行已有页面（⚠️ 部分覆盖），非整列缺失。
-> **v1.4.0 批次（2026-09-05）**：44 行中 22 行标注 v1.4.0（含 2 行「部分启用」= 多租户 B5 与多租户行），
+> 未纳入后端 doc-stats 校验；HarmonyOS 完成率 0% 系 ✅ 计数（0/43），实际 13 行已有页面（⚠️ 部分覆盖），非整列缺失。
+> **v1.17.0 批次（2026-09-15）**：新增「多语言 (i18n)」行（45 行中 1 行标注 v1.17.0）——后端 13 语种词典
+> （`resource/translations/<locale>/`，13 目录）与 `Accept-Language` 协商为 ✅；Flutter / HarmonyOS 端仍为中/英两语种，
+> 故前端两列计 ⚠️；Angular / React 端已具备 13 语种词典（不参与本矩阵列）。
+> **v1.4.0 批次（2026-09-05）**：45 行中 22 行标注 v1.4.0（含 2 行「部分启用」= 多租户 B5 与多租户行），
 > 覆盖多组织/合并报表/存货成本（F1-F3）、制造 M1/M2/M3/M6、信用 F7、票据/银企/进项池/数电票 F6/F5、
 > HR H1-H4、会员 C1、平台 B1-B5/B7、点检 E1、项目成本 P1；证据见下方「代码证据」。
 
-### 代码证据（2026-09-05 校正）
+### 代码证据（2026-09-05 校正；含 v1.17.0 批次）
 
 本次完成度校正依据（文件存在性可由 `bash scripts/doc-stats.sh` 与 `find` 佐证）：
 
@@ -690,5 +694,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | v1.4.0 — 财务资金/税务 F6/F5 + F7 | 新增 | `app/service/finance/FinanceBillService.php` + `BankReconService.php`（对账单导入/自动与手工核销）+ `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php`（EInvoiceAdapter/MockEInvoiceAdapter，真实税局为预留适配点）+ `app/service/sales/CreditControlService.php`（超限订单断言拦截） |
 | v1.4.0 — 会员/HR/项目 C1/H1-H4/P1 | 新增 | `app/service/retail/MemberService.php` + `app/controller/retail/`（MemberController/CouponController）+ `app/service/hr/`（RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService）+ `app/service/project/ProjectCostService.php` |
 | v1.4.0 — 平台/渠道 B3/B4/B7/E1 | 新增 | `app/controller/workflow/WorkflowDesignerController.php`（canvas_json 持久化）+ `app/service/notification/`（ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver，失败重试）+ `app/controller/notification/NotificationChannelController.php`（`tests/NotificationChannelTest.php` 5 例）+ `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php`（点检扫码） |
+| v1.17.0 — 多语言 (i18n) | 新增 | 后端：`resource/translations/`（13 语种目录 zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id，每语种 common+modules+validation 三文件，11 个语种各 543 条（zh_CN 535、en 31）；en 为英文即 key）+ `app/common/I18n.php`（`getLocale()` 解析 `Accept-Language` 首个标签、主语言子标签映射 zh*→zh_CN；`trans()` 非 en 走 `[请求语种, zh_CN, en]`→key，en 不落中文）+ `config/translation.php` + 生成脚本 `scripts/gen-be-locales.mjs`；前端：`apps/react/src/lib/i18n/`（`index.tsx` + `zhEn` + 11 语种文件）与 `apps/angular/src/app/core/`（`zh-en/`（index + part1..4）+ `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`）（11 新语种词典按语种懒加载，Angular 1453 / React 1447 键）+ `scripts/gen-fe-locales.mjs`；切换入口 = 顶栏地球图标 + 个人中心下拉；Flutter（`apps/flutter/lib/l10n/`）与 HarmonyOS（`entry/src/main/resources/`）仍为中/英两语种 |
 
 > 详细路线图设计规范: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`
