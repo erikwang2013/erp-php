@@ -97,7 +97,6 @@ export class ResourcePage implements OnInit {
   readonly limit = signal(DEFAULT_LIMIT);
   readonly keyword = signal('');
   readonly filter = signal<string | number | null>(null);
-  private readonly tick = signal(0);
 
   // ── 列表状态 ──
   readonly rows = signal<Row[]>([]);
@@ -202,7 +201,13 @@ export class ResourcePage implements OnInit {
   });
 
   constructor() {
-    // 查询条件任一变即重新拉取 —— 对齐 React useEffect 的依赖数组 [page,limit,keyword,filter,tick]
+    // 查询条件任一变即重新拉取 —— 对齐 React useEffect 的依赖数组 [page,limit,keyword,filter]。
+    //
+    // 注意 effect 的跟踪规则：**只跟踪同步执行期间读到的 signal**。reload() 在首个 await
+    // 之前就读了 page/limit/keyword/filter，所以它们能被跟踪、条件变化会自动重拉。
+    // 但「刷新」不能靠再写一个 signal —— 早前用 tick signal 触发刷新是错的：tick 只被写、
+    // 从未被读，Angular 不会因写入未被读取的 signal 而重跑 effect，**刷新按钮因此完全无效**。
+    // 现在 refresh() 直接调 reload()，tick 已删除。
     effect(() => {
       void this.reload();
     });
@@ -303,7 +308,7 @@ export class ResourcePage implements OnInit {
     // 刷新语义是「重新问后端」，本地缓存必须作废，否则本地分页会拿旧数据切片
     this.local = null;
     this.localKey = '';
-    this.tick.update((t) => t + 1);
+    void this.reload();
   }
 
   // ── 查询交互 ──
