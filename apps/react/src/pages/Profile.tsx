@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { Btn, Field, Input, PageHead, Select } from '@/components/ui';
 import { http } from '@/lib/api';
-import { useI18n, useTr } from '@/lib/i18n';
+import { LOCALES, useI18n, useTr, type Locale } from '@/lib/i18n';
 import { useToast } from '@/lib/toast';
 import { useAuth } from '@/state/auth';
 
@@ -79,9 +79,20 @@ export function Profile() {
     <>
       <PageHead title={t('个人中心')}>
         <Field label={t('界面语言')}>
-          <Select value={locale} onChange={(e) => setLocale(e.target.value === 'en' ? 'en' : 'zh')} style={{ width: 140 }}>
-            <option value="zh">中文</option>
-            <option value="en">English</option>
+          {/* 清单与顶栏同源（LOCALES）：只接受清单内取值，杜绝手写代码漂移 */}
+          <Select
+            value={locale}
+            onChange={(e) => {
+              const code = e.target.value;
+              if (LOCALES.some((l) => l.code === code)) setLocale(code as Locale);
+            }}
+            style={{ width: 180 }}
+          >
+            {LOCALES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.label}
+              </option>
+            ))}
           </Select>
         </Field>
       </PageHead>

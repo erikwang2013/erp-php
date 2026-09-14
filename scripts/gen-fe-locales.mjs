@@ -43,17 +43,28 @@ const LANG_NAME = {
 
 const q = (s) => "'" + String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
 
-/** core/zh-en/part*.ts → { 中文: 英文 } */
-function loadEnDict() {
-  const dir = path.join(CORE, 'zh-en');
+/** 英文词典 → { 中文: 英文 }；两端目录与文件命名不同，故分开取 */
+function loadEnDict(app) {
   const out = {};
+  if (app === 'react') {
+    const p = path.join(ROOT, 'apps/react/src/lib/i18n/zhEn.ts');
+    const s = fs.readFileSync(p, 'utf8');
+    Object.assign(out, new Function(`return ${s.slice(s.indexOf('{', s.indexOf('= {')), s.lastIndexOf('};') + 1)}`)());
+    return out;
+  }
+  const dir = path.join(CORE, 'zh-en');
   for (const f of fs.readdirSync(dir).filter((x) => /^part\d+\.ts$/.test(x))) {
     const s = fs.readFileSync(path.join(dir, f), 'utf8');
-    const obj = new Function(`return ${s.slice(s.indexOf('{', s.indexOf('= {')), s.lastIndexOf('};') + 1)}`)();
-    Object.assign(out, obj);
+    Object.assign(out, new Function(`return ${s.slice(s.indexOf('{', s.indexOf('= {')), s.lastIndexOf('};') + 1)}`)());
   }
   return out;
 }
+/** 产物路径/导出名：Angular 是 core/zh-ja.ts + zhJa；React 是 lib/i18n/zhJa.ts + zhJa */
+const outDir = (app) => (app === 'react' ? path.join(ROOT, 'apps/react/src/lib/i18n') : CORE);
+const outFile = (app, code) => (app === 'react' ? `zh${code[0].toUpperCase()}${code.slice(1)}.ts` : `zh-${code}.ts`);
+/** 头部描述差异：生成命令与键集基准文件（两端命名不同） */
+const genBy = (app) => (app === 'react' ? 'scripts/gen-fe-locales.mjs --app react' : 'scripts/gen-fe-locales.mjs');
+const keySrc = (app) => (app === 'react' ? 'zhEn' : 'core/zh-en');
 
 /** 网关凭证（只读，不打印） */
 function creds() {
@@ -98,14 +109,15 @@ const arg = (k, d) => {
   const i = args.indexOf(k);
   return i === -1 ? d : args[i + 1];
 };
-const en = loadEnDict();
+const APP = arg('--app', 'angular'); // angular | react
+const en = loadEnDict(APP);
 const keys = Object.keys(en);
 fs.mkdirSync(CACHE, { recursive: true });
 const cacheFile = (code) => path.join(CACHE, `${code}.json`);
 const loadCache = (code) => (fs.existsSync(cacheFile(code)) ? JSON.parse(fs.readFileSync(cacheFile(code), 'utf8')) : {});
 
 if (args.includes('--list')) {
-  console.log(`源词典 ${keys.length} 条（core/zh-en）`);
+  console.log(`源词典 ${keys.length} 条（${keySrc(APP)}）`);
   for (const [code, exp] of Object.entries(LOCALES)) {
     const have = Object.keys(loadCache(code)).length;
     console.log(`  ${code} (${LANG_NAME[code]}): ${have}/${keys.length}  ${exp ? '' : '[缺导出名]'}`);
@@ -151,11 +163,9 @@ for (const code of targets) {
   // 写出词典文件（键集与 zh 源一致；缺失的键省略 → 运行时回退中文）
   const entries = keys.filter((k) => typeof cache[k] === 'string').map((k) => `  ${q(k)}: ${q(cache[k])},`);
   const head = `/*\n * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz\n */\n\n` +
-    `/**\n * 中文原文 → ${LANG_NAME[code]} 词典（${code}）。由 scripts/gen-fe-locales.mjs 生成，**请勿手工编辑**。\n` +
-    ` * 缺词条时回退中文原文；键集须与 core/zh-en 完全一致。\n */\n`;
-  fs.writeFileSync(
-    path.join(CORE, `zh-${code}.ts`),
-    `${head}export const ${LOCALES[code]}: Record<string, string> = {\n${entries.join('\n')}\n};\n`
-  );
-  console.log(`[${code}] 已写 core/zh-${code}.ts（${entries.length} 条，失败/缺 ${failed}）`);
+    `/**\n * 中文原文 → ${LANG_NAME[code]} 词典（${code}）。由 ${genBy(APP)} 生成，**请勿手工编辑**。\n` +
+    ` * 缺词条时回退中文原文；键集须与 ${keySrc(APP)} 完全一致。\n */\n`;
+  const out = path.join(outDir(APP), outFile(APP, code));
+  fs.writeFileSync(out, `${head}export const ${LOCALES[code]}: Record<string, string> = {\n${entries.join('\n')}\n};\n`);
+  console.log(`[${code}] 已写 ${path.relative(ROOT, out)}（${entries.length} 条，失败/缺 ${failed}）`);
 }

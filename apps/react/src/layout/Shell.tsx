@@ -9,7 +9,7 @@ import { Btn, Input } from '@/components/ui';
 import { MENUS, NOTIFICATION_PATH, RESOURCE_ROUTES, SCREENS, SPECIAL_ROUTES } from '@/config/menu';
 import { http } from '@/lib/api';
 import { useAuth } from '@/state/auth';
-import { useTr } from '@/lib/i18n';
+import { LOCALES, useI18n, useTr } from '@/lib/i18n';
 import { PageTabs } from '@/layout/PageTabs';
 
 /**
@@ -22,6 +22,7 @@ export function Shell() {
   const nav = useNavigate();
   const loc = useLocation();
   const t = useTr();
+  const { locale, setLocale } = useI18n();
 
   const [folded, setFolded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -214,8 +215,9 @@ export function Shell() {
                   border: '1px solid var(--divider)',
                   borderRadius: 'var(--r-card)',
                   boxShadow: 'var(--shadow-facade)',
-                  width: 160,
-                  overflow: 'hidden',
+                  width: 200,
+                  maxHeight: 440,
+                  overflowY: 'auto',
                   zIndex: 50,
                 }}
               >
@@ -230,6 +232,22 @@ export function Shell() {
                   <Icon name="user" size={15} />
                   <span>{t('个人中心')}</span>
                 </div>
+                {/* 13 语种清单：label 是各语种自称，不翻译；与个人中心的选择器同源 */}
+                {LOCALES.map((l) => (
+                  <div
+                    key={l.code}
+                    className="nav-item"
+                    title={t('界面语言')}
+                    style={{ margin: 0, height: 36, fontSize: 'var(--fs-md)' }}
+                    onClick={() => {
+                      setLocale(l.code);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    <span style={{ flex: 1 }}>{l.label}</span>
+                    {locale === l.code && <Icon name="check" size={14} />}
+                  </div>
+                ))}
                 <div
                   className="nav-item"
                   style={{ margin: 0, height: 36, fontSize: 'var(--fs-md)', color: 'var(--danger)' }}
