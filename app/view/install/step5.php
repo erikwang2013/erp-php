@@ -20,6 +20,11 @@
 <?php foreach (['host','port','database','username','password','prefix','jwt_secret','encryption_key','encryptable_key','hashids_salt','hashids_alt_salt','http_port','ws_port','rabbitmq_password','engine_driver','engine_host','engine_username','engine_password','admin_username','admin_password'] as $k): ?>
 <input type="hidden" name="<?= $k ?>" value="<?= htmlspecialchars((string) ($old[$k] ?? ''), ENT_QUOTES) ?>">
 <?php endforeach; ?>
+<label style="cursor:pointer;display:flex;align-items:center;gap:8px;margin:4px 0 12px;text-align:left">
+  <input type="checkbox" name="demo_data" value="1">
+  <span>同时导入<b>演示数据</b>（商品/规格/SKU/客户/供应商等，ID 段 41…，可按段清理）。<br>
+    <small>默认不导入 —— 生产环境请保持不勾选。</small></span>
+</label>
 <a href="/install?step=4" class="btn btn-secondary">← 上一步</a>
 <button type="submit" id="install-btn" class="btn btn-install">🚀 开始安装</button>
 </form>

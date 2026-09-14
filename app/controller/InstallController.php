@@ -492,6 +492,15 @@ class InstallController
             }
             $pdo->exec($sql);
 
+            // 演示（测试）数据：向导勾选「带测试数据」时追加执行。
+            // 该文件只有数据行、无 DDL —— schema 的唯一事实源始终是 install.sql，避免两份 DDL 漂移。
+            if ($request->input('demo_data')) {
+                $demoPath = base_path() . '/database/install-demo.sql';
+                if (is_file($demoPath)) {
+                    $pdo->exec((string) file_get_contents($demoPath));
+                }
+            }
+
             $adminId = SnowflakeService::generate();
             $passwordHash = password_hash($adminPass, PASSWORD_BCRYPT);
             $stmt = $pdo->prepare('INSERT INTO `' . $db['prefix'] . "admin_user` (`id`, `username`, `password`, `real_name`, `status`) VALUES (:id, :username, :password, '系统管理员', 1)");
