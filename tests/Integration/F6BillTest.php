@@ -45,7 +45,7 @@ class F6BillTest extends F6FundScaffold
         $this->assertSame('manual', (string) $bill->source_type);
         $this->assertSame(0, (int) $bill->source_id);
         $this->assertSame(0, (int) $bill->bank_account_id, '收票未指定托收账户时允许登记');
-        $this->assertRowCount('erp_finance_bill', ['id' => (int) $bill->id], 1);
+        $this->assertRowCount('finance_bill', ['id' => (int) $bill->id], 1);
         $this->billIds[] = (int) $bill->id;
     }
 

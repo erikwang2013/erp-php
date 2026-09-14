@@ -39,11 +39,11 @@ class M6TraceTest extends IntegrationTestCase
 
     /** install.sql 域依赖表：缺表整类跳过 */
     private const DEP_TABLES = [
-        'erp_inventory',
-        'erp_inventory_batch',
-        'erp_inventory_serial',
-        'erp_inventory_flow',
-        'erp_cost_record',
+        'inventory',
+        'inventory_batch',
+        'inventory_serial',
+        'inventory_flow',
+        'cost_record',
     ];
 
     private array $productIds = [];
@@ -69,20 +69,20 @@ class M6TraceTest extends IntegrationTestCase
     {
         if (self::$capsule !== null) {
             if ($this->productIds !== []) {
-                $this->safeDelete('erp_inventory', ['product_id', $this->productIds]);
-                $this->safeDelete('erp_product_sku', ['product_id', $this->productIds]);
+                $this->safeDelete('inventory', ['product_id', $this->productIds]);
+                $this->safeDelete('product_sku', ['product_id', $this->productIds]);
             }
             if ($this->flowIds !== []) {
-                $this->safeDelete('erp_inventory_flow', ['id', $this->flowIds]);
-                $this->safeDelete('erp_cost_record', ['flow_id', $this->flowIds]);
-                $this->safeDelete('erp_inventory_serial', ['in_flow_id', $this->flowIds]);
-                $this->safeDelete('erp_inventory_serial', ['out_flow_id', $this->flowIds]);
+                $this->safeDelete('inventory_flow', ['id', $this->flowIds]);
+                $this->safeDelete('cost_record', ['flow_id', $this->flowIds]);
+                $this->safeDelete('inventory_serial', ['in_flow_id', $this->flowIds]);
+                $this->safeDelete('inventory_serial', ['out_flow_id', $this->flowIds]);
             }
             if ($this->serialIds !== []) {
-                $this->safeDelete('erp_inventory_serial', ['id', $this->serialIds]);
+                $this->safeDelete('inventory_serial', ['id', $this->serialIds]);
             }
             if ($this->batchCodes !== []) {
-                $this->safeDelete('erp_inventory_batch', ['batch_code', $this->batchCodes]);
+                $this->safeDelete('inventory_batch', ['batch_code', $this->batchCodes]);
             }
         }
         parent::tearDown();

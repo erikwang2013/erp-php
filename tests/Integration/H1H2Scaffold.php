@@ -23,14 +23,14 @@ use InvalidArgumentException;
 abstract class H1H2Scaffold extends IntegrationTestCase
 {
     protected const H1H2_TABLES = [
-        'erp_hr_job',
-        'erp_hr_candidate',
-        'erp_hr_interview',
-        'erp_hr_offer',
-        'erp_hr_kpi_template',
-        'erp_hr_kpi_template_item',
-        'erp_hr_perf_plan',
-        'erp_hr_perf_score',
+        'hr_job',
+        'hr_candidate',
+        'hr_interview',
+        'hr_offer',
+        'hr_kpi_template',
+        'hr_kpi_template_item',
+        'hr_perf_plan',
+        'hr_perf_score',
     ];
 
     private static int $idSeq = 0;

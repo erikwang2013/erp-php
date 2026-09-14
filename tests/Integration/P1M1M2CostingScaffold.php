@@ -37,28 +37,28 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
     protected const WH_ID = 9101;
     /** P1 自有表（p1_m1m2.sql）— 缺表时最小化创建 */
     protected const P1_TABLES = [
-        'erp_mfg_work_report',
-        'erp_mfg_piece_wage',
-        'erp_mfg_subcontract',
-        'erp_mfg_subcontract_issue',
-        'erp_mfg_subcontract_issue_item',
-        'erp_mfg_subcontract_receive',
+        'mfg_work_report',
+        'mfg_piece_wage',
+        'mfg_subcontract',
+        'mfg_subcontract_issue',
+        'mfg_subcontract_issue_item',
+        'mfg_subcontract_receive',
     ];
     /** 依赖表（install.sql）— 只读使用，绝不创建 */
     protected const DEP_TABLES = [
-        'erp_mfg_bom',
-        'erp_mfg_bom_item',
-        'erp_mfg_production_order',
-        'erp_mfg_routing',
-        'erp_mfg_workstation',
-        'erp_mfg_wip',
-        'erp_mfg_wip_flow',
-        'erp_product_sku',
-        'erp_inventory',
-        'erp_inventory_flow',
-        'erp_hr_employee',
-        'erp_hr_salary',
-        'erp_supplier',
+        'mfg_bom',
+        'mfg_bom_item',
+        'mfg_production_order',
+        'mfg_routing',
+        'mfg_workstation',
+        'mfg_wip',
+        'mfg_wip_flow',
+        'product_sku',
+        'inventory',
+        'inventory_flow',
+        'hr_employee',
+        'hr_salary',
+        'supplier',
     ];
 
     protected array $createdTables = [];
@@ -93,7 +93,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
         if ($missing !== []) {
             self::markTestSkipped('缺少依赖表: ' . implode(', ', $missing) . '（请先导入 install.sql）');
         }
-        if (!Capsule::schema()->hasColumn('erp_mfg_routing', 'piece_rate') || !Capsule::schema()->hasColumn('erp_hr_salary', 'piece_wage')) {
+        if (!Capsule::schema()->hasColumn('mfg_routing', 'piece_rate') || !Capsule::schema()->hasColumn('hr_salary', 'piece_wage')) {
             self::markTestSkipped('缺少 P1 ALTER 列（依赖 database/p1_m1m2.sql 重放）');
         }
     }
@@ -108,24 +108,24 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
                 }
             }
             $cleanup = [
-                'erp_mfg_work_report' => ['id', $this->workReportIds],
-                'erp_mfg_wip_flow' => ['order_id', $this->orderIds],
-                'erp_mfg_wip' => ['order_id', $this->orderIds],
-                'erp_mfg_subcontract_issue_item' => ['issue_id', $this->subcontractIssueIds],
-                'erp_mfg_subcontract_issue' => ['id', $this->subcontractIssueIds],
-                'erp_mfg_subcontract_receive' => ['id', $this->subcontractReceiveIds],
-                'erp_mfg_subcontract' => ['id', $this->subcontractIds],
-                'erp_mfg_piece_wage' => ['employee_id', $this->employeeIds],
-                'erp_hr_salary' => ['employee_id', $this->employeeIds],
-                'erp_inventory_flow' => ['product_id', $this->productIds],
-                'erp_inventory' => ['product_id', $this->productIds],
-                'erp_product_sku' => ['product_id', $this->productIds],
-                'erp_mfg_bom_item' => ['bom_id', $this->bomIds],
-                'erp_mfg_bom' => ['id', $this->bomIds],
-                'erp_mfg_routing' => ['id', $this->routingIds],
-                'erp_mfg_workstation' => ['id', $this->workstationIds],
-                'erp_hr_employee' => ['id', $this->employeeIds],
-                'erp_supplier' => ['id', $this->supplierIds],
+                'mfg_work_report' => ['id', $this->workReportIds],
+                'mfg_wip_flow' => ['order_id', $this->orderIds],
+                'mfg_wip' => ['order_id', $this->orderIds],
+                'mfg_subcontract_issue_item' => ['issue_id', $this->subcontractIssueIds],
+                'mfg_subcontract_issue' => ['id', $this->subcontractIssueIds],
+                'mfg_subcontract_receive' => ['id', $this->subcontractReceiveIds],
+                'mfg_subcontract' => ['id', $this->subcontractIds],
+                'mfg_piece_wage' => ['employee_id', $this->employeeIds],
+                'hr_salary' => ['employee_id', $this->employeeIds],
+                'inventory_flow' => ['product_id', $this->productIds],
+                'inventory' => ['product_id', $this->productIds],
+                'product_sku' => ['product_id', $this->productIds],
+                'mfg_bom_item' => ['bom_id', $this->bomIds],
+                'mfg_bom' => ['id', $this->bomIds],
+                'mfg_routing' => ['id', $this->routingIds],
+                'mfg_workstation' => ['id', $this->workstationIds],
+                'hr_employee' => ['id', $this->employeeIds],
+                'supplier' => ['id', $this->supplierIds],
             ];
             foreach ($cleanup as $table => [$column, $ids]) {
                 if ($ids === []) {
@@ -213,7 +213,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
             if ($table !== 'mfg_subcontract_issue_item') {
                 $t->dateTime('updated_at')->nullable();
             }
-            if (!in_array($table, ['erp_mfg_piece_wage', 'erp_mfg_subcontract_issue_item'], true)) {
+            if (!in_array($table, ['mfg_piece_wage', 'mfg_subcontract_issue_item'], true)) {
                 $t->dateTime('deleted_at')->nullable();
             }
         });

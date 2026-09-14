@@ -82,7 +82,7 @@ class C1CouponTest extends C1MemberScaffold
         [$d3, $e3] = $svc->issueCoupon($memberId, $fullTpl, 1001);
         $this->assertNull($d3);
         $this->assertSame('该卡券模板已发完', $e3);
-        $this->assertRowCount('erp_member_coupon', ['member_id' => $memberId], 0, '拒绝不发券');
+        $this->assertRowCount('member_coupon', ['member_id' => $memberId], 0, '拒绝不发券');
         $this->assertSame(1, (int) Capsule::table('member_coupon_template')
             ->where('id', $fullTpl)->value('issued_qty'), '发放数不越限');
 

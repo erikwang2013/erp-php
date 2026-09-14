@@ -153,11 +153,11 @@ class F3ProductionCostingGuardTest extends F3CostingScaffold
         $order = $this->orderRow($orderId);
         $this->assertSame(0, (int) $order->status, '工单应保持待生产');
         $this->assertBcEquals('0.00', (string) $order->completed_quantity, '完工数应为 0');
-        $this->assertRowCount('erp_mfg_order_cost', ['order_id' => $orderId], 0, '无成本单');
-        $this->assertRowCount('erp_mfg_wip', ['order_id' => $orderId], 0, '无 WIP');
-        $this->assertRowCount('erp_inventory_flow', ['product_id' => $a['product_id']], 0, '无入库流水');
+        $this->assertRowCount('mfg_order_cost', ['order_id' => $orderId], 0, '无成本单');
+        $this->assertRowCount('mfg_wip', ['order_id' => $orderId], 0, '无 WIP');
+        $this->assertRowCount('inventory_flow', ['product_id' => $a['product_id']], 0, '无入库流水');
         $this->assertRowCount(
-            'erp_finance_voucher_source',
+            'finance_voucher_source',
             ['source_type' => 'mfg_order_cost'],
             0,
             '无凭证来源'
@@ -203,11 +203,11 @@ class F3ProductionCostingGuardTest extends F3CostingScaffold
         $order = $this->orderRow($orderId);
         $this->assertSame(1, (int) $order->status, '工单应回滚为生产中');
         $this->assertBcEquals('0.00', (string) $order->completed_quantity, '完工数应回滚为 0');
-        $this->assertRowCount('erp_mfg_order_cost', ['order_id' => $orderId], 0, '成本单应回滚');
-        $this->assertRowCount('erp_inventory_flow', ['product_id' => $a['product_id']], 0, '入库流水应回滚');
-        $this->assertRowCount('erp_inventory', ['product_id' => $a['product_id']], 0, '库存行应回滚');
+        $this->assertRowCount('mfg_order_cost', ['order_id' => $orderId], 0, '成本单应回滚');
+        $this->assertRowCount('inventory_flow', ['product_id' => $a['product_id']], 0, '入库流水应回滚');
+        $this->assertRowCount('inventory', ['product_id' => $a['product_id']], 0, '库存行应回滚');
         $this->assertRowCount(
-            'erp_finance_voucher_source',
+            'finance_voucher_source',
             ['source_type' => 'mfg_order_cost'],
             0,
             '凭证来源应回滚'

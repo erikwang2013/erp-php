@@ -29,13 +29,13 @@ abstract class C1MemberScaffold extends IntegrationTestCase
 
     /** C1 自建表（任一缺失即整批跳过，提示先导 SQL） */
     protected const C1_TABLES = [
-        'erp_member',
-        'erp_member_balance_account',
-        'erp_member_balance_log',
-        'erp_member_point_account',
-        'erp_member_point_log',
-        'erp_member_coupon_template',
-        'erp_member_coupon',
+        'member',
+        'member_balance_account',
+        'member_balance_log',
+        'member_point_account',
+        'member_point_log',
+        'member_coupon_template',
+        'member_coupon',
     ];
 
     /** 本用例直插的会员/模板 id（tearDown 逆依赖序清理） */
@@ -67,13 +67,13 @@ abstract class C1MemberScaffold extends IntegrationTestCase
     {
         if (self::$capsule !== null) {
             try {
-                $this->deleteIn('erp_member_coupon', 'member_id', $this->memberIds);
-                $this->deleteIn('erp_member_balance_log', 'member_id', $this->memberIds);
-                $this->deleteIn('erp_member_point_log', 'member_id', $this->memberIds);
-                $this->deleteIn('erp_member_balance_account', 'member_id', $this->memberIds);
-                $this->deleteIn('erp_member_point_account', 'member_id', $this->memberIds);
-                $this->deleteIn('erp_member', 'id', $this->memberIds);
-                $this->deleteIn('erp_member_coupon_template', 'id', $this->templateIds);
+                $this->deleteIn('member_coupon', 'member_id', $this->memberIds);
+                $this->deleteIn('member_balance_log', 'member_id', $this->memberIds);
+                $this->deleteIn('member_point_log', 'member_id', $this->memberIds);
+                $this->deleteIn('member_balance_account', 'member_id', $this->memberIds);
+                $this->deleteIn('member_point_account', 'member_id', $this->memberIds);
+                $this->deleteIn('member', 'id', $this->memberIds);
+                $this->deleteIn('member_coupon_template', 'id', $this->templateIds);
             } catch (Throwable) {
                 // 清理失败不掩盖测试结论
             }

@@ -44,16 +44,16 @@ class InvoiceTest extends TestCase
     {
         if (self::$booted) {
             if (!empty($this->invoiceIds)) {
-                Capsule::table('erp_finance_invoice_item')->whereIn('invoice_id', $this->invoiceIds)->delete();
-                Capsule::table('erp_finance_invoice_match_log')->whereIn('invoice_id', $this->invoiceIds)->delete();
-                Capsule::table('erp_finance_invoice')->whereIn('id', $this->invoiceIds)->delete();
+                Capsule::table('finance_invoice_item')->whereIn('invoice_id', $this->invoiceIds)->delete();
+                Capsule::table('finance_invoice_match_log')->whereIn('invoice_id', $this->invoiceIds)->delete();
+                Capsule::table('finance_invoice')->whereIn('id', $this->invoiceIds)->delete();
                 $this->invoiceIds = [];
             }
             // 被拦截尝试的日志 invoice_id=0，按来源单清理；再清来源单及其明细
-            Capsule::table('erp_finance_invoice_match_log')
+            Capsule::table('finance_invoice_match_log')
                 ->where('source_type', 'purchase_receive')->whereIn('source_id', self::RC_IDS)->delete();
-            Capsule::table('erp_purchase_receive_item')->whereIn('receive_id', self::RC_IDS)->delete();
-            Capsule::table('erp_purchase_receive')->whereIn('id', self::RC_IDS)->delete();
+            Capsule::table('purchase_receive_item')->whereIn('receive_id', self::RC_IDS)->delete();
+            Capsule::table('purchase_receive')->whereIn('id', self::RC_IDS)->delete();
         }
         parent::tearDown();
     }
@@ -100,7 +100,7 @@ class InvoiceTest extends TestCase
         $this->assertSame('600.00', $info['invoiced_total'], '已审核发票应占余额');
         $this->assertSame('400.00', $info['balance']);
 
-        $log = Capsule::table('erp_finance_invoice_match_log')
+        $log = Capsule::table('finance_invoice_match_log')
             ->where('invoice_id', (int) $invoice->id)->first();
         $this->assertNotNull($log, '审核应写三单匹配日志');
         $this->assertSame('under', $log->result, '600<1000 应记 under');
@@ -126,9 +126,9 @@ class InvoiceTest extends TestCase
         $this->assertNull($invoice, '超开不应落发票');
         $this->assertNotNull($error);
         $this->assertStringContainsString('超出未开票余额', $error);
-        $this->assertSame(0, Capsule::table('erp_finance_invoice')->where('invoice_no', $no)->count());
+        $this->assertSame(0, Capsule::table('finance_invoice')->where('invoice_no', $no)->count());
 
-        $blocked = Capsule::table('erp_finance_invoice_match_log')
+        $blocked = Capsule::table('finance_invoice_match_log')
             ->where('invoice_id', 0)->where('source_id', 930002)->first();
         $this->assertNotNull($blocked, '拦截尝试应记 result=over 日志(invoice_id=0)');
         $this->assertSame('over', $blocked->result);
@@ -180,7 +180,7 @@ class InvoiceTest extends TestCase
         $this->assertSame('1000.00', $info['invoiced_total'], '两张发票恰好开满');
         $this->assertSame('0.00', $info['balance']);
 
-        $last = Capsule::table('erp_finance_invoice_match_log')
+        $last = Capsule::table('finance_invoice_match_log')
             ->where('invoice_id', (int) $tail->id)->first();
         $this->assertSame('ok', $last->result, '恰好在余额上应记 ok');
     }
@@ -274,7 +274,7 @@ class InvoiceTest extends TestCase
     /** 播种采购收货单头+明细（amount 已含金额，来源总额 = Σ明细 amount） */
     private function seedReceive(int $receiveId, array $items): void
     {
-        Capsule::table('erp_purchase_receive')->insert([
+        Capsule::table('purchase_receive')->insert([
             'id' => $receiveId,
             'code' => 'P0T-RC-' . $receiveId,
             'order_id' => 0,
@@ -282,7 +282,7 @@ class InvoiceTest extends TestCase
             'warehouse_id' => 9001,
         ]);
         foreach ($items as [$itemId, $qty, $price, $amount]) {
-            Capsule::table('erp_purchase_receive_item')->insert([
+            Capsule::table('purchase_receive_item')->insert([
                 'id' => $itemId,
                 'receive_id' => $receiveId,
                 'product_id' => 900101,
@@ -317,8 +317,8 @@ class InvoiceTest extends TestCase
             'database' => (string) getenv('TEST_DB_DATABASE'),
             'username' => (string) (getenv('TEST_DB_USERNAME') ?: 'root'),
             'password' => (string) (getenv('TEST_DB_PASSWORD') ?: ''),
-            // 查询统一走显式表名，此处置空前缀
-            'prefix' => '',
+            // 与 app config/database.php 同源：模型声明无前缀表名，靠此前缀拼真实表
+            'prefix' => getenv('DB_PREFIX') ?: 'erp_',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'strict' => true,

@@ -171,7 +171,7 @@ class P1M2SubcontractTest extends P1M1M2CostingScaffold
         $this->assertBcEquals('0', (string) $sub->received_qty, '未收料');
         $recv = $this->subcontractReceiveRow($receiveId);
         $this->assertSame(0, (int) $recv->status, '收料单仍草稿');
-        $this->assertRowCount('erp_inventory', ['product_id' => $out['product_id'], 'sku_id' => $out['sku_id'], 'warehouse_id' => self::WH_ID], 0, '无委外件入库行');
+        $this->assertRowCount('inventory', ['product_id' => $out['product_id'], 'sku_id' => $out['sku_id'], 'warehouse_id' => self::WH_ID], 0, '无委外件入库行');
     }
 
     /**
@@ -255,7 +255,7 @@ class P1M2SubcontractTest extends P1M1M2CostingScaffold
         $sub = $this->subcontractRow($subcontractId);
         $this->assertSame(1, (int) $sub->status, '委外单停在已发料');
         $this->assertBcEquals('0', (string) $sub->received_qty, '未收料');
-        $this->assertRowCount('erp_inventory', ['product_id' => $productId], 0, '无入库行');
+        $this->assertRowCount('inventory', ['product_id' => $productId], 0, '无入库行');
     }
 
     // ---------- 造数与只读 ----------

@@ -41,14 +41,14 @@ class InventorySkuRaceFixTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->invKeys as $key) {
-            Capsule::table('erp_inventory')->where($key)->delete();
+            Capsule::table('inventory')->where($key)->delete();
         }
         if (!empty($this->flowIds)) {
-            Capsule::table('erp_inventory_flow')->whereIn('id', $this->flowIds)->delete();
-            Capsule::table('erp_cost_record')->whereIn('flow_id', $this->flowIds)->delete();
+            Capsule::table('inventory_flow')->whereIn('id', $this->flowIds)->delete();
+            Capsule::table('cost_record')->whereIn('flow_id', $this->flowIds)->delete();
         }
         foreach ($this->batchCodes as $code) {
-            Capsule::table('erp_inventory_batch')->where('batch_code', $code)->delete();
+            Capsule::table('inventory_batch')->where('batch_code', $code)->delete();
         }
         $this->invKeys = [];
         $this->flowIds = [];
@@ -88,8 +88,8 @@ class InventorySkuRaceFixTest extends TestCase
         $this->flowIds[] = $service->stockIn(970001, 970002, 970003, 970004, 'race-batch-01', 10, 10.00, 'unit_test', 910001);
         $this->flowIds[] = $service->stockIn(970001, 970002, 970003, 970004, 'race-batch-01', 10, 20.00, 'unit_test', 910002);
 
-        $this->assertSame(1, Capsule::table('erp_inventory')->where($key)->count(), '同一唯一键只应有一条库存行');
-        $row = Capsule::table('erp_inventory')->where($key)->first();
+        $this->assertSame(1, Capsule::table('inventory')->where($key)->count(), '同一唯一键只应有一条库存行');
+        $row = Capsule::table('inventory')->where($key)->first();
         $this->assertNotNull($row);
         $this->assertEquals(20.0, (float) $row->quantity, '数量应累加');
         $this->assertEquals(15.0, (float) $row->cost_price, '加权均价 = (10*10 + 10*20) / 20 = 15');
@@ -120,8 +120,8 @@ class InventorySkuRaceFixTest extends TestCase
             'database' => (string) getenv('TEST_DB_DATABASE'),
             'username' => (string) (getenv('TEST_DB_USERNAME') ?: 'root'),
             'password' => (string) (getenv('TEST_DB_PASSWORD') ?: ''),
-            // 查询统一走显式表名，此处置空前缀
-            'prefix' => '',
+            // 与 app config/database.php 同源：模型声明无前缀表名，靠此前缀拼真实表
+            'prefix' => getenv('DB_PREFIX') ?: 'erp_',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'strict' => true,

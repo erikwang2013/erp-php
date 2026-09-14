@@ -29,13 +29,13 @@ use Throwable;
 abstract class M3CapacityScaffold extends IntegrationTestCase
 {
     /** 自有表（database/m3_capacity.sql）— 缺表时最小化创建 */
-    protected const OWN_TABLES = ['erp_mfg_capacity_calendar'];
+    protected const OWN_TABLES = ['mfg_capacity_calendar'];
     /** 依赖表（install.sql）— 只读使用，绝不创建 */
     protected const DEP_TABLES = [
-        'erp_mfg_workstation',
-        'erp_mfg_routing',
-        'erp_mfg_production_order',
-        'erp_mfg_production_item',
+        'mfg_workstation',
+        'mfg_routing',
+        'mfg_production_order',
+        'mfg_production_item',
     ];
 
     protected array $createdTables = [];
@@ -72,11 +72,11 @@ abstract class M3CapacityScaffold extends IntegrationTestCase
             }
             // 例外行雪花 ID 服务端生成未登记，按 workstation_id 归集清理
             $cleanup = [
-                'erp_mfg_capacity_calendar' => ['workstation_id', $this->workstationIds],
-                'erp_mfg_production_item' => ['order_id', $this->orderIds],
-                'erp_mfg_production_order' => ['id', $this->orderIds],
-                'erp_mfg_routing' => ['id', $this->routingIds],
-                'erp_mfg_workstation' => ['id', $this->workstationIds],
+                'mfg_capacity_calendar' => ['workstation_id', $this->workstationIds],
+                'mfg_production_item' => ['order_id', $this->orderIds],
+                'mfg_production_order' => ['id', $this->orderIds],
+                'mfg_routing' => ['id', $this->routingIds],
+                'mfg_workstation' => ['id', $this->workstationIds],
             ];
             foreach ($cleanup as $table => [$column, $ids]) {
                 if ($ids === []) {

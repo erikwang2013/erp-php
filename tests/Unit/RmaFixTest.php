@@ -30,10 +30,10 @@ class RmaFixTest extends TestCase
     protected function tearDown(): void
     {
         if (!empty($this->rmaCodes)) {
-            $rmaIds = Capsule::table('erp_oms_rma')->whereIn('code', $this->rmaCodes)->pluck('id')->all();
+            $rmaIds = Capsule::table('oms_rma')->whereIn('code', $this->rmaCodes)->pluck('id')->all();
             if (!empty($rmaIds)) {
-                Capsule::table('erp_oms_rma_item')->whereIn('rma_id', $rmaIds)->delete();
-                Capsule::table('erp_oms_rma')->whereIn('id', $rmaIds)->delete();
+                Capsule::table('oms_rma_item')->whereIn('rma_id', $rmaIds)->delete();
+                Capsule::table('oms_rma')->whereIn('id', $rmaIds)->delete();
             }
             $this->rmaCodes = [];
         }
@@ -67,7 +67,7 @@ class RmaFixTest extends TestCase
         }
 
         $this->assertNull(
-            Capsule::table('erp_oms_rma')->where('code', $code)->first(),
+            Capsule::table('oms_rma')->where('code', $code)->first(),
             '明细失败时表头应随事务一并回滚'
         );
     }
@@ -84,12 +84,12 @@ class RmaFixTest extends TestCase
             ['order_item_id' => 1, 'product_id' => 1, 'quantity' => 1, 'price' => 20],
         ], ['code' => $code, 'refund_amount' => 20.0]);
 
-        $rmaId = (int) Capsule::table('erp_oms_rma')->where('code', $code)->value('id');
+        $rmaId = (int) Capsule::table('oms_rma')->where('code', $code)->value('id');
         // 状态机：create(0) → approve(1) → refund(4)；refund 仅受理 [1,3]，须先批准
         $service->approve($rmaId, 700002);
         $service->refund($rmaId);
 
-        $status = (int) Capsule::table('erp_oms_rma')->where('id', $rmaId)->value('status');
+        $status = (int) Capsule::table('oms_rma')->where('id', $rmaId)->value('status');
         $this->assertEquals(4, $status, '退款后 RMA 状态应为 4=已退款');
     }
 
@@ -118,8 +118,8 @@ class RmaFixTest extends TestCase
             'database' => (string) getenv('TEST_DB_DATABASE'),
             'username' => (string) (getenv('TEST_DB_USERNAME') ?: 'root'),
             'password' => (string) (getenv('TEST_DB_PASSWORD') ?: ''),
-            // 查询统一走显式表名，此处置空前缀
-            'prefix' => '',
+            // 与 app config/database.php 同源：模型声明无前缀表名，靠此前缀拼真实表
+            'prefix' => getenv('DB_PREFIX') ?: 'erp_',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'strict' => true,

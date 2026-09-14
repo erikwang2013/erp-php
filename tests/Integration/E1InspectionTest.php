@@ -33,12 +33,12 @@ use Throwable;
 class E1InspectionTest extends IntegrationTestCase
 {
     /** 自有表（database/e1p1.sql 新建）— 缺表时最小化创建并登记，tearDown 删除 */
-    private const OWN_TABLES = ['erp_eam_inspection_result', 'erp_eam_inspection_task'];
+    private const OWN_TABLES = ['eam_inspection_result', 'eam_inspection_task'];
     /** 依赖表（install.sql）— 只读使用，绝不创建 */
     private const DEP_TABLES = [
-        'erp_eam_equipment',
-        'erp_eam_maintenance_plan',
-        'erp_eam_repair_order',
+        'eam_equipment',
+        'eam_maintenance_plan',
+        'eam_repair_order',
     ];
 
     private array $createdTables = [];
@@ -70,11 +70,11 @@ class E1InspectionTest extends IntegrationTestCase
             }
             // 例外行雪花 ID 服务端生成未登记，按本类登记 ID 归集清理（维修单按设备 ID）
             $cleanup = [
-                'erp_eam_inspection_result' => ['task_id', $this->taskIds],
-                'erp_eam_inspection_task' => ['id', $this->taskIds],
-                'erp_eam_repair_order' => ['equipment_id', $this->equipmentIds],
-                'erp_eam_maintenance_plan' => ['id', $this->planIds],
-                'erp_eam_equipment' => ['id', $this->equipmentIds],
+                'eam_inspection_result' => ['task_id', $this->taskIds],
+                'eam_inspection_task' => ['id', $this->taskIds],
+                'eam_repair_order' => ['equipment_id', $this->equipmentIds],
+                'eam_maintenance_plan' => ['id', $this->planIds],
+                'eam_equipment' => ['id', $this->equipmentIds],
             ];
             foreach ($cleanup as $table => [$column, $ids]) {
                 if ($ids === []) {

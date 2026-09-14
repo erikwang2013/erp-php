@@ -86,7 +86,7 @@ class F3CostingGuardrailsTest extends F3CostingScaffold
 
         // 完工入库流水恰好一笔（source mfg_production_finish）
         $this->assertRowCount(
-            'erp_inventory_flow',
+            'inventory_flow',
             ['product_id' => $a['product_id'], 'source_type' => 'mfg_production_finish'],
             1,
             '完工入库流水'
@@ -94,7 +94,7 @@ class F3CostingGuardrailsTest extends F3CostingScaffold
 
         // WIP 转出流水（type5/方向2）一笔
         $this->assertRowCount(
-            'erp_mfg_wip_flow',
+            'mfg_wip_flow',
             ['order_id' => $orderId, 'source_type' => 5, 'direction' => 2],
             1,
             '完工转出流水'
@@ -179,7 +179,7 @@ class F3CostingGuardrailsTest extends F3CostingScaffold
 
         // 二次审核同单被拒，且无第二次副作用
         $this->assertThrowsMessage(fn () => $this->auditIssue($issueId), '只有草稿状态的领料单可以审核');
-        $this->assertRowCount('erp_mfg_wip_flow', ['order_id' => $orderId, 'source_type' => 1, 'source_id' => $issueId], 1, '领料流水仍 1 笔');
+        $this->assertRowCount('mfg_wip_flow', ['order_id' => $orderId, 'source_type' => 1, 'source_id' => $issueId], 1, '领料流水仍 1 笔');
         $this->assertBcEquals('4.00', (string) $this->stockRow($b['product_id'], $b['sku_id'])->quantity, '库存未被二次扣减');
         $this->assertBcEquals('2.00', (string) $this->wipRow($orderId)->material_cost, 'WIP 材料未被二次累加');
 
@@ -188,7 +188,7 @@ class F3CostingGuardrailsTest extends F3CostingScaffold
         $this->assertBcEquals('3.00', (string) $this->wipRow($orderId)->labor_cost, 'WIP 人工');
 
         $this->assertThrowsMessage(fn () => $this->auditCostEntry($laborId), '只有草稿状态的费用归集单可以审核');
-        $this->assertRowCount('erp_mfg_wip_flow', ['order_id' => $orderId, 'source_type' => 2, 'source_id' => $laborId], 1, '费用流水仍 1 笔');
+        $this->assertRowCount('mfg_wip_flow', ['order_id' => $orderId, 'source_type' => 2, 'source_id' => $laborId], 1, '费用流水仍 1 笔');
         $this->assertBcEquals('3.00', (string) $this->wipRow($orderId)->labor_cost, 'WIP 人工未被二次累加');
 
         // 单据不存在
@@ -297,9 +297,9 @@ class F3CostingGuardrailsTest extends F3CostingScaffold
         );
         $this->assertSame(2, (int) $this->orderRow($orderId)->status, '工单保持已完成');
         $this->assertBcEquals('2.00', (string) $this->stockRow($a['product_id'], $a['sku_id'])->quantity, '入库未翻倍');
-        $this->assertRowCount('erp_mfg_order_cost', ['order_id' => $orderId], 1, '成本单仍 1 张');
-        $this->assertRowCount('erp_inventory_flow', ['product_id' => $a['product_id'], 'source_type' => 'mfg_production_finish'], 1, '完工入库流水仍 1 笔');
-        $this->assertRowCount('erp_finance_voucher_source', ['source_type' => 'mfg_order_cost'], 1, '凭证来源仍 1 行');
+        $this->assertRowCount('mfg_order_cost', ['order_id' => $orderId], 1, '成本单仍 1 张');
+        $this->assertRowCount('inventory_flow', ['product_id' => $a['product_id'], 'source_type' => 'mfg_production_finish'], 1, '完工入库流水仍 1 笔');
+        $this->assertRowCount('finance_voucher_source', ['source_type' => 'mfg_order_cost'], 1, '凭证来源仍 1 行');
     }
 
     /** 借贷平衡断言：借方合计 == 贷方合计（bcmath 精确） */

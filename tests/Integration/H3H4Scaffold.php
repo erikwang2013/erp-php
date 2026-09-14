@@ -25,11 +25,11 @@ use InvalidArgumentException;
 abstract class H3H4Scaffold extends IntegrationTestCase
 {
     protected const H34_TABLES = [
-        'erp_hr_course',
-        'erp_hr_course_enrollment',
-        'erp_hr_social_rule',
-        'erp_hr_social_rate',
-        'erp_hr_employee_social',
+        'hr_course',
+        'hr_course_enrollment',
+        'hr_social_rule',
+        'hr_social_rate',
+        'hr_employee_social',
     ];
 
     private static int $idSeq = 0;

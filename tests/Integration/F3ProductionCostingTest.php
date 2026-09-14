@@ -134,7 +134,7 @@ class F3ProductionCostingTest extends F3CostingScaffold
         $this->assertBcEquals('2.00', (string) $lines[1002]->credit_amount, '贷 人工');
         $this->assertBcEquals('1.00', (string) $lines[1003]->credit_amount, '贷 制费');
         $this->assertRowCount(
-            'erp_finance_voucher_source',
+            'finance_voucher_source',
             ['voucher_id' => (int) $voucher->id],
             1,
             '凭证来源登记'
@@ -201,7 +201,7 @@ class F3ProductionCostingTest extends F3CostingScaffold
         $this->assertBcEquals('0.00', (string) $inventoryA->cost_price, 'A 零单价');
 
         $this->assertRowCount(
-            'erp_finance_voucher_source',
+            'finance_voucher_source',
             ['source_type' => 'mfg_order_cost'],
             0,
             '无凭证来源'
@@ -261,7 +261,7 @@ class F3ProductionCostingTest extends F3CostingScaffold
         // 无 WIP、无本单库存流水、工单仍在生产
         $this->assertNull($this->wipRow($orderId), '失败审核不应建 WIP');
         $this->assertRowCount(
-            'erp_inventory_flow',
+            'inventory_flow',
             ['source_type' => 'mfg_material_issue_item', 'source_id' => $issueId],
             0,
             '领料流水应回滚'

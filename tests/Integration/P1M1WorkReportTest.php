@@ -82,7 +82,7 @@ class P1M1WorkReportTest extends P1M1M2CostingScaffold
             fn () => $this->workReportService()->audit($reportId),
             '只有草稿状态的报工单可以审核'
         );
-        $this->assertRowCount('erp_mfg_wip_flow', ['order_id' => $fixture['order_id']], 1, '流水不得重复');
+        $this->assertRowCount('mfg_wip_flow', ['order_id' => $fixture['order_id']], 1, '流水不得重复');
     }
 
     /**
@@ -131,7 +131,7 @@ class P1M1WorkReportTest extends P1M1M2CostingScaffold
         );
         $this->assertSame(0, (int) $this->workReportRow($reportId)->status, '事务回滚后单据保持草稿');
         $this->assertNull($this->wipRow($fixture['order_id']), '不得产生 WIP 行');
-        $this->assertRowCount('erp_mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '不得产生流水');
+        $this->assertRowCount('mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '不得产生流水');
     }
 
     /**
@@ -148,7 +148,7 @@ class P1M1WorkReportTest extends P1M1M2CostingScaffold
         $row = $this->workReportRow($reportId);
         $this->assertBcEquals('0.00', (string) $row->amount, '金额为零');
         $this->assertNull($this->wipRow($fixture['order_id']), '零额不建 WIP');
-        $this->assertRowCount('erp_mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '零额不写流水');
+        $this->assertRowCount('mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '零额不写流水');
     }
 
     // ---------- 夹具 ----------

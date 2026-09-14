@@ -24,15 +24,15 @@ abstract class F6FundScaffold extends IntegrationTestCase
 {
     /** F6 自有表（f6_fund.sql）——缺失即跳过 */
     protected const F6_TABLES = [
-        'erp_finance_bill',
-        'erp_finance_bank_statement',
-        'erp_finance_bank_recon_match',
+        'finance_bill',
+        'finance_bank_statement',
+        'finance_bank_recon_match',
     ];
     /** 依赖表（install.sql）——只读/种子使用，绝不创建 */
     protected const DEP_TABLES = [
-        'erp_finance_bank_account',
-        'erp_finance_receipt',
-        'erp_finance_cash_journal',
+        'finance_bank_account',
+        'finance_receipt',
+        'finance_cash_journal',
     ];
 
     /** 测试数据行标记前缀（票号/批次/摘要/账户名共用） */
@@ -75,13 +75,13 @@ abstract class F6FundScaffold extends IntegrationTestCase
                     $stmtIds = Capsule::table('finance_bank_statement')
                         ->whereIn('import_batch', $this->statementBatches)->pluck('id')->all();
                 }
-                $this->deleteIn('erp_finance_bank_recon_match', 'cash_journal_id', $this->journalIds);
-                $this->deleteIn('erp_finance_bank_recon_match', 'statement_id', $stmtIds);
-                $this->deleteIn('erp_finance_bank_statement', 'id', $stmtIds);
-                $this->deleteIn('erp_finance_cash_journal', 'id', $this->journalIds);
-                $this->deleteIn('erp_finance_receipt', 'id', $this->receiptIds);
-                $this->deleteIn('erp_finance_bill', 'id', $this->billIds);
-                $this->deleteIn('erp_finance_bank_account', 'id', $this->accountIds);
+                $this->deleteIn('finance_bank_recon_match', 'cash_journal_id', $this->journalIds);
+                $this->deleteIn('finance_bank_recon_match', 'statement_id', $stmtIds);
+                $this->deleteIn('finance_bank_statement', 'id', $stmtIds);
+                $this->deleteIn('finance_cash_journal', 'id', $this->journalIds);
+                $this->deleteIn('finance_receipt', 'id', $this->receiptIds);
+                $this->deleteIn('finance_bill', 'id', $this->billIds);
+                $this->deleteIn('finance_bank_account', 'id', $this->accountIds);
             } catch (Throwable) {
             }
         }

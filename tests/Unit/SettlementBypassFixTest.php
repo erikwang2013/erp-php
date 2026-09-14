@@ -36,15 +36,15 @@ class SettlementBypassFixTest extends TestCase
     protected function tearDown(): void
     {
         if (!empty($this->settlementIds)) {
-            Capsule::table('erp_finance_settlement')->whereIn('id', $this->settlementIds)->delete();
+            Capsule::table('finance_settlement')->whereIn('id', $this->settlementIds)->delete();
             $this->settlementIds = [];
         }
         if (!empty($this->arApIds)) {
-            Capsule::table('erp_finance_ar_ap')->whereIn('id', $this->arApIds)->delete();
+            Capsule::table('finance_ar_ap')->whereIn('id', $this->arApIds)->delete();
             $this->arApIds = [];
         }
         if (!empty($this->receiptIds)) {
-            Capsule::table('erp_finance_receipt')->whereIn('id', $this->receiptIds)->delete();
+            Capsule::table('finance_receipt')->whereIn('id', $this->receiptIds)->delete();
             $this->receiptIds = [];
         }
         parent::tearDown();
@@ -71,7 +71,7 @@ class SettlementBypassFixTest extends TestCase
         $this->arApIds[] = $arApId;
 
         // 收款单须先存在（settleReceipt 单据侧守卫：不存在/未审核/归属不一致均先行拒绝）
-        Capsule::table('erp_finance_receipt')->insert([
+        Capsule::table('finance_receipt')->insert([
             'id' => 888001,
             'code' => 'UNIT-888001',
             'customer_id' => 999001,
@@ -83,12 +83,12 @@ class SettlementBypassFixTest extends TestCase
 
         $service->settleReceipt(888001, $arApId, 600.00);
 
-        $arAp = Capsule::table('erp_finance_ar_ap')->where('id', $arApId)->first();
+        $arAp = Capsule::table('finance_ar_ap')->where('id', $arApId)->first();
         $this->assertNotNull($arAp);
         $this->assertEquals(600.00, (float) $arAp->settled_amount, 'settled_amount 应同步为已核销金额');
         $this->assertEquals(1, (int) $arAp->status, '部分核销状态应为 1');
 
-        $settlement = Capsule::table('erp_finance_settlement')
+        $settlement = Capsule::table('finance_settlement')
             ->where('ar_ap_id', $arApId)->where('type', 1)->first();
         $this->assertNotNull($settlement, '服务层应生成核销记录');
         $this->assertEquals(600.00, (float) $settlement->amount);
@@ -105,7 +105,7 @@ class SettlementBypassFixTest extends TestCase
 
         // 收款单须存在且余额充足（700≥600），否则单据侧守卫先行抛出
         // "收款单不存在/核销金额超出收款单剩余可核销额"，无法命中应收侧守卫
-        Capsule::table('erp_finance_receipt')->insert([
+        Capsule::table('finance_receipt')->insert([
             'id' => 888002,
             'code' => 'UNIT-888002',
             'customer_id' => 999002,
@@ -145,8 +145,8 @@ class SettlementBypassFixTest extends TestCase
             'database' => (string) getenv('TEST_DB_DATABASE'),
             'username' => (string) (getenv('TEST_DB_USERNAME') ?: 'root'),
             'password' => (string) (getenv('TEST_DB_PASSWORD') ?: ''),
-            // 查询统一走显式表名，此处置空前缀
-            'prefix' => '',
+            // 与 app config/database.php 同源：模型声明无前缀表名，靠此前缀拼真实表
+            'prefix' => getenv('DB_PREFIX') ?: 'erp_',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'strict' => true,

@@ -47,21 +47,21 @@ abstract class F12MultiCompanyScaffold extends IntegrationTestCase
 
     /** 依赖表（install.sql 域）— 只读使用，绝不创建 */
     protected const DEP_TABLES = [
-        'erp_finance_voucher',
-        'erp_finance_voucher_item',
-        'erp_finance_account',
-        'erp_finance_currency',
-        'erp_finance_exchange_rate',
-        'erp_finance_balance_sheet',
-        'erp_finance_profit',
-        'erp_finance_cash_flow',
+        'finance_voucher',
+        'finance_voucher_item',
+        'finance_account',
+        'finance_currency',
+        'finance_exchange_rate',
+        'finance_balance_sheet',
+        'finance_profit',
+        'finance_cash_flow',
     ];
 
     /** 存量快照表：补列 + 唯一键换账套维度（[表, 旧唯一键, 新唯一键, 年列, 月列]） */
     private const SNAPSHOT_KEY_SWAPS = [
-        ['erp_finance_profit', 'uk_year_month', 'uk_ledger_period', 'year', 'month'],
-        ['erp_finance_balance_sheet', 'uk_report_period', 'uk_ledger_report', 'report_year', 'report_month'],
-        ['erp_finance_cash_flow', 'uk_report_period', 'uk_ledger_report', 'report_year', 'report_month'],
+        ['finance_profit', 'uk_year_month', 'uk_ledger_period', 'year', 'month'],
+        ['finance_balance_sheet', 'uk_report_period', 'uk_ledger_report', 'report_year', 'report_month'],
+        ['finance_cash_flow', 'uk_report_period', 'uk_ledger_report', 'report_year', 'report_month'],
     ];
 
     /** 本类 setUp 中缺表创建的表（tearDown 删除） */
@@ -109,7 +109,7 @@ abstract class F12MultiCompanyScaffold extends IntegrationTestCase
     private static function ownTableDdl(): array
     {
         return [
-            'erp_company' => <<<'SQL'
+            'company' => <<<'SQL'
 CREATE TABLE IF NOT EXISTS `erp_company` (
   `id`            BIGINT UNSIGNED NOT NULL,
   `code`          VARCHAR(50)     NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS `erp_company` (
   KEY `idx_parent_id` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL,
-            'erp_finance_ledger' => <<<'SQL'
+            'finance_ledger' => <<<'SQL'
 CREATE TABLE IF NOT EXISTS `erp_finance_ledger` (
   `id`            BIGINT UNSIGNED NOT NULL,
   `company_id`    BIGINT UNSIGNED NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `erp_finance_ledger` (
   KEY `idx_company_id` (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL,
-            'erp_finance_period' => <<<'SQL'
+            'finance_period' => <<<'SQL'
 CREATE TABLE IF NOT EXISTS `erp_finance_period` (
   `id`         BIGINT UNSIGNED NOT NULL,
   `ledger_id`  BIGINT UNSIGNED NOT NULL,
@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS `erp_finance_period` (
   KEY `idx_ledger_id` (`ledger_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL,
-            'erp_finance_consolidation_report' => <<<'SQL'
+            'finance_consolidation_report' => <<<'SQL'
 CREATE TABLE IF NOT EXISTS `erp_finance_consolidation_report` (
   `id`               BIGINT UNSIGNED NOT NULL,
   `company_id`       BIGINT UNSIGNED NOT NULL,
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS `erp_finance_consolidation_report` (
   KEY `idx_company_period` (`company_id`, `report_year`, `report_month`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL,
-            'erp_finance_elimination_item' => <<<'SQL'
+            'finance_elimination_item' => <<<'SQL'
 CREATE TABLE IF NOT EXISTS `erp_finance_elimination_item` (
   `id`           BIGINT UNSIGNED NOT NULL,
   `report_id`    BIGINT UNSIGNED NOT NULL,
@@ -206,7 +206,7 @@ SQL,
                 $this->createdTables[] = $table;
             }
         }
-        if ($schema->hasTable('erp_finance_voucher') && !self::hasColumn('erp_finance_voucher', 'ledger_id')) {
+        if ($schema->hasTable('finance_voucher') && !self::hasColumn('finance_voucher', 'ledger_id')) {
             self::runDdl('ALTER TABLE `erp_finance_voucher` ADD COLUMN `ledger_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `code`, ADD KEY `idx_ledger_id` (`ledger_id`)');
         }
         foreach (self::SNAPSHOT_KEY_SWAPS as [$table, $oldIndex, $newIndex, $yearCol, $monthCol]) {
@@ -254,13 +254,13 @@ SQL,
     protected function resetFixtures(): void
     {
         $db = Capsule::connection();
-        $companyIds = array_map('intval', $db->table('erp_company')
+        $companyIds = array_map('intval', $db->table('company')
             ->whereIn('code', self::COMPANY_CODES)->pluck('id')->all());
-        $reportIds = $companyIds === [] ? [] : array_map('intval', $db->table('erp_finance_consolidation_report')
+        $reportIds = $companyIds === [] ? [] : array_map('intval', $db->table('finance_consolidation_report')
             ->whereIn('company_id', $companyIds)->pluck('id')->all());
-        $ledgerIds = $companyIds === [] ? [] : array_map('intval', $db->table('erp_finance_ledger')
+        $ledgerIds = $companyIds === [] ? [] : array_map('intval', $db->table('finance_ledger')
             ->whereIn('company_id', $companyIds)->pluck('id')->all());
-        $voucherIds = $ledgerIds === [] ? [] : array_map('intval', $db->table('erp_finance_voucher')
+        $voucherIds = $ledgerIds === [] ? [] : array_map('intval', $db->table('finance_voucher')
             ->whereIn('ledger_id', $ledgerIds)->pluck('id')->all());
 
         $tryDelete = function (string $table, string $column, array $ids): void {
@@ -273,20 +273,20 @@ SQL,
                 // 清理失败仅记录，不掩盖测试结论
             }
         };
-        $tryDelete('erp_finance_elimination_item', 'report_id', $reportIds);
-        $tryDelete('erp_finance_consolidation_report', 'id', $reportIds);
-        $tryDelete('erp_finance_voucher_item', 'voucher_id', $voucherIds);
-        $tryDelete('erp_finance_voucher', 'id', $voucherIds);
-        $tryDelete('erp_finance_period', 'ledger_id', $ledgerIds);
-        $tryDelete('erp_finance_balance_sheet', 'ledger_id', $ledgerIds);
-        $tryDelete('erp_finance_profit', 'ledger_id', $ledgerIds);
-        $tryDelete('erp_finance_cash_flow', 'ledger_id', $ledgerIds);
-        $tryDelete('erp_finance_ledger', 'id', $ledgerIds);
-        $tryDelete('erp_company', 'id', $companyIds);
-        $tryDelete('erp_finance_account', 'id', self::FIXED_ACCOUNT_IDS);
-        $tryDelete('erp_finance_exchange_rate', 'id', [self::RATE_USD_CNY_ID]);
+        $tryDelete('finance_elimination_item', 'report_id', $reportIds);
+        $tryDelete('finance_consolidation_report', 'id', $reportIds);
+        $tryDelete('finance_voucher_item', 'voucher_id', $voucherIds);
+        $tryDelete('finance_voucher', 'id', $voucherIds);
+        $tryDelete('finance_period', 'ledger_id', $ledgerIds);
+        $tryDelete('finance_balance_sheet', 'ledger_id', $ledgerIds);
+        $tryDelete('finance_profit', 'ledger_id', $ledgerIds);
+        $tryDelete('finance_cash_flow', 'ledger_id', $ledgerIds);
+        $tryDelete('finance_ledger', 'id', $ledgerIds);
+        $tryDelete('company', 'id', $companyIds);
+        $tryDelete('finance_account', 'id', self::FIXED_ACCOUNT_IDS);
+        $tryDelete('finance_exchange_rate', 'id', [self::RATE_USD_CNY_ID]);
         if ($this->insertedCurrencyIds !== []) {
-            $tryDelete('erp_finance_currency', 'id', $this->insertedCurrencyIds);
+            $tryDelete('finance_currency', 'id', $this->insertedCurrencyIds);
         }
     }
 

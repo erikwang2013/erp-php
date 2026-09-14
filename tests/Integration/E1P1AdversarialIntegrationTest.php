@@ -32,14 +32,14 @@ use Throwable;
 #[Group('integration')]
 class E1P1AdversarialIntegrationTest extends IntegrationTestCase
 {
-    private const OWN_TABLES = ['erp_eam_inspection_result', 'erp_eam_inspection_task', 'erp_project_cost'];
+    private const OWN_TABLES = ['eam_inspection_result', 'eam_inspection_task', 'project_cost'];
     private const DEP_TABLES = [
-        'erp_eam_equipment', 'erp_eam_repair_order',
-        'erp_project', 'erp_project_member', 'erp_project_timesheet',
+        'eam_equipment', 'eam_repair_order',
+        'project', 'project_member', 'project_timesheet',
     ];
     private const ALTER_COLUMNS = [
-        'erp_project' => ['budget_amount'],
-        'erp_project_member' => ['hourly_rate'],
+        'project' => ['budget_amount'],
+        'project_member' => ['hourly_rate'],
     ];
     private const BASE_DATE = '2026-01-05'; // 周一，测试日期一律相对推进，日历无关
 
@@ -78,14 +78,14 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
                 $this->dropTableIfExists($table);
             }
             $cleanup = [
-                'erp_eam_inspection_result' => ['task_id', $this->taskIds],
-                'erp_eam_inspection_task' => ['id', $this->taskIds],
-                'erp_eam_repair_order' => ['equipment_id', $this->equipmentIds],
-                'erp_eam_equipment' => ['id', $this->equipmentIds],
-                'erp_project_cost' => ['project_id', $this->projectIds],
-                'erp_project_timesheet' => ['project_id', $this->projectIds],
-                'erp_project_member' => ['project_id', $this->projectIds],
-                'erp_project' => ['id', $this->projectIds],
+                'eam_inspection_result' => ['task_id', $this->taskIds],
+                'eam_inspection_task' => ['id', $this->taskIds],
+                'eam_repair_order' => ['equipment_id', $this->equipmentIds],
+                'eam_equipment' => ['id', $this->equipmentIds],
+                'project_cost' => ['project_id', $this->projectIds],
+                'project_timesheet' => ['project_id', $this->projectIds],
+                'project_member' => ['project_id', $this->projectIds],
+                'project' => ['id', $this->projectIds],
             ];
             foreach ($cleanup as $table => [$column, $ids]) {
                 if ($ids === []) {
@@ -104,9 +104,9 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
     private function createOwnTable(string $table): void
     {
         $cols = [
-            'erp_eam_inspection_task' => ['equipment_id' => 'uint', 'source_plan_id' => 'uint', 'task_date' => 'date', 'assignee_id' => 'uint', 'status' => 'tiny', 'remark' => 's500'],
-            'erp_eam_inspection_result' => ['task_id' => 'uint', 'item_name' => 's100', 'result' => 'tiny', 'remark' => 's500'],
-            'erp_project_cost' => ['project_id' => 'uint', 'task_id' => 'uint', 'employee_id' => 'uint', 'work_date' => 'date', 'source_type' => 's20', 'timesheet_id' => 'uint', 'category' => 'tiny', 'hours' => 'd12', 'rate' => 'd12', 'cost' => 'd14', 'remark' => 's500'],
+            'eam_inspection_task' => ['equipment_id' => 'uint', 'source_plan_id' => 'uint', 'task_date' => 'date', 'assignee_id' => 'uint', 'status' => 'tiny', 'remark' => 's500'],
+            'eam_inspection_result' => ['task_id' => 'uint', 'item_name' => 's100', 'result' => 'tiny', 'remark' => 's500'],
+            'project_cost' => ['project_id' => 'uint', 'task_id' => 'uint', 'employee_id' => 'uint', 'work_date' => 'date', 'source_type' => 's20', 'timesheet_id' => 'uint', 'category' => 'tiny', 'hours' => 'd12', 'rate' => 'd12', 'cost' => 'd14', 'remark' => 's500'],
         ];
         $build = static function (Blueprint $t) use ($table, $cols): void {
             $t->unsignedBigInteger('id')->primary();
@@ -264,10 +264,10 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
         self::assertFalse($again['task_created'], '复扫复用原任务');
         self::assertSame(2, $again['task_status'], '仍异常维持待维修');
         self::assertSame(0, $again['repair_order_id'], '状态 2 复扫绝不二次建单');
-        self::assertSame(1, $this->countRows('erp_eam_repair_order', 'equipment_id', $eq), '维修单仍唯一');
+        self::assertSame(1, $this->countRows('eam_repair_order', 'equipment_id', $eq), '维修单仍唯一');
         self::assertSame('点检异常项：制动油管(漏油)', (string) Capsule::table('eam_repair_order')
             ->where('equipment_id', $eq)->value('fault_description'), '维修单摘要保持首扫快照');
-        self::assertSame(3, $this->countRows('erp_eam_inspection_result', 'task_id', (int) $first['task_id']), '旧结果行已清除重建');
+        self::assertSame(3, $this->countRows('eam_inspection_result', 'task_id', (int) $first['task_id']), '旧结果行已清除重建');
         self::assertSame(1, (int) Capsule::table('eam_inspection_result')
             ->where('task_id', $first['task_id'])->where('result', 0)->count(), '转正常项已落库');
     }
@@ -282,7 +282,7 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
         $ok = $this->scan($eq, $day, [['item_name' => 'A', 'result' => 0]]);
         self::assertSame(1, $ok['task_status'], '异常复扫全正常 → 转已完成');
         self::assertSame(0, $ok['repair_order_id'], '恢复正常不建新单');
-        self::assertSame(1, $this->countRows('erp_eam_repair_order', 'equipment_id', $eq), '维修单随闭环保留');
+        self::assertSame(1, $this->countRows('eam_repair_order', 'equipment_id', $eq), '维修单随闭环保留');
         $this->assertThrowsMessage(
             fn () => $this->inspection()->scanExecute($eq, $day, [['item_name' => 'A', 'result' => 0]]),
             '设备当日点检已完成'
@@ -315,8 +315,8 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
         self::assertSame(2, $res['task_status']);
         self::assertNotSame($cancelled, $res['task_id'], '重建任务 ID 不与取消任务相同');
         self::assertSame(3, (int) Capsule::table('eam_inspection_task')->where('equipment_id', $eq)->count(), '原取消+重建取消+扫码重建共存三行');
-        self::assertSame(0, $this->countRows('erp_eam_inspection_result', 'task_id', $cancelled), '取消任务不沾新结果');
-        self::assertSame(2, $this->countRows('erp_eam_inspection_result', 'task_id', (int) $res['task_id']));
+        self::assertSame(0, $this->countRows('eam_inspection_result', 'task_id', $cancelled), '取消任务不沾新结果');
+        self::assertSame(2, $this->countRows('eam_inspection_result', 'task_id', (int) $res['task_id']));
         self::assertSame(0, (int) Capsule::table('eam_inspection_task')->where('id', $res['task_id'])->value('source_plan_id'), '扫码生成任务 source_plan_id=0');
     }
 
@@ -360,7 +360,7 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
             fn () => $this->scan($eq, $day, [['item_name' => 'A', 'result' => 0, 'remark' => str_repeat('r', 501)]]),
             '点检备注过长'
         );
-        self::assertSame(0, $this->countRows('erp_eam_inspection_result', 'task_id', $dirty), '拒绝路径不触碰脏数据行');
+        self::assertSame(0, $this->countRows('eam_inspection_result', 'task_id', $dirty), '拒绝路径不触碰脏数据行');
         self::assertSame(0, (int) Capsule::table('eam_inspection_task')
             ->where('equipment_id', $eq)->where('task_date', $day)->count(), '校验失败不自动建当日任务');
         self::assertSame(2, (int) Capsule::table('eam_inspection_task')->where('equipment_id', $eq)->count(), '任务总数不变');
@@ -447,7 +447,7 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $r1['created'], '仅正常费率成员归集');
         self::assertSame(0, $r1['skipped']);
         self::assertSame(2, $r1['refused'], '无成员行+费率 0 各拒一行');
-        self::assertSame(1, $this->countRows('erp_project_cost', 'project_id', $p), '拒绝行零半写入');
+        self::assertSame(1, $this->countRows('project_cost', 'project_id', $p), '拒绝行零半写入');
         $messages = array_column($r1['details'], 'message');
         self::assertContains("成员 {$u1} 未加入项目", $messages, '拒绝消息逐字明确');
         self::assertContains("成员 {$u2} 未配置费率", $messages, '费率 0 消息逐字明确');
@@ -455,7 +455,7 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
         self::assertSame(0, $r2['created']);
         self::assertSame(1, $r2['skipped'], '已归集行二次全量 skipped');
         self::assertSame(2, $r2['refused']);
-        self::assertSame(1, $this->countRows('erp_project_cost', 'project_id', $p), '重跑不重复行');
+        self::assertSame(1, $this->countRows('project_cost', 'project_id', $p), '重跑不重复行');
         // 补配后重跑补齐（幂等补漏），不产生重复
         $this->addMember($p, $u1, '100.00');
         $this->setRate($p, $u2, '200.00');
@@ -463,7 +463,7 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
         self::assertSame(2, $r3['created'], '补配费率后重跑补齐 2 行');
         self::assertSame(1, $r3['skipped']);
         self::assertSame(0, $r3['refused']);
-        self::assertSame(3, $this->countRows('erp_project_cost', 'project_id', $p));
+        self::assertSame(3, $this->countRows('project_cost', 'project_id', $p));
         self::assertSame('200.00', (string) Capsule::table('project_cost')->where('project_id', $p)->where('employee_id', $u1)->value('cost'), '2.00h×100.00');
         self::assertSame('600.00', (string) Capsule::table('project_cost')->where('project_id', $p)->where('employee_id', $u2)->value('cost'), '3.00h×200.00');
         // 手工与归集行共存（同一项目），总计 bcadd
@@ -527,19 +527,19 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
         // 区间过滤：from/to 边界含、区间外不取；from==to 单日可跑
         $r1 = $svc->generateFromTimesheet($p, $d, $this->addDays($d, 1));
         self::assertSame(2, $r1['created'], '只取 [d, d+1] 两行');
-        self::assertSame(2, $this->countRows('erp_project_cost', 'project_id', $p));
+        self::assertSame(2, $this->countRows('project_cost', 'project_id', $p));
         self::assertSame(1, $svc->generateFromTimesheet($p, $d, $d)['skipped'], 'd 日行已归集');
-        $before = $this->countRows('erp_project_cost', 'project_id', $p);
+        $before = $this->countRows('project_cost', 'project_id', $p);
         $this->assertThrowsMessage(fn () => $svc->generateFromTimesheet($p, $this->addDays($d, 1), $d), '起始日期不能晚于截止日期');
         $this->assertThrowsMessage(fn () => $svc->generateFromTimesheet($p, '2026-02-30', $d), '无效的日期区间');
         $this->assertThrowsMessage(fn () => $svc->generateFromTimesheet(99999999, $d, $d), '项目不存在');
-        self::assertSame($before, $this->countRows('erp_project_cost', 'project_id', $p), '非法区间零写入');
+        self::assertSame($before, $this->countRows('project_cost', 'project_id', $p), '非法区间零写入');
         // deleteManual：归集行拒删、手工行可删、重复删报不存在
         $tsRow = (int) Capsule::table('project_cost')->where('timesheet_id', $tsIn)->value('id');
         $this->assertThrowsMessage(fn () => $svc->deleteManual($tsRow), '工时归集生成的成本记录不可删除');
         $manual = $svc->createManual($p, ['work_date' => $d, 'category' => 2, 'cost' => '9.90']);
         $svc->deleteManual((int) $manual->id);
-        self::assertSame(0, $this->countRows('erp_project_cost', 'id', (int) $manual->id), '手工行删除成功');
+        self::assertSame(0, $this->countRows('project_cost', 'id', (int) $manual->id), '手工行删除成功');
         $this->assertThrowsMessage(fn () => $svc->deleteManual((int) $manual->id), '成本记录不存在');
         $this->assertThrowsMessage(fn () => $svc->projectPnl(99999999), '项目不存在');
     }

@@ -35,7 +35,7 @@ class P1M1PieceWageTest extends P1M1M2CostingScaffold
         $report2 = $this->createWorkReport($fixture['order_id'], $fixture['product_id'], $fixture['routing_id'], $employeeId, '5', '5', '2026-08-20');
         $this->workReportService()->audit($report2);
 
-        $this->assertRowCount('erp_mfg_piece_wage', ['employee_id' => $employeeId], 1, '同员工同月仅一行');
+        $this->assertRowCount('mfg_piece_wage', ['employee_id' => $employeeId], 1, '同员工同月仅一行');
         $row = $this->pieceWageRow($employeeId);
         $this->assertSame(2026, (int) $row->period_year, '期间年=报工年');
         $this->assertSame(8, (int) $row->period_month, '期间月=报工月');
@@ -60,8 +60,8 @@ class P1M1PieceWageTest extends P1M1M2CostingScaffold
         $r3 = $this->createWorkReport($fixture2['order_id'], $fixture2['product_id'], $fixture2['routing_id'], $empB, '1', '1', '2026-08-31');
         $this->workReportService()->audit($r3);
 
-        $this->assertRowCount('erp_mfg_piece_wage', ['employee_id' => $empA], 2, 'A 员工跨月两行');
-        $this->assertRowCount('erp_mfg_piece_wage', ['employee_id' => $empB], 1, 'B 员工独立一行');
+        $this->assertRowCount('mfg_piece_wage', ['employee_id' => $empA], 2, 'A 员工跨月两行');
+        $this->assertRowCount('mfg_piece_wage', ['employee_id' => $empB], 1, 'B 员工独立一行');
 
         $aug = $this->wageService()->periodSummary(2026, 8);
         $sep = $this->wageService()->periodSummary(2026, 9);
@@ -96,7 +96,7 @@ class P1M1PieceWageTest extends P1M1M2CostingScaffold
             '无效的计件归集日期'
         );
         $this->wageService()->accumulate($employeeId, '2026-08-15', '5', '0.00');
-        $this->assertRowCount('erp_mfg_piece_wage', ['employee_id' => $employeeId], 0, '零额静默');
+        $this->assertRowCount('mfg_piece_wage', ['employee_id' => $employeeId], 0, '零额静默');
     }
 
     /**

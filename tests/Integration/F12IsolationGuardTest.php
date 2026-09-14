@@ -56,13 +56,13 @@ class F12IsolationGuardTest extends F12MultiCompanyScaffold
     protected function resetFixtures(): void
     {
         $db = Capsule::connection();
-        $companyIds = array_map('intval', $db->table('erp_company')
+        $companyIds = array_map('intval', $db->table('company')
             ->whereIn('code', self::COMPANY_CODES)->pluck('id')->all());
-        $reportIds = $companyIds === [] ? [] : array_map('intval', $db->table('erp_finance_consolidation_report')
+        $reportIds = $companyIds === [] ? [] : array_map('intval', $db->table('finance_consolidation_report')
             ->whereIn('company_id', $companyIds)->pluck('id')->all());
-        $ledgerIds = $companyIds === [] ? [] : array_map('intval', $db->table('erp_finance_ledger')
+        $ledgerIds = $companyIds === [] ? [] : array_map('intval', $db->table('finance_ledger')
             ->whereIn('company_id', $companyIds)->pluck('id')->all());
-        $voucherIds = $ledgerIds === [] ? [] : array_map('intval', $db->table('erp_finance_voucher')
+        $voucherIds = $ledgerIds === [] ? [] : array_map('intval', $db->table('finance_voucher')
             ->whereIn('ledger_id', $ledgerIds)->pluck('id')->all());
 
         $tryDelete = function (string $table, string $column, array $ids): void {
@@ -75,20 +75,20 @@ class F12IsolationGuardTest extends F12MultiCompanyScaffold
                 // 清理失败仅记录，不掩盖测试结论
             }
         };
-        $tryDelete('erp_finance_elimination_item', 'report_id', $reportIds);
-        $tryDelete('erp_finance_consolidation_report', 'id', $reportIds);
-        $tryDelete('erp_finance_voucher_item', 'voucher_id', $voucherIds);
-        $tryDelete('erp_finance_voucher', 'id', $voucherIds);
-        $tryDelete('erp_finance_period', 'ledger_id', $ledgerIds);
-        $tryDelete('erp_finance_balance_sheet', 'ledger_id', $ledgerIds);
-        $tryDelete('erp_finance_profit', 'ledger_id', $ledgerIds);
-        $tryDelete('erp_finance_cash_flow', 'ledger_id', $ledgerIds);
-        $tryDelete('erp_finance_ledger', 'id', $ledgerIds);
-        $tryDelete('erp_company', 'id', $companyIds);
-        $tryDelete('erp_finance_account', 'id', $this->accountIds);
-        $tryDelete('erp_finance_exchange_rate', 'id', $this->rateIds);
+        $tryDelete('finance_elimination_item', 'report_id', $reportIds);
+        $tryDelete('finance_consolidation_report', 'id', $reportIds);
+        $tryDelete('finance_voucher_item', 'voucher_id', $voucherIds);
+        $tryDelete('finance_voucher', 'id', $voucherIds);
+        $tryDelete('finance_period', 'ledger_id', $ledgerIds);
+        $tryDelete('finance_balance_sheet', 'ledger_id', $ledgerIds);
+        $tryDelete('finance_profit', 'ledger_id', $ledgerIds);
+        $tryDelete('finance_cash_flow', 'ledger_id', $ledgerIds);
+        $tryDelete('finance_ledger', 'id', $ledgerIds);
+        $tryDelete('company', 'id', $companyIds);
+        $tryDelete('finance_account', 'id', $this->accountIds);
+        $tryDelete('finance_exchange_rate', 'id', $this->rateIds);
         if ($this->insertedCurrencyIds !== []) {
-            $tryDelete('erp_finance_currency', 'id', $this->insertedCurrencyIds);
+            $tryDelete('finance_currency', 'id', $this->insertedCurrencyIds);
         }
     }
 

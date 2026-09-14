@@ -45,11 +45,11 @@ use Throwable;
 class CreditControlIntegrationTest extends IntegrationTestCase
 {
     private const TABLES = [
-        'erp_customer',
-        'erp_sales_order',
-        'erp_sales_delivery',
-        'erp_sales_delivery_item',
-        'erp_finance_ar_ap',
+        'customer',
+        'sales_order',
+        'sales_delivery',
+        'sales_delivery_item',
+        'finance_ar_ap',
     ];
 
     /** 测试写入行的主键（tearDown 按 id 清理） */
@@ -64,7 +64,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
 
         $creditCols = Capsule::select(
             "SELECT COUNT(*) AS cnt FROM INFORMATION_SCHEMA.COLUMNS
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'erp_customer'
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer'
                AND COLUMN_NAME IN ('credit_days', 'credit_frozen', 'credit_over_ratio', 'credit_overdue_limit_amount')"
         );
         if ((int) ($creditCols[0]->cnt ?? 0) < 4) {
@@ -137,7 +137,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
     /** 客户夹具：默认全信用列关闭（存量 0），可按需覆盖 */
     private function createCustomer(array $credit = [], string $name = '信用测试客户'): int
     {
-        return $this->insertRow('erp_customer', array_merge([
+        return $this->insertRow('customer', array_merge([
             'code' => 'F7C-' . uniqid(),
             'name' => $name,
         ], [
@@ -151,7 +151,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
 
     private function createOrder(int $customerId, string $amount, int $status = 1): int
     {
-        return $this->insertRow('erp_sales_order', [
+        return $this->insertRow('sales_order', [
             'code' => 'F7O-' . uniqid(),
             'customer_id' => $customerId,
             'total_amount' => $amount,
@@ -161,7 +161,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
 
     private function createDelivery(int $orderId, int $customerId): int
     {
-        return $this->insertRow('erp_sales_delivery', [
+        return $this->insertRow('sales_delivery', [
             'code' => 'F7D-' . uniqid(),
             'order_id' => $orderId,
             'customer_id' => $customerId,
@@ -172,7 +172,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
 
     private function createDeliveryItem(int $deliveryId, string $amount): void
     {
-        $this->insertRow('erp_sales_delivery_item', [
+        $this->insertRow('sales_delivery_item', [
             'delivery_id' => $deliveryId,
             'product_id' => $this->nextId(),
             'amount' => $amount,
@@ -182,7 +182,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
     /** 应收夹具：type=1 应收；$settled 已核销额；$status 0 未核销 1 部分 2 已核销 */
     private function createAr(int $partnerId, string $amount, string $settled = '0.00', int $status = 0, ?string $dueDate = null): int
     {
-        return $this->insertRow('erp_finance_ar_ap', [
+        return $this->insertRow('finance_ar_ap', [
             'type' => 1,
             'partner_id' => $partnerId,
             'source_type' => 'f7_test',
@@ -466,7 +466,7 @@ class CreditControlIntegrationTest extends IntegrationTestCase
         $other = $this->createCustomer();
 
         // 同伙伴应付 99999 + 他客户应收 8000 → 本客户占用仍为 0
-        $this->insertRow('erp_finance_ar_ap', [
+        $this->insertRow('finance_ar_ap', [
             'type' => 2,
             'partner_id' => $customerId,
             'source_type' => 'f7_ap',

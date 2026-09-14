@@ -56,7 +56,7 @@ class F6ReconTest extends F6FundScaffold
         $r2 = $this->importBatch($accountId, $batch, $rows);
         $this->assertNull($r2[1]);
         $this->assertSame(['imported' => 0, 'skipped' => 1, 'duplicated' => true], $r2[0]);
-        $this->assertRowCount('erp_finance_bank_statement', ['bank_account_id' => $accountId], 1, '同批重复不落行');
+        $this->assertRowCount('finance_bank_statement', ['bank_account_id' => $accountId], 1, '同批重复不落行');
 
         $r3 = $this->importBatch($other, $batch, $rows);
         $this->assertSame(1, $r3[0]['imported'], '同批次不同账户不受幂等影响');
@@ -95,7 +95,7 @@ class F6ReconTest extends F6FundScaffold
         ];
         $r = $this->importBatch($accountId, $this->newBatch(), $rows);
         $this->assertSame('第 2 行交易日期非法', $r[1]);
-        $this->assertRowCount('erp_finance_bank_statement', ['bank_account_id' => $accountId], 0, '整批原子性：零落行');
+        $this->assertRowCount('finance_bank_statement', ['bank_account_id' => $accountId], 0, '整批原子性：零落行');
     }
 
     /** 批次号/账户守卫 */
@@ -137,14 +137,14 @@ class F6ReconTest extends F6FundScaffold
         // 异向同额日记账未核销 → 未达清单
         $this->assertCount(1, $data['unmatched_journals']);
         $this->assertSame($j2, $data['unmatched_journals'][0]['id']);
-        $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountId], 1);
+        $this->assertRowCount('finance_bank_recon_match', ['bank_account_id' => $accountId], 1);
 
         // 确定性：重复执行同结果，不重复落库
         $r2 = $this->reconService()->autoReconcile($accountId, self::D, self::D, 3);
         $this->assertNull($r2[1]);
         $this->assertCount(0, $r2[0]['matched'], '已对账流水不再参与');
         $this->assertCount(1, $r2[0]['unmatched_journals']);
-        $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountId], 1, '重复执行不重复写轨');
+        $this->assertRowCount('finance_bank_recon_match', ['bank_account_id' => $accountId], 1, '重复执行不重复写轨');
     }
 
     /** 日期窗口闭区间：D+3 命中（含边界）；窗口外 D+5 不参与任何候选 */
@@ -172,7 +172,7 @@ class F6ReconTest extends F6FundScaffold
         $this->assertCount(1, $r[0]['manual_candidates']);
         $this->assertSame([], $r[0]['manual_candidates'][0]['journals'], '银行未达：无候选日记账');
         $this->assertSame([], $r[0]['unmatched_journals'], '窗口外日记账不进入未达池');
-        $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountB], 0);
+        $this->assertRowCount('finance_bank_recon_match', ['bank_account_id' => $accountB], 0);
     }
 
     /** 自动-摘要第二段：放宽日期（记账错位 D+8），按对方户名命中唯一 → MATCH_AUTO_SUMMARY */
@@ -229,7 +229,7 @@ class F6ReconTest extends F6FundScaffold
         $cand = $r[0]['manual_candidates'][0];
         $this->assertCount(2, $cand['journals']);
         $this->assertSame([$jA, $jB], array_column($cand['journals'], 'id'));
-        $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountId], 0, '歧义不落库');
+        $this->assertRowCount('finance_bank_recon_match', ['bank_account_id' => $accountId], 0, '歧义不落库');
     }
 
     /** 同日同额双日记账 → 人工清单；手工核销其一后再跑自动 → 结果稳定 */
@@ -251,7 +251,7 @@ class F6ReconTest extends F6FundScaffold
         // 人工选定 jA → type 3
         $err = $this->reconService()->manualReconcile($accountId, $stmtId, $jA, 9);
         $this->assertNull($err);
-        $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountId, 'cash_journal_id' => $jA], 1);
+        $this->assertRowCount('finance_bank_recon_match', ['bank_account_id' => $accountId, 'cash_journal_id' => $jA], 1);
         $this->assertSame(3, (int) Capsule::table('finance_bank_recon_match')->where('cash_journal_id', $jA)->value('match_type'));
         $this->assertSame(9, (int) Capsule::table('finance_bank_recon_match')->where('cash_journal_id', $jA)->value('created_by'));
 
@@ -260,7 +260,7 @@ class F6ReconTest extends F6FundScaffold
         $this->assertSame([], $r2[0]['matched']);
         $this->assertSame([], $r2[0]['manual_candidates']);
         $this->assertSame([$jB], array_column($r2[0]['unmatched_journals'], 'id'));
-        $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountId], 1, '自动不覆盖人工轨');
+        $this->assertRowCount('finance_bank_recon_match', ['bank_account_id' => $accountId], 1, '自动不覆盖人工轨');
     }
 
     /** 手工核销守卫全链（顺序断言稳定消息） + 取消核销释放 */
@@ -293,9 +293,9 @@ class F6ReconTest extends F6FundScaffold
         // 取消核销：不存在记录 → 报错；删除后同对可重新核销（1:1 双释放）
         $this->assertSame('核销记录不存在', $svc->unreconcile($accountId, $this->nextId()));
         $this->assertNull($svc->unreconcile($accountId, $stmtIds[0]));
-        $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountId], 0);
+        $this->assertRowCount('finance_bank_recon_match', ['bank_account_id' => $accountId], 0);
         $this->assertNull($svc->manualReconcile($accountId, $stmtIds[0], $jMatch, 7), '取消后可重新核销');
-        $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountId], 1);
+        $this->assertRowCount('finance_bank_recon_match', ['bank_account_id' => $accountId], 1);
     }
 
     /** DB 级 1:1 硬约束：uk_statement/uk_journal 撞键 → QueryException（兜底并发场景） */
@@ -339,7 +339,7 @@ class F6ReconTest extends F6FundScaffold
         } catch (QueryException $e) {
             $this->assertStringContainsString('uk_journal', $e->getMessage());
         }
-        $this->assertRowCount('erp_finance_bank_recon_match', ['bank_account_id' => $accountId], 1, '冲突插入全部失败，仅首次成功');
+        $this->assertRowCount('finance_bank_recon_match', ['bank_account_id' => $accountId], 1, '冲突插入全部失败，仅首次成功');
     }
 
     /** 对账报告：已对清单 + 双方未达 + 分向汇总（in/out 字符串，2 位小数） */

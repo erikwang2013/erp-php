@@ -38,9 +38,9 @@ class C1MemberTest extends C1MemberScaffold
         $this->assertSame('', $member['remark']);
         $this->assertMatchesRegularExpression('/^1[3-9]\d{9}$/', (string) $member['phone']);
         $this->memberIds[] = $id; // openMember 直建：手动登记清理
-        $this->assertRowCount('erp_member', ['id' => $id], 1);
-        $this->assertRowCount('erp_member_balance_account', ['member_id' => $id], 1);
-        $this->assertRowCount('erp_member_point_account', ['member_id' => $id], 1);
+        $this->assertRowCount('member', ['id' => $id], 1);
+        $this->assertRowCount('member_balance_account', ['member_id' => $id], 1);
+        $this->assertRowCount('member_point_account', ['member_id' => $id], 1);
         $acc = Capsule::table('member_balance_account')->where('member_id', $id)->first();
         $this->assertSame('0.00', (string) $acc->balance, '储值账户初始 0.00 字符串落库');
         $point = Capsule::table('member_point_account')->where('member_id', $id)->first();
@@ -74,7 +74,7 @@ class C1MemberTest extends C1MemberScaffold
             $this->assertNull($data, 'case#' . $i);
             $this->assertSame($expectedErr, $err, 'case#' . $i);
         }
-        $this->assertRowCount('erp_member', ['phone' => $base['phone']], 0, '校验失败不落行');
+        $this->assertRowCount('member', ['phone' => $base['phone']], 0, '校验失败不落行');
     }
 
     /** 手机号唯一：重复开卡拒绝；软删后号码仍占用（uk_phone + withTrashed 双保险） */
@@ -96,7 +96,7 @@ class C1MemberTest extends C1MemberScaffold
         [$again, $againErr] = $svc->openMember(['phone' => $phone, 'name' => '王五三号']);
         $this->assertNull($again);
         $this->assertSame('该手机号已开卡，不可重复开卡', $againErr, '软删会员号码不可重开');
-        $this->assertRowCount('erp_member', ['phone' => $phone], 1, '不产生第二行');
+        $this->assertRowCount('member', ['phone' => $phone], 1, '不产生第二行');
     }
 
     /** 储值充值：金额边界校验（bcmath 陷阱形态全拒）+ 落账与流水勾稽 + 累计入总览 */
@@ -138,7 +138,7 @@ class C1MemberTest extends C1MemberScaffold
         $this->assertSame('150.00', $ok2['balance_after']);
         $acc = Capsule::table('member_balance_account')->where('member_id', $memberId)->first();
         $this->assertSame('150.00', (string) $acc->balance, '账户行与流水同步');
-        $this->assertRowCount('erp_member_balance_log', ['member_id' => $memberId, 'biz_type' => 'recharge'], 2);
+        $this->assertRowCount('member_balance_log', ['member_id' => $memberId, 'biz_type' => 'recharge'], 2);
     }
 
     /** 储值消费：余额不足整笔拒绝且不留流水；biz_id 纯数字校验；流水出负落库 */
@@ -199,7 +199,7 @@ class C1MemberTest extends C1MemberScaffold
         $this->assertNull($dup);
         $this->assertSame('该业务单已退款', $dupErr);
         $this->assertRowCount(
-            'erp_member_balance_log',
+            'member_balance_log',
             ['member_id' => $memberId, 'biz_type' => 'refund', 'biz_id' => (int) $biz],
             1
         );

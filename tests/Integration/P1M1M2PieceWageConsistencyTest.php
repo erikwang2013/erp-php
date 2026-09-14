@@ -68,7 +68,7 @@ class P1M1M2PieceWageConsistencyTest extends P1M1M2CostingScaffold
             '只有草稿状态的报工单可以审核'
         );
 
-        $this->assertRowCount('erp_mfg_piece_wage', ['employee_id' => $fixture['employee_id']], 1, '计件行不因重复审核翻倍');
+        $this->assertRowCount('mfg_piece_wage', ['employee_id' => $fixture['employee_id']], 1, '计件行不因重复审核翻倍');
         $this->assertBcEquals('25.00', (string) $this->pieceWageRow($fixture['employee_id'])->amount, '金额保持首次审核值');
     }
 
@@ -93,9 +93,9 @@ class P1M1M2PieceWageConsistencyTest extends P1M1M2CostingScaffold
             });
         }, '工序不存在');
 
-        $this->assertRowCount('erp_mfg_piece_wage', ['employee_id' => $fixture['employee_id']], 0, '计件行整体撤销');
+        $this->assertRowCount('mfg_piece_wage', ['employee_id' => $fixture['employee_id']], 0, '计件行整体撤销');
         $this->assertNull($this->wipRow($fixture['order_id']), 'WIP 台账整体撤销');
-        $this->assertRowCount('erp_mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '归集流水整体撤销');
+        $this->assertRowCount('mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '归集流水整体撤销');
 
         $first = $this->workReportRow($firstId);
         $this->assertSame(0, (int) $first->status, '首张单据回滚为草稿');
@@ -118,7 +118,7 @@ class P1M1M2PieceWageConsistencyTest extends P1M1M2CostingScaffold
         $r2 = $this->createWorkReport($f2['order_id'], $f2['product_id'], $f2['routing_id'], $employeeId, '5', '5', '2026-08-20');
         $this->workReportService()->audit($r2);
 
-        $this->assertRowCount('erp_mfg_piece_wage', ['employee_id' => $employeeId], 1, '两单归并为一行');
+        $this->assertRowCount('mfg_piece_wage', ['employee_id' => $employeeId], 1, '两单归并为一行');
         $wage = $this->pieceWageRow($employeeId);
         $this->assertBcEquals('15', (string) $wage->quantity, '数量 10+5');
         $this->assertBcEquals('40.00', (string) $wage->amount, '金额 25.00+15.00（不同单价）');

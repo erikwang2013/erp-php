@@ -34,7 +34,7 @@ class F5EInvoiceTest extends F5TaxScaffold
         $this->assertSame($result['bill_no'], $saved->electronic_no);
         $this->assertSame('issued', $saved->issue_status);
         // 平台调用轨迹：1 条 issue 成功日志
-        $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $invoiceId], 1);
+        $this->assertRowCount('tax_issue_log', ['invoice_id' => $invoiceId], 1);
         $log = Capsule::table('tax_issue_log')->where('invoice_id', $invoiceId)->first();
         $this->assertSame('issue', $log->action);
         $this->assertSame('mock', $log->platform);
@@ -47,7 +47,7 @@ class F5EInvoiceTest extends F5TaxScaffold
         $this->assertTrue($replay['success']);
         $this->assertTrue($replay['idempotent']);
         $this->assertSame($result['bill_no'], $replay['bill_no']);
-        $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $invoiceId], 1);
+        $this->assertRowCount('tax_issue_log', ['invoice_id' => $invoiceId], 1);
     }
 
     public function testIssueGuards(): void
@@ -73,8 +73,8 @@ class F5EInvoiceTest extends F5TaxScaffold
         $this->assertSame('仅 已审核(audited) 状态发票可开具数电票', $resDraft['error']);
 
         // guard 拒绝不写日志（无平台调用即无轨迹）
-        $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $ap], 0);
-        $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $draft], 0);
+        $this->assertRowCount('tax_issue_log', ['invoice_id' => $ap], 0);
+        $this->assertRowCount('tax_issue_log', ['invoice_id' => $draft], 0);
 
         // 未开票发票红冲 → 拒绝
         $fresh = $this->seedAuditedArInvoice($customerId, '1130.00', '1000.00', '130.00');
@@ -125,7 +125,7 @@ class F5EInvoiceTest extends F5TaxScaffold
         $saved = Capsule::table('finance_invoice')->where('id', $invoiceId)->first();
         $this->assertSame('voided', $saved->issue_status);
         $this->assertSame($issue['bill_no'], $saved->electronic_no);
-        $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $invoiceId], 2);
+        $this->assertRowCount('tax_issue_log', ['invoice_id' => $invoiceId], 2);
         $voidLog = Capsule::table('tax_issue_log')->where('invoice_id', $invoiceId)->where('action', 'void')->first();
         $this->assertNotNull($voidLog);
         $this->assertSame(1, (int) $voidLog->success);
@@ -140,7 +140,7 @@ class F5EInvoiceTest extends F5TaxScaffold
         $this->assertSame('发票已红冲，不能重复红冲', $reVoid['error']);
         $this->assertSame($issue['bill_no'], $reVoid['bill_no']);
         // 终态拒绝不产生平台调用
-        $this->assertRowCount('erp_tax_issue_log', ['invoice_id' => $invoiceId], 2);
+        $this->assertRowCount('tax_issue_log', ['invoice_id' => $invoiceId], 2);
     }
 
     public function testIssueLogsOrder(): void

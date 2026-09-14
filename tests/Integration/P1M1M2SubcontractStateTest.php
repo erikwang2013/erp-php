@@ -64,7 +64,7 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
         $inv = $this->inventoryRow($mat['product_id'], $mat['sku_id']);
         $this->assertBcEquals('10', (string) $inv->quantity, '首行出库被回滚，库存原样');
         // seedStock 本身写 1 条入库流水 → 基线=1，多出即为未回滚的出库流水
-        $this->assertRowCount('erp_inventory_flow', ['product_id' => $mat['product_id']], 1, '无残留出库流水');
+        $this->assertRowCount('inventory_flow', ['product_id' => $mat['product_id']], 1, '无残留出库流水');
     }
 
     /**
@@ -95,7 +95,7 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
         $sub = $this->subcontractRow($subcontractId);
         $this->assertSame(1, (int) $sub->status, '委外单停在已发料');
         $this->assertBcEquals('0', (string) $sub->received_qty, '未收料');
-        $this->assertRowCount('erp_inventory', ['product_id' => $out['product_id'], 'sku_id' => $out['sku_id']], 0, '无委外件入库行');
+        $this->assertRowCount('inventory', ['product_id' => $out['product_id'], 'sku_id' => $out['sku_id']], 0, '无委外件入库行');
     }
 
     /**
@@ -178,7 +178,7 @@ class P1M1M2SubcontractStateTest extends P1M1M2CostingScaffold
         $this->assertBcEquals('0', (string) $item->amount, '行金额还原');
         $sub = $this->subcontractRow($subcontractId);
         $this->assertSame(0, (int) $sub->status, '委外单未推进');
-        $this->assertRowCount('erp_inventory_flow', ['product_id' => $mat['product_id']], 0, '无出库流水');
+        $this->assertRowCount('inventory_flow', ['product_id' => $mat['product_id']], 0, '无出库流水');
     }
 
     /**

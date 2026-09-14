@@ -34,26 +34,26 @@ abstract class F3CostingScaffold extends IntegrationTestCase
     protected const TEST_ACCOUNT_IDS = [1 => 1001, 2 => 1002, 3 => 1003, 4 => 1004, 5 => 1005];
     /** F3 自有表（p0_f3.sql）— 缺表时最小化创建 */
     protected const F3_TABLES = [
-        'erp_mfg_material_issue',
-        'erp_mfg_material_issue_item',
-        'erp_mfg_cost_entry',
-        'erp_mfg_wip',
-        'erp_mfg_wip_flow',
-        'erp_mfg_order_cost',
-        'erp_finance_voucher_source',
-        'erp_finance_cost_account_config',
+        'mfg_material_issue',
+        'mfg_material_issue_item',
+        'mfg_cost_entry',
+        'mfg_wip',
+        'mfg_wip_flow',
+        'mfg_order_cost',
+        'finance_voucher_source',
+        'finance_cost_account_config',
     ];
     /** 依赖表（install.sql / p0_f1f2.sql 域）— 只读使用，绝不创建 */
     protected const DEP_TABLES = [
-        'erp_mfg_bom',
-        'erp_mfg_bom_item',
-        'erp_mfg_production_order',
-        'erp_product_sku',
-        'erp_inventory',
-        'erp_inventory_flow',
-        'erp_cost_record',
-        'erp_finance_voucher',
-        'erp_finance_voucher_item',
+        'mfg_bom',
+        'mfg_bom_item',
+        'mfg_production_order',
+        'product_sku',
+        'inventory',
+        'inventory_flow',
+        'cost_record',
+        'finance_voucher',
+        'finance_voucher_item',
     ];
 
     protected array $createdTables = [];
@@ -80,7 +80,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
         if ($missing !== []) {
             self::markTestSkipped('缺少依赖表: ' . implode(', ', $missing) . '（请先导入 install.sql）');
         }
-        if (!Capsule::schema()->hasColumn('erp_finance_voucher', 'ledger_id')) {
+        if (!Capsule::schema()->hasColumn('finance_voucher', 'ledger_id')) {
             self::markTestSkipped('erp_finance_voucher 缺少 ledger_id 列（依赖 database/p0_f1f2.sql 重放）');
         }
     }
@@ -95,22 +95,22 @@ abstract class F3CostingScaffold extends IntegrationTestCase
                 }
             }
             $cleanup = [
-                'erp_mfg_wip_flow' => ['order_id', $this->orderIds],
-                'erp_mfg_wip' => ['order_id', $this->orderIds],
-                'erp_mfg_order_cost' => ['order_id', $this->orderIds],
-                'erp_mfg_material_issue_item' => ['issue_id', $this->issueIds],
-                'erp_mfg_material_issue' => ['id', $this->issueIds],
-                'erp_mfg_cost_entry' => ['id', $this->entryIds],
-                'erp_finance_voucher_item' => ['voucher_id', $this->voucherIds],
-                'erp_finance_voucher_source' => ['voucher_id', $this->voucherIds],
-                'erp_finance_voucher' => ['id', $this->voucherIds],
-                'erp_inventory_flow' => ['product_id', $this->productIds],
-                'erp_cost_record' => ['product_id', $this->productIds],
-                'erp_inventory' => ['product_id', $this->productIds],
-                'erp_product_sku' => ['product_id', $this->productIds],
-                'erp_mfg_bom_item' => ['bom_id', $this->bomIds],
-                'erp_mfg_bom' => ['id', $this->bomIds],
-                'erp_finance_cost_account_config' => ['account_id', array_values(self::TEST_ACCOUNT_IDS)],
+                'mfg_wip_flow' => ['order_id', $this->orderIds],
+                'mfg_wip' => ['order_id', $this->orderIds],
+                'mfg_order_cost' => ['order_id', $this->orderIds],
+                'mfg_material_issue_item' => ['issue_id', $this->issueIds],
+                'mfg_material_issue' => ['id', $this->issueIds],
+                'mfg_cost_entry' => ['id', $this->entryIds],
+                'finance_voucher_item' => ['voucher_id', $this->voucherIds],
+                'finance_voucher_source' => ['voucher_id', $this->voucherIds],
+                'finance_voucher' => ['id', $this->voucherIds],
+                'inventory_flow' => ['product_id', $this->productIds],
+                'cost_record' => ['product_id', $this->productIds],
+                'inventory' => ['product_id', $this->productIds],
+                'product_sku' => ['product_id', $this->productIds],
+                'mfg_bom_item' => ['bom_id', $this->bomIds],
+                'mfg_bom' => ['id', $this->bomIds],
+                'finance_cost_account_config' => ['account_id', array_values(self::TEST_ACCOUNT_IDS)],
             ];
             foreach ($cleanup as $table => [$column, $ids]) {
                 if ($ids === []) {
@@ -194,7 +194,7 @@ abstract class F3CostingScaffold extends IntegrationTestCase
                 $t->tinyInteger('status')->nullable();
             }
             $t->dateTime('created_at')->nullable();
-            if (!in_array($table, ['erp_mfg_material_issue_item', 'erp_mfg_wip_flow', 'erp_finance_voucher_source'], true)) {
+            if (!in_array($table, ['mfg_material_issue_item', 'mfg_wip_flow', 'finance_voucher_source'], true)) {
                 $t->dateTime('updated_at')->nullable();
             }
             if ($table === 'mfg_material_issue' || $table === 'mfg_cost_entry') {

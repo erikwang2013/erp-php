@@ -58,7 +58,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertNull($e3);
         $this->assertSame('15.00', $again['balance_after'], '同 biz 二次消费照常扣款');
         $this->assertRowCount(
-            'erp_member_balance_log',
+            'member_balance_log',
             ['member_id' => $memberId, 'biz_type' => 'consume', 'biz_id' => (int) $bizA],
             2
         );
@@ -81,8 +81,8 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         [$d, $e] = $svc->refund($m2, '1.00', 'REF-X', 1001);
         $this->assertNull($d);
         $this->assertSame('业务单号非法（须为纯数字）', $e);
-        $this->assertRowCount('erp_member_balance_log', ['member_id' => $m2], 0, '形态拒绝零残留');
-        $this->assertRowCount('erp_member_balance_account', ['member_id' => $m2], 0, '未建账户行');
+        $this->assertRowCount('member_balance_log', ['member_id' => $m2], 0, '形态拒绝零残留');
+        $this->assertRowCount('member_balance_account', ['member_id' => $m2], 0, '未建账户行');
     }
 
     /**
@@ -114,7 +114,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertNull($dup);
         $this->assertSame('该业务单已退款', $e3, '同单判重仍生效');
         $this->assertRowCount(
-            'erp_member_balance_log',
+            'member_balance_log',
             ['member_id' => $memberId, 'biz_type' => 'refund', 'biz_id' => (int) $biz],
             1
         );
@@ -139,7 +139,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         [$over, $oe] = $svc->expirePoints($memberId, 1, 1001);
         $this->assertNull($over);
         $this->assertSame('积分不足', $oe);
-        $this->assertRowCount('erp_member_point_log', ['member_id' => $memberId], 2, '拒绝不留积分流水');
+        $this->assertRowCount('member_point_log', ['member_id' => $memberId], 2, '拒绝不留积分流水');
         $this->assertSame(0, (int) Capsule::table('member_point_account')
             ->where('member_id', $memberId)->value('points'), '账户仍为 0');
 
@@ -156,7 +156,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         }
         $this->assertSame(5, (int) Capsule::table('member_point_account')
             ->where('member_id', $memberId)->value('points'), 'TypeError 无副作用');
-        $this->assertRowCount('erp_member_point_log', ['member_id' => $memberId], 3);
+        $this->assertRowCount('member_point_log', ['member_id' => $memberId], 3);
 
         $logs = Capsule::table('member_point_log')->where('member_id', $memberId)->orderBy('id')->get();
         $sum = 0;
@@ -236,7 +236,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         [$i2, $e2] = $svc->issueCoupon($memberId, $templateId, 1001);
         $this->assertNull($e2);
         $this->assertNotSame($i1['coupon_id'], $i2['coupon_id']);
-        $this->assertRowCount('erp_member_coupon', ['member_id' => $memberId], 2, '同人同模板可重复领');
+        $this->assertRowCount('member_coupon', ['member_id' => $memberId], 2, '同人同模板可重复领');
         $this->assertSame(2, (int) Capsule::table('member_coupon_template')
             ->where('id', $templateId)->value('issued_qty'));
 
@@ -290,7 +290,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $bare = $this->seedMember();
         [$bo] = $svc->memberOverview($bare);
         $this->assertSame('0.00', $bo['balance']);
-        $this->assertRowCount('erp_member_balance_account', ['member_id' => $bare], 0, '总览不补建账户');
+        $this->assertRowCount('member_balance_account', ['member_id' => $bare], 0, '总览不补建账户');
     }
 
     /** ⑩金额精度：0.10+0.20 恒等串 0.30 无尾噪；亿级大额 DECIMAL(14,2) 满回环 */
@@ -345,7 +345,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertSame('40.00', (string) Capsule::table('member_balance_account')
             ->where('member_id', $memberId)->value('balance'), '余额永不为负（不超扣）');
         $this->assertRowCount(
-            'erp_member_balance_log',
+            'member_balance_log',
             ['member_id' => $memberId, 'biz_type' => 'consume'],
             1,
             '仅一单留流水'
@@ -372,7 +372,7 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
         $this->assertCount(1, $fails);
         $this->assertSame('该业务单已退款', $fails[0][1]);
         $this->assertRowCount(
-            'erp_member_balance_log',
+            'member_balance_log',
             ['member_id' => $memberId, 'biz_type' => 'refund', 'biz_id' => (int) $biz],
             1
         );
@@ -397,9 +397,9 @@ final class C1AdversarialIntegrationTest extends C1MemberScaffold
 
         $winner = Capsule::table('member')->where('phone', $phone)->first();
         $this->assertNotNull($winner);
-        $this->assertRowCount('erp_member', ['phone' => $phone], 1, '同号仅一行');
-        $this->assertRowCount('erp_member_balance_account', ['member_id' => (int) $winner->id], 1);
-        $this->assertRowCount('erp_member_point_account', ['member_id' => (int) $winner->id], 1);
+        $this->assertRowCount('member', ['phone' => $phone], 1, '同号仅一行');
+        $this->assertRowCount('member_balance_account', ['member_id' => (int) $winner->id], 1);
+        $this->assertRowCount('member_point_account', ['member_id' => (int) $winner->id], 1);
         $this->memberIds[] = (int) $winner->id; // 子进程落行，父进程登记清理
     }
 

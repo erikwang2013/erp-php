@@ -33,17 +33,17 @@ use Throwable;
 class P1ProjectCostTest extends IntegrationTestCase
 {
     /** 自有表（database/e1p1.sql 新建）— 缺表时最小化创建并登记，tearDown 删除 */
-    private const OWN_TABLES = ['erp_project_cost'];
+    private const OWN_TABLES = ['project_cost'];
     /** 依赖表（install.sql）— 只读使用，绝不创建 */
     private const DEP_TABLES = [
-        'erp_project',
-        'erp_project_member',
-        'erp_project_timesheet',
+        'project',
+        'project_member',
+        'project_timesheet',
     ];
     /** e1p1.sql ALTER 追加列 — 缺失说明库未导本次 DDL，整类跳过 */
     private const ALTER_COLUMNS = [
-        'erp_project' => ['budget_amount'],
-        'erp_project_member' => ['hourly_rate'],
+        'project' => ['budget_amount'],
+        'project_member' => ['hourly_rate'],
     ];
 
     private array $createdTables = [];
@@ -79,10 +79,10 @@ class P1ProjectCostTest extends IntegrationTestCase
                 $this->dropTableIfExists($table);
             }
             $cleanup = [
-                'erp_project_cost' => ['project_id', $this->projectIds],
-                'erp_project_timesheet' => ['project_id', $this->projectIds],
-                'erp_project_member' => ['project_id', $this->projectIds],
-                'erp_project' => ['id', $this->projectIds],
+                'project_cost' => ['project_id', $this->projectIds],
+                'project_timesheet' => ['project_id', $this->projectIds],
+                'project_member' => ['project_id', $this->projectIds],
+                'project' => ['id', $this->projectIds],
             ];
             foreach ($cleanup as $table => [$column, $ids]) {
                 if ($ids === []) {

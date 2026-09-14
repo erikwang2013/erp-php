@@ -59,7 +59,7 @@ class F6AdversarialTest extends F6FundScaffold
         self::assertNull($bdata, '票据金额 1e3 应拒绝');
         self::assertStringContainsString('票面金额非法', (string) $berr);
 
-        self::assertRowCount('erp_finance_bank_statement', ['bank_account_id' => $account], 0, '拒绝行不落库');
+        self::assertRowCount('finance_bank_statement', ['bank_account_id' => $account], 0, '拒绝行不落库');
     }
 
     #[TestDox('输入形态：.5/5./+5/空白/零 → 各自明确拒绝，负余额是合法形态')]

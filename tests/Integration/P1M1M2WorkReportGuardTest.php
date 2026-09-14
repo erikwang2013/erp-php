@@ -91,7 +91,7 @@ class P1M1M2WorkReportGuardTest extends P1M1M2CostingScaffold
         );
         $this->assertSame(0, (int) $this->workReportRow($reportId)->status, '单据保持草稿');
         $this->assertNull($this->wipRow($fixture['order_id']), '不得产生 WIP');
-        $this->assertRowCount('erp_mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '不得产生流水');
+        $this->assertRowCount('mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '不得产生流水');
     }
 
     /**
@@ -158,7 +158,7 @@ class P1M1M2WorkReportGuardTest extends P1M1M2CostingScaffold
         $row = $this->workReportRow($reportId);
         $this->assertSame(0, (int) $row->status, '事务回滚，单据保持草稿');
         $this->assertBcEquals('0.00', (string) $row->amount, '金额未冻结');
-        $this->assertRowCount('erp_mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '不得追加流水');
+        $this->assertRowCount('mfg_wip_flow', ['order_id' => $fixture['order_id']], 0, '不得追加流水');
     }
 
     /**

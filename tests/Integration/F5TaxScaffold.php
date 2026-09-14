@@ -28,13 +28,13 @@ abstract class F5TaxScaffold extends IntegrationTestCase
 {
     /** F5 自有表（f5_tax.sql）——缺失即跳过 */
     protected const F5_TABLES = [
-        'erp_tax_input_invoice',
-        'erp_tax_issue_log',
+        'tax_input_invoice',
+        'tax_issue_log',
     ];
     /** 依赖表（install.sql）——只读/种子使用，绝不创建 */
     protected const DEP_TABLES = [
-        'erp_finance_invoice',
-        'erp_customer',
+        'finance_invoice',
+        'customer',
     ];
 
     /** 测试数据行标记前缀（发票号/客户编码共用） */
@@ -59,7 +59,7 @@ abstract class F5TaxScaffold extends IntegrationTestCase
         if ($missingDep !== []) {
             self::markTestSkipped('缺少依赖表: ' . implode(', ', $missingDep) . '（请先导入 install.sql）');
         }
-        if (!Capsule::schema()->hasColumns('erp_finance_invoice', ['electronic_no', 'issue_status'])) {
+        if (!Capsule::schema()->hasColumns('finance_invoice', ['electronic_no', 'issue_status'])) {
             self::markTestSkipped('erp_finance_invoice 缺 electronic_no/issue_status 列（请先执行 mysql < database/f5_tax.sql 建表）');
         }
         $this->poolIds = $this->invoiceIds = $this->customerIds = [];
@@ -70,10 +70,10 @@ abstract class F5TaxScaffold extends IntegrationTestCase
         if (self::$capsule !== null) {
             try {
                 // 开票日志先于发票行清理（日志引用发票 id）
-                $this->deleteIn('erp_tax_issue_log', 'invoice_id', $this->invoiceIds);
-                $this->deleteIn('erp_tax_input_invoice', 'id', $this->poolIds);
-                $this->deleteIn('erp_finance_invoice', 'id', $this->invoiceIds);
-                $this->deleteIn('erp_customer', 'id', $this->customerIds);
+                $this->deleteIn('tax_issue_log', 'invoice_id', $this->invoiceIds);
+                $this->deleteIn('tax_input_invoice', 'id', $this->poolIds);
+                $this->deleteIn('finance_invoice', 'id', $this->invoiceIds);
+                $this->deleteIn('customer', 'id', $this->customerIds);
             } catch (Throwable) {
             }
         }
