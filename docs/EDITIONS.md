@@ -29,6 +29,22 @@
 
 ---
 
+## v1.17.0 变更（2026-09-15）
+
+> 版本定位不变：仓库仍只实现完整版（Full）一套代码；Lite/Standard 列为产品规划值，对应分支已归档冻结。
+
+- **管理端从两套变三套**：Angular 22（`apps/angular/`）与 React 19 + Vite（`apps/react/`）加入，
+  与既有 Flutter 3.x Web（`apps/flutter/`）并列，三端共用同一套 `/admin/v1`、`/api/v1`、`/open/v1` 接口。
+- **全平台 13 语种**（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id）：
+  - 后端响应消息 `resource/translations/<locale>/`——11 个语种各 542 条、`zh_CN` 533、`en` 30
+    （口径：叶子条目；`validation.php` 的 `attributes` 为分组容器不计入。`en` 行「英文即 key」，词典近乎为空）
+  - 管理端界面：Angular 源词典 1453 键、React 1447 键 × 11 个新语种；**按语种懒加载**、每语种各成一个 chunk
+  - 生成器：`scripts/gen-be-locales.mjs`（后端）、`scripts/gen-fe-locales.mjs`（前端，`--app angular|react`）
+  - 切换入口：顶栏**独立 globe 图标** + 个人中心下拉（两端一致）
+- **Flutter 与 HarmonyOS 仍为中/英两语种**，未纳入本轮。
+- **对下表的影响**：Full 列 163 表 / 122 控制器 / 19 业务模块 → **227 / 159 / 23**；
+  完成度矩阵新增「多语言 (i18n)」行（模块行 44 → 45，后端 API 39 → 40，业务逻辑 33 → 34）。
+
 ## v1.4.0 变更（2026-09-05）
 
 > 版本定位不变：仓库仍只实现完整版（Full）一套代码；Lite/Standard 列为产品规划值，对应分支已归档冻结。
@@ -180,4 +196,4 @@
   不再同步 `main` 增量，也不做强制更新或推送（避免维护三条代码线）。
 - **版本差异以版本 tag 记录**：发版由 CI release 作业按最新 tag 幂等创建 `vX.Y.Z`
   （见 `scripts/bump-version.sh`）；各版本间的功能差异以 tag 及上文功能对比表为准，而非维护分支代码线。
-- **验证**：`main` 的 CI（php -l / PHPStan / PHPUnit / e2e）即版本发布验证，归档分支不再单独运行 CI。
+- **验证**：`main` 的 CI 即版本发布验证，归档分支不再单独运行 CI。（2026-09-15 起 release 作业依赖为 `docs` + `e2e`；php 作业照跑但不拦发版——其红点是 CI 专属的集成测试历史债，见 `.github/workflows/ci.yml` 注释。）
