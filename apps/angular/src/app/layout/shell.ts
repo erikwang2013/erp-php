@@ -17,7 +17,7 @@ import { filter } from 'rxjs';
 import { MENUS, NOTIFICATION_PATH, RESOURCE_ROUTES, SCREENS, SPECIAL_ROUTES } from '../config/menu';
 import { http } from '../core/api.service';
 import { AuthStore } from '../core/auth.store';
-import { currentLocale, setLocale } from '../core/i18n.service';
+import { LOCALES, currentLocale, setLocale, type Locale } from '../core/i18n.service';
 import { TrPipe } from '../core/tr.pipe';
 import { IconComponent } from '../ui/icon';
 import { PageTabs } from './page-tabs';
@@ -155,10 +155,16 @@ export class Shell implements OnInit, OnDestroy {
     if (path !== this.url()) void this.router.navigateByUrl(path);
   }
 
-  /** 语言切换：模板里的中文都走 | tr（impure 管道），改完 signal 立即重渲染 */
-  toggleLocale(e: Event): void {
+  /** 语种清单（切换器用；label 是各语种自称，不翻译） */
+  readonly locales = LOCALES;
+
+  /** 模板要读当前语种（勾选标记），而模板只能访问组件成员，故把函数挂上来 */
+  readonly currentLocale = currentLocale;
+
+  /** 切语种：模板里的中文都走 | tr（impure 管道），词典装填完成后立即重渲染 */
+  pickLocale(e: Event, code: Locale): void {
     e.stopPropagation();
-    setLocale(currentLocale() === 'zh' ? 'en' : 'zh');
+    setLocale(code);
     this.userOpen.set(false);
   }
 

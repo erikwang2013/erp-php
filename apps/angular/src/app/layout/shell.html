@@ -84,12 +84,12 @@
         }
       </button>
 
-      <!-- 语言切换常驻顶栏：原先只在下拉菜单里，功能页面上看不见，等于没有 -->
+      <!-- 界面语言常驻顶栏：点开用户菜单，里面是 13 语种清单（原先只有一个中英切换项） -->
       <button
         type="button"
         class="btn-icon"
-        [title]="'中英切换' | tr"
-        (click)="toggleLocale($event)"
+        [title]="'界面语言' | tr"
+        (click)="userOpen.set(!userOpen())"
       >
         <app-icon name="global" />
       </button>
@@ -103,10 +103,14 @@
               <app-icon name="user" />
               <span>{{ '个人中心' | tr }}</span>
             </div>
-            <div class="nav-item" (click)="toggleLocale($event)">
-              <app-icon name="global" />
-              <span>{{ '中英切换' | tr }}</span>
-            </div>
+            @for (l of locales; track l.code) {
+              <div class="nav-item" (click)="pickLocale($event, l.code)">
+                <span>{{ l.label }}</span>
+                @if (currentLocale() === l.code) {
+                  <app-icon name="check" class="locale-check" />
+                }
+              </div>
+            }
             <div class="nav-item danger" (click)="doLogout()">
               <app-icon name="logout" />
               <span>{{ '退出登录' | tr }}</span>

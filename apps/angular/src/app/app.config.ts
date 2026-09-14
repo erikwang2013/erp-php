@@ -12,8 +12,12 @@ import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { routes } from './app.routes';
 import { APP_ICONS } from './ui/icon';
+import { initLocale } from './core/i18n.service';
 
 registerLocaleData(zh);
+
+// 启动即装填持久化语种的词典（默认 zh 无需词典 → 零开销；其余语种按需拉 chunk）
+initLocale();
 
 export const appConfig: ApplicationConfig = {
   providers: [
