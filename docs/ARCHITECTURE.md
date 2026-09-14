@@ -162,7 +162,7 @@ flowchart TD
 
 | 端 | 词典位置 | 规模 | 生成器 |
 |----|----------|------|--------|
-| 后端 | `resource/translations/<locale>/{common,modules,validation}.php` | 13 个语种目录；11 个语种各 543 条，`zh_CN` 535、`en` 31 | `scripts/gen-be-locales.mjs` |
+| 后端 | `resource/translations/<locale>/{common,modules,validation}.php` | 13 个语种目录；11 个语种各 542 条，`zh_CN` 533、`en` 30 | `scripts/gen-be-locales.mjs` |
 | Angular | 源 `apps/angular/src/app/core/zh-en/part1..4.ts` → 产物 `core/zh-<code>.ts` | 源词典 1453 条 | `scripts/gen-fe-locales.mjs --app angular` |
 | React | 源 `apps/react/src/lib/i18n/zhEn.ts` → 产物 `lib/i18n/zh<Code>.ts` | 源词典 1447 条 | `scripts/gen-fe-locales.mjs --app react` |
 

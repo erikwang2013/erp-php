@@ -88,7 +88,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 ### 国际化（13 语种）
 - 语种清单：`zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
-- 后端词典：`resource/translations/<locale>/{common,modules,validation}.php`，13 个语种目录；11 个语种各 543 条，`zh_CN` 535、`en` 31
+- 后端词典：`resource/translations/<locale>/{common,modules,validation}.php`，13 个语种目录；11 个语种各 542 条，`zh_CN` 533、`en` 30（叶子条目口径，容器键不计）
   - 「英文即 key」：`en` 的 common/modules 留空；`validation.php` 的键是框架规则名，只译值
   - 生成器：`scripts/gen-be-locales.mjs`
 - 前端词典（Angular）：源 `apps/angular/src/app/core/zh-en/part1..4.ts`（1453 条）→ 产物 `apps/angular/src/app/core/zh-<code>.ts`

@@ -132,7 +132,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 
 | 层 | 词典位置 | 规模 |
 |---|---------|------|
-| 后端消息 | `resource/translations/{语种}/` | 13 个语种目录，11 个新语种各 543 条，另 `zh_CN` 535、`en` 31 |
+| 后端消息 | `resource/translations/{语种}/` | 13 个语种目录，11 个新语种各 542 条，另 `zh_CN` 533、`en` 30（口径：叶子条目；`validation.php` 的 `attributes` 是分组容器，不计入） |
 | Angular 管理端 | `apps/angular/src/app/core/zh-*.ts`（源词典 `zh-en/`） | 源词典 1453 键 × 11 新语种 |
 | React 管理端 | `apps/react/src/lib/i18n/zh*.ts` | 源词典 1447 键 × 11 新语种 |
 
@@ -199,9 +199,9 @@ open-erp/
 ├── tests/                      # PHPUnit 测试（<!-- stats:test_files=108 --> 个测试文件，<!-- stats:tests=960 --> 个测试方法，<!-- stats:assertions=4608 --> 条断言）
 ├── resource/
 │   └── translations/           # 13 语种后端消息词典 (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
-│       ├── zh_CN/              # 中文翻译 (535 条)
-│       ├── en/                 # 英文即 key，仅框架规则名等 31 条
-│       └── ja|ko|de|.../       # 其余 11 语种各 543 条（生成器 scripts/gen-be-locales.mjs）
+│       ├── zh_CN/              # 中文翻译 (533 条)
+│       ├── en/                 # 英文即 key，仅框架规则名等 30 条
+│       └── ja|ko|de|.../       # 其余 11 语种各 542 条（生成器 scripts/gen-be-locales.mjs）
 ├── public/                     # 公共入口
 ├── runtime/                    # 运行时文件
 └── vendor/                     # Composer 依赖
