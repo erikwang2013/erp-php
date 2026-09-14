@@ -418,11 +418,30 @@ SCOUT_SOFT_DELETE=true
 
 ### API 文档
 
-项目使用 hg/apidoc 自动生成接口文档，访问 `/apidoc` 查看。
+项目使用 `erikwang2013/apidoc-php`，**文档由控制器注解自动生成**，不需要单独维护：
 
-- 管理端接口 (Admin)：25 个模块分组，含完整请求参数和响应结构
-- 客户端接口 (Service API)：认证/验证码/商品 3 个分组
-- 所有接口标注了 JWT 认证、API 版本、国际化等全局请求头
+```bash
+php start.php start          # 启动后端
+# 然后用浏览器访问
+http://localhost:8788/apidoc
+```
+
+- **访问路径**：`/apidoc`（插件路由前缀，见 `config/plugin/erikwang2013/apidoc/route.php`）；
+  该路径在限流中间件里是放行的，批量浏览注解不会被限流拦下
+- **覆盖**：管理端接口 (Admin) 按模块分组，含完整请求参数与响应结构；客户端接口 (Service API) 含认证/验证码/商品
+- **怎么加新接口的文档**：在控制器方法上标注解即可，保存后刷新 `/apidoc` 立即生效
+
+  ```php
+  #[\erikwang2013\apidoc\annotation\Title("商品列表")]
+  #[\erikwang2013\apidoc\annotation\Desc("分页查询商品")]
+  #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+  #[\erikwang2013\apidoc\annotation\Method("GET")]
+  #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+  #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+  public function index(Request $request): Response { /* ... */ }
+  ```
+
+- 生产环境如需限制访问，参考 `docs/nginx-security.conf`
 
 ### 统一响应格式
 
@@ -551,6 +570,45 @@ Authorization: Bearer <token>
 → [API 参考文档](docs/API.md)
 
 ## 前端说明
+
+### Angular 管理端（`apps/angular/`）
+
+```bash
+cd apps/angular
+npm install
+npm run dev        # ng serve → http://localhost:4200
+npm run build      # tsc --noEmit + ng build，产物 dist/angular
+npm run typecheck  # 只做类型检查
+```
+
+- **Node 版本要求**：Angular CLI 要求 **Node ≥ 22.22.3**。本机版本偏低时用 npx 临时指定
+  （本仓库最常用的构建姿势，CI 之外均照此）：
+
+  ```bash
+  npx --yes --package=node@22.22.3 -- node node_modules/@angular/cli/bin/ng.js build
+  ```
+
+- **开发代理**：`proxy.conf.json` 已把 `/admin` `/api` `/open` `/health` `/metrics` `/install`
+  代理到 `http://localhost:8788`，因此 `ng serve` 时**无需**再配置后端地址
+- **架构**：config 驱动 —— `src/app/config/domains/*.ts` 声明菜单与资源页，**一个 `ResourcePage`
+  渲染全部业务页**（新增资源页 ≈ 加一个配置对象，不必写组件）
+- **多语言**：13 语种，词典按语种懒加载（各成一个 chunk）；顶栏 globe 图标切换
+- **自检**（均无需浏览器，直接 `node` 跑）：`scripts/check-ng-tree-semantics.mjs`、
+  `check-ng-i18n-dict.mjs`、`check-ng-spec-attrs.mjs`
+
+### React 管理端（`apps/react/`）
+
+```bash
+cd apps/react
+npm install
+npm run dev        # Vite → http://localhost:5173
+npm run build      # tsc --noEmit + vite build，产物 dist/
+```
+
+- 与 Angular 同为 **config 驱动**：`src/config/domains/*.ts` 声明菜单与资源页，
+  渲染引擎在 `src/components/ResourcePage.tsx`；样式令牌 `src/styles/tokens.css`
+  （Angular 端的 `styles/theme.less` 与之同值）
+- 语言切换入口在**个人中心**页（Angular 端另有顶栏 globe 图标）
 
 ### Flutter 管理后台（PC 风格）
 
