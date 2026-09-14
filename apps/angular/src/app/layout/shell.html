@@ -84,6 +84,16 @@
         }
       </button>
 
+      <!-- 语言切换常驻顶栏：原先只在下拉菜单里，功能页面上看不见，等于没有 -->
+      <button
+        type="button"
+        class="btn-icon"
+        [title]="'中英切换' | tr"
+        (click)="toggleLocale($event)"
+      >
+        <app-icon name="global" />
+      </button>
+
       <div class="topbar-user" (click)="userOpen.set(!userOpen())">
         <div class="avatar">{{ initial() }}</div>
         <span>{{ user()?.real_name || user()?.username }}</span>
