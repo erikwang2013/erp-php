@@ -17,7 +17,7 @@ import { signal } from '@angular/core';
  */
 
 export type Locale =
-  | 'zh' | 'en' | 'ko' | 'ru' | 'de' | 'fr' | 'es' | 'pt' | 'hi' | 'ar' | 'bn' | 'id' | 'ja';
+  'zh' | 'en' | 'ko' | 'ru' | 'de' | 'fr' | 'es' | 'pt' | 'hi' | 'ar' | 'bn' | 'id' | 'ja';
 
 /** 非中文语种（词典文件 core/zh-<code>.ts 的字母表） */
 export type DictLocale = Exclude<Locale, 'zh'>;
