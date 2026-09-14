@@ -182,17 +182,39 @@ abstract class IntegrationTestCase extends TestCase
     /**
      * 测试表不存在时按蓝图创建；已存在则跳过（支持 CI 多轮运行幂等）。
      */
+    /** 本用例**自己创建**的表（只有这些才允许被 drop —— 见 dropTableIfCreated） */
+    private static array $createdTables = [];
+
     protected static function createTableIfMissing(string $table, callable $blueprint): void
     {
         $schema = Capsule::schema();
         if ($schema->hasTable($table)) {
-            return;
+            return; // 本来就存在（可能是真实业务表）→ 不记入 created，tearDown 不得删
         }
         $schema->create($table, $blueprint);
+        self::$createdTables[$table] = true;
     }
 
     /**
-     * 测试表存在则删除（清理失败不掩盖测试结果）。
+     * 只删「本次用例自己建的」表。
+     *
+     * 为什么不能直接用 dropTableIfExists：连接前缀与 app 一致（erp_）之后，
+     * 脚手架声明的 `hr_job` 会解析成**真实表 erp_hr_job** —— 用它做 tearDown 会
+     * 把真表删掉（2026-09-14 实际发生：13 张 HR 表被删除）。
+     * 建表时记名、删表时核对，才不会误伤本来就存在的表。
+     */
+    protected static function dropTableIfCreated(string $table): void
+    {
+        if (!isset(self::$createdTables[$table])) {
+            return;
+        }
+        self::dropTableIfExists($table);
+        unset(self::$createdTables[$table]);
+    }
+
+    /**
+     * 测试表存在则删除（清理失败不掩盖测试结果）。**底层助手**：会删任何存在的表，
+     * 只应由 dropTableIfCreated 调用（或调用方自己确保那是它建的）。
      */
     protected static function dropTableIfExists(string $table): void
     {

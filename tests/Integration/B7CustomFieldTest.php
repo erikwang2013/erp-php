@@ -73,7 +73,7 @@ class B7CustomFieldTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         if (self::$capsule !== null) {
-            self::dropTableIfExists(self::DEF_TABLE);
+            self::dropTableIfCreated(self::DEF_TABLE);
         }
         parent::tearDown();
     }

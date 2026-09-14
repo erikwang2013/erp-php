@@ -45,7 +45,7 @@ abstract class H1H2Scaffold extends IntegrationTestCase
     protected function tearDown(): void
     {
         foreach (self::H1H2_TABLES as $table) {
-            self::dropTableIfExists($table);
+            self::dropTableIfCreated($table);
         }
         parent::tearDown();
     }

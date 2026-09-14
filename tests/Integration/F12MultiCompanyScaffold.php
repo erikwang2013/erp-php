@@ -96,7 +96,7 @@ abstract class F12MultiCompanyScaffold extends IntegrationTestCase
             $this->currencyIdByCode = [];
             $this->insertedCurrencyIds = [];
             foreach (array_reverse($this->createdTables) as $table) {
-                $this->dropTableIfExists($table);
+                $this->dropTableIfCreated($table);
             }
             $this->createdTables = [];
         }

@@ -68,7 +68,7 @@ class FinanceTransactionIntegrationTest extends IntegrationTestCase
         if (self::$capsule !== null) {
             foreach (self::TABLES as $table) {
                 if (in_array($table, $this->createdTables, true)) {
-                    self::dropTableIfExists($table);
+                    self::dropTableIfCreated($table);
                     continue;
                 }
                 try {

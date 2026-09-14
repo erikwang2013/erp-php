@@ -66,7 +66,7 @@ class E1InspectionTest extends IntegrationTestCase
     {
         if (self::$capsule !== null) {
             foreach (array_reverse($this->createdTables) as $table) {
-                $this->dropTableIfExists($table);
+                $this->dropTableIfCreated($table);
             }
             // 例外行雪花 ID 服务端生成未登记，按本类登记 ID 归集清理（维修单按设备 ID）
             $cleanup = [

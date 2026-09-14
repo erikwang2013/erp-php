@@ -59,8 +59,8 @@ class B5TenantTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         if (self::$capsule !== null) {
-            self::dropTableIfExists(self::REGISTRY_TABLE);
-            self::dropTableIfExists(self::COMPANY_TABLE);
+            self::dropTableIfCreated(self::REGISTRY_TABLE);
+            self::dropTableIfCreated(self::COMPANY_TABLE);
         }
         // 复位使用类静态（公司族拷贝），避免污染同一进程内的其他测试
         CompanyAwareModel::setCurrentCompanyId(null);

@@ -76,7 +76,7 @@ class P1ProjectCostTest extends IntegrationTestCase
     {
         if (self::$capsule !== null) {
             foreach (array_reverse($this->createdTables) as $table) {
-                $this->dropTableIfExists($table);
+                $this->dropTableIfCreated($table);
             }
             $cleanup = [
                 'project_cost' => ['project_id', $this->projectIds],

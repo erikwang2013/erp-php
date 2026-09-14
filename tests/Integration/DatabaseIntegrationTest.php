@@ -51,7 +51,7 @@ class DatabaseIntegrationTest extends IntegrationTestCase
     {
         if (self::$capsule !== null) {
             // 清理临时表与真实表测试数据（失败不掩盖测试结论）
-            self::dropTableIfExists(self::CRUD_TABLE);
+            self::dropTableIfCreated(self::CRUD_TABLE);
             try {
                 if (Capsule::schema()->hasTable(self::REAL_PRODUCT_TABLE)) {
                     Capsule::table(self::REAL_PRODUCT_TABLE)

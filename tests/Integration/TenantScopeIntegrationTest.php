@@ -67,8 +67,8 @@ class TenantScopeIntegrationTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         if (self::$capsule !== null) {
-            self::dropTableIfExists(self::REGISTRY_TABLE);
-            self::dropTableIfExists(self::TENANT_TABLE);
+            self::dropTableIfCreated(self::REGISTRY_TABLE);
+            self::dropTableIfCreated(self::TENANT_TABLE);
         }
         // 复位 trait 的两个静态拷贝，避免污染同一进程内的其他测试
         TenantScope::setCurrentTenantId(null);

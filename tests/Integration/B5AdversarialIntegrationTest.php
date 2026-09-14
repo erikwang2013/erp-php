@@ -116,8 +116,8 @@ class B5AdversarialIntegrationTest extends IntegrationTestCase
         Context::destroy();
         CompanyAwareModel::setCurrentCompanyId(null);
         if (self::$capsule !== null) {
-            self::dropTableIfExists(self::REGISTRY_TABLE);
-            self::dropTableIfExists(self::COMPANY_TABLE);
+            self::dropTableIfCreated(self::REGISTRY_TABLE);
+            self::dropTableIfCreated(self::COMPANY_TABLE);
         }
         parent::tearDown();
     }

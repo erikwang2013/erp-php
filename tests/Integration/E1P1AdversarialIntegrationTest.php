@@ -75,7 +75,7 @@ class E1P1AdversarialIntegrationTest extends IntegrationTestCase
     {
         if (self::$capsule !== null) {
             foreach (array_reverse($this->createdTables) as $table) {
-                $this->dropTableIfExists($table);
+                $this->dropTableIfCreated($table);
             }
             $cleanup = [
                 'eam_inspection_result' => ['task_id', $this->taskIds],

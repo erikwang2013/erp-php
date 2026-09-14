@@ -47,7 +47,7 @@ abstract class H3H4Scaffold extends IntegrationTestCase
     protected function tearDown(): void
     {
         foreach (self::H34_TABLES as $table) {
-            self::dropTableIfExists($table);
+            self::dropTableIfCreated($table);
         }
         if ($this->seededEmployeeIds !== []) {
             Capsule::table('hr_employee')->whereIn('id', $this->seededEmployeeIds)->delete();

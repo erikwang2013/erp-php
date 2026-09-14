@@ -103,7 +103,7 @@ abstract class P1M1M2CostingScaffold extends IntegrationTestCase
         if (self::$capsule !== null) {
             foreach (array_reverse($this->createdTables) as $table) {
                 try {
-                    $this->dropTableIfExists($table);
+                    $this->dropTableIfCreated($table);
                 } catch (Throwable) {
                 }
             }

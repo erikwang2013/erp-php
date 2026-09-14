@@ -66,7 +66,7 @@ abstract class M3CapacityScaffold extends IntegrationTestCase
         if (self::$capsule !== null) {
             foreach (array_reverse($this->createdTables) as $table) {
                 try {
-                    $this->dropTableIfExists($table);
+                    $this->dropTableIfCreated($table);
                 } catch (Throwable) {
                 }
             }

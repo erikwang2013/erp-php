@@ -71,7 +71,7 @@ class B4ChannelTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         if (self::$capsule !== null) {
-            self::dropTableIfExists(self::LOG_TABLE);
+            self::dropTableIfCreated(self::LOG_TABLE);
         }
         parent::tearDown();
     }
