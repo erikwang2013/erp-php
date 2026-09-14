@@ -2,6 +2,42 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.16.0 (2026-09-14)
+
+安装可选演示数据 + CI php 作业去红 + 三处用户可见缺陷修复。
+
+### 平台与架构
+
+- **安装向导新增「带测试数据」选项**：勾选后追加执行 `database/install-demo.sql`；默认**不勾选**（生产安全）。
+  该文件**只有数据、没有 DDL** —— schema 的唯一事实源仍是 `install.sql`，避免两份 DDL 漂移；
+  演示数据 ID 统一在 `41xxxxxxxxxxxxxxx` 段，可按段整段清理。覆盖 **227 张表**（9 段手工精写 +
+  207 段生成）
+- **`scripts/gen-demo-data.mjs` 生成器**：**以 `information_schema` 为结构源**（不解析建表语句文本，
+  早期正则版本反复漏列）；按列类型/列名/唯一键/列长出值，保证 NOT NULL 列有值、唯一键列逐行互异、
+  字符串按列上限截断。**两段式**：只写 `/tmp` → 导入验证通过 → `--install` 才并入正式文件
+  （曾直接覆盖，既删了手工段又因唯一键撞车导不进去）
+- **CI php 作业 PHPUnit 大幅去红**：集成测试**只在 CI 真跑**（本地无 `TEST_DB_*` 时跳过），
+  长期 **349 errors / 14 failures**。根因：**五处自建 Eloquent Capsule 都写着 `'prefix' => ''`**，
+  注释理由是「各模型已显式声明 `$table = 'erp_xxx'`」——**实测 224 个模型无一例外都是无前缀表名**。
+  前缀与 app 对齐后 → **9 errors / 4 failures**
+
+### 其他
+
+- **数据破坏性缺陷修复（重要）**：测试 tearDown 原先直接 `dropTableIfExists`。前缀对齐后，
+  脚手架声明的 `hr_job` 会解析成**真实表 `erp_hr_job`** 并被 DROP —— 实际删除了 13 张 HR 表
+  （此前该调用是空操作，因为 `hr_job` 这个无前缀表名根本不存在）。现改为 `dropTableIfCreated`：
+  **建表时记账、删表时核对**，只删本次用例自己建的表，本来就存在的表永不删除
+- **Angular 资源页「刷新」按钮无效**：`effect` **只跟踪同步执行期间被读取的 signal**，而 `refresh()`
+  写入的 `tick` signal **从未被读取** → Angular 不会因此重跑 effect，点击毫无反应。改为 `refresh()`
+  直接调 `reload()`，并删除多余的 `tick` signal
+- **Webhook 订阅创建必 422「event 不能为空」**：后端要求 `event`（数组，必填），而 **Angular 与 React
+  两端的 Webhook 表单都没有该字段**（同一份平行副本，两端一起缺）→ 从界面创建必然失败。后端放宽为
+  也接受逗号/分号/换行分隔的字符串（**事件名白名单校验一字未动**），两端表单补上 `event` 字段
+- 质量门：Angular `ng build` 退出 0 且 **0 warning**；React `tsc --noEmit` 干净；
+  `phpunit 971 tests / 2728 assertions / 0 failure`；`phpstan [OK]`；`php-cs-fixer 0/644`
+- 遗留：CI php 作业仍红在 PHPUnit 的 **9 errors + 4 failures**（`ledger_id` 的 ALTER 不幂等、
+  `member`/`tenant` 两表在全新库中缺），另需给该作业加 `SCOUT_DRIVER=null` 清 ES 连接错误
+
 ## v1.15.0 (2026-09-12)
 
 CI 由四点红转三绿 + 后端 i18n 英文化 + 商品规格属性/SKU 关联。
