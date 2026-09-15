@@ -243,7 +243,7 @@ Principais itens de configuração:
 
 **Opção 1: Assistente de instalação via Web (recomendado)**
 
-Após iniciar o serviço, acesse `http://localhost:8788/install` e siga o assistente para concluir a instalação em 4 etapas: verificação do ambiente → configuração do banco de dados → conta de administrador → instalação em um clique.
+Após iniciar o serviço, acesse `http://localhost:8788/install` e siga o assistente para concluir a instalação em 4 etapas: verificação do ambiente → configuração do banco de dados → conta de administrador → instalação em um clique. A etapa de configuração do banco de dados oferece uma caixa **importar dados de demonstração** (produtos/especificações/SKUs/clientes/fornecedores, faixa de ID 41…, removível por faixa); desmarcada por padrão — não a marque em produção.
 
 **Opção 2: Importação via linha de comando**
 

@@ -224,7 +224,7 @@ Key configuration items:
 
 **Option 1: Web installation wizard (recommended)**
 
-After starting the service, visit `http://localhost:8788/install` and follow the 4-step guided install: environment check → database config → admin account → one-click install.
+After starting the service, visit `http://localhost:8788/install` and follow the 4-step guided install: environment check → database config → admin account → one-click install. The database-configuration step offers a **load demo data** checkbox (products/specs/SKUs/customers/suppliers, ID range 41…, removable by range); off by default — leave it unchecked in production.
 
 **Option 2: Command-line import**
 

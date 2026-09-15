@@ -12,7 +12,7 @@ use Webman\Http\Request;
 class I18n
 {
     /** 已知词典文件（用于识别 "file.key" 前缀；英文即 key 后句子里的点号不算前缀分隔符） */
-    private const FILES = ['common', 'modules', 'validation'];
+    private const FILES = ['common', 'modules', 'validation', 'install'];
 
     private static array $loaded = [];
 
@@ -72,6 +72,12 @@ class I18n
 
     private static function getTranslated(string $path, string $locale, string $file, string $key, array $replace, array $fallbackLocales): string
     {
+        // 语种标签直接参与文件路径拼接，必须先白名单化：Accept-Language 由客户端自由构造
+        // （`../` 能穿出 translations/ 目录），拼出的路径一旦 is_file 命中就会被 require。
+        if (!preg_match('/^[A-Za-z]{2,10}(_[A-Za-z]{2,10})?$/', $locale)) {
+            $locale = 'zh_CN';
+        }
+
         // 英文即 key 语义：词典将以**英文原文**为键，故请求 en 时 key 本身就是英文渲染结果。
         // 故 en 不参与 fallback（不落 zh_CN，否则英文用户会看到中文）：
         //   先查 en 词典（兼容既有的语义 key 条目），查不到即返回 key（= 英文原文）。

@@ -243,7 +243,7 @@ Elementos de configuración clave:
 
 **Opción 1: Asistente de instalación web (recomendado)**
 
-Después de iniciar el servicio, visite `http://localhost:8788/install` y siga las guías para completar la instalación en 4 pasos: comprobación del entorno → configuración de la base de datos → cuenta de administrador → instalación con un clic.
+Después de iniciar el servicio, visite `http://localhost:8788/install` y siga las guías para completar la instalación en 4 pasos: comprobación del entorno → configuración de la base de datos → cuenta de administrador → instalación con un clic. El paso de configuración de la base de datos ofrece una casilla **importar datos de demostración** (productos/especificaciones/SKU/clientes/proveedores, rango de ID 41…, eliminable por rango); desactivada por defecto: no la marque en producción.
 
 **Opción 2: Importación por línea de comandos**
 

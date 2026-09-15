@@ -1,0 +1,187 @@
+<?php
+
+/*
+ * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+ */
+
+declare(strict_types=1);
+
+// zh_CN：键为英文原文（英文即 key）；en 无此文件，引擎查不到会直接回键，即英文原文。
+// 本表仅供安装向导（app/controller/InstallController.php + app/view/install/*.php）使用。
+// 新增文案时先加英文键再加译文，其余 11 语种由 scripts/gen-be-locales.mjs 生成。
+return [
+    // 页面骨架
+    'Open ERP System · Installation Wizard' => '开放 ERP 系统 · 安装向导',
+    'Installation wizard — :step' => '安装向导 — :step',
+    'Installation error' => '安装错误',
+    'Language' => '语言',
+    'Unknown step' => '未知步骤',
+    'Invalid step' => '无效的步骤',
+
+    // 六个步骤名
+    'Environment check' => '环境检查',
+    'Database configuration' => '数据库配置',
+    'Keys and ports' => '密钥与启动端口',
+    'Search engine (optional)' => '搜索引擎（可选）',
+    'Administrator account' => '管理员账号',
+    'Confirm installation' => '确认安装',
+
+    // 环境检查
+    'Next: Database configuration' => '下一步：数据库配置',
+    'Please fix the issues marked ❌ above, then refresh this page to check again.' => '请先解决以上 ❌ 标记的问题，然后刷新本页重新检查。',
+    'PHP version' => 'PHP 版本',
+    ':version (requires >= :required)' => ':version (需要 >= :required)',
+    'PHP extension: :ext' => 'PHP 扩展: :ext',
+    'Loaded' => '已加载',
+    'Not loaded' => '未加载',
+    'runtime/ directory is writable' => 'runtime/ 目录可写',
+    'Writable' => '可写',
+    'Not writable: :path' => '不可写: :path',
+    '.env file is writable' => '.env 文件可写',
+    'Not writable' => '不可写',
+    'install.sql exists' => 'install.sql 存在',
+    'Exists' => '存在',
+    'Missing: :path' => '缺失: :path',
+
+    // 数据库配置
+    'Host address' => '主机地址',
+    'Port' => '端口',
+    'Database name' => '数据库名',
+    'User name' => '用户名',
+    'Password' => '密码',
+    'Table prefix' => '表前缀',
+    'Will be created automatically if missing' => '不存在将自动创建',
+    'Keys, ports and the search engine are configured in the following steps' => '密钥、启动端口与搜索引擎等高级配置将在后续步骤中单独完成',
+    'Also import <b>demo data</b>' => '同时导入<b>演示数据</b>',
+    'Products/specs/SKUs/customers/suppliers, ID range 41…, removable by range. Off by default — leave it unchecked in production.' => '商品/规格/SKU/客户/供应商等，ID 段 41…，可按段清理。默认不导入 —— 生产环境请保持不勾选。',
+    '← Back (environment check)' => '← 上一步（环境检查）',
+    '← Back (database configuration)' => '← 上一步（数据库配置）',
+    '← Back (keys and ports)' => '← 上一步（密钥与端口）',
+    '← Back (search engine)' => '← 上一步（搜索引擎）',
+    '← Back' => '← 上一步',
+    'Test connection' => '测试连接',
+    'Show/hide password' => '显示/隐藏密码',
+    'Next: Keys and ports' => '下一步：密钥与端口',
+
+    // 密钥与端口
+    'Leave any key blank and a strong random value will be generated at install time; blank ports use defaults.' => '以下密钥均可留空，安装时将自动生成强随机值；端口留空取默认。',
+    'JWT signing key' => 'JWT 签名密钥',
+    'Leave blank to auto-generate (recommended)' => '留空自动生成（推荐）',
+    'Signs tokens; leaking it allows forging logins' => '令牌签名，泄露可伪造登录态',
+    'API transport key' => '接口传输密钥',
+    'Storage encryption key' => '存储加密密钥',
+    'ID obfuscation salt' => 'ID 混淆盐',
+    'ID obfuscation salt (alternate)' => 'ID 混淆盐（备用）',
+    'Written to ENCRYPTION_KEY in .env' => '写入 .env 的 ENCRYPTION_KEY',
+    'Written to ENCRYPTABLE_KEY in .env' => '写入 .env 的 ENCRYPTABLE_KEY',
+    'Written to HASHIDS_SALT in .env' => '写入 .env 的 HASHIDS_SALT',
+    'Separate salt encoding another set of business IDs; written to HASHIDS_ALT_SALT in .env' => '独立于主盐的备用盐，编码另一组业务 ID；写入 .env 的 HASHIDS_ALT_SALT',
+    'HTTP port' => '启动端口（HTTP）',
+    'Startup port' => '启动端口',
+    'Default 8788' => '默认 8788',
+    'Default 8282' => '默认 8282',
+    'Written to APP_HTTP_PORT in .env' => '写入 .env 的 APP_HTTP_PORT',
+    'WebSocket port' => 'WebSocket 端口',
+    'Written to APP_WS_PORT in .env' => '写入 .env 的 APP_WS_PORT',
+    '🔌 Service account passwords' => '🔌 服务账号密码',
+    'Must match the passwords in your deployment (docker-compose etc.); if left blank the .env.example values are kept, not auto-generated' => '需与部署环境（docker-compose 等）中的口令一致；留空则沿用 .env.example 原值，不会自动生成',
+    'Message queue (RabbitMQ) password' => '消息队列（RabbitMQ）密码',
+    'Next: Search engine (optional)' => '下一步：搜索引擎（可选）',
+
+    // 搜索引擎
+    'Search engine (data sync is driven by erikwang2013/webman-scout)' => '搜索引擎（数据同步由 erikwang2013/webman-scout 驱动）',
+    'Disabled (can be enabled later in .env)' => '不启用（安装后可在 .env 中随时启用）',
+    'Disabled' => '不启用',
+    'Selecting "Disabled" writes SCOUT_DRIVER=null (no-op engine); to enable later, edit SCOUT_DRIVER and the related connection variables in .env and restart' => '「不启用」将写入 SCOUT_DRIVER=null 走空引擎；后续要启用：安装后修改 .env 的 SCOUT_DRIVER 及相关连接变量并重启',
+    'Service address' => '服务地址',
+    'Must include scheme and port, e.g. http://127.0.0.1:9200' => '需带协议与端口，如 http://127.0.0.1:9200',
+    'Elasticsearch writes SCOUT_HOSTS / ES_USERNAME / ES_PASSWORD; OpenSearch writes SCOUT_OPENSEARCH_HOST / USERNAME / PASSWORD (self-signed certificates are verified strictly by default; adjust config/scout.php)' => '选择 Elasticsearch 写入 SCOUT_HOSTS / ES_USERNAME / ES_PASSWORD；选择 OpenSearch 写入 SCOUT_OPENSEARCH_HOST / USERNAME / PASSWORD（自签证书场景默认 ssl 校验收紧，需在 config/scout.php 调整）',
+
+    // 管理员账号
+    'Administrator user name' => '管理员用户名',
+    'Administrator password' => '管理员密码',
+    'At least 6 characters' => '至少6位',
+    'Enter the password again' => '再次输入密码',
+    'Confirm password' => '确认密码',
+    'The two passwords do not match' => '两次输入的密码不一致',
+    'Next: Administrator account' => '下一步：管理员账号',
+    'Next: Confirm installation' => '下一步：确认安装',
+
+    // 确认安装
+    '📋 Installation summary' => '📋 安装配置总览',
+    '⚠️ After you click "Start installation", the following will run in order:' => '⚠️ 点击「开始安装」后将依次执行：',
+    'Write the <code>.env</code> configuration file (keys and search engine settings included; blank items auto-generated)' => '写入 <code>.env</code> 配置文件（密钥与搜索引擎配置一并写入，留空项自动生成）',
+    'Create the database and import 227 table definitions plus seed data' => '自动创建数据库并导入 227 张表结构与种子数据',
+    'Import <b>demo data</b> (only when checked in step 1 "Database configuration"; products/specs/SKUs/customers/suppliers, ID range 41…)' => '导入<b>演示数据</b>（仅在第 1 步「数据库配置」勾选时执行；商品/规格/SKU/客户/供应商等，ID 段 41…）',
+    'Create the administrator account and attach the super-admin role' => '创建管理员账号并关联超级管理员角色',
+    'This takes a few seconds — please keep this page open. After installation the .env file will be marked APP_INSTALLED=true and revisiting /install will show the completion page.' => '全过程约需数秒，请勿关闭页面。安装后 .env 将标记 APP_INSTALLED=true，重复访问 /install 将跳转完成页。',
+    '🚀 Start installation' => '🚀 开始安装',
+    'Installing open-erp…' => '正在安装 open-erp…',
+    'Preparing…' => '准备中…',
+    '🔄 Retry' => '🔄 重试',
+    'Writing configuration file…' => '写入配置文件…',
+    'Creating database…' => '创建数据库…',
+    'Importing tables and seed data…' => '导入表结构与种子数据…',
+    'Creating administrator account…' => '创建管理员账号…',
+    'Almost done…' => '即将完成…',
+    '✅ Installed successfully, redirecting…' => '✅ 安装成功，正在跳转…',
+    'Installation incomplete: :msg' => '安装未完成：:msg',
+    'Installation failed: :msg' => '安装失败: :msg',
+    'Unknown error, please check the server log' => '未知错误，请查看服务端日志',
+    'Request failed: :msg' => '请求失败：:msg',
+
+    // 确认页总览
+    'Search engine' => '搜索引擎',
+    'Search service address' => '搜索服务地址',
+    'Demo data' => '演示数据',
+    'Import' => '导入',
+    'Do not import' => '不导入',
+    'Database host' => '数据库主机',
+    'Database user' => '数据库用户',
+
+    // 安装结果页
+    'System already installed' => '系统已安装',
+    '✅ System already installed' => '✅ 系统已安装',
+    'The installation wizard has already completed. To reinstall:' => '安装向导已完成。如需重新安装：',
+    'and remove <code>APP_INSTALLED=true</code> from <code>.env</code>' => '并在 <code>.env</code> 中移除 <code>APP_INSTALLED=true</code>',
+    'Go to admin panel' => '进入后台',
+    'Installation complete' => '安装完成',
+    '🎉 Installation complete' => '🎉 安装完成',
+    'Open ERP has been installed successfully.' => '开放ERP系统已成功安装。',
+    '📌 Log in with the administrator account you just created' => '📌 请使用刚才设置的管理员账号登录后台',
+    'You will be redirected to the dashboard after logging in' => '登录后将自动跳转至后台仪表盘',
+
+    // 表单校验
+    'Please enter the database host address' => '请输入数据库主机地址',
+    'Please enter a valid database port' => '请填写正确的数据库端口',
+    'Please enter the database name (it will be created if missing)' => '请输入数据库名（不存在将自动创建）',
+    'Please enter the database user name' => '请填写数据库用户名',
+    'The database host may only contain letters, digits, and ._-' => '数据库主机地址只能包含字母、数字、._-字符',
+    'Please enter the table prefix' => '请输入表前缀',
+    ':label must be 16-128 alphanumeric characters (leave blank to auto-generate)' => ':label 必须是 16-128 位字母数字（留空自动生成）',
+    ':label must be 2-5 digits (leave blank for the default)' => ':label 必须是 2-5 位数字（留空取默认）',
+    'RABBITMQ_PASSWORD may only contain visible characters and must not contain $ or backslash (leave blank to keep the .env.example value)' => 'RABBITMQ_PASSWORD 只能包含可见字符，且不能含 $ 与反斜杠（可留空沿用 .env.example 原值）',
+    'Search engine supports only: disabled / elasticsearch / opensearch' => '搜索引擎仅支持: 不启用 / elasticsearch / opensearch',
+    'Search service address must look like http(s)://host:port' => '搜索服务地址需形如 http(s)://host:port',
+    'Please enter the search service user name' => '请输入搜索服务用户名',
+    'Please enter the search service password (visible characters only, no $ or backslash)' => '请输入搜索服务密码（仅可见字符，不能含 $ 与反斜杠）',
+    'Administrator user name must be at least 3 characters' => '管理员用户名至少3个字符',
+    'Password must be at least 6 characters' => '密码至少6位',
+    'The database name may only contain letters, digits, underscores and hyphens' => '数据库名只能包含字母、数字、下划线与连字符',
+    'Unable to read install.sql' => '无法读取 install.sql',
+    ':envKey may only contain visible characters and must not contain $ or backslash' => ':envKey 只能包含可见字符，且不能含 $ 与反斜杠',
+    ':envKey must be a 2-5 digit port' => ':envKey 必须是 2-5 位数字端口',
+    ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => ':field 必须是 16-128 位字母数字密钥（或留空自动生成）',
+
+    // 前端即时校验与测试连接
+    'Please enter the database host' => '请填写数据库主机地址',
+    'Please fill in host/port/database/user before testing' => '请先完整填写主机/端口/数据库名/用户名再测试',
+    'Testing...' => '测试中...',
+    'System already installed, this endpoint is disabled' => '系统已安装，禁止调用',
+    'Invalid host or port parameter' => '非法的主机或端口参数',
+    'MySQL version must be >= 8.0, current: :version' => 'MySQL 版本需 >= 8.0，当前: :version',
+    'Connected successfully, MySQL :version' => '连接成功，MySQL :version',
+    '; database :name already exists' => '；数据库 :name 已存在',
+    '; database :name does not exist yet and will be created during installation' => '；数据库 :name 尚不存在，安装时将自动创建',
+    'Connection failed: :msg' => '连接失败: :msg',
+];

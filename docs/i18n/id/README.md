@@ -243,7 +243,7 @@ Item konfigurasi kunci:
 
 **Cara 1: Wizard instalasi Web (disarankan)**
 
-Setelah layanan dimulai, akses `http://localhost:8788/install` dan ikuti panduan untuk menyelesaikan instalasi 4 langkah: pemeriksaan lingkungan → konfigurasi database → akun admin → instalasi satu-klik.
+Setelah layanan dimulai, akses `http://localhost:8788/install` dan ikuti panduan untuk menyelesaikan instalasi 4 langkah: pemeriksaan lingkungan → konfigurasi database → akun admin → instalasi satu-klik. Langkah konfigurasi database menyediakan kotak centang **impor data demo** (produk/spesifikasi/SKU/pelanggan/pemasok, rentang ID 41…, dapat dihapus per rentang); nonaktif secara default — jangan centang di produksi.
 
 **Cara 2: Impor baris perintah**
 

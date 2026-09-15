@@ -243,7 +243,7 @@ Paramètres clés :
 
 **Méthode 1 : Assistant d'installation Web (recommandé)**
 
-Après le démarrage du service, accédez à `http://localhost:8788/install` et suivez les 4 étapes : vérification de l'environnement → configuration de la base de données → compte administrateur → installation en un clic.
+Après le démarrage du service, accédez à `http://localhost:8788/install` et suivez les 4 étapes : vérification de l'environnement → configuration de la base de données → compte administrateur → installation en un clic. L'étape de configuration de la base de données propose une case **importer des données de démonstration** (produits/spécifications/SKU/clients/fournisseurs, plage d'ID 41…, supprimable par plage) ; décochée par défaut — ne pas la cocher en production.
 
 **Méthode 2 : Import en ligne de commande**
 

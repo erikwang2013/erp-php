@@ -126,6 +126,7 @@ const arg = (k, d) => (args.indexOf(k) === -1 ? d : args[args.indexOf(k) + 1]);
 fs.mkdirSync(CACHE, { recursive: true });
 const common = parsePhp(`${T}/zh_CN/common.php`);
 const modules = parsePhp(`${T}/zh_CN/modules.php`);
+const install = parsePhp(`${T}/zh_CN/install.php`);
 const validation = parsePhp(`${T}/zh_CN/validation.php`);
 /**
  * validation.php 里的 `attributes` 是**嵌套数组**（字段名 → 显示名），扁平解析器拿不到它，
@@ -139,7 +140,7 @@ const ATTR_BLOCK = (() => {
 })();
 
 if (args.includes('--list')) {
-  console.log(`源：common ${Object.keys(common).length} / modules ${Object.keys(modules).length} / validation ${Object.keys(validation).length}`);
+  console.log(`源：common ${Object.keys(common).length} / modules ${Object.keys(modules).length} / install ${Object.keys(install).length} / validation ${Object.keys(validation).length}`);
   for (const code of Object.keys(LOCALES)) {
     const f = `${CACHE}/${code}.json`;
     const n = fs.existsSync(f) ? Object.keys(JSON.parse(fs.readFileSync(f, 'utf8'))).length : 0;
@@ -160,6 +161,7 @@ for (const loc of targets) {
   const work = [
     ['common', loc === 'en' ? {} : common],
     ['modules', loc === 'en' ? {} : modules],
+    ['install', loc === 'en' ? {} : install],
     ['validation', Object.fromEntries(Object.entries(validation))], // key=规则名, 源文本=中文值
   ];
   const pick = (file, map) =>
@@ -189,5 +191,5 @@ for (const loc of targets) {
       `${HEAD}// ${loc} · ${note}\nreturn [\n${entries.join('\n')}${tail}\n];\n`
     );
   }
-  console.log(`[${loc}] 已写 3 个文件`);
+  console.log(`[${loc}] 已写 ${work.length} 个文件`);
 }

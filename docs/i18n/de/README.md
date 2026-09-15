@@ -243,7 +243,7 @@ Wichtige Konfigurationseinträge:
 
 **Variante 1: Web-Installationsassistent (empfohlen)**
 
-Nach dem Start des Dienstes `http://localhost:8788/install` aufrufen und den 4-Schritte-Assistenten durchlaufen: Umgebungsprüfung → Datenbankkonfiguration → Admin-Konto → Ein-Klick-Installation.
+Nach dem Start des Dienstes `http://localhost:8788/install` aufrufen und den 4-Schritte-Assistenten durchlaufen: Umgebungsprüfung → Datenbankkonfiguration → Admin-Konto → Ein-Klick-Installation. In der Datenbankkonfiguration kann **Demodaten importieren** angehakt werden (Produkte/Spezifikationen/SKUs/Kunden/Lieferanten, ID-Bereich 41…, bereichsweise löschbar); standardmäßig aus — in der Produktion nicht ankreuzen.
 
 **Variante 2: Kommandozeilen-Import**
 
