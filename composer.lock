@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce88c0161887e071aa9c2e9f3e2ebf3a",
+    "content-hash": "cb050c37bb773c1ce57625f1c6a19d4d",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -1203,6 +1203,79 @@
                 "source": "https://github.com/erikwang2013/season/tree/v2.0.2"
             },
             "time": "2026-08-02T08:14:02+00:00"
+        },
+        {
+            "name": "erikwang2013/security-php",
+            "version": "v1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/erikwang2013/security-php.git",
+                "reference": "e40c516073333babd85c261b132beadfb8f89e1f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/erikwang2013/security-php/zipball/e40c516073333babd85c261b132beadfb8f89e1f",
+                "reference": "e40c516073333babd85c261b132beadfb8f89e1f",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^2.0",
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^12.5"
+            },
+            "suggest": {
+                "hyperf/framework": "Required for Hyperf middleware integration",
+                "laravel/framework": "Required for Laravel middleware auto-discovery",
+                "topthink/framework": "Required for ThinkPHP middleware integration",
+                "webman/webman-framework": "Required for Webman middleware integration"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Erikwang2013\\Security\\Composer\\Installer",
+                "laravel": {
+                    "providers": [
+                        "Erikwang2013\\Security\\Middleware\\Laravel\\SecurityServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Erikwang2013\\Security\\": "src/",
+                    "Erikwang2013\\Security\\Middleware\\": "middleware/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "erik",
+                    "email": "erik@erik.xyz",
+                    "homepage": "https://erik.xyz"
+                }
+            ],
+            "description": "A PHP security attack detection plugin with 31 stateless threat detectors and 4 cross-request identity checks (session hijack, unusual login, data tamper, brute-force lockout), compatible with Laravel, Webman, ThinkPHP, and Hyperf.",
+            "keywords": [
+                "attack-detection",
+                "brute-force",
+                "identity",
+                "security",
+                "session-hijack",
+                "sql-injection",
+                "waf",
+                "xss"
+            ],
+            "support": {
+                "issues": "https://github.com/erikwang2013/security-php/issues",
+                "source": "https://github.com/erikwang2013/security-php/tree/v1.3.0"
+            },
+            "time": "2026-09-15T10:10:41+00:00"
         },
         {
             "name": "erikwang2013/snowflake-php",

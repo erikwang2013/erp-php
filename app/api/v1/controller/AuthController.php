@@ -9,8 +9,10 @@ declare(strict_types=1);
 namespace app\api\v1\controller;
 
 use app\common\SnowflakeService;
+use app\middleware\SecurityFilter;
 use app\model\AdminUser;
 use Erikwang2013\Jwt\JWT;
+use Erikwang2013\Security\SecurityGuard;
 use support\Container;
 use support\Log;
 use support\Redis;
@@ -78,7 +80,16 @@ class AuthController
         $username = $request->input('username');
         $user = AdminUser::where('username', $username)->first();
 
+        // 来源 IP 必须走 SecurityFilter::clientIp()，不要用 $request->getRealIp()：
+        // 后者在对端是内网地址时取 X-Forwarded-For 的**最左值**，而 nginx 用追加式
+        // 写入，最左值由客户端自己塞入 —— 伪造成本为零，会把假 IP 写进登录地点基线。
+        $clientIp = SecurityFilter::clientIp($request);
+
         // 账号锁定检查（5次失败/15分钟）
+        //
+        // 刻意不再叠加 SecurityGuard::isLockedOut()：插件那套阈值完全相同（5次/900秒），
+        // 但按 user_id 计数，只能覆盖已存在账号；这里按 username 计数，连不存在的用户名
+        // 一并挡住。叠加等于同一策略数两遍，还把定向锁号 DoS 面复制一份。
         $lockKey = "account_lock:{$username}";
         try {
             if (Redis::get($lockKey)) {
@@ -90,6 +101,16 @@ class AuthController
         }
 
         if (!$user || !password_verify($request->input('password'), $user->password)) {
+            // 身份维度：上报本次失败尝试供插件侧留痕（锁定判定仍以上面的 account_lock 为准）
+            if ($user) {
+                try {
+                    SecurityGuard::recordFailedLogin((string) $user->id, $clientIp);
+                } catch (\Throwable $e) {
+                    // 上报失败仅影响插件侧留痕，不影响登录失败响应
+                    Log::warning('登录：插件失败计数写入异常: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+                }
+            }
+
             // 登录失败：计数 + 锁定
             try {
                 $failKey = "login_fail:{$username}";
@@ -122,6 +143,18 @@ class AuthController
 
         if ($user->status === 0) {
             return json(['code' => 403, 'message' => '账号已被禁用', 'data' => []]);
+        }
+
+        // 身份维度：记录本次登录地点，返回非 null 表示新地点。本阶段只记日志不拦截
+        // （插件 unusual_login 默认即 log 模式）。地点空则插件内部静默，故必须传 IP。
+        try {
+            $threat = SecurityGuard::recordLogin((string) $user->id, null, ['ip' => $clientIp]);
+            if ($threat !== null) {
+                Log::info('登录：新登录地点 ' . ($threat->detail ?? $threat->type) . ' | TraceId: ' . trace_id());
+            }
+        } catch (\Throwable $e) {
+            // 基线写入失败仅影响异地登录检测，不阻断登录（fail-open 降级）
+            Log::warning('登录：异地登录基线写入异常: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
         }
 
         // 签发 JWT

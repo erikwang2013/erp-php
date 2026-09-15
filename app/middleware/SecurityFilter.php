@@ -8,248 +8,307 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
+use Erikwang2013\Security\SecurityGuard as Guard;
+use Erikwang2013\Security\ThreatResult;
 use support\Log;
-use support\Redis;
 use Webman\Http\Request;
 use Webman\Http\Response;
+use Webman\Http\UploadFile;
 use Webman\MiddlewareInterface;
 
 /**
- * Web/API 安全攻击检测拦截中间件
+ * 全局安全检测与拦截（erikwang2013/security-php 的应用侧适配层）
  *
- * 检测并拦截: XSS、SQL注入、路径遍历、命令注入、CSRF
- * 攻击升级: 同 IP 5次/60秒触发攻击检测 → 临时黑名单 15 分钟
- * 输入校验: Content-Type 验证、请求体大小限制
- * 全局执行，在 Cors 之后、RateLimit 之前
+ * 本文件原是一套自研正则检测（XSS/SQL注入/路径遍历/命令注入/上传/CSRF + IP 攻击升级封禁）。
+ * 现改由 security-php 插件承担检测：两者能力重叠，且升级阈值逐字相同
+ * （5 次 / 60 秒 / 封禁 900 秒），并行只会双扫 + 维护两个互相打架的封禁库。
+ *
+ * 不用 vendor 里现成的 Webman\SecurityMiddleware，有两个本项目特有的原因：
+ *  1. 它把 $request->getRealIp() 当客户端 IP。getRealIp() 在对端是内网地址时取
+ *     X-Forwarded-For 的**最左值**（webman Request.php:217），而 nginx 用的是追加式
+ *     $proxy_add_x_forwarded_for（docs/nginx-default.conf:50）—— 最左值由客户端自己
+ *     塞入，等于来源 IP 可任意伪造，会污染插件的黑名单与身份基线。见 clientIp()。
+ *  2. storage 需要 Redis 实例，而 support\Redis::connection() 给的是协程连接池里的连接，
+ *     会被 Context::onDestroy 回收复用，不能交给插件长期持有。见 redis()。
  */
 class SecurityFilter implements MiddlewareInterface
 {
-    private const BLOCK_CODE = 403;
-    private const MAX_BODY_SIZE = 10 * 1024 * 1024; // 10MB
-    private const ESCALATE_LIMIT = 5;   // 60秒内触发次数
-    private const ESCALATE_WINDOW = 60;
-    private const BAN_DURATION = 900;   // 黑名单 15 分钟
-
-    private const PATTERNS = [
-        'XSS' => [
-            '/<\s*\/?\s*s\s*c\s*r\s*i\s*p\s*t\b/i',
-            '/\bon\w+\s*=\s*[\"\']?\s*(?:javascript|vbscript):/i',
-            '/(?:javascript|vbscript)\s*:\s*(?:[^\s]*\s*)?(?:eval|alert|prompt|confirm|document\.cookie|location\s*=)/i',
-            '/data\s*:\s*text\s*\/\s*html\s*(?:;base64)?\s*,/i',
-            '/\{\{.*?\}\}/',
-        ],
-        'SQL注入' => [
-            '/\bUNION\s+(?:ALL\s+)?SELECT\b/i',
-            '/(?:[\"\']\s*OR\s+[\"\']?\s*\d+\s*=\s*\d+|[\"\']\s*OR\s+[\"\']?1[\"\']?\s*=\s*[\"\']?1)/i',
-            '/\b(?:DROP|ALTER|TRUNCATE)\s+(?:TABLE|DATABASE|INDEX|VIEW)\b/i',
-            '/\b(?:xp_cmdshell|sp_executesql|sp_addsrvrolemember)\b/i',
-            '/\b(?:INFORMATION_SCHEMA|sys\.(?:tables|columns|databases)|pg_class|sqlite_master|mysql\.(?:user|db))\b/i',
-            '/(?:[\"\'])\s*(?:--|#)\s*[\"\']?\s*(?:OR|AND|SELECT|INSERT|UPDATE|DELETE|DROP)/i',
-        ],
-        '路径遍历' => [
-            '/\.\.[\/\\\\]/',
-            '/\/(?:etc\/(?:passwd|shadow|hosts)|proc\/self|boot\.ini|win\.ini|WEB-INF|\.env|\.git\/)/i',
-            '/%00/',
-        ],
-        '命令注入' => [
-            '/[;|&]\s*(?:ls|cat|rm|wget|curl|nc|bash|sh|cmd|powershell|python|perl)\b/i',
-            '/`[^`]*\b(?:cat|ls|id|whoami|pwd|rm|wget|curl)\b[^`]*`/',
-            '/\$\(\s*(?:cat|ls|id|whoami|rm|wget|curl)\b/i',
-            '/(?:wget|curl)\s+.*(?:\b-o\b|\b-O\b|pipe|bash|python).*\bhttps?:\/\//i',
-        ],
-        '恶意文件上传' => [
-            '/\.(?:php\d?|phtml|phar|cgi|pl|py|jsp|asp)x?\.(?:png|jpg|gif|pdf)/i',
-            '/\.php\s*$/m',
-        ],
-    ];
+    private static ?bool $ready = null;
+    private static ?\Redis $redis = null;
 
     public function process(Request $request, callable $handler): Response
     {
-        // 安装向导（/install*）放行：引导阶段无会话/无数据可护，且表单含密码等字段不应被规则扫描
+        // 安装向导放行：引导阶段尚无会话与数据可护，且表单含密码/DSN/路径等字段，
+        // 按攻击特征扫必然误伤。插件自身没有这条例外，由这里保留。
         if (str_starts_with($request->path(), '/install')) {
             return $handler($request);
         }
 
-        // 0. HTTP 方法限制 — 仅允许标准方法
-        $method = $request->method();
-        if (!in_array($method, ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], true)) {
-            return response('<h1>405 Method Not Allowed</h1>', 405, ['Allow' => 'GET,POST,PUT,DELETE,OPTIONS']);
+        if (!self::boot()) {
+            return $handler($request); // 故障放行：安全组件绝不能让业务不可用
         }
 
-        $ip = $request->getRealIp();
+        $ip      = self::clientIp($request);
+        $payload = self::payload($request);
 
-        // 1. IP 黑名单检查（攻击升级后的临时封禁）
-        if ($this->isBanned($ip)) {
-            return response('<h1>403 Forbidden</h1>', self::BLOCK_CODE);
+        try {
+            $threats = array_merge(
+                Guard::guard($payload, self::meta($request, $ip)),
+                self::gapThreats($payload)
+            );
+            $headers = Guard::securityHeaders();
+            $block   = Guard::blockDecision($threats);
+        } catch (\Throwable $e) {
+            // fail-open + 响亮告警：静默放行会让安全防护看起来还开着
+            Log::error('安全过滤：检测链异常，本请求放行（fail-open）: ' . $e->getMessage()
+                . ' | Path: ' . $request->path() . ' | TraceId: ' . trace_id());
+
+            return $handler($request);
         }
 
-        // 2. 请求体大小限制
-        $length = (int) $request->header('Content-Length', '0');
-        if ($length > self::MAX_BODY_SIZE) {
-            return response('<h1>413 Payload Too Large</h1>', 413);
+        if ($block !== null) {
+            return new Response(
+                $block['status'],
+                array_merge(['Content-Type' => 'text/plain; charset=utf-8'], $headers),
+                $block['message']
+            );
         }
 
-        // 3. Content-Type 校验（写操作必须声明类型）
-        if (in_array($method, ['POST', 'PUT'], true)) {
-            $ct = $request->header('Content-Type', '');
-            // 文件上传跳过
-            if ($request->file('file')) {
-                // OK
-            } elseif ($ct === '' || (!str_contains($ct, 'application/json') && !str_contains($ct, 'application/x-www-form-urlencoded'))) {
-                return response('<h1>415 Unsupported Media Type</h1>', 415);
+        // PSR-7：withHeader() 不可变，每次都要重新赋值
+        $response = $handler($request);
+        foreach ($headers as $name => $value) {
+            $response = $response->withHeader($name, $value);
+        }
+
+        return $response;
+    }
+
+    /**
+     * 每进程初始化一次插件。
+     *
+     * @return bool 初始化是否可用；false 时本进程内安全检测停用（fail-open）
+     */
+    private static function boot(): bool
+    {
+        if (self::$ready !== null) {
+            return self::$ready;
+        }
+
+        try {
+            $config = require config_path() . '/plugin/erikwang2013/security-php/app.php';
+            $config['storage']['redis_instance'] = self::redis();
+            Guard::init($config);
+            self::$ready = true;
+        } catch (\Throwable $e) {
+            Log::error('安全过滤：security-php 初始化失败，本进程安全检测停用: ' . $e->getMessage());
+            self::$ready = false;
+        }
+
+        return self::$ready;
+    }
+
+    /**
+     * 本进程独占的 Redis 连接。
+     *
+     * 刻意不走 support\Redis —— 那是协程连接池，借出的连接在 Context 销毁时会被归还复用，
+     * 而插件要把存储句柄留在自己身上跨请求使用。这里按 config/redis.php 的参数自建一条，
+     * 复用同一份配置但不共享连接。进程数 = cpu_count()*4，连接数即进程数，可接受。
+     */
+    private static function redis(): \Redis
+    {
+        if (self::$redis !== null) {
+            return self::$redis;
+        }
+
+        $cfg   = (array) config('redis.default', []);
+        $redis = new \Redis();
+        $redis->connect((string) ($cfg['host'] ?? '127.0.0.1'), (int) ($cfg['port'] ?? 6379), 1.0);
+        if (!empty($cfg['password'])) {
+            $redis->auth((string) $cfg['password']);
+        }
+        if (!empty($cfg['database'])) {
+            $redis->select((int) $cfg['database']);
+        }
+
+        return self::$redis = $redis;
+    }
+
+    /**
+     * 真实客户端 IP。
+     *
+     * 仅当 TCP 对端本身是内网/回环地址（即我们的 nginx）时才采信 X-Forwarded-For，
+     * 且取**最右一跳**：nginx 用追加式时末位是它实际看到的对端，用覆盖式时只有一个值，
+     * 两种写法下最右一跳都是真客户端；最左值则是客户端可以自行塞进去的。
+     *
+     * 控制器侧记录来源 IP（登录地点基线等）也必须走这里，保持与检测链同一个口径。
+     */
+    public static function clientIp(Request $request): string
+    {
+        return self::resolveIp(
+            $request->getRemoteIp(),
+            (string) $request->header('x-forwarded-for', '')
+        );
+    }
+
+    /**
+     * 纯函数形态，便于直接夹逼验证（见 tests/SecurityFilterIpTest.php）。
+     *
+     * @param string $peer TCP 对端地址（webman Request::getRemoteIp()）
+     * @param string $xff  原始 X-Forwarded-For 头
+     */
+    public static function resolveIp(string $peer, string $xff): string
+    {
+        $isProxy = filter_var(
+            $peer,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        ) === false;
+        if (!$isProxy) {
+            return $peer;
+        }
+
+        $hops = array_filter(array_map('trim', explode(',', $xff)));
+        $last = $hops === [] ? '' : (string) end($hops);
+
+        return filter_var($last, FILTER_VALIDATE_IP) !== false ? $last : $peer;
+    }
+
+    /**
+     * 待检测数据。插件的 guard() 会自行拼 cookie/get/post/file，这里额外补两处：
+     *  - 上传文件：把 UploadFile 归一成 {name, tmp_name}，否则整棵子树被跳过；
+     *  - UA / Referer：插件只把 _server.* 六项注入待检数据，不含这两个头，
+     *    而这两个头在原 SecurityFilter 里是扫的，不补就是能力回退。
+     */
+    private static function payload(Request $request): array
+    {
+        $data = array_merge(
+            $request->cookie() ?? [],
+            $request->get() ?? [],
+            $request->post() ?? [],
+            self::files($request->file() ?? [])
+        );
+
+        $data['headers.User-Agent'] = (string) $request->header('user-agent', '');
+        $data['headers.Referer']    = (string) $request->header('referer', '');
+        // 路径本身也是可控输入：旧实现扫 path + queryString，插件只把 path 放进 meta
+        // 供日志用（SecurityGuard.php:154-161 只注入五个 _server.*），不扫就等于回退。
+        // 查询串已随 get() 进扫描面，这里补的是路径段（如 /admin/v1/user/1%27%20OR…）。
+        $data['uri'] = $request->path();
+
+        return $data;
+    }
+
+    private static function files(array $files): array
+    {
+        $out = [];
+        foreach ($files as $key => $file) {
+            if ($file instanceof UploadFile) {
+                $out[$key] = [
+                    'name'     => $file->getUploadName() ?? '',
+                    'tmp_name' => $file->getUploadTmpPath() ?? '',
+                ];
+            } elseif (is_array($file)) {
+                $out[$key] = self::files($file);
             }
         }
 
-        // 4. 输入扫描
-        $inputs = $this->collectInputs($request);
-        foreach ($inputs as $source => $values) {
-            if (!is_array($values) && !is_string($values)) {
+        return $out;
+    }
+
+    /**
+     * 插件检测器的缺口补齐。
+     *
+     * 逐条对着旧实现（git show HEAD:app/middleware/SecurityFilter.php）比过：下面这几类载荷
+     * 在 vendor/erikwang2013/security-php/src/Detector/ 下 grep 无任何命中，而旧实现是拦的。
+     * 不补就等于以「换成插件」的名义悄悄降低覆盖 —— 前两条尤其要紧：本仓根目录就有 .env
+     * （含数据库口令），且本身就是 git 仓库。
+     *
+     * key 借用插件已有的 block 模式检测器名：威胁对象最终仍交回 Guard::blockDecision()，
+     * 由它按 detectors.<type>.mode 查表决定拦不拦、状态码与文案也都取自插件配置，
+     * 不在这里另造一套响应。
+     * 插件补上这些规则后，本常量与 gapThreats()/values() 可整体删除。
+     */
+    private const GAP_PATTERNS = [
+        // 插件只覆盖 /etc/passwd|shadow 与 C:\Windows\win.ini
+        'path_traversal'    => '/(?:^|[\/\\\\])(?:\.env\b|\.git\/|WEB-INF\/|proc\/self\/|boot\.ini)/i',
+        // 插件只覆盖 information_schema/pg_catalog 一类，无危险 DDL
+        'sql_injection'     => '/\b(?:drop|alter|truncate)\s+(?:table|database|index|view)\b/i',
+        // 插件只覆盖 ;wget ;curl 一类下载器，裸 rm/ls 仅限反引号与 $() 内
+        'command_injection' => '/[;|&]\s*(?:ls|rm|cmd|powershell|whoami)\s+[-\/]/i',
+    ];
+
+    /**
+     * @return ThreatResult[] 与 Guard::guard() 同构，可直接并入其返回值
+     */
+    private static function gapThreats(array $data): array
+    {
+        $found = [];
+        foreach (self::values($data) as $value) {
+            foreach (self::GAP_PATTERNS as $type => $pattern) {
+                if (!isset($found[$type]) && preg_match($pattern, $value) === 1) {
+                    $found[$type] = new ThreatResult(
+                        type: $type,
+                        severity: 'high',
+                        field: 'payload',
+                        payload: mb_substr($value, 0, 200),
+                        detail: '命中插件未覆盖的载荷模式（SecurityFilter 补齐）'
+                    );
+                }
+            }
+        }
+
+        return array_values($found);
+    }
+
+    /**
+     * 递归取所有标量值。与插件 flattenData() 同口径：只扫值不扫键。
+     */
+    private static function values(array $data): \Generator
+    {
+        foreach ($data as $value) {
+            if (is_array($value)) {
+                yield from self::values($value);
                 continue;
             }
-            if (is_string($values)) {
-                $values = [$values];
+            if (!is_scalar($value)) {
+                continue;
             }
 
-            foreach ($values as $key => $value) {
-                if (!is_string($value) || empty($value)) {
-                    continue;
+            $raw = (string) $value;
+            yield $raw;
+
+            // 归一化：插件的 NormalizationScanner 只作用于 guard() 自己收集的数据，
+            // 补不上这里，而 path() 给的是未解码的原始路径（/%2Egit/config 逃得掉匹配）。
+            // 沿用插件同款廉价预检：值里没有 % 就绝不调用 urldecode。
+            if (str_contains($raw, '%')) {
+                $decoded = urldecode($raw);
+                if ($decoded !== $raw) {
+                    yield $decoded;
                 }
-                $blocked = $this->scan($value);
-                if ($blocked !== null) {
-                    $this->logBlock($request, $blocked, (string) $key, $source, substr($value, 0, 200));
-                    // 攻击升级：计入 Redis，超阈值封禁
-                    $this->escalate($ip);
-
-                    return response('<h1>403 Forbidden</h1>', self::BLOCK_CODE);
-                }
             }
         }
-
-        // 5. CSRF 检查
-        if ($this->checkCsrf($request)) {
-            return response('<h1>403 Forbidden</h1>', self::BLOCK_CODE);
-        }
-
-        return $handler($request);
     }
 
-    /**
-     * 检查 IP 是否在临时黑名单中
-     */
-    private function isBanned(string $ip): bool
-    {
-        try {
-            return (bool) Redis::get("security_ban:{$ip}");
-        } catch (\Throwable $e) {
-            // 有意的 fail-open 降级：Redis 故障期间无法校验黑名单，若直接拦截将导致大面积误伤；
-            // 但被封禁 IP 可能因此放行，必须记录告警日志并尽快恢复 Redis。
-            Log::warning('安全过滤：Redis 不可用，跳过 IP 黑名单检查（fail-open 降级）: '
-                . $e->getMessage() . ' | TraceId: ' . trace_id());
-
-            return false;
-        }
-    }
-
-    /**
-     * 攻击升级：记录次数，超阈值封禁
-     */
-    private function escalate(string $ip): void
-    {
-        try {
-            $key = "security_escalate:{$ip}";
-            $count = Redis::incr($key);
-            if ($count === 1) {
-                Redis::expire($key, self::ESCALATE_WINDOW);
-            }
-            if ($count >= self::ESCALATE_LIMIT) {
-                Redis::setex("security_ban:{$ip}", self::BAN_DURATION, '1');
-                Redis::del($key);
-                $this->logBan($ip, $count);
-            }
-        } catch (\Throwable $e) {
-            // 攻击升级记录失败 = 攻击防护静默失效，必须记录错误日志
-            Log::error('安全过滤：攻击升级计数失败（IP 封禁可能未生效）: '
-                . $e->getMessage() . ' | IP: ' . $ip . ' | TraceId: ' . trace_id());
-        }
-    }
-
-    private function logBan(string $ip, int $count): void
-    {
-        @file_put_contents(
-            runtime_path() . '/logs/security.log',
-            date('Y-m-d H:i:s') . " [SECURITY] IP banned 15min | IP: {$ip} | Triggers: {$count}\n",
-            FILE_APPEND | LOCK_EX
-        );
-    }
-
-    private function collectInputs(Request $request): array
+    private static function meta(Request $request, string $ip): array
     {
         return [
-            'path' => $request->path(),
-            'query' => $request->queryString(),
-            'body' => $request->all(),
-            'headers.Referer' => $request->header('Referer', ''),
-            'headers.User-Agent' => $request->header('User-Agent', ''),
-            'headers.Cookie' => $request->header('Cookie', ''),
-            'headers.X-Forwarded-For' => $request->header('X-Forwarded-For', ''),
+            'ip'                => $ip,
+            'method'            => $request->method(),
+            'uri'               => $request->path(),
+            'content_length'    => (string) $request->header('content-length', ''),
+            'content_type'      => (string) $request->header('content-type', ''),
+            'origin'            => (string) $request->header('origin', ''),
+            'host'              => (string) $request->header('host', ''),
+            'x_forwarded_for'   => (string) $request->header('x-forwarded-for', ''),
+            'transfer_encoding' => (string) $request->header('transfer-encoding', ''),
+            'cookies'           => $request->cookie() ?? [],
+            'user_agent'        => (string) $request->header('user-agent', ''),
+            // 名称需与 identity.session.headers 保持一致
+            'headers'           => [
+                'authorization' => (string) $request->header('authorization', ''),
+                'x-token'       => (string) $request->header('x-token', ''),
+                'x-auth-token'  => (string) $request->header('x-auth-token', ''),
+            ],
         ];
-    }
-
-    private function scan(string $value): ?string
-    {
-        foreach (self::PATTERNS as $category => $patterns) {
-            foreach ($patterns as $pattern) {
-                if (@preg_match($pattern, $value) === 1) {
-                    return $category;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private function checkCsrf(Request $request): bool
-    {
-        if (!in_array($request->method(), ['POST', 'PUT', 'DELETE'], true)) {
-            return false;
-        }
-        $host = $request->host(true);
-        $origin = $request->header('Origin', '');
-        if ($origin === '' && $request->header('Referer', '') === '') {
-            return false;
-        }
-        if ($origin !== '') {
-            $originHost = parse_url($origin, PHP_URL_HOST);
-            // 本地回环源（localhost/127.0.0.1 任意端口）视为可信同机来源：
-            // 开发场景 Origin(localhost:随机端口) 与 API Host(erp.test/127.0.0.1) 必然不同名，
-            // 且凭据走 JWT 无 cookie 自动携带，远程恶意页面的 Origin 不会是回环地址
-            if ($originHost === 'localhost' || $originHost === '127.0.0.1') {
-                return false;
-            }
-            $hostOnly = ltrim(parse_url('http://' . $host, PHP_URL_HOST) ?: $host, 'www.');
-            if ($originHost && $originHost !== $hostOnly && !str_contains($originHost, '.' . $hostOnly)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function logBlock(Request $request, string $category, string $field, string $source, string $payload): void
-    {
-        $logData = sprintf(
-            '[SECURITY] %s attack blocked | IP: %s | Path: %s | Field: %s | Source: %s | Payload: %s',
-            $category,
-            $request->getRealIp(),
-            $request->path(),
-            "{$source}.{$field}",
-            $source,
-            $payload
-        );
-        @file_put_contents(
-            runtime_path() . '/logs/security.log',
-            date('Y-m-d H:i:s') . ' ' . $logData . "\n",
-            FILE_APPEND | LOCK_EX
-        );
     }
 }
