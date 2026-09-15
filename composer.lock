@@ -1206,16 +1206,16 @@
         },
         {
             "name": "erikwang2013/security-php",
-            "version": "v1.3.0",
+            "version": "v1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/security-php.git",
-                "reference": "e40c516073333babd85c261b132beadfb8f89e1f"
+                "reference": "bf76b31dc61d80dc59383e79928858df28730bcb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/security-php/zipball/e40c516073333babd85c261b132beadfb8f89e1f",
-                "reference": "e40c516073333babd85c261b132beadfb8f89e1f",
+                "url": "https://api.github.com/repos/erikwang2013/security-php/zipball/bf76b31dc61d80dc59383e79928858df28730bcb",
+                "reference": "bf76b31dc61d80dc59383e79928858df28730bcb",
                 "shasum": ""
             },
             "require": {
@@ -1260,10 +1260,11 @@
                     "homepage": "https://erik.xyz"
                 }
             ],
-            "description": "A PHP security attack detection plugin with 31 stateless threat detectors and 4 cross-request identity checks (session hijack, unusual login, data tamper, brute-force lockout), compatible with Laravel, Webman, ThinkPHP, and Hyperf.",
+            "description": "A PHP security attack detection plugin with 31 stateless threat detectors and 4 cross-request identity checks (session hijack, unusual login, data tamper, brute-force lockout). Works with Laravel, Webman, ThinkPHP, and Hyperf, or with no framework at all via global functions.",
             "keywords": [
                 "attack-detection",
                 "brute-force",
+                "framework-agnostic",
                 "identity",
                 "security",
                 "session-hijack",
@@ -1273,9 +1274,9 @@
             ],
             "support": {
                 "issues": "https://github.com/erikwang2013/security-php/issues",
-                "source": "https://github.com/erikwang2013/security-php/tree/v1.3.0"
+                "source": "https://github.com/erikwang2013/security-php/tree/v1.3.2"
             },
-            "time": "2026-09-15T10:10:41+00:00"
+            "time": "2026-09-15T10:31:04+00:00"
         },
         {
             "name": "erikwang2013/snowflake-php",

@@ -38,9 +38,14 @@ class SecurityFilter implements MiddlewareInterface
 
     public function process(Request $request, callable $handler): Response
     {
-        // 安装向导放行：引导阶段尚无会话与数据可护，且表单含密码/DSN/路径等字段，
-        // 按攻击特征扫必然误伤。插件自身没有这条例外，由这里保留。
-        if (str_starts_with($request->path(), '/install')) {
+        // 基础设施端点放行。插件没有这类例外，由适配层保留：
+        //  - /install：引导阶段尚无会话与数据可护，且表单含密码/DSN/路径等字段，按攻击特征扫必然误伤；
+        //  - /health：监控以裸 IP 直连（curl http://127.0.0.1:8788/health），而 dns_rebinding
+        //    检测器把 Host 为裸 IP 判为 critical —— 不放行则健康检查恒 403。
+        //    HealthController::index() 不读任何请求输入（ES 地址取自配置），放行不引入 SSRF 面。
+        //    精确匹配而非前缀：不给 /health 之下的伪造路径开口子。
+        $path = $request->path();
+        if (str_starts_with($path, '/install') || $path === '/health') {
             return $handler($request);
         }
 
@@ -48,7 +53,7 @@ class SecurityFilter implements MiddlewareInterface
             return $handler($request); // 故障放行：安全组件绝不能让业务不可用
         }
 
-        $ip      = self::clientIp($request);
+        $ip = self::clientIp($request);
         $payload = self::payload($request);
 
         try {
@@ -57,7 +62,7 @@ class SecurityFilter implements MiddlewareInterface
                 self::gapThreats($payload)
             );
             $headers = Guard::securityHeaders();
-            $block   = Guard::blockDecision($threats);
+            $block = Guard::blockDecision($threats);
         } catch (\Throwable $e) {
             // fail-open + 响亮告警：静默放行会让安全防护看起来还开着
             Log::error('安全过滤：检测链异常，本请求放行（fail-open）: ' . $e->getMessage()
@@ -120,7 +125,7 @@ class SecurityFilter implements MiddlewareInterface
             return self::$redis;
         }
 
-        $cfg   = (array) config('redis.default', []);
+        $cfg = (array) config('redis.default', []);
         $redis = new \Redis();
         $redis->connect((string) ($cfg['host'] ?? '127.0.0.1'), (int) ($cfg['port'] ?? 6379), 1.0);
         if (!empty($cfg['password'])) {
@@ -189,7 +194,7 @@ class SecurityFilter implements MiddlewareInterface
         );
 
         $data['headers.User-Agent'] = (string) $request->header('user-agent', '');
-        $data['headers.Referer']    = (string) $request->header('referer', '');
+        $data['headers.Referer'] = (string) $request->header('referer', '');
         // 路径本身也是可控输入：旧实现扫 path + queryString，插件只把 path 放进 meta
         // 供日志用（SecurityGuard.php:154-161 只注入五个 _server.*），不扫就等于回退。
         // 查询串已随 get() 进扫描面，这里补的是路径段（如 /admin/v1/user/1%27%20OR…）。
@@ -203,9 +208,11 @@ class SecurityFilter implements MiddlewareInterface
         $out = [];
         foreach ($files as $key => $file) {
             if ($file instanceof UploadFile) {
+                // 临时路径用 getPathname()：UploadFile 继承 SplFileInfo，
+                // 构造时把 tmp 路径作为 $fileName 交给父类，没有 getUploadTmpPath() 这个方法。
                 $out[$key] = [
-                    'name'     => $file->getUploadName() ?? '',
-                    'tmp_name' => $file->getUploadTmpPath() ?? '',
+                    'name' => $file->getUploadName() ?? '',
+                    'tmp_name' => $file->getPathname(),
                 ];
             } elseif (is_array($file)) {
                 $out[$key] = self::files($file);
@@ -229,11 +236,14 @@ class SecurityFilter implements MiddlewareInterface
      * 插件补上这些规则后，本常量与 gapThreats()/values() 可整体删除。
      */
     private const GAP_PATTERNS = [
-        // 插件只覆盖 /etc/passwd|shadow 与 C:\Windows\win.ini
-        'path_traversal'    => '/(?:^|[\/\\\\])(?:\.env\b|\.git\/|WEB-INF\/|proc\/self\/|boot\.ini)/i',
-        // 插件只覆盖 information_schema/pg_catalog 一类，无危险 DDL
-        'sql_injection'     => '/\b(?:drop|alter|truncate)\s+(?:table|database|index|view)\b/i',
-        // 插件只覆盖 ;wget ;curl 一类下载器，裸 rm/ls 仅限反引号与 $() 内
+        // 插件覆盖 ../ 与 %2e%2e、/etc/(passwd|shadow|hosts|group)、C:\Windows\System32|win.ini、
+        // php:// data:// phar:// file:// 与空字节，但不含下面这几类版本库/配置/容器路径。
+        'path_traversal' => '/(?:^|[\/\\\\])(?:\.env\b|\.git\/|WEB-INF\/|proc\/self\/|boot\.ini)/i',
+        // 插件覆盖 information_schema/pg_catalog 一类侦察语句，但无任何危险 DDL
+        // （grep -icE 'drop|truncate|alter' SqlInjectionDetector.php = 0）
+        'sql_injection' => '/\b(?:drop|alter|truncate)\s+(?:table|database|index|view)\b/i',
+        // 插件覆盖 ;wget|curl|fetch|lynx、|nc、/dev/tcp、> /dev/null、&&wget 一类、
+        // 以及 ;bash|sh|python|perl|ruby|php；裸 rm 仅在反引号与 $() 内。下面这些无覆盖。
         'command_injection' => '/[;|&]\s*(?:ls|rm|cmd|powershell|whoami)\s+[-\/]/i',
     ];
 
@@ -292,22 +302,22 @@ class SecurityFilter implements MiddlewareInterface
     private static function meta(Request $request, string $ip): array
     {
         return [
-            'ip'                => $ip,
-            'method'            => $request->method(),
-            'uri'               => $request->path(),
-            'content_length'    => (string) $request->header('content-length', ''),
-            'content_type'      => (string) $request->header('content-type', ''),
-            'origin'            => (string) $request->header('origin', ''),
-            'host'              => (string) $request->header('host', ''),
-            'x_forwarded_for'   => (string) $request->header('x-forwarded-for', ''),
+            'ip' => $ip,
+            'method' => $request->method(),
+            'uri' => $request->path(),
+            'content_length' => (string) $request->header('content-length', ''),
+            'content_type' => (string) $request->header('content-type', ''),
+            'origin' => (string) $request->header('origin', ''),
+            'host' => (string) $request->header('host', ''),
+            'x_forwarded_for' => (string) $request->header('x-forwarded-for', ''),
             'transfer_encoding' => (string) $request->header('transfer-encoding', ''),
-            'cookies'           => $request->cookie() ?? [],
-            'user_agent'        => (string) $request->header('user-agent', ''),
+            'cookies' => $request->cookie() ?? [],
+            'user_agent' => (string) $request->header('user-agent', ''),
             // 名称需与 identity.session.headers 保持一致
-            'headers'           => [
+            'headers' => [
                 'authorization' => (string) $request->header('authorization', ''),
-                'x-token'       => (string) $request->header('x-token', ''),
-                'x-auth-token'  => (string) $request->header('x-auth-token', ''),
+                'x-token' => (string) $request->header('x-token', ''),
+                'x-auth-token' => (string) $request->header('x-auth-token', ''),
             ],
         ];
     }

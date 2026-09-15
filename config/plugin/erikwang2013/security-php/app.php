@@ -31,49 +31,49 @@ return [
         // 检测 <script>、onerror=、javascript: 等注入模式
         'xss' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // SQL 注入检测
         // 检测 union select、sleep(、-- 注释、or 1=1 等注入模式
         'sql_injection' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // 命令注入检测
         // 检测反引号、$()、管道符、/dev/tcp 等命令执行模式
         'command_injection' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // 路径遍历检测
         // 检测 ../、..\\、/etc/passwd、php://filter 等文件包含模式
         'path_traversal' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // 恶意文件上传检测
         // 检测文件扩展名是否在允许的白名单内，以及 PHP 标签头
         'upload' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // SSRF 服务端请求伪造检测
         // 检测内网 IP（127.x、10.x、172.16-31.x、192.168.x）、cloud metadata、危险协议
         'ssrf' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // XXE XML 外部实体注入检测
         // 检测 <!ENTITY、SYSTEM/PUBLIC 标识、DOCTYPE 声明等
         'xxe' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // HTTP 响应头注入检测
@@ -81,28 +81,28 @@ return [
         // 注意：默认 log 模式，因为 \r\n\r\n 会匹配多段落文本（如表单 textarea）
         'header_injection' => [
             'enabled' => true,
-            'mode'    => 'log',
+            'mode' => 'log',
         ],
 
         // 反序列化攻击检测
         // 检测 PHP 序列化对象格式（O:数字:、C:数字:）、魔术方法等
         'deserialization' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // LDAP 注入检测
         // 检测 LDAP 过滤语法（&、|、!、*）、属性枚举等
         'ldap_injection' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // 邮件头注入检测
         // 检测 Bcc、Cc、From、To 等邮件头注入，防止邮件被劫持转发
         'mail_header' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // SSTI 服务端模板注入检测
@@ -110,7 +110,7 @@ return [
         // 注意：默认 log 模式，因为 {{ }} 会匹配 Vue/Angular/Handlebars 前端模板
         'ssti' => [
             'enabled' => true,
-            'mode'    => 'log',
+            'mode' => 'log',
         ],
 
         // NoSQL 注入检测
@@ -118,35 +118,35 @@ return [
         // 注意：默认 log 模式，因为 $ne/$gt 会匹配 Shell 变量、LaTeX、价格字符串
         'nosql_injection' => [
             'enabled' => true,
-            'mode'    => 'log',
+            'mode' => 'log',
         ],
 
         // Open Redirect 开放重定向检测
         // 检测 //evil.com 协议相对URL、javascript: 伪协议、外部域名重定向
         'open_redirect' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // JWT 攻击检测
         // 检测 alg:none 签名绕过、kid 参数注入、空签名等 JWT 安全问题
         'jwt_attack' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // Host 头攻击检测
         // 检测 Host 头注入、X-Forwarded-Host 投毒、X-Original-URL 等
         'host_header' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // HTTP Request Smuggling 检测
         // 检测 Transfer-Encoding/Content-Length 不一致、TE.CL/CL.TE 攻击
         'request_smuggling' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // GraphQL 注入检测
@@ -154,49 +154,49 @@ return [
         // 注意：默认 log 模式，因为深度嵌套模式可能匹配合法前端 JSON/JS 大括号结构
         'graphql_injection' => [
             'enabled' => true,
-            'mode'    => 'log',
+            'mode' => 'log',
         ],
 
         // XPATH 注入检测
         // 检测 or 1=1 布尔绕过、| 联合操作符、count/string/substring 函数注入
         'xpath_injection' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // JNDI / Log4Shell 注入检测
         // 检测 ${jndi:ldap://、${lower:j、${env:、${::-j} 等 Log4j 漏洞利用
         'jndi_injection' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // SSI 服务端包含注入检测
         // 检测 <!--#exec cmd=、<!--#include file=、<!--#echo var= 等 SSI 指令
         'ssi_injection' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // CSV 公式注入检测
         // 检测 =cmd|、=powershell、HYPERLINK() 等 Excel 公式攻击
         'csv_injection' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // 敏感数据泄露检测
         // 检测信用卡号、AWS Key、私钥头、数据库连接串、API Token、JWT Secret
         'data_leak' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // Prototype Pollution 检测
         // 检测 __proto__、constructor.prototype、__defineSetter__ 等 JS 原型污染
         'prototype_pollution' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // WebSocket 劫持检测
@@ -204,28 +204,28 @@ return [
         // 注意：默认 log 模式，因为 Upgrade 头检测可能匹配合法 WebSocket 建连请求
         'websocket' => [
             'enabled' => true,
-            'mode'    => 'log',
+            'mode' => 'log',
         ],
 
         // CORS 绕过检测
         // 检测 Origin 头注入、Access-Control-* 头注入、preflight 请求投毒
         'cors' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // DNS Rebinding 检测
         // 检测 Host 头内网 IP（127/10/172/192/0.0.0.0）、localhost、无 TLD 短主机名
         'dns_rebinding' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
         ],
 
         // HTTP 方法校验
         // 检测请求方法是否在允许列表内，不在则返回 405 Method Not Allowed
         'http_method' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
             'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'],
         ],
 
@@ -234,7 +234,7 @@ return [
         // max_size 单位为字节，默认 10MB
         'body_size' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
             'max_size' => 10485760, // 10 MB
         ],
 
@@ -242,7 +242,7 @@ return [
         // 检测 Content-Type 是否在允许列表内，不在则返回 415 Unsupported Media Type
         'content_type' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
             'allowed_types' => [
                 'application/x-www-form-urlencoded',
                 'multipart/form-data',
@@ -258,7 +258,7 @@ return [
         // allowed_origins 可选：额外允许的跨域来源
         'csrf_origin' => [
             'enabled' => true,
-            'mode'    => 'block',
+            'mode' => 'block',
             'allowed_origins' => [],
         ],
 
@@ -270,7 +270,7 @@ return [
         // 需先观察误报率再切 block。命中时返回 401（登录态不可信，应重新认证）
         'session_hijack' => [
             'enabled' => true,
-            'mode'    => 'log',
+            'mode' => 'log',
         ],
 
         // 异地登录检测
@@ -279,7 +279,7 @@ return [
         // 注意：默认 log 模式；首个登录地即基线，局限详见 README
         'unusual_login' => [
             'enabled' => true,
-            'mode'    => 'log',
+            'mode' => 'log',
         ],
 
         // 数据篡改检测
@@ -288,7 +288,7 @@ return [
         // 否则完全静默 —— 已有应用升级后不会因此失败
         'data_tamper' => [
             'enabled' => true,
-            'mode'    => 'log',
+            'mode' => 'log',
         ],
 
         // 登录暴力破解锁定
@@ -299,7 +299,7 @@ return [
         // 故 lock_seconds 默认较短，详见 README
         'login_lockout' => [
             'enabled' => true,
-            'mode'    => 'log',
+            'mode' => 'log',
         ],
     ],
 
@@ -390,10 +390,10 @@ return [
      * 因此高误报检测器保持 log 模式即可，勿整组切 block。
      */
     'normalization' => [
-        'enabled'   => true,
+        'enabled' => true,
         'urldecode' => true, // 值包含 % 时解码（含双重编码）
         'fullwidth' => true, // 全角 ASCII 转半角
-        'entities'  => true, // 值包含 &# 或 &amp; 时解 HTML 实体
+        'entities' => true, // 值包含 &# 或 &amp; 时解 HTML 实体
     ],
 
     /*
@@ -443,7 +443,7 @@ return [
         // 注意：多应用共享主机时，留空默认路径 sys_get_temp_dir() 会被多个应用共用，
         // 可能互相覆盖数据。建议显式配置独立路径，或改用 type=redis。
         'cache' => [
-            'path'   => '', // 留空使用 sys_get_temp_dir() . '/security_cache'
+            'path' => '', // 留空使用 sys_get_temp_dir() . '/security_cache'
             'prefix' => 'security_',
         ],
     ],
@@ -470,11 +470,11 @@ return [
             // 禁止浏览器 MIME 类型嗅探（防止上传的 HTML 被当网页执行）
             'X-Content-Type-Options' => 'nosniff',
             // 防点击劫持：SAMEORIGIN=仅同源可嵌；DENY=完全禁止
-            'X-Frame-Options'        => 'SAMEORIGIN',
+            'X-Frame-Options' => 'SAMEORIGIN',
             // 控制跨站请求泄露多少来源信息
-            'Referrer-Policy'        => 'strict-origin-when-cross-origin',
+            'Referrer-Policy' => 'strict-origin-when-cross-origin',
             // 例：geolocation=(), camera=(), microphone=()
-            'Permissions-Policy'     => '',
+            'Permissions-Policy' => '',
             // 例：default-src 'self'; script-src 'self'
             'Content-Security-Policy' => '',
             // 例：max-age=31536000; includeSubDomains
@@ -493,11 +493,11 @@ return [
      *   注意：在 PHP-FPM 等短生命周期模式下，去重仅对单次请求有效，非跨请求去重
      */
     'log' => [
-        'enabled'       => true,
+        'enabled' => true,
         // 与 app/middleware/SecurityFilter.php 原用的落盘位置一致；
         // 留空会落到 sys_get_temp_dir()，同机多应用会串写同一个文件
-        'path'          => runtime_path() . '/logs/security.log',
-        'max_size'      => 10,
+        'path' => runtime_path() . '/logs/security.log',
+        'max_size' => 10,
         'dedup_seconds' => 5,
     ],
 
