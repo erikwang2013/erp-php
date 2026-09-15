@@ -407,8 +407,9 @@ jobs:
           # 产生 v1.17.1 与 v1.17.2 两个都指向同一 commit 的孤儿 tag）。
           # 已有 tag 时置 SKIP_TAG，后续 Release 步骤改为补建该 tag 的 Release（幂等）。
           if git tag --points-at "$GITHUB_SHA" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "当前 commit 已有版本 tag：$(git tag --points-at "$GITHUB_SHA" | tr '\n' ' ')，跳过创建"
-            echo "SKIP_TAG=1" >> "$GITHUB_ENV"
+            TAG_NAME="$(git tag --points-at "$GITHUB_SHA" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)"
+            echo "当前 commit 已有版本 tag：$TAG_NAME，跳过创建"
+            echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_ENV"
             exit 0
           fi
           set +e
@@ -420,6 +421,11 @@ jobs:
             echo "::error::$(printf '%s' "$out" | tail -15 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
             exit $code
           fi
+          # 把**本次创建的**版本号交给下一步复用。绝不能在下一步再调一次
+          # `bump-version.sh --create` —— 它是「最新 tag +1」，此时最新已是刚建的
+          # 那个 tag，于是再加一个：实测一次 run 因此打出两个 tag（v1.17.1 孤儿 +
+          # v1.17.2 才建 Release）。
+          echo "TAG_NAME=$(printf '%s\n' "$out" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | tail -1)" >> "$GITHUB_ENV"
       - name: Create GitHub Release
         # 推送规则：按上一步的版本建 GitHub Release。
         # 幂等：已有同名 release → gh release view 命中 → 跳过，不会报错；
@@ -431,11 +437,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [ -n "${SKIP_TAG:-}" ]; then
-            NEW="$(git tag --points-at "$GITHUB_SHA" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)"
-          else
-            NEW="$(bash scripts/bump-version.sh --create 2>&1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | tail -1)"
+          NEW="${TAG_NAME:-}"
+          if [ -z "$NEW" ]; then
+            echo "::error::上一步没有产出 TAG_NAME，无法确定要发哪个版本"
+            exit 1
           fi
+          echo "本次版本：$NEW"
           if [ -n "$NEW" ] && ! gh release view "$NEW" >/dev/null 2>&1; then
             # 标题只留 x.y.z（不带 v 前缀、不带附加文字）：tag 仍是 v 前缀以便
             # bump-version.sh 的版本递增，仅 Release 标题按纯版本号展示
