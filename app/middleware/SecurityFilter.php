@@ -187,12 +187,19 @@ class SecurityFilter implements MiddlewareInterface
      */
     private static function payload(Request $request): array
     {
-        $data = self::merge(
-            $request->cookie() ?? [],
-            $request->get() ?? [],
-            $request->post() ?? [],
-            self::files($request->file() ?? [])
-        );
+        // 同名冲突合并交给插件：v1.3.3 起 SecurityGuard::mergeRequestSources() 承担这件事 ——
+        // 被顶掉的旧值改挂到 _<来源>.<键>（如 _cookie.evil）下继续进扫描面，值相同时不重复拷，
+        // 键在白名单里也不拷（检测器本就跳过）。同一个洞插件自带中间件也中过（v1.3.3 一并修）。
+        // 本仓在 v1.3.3 之前自己写过一份等价实现，插件补上后即删除，不留两份互相打架。
+        //
+        // 调用位置**必须**在 boot() 之后：该 API 内部会 getConfig()，而配置未初始化时
+        // 它兜底 init(插件默认配置) —— 那会把本仓这 135 键的配置静默换成默认值。
+        $data = Guard::mergeRequestSources([
+            'cookie' => $request->cookie() ?? [],
+            'get' => $request->get() ?? [],
+            'post' => $request->post() ?? [],
+            'file' => self::files($request->file() ?? []),
+        ]);
 
         $data['headers.User-Agent'] = (string) $request->header('user-agent', '');
         $data['headers.Referer'] = (string) $request->header('referer', '');
@@ -202,40 +209,6 @@ class SecurityFilter implements MiddlewareInterface
         $data['uri'] = $request->path();
 
         return $data;
-    }
-
-    /**
-     * 合并多个来源，同名键**全部保留**而非后者覆盖前者。
-     *
-     * 原来用 array_merge：后一来源会挤掉前一来源的同名值，而扫描面是按值扫的 ——
-     * 攻击者只要在 query 里放一个与恶意 cookie 同名的无害值，恶意值就整个离开扫描面。
-     * 实测（对照与攻击各一例，非推断）：
-     *   Cookie: evil=<script>alert(1)</script>                      → 403
-     *   Cookie: evil=<script>alert(1)</script>  +  ?evil=1          → 200  ← 绕过
-     * get 被 post 遮蔽同理。
-     *
-     * 插件自带的 Webman\SecurityMiddleware 有同样的合并（middleware/Webman/
-     * SecurityMiddleware.php:35-40）—— 它修的是身份维度（cookies 单独传进 meta），
-     * 检测面 $data 没修。我们无法改 vendor，所以在适配层修掉。
-     *
-     * 冲突时把两个值并列成数组，而不是改键名：SecurityGuard::flattenData() 会递归
-     * 展开每个叶子（撞键另有 uniqueKey() 兜底），两个值都进扫描面；键名保持不变，
-     * 以免影响 whitelist_fields 的按名匹配（本仓配置为 _token/_method/csrf_token）。
-     *
-     * @param array ...$sources 各来源的数据，先 cookie 后 get 后 post 后 files
-     *
-     * 纯函数形态公开，便于直接夹逼验证（同 resolveIp，见 tests/SecurityFilterPayloadTest.php）
-     */
-    public static function merge(array ...$sources): array
-    {
-        $out = [];
-        foreach ($sources as $source) {
-            foreach ($source as $key => $value) {
-                $out[$key] = array_key_exists($key, $out) ? [$out[$key], $value] : $value;
-            }
-        }
-
-        return $out;
     }
 
     private static function files(array $files): array
