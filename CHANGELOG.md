@@ -2,6 +2,41 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.18.0 (2026-09-15)
+
+文档全量对齐 + CI 发版链打通（顺带修掉 Release 自 v1.9.2 断档的真正根因）。
+
+### 文档
+
+- **README 项目功能与项目结构对齐现状**：`apps/` 补上 Angular 22（`apps/angular/`）与 React 19 + Vite
+  （`apps/react/`）两端（此前只列 Flutter / HarmonyOS）；业务控制器 136→139（总 159）、模型 223→224、
+  表 226→227、`install.sql` 表清单 163→227；域子计数订正（product 8 / purchase 8 / inventory 6），
+  并补上漏列的 `open/` 域（23 域齐）
+- **国际化口径统一为 13 语种**（README / CLAUDE / ARCHITECTURE / FUNCTIONS / API / EDITIONS /
+  INSTALL / TEAM 八份）：后端词典 11 个语种各 542 条、`zh_CN` 533、`en` 30 —— **口径为「叶子条目」**，
+  `validation.php` 的 `attributes` 是分组容器不计入（箭头口径会得 543/535/31，两者都是实测真值）；
+  Angular 源词典 1453 键 / React 1447 键，按语种懒加载成独立 chunk
+- **纠正三处与代码不符的陈述**：① ARCHITECTURE / TEAM 声称存在「Locale 中间件」——实测全仓无此类
+  （`config/middleware.php` 全局链仅 Cors→SecurityFilter→RateLimit→TracingId），语种解析实际在
+  `app/common/I18n.php` 的 `getLocale()`，由 `I18n::trans()` 调用，共改写 10 处；② `FUNCTIONS.md`
+  首段同行自相矛盾（文字 19 域/163 表 vs 标注 23/227）；③ INSTALL / TEAM 陈旧计数
+- EDITIONS 补记 v1.17.0 与 v1.18.0 变更段
+
+### CI 与发版
+
+- **release 作业不再被常红的 php 作业卡死**：`needs` 由 `[php, docs, e2e]` 改为 `[docs, e2e]`
+- **修复「只打 tag、不建 Release」的真正根因**（v1.9.2 ~ v1.17.0 期间 GitHub Release 一直断档）：
+  `gh` CLI 在 Actions 里必须显式注入 `GH_TOKEN`；`permissions: contents: write` 只是授权，
+  不会把 token 放进环境变量，缺它直接 `exit 4`
+- **修复「一次 run 打两个 tag」**：Release 步骤重复调用 `bump-version.sh --create`（按「最新 tag +1」
+  计算），导致 step3 建 vN.1、step4 又建 vN.2 且只给后者建 Release；改为 step3 产出 `TAG_NAME`
+  交 step4 复用，缺则报错退出
+- 新增防重守卫：同一 commit 已有版本 tag 即跳过创建，并把该 tag 交给 Release 步骤补建（幂等自愈）
+- 自动 Release 标题统一为纯 `x.y.z`（不带 `v` 前缀、不带附加文字）
+- 现状：docs / e2e / flutter 三作业绿；php 作业仍红（CI 专属集成测试历史债 —— 建表 `ledger_id`
+  重复、测试里 `tenant` 表漏 `erp_` 前缀、发票用例依赖 CI 未提供的 Elasticsearch 等），
+  但已不再拦发版
+
 ## v1.17.0 (2026-09-15)
 
 **全平台 13 语种**（后端响应消息 + Angular 管理端 + React 管理端），并补齐两端词典漏收文案。
