@@ -89,7 +89,7 @@ class TaskController extends BaseController
         $list = array_map(function ($row) use ($projectNames) {
             $row['project_name'] = (string) ($projectNames[(int) ($row['project_id'] ?? 0)] ?? '');
 
-            return $this->encodeIds($row, ['id', 'project_id']);
+            return $this->encodeIds($row, ['id', 'project_id', 'assignee_user_id']);
         }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);

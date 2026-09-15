@@ -1454,4 +1454,8 @@ export const zhPt: Record<string, string> = {
   '如 get.admin/user': 'ex.: get.admin/user',
   '搜索用户/路径': 'Pesquisar usuário/caminho',
   '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -': 'Separe vários nomes de eventos com vírgulas ou quebras de linha; * significa todos; apenas letras, dígitos e . _ - são permitidos',
+  'BOM': 'Lista de Materiais',
+  'SKU ID': 'ID do SKU',
+  '删除时间': 'Excluído em',
+  '规格属性': 'Atributos de Especificação',
 };

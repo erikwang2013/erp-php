@@ -75,7 +75,7 @@ class SubcontractController extends BaseController
             'eqFilters' => ['status'],
             'truthyFilters' => ['supplier_id', 'product_id'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'supplier_id', 'product_id', 'warehouse_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }

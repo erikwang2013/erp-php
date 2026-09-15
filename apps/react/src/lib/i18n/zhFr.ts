@@ -1454,4 +1454,8 @@ export const zhFr: Record<string, string> = {
   '如 get.admin/user': 'ex. get.admin/user',
   '搜索用户/路径': 'Rechercher utilisateur/chemin',
   '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -': 'Séparez plusieurs noms d\'événements par des virgules ou des retours à la ligne ; * signifie tous ; seuls les lettres, chiffres et . _ - sont autorisés',
+  'BOM': 'Nomenclature',
+  'SKU ID': 'ID SKU',
+  '删除时间': 'Supprimé le',
+  '规格属性': 'Attributs de spécialisation',
 };

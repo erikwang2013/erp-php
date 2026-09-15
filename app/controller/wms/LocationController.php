@@ -59,7 +59,7 @@ class LocationController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'location_id', 'zone_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

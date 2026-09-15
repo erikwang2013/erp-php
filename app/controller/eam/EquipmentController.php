@@ -71,7 +71,7 @@ class EquipmentController extends BaseController
             $query->where('category', $category);
         }
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray()));
+        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray(), ['id', 'department_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

@@ -69,7 +69,7 @@ class MaterialIssueController extends BaseController
             'eqFilters' => ['status'],
             'truthyFilters' => ['order_id'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'order_id', 'warehouse_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }

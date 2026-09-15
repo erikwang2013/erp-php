@@ -2,7 +2,8 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import type { ColumnDef, Row } from '../../config/types';
+import { COLUMN_TITLES } from '../../config/column-titles';
+import type { ColumnDef, FieldSource, FormField, Row } from '../../config/types';
 import {
   date,
   dateTime,
@@ -32,42 +33,6 @@ export function take(row: Row, key: string): unknown {
       row,
     );
 }
-
-/** 字段名 → 中文列标题（只给中文原文，翻译交给模板 | tr，语言切换才会重渲染） */
-const TITLES: Record<string, string> = {
-  code: '编号',
-  no: '编号',
-  name: '名称',
-  title: '标题',
-  type: '类型',
-  status: '状态',
-  quantity: '数量',
-  amount: '金额',
-  total_amount: '金额',
-  total: '合计',
-  price: '单价',
-  cost: '成本',
-  subtotal: '小计',
-  remark: '备注',
-  description: '说明',
-  note: '备注',
-  phone: '手机',
-  email: '邮箱',
-  address: '地址',
-  username: '用户名',
-  real_name: '姓名',
-  created_at: '创建时间',
-  updated_at: '更新时间',
-  due_date: '到期日',
-  start_date: '开始日期',
-  end_date: '结束日期',
-  currency: '币种',
-  discount: '折扣',
-  tax: '税额',
-  level: '等级',
-  channel: '渠道',
-  owner: '负责人',
-};
 
 /** 完全不展示的内部字段（含 id 与三个时间戳，推断时直接跳过） */
 const HIDDEN = new Set([
@@ -101,23 +66,106 @@ const STATUS_DICTS: Record<string, Record<number, string>> = {
   crm: { 0: '未开始', 1: '跟进中', 2: '已报价', 3: '赢单', 4: '输单' },
 };
 
-/** 键名 → 列标题：命中词典用中文，否则驼峰化（与 React keyTitle 同源） */
-export function keyTitle(k: string): string {
-  const zh = TITLES[k];
+/** 键名 → 列标题：字段 label 优先，命中词典用中文，否则驼峰化（与 React keyTitle 同源） */
+export function keyTitle(k: string, label?: string): string {
+  const zh = label ?? COLUMN_TITLES[k];
   return zh ?? k.replace(/_([a-z])/g, (_m: string, c: string) => c.toUpperCase());
+}
+
+/** 关联 id → 名称映射表：endpoint → (id 字符串 → 名称)；由 OptionSource 加载后交给推断 */
+export type RelLabels = Record<string, Record<string, string>>;
+
+/** 非规范别名：`*_id` → 行内实际承载名称的字段（可扩充；未列出的走 `<base>_name`） */
+const NAME_ALIAS: Record<string, string> = {
+  partner_id: 'party_name',
+  apply_user_id: 'employee_name',
+  stage_id: 'stage_name',
+};
+
+/** 关系对象里取名称：name → title → label → code；空对象/数组取不到（不给 [object Object]） */
+function relName(v: unknown): string {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return '';
+  const o = v as Row;
+  for (const k of ['name', 'title', 'label', 'code']) {
+    const s = o[k];
+    if (s !== null && s !== undefined && s !== '' && typeof s !== 'object') return String(s);
+  }
+  return '';
+}
+
+/** 行内可用的关联名：`<base>_name` 兄弟（含别名）优先，其次 `<base>` 关系对象（with 预加载） */
+function inlineRelName(row: Row, idKey: string, stem: string): string {
+  const n = row[NAME_ALIAS[idKey] ?? `${stem}_name`];
+  if (n !== null && n !== undefined && n !== '' && typeof n !== 'object') return String(n);
+  return relName(row[stem]);
+}
+
+/**
+ * 关联列取数需求（契约 B 的 rule 3）：行里出现的、`cfg.fields` 给了 source 的外键键中，
+ * 行内没有名称可用（无 `<base>_name`、无 `<base>` 关系对象）的那些，按 endpoint 去重。
+ * 页面据此预热 OptionSource —— 行内已有名称的不必白拉一次接口。
+ */
+export function relSources(rows: Row[], fields: FormField[] = []): FieldSource[] {
+  const byKey = new Map<string, FieldSource>();
+  for (const f of fields) if (f.source) byKey.set(f.key, f.source);
+  const out = new Map<string, FieldSource>();
+  if (!byKey.size) return [];
+  for (const r of rows.slice(0, 3)) {
+    for (const k of Object.keys(r)) {
+      const src = k.endsWith('_id') ? byKey.get(k) : undefined;
+      if (!src || out.has(src.endpoint)) continue;
+      if (inlineRelName(r, k, k.slice(0, -'_id'.length)) !== '') continue;
+      out.set(src.endpoint, src);
+    }
+  }
+  return [...out.values()];
 }
 
 /**
  * 从行样本推断列定义 —— 配置不写 columns 时让任意后端资源两行配置即可上线。
  * 金额/日期/状态/数量按字段名识别；编号类字段提到最前并加粗。
+ *
+ * 关联列解析顺序（契约 B，逐条固定）：
+ * 1) 行有 `<base>_name`（另有别名表）→ 名称列自己会渲染，外键列整个隐藏；
+ * 2) 行有 `<base>` 关系对象（with 预加载）→ 在该外键的位置渲染对象里的名称；
+ * 3) `cfg.fields` 里该键配了 source 且选项已加载（labels）→ 在该外键的位置渲染 id→名称；
+ *    加载失败或该行未命中 → 名称取不到，回落 4；
+ * 4) 兜底：按原值渲染该外键列，不隐藏（后端补 hashid 编码后这里就是 hashid）。
+ * 注意 2)/3) 是「原位改名」而非删列：名称得有地方显示，所以列还在、只是不再显示裸 id。
+ *
+ * @param fields cfg.fields —— 其中的 label 优先做列标题（契约 A）
+ * @param labels OptionSource 加载好的 id→名称映射（rule 3；未加载到就退回原值）
  */
-export function inferColumns(rows: Row[], endpoint: string, limit = 8): ColumnDef[] {
+export function inferColumns(
+  rows: Row[],
+  endpoint: string,
+  fields: FormField[] = [],
+  labels: RelLabels = {},
+  limit = 8,
+): ColumnDef[] {
+  const sample = rows.slice(0, 3);
+  const labelOf = new Map<string, string>();
+  const sourceOf = new Map<string, FieldSource>();
+  for (const f of fields) {
+    if (!labelOf.has(f.key)) labelOf.set(f.key, f.label);
+    if (f.source && !sourceOf.has(f.key)) sourceOf.set(f.key, f.source);
+  }
+  const titleOf = (k: string): string => {
+    if (labelOf.has(k) || COLUMN_TITLES[k]) return keyTitle(k, labelOf.get(k));
+    // `<base>_name` 名称列自己没文案时借 `<base>_id` 的：外键列被它顶掉了，标题得跟着（customer_name 列 → 「客户」）
+    if (k.endsWith('_name')) {
+      const idKey = `${k.slice(0, -'_name'.length)}_id`;
+      if (labelOf.has(idKey) || COLUMN_TITLES[idKey]) return keyTitle(idKey, labelOf.get(idKey));
+    }
+    return keyTitle(k); // 未知键兜底：驼峰化，绝不留空白表头
+  };
+
   const keys: string[] = [];
-  for (const r of rows.slice(0, 3)) {
+  for (const r of sample) {
     for (const k of Object.keys(r)) {
       if (HIDDEN.has(k) || k.startsWith('__')) continue;
       const v = r[k];
-      // 嵌套对象/数组是关系字段，渲染出来只会是 [object Object]
+      // 嵌套对象/数组是关系字段：不单独成列，rule 2 会把它挂到 `<base>_id` 的位置上
       if (v !== null && typeof v === 'object') continue;
       if (!keys.includes(k)) keys.push(k);
       if (keys.length >= limit) break;
@@ -133,18 +181,41 @@ export function inferColumns(rows: Row[], endpoint: string, limit = 8): ColumnDe
   // /admin/v1/{资源} 的第 4 段即资源名，用它挑状态字典
   const dict = STATUS_DICTS[endpoint.split('/')[3] ?? ''];
 
-  return keys.map((k): ColumnDef => {
+  const cols: ColumnDef[] = [];
+  for (const k of keys) {
+    if (k.endsWith('_id')) {
+      const stem = k.slice(0, -'_id'.length);
+      const nameKey = NAME_ALIAS[k] ?? `${stem}_name`;
+      const hasNameCol = sample.some((r) => {
+        const v = r[nameKey];
+        return v !== null && v !== undefined && v !== '' && typeof v !== 'object';
+      });
+      if (hasNameCol) continue; // rule 1
+      if (sample.some((r) => relName(r[stem]) !== '')) {
+        // rule 2：列键换成关系对象所在的键，cellOf 从对象里取名称
+        cols.push({ key: stem, title: titleOf(k), kind: 'rel' });
+        continue;
+      }
+      const src = sourceOf.get(k);
+      const map = src ? labels[src.endpoint] : undefined;
+      if (map && Object.keys(map).length) {
+        cols.push({ key: k, title: titleOf(k), kind: 'rel', rel: map }); // rule 3
+        continue;
+      }
+    }
+    // rule 4 / 普通列：按字段名识别 kind（外键识别不出任何 kind，走 text 原值直出）
     const base: ColumnDef = {
       key: k,
-      title: keyTitle(k),
+      title: titleOf(k),
       primary: k === 'code' || k === 'no' || k === 'name',
     };
-    if (isStatus(k)) return { ...base, kind: 'status', dict };
-    if (isMoney(k)) return { ...base, kind: 'money', align: 'right' };
-    if (isDate(k)) return { ...base, kind: 'datetime' };
-    if (isInt(k)) return { ...base, kind: 'int', align: 'right' };
-    return { ...base, kind: 'text' };
-  });
+    if (isStatus(k)) cols.push({ ...base, kind: 'status', dict });
+    else if (isMoney(k)) cols.push({ ...base, kind: 'money', align: 'right' });
+    else if (isDate(k)) cols.push({ ...base, kind: 'datetime' });
+    else if (isInt(k)) cols.push({ ...base, kind: 'int', align: 'right' });
+    else cols.push({ ...base, kind: 'text' });
+  }
+  return cols;
 }
 
 /**
@@ -331,6 +402,16 @@ export function cellOf(c: ColumnDef, row: Row): Cell {
       cell.text = yesNo(v);
       cell.tone = Number(v) === 0 ? 'd' : 's';
       break;
+    case 'rel': {
+      // 关系对象（rule 2）→ 取对象里的名称；id（rule 3）→ 查映射；都没命中 → 原值（rule 4）
+      if (v !== null && typeof v === 'object') {
+        cell.text = relName(v);
+        break;
+      }
+      const hit = v === null || v === undefined ? undefined : c.rel?.[String(v)];
+      cell.text = hit !== undefined && hit !== '' ? hit : text(v);
+      break;
+    }
     case 'map': {
       if (v === null || v === undefined || v === '') break;
       const hit = c.dict?.[Number(v)];

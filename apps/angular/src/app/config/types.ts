@@ -98,7 +98,9 @@ export type ColumnKind =
   | 'enabled'
   | 'map'
   /** 规格属性（attrs JSON 字符串）→ 一排「键:值」胶囊 */
-  | 'tags';
+  | 'tags'
+  /** 关联列：值是关系对象取对象里的名称，是 id 查 `rel` 映射，都没命中回落原值 */
+  | 'rel';
 
 export interface ColumnDef {
   key: string;
@@ -113,6 +115,8 @@ export interface ColumnDef {
   indent?: boolean;
   /** status/map 用字典：状态码 → 中文文案 */
   dict?: Record<number, string>;
+  /** kind:'rel' 的 id → 名称映射（来源于 FieldSource 的联动选项） */
+  rel?: Record<string, string>;
 }
 
 export interface ResourceConfig {

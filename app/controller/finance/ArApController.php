@@ -78,7 +78,7 @@ class ArApController extends BaseController
         $supplierNames = Supplier::whereIn('id', $models->pluck('partner_id')->all())
             ->pluck('name', 'id')->all();
         $list = $models->map(function ($item) use ($customerNames, $supplierNames) {
-            $row = $this->encodeIds($item->toArray(), ['id', 'partner_id']);
+            $row = $this->encodeIds($item->toArray(), ['id', 'partner_id', 'source_id']);
             $row['partner_name'] = ((int) $item->type === 1)
                 ? ($customerNames[$item->partner_id] ?? '')
                 : ($supplierNames[$item->partner_id] ?? '');

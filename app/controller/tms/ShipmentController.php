@@ -64,7 +64,7 @@ class ShipmentController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'carrier_service_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

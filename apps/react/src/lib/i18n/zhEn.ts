@@ -375,4 +375,5 @@ export const zhEn: Record<string, string> = {
   '第 {count} 个字位置不准，请再点一次': 'Click #{count} again - the point missed the target', '仍未通过，请按顺序重新点击': 'Still not matched - click all characters in order again',
   '费率(元/小时)': 'Rate (yuan/hour)', '订阅事件': 'Subscribed Events', '0=全部': '0=All', '如 get.admin/user': 'e.g. get.admin/user',
   '搜索用户/路径': 'Search user/path', '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -': 'Separate multiple event names with commas or newlines; * means all; only letters, digits and . _ - are allowed',
+  'BOM': 'BOM', 'SKU ID': 'SKU ID', '删除时间': 'Deleted At', '规格属性': 'Spec Attributes',
 };

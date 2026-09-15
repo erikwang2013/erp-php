@@ -1460,4 +1460,7 @@ export const zhFr: Record<string, string> = {
   '父级': 'Parent',
   '点节点选父级；点已选节点取消（空 = 顶级）': 'Cliquez sur un nœud pour le définir comme parent ; cliquez sur un nœud sélectionné pour effacer (vide = niveau racine)',
   'JSON 对象：属性名 → 值数组，如 {"颜色":["红","蓝"],"尺寸":["S","M","L"]}；留空 / {} 表示无属性': 'Objet JSON : nom d\'attribut → tableau de valeurs, ex. {"Couleur":["Rouge","Bleu"],"Taille":["S","M","L"]} ; laissez vide / {} si aucun attribut',
+  'BOM': 'Nomenclature',
+  'SKU ID': 'ID SKU',
+  '删除时间': 'Supprimé le',
 };

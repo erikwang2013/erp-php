@@ -77,7 +77,7 @@ class EmployeeController extends BaseController
             $data['department'] = !empty($data['department']) ? $this->encodeIds($data['department']) : null;
             $data['position'] = !empty($data['position']) ? $this->encodeIds($data['position']) : null;
 
-            return $this->encodeIds($data);
+            return $this->encodeIds($data, ['id', 'department_id', 'position_id']);
         }, $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);

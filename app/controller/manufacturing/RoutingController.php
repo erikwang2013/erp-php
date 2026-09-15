@@ -53,7 +53,7 @@ class RoutingController extends BaseController
             'truthyFilters' => ['product_id'],
             'orderBy' => [['product_id', 'asc'], ['seq', 'asc']],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $list);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'product_id', 'workstation_id']), $list);
 
         return $this->success(['list' => $list]);
     }

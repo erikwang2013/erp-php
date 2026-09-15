@@ -61,7 +61,7 @@ class WidgetController extends BaseController
             $query->where('name', 'like', "%{$keyword}%");
         }
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray()));
+        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray(), ['id', 'dashboard_id', 'dataset_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

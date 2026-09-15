@@ -87,7 +87,7 @@ class ProjectCostController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('work_date', 'desc')->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'project_id', 'task_id', 'employee_id', 'timesheet_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

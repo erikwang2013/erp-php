@@ -1460,4 +1460,7 @@ export const zhDe: Record<string, string> = {
   '父级': 'Übergeordnet',
   '点节点选父级；点已选节点取消（空 = 顶级）': 'Klicken Sie auf einen Knoten, um ihn als übergeordnet festzulegen; klicken Sie auf einen ausgewählten Knoten, um die Auswahl aufzuheben (leer = oberste Ebene)',
   'JSON 对象：属性名 → 值数组，如 {"颜色":["红","蓝"],"尺寸":["S","M","L"]}；留空 / {} 表示无属性': 'JSON-Objekt: Attributname → Werteliste, z. B. {"Color":["Red","Blue"],"Size":["S","M","L"]}; leer lassen / {} für keine Attribute',
+  'BOM': 'BOM',
+  'SKU ID': 'SKU-ID',
+  '删除时间': 'Gelöscht am',
 };

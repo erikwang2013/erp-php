@@ -7,15 +7,13 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzTreeModule } from 'ng-zorro-antd/tree';
 import type { NzFormatEmitEvent, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
 import type { FieldOption, FieldSource, FormField, ResourceConfig, Row } from '../../config/types';
-import { http, qs } from '../../core/api.service';
+import { http } from '../../core/api.service';
 import { date, dateTime } from '../../core/format';
 import { tr } from '../../core/i18n.service';
+import { OptionSource } from '../../core/option-source.service';
 import { Toast } from '../../core/toast.service';
 import { TrPipe } from '../../core/tr.pipe';
 import { IconComponent } from '../../ui/icon';
-
-/** 联动下拉一次拉多少 —— 与 React 端 `${source.endpoint}?limit=100` 同值 */
-const SOURCE_LIMIT = 100;
 
 /** React 的 JSX 三选一：Textarea / Select / Input；tree 是本端新增的权限树控件 */
 type CtrlKind = 'textarea' | 'select' | 'input' | 'tree';
@@ -139,6 +137,7 @@ function msg(e: unknown): string {
 })
 export class ResourceForm implements OnInit {
   private readonly toast = inject(Toast);
+  private readonly sources = inject(OptionSource);
 
   readonly cfg = input.required<ResourceConfig>();
   /** null = 新增态 */
@@ -307,7 +306,7 @@ export class ResourceForm implements OnInit {
   }
 
   /**
-   * 拉取 source 联动选项。
+   * 拉取 source 联动选项（取数走共享的 OptionSource，与列表页关联列同一份缓存）。
    * 同步读一遍 fields 让 effect 记上依赖；单个资源失败退回空选项，不连坐其他字段。
    * 不设 React 那样的 alive 守卫：Angular 写已销毁组件的 signal 没有告警，也无副作用。
    */
@@ -321,21 +320,11 @@ export class ResourceForm implements OnInit {
         const src = f.source;
         if (!src) return;
         try {
-          const data = await http.get<Row[] | { list?: Row[] }>(
-            `${src.endpoint}${qs({ limit: SOURCE_LIMIT })}`,
-          );
-          const list = Array.isArray(data) ? data : (data.list ?? []);
           if (f.type === 'tree') {
             // 树字段直接吃嵌套 children（权限接口整表下发，limit 参数被忽略）
-            trees.push([f.key, buildTreeData(list, src)]);
+            trees.push([f.key, buildTreeData(await this.sources.rows(src.endpoint), src)]);
           } else {
-            opts.push([
-              f.key,
-              list.map((r) => ({
-                label: String(r[src.labelKey ?? 'name'] ?? ''),
-                value: (r[src.valueKey ?? 'id'] ?? '') as string | number,
-              })),
-            ]);
+            opts.push([f.key, await this.sources.options(src)]);
           }
         } catch {
           // 单个资源失败保持空选项/空树，不连坐其他字段

@@ -1460,4 +1460,7 @@ export const zhId: Record<string, string> = {
   '父级': 'Induk',
   '点节点选父级；点已选节点取消（空 = 顶级）': 'Klik node untuk menetapkannya sebagai induk; klik node yang dipilih untuk menghapus (kosong = tingkat teratas)',
   'JSON 对象：属性名 → 值数组，如 {"颜色":["红","蓝"],"尺寸":["S","M","L"]}；留空 / {} 表示无属性': 'Objek JSON: nama atribut → array nilai, mis. {"Color":["Red","Blue"],"Size":["S","M","L"]}; biarkan kosong / {} untuk tanpa atribut',
+  'BOM': 'BOM',
+  'SKU ID': 'ID SKU',
+  '删除时间': 'Dihapus Pada',
 };

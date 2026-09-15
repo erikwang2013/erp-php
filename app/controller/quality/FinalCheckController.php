@@ -61,7 +61,7 @@ class FinalCheckController extends BaseController
             $query->where('result', $result);
         }
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray()));
+        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray(), ['id', 'delivery_id', 'product_id', 'standard_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

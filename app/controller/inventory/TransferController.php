@@ -64,7 +64,7 @@ class TransferController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'from_warehouse_id', 'to_warehouse_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

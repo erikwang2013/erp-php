@@ -59,7 +59,7 @@ class DepartmentController extends BaseController
             'orderBy' => 'id',
             'orderDir' => 'asc',
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $list);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'parent_id', 'manager_user_id']), $list);
 
         return $this->success(['list' => $list]);
     }

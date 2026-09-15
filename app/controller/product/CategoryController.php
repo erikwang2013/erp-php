@@ -59,7 +59,7 @@ class CategoryController extends BaseController
             'searchFields' => ['name', 'code'],
             'eqFilters' => ['status'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'parent_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }

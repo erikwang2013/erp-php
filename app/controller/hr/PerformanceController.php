@@ -201,7 +201,7 @@ class PerformanceController extends BaseController
             'eqFilters' => ['status', 'template_id'],
             'orderBy' => [['created_at', 'desc']],
         ]);
-        $list = array_map(fn ($row) => $this->encodeIds($row), $result['list']);
+        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'template_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -331,7 +331,7 @@ class PerformanceController extends BaseController
             'eqFilters' => ['plan_id', 'employee_id', 'rater_id'],
             'orderBy' => [['created_at', 'desc']],
         ]);
-        $list = array_map(fn ($row) => $this->encodeIds($row), $result['list']);
+        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'plan_id', 'employee_id', 'rater_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }

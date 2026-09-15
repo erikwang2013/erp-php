@@ -70,7 +70,7 @@ class PoolController extends BaseController
             'keyword' => $keyword,
             'level_id' => $levelId,
         ], $page, $limit);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'level_id', 'owner_user_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }

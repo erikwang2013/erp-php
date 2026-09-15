@@ -1454,4 +1454,8 @@ export const zhId: Record<string, string> = {
   '如 get.admin/user': 'mis. get.admin/user',
   '搜索用户/路径': 'Cari pengguna/path',
   '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -': 'Pisahkan beberapa nama event dengan koma atau baris baru; * berarti semua; hanya huruf, angka, dan . _ - yang diizinkan',
+  'BOM': 'BOM',
+  'SKU ID': 'ID SKU',
+  '删除时间': 'Dihapus Pada',
+  '规格属性': 'Atribut Spesifikasi',
 };

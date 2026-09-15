@@ -1454,4 +1454,8 @@ export const zhEs: Record<string, string> = {
   '如 get.admin/user': 'p. ej. get.admin/user',
   '搜索用户/路径': 'Buscar usuario/ruta',
   '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -': 'Separa varios nombres de eventos con comas o saltos de línea; * significa todos; solo se permiten letras, dígitos y . _ -',
+  'BOM': 'Lista de materiales',
+  'SKU ID': 'ID de SKU',
+  '删除时间': 'Eliminado el',
+  '规格属性': 'Atributos de especificación',
 };

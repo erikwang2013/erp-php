@@ -131,7 +131,10 @@ class TraceController extends BaseController
         }
         $days = (int) $request->input('days', 90);
 
-        return $this->run(fn (): array => $this->trace()->expiryAlert($days));
+        return $this->run(fn (): array => array_map(
+            fn (array $row): array => $this->encodeIds($row, ['product_id', 'sku_id']),
+            $this->trace()->expiryAlert($days)
+        ));
     }
 
     // ---------- 私有辅助 ----------

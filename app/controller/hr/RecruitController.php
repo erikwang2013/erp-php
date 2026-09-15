@@ -58,7 +58,7 @@ class RecruitController extends BaseController
             'stringEqFilters' => ['job_title'],
             'orderBy' => [['created_at', 'desc']],
         ]);
-        $list = array_map(fn ($row) => $this->encodeIds($row), $result['list']);
+        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'department_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -226,7 +226,7 @@ class RecruitController extends BaseController
             'stringEqFilters' => ['name'],
             'orderBy' => [['created_at', 'desc']],
         ]);
-        $list = array_map(fn ($row) => $this->encodeIds($row), $result['list']);
+        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'job_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -378,7 +378,7 @@ class RecruitController extends BaseController
             'eqFilters' => ['candidate_id'],
             'orderBy' => [['round_no', 'asc']],
         ]);
-        $list = array_map(fn ($row) => $this->encodeIds($row), $result['list']);
+        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'candidate_id', 'interviewer_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -469,7 +469,7 @@ class RecruitController extends BaseController
             'eqFilters' => ['candidate_id', 'status'],
             'orderBy' => [['created_at', 'desc']],
         ]);
-        $list = array_map(fn ($row) => $this->encodeIds($row), $result['list']);
+        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'candidate_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }

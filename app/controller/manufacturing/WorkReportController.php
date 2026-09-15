@@ -72,7 +72,7 @@ class WorkReportController extends BaseController
             'eqFilters' => ['status'],
             'truthyFilters' => ['order_id', 'employee_id'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'order_id', 'product_id', 'routing_id', 'workstation_id', 'employee_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }

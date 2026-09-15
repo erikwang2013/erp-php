@@ -64,7 +64,7 @@ class CashJournalController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'bank_account_id', 'source_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

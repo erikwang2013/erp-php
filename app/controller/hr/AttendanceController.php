@@ -77,7 +77,7 @@ class AttendanceController extends BaseController
         $list = array_map(function ($data) {
             $data['employee'] = !empty($data['employee']) ? $this->encodeIds($data['employee']) : null;
 
-            return $this->encodeIds($data);
+            return $this->encodeIds($data, ['id', 'employee_id', 'rule_id']);
         }, $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
@@ -205,7 +205,7 @@ class AttendanceController extends BaseController
         $list = array_map(function ($data) {
             $data['employee'] = !empty($data['employee']) ? $this->encodeIds($data['employee']) : null;
 
-            return $this->encodeIds($data);
+            return $this->encodeIds($data, ['id', 'employee_id']);
         }, $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);

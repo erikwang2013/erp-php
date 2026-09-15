@@ -67,7 +67,7 @@ class SubsidiaryLedgerController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('entry_date', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'account_id', 'voucher_id', 'voucher_item_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

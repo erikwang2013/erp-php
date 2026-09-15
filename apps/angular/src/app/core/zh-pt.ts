@@ -1460,4 +1460,7 @@ export const zhPt: Record<string, string> = {
   '父级': 'Pai',
   '点节点选父级；点已选节点取消（空 = 顶级）': 'Clique num nó para defini-lo como pai; clique num nó selecionado para limpar (vazio = nível superior)',
   'JSON 对象：属性名 → 值数组，如 {"颜色":["红","蓝"],"尺寸":["S","M","L"]}；留空 / {} 表示无属性': 'Objeto JSON: nome do atributo → array de valores, por exemplo {"Color":["Red","Blue"],"Size":["S","M","L"]}; deixe vazio / {} para sem atributos',
+  'BOM': 'Lista de Materiais',
+  'SKU ID': 'ID do SKU',
+  '删除时间': 'Excluído em',
 };

@@ -68,7 +68,7 @@ class GeneralLedgerController extends BaseController
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('period_year', 'desc')
             ->orderBy('period_month', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'account_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

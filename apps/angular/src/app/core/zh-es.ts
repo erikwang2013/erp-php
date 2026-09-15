@@ -1460,4 +1460,7 @@ export const zhEs: Record<string, string> = {
   '父级': 'Padre',
   '点节点选父级；点已选节点取消（空 = 顶级）': 'Haz clic en un nodo para establecerlo como padre; haz clic en un nodo seleccionado para quitarlo (vacío = nivel superior)',
   'JSON 对象：属性名 → 值数组，如 {"颜色":["红","蓝"],"尺寸":["S","M","L"]}；留空 / {} 表示无属性': 'Objeto JSON: nombre del atributo → array de valores, p. ej. {"Color":["Rojo","Azul"],"Talla":["S","M","L"]}; deja vacío / {} para sin atributos',
+  'BOM': 'Lista de materiales',
+  'SKU ID': 'ID de SKU',
+  '删除时间': 'Eliminado el',
 };

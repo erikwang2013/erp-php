@@ -90,7 +90,7 @@ class ProjectController extends BaseController
             // 计算实际进度
             $row['progress'] = $this->calcProgress($row['id']);
 
-            return $this->encodeIds($row, ['id', 'manager_user_id']);
+            return $this->encodeIds($row, ['id', 'manager_user_id', 'customer_id']);
         }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);

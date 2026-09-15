@@ -66,7 +66,7 @@ class ContractController extends BaseController
             'eqFilters' => ['status', 'customer_id'],
             'with' => ['items'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'owner_user_id', 'quotation_id']), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'owner_user_id', 'quotation_id', 'opportunity_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }

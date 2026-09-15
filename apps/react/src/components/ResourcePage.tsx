@@ -23,6 +23,7 @@ import { text } from '@/lib/format';
 import { useTr } from '@/lib/i18n';
 import { accentOf, type ActionDef, type FieldOption, type FieldSource, type FormField, type Row } from '@/config/types';
 import { inferColumns, inferDetailItems } from '@/lib/defaults';
+import { loadOptions, prefetch } from '@/lib/options';
 
 /**
  * 配置驱动的通用 CRUD 页。
@@ -113,6 +114,23 @@ export function ResourcePage({
 
   const refresh = () => setTick((t) => t + 1);
 
+  // 关联列的名称来自其它资源：先把 fields 声明的 source 预取进共享缓存，
+  // 到货后 bump 一次触发重渲染，让 id 占位换成名称
+  const [, bumpOpts] = useState(0);
+  useEffect(() => {
+    const endpoints = [
+      ...new Set((cfg.fields ?? []).flatMap((f) => (f.source ? [f.source.endpoint] : []))),
+    ];
+    if (endpoints.length === 0) return;
+    let alive = true;
+    Promise.all(endpoints.map(prefetch)).then(() => {
+      if (alive) bumpOpts((n) => n + 1);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [cfg.fields]);
+
   const doDelete = async (row: Row, password: string) => {
     const id = String(take(row, 'id') ?? '');
     setBusy(true);
@@ -185,7 +203,7 @@ export function ResourcePage({
   );
 
   const cols = [
-    ...(cfg.columns ?? inferColumns(rows, cfg.endpoint)),
+    ...(cfg.columns ?? inferColumns(rows, cfg.endpoint, cfg.fields)),
     {
       key: '__actions',
       title: '操作',
@@ -363,18 +381,7 @@ function FormDialog({
       const next: Record<string, FieldOption[]> = {};
       await Promise.all(
         sources.map(async (f) => {
-          const labelKey = f.source.labelKey ?? 'name';
-          const valueKey = f.source.valueKey ?? 'id';
-          try {
-            const data = await api<Row[] | PageData<Row>>(`${f.source.endpoint}?limit=100`);
-            const list = Array.isArray(data) ? data : data.list ?? [];
-            next[f.key] = list.map((r) => ({
-              label: String(r[labelKey] ?? r[valueKey] ?? ''),
-              value: r[valueKey] as string | number | null,
-            }));
-          } catch {
-            next[f.key] = [];
-          }
+          next[f.key] = await loadOptions(f.source);
         }),
       );
       if (alive) setRemote(next);

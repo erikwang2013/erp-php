@@ -85,7 +85,7 @@ class TicketController extends BaseController
         $list = array_map(function ($item) use ($customerNames) {
             $item['customer_name'] = (string) ($customerNames[(int) ($item['customer_id'] ?? 0)] ?? '');
 
-            return $this->encodeIds($item, ['id', 'customer_id']);
+            return $this->encodeIds($item, ['id', 'customer_id', 'contact_id', 'assignee_user_id']);
         }, $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);

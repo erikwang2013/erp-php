@@ -63,7 +63,7 @@ class OpportunityController extends BaseController
             'eqFilters' => ['status'],
         ]);
         // FK 编码为 hashid（与客户/漏斗下拉选项同源，供编辑弹窗回填）+ 引用名展示
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'stage_id']), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'stage_id', 'owner_user_id']), $result['list']);
         $list = $this->enrichNames($list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);

@@ -21,6 +21,7 @@ import { accentOf } from '../../config/types';
 import { http, qs, type PageData } from '../../core/api.service';
 import { text } from '../../core/format';
 import { tr } from '../../core/i18n.service';
+import { OptionSource } from '../../core/option-source.service';
 import { Toast } from '../../core/toast.service';
 import { TrPipe } from '../../core/tr.pipe';
 import { IconComponent } from '../../ui/icon';
@@ -30,9 +31,11 @@ import {
   flattenTree,
   inferColumns,
   inferDetailItems,
+  relSources,
   specTags,
   take,
   type Cell,
+  type RelLabels,
 } from './columns';
 import { ResourceForm } from './resource-form';
 
@@ -86,6 +89,7 @@ export class ResourcePage implements OnInit {
   private readonly router = inject(Router);
   private readonly toast = inject(Toast);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sources = inject(OptionSource);
 
   /** 路由 data 里的配置与菜单标签（不依赖 withComponentInputBinding） */
   readonly cfg = signal<ResourceConfig | null>(null);
@@ -134,11 +138,14 @@ export class ResourcePage implements OnInit {
   private local: Row[] | null = null;
   private localKey = '';
 
-  /** 显式配置优先，否则从首批行数据推断 */
+  /** 关联列 id → 名称（rule 3）：endpoint → (id → 名称)，拉到即写，cols 依赖它重算 */
+  readonly relLabels = signal<RelLabels>({});
+
+  /** 显式配置优先，否则从首批行数据推断（cfg.fields 供列标题与关联列取数） */
   readonly cols = computed<ColumnDef[]>(() => {
     const cfg = this.cfg();
     if (!cfg) return [];
-    return cfg.columns ?? inferColumns(this.rows(), cfg.endpoint);
+    return cfg.columns ?? inferColumns(this.rows(), cfg.endpoint, cfg.fields, this.relLabels());
   });
 
   /** 行视图：单元格已格式化，模板不参与任何取值逻辑 */
@@ -210,6 +217,11 @@ export class ResourcePage implements OnInit {
     // 现在 refresh() 直接调 reload()，tick 已删除。
     effect(() => {
       void this.reload();
+    });
+    // 关联列取数（契约 B 的 rule 3）：只拉「行里出现且行内没有名称可用」的那几个 source。
+    // 读到的是 cfg/rows，写的是 relLabels —— 后者没被本 effect 跟踪，不会自激。
+    effect(() => {
+      void this.loadRelLabels();
     });
   }
 
@@ -304,10 +316,36 @@ export class ResourcePage implements OnInit {
     this.paged.set(all.length > size);
   }
 
+  /**
+   * 关联列 id → 名称（rule 3）。同步读 cfg/rows 让 effect 记上依赖；
+   * 失败静默，外键列回落原值渲染（rule 4：拿不到名称也照常显示，不隐藏）。
+   */
+  private async loadRelLabels(): Promise<void> {
+    const cfg = this.cfg();
+    if (!cfg) return;
+    const want = relSources(this.rows(), cfg.fields);
+    if (!want.length) return;
+    await Promise.all(
+      want.map(async (src): Promise<void> => {
+        try {
+          const map: Record<string, string> = {};
+          for (const o of await this.sources.options(src)) {
+            if (o.label !== '') map[String(o.value ?? '')] = o.label;
+          }
+          this.relLabels.update((m) => ({ ...m, [src.endpoint]: map }));
+        } catch {
+          // 详见方法注释
+        }
+      }),
+    );
+  }
+
   refresh(): void {
-    // 刷新语义是「重新问后端」，本地缓存必须作废，否则本地分页会拿旧数据切片
+    // 刷新语义是「重新问后端」，本地缓存与联动选项缓存必须作废，
+    // 否则本地分页会拿旧数据切片、关联列会一直显示过期名称
     this.local = null;
     this.localKey = '';
+    this.sources.clear();
     void this.reload();
   }
 

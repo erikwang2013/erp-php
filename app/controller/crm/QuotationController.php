@@ -66,7 +66,7 @@ class QuotationController extends BaseController
             'eqFilters' => ['status', 'customer_id'],
         ]);
         // FK 编码为 hashid（与客户下拉选项同源，供编辑弹窗回填）+ 客户名称展示（表无 name 列）
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'opportunity_id']), $result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'opportunity_id', 'owner_user_id']), $result['list']);
         $customerIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['customer_id'] ?? 0), $list)));
         $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
         $list = array_map(function ($row) use ($customerNames) {

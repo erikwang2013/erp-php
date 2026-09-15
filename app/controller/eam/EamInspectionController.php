@@ -76,7 +76,7 @@ class EamInspectionController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('task_date', 'desc')->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'equipment_id', 'source_plan_id', 'assignee_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }

@@ -69,7 +69,7 @@ class OrderController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('sales_order.id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'customer_id']));
+            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'customer_id', 'quotation_id', 'warehouse_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }
