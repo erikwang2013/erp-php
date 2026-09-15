@@ -187,7 +187,7 @@ class SecurityFilter implements MiddlewareInterface
      */
     private static function payload(Request $request): array
     {
-        $data = array_merge(
+        $data = self::merge(
             $request->cookie() ?? [],
             $request->get() ?? [],
             $request->post() ?? [],
@@ -202,6 +202,40 @@ class SecurityFilter implements MiddlewareInterface
         $data['uri'] = $request->path();
 
         return $data;
+    }
+
+    /**
+     * 合并多个来源，同名键**全部保留**而非后者覆盖前者。
+     *
+     * 原来用 array_merge：后一来源会挤掉前一来源的同名值，而扫描面是按值扫的 ——
+     * 攻击者只要在 query 里放一个与恶意 cookie 同名的无害值，恶意值就整个离开扫描面。
+     * 实测（对照与攻击各一例，非推断）：
+     *   Cookie: evil=<script>alert(1)</script>                      → 403
+     *   Cookie: evil=<script>alert(1)</script>  +  ?evil=1          → 200  ← 绕过
+     * get 被 post 遮蔽同理。
+     *
+     * 插件自带的 Webman\SecurityMiddleware 有同样的合并（middleware/Webman/
+     * SecurityMiddleware.php:35-40）—— 它修的是身份维度（cookies 单独传进 meta），
+     * 检测面 $data 没修。我们无法改 vendor，所以在适配层修掉。
+     *
+     * 冲突时把两个值并列成数组，而不是改键名：SecurityGuard::flattenData() 会递归
+     * 展开每个叶子（撞键另有 uniqueKey() 兜底），两个值都进扫描面；键名保持不变，
+     * 以免影响 whitelist_fields 的按名匹配（本仓配置为 _token/_method/csrf_token）。
+     *
+     * @param array ...$sources 各来源的数据，先 cookie 后 get 后 post 后 files
+     *
+     * 纯函数形态公开，便于直接夹逼验证（同 resolveIp，见 tests/SecurityFilterPayloadTest.php）
+     */
+    public static function merge(array ...$sources): array
+    {
+        $out = [];
+        foreach ($sources as $source) {
+            foreach ($source as $key => $value) {
+                $out[$key] = array_key_exists($key, $out) ? [$out[$key], $value] : $value;
+            }
+        }
+
+        return $out;
     }
 
     private static function files(array $files): array
