@@ -39,13 +39,14 @@ class SecurityFilter implements MiddlewareInterface
     public function process(Request $request, callable $handler): Response
     {
         // 基础设施端点放行。插件没有这类例外，由适配层保留：
-        //  - /install：引导阶段尚无会话与数据可护，且表单含密码/DSN/路径等字段，按攻击特征扫必然误伤；
-        //  - /health：监控以裸 IP 直连（curl http://127.0.0.1:8788/health），而 dns_rebinding
-        //    检测器把 Host 为裸 IP 判为 critical —— 不放行则健康检查恒 403。
-        //    HealthController::index() 不读任何请求输入（ES 地址取自配置），放行不引入 SSRF 面。
-        //    精确匹配而非前缀：不给 /health 之下的伪造路径开口子。
-        $path = $request->path();
-        if (str_starts_with($path, '/install') || $path === '/health') {
+        //  - /install：引导阶段尚无会话与数据可护，且表单含密码/DSN/路径等字段，
+        //    按攻击特征扫必然误伤。前缀放行正好覆盖安装向导两条路由
+        //    （config/route.php:26-27 的 /install 与 /install/test-db），无第三条由此漏网。
+        //
+        // /health 曾在此放行，理由是监控以裸 IP 直连而 dns_rebinding 把裸 IP Host 判 critical。
+        // 该检测器已降为 log 模式（见 config/plugin/erikwang2013/security-php/app.php），
+        // 理由消失，例外一并删除 —— 少一条无依据的放行。
+        if (str_starts_with($request->path(), '/install')) {
             return $handler($request);
         }
 

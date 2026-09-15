@@ -216,9 +216,17 @@ return [
 
         // DNS Rebinding 检测
         // 检测 Host 头内网 IP（127/10/172/192/0.0.0.0）、localhost、无 TLD 短主机名
+        //
+        // 降为 log：这个检测器（Detector/DnsRebindingDetector.php）只对 Host 头做字符串匹配，
+        // 全程不做 DNS 解析（rebindingSeverity() 里只有 trim/端口剥离/正则），因此**测不到**
+        // 真正的 DNS rebinding —— 真实攻击的浏览器送来的是攻击者自己的域名（Host: evil.com），
+        // 不是 IP，九条规则一条都不命中。它命中的恰好相反：客户端主动用 IP 访问。
+        // block 模式下的实际效果是裸 IP 与内网主机名访问整站 403（内网部署的 ERP 首当其冲，
+        // 监控、CI 冒烟、运维直连一并失效），拿不到任何真实防护，只换到可用性损失。
+        // 保留 enabled，攻击特征仍进日志，便于日后核对。
         'dns_rebinding' => [
             'enabled' => true,
-            'mode' => 'block',
+            'mode' => 'log',
         ],
 
         // HTTP 方法校验
