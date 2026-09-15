@@ -425,6 +425,8 @@ class B5AdversarialIntegrationTest extends IntegrationTestCase
     }
 
     // ---------- 双进程并发工具（仿 C1：子进程自建 Capsule，凭据仅走 TEST_DB_* 环境变量） ----------
+    // 子进程的 prefix 必须与 IntegrationTestCase::bootCapsule()/app 同源（erp_）：
+    // 服务层按无前缀表名查 erp_tenant，漏前缀会报 Table 'xxx.tenant' doesn't exist。
 
     /** 并发执行 2 个独立 php 子进程，返回逐子进程的 [data|null, err|null] 解码结果（顺序同入参）。 */
     private function runChildOps(array $jobs): array
@@ -443,7 +445,7 @@ class B5AdversarialIntegrationTest extends IntegrationTestCase
                 'database' => (string) getenv('TEST_DB_DATABASE'),
                 'username' => (string) (getenv('TEST_DB_USERNAME') ?: 'root'),
                 'password' => (string) getenv('TEST_DB_PASSWORD'),
-                'prefix' => '', 'charset' => 'utf8mb4', 'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => getenv('DB_PREFIX') ?: 'erp_', 'charset' => 'utf8mb4', 'collation' => 'utf8mb4_unicode_ci',
                 'strict' => true, 'engine' => 'InnoDB',
             ], 'default');
             \$c->setAsGlobal();

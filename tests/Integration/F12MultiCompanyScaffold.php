@@ -206,17 +206,17 @@ SQL,
                 $this->createdTables[] = $table;
             }
         }
-        if ($schema->hasTable('finance_voucher') && !self::hasColumn('finance_voucher', 'ledger_id')) {
+        if ($schema->hasTable('finance_voucher') && !$schema->hasColumn('finance_voucher', 'ledger_id')) {
             self::runDdl('ALTER TABLE `erp_finance_voucher` ADD COLUMN `ledger_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `code`, ADD KEY `idx_ledger_id` (`ledger_id`)');
         }
         foreach (self::SNAPSHOT_KEY_SWAPS as [$table, $oldIndex, $newIndex, $yearCol, $monthCol]) {
             if (!$schema->hasTable($table)) {
                 continue;
             }
-            if (!self::hasColumn($table, 'ledger_id')) {
+            if (!$schema->hasColumn($table, 'ledger_id')) {
                 self::runDdl("ALTER TABLE `$table` ADD COLUMN `company_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `id`, ADD COLUMN `ledger_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `company_id`");
             }
-            if (self::hasIndex($table, $oldIndex) && !self::hasIndex($table, $newIndex)) {
+            if ($schema->hasIndex($table, $oldIndex) && !$schema->hasIndex($table, $newIndex)) {
                 self::runDdl("ALTER TABLE `$table` DROP INDEX `$oldIndex`, ADD UNIQUE KEY `$newIndex` (`ledger_id`, `$yearCol`, `$monthCol`)");
             }
         }
@@ -225,28 +225,6 @@ SQL,
     private static function runDdl(string $sql): void
     {
         Capsule::connection()->getPdo()->exec($sql);
-    }
-
-    private static function hasColumn(string $table, string $column): bool
-    {
-        $rows = Capsule::connection()->select(
-            'SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE()'
-            . ' AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1',
-            [$table, $column]
-        );
-
-        return $rows !== [];
-    }
-
-    private static function hasIndex(string $table, string $index): bool
-    {
-        $rows = Capsule::connection()->select(
-            'SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE()'
-            . ' AND TABLE_NAME = ? AND INDEX_NAME = ? LIMIT 1',
-            [$table, $index]
-        );
-
-        return $rows !== [];
     }
 
     // ---- 状态清理（只动本套件写入行；按固定 code/id 级联删除，幂等） ----

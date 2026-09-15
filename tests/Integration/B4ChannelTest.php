@@ -71,6 +71,11 @@ class B4ChannelTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         if (self::$capsule !== null) {
+            // 与 setUp 的整表清空对称：本类多处断言 rowCount()/sendLogs total 的全局口径，
+            // 要求日志表在用例间为空。tearDown 不清理时，最后一个用例直插的 3 行会留在
+            // 共享表里，被后续 phpunit 轮次（CI 的 Tests 与 Coverage 两步连跑同一库）里
+            // B47 的全局 retryFailures()/sendLogs() 扫到 → 其计数断言凭空多 1~3。
+            Capsule::table(self::LOG_TABLE)->delete();
             self::dropTableIfCreated(self::LOG_TABLE);
         }
         parent::tearDown();
