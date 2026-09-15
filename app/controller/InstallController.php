@@ -18,6 +18,19 @@ use support\Response;
 
 class InstallController
 {
+    /** 语言选择落 cookie：向导的后退是裸 GET、前进是 POST，只有 cookie 两种都活 */
+    private const LANG_COOKIE = 'install_lang';
+
+    /** 向导语种白名单（= resource/translations 下的目录）；不在此列一律回英文 */
+    private const LANGS = [
+        'zh_CN' => '中文', 'en' => 'English', 'ja' => '日本語', 'ko' => '한국어', 'de' => 'Deutsch',
+        'fr' => 'Français', 'es' => 'Español', 'pt' => 'Português', 'ru' => 'Русский',
+        'ar' => 'العربية', 'hi' => 'हिन्दी', 'bn' => 'বাংলা', 'id' => 'Indonesia',
+    ];
+
+    /** 本次请求的语种：控制器方法级传递，不落静态属性 —— webman 常驻进程里静态会串请求 */
+    private string $locale = 'zh_CN';
+
     private string $lockFile;
     private string $envPath;
     private string $envExamplePath;
@@ -44,6 +57,20 @@ class InstallController
 
     public function index(Request $request): Response
     {
+        $picked = (string) $request->get('lang', '');
+        $this->locale = $this->resolveLocale($picked, (string) $request->cookie(self::LANG_COOKIE, ''), $request);
+
+        $response = $this->render($request);
+        if ($picked !== '' && $picked === $this->locale) {
+            // 只在选择生效时落 cookie，避免被 fuzz 的 ?lang=xx 反复改写（30 天）
+            $response->cookie(self::LANG_COOKIE, $this->locale, 2592000, '/');
+        }
+
+        return $response;
+    }
+
+    private function render(Request $request): Response
+    {
         try {
             return $this->doIndex($request);
         } catch (\Throwable $e) {
@@ -55,9 +82,33 @@ class InstallController
             return new Response(
                 500,
                 ['Content-Type' => 'text/html; charset=utf-8'],
-                $this->htmlHeader('安装错误') . '<div class="card"><h1 style="color:#c62828">❌ ' . $msg . '</h1></div>' . $this->htmlFooter()
+                $this->htmlHeader($this->t('Installation error')) . '<div class="card"><h1 style="color:#c62828">❌ ' . $msg . '</h1></div>' . $this->htmlFooter()
             );
         }
+    }
+
+    /**
+     * 语种解析：?lang= 显式选择 > cookie（上次选择）> Accept-Language > 配置默认。
+     *
+     * 关键差异（与 I18n 默认行为不同）：**不在白名单里的语种回英文，而不是回 zh_CN**。
+     * I18n 的 fallback 链是 ['zh_CN','en']，荷兰语用户会落到中文；安装向导是给陌生人用的，
+     * 看不懂的中文不如英文原文（en 词典留空 ⇒ 直接回 key，即英文）。
+     */
+    private function resolveLocale(string $picked, string $cookie, Request $request): string
+    {
+        foreach ([$picked, $cookie, \app\common\I18n::getLocale($request)] as $cand) {
+            if (isset(self::LANGS[$cand])) {
+                return $cand;
+            }
+        }
+
+        return 'en';
+    }
+
+    /** 向导文案翻译：键在本步内唯一，前缀 install. 由这里统一补，调用处只写英文原文 */
+    private function t(string $key, array $replace = []): string
+    {
+        return \app\common\I18n::trans('install.' . $key, $replace, $this->locale);
     }
 
     private function doIndex(Request $request): Response
@@ -111,7 +162,7 @@ class InstallController
             return json(['code' => 1, 'message' => $validator->errors()->first()]);
         }
         if ($this->isInstalled()) {
-            return json(['code' => 1, 'message' => '系统已安装，禁止调用']);
+            return json(['code' => 1, 'message' => $this->t('System already installed, this endpoint is disabled')]);
         }
 
         try {
@@ -122,7 +173,7 @@ class InstallController
             $password = $request->input('password', '');
 
             if (!preg_match('/^[a-zA-Z0-9._\-:]+$/', (string) $host) || !preg_match('/^\d{1,5}$/', (string) $port)) {
-                return json(['code' => 1, 'message' => '非法的主机或端口参数']);
+                return json(['code' => 1, 'message' => $this->t('Invalid host or port parameter')]);
             }
 
             // 连通性测试只连服务器（不带 dbname）：数据库可能尚未创建
@@ -134,7 +185,7 @@ class InstallController
 
             $version = $pdo->query('SELECT VERSION()')->fetchColumn();
             if (version_compare($version, '8.0', '<')) {
-                return json(['code' => 1, 'message' => "MySQL 版本需 >= 8.0，当前: {$version}"]);
+                return json(['code' => 1, 'message' => $this->t('MySQL version must be >= 8.0, current: :version', ['version' => $version])]);
             }
 
             // 库存在性单独探测（缺失不阻塞连通性结论）
@@ -145,11 +196,13 @@ class InstallController
                 $dbExists = (int) $stmt->fetchColumn() > 0;
             }
 
-            return json(['code' => 0, 'message' => "连接成功，MySQL {$version}" . ($database
-                ? ($dbExists ? "；数据库 {$database} 已存在" : "；数据库 {$database} 尚不存在，安装时将自动创建")
+            return json(['code' => 0, 'message' => $this->t('Connected successfully, MySQL :version', ['version' => $version]) . ($database
+                ? ($dbExists
+                    ? $this->t('; database :name already exists', ['name' => $database])
+                    : $this->t('; database :name does not exist yet and will be created during installation', ['name' => $database]))
                 : '')]);
         } catch (\PDOException $e) {
-            return json(['code' => 1, 'message' => '连接失败: ' . $e->getMessage()]);
+            return json(['code' => 1, 'message' => $this->t('Connection failed: :msg', ['msg' => $e->getMessage()])]);
         }
     }
 
@@ -168,16 +221,17 @@ class InstallController
 
     private function renderInstalled(): Response
     {
-        $html = $this->htmlHeader('系统已安装');
-        $html .= <<<'HTML'
+        $t = fn (string $k): string => $this->t($k);
+        $html = $this->htmlHeader($t('System already installed'));
+        $html .= <<<HTML
         <div class="card">
-            <h1>✅ 系统已安装</h1>
-            <p style="font-size:16px;color:#666;margin-bottom:12px;">安装向导已完成。如需重新安装：</p>
+            <h1>{$t('✅ System already installed')}</h1>
+            <p style="font-size:16px;color:#666;margin-bottom:12px;">{$t('The installation wizard has already completed. To reinstall:')}</p>
             <p style="background:#f8f9fa;padding:8px 12px;border-radius:4px;font-family:monospace;font-size:13px;">
                 rm runtime/installed.lock
             </p>
-            <p style="font-size:14px;color:#888;margin:8px 0 20px;">并在 <code>.env</code> 中移除 <code>APP_INSTALLED=true</code></p>
-            <a href="/admin/dashboard" class="btn">进入后台</a>
+            <p style="font-size:14px;color:#888;margin:8px 0 20px;">{$t('and remove <code>APP_INSTALLED=true</code> from <code>.env</code>')}</p>
+            <a href="/admin/dashboard" class="btn">{$t('Go to admin panel')}</a>
         </div>
         HTML;
         $html .= $this->htmlFooter();
@@ -187,17 +241,22 @@ class InstallController
 
     private function renderSuccess(): Response
     {
-        $html = $this->htmlHeader('安装完成');
-        $html .= <<<'HTML'
-        <div class="card" style="text-align:center;">
-            <h1 style="color:#2e7d32;">🎉 安装完成</h1>
-            <p style="font-size:16px;color:#555;">开放ERP系统已成功安装。</p>
+        $t = fn (string $k): string => $this->t($k);
+        $html = $this->htmlHeader($t('Installation complete'));
+        $html .= <<<HTML
+        <div class="card" id="install-success" style="text-align:center;">
+            <h1 style="color:#2e7d32;">{$t('🎉 Installation complete')}</h1>
+            <p style="font-size:16px;color:#555;">{$t('Open ERP has been installed successfully.')}</p>
             <div style="background:#e8f5e9;padding:16px;border-radius:8px;margin:20px 0;text-align:left;">
-                <p style="margin:4px 0;">📌 请使用刚才设置的管理员账号登录后台</p>
-                <p style="margin:4px 0;color:#888;font-size:13px;">登录后将自动跳转至后台仪表盘</p>
+                <p style="margin:4px 0;">{$t('📌 Log in with the administrator account you just created')}</p>
+                <p style="margin:4px 0;color:#888;font-size:13px;">{$t('You will be redirected to the dashboard after logging in')}</p>
             </div>
-            <a href="/admin/dashboard" class="btn">进入后台</a>
+            <a href="/admin/dashboard" class="btn">{$t('Go to admin panel')}</a>
         </div>
+        <script>
+        // 安装已落幕，向导暂存里的数据库口令/密钥等明文没有继续留着的理由
+        try { sessionStorage.removeItem('open_erp_install_wizard'); } catch (e) {}
+        </script>
         HTML;
         $html .= $this->htmlFooter();
 
@@ -207,6 +266,7 @@ class InstallController
     private function view(string $tpl, array $vars = []): string
     {
         $file = app_path() . '/view/install/' . $tpl . '.php';
+        $vars['t'] = fn (string $k, array $r = []): string => $this->t($k, $r);
         extract($vars, EXTR_SKIP);
         ob_start();
         include $file;
@@ -216,9 +276,15 @@ class InstallController
 
     private function renderStep(int $step, array $errors, \support\Request $request): Response
     {
-        $steps = ['环境检查', '数据库配置', '密钥与启动端口', '搜索引擎（可选）', '管理员账号', '确认安装'];
+        $steps = [
+            $this->t('Environment check'), $this->t('Database configuration'), $this->t('Keys and ports'),
+            $this->t('Search engine (optional)'), $this->t('Administrator account'), $this->t('Confirm installation'),
+        ];
         $old = $request->post();   // 表单回填（原签名 $old 参数在改 $request 传递时并入）
-        $html = $this->htmlHeader('安装向导 — ' . $steps[$step]);
+        $html = $this->htmlHeader(
+            $this->t('Installation wizard — :step', ['step' => $steps[$step] ?? $this->t('Unknown step')]),
+            $step
+        );
 
         // 步骤指示器
         $html .= '<div class="steps">';
@@ -253,7 +319,7 @@ class InstallController
             3 => $this->renderStep3($old),
             4 => $this->renderStep4($old),
             5 => $this->renderStep5($old),
-            default => '<p>未知步骤</p>',
+            default => '<p>' . $this->t('Unknown step') . '</p>',
         };
         $html .= '</div>';
         $html .= $this->htmlFooter();
@@ -308,18 +374,21 @@ class InstallController
     private function renderStep5(array $old): string
     {
         $summary = [];
-        $engineNames = ['elasticsearch' => 'Elasticsearch', 'opensearch' => 'OpenSearch', 'none' => '不启用'];
+        $engineNames = ['elasticsearch' => 'Elasticsearch', 'opensearch' => 'OpenSearch', 'none' => $this->t('Disabled')];
         $engineDriver = (string) ($old['engine_driver'] ?? 'none');
-        $summary[] = ['搜索引擎', $engineNames[$engineDriver] ?? '不启用'];
+        $summary[] = [$this->t('Search engine'), $engineNames[$engineDriver] ?? $this->t('Disabled')];
         if ($engineDriver !== 'none' && ($old['engine_host'] ?? '') !== '') {
-            $summary[] = ['搜索服务地址', (string) $old['engine_host']];
+            $summary[] = [$this->t('Search service address'), (string) $old['engine_host']];
         }
 
+        // 演示数据是第 1 步「数据库配置」的选择，确认页得看得见 —— 否则勾没勾全凭记忆
+        $summary[] = [$this->t('Demo data'), ($old['demo_data'] ?? '') === '1' ? $this->t('Import') : $this->t('Do not import')];
+
         $labels = [
-            ['host', '数据库主机'], ['port', '端口'], ['database', '数据库名'],
-            ['username', '数据库用户'], ['prefix', '表前缀'],
-            ['http_port', '启动端口'], ['ws_port', 'WebSocket 端口'],
-            ['admin_username', '管理员账号'],
+            ['host', $this->t('Database host')], ['port', $this->t('Port')], ['database', $this->t('Database name')],
+            ['username', $this->t('Database user')], ['prefix', $this->t('Table prefix')],
+            ['http_port', $this->t('Startup port')], ['ws_port', $this->t('WebSocket port')],
+            ['admin_username', $this->t('Administrator account')],
         ];
         foreach ($labels as [$k, $label]) {
             $v = $old[$k] ?? '';
@@ -341,7 +410,7 @@ class InstallController
             3 => $this->validateEngine($request),
             4 => $this->validateAdmin($request),
             5 => $this->executeInstall($request),
-            default => ['无效的步骤'],
+            default => [$this->t('Invalid step')],
         };
     }
 
@@ -351,22 +420,22 @@ class InstallController
         // 权威连接在最终安装(executeInstall)执行 —— 步骤推进不重复活连
         $errors = [];
         if (!$request->input('host')) {
-            $errors[] = '请输入数据库主机地址';
+            $errors[] = $this->t('Please enter the database host address');
         }
         if (!preg_match('/^\d{1,5}$/', (string) $request->input('port', ''))) {
-            $errors[] = '请输入正确的数据库端口';
+            $errors[] = $this->t('Please enter a valid database port');
         }
         if (!$request->input('database')) {
-            $errors[] = '请输入数据库名（不存在将自动创建）';
+            $errors[] = $this->t('Please enter the database name (it will be created if missing)');
         }
         if (!$request->input('username')) {
-            $errors[] = '请输入数据库用户名';
+            $errors[] = $this->t('Please enter the database user name');
         }
         if (!preg_match('/^[a-zA-Z0-9_.\-]+$/', (string) $request->input('host', ''))) {
-            $errors[] = '数据库主机地址只能包含字母、数字、._-字符';
+            $errors[] = $this->t('The database host may only contain letters, digits, and ._-');
         }
         if (!$request->input('prefix')) {
-            $errors[] = '请输入表前缀';
+            $errors[] = $this->t('Please enter the table prefix');
         }
 
         return $errors;
@@ -379,27 +448,27 @@ class InstallController
     {
         $errors = [];
         $hexFields = [
-            'jwt_secret' => 'JWT 签名密钥',
-            'encryption_key' => '接口传输密钥',
-            'encryptable_key' => '存储加密密钥',
-            'hashids_salt' => 'ID 混淆盐',
-            'hashids_alt_salt' => 'ID 混淆盐（备用）',
+            'jwt_secret' => $this->t('JWT signing key'),
+            'encryption_key' => $this->t('API transport key'),
+            'encryptable_key' => $this->t('Storage encryption key'),
+            'hashids_salt' => $this->t('ID obfuscation salt'),
+            'hashids_alt_salt' => $this->t('ID obfuscation salt (alternate)'),
         ];
         foreach ($hexFields as $field => $label) {
             $raw = trim((string) $request->input($field, ''));
             if ($raw !== '' && !preg_match('/^[A-Za-z0-9]{16,128}$/', $raw)) {
-                $errors[] = $label . ' 必须是 16-128 位字母数字（留空自动生成）';
+                $errors[] = $this->t(':label must be 16-128 alphanumeric characters (leave blank to auto-generate)', ['label' => $label]);
             }
         }
-        foreach (['http_port' => '启动端口', 'ws_port' => 'WebSocket 端口'] as $field => $label) {
+        foreach (['http_port' => $this->t('Startup port'), 'ws_port' => $this->t('WebSocket port')] as $field => $label) {
             $raw = trim((string) $request->input($field, ''));
             if ($raw !== '' && !preg_match('/^\d{2,5}$/', $raw)) {
-                $errors[] = $label . ' 必须是 2-5 位数字（留空取默认）';
+                $errors[] = $this->t(':label must be 2-5 digits (leave blank for the default)', ['label' => $label]);
             }
         }
         $raw = trim((string) $request->input('rabbitmq_password', ''));
         if ($raw !== '' && !self::isEnvPasswordSafe($raw)) {
-            $errors[] = 'RABBITMQ_PASSWORD 只能包含可见字符，且不能含 $ 与反斜杠（可留空沿用 .env.example 原值）';
+            $errors[] = $this->t('RABBITMQ_PASSWORD may only contain visible characters and must not contain $ or backslash (leave blank to keep the .env.example value)');
         }
 
         return $errors;
@@ -413,21 +482,21 @@ class InstallController
         $errors = [];
         $driver = (string) $request->input('engine_driver', 'none');
         if (!in_array($driver, ['none', 'elasticsearch', 'opensearch'], true)) {
-            return ['搜索引擎仅支持: 不启用 / elasticsearch / opensearch'];
+            return [$this->t('Search engine supports only: disabled / elasticsearch / opensearch')];
         }
         if ($driver === 'none') {
             return $errors;
         }
         $host = trim((string) $request->input('engine_host', ''));
         if (!preg_match('#^https?://[A-Za-z0-9._\-:]+$#', $host)) {
-            $errors[] = '搜索服务地址需形如 http(s)://host:port';
+            $errors[] = $this->t('Search service address must look like http(s)://host:port');
         }
         if (!trim((string) $request->input('engine_username', ''))) {
-            $errors[] = '请输入搜索服务用户名';
+            $errors[] = $this->t('Please enter the search service user name');
         }
         $raw = (string) $request->input('engine_password', '');
         if ($raw === '' || !self::isEnvPasswordSafe($raw)) {
-            $errors[] = '请输入搜索服务密码（仅可见字符，不能含 $ 与反斜杠）';
+            $errors[] = $this->t('Please enter the search service password (visible characters only, no $ or backslash)');
         }
 
         return $errors;
@@ -440,13 +509,13 @@ class InstallController
         $password = $request->input('admin_password', '');
         $confirm = $request->input('admin_password_confirm', '');
         if (strlen($username) < 3) {
-            $errors[] = '管理员用户名至少3个字符';
+            $errors[] = $this->t('Administrator user name must be at least 3 characters');
         }
         if (strlen($password) < 6) {
-            $errors[] = '密码至少6位';
+            $errors[] = $this->t('Password must be at least 6 characters');
         }
         if ($password !== $confirm) {
-            $errors[] = '两次输入的密码不一致';
+            $errors[] = $this->t('The two passwords do not match');
         }
 
         return $errors;
@@ -467,7 +536,7 @@ class InstallController
 
         // 库名白名单（防注入）；库不存在时自动创建（测试连接不再要求预建库）
         if (!preg_match('/^[a-zA-Z0-9_\-]+$/', (string) $db['database'])) {
-            return ['数据库名只能包含字母、数字、下划线与连字符'];
+            return [$this->t('The database name may only contain letters, digits, underscores and hyphens')];
         }
 
         try {
@@ -488,7 +557,7 @@ class InstallController
 
             $sql = file_get_contents($this->sqlPath);
             if (!$sql) {
-                return ['无法读取 install.sql'];
+                return [$this->t('Unable to read install.sql')];
             }
             $pdo->exec($sql);
 
@@ -517,7 +586,7 @@ class InstallController
             // 安装失败已回显给操作者，同时留日志便于运维排查
             Log::error('系统安装失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
 
-            return ['安装失败: ' . $e->getMessage()];
+            return [$this->t('Installation failed: :msg', ['msg' => $e->getMessage()])];
         }
     }
 
@@ -542,7 +611,7 @@ class InstallController
                 continue;
             }
             if (!self::isEnvPasswordSafe($raw)) {
-                throw new \InvalidArgumentException($envKey . ' 只能包含可见字符，且不能含 $ 与反斜杠');
+                throw new \InvalidArgumentException($this->t(':envKey may only contain visible characters and must not contain $ or backslash', ['envKey' => $envKey]));
             }
             $adv[$envKey] = $raw;
         }
@@ -557,11 +626,11 @@ class InstallController
             }
             if (str_ends_with($envKey, '_PORT')) {
                 if (!preg_match('/^\d{2,5}$/', $raw)) {
-                    throw new \InvalidArgumentException($envKey . ' 必须是 2-5 位数字端口');
+                    throw new \InvalidArgumentException($this->t(':envKey must be a 2-5 digit port', ['envKey' => $envKey]));
                 }
                 $adv[$envKey] = $raw;
             } elseif (!preg_match($hex, $raw)) {
-                throw new \InvalidArgumentException($field . ' 必须是 16-128 位字母数字密钥（或留空自动生成）');
+                throw new \InvalidArgumentException($this->t(':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)', ['field' => $field]));
             } else {
                 $adv[$envKey] = $raw;
             }
@@ -606,11 +675,19 @@ class InstallController
             'DB_PORT=3306' => "DB_PORT={$db['port']}",
             'DB_DATABASE=erp' => "DB_DATABASE={$db['database']}",
             'DB_USERNAME=root' => "DB_USERNAME={$db['username']}",
-            'DB_PASSWORD=' => "DB_PASSWORD={$db['password']}",
         ];
         foreach ($replacements as $search => $replace) {
             $template = str_replace($search, $replace, $template);
         }
+
+        // 口令必须整行替换：.env.example 的 DB_PASSWORD= 后面本来就有值，只替换「DB_PASSWORD=」
+        // 会把模板残留值拼在用户填的口令后面（曾写出 20 位输入 + 20 位残留 = 40 位，登录 1045）。
+        // 用 callback 而非直接 preg_replace，避免口令里的 $1/\1 被当成反向引用吃掉。
+        $template = preg_replace_callback(
+            '/^DB_PASSWORD=.*$/m',
+            static fn (): string => "DB_PASSWORD={$db['password']}",
+            $template
+        );
 
         $jwtSecret = bin2hex(random_bytes(32));
         $template = preg_replace('/JWT_SECRET=.*/', "JWT_SECRET={$jwtSecret}", $template);
@@ -640,52 +717,58 @@ class InstallController
 
         $results = [];
         $results[] = [
-            'name' => 'PHP 版本',
-            'value' => $phpVersion . ' (需要 >= ' . $requiredVersion . ')',
+            'name' => $this->t('PHP version'),
+            'value' => $this->t(':version (requires >= :required)', ['version' => $phpVersion, 'required' => $requiredVersion]),
             'status' => version_compare($phpVersion, $requiredVersion, '>=') ? 'ok' : 'fail',
         ];
 
         foreach ($extensions as $ext) {
             $loaded = extension_loaded($ext);
             $results[] = [
-                'name' => "PHP 扩展: {$ext}",
-                'value' => $loaded ? '已加载' : '未加载',
+                'name' => $this->t('PHP extension: :ext', ['ext' => $ext]),
+                'value' => $loaded ? $this->t('Loaded') : $this->t('Not loaded'),
                 'status' => $loaded ? 'ok' : 'fail',
             ];
         }
 
         $runtimeWritable = is_writable(runtime_path());
         $results[] = [
-            'name' => 'runtime/ 目录可写',
-            'value' => $runtimeWritable ? '可写' : '不可写: ' . runtime_path(),
+            'name' => $this->t('runtime/ directory is writable'),
+            'value' => $runtimeWritable ? $this->t('Writable') : $this->t('Not writable: :path', ['path' => runtime_path()]),
             'status' => $runtimeWritable ? 'ok' : 'fail',
         ];
 
         $envDirWritable = is_writable(dirname($this->envPath));
         $envFileWritable = file_exists($this->envPath) ? is_writable($this->envPath) : $envDirWritable;
         $results[] = [
-            'name' => '.env 文件可写',
-            'value' => $envFileWritable ? '可写' : '不可写',
+            'name' => $this->t('.env file is writable'),
+            'value' => $envFileWritable ? $this->t('Writable') : $this->t('Not writable'),
             'status' => $envFileWritable ? 'ok' : 'fail',
         ];
 
         $sqlExists = file_exists($this->sqlPath);
         $results[] = [
-            'name' => 'install.sql 存在',
-            'value' => $sqlExists ? '存在' : '缺失: ' . $this->sqlPath,
+            'name' => $this->t('install.sql exists'),
+            'value' => $sqlExists ? $this->t('Exists') : $this->t('Missing: :path', ['path' => $this->sqlPath]),
             'status' => $sqlExists ? 'ok' : 'fail',
         ];
 
         return $results;
     }
 
-    private function htmlHeader(string $title): string
+    /**
+     * @param int|null $step 语言选择链接要带上的当前步序号（结果页无步骤传 null）
+     */
+    private function htmlHeader(string $title, ?int $step = null): string
     {
         $title = htmlspecialchars($title);
+        $htmlLang = htmlspecialchars(str_replace('_', '-', $this->locale), ENT_QUOTES);
+        $langs = $this->langPicker($step);
+        $brandSub = htmlspecialchars($this->t('Open ERP System · Installation Wizard'), ENT_QUOTES);
 
         return <<<HTML
         <!DOCTYPE html>
-        <html lang="zh-CN">
+        <html lang="{$htmlLang}">
         <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -701,6 +784,10 @@ class InstallController
         .brand-mark{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:800;box-shadow:0 8px 20px rgba(79,70,229,.35)}
         .brand-name{font-size:21px;font-weight:700;letter-spacing:.2px}
         .brand-sub{font-size:12.5px;color:var(--mut);margin-top:2px;letter-spacing:.3px}
+        .langs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:720px;margin:-14px 0 22px}
+        .lang{font-size:12.5px;color:var(--mut);text-decoration:none;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:#fff;white-space:nowrap}
+        .lang:hover{color:var(--pri);border-color:#c7d2fe;background:var(--pri-l)}
+        .lang.active{color:#fff;background:var(--pri);border-color:var(--pri);font-weight:700}
         .steps{display:flex;align-items:center;justify-content:center;width:100%;max-width:720px;margin-bottom:22px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 18px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
         .step{display:flex;align-items:center;gap:8px;font-size:13px}
         .step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
@@ -773,15 +860,101 @@ class InstallController
             <div class="brand-mark">E</div>
             <div>
                 <div class="brand-name">open-erp</div>
-                <div class="brand-sub">开放 ERP 系统 · 安装向导</div>
+                <div class="brand-sub">{$brandSub}</div>
             </div>
         </div>
+        {$langs}
         HTML;
+    }
+
+    /**
+     * 语言选择器：13 个语种各一个链接。
+     *
+     * 为什么是链接不是 <select>：CSP 是 `script-src 'none-nonce'` 严格模式，
+     * 属性级内联（onchange）不放行，得再配一段脚本才活；链接零脚本、无 JS 也能用。
+     * 各语种按**自身文字**书写（中文/한국어/العربية…），语言列表本来就是给看不懂当前
+     * 界面的人用的，翻成当前语种等于没写。
+     */
+    private function langPicker(?int $step): string
+    {
+        $suffix = $step === null ? '' : '&amp;step=' . $step;
+        $out = '<div class="langs">';
+        foreach (self::LANGS as $code => $name) {
+            $active = $code === $this->locale ? ' active' : '';
+            $out .= '<a class="lang' . $active . '" href="/install?lang=' . $code . $suffix . '">'
+                . htmlspecialchars($name, ENT_QUOTES) . '</a>';
+        }
+
+        return $out . '</div>';
     }
 
     private function htmlFooter(): string
     {
         // 界面版本水印：用于区分浏览器是否加载到最新代码（升级排查用）
-        return '<div class="foot">erik.xyz · ' . date('Y-m-d H:i') . '</div></body></html>';
+        return self::WIZARD_STATE_SCRIPT
+            . '<div class="foot">erik.xyz · ' . date('Y-m-d H:i') . '</div></body></html>';
     }
+
+    /**
+     * 向导填写的浏览器侧暂存：后退/刷新后原样回来。
+     *
+     * 为什么必须做：前进是丢不了的（每一步把前序字段渲成隐藏域带走），丢的是**后退** ——
+     * 「← 上一步」是裸 GET，renderStep() 里 $old = $request->post() 拿到空数组，
+     * 于是不仅输入框清空，那些隐藏域也一并清空；从后退页再点「下一步」，整条链传下去就是空的。
+     *
+     * 放 footer 一处，六步全覆盖，日后加字段自动跟上（按 name 遍历，不写死字段表）。
+     *
+     * 两条刻意的取舍：
+     *  1. **隐藏域也存也恢复**。只恢复输入框是不够的 —— 后退页的 host/port/… 隐藏域是空的，
+     *     不补就会在「下一步」时把空值传进后面的步骤。
+     *  2. **密码字段照样存**。不存的话后退回来数据库口令就空了，正是要修的那个毛病。
+     *     代价是明文落在 sessionStorage 里（同源脚本可读）。可接受的理由：本页仅安装前存在
+     *     （APP_INSTALLED 守卫），且这些值本来就以明文 hidden input 躺在每一步的 DOM 里；
+     *     sessionStorage 按标签页隔离、随标签页关闭而清，安装成功页再显式清一次。
+     *
+     * 恢复无条件覆盖（storage 胜过服务端渲染值）：本页每次输入都同步写 storage，而各步的
+     * 校验失败重渲只把 $old 原样回显、不做任何加工，所以同标签页内 storage 不会比服务端旧。
+     */
+    private const WIZARD_STATE_SCRIPT = <<<'HTML'
+    <script>
+    (function () {
+      var KEY = 'open_erp_install_wizard';
+      var form = document.querySelector('form[action="/install"]');
+      if (!form) { return; }                       // 成功页/错误页无表单：不动 storage，由成功页自己清
+      var state = {};
+      try { state = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch (e) { state = {}; }
+
+      var fields = form.querySelectorAll('input[name],select[name],textarea[name]');
+      Array.prototype.forEach.call(fields, function (el) {
+        if (el.name === 'step') { return; }        // step 是当前页序号，不跨页存
+
+        // 先恢复，再挂监听。恢复完补发 change：各步自己的联动（step3 的搜索服务显隐与
+        // required、step4 的密码一致性）都挂在 change/submit 上，不补发就停在初始态。
+        if (state[el.name] !== undefined && state[el.name] !== '') {
+          var changed = false;
+          if (el.type === 'checkbox' || el.type === 'radio') {
+            var want = state[el.name] === '1' || state[el.name] === 'on' || state[el.name] === el.value;
+            changed = el.checked !== want;
+            el.checked = want;
+          } else if (el.tagName === 'SELECT') {
+            for (var i = 0; i < el.options.length; i++) {
+              if (el.options[i].value === state[el.name]) { changed = el.value !== state[el.name]; el.selectedIndex = i; break; }
+            }
+          } else if (el.value !== state[el.name]) {
+            el.value = state[el.name];
+            changed = true;
+          }
+          if (changed) { el.dispatchEvent(new Event('change', { bubbles: true })); }
+        }
+
+        var save = function () {
+          state[el.name] = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? '1' : '') : el.value;
+          try { sessionStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* 隐私模式等写入失败：忽略，退化为不暂存 */ }
+        };
+        el.addEventListener('input', save);
+        el.addEventListener('change', save);
+      });
+    })();
+    </script>
+    HTML;
 }
