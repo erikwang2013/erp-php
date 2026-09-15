@@ -64,9 +64,21 @@ return [
 
         // SSRF 服务端请求伪造检测
         // 检测内网 IP（127.x、10.x、172.16-31.x、192.168.x）、cloud metadata、危险协议
+        //
+        // 降为 log：这个检测器（Detector/SsrfDetector.php）对**所有字段**跑内网 URL 正则，没有字段作用域，
+        // 于是两个「浏览器必带、且前后端同在本机时必然是 loopback」的头成了判据：
+        //   _server.HTTP_ORIGIN  ← SecurityGuard.php:157 由 meta['origin'] 注入
+        //   headers.Referer      ← app\middleware\SecurityFilter::payload() 为保旧版覆盖主动补进扫描面
+        // 二者都形如 http://localhost:4200，命中 /https?:\/\/localhost\b/i。前端(4200)与 API(8788)
+        // 同在本机时这条**每条请求都成立** → 后台所有 POST 一律 403（获取验证码、退出登录…均复现），
+        // 并经 SecurityGuard.php:192 累计触发 IpBlacklist 封禁 127.0.0.1 900 秒，15 分钟一轮 —— 两个
+        // 403 来源。降级后 log 命中不再计入该累计（同处的 shouldBlock 门禁），两个来源一并消失。
+        // 生产口径不受影响：Origin/Referer 是真域名时不匹配该规则（回归见 tests/SecurityFilterLoopbackTest.php）。
+        // 方向本身也是反的：SSRF 要防的是**服务端**去 fetch 用户给的 URL，属业务代码职责，不是扫请求头。
+        // 保留 enabled，命中仍进日志，便于日后核对。
         'ssrf' => [
             'enabled' => true,
-            'mode' => 'block',
+            'mode' => 'log',
         ],
 
         // XXE XML 外部实体注入检测

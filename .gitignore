@@ -38,4 +38,6 @@ apps/harmonyos/.hvigor/
 
 # 本地备份/诊断残留
 .env.bak-*
+# .env 的人工备份：含 DB/JWT/加密密钥，与 .env 同级敏感（writeEnv 不产生此文件，纯手工残留）
+.env.back
 crud3-probe.txt
