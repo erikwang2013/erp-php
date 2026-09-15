@@ -45,15 +45,17 @@ class CustomFieldController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $result = $this->customField()->list(
+        // list() 返回的是定义模型列表，不是 create/update 那种 [data, err] 元组
+        // （用元组的是那几个服务方法，别照抄）。按元组解包的后果：
+        //  ≥2 行 → isset($result[1]) 成立，把第 2 行的模型当"错误消息"返回 422；
+        //  恰好 1 行 → 把模型喂给 encodeIds(array) 触发 TypeError。
+        // 即表里只要有一条定义，这个接口就报错；只有空表才正常。
+        $rows = $this->customField()->list(
             $request->input('entity_type') !== null ? (string) $request->input('entity_type') : null,
             $request->input('status') !== null ? (int) $request->input('status') : null
         );
-        if (isset($result[1])) {
-            return $this->fail((string) $result[1], 422);
-        }
 
-        return $this->success($this->encodeIds($result[0] ?? []));
+        return $this->success(array_map(fn ($row) => $this->encodeIds($row->toArray()), $rows));
     }
 
     /**
