@@ -901,24 +901,30 @@ sequenceDiagram
 | 模块 | Controllers (目录) | 核心Service | 主要Model | 表数 |
 |------|-------------------|-------------|-----------|------|
 | 系统管理 | admin/controller/ (16个) | - ⚠控制器直查模型，已知技术债 | AdminUser, AdminRole, AdminPermission | 7 |
-| 商品管理 | controller/product/ (8个) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
-| 采购管理 | controller/purchase/ (8个) | InventoryService, FinanceService ⚠CRUD仍直查，已知技术债 | PurchaseOrder, PurchaseReceive | 9 |
+| 商品管理 | controller/product/ (8个) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 12 |
+| 采购管理 | controller/purchase/ (8个) | InventoryService, FinanceService ⚠CRUD仍直查，已知技术债 | PurchaseOrder, PurchaseReceive | 14 |
 | 销售管理 | controller/sales/ (5个) | InventoryService, FinanceService ⚠CRUD仍直查，已知技术债 | SalesOrder, SalesDelivery | 9 |
 | 库存管理 | controller/inventory/ (6个) | InventoryService ⚠CRUD仍直查，已知技术债 | Inventory, InventoryFlow, CostRecord | 11 |
-| 财务管理 | controller/finance/ (28个) | FinanceService ⚠CRUD仍直查，已知技术债 | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| 财务管理 | controller/finance/ (28个) | FinanceService ⚠CRUD仍直查，已知技术债 | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 38 |
 | CRM | controller/crm/ (10个) | CrmService | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
 | 审批工作流 | controller/workflow/ (3个) | - ⚠控制器直查模型，已知技术债 | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
-| 消息通知 | controller/notification/ (2个) | NotificationService ⚠CRUD仍直查，已知技术债 | Notification, NotificationSetting, NotificationTemplate | 3 |
-| 项目管理 | controller/project/ (4个) | - ⚠控制器直查模型，已知技术债 | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| 人力资源 | controller/hr/ (9个) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
-| 生产制造 | controller/manufacturing/ (13个) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| 消息通知 | controller/notification/ (2个) | NotificationService ⚠CRUD仍直查，已知技术债 | Notification, NotificationSetting, NotificationTemplate | 4 |
+| 项目管理 | controller/project/ (4个) | - ⚠控制器直查模型，已知技术债 | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 6 |
+| 人力资源 | controller/hr/ (9个) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 21 |
+| 生产制造 | controller/manufacturing/ (13个) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 21 |
 | 自定义报表 | controller/report/ (2个) | - ⚠控制器直查模型，已知技术债 | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
-| EAM 设备管理 | controller/eam/ (5个) | - ⚠控制器直查模型，已知技术债 | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 4 |
+| EAM 设备管理 | controller/eam/ (5个) | - ⚠控制器直查模型，已知技术债 | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
 | DMS 文档管理 | controller/dms/ (2个) | - ⚠控制器直查模型，已知技术债 | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
 | BI 看板 | controller/bi/ (3个) | - ⚠控制器直查模型，已知技术债 | BiDashboard, BiWidget | 2 |
 
 > 本表为早期模块映射（系统管理 + 15 个业务域）；后续新增的 oms / wms / tms / quality / open / platform / print / retail 8 个域未列入，
 > 全量清单见 `docs/CLAUDE.md` 项目结构树（`app/controller/` 共 23 个模块目录 / 139 个控制器，含顶层 Install、Index）。
+>
+> `表数` 口径（2026-09-15 实测）：取 `database/install.sql` 的 227 张表，按表名前缀归属到唯一模块 —— 系统管理 `admin_*`+`system_config`+`operation_log`；
+> 商品管理 `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`；采购管理 `purchase_*`+`supplier_assessment`；库存管理 `inventory*`/`transfer*`/`check_*`/`cost_record`；
+> 其余模块同名表前缀（`sales_*`→销售、`finance_*`→财务、`crm_*`→CRM、`approval_*`→审批、`notification*`→通知、`project*`→项目、`hr_*`→人力、`mfg_*`→生产、`report_*`→报表、`eam_*`→EAM、`dms_*`→DMS、`bi_*`→BI）。
+> 一表只归一列；后期新增域与共享表共 48 张（`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`print_template`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`）不计入本表任何一行。
+> 重算：``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
 ### 20.1 P2-F2 服务层轻量提取记录（crm/hr/manufacturing/product 已完成抽取）
 
@@ -938,6 +944,12 @@ class_exists 回退实例化，故所有 Service 保持无参构造）。
 
 未抽取模块（项目管理 18 次、自定义报表 18 次、采购 24 次、销售 24 次、系统管理 42 次等）已在表中标注
 "控制器直查模型，已知技术债"，后续迭代按同一模式抽取。
+
+> ⚠ 复测（2026-09-15）：本节数值为**抽取时点**（1051d83 / 2026-08-16）实测 —— 以同一口径复核该提交，四模块恰为
+> CRM 57→0、人力 36→0（本节标注 38）、生产 33→0、商品 29→0；未抽取模块当时为 项目 18 / 报表 18 / 采购 25 / 销售 25 / 系统管理 44（标注 18/18/24/24/42，差 1~2 属计数口径差异）。
+> 抽取后新增页面未接入 Service，直查已回流：CRM 6 处（关联名称回填 `pluck`）、生产制造 39 处（CostEntry/MaterialIssue/WorkReport/Subcontract 收发等 6 个后期控制器）、
+> 商品管理 2 处（LocationController 库位），人力资源仍为 0；未抽取模块现为 项目 24 / 报表 20 / 采购 58 / 销售 35 / 系统管理 67。
+> 复测口径与命令（`Model::class` 不计）：``grep -rhoE '\b[A-Z][A-Za-z]*::(find|where|whereIn|query|first|all|count|paginate|insert|update|delete|save|create|pluck|exists)\(' app/controller/<模块>/ | grep -vE '\b(Service|Container|Validator|Cache|Log)::' | wc -l``
 
 ---
 
