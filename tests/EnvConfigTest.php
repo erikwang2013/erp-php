@@ -120,4 +120,28 @@ class EnvConfigTest extends TestCase
         $this->assertStringContainsString("DB_HOST=10.0.0.5\n", $env);
         $this->assertStringContainsString("DB_USERNAME=erp_u\n", $env);
     }
+
+    #[Test]
+    public function startup_ports_declared_in_env_and_example(): void
+    {
+        // 启动端口集中在 .env（后端监听 / 前端 dev server / docker 发布），两份模板须一致：
+        // 新部署的 .env 由 .env.example 生成，缺 key 时各端会静默退回脚本里的硬编码默认值，
+        // 「改端口只改 .env 一处」随之失效（前端 vite.config.ts、proxy.conf.js 读的就是这些 key）。
+        $keys = [
+            'APP_HTTP_PORT', 'APP_WS_PORT',
+            'ANGULAR_DEV_PORT', 'REACT_DEV_PORT',
+            'NGINX_PORT', 'NGINX_SSL_PORT', 'MYSQL_PORT', 'ES_PORT',
+        ];
+
+        foreach (['.env', '.env.example'] as $file) {
+            $content = (string) file_get_contents(__DIR__ . '/../' . $file);
+            foreach ($keys as $key) {
+                $this->assertMatchesRegularExpression(
+                    "/^{$key}=\d+$/m",
+                    $content,
+                    "$file 缺少启动端口 $key",
+                );
+            }
+        }
+    }
 }

@@ -88,7 +88,7 @@ composer install --no-dev --optimize-autoloader
 php start.php start
 ```
 
-默认监听 `http://0.0.0.0:8788`。
+默认监听 `http://0.0.0.0:8788`（端口见 `.env` 的 `APP_HTTP_PORT`，WebSocket 为 `APP_WS_PORT`）。
 
 ### 6. 验证安装
 

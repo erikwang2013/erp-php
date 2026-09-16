@@ -196,7 +196,7 @@ open-erp/
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（<!-- stats:test_files=111 --> 个测试文件，<!-- stats:tests=978 --> 个测试方法，<!-- stats:assertions=4636 --> 条断言）
+├── tests/                      # PHPUnit 测试（<!-- stats:test_files=111 --> 个测试文件，<!-- stats:tests=979 --> 个测试方法，<!-- stats:assertions=4637 --> 条断言）
 ├── resource/
 │   └── translations/           # 13 语种后端消息词典 (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # 中文翻译 (533 条)
@@ -288,6 +288,9 @@ cp .env.example .env
 | `SNOWFLAKE_DATACENTER_ID` | 数据中心 ID (0-31) | `1` |
 | `SNOWFLAKE_WORKER_ID` | 工作节点 ID (0-31) | `1` |
 | `SCOUT_HOSTS` | ES 地址 | `http://localhost:9200` |
+| `APP_HTTP_PORT` / `APP_WS_PORT` | 后端 HTTP / WebSocket 监听端口（Nginx 等反代指向它） | `8788` / `8282` |
+| `ANGULAR_DEV_PORT` / `REACT_DEV_PORT` | 前端开发服务器端口（`npm run dev`，仅开发期用） | `4200` / `5173` |
+| `NGINX_PORT` / `NGINX_SSL_PORT` / `MYSQL_PORT` / `ES_PORT` | docker-compose 发布到宿主机的端口（容器内端口固定） | `80` / `443` / `3306` / `9200` |
 
 **生产环境务必修改所有密钥为随机字符串**（`JWT_SECRET` / `ENCRYPTION_KEY` / `HASHIDS_SALT` 等占位值会被 `env_required` 拒绝启动）：
 
@@ -590,7 +593,7 @@ Authorization: Bearer <token>
 ```bash
 cd apps/angular
 npm install
-npm run dev        # ng serve → http://localhost:4200
+npm run dev        # ng serve → http://localhost:4200（端口见 .env 的 ANGULAR_DEV_PORT）
 npm run build      # tsc --noEmit + ng build，产物 dist/angular
 npm run typecheck  # 只做类型检查
 ```
@@ -602,8 +605,8 @@ npm run typecheck  # 只做类型检查
   npx --yes --package=node@22.22.3 -- node node_modules/@angular/cli/bin/ng.js build
   ```
 
-- **开发代理**：`proxy.conf.json` 已把 `/admin` `/api` `/open` `/health` `/metrics` `/install`
-  代理到 `http://localhost:8788`，因此 `ng serve` 时**无需**再配置后端地址
+- **开发代理**：`proxy.conf.js` 已把 `/admin` `/api` `/open` `/health` `/metrics` `/install`
+  代理到 `.env` 的 `APP_HTTP_PORT`（默认 8788），因此 `ng serve` 时**无需**再配置后端地址
 - **架构**：config 驱动 —— `src/app/config/domains/*.ts` 声明菜单与资源页，**一个 `ResourcePage`
   渲染全部业务页**（新增资源页 ≈ 加一个配置对象，不必写组件）
 - **多语言**：13 语种，词典按语种懒加载（各成一个 chunk）；顶栏 globe 图标切换
@@ -615,7 +618,7 @@ npm run typecheck  # 只做类型检查
 ```bash
 cd apps/react
 npm install
-npm run dev        # Vite → http://localhost:5173
+npm run dev        # Vite → http://localhost:5173（端口见 .env 的 REACT_DEV_PORT）
 npm run build      # tsc --noEmit + vite build，产物 dist/
 ```
 
