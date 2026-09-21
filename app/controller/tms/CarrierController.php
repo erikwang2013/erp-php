@@ -73,19 +73,25 @@ class CarrierController extends BaseController
      * 创建承运商
      */
     #[\erikwang2013\apidoc\annotation\Title('创建承运商')]
-    #[\erikwang2013\apidoc\annotation\Desc('创建承运商，名称必填，其余字段按业务传入')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建承运商，编码与名称必填，其余字段按业务传入')]
     #[\erikwang2013\apidoc\annotation\Url('/admin/v1/tms/carrier')]
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'承运商名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'承运商编码（必填，唯一，最长30）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'承运商名称（必填，最长100）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        // code 为 NOT NULL + uk_code（VARCHAR(30)）：不校验则留空入库成 ''，第二条撞 1062/500；
+        // name 真实列宽 VARCHAR(100)，原 max:200 会放过超长串去撞 MySQL 1406
+        $validator = validator($request->all(), [
+            'code' => 'required|string|max:30',
+            'name' => 'required|string|max:100',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

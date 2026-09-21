@@ -44,16 +44,20 @@ class SupplierAssessmentController extends BaseController
         $supplierId = $request->input('supplier_id');
         $grade = $request->input('grade');
 
-        $query = SupplierAssessment::query();
+        // 带出可读供应商名（同 SalesOrderController::index 的 leftJoin 惯例）；
+        // 两表都有 id/created_at 等同名列，故 where/orderBy 一律限定表名
+        $query = SupplierAssessment::query()
+            ->leftJoin('supplier', 'supplier.id', '=', 'supplier_assessment.supplier_id')
+            ->select('supplier_assessment.*', 'supplier.name as supplier_name');
         if ($supplierId) {
-            $query->where('supplier_id', $this->decodeId($supplierId));
+            $query->where('supplier_assessment.supplier_id', $this->decodeId($supplierId));
         }
         if ($grade) {
-            $query->where('grade', (string) $grade);
+            $query->where('supplier_assessment.grade', (string) $grade);
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')
+        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('supplier_assessment.id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'supplier_id', 'assessor_id']));
 
         return $this->successPage($list, $total, $page, $limit);

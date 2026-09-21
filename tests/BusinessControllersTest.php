@@ -32,7 +32,7 @@ class BusinessControllersTest extends TestCase
         return (int) ($body['code'] ?? -1);
     }
 
-    public function testWmsLocationStoreRejectsMissingCode(): void
+    public function testWmsLocationStoreRejectsMissingLocationId(): void
     {
         $resp = (new LocationController())->store(new FakeRequest([]));
         $this->assertSame(422, $this->code($resp));
@@ -86,9 +86,13 @@ class BusinessControllersTest extends TestCase
         $this->assertSame(422, $this->code($resp));
     }
 
-    public function testInventoryCheckTaskStoreRejectsMissingName(): void
+    /**
+     * 原用例断言 name 必填——该列在 erp_check_task 不存在（幻列），规则已删，
+     * 空请求会直接落库、单测无 DB 必炸；改断言本端点仍真实存在的校验分支。
+     */
+    public function testInventoryCheckTaskStoreRejectsNonIntegerStatus(): void
     {
-        $resp = (new CheckTaskController())->store(new FakeRequest([]));
+        $resp = (new CheckTaskController())->store(new FakeRequest(['status' => 'abc']));
         $this->assertSame(422, $this->code($resp));
     }
 

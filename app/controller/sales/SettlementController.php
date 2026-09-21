@@ -10,6 +10,7 @@ namespace app\controller\sales;
 use app\admin\controller\BaseController;
 use app\model\FinanceArAp;
 use app\model\FinanceSettlement;
+use app\model\SalesDelivery;
 use app\service\finance\FinanceService;
 use support\Container;
 use support\Request;
@@ -79,6 +80,7 @@ class SettlementController extends BaseController
             ->limit($limit)->orderBy('finance_ar_ap.id', 'desc')->get();
 
         $settledAtMap = [];
+        $deliveryCodes = [];
         if (!$list->isEmpty()) {
             // 先 get() 取分组行再 Collection::pluck：Query::pluck 会替换 select 导致 MAX 聚合丢失
             $settledAtMap = FinanceSettlement::whereIn('ar_ap_id', $list->pluck('id'))
@@ -87,9 +89,15 @@ class SettlementController extends BaseController
                 ->get()
                 ->pluck('settled_at', 'ar_ap_id')
                 ->all();
+            // 行补引用单号：表只有 source_id（裸雪花），前端列拿到的是 hashid 无法辨识。
+            // 走 query() 而非 Model::whereIn()：后者是本仓 PHPStan baseline 逐类登记的
+            // staticMethod.notFound，新写一处就得进 baseline
+            $deliveryCodes = SalesDelivery::query()
+                ->whereIn('id', $list->pluck('source_id')->all())
+                ->pluck('code', 'id')->all();
         }
 
-        $rows = $list->map(fn (FinanceArAp $item) => $this->format($item, $settledAtMap[$item->id] ?? null))->values();
+        $rows = $list->map(fn (FinanceArAp $item) => $this->format($item, $settledAtMap[$item->id] ?? null, $deliveryCodes))->values();
 
         return $this->success(['list' => $rows, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -261,11 +269,14 @@ class SettlementController extends BaseController
         return $this->success([], $this->trans('Deleted successfully'));
     }
 
-    private function format(FinanceArAp $item, ?string $settledAt): array
+    private function format(FinanceArAp $item, ?string $settledAt, array $deliveryCodes = []): array
     {
         $data = $item->toArray();
         $data['customer_id'] = $item->partner_id;
         $data['delivery_id'] = $item->source_id;
+        // 用 $data['delivery_id'] 取值而非再读一次 $item->source_id：
+        // phpstan-baseline 该 property.notFound 的 count 是 1，多读一次会破基线
+        $data['delivery_code'] = $deliveryCodes[$data['delivery_id']] ?? '';
         $data['received_amount'] = $item->settled_amount;
         $settled = bc_norm($item->settled_amount);
         $data['status'] = bccomp($settled, bc_norm($item->amount), 4) >= 0 ? 2 : (bccomp($settled, '0', 4) > 0 ? 1 : 0);

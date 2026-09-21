@@ -30,6 +30,7 @@ class OrderController extends BaseController
     #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
     #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
     #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（订单号/渠道单号）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'订单状态（关联销售订单 0=待审核…4=已取消）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'订单列表数据')]
@@ -40,6 +41,7 @@ class OrderController extends BaseController
             'page' => 'integer',
             'limit' => 'integer',
             'keyword' => 'string',
+            'status' => 'integer',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -47,6 +49,7 @@ class OrderController extends BaseController
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
+        $status = $request->input('status');
 
         // erp_oms_order 无 code 列（扩展表，uk_order_id 1:1 挂 erp_sales_order）——
         // 单号 = 关联销售订单的 code，经 leftJoin 带出别名；关键字搜 销售单号/渠道单号
@@ -59,6 +62,11 @@ class OrderController extends BaseController
                 $q->where('sales_order.code', 'like', "%{$keyword}%")
                   ->orWhere('oms_order.channel_order_no', 'like', "%{$keyword}%");
             });
+        }
+        // erp_oms_order 无 status 列（只有 fulfillment_status/payment_status）：前端
+        // DOC_FILTER 的 0..4 取关联销售订单 status(0=待审核…4=已取消)，同为 0..4 段
+        if ($status !== null && $status !== '') {
+            $query->where('sales_order.status', (int) $status);
         }
 
         $total = (clone $query)->count();

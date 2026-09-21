@@ -82,7 +82,7 @@ class MaterialIssueController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('生产制造')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'领料单编码，必填，唯一')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'领料单编码，唯一；留空后端自生成')]
     #[\erikwang2013\apidoc\annotation\Param(name:'order_id', type:'int', desc:'生产工单ID，必填')]
     #[\erikwang2013\apidoc\annotation\Param(name:'issue_date', type:'string', desc:'领料日期 Y-m-d，默认当天')]
     #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'int', desc:'出库仓库ID，缺省取工单仓库')]
@@ -92,7 +92,7 @@ class MaterialIssueController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'code' => 'required|string|max:50',
+            'code' => 'nullable|string|max:50',
             'order_id' => 'required|integer',
             'issue_date' => 'nullable|date',
             'warehouse_id' => 'nullable|integer',
@@ -128,7 +128,7 @@ class MaterialIssueController extends BaseController
             DB::transaction(function () use ($request, $items, $warehouseId, $id, $order) {
                 $doc = new MfgMaterialIssue();
                 $doc->id = $id;
-                $doc->code = trim((string) $request->input('code'));
+                $doc->code = doc_code($request->input('code'), 'MI');
                 $doc->order_id = (int) $order->id;
                 $doc->warehouse_id = $warehouseId;
                 $doc->issue_date = $request->input('issue_date') ?: date('Y-m-d');

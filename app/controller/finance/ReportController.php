@@ -191,7 +191,8 @@ class ReportController extends BaseController
         $period = (string) $request->input('period', date('Y-m'));
 
         try {
-            return $this->success((new AccountBalanceService())->getTrialBalance($period));
+            // 出口编码：items[].account_id / parent_id 是外键，裸雪花 ID 不外泄
+            return $this->success($this->encodeIds((new AccountBalanceService())->getTrialBalance($period)));
         } catch (\InvalidArgumentException $e) {
             return $this->fail($e->getMessage(), 422);
         }
@@ -218,14 +219,15 @@ class ReportController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $accountSubjectId = (int) $request->input('account_subject_id', 0);
-        if ($accountSubjectId <= 0) {
+        // account_subject_id 收 hashid 串或原生数字（双模），(int) 强转会把 hashid 变 0 → 422
+        $accountSubjectId = $this->decodeFlexibleId($request->input('account_subject_id'));
+        if ($accountSubjectId === null || $accountSubjectId < 1) {
             return $this->fail($this->trans('account_subject_id must be greater than 0'), 422);
         }
         $period = (string) $request->input('period', '');
 
         try {
-            return $this->success((new AccountBalanceService())->getBalance($accountSubjectId, $period));
+            return $this->success($this->encodeIds((new AccountBalanceService())->getBalance($accountSubjectId, $period)));
         } catch (\InvalidArgumentException $e) {
             return $this->fail($e->getMessage(), 422);
         }

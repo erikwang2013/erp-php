@@ -85,7 +85,8 @@ class PackController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        // code 列宽 VARCHAR(50)（uk_code）：max:200 会放过超长串去撞 MySQL 1406/500
+        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -93,6 +94,15 @@ class PackController extends BaseController
         $item = new WmsPackTask();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：下拉源只回 hashid 串，fill 的 integer cast 会把它转成 0（静默脏数据），故 fill 后覆写为裸 ID
+        $data = $request->all();
+        if (array_key_exists('warehouse_id', $data)) {
+            $warehouseId = $this->decodeFlexibleId($data['warehouse_id']);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
         if (empty($item->code)) {
             $item->code = 'wms/pack' . $this->generateId();
         }
@@ -165,6 +175,15 @@ class PackController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：下拉源只回 hashid 串，fill 的 integer cast 会把它转成 0（静默脏数据），故 fill 后覆写为裸 ID
+        $data = $request->all();
+        if (array_key_exists('warehouse_id', $data)) {
+            $warehouseId = $this->decodeFlexibleId($data['warehouse_id']);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
@@ -244,6 +263,45 @@ class PackController extends BaseController
 
             return $this->fail($e->getMessage(), 500);
         }
+    }
+
+    /**
+     * 开始打包（指定任务：待打包 → 打包中）
+     */
+    #[\erikwang2013\apidoc\annotation\Title('开始打包任务')]
+    #[\erikwang2013\apidoc\annotation\Desc('将待打包任务置为打包中，之后方可完成打包')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('仓储管理(WMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'打包任务ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
+
+    public function startTask(Request $request, string $id): Response
+    {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail($this->trans('Invalid ID'), 400);
+        }
+        // 状态机 0=待打包 1=打包中 2=已完成（complete 要求 status===1）。
+        // 与 start()（按仓库新建任务，建成即 1）区分：本动作面向已存在的待打包任务。
+        // 条件 UPDATE 一步完成「存在 + 状态为 0 → 置 1」：原子，无 check-then-set 竞态。
+        $affected = WmsPackTask::query()->where('id', $id)->where('status', 0)
+            ->update(['status' => 1]);
+        if (!$affected) {
+            return WmsPackTask::query()->find($id)
+                ? $this->fail($this->trans('The packing task cannot be started in its current status'), 422)
+                : $this->fail($this->trans('Record not found'), 404);
+        }
+
+        return $this->success([], $this->trans('Packing task started'));
     }
 
     /**

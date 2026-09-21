@@ -10,6 +10,7 @@ namespace app\controller\sales;
 use app\admin\controller\BaseController;
 use app\model\SalesOrder;
 use app\model\SalesOrderItem;
+use app\service\notification\WebhookService;
 use app\service\sales\CreditControlException;
 use app\service\sales\CreditControlService;
 use support\Container;
@@ -94,7 +95,7 @@ class OrderController extends BaseController
     public function store(Request $request): Response
     {
         // 表无 name 列（erp_sales_order 仅 code/customer_id 等，见 install.sql），仅校验真实列
-        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'customer_id' => 'string', 'status' => 'integer']);
+        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'customer_id' => 'string', 'status' => 'integer']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -115,12 +116,28 @@ class OrderController extends BaseController
             }
         }
 
+        // 先落局部变量：doc_code 用雪花号生成、非幂等，调用两次会得到两个不同单号；
+        // 订单实体属性无 @property 注解，回读模型属性会新增 PHPStan property.notFound
+        $id = $this->generateId();
+        $code = doc_code($request->input('code'), 'SO');
+
         $item = new SalesOrder();
-        $item->id = $this->generateId();
+        $item->id = $id;
         $this->fillModelFromRequest($item, $request);
+        // 单号缺省自生成（fill 之后覆写，理由同 customer_id）
+        $item->fill(['code' => $code]);
         // 解码 int 须在 fill 之后覆写：customer_id 非 guarded，先赋会被请求里的 hash 串直填覆写（崩/脏数据）
         $item->customer_id = $customerId;
         $item->save();
+
+        // 订单创建事件异步入队：HTTP 请求内只入队，真实投递与退避重试由消费进程做
+        // （见 app/queue/redis/WebhookTask）；RedisQueue::push 自身吞异常返 false，不会影响下单主流程
+        Container::get(WebhookService::class)->dispatchAsync('order.created', [
+            'id' => $this->encodeId($id),
+            'code' => $code,
+            'customer_id' => $this->encodeId($customerId),
+            'total_amount' => is_scalar($totalAmount) ? (string) $totalAmount : '',
+        ]);
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }

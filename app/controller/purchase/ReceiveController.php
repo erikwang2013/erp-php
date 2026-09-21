@@ -122,7 +122,7 @@ class ReceiveController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'code' => 'required|string|max:50',
+            'code' => 'nullable|string|max:50',
             'order_id' => 'required|string',
             'supplier_id' => 'required|string',
             'warehouse_id' => 'required|string',
@@ -151,7 +151,7 @@ class ReceiveController extends BaseController
             // 1. 创建收货单头
             $receive = new PurchaseReceive();
             $receive->id = $this->generateId();
-            $receive->code = $request->input('code');
+            $receive->code = doc_code($request->input('code'), 'PRC');
             $receive->order_id = $orderId;
             $receive->supplier_id = $this->decodeId($request->input('supplier_id'));
             $receive->warehouse_id = $this->decodeId($request->input('warehouse_id'));

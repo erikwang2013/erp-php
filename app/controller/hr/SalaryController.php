@@ -112,8 +112,9 @@ class SalaryController extends BaseController
 
     public function store(Request $request): Response
     {
+        // employee_id 收 hashid 串或原生数字（双模），先解码再进服务层（服务层内还有 (int) 强转）
         $validator = validator($request->all(), [
-            'employee_id' => 'required|integer',
+            'employee_id' => 'required',
             'period_year' => 'required|integer',
             'period_month' => 'required|integer',
             'base_salary' => 'numeric',
@@ -125,9 +126,15 @@ class SalaryController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        $employeeId = $this->decodeFlexibleId($request->input('employee_id'));
+        if ($employeeId === null || $employeeId < 1) {
+            return $this->fail($this->trans('Invalid employee ID'), 422);
+        }
+        $data = $request->all();
+        $data['employee_id'] = $employeeId;
 
         try {
-            $item = $this->hr()->createSalary($request->all());
+            $item = $this->hr()->createSalary($data);
         } catch (InvalidArgumentException $e) {
             return $this->fail($e->getMessage(), 422);
         }

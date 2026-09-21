@@ -73,19 +73,26 @@ class ZoneController extends BaseController
      * 创建库区
      */
     #[\erikwang2013\apidoc\annotation\Title('创建库区')]
-    #[\erikwang2013\apidoc\annotation\Desc('创建库区，名称必填，其余字段按业务传入')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建库区，warehouse_id / code / name 必填')]
     #[\erikwang2013\apidoc\annotation\Url('/admin/v1/wms/zone')]
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('仓储管理(WMS)')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'库区名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'string', require:true, desc:'仓库ID(hashid)，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'库区编码(≤30)，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', require:true, desc:'库区名称(≤100)，必填')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        // warehouse_id / code / name 是 erp_wms_zone 的 NOT NULL 无默认列（code VARCHAR(30)、name VARCHAR(100)）
+        $validator = validator($request->all(), [
+            'warehouse_id' => 'required',
+            'code' => 'required|string|max:30',
+            'name' => 'required|string|max:100',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -93,6 +100,12 @@ class ZoneController extends BaseController
         $item = new WmsZone();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：仓库下拉源只回 hashid 串，fill 的 integer cast 会把它静默转成 0（脏行），故 fill 后覆写为裸 ID
+        $warehouseId = $this->decodeFlexibleId($request->input('warehouse_id'));
+        if ($warehouseId === null || $warehouseId < 1) {
+            return $this->fail($this->trans('Invalid warehouse ID'), 422);
+        }
+        $item->fill(['warehouse_id' => $warehouseId]);
 
         $item->save();
 
@@ -149,6 +162,8 @@ class ZoneController extends BaseController
     {
         $validator = validator($request->all(), [
             'id' => 'string',
+            'code' => 'string|max:30',
+            'name' => 'string|max:100',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -162,6 +177,15 @@ class ZoneController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：同 store（部分更新：字段未出现则不动）
+        $data = $request->all();
+        if (array_key_exists('warehouse_id', $data)) {
+            $warehouseId = $this->decodeFlexibleId($data['warehouse_id']);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
 
         $item->save();
 

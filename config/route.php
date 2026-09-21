@@ -141,6 +141,14 @@ Route::group('/admin/v1', function () {
     Route::resource('/inventory/transfer', app\controller\inventory\TransferController::class);
     Route::resource('/inventory/check', app\controller\inventory\CheckTaskController::class);
     Route::resource('/inventory/alert', app\controller\inventory\AlertController::class);
+    // inventory/{id} 变量路由必须排在所有 /inventory/<静态段> 之后，否则遮蔽静态路由触发 FastRoute 异常；
+    // 集合路径已被上面 any(index) 占用（再注册 POST 同路径会重复注册），故仅补 {id} 维度的单条记录动作
+    Route::get('/inventory/flow/{id}', [app\controller\inventory\FlowController::class, 'show']);
+    Route::put('/inventory/flow/{id}', [app\controller\inventory\FlowController::class, 'update']);
+    Route::delete('/inventory/flow/{id}', [app\controller\inventory\FlowController::class, 'destroy']);
+    Route::get('/inventory/{id}', [app\controller\inventory\InventoryController::class, 'show']);
+    Route::put('/inventory/{id}', [app\controller\inventory\InventoryController::class, 'update']);
+    Route::delete('/inventory/{id}', [app\controller\inventory\InventoryController::class, 'destroy']);
     Route::get('/trace/forward/{batchCode}', [app\controller\inventory\TraceController::class, 'forward']);
     Route::get('/trace/backward/{batchCode}', [app\controller\inventory\TraceController::class, 'backward']);
     Route::get('/trace/serial/{serialCode}', [app\controller\inventory\TraceController::class, 'serial']);
@@ -150,6 +158,10 @@ Route::group('/admin/v1', function () {
     // 财务模块
     // ============================================================
     Route::resource('/finance/ar-ap', app\controller\finance\ArApController::class);
+    // 财务核销记录（应收应付核销台账，store 经 FinanceService 校验未核销余额）
+    Route::get('/finance/settlement', [app\controller\finance\SettlementController::class, 'index']);
+    Route::post('/finance/settlement', [app\controller\finance\SettlementController::class, 'store']);
+    Route::get('/finance/settlement/{id}', [app\controller\finance\SettlementController::class, 'show']);
     Route::resource('/finance/voucher', app\controller\finance\VoucherController::class);
     Route::resource('/finance/receipt', app\controller\finance\ReceiptController::class);
     Route::resource('/finance/payment', app\controller\finance\PaymentController::class);
@@ -238,6 +250,10 @@ Route::group('/admin/v1', function () {
     Route::any('/finance/invoice/match-check', [app\controller\finance\InvoiceController::class, 'matchCheck']);
     Route::resource('/finance/invoice', app\controller\finance\InvoiceController::class);
     Route::any('/finance/cash-journal', [app\controller\finance\CashJournalController::class, 'index']);
+    // 集合路径已被 any(index) 占用，故仅补 {id} 维度的单条记录动作
+    Route::get('/finance/cash-journal/{id}', [app\controller\finance\CashJournalController::class, 'show']);
+    Route::put('/finance/cash-journal/{id}', [app\controller\finance\CashJournalController::class, 'update']);
+    Route::delete('/finance/cash-journal/{id}', [app\controller\finance\CashJournalController::class, 'destroy']);
     Route::resource('/finance/expense', app\controller\finance\ExpenseController::class);
     Route::any('/finance/report/profit', [app\controller\finance\ReportController::class, 'profit']);
     Route::post('/finance/report/close-period', [app\controller\finance\ReportController::class, 'closePeriod']);
@@ -302,6 +318,13 @@ Route::group('/admin/v1', function () {
     Route::post('/crm/pool/claim/{id}', [app\controller\crm\PoolController::class, 'claim']);
     Route::post('/crm/pool/release/{id}', [app\controller\crm\PoolController::class, 'release']);
     Route::get('/crm/pool/rules', [app\controller\crm\PoolController::class, 'rules']);
+    // 公海池规则 CRUD：PoolController 的 store/show/update/destroy 操作的是 erp_crm_pool_rule，
+    // 与 rules 列表同族挂在 /crm/pool/rules 下（/crm/pool 集合已被 any(index) 占用，且其
+    // index 返回的是公海客户，不宜混挂 {id}）。
+    Route::post('/crm/pool/rules', [app\controller\crm\PoolController::class, 'store']);
+    Route::get('/crm/pool/rules/{id}', [app\controller\crm\PoolController::class, 'show']);
+    Route::put('/crm/pool/rules/{id}', [app\controller\crm\PoolController::class, 'update']);
+    Route::delete('/crm/pool/rules/{id}', [app\controller\crm\PoolController::class, 'destroy']);
     Route::resource('/crm/contract', app\controller\crm\ContractController::class);
     Route::post('/crm/contract/{id}/transition', [app\controller\crm\ContractController::class, 'transition']);
     Route::resource('/crm/quotation', app\controller\crm\QuotationController::class);
@@ -390,6 +413,7 @@ Route::group('/admin/v1', function () {
     // 注意：静态子路径（calculate/payroll-file）必须在 resource 之前注册，避免被 {id} 变量路由遮蔽（FastRoute BadRouteException）
     Route::post('/hr/salary/calculate', [app\controller\hr\SalaryController::class, 'calculate']);
     Route::post('/hr/salary/payroll-file', [app\controller\hr\SalaryController::class, 'payrollFile']);
+    Route::post('/hr/salary/batch-generate', [app\controller\hr\SalaryController::class, 'batchGenerate']);
     Route::resource('/hr/salary', app\controller\hr\SalaryController::class);
     Route::post('/hr/salary/{id}/pay', [app\controller\hr\SalaryController::class, 'pay']);
     Route::get('/hr/salary-item', [app\controller\hr\SalaryController::class, 'itemIndex']);
@@ -438,6 +462,9 @@ Route::group('/admin/v1', function () {
     // ============================================================
     // 生产制造
     // ============================================================
+    // BOM 版本管理（静态子路径先于 resource 注册）
+    Route::post('/mfg/bom/new-version', [app\controller\manufacturing\BomController::class, 'newVersion']);
+    Route::post('/mfg/bom/{id}/activate', [app\controller\manufacturing\BomController::class, 'activate']);
     Route::resource('/mfg/bom', app\controller\manufacturing\BomController::class);
     Route::resource('/mfg/production', app\controller\manufacturing\ProductionController::class);
     Route::post('/mfg/production/{id}/start', [app\controller\manufacturing\ProductionController::class, 'start']);
@@ -454,6 +481,8 @@ Route::group('/admin/v1', function () {
     // ---- P1 M1+M2：工序报工/计件工资 + 委外订单核销（审核驱动） ----
     Route::post('/mfg/work-report/{id}/audit', [app\controller\manufacturing\WorkReportController::class, 'audit']);
     Route::resource('/mfg/work-report', app\controller\manufacturing\WorkReportController::class);
+    // 计件工资台账（数据由报工审核累积，本接口只读）
+    Route::get('/mfg/piece-wage', [app\controller\manufacturing\PieceWageController::class, 'index']);
     Route::resource('/mfg/subcontract', app\controller\manufacturing\SubcontractController::class);
     Route::post('/mfg/subcontract-issue/{id}/audit', [app\controller\manufacturing\SubcontractIssueController::class, 'audit']);
     Route::resource('/mfg/subcontract-issue', app\controller\manufacturing\SubcontractIssueController::class);
@@ -468,6 +497,13 @@ Route::group('/admin/v1', function () {
     // 自定义报表
     // ============================================================
     Route::resource('/report/schedule', app\controller\report\ReportScheduleController::class);
+    // 报表字段/筛选条件管理（静态动作先于 {id} 变量路由注册）
+    Route::post('/report/field', [app\controller\report\ReportController::class, 'addField']);
+    Route::delete('/report/field/{id}', [app\controller\report\ReportController::class, 'deleteField']);
+    Route::post('/report/filter', [app\controller\report\ReportController::class, 'addFilter']);
+    Route::delete('/report/filter/{id}', [app\controller\report\ReportController::class, 'deleteFilter']);
+    Route::get('/report/{id}/fields', [app\controller\report\ReportController::class, 'fields']);
+    Route::get('/report/{id}/filters', [app\controller\report\ReportController::class, 'filters']);
     Route::post('/report/{id}/execute', [app\controller\report\ReportController::class, 'execute']);
     Route::any('/report/{id}/result', [app\controller\report\ReportController::class, 'result']);
     Route::resource('/report', app\controller\report\ReportController::class);
@@ -492,9 +528,13 @@ Route::group('/admin/v1', function () {
     Route::resource('/wms/zone', app\controller\wms\ZoneController::class);
     Route::resource('/wms/location', app\controller\wms\LocationController::class);
     Route::resource('/wms/asn', app\controller\wms\AsnController::class);
+    // ASN → 生成收货任务（入库链入口），复用 WmsInboundService::startReceiving
+    Route::post('/wms/asn/{id}/receive', [app\controller\wms\AsnController::class, 'start']);
     Route::resource('/wms/receiving', app\controller\wms\ReceivingController::class);
+    Route::post('/wms/receiving/{id}/start', [app\controller\wms\ReceivingController::class, 'start']);
     Route::post('/wms/receiving/{id}/complete', [app\controller\wms\ReceivingController::class, 'complete']);
     Route::resource('/wms/putaway', app\controller\wms\PutawayController::class);
+    Route::post('/wms/putaway/{id}/start', [app\controller\wms\PutawayController::class, 'start']);
     Route::post('/wms/putaway/{id}/complete', [app\controller\wms\PutawayController::class, 'complete']);
     Route::resource('/wms/wave', app\controller\wms\WaveController::class);
     Route::post('/wms/wave/{id}/release', [app\controller\wms\WaveController::class, 'release']);
@@ -502,7 +542,10 @@ Route::group('/admin/v1', function () {
     Route::post('/wms/pick/{id}/start', [app\controller\wms\PickController::class, 'start']);
     Route::post('/wms/pick/{id}/confirm', [app\controller\wms\PickController::class, 'confirm']);
     Route::resource('/wms/pack', app\controller\wms\PackController::class);
-    Route::post('/wms/pack/{id}/start', [app\controller\wms\PackController::class, 'start']);
+    // 静态路径先于 {id} 变量路径：/wms/pack/start 是「按仓库新建打包任务」（控制器 start()），
+    // /wms/pack/{id}/start 是「开始指定任务」（startTask()），两者语义不同
+    Route::post('/wms/pack/start', [app\controller\wms\PackController::class, 'start']);
+    Route::post('/wms/pack/{id}/start', [app\controller\wms\PackController::class, 'startTask']);
     Route::post('/wms/pack/{id}/complete', [app\controller\wms\PackController::class, 'complete']);
 
     // ============================================================

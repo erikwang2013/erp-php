@@ -105,8 +105,9 @@ class AttendanceController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $employeeId = (int) $request->input('employee_id');
-        if (!$this->hr()->find(HrEmployee::class, $employeeId)) {
+        // employee_id 收 hashid 串或原生数字（双模），(int) 强转会把 hashid 变 0 → 404
+        $employeeId = $this->decodeFlexibleId($request->input('employee_id'));
+        if ($employeeId === null || !$this->hr()->find(HrEmployee::class, $employeeId)) {
             return $this->fail($this->trans('Employee not found'), 404);
         }
 
@@ -141,8 +142,9 @@ class AttendanceController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $employeeId = (int) $request->input('employee_id');
-        if (!$this->hr()->find(HrEmployee::class, $employeeId)) {
+        // employee_id 收 hashid 串或原生数字（双模），(int) 强转会把 hashid 变 0 → 404
+        $employeeId = $this->decodeFlexibleId($request->input('employee_id'));
+        if ($employeeId === null || !$this->hr()->find(HrEmployee::class, $employeeId)) {
             return $this->fail($this->trans('Employee not found'), 404);
         }
 

@@ -31,6 +31,7 @@ class NotificationController extends BaseController
     #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
     #[\erikwang2013\apidoc\annotation\Param(name:'is_read', type:'int', desc:'是否已读:0未读1已读')]
     #[\erikwang2013\apidoc\annotation\Param(name:'type', type:'string', desc:'通知类型')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（标题/内容）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
@@ -42,6 +43,7 @@ class NotificationController extends BaseController
             'limit' => 'integer',
             'is_read' => 'integer',
             'type' => 'string',
+            'keyword' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -50,12 +52,19 @@ class NotificationController extends BaseController
         $limit = (int) $request->input('limit', 15);
         $isRead = $request->input('is_read');
         $type = $request->input('type', '');
+        $keyword = (string) $request->input('keyword', '');
         $userId = (int)($request->adminId ?? 0);
 
         $query = Notification::query()->where('user_id', $userId);
 
         if ($type) {
             $query->where('type', $type);
+        }
+        if ($keyword !== '') {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                    ->orWhere('content', 'like', "%{$keyword}%");
+            });
         }
         if ($isRead !== null && $isRead !== '') {
             $query->where('is_read', (int) $isRead);

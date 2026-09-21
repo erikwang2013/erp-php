@@ -97,7 +97,7 @@ class QuotationController extends BaseController
     {
         // 校验真实表列（原 name 必填校验指向不存在的列，随 fill 落入 INSERT 必 SQL 错）
         $validator = validator($request->all(), [
-            'code' => 'required|string|max:50',
+            'code' => 'nullable|string|max:50',
             'customer_id' => 'required|string',
             'status' => 'integer',
         ]);
@@ -109,6 +109,8 @@ class QuotationController extends BaseController
         $item->id = $this->generateId();
         $this->decodeCustomerId($request);
         $this->fillModelFromRequest($item, $request);
+        // 单号缺省自生成（须在 fill 之后：fill 只在请求带键时落值）
+        $item->fill(['code' => doc_code($request->input('code'), 'QT')]);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), $this->trans('Created successfully'));

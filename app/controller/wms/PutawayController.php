@@ -86,7 +86,8 @@ class PutawayController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        // code 列宽 VARCHAR(50)（uk_code）：max:200 会放过超长串去撞 MySQL 1406/500
+        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -94,6 +95,15 @@ class PutawayController extends BaseController
         $item = new WmsPutawayTask();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：下拉源只回 hashid 串，fill 的 integer cast 会把它转成 0（静默脏数据），故 fill 后覆写为裸 ID
+        $data = $request->all();
+        if (array_key_exists('warehouse_id', $data)) {
+            $warehouseId = $this->decodeFlexibleId($data['warehouse_id']);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
         if (empty($item->code)) {
             $item->code = 'wms/putaway' . $this->generateId();
         }
@@ -166,6 +176,15 @@ class PutawayController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：下拉源只回 hashid 串，fill 的 integer cast 会把它转成 0（静默脏数据），故 fill 后覆写为裸 ID
+        $data = $request->all();
+        if (array_key_exists('warehouse_id', $data)) {
+            $warehouseId = $this->decodeFlexibleId($data['warehouse_id']);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

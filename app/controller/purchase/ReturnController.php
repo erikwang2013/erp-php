@@ -108,14 +108,14 @@ class ReturnController extends BaseController
     {
         // 表无 name 列：旧规则要求必填属幻列（name 永不落库）；模型仅 $guarded，
         // fill 会把请求任意键（含 name）直写列 → 必须显式赋值只落真实列
-        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'receive_id' => 'string', 'supplier_id' => 'string', 'warehouse_id' => 'string', 'total_amount' => 'numeric', 'remark' => 'string', 'returned_at' => 'string']);
+        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'receive_id' => 'string', 'supplier_id' => 'string', 'warehouse_id' => 'string', 'total_amount' => 'numeric', 'remark' => 'string', 'returned_at' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
         $item = new PurchaseReturn();
         $item->id = $this->generateId();
-        $item->code = $request->input('code');
+        $item->code = doc_code($request->input('code'), 'PRN');
         // 三个 NOT NULL 无默认 FK：hashid/原生数字双模解码，垃圾串 422 拒绝
         foreach (['receive_id' => '收货单ID', 'supplier_id' => '供应商ID', 'warehouse_id' => '仓库ID'] as $field => $label) {
             $decoded = $this->decodeFlexibleId((string) $request->input($field, ''));

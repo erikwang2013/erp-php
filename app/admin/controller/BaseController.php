@@ -77,11 +77,15 @@ class BaseController
     }
 
     /**
-     * 双模解码：hashid 串解码；原生数字直用；其余垃圾串返回 null（调用方 422 拒绝，
-     * 避免 (int)'abc'=0 静默写入无 FK 约束的关联列产生孤儿行）
+     * 双模解码：hashid 串解码；原生数字（int/数字串）直用；其余（含数组等非标量）返回 null
+     * （调用方 422 拒绝，避免 (int)'abc'=0 静默写入无 FK 约束的关联列产生孤儿行）
      */
-    protected function decodeFlexibleId(string $raw): ?int
+    protected function decodeFlexibleId(mixed $raw): ?int
     {
+        if (!is_scalar($raw)) {
+            return null;
+        }
+        $raw = (string) $raw;
         $decoded = $this->decodeIdSafe($raw);
         if ($decoded !== null) {
             return $decoded;
@@ -91,9 +95,36 @@ class BaseController
     }
 
     /**
-     * 批量编码数组中的 ID 字段
+     * 明细行批量双模解码：把 items[].<字段> 里的 hashid（前端 source 下拉下发）转回原始 ID。
+     * 任一行任一字段非法（数组 / 垃圾串）返回 null，由调用方 422 拒绝 ——
+     * 直灌 BIGINT 列在 MySQL 严格模式报 1366（→500），作为 WHERE 条件则按数字比较恒不命中
+     * （UPDATE 影响 0 行且不报错，静默丢数据）。
      */
-    protected function encodeIds(array $data, array $idFields = ['id']): array
+    protected function decodeItemIds(array $items, array $fields): ?array
+    {
+        foreach ($items as $i => $row) {
+            if (!is_array($row)) {
+                return null;
+            }
+            foreach ($fields as $field) {
+                if (!array_key_exists($field, $row) || $row[$field] === '' || $row[$field] === null) {
+                    continue;
+                }
+                $id = $this->decodeFlexibleId($row[$field]);
+                if ($id === null) {
+                    return null;
+                }
+                $items[$i][$field] = $id;
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * 批量编码数组中的 ID 字段（默认递归：任意层级的 id / *_id，见 HashidsService::encodeIds）
+     */
+    protected function encodeIds(array $data, array $idFields = []): array
     {
         return HashidsService::encodeIds($data, $idFields);
     }

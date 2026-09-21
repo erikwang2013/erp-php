@@ -12,11 +12,17 @@ use app\model\ApprovalInstance;
 use app\model\ApprovalNode;
 use app\model\ApprovalRecord;
 use app\model\ApprovalWorkflow;
+use app\service\workflow\ApprovalNotifier;
 use support\Request;
 use support\Response;
 
 /**
  * 审批管理
+ *
+ * 旁路副作用（一律追加在状态落库之后，异常只记日志、不影响审批主流程）：
+ *  - 站内通知（type=approval, source_type=approval_instance）
+ *  - Webhook 事件 approval.submitted / approval.approved / approval.rejected（经 Redis 队列异步投递）
+ * 两者实现见 app/service/workflow/ApprovalNotifier.php
  */
 #[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
 #[\erikwang2013\apidoc\annotation\Title('审批')]
@@ -170,6 +176,24 @@ class ApprovalController extends BaseController
         $instance->submitted_at = date('Y-m-d H:i:s');
         $instance->save();
 
+        // 通知首个节点审批人（approver_type 非「指定人」时 nodeApproverId 返 0 → 静默跳过）
+        ApprovalNotifier::notify(
+            ApprovalNotifier::nodeApproverId($firstNode),
+            (int) $instance->submitter_id,
+            $this->trans('Approval pending your review'),
+            $this->trans('A new :type document is awaiting your approval', ['type' => $targetType]),
+            (int) $instance->id
+        );
+        ApprovalNotifier::webhook('approval.submitted', [
+            'instance_id' => $this->encodeId((int) $instance->id),
+            'workflow_id' => $this->encodeId((int) $workflow->id),
+            'target_type' => $targetType,
+            'target_id' => $this->encodeId($targetId),
+            'submitter_id' => $this->encodeId((int) $instance->submitter_id),
+            'node_id' => $this->encodeId((int) $firstNode->id),
+            'submitted_at' => $instance->submitted_at,
+        ]);
+
         return $this->success($this->encodeIds($instance->toArray()), $this->trans('Submitted successfully'));
     }
 
@@ -224,6 +248,7 @@ class ApprovalController extends BaseController
             ->where('seq', '>', $currentNode->seq ?? 0)
             ->orderBy('seq')->first();
 
+        $finished = $nextNode === null;
         if ($nextNode) {
             $instance->current_node_id = $nextNode->id;
         } else {
@@ -231,6 +256,36 @@ class ApprovalController extends BaseController
             $instance->completed_at = date('Y-m-d H:i:s');
         }
         $instance->save();
+
+        // 通知下一节点审批人（无下一节点时 nodeApproverId 返 0 → 跳过）与提交人；均排除本次操作人
+        $targetType = (string) $instance->target_type;
+        ApprovalNotifier::notify(
+            ApprovalNotifier::nodeApproverId($nextNode),
+            $approverId,
+            $this->trans('Approval pending your review'),
+            $this->trans('A :type document has been forwarded to you for approval', ['type' => $targetType]),
+            (int) $instance->id
+        );
+        ApprovalNotifier::notify(
+            (int) $instance->submitter_id,
+            $approverId,
+            $this->trans('Approval approved'),
+            $finished
+                ? $this->trans('Your :type document has been approved', ['type' => $targetType])
+                : $this->trans('Your :type document passed this node and is awaiting further approval', ['type' => $targetType]),
+            (int) $instance->id
+        );
+        ApprovalNotifier::webhook('approval.approved', [
+            'instance_id' => $this->encodeId((int) $instance->id),
+            'workflow_id' => $this->encodeId((int) $instance->workflow_id),
+            'target_type' => $targetType,
+            'target_id' => $this->encodeId((int) $instance->target_id),
+            'approver_id' => $this->encodeId($approverId),
+            'comment' => $comment,
+            'finished' => $finished,
+            'node_id' => $nextNode ? $this->encodeId((int) $nextNode->id) : null,
+            'completed_at' => $instance->completed_at,
+        ]);
 
         return $this->success([], $this->trans('Approval approved'));
     }
@@ -287,6 +342,25 @@ class ApprovalController extends BaseController
         $instance->status = 2;
         $instance->completed_at = date('Y-m-d H:i:s');
         $instance->save();
+
+        // 通知提交人（驳回意见必填，一并带上）
+        $targetType = (string) $instance->target_type;
+        ApprovalNotifier::notify(
+            (int) $instance->submitter_id,
+            $approverId,
+            $this->trans('Approval rejected'),
+            $this->trans('Your :type document was rejected: :comment', ['type' => $targetType, 'comment' => $comment]),
+            (int) $instance->id
+        );
+        ApprovalNotifier::webhook('approval.rejected', [
+            'instance_id' => $this->encodeId((int) $instance->id),
+            'workflow_id' => $this->encodeId((int) $instance->workflow_id),
+            'target_type' => $targetType,
+            'target_id' => $this->encodeId((int) $instance->target_id),
+            'approver_id' => $this->encodeId($approverId),
+            'comment' => $comment,
+            'completed_at' => $instance->completed_at,
+        ]);
 
         return $this->success([], $this->trans('Rejected'));
     }
@@ -345,6 +419,7 @@ class ApprovalController extends BaseController
     #[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
     #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
     #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（单据类型 target_type）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('list', type:'array', desc:'待审批列表')]
@@ -357,12 +432,14 @@ class ApprovalController extends BaseController
         $validator = validator($request->all(), [
             'page' => 'integer',
             'limit' => 'integer',
+            'keyword' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
+        $keyword = (string) $request->input('keyword', '');
         $approverId = (int)($request->adminId ?? 0);
 
         // 找到当前审批人是自己的节点
@@ -377,6 +454,11 @@ class ApprovalController extends BaseController
 
         $query = ApprovalInstance::query()->where('status', 0)
             ->whereIn('current_node_id', $nodeIds);
+
+        // 实例行上唯一的文本列即 target_type，搜索框按它过滤（不搜 target_id：该列是雪花 ID，对外是 hashid）
+        if ($keyword !== '') {
+            $query->where('target_type', 'like', "%{$keyword}%");
+        }
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)

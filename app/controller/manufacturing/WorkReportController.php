@@ -99,13 +99,14 @@ class WorkReportController extends BaseController
 
     public function store(Request $request): Response
     {
+        // FK 收 hashid 串或原生数字（双模），类型交给 decodeFlexibleId 判定
         $validator = validator($request->all(), [
             'code' => 'nullable|string|max:50',
-            'order_id' => 'required|integer',
-            'product_id' => 'required|integer',
-            'routing_id' => 'required|integer',
-            'workstation_id' => 'nullable|integer',
-            'employee_id' => 'required|integer',
+            'order_id' => 'required',
+            'product_id' => 'required',
+            'routing_id' => 'required',
+            'workstation_id' => 'nullable',
+            'employee_id' => 'required',
             'report_date' => 'nullable|date',
             'quantity' => 'required|numeric',
             'qualified_qty' => 'nullable|numeric',
@@ -113,6 +114,18 @@ class WorkReportController extends BaseController
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+        $orderId = $this->decodeFlexibleId($request->input('order_id'));
+        $productId = $this->decodeFlexibleId($request->input('product_id'));
+        $routingId = $this->decodeFlexibleId($request->input('routing_id'));
+        $employeeId = $this->decodeFlexibleId($request->input('employee_id'));
+        if ($orderId === null || $productId === null || $routingId === null || $employeeId === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
+        $workstationRaw = $request->input('workstation_id');
+        $workstationId = ($workstationRaw === null || $workstationRaw === '') ? 0 : $this->decodeFlexibleId($workstationRaw);
+        if ($workstationId === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
         }
         // 数量/合格数与存在性前置校验（bcmath）
         $quantity = bc_norm((string) $request->input('quantity'));
@@ -123,21 +136,20 @@ class WorkReportController extends BaseController
         if (bccomp($qualified, '0', 4) < 0 || bccomp($qualified, $quantity, 4) > 0) {
             return $this->fail($this->trans('Qualified quantity must be between 0 and the reported quantity'), 422);
         }
-        $routing = MfgRouting::query()->where('id', (int) $request->input('routing_id'))->first();
+        $routing = MfgRouting::query()->where('id', $routingId)->first();
         if (!$routing) {
             return $this->fail($this->trans('Operation not found'), 422);
         }
-        if ((int) $routing->product_id !== (int) $request->input('product_id')) {
+        if ((int) $routing->product_id !== $productId) {
             return $this->fail($this->trans('Product does not match the operation product'), 422);
         }
-        $order = MfgProductionOrder::query()->where('id', (int) $request->input('order_id'))->first();
+        $order = MfgProductionOrder::query()->where('id', $orderId)->first();
         if (!$order) {
             return $this->fail($this->trans('Production order not found'), 422);
         }
-        if (!HrEmployee::query()->where('id', (int) $request->input('employee_id'))->exists()) {
+        if (!HrEmployee::query()->where('id', $employeeId)->exists()) {
             return $this->fail($this->trans('Employee not found'), 422);
         }
-        $workstationId = (int) $request->input('workstation_id', 0);
         if ($workstationId > 0 && !MfgWorkstation::query()->where('id', $workstationId)->exists()) {
             return $this->fail($this->trans('Workstation not found'), 422);
         }
@@ -151,7 +163,7 @@ class WorkReportController extends BaseController
             $doc->product_id = (int) $routing->product_id;
             $doc->routing_id = (int) $routing->id;
             $doc->workstation_id = $workstationId;
-            $doc->employee_id = (int) $request->input('employee_id');
+            $doc->employee_id = $employeeId;
             $doc->report_date = $request->input('report_date') ?: date('Y-m-d');
             $doc->quantity = $quantity;
             $doc->qualified_qty = $qualified;

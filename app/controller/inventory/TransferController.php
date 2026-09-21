@@ -28,7 +28,7 @@ class TransferController extends BaseController
     #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
     #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
     #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（名称/编码）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（调拨单号）')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
@@ -52,10 +52,8 @@ class TransferController extends BaseController
 
         $query = Transfer::query();
         if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
+            // 表无 name 列：原 where('name','like') 只要 FE 通用搜索框一输词就 1364 500
+            $query->where('code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
@@ -78,8 +76,10 @@ class TransferController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', default:'', desc:'调拨名称（必填）')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'调拨单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'from_warehouse_id', type:'string', desc:'调出仓库ID hashid（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'to_warehouse_id', type:'string', desc:'调入仓库ID hashid（必填，不可与调出仓库相同）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', default:'', desc:'备注（表无 name 列，原「调拨名称」字段已废弃）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'调拨单号，留空后端自生成')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:1, desc:'状态')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
@@ -87,14 +87,38 @@ class TransferController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'code' => 'string', 'status' => 'integer']);
+        // 表无 name 列（install.sql：erp_transfer 只有 code/from_warehouse_id/to_warehouse_id/
+        // status/remark/transferred_at）：原 name 必填属幻列，已整条删除。
+        // 真实 NOT NULL 无默认只有 code/from_warehouse_id/to_warehouse_id —— 原规则一个都没盯，
+        // FE 只送仓库+备注 → INSERT 直接 1364 500，故这里必填校验 + 双模解码 + 单号兜底。
+        $validator = validator($request->all(), [
+            'code' => 'string',
+            'from_warehouse_id' => 'required',
+            'to_warehouse_id' => 'required',
+            'status' => 'integer',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+
+        $fromId = $this->decodeFlexibleId($request->input('from_warehouse_id'));
+        $toId = $this->decodeFlexibleId($request->input('to_warehouse_id'));
+        if ($fromId === null || $fromId < 1 || $toId === null || $toId < 1) {
+            return $this->fail($this->trans('Invalid warehouse'), 422);
+        }
+        if ($fromId === $toId) {
+            return $this->fail($this->trans('The source and destination warehouses must differ'), 422);
         }
 
         $item = new Transfer();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 覆盖 $fillModelFromRequest 的结果：请求里的仓库是 hashid 串，直填会写坏 bigint
+        $item->fill([
+            'from_warehouse_id' => $fromId,
+            'to_warehouse_id' => $toId,
+            'code' => doc_code($request->input('code'), 'TRF'),
+        ]);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -139,7 +163,8 @@ class TransferController extends BaseController
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
     #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'库存调拨hashid')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', default:'', desc:'调拨名称')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'from_warehouse_id', type:'string', default:'', desc:'调出仓库ID hashid')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'to_warehouse_id', type:'string', default:'', desc:'调入仓库ID hashid（不可与调出仓库相同）')]
     #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'调拨单号')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
@@ -148,9 +173,10 @@ class TransferController extends BaseController
 
     public function update(Request $request, string $id): Response
     {
+        // 表无 name 列，原 'name' => 'string' 幻规则已删（非必填，此前只被 $fillable 静默吞掉）。
+        // 仓库 ID 不加 'string' 规则：原生数字也要放行，合法性由下面的双模解码判定
         $validator = validator($request->all(), [
             'id' => 'string',
-            'name' => 'string',
             'code' => 'string',
             'status' => 'integer',
         ]);
@@ -164,6 +190,25 @@ class TransferController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
+        // FE 编辑弹窗回填的就是 hashid，直填会写坏 bigint：仅显式传值时双模解码后覆盖
+        $ids = [];
+        foreach (['from_warehouse_id', 'to_warehouse_id'] as $field) {
+            $raw = $request->input($field);
+            if ($raw === null || $raw === '') {
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($raw);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($this->trans('Invalid warehouse'), 422);
+            }
+            $ids[$field] = $decoded;
+        }
+        if (isset($ids['from_warehouse_id'], $ids['to_warehouse_id']) && $ids['from_warehouse_id'] === $ids['to_warehouse_id']) {
+            return $this->fail($this->trans('The source and destination warehouses must differ'), 422);
+        }
+        if ($ids !== []) {
+            $item->fill($ids);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

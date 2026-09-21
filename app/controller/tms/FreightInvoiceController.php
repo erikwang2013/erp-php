@@ -73,26 +73,42 @@ class FreightInvoiceController extends BaseController
      * 创建运费发票
      */
     #[\erikwang2013\apidoc\annotation\Title('创建运费发票')]
-    #[\erikwang2013\apidoc\annotation\Desc('创建运费发票，编码必填（缺省自动生成）')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建运费发票，编码留空由后端自生成')]
     #[\erikwang2013\apidoc\annotation\Url('/admin/v1/tms/freight-invoice')]
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'发票编码，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'carrier_id', type:'string', desc:'承运商ID hashid（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'shipment_id', type:'string', desc:'运单ID hashid（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'发票编码，留空由后端自生成')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        // code 原为 required|string|max:200，而下面又有 empty() 自生成兜底 —— 必填使兜底永不生效，
+        // 用户不填单号就 422。改可选让兜底生效；列宽 VARCHAR(50)，原 max:200 也偏松
+        $validator = validator($request->all(), ['code' => 'nullable|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+
+        // 表里 NOT NULL 无默认的非 id 列是 code/carrier_id/shipment_id：两个 FK 请求里传的是
+        // hashid，直填会写坏 bigint，故双模解码，非法一律 422（不留 MySQL 1366 500）
+        $carrierId = $this->decodeFlexibleId($request->input('carrier_id'));
+        if ($carrierId === null || $carrierId < 1) {
+            return $this->fail($this->trans('Invalid carrier'), 422);
+        }
+        $shipmentId = $this->decodeFlexibleId($request->input('shipment_id'));
+        if ($shipmentId === null || $shipmentId < 1) {
+            return $this->fail($this->trans('Invalid shipment'), 422);
         }
 
         $item = new TmsFreightInvoice();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        $item->fill(['carrier_id' => $carrierId, 'shipment_id' => $shipmentId]);
         if (empty($item->code)) {
             $item->code = 'tms/freight-invoice' . $this->generateId();
         }

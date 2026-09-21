@@ -74,26 +74,43 @@ class RmaController extends BaseController
      * 创建退换货单
      */
     #[\erikwang2013\apidoc\annotation\Title('创建退换货单')]
-    #[\erikwang2013\apidoc\annotation\Desc('新增退换货单，单号必填（不传则自动生成）')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增退换货单，单号留空由后端自生成')]
     #[\erikwang2013\apidoc\annotation\Url('/admin/v1/oms/rma')]
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('退换货')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'退换货单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'string', desc:'客户ID hashid（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'order_id', type:'string', desc:'销售订单ID hashid（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'退换货单号，留空后端自生成')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'创建的退换货单记录')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        // code 原来是 required|string|max:200，而下面又有 empty() 自生成兜底 —— 必填使兜底永不生效，
+        // 且 FE 那页没有单号输入框（用户无处可填）→ 点新增必 422。改可选，让既有兜底生效。
+        // 列宽 VARCHAR(50)，原 max:200 也偏松
+        $validator = validator($request->all(), ['code' => 'nullable|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+
+        // erp_oms_rma 里 NOT NULL 无默认的非 id 列是 code/order_id/customer_id：后两者请求里传的是
+        // hashid，直填会写坏 bigint，故双模解码，非法一律 422（不留 MySQL 1366 500）
+        $customerId = $this->decodeFlexibleId($request->input('customer_id'));
+        if ($customerId === null || $customerId < 1) {
+            return $this->fail($this->trans('Invalid customer'), 422);
+        }
+        $orderId = $this->decodeFlexibleId($request->input('order_id'));
+        if ($orderId === null || $orderId < 1) {
+            return $this->fail($this->trans('Invalid order'), 422);
         }
 
         $item = new OmsRma();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        $item->fill(['customer_id' => $customerId, 'order_id' => $orderId]);
         if (empty($item->code)) {
             $item->code = 'oms/rma' . $this->generateId();
         }

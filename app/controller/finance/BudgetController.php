@@ -98,6 +98,13 @@ class BudgetController extends BaseController
             'name' => 'required|string|max:200',
             'period_year' => 'required|integer',
             'items' => 'array',
+            // 明细逐项校验：period_month 是明细表唯一 NOT NULL 无默认的非 id 列，缺了直接 422
+            // （不用 between/min/max：本仓 zh_CN 翻译只有扁平的 max 键，Laravel 取的是
+            //  validation.max.string 这类嵌套键，回显出来是键名，越界判断放循环里手写文案）
+            'items.*.period_month' => 'required|integer',
+            'items.*.budget_amount' => 'nullable|numeric',
+            'items.*.actual_amount' => 'nullable|numeric',
+            'items.*.remark' => 'nullable|string|max:200',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -110,21 +117,54 @@ class BudgetController extends BaseController
         $item->status = 0;
         $item->save();
 
-        // 保存预算明细
-        $items = $request->input('items', []);
-        foreach ($items as $it) {
+        // 保存预算明细（白名单写入，见 prepareItems）
+        [$rows, $error] = $this->prepareItems($request->input('items', []));
+        if ($error !== null) {
+            return $this->fail($error, 422);
+        }
+        foreach ($rows as $row) {
             $detail = new FinanceBudgetItem();
             $detail->id = $this->generateId();
-            $detail->budget_id = $item->id;
-            foreach ($it as $k => $v) {
-                if ($k !== 'id') {
-                    $detail->$k = $v;
-                }
-            }
+            $detail->fill(['budget_id' => $item->id] + $row);
             $detail->save();
         }
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
+    }
+
+    /**
+     * 校验并规范化预算明细：原实现是 `$detail->$k = $v` 对客户端任意键直写模型（只挡了 id），
+     * 既可能写幻列（未知列 1054），也可能让 NOT NULL 无默认列落空（1364）。
+     * 返回 [可写入的行数组, 错误消息|null]，校验全部通过前调用方不得删旧明细。
+     */
+    private function prepareItems(array $items): array
+    {
+        $rows = [];
+        foreach ($items as $it) {
+            if (!is_array($it)) {
+                return [[], $this->trans('Invalid budget item')];
+            }
+            // period_month 是明细表唯一 NOT NULL 无默认的非 id 列
+            $month = (int) ($it['period_month'] ?? 0);
+            if ($month < 1 || $month > 12) {
+                return [[], $this->trans('Invalid period_month (1-12)')];
+            }
+            // account_id 可缺省（列 NOT NULL DEFAULT 0）；传了就是 hashid/原生数字双模
+            $accountRaw = $it['account_id'] ?? '';
+            $accountId = $accountRaw === '' ? 0 : $this->decodeFlexibleId($accountRaw);
+            if ($accountId === null) {
+                return [[], $this->trans('Invalid account')];
+            }
+            $rows[] = [
+                'account_id' => $accountId,
+                'period_month' => $month,
+                'budget_amount' => $it['budget_amount'] ?? 0,
+                'actual_amount' => $it['actual_amount'] ?? 0,
+                'remark' => (string) ($it['remark'] ?? ''),
+            ];
+        }
+
+        return [$rows, null];
     }
 
     /**
@@ -200,19 +240,18 @@ class BudgetController extends BaseController
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
-        // 更新明细：先删后建
+        // 更新明细：先删后建（同一份白名单；校验在删除之前完成，非法明细不会先清空旧数据）
         $items = $request->input('items', []);
         if (!empty($items)) {
+            [$rows, $error] = $this->prepareItems($items);
+            if ($error !== null) {
+                return $this->fail($error, 422);
+            }
             FinanceBudgetItem::where('budget_id', $id)->delete();
-            foreach ($items as $it) {
+            foreach ($rows as $row) {
                 $detail = new FinanceBudgetItem();
                 $detail->id = $this->generateId();
-                $detail->budget_id = $id;
-                foreach ($it as $k => $v) {
-                    if ($k !== 'id') {
-                        $detail->$k = $v;
-                    }
-                }
+                $detail->fill(['budget_id' => $id] + $row);
                 $detail->save();
             }
         }

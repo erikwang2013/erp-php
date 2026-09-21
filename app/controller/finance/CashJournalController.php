@@ -28,8 +28,8 @@ class CashJournalController extends BaseController
     #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
     #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', desc:'页码')]
     #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', desc:'每页条数')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', desc:'关键词')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', desc:'状态')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', desc:'关键词（摘要/来源类型）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'direction', type:'int', desc:'方向（1=收入 2=支出）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
@@ -40,7 +40,7 @@ class CashJournalController extends BaseController
             'page' => 'integer',
             'limit' => 'integer',
             'keyword' => 'string',
-            'status' => 'integer',
+            'direction' => 'integer',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -48,17 +48,19 @@ class CashJournalController extends BaseController
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
         $keyword = $request->input('keyword', '');
-        $status = $request->input('status');
+        $direction = $request->input('direction');
 
+        // 表（install.sql:1247）无 name/code/status 列：keyword 搜摘要/来源类型，
+        // 「状态」真列为 direction(1=收入 2=支出)——旧写法一搜即 1364 未知列 → 500
         $query = FinanceCashJournal::query();
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
+                $q->where('summary', 'like', "%{$keyword}%")
+                  ->orWhere('source_type', 'like', "%{$keyword}%");
             });
         }
-        if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+        if ($direction !== null && $direction !== '') {
+            $query->where('direction', (int) $direction);
         }
 
         $total = $query->count();
@@ -78,18 +80,16 @@ class CashJournalController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'记录名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'summary', type:'string', desc:'摘要（表无 name 列，原「记录名称」字段已废弃）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
-        if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
-        }
-
+        // 表无 name 列（install.sql：erp_finance_cash_journal 只有 bank_account_id/direction/
+        // amount/balance/source_type/source_id/summary/journal_date）：原 name 必填属幻列，
+        // 已整条删除；无规则后连 validator 调用一起去掉
         $item = new FinanceCashJournal();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);

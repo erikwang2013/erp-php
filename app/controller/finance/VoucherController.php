@@ -77,15 +77,19 @@ class VoucherController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'凭证名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'凭证号，留空后端自生成')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', desc:'备注（表无 name 列，原「凭证名称」字段已废弃）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
-        // 表无 name 列：旧规则要求必填属幻列（name 永不落库）；code 由客户端自动生成必填
-        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'name' => 'required|string']);
+        // 表无 name 列（install.sql：erp_finance_voucher 只有 code/ledger_id/voucher_date/
+        // status/remark/audited_at…）：旧规则要求 name 必填属幻列，用户白填。已删除该规则
+        // （不是改成 nullable 留个幻字段）；请求带 name 也不会 500——$fillable 只放行
+        // code/voucher_date/remark，fill() 静默丢弃，仅 items 直连分录时 name 降级当 remark 用。
+        $validator = validator($request->all(), ['code' => 'nullable|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -93,8 +97,11 @@ class VoucherController extends BaseController
         if ($request->input('items')) {
             try {
                 $ledgerId = $request->input('ledger_id');
+                // 空串须在此归一：createVoucher 用 ?? 判缺省，'' 会绕过生成落空单号撞 uk_code
+                $data = $request->all();
+                $data['code'] = doc_code($data['code'] ?? null, 'VCH');
                 $voucher = (new DoubleEntryService())->createVoucher(
-                    $request->all(),
+                    $data,
                     (array) $request->input('items'),
                     $ledgerId ? $this->decodeIdSafe((string) $ledgerId) : null
                 );
@@ -108,6 +115,7 @@ class VoucherController extends BaseController
         $item = new FinanceVoucher();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        $item->fill(['code' => doc_code($request->input('code'), 'VCH')]);
         $this->decodeLedgerId($request, $item);
         $item->status = 0; // 草稿创建；审核仅可经 update 0→1
         if (!$item->voucher_date) {

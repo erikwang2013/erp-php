@@ -28,7 +28,7 @@ class CheckTaskController extends BaseController
     #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
     #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
     #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（名称/编码）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'搜索关键词（盘点单号）')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态筛选')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
@@ -52,10 +52,8 @@ class CheckTaskController extends BaseController
 
         $query = CheckTask::query();
         if ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
-            });
+            // 表无 name 列：原 where('name','like') 只要 FE 通用搜索框一输词就 1364 500
+            $query->where('code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
@@ -78,8 +76,9 @@ class CheckTaskController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', default:'', desc:'盘点任务名称（必填）')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'盘点单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'string', desc:'仓库ID hashid（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', default:'', desc:'备注（表无 name 列，原「盘点任务名称」字段已废弃）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'盘点单号，留空后端自生成')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:1, desc:'状态')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
@@ -87,14 +86,32 @@ class CheckTaskController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'code' => 'string', 'status' => 'integer']);
+        // 表无 name 列（install.sql：erp_check_task 只有 code/warehouse_id/type/status/
+        // check_user_id/checked_at/remark）：原 name 必填属幻列，已整条删除。
+        // 真实 NOT NULL 无默认只有 code/warehouse_id —— 原规则两个都没盯，FE 只送仓库 →
+        // INSERT 直接 1364 500，故这里必填校验 + 双模解码 + 单号兜底
+        $validator = validator($request->all(), [
+            'code' => 'string',
+            'warehouse_id' => 'required',
+            'status' => 'integer',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+
+        $warehouseId = $this->decodeFlexibleId($request->input('warehouse_id'));
+        if ($warehouseId === null || $warehouseId < 1) {
+            return $this->fail($this->trans('Invalid warehouse'), 422);
         }
 
         $item = new CheckTask();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 覆盖 $fillModelFromRequest 的结果：请求里仓库是 hashid 串，直填会写坏 bigint
+        $item->fill([
+            'warehouse_id' => $warehouseId,
+            'code' => doc_code($request->input('code'), 'CHK'),
+        ]);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -139,7 +156,7 @@ class CheckTaskController extends BaseController
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
     #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'盘点任务hashid')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', default:'', desc:'盘点任务名称')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'warehouse_id', type:'string', default:'', desc:'仓库ID hashid')]
     #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'盘点单号')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
@@ -150,7 +167,6 @@ class CheckTaskController extends BaseController
     {
         $validator = validator($request->all(), [
             'id' => 'string',
-            'name' => 'string',
             'code' => 'string',
             'status' => 'integer',
         ]);
@@ -164,6 +180,15 @@ class CheckTaskController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
+        // FE 编辑弹窗回填的就是 hashid，直填会写坏 bigint：仅显式传值时双模解码后覆盖
+        $raw = $request->input('warehouse_id');
+        if ($raw !== null && $raw !== '') {
+            $warehouseId = $this->decodeFlexibleId($raw);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

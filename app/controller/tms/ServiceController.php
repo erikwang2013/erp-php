@@ -78,21 +78,39 @@ class ServiceController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('运输管理(TMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'carrier_id', type:'string', desc:'承运商ID hashid（必填）')]
     #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'服务名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'服务编码，留空由后端自生成')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        // name 是真列，规则保留（列宽 VARCHAR(100)，原 max:200 偏松，收紧避免 1406）
+        $validator = validator($request->all(), [
+            'name' => 'required|string|max:100',
+            'code' => 'nullable|string|max:50',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+
+        // carrier_id 是 NOT NULL 无默认列，原规则完全没盯它 → 每次新增必 500；
+        // 请求里传的是 hashid，直填会写坏 bigint，故双模解码，非法一律 422
+        $carrierId = $this->decodeFlexibleId($request->input('carrier_id'));
+        if ($carrierId === null || $carrierId < 1) {
+            return $this->fail($this->trans('Invalid carrier'), 422);
         }
 
         $item = new TmsCarrierService();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // code 列 NOT NULL 无默认：Angular 端该字段是可选的，留空即 1364，走 doc_code 兜底
+        $item->fill([
+            'carrier_id' => $carrierId,
+            'code' => doc_code($request->input('code'), 'CS'),
+        ]);
 
         $item->save();
 

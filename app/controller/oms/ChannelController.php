@@ -73,19 +73,25 @@ class ChannelController extends BaseController
      * 创建销售渠道
      */
     #[\erikwang2013\apidoc\annotation\Title('创建销售渠道')]
-    #[\erikwang2013\apidoc\annotation\Desc('新增一个销售渠道（线上/线下），渠道名称必填')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增一个销售渠道（线上/线下），渠道编码与名称必填')]
     #[\erikwang2013\apidoc\annotation\Url('/admin/v1/oms/channel')]
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('销售渠道')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', default:'', desc:'渠道名称（必填）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'渠道编码（必填，唯一，最长30）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', default:'', desc:'渠道名称（必填，最长100）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'创建的销售渠道记录')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        // code 为 NOT NULL + uk_code（VARCHAR(30)）：不校验则缺省直插 1364/500、空串撞 1062；
+        // name 真实列宽 VARCHAR(100)，原 max:200 会放过超长串去撞 MySQL 1406
+        $validator = validator($request->all(), [
+            'code' => 'required|string|max:30',
+            'name' => 'required|string|max:100',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

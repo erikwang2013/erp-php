@@ -9,6 +9,7 @@ namespace app\controller\wms;
 
 use app\admin\controller\BaseController;
 use app\model\WmsAsn;
+use app\service\wms\WmsInboundService;
 use support\Request;
 use support\Response;
 
@@ -85,7 +86,8 @@ class AsnController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        // code 列宽 VARCHAR(50)（uk_code）：max:200 会放过超长串去撞 MySQL 1406/500
+        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -93,6 +95,19 @@ class AsnController extends BaseController
         $item = new WmsAsn();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：仓库/供应商下拉源只回 hashid 串，fill 的 integer cast 会把它转成 0（静默脏数据），
+        // 故 fill 后按请求体逐个覆写为裸 ID（缺省不动，垃圾串 422）
+        $data = $request->all();
+        foreach (['warehouse_id' => 'Invalid warehouse ID', 'supplier_id' => 'Invalid supplier ID'] as $field => $message) {
+            if (!array_key_exists($field, $data)) {
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($data[$field]);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($this->trans($message), 422);
+            }
+            $item->fill([$field => $decoded]);
+        }
         if (empty($item->code)) {
             $item->code = 'wms/asn' . $this->generateId();
         }
@@ -165,6 +180,18 @@ class AsnController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：同 store（部分更新：字段未出现则不动）
+        $data = $request->all();
+        foreach (['warehouse_id' => 'Invalid warehouse ID', 'supplier_id' => 'Invalid supplier ID'] as $field => $message) {
+            if (!array_key_exists($field, $data)) {
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($data[$field]);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($this->trans($message), 422);
+            }
+            $item->fill([$field => $decoded]);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
@@ -208,5 +235,51 @@ class AsnController extends BaseController
         $item->delete();
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * 生成收货任务（ASN → 收货单）
+     */
+    #[\erikwang2013\apidoc\annotation\Title('ASN 生成收货任务')]
+    #[\erikwang2013\apidoc\annotation\Desc('按 ASN 生成收货任务（置 ASN 为收货中），后续走「开始收货 → 完成收货 → 上架」')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('仓储管理(WMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'ASN ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'dock_location_id', type:'string', desc:'收货月台库位ID(hashid)，选填')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据（生成的收货单）')]
+
+    public function start(Request $request, string $id): Response
+    {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+            'dock_location_id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
+        $asnId = $this->decodeIdSafe($id);
+        if (!$asnId) {
+            return $this->fail($this->trans('Invalid ID'), 400);
+        }
+        $dockLocationId = $this->decodeIdSafe($request->input('dock_location_id', '')) ?: 0;
+        // 收货仓库取 ASN 自身的 warehouse_id（erp_wms_asn 该列 NOT NULL）：不接受请求体另传，
+        // 否则收货单仓库可与 ASN 不一致。此处用 value() 取值，不读模型魔术属性。
+        $warehouseId = (int) WmsAsn::query()->where('id', $asnId)->value('warehouse_id');
+        if (!$warehouseId) {
+            return $this->fail($this->trans('Record not found'), 404);
+        }
+
+        try {
+            $receiving = (new WmsInboundService())->startReceiving($asnId, $warehouseId, $dockLocationId, (int) ($request->adminId ?? 0));
+
+            return $this->success($this->encodeIds($receiving->toArray()), $this->trans('Receiving task created'));
+        } catch (\Throwable $e) {
+            $this->logError('ASN生成收货任务', $e);
+
+            return $this->fail($e->getMessage(), 500);
+        }
     }
 }

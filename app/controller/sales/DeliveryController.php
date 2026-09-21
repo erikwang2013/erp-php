@@ -124,7 +124,7 @@ class DeliveryController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'code' => 'required|string|max:50',
+            'code' => 'nullable|string|max:50',
             'order_id' => 'required|string',
             'customer_id' => 'required|string',
             'warehouse_id' => 'required|string',
@@ -163,7 +163,7 @@ class DeliveryController extends BaseController
             // 1. 创建发货单头
             $delivery = new SalesDelivery();
             $delivery->id = $this->generateId();
-            $delivery->code = $request->input('code');
+            $delivery->code = doc_code($request->input('code'), 'SD');
             $delivery->order_id = $orderId;
             $delivery->customer_id = $this->decodeId($request->input('customer_id'));
             $delivery->warehouse_id = $this->decodeId($request->input('warehouse_id'));

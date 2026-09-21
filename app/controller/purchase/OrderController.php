@@ -83,7 +83,7 @@ class OrderController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('采购管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'订单编号（必填，表无 name 列）')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'订单编号，留空后端自生成（表无 name 列）')]
     #[\erikwang2013\apidoc\annotation\Param(name:'supplier_id', type:'int', require:true, desc:'供应商ID（hashid）')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:1, desc:'状态')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
@@ -94,7 +94,7 @@ class OrderController extends BaseController
     {
         // 表无 name 列（erp_purchase_order 仅 code/apply_id/supplier_id 等，见 install.sql）；
         // supplier_id 无 DB 默认值且入参为 hashid，缺省/无效直插会 1364 崩——解码落库为 int
-        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'supplier_id' => 'string', 'status' => 'integer']);
+        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'supplier_id' => 'string', 'status' => 'integer']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -106,6 +106,8 @@ class OrderController extends BaseController
         $item = new PurchaseOrder();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 单号缺省自生成（前缀与 Flutter order_list_page.dart 下发的 'PO'+时间戳一致）
+        $item->fill(['code' => doc_code($request->input('code'), 'PO')]);
         // 解码 int 须在 fill 之后覆写：supplier_id/apply_id/warehouse_id 均在 $fillable 内，
         // fill 会把请求里的 hash 串直填 BIGINT 列（1366 崩）——统一解码覆写，垃圾/空串落 0 缺省
         $item->supplier_id = $supplierId;

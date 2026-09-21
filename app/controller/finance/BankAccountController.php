@@ -52,9 +52,12 @@ class BankAccountController extends BaseController
 
         $query = FinanceBankAccount::query();
         if ($keyword) {
+            // 表无 code 列（真实列 id/name/account_number/bank_name/balance/status）：
+            // 原 orWhere('code') 一搜就 1054，改搜真实列账号/开户行
             $query->where(function ($q) use ($keyword) {
                 $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
+                  ->orWhere('account_number', 'like', "%{$keyword}%")
+                  ->orWhere('bank_name', 'like', "%{$keyword}%");
             });
         }
         if ($status !== null && $status !== '') {
@@ -78,15 +81,16 @@ class BankAccountController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'账户名称，必填，最长200')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'账户编码')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'账户名称，必填，最长100')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'code' => 'string']);
+        // 表无 code 列：原 'code' => 'string' 是幻列死规则（已删）；name 列宽 VARCHAR(100)，
+        // 原 max:200 偏松，收紧避免 1406
+        $validator = validator($request->all(), ['name' => 'required|string|max:100']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -139,17 +143,16 @@ class BankAccountController extends BaseController
     #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
     #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'账户ID')]
     #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'账户名称')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'账户编码')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function update(Request $request, string $id): Response
     {
+        // 表无 code 列，原 'code' => 'string' 幻规则已删（与前端删掉「账户编码」字段一致）
         $validator = validator($request->all(), [
             'id' => 'string',
             'name' => 'string',
-            'code' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

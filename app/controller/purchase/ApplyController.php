@@ -76,7 +76,7 @@ class ApplyController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('采购管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'申请单号')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'申请单号，留空后端自生成')]
     #[\erikwang2013\apidoc\annotation\Param(name:'apply_user_id', type:'int', require:true, desc:'申请人ID')]
     #[\erikwang2013\apidoc\annotation\Param(name:'department', type:'string', default:'', desc:'申请部门')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:0, desc:'状态: 0=待审批 1=已批准 2=已驳回 3=已转订单')]
@@ -88,7 +88,7 @@ class ApplyController extends BaseController
     {
         // 校验真实表列（原 name 必填校验指向不存在的列，随 fill 落入 INSERT 必 SQL 错）
         $validator = validator($request->all(), [
-            'code' => 'required|string|max:50',
+            'code' => 'nullable|string|max:50',
             'apply_user_id' => 'required|integer',
             'department' => 'string',
             'status' => 'integer',
@@ -100,6 +100,8 @@ class ApplyController extends BaseController
         $item = new PurchaseApply();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 单号缺省自生成（前缀与 Flutter apply_list_page.dart 下发的 'PA'+时间戳一致）
+        $item->fill(['code' => doc_code($request->input('code'), 'PA')]);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -169,6 +171,15 @@ class ApplyController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
+        // apply_user_id 出参已 encode（列表 :65 / 建单 :105），回写须解码，防 hashid 串入 BIGINT 列
+        $rawApplyUser = $request->input('apply_user_id');
+        if ($rawApplyUser !== null && $rawApplyUser !== '') {
+            $applyUserId = $this->decodeFlexibleId($rawApplyUser);
+            if ($applyUserId === null || $applyUserId < 1) {
+                return $this->fail($this->trans('Invalid apply_user_id'), 422);
+            }
+            $item->apply_user_id = $applyUserId;
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

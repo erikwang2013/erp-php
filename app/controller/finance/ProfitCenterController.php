@@ -55,12 +55,14 @@ class ProfitCenterController extends BaseController
             $query->where('status', (int) $status);
         }
 
-        $all = $query->orderBy('parent_id', 'asc')->orderBy('id', 'asc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()))->toArray();
+        // 先建树后编码：buildTree 用 `(int) $item['id']` 下钻，而编码后的 hashid 转 int 恒为 0，
+        // 会退化成本身自调用（buildTree($all, 0) 匹配到同一批顶层行 → 无终止条件 → 内存耗尽 500）。
+        // 顶层 0 哨兵与 children 嵌套由 encodeIds 统一处理。
+        $all = $query->orderBy('parent_id', 'asc')->orderBy('id', 'asc')->get()->toArray();
 
         $tree = $this->buildTree($all, 0);
 
-        return $this->success(['list' => $tree]);
+        return $this->success(['list' => $this->encodeIds($tree)]);
     }
 
     /**

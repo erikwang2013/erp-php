@@ -109,7 +109,7 @@ class ExpenseController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'code' => 'required|string|max:50',
+            'code' => 'nullable|string|max:50',
             'amount' => 'nullable|numeric|min:0',
             'apply_user_id' => 'string',
             'account_id' => 'string',
@@ -121,7 +121,7 @@ class ExpenseController extends BaseController
 
         $item = new FinanceExpense();
         $item->id = $this->generateId();
-        $item->code = $request->input('code');
+        $item->code = doc_code($request->input('code'), 'EXP');
         // 两个 NOT NULL 无默认 FK：hashid/原生数字双模解码，垃圾串 422 拒绝
         foreach (['apply_user_id' => '申请人ID', 'account_id' => '账户ID'] as $field => $label) {
             $decoded = $this->decodeFlexibleId((string) $request->input($field, ''));

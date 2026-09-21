@@ -86,7 +86,8 @@ class ReceivingController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        // code 列宽 VARCHAR(50)（uk_code）：max:200 会放过超长串去撞 MySQL 1406/500
+        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -94,6 +95,15 @@ class ReceivingController extends BaseController
         $item = new WmsReceiving();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：下拉源只回 hashid 串，fill 的 integer cast 会把它转成 0（静默脏数据），故 fill 后覆写为裸 ID
+        $data = $request->all();
+        if (array_key_exists('warehouse_id', $data)) {
+            $warehouseId = $this->decodeFlexibleId($data['warehouse_id']);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
         if (empty($item->code)) {
             $item->code = 'wms/receiving' . $this->generateId();
         }
@@ -165,6 +175,15 @@ class ReceivingController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：下拉源只回 hashid 串，fill 的 integer cast 会把它转成 0（静默脏数据），故 fill 后覆写为裸 ID
+        $data = $request->all();
+        if (array_key_exists('warehouse_id', $data)) {
+            $warehouseId = $this->decodeFlexibleId($data['warehouse_id']);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
 
         $item->save();
 
@@ -243,6 +262,12 @@ class ReceivingController extends BaseController
         if (empty($actuals)) {
             return $this->fail($this->trans('Please provide receipt details'), 422);
         }
+        // 前端商品/库位来自 source 下拉（hashid）：不解码则回填 ASN 明细时按数字比较恒不命中
+        // （静默 0 行），且直灌 erp_wms_putaway_item 的 BIGINT 列在严格模式报 1366 → 500
+        $actuals = $this->decodeItemIds($actuals, ['product_id', 'sku_id', 'to_location_id']);
+        if ($actuals === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
 
         try {
             $service = new WmsInboundService();
@@ -254,5 +279,45 @@ class ReceivingController extends BaseController
 
             return $this->fail($e->getMessage(), 500);
         }
+    }
+
+    /**
+     * 开始收货（待收货 → 收货中）
+     */
+    #[\erikwang2013\apidoc\annotation\Title('开始收货')]
+    #[\erikwang2013\apidoc\annotation\Desc('将待收货的收货单置为收货中，之后方可完成收货')]
+    #[\erikwang2013\apidoc\annotation\Method('POST')]
+    #[\erikwang2013\apidoc\annotation\Author('erik')]
+    #[\erikwang2013\apidoc\annotation\Tag('仓储管理(WMS)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', desc:'收货单ID(hashid)')]
+    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
+    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
+    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
+
+    public function start(Request $request, string $id): Response
+    {
+        $validator = validator($request->all(), [
+            'id' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
+        $id = $this->decodeIdSafe($id);
+        if (!$id) {
+            return $this->fail($this->trans('Invalid ID'), 400);
+        }
+        // 状态机 0=待收货 1=收货中 2=已完成：complete 要求 status===1，故本动作置 1。
+        // 注意 WmsInboundService::startReceiving(int $asnId, ...) 是「ASN → 生成收货任务」，
+        // 入参是 ASN ID 而非收货单 ID，无法直接复用；此处做的是既有收货单的状态流转。
+        // 条件 UPDATE 一步完成「存在 + 状态为 0 → 置 1」：原子，无 check-then-set 竞态。
+        $affected = WmsReceiving::query()->where('id', $id)->where('status', 0)
+            ->update(['status' => 1, 'receiver_id' => $request->adminId ?? 0]);
+        if (!$affected) {
+            return WmsReceiving::query()->find($id)
+                ? $this->fail($this->trans('The receiving order cannot be started in its current status'), 422)
+                : $this->fail($this->trans('Record not found'), 404);
+        }
+
+        return $this->success([], $this->trans('Receiving started'));
     }
 }

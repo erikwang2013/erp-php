@@ -28,6 +28,7 @@ class AlertController extends BaseController
     #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
     #[\erikwang2013\apidoc\annotation\Param(name:'page', type:'int', default:1, desc:'页码')]
     #[\erikwang2013\apidoc\annotation\Param(name:'limit', type:'int', default:15, desc:'每页条数')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'keyword', type:'string', default:'', desc:'关键词（商品名/仓库名）')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'启用状态筛选（0=禁用,1=启用）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
@@ -38,6 +39,7 @@ class AlertController extends BaseController
         $validator = validator($request->all(), [
             'page' => 'integer',
             'limit' => 'integer',
+            'keyword' => 'string',
             'status' => 'integer',
         ]);
         if ($validator->fails()) {
@@ -45,14 +47,21 @@ class AlertController extends BaseController
         }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
+        $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        // 表无 name/code 列（keyword 无可搜文本列）；启用列真实名为 enabled。
-        // 商品名/仓库名 leftJoin 带出（预警规则自身无名称类字段）
+        // 表本身无 name/code 列；启用列真实名为 enabled。规则无名称类字段，
+        // keyword 只能搜 leftJoin 带出的商品名/仓库名（前端搜索框否则静默空转）
         $query = InventoryAlertRule::query()
             ->leftJoin('product', 'product.id', '=', 'inventory_alert_rule.product_id')
             ->leftJoin('warehouse', 'warehouse.id', '=', 'inventory_alert_rule.warehouse_id')
             ->select('inventory_alert_rule.*', 'product.name as product_name', 'warehouse.name as warehouse_name');
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('product.name', 'like', "%{$keyword}%")
+                  ->orWhere('warehouse.name', 'like', "%{$keyword}%");
+            });
+        }
         if ($status !== null && $status !== '') {
             $query->where('inventory_alert_rule.enabled', (int) $status);
         }

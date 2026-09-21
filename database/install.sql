@@ -4837,6 +4837,28 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000746, 31000000000000520, '运费-比价',         'get.admin/tms/freight-rate/rate-shop', 3, '', '', 20, NOW(), NOW()),
 (31000000000000747, 31000000000000650, '检验-登记',         'post.admin/quality/inspection/record', 3, '', '', 33, NOW(), NOW()),
 (31000000000000748, 31000000000000650, '检验-合格率',       'post.admin/quality/inspection/pass-rate', 3, '', '', 34, NOW(), NOW()),
+-- 2026-09 审计轮：WMS 作业闭环（ASN→收货→上架→入库）与补挂路由对应的权限种子。
+-- 说明：mfg/hr/report 三个模块此前无任何权限节点，故一并补顶级菜单节点；
+-- 带中间段 ID 的路由（如 /mfg/bom/{id}/activate、/report/{id}/fields）由父级前缀 slug 回落覆盖。
+(31000000000000751, 31000000000000005, '结算单-查看',       'get.admin/finance/settlement', 3, '', '', 18, NOW(), NOW()),
+(31000000000000752, 31000000000000005, '结算单-创建',       'post.admin/finance/settlement', 3, '', '', 19, NOW(), NOW()),
+(31000000000000753, 31000000000000006, '公海规则-查看',     'get.admin/crm/pool/rules', 3, '', '', 5, NOW(), NOW()),
+(31000000000000754, 31000000000000006, '公海规则-创建',     'post.admin/crm/pool/rules', 3, '', '', 6, NOW(), NOW()),
+(31000000000000755, 31000000000000006, '公海规则-更新',     'put.admin/crm/pool/rules', 3, '', '', 7, NOW(), NOW()),
+(31000000000000756, 31000000000000006, '公海规则-删除',     'delete.admin/crm/pool/rules', 3, '', '', 8, NOW(), NOW()),
+(31000000000000757, 31000000000000470, '打包-开始任务',     'post.admin/wms/pack', 3, '', '', 51, NOW(), NOW()),
+(31000000000000758, 0, '生产制造',         'mfg', 1, 'precision_manufacturing', '/admin/mfg', 20, NOW(), NOW()),
+(31000000000000759, 31000000000000758, 'BOM-创建',          'post.admin/mfg/bom', 3, '', '', 1, NOW(), NOW()),
+(31000000000000760, 31000000000000758, 'BOM-新版本',        'post.admin/mfg/bom/new-version', 3, '', '', 2, NOW(), NOW()),
+(31000000000000761, 31000000000000758, '计件工资-查看',     'get.admin/mfg/piece-wage', 3, '', '', 3, NOW(), NOW()),
+(31000000000000762, 0, '人力资源',         'hr', 1, 'badge', '/admin/hr', 21, NOW(), NOW()),
+(31000000000000763, 31000000000000762, '薪资-批量生成',     'post.admin/hr/salary/batch-generate', 3, '', '', 1, NOW(), NOW()),
+(31000000000000764, 0, '自定义报表',       'report', 1, 'insights', '/admin/report', 22, NOW(), NOW()),
+(31000000000000765, 31000000000000764, '报表-查看',         'get.admin/report', 3, '', '', 1, NOW(), NOW()),
+(31000000000000766, 31000000000000764, '报表字段-添加',     'post.admin/report/field', 3, '', '', 2, NOW(), NOW()),
+(31000000000000767, 31000000000000764, '报表字段-删除',     'delete.admin/report/field', 3, '', '', 3, NOW(), NOW()),
+(31000000000000768, 31000000000000764, '报表筛选-添加',     'post.admin/report/filter', 3, '', '', 4, NOW(), NOW()),
+(31000000000000769, 31000000000000764, '报表筛选-删除',     'delete.admin/report/filter', 3, '', '', 5, NOW(), NOW()),
 -- 超级管理员通配权限：角色描述即"拥有所有权限"，后续新增端点无需逐条补种子
 (31000000000000749, 0, '全部权限',           '*', 3, '', '', 0, NOW(), NOW());
 

@@ -86,19 +86,15 @@ class FollowRecordController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('CRM')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'name', type:'string', desc:'跟进记录名称，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'content', type:'string', desc:'跟进内容（表无 name 列）')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), [
-            'name' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
-        }
+        // 表无 name 列（install.sql：erp_crm_follow_record 有 content 而无 name）：原
+        // name 必填属幻列，已整条删除；跟进内容走真实列 content（前端 crm.ts 已改送 content）
         // 校验真实表列（表无 name/code/status 列，页面幻键经 $fillable 静默过滤）
         $data = $request->all();
         // customer_id/follow_user_id 均 NOT NULL 无默认：hashid/原生数字双模解码，垃圾串 422 拒绝

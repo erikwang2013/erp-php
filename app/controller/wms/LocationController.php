@@ -68,19 +68,25 @@ class LocationController extends BaseController
      * 创建库位
      */
     #[\erikwang2013\apidoc\annotation\Title('创建库位')]
-    #[\erikwang2013\apidoc\annotation\Desc('创建库位，编码必填，其余字段按业务传入')]
+    #[\erikwang2013\apidoc\annotation\Desc('创建库位，location_id / zone_id 必填（hashid 或原生数字）')]
     #[\erikwang2013\apidoc\annotation\Url('/admin/v1/wms/location')]
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('仓储管理(WMS)')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', desc:'库位编码，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'location_id', type:'string', require:true, desc:'库位ID(hashid，关联 erp_location.id)，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'zone_id', type:'string', require:true, desc:'库区ID(hashid)，必填')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'业务数据')]
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        // 该表无 code / name / warehouse_id 列（幻列被 getFillable() 静默过滤：不报错也不落库）；
+        // 真实必填列只有 location_id（关联 erp_location.id）与 zone_id，二者 NOT NULL 无默认
+        $validator = validator($request->all(), [
+            'location_id' => 'required',
+            'zone_id' => 'required',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -88,6 +94,14 @@ class LocationController extends BaseController
         $item = new WmsLocation();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：下拉源只回 hashid 串，fill 的 integer cast 会把它静默转成 0（脏行），故 fill 后覆写为裸 ID
+        foreach (['location_id' => 'Invalid location ID', 'zone_id' => 'Invalid zone ID'] as $field => $message) {
+            $decoded = $this->decodeFlexibleId($request->input($field));
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($this->trans($message), 422);
+            }
+            $item->fill([$field => $decoded]);
+        }
 
         $item->save();
 
@@ -157,6 +171,18 @@ class LocationController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：同 store（部分更新：字段未出现则不动）
+        $data = $request->all();
+        foreach (['location_id' => 'Invalid location ID', 'zone_id' => 'Invalid zone ID'] as $field => $message) {
+            if (!array_key_exists($field, $data)) {
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($data[$field]);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($this->trans($message), 422);
+            }
+            $item->fill([$field => $decoded]);
+        }
 
         $item->save();
 

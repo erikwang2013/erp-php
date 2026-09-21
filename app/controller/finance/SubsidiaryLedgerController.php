@@ -49,13 +49,21 @@ class SubsidiaryLedgerController extends BaseController
         }
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 15);
-        $accountId = $request->input('account_id');
+        $accountRaw = $request->input('account_id');
+        $accountId = null;
+        if ($accountRaw !== null && $accountRaw !== '') {
+            // 筛选收 hashid 串或原生数字（双模）：解码失败/非正数 422（与出口 encode 对称）
+            $accountId = $this->decodeFlexibleId($accountRaw);
+            if ($accountId === null || $accountId < 1) {
+                return $this->fail($this->trans('Invalid account_id'), 422);
+            }
+        }
         $startDate = $request->input('start_date', '');
         $endDate = $request->input('end_date', '');
 
         $query = FinanceSubsidiaryLedger::query();
-        if ($accountId !== null && $accountId !== '') {
-            $query->where('account_id', (int) $accountId);
+        if ($accountId !== null) {
+            $query->where('account_id', $accountId);
         }
         if ($startDate) {
             $query->where('entry_date', '>=', $startDate);

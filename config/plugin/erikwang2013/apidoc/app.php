@@ -20,7 +20,9 @@ return [
         'auto_url' => ['letter_rule' => 'lcfirst', 'prefix' => ''],
         'auto_register_routes' => false,
         'cache' => ['enable' => false],
-        'auth' => ['enable' => false, 'password' => '123456', 'secret_key' => 'apidoc#erik', 'expire' => 86400],
+        // 口令/密钥取自环境变量（.env / .env.docker，scripts/gen-env-keys.sh 生成强随机值）；
+        // 留空时仅文档站拒绝访问（vendor Auth 抛「缺少 secret_key」），不影响应用启动
+        'auth' => ['enable' => true, 'password' => env('APIDOC_PASSWORD', ''), 'secret_key' => env('APIDOC_SECRET_KEY', ''), 'expire' => 86400],
         'ignored_methods' => [],
          'params' => [
             // （选配）全局的请求Header

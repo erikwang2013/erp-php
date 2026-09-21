@@ -105,14 +105,14 @@ class ReceiptController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:50', 'customer_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'bank_account_id' => 'string', 'method' => 'string', 'remark' => 'string', 'received_at' => 'string']);
+        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'customer_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'bank_account_id' => 'string', 'method' => 'string', 'remark' => 'string', 'received_at' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
         $item = new FinanceReceipt();
         $item->id = $this->generateId();
-        $item->code = $request->input('code');
+        $item->code = doc_code($request->input('code'), 'RCV');
         // customer_id/bank_account_id 双模：hashid 串解码，原生数字直用；垃圾串 422 拒绝
         $customerId = $this->decodeFlexibleId((string) $request->input('customer_id'));
         if ($customerId === null) {

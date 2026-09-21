@@ -11,6 +11,7 @@ namespace app\service\notification;
 use app\common\SnowflakeService;
 use app\model\WebhookDeliveryLog;
 use app\model\WebhookSubscription;
+use app\queue\redis\WebhookTask;
 use support\Log;
 
 /**
@@ -26,8 +27,16 @@ use support\Log;
  * 签名：X-Webhook-Signature = HMAC-SHA256(secret, 规范化 payload JSON)，正文与签名同字节序，
  * 接收方用同一 json_encode(JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) 结果复算即可验签。
  *
- * ponytail: P0 同步投递会阻塞调用方；升级异步时把事件塞入 RedisQueue 消费端复用 deliverEvent()，
- * 见 docs/queue.md（app/queue/RedisQueue）。
+ * 已接通的事件（订阅方按事件名或 "*" 订阅；无事件目录接口，事件名即下列字符串约定）：
+ *   approval.submitted / approval.approved / approval.rejected —— app/controller/workflow/ApprovalController.php
+ *   webhook.test —— 管理端「发送测试事件」（WebhookController::test）
+ *
+ * 投递方式：
+ *   dispatchAsync() —— 业务侧默认入口，只入队（app/queue/redis/WebhookTask），由消费进程执行 dispatch()；
+ *   dispatch()      —— 同步投递，管理端「测试」要即时结果、集成测试也直接调它，队列消费端同样复用它。
+ *
+ * ponytail: dispatch() 同步投递会阻塞调用方（每订阅 curl 最长 http_timeout）；换官方 webman/redis-queue
+ * 扩展时只需替换消费进程 handler，任务类目录不变，见 docs/queue.md（app/queue/RedisQueue）。
  */
 class WebhookService
 {
@@ -59,6 +68,17 @@ class WebhookService
                 Log::error('[WebhookService] 事件投递异常 event=' . $event
                     . ' sub=' . $sub->id . ': ' . $e->getMessage() . ' | TraceId: ' . trace_id());
             }
+        }
+    }
+
+    /**
+     * 异步分发事件：只把事件投进 Redis 队列，真实投递与 retryDue 补偿都由消费进程做
+     * （见 app/queue/redis/WebhookTask）；入队失败只记日志，不影响调用方主流程
+     */
+    public function dispatchAsync(string $event, array $payload): void
+    {
+        if (!WebhookTask::send($event, $payload)) {
+            Log::error('[WebhookService] 事件入队失败 event=' . $event . ' | TraceId: ' . trace_id());
         }
     }
 

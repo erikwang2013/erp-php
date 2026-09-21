@@ -86,7 +86,8 @@ class WaveController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['code' => 'required|string|max:200']);
+        // code 列宽 VARCHAR(50)（uk_code）：max:200 会放过超长串去撞 MySQL 1406/500
+        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -94,6 +95,15 @@ class WaveController extends BaseController
         $item = new WmsWave();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：下拉源只回 hashid 串，fill 的 integer cast 会把它转成 0（静默脏数据），故 fill 后覆写为裸 ID
+        $data = $request->all();
+        if (array_key_exists('warehouse_id', $data)) {
+            $warehouseId = $this->decodeFlexibleId($data['warehouse_id']);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
         if (empty($item->code)) {
             $item->code = 'wms/wave' . $this->generateId();
         }
@@ -166,6 +176,15 @@ class WaveController extends BaseController
         }
 
         $this->fillModelFromRequest($item, $request);
+        // 单头外键：下拉源只回 hashid 串，fill 的 integer cast 会把它转成 0（静默脏数据），故 fill 后覆写为裸 ID
+        $data = $request->all();
+        if (array_key_exists('warehouse_id', $data)) {
+            $warehouseId = $this->decodeFlexibleId($data['warehouse_id']);
+            if ($warehouseId === null || $warehouseId < 1) {
+                return $this->fail($this->trans('Invalid warehouse ID'), 422);
+            }
+            $item->fill(['warehouse_id' => $warehouseId]);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
@@ -242,6 +261,11 @@ class WaveController extends BaseController
         $pickItems = $request->input('items', []);
         if (empty($pickItems)) {
             return $this->fail($this->trans('Please provide picking details'), 422);
+        }
+        // 释放波次按 product_id/sku_id/location_id 建拣货任务，前端下发的是 hashid（source 下拉）
+        $pickItems = $this->decodeItemIds($pickItems, ['product_id', 'sku_id', 'location_id']);
+        if ($pickItems === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
         }
 
         try {
