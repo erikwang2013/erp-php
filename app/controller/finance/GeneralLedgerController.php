@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
+use app\model\FinanceAccount;
 use app\model\FinanceGeneralLedger;
 use support\Request;
 use support\Response;
@@ -60,14 +61,29 @@ class GeneralLedgerController extends BaseController
             $query->where('period_month', (int) $month);
         }
         if ($accountId !== null && $accountId !== '') {
-            $query->where('account_id', (int) $accountId);
+            // 双模解码（hashid 串或原生数字）：`(int)` 强转 hashid 恒为 0 → 筛选恒不命中；
+            // 解不出 → 422，与出口 encode 对称
+            $accountId = $this->decodeFlexibleId($accountId);
+            if ($accountId === null || $accountId < 1) {
+                return $this->fail($this->trans('Invalid account_id'), 422);
+            }
+            $query->where('account_id', $accountId);
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $models = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('period_year', 'desc')
             ->orderBy('period_month', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'account_id']));
+            ->get();
+        // 行补科目名：前端 inferColumns 用 account_name 兄弟列渲染并隐去 hashid 的科目列
+        $accountNames = FinanceAccount::query()->whereIn('id', $models->pluck('account_id')->all())
+            ->pluck('name', 'id')->all();
+        $list = $models->map(function ($item) use ($accountNames) {
+            $row = $this->encodeIds($item->toArray(), ['id', 'account_id']);
+            $row['account_name'] = $accountNames[$item->account_id] ?? '';
+
+            return $row;
+        });
 
         return $this->successPage($list, $total, $page, $limit);
     }

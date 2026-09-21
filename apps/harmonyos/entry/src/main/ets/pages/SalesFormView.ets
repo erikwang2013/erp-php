@@ -10,6 +10,7 @@
 
 import { L10n } from '../utils/L10n';
 import { DetailCard } from '../common/DetailCard';
+import { OrderItemDraft, OrderItemsEditor } from '../common/OrderItemsEditor';
 
 @Component
 export struct SalesFormView {
@@ -22,6 +23,7 @@ export struct SalesFormView {
   @Link formStatus: number;
   @Link formOrderedAt: string;
   @Link formRemark: string;
+  @Link formItems: Array<OrderItemDraft>;
   @Prop formMode: string = 'create';
   @Prop isSubmitting: boolean = false;
   onSubmit: () => void = () => {};
@@ -205,6 +207,12 @@ export struct SalesFormView {
             .constraintSize({ minHeight: 56 })
             .backgroundColor($r('app.color.surface'))
             .alignItems(VerticalAlign.Center)
+
+            // 明细仅新建期录入：编辑态不回填既有明细，此时再放一个空编辑器，
+            // 用户随手加一行就会触发后端「整表替换」清掉原明细 —— 故只在 create 显示
+            if (this.formMode === 'create') {
+              OrderItemsEditor({ items: this.formItems })
+            }
 
           }
           .width('100%')

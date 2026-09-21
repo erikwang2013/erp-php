@@ -77,7 +77,9 @@ class ExpenseController extends BaseController
         $accountNames = FinanceAccount::whereIn('id', $models->pluck('account_id')->all())
             ->pluck('name', 'id')->all();
         $list = $models->map(function ($item) use ($applyNames, $accountNames) {
-            $row = $this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']);
+            // approved_by（审批人 admin 雪花ID）须显式列入白名单：传了 $fields 即关闭自动
+            // id/*_id 探测，且 approved_by 不以 _id 结尾，漏列即原样裸出裸数字
+            $row = $this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id', 'approved_by']);
             $row['apply_user_name'] = $applyNames[$item->apply_user_id] ?? '';
             $row['account_name'] = $accountNames[$item->account_id] ?? '';
 
@@ -134,7 +136,7 @@ class ExpenseController extends BaseController
         $item->remark = (string) $request->input('remark', '');
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']), $this->trans('Created successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id', 'approved_by']), $this->trans('Created successfully'));
     }
 
     /**
@@ -164,7 +166,7 @@ class ExpenseController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id', 'approved_by']));
     }
 
     /**
@@ -239,7 +241,7 @@ class ExpenseController extends BaseController
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id']), $this->trans('Updated successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id', 'approved_by']), $this->trans('Updated successfully'));
     }
 
     /**

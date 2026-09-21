@@ -63,7 +63,14 @@ class PoolController extends BaseController
     {
         [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
+        // 筛选值来自前端客户等级下拉（hashid）：不解码则 eqFilters 里 (int)hashid=0，筛选恒不命中
         $levelId = $request->input('level_id');
+        if ($levelId !== null && $levelId !== '') {
+            $levelId = $this->decodeFlexibleId($levelId);
+            if ($levelId === null || $levelId < 1) {
+                return $this->fail('客户等级ID' . $this->trans('Invalid'), 422);
+            }
+        }
 
         $result = $this->crm()->poolCustomers([
             'keyword' => $keyword,
@@ -182,12 +189,26 @@ class PoolController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['level_id' => 'required|integer']);
+        // level_id 来自前端客户等级下拉（hashid）：原 required|integer 会把合法 hashid 判成 422
+        $validator = validator($request->all(), ['level_id' => 'required|string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->crm()->create(CrmPoolRule::class, $request->all());
+        $data = $request->all();
+        $levelId = $this->decodeFlexibleId($data['level_id']);
+        if ($levelId === null || $levelId < 1) {
+            return $this->fail('客户等级ID' . $this->trans('Invalid'), 422);
+        }
+        $data['level_id'] = $levelId;
+        // 可缺省列：空串按缺省处理（'' 直插 INT 严格模式 1366 → 500）
+        foreach (['reclaim_days', 'max_claims', 'enabled'] as $field) {
+            if (isset($data[$field]) && $data[$field] === '') {
+                unset($data[$field]);
+            }
+        }
+
+        $item = $this->crm()->create(CrmPoolRule::class, $data);
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
@@ -244,7 +265,24 @@ class PoolController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $id = $this->decodeId($id);
-        $item = $this->crm()->update(CrmPoolRule::class, $id, $request->all());
+        $data = $request->all();
+        // level_id 同 store：显式传值则双模解码（垃圾串 422），空串按缺省处理
+        if (isset($data['level_id']) && $data['level_id'] !== '') {
+            $levelId = $this->decodeFlexibleId($data['level_id']);
+            if ($levelId === null || $levelId < 1) {
+                return $this->fail('客户等级ID' . $this->trans('Invalid'), 422);
+            }
+            $data['level_id'] = $levelId;
+        } else {
+            unset($data['level_id']);
+        }
+        foreach (['reclaim_days', 'max_claims', 'enabled'] as $field) {
+            if (isset($data[$field]) && $data[$field] === '') {
+                unset($data[$field]);
+            }
+        }
+
+        $item = $this->crm()->update(CrmPoolRule::class, $id, $data);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }

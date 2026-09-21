@@ -20,6 +20,7 @@ import { TopBar } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { DetailCard, DetailRow } from '../../common/DetailCard';
 import { RowBadge, kindTint, kindInk } from '../../common/ListRow';
+import { Format } from '../../utils/Format';
 
 interface RmaItemRow {
   product_name: string;
@@ -264,10 +265,10 @@ struct RmaDetailPage {
                   DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_reason'), value: this.hint(this.row['reason']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_refund'), value: this.fmtMoney(this.row['refund_amount']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_fee'), value: this.fmtMoney(this.row['return_shipping_fee']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_created'), value: this.hint(this.row['created_at']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_approved'), value: this.hint(this.row['approved_at']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_returned'), value: this.hint(this.row['returned_at']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_received'), value: this.hint(this.row['received_at']) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_created'), value: this.hint(Format.dateTime(this.row['created_at'])) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_approved'), value: this.hint(Format.dateTime(this.row['approved_at'])) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_returned'), value: this.hint(Format.dateTime(this.row['returned_at'])) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_received'), value: this.hint(Format.dateTime(this.row['received_at'])) })
                 }
                 .width('100%')
               }

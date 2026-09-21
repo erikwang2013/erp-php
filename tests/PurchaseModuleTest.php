@@ -578,6 +578,107 @@ class PurchaseModuleTest extends TestCase
     }
 
     /**
+     * 采购申请的审批动作走通用 PUT，且**只**下发 `{status: N}`（前端行内按钮，不整行回填）。
+     * 这依赖 fillModelFromRequest 的 `$request->only($fillable)` 会跳过请求里没有的键：
+     * 一旦改成 `$request->all()`，未下发的 code/apply_user_id 会被填成 null → 列 NOT NULL 直插 1292/500。
+     * 真库 + 事务回滚。
+     */
+    public function testApplyUpdateWithStatusOnlyKeepsOtherColumns(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $applyId = 900000000000800000 + random_int(1, 999);
+            DB::table('purchase_apply')->insert([
+                'id' => $applyId,
+                'code' => 'PA' . $applyId,
+                'apply_user_id' => 7,
+                'department' => '采购部',
+                'status' => 0,
+                'remark' => '原备注',
+            ]);
+
+            $resp = (new \app\controller\purchase\ApplyController())->update(
+                new FakeRequest(['status' => 1]),
+                \app\common\HashidsService::encode($applyId),
+            );
+            $this->assertSame(0, $this->responseCode($resp), '批准应成功');
+
+            $row = DB::table('purchase_apply')->where('id', $applyId)->first();
+            $this->assertSame(1, (int) $row->status, '状态应置为已批准');
+            $this->assertSame('PA' . $applyId, (string) $row->code, '未下发的 code 不应被清空');
+            $this->assertSame(7, (int) $row->apply_user_id, '未下发的申请人不应被清零');
+            $this->assertSame('采购部', (string) $row->department, '未下发的部门不应被清空');
+            $this->assertSame('原备注', (string) $row->remark, '未下发的备注不应被清空');
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * 订单认领申请单 → 申请单置「已转订单」(3)。
+     *
+     * erp_purchase_apply.status=3 此前没有任何写入方（前端无入口、审批不回写目标单据），
+     * 采购申请的状态到「已批准」就断了。认领方是订单表自己的 apply_id，所以由订单落库驱动。
+     * 真库 + 事务回滚；自造申请单避免依赖示例数据。
+     */
+    public function testOrderStoreMarksLinkedApplyAsOrdered(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $supplierId = (int) (DB::table('supplier')->orderBy('id')->value('id') ?? 0);
+            if ($supplierId === 0) {
+                $this->markTestSkipped('依赖示例数据: supplier 至少一条');
+            }
+            $applyId = 900000000000700000 + random_int(1, 999);
+            DB::table('purchase_apply')->insert([
+                'id' => $applyId,
+                'code' => 'PA' . $applyId,
+                'apply_user_id' => 1,
+                'department' => '测试',
+                'status' => 1, // 已批准 → 待转订单
+                'remark' => '',
+            ]);
+
+            $resp = (new \app\controller\purchase\OrderController())->store(new FakeRequest([
+                'supplier_id' => \app\common\HashidsService::encode($supplierId),
+                'apply_id' => \app\common\HashidsService::encode($applyId),
+            ]));
+            $this->assertSame(0, $this->responseCode($resp), '建单应成功');
+            $this->assertSame(
+                3,
+                (int) DB::table('purchase_apply')->where('id', $applyId)->value('status'),
+                '被订单认领的申请单应置「已转订单」',
+            );
+
+            // 不认领申请单的订单（apply_id 缺省 0）不该动任何申请：另一张单子保持原状态
+            $otherId = $applyId + 1;
+            DB::table('purchase_apply')->insert([
+                'id' => $otherId,
+                'code' => 'PA' . $otherId,
+                'apply_user_id' => 1,
+                'department' => '测试',
+                'status' => 1,
+                'remark' => '',
+            ]);
+            $resp = (new \app\controller\purchase\OrderController())->store(new FakeRequest([
+                'supplier_id' => \app\common\HashidsService::encode($supplierId),
+            ]));
+            $this->assertSame(0, $this->responseCode($resp), '建单应成功');
+            $this->assertSame(
+                1,
+                (int) DB::table('purchase_apply')->where('id', $otherId)->value('status'),
+                '未认领的申请单状态应原样',
+            );
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
      * 收货明细的 order_item_id 可缺省：通用前端表单只能选到商品（明细行 hashid 无界面可查），
      * 缺省时后端按 product_id 在本单内反查；本单该商品不唯一（0 行/多行）必须拒绝而非猜测。
      * 全程事务内跑，结束回滚。

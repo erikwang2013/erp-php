@@ -22,8 +22,9 @@ interface ProductItem {
   barcode: string;
   spec: string;
   unit: string;
-  category_id: number;
-  brand_id: number;
+  // category_id/brand_id 后端 encodeIds 后是 hashid 字符串，非数字
+  category_id: string;
+  brand_id: string;
   status: number;
   description: string;
 }
@@ -202,8 +203,9 @@ struct ProductListPage {
       barcode: this.formBarcode,
       spec: this.formSpec,
       unit: this.formUnit,
-      category_id: this.formCategoryId ? Number(this.formCategoryId) : 0,
-      brand_id: this.formBrandId ? Number(this.formBrandId) : 0,
+      // hashid 原样上送：后端 decodeId 按字符串解码，Number() 会把 hashid 变成 NaN
+      category_id: this.formCategoryId.trim(),
+      brand_id: this.formBrandId.trim(),
       status: this.formStatus,
       description: this.formDescription
     };

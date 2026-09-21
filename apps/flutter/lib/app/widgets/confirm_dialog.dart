@@ -5,18 +5,21 @@ import '../l10n/app_l10n.dart';
 /// Confirmation dialog for destructive operations. Requires the operator's
 /// password and shows a loading state while [onConfirm] runs.
 class ConfirmDialog extends StatefulWidget {
-  final String title;
+  /// 文案缺省为 null：渲染时取当前语言词典（commonDeleteConfirm /
+  /// commonPasswordConfirm）。原先写死中文缺省值，88/92 个调用点未传
+  /// confirmText、90/92 未传 passwordLabel，英文界面全是中文。
+  final String? title;
   final String? content;
-  final String confirmText;
-  final String passwordLabel;
+  final String? confirmText;
+  final String? passwordLabel;
   final Future<bool> Function(String password)? onConfirm;
 
   const ConfirmDialog({
     super.key,
-    this.title = '确认删除',
+    this.title,
     this.content,
-    this.confirmText = '确认删除',
-    this.passwordLabel = '请输入您的密码确认',
+    this.confirmText,
+    this.passwordLabel,
     this.onConfirm,
   });
 
@@ -24,10 +27,10 @@ class ConfirmDialog extends StatefulWidget {
   /// returned true / was not given), `false` when cancelled.
   static Future<bool> show(
     BuildContext context, {
-    String title = '确认删除',
+    String? title,
     String? content,
-    String confirmText = '确认删除',
-    String passwordLabel = '请输入您的密码确认',
+    String? confirmText,
+    String? passwordLabel,
     Future<bool> Function(String password)? onConfirm,
   }) {
     return showDialog<bool>(
@@ -87,10 +90,11 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppL10n.of(context);
     // 桌面居中卡 360 宽;窄屏(<420)不限制宽度避免溢出(§5.7)
     final fixedWidth = MediaQuery.sizeOf(context).width >= 420;
     return AlertDialog(
-      title: Text(widget.title),
+      title: Text(widget.title ?? l10n.commonDeleteConfirm),
       content: SizedBox(
         width: fixedWidth ? 360 : double.infinity,
         child: Column(
@@ -108,7 +112,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
               obscureText: true,
               enabled: !_loading,
               decoration: InputDecoration(
-                labelText: widget.passwordLabel,
+                labelText: widget.passwordLabel ?? l10n.commonPasswordConfirm,
                 isDense: true,
                 errorText: _error,
               ),
@@ -136,7 +140,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                 )
-              : Text(widget.confirmText),
+              : Text(widget.confirmText ?? l10n.commonDeleteConfirm),
         ),
       ],
     );

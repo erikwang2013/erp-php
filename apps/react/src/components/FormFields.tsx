@@ -7,7 +7,7 @@ import { DataTable, type Column } from '@/components/DataTable';
 import { Btn, DescList, Field, Input, Modal, Select, Textarea } from '@/components/ui';
 import type { FieldOption, FieldSource, FormField, Row } from '@/config/types';
 import { keyTitle } from '@/lib/defaults';
-import { text } from '@/lib/format';
+import { date, dateTime, text } from '@/lib/format';
 import { useTr } from '@/lib/i18n';
 import { fetchRows, loadOptions } from '@/lib/options';
 import { useToast } from '@/lib/toast';
@@ -221,7 +221,14 @@ function FieldRow({
 }) {
   const t = useTr();
   const common = {
-    value: (val ?? '') as string,
+    // 日期类控件只认固定形状：<input type="date"> 要 `Y-m-d`、datetime-local 要
+    // `YYYY-MM-DDTHH:mm`；后端下发的 ISO-UTC（date cast 列）会让控件渲染成空值。
+    // 换算规则与 Angular resource-form.ts 同（date()/dateTime() 已做本机时区换算）。
+    value: (f.type === 'date'
+      ? date(val)
+      : f.type === 'datetime'
+        ? dateTime(val).replace(' ', 'T').slice(0, 16)
+        : (val ?? '')) as string,
     disabled: f.disabled,
     placeholder: f.placeholder ? t(f.placeholder) : undefined,
     onChange: (e: { target: { value: string } }) =>

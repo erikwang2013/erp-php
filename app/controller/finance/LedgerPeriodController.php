@@ -134,9 +134,22 @@ class LedgerPeriodController extends BaseController
      */
     private function resolveScope(Request $request): array
     {
-        $companyId = $this->decodeIdSafe((string) $request->input('company_id', ''));
-        $ledgerId = $this->decodeIdSafe((string) $request->input('ledger_id', ''));
+        $ids = [];
+        foreach (['company_id', 'ledger_id'] as $field) {
+            $raw = $request->input($field) ?: null;
+            if ($raw === null) {
+                $ids[$field] = null;
 
-        return (new LedgerService())->resolveScope($companyId, $ledgerId);
+                continue;
+            }
+            // 非空但解不出 → 业务异常（调用方 catch RuntimeException → 422）：
+            // 原 decodeIdSafe 静默当缺省，开账/关账会落到默认账套上（动错账套）
+            $ids[$field] = $this->decodeFlexibleId($raw);
+            if ($ids[$field] === null) {
+                throw new \RuntimeException($this->trans('Invalid ' . $field));
+            }
+        }
+
+        return (new LedgerService())->resolveScope($ids['company_id'], $ids['ledger_id']);
     }
 }

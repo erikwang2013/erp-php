@@ -239,15 +239,27 @@ class ShipmentController extends BaseController
         if (!$id) {
             return $this->fail($this->trans('Invalid ID'), 400);
         }
+        // 两个外键由前端下拉下发（hashid 串），原样进 confirmShip(int ...) 直接 TypeError → 500；
+        // 双模解码（hashid 或原生数字），缺失/非法一律 422
+        $fulfillmentId = $this->decodeFlexibleId($request->input('fulfillment_id'));
+        $omsOrderId = $this->decodeFlexibleId($request->input('oms_order_id'));
+        if ($fulfillmentId === null || $fulfillmentId < 1 || $omsOrderId === null || $omsOrderId < 1) {
+            return $this->fail($this->trans('Invalid fulfillment_id or oms_order_id'), 422);
+        }
         try {
             $svc = new \app\service\tms\TmsShipmentService();
-            $svc->confirmShip($id, $request->input('fulfillment_id', 0), $request->input('oms_order_id', 0));
+            $svc->confirmShip($id, $fulfillmentId, $omsOrderId);
 
             return $this->success([], $this->trans('Shipment confirmation completed'));
         } catch (\Throwable $e) {
             $this->logError('确认发货', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务规则拒绝（运单不存在/状态不允许发货/履约单已发货）是调用方可纠正的输入问题 → 422；
+            // PDOException 也是 RuntimeException（SQL/连接故障属服务端），须排除后再判 500
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 

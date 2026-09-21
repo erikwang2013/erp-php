@@ -302,9 +302,10 @@ class SocialSecurityController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         try {
+            $data = $this->decodeForeignKeys($request, ['employee_id' => '员工ID', 'rule_id' => '规则ID']);
             $binding = $this->social()->bind(
-                (int) $request->input('employee_id', 0),
-                (int) $request->input('rule_id', 0),
+                (int) ($data['employee_id'] ?? 0),
+                (int) ($data['rule_id'] ?? 0),
                 (string) $request->input('base_amount', '0')
             );
         } catch (InvalidArgumentException $e) {
@@ -337,7 +338,8 @@ class SocialSecurityController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         try {
-            $this->social()->unbind((int) $request->input('employee_id', 0));
+            $data = $this->decodeForeignKeys($request, ['employee_id' => '员工ID']);
+            $this->social()->unbind((int) ($data['employee_id'] ?? 0));
         } catch (InvalidArgumentException $e) {
             return $this->fail($e->getMessage(), 422);
         }
@@ -407,6 +409,33 @@ class SocialSecurityController extends BaseController
         }
 
         return $this->success($payload);
+    }
+
+    /**
+     * 可选外键双模解码（与 EmployeeController 同口径）：
+     * 未传 / null / '' / '0' → 视为不改动，从写入数据中剔除；
+     * 非空但解不出（含 (int) 会静默变 0 的垃圾串）→ 422，防「员工不存在」误报与孤儿行。
+     *
+     * @param array<string, string> $map 字段 => 提示名
+     */
+    private function decodeForeignKeys(Request $request, array $map): array
+    {
+        $data = $request->all();
+        foreach ($map as $field => $label) {
+            $raw = $request->input($field);
+            $rawStr = $raw === null ? '' : (string) $raw;
+            if ($rawStr === '' || $rawStr === '0') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($rawStr);
+            if ($decoded === null || $decoded < 1) {
+                throw new InvalidArgumentException($label . $this->trans('Invalid'));
+            }
+            $data[$field] = $decoded;
+        }
+
+        return $data;
     }
 
     /**

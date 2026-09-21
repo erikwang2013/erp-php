@@ -191,7 +191,7 @@ class _RecentLogs extends StatelessWidget {
                       style: const TextStyle(fontSize: 13),
                     ),
                     subtitle: Text(
-                      log['created_at'] ?? '',
+                      fmtDateTime(log['created_at']),
                       style: const TextStyle(fontSize: 11),
                     ),
                     trailing: Text(

@@ -7,6 +7,7 @@ import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/status_badge.dart';
+import '../../utils/format.dart';
 
 // erp_tms_tracking_event 真实列：shipment_id/status_code/description/location/
 // event_time/raw_data。无 name/code/status 列（幻列已删）：运单号由后端随行带回
@@ -200,6 +201,8 @@ class _TrackingPageState extends State<TrackingPage> {
     if (code.isNotEmpty) {
       d['status_code'] = '$code - ${_statusText(code)}';
     }
+    // event_time 为 DATETIME 列，后端下发 ISO-UTC；输入框回填本地 `Y-m-d H:i:s`
+    d['event_time'] = fmtDateTime(row['event_time']);
     return d;
   }
 
@@ -240,7 +243,7 @@ class _TrackingPageState extends State<TrackingPage> {
     return {
       l.fieldTrackingNo: r['shipment_code'] ?? '',
       l.commonStatus: _chip('${r['status_code'] ?? ''}'),
-      l.fieldTime: r['event_time'] ?? '',
+      l.fieldTime: fmtDateTime(r['event_time']),
       l.fieldLocation: r['location'] ?? '',
       l.fieldDescription: r['description'] ?? '',
       l.commonAction: Row(

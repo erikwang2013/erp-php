@@ -9,6 +9,7 @@ namespace app\controller\manufacturing;
 
 use app\admin\controller\BaseController;
 use app\model\MfgBom;
+use app\model\MfgProductionOrder;
 use app\service\manufacturing\ManufacturingService;
 use InvalidArgumentException;
 use support\Container;
@@ -60,7 +61,14 @@ class BomController extends BaseController
         [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
+        // 筛选值来自列表下拉的 hashid：解不出就 422，别让 null 静默变成「不筛选」（返回全量，像是筛中了）
         $productId = $request->input('product_id');
+        if ($productId !== null && $productId !== '') {
+            $productId = $this->decodeFlexibleId($productId);
+            if ($productId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
 
         $result = $this->mfg()->list(MfgBom::class, [
             'keyword' => $keyword,
@@ -70,6 +78,8 @@ class BomController extends BaseController
             'searchFields' => ['name', 'code'],
             'eqFilters' => ['status'],
             'truthyFilters' => ['product_id'],
+            // 产品名随行下发（前端按关系对象取 name）；encodeIds 递归，嵌套 product.id 一并编码
+            'with' => ['product'],
         ]);
         $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'product_id']), $result['list']);
 
@@ -224,6 +234,11 @@ class BomController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
+        // 引用守卫：工单挂在 BOM 上（源码无 FK 约束），删掉后工单变孤儿，
+        // 完工结算/领料取 BOM 明细时直接 500；此处显式 422。
+        if (MfgProductionOrder::query()->where('bom_id', $id)->exists()) {
+            return $this->fail($this->trans('Work orders reference this BOM; it cannot be deleted'), 422);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
@@ -256,14 +271,18 @@ class BomController extends BaseController
     public function newVersion(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'source_id' => 'string',
+            'source_id' => 'required',
             'version' => 'string',
             'effective_date' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $sourceId = (int) $request->input('source_id');
+        // source_id 为 FK：原先 (int) 直转，前端下发的 hashid 串恒转成 0，一律落到 404「源BOM不存在」
+        $sourceId = $this->decodeFlexibleId($request->input('source_id'));
+        if ($sourceId === null || $sourceId < 1) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
         $version = (string) $request->input('version', '');
 
         try {

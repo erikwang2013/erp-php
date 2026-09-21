@@ -3083,4 +3083,88 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tmsFreightValidTo => '失效日期';
+
+  @override
+  String get dashboardKpiPendingOrders => '待处理订单';
+
+  @override
+  String get dashboardKpiPickingOrders => '拣货中订单';
+
+  @override
+  String get dashboardKpiShippedToday => '今日发货';
+
+  @override
+  String get dashboardKpiPendingRma => '待处理 RMA';
+
+  @override
+  String get dashboardKpiPendingReceiving => '待收货';
+
+  @override
+  String get dashboardKpiPendingPutaway => '待上架';
+
+  @override
+  String get dashboardKpiPendingPicks => '待拣货';
+
+  @override
+  String get dashboardKpiPendingPacks => '待打包';
+
+  @override
+  String get dashboardKpiPendingShipments => '待发运';
+
+  @override
+  String get dashboardKpiInTransit => '在途';
+
+  @override
+  String get dashboardKpiDeliveredToday => '今日送达';
+
+  @override
+  String get dashboardKpiExceptionShipments => '异常运单';
+
+  @override
+  String get dashboardExportDocTitle => '仪表盘数据导出';
+
+  @override
+  String get dashboardExportExcelTriggered => 'Excel 导出功能已触发';
+
+  @override
+  String get loginShowPassword => '显示密码';
+
+  @override
+  String get loginHidePassword => '隐藏密码';
+
+  @override
+  String get commonComingSoon => '页面开发中，敬请期待';
+
+  @override
+  String get inventoryTransferFrom => '调出仓库';
+
+  @override
+  String get inventoryTransferTo => '调入仓库';
+
+  @override
+  String get projectCostTitle => '项目成本';
+
+  @override
+  String get fieldOccurDate => '发生日期';
+
+  @override
+  String get fieldCostCategory => '成本类别';
+
+  @override
+  String get fieldRate => '费率(元/小时)';
+
+  @override
+  String get fieldLinkedTask => '关联任务';
+
+  @override
+  String get fieldEmployee => '员工';
+
+  @override
+  String get projectCostLabor => '人工';
+
+  @override
+  String get projectCostMaterial => '材料';
+
+  @override
+  String get projectCostOther => '其他';
 }

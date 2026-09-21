@@ -223,6 +223,18 @@ class BaseController
     }
 
     /**
+     * 服务端故障的统一出口：文案与 ApiHandler 的未捕获 500 逐字一致，只带 TraceId。
+     *
+     * 局部 catch 若把 $e->getMessage() 用在 500 分支，会把表名、SQL 片段、服务端绝对路径
+     * 一并回给客户端（实测库存分配 500 曾回显 InventoryService.php 的全路径）—— 框架层
+     * ApiHandler 早已收口，这里是同一条底线在 catch 分支上的补齐。细节仍由 logError 进日志。
+     */
+    protected function failServer(): Response
+    {
+        return $this->fail('服务器内部错误，请稍后重试（TraceId: ' . trace_id() . '）', 500);
+    }
+
+    /**
      * 记录异常日志（含 TraceId），供各控制器 catch 分支统一调用。
 
      * fail-open 审计要求：任何被捕获吞掉的异常都必须留下可观测日志，

@@ -6019,6 +6019,174 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'失效日期'**
   String get tmsFreightValidTo;
+
+  /// No description provided for @dashboardKpiPendingOrders.
+  ///
+  /// In zh, this message translates to:
+  /// **'待处理订单'**
+  String get dashboardKpiPendingOrders;
+
+  /// No description provided for @dashboardKpiPickingOrders.
+  ///
+  /// In zh, this message translates to:
+  /// **'拣货中订单'**
+  String get dashboardKpiPickingOrders;
+
+  /// No description provided for @dashboardKpiShippedToday.
+  ///
+  /// In zh, this message translates to:
+  /// **'今日发货'**
+  String get dashboardKpiShippedToday;
+
+  /// No description provided for @dashboardKpiPendingRma.
+  ///
+  /// In zh, this message translates to:
+  /// **'待处理 RMA'**
+  String get dashboardKpiPendingRma;
+
+  /// No description provided for @dashboardKpiPendingReceiving.
+  ///
+  /// In zh, this message translates to:
+  /// **'待收货'**
+  String get dashboardKpiPendingReceiving;
+
+  /// No description provided for @dashboardKpiPendingPutaway.
+  ///
+  /// In zh, this message translates to:
+  /// **'待上架'**
+  String get dashboardKpiPendingPutaway;
+
+  /// No description provided for @dashboardKpiPendingPicks.
+  ///
+  /// In zh, this message translates to:
+  /// **'待拣货'**
+  String get dashboardKpiPendingPicks;
+
+  /// No description provided for @dashboardKpiPendingPacks.
+  ///
+  /// In zh, this message translates to:
+  /// **'待打包'**
+  String get dashboardKpiPendingPacks;
+
+  /// No description provided for @dashboardKpiPendingShipments.
+  ///
+  /// In zh, this message translates to:
+  /// **'待发运'**
+  String get dashboardKpiPendingShipments;
+
+  /// No description provided for @dashboardKpiInTransit.
+  ///
+  /// In zh, this message translates to:
+  /// **'在途'**
+  String get dashboardKpiInTransit;
+
+  /// No description provided for @dashboardKpiDeliveredToday.
+  ///
+  /// In zh, this message translates to:
+  /// **'今日送达'**
+  String get dashboardKpiDeliveredToday;
+
+  /// No description provided for @dashboardKpiExceptionShipments.
+  ///
+  /// In zh, this message translates to:
+  /// **'异常运单'**
+  String get dashboardKpiExceptionShipments;
+
+  /// No description provided for @dashboardExportDocTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'仪表盘数据导出'**
+  String get dashboardExportDocTitle;
+
+  /// No description provided for @dashboardExportExcelTriggered.
+  ///
+  /// In zh, this message translates to:
+  /// **'Excel 导出功能已触发'**
+  String get dashboardExportExcelTriggered;
+
+  /// No description provided for @loginShowPassword.
+  ///
+  /// In zh, this message translates to:
+  /// **'显示密码'**
+  String get loginShowPassword;
+
+  /// No description provided for @loginHidePassword.
+  ///
+  /// In zh, this message translates to:
+  /// **'隐藏密码'**
+  String get loginHidePassword;
+
+  /// No description provided for @commonComingSoon.
+  ///
+  /// In zh, this message translates to:
+  /// **'页面开发中，敬请期待'**
+  String get commonComingSoon;
+
+  /// No description provided for @inventoryTransferFrom.
+  ///
+  /// In zh, this message translates to:
+  /// **'调出仓库'**
+  String get inventoryTransferFrom;
+
+  /// No description provided for @inventoryTransferTo.
+  ///
+  /// In zh, this message translates to:
+  /// **'调入仓库'**
+  String get inventoryTransferTo;
+
+  /// No description provided for @projectCostTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'项目成本'**
+  String get projectCostTitle;
+
+  /// No description provided for @fieldOccurDate.
+  ///
+  /// In zh, this message translates to:
+  /// **'发生日期'**
+  String get fieldOccurDate;
+
+  /// No description provided for @fieldCostCategory.
+  ///
+  /// In zh, this message translates to:
+  /// **'成本类别'**
+  String get fieldCostCategory;
+
+  /// No description provided for @fieldRate.
+  ///
+  /// In zh, this message translates to:
+  /// **'费率(元/小时)'**
+  String get fieldRate;
+
+  /// No description provided for @fieldLinkedTask.
+  ///
+  /// In zh, this message translates to:
+  /// **'关联任务'**
+  String get fieldLinkedTask;
+
+  /// No description provided for @fieldEmployee.
+  ///
+  /// In zh, this message translates to:
+  /// **'员工'**
+  String get fieldEmployee;
+
+  /// No description provided for @projectCostLabor.
+  ///
+  /// In zh, this message translates to:
+  /// **'人工'**
+  String get projectCostLabor;
+
+  /// No description provided for @projectCostMaterial.
+  ///
+  /// In zh, this message translates to:
+  /// **'材料'**
+  String get projectCostMaterial;
+
+  /// No description provided for @projectCostOther.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他'**
+  String get projectCostOther;
 }
 
 class _AppLocalizationsDelegate

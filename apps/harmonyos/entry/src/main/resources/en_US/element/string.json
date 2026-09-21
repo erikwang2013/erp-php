@@ -1506,7 +1506,7 @@
     },
     {
       "name": "product_category_id_hint",
-      "value": "Category numeric ID (required)"
+      "value": "Category ID (hashid, required)"
     },
     {
       "name": "product_category_id_required",
@@ -1518,7 +1518,7 @@
     },
     {
       "name": "product_brand_id_hint",
-      "value": "Brand numeric ID, leave blank for 0"
+      "value": "Brand ID (hashid, leave blank if none)"
     },
     {
       "name": "product_barcode",
@@ -2467,6 +2467,42 @@
     {
       "name": "ref_tax_no",
       "value": "Tax No."
+    },
+    {
+      "name": "order_items_title",
+      "value": "Items"
+    },
+    {
+      "name": "order_item_product_id",
+      "value": "Product ID"
+    },
+    {
+      "name": "order_item_product_id_hint",
+      "value": "Product ID (alphanumeric, see product list)"
+    },
+    {
+      "name": "order_item_qty",
+      "value": "Qty"
+    },
+    {
+      "name": "order_item_price",
+      "value": "Unit price"
+    },
+    {
+      "name": "order_item_unit",
+      "value": "Unit"
+    },
+    {
+      "name": "order_item_add",
+      "value": "Add item"
+    },
+    {
+      "name": "order_item_remove",
+      "value": "Remove row"
+    },
+    {
+      "name": "order_items_required",
+      "value": "At least one item row is required"
     }
   ]
 }

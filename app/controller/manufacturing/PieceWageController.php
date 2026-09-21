@@ -55,8 +55,17 @@ class PieceWageController extends BaseController
         }
         [$page, $limit] = $this->pageParams($request);
 
+        // 筛选值来自列表下拉的 hashid：解不出就 422，别让 null 静默变成「不筛选」（返回全量，像是筛中了）
+        $employeeId = $request->input('employee_id');
+        if ($employeeId !== null && $employeeId !== '') {
+            $employeeId = $this->decodeFlexibleId($employeeId);
+            if ($employeeId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
+
         $result = $this->service()->list(MfgPieceWage::class, [
-            'employee_id' => $request->input('employee_id'),
+            'employee_id' => $employeeId,
             'period_year' => $request->input('period_year'),
             'period_month' => $request->input('period_month'),
         ], $page, $limit, [

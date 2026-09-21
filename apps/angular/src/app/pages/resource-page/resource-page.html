@@ -106,6 +106,26 @@
                     [class.num]="cell.right"
                     [style.padding-left.px]="cell.depth ? 12 + cell.depth * 16 : null"
                   >
+                    @if (cell.depth !== undefined) {
+                      <!-- 折叠箭头（宽度与 React DataTable 的 TreeCaret 一致）：叶子只占同宽空位不画控件，
+                           同层文字左边缘才对得齐。aria-label 用字面量不过 tr —— 词典没有「展开/收起」，
+                           为两个箭头提示补 13 份语言包不划算，箭头本身即语义 -->
+                      @if (r.kids) {
+                        <button
+                          nz-button
+                          nzType="text"
+                          nzSize="small"
+                          class="tree-caret"
+                          [attr.aria-expanded]="!isCollapsed(r.key)"
+                          [attr.aria-label]="isCollapsed(r.key) ? '展开' : '收起'"
+                          (click)="toggleCollapse(r.key)"
+                        >
+                          <app-icon [name]="isCollapsed(r.key) ? 'chevRight' : 'chevDown'" />
+                        </button>
+                      } @else {
+                        <span class="tree-caret-gap"></span>
+                      }
+                    }
                     @if (cell.tags?.length) {
                       <!-- kind:'tags'（规格属性等）：一排「键:值」胶囊；文本由 specTags 解析，是用户数据不过 tr -->
                       @for (t of cell.tags; track $index) {
@@ -245,6 +265,8 @@
                     @for (t of it.tags; track $index) {
                       <nz-tag>{{ t }}</nz-tag>
                     }
+                  } @else if (it.tone) {
+                    <nz-tag [nzColor]="tone(it.tone)">{{ it.v }}</nz-tag>
                   } @else {
                     {{ it.v }}
                   }

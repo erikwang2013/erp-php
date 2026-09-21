@@ -59,14 +59,16 @@ class TimesheetController extends BaseController
 
         $query = ProjectTimesheet::query();
 
-        if ($projectId !== null && $projectId !== '') {
-            $query->where('project_id', $this->decodeIdSafe((string) $projectId) ?? (int) $projectId);
-        }
-        if ($taskId !== null && $taskId !== '') {
-            $query->where('task_id', $this->decodeIdSafe((string) $taskId) ?? (int) $taskId);
-        }
-        if ($userId !== null && $userId !== '') {
-            $query->where('user_id', $this->decodeIdSafe((string) $userId) ?? (int) $userId);
+        // 筛选值非法一律 422：旧写法 (int) 兜底会把垃圾串变成 where 0，静默回空列表
+        foreach (['project_id' => $projectId, 'task_id' => $taskId, 'user_id' => $userId] as $field => $raw) {
+            if ($raw === null || $raw === '') {
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($raw);
+            if ($decoded === null) {
+                return $this->fail($this->trans('Invalid :field', ['field' => $field]), 422);
+            }
+            $query->where($field, $decoded);
         }
         if ($workDate !== null && $workDate !== '') {
             $query->where('work_date', $workDate);
@@ -123,7 +125,10 @@ class TimesheetController extends BaseController
 
         $item = new ProjectTimesheet();
         $item->id = $this->generateId();
-        $this->decodeFkIntoRequest($request);
+        $fkError = $this->decodeFkIntoRequest($request);
+        if ($fkError !== null) {
+            return $this->fail($fkError, 422);
+        }
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
@@ -165,15 +170,30 @@ class TimesheetController extends BaseController
     /**
      * hashid 兼容解码：store/update 前把表单下发的 hashid FK（来自 /admin/v1/project、
      * /admin/v1/user 等列表行）解码为 int 合并回请求，fill 落库即为 int。
+     * 解不出（垃圾串 / 数组）返回错误文案由调用方 422 —— 旧写法 (int) 兜底会静默写 0。
      */
-    protected function decodeFkIntoRequest(Request $request): void
+    protected function decodeFkIntoRequest(Request $request, ?ProjectTimesheet $existing = null): ?string
     {
         foreach (['project_id', 'task_id', 'user_id'] as $key) {
             $value = $request->input($key, '');
-            if ($value !== null && $value !== '') {
-                $request->setGet($key, $this->decodeIdSafe((string) $value) ?? (int) $value);
+            if ($value === null) {
+                continue;
             }
+            if ($value === '') {
+                // 空串=不改动：留着会被 fill 把 '' 写进 NOT NULL BIGINT 列（严格模式 1366 → 500）
+                if ($existing !== null) {
+                    $request->setGet($key, $existing->getAttribute($key));
+                }
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($value);
+            if ($decoded === null) {
+                return $this->trans('Invalid :field', ['field' => $key]);
+            }
+            $request->setGet($key, $decoded);
         }
+
+        return null;
     }
 
     /**
@@ -203,7 +223,10 @@ class TimesheetController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        $this->decodeFkIntoRequest($request);
+        $fkError = $this->decodeFkIntoRequest($request, $item);
+        if ($fkError !== null) {
+            return $this->fail($fkError, 422);
+        }
         $this->fillModelFromRequest($item, $request);
         $item->save();
 

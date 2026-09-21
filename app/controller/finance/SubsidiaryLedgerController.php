@@ -8,7 +8,9 @@ declare(strict_types=1);
 namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
+use app\model\FinanceAccount;
 use app\model\FinanceSubsidiaryLedger;
+use app\model\FinanceVoucher;
 use support\Request;
 use support\Response;
 
@@ -72,9 +74,21 @@ class SubsidiaryLedgerController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('entry_date', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'account_id', 'voucher_id', 'voucher_item_id']));
+        $models = $query->offset(($page - 1) * $limit)
+            ->limit($limit)->orderBy('entry_date', 'desc')->get();
+        // 行补科目名/凭证号：前端 inferColumns 用 *_name、*_code 兄弟列渲染，
+        // 否则这两列显示的是编码后的 hashid
+        $accountNames = FinanceAccount::query()->whereIn('id', $models->pluck('account_id')->all())
+            ->pluck('name', 'id')->all();
+        $voucherCodes = FinanceVoucher::query()->whereIn('id', $models->pluck('voucher_id')->all())
+            ->pluck('code', 'id')->all();
+        $list = $models->map(function ($item) use ($accountNames, $voucherCodes) {
+            $row = $this->encodeIds($item->toArray(), ['id', 'account_id', 'voucher_id', 'voucher_item_id']);
+            $row['account_name'] = $accountNames[$item->account_id] ?? '';
+            $row['voucher_code'] = $voucherCodes[$item->voucher_id] ?? '';
+
+            return $row;
+        });
 
         return $this->successPage($list, $total, $page, $limit);
     }

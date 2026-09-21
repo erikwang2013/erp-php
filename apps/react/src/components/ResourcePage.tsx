@@ -26,7 +26,7 @@ import { inferColumns, inferDetailItems } from '@/lib/defaults';
 import { mergeEditRow } from '@/lib/edit-row';
 import { prefetch } from '@/lib/options';
 import { seqGuard } from '@/lib/seq';
-import { flattenIfTree } from '@/lib/tree';
+import { flattenIfTree, toggleCollapsed, visibleRows } from '@/lib/tree';
 
 /**
  * 配置驱动的通用 CRUD 页。
@@ -63,6 +63,11 @@ export function ResourcePage({
 
   const [rows, setRows] = useState<Row[]>([]);
   const [total, setTotal] = useState(0);
+  /**
+   * 树形行的已折叠 key 集（键为 lib/tree.rowKey）。空集 = 全展开（默认），
+   * 渲染前用 visibleRows 把折叠节点的整棵子树摘掉，行数据本身不动。
+   */
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [paginated, setPaginated] = useState(cfg.paginated !== false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -271,7 +276,7 @@ export function ResourcePage({
   );
 
   const cols = [
-    ...(cfg.columns ?? inferColumns(rows, cfg.endpoint, cfg.fields)),
+    ...(cfg.columns ?? inferColumns(rows, cfg.endpoint, cfg.fields, 8, cfg.filters)),
     {
       key: '__actions',
       title: '操作',
@@ -339,7 +344,8 @@ export function ResourcePage({
         ) : (
           <DataTable
             columns={cols}
-            rows={rows}
+            // 折叠只在渲染前滤一层（行数据与 total 不动，展开即恢复）
+            rows={visibleRows(rows, collapsed)}
             loading={loading}
             error={error}
             onRetry={refresh}
@@ -349,6 +355,8 @@ export function ResourcePage({
             onPage={setPage}
             showPager={paginated}
             emptyDesc={cfg.emptyDesc}
+            collapsed={collapsed}
+            onToggleCollapse={(k) => setCollapsed((c) => toggleCollapsed(c, k))}
           />
         )}
       </div>
@@ -370,7 +378,7 @@ export function ResourcePage({
           {cfg.detail ? (
             cfg.detail(detail)
           ) : (
-            <DescList items={inferDetailItems(detail)} />
+            <DescList items={inferDetailItems(detail, cols)} />
           )}
         </Modal>
       )}

@@ -128,7 +128,16 @@ export const mgmtMenus: MenuGroup[] = [
             { key: 'job_id', label: '应聘职位', required: true, source: { endpoint: '/admin/v1/hr/recruit/job', labelKey: 'job_title' } },
             { key: 'expected_salary', label: '期望薪资', type: 'number' },
           ],
-          // 推进状态需选择目标阶段，泛型确认弹层不承载下拉，留待专用动作弹层
+          // 推进阶段走 RecruitController::candidateAdvance（POST …/candidate/{id}/advance）。
+          // 旧注释写「泛型确认弹层不承载下拉，留待专用动作弹层」——bodyFields 早已支持 type:'select'，
+          // 通用动作弹层就是那个弹层，于是这条链路一直只有一个后端端点、界面无路可走。
+          // 但下拉列全 6 个阶段等于 5/6 是非法值（RecruitService::canAdvanceCandidateStatus 只放行
+          // 逐级 0→1→2→3→4 与任意状态→5 淘汰，非法即 422），故按行算目标阶段：
+          // 一个「推进下一级」（status<4）+ 一个「淘汰」（status≠5），两个按钮恒合法
+          actions: [
+            { label: '推进下一级', icon: 'send', path: (r) => (Number(r.status) < 4 ? `/admin/v1/hr/recruit/candidate/${String(r.id)}/advance` : null), body: (r) => ({ status: Number(r.status) + 1 }), message: '阶段已推进' },
+            { label: '淘汰', icon: 'close', variant: 'icon-danger', path: (r) => (Number(r.status) === 5 ? null : `/admin/v1/hr/recruit/candidate/${String(r.id)}/advance`), body: () => ({ status: 5 }), message: '已淘汰' },
+          ],
         }),
       },
       {
@@ -158,7 +167,12 @@ export const mgmtMenus: MenuGroup[] = [
             { key: 'offered_salary', label: 'Offer 薪资', required: true, type: 'number' },
             { key: 'onboard_date', label: '入职日期', type: 'date' },
           ],
-          actions: [{ label: '发出', icon: 'send', path: (r) => `/admin/v1/hr/recruit/offer/${String(r.id)}/send`, message: 'Offer 已发出' }],
+          // offer 状态机 0草稿→1已发出→2已接受/3已拒绝（RecruitService 三个守卫各自校验 from 状态）
+          actions: [
+            { label: '发出', icon: 'send', path: (r) => (Number(r.status) === 0 ? `/admin/v1/hr/recruit/offer/${String(r.id)}/send` : null), message: 'Offer 已发出' },
+            { label: '接受', icon: 'check', path: (r) => (Number(r.status) === 1 ? `/admin/v1/hr/recruit/offer/${String(r.id)}/accept` : null), message: 'Offer 已接受，候选人已入职' },
+            { label: '拒绝', icon: 'close', variant: 'icon-danger', path: (r) => (Number(r.status) === 1 ? `/admin/v1/hr/recruit/offer/${String(r.id)}/reject` : null), message: 'Offer 已拒绝，候选人退回面试中' },
+          ],
         }),
       },
     ],
@@ -263,9 +277,13 @@ export const mgmtMenus: MenuGroup[] = [
             { key: 'project_id', label: '所属项目', required: true, source: { endpoint: '/admin/v1/project', labelKey: 'name' } },
             { key: 'work_date', label: '发生日期', required: true, type: 'date' },
             { key: 'category', label: '成本类别', required: true, type: 'select', options: [{ label: '人工', value: 1 }, { label: '材料', value: 2 }, { label: '其他', value: 3 }] },
-            { key: 'hours', label: '工时', type: 'number' },
+            // hours/cost 必须始终送数：ProjectCostController::store 的 validator 对两者都是
+            // 'required|numeric'（注释里的「按类别必填」不生效），而表单空串会被剔出 body
+            // → 材料/其他类填了金额也 422「工时不能为空」。默认 0 送出后由服务层给准确报错
+            // （「成本金额必须大于0」），人工类则由后端按 工时×费率 自算、忽略传入 cost。
+            { key: 'hours', label: '工时', type: 'number', defaultValue: 0 },
             { key: 'rate', label: '费率(元/小时)', type: 'number' },
-            { key: 'cost', label: '金额', type: 'number' },
+            { key: 'cost', label: '金额', type: 'number', defaultValue: 0 },
             { key: 'task_id', label: '关联任务', source: { endpoint: '/admin/v1/project/task', labelKey: 'name' } },
             { key: 'employee_id', label: '员工', source: { endpoint: '/admin/v1/hr/employee', labelKey: 'name' } },
             { key: 'remark', label: '备注', type: 'textarea', full: true },
@@ -279,7 +297,7 @@ export const mgmtMenus: MenuGroup[] = [
     icon: 'clipboard',
     moduleKey: 'workflow',
     children: [
-      { label: '工作流定义', path: '/workflow/definition', cfg: res('工作流定义', '/admin/v1/workflow', { moduleKey: 'workflow', fields: [{ key: 'name', label: '模板名称', required: true }, { key: 'code', label: '模板编码', required: true }, { key: 'target_type', label: '目标类型', required: true }, { key: 'remark', label: '备注', type: 'textarea', full: true }], actions: [{ label: '发起审批', icon: 'send', path: (r) => `/admin/v1/workflow/${String(r.id)}/submit`, bodyFields: [{ key: 'target_type', label: '单据类型', required: true, placeholder: '如 purchase_order' }, { key: 'target_id', label: '单据 ID', required: true, type: 'number', help: '后端按整数 ID 查实例，填单据的数字 ID' }], message: '审批已发起' }] }) },
+      { label: '工作流定义', path: '/workflow/definition', cfg: res('工作流定义', '/admin/v1/workflow', { moduleKey: 'workflow', fields: [{ key: 'name', label: '模板名称', required: true }, { key: 'code', label: '模板编码', required: true }, { key: 'target_type', label: '目标类型', required: true }, { key: 'remark', label: '备注', type: 'textarea', full: true }], actions: [{ label: '发起审批', icon: 'send', path: (r) => `/admin/v1/workflow/${String(r.id)}/submit`, bodyFields: [{ key: 'target_type', label: '单据类型', required: true, placeholder: '如 purchase_order' }, { key: 'target_id', label: '单据 ID', required: true, help: '单据的 hashid（取单据列表 ID 列的值）' }], message: '审批已发起' }] }) },
       { label: '我的审批', path: '/workflow/my', cfg: res('我的审批', '/admin/v1/approval/my', { moduleKey: 'workflow', canDelete: false, columns: [textCol('target_type', '单据类型', true), textCol('target_id', '单据'), statusCol(docStatus(['审批中', '已通过', '已驳回', '已撤回']).dict), dateCol('created_at', '提交时间')], actions: [{ label: '通过', icon: 'check', path: (r) => `/admin/v1/approval/${String(r.id)}/approve`, message: '已通过' }, { label: '驳回', icon: 'close', variant: 'icon-danger', path: (r) => `/admin/v1/approval/${String(r.id)}/reject`, bodyFields: [{ key: 'comment', label: '驳回意见', required: true, type: 'textarea', full: true }], message: '已驳回' }, { label: '撤销', icon: 'refresh', path: (r) => (String(r.submitter_id) === currentUserId() ? `/admin/v1/approval/${String(r.id)}/withdraw` : null), message: '已撤销' }] }) },
     ],
   },

@@ -10,7 +10,9 @@ namespace app\controller\project;
 use app\admin\controller\BaseController;
 use app\model\AdminUser;
 use app\model\Project;
+use app\model\ProjectCost;
 use app\model\ProjectTask;
+use app\model\ProjectTimesheet;
 use support\Request;
 use support\Response;
 
@@ -73,7 +75,12 @@ class ProjectController extends BaseController
             $query->where('status', (int) $status);
         }
         if ($managerId !== null && $managerId !== '') {
-            $query->where('manager_user_id', $this->decodeIdSafe((string) $managerId) ?? (int) $managerId);
+            // 非法筛选值不许静默 (int) 成 0（where 0 恒不命中 → 空列表，看着像「没数据」）
+            $decodedManagerId = $this->decodeFlexibleId($managerId);
+            if ($decodedManagerId === null) {
+                return $this->fail($this->trans('Invalid manager ID'), 422);
+            }
+            $query->where('manager_user_id', $decodedManagerId);
         }
 
         $total = $query->count();
@@ -120,8 +127,13 @@ class ProjectController extends BaseController
 
         $item = new Project();
         $item->id = $this->generateId();
-        // manager_user_id 接受 /admin/v1/user 列表下发的 hashid，先解码回 int 再 fill
-        $request->setGet('manager_user_id', $this->decodeIdSafe((string) $request->input('manager_user_id')) ?? 0);
+        // manager_user_id 接受 /admin/v1/user 列表下发的 hashid，先解码回 int 再 fill；
+        // 解不出（垃圾串 / 数组）一律 422，不得 (int) 兜底成 0 写进关联列
+        $managerId = $this->decodeFlexibleId($request->input('manager_user_id'));
+        if ($managerId === null) {
+            return $this->fail($this->trans('Invalid manager ID'), 422);
+        }
+        $request->setGet('manager_user_id', $managerId);
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
@@ -155,7 +167,10 @@ class ProjectController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        $result = $this->encodeIds($item->toArray(), ['id', 'manager_user_id']);
+        // 白名单必须与 index 一致：传了 $fields 自动 id/*_id 探测即关闭，漏 customer_id 就是裸雪花外泄
+        $result = $this->encodeIds($item->toArray(), ['id', 'manager_user_id', 'customer_id']);
+        $result['manager_name'] = (string) (AdminUser::query()->where('id', $item->getAttribute('manager_user_id'))
+            ->value('real_name') ?? '');
         $result['progress'] = $this->calcProgress($item->id);
 
         return $this->success($result);
@@ -188,8 +203,16 @@ class ProjectController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        if ($request->input('manager_user_id', '') !== '') {
-            $request->setGet('manager_user_id', $this->decodeIdSafe((string) $request->input('manager_user_id')) ?? 0);
+        $managerRaw = $request->input('manager_user_id', '');
+        if ($managerRaw !== '' && $managerRaw !== null) {
+            $managerId = $this->decodeFlexibleId($managerRaw);
+            if ($managerId === null) {
+                return $this->fail($this->trans('Invalid manager ID'), 422);
+            }
+            $request->setGet('manager_user_id', $managerId);
+        } elseif ($managerRaw === '') {
+            // 空串=不改动：留着会让 fill 把 '' 写进 BIGINT 列（MySQL 严格模式 1366 → 500）
+            $request->setGet('manager_user_id', $item->getAttribute('manager_user_id'));
         }
 
         $this->fillModelFromRequest($item, $request);
@@ -225,6 +248,16 @@ class ProjectController extends BaseController
         $item = Project::find($id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+
+        // 下游引用守卫（关联表无 FK 约束）：软删项目会把任务/工时/成本留成 project_id 悬空行
+        $refs = [
+            ProjectTask::query()->where('project_id', $id)->exists(),
+            ProjectTimesheet::query()->where('project_id', $id)->exists(),
+            ProjectCost::query()->where('project_id', $id)->exists(),
+        ];
+        if (in_array(true, $refs, true)) {
+            return $this->fail($this->trans('The project has tasks, timesheets or cost records; it cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

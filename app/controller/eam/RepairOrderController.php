@@ -74,9 +74,14 @@ class RepairOrderController extends BaseController
         if ($status !== null && $status !== '') {
             $query->where('status', $status);
         }
+        // 筛选值来自前端设备下拉（hashid）：decodeId 对垃圾串抛异常（未捕获 → 500）→ 双模解码 + 422
         $equipmentId = $request->input('equipment_id');
-        if ($equipmentId) {
-            $query->where('equipment_id', $this->decodeId($equipmentId));
+        if ($equipmentId !== null && $equipmentId !== '') {
+            $equipmentId = $this->decodeFlexibleId($equipmentId);
+            if ($equipmentId === null || $equipmentId < 1) {
+                return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+            }
+            $query->where('equipment_id', $equipmentId);
         }
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray(), ['id', 'equipment_id']));
@@ -103,9 +108,10 @@ class RepairOrderController extends BaseController
 
     public function store(Request $request): Response
     {
+        // equipment_id 来自前端设备下拉（hashid）：原 required|integer 会把合法 hashid 判成 422
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
-            'equipment_id' => 'required|integer',
+            'equipment_id' => 'required|string',
             'fault_description' => 'required|string|max:1000',
             'repair_type' => 'required|string|max:50',
         ]);
@@ -115,7 +121,13 @@ class RepairOrderController extends BaseController
         $item = new EamRepairOrder();
         $item->id = $this->generateId();
         $item->status = 'open';
-        $this->fillModelFromRequest($item, $request);
+        $data = $request->only($item->getFillable());
+        $equipmentId = $this->decodeFlexibleId($data['equipment_id'] ?? '');
+        if ($equipmentId === null || $equipmentId < 1) {
+            return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+        }
+        $data['equipment_id'] = $equipmentId;
+        $item->fill($data);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -178,7 +190,19 @@ class RepairOrderController extends BaseController
         if (in_array($item->status, ['completed', 'cancelled'], true)) {
             return $this->fail($this->trans('Completed or cancelled work orders cannot be edited'), 422);
         }
-        $this->fillModelFromRequest($item, $request);
+        $data = $request->only($item->getFillable());
+        // equipment_id 显式传值则双模解码（hashid 直插 BIGINT 严格模式 1366 → 500），空串按"不修改"处理
+        $raw = $data['equipment_id'] ?? '';
+        if ($raw === '' || $raw === '0' || $raw === 0) {
+            unset($data['equipment_id']);   // 未填/清空 → 不改动
+        } else {
+            $equipmentId = $this->decodeFlexibleId($raw);
+            if ($equipmentId === null || $equipmentId < 1) {
+                return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+            }
+            $data['equipment_id'] = $equipmentId;
+        }
+        $item->fill($data);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

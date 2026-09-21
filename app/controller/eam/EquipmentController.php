@@ -9,6 +9,10 @@ namespace app\controller\eam;
 
 use app\admin\controller\BaseController;
 use app\model\EamEquipment;
+use app\model\EamInspectionTask;
+use app\model\EamMaintenancePlan;
+use app\model\EamRepairOrder;
+use app\model\EamSparePart;
 use support\Request;
 use support\Response;
 
@@ -101,7 +105,11 @@ class EquipmentController extends BaseController
         }
         $item = new EamEquipment();
         $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
+        $data = $this->normalizeFkData($request->only($item->getFillable()));
+        if ($data === null) {
+            return $this->fail('部门ID' . $this->trans('Invalid'), 422);
+        }
+        $item->fill($data);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -160,7 +168,11 @@ class EquipmentController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
-        $this->fillModelFromRequest($item, $request);
+        $data = $this->normalizeFkData($request->only($item->getFillable()));
+        if ($data === null) {
+            return $this->fail('部门ID' . $this->trans('Invalid'), 422);
+        }
+        $item->fill($data);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
@@ -193,6 +205,23 @@ class EquipmentController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
+        // 主子引用保护：设备被保养计划/维修工单/备件/点检任务引用时硬删除会留下悬空外键 → 422
+        // （位置与 finance/CurrencyController 等既有守卫一致：密码二次确认之前）
+        $referenced = [];
+        foreach ([
+            EamMaintenancePlan::class => '保养计划',
+            EamRepairOrder::class => '维修工单',
+            EamSparePart::class => '备品备件',
+            EamInspectionTask::class => '点检任务',
+        ] as $model => $label) {
+            $count = $model::query()->where('equipment_id', $id)->count();
+            if ($count > 0) {
+                $referenced[] = $label . ' ' . $count . ' 条';
+            }
+        }
+        if ($referenced !== []) {
+            return $this->fail('设备已被' . implode('、', $referenced) . '引用，无法删除', 422);
+        }
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
         if ($error !== null) {
@@ -201,5 +230,28 @@ class EquipmentController extends BaseController
         $item->delete();
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * 外键解码：department_id 空值按"不修改/默认"处理，非法值返回 null（调用方 422）
+     */
+    private function normalizeFkData(array $data): ?array
+    {
+        if (!array_key_exists('department_id', $data)) {
+            return $data;
+        }
+        $raw = $data['department_id'];
+        if ($raw === '' || $raw === null || $raw === 0 || $raw === '0') {
+            unset($data['department_id']);
+
+            return $data;
+        }
+        $id = $this->decodeFlexibleId($raw);
+        if ($id === null || $id < 1) {
+            return null;
+        }
+        $data['department_id'] = $id;
+
+        return $data;
     }
 }

@@ -9,6 +9,7 @@ import '../../widgets/filter_chips_bar.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
+import '../../widgets/line_items_editor.dart';
 
 class SalesOrderListPage extends StatefulWidget {
   const SalesOrderListPage({super.key});
@@ -45,8 +46,17 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
   }
 
   Future<void> _create() async {
-    await FormDialog.show(context, title: AppL10n.of(context).salesOrderAdd, fields: _formFields(), onSubmit: (data) async {
+    final l10n = AppL10n.of(context);
+    // 明细经 FormDialog 的 child 插槽接入（表单值 Map<String,String> 装不下数组），
+    // 累积结果由下面的 onSubmit 闭包捕获后塞进 payload。
+    // 明细仅新建期填写：编辑态不回填 items，避免「空编辑器 + 整表替换」误清明细。
+    var items = <Map<String, dynamic>>[];
+    await FormDialog.show(context, title: l10n.salesOrderAdd, fields: _formFields(),
+      child: LineItemsEditor(onChanged: (rows) => items = rows),
+      onSubmit: (data) async {
+      if (items.isEmpty) throw Exception(l10n.detailAllocateEmpty);
       final payload = _buildPayload(data);
+      payload['items'] = items;
       await ApiService.instance.post('/admin/v1/sales/order', data: payload);
       _load(); return true;
     });
@@ -68,34 +78,14 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
     });
   }
 
-  /// 销售结算：打开结算表单（金额/日期/方式 → 后端 amount/received_amount/settled_at/status），
-  /// 提交 POST /admin/sales/settlement。
-  Future<void> _settle(Map<String, dynamic> row) async {
-    final now = DateTime.now();
-    String pad(int v) => v.toString().padLeft(2, '0');
-    final defaultSettledAt =
-        '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
-    await FormDialog.show(context, title: AppL10n.of(context).salesSettleTitle, fields: [
-      FormFieldConfig(name: 'customer_id', label: AppL10n.of(context).salesCustomerId, required: true, initialValue: '${row['customer_id'] ?? ''}'),
-      FormFieldConfig(name: 'delivery_id', label: AppL10n.of(context).salesDeliveryId, required: true),
-      FormFieldConfig(name: 'amount', label: AppL10n.of(context).salesReceivableAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonExampleAmount('1000.00')),
-      FormFieldConfig(name: 'received_amount', label: AppL10n.of(context).salesReceivedAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonDefaultZero),
-      FormFieldConfig(name: 'status', label: AppL10n.of(context).salesSettleStatus, type: FormFieldType.dropdown,
-        options: ['0 - ${AppL10n.of(context).salesSettlementUnsettled}', '1 - ${AppL10n.of(context).salesSettlementPartSettled}', '2 - ${AppL10n.of(context).salesSettlementSettled}'], initialValue: '0 - ${AppL10n.of(context).salesSettlementUnsettled}'),
-      FormFieldConfig(name: 'settled_at', label: AppL10n.of(context).salesSettledAt, initialValue: defaultSettledAt,
-        hint: AppL10n.of(context).commonDateTimeFormat),
-    ], onSubmit: (data) async {
-      final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
-      await ApiService.instance.post('/admin/v1/sales/settlement', data: {
-        'customer_id': data['customer_id']?.trim(),
-        'delivery_id': data['delivery_id']?.trim(),
-        'amount': (data['amount']?.trim().isEmpty ?? true) ? '0' : data['amount']!.trim(),
-        'received_amount': (data['received_amount']?.trim().isEmpty ?? true) ? '0' : data['received_amount']!.trim(),
-        'status': statusRaw,
-        'settled_at': data['settled_at']?.trim(),
-      });
-      _load(); return true;
-    });
+  /// 销售结算：本页不再自建弹窗 —— 旧弹窗上送的 customer_id/received_amount/status/
+  /// settled_at 后端 SettlementController::store 一律不读（状态由服务层推导），
+  /// 且不收集 required 的 receipt_payment_id，请求恒在 validator 处 422。
+  /// 结算页（/sales/settlement）本就是同一契约的表单，直接跳过去。
+  Future<void> _settle() async {
+    await Get.toNamed('/sales/settlement');
+    // 结算页不 pop 回传值，且核销会改订单状态 → 返回后无条件刷新
+    if (mounted) _load();
   }
 
   // 后端 erp_sales_order 字段: code/customer_id/warehouse_id/total_amount/
@@ -201,7 +191,7 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
       IconButton(icon: const Icon(Icons.visibility_outlined, size: 18),
         tooltip: AppL10n.current.commonDetail, onPressed: () => _detail(r)),
       IconButton(icon: Icon(Icons.paid, size: 18, color: AppColors.of(context).primary),
-        tooltip: AppL10n.current.salesSettleTooltip, onPressed: () => _settle(r)),
+        tooltip: AppL10n.current.salesSettleTooltip, onPressed: _settle),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),

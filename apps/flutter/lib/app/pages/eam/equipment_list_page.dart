@@ -76,8 +76,15 @@ class _EquipmentListPageState extends State<EquipmentListPage> {
     FormFieldConfig(name: 'department_id', label: AppL10n.current.eamDepartmentId, type: FormFieldType.number),
     FormFieldConfig(name: 'purchase_date', label: AppL10n.current.eamPurchaseDate),
     FormFieldConfig(name: 'warranty_expiry', label: AppL10n.current.eamWarrantyExpiry),
-    FormFieldConfig(name: 'status', label: AppL10n.current.commonStatus, type: FormFieldType.dropdown, options: ['0', '1']),
+    FormFieldConfig(name: 'status', label: AppL10n.current.commonStatus, type: FormFieldType.dropdown, options: const ['0', '1'], optionLabels: {'0': AppL10n.current.commonDisabled, '1': AppL10n.current.commonEnabled}),
   ];
+
+  /// 状态列/详情值：0/1 走后端语义（TINYINT 默认 1=启用），未知值原样回落
+  static String _statusLabel(Object? v) => switch ('$v') {
+        '0' => AppL10n.current.commonDisabled,
+        '1' => AppL10n.current.commonEnabled,
+        _ => '$v',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +120,7 @@ class _EquipmentListPageState extends State<EquipmentListPage> {
     AppL10n.current.eamEquipmentName: r['name'] ?? '',
     AppL10n.current.eamModel: r['model'] ?? '',
     AppL10n.current.eamCategoryCol: r['category'] ?? '',
-    AppL10n.current.commonStatus: r['status'] ?? '',
+    AppL10n.current.commonStatus: _statusLabel(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

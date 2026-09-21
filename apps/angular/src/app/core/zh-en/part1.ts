@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-// 词典切片 1/4，由 ./index 合并导出；查找词条请 grep 整个目录。
+// 词典切片 1/6，由 ./index 合并导出；查找词条请 grep 整个目录。
 
 export const zhEnPart1: Record<string, string> = {
   ':attribute 不存在': 'The :attribute does not exist',

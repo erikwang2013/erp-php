@@ -55,7 +55,26 @@ abstract class H1H2Scaffold extends IntegrationTestCase
     {
         $path = dirname(__DIR__, 2) . '/database/h1h2_hr.sql';
         if (!is_file($path)) {
-            self::markTestSkipped('缺少 database/h1h2_hr.sql（scratch 建表脚本未随批次交付），跳过 H1/H2 集成测试');
+            // scratch DDL 从未随批次交付，但这 8 张表已在 install.sql 里（测试库由它初始化）。
+            // 旧守卫「缺文件即跳过」使本类 26 个用例长期假绿：表在、断言没跑。改为按现成
+            // schema 继续；只有表也缺才跳过。tearDown 走 dropTableIfCreated，不会误删真表。
+            $missing = array_filter(
+                self::H1H2_TABLES,
+                static fn (string $table): bool => !Capsule::schema()->hasTable($table)
+            );
+            if ($missing !== []) {
+                self::markTestSkipped(
+                    '缺少 database/h1h2_hr.sql 且测试库无 ' . implode('/', $missing) . ' 表，跳过 H1/H2 集成测试'
+                );
+            }
+
+            // 走回退路径时 setUp 不再 DROP+CREATE，须补上「每例空表起步」这一语义：
+            // 否则同类前一用例插入的行会残留，断言计数整体偏移（H3 课程列表曾 16≠3）。
+            foreach (self::H1H2_TABLES as $table) {
+                Capsule::table($table)->truncate();
+            }
+
+            return;
         }
         $lines = array_filter(
             explode("\n", (string) file_get_contents($path)),

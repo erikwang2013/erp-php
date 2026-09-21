@@ -6,6 +6,7 @@ import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../l10n/app_l10n.dart';
+import '../../utils/format.dart';
 
 class ReportListPage extends StatefulWidget {
   const ReportListPage({super.key});
@@ -89,7 +90,7 @@ class _ReportListPageState extends State<ReportListPage> {
                 const SizedBox(height: 4),
                 Text(l10n.reportFieldRowCount('${d['rows_count'] ?? (rawData is List ? rawData.length : '-')}')),
                 const SizedBox(height: 4),
-                if (d['generated_at'] != null) Text(l10n.reportFieldGeneratedAt('${d['generated_at']}')),
+                if (d['generated_at'] != null) Text(l10n.reportFieldGeneratedAt(fmtDateTime(d['generated_at']))),
                 const SizedBox(height: 12),
                 if (rawData is List && rawData.isNotEmpty) _resultTable(rawData)
                 else if (rawData is List)

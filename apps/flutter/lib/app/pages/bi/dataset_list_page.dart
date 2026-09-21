@@ -6,6 +6,7 @@ import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../l10n/app_l10n.dart';
+import '../../utils/format.dart';
 
 class DatasetListPage extends StatefulWidget {
   const DatasetListPage({super.key});
@@ -50,7 +51,9 @@ class _DatasetListPageState extends State<DatasetListPage> {
 
   Future<void> _edit(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
-    await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
+    // generated_at 为时间列，后端下发 ISO-UTC；输入框回填本地 `Y-m-d H:i:s`
+    await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(),
+      initialData: {...row, 'generated_at': fmtDateTime(row['generated_at'])}, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/bi/dataset/${row['id']}', data: data);
       _load(); return true;
     });
@@ -105,7 +108,7 @@ class _DatasetListPageState extends State<DatasetListPage> {
       l10n.biDatasetName: r['name'] ?? '',
       l10n.biTemplateId: r['template_id'] ?? '',
       l10n.biRowCount: r['rows_count'] ?? '',
-      l10n.biGeneratedAt: r['generated_at'] ?? '',
+      l10n.biGeneratedAt: fmtDateTime(r['generated_at']),
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
         IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

@@ -59,9 +59,14 @@ class EamInspectionController extends BaseController
         [$page, $limit] = $this->pageParams($request);
         $query = EamInspectionTask::query();
 
+        // 筛选值来自前端设备下拉（hashid）：decodeId 对垃圾串抛异常（未捕获 → 500）→ 双模解码 + 422
         $equipmentId = $request->input('equipment_id', '');
         if ($equipmentId !== '') {
-            $query->where('equipment_id', $this->decodeId($equipmentId));
+            $equipmentId = $this->decodeFlexibleId($equipmentId);
+            if ($equipmentId === null || $equipmentId < 1) {
+                return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+            }
+            $query->where('equipment_id', $equipmentId);
         }
         $taskDate = $request->input('task_date', '');
         if ($taskDate !== '') {
@@ -111,12 +116,31 @@ class EamInspectionController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // 三个外键都来自前端下拉（hashid）：decodeId 对纯数字串会静默解成 PHP_INT_MAX（实测 '410000000000000402'），
+        // 且数字形态的 ID 直接抛异常 → 统一双模解码 + 422
+        $equipmentId = $this->decodeFlexibleId($request->input('equipment_id', ''));
+        if ($equipmentId === null || $equipmentId < 1) {
+            return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+        }
+        $optional = ['source_plan_id' => 0, 'assignee_id' => 0];
+        foreach (['source_plan_id' => '来源计划ID', 'assignee_id' => '负责人ID'] as $field => $label) {
+            $raw = (string) $request->input($field, '');
+            if ($raw === '') {
+                continue;   // 选填：未传/空串 → 0（不关联）
+            }
+            $decoded = $this->decodeFlexibleId($raw);
+            if ($decoded === null || $decoded < 1) {
+                return $this->fail($label . $this->trans('Invalid'), 422);
+            }
+            $optional[$field] = $decoded;
+        }
+
         try {
             $task = $this->inspection()->createTask(
-                $this->decodeId((string) $request->input('equipment_id')),
+                $equipmentId,
                 (string) $request->input('task_date'),
-                $request->input('source_plan_id') ? $this->decodeId((string) $request->input('source_plan_id')) : 0,
-                $request->input('assignee_id') ? $this->decodeId((string) $request->input('assignee_id')) : 0,
+                $optional['source_plan_id'],
+                $optional['assignee_id'],
                 (string) $request->input('remark', ''),
             );
         } catch (InvalidArgumentException|RuntimeException $e) {
@@ -188,8 +212,13 @@ class EamInspectionController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $data = $request->all();
+        // assignee_id 来自前端负责人下拉（hashid）：decodeId 在 try 外对垃圾串抛异常（未捕获 → 500）→ 双模解码 + 422
         if (array_key_exists('assignee_id', $data) && $data['assignee_id'] !== '') {
-            $data['assignee_id'] = $this->decodeId((string) $data['assignee_id']);
+            $assigneeId = $this->decodeFlexibleId((string) $data['assignee_id']);
+            if ($assigneeId === null || $assigneeId < 1) {
+                return $this->fail('负责人ID' . $this->trans('Invalid'), 422);
+            }
+            $data['assignee_id'] = $assigneeId;
         }
         try {
             $task = $this->inspection()->updateTask($this->decodeId($id), $data);
@@ -257,9 +286,15 @@ class EamInspectionController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // 扫码入口的设备 ID 同样来自下拉（hashid）或数字形态 → 双模解码 + 422
+        $equipmentId = $this->decodeFlexibleId($request->input('equipment_id', ''));
+        if ($equipmentId === null || $equipmentId < 1) {
+            return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+        }
+
         try {
             $result = $this->inspection()->scanExecute(
-                $this->decodeId((string) $request->input('equipment_id')),
+                $equipmentId,
                 (string) $request->input('task_date'),
                 (array) $request->input('items', []),
             );

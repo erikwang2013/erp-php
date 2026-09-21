@@ -24,4 +24,6 @@ class WmsWaveOrder extends Model
         'oms_order_id' => 'integer',
         'sort' => 'integer',
     ];
+    // 表无 updated_at 列（仅 created_at DEFAULT CURRENT_TIMESTAMP），关闭 Eloquent 时间戳自动维护
+    public $timestamps = false;
 }

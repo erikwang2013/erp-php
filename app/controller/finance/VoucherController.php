@@ -18,6 +18,9 @@ use support\Response;
 
 class VoucherController extends BaseController
 {
+    /** 分录行入参中的外键（客户端下发 hashid，落库前必须解码；account_subject_id 为服务层兼容别名） */
+    private const ITEM_FK_FIELDS = ['account_id', 'account_subject_id'];
+
     /**
      * 记账凭证列表（分页）
      */
@@ -94,15 +97,24 @@ class VoucherController extends BaseController
         }
 
         if ($request->input('items')) {
+            $ledgerId = $this->optionalId($request->input('ledger_id'));
+            if ($ledgerId === null) {
+                return $this->fail($this->trans('Invalid ledger ID'), 422);
+            }
+            // 明细行 account_id 是客户端 hashid：不先解码，createVoucher 内的 `(int)` 强转
+            // 会把 hashid 静默落成 account_id=0（分录科目关联丢失）
+            $items = $this->decodeItemIds((array) $request->input('items'), self::ITEM_FK_FIELDS);
+            if ($items === null) {
+                return $this->fail($this->trans('Invalid account ID'), 422);
+            }
             try {
-                $ledgerId = $request->input('ledger_id');
                 // 空串须在此归一：createVoucher 用 ?? 判缺省，'' 会绕过生成落空单号撞 uk_code
                 $data = $request->all();
                 $data['code'] = doc_code($data['code'] ?? null, 'VCH');
                 $voucher = (new DoubleEntryService())->createVoucher(
                     $data,
-                    (array) $request->input('items'),
-                    $ledgerId ? $this->decodeIdSafe((string) $ledgerId) : null
+                    $items,
+                    $ledgerId ?: null
                 );
 
                 return $this->success($this->encodeIds($voucher->toArray()), $this->trans('Created successfully'));
@@ -115,7 +127,9 @@ class VoucherController extends BaseController
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
         $item->fill(['code' => doc_code($request->input('code'), 'VCH')]);
-        $this->decodeLedgerId($request, $item);
+        if (($error = $this->decodeLedgerId($request, $item)) !== null) {
+            return $this->fail($error, 422);
+        }
         $item->status = 0; // 草稿创建；审核仅可经 update 0→1
         if (!$item->voucher_date) {
             $item->voucher_date = date('Y-m-d'); // 无 items 直建兜底（表列 NOT NULL 无默认）
@@ -185,8 +199,15 @@ class VoucherController extends BaseController
             return $this->fail($this->trans('Audited vouchers cannot be modified'), 422);
         }
 
+        $voucherDate = $item->voucher_date;
         $this->fillModelFromRequest($item, $request);
-        $this->decodeLedgerId($request, $item);
+        // 空串 = 未填（通用 fill 会直写）：voucher_date 列 NOT NULL，写 '' 走 MySQL 1292 → 500
+        if ((string) $request->input('voucher_date', '') === '') {
+            $item->voucher_date = $voucherDate;
+        }
+        if (($error = $this->decodeLedgerId($request, $item)) !== null) {
+            return $this->fail($error, 422);
+        }
         // status 仅可 0→1（审核动作），禁止通过请求写入其他状态
         $item->status = (int) $request->input('status', 0) === 1 ? 1 : 0;
         if ((int) $item->status === 1 && $item->ledger_id !== null) {
@@ -244,12 +265,38 @@ class VoucherController extends BaseController
         return $this->success([], $this->trans('Deleted successfully'));
     }
 
-    /** ledger_id 入参为 hashid 编码串；通用 fill 会直写原串污染 BIGINT 列，这里统一解码（无效=默认账套） */
-    private function decodeLedgerId(Request $request, FinanceVoucher $item): void
+    /**
+     * ledger_id 入参为 hashid 编码串；通用 fill 会直写原串污染 BIGINT 列，这里统一解码。
+     * 缺省/空串 = 不动（createVoucher 侧 null 表示默认账套）；非空解不出 → 错误消息（调用方 422）。
+     * 不用 decodeIdSafe(...) 直落：垃圾串解出 null 会把已关联的账套静默清空。
+     *
+     * @return ?string 错误消息，null 表示通过
+     */
+    private function decodeLedgerId(Request $request, FinanceVoucher $item): ?string
     {
         $raw = $request->input('ledger_id');
-        if ($raw !== null && $raw !== '') {
-            $item->ledger_id = $this->decodeIdSafe((string) $raw);
+        if ($raw === null || $raw === '') {
+            return null;
         }
+        $ledgerId = $this->decodeFlexibleId($raw);
+        if ($ledgerId === null) {
+            return $this->trans('Invalid ledger ID');
+        }
+        $item->ledger_id = $ledgerId;
+
+        return null;
+    }
+
+    /**
+     * 可选外键入参：缺省/null/空串 → 0（未指定哨兵）；非空 → decodeFlexibleId，
+     * 解不出（垃圾串/数组）→ null 由调用方 422。
+     */
+    private function optionalId(mixed $raw): ?int
+    {
+        if ($raw === null || $raw === '') {
+            return 0;
+        }
+
+        return $this->decodeFlexibleId($raw);
     }
 }

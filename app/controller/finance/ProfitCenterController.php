@@ -90,9 +90,18 @@ class ProfitCenterController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // 上级收 hashid 串（上级下拉下发）或原生数字；未传/空串＝顶层
+        $parentInput = $request->input('parent_id');
+        $parentId = $this->decodeFlexibleId($parentInput === null || $parentInput === '' ? 0 : $parentInput);
+        if ($parentId === null) {
+            return $this->fail($this->trans('Invalid parent_id'), 422);
+        }
+
         $item = new FinanceProfitCenter();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 覆盖回填：fillModelFromRequest 落的是请求原文（hashid 串直灌 BIGINT 报 1366 → 500）
+        $item->fill(['parent_id' => $parentId]);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -161,7 +170,20 @@ class ProfitCenterController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        // 上级同 store 解码；未传＝不改动，空串＝顶层。父级挂到自身或自身后代即成环，
+        // 环上节点在列表树里不可达（整枝消失）
+        $parentInput = $request->input('parent_id');
         $this->fillModelFromRequest($item, $request);
+        if ($parentInput !== null) {
+            $parentId = $this->decodeFlexibleId($parentInput === '' ? 0 : $parentInput);
+            if ($parentId === null) {
+                return $this->fail($this->trans('Invalid parent_id'), 422);
+            }
+            if ($parentId > 0 && $this->isSelfOrDescendant($parentId, $id)) {
+                return $this->fail($this->trans('Parent cannot be itself or its descendant'), 422);
+            }
+            $item->fill(['parent_id' => $parentId]);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
@@ -209,6 +231,22 @@ class ProfitCenterController extends BaseController
         $item->delete();
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * $nodeId 是否等于 $ancestorId 或位于其子树内（用于拒绝成环的 parent_id）。
+     * 环由脏数据预先存在时，向上走可能不终止，故按深度上限兜底。
+     */
+    private function isSelfOrDescendant(int $nodeId, int $ancestorId): bool
+    {
+        for ($cur = $nodeId, $i = 0; $cur > 0 && $i < 64; $i++) {
+            if ($cur === $ancestorId) {
+                return true;
+            }
+            $cur = (int) FinanceProfitCenter::query()->where('id', $cur)->value('parent_id');
+        }
+
+        return false;
     }
 
     /**

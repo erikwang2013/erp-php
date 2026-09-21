@@ -3108,4 +3108,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tmsFreightValidTo => 'Valid To';
+
+  @override
+  String get dashboardKpiPendingOrders => 'Pending Orders';
+
+  @override
+  String get dashboardKpiPickingOrders => 'Picking Orders';
+
+  @override
+  String get dashboardKpiShippedToday => 'Shipped Today';
+
+  @override
+  String get dashboardKpiPendingRma => 'Pending RMA';
+
+  @override
+  String get dashboardKpiPendingReceiving => 'Pending Receipt';
+
+  @override
+  String get dashboardKpiPendingPutaway => 'Pending Putaway';
+
+  @override
+  String get dashboardKpiPendingPicks => 'Pending Pick';
+
+  @override
+  String get dashboardKpiPendingPacks => 'Pending Pack';
+
+  @override
+  String get dashboardKpiPendingShipments => 'Pending Shipment';
+
+  @override
+  String get dashboardKpiInTransit => 'In Transit';
+
+  @override
+  String get dashboardKpiDeliveredToday => 'Delivered Today';
+
+  @override
+  String get dashboardKpiExceptionShipments => 'Exception Shipments';
+
+  @override
+  String get dashboardExportDocTitle => 'Dashboard Data Export';
+
+  @override
+  String get dashboardExportExcelTriggered => 'Excel export triggered';
+
+  @override
+  String get loginShowPassword => 'Show password';
+
+  @override
+  String get loginHidePassword => 'Hide password';
+
+  @override
+  String get commonComingSoon => 'This page is under development';
+
+  @override
+  String get inventoryTransferFrom => 'From Warehouse';
+
+  @override
+  String get inventoryTransferTo => 'Destination Warehouse';
+
+  @override
+  String get projectCostTitle => 'Project Cost';
+
+  @override
+  String get fieldOccurDate => 'Occur Date';
+
+  @override
+  String get fieldCostCategory => 'Cost Category';
+
+  @override
+  String get fieldRate => 'Rate (yuan/hour)';
+
+  @override
+  String get fieldLinkedTask => 'Linked Task';
+
+  @override
+  String get fieldEmployee => 'Employee';
+
+  @override
+  String get projectCostLabor => 'Labor';
+
+  @override
+  String get projectCostMaterial => 'Material';
+
+  @override
+  String get projectCostOther => 'Other';
 }

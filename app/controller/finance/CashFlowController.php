@@ -46,12 +46,23 @@ class CashFlowController extends BaseController
         $year = (int) $request->input('report_year', (int) date('Y'));
         $month = (int) $request->input('report_month', (int) date('m'));
 
-        // 作用域：company_id/ledger_id 可选（hashid 编码），缺省回落到默认公司/账套
+        // 作用域：company_id/ledger_id 可选（hashid 或原生数字），缺省回落到默认公司/账套；
+        // 非空但解不出 → 422（原 decodeIdSafe 静默回落默认账套，把别家的报表当本家返回）
+        $scopeIds = [];
+        foreach (['company_id', 'ledger_id'] as $field) {
+            $raw = $request->input($field) ?: null;
+            if ($raw === null) {
+                $scopeIds[$field] = null;
+
+                continue;
+            }
+            $scopeIds[$field] = $this->decodeFlexibleId($raw);
+            if ($scopeIds[$field] === null) {
+                return $this->fail($this->trans('Invalid ' . $field), 422);
+            }
+        }
         try {
-            $scope = (new LedgerService())->resolveScope(
-                $request->input('company_id') ? $this->decodeIdSafe((string) $request->input('company_id')) : null,
-                $request->input('ledger_id') ? $this->decodeIdSafe((string) $request->input('ledger_id')) : null
-            );
+            $scope = (new LedgerService())->resolveScope($scopeIds['company_id'], $scopeIds['ledger_id']);
         } catch (\RuntimeException $e) {
             return $this->fail($e->getMessage(), 422);
         }
@@ -65,8 +76,9 @@ class CashFlowController extends BaseController
 
         if ($snapshot) {
             $data = $this->encodeIds($snapshot->toArray());
-            // DB JSON 列读出为串，出口统一为对象（契约见批1 报表对象化）
-            $data['report_data'] = $this->decodeReportData($data['report_data'] ?? null);
+            // DB JSON 列读出为串，出口统一为对象（契约见批1 报表对象化）；
+            // 解码后再编码：report_data 是串时 encodeIds 下不去，内层裸 ID 会直接外泄
+            $data['report_data'] = $this->encodeIds($this->decodeReportData($data['report_data'] ?? null), ['account_id']);
 
             return $this->success($data);
         }
@@ -133,6 +145,22 @@ class CashFlowController extends BaseController
         $item = new FinanceCashFlow();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 作用域 FK 双模解码：未传＝NULL（列可空＝默认公司/账套），非空但解不出 → 422
+        // （原样直灌 hashid 串在严格模式报 1366 → 500）
+        $scopeIds = [];
+        foreach (['company_id', 'ledger_id'] as $field) {
+            $raw = $request->input($field) ?: null;
+            if ($raw === null) {
+                $scopeIds[$field] = null;
+
+                continue;
+            }
+            $scopeIds[$field] = $this->decodeFlexibleId($raw);
+            if ($scopeIds[$field] === null) {
+                return $this->fail($this->trans('Invalid ' . $field), 422);
+            }
+        }
+        $item->fill($scopeIds);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Snapshot saved successfully'));

@@ -60,9 +60,11 @@ export const tradeMenus: MenuGroup[] = [
           endpoint: '/admin/v1/purchase/apply',
           deleteNeedsPassword: true,
           filters: APPLY.filter,
-          // 列表无 join：无部门名/品项数/金额列（ApplyController::index 纯 toArray）
+          // 申请人姓名由 index/show leftJoin admin_user 带出（apply_user_id 是 erp_admin_user 的外键，
+          // 缺省=当前登录管理员）；表里没有品项数/金额列，明细在 erp_purchase_apply_item，无接口
           columns: [
             textCol('code', '编号', true),
+            textCol('apply_user_name', '申请人'),
             textCol('department', '申请部门'),
             statusCol(APPLY.dict),
             dateCol('created_at', '创建时间'),
@@ -71,6 +73,15 @@ export const tradeMenus: MenuGroup[] = [
             // 申请单号由后端 doc_code() 生成；申请人缺省=当前登录管理员（ApplyController::store）。
             // 原先要求操作员手填「申请人ID」（雪花 ID）既无从获知，也不是实际业务里的填法
             { key: 'department', label: '申请部门' },
+          ],
+          // 审批动作走通用 PUT（ApplyController::update 收 status 0..3，本模块无专用审批端点）。
+          // 按当前状态收敛候选：只有待审批的单子能批/驳，否则「批准」在已批准的单上还点得动，
+          // 而 update 的 between:0,3 会放行——等于给了一条把终态改回「待审批」的路。
+          // status=3（已转订单）不在这里给按钮：它由采购订单认领（OrderController::markApplyOrdered）
+          // 落库，手点一个「转订单」只会把状态改成一个没人验证过的值
+          actions: [
+            { label: '批准', icon: 'check', path: (r) => (Number(r.status) === 0 ? `/admin/v1/purchase/apply/${String(r.id)}` : null), method: 'PUT', body: () => ({ status: 1 }), message: '已批准' },
+            { label: '驳回', icon: 'close', variant: 'icon-danger', path: (r) => (Number(r.status) === 0 ? `/admin/v1/purchase/apply/${String(r.id)}` : null), method: 'PUT', body: () => ({ status: 2 }), message: '已驳回' },
           ],
         },
       },
@@ -83,10 +94,28 @@ export const tradeMenus: MenuGroup[] = [
           endpoint: '/admin/v1/purchase/order',
           deleteNeedsPassword: true,
           filters: PORDER.filter,
-          columns: docCols('供应商', 'supplier_name', PORDER),
+          columns: docCols('供应商', 'supplier_name', PORDER, [{ key: 'apply_code', title: '采购申请' }]),
           fields: [
             // 订单编号由后端 doc_code() 生成（留空即自生成），列表可见，无需录入
             { key: 'supplier_id', label: '供应商', required: true, source: { endpoint: '/admin/v1/supplier' } },
+            // 转自哪张采购申请（可空）：apply_id 一直在表里、后端也一直收，但此前没有任何录入入口，
+            // 于是「申请 → 订单」这条关联只有回显没有来路。选定后申请单自动置「已转订单」(3)
+            { key: 'apply_id', label: '采购申请', source: { endpoint: '/admin/v1/purchase/apply', labelKey: 'code' }, help: '转自哪张采购申请，可空；选定后该申请单状态置「已转订单」' },
+            // 明细录入：不标 createOnly —— OrderController::update 现已支持 items 整表替换
+            // （主表金额随明细汇总回写），标了就永远改不了明细。主表金额由后端按明细汇总，
+            // 页面不重复收 total_amount。与 React trade.ts 同款
+            {
+              key: 'items',
+              label: '采购明细',
+              type: 'items',
+              required: true,
+              itemFields: [
+                { key: 'product_id', label: '商品', required: true, source: { endpoint: '/admin/v1/product' } },
+                { key: 'quantity', label: '数量', required: true, type: 'number' },
+                { key: 'price', label: '单价', required: true, type: 'number' },
+                { key: 'unit', label: '单位' },
+              ],
+            },
           ],
         },
       },
@@ -308,7 +337,7 @@ export const tradeMenus: MenuGroup[] = [
     moduleKey: 'sales',
     children: [
       { label: '销售报价', path: '/sales/quotation', cfg: { title: '销售报价', moduleKey: 'sales', endpoint: '/admin/v1/sales/quotation', deleteNeedsPassword: true, filters: QUOTATION.filter, columns: docCols('客户', 'customer_name', QUOTATION), fields: [{ key: 'customer_id', label: '客户', required: true, source: { endpoint: '/admin/v1/customer' } }] } },
-      { label: '销售订单', path: '/sales/order', cfg: { title: '销售订单', moduleKey: 'sales', endpoint: '/admin/v1/sales/order', deleteNeedsPassword: true, filters: SORDER.filter, columns: docCols('客户', 'customer_name', SORDER), fields: [{ key: 'customer_id', label: '客户', required: true, source: { endpoint: '/admin/v1/customer' } }] } },
+      { label: '销售订单', path: '/sales/order', cfg: { title: '销售订单', moduleKey: 'sales', endpoint: '/admin/v1/sales/order', deleteNeedsPassword: true, filters: SORDER.filter, columns: docCols('客户', 'customer_name', SORDER), fields: [{ key: 'customer_id', label: '客户', required: true, source: { endpoint: '/admin/v1/customer' } }, { key: 'items', label: '销售明细', type: 'items', required: true, itemFields: [{ key: 'product_id', label: '商品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'quantity', label: '数量', required: true, type: 'number' }, { key: 'price', label: '单价', required: true, type: 'number' }, { key: 'unit', label: '单位' }] }] } },
       // 发货即出库（DeliveryController::store 同事务扣库存、建应收、置 status=1），单据是既成事实：
       // 更新接口只写 remark，这四项标 createOnly（编辑态隐藏）—— 订单/客户/仓库/明细都是派生或历史值。
       { label: '销售发货', path: '/sales/delivery', cfg: { title: '销售发货', moduleKey: 'sales', endpoint: '/admin/v1/sales/delivery', deleteNeedsPassword: true, filters: SDELIVERY.filter, columns: [textCol('code', '编号', true), textCol('customer.name', '客户'), statusCol(SDELIVERY.dict), dateCol('delivered_at', '发货日期')], fields: [{ key: 'order_id', label: '销售订单', required: true, createOnly: true, source: { endpoint: '/admin/v1/sales/order', labelKey: 'code' } }, { key: 'customer_id', label: '客户', required: true, createOnly: true, source: { endpoint: '/admin/v1/customer' } }, { key: 'warehouse_id', label: '仓库', required: true, createOnly: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'items', label: '发货明细', type: 'items', required: true, createOnly: true, itemFields: [{ key: 'product_id', label: '商品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'order_item_id', label: '订单明细行', help: '留空即按商品自动匹配本单明细行' }, { key: 'quantity', label: '数量', required: true, type: 'number' }, { key: 'price', label: '单价', required: true, type: 'number' }] }, { key: 'remark', label: '备注', type: 'textarea', full: true }] } },

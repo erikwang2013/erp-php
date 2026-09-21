@@ -35,11 +35,22 @@ class _CostProfitPageState extends State<CostProfitPage> {
       final res = await ApiService.instance.get('/admin/v1/finance/cost-center', params: params);
       final d = res['data'];
       if (seq != _reqSeq || !mounted) return;
-      final list = List<Map<String, dynamic>>.from(d['list'] ?? []);
-      setState(() { _rows = list; _total = d['total'] ?? 0; _loading = false; _error = null; });
+      // 后端整树下发（CostCenterController::buildTree → encodeIds），且不带 total：
+      // 原实现只读 list 顶层，子节点整批不可见。就地拍平后子节点才进列表。
+      final list = _flatten(List<Map<String, dynamic>>.from(d['list'] ?? []));
+      setState(() { _rows = list; _total = list.length; _loading = false; _error = null; });
       if (list.isEmpty && _page > 1) { _page--; _load(); }
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
+
+  /// 树 → 平铺行，行上带 `_depth`（名称列按它缩进）。DataTableWrapper 无层级列概念，
+  /// ponytail: 用全角空格前缀代替 Web 端的折叠箭头，升级路径 = 给 wrapper 加 depth 形参。
+  List<Map<String, dynamic>> _flatten(List<Map<String, dynamic>> rows, [int depth = 0]) => [
+    for (final r in rows) ...[
+      {...r, '_depth': depth},
+      ..._flatten(List<Map<String, dynamic>>.from(r['children'] ?? []), depth + 1),
+    ],
+  ];
 
   Future<void> _create() async {
     await FormDialog.show(context, title: AppL10n.of(context).commonAdd, fields: _formFields(), onSubmit: (data) async {
@@ -87,7 +98,8 @@ class _CostProfitPageState extends State<CostProfitPage> {
   List<String> _columns() => [AppL10n.current.commonName, AppL10n.current.commonCode, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.commonName: r['name'] ?? '',
+    // 名称列按层级缩进（子节点才看得出从属；见 _flatten）
+    AppL10n.current.commonName: '${'　' * ((r['_depth'] as int?) ?? 0)}${r['name'] ?? ''}',
     AppL10n.current.commonCode: r['code'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),

@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 
 class DashboardController extends GetxController {
@@ -128,33 +129,45 @@ class DashboardController extends GetxController {
     }
   }
 
-  List<Map<String, dynamic>> _omsCards(Map<String, dynamic> d) => [
-    {'label': '待处理订单', 'value': '${d['pending_orders'] ?? 0}', 'icon': Icons.shopping_bag, 'color': const Color(0xFF1677FF)},
-    {'label': '拣货中订单', 'value': '${d['picking_orders'] ?? 0}', 'icon': Icons.shopping_basket, 'color': const Color(0xFF52C41A)},
-    {'label': '今日发货', 'value': '${d['shipped_today'] ?? 0}', 'icon': Icons.local_shipping, 'color': const Color(0xFFFA8C16)},
-    {'label': '待处理 RMA', 'value': '${d['pending_rma'] ?? 0}', 'icon': Icons.replay, 'color': const Color(0xFF722ED1)},
-  ];
+  // 卡面文案取当前语言词典（原为硬编码中文，英文界面漏出中文）。
+  // ponytail: 文案在取数时落定；会话中切换语言需等下次取数才换文案（
+  // 其余随 context 渲染的文案即时切换）。真要即时，改存 arb key + 渲染期解析。
+  List<Map<String, dynamic>> _omsCards(Map<String, dynamic> d) {
+    final l = AppL10n.current;
+    return [
+      {'label': l.dashboardKpiPendingOrders, 'value': '${d['pending_orders'] ?? 0}', 'icon': Icons.shopping_bag, 'color': const Color(0xFF1677FF)},
+      {'label': l.dashboardKpiPickingOrders, 'value': '${d['picking_orders'] ?? 0}', 'icon': Icons.shopping_basket, 'color': const Color(0xFF52C41A)},
+      {'label': l.dashboardKpiShippedToday, 'value': '${d['shipped_today'] ?? 0}', 'icon': Icons.local_shipping, 'color': const Color(0xFFFA8C16)},
+      {'label': l.dashboardKpiPendingRma, 'value': '${d['pending_rma'] ?? 0}', 'icon': Icons.replay, 'color': const Color(0xFF722ED1)},
+    ];
+  }
 
-  List<Map<String, dynamic>> _wmsCards(Map<String, dynamic> d) => [
-    {'label': '待收货', 'value': '${d['pending_receiving'] ?? 0}', 'icon': Icons.download, 'color': const Color(0xFF1677FF)},
-    {'label': '待上架', 'value': '${d['pending_putaway'] ?? 0}', 'icon': Icons.upload, 'color': const Color(0xFF52C41A)},
-    {'label': '待拣货', 'value': '${d['pending_picks'] ?? 0}', 'icon': Icons.shopping_basket, 'color': const Color(0xFFFA8C16)},
-    {'label': '待打包', 'value': '${d['pending_packs'] ?? 0}', 'icon': Icons.inventory_2, 'color': const Color(0xFF722ED1)},
-  ];
+  List<Map<String, dynamic>> _wmsCards(Map<String, dynamic> d) {
+    final l = AppL10n.current;
+    return [
+      {'label': l.dashboardKpiPendingReceiving, 'value': '${d['pending_receiving'] ?? 0}', 'icon': Icons.download, 'color': const Color(0xFF1677FF)},
+      {'label': l.dashboardKpiPendingPutaway, 'value': '${d['pending_putaway'] ?? 0}', 'icon': Icons.upload, 'color': const Color(0xFF52C41A)},
+      {'label': l.dashboardKpiPendingPicks, 'value': '${d['pending_picks'] ?? 0}', 'icon': Icons.shopping_basket, 'color': const Color(0xFFFA8C16)},
+      {'label': l.dashboardKpiPendingPacks, 'value': '${d['pending_packs'] ?? 0}', 'icon': Icons.inventory_2, 'color': const Color(0xFF722ED1)},
+    ];
+  }
 
-  List<Map<String, dynamic>> _tmsCards(Map<String, dynamic> d) => [
-    {'label': '待发运', 'value': '${d['pending_shipments'] ?? 0}', 'icon': Icons.outbox, 'color': const Color(0xFF1677FF)},
-    {'label': '在途', 'value': '${d['in_transit'] ?? 0}', 'icon': Icons.local_shipping, 'color': const Color(0xFF52C41A)},
-    {'label': '今日送达', 'value': '${d['delivered_today'] ?? 0}', 'icon': Icons.task_alt, 'color': const Color(0xFFFA8C16)},
-    {'label': '异常运单', 'value': '${d['exception_shipments'] ?? 0}', 'icon': Icons.warning_amber, 'color': const Color(0xFF722ED1)},
-  ];
+  List<Map<String, dynamic>> _tmsCards(Map<String, dynamic> d) {
+    final l = AppL10n.current;
+    return [
+      {'label': l.dashboardKpiPendingShipments, 'value': '${d['pending_shipments'] ?? 0}', 'icon': Icons.outbox, 'color': const Color(0xFF1677FF)},
+      {'label': l.dashboardKpiInTransit, 'value': '${d['in_transit'] ?? 0}', 'icon': Icons.local_shipping, 'color': const Color(0xFF52C41A)},
+      {'label': l.dashboardKpiDeliveredToday, 'value': '${d['delivered_today'] ?? 0}', 'icon': Icons.task_alt, 'color': const Color(0xFFFA8C16)},
+      {'label': l.dashboardKpiExceptionShipments, 'value': '${d['exception_shipments'] ?? 0}', 'icon': Icons.warning_amber, 'color': const Color(0xFF722ED1)},
+    ];
+  }
 
   Future<void> exportPdf() async {
     final pdf = pw.Document();
     pdf.addPage(pw.MultiPage(
       pageFormat: PdfPageFormat.a4.landscape,
       build: (ctx) => [
-        pw.Header(text: '仪表盘数据导出'),
+        pw.Header(text: AppL10n.current.dashboardExportDocTitle),
         pw.Paragraph(text: 'Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz'),
         for (final s in stats)
           pw.Row(children: [
@@ -167,6 +180,7 @@ class DashboardController extends GetxController {
   }
 
   Future<void> exportExcel() async {
-    Get.snackbar('导出', 'Excel 导出功能已触发');
+    Get.snackbar(AppL10n.current.dashboardExport,
+        AppL10n.current.dashboardExportExcelTriggered);
   }
 }

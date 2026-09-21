@@ -61,9 +61,10 @@ class OpportunityController extends BaseController
             'searchFields' => ['name'],
             'eqFilters' => ['status'],
         ]);
-        // FK 编码为 hashid（与客户/漏斗下拉选项同源，供编辑弹窗回填）+ 引用名展示
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'stage_id', 'owner_user_id']), $result['list']);
-        $list = $this->enrichNames($list);
+        // 先按裸 ID 补引用名，再编码 FK（顺序反了则 enrichNames 拿到的是 hashid 串，
+        // (int) 转型恒 0 → customer_name/stage_name 恒空）
+        $list = $this->enrichNames($result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'stage_id', 'owner_user_id']), $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -125,7 +126,7 @@ class OpportunityController extends BaseController
 
         $item = $this->crm()->create(CrmOpportunity::class, $data);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']), $this->trans('Created successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id', 'owner_user_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -155,7 +156,7 @@ class OpportunityController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id', 'owner_user_id']));
     }
 
     /**
@@ -205,7 +206,7 @@ class OpportunityController extends BaseController
 
         $item = $this->crm()->update(CrmOpportunity::class, $id, $data);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id']), $this->trans('Updated successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'stage_id', 'owner_user_id']), $this->trans('Updated successfully'));
     }
 
     /**

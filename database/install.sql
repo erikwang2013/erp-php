@@ -3104,7 +3104,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000196, 31000000000000004, '盘点', 'inventory.check', 1, '', '', 4, NOW(), NOW()),
 (31000000000000197, 31000000000000004, '预警', 'inventory.alert', 1, '', '', 5, NOW(), NOW());
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000200, 31000000000000005, '资金账户', 'finance.account', 1, '', '', 1, NOW(), NOW()),
 (31000000000000219, 31000000000000005, '会计凭证', 'finance.voucher', 1, '', '', 2, NOW(), NOW()),
 (31000000000000220, 31000000000000005, '收款', 'finance.receipt', 1, '', '', 3, NOW(), NOW()),
 (31000000000000230, 31000000000000005, '付款', 'finance.payment', 1, '', '', 4, NOW(), NOW()),
@@ -3180,7 +3179,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000042, 31000000000000040, '仓库-创建',   'post.admin/warehouse', 3, '', '', 14, NOW(), NOW()),
 (31000000000000043, 31000000000000040, '仓库-更新',   'put.admin/warehouse', 3, '', '', 15, NOW(), NOW()),
 (31000000000000044, 31000000000000040, '仓库-删除',   'delete.admin/warehouse', 3, '', '', 16, NOW(), NOW()),
-(31000000000000045, 31000000000000040, '库位-查看(按仓库)', 'get.admin/warehouse/locations', 3, '', '', 17, NOW(), NOW()),
 (31000000000000051, 31000000000000050, '库位-查看',   'get.admin/location', 3, '', '', 18, NOW(), NOW()),
 (31000000000000052, 31000000000000050, '库位-创建',   'post.admin/location', 3, '', '', 19, NOW(), NOW()),
 (31000000000000053, 31000000000000050, '库位-更新',   'put.admin/location', 3, '', '', 20, NOW(), NOW()),
@@ -3278,10 +3276,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 -- ERP模块API权限 (type=3) — 财务
 -- ============================================================
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000201, 31000000000000200, '账户-查看',      'get.admin/finance/account', 3, '', '', 1, NOW(), NOW()),
-(31000000000000202, 31000000000000200, '账户-创建',      'post.admin/finance/account', 3, '', '', 2, NOW(), NOW()),
-(31000000000000203, 31000000000000200, '账户-更新',      'put.admin/finance/account', 3, '', '', 3, NOW(), NOW()),
-(31000000000000204, 31000000000000200, '账户-删除',      'delete.admin/finance/account', 3, '', '', 4, NOW(), NOW()),
 (31000000000000211, 31000000000000219, '凭证-查看',      'get.admin/finance/voucher', 3, '', '', 5, NOW(), NOW()),
 (31000000000000212, 31000000000000219, '凭证-创建',      'post.admin/finance/voucher', 3, '', '', 6, NOW(), NOW()),
 (31000000000000213, 31000000000000219, '凭证-更新',      'put.admin/finance/voucher', 3, '', '', 7, NOW(), NOW()),
@@ -4005,10 +3999,7 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000341, 31000000000000340, 'OMS订单-查看',   'get.admin/oms/order', 3, '', '', 1, NOW(), NOW()),
 (31000000000000342, 31000000000000340, 'OMS订单-创建',   'post.admin/oms/order', 3, '', '', 2, NOW(), NOW()),
 (31000000000000343, 31000000000000340, 'OMS订单-更新',   'put.admin/oms/order', 3, '', '', 3, NOW(), NOW()),
-(31000000000000344, 31000000000000340, 'OMS订单-删除',   'delete.admin/oms/order', 3, '', '', 4, NOW(), NOW()),
-(31000000000000345, 31000000000000340, 'OMS订单-分配',   'post.admin/oms/order/allocate', 3, '', '', 5, NOW(), NOW()),
-(31000000000000346, 31000000000000340, 'OMS订单-履约',   'post.admin/oms/order/fulfill', 3, '', '', 6, NOW(), NOW()),
-(31000000000000347, 31000000000000340, 'OMS订单-取消',   'post.admin/oms/order/cancel', 3, '', '', 7, NOW(), NOW());
+(31000000000000344, 31000000000000340, 'OMS订单-删除',   'delete.admin/oms/order', 3, '', '', 4, NOW(), NOW());
 
 -- OMS 履约管理
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
@@ -4020,10 +4011,7 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000361, 31000000000000360, 'RMA-查看',   'get.admin/oms/rma', 3, '', '', 15, NOW(), NOW()),
 (31000000000000362, 31000000000000360, 'RMA-创建',   'post.admin/oms/rma', 3, '', '', 16, NOW(), NOW()),
 (31000000000000363, 31000000000000360, 'RMA-更新',   'put.admin/oms/rma', 3, '', '', 17, NOW(), NOW()),
-(31000000000000364, 31000000000000360, 'RMA-删除',   'delete.admin/oms/rma', 3, '', '', 18, NOW(), NOW()),
-(31000000000000365, 31000000000000360, 'RMA-审批',   'post.admin/oms/rma/approve', 3, '', '', 19, NOW(), NOW()),
-(31000000000000366, 31000000000000360, 'RMA-收货',   'post.admin/oms/rma/receive', 3, '', '', 20, NOW(), NOW()),
-(31000000000000367, 31000000000000360, 'RMA-退款',   'post.admin/oms/rma/refund', 3, '', '', 21, NOW(), NOW());
+(31000000000000364, 31000000000000360, 'RMA-删除',   'delete.admin/oms/rma', 3, '', '', 18, NOW(), NOW());
 
 -- OMS 渠道管理
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
@@ -4055,28 +4043,22 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000431, 31000000000000430, '收货-查看',   'get.admin/wms/receiving', 3, '', '', 22, NOW(), NOW()),
-(31000000000000432, 31000000000000430, '收货-创建',   'post.admin/wms/receiving', 3, '', '', 23, NOW(), NOW()),
-(31000000000000433, 31000000000000430, '收货-完成',   'post.admin/wms/receiving/complete', 3, '', '', 24, NOW(), NOW());
+(31000000000000432, 31000000000000430, '收货-创建',   'post.admin/wms/receiving', 3, '', '', 23, NOW(), NOW());
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000441, 31000000000000440, '上架-查看',   'get.admin/wms/putaway', 3, '', '', 28, NOW(), NOW()),
-(31000000000000442, 31000000000000440, '上架-创建',   'post.admin/wms/putaway', 3, '', '', 29, NOW(), NOW()),
-(31000000000000443, 31000000000000440, '上架-完成',   'post.admin/wms/putaway/complete', 3, '', '', 30, NOW(), NOW());
+(31000000000000442, 31000000000000440, '上架-创建',   'post.admin/wms/putaway', 3, '', '', 29, NOW(), NOW());
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000451, 31000000000000450, '波次-查看',   'get.admin/wms/wave', 3, '', '', 35, NOW(), NOW()),
-(31000000000000452, 31000000000000450, '波次-创建',   'post.admin/wms/wave', 3, '', '', 36, NOW(), NOW()),
-(31000000000000453, 31000000000000450, '波次-释放',   'post.admin/wms/wave/release', 3, '', '', 37, NOW(), NOW());
+(31000000000000452, 31000000000000450, '波次-创建',   'post.admin/wms/wave', 3, '', '', 36, NOW(), NOW());
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000461, 31000000000000460, '拣货-查看',   'get.admin/wms/pick', 3, '', '', 42, NOW(), NOW()),
-(31000000000000462, 31000000000000460, '拣货-开始',   'post.admin/wms/pick/start', 3, '', '', 43, NOW(), NOW()),
-(31000000000000463, 31000000000000460, '拣货-确认',   'post.admin/wms/pick/confirm', 3, '', '', 44, NOW(), NOW());
+(31000000000000461, 31000000000000460, '拣货-查看',   'get.admin/wms/pick', 3, '', '', 42, NOW(), NOW());
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000471, 31000000000000470, '打包-查看',   'get.admin/wms/pack', 3, '', '', 48, NOW(), NOW()),
-(31000000000000472, 31000000000000470, '打包-开始',   'post.admin/wms/pack/start', 3, '', '', 49, NOW(), NOW()),
-(31000000000000473, 31000000000000470, '打包-完成',   'post.admin/wms/pack/complete', 3, '', '', 50, NOW(), NOW());
+(31000000000000472, 31000000000000470, '打包-开始',   'post.admin/wms/pack/start', 3, '', '', 49, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — TMS 运输管理
@@ -4101,19 +4083,14 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000531, 31000000000000530, '运单-查看',   'get.admin/tms/shipment', 3, '', '', 22, NOW(), NOW()),
-(31000000000000532, 31000000000000530, '运单-创建',   'post.admin/tms/shipment', 3, '', '', 23, NOW(), NOW()),
-(31000000000000533, 31000000000000530, '运单-发货',   'post.admin/tms/shipment/ship', 3, '', '', 24, NOW(), NOW()),
-(31000000000000534, 31000000000000530, '运单-面单',   'post.admin/tms/shipment/get-label',3, '', '', 25, NOW(), NOW());
+(31000000000000532, 31000000000000530, '运单-创建',   'post.admin/tms/shipment', 3, '', '', 23, NOW(), NOW());
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000541, 31000000000000540, '轨迹-查看',   'get.admin/tms/tracking', 3, '', '', 30, NOW(), NOW()),
-(31000000000000542, 31000000000000540, '轨迹-回调',   'post.admin/tms/tracking/callback', 3, '', '', 31, NOW(), NOW());
+(31000000000000541, 31000000000000540, '轨迹-查看',   'get.admin/tms/tracking', 3, '', '', 30, NOW(), NOW());
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000551, 31000000000000550, '运费发票-查看',   'get.admin/tms/freight-invoice', 3, '', '', 35, NOW(), NOW()),
-(31000000000000552, 31000000000000550, '运费发票-创建',   'post.admin/tms/freight-invoice', 3, '', '', 36, NOW(), NOW()),
-(31000000000000553, 31000000000000550, '运费发票-确认',   'post.admin/tms/freight-invoice/confirm', 3, '', '', 37, NOW(), NOW()),
-(31000000000000554, 31000000000000550, '运费发票-付款',   'post.admin/tms/freight-invoice/pay', 3, '', '', 38, NOW(), NOW());
+(31000000000000552, 31000000000000550, '运费发票-创建',   'post.admin/tms/freight-invoice', 3, '', '', 36, NOW(), NOW());
 -- ============================================================
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 -- 迁移: QMS质量管理系统表（5张表）
@@ -4409,8 +4386,7 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000719, 31000000000000726, '维修工单-查看',   'get.admin/eam/repair', 3, '', '', 9, NOW(), NOW()),
 (31000000000000720, 31000000000000726, '维修工单-创建',   'post.admin/eam/repair', 3, '', '', 10, NOW(), NOW()),
 (31000000000000721, 31000000000000726, '维修工单-更新',   'put.admin/eam/repair', 3, '', '', 11, NOW(), NOW()),
-(31000000000000722, 31000000000000726, '维修工单-删除',   'delete.admin/eam/repair', 3, '', '', 12, NOW(), NOW()),
-(31000000000000723, 31000000000000726, '维修工单-状态流转', 'post.admin/eam/repair/{id}/transition', 3, '', '', 13, NOW(), NOW());
+(31000000000000722, 31000000000000726, '维修工单-删除',   'delete.admin/eam/repair', 3, '', '', 12, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — 文档管理 (DMS)
@@ -4878,6 +4854,413 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000769, 31000000000000764, '报表筛选-删除',     'delete.admin/report/filter', 3, '', '', 5, NOW(), NOW()),
 -- 超级管理员通配权限：角色描述即"拥有所有权限"，后续新增端点无需逐条补种子
 (31000000000000749, 0, '全部权限',           '*', 3, '', '', 0, NOW(), NOW());
+
+-- ============================================================
+-- 项目管理菜单 (type=1) — 与前端 mgmt 域的「项目管理」菜单组对齐
+-- ============================================================
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000800, 0, '项目管理',                'project',                           1, 'folder',                  '/admin/project',  23, NOW(), NOW()),
+(31000000000000801, 31000000000000800, '项目列表',                'project.list',                      1, '',                        '',                1, NOW(), NOW()),
+(31000000000000802, 31000000000000800, '任务管理',                'project.task',                      1, '',                        '',                2, NOW(), NOW()),
+(31000000000000803, 31000000000000800, '工时记录',                'project.timesheet',                 1, '',                        '',                3, NOW(), NOW()),
+(31000000000000804, 31000000000000800, '项目成本',                'project.cost',                      1, '',                        '',                4, NOW(), NOW());
+
+-- ============================================================
+-- API 权限补全 (type=3) — 以 config/route.php 的 /admin/v1 路由组为基准逐条补齐
+-- 命名沿用既有规范：小写方法 + unversioned 路径；动态段收敛到资源级，
+-- 故资源级 slug 同时覆盖该资源的 {id} 维度与动作端点（如 post.admin/wms/pick
+-- 覆盖 POST /wms/pick、/wms/pick/{id}/start、/wms/pick/{id}/confirm）。
+-- ============================================================
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000805, 0, '我的审批',                  'any.admin/approval/my',                       3, '', '', 23, NOW(), NOW()),
+(31000000000000888, 0, '审批-查看',                 'get.admin/approval',                          3, '', '', 31, NOW(), NOW()),
+(31000000000000975, 0, '审批-创建',                 'post.admin/approval',                         3, '', '', 46, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000806, 31000000000000006, '分析报告',                  'any.admin/crm/analytics/report',              3, '', '', 9, NOW(), NOW()),
+(31000000000000807, 31000000000000006, '公海规则',                  'any.admin/crm/pool',                          3, '', '', 10, NOW(), NOW()),
+(31000000000000824, 31000000000000006, '营销活动-删除',             'delete.admin/crm/campaign',                   3, '', '', 11, NOW(), NOW()),
+(31000000000000825, 31000000000000006, '合同-删除',                 'delete.admin/crm/contract',                   3, '', '', 12, NOW(), NOW()),
+(31000000000000826, 31000000000000006, '报价单-删除',               'delete.admin/crm/quotation',                  3, '', '', 13, NOW(), NOW()),
+(31000000000000827, 31000000000000006, '服务工单-删除',             'delete.admin/crm/ticket',                     3, '', '', 14, NOW(), NOW()),
+(31000000000000890, 31000000000000006, '分析指标-查看',             'get.admin/crm/analytics/metric',              3, '', '', 15, NOW(), NOW()),
+(31000000000000891, 31000000000000006, '分析报告-查看',             'get.admin/crm/analytics/report',              3, '', '', 16, NOW(), NOW()),
+(31000000000000892, 31000000000000006, '营销活动-查看',             'get.admin/crm/campaign',                      3, '', '', 17, NOW(), NOW()),
+(31000000000000893, 31000000000000006, '合同-查看',                 'get.admin/crm/contract',                      3, '', '', 18, NOW(), NOW()),
+(31000000000000894, 31000000000000006, '报价单-查看',               'get.admin/crm/quotation',                     3, '', '', 19, NOW(), NOW()),
+(31000000000000895, 31000000000000006, '服务工单-查看',             'get.admin/crm/ticket',                        3, '', '', 20, NOW(), NOW()),
+(31000000000000979, 31000000000000006, '客户分析-生成',             'post.admin/crm/analytics/generate',           3, '', '', 21, NOW(), NOW()),
+(31000000000000980, 31000000000000006, '分析指标-创建',             'post.admin/crm/analytics/metric',             3, '', '', 22, NOW(), NOW()),
+(31000000000000981, 31000000000000006, '营销活动-创建',             'post.admin/crm/campaign',                     3, '', '', 23, NOW(), NOW()),
+(31000000000000982, 31000000000000006, '合同-创建',                 'post.admin/crm/contract',                     3, '', '', 24, NOW(), NOW()),
+(31000000000000983, 31000000000000006, '公海规则-领取',             'post.admin/crm/pool/claim',                   3, '', '', 25, NOW(), NOW()),
+(31000000000000984, 31000000000000006, '公海规则-释放',             'post.admin/crm/pool/release',                 3, '', '', 26, NOW(), NOW()),
+(31000000000000985, 31000000000000006, '报价单-创建',               'post.admin/crm/quotation',                    3, '', '', 27, NOW(), NOW()),
+(31000000000000986, 31000000000000006, '服务工单-创建',             'post.admin/crm/ticket',                       3, '', '', 28, NOW(), NOW()),
+(31000000000001084, 31000000000000006, '营销活动-更新',             'put.admin/crm/campaign',                      3, '', '', 29, NOW(), NOW()),
+(31000000000001085, 31000000000000006, '合同-更新',                 'put.admin/crm/contract',                      3, '', '', 30, NOW(), NOW()),
+(31000000000001086, 31000000000000006, '报价单-更新',               'put.admin/crm/quotation',                     3, '', '', 31, NOW(), NOW()),
+(31000000000001087, 31000000000000006, '服务工单-更新',             'put.admin/crm/ticket',                        3, '', '', 32, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000808, 21000000000000001, 'OMS仪表盘',                 'any.admin/dashboard/oms',                     3, '', '', 5, NOW(), NOW()),
+(31000000000000809, 21000000000000001, 'TMS仪表盘',                 'any.admin/dashboard/tms',                     3, '', '', 6, NOW(), NOW()),
+(31000000000000810, 21000000000000001, 'WMS仪表盘',                 'any.admin/dashboard/wms',                     3, '', '', 7, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000811, 31000000000000005, '固定资产-折旧查询',         'any.admin/finance/asset',                     3, '', '', 20, NOW(), NOW()),
+(31000000000000812, 31000000000000005, '预算-执行对比',             'any.admin/finance/budget',                    3, '', '', 21, NOW(), NOW()),
+(31000000000000813, 31000000000000005, '总账',                      'any.admin/finance/general-ledger',            3, '', '', 22, NOW(), NOW()),
+(31000000000000814, 31000000000000005, '发票-三单匹配',             'any.admin/finance/invoice/match-check',       3, '', '', 23, NOW(), NOW()),
+(31000000000000815, 31000000000000005, '资产负债表',                'any.admin/finance/report/balance-sheet',      3, '', '', 24, NOW(), NOW()),
+(31000000000000816, 31000000000000005, '现金流量表',                'any.admin/finance/report/cash-flow',          3, '', '', 25, NOW(), NOW()),
+(31000000000000817, 31000000000000005, '明细账',                    'any.admin/finance/subsidiary-ledger',         3, '', '', 26, NOW(), NOW()),
+(31000000000000818, 31000000000000005, '纳税记录',                  'any.admin/finance/tax-record',                3, '', '', 27, NOW(), NOW()),
+(31000000000000829, 31000000000000005, '应收应付-删除',             'delete.admin/finance/ar-ap',                  3, '', '', 28, NOW(), NOW()),
+(31000000000000830, 31000000000000005, '固定资产-删除',             'delete.admin/finance/asset',                  3, '', '', 29, NOW(), NOW()),
+(31000000000000831, 31000000000000005, '票据-删除',                 'delete.admin/finance/bill',                   3, '', '', 30, NOW(), NOW()),
+(31000000000000832, 31000000000000005, '预算-删除',                 'delete.admin/finance/budget',                 3, '', '', 31, NOW(), NOW()),
+(31000000000000833, 31000000000000005, '现金日记账-删除',           'delete.admin/finance/cash-journal',           3, '', '', 32, NOW(), NOW()),
+(31000000000000834, 31000000000000005, '成本中心-删除',             'delete.admin/finance/cost-center',            3, '', '', 33, NOW(), NOW()),
+(31000000000000835, 31000000000000005, '币种-删除',                 'delete.admin/finance/currency',               3, '', '', 34, NOW(), NOW()),
+(31000000000000836, 31000000000000005, '汇率-删除',                 'delete.admin/finance/exchange-rate',          3, '', '', 35, NOW(), NOW()),
+(31000000000000837, 31000000000000005, '发票-删除',                 'delete.admin/finance/invoice',                3, '', '', 36, NOW(), NOW()),
+(31000000000000838, 31000000000000005, '利润中心-删除',             'delete.admin/finance/profit-center',          3, '', '', 37, NOW(), NOW()),
+(31000000000000839, 31000000000000005, '税率-删除',                 'delete.admin/finance/tax-rate',               3, '', '', 38, NOW(), NOW()),
+(31000000000000898, 31000000000000005, '应收应付-查看',             'get.admin/finance/ar-ap',                     3, '', '', 39, NOW(), NOW()),
+(31000000000000899, 31000000000000005, '固定资产-查看',             'get.admin/finance/asset',                     3, '', '', 40, NOW(), NOW()),
+(31000000000000900, 31000000000000005, '银行对账-余额调节表',       'get.admin/finance/bank-recon/report',         3, '', '', 41, NOW(), NOW()),
+(31000000000000901, 31000000000000005, '银行对账单-查看',           'get.admin/finance/bank-statement',            3, '', '', 42, NOW(), NOW()),
+(31000000000000902, 31000000000000005, '票据-查看',                 'get.admin/finance/bill',                      3, '', '', 43, NOW(), NOW()),
+(31000000000000903, 31000000000000005, '票据-到期预警',             'get.admin/finance/bill/due-warnings',         3, '', '', 44, NOW(), NOW()),
+(31000000000000904, 31000000000000005, '预算-查看',                 'get.admin/finance/budget',                    3, '', '', 45, NOW(), NOW()),
+(31000000000000905, 31000000000000005, '现金日记账-查看',           'get.admin/finance/cash-journal',              3, '', '', 46, NOW(), NOW()),
+(31000000000000906, 31000000000000005, '公司主体-列表',             'get.admin/finance/company/list',              3, '', '', 47, NOW(), NOW()),
+(31000000000000907, 31000000000000005, '合并报表-最新报表',         'get.admin/finance/consolidation/latest',      3, '', '', 48, NOW(), NOW()),
+(31000000000000908, 31000000000000005, '合并报表-列表',             'get.admin/finance/consolidation/list',        3, '', '', 49, NOW(), NOW()),
+(31000000000000909, 31000000000000005, '成本中心-查看',             'get.admin/finance/cost-center',               3, '', '', 50, NOW(), NOW()),
+(31000000000000910, 31000000000000005, '币种-查看',                 'get.admin/finance/currency',                  3, '', '', 51, NOW(), NOW()),
+(31000000000000911, 31000000000000005, '电子发票-查看',             'get.admin/finance/e-invoice',                 3, '', '', 52, NOW(), NOW()),
+(31000000000000912, 31000000000000005, '汇率-查看',                 'get.admin/finance/exchange-rate',             3, '', '', 53, NOW(), NOW()),
+(31000000000000913, 31000000000000005, '发票-查看',                 'get.admin/finance/invoice',                   3, '', '', 54, NOW(), NOW()),
+(31000000000000914, 31000000000000005, '会计期间-列表',             'get.admin/finance/ledger/period-list',        3, '', '', 55, NOW(), NOW()),
+(31000000000000915, 31000000000000005, '利润中心-查看',             'get.admin/finance/profit-center',             3, '', '', 56, NOW(), NOW()),
+(31000000000000916, 31000000000000005, '进项发票池-查看',           'get.admin/finance/tax-input-invoice',         3, '', '', 57, NOW(), NOW()),
+(31000000000000917, 31000000000000005, '进项发票池-抵扣统计',       'get.admin/finance/tax-input-invoice/deduct-stats', 3, '', '', 58, NOW(), NOW()),
+(31000000000000918, 31000000000000005, '税率-查看',                 'get.admin/finance/tax-rate',                  3, '', '', 59, NOW(), NOW()),
+(31000000000000990, 31000000000000005, '应收应付-创建',             'post.admin/finance/ar-ap',                    3, '', '', 60, NOW(), NOW()),
+(31000000000000991, 31000000000000005, '固定资产-创建',             'post.admin/finance/asset',                    3, '', '', 61, NOW(), NOW()),
+(31000000000000992, 31000000000000005, '银行对账-自动核销',         'post.admin/finance/bank-recon/auto',          3, '', '', 62, NOW(), NOW()),
+(31000000000000993, 31000000000000005, '银行对账-手工核销',         'post.admin/finance/bank-recon/manual',        3, '', '', 63, NOW(), NOW()),
+(31000000000000994, 31000000000000005, '银行对账-取消核销',         'post.admin/finance/bank-recon/unreconcile',   3, '', '', 64, NOW(), NOW()),
+(31000000000000995, 31000000000000005, '银行对账单-导入',           'post.admin/finance/bank-statement/import',    3, '', '', 65, NOW(), NOW()),
+(31000000000000996, 31000000000000005, '票据-创建',                 'post.admin/finance/bill',                     3, '', '', 66, NOW(), NOW()),
+(31000000000000997, 31000000000000005, '预算-创建',                 'post.admin/finance/budget',                   3, '', '', 67, NOW(), NOW()),
+(31000000000000998, 31000000000000005, '公司主体-创建',             'post.admin/finance/company/create',           3, '', '', 68, NOW(), NOW()),
+(31000000000000999, 31000000000000005, '公司主体-启停',             'post.admin/finance/company/toggle',           3, '', '', 69, NOW(), NOW()),
+(31000000000001000, 31000000000000005, '合并报表-草稿生成',         'post.admin/finance/consolidation/draft',      3, '', '', 70, NOW(), NOW()),
+(31000000000001001, 31000000000000005, '合并报表-抵消分录',         'post.admin/finance/consolidation/eliminations', 3, '', '', 71, NOW(), NOW()),
+(31000000000001002, 31000000000000005, '合并报表-出具',             'post.admin/finance/consolidation/issue',      3, '', '', 72, NOW(), NOW()),
+(31000000000001003, 31000000000000005, '成本中心-创建',             'post.admin/finance/cost-center',              3, '', '', 73, NOW(), NOW()),
+(31000000000001004, 31000000000000005, '币种-创建',                 'post.admin/finance/currency',                 3, '', '', 74, NOW(), NOW()),
+(31000000000001005, 31000000000000005, '电子发票-创建',             'post.admin/finance/e-invoice',                3, '', '', 75, NOW(), NOW()),
+(31000000000001006, 31000000000000005, '汇率-创建',                 'post.admin/finance/exchange-rate',            3, '', '', 76, NOW(), NOW()),
+(31000000000001007, 31000000000000005, '发票-创建',                 'post.admin/finance/invoice',                  3, '', '', 77, NOW(), NOW()),
+(31000000000001008, 31000000000000005, '会计期间-结账',             'post.admin/finance/ledger/period-close',      3, '', '', 78, NOW(), NOW()),
+(31000000000001009, 31000000000000005, '会计期间-开启',             'post.admin/finance/ledger/period-open',       3, '', '', 79, NOW(), NOW()),
+(31000000000001010, 31000000000000005, '利润中心-创建',             'post.admin/finance/profit-center',            3, '', '', 80, NOW(), NOW()),
+(31000000000001011, 31000000000000005, '资产负债表-保存',           'post.admin/finance/report/balance-sheet/save', 3, '', '', 81, NOW(), NOW()),
+(31000000000001012, 31000000000000005, '现金流量表-保存',           'post.admin/finance/report/cash-flow/save',    3, '', '', 82, NOW(), NOW()),
+(31000000000001013, 31000000000000005, '进项发票池-创建',           'post.admin/finance/tax-input-invoice',        3, '', '', 83, NOW(), NOW()),
+(31000000000001014, 31000000000000005, '进项发票池-批量录入',       'post.admin/finance/tax-input-invoice/batch',  3, '', '', 84, NOW(), NOW()),
+(31000000000001015, 31000000000000005, '税率-创建',                 'post.admin/finance/tax-rate',                 3, '', '', 85, NOW(), NOW()),
+(31000000000001090, 31000000000000005, '应收应付-更新',             'put.admin/finance/ar-ap',                     3, '', '', 86, NOW(), NOW()),
+(31000000000001091, 31000000000000005, '固定资产-更新',             'put.admin/finance/asset',                     3, '', '', 87, NOW(), NOW()),
+(31000000000001092, 31000000000000005, '票据-更新',                 'put.admin/finance/bill',                      3, '', '', 88, NOW(), NOW()),
+(31000000000001093, 31000000000000005, '预算-更新',                 'put.admin/finance/budget',                    3, '', '', 89, NOW(), NOW()),
+(31000000000001094, 31000000000000005, '现金日记账-更新',           'put.admin/finance/cash-journal',              3, '', '', 90, NOW(), NOW()),
+(31000000000001095, 31000000000000005, '成本中心-更新',             'put.admin/finance/cost-center',               3, '', '', 91, NOW(), NOW()),
+(31000000000001096, 31000000000000005, '币种-更新',                 'put.admin/finance/currency',                  3, '', '', 92, NOW(), NOW()),
+(31000000000001097, 31000000000000005, '汇率-更新',                 'put.admin/finance/exchange-rate',             3, '', '', 93, NOW(), NOW()),
+(31000000000001098, 31000000000000005, '发票-更新',                 'put.admin/finance/invoice',                   3, '', '', 94, NOW(), NOW()),
+(31000000000001099, 31000000000000005, '利润中心-更新',             'put.admin/finance/profit-center',             3, '', '', 95, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000819, 31000000000000762, '考勤',                      'any.admin/hr/attendance',                     3, '', '', 2, NOW(), NOW()),
+(31000000000000840, 31000000000000762, '培训课程-删除',             'delete.admin/hr/course',                      3, '', '', 3, NOW(), NOW()),
+(31000000000000841, 31000000000000762, '部门-删除',                 'delete.admin/hr/department',                  3, '', '', 4, NOW(), NOW()),
+(31000000000000842, 31000000000000762, '员工-删除',                 'delete.admin/hr/employee',                    3, '', '', 5, NOW(), NOW()),
+(31000000000000843, 31000000000000762, '社保参保-删除',             'delete.admin/hr/employee-social',             3, '', '', 6, NOW(), NOW()),
+(31000000000000844, 31000000000000762, '请假-删除',                 'delete.admin/hr/leave',                       3, '', '', 7, NOW(), NOW()),
+(31000000000000845, 31000000000000762, '绩效模板-删除',             'delete.admin/hr/perf/template',               3, '', '', 8, NOW(), NOW()),
+(31000000000000846, 31000000000000762, '职位-删除',                 'delete.admin/hr/position',                    3, '', '', 9, NOW(), NOW()),
+(31000000000000847, 31000000000000762, '候选人-删除',               'delete.admin/hr/recruit/candidate',           3, '', '', 10, NOW(), NOW()),
+(31000000000000848, 31000000000000762, '招聘职位-删除',             'delete.admin/hr/recruit/job',                 3, '', '', 11, NOW(), NOW()),
+(31000000000000849, 31000000000000762, '薪资-删除',                 'delete.admin/hr/salary',                      3, '', '', 12, NOW(), NOW()),
+(31000000000000850, 31000000000000762, '薪资项-删除',               'delete.admin/hr/salary-item',                 3, '', '', 13, NOW(), NOW()),
+(31000000000000851, 31000000000000762, '社保规则-删除',             'delete.admin/hr/social-rule',                 3, '', '', 14, NOW(), NOW()),
+(31000000000000919, 31000000000000762, '培训课程-查看',             'get.admin/hr/course',                         3, '', '', 15, NOW(), NOW()),
+(31000000000000920, 31000000000000762, '部门-查看',                 'get.admin/hr/department',                     3, '', '', 16, NOW(), NOW()),
+(31000000000000921, 31000000000000762, '员工-查看',                 'get.admin/hr/employee',                       3, '', '', 17, NOW(), NOW()),
+(31000000000000922, 31000000000000762, '员工积分-查看',             'get.admin/hr/employee-credits',               3, '', '', 18, NOW(), NOW()),
+(31000000000000923, 31000000000000762, '社保参保-查看',             'get.admin/hr/employee-social',                3, '', '', 19, NOW(), NOW()),
+(31000000000000924, 31000000000000762, '请假-查看',                 'get.admin/hr/leave',                          3, '', '', 20, NOW(), NOW()),
+(31000000000000925, 31000000000000762, '绩效计划-查看',             'get.admin/hr/perf/plan',                      3, '', '', 21, NOW(), NOW()),
+(31000000000000926, 31000000000000762, '绩效评分-查看',             'get.admin/hr/perf/score',                     3, '', '', 22, NOW(), NOW()),
+(31000000000000927, 31000000000000762, '绩效评分-汇总',             'get.admin/hr/perf/score/summary',             3, '', '', 23, NOW(), NOW()),
+(31000000000000928, 31000000000000762, '绩效模板-查看',             'get.admin/hr/perf/template',                  3, '', '', 24, NOW(), NOW()),
+(31000000000000929, 31000000000000762, '职位-查看',                 'get.admin/hr/position',                       3, '', '', 25, NOW(), NOW()),
+(31000000000000930, 31000000000000762, '候选人-查看',               'get.admin/hr/recruit/candidate',              3, '', '', 26, NOW(), NOW()),
+(31000000000000931, 31000000000000762, '招聘-漏斗',                 'get.admin/hr/recruit/funnel',                 3, '', '', 27, NOW(), NOW()),
+(31000000000000932, 31000000000000762, '面试记录-查看',             'get.admin/hr/recruit/interview',              3, '', '', 28, NOW(), NOW()),
+(31000000000000933, 31000000000000762, '招聘职位-查看',             'get.admin/hr/recruit/job',                    3, '', '', 29, NOW(), NOW()),
+(31000000000000934, 31000000000000762, '录用通知-查看',             'get.admin/hr/recruit/offer',                  3, '', '', 30, NOW(), NOW()),
+(31000000000000935, 31000000000000762, '薪资-查看',                 'get.admin/hr/salary',                         3, '', '', 31, NOW(), NOW()),
+(31000000000000936, 31000000000000762, '薪资项-查看',               'get.admin/hr/salary-item',                    3, '', '', 32, NOW(), NOW()),
+(31000000000000937, 31000000000000762, '社保规则-查看',             'get.admin/hr/social-rule',                    3, '', '', 33, NOW(), NOW()),
+(31000000000001016, 31000000000000762, '考勤-上班打卡',             'post.admin/hr/attendance/clock-in',           3, '', '', 34, NOW(), NOW()),
+(31000000000001017, 31000000000000762, '考勤-下班打卡',             'post.admin/hr/attendance/clock-out',          3, '', '', 35, NOW(), NOW()),
+(31000000000001018, 31000000000000762, '培训课程-创建',             'post.admin/hr/course',                        3, '', '', 36, NOW(), NOW()),
+(31000000000001019, 31000000000000762, '部门-创建',                 'post.admin/hr/department',                    3, '', '', 37, NOW(), NOW()),
+(31000000000001020, 31000000000000762, '员工-创建',                 'post.admin/hr/employee',                      3, '', '', 38, NOW(), NOW()),
+(31000000000001021, 31000000000000762, '社保参保-创建',             'post.admin/hr/employee-social',               3, '', '', 39, NOW(), NOW()),
+(31000000000001022, 31000000000000762, '请假-创建',                 'post.admin/hr/leave',                         3, '', '', 40, NOW(), NOW()),
+(31000000000001023, 31000000000000762, '绩效计划-创建',             'post.admin/hr/perf/plan',                     3, '', '', 41, NOW(), NOW()),
+(31000000000001024, 31000000000000762, '绩效评分-创建',             'post.admin/hr/perf/score',                    3, '', '', 42, NOW(), NOW()),
+(31000000000001025, 31000000000000762, '绩效模板-创建',             'post.admin/hr/perf/template',                 3, '', '', 43, NOW(), NOW()),
+(31000000000001026, 31000000000000762, '职位-创建',                 'post.admin/hr/position',                      3, '', '', 44, NOW(), NOW()),
+(31000000000001027, 31000000000000762, '候选人-创建',               'post.admin/hr/recruit/candidate',             3, '', '', 45, NOW(), NOW()),
+(31000000000001028, 31000000000000762, '面试记录-创建',             'post.admin/hr/recruit/interview',             3, '', '', 46, NOW(), NOW()),
+(31000000000001029, 31000000000000762, '招聘职位-创建',             'post.admin/hr/recruit/job',                   3, '', '', 47, NOW(), NOW()),
+(31000000000001030, 31000000000000762, '录用通知-创建',             'post.admin/hr/recruit/offer',                 3, '', '', 48, NOW(), NOW()),
+(31000000000001031, 31000000000000762, '薪资-创建',                 'post.admin/hr/salary',                        3, '', '', 49, NOW(), NOW()),
+(31000000000001032, 31000000000000762, '薪资-计算',                 'post.admin/hr/salary/calculate',              3, '', '', 50, NOW(), NOW()),
+(31000000000001033, 31000000000000762, '薪资项-创建',               'post.admin/hr/salary-item',                   3, '', '', 51, NOW(), NOW()),
+(31000000000001034, 31000000000000762, '薪资-工资条文件',           'post.admin/hr/salary/payroll-file',           3, '', '', 52, NOW(), NOW()),
+(31000000000001035, 31000000000000762, '社保规则-创建',             'post.admin/hr/social-rule',                   3, '', '', 53, NOW(), NOW()),
+(31000000000001100, 31000000000000762, '培训课程-更新',             'put.admin/hr/course',                         3, '', '', 54, NOW(), NOW()),
+(31000000000001101, 31000000000000762, '部门-更新',                 'put.admin/hr/department',                     3, '', '', 55, NOW(), NOW()),
+(31000000000001102, 31000000000000762, '员工-更新',                 'put.admin/hr/employee',                       3, '', '', 56, NOW(), NOW()),
+(31000000000001103, 31000000000000762, '请假-更新',                 'put.admin/hr/leave',                          3, '', '', 57, NOW(), NOW()),
+(31000000000001104, 31000000000000762, '绩效模板-更新',             'put.admin/hr/perf/template',                  3, '', '', 58, NOW(), NOW()),
+(31000000000001105, 31000000000000762, '职位-更新',                 'put.admin/hr/position',                       3, '', '', 59, NOW(), NOW()),
+(31000000000001106, 31000000000000762, '候选人-更新',               'put.admin/hr/recruit/candidate',              3, '', '', 60, NOW(), NOW()),
+(31000000000001107, 31000000000000762, '面试记录-更新',             'put.admin/hr/recruit/interview',              3, '', '', 61, NOW(), NOW()),
+(31000000000001108, 31000000000000762, '招聘职位-更新',             'put.admin/hr/recruit/job',                    3, '', '', 62, NOW(), NOW()),
+(31000000000001109, 31000000000000762, '薪资-更新',                 'put.admin/hr/salary',                         3, '', '', 63, NOW(), NOW()),
+(31000000000001110, 31000000000000762, '薪资项-更新',               'put.admin/hr/salary-item',                    3, '', '', 64, NOW(), NOW()),
+(31000000000001111, 31000000000000762, '社保规则-更新',             'put.admin/hr/social-rule',                    3, '', '', 65, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000820, 0, '我的通知',                  'any.admin/notification/my',                   3, '', '', 24, NOW(), NOW()),
+(31000000000000821, 0, '未读数量',                  'any.admin/notification/unread-count',         3, '', '', 25, NOW(), NOW()),
+(31000000000001053, 0, '通知-发送',                 'post.admin/notification',                     3, '', '', 56, NOW(), NOW()),
+(31000000000001054, 0, '通知-全部已读',             'post.admin/notification/read-all',            3, '', '', 57, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000822, 31000000000000764, '报表-执行结果',             'any.admin/report',                            3, '', '', 6, NOW(), NOW()),
+(31000000000000876, 31000000000000764, '报表-删除',                 'delete.admin/report',                         3, '', '', 7, NOW(), NOW()),
+(31000000000000877, 31000000000000764, '报表订阅-删除',             'delete.admin/report/schedule',                3, '', '', 8, NOW(), NOW()),
+(31000000000000967, 31000000000000764, '报表订阅-查看',             'get.admin/report/schedule',                   3, '', '', 9, NOW(), NOW()),
+(31000000000001076, 31000000000000764, '报表-创建',                 'post.admin/report',                           3, '', '', 10, NOW(), NOW()),
+(31000000000001077, 31000000000000764, '报表订阅-创建',             'post.admin/report/schedule',                  3, '', '', 11, NOW(), NOW()),
+(31000000000001135, 31000000000000764, '报表-更新',                 'put.admin/report',                            3, '', '', 12, NOW(), NOW()),
+(31000000000001136, 31000000000000764, '报表订阅-更新',             'put.admin/report/schedule',                   3, '', '', 13, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000823, 31000000000000205, '数据集-删除',               'delete.admin/bi/dataset',                     3, '', '', 3, NOW(), NOW()),
+(31000000000000889, 31000000000000205, '数据集-查看',               'get.admin/bi/dataset',                        3, '', '', 4, NOW(), NOW()),
+(31000000000000976, 31000000000000205, '数据集-创建',               'post.admin/bi/dataset',                       3, '', '', 5, NOW(), NOW()),
+(31000000000001083, 31000000000000205, '数据集-更新',               'put.admin/bi/dataset',                        3, '', '', 6, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000828, 31000000000000206, '备件-删除',                 'delete.admin/eam/spare-part',                 3, '', '', 4, NOW(), NOW()),
+(31000000000000896, 31000000000000206, '设备点检-查看',             'get.admin/eam/inspection',                    3, '', '', 5, NOW(), NOW()),
+(31000000000000897, 31000000000000206, '备件-查看',                 'get.admin/eam/spare-part',                    3, '', '', 6, NOW(), NOW()),
+(31000000000000987, 31000000000000206, '设备点检-创建',             'post.admin/eam/inspection',                   3, '', '', 7, NOW(), NOW()),
+(31000000000000988, 31000000000000206, '设备点检-扫码执行',         'post.admin/eam/inspection/scan-execute',      3, '', '', 8, NOW(), NOW()),
+(31000000000000989, 31000000000000206, '备件-创建',                 'post.admin/eam/spare-part',                   3, '', '', 9, NOW(), NOW()),
+(31000000000001088, 31000000000000206, '设备点检-更新',             'put.admin/eam/inspection',                    3, '', '', 10, NOW(), NOW()),
+(31000000000001089, 31000000000000206, '备件-更新',                 'put.admin/eam/spare-part',                    3, '', '', 11, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000852, 31000000000000004, '库存总览-删除',             'delete.admin/inventory',                      3, '', '', 6, NOW(), NOW()),
+(31000000000000853, 31000000000000004, '库存流水-删除',             'delete.admin/inventory/flow',                 3, '', '', 7, NOW(), NOW()),
+(31000000000000938, 31000000000000004, '库存总览-查看',             'get.admin/inventory',                         3, '', '', 8, NOW(), NOW()),
+(31000000000000939, 31000000000000004, '库存流水-查看',             'get.admin/inventory/flow',                    3, '', '', 9, NOW(), NOW()),
+(31000000000001112, 31000000000000004, '库存总览-更新',             'put.admin/inventory',                         3, '', '', 10, NOW(), NOW()),
+(31000000000001113, 31000000000000004, '库存流水-更新',             'put.admin/inventory/flow',                    3, '', '', 11, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000854, 31000000000000758, 'BOM-删除',                  'delete.admin/mfg/bom',                        3, '', '', 4, NOW(), NOW()),
+(31000000000000855, 31000000000000758, '产能日历-删除',             'delete.admin/mfg/capacity/calendar',          3, '', '', 5, NOW(), NOW()),
+(31000000000000856, 31000000000000758, '成本录入-删除',             'delete.admin/mfg/cost-entry',                 3, '', '', 6, NOW(), NOW()),
+(31000000000000857, 31000000000000758, '领料单-删除',               'delete.admin/mfg/material-issue',             3, '', '', 7, NOW(), NOW()),
+(31000000000000858, 31000000000000758, 'MRP运算-删除',              'delete.admin/mfg/mrp',                        3, '', '', 8, NOW(), NOW()),
+(31000000000000859, 31000000000000758, '生产工单-删除',             'delete.admin/mfg/production',                 3, '', '', 9, NOW(), NOW()),
+(31000000000000860, 31000000000000758, '工艺路线-删除',             'delete.admin/mfg/routing',                    3, '', '', 10, NOW(), NOW()),
+(31000000000000861, 31000000000000758, '委外订单-删除',             'delete.admin/mfg/subcontract',                3, '', '', 11, NOW(), NOW()),
+(31000000000000862, 31000000000000758, '委外发料-删除',             'delete.admin/mfg/subcontract-issue',          3, '', '', 12, NOW(), NOW()),
+(31000000000000863, 31000000000000758, '委外收货-删除',             'delete.admin/mfg/subcontract-receive',        3, '', '', 13, NOW(), NOW()),
+(31000000000000864, 31000000000000758, '报工单-删除',               'delete.admin/mfg/work-report',                3, '', '', 14, NOW(), NOW()),
+(31000000000000865, 31000000000000758, '工作中心-删除',             'delete.admin/mfg/workstation',                3, '', '', 15, NOW(), NOW()),
+(31000000000000941, 31000000000000758, 'BOM-查看',                  'get.admin/mfg/bom',                           3, '', '', 16, NOW(), NOW()),
+(31000000000000942, 31000000000000758, '产能日历-查看',             'get.admin/mfg/capacity/calendar',             3, '', '', 17, NOW(), NOW()),
+(31000000000000943, 31000000000000758, '产能报表-查看',             'get.admin/mfg/capacity/report',               3, '', '', 18, NOW(), NOW()),
+(31000000000000944, 31000000000000758, '成本录入-查看',             'get.admin/mfg/cost-entry',                    3, '', '', 19, NOW(), NOW()),
+(31000000000000945, 31000000000000758, '领料单-查看',               'get.admin/mfg/material-issue',                3, '', '', 20, NOW(), NOW()),
+(31000000000000946, 31000000000000758, 'MRP运算-查看',              'get.admin/mfg/mrp',                           3, '', '', 21, NOW(), NOW()),
+(31000000000000947, 31000000000000758, '生产工单-查看',             'get.admin/mfg/production',                    3, '', '', 22, NOW(), NOW()),
+(31000000000000948, 31000000000000758, '工艺路线-查看',             'get.admin/mfg/routing',                       3, '', '', 23, NOW(), NOW()),
+(31000000000000949, 31000000000000758, '委外订单-查看',             'get.admin/mfg/subcontract',                   3, '', '', 24, NOW(), NOW()),
+(31000000000000950, 31000000000000758, '委外发料-查看',             'get.admin/mfg/subcontract-issue',             3, '', '', 25, NOW(), NOW()),
+(31000000000000951, 31000000000000758, '委外收货-查看',             'get.admin/mfg/subcontract-receive',           3, '', '', 26, NOW(), NOW()),
+(31000000000000952, 31000000000000758, '报工单-查看',               'get.admin/mfg/work-report',                   3, '', '', 27, NOW(), NOW()),
+(31000000000000953, 31000000000000758, '工作中心-查看',             'get.admin/mfg/workstation',                   3, '', '', 28, NOW(), NOW()),
+(31000000000001043, 31000000000000758, '成本录入-创建',             'post.admin/mfg/cost-entry',                   3, '', '', 29, NOW(), NOW()),
+(31000000000001044, 31000000000000758, '领料单-创建',               'post.admin/mfg/material-issue',               3, '', '', 30, NOW(), NOW()),
+(31000000000001045, 31000000000000758, 'MRP运算-创建',              'post.admin/mfg/mrp',                          3, '', '', 31, NOW(), NOW()),
+(31000000000001046, 31000000000000758, '生产工单-创建',             'post.admin/mfg/production',                   3, '', '', 32, NOW(), NOW()),
+(31000000000001047, 31000000000000758, '工艺路线-创建',             'post.admin/mfg/routing',                      3, '', '', 33, NOW(), NOW()),
+(31000000000001048, 31000000000000758, '委外订单-创建',             'post.admin/mfg/subcontract',                  3, '', '', 34, NOW(), NOW()),
+(31000000000001049, 31000000000000758, '委外发料-创建',             'post.admin/mfg/subcontract-issue',            3, '', '', 35, NOW(), NOW()),
+(31000000000001050, 31000000000000758, '委外收货-创建',             'post.admin/mfg/subcontract-receive',          3, '', '', 36, NOW(), NOW()),
+(31000000000001051, 31000000000000758, '报工单-创建',               'post.admin/mfg/work-report',                  3, '', '', 37, NOW(), NOW()),
+(31000000000001052, 31000000000000758, '工作中心-创建',             'post.admin/mfg/workstation',                  3, '', '', 38, NOW(), NOW()),
+(31000000000001114, 31000000000000758, 'BOM-更新',                  'put.admin/mfg/bom',                           3, '', '', 39, NOW(), NOW()),
+(31000000000001115, 31000000000000758, '产能日历-更新',             'put.admin/mfg/capacity/calendar',             3, '', '', 40, NOW(), NOW()),
+(31000000000001116, 31000000000000758, '成本录入-更新',             'put.admin/mfg/cost-entry',                    3, '', '', 41, NOW(), NOW()),
+(31000000000001117, 31000000000000758, '领料单-更新',               'put.admin/mfg/material-issue',                3, '', '', 42, NOW(), NOW()),
+(31000000000001118, 31000000000000758, 'MRP运算-更新',              'put.admin/mfg/mrp',                           3, '', '', 43, NOW(), NOW()),
+(31000000000001119, 31000000000000758, '生产工单-更新',             'put.admin/mfg/production',                    3, '', '', 44, NOW(), NOW()),
+(31000000000001120, 31000000000000758, '工艺路线-更新',             'put.admin/mfg/routing',                       3, '', '', 45, NOW(), NOW()),
+(31000000000001121, 31000000000000758, '委外订单-更新',             'put.admin/mfg/subcontract',                   3, '', '', 46, NOW(), NOW()),
+(31000000000001122, 31000000000000758, '委外发料-更新',             'put.admin/mfg/subcontract-issue',             3, '', '', 47, NOW(), NOW()),
+(31000000000001123, 31000000000000758, '委外收货-更新',             'put.admin/mfg/subcontract-receive',           3, '', '', 48, NOW(), NOW()),
+(31000000000001124, 31000000000000758, '报工单-更新',               'put.admin/mfg/work-report',                   3, '', '', 49, NOW(), NOW()),
+(31000000000001125, 31000000000000758, '工作中心-更新',             'put.admin/mfg/workstation',                   3, '', '', 50, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000866, 31000000000000208, '履约-删除',                 'delete.admin/oms/fulfillment',                3, '', '', 5, NOW(), NOW()),
+(31000000000001126, 31000000000000208, '履约-更新',                 'put.admin/oms/fulfillment',                   3, '', '', 6, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000867, 0, '开放应用-删除',             'delete.admin/openapi/app',                    3, '', '', 26, NOW(), NOW()),
+(31000000000000868, 0, 'Webhook 订阅-删除',         'delete.admin/openapi/webhook',                3, '', '', 27, NOW(), NOW()),
+(31000000000000954, 0, '开放应用-查看',             'get.admin/openapi/app',                       3, '', '', 33, NOW(), NOW()),
+(31000000000000955, 0, 'Webhook 订阅-查看',         'get.admin/openapi/webhook',                   3, '', '', 34, NOW(), NOW()),
+(31000000000001055, 0, '开放应用-创建',             'post.admin/openapi/app',                      3, '', '', 58, NOW(), NOW()),
+(31000000000001056, 0, 'Webhook 订阅-创建',         'post.admin/openapi/webhook',                  3, '', '', 59, NOW(), NOW()),
+(31000000000001127, 0, '开放应用-更新',             'put.admin/openapi/app',                       3, '', '', 75, NOW(), NOW()),
+(31000000000001128, 0, 'Webhook 订阅-更新',         'put.admin/openapi/webhook',                   3, '', '', 76, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000869, 0, '自定义字段-删除',           'delete.admin/platform/custom-field',          3, '', '', 28, NOW(), NOW()),
+(31000000000000956, 0, '自定义字段-查看',           'get.admin/platform/custom-field',             3, '', '', 35, NOW(), NOW()),
+(31000000000000957, 0, '通知渠道-日志',             'get.admin/platform/notification-channel/logs', 3, '', '', 36, NOW(), NOW()),
+(31000000000000958, 0, '租户-到期预警',             'get.admin/platform/tenant/expiry-warnings',   3, '', '', 37, NOW(), NOW()),
+(31000000000000959, 0, '租户-列表',                 'get.admin/platform/tenant/list',              3, '', '', 38, NOW(), NOW()),
+(31000000000001057, 0, '自定义字段-创建',           'post.admin/platform/custom-field',            3, '', '', 60, NOW(), NOW()),
+(31000000000001058, 0, '自定义字段-字段模型',       'post.admin/platform/custom-field/schema',     3, '', '', 61, NOW(), NOW()),
+(31000000000001059, 0, '自定义字段-校验',           'post.admin/platform/custom-field/validate',   3, '', '', 62, NOW(), NOW()),
+(31000000000001060, 0, '通知渠道-重试',             'post.admin/platform/notification-channel/retry', 3, '', '', 63, NOW(), NOW()),
+(31000000000001061, 0, '通知渠道-发送',             'post.admin/platform/notification-channel/send', 3, '', '', 64, NOW(), NOW()),
+(31000000000001062, 0, '租户-标记到期',             'post.admin/platform/tenant/expire-mark',      3, '', '', 65, NOW(), NOW()),
+(31000000000001063, 0, '租户-开通',                 'post.admin/platform/tenant/provision',        3, '', '', 66, NOW(), NOW()),
+(31000000000001064, 0, '租户-续费',                 'post.admin/platform/tenant/renew',            3, '', '', 67, NOW(), NOW()),
+(31000000000001065, 0, '租户-恢复',                 'post.admin/platform/tenant/resume',           3, '', '', 68, NOW(), NOW()),
+(31000000000001066, 0, '租户-停用',                 'post.admin/platform/tenant/suspend',          3, '', '', 69, NOW(), NOW()),
+(31000000000001129, 0, '自定义字段-更新',           'put.admin/platform/custom-field',             3, '', '', 77, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000870, 0, '打印模板-删除',             'delete.admin/print/template',                 3, '', '', 29, NOW(), NOW()),
+(31000000000000960, 0, '打印模板-查看',             'get.admin/print/template',                    3, '', '', 39, NOW(), NOW()),
+(31000000000001067, 0, '打印模板-创建',             'post.admin/print/template',                   3, '', '', 70, NOW(), NOW()),
+(31000000000001068, 0, '打印模板-生成PDF',          'post.admin/print/template/pdf',               3, '', '', 71, NOW(), NOW()),
+(31000000000001069, 0, '打印模板-渲染',             'post.admin/print/template/render',            3, '', '', 72, NOW(), NOW()),
+(31000000000001130, 0, '打印模板-更新',             'put.admin/print/template',                    3, '', '', 78, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000871, 31000000000000801, '项目-删除',                 'delete.admin/project',                        3, '', '', 1, NOW(), NOW()),
+(31000000000000872, 31000000000000804, '项目成本-删除',             'delete.admin/project/cost',                   3, '', '', 1, NOW(), NOW()),
+(31000000000000873, 31000000000000802, '项目任务-删除',             'delete.admin/project/task',                   3, '', '', 1, NOW(), NOW()),
+(31000000000000874, 31000000000000803, '工时记录-删除',             'delete.admin/project/timesheet',              3, '', '', 1, NOW(), NOW()),
+(31000000000000961, 31000000000000801, '项目-查看',                 'get.admin/project',                           3, '', '', 2, NOW(), NOW()),
+(31000000000000962, 31000000000000804, '项目成本-查看',             'get.admin/project/cost',                      3, '', '', 2, NOW(), NOW()),
+(31000000000000963, 31000000000000804, '项目成本-损益表',           'get.admin/project/cost/pnl',                  3, '', '', 3, NOW(), NOW()),
+(31000000000000964, 31000000000000802, '项目任务-查看',             'get.admin/project/task',                      3, '', '', 2, NOW(), NOW()),
+(31000000000000965, 31000000000000803, '工时记录-查看',             'get.admin/project/timesheet',                 3, '', '', 2, NOW(), NOW()),
+(31000000000001070, 31000000000000801, '项目-创建',                 'post.admin/project',                          3, '', '', 3, NOW(), NOW()),
+(31000000000001071, 31000000000000804, '项目成本-创建',             'post.admin/project/cost',                     3, '', '', 4, NOW(), NOW()),
+(31000000000001072, 31000000000000804, '项目成本-生成',             'post.admin/project/cost/generate',            3, '', '', 5, NOW(), NOW()),
+(31000000000001073, 31000000000000802, '项目任务-创建',             'post.admin/project/task',                     3, '', '', 3, NOW(), NOW()),
+(31000000000001074, 31000000000000803, '工时记录-创建',             'post.admin/project/timesheet',                3, '', '', 3, NOW(), NOW()),
+(31000000000001131, 31000000000000801, '项目-更新',                 'put.admin/project',                           3, '', '', 4, NOW(), NOW()),
+(31000000000001132, 31000000000000802, '项目任务-更新',             'put.admin/project/task',                      3, '', '', 4, NOW(), NOW()),
+(31000000000001133, 31000000000000803, '工时记录-更新',             'put.admin/project/timesheet',                 3, '', '', 4, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000875, 31000000000000002, '采购结算-删除',             'delete.admin/purchase/settlement',            3, '', '', 18, NOW(), NOW()),
+(31000000000000966, 31000000000000002, '采购结算-查看',             'get.admin/purchase/settlement',               3, '', '', 19, NOW(), NOW()),
+(31000000000001075, 31000000000000002, '采购结算-创建',             'post.admin/purchase/settlement',              3, '', '', 20, NOW(), NOW()),
+(31000000000001134, 31000000000000002, '采购结算-更新',             'put.admin/purchase/settlement',               3, '', '', 21, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000878, 31000000000000003, '销售结算-删除',             'delete.admin/sales/settlement',               3, '', '', 18, NOW(), NOW()),
+(31000000000000968, 31000000000000003, '销售结算-查看',             'get.admin/sales/settlement',                  3, '', '', 19, NOW(), NOW()),
+(31000000000001078, 31000000000000003, '销售结算-创建',             'post.admin/sales/settlement',                 3, '', '', 20, NOW(), NOW()),
+(31000000000001137, 31000000000000003, '销售结算-更新',             'put.admin/sales/settlement',                  3, '', '', 21, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000879, 31000000000000210, '运费发票-删除',             'delete.admin/tms/freight-invoice',            3, '', '', 7, NOW(), NOW()),
+(31000000000000880, 31000000000000210, '运单-删除',                 'delete.admin/tms/shipment',                   3, '', '', 8, NOW(), NOW()),
+(31000000000000881, 31000000000000210, '物流跟踪-删除',             'delete.admin/tms/tracking',                   3, '', '', 9, NOW(), NOW()),
+(31000000000001079, 31000000000000210, '物流跟踪-创建',             'post.admin/tms/tracking',                     3, '', '', 10, NOW(), NOW()),
+(31000000000001138, 31000000000000210, '运费发票-更新',             'put.admin/tms/freight-invoice',               3, '', '', 11, NOW(), NOW()),
+(31000000000001139, 31000000000000210, '运单-更新',                 'put.admin/tms/shipment',                      3, '', '', 12, NOW(), NOW()),
+(31000000000001140, 31000000000000210, '物流跟踪-更新',             'put.admin/tms/tracking',                      3, '', '', 13, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000882, 31000000000000209, '打包-删除',                 'delete.admin/wms/pack',                       3, '', '', 9, NOW(), NOW()),
+(31000000000000883, 31000000000000209, '拣货-删除',                 'delete.admin/wms/pick',                       3, '', '', 10, NOW(), NOW()),
+(31000000000000884, 31000000000000209, '上架-删除',                 'delete.admin/wms/putaway',                    3, '', '', 11, NOW(), NOW()),
+(31000000000000885, 31000000000000209, '收货-删除',                 'delete.admin/wms/receiving',                  3, '', '', 12, NOW(), NOW()),
+(31000000000000886, 31000000000000209, '波次-删除',                 'delete.admin/wms/wave',                       3, '', '', 13, NOW(), NOW()),
+(31000000000001080, 31000000000000209, '拣货-创建',                 'post.admin/wms/pick',                         3, '', '', 14, NOW(), NOW()),
+(31000000000001141, 31000000000000209, '打包-更新',                 'put.admin/wms/pack',                          3, '', '', 15, NOW(), NOW()),
+(31000000000001142, 31000000000000209, '拣货-更新',                 'put.admin/wms/pick',                          3, '', '', 16, NOW(), NOW()),
+(31000000000001143, 31000000000000209, '上架-更新',                 'put.admin/wms/putaway',                       3, '', '', 17, NOW(), NOW()),
+(31000000000001144, 31000000000000209, '收货-更新',                 'put.admin/wms/receiving',                     3, '', '', 18, NOW(), NOW()),
+(31000000000001145, 31000000000000209, '波次-更新',                 'put.admin/wms/wave',                          3, '', '', 19, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000887, 0, '工作流-删除',               'delete.admin/workflow',                       3, '', '', 30, NOW(), NOW()),
+(31000000000000973, 0, '工作流-查看',               'get.admin/workflow',                          3, '', '', 44, NOW(), NOW()),
+(31000000000000974, 0, '流程设计器-查看',           'get.admin/workflow/designer',                 3, '', '', 45, NOW(), NOW()),
+(31000000000001081, 0, '工作流-创建',               'post.admin/workflow',                         3, '', '', 73, NOW(), NOW()),
+(31000000000001082, 0, '流程设计器-创建',           'post.admin/workflow/designer',                3, '', '', 74, NOW(), NOW()),
+(31000000000001146, 0, '工作流-更新',               'put.admin/workflow',                          3, '', '', 79, NOW(), NOW()),
+(31000000000001147, 0, '流程设计器-更新',           'put.admin/workflow/designer',                 3, '', '', 80, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000940, 0, '会员-概览',                 'get.admin/member/overview',                   3, '', '', 32, NOW(), NOW()),
+(31000000000001036, 0, '会员-消费',                 'post.admin/member/consume',                   3, '', '', 49, NOW(), NOW()),
+(31000000000001037, 0, '会员-开户',                 'post.admin/member/open',                      3, '', '', 50, NOW(), NOW()),
+(31000000000001038, 0, '会员-积分消费',             'post.admin/member/points-consume',            3, '', '', 51, NOW(), NOW()),
+(31000000000001039, 0, '会员-积分获取',             'post.admin/member/points-earn',               3, '', '', 52, NOW(), NOW()),
+(31000000000001040, 0, '会员-积分过期',             'post.admin/member/points-expire',             3, '', '', 53, NOW(), NOW()),
+(31000000000001041, 0, '会员-充值',                 'post.admin/member/recharge',                  3, '', '', 54, NOW(), NOW()),
+(31000000000001042, 0, '会员-退款',                 'post.admin/member/refund',                    3, '', '', 55, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000969, 0, '反向追溯-查看',             'get.admin/trace/backward',                    3, '', '', 40, NOW(), NOW()),
+(31000000000000970, 0, '效期追溯-查看',             'get.admin/trace/expiry',                      3, '', '', 41, NOW(), NOW()),
+(31000000000000971, 0, '正向追溯-查看',             'get.admin/trace/forward',                     3, '', '', 42, NOW(), NOW()),
+(31000000000000972, 0, '序列号追溯-查看',           'get.admin/trace/serial',                      3, '', '', 43, NOW(), NOW());
+
+INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
+(31000000000000977, 0, '优惠券-发放',               'post.admin/coupon/issue',                     3, '', '', 47, NOW(), NOW()),
+(31000000000000978, 0, '优惠券-核销',               'post.admin/coupon/redeem',                    3, '', '', 48, NOW(), NOW());
 
 -- ============================================================
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz

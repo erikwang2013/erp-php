@@ -9,6 +9,7 @@ namespace app\controller\manufacturing;
 
 use app\admin\controller\BaseController;
 use app\model\MfgRouting;
+use app\model\MfgWorkReport;
 use app\service\manufacturing\ManufacturingService;
 use support\Container;
 use support\Request;
@@ -45,7 +46,14 @@ class RoutingController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        // 筛选值来自列表下拉的 hashid：解不出就 422，别让 null 静默变成「不筛选」（返回全量，像是筛中了）
         $productId = $request->input('product_id');
+        if ($productId !== null && $productId !== '') {
+            $productId = $this->decodeFlexibleId($productId);
+            if ($productId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
 
         $list = $this->mfg()->all(MfgRouting::class, [
             'product_id' => $productId,
@@ -199,6 +207,10 @@ class RoutingController extends BaseController
         $item = $this->mfg()->find(MfgRouting::class, $id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+        // 引用守卫：报工单挂在本工序上，删掉后报工/计件归集失去工序口径（无 FK 约束，静默留孤儿）
+        if (MfgWorkReport::query()->where('routing_id', $id)->exists()) {
+            return $this->fail($this->trans('Work reports reference this process; it cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

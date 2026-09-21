@@ -126,7 +126,13 @@ class ArApController extends BaseController
             $sourceType = 'manual';
             $sourceId = $this->generateId();
         } else {
-            $sourceId = $this->decodeIdSafe((string) $request->input('source_id', '0')) ?? (int) $request->input('source_id', '0');
+            // 来源单 ID 双模解码；垃圾串 422 拒绝（原 `decodeIdSafe() ?? (int)` 会把
+            // 'abc' 静默写成 source_id=0 —— 落一条假来源记录，还可能与既有 (类型,0) 撞唯一键）
+            $rawSourceId = $request->input('source_id', '');
+            $sourceId = $rawSourceId === '' || $rawSourceId === null ? 0 : $this->decodeFlexibleId($rawSourceId);
+            if ($sourceId === null) {
+                return $this->fail($this->trans('Invalid source ID'), 422);
+            }
         }
 
         try {

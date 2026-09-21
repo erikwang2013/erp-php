@@ -12,6 +12,7 @@ const DRAFT_AUDIT = docStatus(['草稿', '已审核']);
 const SUBCONTRACT = docStatus(['草稿', '已发料', '已收货', '已核销']);
 const QC = docStatus(['待处理', '已完成']);
 const NC = docStatus(['待处理', '处理中', '已关闭']);
+const BOM = docStatus(['草稿', '已生效', '已失效']);
 
 const m = (
   title: string,
@@ -25,7 +26,17 @@ export const mfgMenus: MenuGroup[] = [
     icon: 'factory',
     moduleKey: 'mfg',
     children: [
-      { label: 'BOM 管理', path: '/mfg/bom', cfg: m('BOM 管理', '/admin/v1/mfg/bom', { fields: [{ key: 'product_id', label: '产品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'code', label: 'BOM 编码', required: true }, { key: 'name', label: 'BOM 名称', required: true }] }) },
+      {
+        label: 'BOM 管理',
+        path: '/mfg/bom',
+        // 状态 0草稿/1已生效/2已失效（ManufacturingService::BOM_STATUS_FLOW）；生效的副作用是
+        // 同产品其它已生效 BOM 全部转失效，故只有「生效」一个按钮，失效由新版本取代
+        cfg: m('BOM 管理', '/admin/v1/mfg/bom', {
+          filters: BOM.filter,
+          fields: [{ key: 'product_id', label: '产品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'code', label: 'BOM 编码', required: true }, { key: 'name', label: 'BOM 名称', required: true }],
+          actions: [{ label: '生效', icon: 'check', path: (r) => (Number(r.status) === 1 ? null : `/admin/v1/mfg/bom/${String(r.id)}/activate`), message: 'BOM 已生效，同产品其它版本已转失效' }],
+        }),
+      },
       {
         label: '生产工单',
         path: '/mfg/production',

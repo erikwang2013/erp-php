@@ -9,6 +9,7 @@ import { ErrorView, EmptyView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
+import { Format } from '../../utils/Format';
 
 /** POST body：开始拣货零字段（ArkTS 禁裸对象字面量传参） */
 class EmptyBody {
@@ -131,7 +132,7 @@ struct PickPage {
                   ListItem() {
                     ListRow({
                       title: item.code || item.id || '-',
-                      subtitle: item.started_at || '',
+                      subtitle: Format.dateTime(item.started_at),
                       icon: item.code || item.id || '-',
                       badge: this.badge(item),
                       actions: item.status === 0 ? [

@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
+use app\model\FinanceAllocation;
+use app\model\FinanceBudget;
 use app\model\FinanceCostCenter;
 use support\Request;
 use support\Response;
@@ -90,9 +92,18 @@ class CostCenterController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // 上级收 hashid 串（上级下拉下发）或原生数字；未传/空串＝顶层
+        $parentInput = $request->input('parent_id');
+        $parentId = $this->decodeFlexibleId($parentInput === null || $parentInput === '' ? 0 : $parentInput);
+        if ($parentId === null) {
+            return $this->fail($this->trans('Invalid parent_id'), 422);
+        }
+
         $item = new FinanceCostCenter();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 覆盖回填：fillModelFromRequest 落的是请求原文（hashid 串直灌 BIGINT 报 1366 → 500）
+        $item->fill(['parent_id' => $parentId]);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -162,7 +173,20 @@ class CostCenterController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        // 上级同 store 解码；未传＝不改动，空串＝顶层。父级挂到自身或自身后代即成环，
+        // 环上节点在列表树里不可达（整枝消失）
+        $parentInput = $request->input('parent_id');
         $this->fillModelFromRequest($item, $request);
+        if ($parentInput !== null) {
+            $parentId = $this->decodeFlexibleId($parentInput === '' ? 0 : $parentInput);
+            if ($parentId === null) {
+                return $this->fail($this->trans('Invalid parent_id'), 422);
+            }
+            if ($parentId > 0 && $this->isSelfOrDescendant($parentId, $id)) {
+                return $this->fail($this->trans('Parent cannot be itself or its descendant'), 422);
+            }
+            $item->fill(['parent_id' => $parentId]);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
@@ -202,6 +226,13 @@ class CostCenterController extends BaseController
             return $this->fail($this->trans('Child cost centers exist, please delete them first'), 422);
         }
 
+        // 被预算/分摊引用不可删：关联列无 FK 约束，直删会留下指向不存在中心的行
+        $referenced = FinanceBudget::query()->where('cost_center_id', $id)->exists()
+            || FinanceAllocation::query()->where('source_center_id', $id)->orWhere('target_center_id', $id)->exists();
+        if ($referenced) {
+            return $this->fail($this->trans('Cost center is referenced by budgets or allocations'), 422);
+        }
+
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
         if ($error !== null) {
@@ -211,6 +242,22 @@ class CostCenterController extends BaseController
         $item->delete();
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * $nodeId 是否等于 $ancestorId 或位于其子树内（用于拒绝成环的 parent_id）。
+     * 环由脏数据预先存在时，向上走可能不终止，故按深度上限兜底。
+     */
+    private function isSelfOrDescendant(int $nodeId, int $ancestorId): bool
+    {
+        for ($cur = $nodeId, $i = 0; $cur > 0 && $i < 64; $i++) {
+            if ($cur === $ancestorId) {
+                return true;
+            }
+            $cur = (int) FinanceCostCenter::query()->where('id', $cur)->value('parent_id');
+        }
+
+        return false;
     }
 
     /**

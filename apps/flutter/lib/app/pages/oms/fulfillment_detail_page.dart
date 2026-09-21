@@ -10,6 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/detail_page.dart';
 import '../../widgets/reference_card.dart';
+import '../../utils/format.dart';
 
 class FulfillmentDetailPage extends StatelessWidget {
   final String? id;
@@ -42,7 +43,7 @@ class FulfillmentDetailPage extends StatelessWidget {
             _optionalRefRow(context, d, l.detailPickTask, 'pick_task_id', 'pick'),
             _optionalRefRow(context, d, l.detailPackTask, 'pack_task_id', 'pack'),
             _optionalRefRow(context, d, l.detailShipment, 'shipment_id', 'shipment'),
-            detailRow(d, l.detailCreatedAt, 'created_at'),
+            detailRow(d, l.detailCreatedAt, 'created_at', fmt: fmtDateTime),
           ]),
           DetailCard(title: l.detailItems, children: [
             DetailItemsTable(

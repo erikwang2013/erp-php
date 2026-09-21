@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 import type { Column } from '@/components/DataTable';
 import { Badge } from '@/components/ui';
 import { COLUMN_TITLES_EXTRA } from '@/config/column-titles-extra';
-import type { FieldSource, FormField, Row } from '@/config/types';
+import type { FieldSource, FilterDef, FormField, Row } from '@/config/types';
 import { dateTime, money, statusText, statusTone, text } from '@/lib/format';
 import { tr } from '@/lib/i18n';
 import { optionLabel } from '@/lib/options';
@@ -239,6 +239,17 @@ const STATUS_DICTS: Record<string, Record<number, string>> = {
   crm: { 0: '未开始', 1: '跟进中', 2: '已报价', 3: '赢单', 4: '输单' },
 };
 
+/**
+ * 筛选定义 → 状态字典。`docStatus()` 生成的 filter.options 就是字典本身（首项「全部」无值），
+ * 所以声明了状态筛选的资源无需另写 columns，状态列也能拿到本表真枚举。
+ */
+function dictFromFilter(filter?: FilterDef): Record<number, string> | undefined {
+  if (!filter || filter.key !== 'status') return undefined;
+  const dict: Record<number, string> = {};
+  for (const o of filter.options) if (typeof o.value === 'number') dict[o.value] = o.label;
+  return Object.keys(dict).length > 0 ? dict : undefined;
+}
+
 export function keyTitle(k: string): string {
   if (TITLES[k]) return tr(TITLES[k]);
   // `*_name` / `*_id` 未收录时回落到对端条目：关联列（如 customer_name）靠它拿到中文表头
@@ -256,6 +267,8 @@ const REL_ALIAS: Record<string, string> = {
   partner_id: 'party_name',
   apply_user_id: 'employee_name',
   stage_id: 'stage_name',
+  // 采购订单 → 采购申请单号（OrderController::index leftJoin purchase_apply 带出的 apply_code）
+  apply_id: 'apply_code',
 };
 
 const isObj = (v: unknown): v is Row =>
@@ -284,18 +297,22 @@ function relationValue(
     const n = optionLabel(src, row[idKey]);
     if (n) return n;
   }
-  return row[idKey];
+  // 关联名取不到（无 `*_name` 兄弟、无关系对象、选项未加载/未命中）时给 undefined，
+  // 由 text() 落成「-」占位：裸 hashid 在任何页面都没有可粘贴的去处，贴出来只是噪声。
+  return undefined;
 }
 
 /**
  * 从行样本推断列定义。
  * fields 用于两处：`{key,label}` 给出本页列标题；`{key,source}` 给出外键的远程名称源。
+ * filter 是本资源的状态筛选，其选项即状态字典（见 dictFromFilter）。
  */
 export function inferColumns(
   rows: Row[],
   endpoint: string,
   fields?: FormField[],
   limit = 8,
+  filter?: FilterDef,
 ): Column<Row>[] {
   const sample = rows.slice(0, 3);
   const present = new Set<string>();
@@ -344,8 +361,11 @@ export function inferColumns(
     return pa - pb;
   });
 
+  // 字典优先级：本资源状态筛选带的（就是该表枚举的真身）→ 资源前缀档 → 通用档。
+  // 前缀档只收录了 purchase/sales/crm，其余模块猜出来的文案会张冠李戴
+  // （如 erp_hr_leave 的 2=已驳回 被猜成通用档的「处理中」）
   const prefix = endpoint.split('/')[3] ?? '';
-  const dict = STATUS_DICTS[prefix];
+  const dict = dictFromFilter(filter) ?? STATUS_DICTS[prefix];
 
   return shown.map((k) => {
     const primary = k === 'code' || k === 'no' || k === 'name';
@@ -354,10 +374,9 @@ export function inferColumns(
 
     const nameKey = relName.get(k);
     const src = relSrc.get(k);
-    const base = k.slice(0, -3);
-    const nested = k.endsWith('_id') && present.has(base) && sample.some((r) => isObj(r[base]));
-    if (nameKey || src || nested) {
-      // 外键列本身承载名称（`*_name` 同伴成列时已在 shown 里隐去）
+    // 凡是 `*_id` 一律按关联列渲染：三种解析途径（`*_name` 兄弟 / 关系对象 / fields.source 选项）
+    // 任一命中就出名称，全未命中由 relationValue 落「-」占位。裸 hashid 贴出来对用户没有意义
+    if (k.endsWith('_id')) {
       return {
         key: k,
         title: titles.get(k) ?? keyTitle(k),
@@ -391,16 +410,46 @@ export function inferColumns(
   });
 }
 
-/** 推断详情字段（全字段，跳过 id 与嵌套关系） */
-export function inferDetailItems(row: Row): { k: string; v: ReactNode }[] {
+/**
+ * 推断详情字段：行的每个标量字段优先**复用列表那一列的渲染器**，cols 没覆盖到的键按字段名兜底。
+ *
+ * 详情原先自己一套 `text(v)`，于是同一份数据在列表里是「已审核」徽标、点开详情却变成 `2`，
+ * 外键在列表里是客户名、详情里却回落到裸 hashid。走列渲染器后两处天然同源。
+ *
+ * 两处跳过与列表口径一致：`*_id` 的名称兄弟已成列时不重复出一行（inferColumns 里那个外键列
+ * 就是被兄弟顶掉的），嵌套对象/数组由关系的列承担。
+ */
+export function inferDetailItems(
+  row: Row,
+  cols: Column<Row>[] = [],
+): { k: string; v: ReactNode }[] {
+  const byKey = new Map(cols.filter((c) => c.key !== '__actions').map((c) => [c.key, c]));
   return Object.entries(row)
     .filter(([k, v]) => {
-      if (k === 'id') return false;
+      if (k === 'id' || k.startsWith('__')) return false;
       if (v !== null && typeof v === 'object') return false;
+      // 名称兄弟已成一列 → 裸外键不出行（该列渲染的就是这个外键的名称）
+      const stem = k.endsWith('_id') ? k.slice(0, -3) : '';
+      if (stem && byKey.has(REL_ALIAS[k] ?? `${stem}_name`)) return false;
       return true;
     })
-    .map(([k, v]) => ({
-      k: keyTitle(k),
-      v: isDate(k) ? dateTime(v) : isMoney(k) ? money(v) : text(v),
-    }));
+    .map(([k, v]) => {
+      const col = byKey.get(k);
+      return {
+        k: col?.title ?? keyTitle(k),
+        v: col?.render ? col.render(row) : fallbackValue(k, v),
+      };
+    });
+}
+
+/** cols 未覆盖的键（列数被 limit 截断、非首批样本字段）的兜底渲染，识别口径同 inferColumns */
+function fallbackValue(k: string, v: unknown): ReactNode {
+  // 裸外键：cols 没覆盖到它（资源写了显式 columns，或名称兄弟被截断）时给占位。
+  // 关联名取得到的话，早就以 `*_name` 列或关系对象列的形式进来了；剩下的原值是编码后的
+  // 雪花 ID，贴出来只是噪声——详情页出现裸 ID 正是这一条漏的
+  if (k.endsWith('_id')) return text(undefined);
+  if (isStatus(k)) return <Badge text={statusText(v)} tone={statusTone(v)} />;
+  if (isDate(k)) return dateTime(v);
+  if (isMoney(k)) return money(v);
+  return text(v);
 }

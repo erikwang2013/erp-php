@@ -15,6 +15,7 @@ import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/detail_page.dart';
+import '../../utils/format.dart';
 
 /// target_type（后端 TARGET_REGISTRY）→ 详情路由。
 const Map<String, String> _targetRoute = {
@@ -258,7 +259,7 @@ class _ApprovalDetailPageState extends State<ApprovalDetailPage> {
           fg: _chipColor(context, _asInt(d['status'])).$2),
       if ('${d['submitted_at'] ?? ''}'.isNotEmpty &&
           '${d['submitted_at']}' != 'null')
-        detailRow(d, l.fieldSubmitTime, 'submitted_at'),
+        detailRow(d, l.fieldSubmitTime, 'submitted_at', fmt: fmtDateTime),
     ];
   }
 
@@ -293,7 +294,7 @@ class _ApprovalDetailPageState extends State<ApprovalDetailPage> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Text('${r['created_at'] ?? ''}',
+          Text(fmtDateTime(r['created_at']),
               style: TextStyle(
                   fontSize: 12, color: AppColors.of(context).textHint)),
         ]),

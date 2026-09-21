@@ -9,6 +9,7 @@ import { ErrorView, EmptyView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
+import { Format } from '../../utils/Format';
 
 /** POST body：完成打包零字段（ArkTS 禁裸对象字面量传参） */
 class EmptyBody {
@@ -130,7 +131,7 @@ struct PackPage {
                   ListItem() {
                     ListRow({
                       title: item.code || item.id || '-',
-                      subtitle: item.package_type || item.created_at || '',
+                      subtitle: item.package_type || Format.dateTime(item.created_at),
                       icon: item.code || item.id || '-',
                       badge: this.badge(item),
                       actions: item.status === 1 ? [

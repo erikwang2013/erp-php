@@ -37,6 +37,14 @@ abstract class H3H4Scaffold extends IntegrationTestCase
     /** 本测试种子过的员工主键（tearDown 只清这些行，绝不 DROP 员工表）。 */
     private array $seededEmployeeIds = [];
 
+    /**
+     * 走的是回退路径（表已在位、非本类所建）。
+     * 该路径 setUp 用 truncate 保证空表起步，而 dropTableIfCreated 对既有真表是空操作，
+     * 故 tearDown 必须自己清表：否则种子行留在库尾，下一个不继承本类的对抗性用例
+     * （H34Adversarial/H34Payslip 断言全表计数）在**第二次跑同一个库**时就会多数出行。
+     */
+    private bool $fallbackSchema = false;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -53,7 +61,18 @@ abstract class H3H4Scaffold extends IntegrationTestCase
             Capsule::table('hr_employee')->whereIn('id', $this->seededEmployeeIds)->delete();
             $this->seededEmployeeIds = [];
         }
+        if ($this->fallbackSchema) {
+            self::truncateH34Tables();
+        }
         parent::tearDown();
+    }
+
+    /** 清空本批 5 张表（回退路径下 setUp 与 tearDown 共用同一语义）。 */
+    private static function truncateH34Tables(): void
+    {
+        foreach (self::H34_TABLES as $table) {
+            Capsule::table($table)->truncate();
+        }
     }
 
     /** 执行 scratch 建表脚本（去注释行后按 ';' 拆句）。 */
@@ -61,7 +80,24 @@ abstract class H3H4Scaffold extends IntegrationTestCase
     {
         $path = dirname(__DIR__, 2) . '/database/h34_hr.sql';
         if (!is_file($path)) {
-            self::markTestSkipped('缺少 database/h34_hr.sql（scratch 建表脚本未随批次交付），跳过 H3/H4 集成测试');
+            // 同 H1H2Scaffold：scratch DDL 未交付，但这 5 张表已在 install.sql 里；
+            // 缺文件即跳过会让本类 29 个用例长期假绿。表在就按现成 schema 继续。
+            $missing = array_filter(
+                self::H34_TABLES,
+                static fn (string $table): bool => !Capsule::schema()->hasTable($table)
+            );
+            if ($missing !== []) {
+                self::markTestSkipped(
+                    '缺少 database/h34_hr.sql 且测试库无 ' . implode('/', $missing) . ' 表，跳过 H3/H4 集成测试'
+                );
+            }
+
+            // 同 H1H2Scaffold：回退路径不 DROP+CREATE，须自己保证每例空表起步，
+            // 否则残留行会让「同城市同名称的社保规则已存在」等唯一性用例整类报错。
+            $this->fallbackSchema = true;
+            self::truncateH34Tables();
+
+            return;
         }
         $lines = array_filter(
             explode("\n", (string) file_get_contents($path)),

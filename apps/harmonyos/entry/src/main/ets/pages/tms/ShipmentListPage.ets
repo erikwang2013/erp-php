@@ -11,6 +11,7 @@ import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
 import { ShipmentFormView } from './ShipmentFormView';
+import { Format } from '../../utils/Format';
 
 /**
  * 运单列表项（与后端 /admin/tms/shipment 返回字段对齐）
@@ -154,8 +155,9 @@ struct ShipmentListPage {
       this.formTrackingNo = (row['tracking_no'] as string) ?? '';
       this.formStatus = (row['status'] as number) ?? 1;
       this.formShippingLabelUrl = (row['shipping_label_url'] as string) ?? '';
-      this.formEstimatedDeliveryAt = (row['estimated_delivery_at'] as string) ?? '';
-      this.formActualDeliveryAt = (row['actual_delivery_at'] as string) ?? '';
+      // 时间列后端下发 ISO-UTC，输入框回填本地 `Y-m-d H:i:s`
+      this.formEstimatedDeliveryAt = Format.dateTime(row['estimated_delivery_at']);
+      this.formActualDeliveryAt = Format.dateTime(row['actual_delivery_at']);
       this.formTotalWeightKg = row['total_weight_kg'] != null ? String(row['total_weight_kg']) : '';
       this.formPackageCount = row['package_count'] != null ? String(row['package_count']) : '1';
       this.formFreightCharge = row['freight_charge'] != null ? String(row['freight_charge']) : '';

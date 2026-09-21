@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace app\controller\manufacturing;
 
 use app\admin\controller\BaseController;
+use app\model\MfgRouting;
+use app\model\MfgWorkReport;
 use app\model\MfgWorkstation;
 use app\service\manufacturing\ManufacturingService;
 use support\Container;
@@ -180,6 +182,11 @@ class WorkstationController extends BaseController
         $item = $this->mfg()->find(MfgWorkstation::class, $id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+        // 引用守卫：工序/报工单挂在工作站上（无 FK 约束），删掉后产能报表与报工归集失去落点
+        if (MfgRouting::query()->where('workstation_id', $id)->exists()
+            || MfgWorkReport::query()->where('workstation_id', $id)->exists()) {
+            return $this->fail($this->trans('Processes or work reports reference this workstation; it cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

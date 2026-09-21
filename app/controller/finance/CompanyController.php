@@ -37,9 +37,12 @@ class CompanyController extends BaseController
     public function list(Request $request): Response
     {
         $companies = Company::orderByDesc('id')->get();
+        $names = $companies->pluck('name', 'id')->all();
         $items = [];
         foreach ($companies as $company) {
             $row = $this->encodeIds($company->toArray(), ['id', 'parent_id']);
+            // 上级名称：前端 inferColumns 用 parent_name 兄弟列渲染，否则上级列直接显示 hashid
+            $row['parent_name'] = $names[$company->parent_id] ?? '';
             $ledger = FinanceLedger::where('company_id', (int) $company->id)
                 ->where('is_default', 1)->first();
             if ($ledger) {
@@ -85,10 +88,13 @@ class CompanyController extends BaseController
         if ($name === '' || $code === '') {
             return $this->fail($this->trans('name and code are required'), 422);
         }
+        // 上级组织收 hashid 串或原生数字；未传/空串＝顶级。解不出→422
+        // （原 (int) 兜底把垃圾父级静默写成 0，挂错层级且无任何提示）
         $parentInput = $request->input('parent_id', 0);
-        $parentId = is_numeric($parentInput)
-            ? (int) $parentInput
-            : (int) ($this->decodeIdSafe((string) $parentInput) ?? 0);
+        $parentId = $this->decodeFlexibleId($parentInput === null || $parentInput === '' ? 0 : $parentInput);
+        if ($parentId === null) {
+            return $this->fail($this->trans('Invalid parent_id'), 422);
+        }
 
         try {
             $company = (new LedgerService())->createCompany([
@@ -132,9 +138,10 @@ class CompanyController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $id = $this->decodeIdSafe((string) $request->input('id', ''));
+        // decodeIdSafe 只认 hashid：原生数字 ID（数字 ID 也是合法入参）会被静默拒成 422
+        $id = $this->decodeFlexibleId($request->input('id', ''));
         $status = (int) $request->input('status', -1);
-        if ($id === null || $status < 0 || $status > 1) {
+        if ($id === null || $id < 1 || $status < 0 || $status > 1) {
             return $this->fail($this->trans('id and status(0/1) are required'), 422);
         }
         $company = Company::find($id);

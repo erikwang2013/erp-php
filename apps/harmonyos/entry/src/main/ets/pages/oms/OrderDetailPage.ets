@@ -16,6 +16,7 @@ import { TopBar } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { DetailCard, DetailRow } from '../../common/DetailCard';
 import { ListRow, RowAction, RowBadge, kindTint, kindInk } from '../../common/ListRow';
+import { Format } from '../../utils/Format';
 
 /** POST body：取消订单零字段（ArkTS 禁裸对象字面量传参） */
 class EmptyBody {
@@ -235,7 +236,7 @@ struct OrderDetailPage {
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_seller'), value: this.hint(this.row['seller_note']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_priority'), value: this.hint(this.row['priority']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_hold'), value: this.hint(this.row['hold_until']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_created'), value: this.hint(this.row['created_at']) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_created'), value: this.hint(Format.dateTime(this.row['created_at'])) })
                 }
                 .width('100%')
               }

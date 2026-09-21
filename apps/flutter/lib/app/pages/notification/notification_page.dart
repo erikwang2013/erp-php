@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../services/api_service.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../l10n/app_l10n.dart';
+import '../../utils/format.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -74,7 +75,7 @@ class _NotificationPageState extends State<NotificationPage> {
     return {
       l10n.fieldTitle: r['title'] ?? '',
       l10n.fieldContent: r['content'] ?? '',
-      l10n.fieldTime: r['created_at'] ?? '',
+      l10n.fieldTime: fmtDateTime(r['created_at']),
       l10n.commonStatus: r['status'] ?? '', // 0/1 原始值直显，非翻译内容
     };
   }

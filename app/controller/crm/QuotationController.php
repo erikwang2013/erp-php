@@ -12,6 +12,7 @@ use app\model\CrmQuotation;
 use app\model\CrmQuotationItem;
 use app\model\Customer;
 use app\service\crm\CrmService;
+use InvalidArgumentException;
 use support\Container;
 use support\Request;
 use support\Response;
@@ -54,7 +55,14 @@ class QuotationController extends BaseController
         [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
+        // 筛选值来自前端客户下拉（hashid）：不解码则 eqFilters 里 (int)hashid=0，筛选恒不命中
         $customerId = $request->input('customer_id');
+        if ($customerId !== null && $customerId !== '') {
+            $customerId = $this->decodeFlexibleId($customerId);
+            if ($customerId === null || $customerId < 1) {
+                return $this->fail('客户ID' . $this->trans('Invalid'), 422);
+            }
+        }
 
         $result = $this->crm()->list(CrmQuotation::class, [
             'keyword' => $keyword,
@@ -64,14 +72,14 @@ class QuotationController extends BaseController
             'searchFields' => ['code'],
             'eqFilters' => ['status', 'customer_id'],
         ]);
-        // FK 编码为 hashid（与客户下拉选项同源，供编辑弹窗回填）+ 客户名称展示（表无 name 列）
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'opportunity_id', 'owner_user_id']), $result['list']);
+        // 先按裸 ID 补引用名再编码 FK：顺序反了则下方 (int) 转型拿到 hashid 串恒 0，客户名恒空
+        $list = $result['list'];
         $customerIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['customer_id'] ?? 0), $list)));
         $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
         $list = array_map(function ($row) use ($customerNames) {
             $row['customer_name'] = (string) ($customerNames[(int) ($row['customer_id'] ?? 0)] ?? '');
 
-            return $row;
+            return $this->encodeIds($row, ['id', 'customer_id', 'opportunity_id', 'owner_user_id']);
         }, $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
@@ -116,6 +124,13 @@ class QuotationController extends BaseController
             }
             $data[$field] = $decoded;
         }
+        // 明细外键 product_id/sku_id 来自商品/SKU 下拉（hashid）：直灌 BIGINT 列严格模式报 1366（→500）。
+        // 在 create 之前校验，避免明细非法时报价主表已落库（半写）。
+        $items = $request->input('items', []);
+        $items = is_array($items) && $items !== [] ? $this->decodeItemIds($items, ['product_id', 'sku_id']) : [];
+        if ($items === null) {
+            return $this->fail('明细商品ID' . $this->trans('Invalid'), 422);
+        }
         // 单号留空自动生成（uk_code 唯一）；负责人 NOT NULL 无默认 → 当前登录管理员
         $code = (string) ($data['code'] ?? '');
         if ($code === '') {
@@ -131,8 +146,7 @@ class QuotationController extends BaseController
 
         $item = $this->crm()->create(CrmQuotation::class, $data, ['status' => 0]);
 
-        $items = $request->input('items', []);
-        if (is_array($items)) {
+        if ($items !== []) {
             $this->crm()->replaceItems(CrmQuotationItem::class, 'quotation_id', $item->id, $items);
         }
 
@@ -221,9 +235,17 @@ class QuotationController extends BaseController
             }
         }
 
+        $items = $request->input('items', []);
+        if (!empty($items)) {
+            // 明细外键同 store：hashid → 原始 ID，非法则 422（先校验再落库，避免主表已改、明细未改的半写）
+            $items = $this->decodeItemIds((array) $items, ['product_id', 'sku_id']);
+            if ($items === null) {
+                return $this->fail('明细商品ID' . $this->trans('Invalid'), 422);
+            }
+        }
+
         $item = $this->crm()->update(CrmQuotation::class, $id, $data);
 
-        $items = $request->input('items', []);
         if (!empty($items)) {
             $this->crm()->replaceItems(CrmQuotationItem::class, 'quotation_id', $id, $items);
         }
@@ -303,12 +325,17 @@ class QuotationController extends BaseController
             return $this->fail($this->trans('Quotation not found'), 404);
         }
 
-        $result = $this->crm()->convertQuotationToContract(
-            $quotation,
-            (string) $request->input('code', ''),
-            (string) $request->input('name', ''),
-            (string) $request->input('remark', '')
-        );
+        try {
+            $result = $this->crm()->convertQuotationToContract(
+                $quotation,
+                (string) $request->input('code', ''),
+                (string) $request->input('name', ''),
+                (string) $request->input('remark', '')
+            );
+        } catch (InvalidArgumentException $e) {
+            // 状态不允许（已转合同/已失效）等业务规则失败 → 422（否则未捕获异常 → 500）
+            return $this->fail($e->getMessage(), 422);
+        }
 
         return $this->success([
             'quotation' => $this->encodeIds($result['quotation']->toArray()),

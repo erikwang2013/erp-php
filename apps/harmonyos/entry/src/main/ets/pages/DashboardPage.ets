@@ -25,6 +25,7 @@ import {
 } from '../common/ThemeTokens';
 import { L10n } from '../utils/L10n';
 import { KpiSpec, KpiCard, greetingText, dateLineText } from './DashboardParts';
+import { Format } from '../utils/Format';
 
 
 @Entry
@@ -676,7 +677,7 @@ struct DashboardPage {
                         .fontSize(13)
                         .fontColor($r('app.color.text_primary'))
 
-                      Text(log.created_at ?? '')
+                      Text(Format.dateTime(log.created_at))
                         .fontSize(11)
                         .fontColor($r('app.color.text_hint'))
                         .margin({ top: 2 })

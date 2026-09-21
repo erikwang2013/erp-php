@@ -280,7 +280,12 @@ class ReceivingController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('完成收货', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务拒绝（收货记录不存在/当前状态不允许完成收货/库存不足）用 RuntimeException 表达 → 422；
+            // PDOException 属库故障，仍 500（判据同 Receive/Delivery）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 

@@ -283,7 +283,12 @@ class AsnController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('ASN生成收货任务', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务拒绝（ASN不存在/当前ASN状态不允许收货）用 RuntimeException 表达 → 422；
+            // PDOException 属库故障，仍 500（判据同 Receive/Delivery）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 }

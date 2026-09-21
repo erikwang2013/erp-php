@@ -60,7 +60,15 @@ class EmployeeController extends BaseController
         [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
+        // 筛选值同源下发（部门下拉取 /admin/v1/hr/department 行，值为 hashid）：
+        // 不解码会被 truthyFilters 的 (int) 静默成 0 → 筛选恒空列表
         $departmentId = $request->input('department_id');
+        if ($departmentId !== null && $departmentId !== '') {
+            $departmentId = $this->decodeFlexibleId($departmentId);
+            if ($departmentId === null) {
+                return $this->fail('部门ID' . $this->trans('Invalid'), 422);
+            }
+        }
 
         $result = $this->hr()->list(HrEmployee::class, [
             'keyword' => $keyword,

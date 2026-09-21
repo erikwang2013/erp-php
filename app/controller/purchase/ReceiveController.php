@@ -300,7 +300,7 @@ class ReceiveController extends BaseController
             $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
                 && !$e instanceof \PDOException;
 
-            return $this->fail($this->trans('Receipt failed: ') . $e->getMessage(), $clientFault ? 422 : 500);
+            return $clientFault ? $this->fail($this->trans('Receipt failed: ') . $e->getMessage(), 422) : $this->failServer();
         }
     }
 

@@ -11,6 +11,7 @@ import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
 import { PutawayFormView } from './PutawayFormView';
+import { Format } from '../../utils/Format';
 
 /**
  * 上架单列表项（与后端 /admin/wms/putaway 返回字段对齐）
@@ -141,7 +142,8 @@ struct PutawayPage {
       this.formStatus = (row['status'] as number) ?? 1;
       this.formStrategy = (row['strategy'] as string) ?? 'fifo';
       this.formAssignedTo = row['assigned_to'] != null ? String(row['assigned_to']) : '';
-      this.formCompletedAt = (row['completed_at'] as string) ?? '';
+      // 时间列后端下发 ISO-UTC，输入框回填本地 `Y-m-d H:i:s`
+      this.formCompletedAt = Format.dateTime(row['completed_at']);
     } catch (e) {
       if (e instanceof Error && e.message === 'UNAUTHORIZED') {
         router.replaceUrl({ url: 'pages/LoginPage' });

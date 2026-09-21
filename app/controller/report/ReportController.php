@@ -11,6 +11,7 @@ use app\admin\controller\BaseController;
 use app\model\ReportDataset;
 use app\model\ReportField;
 use app\model\ReportFilter;
+use app\model\ReportSchedule;
 use app\model\ReportTemplate;
 use support\Db;
 use support\Request;
@@ -228,6 +229,11 @@ class ReportController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        // 调度是下游引用（无 FK 约束）：模板删掉后调度仍按 cron 跑，执行时找不到模板
+        if (ReportSchedule::query()->where('template_id', $id)->exists()) {
+            return $this->fail($this->trans('Report schedules reference this template; it cannot be deleted'), 422);
+        }
+
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
         if ($error !== null) {
@@ -301,7 +307,7 @@ class ReportController extends BaseController
     public function addField(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'template_id' => 'required|integer',
+            'template_id' => 'required|string',
             'name' => 'required|string|max:100',
             'field' => 'required|string|max:100',
             'label' => 'required|string|max:100',
@@ -309,6 +315,13 @@ class ReportController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+
+        // template_id 是 /admin/v1/report 列表下发的 hashid：integer 规则会直接误拒，故双模解码后回填
+        $templateId = $this->decodeFlexibleId($request->input('template_id'));
+        if ($templateId === null) {
+            return $this->fail($this->trans('Invalid :field', ['field' => 'template_id']), 422);
+        }
+        $request->setGet('template_id', $templateId);
 
         $item = new ReportField();
         $item->id = $this->generateId();
@@ -409,13 +422,20 @@ class ReportController extends BaseController
     public function addFilter(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'template_id' => 'required|integer',
+            'template_id' => 'required|string',
             'name' => 'required|string|max:100',
             'field' => 'required|string|max:100',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+
+        // 同 addField：template_id 是 hashid，integer 规则会把正常请求误拒
+        $templateId = $this->decodeFlexibleId($request->input('template_id'));
+        if ($templateId === null) {
+            return $this->fail($this->trans('Invalid :field', ['field' => 'template_id']), 422);
+        }
+        $request->setGet('template_id', $templateId);
 
         $item = new ReportFilter();
         $item->id = $this->generateId();

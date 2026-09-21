@@ -15,6 +15,7 @@ import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/detail_page.dart';
 import '../../widgets/reference_card.dart';
+import '../../utils/format.dart';
 
 class OmsRmaDetailPage extends StatefulWidget {
   final String? id;
@@ -221,12 +222,12 @@ class _OmsRmaDetailPageState extends State<OmsRmaDetailPage> {
           '${d['return_shipping_fee']}' != '0')
         detailRow(d, l.omsRmaReturnShippingFee, 'return_shipping_fee'),
       if ('${d['approved_at'] ?? ''}'.isNotEmpty && '${d['approved_at']}' != 'null')
-        detailRow(d, l.detailApprovedAt, 'approved_at'),
+        detailRow(d, l.detailApprovedAt, 'approved_at', fmt: fmtDateTime),
       if ('${d['returned_at'] ?? ''}'.isNotEmpty && '${d['returned_at']}' != 'null')
-        detailRow(d, l.detailReturnedAt, 'returned_at'),
+        detailRow(d, l.detailReturnedAt, 'returned_at', fmt: fmtDateTime),
       if ('${d['received_at'] ?? ''}'.isNotEmpty && '${d['received_at']}' != 'null')
-        detailRow(d, l.detailReceivedAt, 'received_at'),
-      detailRow(d, l.detailCreatedAt, 'created_at'),
+        detailRow(d, l.detailReceivedAt, 'received_at', fmt: fmtDateTime),
+      detailRow(d, l.detailCreatedAt, 'created_at', fmt: fmtDateTime),
     ];
   }
 

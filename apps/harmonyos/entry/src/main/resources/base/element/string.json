@@ -1506,7 +1506,7 @@
     },
     {
       "name": "product_category_id_hint",
-      "value": "分类数字ID（必填）"
+      "value": "分类ID（hashid，必填）"
     },
     {
       "name": "product_category_id_required",
@@ -1518,7 +1518,7 @@
     },
     {
       "name": "product_brand_id_hint",
-      "value": "品牌数字ID，留空为0"
+      "value": "品牌ID（hashid，可留空）"
     },
     {
       "name": "product_barcode",
@@ -2467,6 +2467,42 @@
     {
       "name": "ref_tax_no",
       "value": "税号"
+    },
+    {
+      "name": "order_items_title",
+      "value": "商品明细"
+    },
+    {
+      "name": "order_item_product_id",
+      "value": "商品ID"
+    },
+    {
+      "name": "order_item_product_id_hint",
+      "value": "商品ID（字母数字串，见商品列表）"
+    },
+    {
+      "name": "order_item_qty",
+      "value": "数量"
+    },
+    {
+      "name": "order_item_price",
+      "value": "单价"
+    },
+    {
+      "name": "order_item_unit",
+      "value": "单位"
+    },
+    {
+      "name": "order_item_add",
+      "value": "添加明细"
+    },
+    {
+      "name": "order_item_remove",
+      "value": "删除本行"
+    },
+    {
+      "name": "order_items_required",
+      "value": "请至少填写一行明细"
     }
   ]
 }

@@ -99,9 +99,16 @@ class CrmService extends AbstractCrudService
      * 报价转合同：复制报价及其明细到合同，并将报价状态置为已转合同(3)
      *
      * @return array{quotation: CrmQuotation, contract: CrmContract}
+     * @throws \InvalidArgumentException 报价已转合同(3)/已失效(4) 时抛出（重复转换会重复生成合同）
      */
     public function convertQuotationToContract(CrmQuotation $quotation, string $code, string $name, string $remark): array
     {
+        // 读属性走 getAttribute：模型无 @property 声明，直读会新增 PHPStan property.notFound
+        $status = (int) $quotation->getAttribute('status');
+        if (!in_array($status, [0, 1, 2], true)) {
+            throw new InvalidArgumentException("报价状态 {$status} 不允许转合同");
+        }
+
         DB::beginTransaction();
         try {
             $contract = new CrmContract();

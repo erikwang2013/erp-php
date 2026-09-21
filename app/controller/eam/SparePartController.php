@@ -65,9 +65,14 @@ class SparePartController extends BaseController
         if ($status !== null && $status !== '') {
             $query->where('status', (int)$status);
         }
+        // 筛选值来自前端设备下拉（hashid）：(int)hashid=0 → 恒不命中；垃圾串 422
         $equipmentId = $request->input('equipment_id');
-        if ($equipmentId) {
-            $query->where('equipment_id', (int)$equipmentId);
+        if ($equipmentId !== null && $equipmentId !== '') {
+            $equipmentId = $this->decodeFlexibleId($equipmentId);
+            if ($equipmentId === null || $equipmentId < 1) {
+                return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+            }
+            $query->where('equipment_id', $equipmentId);
         }
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray(), ['id', 'equipment_id']));
@@ -101,7 +106,19 @@ class SparePartController extends BaseController
         }
         $item = new EamSparePart();
         $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
+        $data = $request->only($item->getFillable());
+        // equipment_id 可空但填了就是前端设备下拉的 hashid：直插 BIGINT 严格模式 1366（→500）
+        $raw = $data['equipment_id'] ?? '';
+        if ($raw === '' || $raw === '0' || $raw === 0) {
+            unset($data['equipment_id']);   // 未填/清空 → 不改动
+        } else {
+            $equipmentId = $this->decodeFlexibleId($raw);
+            if ($equipmentId === null || $equipmentId < 1) {
+                return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+            }
+            $data['equipment_id'] = $equipmentId;
+        }
+        $item->fill($data);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -160,7 +177,19 @@ class SparePartController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
-        $this->fillModelFromRequest($item, $request);
+        $data = $request->only($item->getFillable());
+        // equipment_id 显式传值则双模解码（hashid 直插 BIGINT 严格模式 1366 → 500），空串按"不修改"处理
+        $raw = $data['equipment_id'] ?? '';
+        if ($raw === '' || $raw === '0' || $raw === 0) {
+            unset($data['equipment_id']);   // 未填/清空 → 不改动
+        } else {
+            $equipmentId = $this->decodeFlexibleId($raw);
+            if ($equipmentId === null || $equipmentId < 1) {
+                return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+            }
+            $data['equipment_id'] = $equipmentId;
+        }
+        $item->fill($data);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

@@ -73,13 +73,18 @@ class SettlementController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['ar_ap_id' => 'required|integer', 'receipt_payment_id' => 'required|integer', 'amount' => 'required|numeric|min:0']);
+        $validator = validator($request->all(), ['ar_ap_id' => 'required|string', 'receipt_payment_id' => 'required|string', 'amount' => 'required|numeric|min:0']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $arApId = $this->decodeId($request->input('ar_ap_id'));
-        $receiptPaymentId = $this->decodeId($request->input('receipt_payment_id'));
+        // 双模解码：两个 ID 是 hashid 串，原 validator 要 integer、这里用 decodeId 解 hashid，
+        // 两条路互斥 → 任何入参都 422，端点根本进不来
+        $arApId = $this->decodeFlexibleId($request->input('ar_ap_id', ''));
+        $receiptPaymentId = $this->decodeFlexibleId($request->input('receipt_payment_id', ''));
+        if ($arApId === null || $arApId < 1 || $receiptPaymentId === null || $receiptPaymentId < 1) {
+            return $this->fail($this->trans('Invalid ar_ap_id or receipt_payment_id'), 422);
+        }
         $amount = (float) $request->input('amount');
 
         $arAp = FinanceArAp::find($arApId);

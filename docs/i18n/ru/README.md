@@ -198,7 +198,7 @@ open-erp/
 │   ├── e2e-seed.sql             # минимальный сид для E2E/CI
 │   └── backup/                 # скрипты резервного копирования/восстановления
 ├── docs/                       # документация по архитектуре, дизайну, безопасности и API
-├── tests/                      # тесты PHPUnit (<!-- stats:test_files=111 --> файлов тестов, <!-- stats:tests=1008 --> методов тестов, <!-- stats:assertions=4768 --> утверждений)
+├── tests/                      # тесты PHPUnit (<!-- stats:test_files=113 --> файлов тестов, <!-- stats:tests=1025 --> методов тестов, <!-- stats:assertions=4827 --> утверждений)
 ├── resource/
 │   └── translations/           # словари сообщений бэкенда на 13 языках (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # китайский перевод (565 записей)

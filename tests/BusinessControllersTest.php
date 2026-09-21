@@ -7,15 +7,18 @@ declare(strict_types=1);
 
 namespace tests;
 
+use app\common\HashidsService;
 use app\controller\crm\ContactController;
 use app\controller\finance\ArApController;
 use app\controller\hr\PositionController;
 use app\controller\inventory\CheckTaskController;
 use app\controller\manufacturing\ProductionController;
 use app\controller\oms\ChannelController;
+use app\controller\oms\OrderController as OmsOrderController;
 use app\controller\product\BrandController;
 use app\controller\quality\InspectionStandardController;
 use app\controller\tms\CarrierController;
+use app\controller\tms\ShipmentController;
 use app\controller\wms\AsnController;
 use app\controller\wms\LocationController;
 use app\controller\wms\PackController;
@@ -138,6 +141,44 @@ class BusinessControllersTest extends TestCase
             ]));
             $this->assertSame(422, $this->code($garbage), "{$class} 垃圾 warehouse_id 应 422");
         }
+    }
+
+    /**
+     * 回归：OMS 分配库存的明细在边界解码。原先 items 原样下传 AllocationService::reserve →
+     * InventoryService::reserveQuantity(int ...) 上抛 TypeError → body.code=500（并回显内部文件路径）。
+     */
+    public function testOmsAllocateRejectsUndecodableItemIds(): void
+    {
+        $id = HashidsService::encode(1);
+
+        $missingQty = (new OmsOrderController())->allocate(
+            new FakeRequest(['items' => [['product_id' => 'x']]]),
+            $id
+        );
+        $this->assertSame(422, $this->code($missingQty), '明细缺 quantity 应在边界 422 而非 TypeError 500');
+
+        $garbage = (new OmsOrderController())->allocate(
+            new FakeRequest(['items' => [['product_id' => 'not-a-hashid', 'quantity' => 1]]]),
+            $id
+        );
+        $this->assertSame(422, $this->code($garbage), '垃圾 product_id 应 422 而非 TypeError 500');
+    }
+
+    /**
+     * 回归：TMS 确认发货的两个外键由前端下拉下发 hashid，原样进 confirmShip(int ...) 会 TypeError → 500。
+     */
+    public function testTmsShipRejectsUndecodableForeignKeys(): void
+    {
+        $id = HashidsService::encode(1);
+
+        $missing = (new ShipmentController())->ship(new FakeRequest([]), $id);
+        $this->assertSame(422, $this->code($missing), '缺 fulfillment_id/oms_order_id 应 422');
+
+        $garbage = (new ShipmentController())->ship(
+            new FakeRequest(['fulfillment_id' => 'not-a-hashid', 'oms_order_id' => 'not-a-hashid']),
+            $id
+        );
+        $this->assertSame(422, $this->code($garbage), '垃圾外键应 422 而非 TypeError 500');
     }
 
     // 校验通过后的落库路径依赖真实 MySQL，属集成测试范畴，单测仅覆盖校验失败分支。

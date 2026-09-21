@@ -273,7 +273,12 @@ class TrackingController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('处理轨迹回传', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务拒绝（未找到运单）用 RuntimeException 表达 → 422；
+            // PDOException 属库故障，仍 500（判据同 Receive/Delivery）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 }

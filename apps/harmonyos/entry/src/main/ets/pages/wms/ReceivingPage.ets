@@ -11,6 +11,7 @@ import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
 import { ReceivingFormView } from './ReceivingFormView';
+import { Format } from '../../utils/Format';
 
 /**
  * 收货单列表项（与后端 /admin/wms/receiving 返回字段对齐）
@@ -151,7 +152,8 @@ struct ReceivingPage {
       this.formDockLocationId = row['dock_location_id'] != null ? String(row['dock_location_id']) : '';
       this.formStatus = (row['status'] as number) ?? 1;
       this.formReceiverId = row['receiver_id'] != null ? String(row['receiver_id']) : '';
-      this.formReceivedAt = (row['received_at'] as string) ?? '';
+      // 时间列后端下发 ISO-UTC，输入框回填本地 `Y-m-d H:i:s`（否则显示原始 ISO 串）
+      this.formReceivedAt = Format.dateTime(row['received_at']);
       this.formRemark = (row['remark'] as string) ?? '';
     } catch (e) {
       if (e instanceof Error && e.message === 'UNAUTHORIZED') {

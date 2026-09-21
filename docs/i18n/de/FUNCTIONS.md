@@ -572,7 +572,7 @@ Arbeitszeitbuchung → Zusammenführung auf die Aufgabe → Aggregation zu Proje
 | Datenbank-Installationsskript | Einzeldatei `database/install.sql` (227 Tabellen, alle Migrationen bereits integriert) |
 | Frontend-Seiten (Flutter) | 119 (Stand 2026-09-22, rekursive Dateizählung; nicht in der doc-stats-Prüfung enthalten) |
 | Frontend-Seiten (HarmonyOS) | 52 (Stand 2026-09-22, rekursive Dateizählung; nicht in der doc-stats-Prüfung enthalten) |
-| Unit-Tests | 111 Testdateien <!-- stats:test_files=111 --> / 1001 Testfälle <!-- stats:tests=1008 --> / 4726 Assertions <!-- stats:assertions=4768 --> (statische Zählung: Zahl der Testmethoden + Zahl der Assertion-Aufrufstellen, unabhängig von der Laufzeitumgebung) |
+| Unit-Tests | 111 Testdateien <!-- stats:test_files=113 --> / 1001 Testfälle <!-- stats:tests=1025 --> / 4726 Assertions <!-- stats:assertions=4827 --> (statische Zählung: Zahl der Testmethoden + Zahl der Assertion-Aufrufstellen, unabhängig von der Laufzeitumgebung) |
 
 > Die obigen Zahlen werden real von `bash scripts/doc-stats.sh` gemessen; mit `<!-- stats:key=value -->` markierte Einträge werden von CI
 > (docs-Job in `.github/workflows/ci.yml`) automatisch auf Übereinstimmung mit den Code-Fakten geprüft — Abweichungen werden rot.

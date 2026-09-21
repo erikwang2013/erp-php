@@ -227,6 +227,11 @@ class AssetController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        // 折旧记录是下游引用（无 FK 约束）：删资产会留下 asset_id 悬空的折旧行（资产卡片与折旧台账对不上）
+        if (FinanceAssetDepreciation::query()->where('asset_id', $id)->exists()) {
+            return $this->fail($this->trans('Depreciation records reference this asset; it cannot be deleted'), 422);
+        }
+
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
         if ($error !== null) {

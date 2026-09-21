@@ -15,6 +15,7 @@ import { TopBar } from '../../common/TopBar';
 import { DetailCard, DetailRow } from '../../common/DetailCard';
 import { RowBadge } from '../../common/ListRow';
 import { RefDialog, RefField } from '../../common/RefDialog';
+import { Format } from '../../utils/Format';
 
 interface FulfillItemRow {
   product_name: string;
@@ -169,7 +170,7 @@ struct FulfillmentDetailPage {
                   DetailRow({ label: L10n.str(this.getUIContext(), 'fulfillment_d_status'),
                     value: this.statusBadge(Number(this.row['status'] ?? 0)).label as string })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_created'),
-                    value: this.hint(this.row['created_at']) })
+                    value: this.hint(Format.dateTime(this.row['created_at'])) })
                 }
                 .width('100%')
               }

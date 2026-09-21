@@ -8,8 +8,11 @@ declare(strict_types=1);
 namespace app\controller\purchase;
 
 use app\admin\controller\BaseController;
+use app\model\PurchaseApply;
 use app\model\PurchaseOrder;
 use app\model\PurchaseOrderItem;
+use app\model\PurchaseReceiveItem;
+use Illuminate\Database\Capsule\Manager as DB;
 use support\Request;
 use support\Response;
 
@@ -51,10 +54,13 @@ class OrderController extends BaseController
         $status = $request->input('status');
 
         // 供应商名称经 leftJoin 带出。erp_purchase_order 实列无 name 列（仅 code/apply_id/supplier_id 等，
-        // 见 install.sql；旧实现 where name 是幻列，关键字搜必炸）——关键字搜订单编码/供应商名称
+        // 见 install.sql；旧实现 where name 是幻列，关键字搜必炸）——关键字搜订单编码/供应商名称。
+        // apply_code 同理：apply_id 是 erp_purchase_apply 的外键，只下发 hashid 的话
+        // 「这单转自哪张申请」在界面上无处可读（列表外键列落「-」、详情更无从下钻）
         $query = PurchaseOrder::query()
             ->leftJoin('supplier', 'supplier.id', '=', 'purchase_order.supplier_id')
-            ->select('purchase_order.*', 'supplier.name as supplier_name');
+            ->leftJoin('purchase_apply', 'purchase_apply.id', '=', 'purchase_order.apply_id')
+            ->select('purchase_order.*', 'supplier.name as supplier_name', 'purchase_apply.code as apply_code');
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
                 $q->where('purchase_order.code', 'like', "%{$keyword}%")
@@ -105,6 +111,14 @@ class OrderController extends BaseController
             // 非数值/超 10 位整数部分以 1265/1264 → 500（两者都经 fillModelFromRequest 直落列）
             'status' => 'integer|between:0,4',
             'total_amount' => 'nullable|numeric|min:0|max:9999999999.99',
+            // 明细（录入路径，同 RfqController 口径）：product_id 为 hashid 串，不能用 integer 规则
+            // 挡回；解码在 buildItems 里做，垃圾串在那里抛 422
+            'items' => 'nullable|array',
+            'items.*.product_id' => 'required',
+            'items.*.quantity' => 'required|numeric|gt:0|max:9999999999.99',
+            'items.*.price' => 'nullable|numeric|min:0|max:9999999999.99',
+            'items.*.unit' => 'nullable|string|max:20',
+            'items.*.sku_id' => 'nullable',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -114,22 +128,50 @@ class OrderController extends BaseController
             return $this->fail($this->trans('Invalid supplier_id'), 422);
         }
 
-        $item = new PurchaseOrder();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        // 单号缺省自生成（前缀与 Flutter order_list_page.dart 下发的 'PO'+时间戳一致）
-        $item->fill(['code' => doc_code($request->input('code'), 'PO')]);
-        // 解码 int 须在 fill 之后覆写：supplier_id/apply_id/warehouse_id 均在 $fillable 内，
-        // fill 会把请求里的 hash 串直填 BIGINT 列（1366 崩）——统一解码覆写，垃圾/空串落 0 缺省
-        $item->supplier_id = $supplierId;
-        $item->apply_id = $this->decodeFlexibleId((string) $request->input('apply_id', '0')) ?? 0;
-        $item->warehouse_id = $this->decodeFlexibleId((string) $request->input('warehouse_id', '0')) ?? 0;
-        // 日期字段清空后前端下发 ''：nullable|date 放行 ''，但 '' 落 datetime 列同样 1292，
-        // 空串语义即「不填」（列可空），归一成 NULL
-        if ($request->input('ordered_at') === '') {
-            $item->fill(['ordered_at' => null]);
+        $id = $this->generateId();
+        try {
+            // 明细与主表金额同事务：明细任一行解码/量程失败即整单回滚，不留「有单无明细」的半写单
+            $item = DB::transaction(function () use ($request, $supplierId, $id) {
+                $item = new PurchaseOrder();
+                $item->id = $id;
+                $this->fillModelFromRequest($item, $request);
+                // 单号缺省自生成（前缀与 Flutter order_list_page.dart 下发的 'PO'+时间戳一致）
+                $item->fill(['code' => doc_code($request->input('code'), 'PO')]);
+                // 解码 int 须在 fill 之后覆写：supplier_id/apply_id/warehouse_id 均在 $fillable 内，
+                // fill 会把请求里的 hash 串直填 BIGINT 列（1366 崩）——统一解码覆写，垃圾/空串落 0 缺省
+                $item->supplier_id = $supplierId;
+                $applyId = $this->decodeFlexibleId((string) $request->input('apply_id', '0')) ?? 0;
+                $item->apply_id = $applyId;
+                $item->warehouse_id = $this->decodeFlexibleId((string) $request->input('warehouse_id', '0')) ?? 0;
+                // 日期字段清空后前端下发 ''：nullable|date 放行 ''，但 '' 落 datetime 列同样 1292，
+                // 空串语义即「不填」（列可空），归一成 NULL
+                if ($request->input('ordered_at') === '') {
+                    $item->fill(['ordered_at' => null]);
+                }
+                $item->save();
+                $this->markApplyOrdered($applyId);
+
+                // 带明细时主表金额以明细汇总为准（覆盖入参 total_amount）：与 RfqService 中标转单
+                // 同一口径，避免「明细 200 / 主表 0」这类无法对账的单
+                [$lines, $total] = $this->buildItems((array) $request->input('items', []));
+                if ($lines !== []) {
+                    $item->fill(['total_amount' => $total]);
+                    $item->save();
+                    $this->saveItems($id, $lines);
+                }
+
+                return $item;
+            });
+        } catch (\Throwable $e) {
+            $this->logError('purchase_order.store', $e);
+
+            // 业务拒绝用 RuntimeException 表达 → 422；事务内的库故障（死锁/列不存在等
+            // PDOException）仍 500，且不回显原始异常文本（PDO 消息含表名与 SQL 片段）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
-        $item->save();
 
         // FK 一律 hashid 出参（与列表/详情同一名单）：漏编码会把 4.1e17 的雪花 ID 原样下发，
         // 前端按数字回传即丢精度（>2^53），回写时 hashid 解码失败 → 422
@@ -160,8 +202,9 @@ class OrderController extends BaseController
         $id = $this->decodeId($id);
         $item = PurchaseOrder::query()
             ->leftJoin('supplier', 'supplier.id', '=', 'purchase_order.supplier_id')
+            ->leftJoin('purchase_apply', 'purchase_apply.id', '=', 'purchase_order.apply_id')
             ->where('purchase_order.id', $id)
-            ->select('purchase_order.*', 'supplier.name as supplier_name')
+            ->select('purchase_order.*', 'supplier.name as supplier_name', 'purchase_apply.code as apply_code')
             ->first();
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
@@ -210,6 +253,14 @@ class OrderController extends BaseController
             // 同 store：status 卡 TINYINT UNSIGNED 语义域，total_amount 卡 DECIMAL(12,2) 量程
             'status' => 'integer|between:0,4',
             'total_amount' => 'nullable|numeric|min:0|max:9999999999.99',
+            // 同 store：明细整表替换（提供 items 才动明细，不提供即「不改动」，
+            // 与编辑弹框「明细仅新建期填写」的语义一致）
+            'items' => 'nullable|array',
+            'items.*.product_id' => 'required',
+            'items.*.quantity' => 'required|numeric|gt:0|max:9999999999.99',
+            'items.*.price' => 'nullable|numeric|min:0|max:9999999999.99',
+            'items.*.unit' => 'nullable|string|max:20',
+            'items.*.sku_id' => 'nullable',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -220,27 +271,69 @@ class OrderController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        $this->fillModelFromRequest($item, $request);
-        // 同 store：三个 FK 在 $fillable 内，fill 会把请求 hash 串直填列——提供时解码 int 覆写
-        $supplierRaw = $request->input('supplier_id', null);
-        if ($supplierRaw !== null && $supplierRaw !== '') {
-            $supplierId = $this->decodeFlexibleId((string) $supplierRaw);
-            if ($supplierId === null || $supplierId < 1) {
-                return $this->fail($this->trans('Invalid supplier_id'), 422);
-            }
-            $item->supplier_id = $supplierId;
+        try {
+            DB::transaction(function () use ($request, $item, $id) {
+                $this->fillModelFromRequest($item, $request);
+                // 同 store：三个 FK 在 $fillable 内，fill 会把请求 hash 串直填列——提供时解码 int 覆写
+                $supplierRaw = $request->input('supplier_id', null);
+                if ($supplierRaw !== null && $supplierRaw !== '') {
+                    $supplierId = $this->decodeFlexibleId((string) $supplierRaw);
+                    if ($supplierId === null || $supplierId < 1) {
+                        throw new \RuntimeException($this->trans('Invalid supplier_id'));
+                    }
+                    $item->supplier_id = $supplierId;
+                }
+                $applyId = 0;
+                foreach (['apply_id', 'warehouse_id'] as $field) {
+                    $raw = $request->input($field, null);
+                    if ($raw !== null && $raw !== '') {
+                        $decoded = $this->decodeFlexibleId((string) $raw) ?? 0;
+                        $item->{$field} = $decoded;
+                        if ($field === 'apply_id') {
+                            $applyId = $decoded;
+                        }
+                    }
+                }
+                // 同 store：清空的日期字段下发 ''，列可空但 '' 落库报 1292，归一成 NULL
+                if ($request->input('ordered_at') === '') {
+                    $item->fill(['ordered_at' => null]);
+                }
+                $item->save();
+                $this->markApplyOrdered($applyId);
+
+                if (!$request->has('items')) {
+                    return;
+                }
+                [$lines, $total] = $this->buildItems((array) $request->input('items'));
+                if ($lines === []) {
+                    throw new \RuntimeException('采购订单至少保留一条明细');
+                }
+                // 整表替换会换掉明细行 id，而已有收货明细（purchase_receive_item.order_item_id）
+                // 与超收校验（按 order_item_id 汇总实收）都挂在行 id 上：一旦有实收，替换即留下对不上
+                // 的孤儿收货行，且新行能再收满一次 → 重复入库。判据取收货明细表本身：
+                // purchase_order_item.received_quantity 在收货链路里全程没人写（恒 0），拿它当判据是死代码
+                $received = PurchaseReceiveItem::query()
+                    ->join('purchase_order_item', 'purchase_order_item.id', '=', 'purchase_receive_item.order_item_id')
+                    ->where('purchase_order_item.order_id', $id)
+                    ->exists();
+                if ($received) {
+                    throw new \RuntimeException('该订单已有收货记录，明细不可整体替换');
+                }
+                PurchaseOrderItem::query()->where('order_id', $id)->delete();
+                $this->saveItems($id, $lines);
+                $item->fill(['total_amount' => $total]);
+                $item->save();
+            });
+        } catch (\Throwable $e) {
+            $this->logError('purchase_order.update', $e);
+
+            // 业务拒绝用 RuntimeException 表达 → 422；事务内的库故障（死锁/列不存在等
+            // PDOException）仍 500，且不回显原始异常文本（PDO 消息含表名与 SQL 片段）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
-        foreach (['apply_id', 'warehouse_id'] as $field) {
-            $raw = $request->input($field, null);
-            if ($raw !== null && $raw !== '') {
-                $item->{$field} = $this->decodeFlexibleId((string) $raw) ?? 0;
-            }
-        }
-        // 同 store：清空的日期字段下发 ''，列可空但 '' 落库报 1292，归一成 NULL
-        if ($request->input('ordered_at') === '') {
-            $item->fill(['ordered_at' => null]);
-        }
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'supplier_id', 'apply_id', 'warehouse_id']), $this->trans('Updated successfully'));
     }
@@ -282,5 +375,89 @@ class OrderController extends BaseController
         $item->delete();
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * 申请单侧的落库：订单认领了某张采购申请（apply_id>0）即把该申请置「已转订单」(3)。
+     *
+     * erp_purchase_apply.status 的 3 此前没有任何写入方（ApprovalController 只写自己的
+     * ApprovalInstance，不回写目标单据；前端也没有流转入口），状态到「已批准」就断了。
+     * 认领方是订单表本身，所以由订单落库驱动，而不是让操作员再手点一个「转订单」按钮
+     * （那样只是把 status 改成一个没人验证过的值）。
+     *
+     * 软删除的申请不在此列（PurchaseApply 的全局 scope 兜住）；找不到就静默跳过——
+     * 申请单被删不该让开单失败。
+     */
+    private function markApplyOrdered(int $applyId): void
+    {
+        if ($applyId < 1) {
+            return;
+        }
+        PurchaseApply::query()->where('id', $applyId)->update(['status' => 3]);
+    }
+
+    /**
+     * 明细行校验 + 金额计算（先算后写：金额合计要回写主表）。
+     * 单一 product_id 口径与 RfqController::saveItems 一致：hashid 双模解码，垃圾/空串即拒绝
+     * （写 0 会得到无商品的孤儿明细行，收货时按商品反查必然对不上）。
+     *
+     * @return array{0: list<array<string,int|string>>, 1: string} [待写行, 金额合计]
+     */
+    private function buildItems(array $items): array
+    {
+        $lines = [];
+        $total = '0.00';
+        foreach ($items as $row) {
+            $productId = $this->decodeFlexibleId($row['product_id'] ?? '');
+            if ($productId === null || $productId < 1) {
+                throw new \RuntimeException('明细 product_id 无效');
+            }
+            // 数量/单价落 DECIMAL(12,2)：bc_norm 归一，非法串由 store/update 的 validator 提前挡回
+            $quantity = bc_norm((string) ($row['quantity'] ?? '0'));
+            $price = bc_norm((string) ($row['price'] ?? '0'));
+            // 金额 = 数量 × 单价（先 scale=4 再四舍五入 2 位，与 RfqService::lineAmount 同口径）；
+            // 明细金额列是 DECIMAL(12,2)，超量程写库报 1264 → 500，这里提前给可读原因
+            $amount = bc_round(bcmul($quantity, $price, 4), 2);
+            if (bccomp($amount, '9999999999.99', 2) > 0) {
+                throw new \RuntimeException('明细金额（数量 × 单价）超出上限 9999999999.99');
+            }
+            $total = bcadd($total, $amount, 2);
+            $lines[] = [
+                'product_id' => $productId,
+                'sku_id' => $this->decodeFlexibleId($row['sku_id'] ?? '') ?? 0,
+                'quantity' => $quantity,
+                'price' => $price,
+                'amount' => $amount,
+                'unit' => (string) ($row['unit'] ?? ''),
+            ];
+        }
+        if (bccomp($total, '9999999999.99', 2) > 0) {
+            throw new \RuntimeException('订单金额合计超出上限 9999999999.99');
+        }
+
+        return [$lines, $total];
+    }
+
+    /**
+     * 明细落库：行 id 与主表同源（雪花）。received_quantity 落 0——注意收货链路并不回写此列
+     * （实收累计在 purchase_receive_item 里按 order_item_id 现算），此列仅供列表展示
+     *
+     * @param list<array<string,int|string>> $lines buildItems 的产出
+     */
+    private function saveItems(int $orderId, array $lines): void
+    {
+        foreach ($lines as $line) {
+            $item = new PurchaseOrderItem();
+            $item->id = $this->generateId();
+            $item->order_id = $orderId;
+            $item->product_id = $line['product_id'];
+            $item->sku_id = $line['sku_id'];
+            $item->quantity = $line['quantity'];
+            $item->received_quantity = '0.00';
+            $item->price = $line['price'];
+            $item->amount = $line['amount'];
+            $item->unit = $line['unit'];
+            $item->save();
+        }
     }
 }

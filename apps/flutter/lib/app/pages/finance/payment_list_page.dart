@@ -7,6 +7,7 @@ import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
+import '../../utils/format.dart';
 
 /// 付款单页 — 覆盖 GET/POST/PUT/DELETE /admin/v1/finance/payment
 /// 契约（erp_finance_payment，无 name 列）：code/supplier_id/bank_account_id/
@@ -102,7 +103,9 @@ class _PaymentListPageState extends State<PaymentListPage> {
     if (!await _ensureSuppliers() || !mounted) return;
     await _ensureBanks();
     if (!mounted) return;
-    await FormDialog.show(context, title: AppL10n.of(context).commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
+    // paid_at 为时间列，后端下发 ISO-UTC；输入框回填本地 `Y-m-d H:i:s`
+    await FormDialog.show(context, title: AppL10n.of(context).commonEdit, fields: _formFields(),
+      initialData: {...row, 'paid_at': fmtDateTime(row['paid_at'])}, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/finance/payment/${row['id']}', data: _buildPayload(data));
       _load(); return true;
     });

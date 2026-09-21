@@ -178,6 +178,16 @@ class OrderController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         $this->fillModelFromRequest($item, $request);
+        // order_id 是关联销售订单外键（下拉/客户端下发 hashid 串）。Eloquent 的 integer cast 只在
+        // 读取时生效，写库走原值 → MySQL 严格模式报 1366（Incorrect integer value）→ 未捕获
+        // QueryException → 真 HTTP 500。故 fill 后覆写为裸 ID（未传则不动，垃圾串 422）
+        if ($request->has('order_id')) {
+            $orderId = $this->decodeFlexibleId($request->input('order_id'));
+            if ($orderId === null || $orderId < 1) {
+                return $this->fail($this->trans('Invalid sales order ID (order_id)'), 422);
+            }
+            $item->fill(['order_id' => $orderId]);
+        }
 
         $item->save();
 
@@ -240,9 +250,13 @@ class OrderController extends BaseController
 
     public function allocate(Request $request, string $id): Response
     {
+        // 明细行字段校验在边界完成：缺 product_id / quantity 会在 reserveQuantity(int, .., float, ..)
+        // 强类型形参上抛 TypeError（→500），且回显内部文件路径
         $validator = validator($request->all(), [
             'id' => 'string',
             'items' => 'array',
+            'items.*.product_id' => 'required',
+            'items.*.quantity' => 'required|numeric',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -257,6 +271,13 @@ class OrderController extends BaseController
             return $this->fail($this->trans('Please provide allocation details'), 422);
         }
 
+        // 明细的库存维度由前端下拉下发 hashid 串，原样下传即 TypeError → 500（同 wms 拣货/收货明细口径）；
+        // 五个 ID 一次解码，任一行任一字段非法即 422（落 0 会预占到无商品/无仓库的维度上）
+        $items = $this->decodeItemIds($items, ['product_id', 'sku_id', 'warehouse_id', 'location_id', 'source_item_id']);
+        if ($items === null) {
+            return $this->fail($this->trans('Invalid product_id/sku_id/warehouse_id/location_id in allocation details'), 422);
+        }
+
         try {
             $service = new OmsOrderService();
             $service->allocateOrder($id, $items);
@@ -265,7 +286,12 @@ class OrderController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('库存分配', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务规则拒绝（OMS订单不存在/状态不允许分配/库存不足）是调用方可纠正的输入问题 → 422；
+            // PDOException（含 Illuminate QueryException，二者同属 RuntimeException）是库故障，须留 500
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 
@@ -310,7 +336,12 @@ class OrderController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('创建履约', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // createFulfillment 的业务拒绝（订单不存在/请先完成库存分配/已有进行中的履约单）用
+            // RuntimeException 表达 → 422；PDOException 属库故障，仍 500（判据同 allocate）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 
@@ -348,7 +379,12 @@ class OrderController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('取消订单', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // cancelOrder 的业务拒绝（订单不存在/已发货或已签收不可取消）用 RuntimeException 表达 → 422；
+            // PDOException 属库故障，仍 500（判据同 allocate）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 }

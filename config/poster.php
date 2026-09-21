@@ -49,12 +49,13 @@ return [
         // null = 使用程序化生成（上游默认；本包对目录内图片**无尺寸守卫**）
         // Background image directory; null = procedural generation
         //
-        // 本机现状：指向 public/img（个人照片目录，已 gitignore，不入库）。**注意峰值内存**——
-        // 该目录里若有 ~30MP 的原图，imagecreatefromjpeg 解码一张即 ~90MB，128M 上限下验证码
-        // 请求直接 fatal（phpunit 全套跑挂，Web 进程同样一次匿名请求吃掉几十 MB）。
-        // 曾因此改回 null（提交 8505930）；2026-09-22 按用户要求改回本目录，其余环境部署前
-        // 请先确认该目录不存在或有已压到画布尺寸（300×200 上下）的小图。
-        'background_dir' => dirname(__DIR__).'/public/img',
+        // 指向 public/img/captcha（压缩副本），**不要直接指 public/img**：本包按 array_rand
+        // 选一张后整张解码，而 GdDriver 的 MAX_PIXELS=40M 是像素口径（折算 ~170MB），
+        // 128M 上限下永不触发 —— 实测一张 20MP（5472x3648）照片解码增量 85.5MB，指原图目录时
+        // 每次验证码有约一半概率 fatal（/api/v1/captcha/generate 500、phpunit 全套跑挂）。
+        // 新增照片后重跑：php scripts/gen-captcha-bg.php（原图不动，产物长边 ≤800px）
+        // 目录不存在时自动回退程序化背景（不报错），故 CI / 新机器无需准备该目录。
+        'background_dir' => dirname(__DIR__).'/public/img/captcha',
 
         // 程序化背景风格 / Procedural background styles
         // Available: 'minimal', 'vibrant', 'natural'

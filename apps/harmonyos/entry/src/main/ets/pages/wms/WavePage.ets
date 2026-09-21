@@ -4,6 +4,7 @@
 
 import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
+import { Format } from '../../utils/Format';
 import { ErrorView, EmptyView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
 import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
@@ -95,7 +96,7 @@ struct WavePage {
                   ListItem() {
                     ListRow({
                       title: item.code || item.id || '-',
-                      subtitle: item.scheduled_at || '',
+                      subtitle: Format.dateTime(item.scheduled_at),
                       icon: item.code || item.id || '-',
                       badge: this.badge(item),
                       isLast: index === this.items.length - 1

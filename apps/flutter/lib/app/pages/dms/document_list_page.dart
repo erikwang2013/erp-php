@@ -67,9 +67,11 @@ class _DocumentListPageState extends State<DocumentListPage> {
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
-      // 分类 options 为后端存储值（中文类别原样提交），不参与翻译
+      // 分类不是枚举：后端 validate 为 required|string|max:50、列表按 where 精确匹配，
+      // Web 两端同为文本输入。原下拉只列 6 个中文值，非选项内的历史值会被表单预填成
+      // 空并被 _submit 以 '' 原样提交（'category' => 'string' 放行）→ 编辑即覆盖掉原分类。
       FormFieldConfig(name: 'title', label: l10n.fieldDocTitle, required: true),
-      FormFieldConfig(name: 'category', label: l10n.fieldCategory, type: FormFieldType.dropdown, options: ['制度规范', '流程文档', '技术文档', '合同协议', '培训材料', '其他']),
+      FormFieldConfig(name: 'category', label: l10n.fieldCategory, required: true),
       FormFieldConfig(name: 'content', label: l10n.fieldContent, type: FormFieldType.multiline),
       FormFieldConfig(name: 'tags', label: l10n.fieldTags),
       FormFieldConfig(name: 'change_note', label: l10n.fieldChangeNote),

@@ -59,10 +59,19 @@ class CostEntryController extends BaseController
         }
         [$page, $limit] = $this->pageParams($request);
 
+        // 筛选值来自列表下拉的 hashid：解不出就 422，别让 null 静默变成「不筛选」（返回全量，像是筛中了）
+        $orderId = $request->input('order_id');
+        if ($orderId !== null && $orderId !== '') {
+            $orderId = $this->decodeFlexibleId($orderId);
+            if ($orderId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
+
         $result = $this->cost()->list(MfgCostEntry::class, [
             'keyword' => $request->input('keyword', ''),
             'status' => $request->input('status'),
-            'order_id' => $request->input('order_id'),
+            'order_id' => $orderId,
             'entry_type' => $request->input('entry_type'),
         ], $page, $limit, [
             'searchFields' => ['code'],
@@ -94,7 +103,7 @@ class CostEntryController extends BaseController
     {
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
-            'order_id' => 'required|integer',
+            'order_id' => 'required',
             'entry_type' => 'required|integer|in:1,2,3',
             'amount' => 'required|numeric|gt:0',
             'entry_date' => 'nullable|date',
@@ -103,17 +112,23 @@ class CostEntryController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        if (!MfgProductionOrder::query()->where('id', (int) $request->input('order_id'))->exists()) {
+        // FK 双模解码（hashid 串/原生数字）；直灌 hashid 串在 MySQL 严格模式报 1366
+        $data = $this->decodeFkIds($request->all(), ['order_id' => true]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
+        $orderId = $data['order_id'];
+        if (!MfgProductionOrder::query()->where('id', $orderId)->exists()) {
             return $this->fail($this->trans('Production order not found'), 422);
         }
 
         $id = $this->generateId();
         try {
-            DB::transaction(function () use ($request, $id) {
+            DB::transaction(function () use ($request, $id, $orderId) {
                 $doc = new MfgCostEntry();
                 $doc->id = $id;
                 $doc->code = trim((string) $request->input('code'));
-                $doc->order_id = (int) $request->input('order_id');
+                $doc->order_id = $orderId;
                 $doc->entry_type = (int) $request->input('entry_type');
                 $doc->amount = (string) $request->input('amount');
                 $doc->entry_date = $request->input('entry_date') ?: date('Y-m-d');
@@ -190,6 +205,11 @@ class CostEntryController extends BaseController
         }
         $data = $request->all();
         unset($data['code'], $data['status']);
+        // FK 双模解码（未传/空串 = 不改动）；直灌 hashid 串在 MySQL 严格模式报 1366
+        $data = $this->decodeFkIds($data, ['order_id' => false]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
         $item = $this->cost()->update(MfgCostEntry::class, $id, $data, ['status', 'audit_at']);
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
@@ -258,6 +278,35 @@ class CostEntryController extends BaseController
         }
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Audited successfully; costs collected'));
+    }
+
+    /**
+     * 外键字段双模解码（hashid 串 / 原生数字，判定见 BaseController::decodeFlexibleId）。
+     * $fields 为 ['字段名' => 是否必填]：必填字段缺失/空/0、或任一非空字段解不出 → 返回 null
+     * （调用方 422）；可选字段缺失/空/0 → 删键，语义为"不改动/取缺省"。
+     *
+     * @param array<string,bool> $fields
+     * @return array<string,mixed>|null
+     */
+    private function decodeFkIds(array $data, array $fields): ?array
+    {
+        foreach ($fields as $field => $required) {
+            $raw = $data[$field] ?? null;
+            if ($raw === null || $raw === '' || $raw === 0 || $raw === '0') {
+                if ($required) {
+                    return null;
+                }
+                unset($data[$field]);
+                continue;
+            }
+            $id = $this->decodeFlexibleId($raw);
+            if ($id === null || $id < 1) {
+                return null;
+            }
+            $data[$field] = $id;
+        }
+
+        return $data;
     }
 
     /** 成本核算服务 */

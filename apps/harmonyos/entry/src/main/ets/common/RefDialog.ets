@@ -17,16 +17,20 @@
 
 import { ApiService } from '../service/ApiService';
 import { L10n } from '../utils/L10n';
+import { Format } from '../utils/Format';
 import { DetailRow } from './DetailCard';
 
 /** 弹层字段描述：key = 后端下发键，label 为展示文案（已本地化的字符串） */
 export class RefField {
   key: string = '';
   label: string = '';
+  /** true = 时间列：后端下发 ISO-UTC，展示前按本机时区换算（Format.dateTime） */
+  isTime: boolean = false;
 
-  constructor(key: string, label: string) {
+  constructor(key: string, label: string, isTime: boolean = false) {
     this.key = key;
     this.label = label;
+    this.isTime = isTime;
   }
 }
 
@@ -54,7 +58,7 @@ export struct RefDialog {
       const vals: Array<string> = [];
       for (const f of this.fields) {
         const raw = row[f.key];
-        vals.push(raw != null ? String(raw) : '-');
+        vals.push(f.isTime ? (Format.dateTime(raw) || '-') : (raw != null ? String(raw) : '-'));
       }
       this.values = vals;
     } catch (e) {

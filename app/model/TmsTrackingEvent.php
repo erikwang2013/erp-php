@@ -23,4 +23,6 @@ class TmsTrackingEvent extends Model
         'shipment_id' => 'integer',
         'raw_data' => 'array',
     ];
+    // 表无 updated_at 列（仅 created_at DEFAULT CURRENT_TIMESTAMP），关闭 Eloquent 时间戳自动维护
+    public $timestamps = false;
 }

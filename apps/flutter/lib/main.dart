@@ -136,6 +136,7 @@ import 'app/pages/hr/salary_item_page.dart';
 import 'app/pages/project/project_list_page.dart';
 import 'app/pages/project/task_list_page.dart';
 import 'app/pages/project/timesheet_page.dart';
+import 'app/pages/project/project_cost_page.dart';
 
 // 审批工作流 / 通知中心 / 自定义报表
 import 'app/pages/workflow/workflow_list_page.dart';
@@ -267,6 +268,7 @@ final Map<String, Widget Function()> _pageBuilders = {
   '/project/list': () => const ProjectListPage(),
   '/project/task': () => const ProjectTaskListPage(),
   '/project/timesheet': () => const TimesheetPage(),
+  '/project/cost': () => const ProjectCostPage(),
   // 审批工作流 / 通知中心 / 自定义报表
   '/workflow/list': () => const WorkflowListPage(),
   '/workflow/my-approval': () => const MyApprovalPage(),
@@ -398,8 +400,7 @@ class PlaceholderPage extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).colorScheme.outline),
           ),
           const SizedBox(height: 4),
-          // 后续 i18n：占位页文案暂保留硬编码中文
-          const Text('页面开发中，敬请期待'),
+          Text(AppL10n.of(context).commonComingSoon),
         ],
       ),
     );

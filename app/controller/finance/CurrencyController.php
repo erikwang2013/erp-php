@@ -9,6 +9,7 @@ namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
 use app\model\FinanceCurrency;
+use app\model\FinanceExchangeRate;
 use support\Request;
 use support\Response;
 
@@ -190,6 +191,11 @@ class CurrencyController extends BaseController
         $item = FinanceCurrency::find($id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+
+        // 被汇率引用不可删：汇率行的 from/to_currency_id 会变成指向不存在币种的孤儿引用
+        if (FinanceExchangeRate::query()->where('from_currency_id', $id)->orWhere('to_currency_id', $id)->exists()) {
+            return $this->fail($this->trans('Currency is referenced by exchange rates'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

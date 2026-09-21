@@ -67,15 +67,41 @@ class _InventoryTransferListPageState extends State<InventoryTransferListPage> {
     }
   }
 
+  /// 仓库下拉：/admin/v1/warehouse?limit=500（失败降级空表）。
+  Future<List<String>> _loadWarehouseOptions() async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/warehouse', params: {'limit': '500'});
+      final rows = List<Map<String, dynamic>>.from(res['data']?['list'] ?? []);
+      return [for (final w in rows) '${w['id']} - ${w['name'] ?? w['id']}'];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// 弹窗前预取仓库（编辑时补一行原值防回填落空）。
+  Future<List<FormFieldConfig>> _fieldsFor({Map<String, dynamic>? row}) async {
+    var options = await _loadWarehouseOptions();
+    if (!mounted) return _formFields([]);
+    for (final key in ['from_warehouse_id', 'to_warehouse_id']) {
+      final wid = '${row?[key] ?? ''}';
+      if (wid.isNotEmpty && !options.any((o) => o.startsWith('$wid - '))) {
+        options = [wid, ...options];
+      }
+    }
+    return _formFields(options);
+  }
+
   Future<void> _create() async {
+    final fields = await _fieldsFor();
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonAdd,
-      fields: _formFields(),
+      fields: fields,
       onSubmit: (data) async {
         await ApiService.instance.post(
           '/admin/v1/inventory/transfer',
-          data: data,
+          data: _buildPayload(data),
         );
         _load();
         return true;
@@ -84,15 +110,17 @@ class _InventoryTransferListPageState extends State<InventoryTransferListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    final fields = await _fieldsFor(row: row);
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonEdit,
-      fields: _formFields(),
-      initialData: row,
+      fields: fields,
+      initialData: _toEditData(row, fields),
       onSubmit: (data) async {
         await ApiService.instance.put(
           '/admin/v1/inventory/transfer/${row['id']}',
-          data: data,
+          data: _buildPayload(data),
         );
         _load();
         return true;
@@ -106,7 +134,7 @@ class _InventoryTransferListPageState extends State<InventoryTransferListPage> {
       title: AppL10n.of(context).commonDeleteConfirm,
       content: AppL10n.of(
         context,
-      ).commonDeleteMsg('${row['name'] ?? row['code'] ?? row['id']}'),
+      ).commonDeleteMsg('${row['code'] ?? row['id']}'),
       onConfirm: (password) async {
         await ApiService.instance.delete(
           '/admin/v1/inventory/transfer/${row['id']}',
@@ -118,14 +146,60 @@ class _InventoryTransferListPageState extends State<InventoryTransferListPage> {
     );
   }
 
-  List<FormFieldConfig> _formFields() => [
+  // erp_inventory_transfer 无 name 列；store 的 validator 为 from_warehouse_id /
+  // to_warehouse_id 双 'required'（decodeFlexibleId 失败或两边相同均 422）——
+  // 原 'name' 是幻字段，真正必填的是调出/调入仓库。字段对齐 Web 两端
+  // （Angular/React 库存域：from_warehouse_id/to_warehouse_id/code/remark）。
+  List<FormFieldConfig> _formFields(List<String> warehouseOptions) => [
     FormFieldConfig(
-      name: 'name',
-      label: AppL10n.of(context).commonName,
+      name: 'from_warehouse_id',
+      label: AppL10n.of(context).inventoryTransferFrom,
       required: true,
+      type: FormFieldType.dropdown,
+      options: warehouseOptions,
+    ),
+    FormFieldConfig(
+      name: 'to_warehouse_id',
+      label: AppL10n.of(context).inventoryTransferTo,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: warehouseOptions,
     ),
     FormFieldConfig(name: 'code', label: AppL10n.of(context).commonCode),
+    FormFieldConfig(
+      name: 'remark',
+      label: AppL10n.of(context).commonRemark,
+      type: FormFieldType.multiline,
+    ),
   ];
+
+  /// 组装后端接收参数：下拉项 'id - 名称' 取回 hashid。
+  Map<String, dynamic> _buildPayload(Map<String, String> data) {
+    String pick(String key) => (data[key] ?? '').split(' - ').first.trim();
+    return {
+      'from_warehouse_id': pick('from_warehouse_id'),
+      'to_warehouse_id': pick('to_warehouse_id'),
+      'code': data['code']?.trim() ?? '',
+      'remark': data['remark']?.trim() ?? '',
+    };
+  }
+
+  /// 编辑回填：下拉值必须与 options 字符串完全一致（FormDialog 匹配不上会置空），
+  /// 而列表接口不带仓库名，故按 id 前缀在选项里找 'id - 名称'、否则退回裸 id。
+  Map<String, dynamic> _toEditData(
+    Map<String, dynamic> row,
+    List<FormFieldConfig> fields,
+  ) {
+    final d = Map<String, dynamic>.from(row);
+    final options = fields.firstWhere((f) => f.name == 'from_warehouse_id').options;
+    for (final key in ['from_warehouse_id', 'to_warehouse_id']) {
+      final wid = '${row[key] ?? ''}';
+      d[key] = wid.isEmpty
+          ? ''
+          : options.firstWhere((o) => o.startsWith('$wid - '), orElse: () => wid);
+    }
+    return d;
+  }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
@@ -160,17 +234,21 @@ class _InventoryTransferListPageState extends State<InventoryTransferListPage> {
     ],
   );
 
+  // 列表接口不 join 仓库名：调出/调入两列按原值（hashid）展示，
+  // 与 eam/mfg 各页对 FK 的处理一致。
   List<String> _columns() => [
-    AppL10n.of(context).commonName,
     AppL10n.of(context).commonCode,
+    AppL10n.of(context).inventoryTransferFrom,
+    AppL10n.of(context).inventoryTransferTo,
     AppL10n.of(context).commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
     return {
-      l.commonName: r['name'] ?? '',
       l.commonCode: r['code'] ?? '',
+      l.inventoryTransferFrom: r['from_warehouse_id'] ?? '',
+      l.inventoryTransferTo: r['to_warehouse_id'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

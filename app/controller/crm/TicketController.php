@@ -62,8 +62,21 @@ class TicketController extends BaseController
         $status = $request->input('status');
         $priority = $request->input('priority');
         $category = $request->input('category', '');
+        // 筛选值来自前端下拉（hashid）：不解码则 truthyFilters/eqFilters 里 (int)hashid=0，筛选恒不命中
         $customerId = $request->input('customer_id');
+        if ($customerId !== null && $customerId !== '') {
+            $customerId = $this->decodeFlexibleId($customerId);
+            if ($customerId === null || $customerId < 1) {
+                return $this->fail('客户ID' . $this->trans('Invalid'), 422);
+            }
+        }
         $assigneeUserId = $request->input('assignee_user_id');
+        if ($assigneeUserId !== null && $assigneeUserId !== '') {
+            $assigneeUserId = $this->decodeFlexibleId($assigneeUserId);
+            if ($assigneeUserId === null || $assigneeUserId < 1) {
+                return $this->fail('指派人ID' . $this->trans('Invalid'), 422);
+            }
+        }
 
         $result = $this->crm()->list(CrmTicket::class, [
             'keyword' => $keyword,
@@ -116,13 +129,16 @@ class TicketController extends BaseController
         }
 
         $data = $this->normalizeFkData($request->all());
+        if ($data === null) {
+            return $this->fail('客户ID/联系人ID' . $this->trans('Invalid'), 422);
+        }
         // code 表列 uk_code 唯一；留空自动生成，避免空串二次插入 1062
         if (trim((string) ($data['code'] ?? '')) === '') {
             $data['code'] = 'TK' . $this->generateId();
         }
         $item = $this->crm()->create(CrmTicket::class, $data, ['status' => 0]);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), $this->trans('Created successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'assignee_user_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -152,7 +168,7 @@ class TicketController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        $data = $this->encodeIds($item->toArray(), ['id', 'customer_id']);
+        $data = $this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'assignee_user_id']);
 
         $replies = $this->crm()->ticketReplies($id);
         $data['replies'] = array_map(fn ($r) => $this->encodeIds($r), $replies);
@@ -182,12 +198,16 @@ class TicketController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $id = $this->decodeId($id);
-        $item = $this->crm()->update(CrmTicket::class, $id, $this->normalizeFkData($request->all()));
+        $data = $this->normalizeFkData($request->all());
+        if ($data === null) {
+            return $this->fail('客户ID/联系人ID' . $this->trans('Invalid'), 422);
+        }
+        $item = $this->crm()->update(CrmTicket::class, $id, $data);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), $this->trans('Updated successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'assignee_user_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -254,10 +274,11 @@ class TicketController extends BaseController
         }
         $id = $this->decodeId($id);
 
-        // 兼容解码：/admin/v1/user 列表行 id 为 hashid（客户端原串提交），历史裸 int 亦兼容
-        $raw = $request->input('assignee_user_id', 0);
-        $assigneeUserId = $this->decodeIdSafe((string) $raw) ?? (int) $raw;
-        if ($assigneeUserId <= 0) {
+        // 兼容解码：/admin/v1/user 列表行 id 为 hashid（客户端原串提交），历史裸 int 亦兼容。
+        // 原 decodeIdSafe ?? (int) 会把垃圾串静默写成 0，且 hashids 会把某些纯数字串解成
+        // PHP_INT_MAX（实测 assignee_user_id=9223372036854775807 已落库）→ 往返校验的 decodeFlexibleId + 422
+        $assigneeUserId = $this->decodeFlexibleId($request->input('assignee_user_id', ''));
+        if ($assigneeUserId === null || $assigneeUserId < 1) {
             return $this->fail($this->trans('Please assign an owner'), 422);
         }
 
@@ -266,7 +287,7 @@ class TicketController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id']), $this->trans('Assigned successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'contact_id', 'assignee_user_id']), $this->trans('Assigned successfully'));
     }
 
     /**
@@ -354,18 +375,31 @@ class TicketController extends BaseController
     }
 
     /**
-     * FK 兼容解码归一：customer_id 接受 hashid 或裸 int → int 落库；
+     * FK 兼容解码归一：customer_id/contact_id 接受 hashid 或裸 int → int 落库；
+     * 非法值（非空但解不出）返回 null 由调用方 422（原 decodeIdSafe ?? (int) 会把垃圾串静默写成 0）；
+     * 空串按缺省移除（'' 直插 BIGINT 严格模式 1366 → 500）。
      * code 留空时移除该键（保留库内原值，避免空串覆写 uk_code）。
      *
      * @param array<string, mixed> $data
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    private function normalizeFkData(array $data): array
+    private function normalizeFkData(array $data): ?array
     {
-        foreach (['customer_id'] as $fk) {
-            if (isset($data[$fk]) && $data[$fk] !== '') {
-                $data[$fk] = $this->decodeIdSafe((string) $data[$fk]) ?? (int) $data[$fk];
+        foreach (['customer_id', 'contact_id'] as $fk) {
+            if (!isset($data[$fk]) || $data[$fk] === '') {
+                unset($data[$fk]);
+                continue;
             }
+            $decoded = $this->decodeFlexibleId($data[$fk]);
+            if ($decoded === null) {
+                return null;
+            }
+            if ($decoded < 1) {
+                // 0 视为"未指定"：contact_id 可空、customer_id 由 store 校验必填
+                unset($data[$fk]);
+                continue;
+            }
+            $data[$fk] = $decoded;
         }
         if (isset($data['code']) && trim((string) $data['code']) === '') {
             unset($data['code']);

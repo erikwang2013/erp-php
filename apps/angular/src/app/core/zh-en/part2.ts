@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-// 词典切片 2/4，由 ./index 合并导出；查找词条请 grep 整个目录。
+// 词典切片 2/6，由 ./index 合并导出；查找词条请 grep 整个目录。
 
 export const zhEnPart2: Record<string, string> = {
   执行中: 'Active',

@@ -282,12 +282,11 @@ class PermissionController extends BaseController
             if ($perm['parent_id'] == $parentId) {
                 // 原始 id 先在编码前捕获：递归匹配走原始值
                 $originalId = $perm['id'];
+                // encodeIds 已按 `*_id` 命名把 parent_id 转成 hashid（0=顶级不编码），
+                // 此处不得再编一次：hashid 串进 (int) 只取到前导数字（'2JPxVNKM24X'→2），
+                // 再 encodeId 得到 '2y' —— 客户端回写该值时父级就丢了（曾致 94/399 个
+                // 节点的父级错乱，编辑「用户管理」下任何一条都 422 父级权限不存在）。
                 $perm = $this->encodeIds($perm);
-                // parent_id 一并转 hashid（0=顶级保持 0）：客户端用它和树节点 key
-                // 比对才能预选父级；编码在递归之后，不影响匹配
-                if ((int) $perm['parent_id'] > 0) {
-                    $perm['parent_id'] = $this->encodeId((int) $perm['parent_id']);
-                }
                 $children = $this->buildTree($permissions, $originalId);
                 if ($children) {
                     $perm['children'] = $children;

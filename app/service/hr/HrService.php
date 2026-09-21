@@ -441,6 +441,22 @@ class HrService extends AbstractCrudService
         return HrDepartment::where('parent_id', $id)->exists();
     }
 
+    /**
+     * 部门下是否存在员工（删除前校验）
+     */
+    public function hasEmployeesInDepartment(int $id): bool
+    {
+        return HrEmployee::query()->where('department_id', $id)->exists();
+    }
+
+    /**
+     * 岗位下是否存在员工（删除前校验）
+     */
+    public function hasEmployeesInPosition(int $id): bool
+    {
+        return HrEmployee::query()->where('position_id', $id)->exists();
+    }
+
     /** 计件工资服务（P1-M1b：月度归集读取） */
     private function wage(): PieceWageService
     {

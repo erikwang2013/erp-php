@@ -49,12 +49,23 @@ class ReportController extends BaseController
         $year = (int) $request->input('year', (int) date('Y'));
         $month = $request->input('month');
 
-        // 作用域：company_id/ledger_id 可选（hashid 编码），缺省回落到默认公司/账套
+        // 作用域：company_id/ledger_id 可选（hashid 或原生数字），缺省回落到默认公司/账套；
+        // 非空但解不出 → 422（原 decodeIdSafe 静默回落默认账套，取到别家公司的利润表）
         try {
-            $scope = (new LedgerService())->resolveScope(
-                $request->input('company_id') ? $this->decodeIdSafe((string) $request->input('company_id')) : null,
-                $request->input('ledger_id') ? $this->decodeIdSafe((string) $request->input('ledger_id')) : null
-            );
+            $scopeIds = [];
+            foreach (['company_id', 'ledger_id'] as $field) {
+                $raw = $request->input($field) ?: null;
+                if ($raw === null) {
+                    $scopeIds[$field] = null;
+
+                    continue;
+                }
+                $scopeIds[$field] = $this->decodeFlexibleId($raw);
+                if ($scopeIds[$field] === null) {
+                    throw new \RuntimeException($this->trans('Invalid ' . $field));
+                }
+            }
+            $scope = (new LedgerService())->resolveScope($scopeIds['company_id'], $scopeIds['ledger_id']);
         } catch (\RuntimeException $e) {
             return $this->fail($e->getMessage(), 422);
         }

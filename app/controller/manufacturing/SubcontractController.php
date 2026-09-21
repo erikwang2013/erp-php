@@ -64,10 +64,26 @@ class SubcontractController extends BaseController
         }
         [$page, $limit] = $this->pageParams($request);
 
+        // 筛选值来自列表下拉的 hashid：解不出就 422，别让 null 静默变成「不筛选」（返回全量，像是筛中了）
+        $supplierId = $request->input('supplier_id');
+        if ($supplierId !== null && $supplierId !== '') {
+            $supplierId = $this->decodeFlexibleId($supplierId);
+            if ($supplierId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
+        $productId = $request->input('product_id');
+        if ($productId !== null && $productId !== '') {
+            $productId = $this->decodeFlexibleId($productId);
+            if ($productId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
+
         $result = $this->service()->list(MfgSubcontract::class, [
             'keyword' => $request->input('keyword'),
-            'supplier_id' => $request->input('supplier_id'),
-            'product_id' => $request->input('product_id'),
+            'supplier_id' => $supplierId,
+            'product_id' => $productId,
             'status' => $request->input('status'),
         ], $page, $limit, [
             'searchFields' => ['code'],
@@ -98,11 +114,12 @@ class SubcontractController extends BaseController
 
     public function store(Request $request): Response
     {
+        // 三个 FK 收 hashid 串或原生数字（双模），类型交给 decodeFlexibleId 判定
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
-            'supplier_id' => 'required|integer',
-            'product_id' => 'required|integer',
-            'warehouse_id' => 'required|integer',
+            'supplier_id' => 'required',
+            'product_id' => 'required',
+            'warehouse_id' => 'required',
             'quantity' => 'required|numeric',
             'unit_price' => 'required|numeric',
             'remark' => 'nullable|string|max:255',
@@ -110,6 +127,13 @@ class SubcontractController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        $data = $this->decodeFkIds($request->all(), ['supplier_id' => true, 'product_id' => true, 'warehouse_id' => true]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
+        $supplierId = $data['supplier_id'];
+        $productId = $data['product_id'];
+        $warehouseId = $data['warehouse_id'];
         $quantity = bc_norm((string) $request->input('quantity'));
         if (bccomp($quantity, '0', 4) <= 0) {
             return $this->fail($this->trans('Subcontract quantity must be greater than 0'), 422);
@@ -118,10 +142,10 @@ class SubcontractController extends BaseController
         if (bccomp($unitPrice, '0', 4) < 0) {
             return $this->fail($this->trans('Processing unit price cannot be negative'), 422);
         }
-        if (!Supplier::query()->where('id', (int) $request->input('supplier_id'))->exists()) {
+        if (!Supplier::query()->where('id', $supplierId)->exists()) {
             return $this->fail($this->trans('Supplier not found'), 422);
         }
-        if (!ProductSku::query()->where('product_id', (int) $request->input('product_id'))->exists()) {
+        if (!ProductSku::query()->where('product_id', $productId)->exists()) {
             return $this->fail($this->trans('The subcontract product does not exist or has no SKU'), 422);
         }
 
@@ -130,9 +154,9 @@ class SubcontractController extends BaseController
             $doc = new MfgSubcontract();
             $doc->id = $id;
             $doc->code = trim((string) $request->input('code'));
-            $doc->supplier_id = (int) $request->input('supplier_id');
-            $doc->product_id = (int) $request->input('product_id');
-            $doc->warehouse_id = (int) $request->input('warehouse_id');
+            $doc->supplier_id = $supplierId;
+            $doc->product_id = $productId;
+            $doc->warehouse_id = $warehouseId;
             $doc->quantity = (float) $quantity;
             $doc->unit_price = (float) bc_round($unitPrice, 2);
             $doc->remark = (string) $request->input('remark', '');
@@ -212,6 +236,11 @@ class SubcontractController extends BaseController
         }
         $data = $request->all();
         unset($data['code'], $data['status']);
+        // FK 双模解码（未传/空串 = 不改动）；直灌 hashid 串在 MySQL 严格模式报 1366
+        $data = $this->decodeFkIds($data, ['supplier_id' => false, 'product_id' => false, 'warehouse_id' => false]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
         if (isset($data['quantity'])) {
             $data['quantity'] = (float) bc_norm((string) $data['quantity']);
         }
@@ -272,6 +301,37 @@ class SubcontractController extends BaseController
         MfgSubcontract::query()->where('id', $id)->delete();
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * 外键字段双模解码（hashid 串 / 原生数字，判定见 BaseController::decodeFlexibleId）。
+     * $fields 为 ['字段名' => 是否必填]：必填字段缺失/空/0、或任一非空字段解不出 → 返回 null
+     * （调用方 422）；可选字段缺失/空/0 → 删键，语义为"不改动/取缺省"。
+     * 规则写 integer 会拒掉前端下拉下发的 hashid 串；用 (int) 直转又只有纯数字 hashid 才歪打正着，
+     * 其余静默写 0/错行；不转直接灌 BIGINT 列则在 MySQL 严格模式报 1366（→500）。
+     *
+     * @param array<string,bool> $fields
+     * @return array<string,mixed>|null
+     */
+    private function decodeFkIds(array $data, array $fields): ?array
+    {
+        foreach ($fields as $field => $required) {
+            $raw = $data[$field] ?? null;
+            if ($raw === null || $raw === '' || $raw === 0 || $raw === '0') {
+                if ($required) {
+                    return null;
+                }
+                unset($data[$field]);
+                continue;
+            }
+            $id = $this->decodeFlexibleId($raw);
+            if ($id === null || $id < 1) {
+                return null;
+            }
+            $data[$field] = $id;
+        }
+
+        return $data;
     }
 
     /** 委外服务 */

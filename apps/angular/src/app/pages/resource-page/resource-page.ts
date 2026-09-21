@@ -41,8 +41,11 @@ import {
   inferDetailItems,
   relSources,
   resultBlocks,
+  rowKey,
   specTags,
   take,
+  toggleCollapsed,
+  visibleRows,
   type Cell,
   type RelLabels,
   type ResultBlock,
@@ -67,6 +70,10 @@ const PAGE_SIZES = [15, 30, 50, 100];
 interface RowView {
   row: Row;
   cells: Cell[];
+  /** 行的树标识（折叠集合的键，见 columns.rowKey） */
+  key: string;
+  /** 有无子节点：只在分层列（cell.depth）上画折叠箭头，叶子留同宽占位 */
+  kids: boolean;
 }
 
 interface Pending {
@@ -216,6 +223,11 @@ export class ResourcePage implements OnInit {
   // ── 列表状态 ──
   readonly rows = signal<Row[]>([]);
   readonly total = signal(0);
+  /**
+   * 树形行的已折叠 key 集（键为 columns.rowKey）。空集 = 全展开（默认），
+   * 折叠只滤展示：visibleRows 把折叠节点的整棵子树摘掉，本地切片按剩余行重算。
+   */
+  readonly collapsed = signal<ReadonlySet<string>>(new Set<string>());
   readonly loading = signal(true);
   readonly error = signal('');
   /** 模板用：分页器显隐（服务端分页恒显示；本地分页只有多于一页才显示） */
@@ -267,17 +279,22 @@ export class ResourcePage implements OnInit {
   /** 关联列 id → 名称（rule 3）：endpoint → (id → 名称)，拉到即写，cols 依赖它重算 */
   readonly relLabels = signal<RelLabels>({});
 
-  /** 显式配置优先，否则从首批行数据推断（cfg.fields 供列标题与关联列取数） */
+  /** 显式配置优先，否则从首批行数据推断（cfg.fields 供列标题与关联列取数，cfg.filters 供状态字典） */
   readonly cols = computed<ColumnDef[]>(() => {
     const cfg = this.cfg();
     if (!cfg) return [];
-    return cfg.columns ?? inferColumns(this.rows(), cfg.endpoint, cfg.fields, this.relLabels());
+    return cfg.columns ?? inferColumns(this.rows(), cfg.endpoint, cfg.fields, this.relLabels(), 8, cfg.filters);
   });
 
-  /** 行视图：单元格已格式化，模板不参与任何取值逻辑 */
+  /** 行视图：单元格已格式化，模板不参与任何取值逻辑（折叠过滤已在 sliceLocal 完成） */
   readonly view = computed<RowView[]>(() => {
     const cols = this.cols();
-    return this.rows().map((row) => ({ row, cells: cols.map((c) => cellOf(c, row)) }));
+    return this.rows().map((row) => ({
+      row,
+      cells: cols.map((c) => cellOf(c, row)),
+      key: rowKey(row),
+      kids: row['__kids'] === true,
+    }));
   });
 
   readonly pages = computed(() =>
@@ -397,6 +414,7 @@ export class ResourcePage implements OnInit {
       this.limit.set(DEFAULT_LIMIT);
       this.keyword.set('');
       this.filter.set(null);
+      this.collapsed.set(new Set<string>());
       this.local = null;
       this.localKey = '';
       this.paged.set(true);
@@ -480,7 +498,8 @@ export class ResourcePage implements OnInit {
 
   /** 本地切片：rows 只放当前页，total 记全量（分页器按它算页数） */
   private sliceLocal(): void {
-    const all = this.local ?? [];
+    // 折叠在前、切页在后：折叠一节点即隐藏其整棵子树，跨页也不留下「孤儿」子行
+    const all = visibleRows(this.local ?? [], this.collapsed());
     const size = Math.min(this.limit(), MAX_LIMIT) || DEFAULT_LIMIT;
     const pages = Math.max(1, Math.ceil(all.length / size));
     // 删/刷新后行数变少可能落在空页：夹回最后一页，别跳回第 1 页
@@ -538,6 +557,19 @@ export class ResourcePage implements OnInit {
   onFilter(v: string | number | null): void {
     this.filter.set(v);
     this.page.set(1);
+  }
+
+  // ── 树形行的折叠（键取 columns.rowKey，语义与 React lib/tree.ts 同名函数一致） ──
+  /** 点箭头翻转一行的折叠态，再按可见行重切当前页 */
+  toggleCollapse(key: string): void {
+    this.collapsed.set(toggleCollapsed(this.collapsed(), key));
+    // 服务端分页的行没有 __path（画不出箭头），只有整表本地分页的树需要重切
+    if (this.local) this.sliceLocal();
+  }
+
+  /** 该行是否已折叠（模板判箭头方向与 aria-expanded） */
+  isCollapsed(key: string): boolean {
+    return this.collapsed().has(key);
   }
 
   /** 二次确认密码输入（原生 input，不走 ngModel） */

@@ -267,7 +267,12 @@ class PutawayController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('开始上架', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务拒绝（上架任务不存在/当前状态不允许开始上架）用 RuntimeException 表达 → 422；
+            // PDOException 属库故障，仍 500（判据同 Receive/Delivery）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 
@@ -305,7 +310,12 @@ class PutawayController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('确认上架', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务拒绝（上架任务不存在/请先开始上架/库存不足）用 RuntimeException 表达 → 422；
+            // PDOException 属库故障，仍 500（判据同 Receive/Delivery）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 }

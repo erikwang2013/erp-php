@@ -57,9 +57,14 @@ class MaintenancePlanController extends BaseController
         if ($keyword) {
             $query->where('name', 'like', "%{$keyword}%");
         }
+        // 筛选值来自前端设备下拉（hashid）：decodeId 对垃圾串抛异常（未捕获 → 500）→ 双模解码 + 422
         $equipmentId = $request->input('equipment_id');
-        if ($equipmentId) {
-            $query->where('equipment_id', $this->decodeId($equipmentId));
+        if ($equipmentId !== null && $equipmentId !== '') {
+            $equipmentId = $this->decodeFlexibleId($equipmentId);
+            if ($equipmentId === null || $equipmentId < 1) {
+                return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+            }
+            $query->where('equipment_id', $equipmentId);
         }
         $status = $request->input('status');
         if ($status !== null && $status !== '') {
@@ -89,8 +94,9 @@ class MaintenancePlanController extends BaseController
 
     public function store(Request $request): Response
     {
+        // equipment_id 来自前端设备下拉（hashid）：原 required|integer 会把合法 hashid 判成 422
         $validator = validator($request->all(), [
-            'equipment_id' => 'required|integer',
+            'equipment_id' => 'required|string',
             'name' => 'required|string|max:200',
             'frequency' => 'required|string|max:50',
         ]);
@@ -99,7 +105,13 @@ class MaintenancePlanController extends BaseController
         }
         $item = new EamMaintenancePlan();
         $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
+        $data = $request->only($item->getFillable());
+        $equipmentId = $this->decodeFlexibleId($data['equipment_id'] ?? '');
+        if ($equipmentId === null || $equipmentId < 1) {
+            return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+        }
+        $data['equipment_id'] = $equipmentId;
+        $item->fill($data);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -158,7 +170,19 @@ class MaintenancePlanController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
-        $this->fillModelFromRequest($item, $request);
+        $data = $request->only($item->getFillable());
+        // equipment_id 显式传值则双模解码（hashid 直插 BIGINT 严格模式 1366 → 500），空串按"不修改"处理
+        $raw = $data['equipment_id'] ?? '';
+        if ($raw === '' || $raw === '0' || $raw === 0) {
+            unset($data['equipment_id']);   // 未填/清空 → 不改动
+        } else {
+            $equipmentId = $this->decodeFlexibleId($raw);
+            if ($equipmentId === null || $equipmentId < 1) {
+                return $this->fail('设备ID' . $this->trans('Invalid'), 422);
+            }
+            $data['equipment_id'] = $equipmentId;
+        }
+        $item->fill($data);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

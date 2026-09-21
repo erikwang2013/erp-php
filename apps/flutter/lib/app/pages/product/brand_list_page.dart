@@ -58,17 +58,19 @@ class _BrandListPageState extends State<BrandListPage> {
 
   Future<void> _delete(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
-    await ConfirmDialog.show(context, title: l10n.commonDeleteConfirm, content: l10n.commonDeleteContent(row['name'] ?? row['code'] ?? '${row['id']}'), onConfirm: (password) async {
+    await ConfirmDialog.show(context, title: l10n.commonDeleteConfirm, content: l10n.commonDeleteContent(row['name'] ?? '${row['id']}'), onConfirm: (password) async {
       await ApiService.instance.delete('/admin/v1/brand/${row['id']}', data: {'password': password});
       _load(); return true;
     });
   }
 
+  // erp_brand 无 code 列（install.sql：id/name/logo/description/sort/status），
+  // store 也只校验 name：原 'code' 输入框是幻字段，填了会被 $fillable 静默吞掉。
+  // 字段名对齐 Web 两端（Angular/React goods 域：name/logo/description/sort/status）。
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
     return [
       FormFieldConfig(name: 'name', label: l10n.commonName, required: true),
-      FormFieldConfig(name: 'code', label: l10n.fieldCode),
       FormFieldConfig(name: 'description', label: l10n.fieldDescription, type: FormFieldType.multiline),
     ];
   }
@@ -92,14 +94,13 @@ class _BrandListPageState extends State<BrandListPage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.commonName, l10n.fieldCode, l10n.fieldDescription, l10n.commonAction];
+    return [l10n.commonName, l10n.fieldDescription, l10n.commonAction];
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     return {
       l10n.commonName: r['name'] ?? '',
-      l10n.fieldCode: r['code'] ?? '',
       l10n.fieldDescription: r['description'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),

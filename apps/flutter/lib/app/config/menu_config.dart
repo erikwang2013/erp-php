@@ -343,6 +343,7 @@ const List<MenuItem> menuConfig = [
       MenuItem(label: '项目列表', icon: Icons.folder, route: '/project/list'),
       MenuItem(label: '任务管理', icon: Icons.checklist, route: '/project/task'),
       MenuItem(label: '工时记录', icon: Icons.timer, route: '/project/timesheet'),
+      MenuItem(label: '项目成本', icon: Icons.payments, route: '/project/cost'),
     ],
   ),
   MenuItem(
@@ -523,6 +524,7 @@ const Map<String, String> menuLabelsEn = {
   '项目列表': 'Project List',
   '任务管理': 'Tasks',
   '工时记录': 'Timesheets',
+  '项目成本': 'Project Cost',
   // 审批 / 通知 / 报表 / BI
   '审批工作流': 'Approvals',
   '工作流定义': 'Workflows',

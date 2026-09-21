@@ -184,14 +184,18 @@ class CapacityController extends BaseController
 
     // ---------- 私有辅助 ----------
 
-    /** hashid 解码（含空值/非法值归一），供必填判空与可选缺省共用 */
+    /**
+     * hashid 解码（含空值/非法值归一），供必填判空与可选缺省共用。
+     * 走双模解码：纯数字被 hashids 当成密文解出垃圾 id（实测 '410000000000000402' → PHP_INT_MAX），
+     * 只认解码不认往返会把原生数字 ID 静默换成别的站，报表按错站过滤。
+     */
     private function decodeWsId(mixed $raw): ?int
     {
         if ($raw === null || $raw === '') {
             return null;
         }
 
-        return $this->decodeIdSafe((string) $raw);
+        return $this->decodeFlexibleId($raw);
     }
 
     /** 区间参数：缺省=今天 ~ +30 天（服务层兜底 366 天上限） */

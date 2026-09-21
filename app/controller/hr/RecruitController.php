@@ -9,6 +9,8 @@ namespace app\controller\hr;
 
 use app\admin\controller\BaseController;
 use app\model\HrCandidate;
+use app\model\HrDepartment;
+use app\model\HrEmployee;
 use app\model\HrInterview;
 use app\model\HrJob;
 use app\model\HrOffer;
@@ -57,7 +59,8 @@ class RecruitController extends BaseController
             'stringEqFilters' => ['job_title'],
             'orderBy' => [['created_at', 'desc']],
         ]);
-        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'department_id']), $result['list']);
+        $list = $this->appendJobNames($result['list']);
+        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'department_id']), $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -83,7 +86,13 @@ class RecruitController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $job = $this->recruit()->create(HrJob::class, $request->all(), ['status' => 0]);
+        try {
+            $data = $this->decodeForeignKeys($request, ['department_id' => '部门ID']);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $job = $this->recruit()->create(HrJob::class, $data, ['status' => 0]);
 
         return $this->success($this->encodeIds($job->toArray()), $this->trans('Created successfully'));
     }
@@ -94,21 +103,14 @@ class RecruitController extends BaseController
 
     public function jobShow(Request $request, string $id): Response
     {
-        $validator = validator($request->all(), [
-            'job_title' => 'required|string',
-            'department_id' => 'string',
-            'headcount' => 'integer',
-            'requirement' => 'string',
-        ]);
-        if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
-        }
         $job = $this->recruit()->find(HrJob::class, $this->decodeId($id));
         if (!$job) {
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($job->toArray()));
+        $rows = $this->appendJobNames([$job->toArray()]);
+
+        return $this->success($this->encodeIds($rows[0], ['id', 'department_id']));
     }
 
     #[\erikwang2013\apidoc\annotation\Title('更新职位')]
@@ -126,7 +128,13 @@ class RecruitController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $job = $this->recruit()->update(HrJob::class, $this->decodeId($id), $request->all(), ['status']);
+        try {
+            $data = $this->decodeForeignKeys($request, ['department_id' => '部门ID']);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $job = $this->recruit()->update(HrJob::class, $this->decodeId($id), $data, ['status']);
         if (!$job) {
             return $this->fail($this->trans('Record not found'), 404);
         }
@@ -215,9 +223,17 @@ class RecruitController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request);
+        // 筛选值同源下发（职位下拉值为 hashid）：不解码会被 eqFilters 的 (int) 静默成 0 → 恒空列表
+        $jobId = $request->input('job_id');
+        if ($jobId !== null && $jobId !== '') {
+            $jobId = $this->decodeFlexibleId($jobId);
+            if ($jobId === null) {
+                return $this->fail('职位ID' . $this->trans('Invalid'), 422);
+            }
+        }
         $result = $this->recruit()->list(HrCandidate::class, [
             'status' => $request->input('status'),
-            'job_id' => $request->input('job_id'),
+            'job_id' => $jobId,
             'name' => $request->input('name'),
         ], $page, $limit, [
             'eqFilters' => ['status', 'job_id'],
@@ -244,7 +260,7 @@ class RecruitController extends BaseController
         $validator = validator($request->all(), [
             // name 真实列宽 VARCHAR(50)（erp_hr_candidate）：原 max:100 会放过超长串去撞 MySQL 1406
             'name' => 'required|string|max:50',
-            'job_id' => 'required|integer',
+            'job_id' => 'required|string',
             'phone' => 'string',
             'source' => 'string',
             'expected_salary' => 'numeric',
@@ -254,7 +270,8 @@ class RecruitController extends BaseController
         }
 
         try {
-            $candidate = $this->recruit()->submitCandidate($request->all());
+            $data = $this->decodeForeignKeys($request, ['job_id' => '职位ID']);
+            $candidate = $this->recruit()->submitCandidate($data);
         } catch (InvalidArgumentException $e) {
             return $this->fail($e->getMessage(), 422);
         }
@@ -291,7 +308,13 @@ class RecruitController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $candidate = $this->recruit()->update(HrCandidate::class, $this->decodeId($id), $request->all(), ['status']);
+        try {
+            $data = $this->decodeForeignKeys($request, ['job_id' => '职位ID']);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $candidate = $this->recruit()->update(HrCandidate::class, $this->decodeId($id), $data, ['status']);
         if (!$candidate) {
             return $this->fail($this->trans('Record not found'), 404);
         }
@@ -370,13 +393,22 @@ class RecruitController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request);
+        // 同上级联筛选：候选人详情页跳转带的 candidate_id 是 hashid
+        $candidateId = $request->input('candidate_id');
+        if ($candidateId !== null && $candidateId !== '') {
+            $candidateId = $this->decodeFlexibleId($candidateId);
+            if ($candidateId === null) {
+                return $this->fail('候选人ID' . $this->trans('Invalid'), 422);
+            }
+        }
         $result = $this->recruit()->list(HrInterview::class, [
-            'candidate_id' => $request->input('candidate_id'),
+            'candidate_id' => $candidateId,
         ], $page, $limit, [
             'eqFilters' => ['candidate_id'],
             'orderBy' => [['round_no', 'asc']],
         ]);
-        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'candidate_id', 'interviewer_id']), $result['list']);
+        $list = $this->appendInterviewNames($result['list']);
+        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'candidate_id', 'interviewer_id']), $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -393,7 +425,7 @@ class RecruitController extends BaseController
     public function interviewStore(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'candidate_id' => 'required|integer',
+            'candidate_id' => 'required|string',
             'interview_date' => 'required|date_format:Y-m-d',
             'round_no' => 'integer|min:1',
             'result' => 'integer',
@@ -403,7 +435,8 @@ class RecruitController extends BaseController
         }
 
         try {
-            $interview = $this->recruit()->recordInterview((int) $request->input('candidate_id'), $request->all());
+            $data = $this->decodeForeignKeys($request, ['candidate_id' => '候选人ID', 'interviewer_id' => '面试官ID']);
+            $interview = $this->recruit()->recordInterview((int) ($data['candidate_id'] ?? 0), $data);
         } catch (InvalidArgumentException $e) {
             return $this->fail($e->getMessage(), 422);
         }
@@ -459,8 +492,16 @@ class RecruitController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request);
+        // 同上：Offer 列表按候选人筛选
+        $candidateId = $request->input('candidate_id');
+        if ($candidateId !== null && $candidateId !== '') {
+            $candidateId = $this->decodeFlexibleId($candidateId);
+            if ($candidateId === null) {
+                return $this->fail('候选人ID' . $this->trans('Invalid'), 422);
+            }
+        }
         $result = $this->recruit()->list(HrOffer::class, [
-            'candidate_id' => $request->input('candidate_id'),
+            'candidate_id' => $candidateId,
             'status' => $request->input('status'),
         ], $page, $limit, [
             'eqFilters' => ['candidate_id', 'status'],
@@ -482,7 +523,7 @@ class RecruitController extends BaseController
     public function offerStore(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'candidate_id' => 'required|integer',
+            'candidate_id' => 'required|string',
             'offered_salary' => 'required',
             'onboard_date' => 'string',
         ]);
@@ -491,7 +532,8 @@ class RecruitController extends BaseController
         }
 
         try {
-            $offer = $this->recruit()->applyOffer((int) $request->input('candidate_id'), $request->all());
+            $data = $this->decodeForeignKeys($request, ['candidate_id' => '候选人ID']);
+            $offer = $this->recruit()->applyOffer((int) ($data['candidate_id'] ?? 0), $data);
         } catch (InvalidArgumentException $e) {
             return $this->fail($e->getMessage(), 422);
         }
@@ -572,6 +614,62 @@ class RecruitController extends BaseController
         }
 
         return $this->success($result);
+    }
+
+    /**
+     * 可选外键双模解码（与 EmployeeController 同口径）：
+     * 未传 / null / '' / '0' → 视为不改动，从写入数据中剔除；
+     * 非空但解不出（含 (int) 会静默变 0 的垃圾串）→ 422，防孤儿行/1366 落库报 500。
+     *
+     * @param array<string, string> $map 字段 => 提示名
+     */
+    private function decodeForeignKeys(Request $request, array $map): array
+    {
+        $data = $request->all();
+        foreach ($map as $field => $label) {
+            $raw = $request->input($field);
+            $rawStr = $raw === null ? '' : (string) $raw;
+            if ($rawStr === '' || $rawStr === '0') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($rawStr);
+            if ($decoded === null || $decoded < 1) {
+                throw new InvalidArgumentException($label . $this->trans('Invalid'));
+            }
+            $data[$field] = $decoded;
+        }
+
+        return $data;
+    }
+
+    /** 职位行级补 department_name（含已软删部门），一次 pluck 成映射、行内查表，无 N+1。须在 encodeIds 之前调用。 */
+    private function appendJobNames(array $rows): array
+    {
+        $ids = array_values(array_unique(array_map(static fn ($r) => (int) ($r['department_id'] ?? 0), $rows)));
+        $names = HrDepartment::withTrashed()->whereIn('id', $ids)->pluck('name', 'id');
+
+        return array_map(static function (array $row) use ($names): array {
+            $row['department_name'] = (string) ($names[(int) ($row['department_id'] ?? 0)] ?? '');
+
+            return $row;
+        }, $rows);
+    }
+
+    /** 面试行级补 candidate_name / interviewer_name（面试官为 erp_hr_employee.id）。须在 encodeIds 之前调用。 */
+    private function appendInterviewNames(array $rows): array
+    {
+        $candIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['candidate_id'] ?? 0), $rows)));
+        $candNames = HrCandidate::query()->whereIn('id', $candIds)->pluck('name', 'id');
+        $interviewerIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['interviewer_id'] ?? 0), $rows)));
+        $interviewerNames = HrEmployee::withTrashed()->whereIn('id', $interviewerIds)->pluck('name', 'id');
+
+        return array_map(static function (array $row) use ($candNames, $interviewerNames): array {
+            $row['candidate_name'] = (string) ($candNames[(int) ($row['candidate_id'] ?? 0)] ?? '');
+            $row['interviewer_name'] = (string) ($interviewerNames[(int) ($row['interviewer_id'] ?? 0)] ?? '');
+
+            return $row;
+        }, $rows);
     }
 
     private function recruit(): RecruitService

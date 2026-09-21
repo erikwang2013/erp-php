@@ -25,27 +25,33 @@ class AdminPermission
             return $next($request);
         }
 
-        $path = $request->path();
-        // 全站接口版本化（路由 /admin/v1/*）：RBAC 权限路径保持 unversioned 规范
-        // （种子数据 erp_admin_permission.path = '/admin/...'），此处剥离版本段匹配
-        if (str_starts_with($path, 'admin/v1')) {
-            $path = 'admin' . substr($path, strlen('admin/v1'));
-        }
-        $method = $request->method();
-
         $permissions = $this->getUserPermissions($adminId);
 
         if (in_array('*', $permissions)) {
             return $next($request);
         }
 
-        $requiredPermission = strtolower($method) . '.' . trim($path, '/');
-
-        if (!$this->hasPermission($permissions, $requiredPermission)) {
+        if (!$this->hasPermission($permissions, $this->permissionOf($request))) {
             return json(['code' => 403, 'message' => '无权限访问', 'data' => []]);
         }
 
         return $next($request);
+    }
+
+    /**
+     * 请求 → 权限 slug：小写方法 + unversioned 路径（get.admin/product）。
+     * 路由挂在 /admin/v1/* 下，而种子 slug 不带版本段；Request::path()
+     * 返回含前导斜杠的路径（'/admin/v1/product'），剥离版本段后补回 '/admin'。
+     * 版本段正则与 RateLimit 中间件同款（/v\d+ 且后接 '/' 或结尾，避免误伤 v1x）。
+     */
+    protected function permissionOf(Request $request): string
+    {
+        $path = $request->path();
+        if (preg_match('#^/admin/v\d+(?=/|$)#', $path, $m)) {
+            $path = '/admin' . substr($path, strlen($m[0]));
+        }
+
+        return strtolower($request->method()) . '.' . trim($path, '/');
     }
 
     /**

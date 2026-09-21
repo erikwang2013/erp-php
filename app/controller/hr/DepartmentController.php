@@ -8,8 +8,10 @@ declare(strict_types=1);
 namespace app\controller\hr;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
 use app\model\HrDepartment;
 use app\service\hr\HrService;
+use InvalidArgumentException;
 use support\Container;
 use support\Request;
 use support\Response;
@@ -59,6 +61,7 @@ class DepartmentController extends BaseController
             'orderBy' => 'id',
             'orderDir' => 'asc',
         ]);
+        $list = $this->appendNames($list);
         $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'parent_id', 'manager_user_id']), $list);
 
         return $this->success(['list' => $list]);
@@ -91,7 +94,13 @@ class DepartmentController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->hr()->create(HrDepartment::class, $request->all());
+        try {
+            $data = $this->decodeForeignKeys($request);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $item = $this->hr()->create(HrDepartment::class, $data);
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
@@ -123,7 +132,9 @@ class DepartmentController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        $rows = $this->appendNames([$item->toArray()]);
+
+        return $this->success($this->encodeIds($rows[0]));
     }
 
     /**
@@ -148,7 +159,13 @@ class DepartmentController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $id = $this->decodeId($id);
-        $item = $this->hr()->update(HrDepartment::class, $id, $request->all());
+        try {
+            $data = $this->decodeForeignKeys($request);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $item = $this->hr()->update(HrDepartment::class, $id, $data);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
@@ -188,6 +205,10 @@ class DepartmentController extends BaseController
             return $this->fail($this->trans('Child departments exist, please delete them first'), 422);
         }
 
+        if ($this->hr()->hasEmployeesInDepartment($id)) {
+            return $this->fail($this->trans('Employees exist under this department, please reassign them first'), 422);
+        }
+
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
         if ($error !== null) {
@@ -197,6 +218,50 @@ class DepartmentController extends BaseController
         $this->hr()->delete(HrDepartment::class, $id);
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * 可选外键双模解码（与 EmployeeController 同口径）：
+     * 未传 / null / '' / '0' → 视为不改动，从写入数据中剔除；
+     * 非空但解不出（含 (int) 会静默变 0 的垃圾串）→ 422，防孤儿行/1366 落库报 500。
+     */
+    private function decodeForeignKeys(Request $request): array
+    {
+        $data = $request->all();
+        foreach (['parent_id' => '上级部门ID', 'manager_user_id' => '负责人ID'] as $field => $label) {
+            $raw = $request->input($field);
+            $rawStr = $raw === null ? '' : (string) $raw;
+            if ($rawStr === '' || $rawStr === '0') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($rawStr);
+            if ($decoded === null || $decoded < 1) {
+                throw new InvalidArgumentException($label . $this->trans('Invalid'));
+            }
+            $data[$field] = $decoded;
+        }
+
+        return $data;
+    }
+
+    /**
+     * 行级补关联名：parent_name（上级部门名，含已软删部门）/ manager_name（负责人 real_name）。
+     * 名称一次 pluck 成映射、行内查表，无 N+1。须在 encodeIds 之前调用（此后外键已变 hashid）。
+     */
+    private function appendNames(array $rows): array
+    {
+        $parentIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['parent_id'] ?? 0), $rows)));
+        $parentNames = HrDepartment::withTrashed()->whereIn('id', $parentIds)->pluck('name', 'id');
+        $managerIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['manager_user_id'] ?? 0), $rows)));
+        $managerNames = AdminUser::query()->whereIn('id', $managerIds)->pluck('real_name', 'id');
+
+        return array_map(static function (array $row) use ($parentNames, $managerNames): array {
+            $row['parent_name'] = (string) ($parentNames[(int) ($row['parent_id'] ?? 0)] ?? '');
+            $row['manager_name'] = (string) ($managerNames[(int) ($row['manager_user_id'] ?? 0)] ?? '');
+
+            return $row;
+        }, $rows);
     }
 
     /**

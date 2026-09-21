@@ -131,12 +131,20 @@ class ProjectCostController extends BaseController
         }
 
         $data = $request->all();
-        $data['project_id'] = $this->decodeId((string) $data['project_id']);
-        if (!empty($data['task_id'])) {
-            $data['task_id'] = $this->decodeId((string) $data['task_id']);
+        // 双模解码（hashid 或原生数字）；解不出 422，不落 0（decodeId 只认 hashid，原生数字会被误拒）
+        $projectId = $this->decodeFlexibleId($data['project_id']);
+        if ($projectId === null) {
+            return $this->fail($this->trans('Invalid project ID'), 422);
         }
-        if (!empty($data['employee_id'])) {
-            $data['employee_id'] = $this->decodeId((string) $data['employee_id']);
+        $data['project_id'] = $projectId;
+        foreach (['task_id', 'employee_id'] as $fk) {
+            if (!empty($data[$fk])) {
+                $decoded = $this->decodeFlexibleId($data[$fk]);
+                if ($decoded === null) {
+                    return $this->fail($this->trans('Invalid :field', ['field' => $fk]), 422);
+                }
+                $data[$fk] = $decoded;
+            }
         }
 
         try {
@@ -217,9 +225,14 @@ class ProjectCostController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        $projectId = $this->decodeFlexibleId($request->input('project_id'));
+        if ($projectId === null) {
+            return $this->fail($this->trans('Invalid project ID'), 422);
+        }
+
         try {
             $result = $this->cost()->generateFromTimesheet(
-                $this->decodeId((string) $request->input('project_id')),
+                $projectId,
                 (string) $request->input('from'),
                 (string) $request->input('to'),
             );
@@ -255,8 +268,13 @@ class ProjectCostController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        $projectId = $this->decodeFlexibleId($request->input('project_id'));
+        if ($projectId === null) {
+            return $this->fail($this->trans('Invalid project ID'), 422);
+        }
+
         try {
-            $result = $this->cost()->projectPnl($this->decodeId((string) $request->input('project_id')));
+            $result = $this->cost()->projectPnl($projectId);
         } catch (InvalidArgumentException|RuntimeException $e) {
             return $this->fail($e->getMessage(), 422);
         }

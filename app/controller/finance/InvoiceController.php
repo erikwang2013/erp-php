@@ -30,6 +30,8 @@ class InvoiceController extends BaseController
     private const HEADER_ID_FIELDS = ['id', 'customer_id', 'supplier_id', 'source_id', 'audited_by'];
     /** 响应中需要 hashid 化的明细字段 */
     private const ITEM_ID_FIELDS = ['id', 'invoice_id', 'product_id', 'source_item_id'];
+    /** 明细行入参中的外键字段（客户端下发 hashid，落库前必须解码） */
+    private const ITEM_FK_FIELDS = ['product_id', 'source_item_id'];
 
     /**
      * 发票列表（分页）
@@ -74,7 +76,11 @@ class InvoiceController extends BaseController
         }
         $sourceId = $request->input('source_id', '');
         if ($sourceId !== '') {
-            $query->where('source_id', $this->decodeMaybe($sourceId));
+            $sourceId = $this->optionalId($sourceId);
+            if ($sourceId === null) {
+                return $this->fail($this->trans('Invalid source ID'), 422);
+            }
+            $query->where('source_id', $sourceId);
         }
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)->limit($limit)
@@ -109,7 +115,18 @@ class InvoiceController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $data = $this->collectPayload($request);
-        $data['source_id'] = $data['biz_type'] === 'manual' ? 0 : $this->decodeMaybe($request->input('source_id', '0'));
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid customer or supplier ID'), 422);
+        }
+        $items = $this->decodeItemIds($data['items'], self::ITEM_FK_FIELDS);
+        if ($items === null) {
+            return $this->fail($this->trans('Invalid item ID'), 422);
+        }
+        $data['items'] = $items;
+        $data['source_id'] = $data['biz_type'] === 'manual' ? 0 : $this->optionalId($request->input('source_id', '0'));
+        if ($data['source_id'] === null) {
+            return $this->fail($this->trans('Invalid source ID'), 422);
+        }
         [$invoice, $error] = $this->service()->storeDraft($data);
         if ($error !== null) {
             return $this->fail($error, 422);
@@ -160,7 +177,11 @@ class InvoiceController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $service = $this->service();
-        [$lines, $err] = $service->validateLines($request->input('items', []));
+        $items = $this->decodeItemIds((array) $request->input('items', []), self::ITEM_FK_FIELDS);
+        if ($items === null) {
+            return $this->fail($this->trans('Invalid item ID'), 422);
+        }
+        [$lines, $err] = $service->validateLines($items);
         if ($err !== null) {
             return $this->fail($err, 422);
         }
@@ -275,11 +296,18 @@ class InvoiceController extends BaseController
         $service = $this->service();
         $type = $request->input('type');
         $bizType = $request->input('biz_type');
-        $customerId = $this->decodeMaybe($request->input('customer_id', '0'));
-        $supplierId = $this->decodeMaybe($request->input('supplier_id', '0'));
-        $sourceId = $bizType === 'manual' ? 0 : $this->decodeMaybe($request->input('source_id', '0'));
+        $customerId = $this->optionalId($request->input('customer_id', '0'));
+        $supplierId = $this->optionalId($request->input('supplier_id', '0'));
+        $sourceId = $bizType === 'manual' ? 0 : $this->optionalId($request->input('source_id', '0'));
+        if ($customerId === null || $supplierId === null || $sourceId === null) {
+            return $this->fail($this->trans('Invalid customer/supplier/source ID'), 422);
+        }
+        $items = $this->decodeItemIds((array) $request->input('items', []), self::ITEM_FK_FIELDS);
+        if ($items === null) {
+            return $this->fail($this->trans('Invalid item ID'), 422);
+        }
 
-        [$lines, $err] = $service->validateLines($request->input('items', []));
+        [$lines, $err] = $service->validateLines($items);
         if ($err !== null) {
             return $this->fail($err, 422);
         }
@@ -299,17 +327,25 @@ class InvoiceController extends BaseController
         return $this->success($totals + $info + ['result' => $result, 'pass' => true]);
     }
 
-    /** 组装服务入参（items 原样直传服务端 bc 校验计算） */
-    private function collectPayload(Request $request): array
+    /**
+     * 组装服务入参（items 原样直传服务端 bc 校验计算）
+     * 伙伴外键解码失败返回 null（调用方 422），不静默归零。
+     */
+    private function collectPayload(Request $request): ?array
     {
         $type = (string) $request->input('type');
         $bizType = (string) $request->input('biz_type');
+        $customerId = $type === 'ar' ? $this->optionalId($request->input('customer_id', '0')) : 0;
+        $supplierId = $type === 'ap' ? $this->optionalId($request->input('supplier_id', '0')) : 0;
+        if ($customerId === null || $supplierId === null) {
+            return null;
+        }
 
         return [
             'invoice_no' => trim((string) $request->input('invoice_no', '')),
             'type' => $type,
-            'customer_id' => $type === 'ar' ? $this->decodeMaybe($request->input('customer_id', '0')) : 0,
-            'supplier_id' => $type === 'ap' ? $this->decodeMaybe($request->input('supplier_id', '0')) : 0,
+            'customer_id' => $customerId,
+            'supplier_id' => $supplierId,
             'biz_type' => $bizType,
             'source_id' => 0,
             'invoice_date' => $request->input('invoice_date', ''),
@@ -319,15 +355,19 @@ class InvoiceController extends BaseController
         ];
     }
 
-    /** hashid 优先，兼容直传数字（旧接口下发原始 BIGINT） */
-    private function decodeMaybe(string $value): int
+    /**
+     * 可选外键入参：缺省/null/空串 → 0（无关联哨兵）；非空 → decodeFlexibleId，
+     * 解不出（垃圾串/数组）→ null 由调用方 422。
+     * 不用 `decodeIdSafe($v) ?? (int)$v`：hashids 会把某些纯数字串（'410000000000000402'）
+     * 解成 PHP_INT_MAX，静默兜底会写出垃圾外键；decodedIdSafe 亦无往返校验。
+     */
+    private function optionalId(mixed $raw): ?int
     {
-        $decoded = $this->decodeIdSafe($value);
-        if ($decoded !== null) {
-            return $decoded;
+        if ($raw === null || $raw === '') {
+            return 0;
         }
 
-        return (int) $value;
+        return $this->decodeFlexibleId($raw);
     }
 
     /** 发票头+明细响应（金额字符串直出，ID hashid 化） */

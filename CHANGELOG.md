@@ -2,6 +2,53 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.2 (2026-09-22)
+
+**状态与关联批**：从界面往回查，把「状态显示成数字/错文案」和「关联显示成裸 hashid」两类展示问题，以及「状态列有、改状态的入口没有」的死胡同补齐。**55 个列表页带状态筛选、其中 23 个的推断状态列此前吃的是按域粗分的兜底字典**（`mfg`/`hr`/`oms` 等一律落 `0待处理 1已生效 2处理中`），改为一律取本资源自己的状态筛选项——筛选下拉里写着「已失效」、列里却写「处理中」的错档至此消失（另 32 个已显式声明状态列、2 个非数字档，本就不受影响）；详情抽屉与列表同源，一并修好。流转入口补了 6 处（采购申请 批准/驳回、录用 Offer 接受/拒绝、招聘候选人 推进/淘汰、费用报销 批准、记账凭证 审核、BOM 生效），并把采购订单 ↔ 采购申请这条断掉的关联接通。范围只含缺陷修复与既有能力的接线：**0 个新增控制器、0 个新增路由、0 个新增数据表**；另修两处「本机必现、CI 不现」的坑：验证码内存 fatal（背景图目录指向 20MP 原图，约半数请求 500，见「验证码背景图内存」）与集成测试隔离（同一测试库复跑必红，见「集成测试隔离」），未修项见文末。
+
+### 修复 · 状态文案（★契约变化：状态列取值来源）
+- **状态字典改为「本资源的状态筛选项即字典」**（`dictFromFilter`）：列表/详情里 `status` 的文案一律与筛选下拉逐字一致，域级兜底字典仅在资源没有状态筛选时生效 —— `apps/react/src/lib/defaults.tsx:246`、`apps/angular/src/app/pages/resource-page/columns.ts:73`，两端各在 `inferColumns` 收 `filter` 入参（`ResourcePage` 传 `cfg.filters`）
+- **受影响的 23 个叶子页**（推断状态列 + 有状态筛选）：如 `hr_leave.status=2` 曾显示「处理中」（真值「已驳回」）、`erp_mfg_bom.status=2` 曾显示「处理中」（真值「已失效」）、`erp_hr_candidate.status=1` 曾显示「已生效」（真值「初筛通过」）、`erp_project.status=2` 曾显示「处理中」（真值「已延期」）、`erp_quality_ipqc.status=1` 曾显示「已生效」（真值「已完成」）
+- **`apply_id → apply_code` 别名**补进关联解析表（采购订单的申请单号），与既有的 `supplier_id → supplier_name` 同机制
+
+### 修复 · 关联展示（★契约变化：外键兜底值）
+- **外键三条解析途径全落空时落「-」占位，不再贴裸 hashid**：`*_name` 兄弟 / `with` 关系对象 / `fields.source` 选项任一命中即出名称；三条都没有（孤儿外键、选项未加载）时贴出来的雪花编码在界面上无处可用（`defaults.tsx` 的 `fallbackValue`、`columns.ts` 的 `fallbackCell`）
+- **`/admin/v1/mfg/bom` 列表带出产品名**：`index` 加 `with => ['product']`（`BomController.php:81`），前端按关系对象列出产品名；`encodeIds` 递归，嵌套 `product.id` 同样是 hashid
+
+### 修复 · 状态流转入口（原本有状态列、界面上却无路可走）
+- **采购申请**：补「批准」(0→1) /「驳回」(0→2)，按状态显隐（`trade.ts:84`）；**状态 3「已转订单」不设按钮**，由采购订单创建时回写
+- **采购订单 ↔ 采购申请接通**：`store`/`update` 解码并落 `apply_id`，落库后把该申请置 3（`OrderController.php:391` 的 `markApplyOrdered`）；出参经 `leftJoin` 补 `apply_code`（`OrderController.php:62`），表单新增「采购申请」选择器（可空）
+- **录用 Offer**：原只有「发出」，发出(1)之后界面无任何出口 —— 补「接受」(1→2，候选人 3→4 入职) /「拒绝」(1→3，候选人退回 2 面试中)，三个动作各按 from 状态显隐（`RecruitService::sendOffer/acceptOffer/rejectOffer` 三处守卫）
+- **招聘候选人**：补「推进下一级」/「淘汰」，与 `RecruitService::canAdvanceCandidateStatus` 的允许集对齐（推进仅 status<4、淘汰仅当前非 5）
+- **费用报销**：补「批准」(0→1)，与 `ExpenseController::update` 只接受 `status===1` 一致
+- **BOM 管理**：补状态筛选（0草稿/1已生效/2已失效）与「生效」动作；生效的副作用是同产品其它已生效 BOM 转失效，故不提供「失效」按钮（由新版本取代，`ManufacturingService::BOM_STATUS_FLOW`）
+- **记账凭证**：补「审核」(0→1)（`finance.ts:33`）—— `VoucherController::update` 只放行 `status` 0→1（`:211`，已审核不可再改、期间已结账 422），但界面既无状态项也无按钮，草稿凭证永远审不了
+
+### 修复 · 验证码背景图内存（本机必现，CI 无关）
+- **`background_dir` 指原图目录 ⇒ 约半数验证码请求 fatal**：poster-php 的 `AbstractCaptcha` 对目录内图片**无尺寸守卫**，`array_rand` 选中后整张解码；上游 `GdDriver::MAX_PIXELS = 40000000` 是**像素口径**（20MP 通过校验，折算却要 ~170MB），128M 上限下永不触发。实测一张 5472×3648（20MP）照片解码增量 **85.5MB** ⇒ `/api/v1/captcha/generate` 500、`phpunit` 全套 fatal（`Allowed memory size ... exhausted in GdDriver.php:35`）
+- **改法：背景目录指向压缩副本**（`config/poster.php` → `public/img/captcha`），新增 `scripts/gen-captcha-bg.php` 把原图压到长边 ≤800px（原图一张不动）。实测单张解码 85.5MB → **~2MB**，30 次 random 验证码在**默认 128M** 下峰值 20.4MB
+- 影响面：CI 与任何未准备该目录的环境不受影响 —— 目录不存在时按上游默认回退程序化背景（不报错）。`public/img` 及其副本目录均已被 `.gitignore` 整目录忽略，故**不需要**为部署准备背景图
+- 新增照片后重跑：`php scripts/gen-captcha-bg.php`（提示已写进 `config/poster.php` 注释）
+
+### 修复 · 集成测试隔离（同一测试库复跑必红）
+- **脚手架在回退路径下只清 setUp、不清 tearDown**：`database/h34_hr.sql` 不在仓内（从未交付），H3/H4 脚手架走「表已在位」分支 —— setUp 用 `truncate` 保证空表起步，而 tearDown 的 `dropTableIfCreated` 对**本来就存在**的真表是空操作（2026-09-14 误删 13 张 HR 真表之后立的规矩：只删自己建的表），于是 `H4SocialTest` 种下的 3 条社保规则留在库尾
+- **后果**：`H34AdversarialIntegrationTest` 是不继承脚手架的对抗性用例（按 id 自清自己的行），却断言**全表计数**（`total==3`，`H34AdversarialIntegrationTest.php:692`）⇒ 同一测试库跑第二遍读到 6（`Failed asserting that 6 is identical to 3`）。CI 每次新库只跑一遍故为绿，**本机复跑必踩**，且失败点离真因很远（看着像业务缺陷）
+- 改法：回退路径打标（`$fallbackSchema`），tearDown 复用 setUp 的同一段 `truncateH34Tables()` —— 对抗性两类本就自清（`H34PayslipAdversarialTest` 同款 `deleteOwnRows`），闭环后同一库连跑两遍均绿（本机实测两轮各 1036 用例 0 失败）
+- 注：`H1H2Scaffold` 结构相同，但仓内没有任何外类断言其表族计数（仅自身子类引用），本轮不动
+
+### 新增
+- `scripts/gen-captcha-bg.php`：背景图压缩副本生成（用法与「为什么需要」写在文件头；输出目录缺失时验证码回退程序化背景）
+- 测试：`tests/PurchaseModuleTest.php` +2（订单 store 回写关联申请为 3、申请 update 只带 `status` 不丢其余列）、`tests/DetailContractRegressionTest.php` +1（BOM 列表带出产品名 + 嵌套 `product.id` 编码，去掉 `with` 即失败）
+- `scripts/check-fe-detail-items.mjs` +5 断言：状态筛选即字典（`hr_leave` 2 出「已驳回」而非通用档文案）、详情条目同源、无筛选时按前缀回退、孤儿外键落「-」、关系对象在**列表列**上也改名取名称（BOM 那条路径）
+
+### 待办 / 已知遗留（本轮未修）
+- **状态由别的模块流程驱动、界面上没有也不该有按钮**（加按钮会双驱状态机），已逐条核对写入者：采购收货→采购订单 3 已收货/2 部分收货（`ReceiveController.php:317-351`）、销售发货→销售订单 3 已发货（`DeliveryController.php:320`）、WMS 出库→履约管理（`WmsOutboundService.php:137`，`lockForUpdate`）、核销→应收应付（`SettlementController.php:90-132`）、委外发料/收货→委外加工 1 已发料/3 已核销（`SubcontractService.php:130/225`）
+- **状态只有泛型 `PUT` 一条写入路径**（`status` 在 `$fillable` 内、无守卫路由、界面也无入口）：`sales_quotation`、`transfer`、`check_task`、`project`/`project_task`、`crm_opportunity`、`finance_cost_center`/`finance_profit_center` —— 属**界面缺口**（补状态项或动作即可，后端不用动），本轮未逐页补
+- **销售发货的 0「待出库」在 `store` 同一请求内即置 1**（`DeliveryController.php:183 → 276`，创建即出库并生成应收）：界面上没有独立出库步骤，该状态实际看不到，是否拆分属流程设计问题
+- **费用科目无列表接口**：`erp_finance_account` 有表有模型、无控制器/路由，费用报销表单仍要求按 ID 填写
+- **培训课程 报名/取消/完成**（`/hr/course/{id}/enroll|cancel|complete`）按员工维度操作选课记录、非课程行操作，前端仍无入口（两端注释已标「留待员工学习记录页」）
+- 新增的动作文案（`推进下一级`/`淘汰`/`已批准`/`已驳回` 等）未进 i18n 词典，与既有 81/610 的缺口同类
+
 ## v1.19.1 (2026-09-22)
 
 **收尾批**：把上一轮审计遗留的「用户报得出、代码查不到」的毛病修完——明细（`items`）在编辑态写不回去、列表脱敏值被回写覆盖真值、`mfg` 领料/委外发料 update 半写（表头已改、明细校验失败却回 422）、发货/收货编辑态字段静默丢失；同时收口错误面（唯一键冲突/超长输入/非法 hashid 由 500 改 422）、全仓分页参数归一，并把四端「用户分配角色、角色多选权限、权限树形展示」这条链路接到可用。范围只含缺陷修复与既有能力的接线：**0 个新增控制器、0 个新增路由、0 个新增数据表**（仅 +1 列 +16 条权限种子），未修项见文末。

@@ -127,17 +127,18 @@ class ApprovalController extends BaseController
     #[\erikwang2013\apidoc\annotation\Tag('审批工作流')]
     #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', require:true, desc:'工作流ID(hashid)')]
     #[\erikwang2013\apidoc\annotation\Param(name:'target_type', type:'string', require:true, desc:'单据类型')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'target_id', type:'int', require:true, desc:'单据ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'target_id', type:'string', require:true, desc:'单据ID(hashid，兼容数字串)')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'审批实例')]
 
     public function submit(Request $request, string $id): Response
     {
+        // target_id 不设 'string' 规则：前端（Angular mgmt.ts 声明 type:'number'）可能下发 JSON 数字，
+        // 而约定契约为 hashid 字符串，故两种形态都收，类型校验交给 decodeFlexibleId。
         $validator = validator($request->all(), [
             'id' => 'string',
             'target_type' => 'string',
-            'target_id' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -149,8 +150,9 @@ class ApprovalController extends BaseController
         }
 
         $targetType = $request->input('target_type', '');
-        $targetId = (int) $request->input('target_id', 0);
-        if (!$targetType || !$targetId) {
+        // (int)$raw 会把 hashid 静默截成 0/错误 ID —— 取不到就 422，别拿 (int) 兜底
+        $targetId = $this->decodeFlexibleId($request->input('target_id'));
+        if (!$targetType || $targetId === null || $targetId <= 0) {
             return $this->fail($this->trans('Document type and ID cannot be empty'), 422);
         }
 

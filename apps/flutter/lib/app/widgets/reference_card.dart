@@ -8,6 +8,7 @@ import '../l10n/app_l10n.dart';
 import '../../l10n/app_localizations.dart';
 import '../services/api_service.dart';
 import '../theme/app_tokens.dart';
+import '../utils/format.dart';
 import 'detail_page.dart';
 import 'status_badge.dart';
 
@@ -173,7 +174,10 @@ class _ReferenceCardDialogState extends State<_ReferenceCardDialog> {
           _fieldRow(l.fieldCode, d['code']),
           _typeRow(context, _pickTypeLabel(l, d['type']), _pickTypeText(l, d['type'])),
           _statusRow(context, _pickStatusLabel(l, d['status']), _pickStatusText(l, d['status'])),
-          _fieldRow(l.detailCreatedAt, d['completed_at'] ?? d['created_at']),
+          // 时间列需本地时区换算，_fieldRow 是通用原样展示，这里单列走格式化
+          DetailRow(
+              label: l.detailCreatedAt,
+              value: fmtDateTime(d['completed_at'] ?? d['created_at'])),
         ];
       case 'pack':
         return [
@@ -194,7 +198,7 @@ class _ReferenceCardDialogState extends State<_ReferenceCardDialog> {
           _statusRow(context, l.omsFulfillStatus, _orderFulText(l, d['fulfillment_status'])),
           _statusRow(context, l.omsPaymentStatus, _orderPayText(l, d['payment_status'])),
           _fieldRow(l.omsShippingFee, d['shipping_fee']),
-          _fieldRow(l.detailCreatedAt, d['created_at']),
+          DetailRow(label: l.detailCreatedAt, value: fmtDateTime(d['created_at'])),
         ];
     }
   }

@@ -61,7 +61,10 @@ class BankReconController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request, 15, 100);
-        $accountId = $this->decodeMaybe((string) $request->input('bank_account_id', '0'));
+        $accountId = $this->optionalId($request->input('bank_account_id', '0'));
+        if ($accountId === null) {
+            return $this->fail($this->trans('Invalid bank account ID'), 422);
+        }
         $matched = (int) $request->input('matched', -1);
         [$data, $error] = $this->service()->statementList(
             $accountId,
@@ -99,8 +102,12 @@ class BankReconController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        $accountId = $this->optionalId($request->input('bank_account_id'));
+        if ($accountId === null) {
+            return $this->fail($this->trans('Invalid bank account ID'), 422);
+        }
         $result = $this->service()->importStatement(
-            $this->decodeMaybe((string) $request->input('bank_account_id')),
+            $accountId,
             (string) $request->input('batch', ''),
             $request->input('rows', [])
         );
@@ -136,8 +143,12 @@ class BankReconController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        $accountId = $this->optionalId($request->input('bank_account_id'));
+        if ($accountId === null) {
+            return $this->fail($this->trans('Invalid bank account ID'), 422);
+        }
         $result = $this->service()->autoReconcile(
-            $this->decodeMaybe((string) $request->input('bank_account_id')),
+            $accountId,
             (string) $request->input('from'),
             (string) $request->input('to'),
             (int) $request->input('window_days', 3)
@@ -178,10 +189,16 @@ class BankReconController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $adminId = $request->adminId ?? 0;
+        $accountId = $this->optionalId($request->input('bank_account_id'));
+        $statementId = $this->optionalId($request->input('statement_id'));
+        $journalId = $this->optionalId($request->input('cash_journal_id'));
+        if ($accountId === null || $statementId === null || $journalId === null) {
+            return $this->fail($this->trans('Invalid bank account/statement/journal ID'), 422);
+        }
         $error = $this->service()->manualReconcile(
-            $this->decodeMaybe((string) $request->input('bank_account_id')),
-            $this->decodeMaybe((string) $request->input('statement_id')),
-            $this->decodeMaybe((string) $request->input('cash_journal_id')),
+            $accountId,
+            $statementId,
+            $journalId,
             $adminId
         );
         if ($error !== null) {
@@ -209,10 +226,12 @@ class BankReconController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $error = $this->service()->unreconcile(
-            $this->decodeMaybe((string) $request->input('bank_account_id')),
-            $this->decodeMaybe((string) $request->input('statement_id'))
-        );
+        $accountId = $this->optionalId($request->input('bank_account_id'));
+        $statementId = $this->optionalId($request->input('statement_id'));
+        if ($accountId === null || $statementId === null) {
+            return $this->fail($this->trans('Invalid bank account/statement ID'), 422);
+        }
+        $error = $this->service()->unreconcile($accountId, $statementId);
         if ($error !== null) {
             return $this->fail($error, 422);
         }
@@ -240,8 +259,12 @@ class BankReconController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        $accountId = $this->optionalId($request->input('bank_account_id', '0'));
+        if ($accountId === null) {
+            return $this->fail($this->trans('Invalid bank account ID'), 422);
+        }
         $result = $this->service()->reconReport(
-            $this->decodeMaybe((string) $request->input('bank_account_id', '0')),
+            $accountId,
             (string) $request->input('from', ''),
             (string) $request->input('to', '')
         );
@@ -256,15 +279,19 @@ class BankReconController extends BaseController
         return $this->success($data);
     }
 
-    /** hashid 优先，兼容直传数字 */
-    private function decodeMaybe(string $value): int
+    /**
+     * 可选外键入参：缺省/null/空串 → 0（无关联哨兵）；非空 → decodeFlexibleId，
+     * 解不出（垃圾串/数组）→ null 由调用方 422。
+     * 不用 `decodeIdSafe($v) ?? (int)$v`：hashids 会把某些纯数字串（'410000000000000402'）
+     * 解成 PHP_INT_MAX，`(int)` 兜底又会让 'abc' 静默变 0 → 查/写错账户。
+     */
+    private function optionalId(mixed $raw): ?int
     {
-        $decoded = $this->decodeIdSafe($value);
-        if ($decoded !== null) {
-            return $decoded;
+        if ($raw === null || $raw === '') {
+            return 0;
         }
 
-        return (int) $value;
+        return $this->decodeFlexibleId($raw);
     }
 
     /**

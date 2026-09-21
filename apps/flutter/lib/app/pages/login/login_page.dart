@@ -287,7 +287,7 @@ class _LoginPageState extends State<LoginPage> {
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
                 ),
-                tooltip: _showPassword ? '隐藏密码' : '显示密码',
+                tooltip: _showPassword ? l10n.loginHidePassword : l10n.loginShowPassword,
                 onPressed: () => setState(() => _showPassword = !_showPassword),
               ),
               border: const OutlineInputBorder(),

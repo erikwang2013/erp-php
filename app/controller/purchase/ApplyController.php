@@ -49,18 +49,23 @@ class ApplyController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $query = PurchaseApply::query();
+        // 申请人姓名经 leftJoin 带出：apply_user_id 落在 erp_admin_user（store 缺省取当前登录管理员），
+        // 只下发 hashid 的话列表/详情只能显示一串雪花编码，代理不了「谁提的单」。
+        // 注意 admin_user 与 purchase_apply 都有 status/created_at/deleted_at，join 后这些列必须带表名前缀
+        $query = PurchaseApply::query()
+            ->leftJoin('admin_user', 'admin_user.id', '=', 'purchase_apply.apply_user_id')
+            ->select('purchase_apply.*', 'admin_user.real_name as apply_user_name');
         if ($keyword) {
             // 表无 name 列（erp_purchase_apply 仅有 code/apply_user_id 等，见 install.sql），仅按申请单号搜索
-            $query->where('code', 'like', "%{$keyword}%");
+            $query->where('purchase_apply.code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+            $query->where('purchase_apply.status', (int) $status);
         }
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
+            ->limit($limit)->orderBy('purchase_apply.id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'apply_user_id']));
 
         return $this->successPage($list, $total, $page, $limit);
@@ -150,7 +155,12 @@ class ApplyController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $id = $this->decodeId($id);
-        $item = PurchaseApply::find($id);
+        // 与 index 同一 join：apply_user_id 是 erp_admin_user 的外键，出参补申请人姓名（口径见 index）
+        $item = PurchaseApply::query()
+            ->leftJoin('admin_user', 'admin_user.id', '=', 'purchase_apply.apply_user_id')
+            ->where('purchase_apply.id', $id)
+            ->select('purchase_apply.*', 'admin_user.real_name as apply_user_name')
+            ->first();
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }

@@ -22,7 +22,17 @@ use support\Container;
 #[Group('integration')]
 class H1RecruitTest extends H1H2Scaffold
 {
-    private const TODAY = '2026-09-04';
+    /**
+     * 面试日期与漏斗窗口统一取「今天」。
+     *
+     * funnel() 按 created_at（DB CURRENT_TIMESTAMP 写入）筛窗口，写死的常量会让
+     * 窗口随日期滑走真实数据 —— 曾使漏斗断言 0 ≠ 10（该批用例当时因缺 scratch DDL
+     * 长期跳过，从未执行，日期因此无人发现）。
+     */
+    private static function today(): string
+    {
+        return date('Y-m-d');
+    }
 
     private function recruit(): RecruitService
     {
@@ -105,27 +115,27 @@ class H1RecruitTest extends H1H2Scaffold
         $candidateId = $this->createCandidate('面试-规则');
 
         $this->assertServiceThrows(
-            fn () => $svc->recordInterview($candidateId, ['interview_date' => self::TODAY]),
+            fn () => $svc->recordInterview($candidateId, ['interview_date' => self::today()]),
             '仅初筛通过/面试中的候选人可记录面试，当前状态：新简历'
         );
         $this->advance($candidateId, 1);
 
         // 初筛通过(1)不允许首轮直判通过
         $this->assertServiceThrows(
-            fn () => $svc->recordInterview($candidateId, ['interview_date' => self::TODAY, 'result' => 1]),
+            fn () => $svc->recordInterview($candidateId, ['interview_date' => self::today(), 'result' => 1]),
             '候选人尚未进入面试中，本轮不得判定通过：请先以「待定」记录首轮面试联动进入面试中，再回填结果'
         );
 
         // 首轮待定 → 候选人联动 2；次轮轮次号自动递增
-        $first = $svc->recordInterview($candidateId, ['interview_date' => self::TODAY, 'result' => 0, 'comment' => '一面待定']);
+        $first = $svc->recordInterview($candidateId, ['interview_date' => self::today(), 'result' => 0, 'comment' => '一面待定']);
         $this->assertSame(1, (int) $first['round_no']);
         $this->assertSame(2, (int) $first['candidate_status']);
-        $second = $svc->recordInterview($candidateId, ['interview_date' => self::TODAY, 'result' => 0]);
+        $second = $svc->recordInterview($candidateId, ['interview_date' => self::today(), 'result' => 0]);
         $this->assertSame(2, (int) $second['round_no']);
 
         // 形状校验
         $this->assertServiceThrows(
-            fn () => $svc->recordInterview($candidateId, ['interview_date' => self::TODAY, 'result' => 9]),
+            fn () => $svc->recordInterview($candidateId, ['interview_date' => self::today(), 'result' => 9]),
             '面试结果不合法（0待定/1通过/2不通过）'
         );
         $this->assertServiceThrows(
@@ -133,7 +143,7 @@ class H1RecruitTest extends H1H2Scaffold
             '面试日期格式应为 Y-m-d'
         );
         $this->assertServiceThrows(
-            fn () => $svc->recordInterview($candidateId, ['interview_date' => self::TODAY, 'comment' => str_repeat('测', 501)]),
+            fn () => $svc->recordInterview($candidateId, ['interview_date' => self::today(), 'comment' => str_repeat('测', 501)]),
             '面试评价不能超过 500 字'
         );
 
@@ -154,7 +164,7 @@ class H1RecruitTest extends H1H2Scaffold
         $eliminated = $this->createCandidate('面试-已淘汰');
         $this->advance($eliminated, 5);
         $this->assertServiceThrows(
-            fn () => $svc->recordInterview($eliminated, ['interview_date' => self::TODAY]),
+            fn () => $svc->recordInterview($eliminated, ['interview_date' => self::today()]),
             '仅初筛通过/面试中的候选人可记录面试，当前状态：已淘汰'
         );
     }
@@ -274,9 +284,9 @@ class H1RecruitTest extends H1H2Scaffold
     {
         $svc = $this->recruit();
 
-        // 固定窗口（self::TODAY 前后一天），避免跨日/跨午夜边界
-        $from = date('Y-m-d', strtotime(self::TODAY . ' -1 day'));
-        $to = date('Y-m-d', strtotime(self::TODAY . ' +1 day'));
+        // 固定窗口（self::today() 前后一天），避免跨日/跨午夜边界
+        $from = date('Y-m-d', strtotime(self::today() . ' -1 day'));
+        $to = date('Y-m-d', strtotime(self::today() . ' +1 day'));
 
         // 10 人：5×新简历(0)、1×初筛通过(1)、1×面试中(2)、1×已发Offer(3)、
         // 1×已入职(4)、1×已淘汰(5，带面试记录=曾过初筛)
@@ -297,7 +307,7 @@ class H1RecruitTest extends H1H2Scaffold
         }
         $eliminated = $this->createCandidate('漏斗-已淘汰');
         $this->advance($eliminated, 1);
-        $svc->recordInterview($eliminated, ['interview_date' => self::TODAY, 'result' => 0]);
+        $svc->recordInterview($eliminated, ['interview_date' => self::today(), 'result' => 0]);
         $this->advance($eliminated, 5);
 
         $funnel = $svc->funnel($from, $to);
@@ -390,7 +400,7 @@ class H1RecruitTest extends H1H2Scaffold
         );
         $this->advance($candidateId, 1);
         $this->advance($candidateId, 2);
-        $interview = $svc->recordInterview($candidateId, ['interview_date' => self::TODAY, 'result' => 0]);
+        $interview = $svc->recordInterview($candidateId, ['interview_date' => self::today(), 'result' => 0]);
         $this->assertSame(2, (int) $interview['candidate_status']);
         $offerId = (int) $svc->applyOffer($candidateId, ['offered_salary' => '18000.00'])['id'];
         $svc->sendOffer($offerId);

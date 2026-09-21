@@ -6,6 +6,7 @@ import '../../widgets/stat_card.dart';
 import '../../widgets/empty_state.dart';
 import '../../theme/app_tokens.dart';
 import '../../l10n/app_l10n.dart';
+import '../../utils/format.dart';
 import 'dashboard_controller.dart';
 
 part 'dashboard_cards.dart';

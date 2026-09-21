@@ -203,8 +203,15 @@ class AnalyticsController extends BaseController
         }
 
         $hashid = (string) $request->input('id', '');
-        // 修复：旧实现误用未定义变量 $id 解码，导致更新分支必然 500；此处按文档意图解码 hashid
-        $metricId = $hashid !== '' ? $this->decodeId($hashid) : null;
+        // 旧实现误用未定义变量 $id 解码，导致更新分支必然 500；此处按文档意图解码 hashid。
+        // decodeId 对垃圾串抛 InvalidArgumentException（未捕获 → 500）→ 双模解码 + 422
+        $metricId = null;
+        if ($hashid !== '') {
+            $metricId = $this->decodeFlexibleId($hashid);
+            if ($metricId === null || $metricId < 1) {
+                return $this->fail('指标ID' . $this->trans('Invalid'), 422);
+            }
+        }
 
         $item = $this->crm()->upsertMetric($metricId, $request->all());
         if ($item === null) {

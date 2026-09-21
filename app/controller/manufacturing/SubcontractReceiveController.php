@@ -60,9 +60,18 @@ class SubcontractReceiveController extends BaseController
         }
         [$page, $limit] = $this->pageParams($request);
 
+        // 筛选值来自列表下拉的 hashid：解不出就 422，别让 null 静默变成「不筛选」（返回全量，像是筛中了）
+        $subcontractId = $request->input('subcontract_id');
+        if ($subcontractId !== null && $subcontractId !== '') {
+            $subcontractId = $this->decodeFlexibleId($subcontractId);
+            if ($subcontractId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
+
         $result = $this->service()->list(MfgSubcontractReceive::class, [
             'keyword' => $request->input('keyword'),
-            'subcontract_id' => $request->input('subcontract_id'),
+            'subcontract_id' => $subcontractId,
             'status' => $request->input('status'),
         ], $page, $limit, [
             'searchFields' => ['code'],
@@ -94,8 +103,8 @@ class SubcontractReceiveController extends BaseController
     {
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
-            'subcontract_id' => 'required|integer',
-            'warehouse_id' => 'nullable|integer',
+            'subcontract_id' => 'required',
+            'warehouse_id' => 'nullable',
             'receive_date' => 'nullable|date',
             'quantity' => 'required|numeric',
             'remark' => 'nullable|string|max:255',
@@ -107,13 +116,16 @@ class SubcontractReceiveController extends BaseController
         if (bccomp($quantity, '0', 4) <= 0) {
             return $this->fail($this->trans('Receipt quantity must be greater than 0'), 422);
         }
-        $subcontract = MfgSubcontract::query()->where('id', (int) $request->input('subcontract_id'))->first();
+        // FK 双模解码（hashid 串/原生数字）；仓库可空，缺省取委外单仓库
+        $data = $this->decodeFkIds($request->all(), ['subcontract_id' => true, 'warehouse_id' => false]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
+        $subcontract = MfgSubcontract::query()->where('id', $data['subcontract_id'])->first();
         if (!$subcontract) {
             return $this->fail($this->trans('Subcontract order not found'), 422);
         }
-        $warehouseId = $request->input('warehouse_id')
-            ? (int) $request->input('warehouse_id')
-            : (int) $subcontract->warehouse_id;
+        $warehouseId = $data['warehouse_id'] ?? (int) $subcontract->warehouse_id;
 
         $id = $this->generateId();
         try {
@@ -196,6 +208,11 @@ class SubcontractReceiveController extends BaseController
         }
         $data = $request->all();
         unset($data['code'], $data['subcontract_id'], $data['status']);
+        // FK 双模解码（未传/空串 = 不改动）；直灌 hashid 串在 MySQL 严格模式报 1366
+        $data = $this->decodeFkIds($data, ['warehouse_id' => false]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
         if (isset($data['quantity'])) {
             $data['quantity'] = (float) bc_norm((string) $data['quantity']);
         }
@@ -277,6 +294,35 @@ class SubcontractReceiveController extends BaseController
         }
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Audited successfully; goods received'));
+    }
+
+    /**
+     * 外键字段双模解码（hashid 串 / 原生数字，判定见 BaseController::decodeFlexibleId）。
+     * $fields 为 ['字段名' => 是否必填]：必填字段缺失/空/0、或任一非空字段解不出 → 返回 null
+     * （调用方 422）；可选字段缺失/空/0 → 删键，语义为"不改动/取缺省"。
+     *
+     * @param array<string,bool> $fields
+     * @return array<string,mixed>|null
+     */
+    private function decodeFkIds(array $data, array $fields): ?array
+    {
+        foreach ($fields as $field => $required) {
+            $raw = $data[$field] ?? null;
+            if ($raw === null || $raw === '' || $raw === 0 || $raw === '0') {
+                if ($required) {
+                    return null;
+                }
+                unset($data[$field]);
+                continue;
+            }
+            $id = $this->decodeFlexibleId($raw);
+            if ($id === null || $id < 1) {
+                return null;
+            }
+            $data[$field] = $id;
+        }
+
+        return $data;
     }
 
     /** 委外服务 */

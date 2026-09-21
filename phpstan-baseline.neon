@@ -3127,6 +3127,66 @@ parameters:
 			path: app/controller/purchase/OrderController.php
 
 		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$received_quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\PurchaseOrderItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/purchase/OrderController.php
+
+		-
 			message: '#^Access to an undefined property app\\model\\PurchaseOrder\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 2
@@ -4312,6 +4372,66 @@ parameters:
 			message: '#^Cannot call method toArray\(\) on stdClass\.$#'
 			identifier: method.nonObject
 			count: 2
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:transaction\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrderItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrderItem\:\:\$order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrderItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrderItem\:\:\$sku_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrderItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrderItem\:\:\$delivered_quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrderItem\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrderItem\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/controller/sales/OrderController.php
+
+		-
+			message: '#^Access to an undefined property app\\model\\SalesOrderItem\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
 			path: app/controller/sales/OrderController.php
 
 		-

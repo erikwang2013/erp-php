@@ -4,6 +4,7 @@
 
 import { ApiService } from '../../service/ApiService';
 import { L10n } from '../../utils/L10n';
+import { Format } from '../../utils/Format';
 import { ErrorView, EmptyView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
 import { ListRow, RowBadge, ListSectionHeader } from '../../common/ListRow';
@@ -66,7 +67,7 @@ struct TrackingPage {
   private rowSubtitle(item: Record<string, Object>): string {
     const parts: string[] = [];
     const loc = (item['location'] as string) ?? '';
-    const evt = (item['event_time'] as string) ?? '';
+    const evt = Format.dateTime(item['event_time']);
     if (loc.length > 0) parts.push(loc);
     if (evt.length > 0) parts.push(evt);
     return parts.join(' · ');

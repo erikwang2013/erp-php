@@ -73,9 +73,10 @@ class TaxController extends BaseController
         $hashid = $request->input('id', '');
         if ($hashid) {
             // 原实现误用未定义 $id 解码（必然 TypeError 500），应为请求体 hashid 参数
-            $id = $this->decodeIdSafe((string) $hashid);
-            if (!$id) {
-                return $this->fail($this->trans('Record not found'), 404);
+            // 双模：解不出 → 422（原来落 404「记录不存在」，把非法入参误报成不存在）
+            $id = $this->decodeFlexibleId($hashid);
+            if ($id === null) {
+                return $this->fail($this->trans('Invalid id'), 422);
             }
             $item = FinanceTaxRate::find($id);
             if (!$item) {
@@ -117,6 +118,10 @@ class TaxController extends BaseController
         $item = FinanceTaxRate::find($id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+        // 被税务记录引用不可删：记录会留下指向不存在税率的 tax_rate_id（无 FK 约束）
+        if (FinanceTaxRecord::query()->where('tax_rate_id', $id)->exists()) {
+            return $this->fail($this->trans('Tax rate is referenced by tax records'), 422);
         }
         $item->delete();
 
@@ -162,7 +167,12 @@ class TaxController extends BaseController
 
         $query = FinanceTaxRecord::query();
         if ($taxRateId) {
-            $query->where('tax_rate_id', (int) $taxRateId);
+            // 双模解码：`(int)` 强转 hashid 串恒为 0 → 筛选恒不命中；解不出 → 422
+            $taxRateId = $this->decodeFlexibleId($taxRateId);
+            if ($taxRateId === null || $taxRateId < 1) {
+                return $this->fail($this->trans('Invalid tax_rate_id'), 422);
+            }
+            $query->where('tax_rate_id', $taxRateId);
         }
         if ($sourceType !== '') {
             $query->where('source_type', $sourceType);
@@ -172,9 +182,17 @@ class TaxController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'tax_rate_id', 'source_id']));
+        $models = $query->offset(($page - 1) * $limit)
+            ->limit($limit)->orderBy('id', 'desc')->get();
+        // 行补税率名：前端 inferColumns 用 tax_rate_name 兄弟列渲染并隐去 hashid 的税率列
+        $rateNames = FinanceTaxRate::query()->whereIn('id', $models->pluck('tax_rate_id')->all())
+            ->pluck('name', 'id')->all();
+        $list = $models->map(function ($item) use ($rateNames) {
+            $row = $this->encodeIds($item->toArray(), ['id', 'tax_rate_id', 'source_id']);
+            $row['tax_rate_name'] = $rateNames[$item->tax_rate_id] ?? '';
+
+            return $row;
+        });
 
         return $this->successPage($list, $total, $page, $limit);
     }

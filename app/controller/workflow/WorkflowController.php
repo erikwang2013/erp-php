@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\workflow;
 
 use app\admin\controller\BaseController;
+use app\model\ApprovalInstance;
 use app\model\ApprovalNode;
 use app\model\ApprovalWorkflow;
 use support\Request;
@@ -93,6 +94,13 @@ class WorkflowController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        $nodes = $request->input('nodes', []);
+        // 节点审批人/角色来自 admin_user、admin_role 列表下发的 hashid：直落 (int) 会静默写 0
+        $nodes = $this->decodeItemIds($nodes, ['approver_id', 'role_id']);
+        if ($nodes === null) {
+            return $this->fail($this->trans('Invalid approver or role ID'), 422);
+        }
+
         $workflow = new ApprovalWorkflow();
         $workflow->id = $this->generateId();
         foreach (['code', 'name', 'target_type', 'enabled', 'remark'] as $k) {
@@ -102,7 +110,6 @@ class WorkflowController extends BaseController
         }
         $workflow->save();
 
-        $nodes = $request->input('nodes', []);
         foreach ($nodes as $seq => $nodeData) {
             $node = new ApprovalNode();
             $node->id = $this->generateId();
@@ -196,6 +203,14 @@ class WorkflowController extends BaseController
 
         $nodes = $request->input('nodes');
         if ($nodes !== null) {
+            $nodes = $this->decodeItemIds($nodes, ['approver_id', 'role_id']);
+            if ($nodes === null) {
+                return $this->fail($this->trans('Invalid approver or role ID'), 422);
+            }
+            // 换节点=删旧节点行，而在途实例的 current_node_id 指向它们（删除后审批流会退回起点）
+            if (ApprovalInstance::query()->where('workflow_id', $workflow->id)->where('status', 0)->exists()) {
+                return $this->fail($this->trans('The workflow has in-flight approvals; nodes cannot be replaced'), 422);
+            }
             ApprovalNode::where('workflow_id', $workflow->id)->delete();
             foreach ($nodes as $seq => $nodeData) {
                 $node = new ApprovalNode();
@@ -243,6 +258,11 @@ class WorkflowController extends BaseController
         $workflow = ApprovalWorkflow::find($id);
         if (!$workflow) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+
+        // 审批实例是下游引用（无 FK 约束）：删掉模板会留下 workflow_id 悬空的在途/历史实例
+        if (ApprovalInstance::query()->where('workflow_id', $workflow->id)->exists()) {
+            return $this->fail($this->trans('Approval instances reference this workflow; it cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-// 词典切片 3/4，由 ./index 合并导出；查找词条请 grep 整个目录。
+// 词典切片 3/6，由 ./index 合并导出；查找词条请 grep 整个目录。
 
 export const zhEnPart3: Record<string, string> = {
   维修: 'Repair',

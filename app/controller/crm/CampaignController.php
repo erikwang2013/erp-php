@@ -94,6 +94,11 @@ class CampaignController extends BaseController
         }
 
         $data = $this->normalizeFkData($request->all());
+        if ($data === null) {
+            return $this->fail('负责人ID' . $this->trans('Invalid'), 422);
+        }
+        // erp_crm_campaign.owner_user_id NOT NULL 无默认；请求未指定负责人时归属当前操作人
+        $data['owner_user_id'] = $data['owner_user_id'] ?? ($request->adminId ?? 0);
         $item = $this->crm()->create(CrmCampaign::class, $data, ['status' => 0]);
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'owner_user_id']), $this->trans('Created successfully'));
@@ -167,7 +172,11 @@ class CampaignController extends BaseController
             return $this->fail($this->trans('Only planned or in-progress records can be edited'), 422);
         }
 
-        $item = $this->crm()->update(CrmCampaign::class, $id, $this->normalizeFkData($request->all()));
+        $data = $this->normalizeFkData($request->all());
+        if ($data === null) {
+            return $this->fail('负责人ID' . $this->trans('Invalid'), 422);
+        }
+        $item = $this->crm()->update(CrmCampaign::class, $id, $data);
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'owner_user_id']), $this->trans('Updated successfully'));
     }
@@ -220,15 +229,28 @@ class CampaignController extends BaseController
     }
 
     /**
-     * owner_user_id 兼容解码：接受 /admin/v1/user 列表行 hashid 或裸 int → int 落库。
+     * owner_user_id 兼容解码：接受 /admin/v1/user 列表行 hashid 或裸 int → int 落库；
+     * 非法值（非空但解不出）返回 null 由调用方 422（原 decodeIdSafe ?? (int) 会把垃圾串静默写成 0）；
+     * 空串/0 按"未指定"移除（'' 直插 BIGINT 严格模式 1366 → 500）。
      *
      * @param array<string, mixed> $data
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    private function normalizeFkData(array $data): array
+    private function normalizeFkData(array $data): ?array
     {
-        if (isset($data['owner_user_id']) && $data['owner_user_id'] !== '') {
-            $data['owner_user_id'] = $this->decodeIdSafe((string) $data['owner_user_id']) ?? (int) $data['owner_user_id'];
+        if (!isset($data['owner_user_id']) || $data['owner_user_id'] === '') {
+            unset($data['owner_user_id']);
+
+            return $data;
+        }
+        $decoded = $this->decodeFlexibleId($data['owner_user_id']);
+        if ($decoded === null) {
+            return null;
+        }
+        if ($decoded < 1) {
+            unset($data['owner_user_id']);
+        } else {
+            $data['owner_user_id'] = $decoded;
         }
 
         return $data;

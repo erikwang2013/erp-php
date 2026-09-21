@@ -22,7 +22,8 @@ use support\Response;
  * 模板/考核批次/评分三组接口。状态机唯一入口为 PerformanceService：
  * 模板 0草稿→1启用（启用前须指标≥1 且权重合计=100.00，启用后指标项冻结）；
  * 批次 0草稿→1进行中→2已归档（仅可引用已启用模板；归档须≥1 条评分）。
- * 行主键 id 经 hashid 出入；跨表外键（template_id/employee_id/plan_id 等）为原始整数。
+ * 行主键 id 经 hashid 出入；跨表外键（template_id/employee_id/plan_id/rater_id 等）入参同走双模解码
+ * （hashid 或原始数字，见 decodeForeignKeys），出参 encodeIds 白名单逐个显式列出。
  * 统一返回 {code,message,data}；Tag 见类注解。
  */
 #[\erikwang2013\apidoc\annotation\Tag('人力资源')]
@@ -90,13 +91,6 @@ class PerformanceController extends BaseController
 
     public function templateShow(Request $request, string $id): Response
     {
-        $validator = validator($request->all(), [
-            'name' => 'required|string',
-            'period_type' => 'string',
-        ]);
-        if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
-        }
         try {
             $template = $this->perf()->templateShow($this->decodeId($id));
         } catch (InvalidArgumentException $e) {
@@ -194,14 +188,23 @@ class PerformanceController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        // 筛选值同源下发（模板下拉值为 hashid）：不解码会被 eqFilters 的 (int) 静默成 0 → 恒空列表
+        $templateId = $request->input('template_id');
+        if ($templateId !== null && $templateId !== '') {
+            $templateId = $this->decodeFlexibleId($templateId);
+            if ($templateId === null) {
+                return $this->fail('模板ID' . $this->trans('Invalid'), 422);
+            }
+        }
         $result = $this->perf()->list(HrPerfPlan::class, [
             'status' => $request->input('status'),
-            'template_id' => $request->input('template_id'),
+            'template_id' => $templateId,
         ], (int) $request->input('page', 1), (int) $request->input('limit', 15), [
             'eqFilters' => ['status', 'template_id'],
             'orderBy' => [['created_at', 'desc']],
         ]);
-        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'template_id']), $result['list']);
+        $list = $this->appendTemplateName($result['list']);
+        $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'template_id', 'created_by']), $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -218,15 +221,19 @@ class PerformanceController extends BaseController
     public function planStore(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'template_id' => 'required|integer',
+            'template_id' => 'required|string',
             'period_start' => 'required|date_format:Y-m-d',
             'period_end' => 'required|date_format:Y-m-d',
-            'created_by' => 'integer',
+            'created_by' => 'string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $data = $request->all();
+        try {
+            $data = $this->decodeForeignKeys($request, ['template_id' => '模板ID', 'created_by' => '创建人ID']);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
         $data['created_by'] = (int) ($data['created_by'] ?? ($request->adminId ?? 0));
         try {
             $plan = $this->perf()->createPlan($data);
@@ -281,8 +288,8 @@ class PerformanceController extends BaseController
     public function scoreSubmit(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'plan_id' => 'required|integer',
-            'employee_id' => 'required|integer',
+            'plan_id' => 'required|string',
+            'employee_id' => 'required|string',
             'rater_type' => 'required|integer|between:1,3',
             'scores' => 'required|array|min:1',
             'rater_id' => 'string',
@@ -291,10 +298,11 @@ class PerformanceController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         try {
+            $data = $this->decodeForeignKeys($request, ['plan_id' => '考核批次ID', 'employee_id' => '员工ID', 'rater_id' => '评分人ID']);
             $count = $this->perf()->submitScore(
-                (int) $request->input('plan_id'),
-                (int) $request->input('employee_id'),
-                (int) $request->input('rater_id', $request->adminId ?? 0),
+                (int) ($data['plan_id'] ?? 0),
+                (int) ($data['employee_id'] ?? 0),
+                (int) ($data['rater_id'] ?? ($request->adminId ?? 0)),
                 (int) $request->input('rater_type'),
                 (array) $request->input('scores', [])
             );
@@ -323,10 +331,24 @@ class PerformanceController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        // 纯过滤 3 个外键：前端下拉/跳转带上来的都是 hashid，透传会被 eqFilters 的 (int) 静默成 0
+        $scoreFilters = [];
+        foreach (['plan_id' => '考核批次ID', 'employee_id' => '员工ID', 'rater_id' => '评分人ID'] as $field => $label) {
+            $raw = $request->input($field);
+            if ($raw === null || $raw === '') {
+                $scoreFilters[$field] = $raw;
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($raw);
+            if ($decoded === null) {
+                return $this->fail($label . $this->trans('Invalid'), 422);
+            }
+            $scoreFilters[$field] = $decoded;
+        }
         $result = $this->perf()->list(HrPerfScore::class, [
-            'plan_id' => $request->input('plan_id'),
-            'employee_id' => $request->input('employee_id'),
-            'rater_id' => $request->input('rater_id'),
+            'plan_id' => $scoreFilters['plan_id'],
+            'employee_id' => $scoreFilters['employee_id'],
+            'rater_id' => $scoreFilters['rater_id'],
         ], (int) $request->input('page', 1), (int) $request->input('limit', 15), [
             'eqFilters' => ['plan_id', 'employee_id', 'rater_id'],
             'orderBy' => [['created_at', 'desc']],
@@ -354,9 +376,10 @@ class PerformanceController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         try {
+            $data = $this->decodeForeignKeys($request, ['plan_id' => '考核批次ID', 'employee_id' => '员工ID']);
             $summary = $this->perf()->summary(
-                (int) $request->input('plan_id', 0),
-                (int) $request->input('employee_id', 0)
+                (int) ($data['plan_id'] ?? 0),
+                (int) ($data['employee_id'] ?? 0)
             );
         } catch (InvalidArgumentException $e) {
             return $this->fail($e->getMessage(), 404);
@@ -371,6 +394,46 @@ class PerformanceController extends BaseController
         $template['items'] = array_map(fn ($item) => $this->encodeIds($item), $template['items']);
 
         return $this->encodeIds($template);
+    }
+
+    /**
+     * 可选外键双模解码（与 EmployeeController 同口径）：
+     * 未传 / null / '' / '0' → 视为不改动/走默认，从写入数据中剔除；
+     * 非空但解不出 → 422，防 (int) 静默变 0（评分人写成 0）或 1366 落库报 500。
+     *
+     * @param array<string, string> $map 字段 => 提示名
+     */
+    private function decodeForeignKeys(Request $request, array $map): array
+    {
+        $data = $request->all();
+        foreach ($map as $field => $label) {
+            $raw = $request->input($field);
+            $rawStr = $raw === null ? '' : (string) $raw;
+            if ($rawStr === '' || $rawStr === '0') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($rawStr);
+            if ($decoded === null || $decoded < 1) {
+                throw new InvalidArgumentException($label . $this->trans('Invalid'));
+            }
+            $data[$field] = $decoded;
+        }
+
+        return $data;
+    }
+
+    /** 批次行级补 template_name，一次 pluck 成映射、行内查表，无 N+1。须在 encodeIds 之前调用。 */
+    private function appendTemplateName(array $rows): array
+    {
+        $ids = array_values(array_unique(array_map(static fn ($r) => (int) ($r['template_id'] ?? 0), $rows)));
+        $names = HrKpiTemplate::query()->whereIn('id', $ids)->pluck('name', 'id');
+
+        return array_map(static function (array $row) use ($names): array {
+            $row['template_name'] = (string) ($names[(int) ($row['template_id'] ?? 0)] ?? '');
+
+            return $row;
+        }, $rows);
     }
 
     private function perf(): PerformanceService

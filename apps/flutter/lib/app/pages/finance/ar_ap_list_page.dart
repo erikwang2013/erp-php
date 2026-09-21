@@ -7,6 +7,7 @@ import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
+import '../../utils/format.dart';
 
 /// 应收应付页 — 覆盖 GET/POST/PUT/DELETE /admin/v1/finance/ar-ap
 /// 契约（erp_finance_ar_ap，无 name/code 列）：type(1应收|2应付)/partner_id/
@@ -155,11 +156,14 @@ class _ArApListPageState extends State<ArApListPage> {
     return payload;
   }
 
-  /// 编辑回填：type 转字符串；partner 按行类型加回前缀（无匹配则空 → 弹框回退待选）。
+  /// 编辑回填：type 转字符串；partner 按行类型加回前缀（无匹配则空 → 弹框回退待选）；
+  /// due_date 为 date cast 列，后端下发 ISO-UTC 串，回填成日历日期（否则输入框里
+  /// 会显示 `2026-09-20T16:00:00.000000Z`，与用户手填的 Y-m-d 形状不一致）。
   Map<String, dynamic> _toEditData(Map<String, dynamic> row) {
     final d = Map<String, dynamic>.from(row);
     final t = row['type'] is int ? row['type'] as int : int.tryParse('${row['type']}') ?? 1;
     d['type'] = '$t';
+    d['due_date'] = fmtDate(row['due_date']);
     final pid = '${row['partner_id'] ?? ''}';
     d['partner_id'] = (t == 1 && _customerOptions.containsKey(pid))
         ? 'c$pid'

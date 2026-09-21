@@ -24,11 +24,23 @@ export function int(v: unknown): string {
   return Number.isFinite(n) ? Math.round(n).toLocaleString('en-US') : String(v);
 }
 
-/** 日期时间：兼容 `Y-m-d H:i:s`，截到秒 */
+/**
+ * 日期时间显示：秒级 `Y-m-d H:i:s`。
+ *
+ * 后端 datetime 列经 Eloquent `serializeDate()` 下发 **ISO-8601 UTC**
+ * （`2026-09-21T14:18:43.000000Z`，见 tests 实测），带时区标记的值必须换算到
+ * 本机时区再显示 —— 直接截前 19 字符会把 UTC 墙钟当本地时间（东八区差 8 小时）。
+ * 裸串 `Y-m-d H:i:s` / `Y-m-d`（DATE 列、未 cast 的字段）无时区语义，按原样显示。
+ */
 export function dateTime(v: unknown): string {
   const s = v === null || v === undefined ? '' : String(v);
   if (!s) return '';
-  return s.length > 19 ? s.slice(0, 19).replace('T', ' ') : s.replace('T', ' ');
+  if (!/(Z|[+-]\d{2}:?\d{2})$/.test(s)) return s.slice(0, 19).replace('T', ' ');
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return s.slice(0, 19).replace('T', ' ');
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} `
+    + `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
 export function date(v: unknown): string {

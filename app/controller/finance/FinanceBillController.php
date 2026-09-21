@@ -154,6 +154,9 @@ class FinanceBillController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $data = $this->collectPayload($request);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid bank account or source ID'), 422);
+        }
         [$bill, $error] = $this->service()->store($data);
         if ($error !== null) {
             return $this->fail($error, 422);
@@ -191,7 +194,20 @@ class FinanceBillController extends BaseController
             return $this->fail($this->trans('Bill not found'), 404);
         }
         $data = $this->collectPayload($request);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid bank account or source ID'), 422);
+        }
         unset($data['bill_no'], $data['type'], $data['direction'], $data['source_type'], $data['source_id']);
+        // 更新语义 = 请求未带的字段不动（前端「空串一律不送」即不改动）；collectPayload 的
+        // 0/'' 缺省只对新建成立，沿用会把托收账户/出票日期/金额静默清零（服务层按
+        // array_key_exists/isset 判定"是否入参"，故缺省项须整个移除而非置 0）。
+        // due_date 同属此列且列 NOT NULL 不可清空：置 '' 会被服务层判成「到期日非法」，
+        // 于是「只改备注」这类不带到期日的 PUT 一律 422。
+        foreach (['amount', 'due_date', 'issue_date', 'bank_account_id'] as $field) {
+            if ($request->input($field, '') === '') {
+                unset($data[$field]);
+            }
+        }
         if (($error = $this->service()->update($id, $data)) !== null) {
             return $this->fail($error, 422);
         }
@@ -286,8 +302,10 @@ class FinanceBillController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $accountId = $request->input('bank_account_id', '') !== ''
-            ? $this->decodeMaybe((string) $request->input('bank_account_id')) : 0;
+        $accountId = $this->optionalId($request->input('bank_account_id', ''));
+        if ($accountId === null) {
+            return $this->fail($this->trans('Invalid bank account ID'), 422);
+        }
         if (($error = $this->service()->collect($this->decodeId($id), $accountId)) !== null) {
             return $this->fail($error, 422);
         }
@@ -331,9 +349,18 @@ class FinanceBillController extends BaseController
         return $this->success(null, $this->trans('Bill returned successfully'));
     }
 
-    /** 组装服务入参（source 相关 id 均走 hashid→int） */
-    private function collectPayload(Request $request): array
+    /**
+     * 组装服务入参（source 相关 id 均走 hashid→int）
+     * 外键解码失败返回 null（调用方 422），不静默归零。
+     */
+    private function collectPayload(Request $request): ?array
     {
+        $bankAccountId = $this->optionalId($request->input('bank_account_id', ''));
+        $sourceId = $this->optionalId($request->input('source_id', ''));
+        if ($bankAccountId === null || $sourceId === null) {
+            return null;
+        }
+
         return [
             'bill_no' => (string) $request->input('bill_no', ''),
             'type' => (int) $request->input('type', 0),
@@ -344,11 +371,9 @@ class FinanceBillController extends BaseController
             'drawer' => (string) $request->input('drawer', ''),
             'payee' => (string) $request->input('payee', ''),
             'acceptor' => (string) $request->input('acceptor', ''),
-            'bank_account_id' => $request->input('bank_account_id', '') !== ''
-                ? $this->decodeMaybe((string) $request->input('bank_account_id')) : 0,
+            'bank_account_id' => $bankAccountId,
             'source_type' => (string) $request->input('source_type', 'manual'),
-            'source_id' => $request->input('source_id', '') !== ''
-                ? $this->decodeMaybe((string) $request->input('source_id')) : 0,
+            'source_id' => $sourceId,
             'remark' => (string) $request->input('remark', ''),
         ];
     }
@@ -359,10 +384,19 @@ class FinanceBillController extends BaseController
         return $this->encodeIds($bill->toArray(), self::ID_FIELDS);
     }
 
-    /** 解码可选 hashid 参数（空串/无效 → 0，与 collectPayload 的 0 哨兵一致） */
-    private function decodeMaybe(string $hashid): int
+    /**
+     * 可选外键入参：缺省/null/空串 → 0（无关联哨兵）；非空 → decodeFlexibleId，
+     * 解不出（垃圾串/数组）→ null 由调用方 422。
+     * 不用 `decodeIdSafe($v) ?? 0`：静默归零会把垃圾串当"未指定"，update 时把已设的
+     * 托收账户/来源关联悄悄清空。
+     */
+    private function optionalId(mixed $raw): ?int
     {
-        return $this->decodeIdSafe($hashid) ?? 0;
+        if ($raw === null || $raw === '') {
+            return 0;
+        }
+
+        return $this->decodeFlexibleId($raw);
     }
 
     /**

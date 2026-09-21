@@ -20,4 +20,6 @@ class CrmPoolRecord extends Model
     protected $guarded = ['id', 'created_at', 'updated_at'];
     // 显式 $fillable 白名单（真实业务列）：getFillable()=[] 时 fillableOnly/create 会静默丢弃全部字段，NOT NULL 无默认列直插 500。
     protected $fillable = ['customer_id', 'action', 'from_user_id', 'to_user_id', 'remark'];
+    // 表无 updated_at 列（仅 created_at DEFAULT CURRENT_TIMESTAMP），关闭 Eloquent 时间戳自动维护
+    public $timestamps = false;
 }

@@ -279,7 +279,12 @@ class WaveController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('释放波次', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务拒绝（波次不存在/波次状态不允许释放）用 RuntimeException 表达 → 422；
+            // PDOException 属库故障，仍 500（判据同 Receive/Delivery）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 }

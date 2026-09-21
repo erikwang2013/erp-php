@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { dateCol, enabledCol, moneyCol, ST_FILTER } from '@/config/cells';
+import { dateCol, enabledCol, moneyCol, ST_FILTER, textCol } from '@/config/cells';
 import { res, type MenuGroup } from '@/config/types';
 
 /** 商品档案 + 往来单位 */
@@ -23,6 +23,19 @@ export const goodsMenus: MenuGroup[] = [
         path: '/product/product',
         cfg: res('商品管理', '/admin/v1/product', {
           deleteNeedsPassword: true,
+          // 显式列出列：inferColumns 按行键顺序取前 8 列，而 erp_product 的列序是
+          // category_id/brand_id/code/name/barcode/spec/unit/image —— 正好占满 8 格，
+          // 后端追加的 price 与 description/status 永远进不了列表（列不存在，不是空白）
+          columns: [
+            textCol('name', '商品名称', true),
+            textCol('code', '商品编码'),
+            textCol('category_id', '分类'),
+            textCol('spec', '规格型号'),
+            textCol('unit', '单位'),
+            moneyCol('price', '价格'),
+            enabledCol(),
+            dateCol('created_at', '创建时间'),
+          ],
           fields: [
             { key: 'name', label: '商品名称', required: true },
             { key: 'code', label: '商品编码', required: true },

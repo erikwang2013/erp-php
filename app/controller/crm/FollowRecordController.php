@@ -50,7 +50,14 @@ class FollowRecordController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request);
+        // 筛选值来自前端客户下拉（hashid）：不解码则 eqFilters 里 (int)hashid=0，筛选恒不命中
         $customerId = $request->input('customer_id');
+        if ($customerId !== null && $customerId !== '') {
+            $customerId = $this->decodeFlexibleId($customerId);
+            if ($customerId === null || $customerId < 1) {
+                return $this->fail('客户ID' . $this->trans('Invalid'), 422);
+            }
+        }
 
         // 表无 name/code/status 列（erp_crm_follow_record：customer_id/method/content 等），
         // 原按幻列的关键词搜索/状态筛选整体移除，仅保留客户维度筛选
@@ -59,9 +66,8 @@ class FollowRecordController extends BaseController
         ], $page, $limit, [
             'eqFilters' => ['customer_id'],
         ]);
-        // FK 编码为 hashid（与客户下拉选项同源，供编辑弹窗回填）+ 引用名展示
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']), $result['list']);
-
+        // 先按裸 ID 补引用名再编码 FK：顺序反了则下方 (int) 转型拿到 hashid 串恒 0，名称恒空
+        $list = $result['list'];
         $customerIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['customer_id'] ?? 0), $list)));
         $customerNames = Customer::whereIn('id', $customerIds)->pluck('name', 'id');
         $userIds = array_values(array_unique(array_map(static fn ($r) => (int) ($r['follow_user_id'] ?? 0), $list)));
@@ -70,7 +76,7 @@ class FollowRecordController extends BaseController
             $row['customer_name'] = (string) ($customerNames[(int) ($row['customer_id'] ?? 0)] ?? '');
             $row['follow_user_name'] = (string) ($userNames[(int) ($row['follow_user_id'] ?? 0)] ?? '');
 
-            return $row;
+            return $this->encodeIds($row, ['id', 'customer_id', 'contact_id', 'opportunity_id', 'follow_user_id']);
         }, $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
@@ -110,8 +116,21 @@ class FollowRecordController extends BaseController
             }
             $data[$field] = $decoded;
         }
+        // 可空外键 contact_id/opportunity_id：前端 source 下拉下发 hashid，直灌 BIGINT 列
+        // 在严格模式报 1366（→500）；显式传值则双模解码，垃圾串 422，空串按缺省处理
+        foreach (['contact_id' => '联系人ID', 'opportunity_id' => '商机ID'] as $field => $label) {
+            if (isset($data[$field]) && $data[$field] !== '') {
+                $decoded = $this->decodeFlexibleId($data[$field]);
+                if ($decoded === null || $decoded < 1) {
+                    return $this->fail($label . $this->trans('Invalid'), 422);
+                }
+                $data[$field] = $decoded;
+            } else {
+                unset($data[$field]);
+            }
+        }
         // 可空/可缺省列：空串按缺省处理（'' 不直插 DATE/TEXT/VARCHAR）
-        foreach (['contact_id', 'opportunity_id', 'method', 'content', 'next_plan', 'next_follow_at', 'followed_at'] as $field) {
+        foreach (['method', 'content', 'next_plan', 'next_follow_at', 'followed_at'] as $field) {
             if (isset($data[$field]) && $data[$field] === '') {
                 unset($data[$field]);
             }
@@ -192,7 +211,18 @@ class FollowRecordController extends BaseController
                 unset($data[$field]);
             }
         }
-        foreach (['contact_id', 'opportunity_id', 'method', 'content', 'next_plan', 'next_follow_at', 'followed_at'] as $field) {
+        foreach (['contact_id' => '联系人ID', 'opportunity_id' => '商机ID'] as $field => $label) {
+            if (isset($data[$field]) && $data[$field] !== '') {
+                $decoded = $this->decodeFlexibleId($data[$field]);
+                if ($decoded === null || $decoded < 1) {
+                    return $this->fail($label . $this->trans('Invalid'), 422);
+                }
+                $data[$field] = $decoded;
+            } else {
+                unset($data[$field]);
+            }
+        }
+        foreach (['method', 'content', 'next_plan', 'next_follow_at', 'followed_at'] as $field) {
             if (isset($data[$field]) && $data[$field] === '') {
                 unset($data[$field]);
             }

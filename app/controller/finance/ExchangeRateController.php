@@ -53,11 +53,17 @@ class ExchangeRateController extends BaseController
         $effectiveDate = $request->input('effective_date', '');
 
         $query = FinanceExchangeRate::query();
-        if ($fromCurrencyId) {
-            $query->where('from_currency_id', (int) $fromCurrencyId);
-        }
-        if ($toCurrencyId) {
-            $query->where('to_currency_id', (int) $toCurrencyId);
+        // 币种筛选收 hashid 串（前端 source 下拉下发）：`(int)` 强转 hashid 恒为 0 → 筛选静默失效；
+        // 非空但解不出 → 422，不静默退化成"不过滤"
+        foreach (['from_currency_id' => $fromCurrencyId, 'to_currency_id' => $toCurrencyId] as $field => $raw) {
+            if ($raw === null || $raw === '') {
+                continue;
+            }
+            $currencyId = $this->decodeFlexibleId($raw);
+            if ($currencyId === null || $currencyId < 1) {
+                return $this->fail($this->trans('Invalid ' . $field), 422);
+            }
+            $query->where($field, $currencyId);
         }
         if ($effectiveDate !== '') {
             $query->where('effective_date', $effectiveDate);
@@ -91,8 +97,9 @@ class ExchangeRateController extends BaseController
     public function store(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'from_currency_id' => 'required|integer',
-            'to_currency_id' => 'required|integer',
+            // 币种 FK 是 hashid 串（前端 source 下拉下发），integer 规则会把它整类挡回 422
+            'from_currency_id' => 'required|string',
+            'to_currency_id' => 'required|string',
             'rate' => 'required|numeric',
             'effective_date' => 'required|date',
         ]);
@@ -100,9 +107,20 @@ class ExchangeRateController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        $currencyIds = [];
+        foreach (['from_currency_id', 'to_currency_id'] as $field) {
+            $currencyId = $this->decodeFlexibleId((string) $request->input($field, ''));
+            if ($currencyId === null || $currencyId < 1) {
+                return $this->fail($this->trans('Invalid ' . $field), 422);
+            }
+            $currencyIds[$field] = $currencyId;
+        }
+
         $item = new FinanceExchangeRate();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 覆盖回填：fillModelFromRequest 落的是请求原文（hashid 串直灌 BIGINT 报 1366 → 500）
+        $item->fill($currencyIds);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -165,7 +183,24 @@ class ExchangeRateController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        // 币种 FK 同 store：未传/空串＝不改动，非空但解不出 → 422
+        $currencyIds = [];
+        foreach (['from_currency_id', 'to_currency_id'] as $field) {
+            $raw = $request->input($field);
+            if ($raw === null || $raw === '') {
+                continue;
+            }
+            $currencyId = $this->decodeFlexibleId($raw);
+            if ($currencyId === null || $currencyId < 1) {
+                return $this->fail($this->trans('Invalid ' . $field), 422);
+            }
+            $currencyIds[$field] = $currencyId;
+        }
+
         $this->fillModelFromRequest($item, $request);
+        if ($currencyIds) {
+            $item->fill($currencyIds);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

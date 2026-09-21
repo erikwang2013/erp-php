@@ -4,7 +4,9 @@
 
 import type { ReactNode } from 'react';
 import { Btn, Empty, SkeletonRows } from '@/components/ui';
+import type { Row } from '@/config/types';
 import { useTr } from '@/lib/i18n';
+import { rowKey } from '@/lib/tree';
 
 /**
  * 表格 + 分页器。纯展示，数据由调用方给。
@@ -37,12 +39,50 @@ export interface TableProps<T> {
   /** 非分页资源隐藏分页器 */
   showPager?: boolean;
   emptyDesc?: string;
+  /** 树形行的已折叠 key 集（行带 __path：祖先被折叠的行由调用方 visibleRows 滤掉） */
+  collapsed?: ReadonlySet<string>;
+  /** 点箭头切换一行折叠态；只翻集合，过滤在调用方 */
+  onToggleCollapse?: (key: string) => void;
 }
 
 export function take<T>(row: T, key: string): unknown {
   return key.split('.').reduce<unknown>(
     (o, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined),
     row as unknown,
+  );
+}
+
+/** 箭头宽度（叶子留同宽同高占位：同层文字的左边缘与基线才对得齐，与 Angular .tree-caret 同宽） */
+const CARET_W = 28;
+
+/**
+ * 树形平铺行的展开/折叠箭头（行带 __kids/__path，见 lib/tree.ts）。
+ * 判据与缩进一致：只有分层列（indent）的树形行才画；叶子不画箭头只占位。
+ * aria-label 用中文字面量不过 t()：词典里没有「展开/收起」两个词条，
+ * 为箭头提示词补 13 份语言包不划算；箭头本身即语义。
+ */
+function TreeCaret({
+  row,
+  collapsed,
+  onToggle,
+}: {
+  row: Row;
+  collapsed?: ReadonlySet<string>;
+  onToggle?: (key: string) => void;
+}) {
+  const key = rowKey(row);
+  if (row['__kids'] !== true)
+    return <span style={{ display: 'inline-block', width: CARET_W, height: CARET_W, verticalAlign: 'middle' }} />;
+  const open = !collapsed?.has(key);
+  return (
+    <Btn
+      variant="icon"
+      icon={open ? 'chevDown' : 'chevRight'}
+      aria-expanded={open}
+      aria-label={open ? '收起' : '展开'}
+      style={{ width: CARET_W, verticalAlign: 'middle' }}
+      onClick={() => onToggle?.(key)}
+    />
   );
 }
 
@@ -58,6 +98,8 @@ export function DataTable<T extends Record<string, unknown>>({
   onPage,
   showPager = true,
   emptyDesc,
+  collapsed,
+  onToggleCollapse,
 }: TableProps<T>) {
   const t = useTr();
   if (loading) return <SkeletonRows rows={4} />;
@@ -119,6 +161,10 @@ export function DataTable<T extends Record<string, unknown>>({
                       paddingLeft: c.indent && row['__depth'] ? 12 + Number(row['__depth']) * 16 : undefined,
                     }}
                   >
+                    {/* 折叠箭头只画在分层列上（indent + __depth 判据与缩进一致） */}
+                    {c.indent && row['__depth'] !== undefined && (
+                      <TreeCaret row={row} collapsed={collapsed} onToggle={onToggleCollapse} />
+                    )}
                     {c.render ? c.render(row) : String(take(row, c.key) ?? '-')}
                   </td>
                 ))}

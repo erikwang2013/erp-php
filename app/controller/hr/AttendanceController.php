@@ -59,7 +59,15 @@ class AttendanceController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request);
+        // 筛选值同源下发（考勤页员工下拉取 /admin/v1/hr/employee 行，值为 hashid）：
+        // 不解码会被 truthyFilters 的 (int) 静默成 0 → 筛选恒空列表
         $employeeId = $request->input('employee_id');
+        if ($employeeId !== null && $employeeId !== '') {
+            $employeeId = $this->decodeFlexibleId($employeeId);
+            if ($employeeId === null) {
+                return $this->fail('员工ID' . $this->trans('Invalid'), 422);
+            }
+        }
         $workDate = $request->input('work_date');
         $status = $request->input('status');
 
@@ -189,7 +197,14 @@ class AttendanceController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request);
+        // 同上：请假列表按员工筛选
         $employeeId = $request->input('employee_id');
+        if ($employeeId !== null && $employeeId !== '') {
+            $employeeId = $this->decodeFlexibleId($employeeId);
+            if ($employeeId === null) {
+                return $this->fail('员工ID' . $this->trans('Invalid'), 422);
+            }
+        }
         $type = $request->input('type');
         $status = $request->input('status');
 
@@ -232,7 +247,7 @@ class AttendanceController extends BaseController
     public function leaveStore(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'employee_id' => 'required|integer',
+            'employee_id' => 'required|string',
             'type' => 'required|integer',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
@@ -242,7 +257,13 @@ class AttendanceController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->hr()->create(HrLeave::class, $request->all(), ['status' => 0]);
+        try {
+            $data = $this->decodeForeignKeys($request, ['employee_id' => '员工ID']);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $item = $this->hr()->create(HrLeave::class, $data, ['status' => 0]);
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Leave request submitted'));
     }
@@ -312,7 +333,13 @@ class AttendanceController extends BaseController
             return $this->fail($this->trans('Only leave requests pending approval can be modified'), 422);
         }
 
-        $item = $this->hr()->update(HrLeave::class, $id, $request->all(), ['status']);
+        try {
+            $data = $this->decodeForeignKeys($request, ['employee_id' => '员工ID']);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $item = $this->hr()->update(HrLeave::class, $id, $data, ['status']);
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
@@ -374,7 +401,8 @@ class AttendanceController extends BaseController
     {
         $validator = validator($request->all(), [
             'id' => 'string',
-            'action' => 'string',
+            // 白名单：原实现「非 reject 即 approve」，拼错/恶意 action 会静默批准
+            'action' => 'string|in:approve,reject',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -392,6 +420,33 @@ class AttendanceController extends BaseController
         }
 
         return $this->success($this->encodeIds($item->toArray()), $item->status === 1 ? $this->trans('Approved') : $this->trans('Rejected'));
+    }
+
+    /**
+     * 可选外键双模解码（与 EmployeeController 同口径）：
+     * 未传 / null / '' / '0' → 视为不改动，从写入数据中剔除；
+     * 非空但解不出（含 (int) 会静默变 0 的垃圾串）→ 422，防孤儿行/1366 落库报 500。
+     *
+     * @param array<string, string> $map 字段 => 提示名
+     */
+    private function decodeForeignKeys(Request $request, array $map): array
+    {
+        $data = $request->all();
+        foreach ($map as $field => $label) {
+            $raw = $request->input($field);
+            $rawStr = $raw === null ? '' : (string) $raw;
+            if ($rawStr === '' || $rawStr === '0') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($rawStr);
+            if ($decoded === null || $decoded < 1) {
+                throw new InvalidArgumentException($label . $this->trans('Invalid'));
+            }
+            $data[$field] = $decoded;
+        }
+
+        return $data;
     }
 
     /**

@@ -41,7 +41,10 @@ class FormDialog extends StatefulWidget {
   final List<FormFieldConfig> fields;
   final Widget? child;
   final Future<bool> Function(Map<String, String> values)? onSubmit;
-  final String submitText;
+
+  /// 文案缺省为 null：渲染时取当前语言词典（commonSubmit）。原先写死中文
+  /// 缺省值，186 个调用点里 180 个未传 submitText，英文界面全是中文。
+  final String? submitText;
 
   const FormDialog({
     super.key,
@@ -49,7 +52,7 @@ class FormDialog extends StatefulWidget {
     required this.fields,
     this.child,
     this.onSubmit,
-    this.submitText = '提交',
+    this.submitText,
   });
 
   /// Shows the dialog. Resolves to `true` when the form was submitted
@@ -63,7 +66,7 @@ class FormDialog extends StatefulWidget {
     Map<String, dynamic>? initialData,
     Widget? child,
     Future<bool> Function(Map<String, String> values)? onSubmit,
-    String submitText = '提交',
+    String? submitText,
   }) {
     final effective = initialData == null
         ? fields
@@ -212,7 +215,7 @@ class _FormDialogState extends State<FormDialog> {
                   child: CircularProgressIndicator(
                       strokeWidth: 2, color: Colors.white),
                 )
-              : Text(widget.submitText),
+              : Text(widget.submitText ?? AppL10n.of(context).commonSubmit),
         ),
       ],
     );

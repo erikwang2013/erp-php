@@ -10,6 +10,7 @@ namespace tests;
 
 use app\common\HashidsService;
 use app\common\SnowflakeService;
+use app\controller\manufacturing\BomController;
 use app\controller\oms\FulfillmentController as OmsFulfillmentController;
 use app\controller\oms\OrderController as OmsOrderController;
 use app\controller\oms\RmaController;
@@ -22,6 +23,7 @@ use app\model\ApprovalRecord;
 use app\model\ApprovalWorkflow;
 use app\model\Customer;
 use app\model\Inventory;
+use app\model\MfgBom;
 use app\model\OmsFulfillment;
 use app\model\OmsFulfillmentItem;
 use app\model\OmsOrder;
@@ -837,6 +839,101 @@ class DetailContractRegressionTest extends TestCase
             }
             SalesOrder::where('id', $orderId)->forceDelete();
             Customer::where('id', $customerId)->forceDelete();
+        }
+    }
+
+    /**
+     * 回归：PUT /oms/order/{id} 的 order_id 是下拉下发的 hashid 串。Eloquent 的 integer cast 只在
+     * 读取时生效，写库走原值 → MySQL 严格模式报 1366（Incorrect integer value）→ 未捕获
+     * QueryException → 真 HTTP 500（无 body.code，走全局异常处理器）。
+     */
+    public function testOmsOrderUpdateDecodesOrderIdForeignKey(): void
+    {
+        $suffix = $this->randSuffix();
+        $ids = [];
+        $otherOrderId = SnowflakeService::generate();
+        try {
+            $ids = $this->seedOmsOrderWithSalesCode($suffix);
+
+            $other = new SalesOrder();
+            $other->id = $otherOrderId;
+            $other->code = 'B7SO2-' . $suffix;
+            $other->customer_id = $ids['customer_id'];
+            $other->save();
+
+            // 合法 hashid：修复前 1366 → 500；修复后边界解码，裸 BIGINT 落库
+            $resp = (new OmsOrderController())->update(
+                new FakeRequest(['order_id' => $this->encodeId($otherOrderId)]),
+                $this->encodeId($ids['oms_id'])
+            );
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $this->assertSame(
+                $otherOrderId,
+                (int) OmsOrder::where('id', $ids['oms_id'])->value('order_id'),
+                'order_id 必须以裸 BIGINT 落库，不得把 hashid 串写进列'
+            );
+
+            // 垃圾串：边界 422，不得落到 MySQL 1366
+            $bad = (new OmsOrderController())->update(
+                new FakeRequest(['order_id' => 'not-a-hashid']),
+                $this->encodeId($ids['oms_id'])
+            );
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 order_id 应 422');
+        } finally {
+            SalesOrder::where('id', $otherOrderId)->forceDelete();
+            $this->cleanupOmsOrderSeed($ids);
+        }
+    }
+
+    /* ======================== mfg bom ======================== */
+
+    /**
+     * BOM 列表带出产品名：index 需 with product（前端按关系对象列出名称，而非裸 product_id hashid），
+     * 且 encodeIds 递归，嵌套 product.id 也必须是 hashid。
+     */
+    public function testBomIndexCarriesProductNameAndEncodesNestedId(): void
+    {
+        $suffix = $this->randSuffix();
+        $bomId = SnowflakeService::generate();
+        $productId = SnowflakeService::generate();
+        try {
+            $product = new Product();
+            $product->id = $productId;
+            $product->code = 'B3PD-' . $suffix;
+            $product->name = '批3BOM产品' . $suffix;
+            $product->save();
+
+            $bom = new MfgBom();
+            $bom->id = $bomId;
+            $bom->product_id = $productId;
+            $bom->code = 'B3BOM-' . $suffix;
+            $bom->name = '批3BOM' . $suffix;
+            $bom->version = '1.0';
+            $bom->status = 0;
+            $bom->save();
+
+            $resp = (new BomController())->index(new FakeRequest([
+                'page' => 1,
+                'limit' => 50,
+                'keyword' => 'B3BOM-' . $suffix,
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = null;
+            foreach ((array) ($body['data']['list'] ?? []) as $item) {
+                if (($item['id'] ?? null) === $this->encodeId($bomId)) {
+                    $row = $item;
+                    break;
+                }
+            }
+            $this->assertNotNull($row, '新插入的 BOM 应出现在列表');
+            $this->assertSame($this->encodeId($productId), $row['product_id'] ?? null);
+            $this->assertSame('批3BOM产品' . $suffix, $row['product']['name'] ?? null, 'index 需 with product 带出产品名');
+            $this->assertSame($this->encodeId($productId), $row['product']['id'] ?? null, '嵌套 product.id 也要编码');
+        } finally {
+            MfgBom::where('id', $bomId)->forceDelete();
+            Product::where('id', $productId)->forceDelete();
         }
     }
 }

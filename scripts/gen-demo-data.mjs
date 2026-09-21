@@ -69,10 +69,10 @@ if (!DB) {
 const args = mysqlArgs(DB);
 const q = (sql) => execFileSync('mysql', [...args, '-e', sql], { encoding: 'utf8' }).trim();
 
-// 列：名 / 类型 / 是否可空 / 有无默认 / 是否自增
+// 列：名 / 类型 / 是否可空 / 有无默认 / 是否自增 / 注释（注释点名外键目标表，见 fkIds）
 const colRows = q(
   `SELECT table_name, column_name, data_type, is_nullable, column_default IS NOT NULL, extra,
-          COALESCE(character_maximum_length, 0)
+          COALESCE(character_maximum_length, 0), COALESCE(column_comment, '')
      FROM information_schema.columns WHERE table_schema='${DB}' ORDER BY table_name, ordinal_position`
 ).split('\n').filter(Boolean).map((l) => l.split('\t'));
 // 唯一索引（含主键）：非唯一索引不算
@@ -82,9 +82,9 @@ const uniqRows = q(
 ).split('\n').filter(Boolean).map((l) => l.split('\t'));
 
 const schema = new Map();
-for (const [t, c, type, nullable, hasDef, extra, len] of colRows) {
+for (const [t, c, type, nullable, hasDef, extra, len, cm] of colRows) {
   if (!schema.has(t)) schema.set(t, { cols: [], uniq: new Set(), pk: 'id' });
-  schema.get(t).cols.push({ name: c, type: (type || '').toUpperCase(), notNull: nullable === 'NO', hasDefault: hasDef === '1', auto: /auto_increment/i.test(extra || ''), max: Number(len) || 0 });
+  schema.get(t).cols.push({ name: c, type: (type || '').toUpperCase(), notNull: nullable === 'NO', hasDefault: hasDef === '1', auto: /auto_increment/i.test(extra || ''), max: Number(len) || 0, comment: cm });
 }
 for (const [t, idx, c] of uniqRows) {
   const s = schema.get(t);
@@ -95,17 +95,42 @@ for (const [t, idx, c] of uniqRows) {
 
 const short = (t) => (t.startsWith('erp_') ? t.slice(4) : t);
 const INT = new Set(['BIGINT', 'INT', 'SMALLINT', 'TINYINT', 'MEDIUMINT', 'INTEGER']);
+// 外键列名：`*_id` 一律算；`*_by` 只在整数列时才算 —— erp_dms_document_version.changed_by /
+// erp_quality_nonconformity.reported_by 是 varchar，存的是人名，当外键填 0 是错的。
+const fkName = (col) => col.name.endsWith('_id') || (col.name.endsWith('_by') && INT.has(col.type));
 
-function fkIds(colName, ids) {
-  if (!colName.endsWith('_id')) return null;
+/**
+ * 列注释里点名的目标表。只认两种写法：
+ *   `关联 erp_sales_order.id` / `模板ID（erp_hr_kpi_template.id）`  → 取 `.id` 前的表名
+ *   `生产工单ID(erp_mfg_production_order)` / `社保规则ID(erp_hr_social_rule)` → 括号里就是一整张表名
+ * 故意不收「源 erp_product_sku.product_id」这类**出处**说明 —— 它指的是「那张表的某个列」，
+ * 不是「外键指向那张表」；收进来会把 product_id 指到 SKU 上（install.sql 里真有这条注释）。
+ */
+function commentTable(col) {
+  const cm = col.comment || '';
+  const byDot = cm.match(/erp_[a-z0-9_]+\.id(?![a-z0-9_])/);
+  if (byDot) return byDot[0].slice(0, -3);
+  const byParen = cm.match(/[（(]\s*(erp_[a-z0-9_]+)\s*[）)]/);
+  return byParen ? byParen[1] : null;
+}
+
+function fkIds(col, table, ids) {
+  const colName = col.name;
+  if (!fkName(col)) return null;
+  // 规则 A：列注释点名了目标表就用它。名字猜测在真实库里错得离谱 —— order_id 会收敛到
+  // 字母序最前的 erp_eam_repair_order（见下方后缀匹配），rule_id 撞上 erp_crm_customer_pool_rule。
+  const named = commentTable(col);
+  if (named && ids.has(named) && ids.get(named).length) return ids.get(named);
   const base = colName.slice(0, -3);
   const exact = [`erp_${base}`, `erp_${base}s`, `erp_product_${base}`];
   for (const t of exact) if (ids.has(t) && ids.get(t).length) return ids.get(t);
-  // 后缀匹配：level_id → erp_customer_level / erp_supplier_level 之类
-  for (const t of ids.keys()) {
-    if (t.endsWith(`_${base}`) && ids.get(t).length) return ids.get(t);
-  }
-  return null;
+  // 规则 A2：注释没点名时的兜底 —— 候选按「同模块 → 表名含引用方短名 → 名字更短」排序后取第一个。
+  // 单纯取后缀命中里的第一个（= 字母序最前）就是跨模块乱指的根源。
+  const mine = short(table);
+  const cands = [...ids.keys()].filter((t) => t.endsWith(`_${base}`) && ids.get(t).length);
+  const score = (t) => (short(t).split('_')[0] === mine.split('_')[0] ? 0 : 2) + (t.includes(mine) ? 0 : 1);
+  cands.sort((a, b) => score(a) - score(b) || a.length - b.length || (a < b ? -1 : 1));
+  return cands.length ? ids.get(cands[0]) : null;
 }
 
 /** 字符串字面量：按列上限截断（短列否则会 Data too long），并转义单引号 */
@@ -117,10 +142,13 @@ function qs(v, col) {
 
 function lit(col, n, table, ids, isUniq) {
   const name = col.name;
-  const fk = fkIds(name, ids);
+  const fk = fkIds(col, table, ids);
   if (fk) return fk[(n - 1) % fk.length];
+  // 规则 B：必填外键（NOT NULL 且无默认值）解析不到目标表时，不能装作没事 —— 记下来，
+  // 收尾时打到 stderr 并写进生成段注释。静默填 0 的数据看起来正常，是这轮修了 23 列的那种坑。
+  if (fkName(col) && col.notNull && !col.hasDefault) unresolved.add(`${table}.${name}`);
   // 唯一键列绝不允许常量（否则三行同值必撞 uk_*）；无对应表时退化为行号
-  if (name.endsWith('_id')) return isUniq ? String(n) : '0';
+  if (fkName(col)) return isUniq ? String(n) : '0';
   // **类型优先于列名**：真实库里存在「列名叫 email 但类型是 INT」这类情形，
   // 若先按列名给字符串就会 Incorrect integer value。数值列一律给数字。
   if (INT.has(col.type)) return isUniq ? String(n) : '0';
@@ -131,7 +159,9 @@ function lit(col, n, table, ids, isUniq) {
   if (/^(name|title|label)$/.test(name)) return qs(`演示${short(table)}${isUniq ? n : ''}`, col);
   if (/^(code|no|number|sku_code|barcode|username|slug|key)$/.test(name)) return qs(`DEMO-${short(table).toUpperCase()}-${n}`, col);
   if (name === 'group' || name === 'group_name') return qs(`g${n}`, col);
-  if (name.endsWith('_at')) return 'NOW()';
+  // `*_at` 是 DATE 列时只能给 CURDATE()：NOW() 会被 MySQL 截断成日期并留下 Note 1292
+  // （erp_tenant.expire_at 就是这种，装库时那 3 条告警就出自这里）
+  if (name.endsWith('_at')) return col.type === 'DATE' ? 'CURDATE()' : 'NOW()';
   if (name === 'phone' || name === 'mobile') return qs(`1380000000${n}`, col);
   if (name === 'email') return qs(`demo${n}@example.com`, col);
   if (name === 'password') return qs('$2y$10$demodemodemodemodemodemodemodemodemodemodemodemodemo', col);
@@ -149,22 +179,34 @@ function lit(col, n, table, ids, isUniq) {
 
 const ids = new Map(Object.entries(HAND_IDS));
 let seq = 1n;
+// 两趟：先把所有表的 ID 分配完，再生成字面量 —— 注释点名的目标表可能按字母序排在引用方之后
+// （erp_hr_attendance.rule_id → erp_hr_attendance_rule），一趟里取不到就白白退化成 0。
+const tables = [...schema].filter(([t]) => !HAND_WRITTEN.has(t) && !SEEDED.has(t) && !SKIP.has(t));
+for (const [table] of tables) {
+  ids.set(table, Array.from({ length: ROWS }, () => (ID_BASE + seq++ * 1000n + BigInt(1)).toString()));
+}
+const unresolved = new Set();
 const blocks = [];
-for (const [table, s] of schema) {
-  if (HAND_WRITTEN.has(table) || SEEDED.has(table) || SKIP.has(table)) continue;
-  const rowIds = Array.from({ length: ROWS }, () => (ID_BASE + seq++ * 1000n + BigInt(1)).toString());
+for (const [table, s] of tables) {
+  const rowIds = ids.get(table);
   // 需显式给值的列：NOT NULL（无默认或非自增）或 参与唯一键
   const need = s.cols.filter((c) => c.name !== s.pk && !c.auto && (c.notNull || s.uniq.has(c.name)));
   const rows = rowIds.map((id, i) => {
     const n = i + 1;
     return `(${[id, ...need.map((c) => lit(c, n, table, ids, s.uniq.has(c.name)))].join(', ')})`;
   });
-  ids.set(table, rowIds);
   const collist = ['`' + s.pk + '`', ...need.map((c) => '`' + c.name + '`')].join(', ');
   blocks.push(`INSERT INTO \`${table}\` (${collist}) VALUES\n${rows.join(',\n')};`);
 }
 
-const generated = `${SENTINEL}\n-- 共 ${blocks.length} 张表（手工段已覆盖的表、install.sql 已种子的表均不在其中）\n\n${blocks.join('\n\n')}\n`;
+if (unresolved.size) {
+  console.error(`警告：${unresolved.size} 个必填外键（NOT NULL 且无默认值）没有可指向的表，已退化填充为 0/行号：\n  ${[...unresolved].join('\n  ')}`);
+}
+const warn = unresolved.size
+  ? `-- 未解析的必填外键 ${unresolved.size} 个（无目标表，值是 0/行号，不是真实关联）：\n`
+    + [...unresolved].map((c) => `--   ${c}`).join('\n') + '\n'
+  : '';
+const generated = `${SENTINEL}\n-- 共 ${blocks.length} 张表（手工段已覆盖的表、install.sql 已种子的表均不在其中）\n${warn}\n${blocks.join('\n\n')}\n`;
 if (!process.argv.includes('--install')) {
   fs.writeFileSync(STAGE, generated);
   console.log(`已生成 ${blocks.length} 段 → ${STAGE}（未触碰正式文件）`);

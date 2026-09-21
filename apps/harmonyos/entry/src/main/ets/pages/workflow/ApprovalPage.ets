@@ -9,6 +9,7 @@ import { ErrorView, EmptyView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
 import { ListRow, RowAction, RowBadge, ListSectionHeader } from '../../common/ListRow';
 import { FilterBar } from '../../common/FilterBar';
+import { Format } from '../../utils/Format';
 
 /** 单据类型 → l10n 键（registry 注释：sales_order/purchase_apply/purchase_order/expense/leave/other） */
 const TARGET_TYPE_KEYS: Record<string, string> = {
@@ -132,7 +133,7 @@ struct ApprovalPage {
                     ListRow({
                       // ApprovalInstance 实列无 name/code：标题=单据类型，副行=提交时间
                       title: this.typeLabel(item),
-                      subtitle: ((item['submitted_at'] as string) ?? '') as string,
+                      subtitle: Format.dateTime(item['submitted_at']),
                       icon: this.typeLabel(item),
                       badge: this.pendingBadge(),
                       actions: [

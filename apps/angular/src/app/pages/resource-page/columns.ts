@@ -3,7 +3,7 @@
  */
 
 import { COLUMN_TITLES } from '../../config/column-titles';
-import type { ColumnDef, FieldSource, FormField, Row } from '../../config/types';
+import type { ColumnDef, FieldSource, FilterDef, FormField, Row } from '../../config/types';
 import {
   date,
   dateTime,
@@ -66,6 +66,17 @@ const STATUS_DICTS: Record<string, Record<number | string, string>> = {
   crm: { 0: '未开始', 1: '跟进中', 2: '已报价', 3: '赢单', 4: '输单' },
 };
 
+/**
+ * 筛选定义 → 状态字典。`docStatus()` 生成的 filter.options 就是字典本身（首项「全部」无值），
+ * 所以声明了状态筛选的资源无需另写 columns，状态列也能拿到本表真枚举。
+ */
+function dictFromFilter(filter?: FilterDef): Record<number | string, string> | undefined {
+  if (!filter || filter.key !== 'status') return undefined;
+  const dict: Record<number | string, string> = {};
+  for (const o of filter.options) if (typeof o.value === 'number') dict[o.value] = o.label;
+  return Object.keys(dict).length > 0 ? dict : undefined;
+}
+
 /** 键名 → 列标题：字段 label 优先，命中词典用中文，否则驼峰化（与 React keyTitle 同源） */
 export function keyTitle(k: string, label?: string): string {
   const zh = label ?? COLUMN_TITLES[k];
@@ -80,6 +91,8 @@ const NAME_ALIAS: Record<string, string> = {
   partner_id: 'party_name',
   apply_user_id: 'employee_name',
   stage_id: 'stage_name',
+  // 采购订单 → 采购申请单号（OrderController::index leftJoin purchase_apply 带出的 apply_code）
+  apply_id: 'apply_code',
 };
 
 /** 关系对象里取名称：name → title → label → code；空对象/数组取不到（不给 [object Object]） */
@@ -130,11 +143,13 @@ export function relSources(rows: Row[], fields: FormField[] = []): FieldSource[]
  * 2) 行有 `<base>` 关系对象（with 预加载）→ 在该外键的位置渲染对象里的名称；
  * 3) `cfg.fields` 里该键配了 source 且选项已加载（labels）→ 在该外键的位置渲染 id→名称；
  *    加载失败或该行未命中 → 名称取不到，回落 4；
- * 4) 兜底：按原值渲染该外键列，不隐藏（后端补 hashid 编码后这里就是 hashid）。
+ * 4) 兜底：列还在，值落「-」占位 —— 后端补 hashid 编码后原值就是一串雪花编码，
+ *    对用户没有任何可粘贴的去处，贴出来只是噪声。
  * 注意 2)/3) 是「原位改名」而非删列：名称得有地方显示，所以列还在、只是不再显示裸 id。
  *
  * @param fields cfg.fields —— 其中的 label 优先做列标题（契约 A）
  * @param labels OptionSource 加载好的 id→名称映射（rule 3；未加载到就退回原值）
+ * @param filter 本资源的状态筛选，其选项即状态字典（见 dictFromFilter）
  */
 export function inferColumns(
   rows: Row[],
@@ -142,6 +157,7 @@ export function inferColumns(
   fields: FormField[] = [],
   labels: RelLabels = {},
   limit = 8,
+  filter?: FilterDef,
 ): ColumnDef[] {
   const sample = rows.slice(0, 3);
   const labelOf = new Map<string, string>();
@@ -178,8 +194,10 @@ export function inferColumns(
     return rank(a) - rank(b);
   });
 
-  // /admin/v1/{资源} 的第 4 段即资源名，用它挑状态字典
-  const dict = STATUS_DICTS[endpoint.split('/')[3] ?? ''];
+  // 字典优先级：本资源状态筛选带的（就是该表枚举的真身）→ /admin/v1/{资源} 第 4 段前缀档 → 通用档。
+  // 前缀档只收录了 purchase/sales/crm，其余模块猜出来的文案会张冠李戴
+  // （如 erp_hr_leave 的 2=已驳回 被猜成通用档的「处理中」）
+  const dict = dictFromFilter(filter) ?? STATUS_DICTS[endpoint.split('/')[3] ?? ''];
 
   const cols: ColumnDef[] = [];
   for (const k of keys) {
@@ -202,6 +220,10 @@ export function inferColumns(
         cols.push({ key: k, title: titleOf(k), kind: 'rel', rel: map }); // rule 3
         continue;
       }
+      // rule 4：三条解析途径全落空 —— 仍按关联列渲染，cellOf 的 rel 分支落「-」占位。
+      // 裸 hashid 贴出来对用户没有意义（没有哪一页能粘回去）
+      cols.push({ key: k, title: titleOf(k), kind: 'rel' });
+      continue;
     }
     // rule 4 / 普通列：按字段名识别 kind（外键识别不出任何 kind，走 text 原值直出）
     const base: ColumnDef = {
@@ -218,40 +240,92 @@ export function inferColumns(
   return cols;
 }
 
+/** 行的树标识：树接口的行都带 id（hashid 字符串），取不到时按空串（两端同口径） */
+export const rowKey = (row: Row): string => String(row['id'] ?? '');
+
 /**
- * 树形响应 → 平铺行：children 递归展开，节点带 `__depth`（列按深度缩进），
- * 展开后的 children 从行上摘掉，避免再被当成关系字段渲染/推断。
+ * 树形响应 → 平铺行：children 递归展开，节点带 `__depth`（列按深度缩进）、
+ * `__path`（根到父的 key 链，折叠过滤用）、`__kids`（有无子节点，叶子不画箭头），
+ * 展开后的 children 从行上摘掉，避免再被当成关系字段渲染或推断。
  */
-export function flattenTree(rows: Row[], depth = 0): Row[] {
+export function flattenTree(rows: Row[], depth = 0, path: string[] = []): Row[] {
   const out: Row[] = [];
   for (const row of rows) {
     const kids = Array.isArray(row['children']) ? (row['children'] as Row[]) : [];
-    const flat: Row = { ...row, __depth: depth };
+    const flat: Row = { ...row, __depth: depth, __path: path, __kids: kids.length > 0 };
     delete flat['children'];
     out.push(flat);
-    if (kids.length) out.push(...flattenTree(kids, depth + 1));
+    if (kids.length) out.push(...flattenTree(kids, depth + 1, [...path, rowKey(row)]));
   }
   return out;
 }
 
 /**
+ * 折叠集合下的可见行：`__path` 上任一祖先被折叠 → 该行连同整棵子树一起隐藏。
+ * 折叠集为空时零拷贝返回（没折过是常见路径，非树响应也走这条）。
+ * 与 React `lib/tree.ts` 的同名函数逐条一致（scripts/check-fe-tree.mjs 引两端真身跑同一批断言）。
+ */
+export function visibleRows(rows: Row[], collapsed: ReadonlySet<string>): Row[] {
+  if (!collapsed.size) return rows;
+  const path = (r: Row): string[] | undefined => r['__path'] as string[] | undefined;
+  // 非树行没有 __path，任何折叠集都藏不住它
+  return rows.filter((r) => !path(r)?.some((k) => collapsed.has(k)));
+}
+
+/** 切换一行折叠态，返回新集合（模板信号要新引用；React 端同语义） */
+export function toggleCollapsed(cur: ReadonlySet<string>, key: string): Set<string> {
+  const out = new Set(cur);
+  if (!out.delete(key)) out.add(key);
+  return out;
+}
+
+/**
  * 详情弹窗条目（全字段，只跳过 id、内部标记与嵌套关系）。
- * 传 cols 时用列的正式标题（配置里写的 label）覆盖推断标题；列配了 `kind:'tags'` 的字段附带胶囊。
+ *
+ * 值**复用列表那一列的取数**（cellOf）：同一个字段在表格里是「已审核」徽标 + 字典文案、
+ * 详情里却回落到裸数字 `2`，外键在表格里是客户名、详情里却是裸 hashid —— 走同一个 cellOf
+ * 两处天然同源。cols 没覆盖到的键（列数被 limit 截断）按字段名兜底。
+ *
+ * `*_id` 的名称兄弟已成列时，裸外键不再单独出一行（列表里那个外键列就是被兄弟顶掉的）。
  */
 export function inferDetailItems(
   row: Row,
   cols: ColumnDef[] = [],
-): { k: string; v: string; tags?: string[] }[] {
-  return Object.entries(row)
-    .filter(([k, v]) => k !== 'id' && !k.startsWith('__') && !(v !== null && typeof v === 'object'))
-    .map(([k, v]) => {
-      const col = cols.find((c) => c.key === k);
-      return {
-        k: col?.title ?? keyTitle(k),
-        v: isDate(k) ? dateTime(v) : isMoney(k) ? money(v) : text(v),
-        tags: col?.kind === 'tags' ? specTags(v) : undefined,
-      };
-    });
+): { k: string; v: string; tone?: BadgeTone; tags?: string[] }[] {
+  const byKey = new Map(cols.map((c) => [c.key, c]));
+  const items: { k: string; v: string; tone?: BadgeTone; tags?: string[] }[] = [];
+  for (const [k, v] of Object.entries(row)) {
+    if (k === 'id' || k.startsWith('__')) continue;
+    const col = byKey.get(k);
+    if (v !== null && typeof v === 'object') {
+      // 关系对象：rule 2 把列键换成了 `<base>`（外键列原位改名），跟着出对象里的名称。
+      // 没有对应列的嵌套值（数组、无人认领的关系）不出行
+      if (!col) continue;
+      const cell = cellOf(col, row);
+      items.push({ k: col.title, v: cell.text, tone: cell.tone, tags: cell.tags });
+      continue;
+    }
+    // 裸外键：名称兄弟（rule 1）或关系对象列（rule 2）已经在别处承担了名称，这里不再出行
+    if (k.endsWith('_id')) {
+      const stem = k.slice(0, -'_id'.length);
+      if (byKey.has(NAME_ALIAS[k] ?? `${stem}_name`) || byKey.has(stem)) continue;
+    }
+    const cell = col ? cellOf(col, row) : fallbackCell(k, v);
+    items.push({ k: col?.title ?? keyTitle(k), v: cell.text, tone: cell.tone, tags: cell.tags });
+  }
+  return items;
+}
+
+/** cols 未覆盖的键的兜底取数，识别口径与 inferColumns 一致 */
+function fallbackCell(k: string, v: unknown): Cell {
+  // 裸外键：cols 没覆盖到它（资源写了显式 columns，或名称兄弟被截断）时给占位。
+  // 关联名取得到的话，早就以 `*_name` 列或关系对象列的形式进来了；剩下的原值是编码后的
+  // 雪花 ID，贴出来只是噪声——详情页出现裸 ID 正是这一条漏的
+  if (k.endsWith('_id')) return { text: text(undefined) };
+  if (isStatus(k)) return { text: statusText(v), tone: statusTone(v) };
+  if (isDate(k)) return { text: dateTime(v) };
+  if (isMoney(k)) return { text: money(v) };
+  return { text: text(v) };
 }
 
 /* ── 动作结果 / 报表对象 → 渲染分块 ── */
@@ -475,13 +549,14 @@ export function cellOf(c: ColumnDef, row: Row): Cell {
       cell.tone = Number(v) === 0 ? 'd' : 's';
       break;
     case 'rel': {
-      // 关系对象（rule 2）→ 取对象里的名称；id（rule 3）→ 查映射；都没命中 → 原值（rule 4）
+      // 关系对象（rule 2）→ 取对象里的名称；id（rule 3）→ 查映射；
+      // 都没命中（rule 4）→ 占位短横：裸 hashid 在任何页面都没有可粘贴的去处，贴出来只是噪声
       if (v !== null && typeof v === 'object') {
-        cell.text = relName(v);
+        cell.text = text(relName(v));
         break;
       }
       const hit = v === null || v === undefined ? undefined : c.rel?.[String(v)];
-      cell.text = hit !== undefined && hit !== '' ? hit : text(v);
+      cell.text = hit !== undefined && hit !== '' ? hit : '-';
       break;
     }
     case 'map': {

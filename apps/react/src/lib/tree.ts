@@ -5,9 +5,13 @@
 import type { Row } from '@/config/types';
 
 /**
- * 树形数据的纯函数（列表分层缩进 + 表单树字段共用）。
- * 语义与 Angular 端 `pages/resource-page/columns.ts` 的 flattenTree、
- * `resource-form.ts` 的 buildTreeData / onTreeCheck 逐条一致，两端行为必须同步改。
+ * 树形数据的纯函数（列表分层缩进/折叠 + 表单树字段共用）。
+ * 语义与 Angular 端 `pages/resource-page/columns.ts` 的 flattenTree / visibleRows /
+ * toggleCollapsed、`resource-form.ts` 的 buildTreeData / onTreeCheck 逐条一致，
+ * 两端行为必须同步改 —— `scripts/check-fe-tree.mjs` 引两端真身跑同一批断言，不一致即红。
+ *
+ * 列表折叠：flatten 给每行附 `__path`（根到父的 key 链），页面维护 collapsed 集合，
+ * `visibleRows` 滤掉「祖先被折叠」的行（= 隐藏整棵子树）。默认全展开（空集）。
  *
  * 无任何运行时依赖（只 import type），`scripts/check-fe-tree.mjs` 直接跑本文件自检。
  */
@@ -61,18 +65,22 @@ export function toggleSubtree(data: TreeData, cur: string[], key: string): strin
   return [...out];
 }
 
+/** 行的树标识：树接口的行都带 id（hashid 字符串），取不到时按空串（两端同口径） */
+export const rowKey = (row: Row): string => String(row['id'] ?? '');
+
 /**
- * 树形响应 → 平铺行：children 递归展开，节点带 `__depth`（列按 `indent` 缩进），
+ * 树形响应 → 平铺行：children 递归展开，节点带 `__depth`（列按 `indent` 缩进）、
+ * `__path`（根到父的 key 链，折叠过滤用）、`__kids`（有无子节点，叶子不画箭头），
  * 展开后的 children 从行上摘掉，避免再被当成关系字段渲染或推断。
  */
-export function flattenTree(rows: Row[], depth = 0): Row[] {
+export function flattenTree(rows: Row[], depth = 0, path: string[] = []): Row[] {
   const out: Row[] = [];
   for (const row of rows) {
     const kids = Array.isArray(row['children']) ? (row['children'] as Row[]) : [];
-    const flat: Row = { ...row, __depth: depth };
+    const flat: Row = { ...row, __depth: depth, __path: path, __kids: kids.length > 0 };
     delete flat['children'];
     out.push(flat);
-    if (kids.length) out.push(...flattenTree(kids, depth + 1));
+    if (kids.length) out.push(...flattenTree(kids, depth + 1, [...path, rowKey(row)]));
   }
   return out;
 }
@@ -80,3 +88,21 @@ export function flattenTree(rows: Row[], depth = 0): Row[] {
 /** 列表响应：整树下发的接口（权限）拍平打 `__depth`；非树响应原样返回（不白拷一遍行） */
 export const flattenIfTree = (rows: Row[]): Row[] =>
   rows.some((r) => Array.isArray(r['children'])) ? flattenTree(rows) : rows;
+
+/**
+ * 折叠集合下的可见行：`__path` 上任一祖先被折叠 → 该行连同整棵子树一起隐藏。
+ * 折叠集为空时零拷贝返回（没折过是常见路径，非树响应也走这条）。
+ */
+export function visibleRows(rows: Row[], collapsed: ReadonlySet<string>): Row[] {
+  if (!collapsed.size) return rows;
+  const path = (r: Row): string[] | undefined => r['__path'] as string[] | undefined;
+  // 非树行没有 __path，任何折叠集都藏不住它
+  return rows.filter((r) => !path(r)?.some((k) => collapsed.has(k)));
+}
+
+/** 切换一行折叠态，返回新集合（React state 要新引用；Angular 端同语义） */
+export function toggleCollapsed(cur: ReadonlySet<string>, key: string): Set<string> {
+  const out = new Set(cur);
+  if (!out.delete(key)) out.add(key);
+  return out;
+}

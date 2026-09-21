@@ -10,6 +10,7 @@ namespace app\controller\project;
 use app\admin\controller\BaseController;
 use app\model\Project;
 use app\model\ProjectTask;
+use app\model\ProjectTimesheet;
 use support\Request;
 use support\Response;
 
@@ -62,16 +63,28 @@ class TaskController extends BaseController
         $query = ProjectTask::query();
 
         if ($projectId) {
-            $query->where('project_id', $this->decodeId($projectId));
+            $decoded = $this->decodeFlexibleId($projectId);
+            if ($decoded === null) {
+                return $this->fail($this->trans('Invalid project ID'), 422);
+            }
+            $query->where('project_id', $decoded);
         }
         if ($parentId !== null && $parentId !== '') {
-            $query->where('parent_id', (int) $parentId);
+            $decoded = $this->decodeFlexibleId($parentId);
+            if ($decoded === null) {
+                return $this->fail($this->trans('Invalid parent task ID'), 422);
+            }
+            $query->where('parent_id', $decoded);
         }
         if ($status !== null && $status !== '') {
             $query->where('status', (int) $status);
         }
         if ($assigneeId) {
-            $query->where('assignee_user_id', (int) $assigneeId);
+            $decoded = $this->decodeFlexibleId($assigneeId);
+            if ($decoded === null) {
+                return $this->fail($this->trans('Invalid assignee ID'), 422);
+            }
+            $query->where('assignee_user_id', $decoded);
         }
         if ($keyword) {
             $query->where('name', 'like', "%{$keyword}%");
@@ -118,16 +131,19 @@ class TaskController extends BaseController
 
         $item = new ProjectTask();
         $item->id = $this->generateId();
-        // project_id 兼容 hashid/raw 双态：先解码合并回请求，fill 落库即为 int
-        $projectIdHash = $request->input('project_id');
-        $request->setGet('project_id', $this->decodeIdSafe((string) $projectIdHash) ?? (int) $projectIdHash);
+        // project_id 兼容 hashid/数字双态：先解码合并回请求，fill 落库即为 int；解不出 422
+        $projectId = $this->decodeFlexibleId($request->input('project_id'));
+        if ($projectId === null) {
+            return $this->fail($this->trans('Invalid project ID'), 422);
+        }
+        $request->setGet('project_id', $projectId);
 
         $this->fillModelFromRequest($item, $request);
         $item->save();
 
         $this->updateProjectProgress($item->project_id);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id']), $this->trans('Created successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'parent_id', 'assignee_user_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -157,11 +173,14 @@ class TaskController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        $result = $this->encodeIds($item->toArray(), ['id', 'project_id']);
+        // 白名单与 index 对齐：漏 assignee_user_id/parent_id 时这两个外键会以裸雪花返回
+        $fields = ['id', 'project_id', 'parent_id', 'assignee_user_id'];
+        $result = $this->encodeIds($item->toArray(), $fields);
+        $result['project_name'] = (string) (Project::query()->where('id', $item->getAttribute('project_id'))->value('name') ?? '');
 
         $result['children'] = ProjectTask::where('parent_id', $item->id)
             ->orderBy('seq')->orderBy('id')
-            ->get()->map(fn ($child) => $this->encodeIds($child->toArray(), ['id', 'project_id']));
+            ->get()->map(fn ($child) => $this->encodeIds($child->toArray(), $fields));
 
         return $this->success($result);
     }
@@ -193,8 +212,16 @@ class TaskController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        if ($request->input('project_id', '') !== '') {
-            $request->setGet('project_id', $this->decodeIdSafe((string) $request->input('project_id')) ?? (int) $request->input('project_id'));
+        $projectIdRaw = $request->input('project_id', '');
+        if ($projectIdRaw !== '' && $projectIdRaw !== null) {
+            $projectId = $this->decodeFlexibleId($projectIdRaw);
+            if ($projectId === null) {
+                return $this->fail($this->trans('Invalid project ID'), 422);
+            }
+            $request->setGet('project_id', $projectId);
+        } elseif ($projectIdRaw === '') {
+            // 空串=不改动：留着会把 '' 写进 BIGINT 列（MySQL 严格模式 1366 → 500）
+            $request->setGet('project_id', $item->getAttribute('project_id'));
         }
 
         $this->fillModelFromRequest($item, $request);
@@ -202,7 +229,7 @@ class TaskController extends BaseController
 
         $this->updateProjectProgress($item->project_id);
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id']), $this->trans('Updated successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'project_id', 'parent_id', 'assignee_user_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -231,6 +258,12 @@ class TaskController extends BaseController
         $item = ProjectTask::find($id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+
+        // 下游引用守卫（无 FK 约束）：留下 parent_id/task_id 悬空的子任务与工时行
+        if (ProjectTask::query()->where('parent_id', $id)->exists()
+            || ProjectTimesheet::query()->where('task_id', $id)->exists()) {
+            return $this->fail($this->trans('The task has sub-tasks or timesheets; it cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

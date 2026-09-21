@@ -89,9 +89,25 @@ class CashJournalController extends BaseController
         // 表无 name 列（install.sql：erp_finance_cash_journal 只有 bank_account_id/direction/
         // amount/balance/source_type/source_id/summary/journal_date）：原 name 必填属幻列，
         // 已整条删除；无规则后连 validator 调用一起去掉
+        // 银行账户/来源单 FK 收 hashid 串（前端 source 下拉下发）或原生数字。
+        // bank_account_id 是 NOT NULL 业务列：缺省/解不出都 422（原样直灌报 1366/1364 → 500）；
+        // source_id 可缺省，语义＝无来源单，落 0
+        $fkIds = [];
+        foreach (['bank_account_id', 'source_id'] as $field) {
+            $raw = $request->input($field);
+            $required = $field === 'bank_account_id';
+            $fkId = $raw === null || $raw === '' ? ($required ? null : 0) : $this->decodeFlexibleId($raw);
+            if ($fkId === null || ($required ? $fkId < 1 : $fkId < 0)) {
+                return $this->fail($this->trans('Invalid ' . $field), 422);
+            }
+            $fkIds[$field] = $fkId;
+        }
+
         $item = new FinanceCashJournal();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 覆盖回填：fillModelFromRequest 落的是请求原文（hashid 串直灌 BIGINT 报 1366 → 500）
+        $item->fill($fkIds);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -154,7 +170,24 @@ class CashJournalController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        // 同 store 双模解码；未传＝不改动，空串＝不改动
+        $fkIds = [];
+        foreach (['bank_account_id', 'source_id'] as $field) {
+            $raw = $request->input($field);
+            if ($raw === null || $raw === '') {
+                continue;
+            }
+            $fkId = $this->decodeFlexibleId($raw);
+            if ($fkId === null || $fkId < 0) {
+                return $this->fail($this->trans('Invalid ' . $field), 422);
+            }
+            $fkIds[$field] = $fkId;
+        }
+
         $this->fillModelFromRequest($item, $request);
+        if ($fkIds) {
+            $item->fill($fkIds);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

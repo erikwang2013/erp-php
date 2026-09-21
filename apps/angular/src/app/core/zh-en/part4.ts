@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-// 词典切片 4/4，由 ./index 合并导出；查找词条请 grep 整个目录。
+// 词典切片 4/6，由 ./index 合并导出；查找词条请 grep 整个目录。
 
 export const zhEnPart4: Record<string, string> = {
   委外订单: 'Subcontract Order',

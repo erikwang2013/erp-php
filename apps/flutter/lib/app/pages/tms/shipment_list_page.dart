@@ -102,7 +102,7 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
       title: AppL10n.of(context).commonDeleteConfirm,
       content: AppL10n.of(
         context,
-      ).commonDeleteMsg('${row['name'] ?? row['code'] ?? row['id']}'),
+      ).commonDeleteMsg('${row['code'] ?? row['id']}'),
       onConfirm: (password) async {
         await ApiService.instance.delete(
           '/admin/v1/tms/shipment/${row['id']}',
@@ -114,13 +114,16 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
     );
   }
 
+  // erp_tms_shipment 无 name 列（install.sql：code/tracking_no/carrier_service_id/
+  // status/freight_charge…）；store 的 validator 为 'code' => 'required|string|max:50'
+  // —— 原 'name' 是幻字段（填了被 $fillable 吞掉），必填项应是 code。
   List<FormFieldConfig> _formFields() => [
     FormFieldConfig(
-      name: 'name',
-      label: AppL10n.of(context).commonName,
+      name: 'code',
+      label: AppL10n.of(context).commonCode,
       required: true,
     ),
-    FormFieldConfig(name: 'code', label: AppL10n.of(context).commonCode),
+    FormFieldConfig(name: 'tracking_no', label: AppL10n.of(context).fieldTrackingNo),
   ];
 
   @override
@@ -157,16 +160,16 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
   );
 
   List<String> _columns() => [
-    AppL10n.of(context).commonName,
     AppL10n.of(context).commonCode,
+    AppL10n.of(context).fieldTrackingNo,
     AppL10n.of(context).commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
     return {
-      l.commonName: r['name'] ?? '',
       l.commonCode: r['code'] ?? '',
+      l.fieldTrackingNo: r['tracking_no'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

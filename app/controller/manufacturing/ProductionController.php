@@ -8,7 +8,10 @@ declare(strict_types=1);
 namespace app\controller\manufacturing;
 
 use app\admin\controller\BaseController;
+use app\model\MfgCostEntry;
+use app\model\MfgMaterialIssue;
 use app\model\MfgProductionOrder;
+use app\model\MfgWorkReport;
 use app\service\manufacturing\ManufacturingService;
 use app\service\manufacturing\MfgCostService;
 use InvalidArgumentException;
@@ -59,7 +62,14 @@ class ProductionController extends BaseController
         [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
+        // 筛选值来自列表下拉的 hashid：解不出就 422，别让 null 静默变成「不筛选」（返回全量，像是筛中了）
         $bomId = $request->input('bom_id');
+        if ($bomId !== null && $bomId !== '') {
+            $bomId = $this->decodeFlexibleId($bomId);
+            if ($bomId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
 
         $result = $this->mfg()->list(MfgProductionOrder::class, [
             'keyword' => $keyword,
@@ -109,6 +119,11 @@ class ProductionController extends BaseController
             return $this->fail($this->trans('Invalid BOM'), 422);
         }
         $data['bom_id'] = $bomId;
+        // warehouse_id 同为 FK（可空，缺省取工单仓库）；直灌 hashid 串在 MySQL 严格模式报 1366
+        $data = $this->decodeFkIds($data, ['warehouse_id' => false]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
 
         $item = $this->mfg()->create(MfgProductionOrder::class, $data, [
             'status' => 0,
@@ -195,6 +210,11 @@ class ProductionController extends BaseController
             }
             $data['bom_id'] = $bomId;
         }
+        // warehouse_id 同为 FK（缺省/留空=不改动）
+        $data = $this->decodeFkIds($data, ['warehouse_id' => false]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
 
         $item = $this->mfg()->update(MfgProductionOrder::class, $id, $data, ['status', 'completed_quantity']);
 
@@ -230,6 +250,13 @@ class ProductionController extends BaseController
         }
         if (in_array($item->status, [1, 2])) {
             return $this->fail($this->trans('Work orders in production or completed cannot be deleted'), 422);
+        }
+        // 引用守卫：草稿工单也可能已挂领料/成本/报工单（这些单据建单时不校验工单状态），
+        // 删掉后单据变孤儿、成本归集失去口径（无 FK 约束，静默留脏数据）
+        if (MfgMaterialIssue::query()->where('order_id', $id)->exists()
+            || MfgCostEntry::query()->where('order_id', $id)->exists()
+            || MfgWorkReport::query()->where('order_id', $id)->exists()) {
+            return $this->fail($this->trans('Related material issues, cost entries or work reports exist; it cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;
@@ -304,7 +331,12 @@ class ProductionController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $id = $this->decodeId($id);
-        $warehouseId = (int) ($request->input('warehouse_id') ?? 0);
+        // 入库仓库 FK：hashid/原生数字双模解码；(int)(hashid)=0 会被当成"未指定"静默改走工单仓库
+        $data = $this->decodeFkIds($request->all(), ['warehouse_id' => false]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
+        $warehouseId = (int) ($data['warehouse_id'] ?? 0);
 
         try {
             $item = $this->cost()->completeWithCost($id, $request->input('completed_quantity') !== null ? (float) $request->input('completed_quantity') : null, $warehouseId);
@@ -321,6 +353,35 @@ class ProductionController extends BaseController
     private function mfg(): ManufacturingService
     {
         return Container::get(ManufacturingService::class);
+    }
+
+    /**
+     * 外键字段双模解码（hashid 串 / 原生数字，判定见 BaseController::decodeFlexibleId）。
+     * $fields 为 ['字段名' => 是否必填]：必填字段缺失/空/0、或任一非空字段解不出 → 返回 null
+     * （调用方 422）；可选字段缺失/空/0 → 删键，语义为"不改动/取缺省"。
+     *
+     * @param array<string,bool> $fields
+     * @return array<string,mixed>|null
+     */
+    private function decodeFkIds(array $data, array $fields): ?array
+    {
+        foreach ($fields as $field => $required) {
+            $raw = $data[$field] ?? null;
+            if ($raw === null || $raw === '' || $raw === 0 || $raw === '0') {
+                if ($required) {
+                    return null;
+                }
+                unset($data[$field]);
+                continue;
+            }
+            $id = $this->decodeFlexibleId($raw);
+            if ($id === null || $id < 1) {
+                return null;
+            }
+            $data[$field] = $id;
+        }
+
+        return $data;
     }
 
     /** 成本核算服务（完工结算走成本口径） */

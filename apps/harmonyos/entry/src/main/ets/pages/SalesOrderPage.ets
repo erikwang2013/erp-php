@@ -11,6 +11,7 @@ import { TopBar, TopBarAction } from '../common/TopBar';
 import { ConfirmDialog } from '../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../common/ListRow';
 import { SalesFormView } from './SalesFormView';
+import { OrderItemDraft, nonEmptyItems } from '../common/OrderItemsEditor';
 
 /**
  * 销售订单列表项（与后端 /admin/sales/order 返回字段对齐）
@@ -40,6 +41,9 @@ interface SaveBody {
   status: string | number;
   ordered_at: string | number;
   remark: string | number;
+  // 明细（仅新建时下发）：update 是「下发即整表替换」，编辑态表单不回填既有明细，
+  // 故编辑态整个键不送（送空数组会被后端挡回 422）
+  items?: Array<OrderItemDraft>;
 }
 
 @Entry
@@ -72,6 +76,8 @@ struct SalesOrderPage {
   @State formStatus: number = 1;
   @State formOrderedAt: string = '';
   @State formRemark: string = '';
+  // 明细录入（仅新建期下发）：至少一行占位，用户不必先点「添加明细」
+  @State formItems: Array<OrderItemDraft> = [new OrderItemDraft()];
 
   aboutToAppear(): void {
     this.loadData();
@@ -146,6 +152,8 @@ struct SalesOrderPage {
     this.formStatus = 1;
     this.formOrderedAt = '';
     this.formRemark = '';
+    // 明细回到一行空占位：上次填写（或上次创建成功）的值不能漂到下一单
+    this.formItems = [new OrderItemDraft()];
     this.showForm = true;
   }
 
@@ -201,6 +209,18 @@ struct SalesOrderPage {
       ordered_at: this.formOrderedAt,
       remark: this.formRemark
     };
+
+    // 新建必须先有明细：后端 store 带 items 时以明细汇总回写主表金额、并据此做信用控制，
+    // 且发货端按明细行反查商品 ——「有单无明细」的单发货必然 422，故在这里挡回
+    if (this.formMode === 'create') {
+      const lines = nonEmptyItems(this.formItems);
+      if (lines.length === 0) {
+        promptAction.showToast({ message: $r('app.string.order_items_required') });
+        this.isSubmitting = false;
+        return;
+      }
+      body.items = lines;
+    }
 
     try {
       if (this.formMode === 'create') {
@@ -384,6 +404,7 @@ struct SalesOrderPage {
       formStatus: this.formStatus,
       formOrderedAt: this.formOrderedAt,
       formRemark: this.formRemark,
+      formItems: this.formItems,
       onSubmit: () => { this.save(); },
       onCancel: () => { this.showForm = false; }
     })

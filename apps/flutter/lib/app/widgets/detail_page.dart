@@ -182,8 +182,10 @@ Widget detailStatusRow(BuildContext context,
 }
 
 /// 从 data 取值构造字段行（空值显示 -）。
-DetailRow detailRow(Map<String, dynamic> data, String label, String key) =>
-    DetailRow(label: label, value: '${data[key] ?? ''}');
+/// [fmt] 用于展示层格式化（如时间列传 fmtDateTime），缺省原样展示。
+DetailRow detailRow(Map<String, dynamic> data, String label, String key,
+        {String Function(dynamic)? fmt}) =>
+    DetailRow(label: label, value: fmt == null ? '${data[key] ?? ''}' : fmt(data[key]));
 
 /// 关联对象展示：优先取关联关系（order.code / supplier.name 等）名称，否则回退原始 ID。
 String detailRelName(Map<String, dynamic> data, String relKey, String idKey) {

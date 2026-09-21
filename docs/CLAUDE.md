@@ -28,7 +28,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + DMS | ✅ |
 （多租户 B5 已提前于 P2 交付：TenantScope 请求上下文 + erp_tenant，隔离中间件 seam 未注册）
 
-**测试**: 1008<!-- stats:tests=1008 --> tests, 4768<!-- stats:assertions=4768 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: 1025<!-- stats:tests=1025 --> tests, 4827<!-- stats:assertions=4827 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 

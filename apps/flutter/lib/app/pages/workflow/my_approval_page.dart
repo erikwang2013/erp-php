@@ -6,6 +6,7 @@ import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/status_badge.dart';
 import '../../l10n/app_l10n.dart';
+import '../../utils/format.dart';
 
 /// 我的审批页 — 覆盖 GET /admin/v1/approval/my 及动作端点：
 /// POST /admin/v1/approval/{id}/approve
@@ -196,7 +197,7 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
       l10n.fieldDocType: r['target_type'] ?? '',
       l10n.fieldDocId: r['target_id'] ?? '',
       l10n.commonStatus: _chip(r['status']),
-      l10n.fieldSubmitTime: r['submitted_at'] ?? '',
+      l10n.fieldSubmitTime: fmtDateTime(r['submitted_at']),
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.visibility_outlined, size: 18),
           tooltip: l10n.commonDetail, onPressed: () => _detail(r)),

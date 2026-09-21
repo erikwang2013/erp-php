@@ -85,7 +85,14 @@ class ContactController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->crm()->create(CrmContact::class, $request->all());
+        $data = $request->all();
+        // customer_id NOT NULL 无默认：缺省直插报 1364、hashid 直插报 1366（都是 500）→ 统一 422
+        $customerId = $this->decodeFlexibleId($data['customer_id'] ?? '');
+        if ($customerId === null || $customerId < 1) {
+            return $this->fail('客户ID' . $this->trans('Invalid'), 422);
+        }
+        $data['customer_id'] = $customerId;
+        $item = $this->crm()->create(CrmContact::class, $data);
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
@@ -142,7 +149,18 @@ class ContactController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $id = $this->decodeId($id);
-        $item = $this->crm()->update(CrmContact::class, $id, $request->all());
+        $data = $request->all();
+        // customer_id 显式传值则双模解码（hashid 直插 BIGINT 严格模式 1366 → 500），空串按缺省处理
+        if (isset($data['customer_id']) && $data['customer_id'] !== '') {
+            $customerId = $this->decodeFlexibleId($data['customer_id']);
+            if ($customerId === null || $customerId < 1) {
+                return $this->fail('客户ID' . $this->trans('Invalid'), 422);
+            }
+            $data['customer_id'] = $customerId;
+        } else {
+            unset($data['customer_id']);
+        }
+        $item = $this->crm()->update(CrmContact::class, $id, $data);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }

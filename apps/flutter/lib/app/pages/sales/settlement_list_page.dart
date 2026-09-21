@@ -48,10 +48,48 @@ class _SalesSettlementListPageState extends State<SalesSettlementListPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
-  /// 结算表单: 新增=核销登记（发货单+收款单+金额），编辑=仅调应收金额
+  /// 外键下拉数据源。FormFieldConfig 没有 remote source（FormFieldType 只有
+  /// text/number/dropdown/password/multiline），故弹窗前自己预取喂静态
+  /// options/optionLabels —— 本工程既有惯用法，模板见 wms/pack_page.dart:68-86。
+  /// 两个 status=1 都不是装饰：发货单 status=1 即「已发货」，而 AR 记录正是在发货动作里
+  /// 建的（DeliveryController 置 status=1 后 createAr），故它恰好等于「有应收记录的发货单」；
+  /// 收款单 status=1 即「已审核」，否则 FinanceService::assertReceiptPaymentUsable 必抛。
+  /// ponytail: 收款单未再按「与发货单同客户」过滤 —— 弹窗打开时 options 就固定，无法随
+  /// 已选发货单联动；归属不一致由服务端兜底报错（文案自解释）。
+  Map<String, String> _deliveries = {}, _receipts = {};
+
+  Future<bool> _ensureRefs() async {
+    try {
+      final d = await ApiService.instance.get('/admin/v1/sales/delivery', params: {'limit': '500', 'status': '1'});
+      _deliveries = {
+        for (final r in List<Map<String, dynamic>>.from(d['data']?['list'] ?? []))
+          '${r['id']}': '${r['code'] ?? r['id']}',
+      };
+      final p = await ApiService.instance.get('/admin/v1/finance/receipt', params: {'limit': '500', 'status': '1'});
+      _receipts = {
+        for (final r in List<Map<String, dynamic>>.from(p['data']?['list'] ?? []))
+          '${r['id']}': '${r['code'] ?? r['id']}',
+      };
+      return true;
+    } catch (e) {
+      // 必填下拉取不到选项就不弹窗，避免用户面对空下拉无路可走
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      return false;
+    }
+  }
+
+  /// 结算表单: 新增=核销登记（发货单+收款单+金额），编辑=仅调应收金额。
+  /// 新增态的 required 外键：**有可选项才转下拉**（值=hashid，标签=单号），列表为空则退回
+  /// 文本框 —— 退化成改动前的手输，绝不会出现「必填空下拉、用户既选不了也提交不了」。
+  /// 编辑态一律文本框：回填的原值可能不在预取列表内（该收款单已核销完），下拉找不到项会直接断言崩溃。
+  /// 下拉分支不渲染 hint（form_dialog.dart 该分支只读 labelText），故 hint 在文本框回退态才可见。
   List<FormFieldConfig> _formFields({bool forCreate = true}) => [
-    FormFieldConfig(name: 'delivery_id', label: AppL10n.of(context).salesDeliveryId, required: true),
+    FormFieldConfig(name: 'delivery_id', label: AppL10n.of(context).salesDeliveryId, required: true,
+      type: forCreate && _deliveries.isNotEmpty ? FormFieldType.dropdown : FormFieldType.text,
+      options: _deliveries.keys.toList(), optionLabels: _deliveries),
     if (forCreate) FormFieldConfig(name: 'receipt_payment_id', label: AppL10n.of(context).salesReceiptPaymentId, required: true,
+      type: _receipts.isNotEmpty ? FormFieldType.dropdown : FormFieldType.text,
+      options: _receipts.keys.toList(), optionLabels: _receipts,
       hint: AppL10n.of(context).salesReceiptPaymentHint),
     FormFieldConfig(name: 'amount', label: forCreate ? AppL10n.of(context).salesWriteoffAmount : AppL10n.of(context).salesReceivableAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonExampleAmount('1000.00')),
   ];
@@ -65,6 +103,9 @@ class _SalesSettlementListPageState extends State<SalesSettlementListPage> {
   }
 
   Future<void> _create() async {
+    // 两个必填外键的选项必须先就位再弹窗（失败已弹提示，此处直接返回）
+    if (!await _ensureRefs()) return;
+    if (!mounted) return;
     await FormDialog.show(context, title: AppL10n.of(context).salesSettlementAdd, fields: _formFields(forCreate: true), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/sales/settlement', data: _buildPayload(data));
       _load(); return true;

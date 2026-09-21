@@ -112,7 +112,9 @@ export const fulfillMenus: MenuGroup[] = [
           fields: [
             { key: 'code', label: '编号', help: '留空由后端自动生成' },
             { key: 'customer_id', label: '客户', required: true, source: { endpoint: '/admin/v1/customer' } },
-            { key: 'order_id', label: '关联订单', source: { endpoint: '/admin/v1/sales/order', labelKey: 'code' } },
+            // RmaController::store 对 order_id 也 decodeFlexibleId 失败即 422 "Invalid order"
+            // （表列 NOT NULL 无默认），故与 React 端一致标必填
+            { key: 'order_id', label: '关联订单', required: true, source: { endpoint: '/admin/v1/sales/order', labelKey: 'code' } },
             { key: 'type', label: '退换类型', type: 'select', defaultValue: 1, options: [{ label: '退货', value: 1 }, { label: '换货', value: 2 }, { label: '维修', value: 3 }] },
             { key: 'reason', label: '原因', type: 'textarea', full: true },
             { key: 'refund_amount', label: '退款金额', type: 'number' },

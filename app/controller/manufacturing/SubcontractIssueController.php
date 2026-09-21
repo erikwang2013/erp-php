@@ -63,9 +63,18 @@ class SubcontractIssueController extends BaseController
         }
         [$page, $limit] = $this->pageParams($request);
 
+        // 筛选值来自列表下拉的 hashid：解不出就 422，别让 null 静默变成「不筛选」（返回全量，像是筛中了）
+        $subcontractId = $request->input('subcontract_id');
+        if ($subcontractId !== null && $subcontractId !== '') {
+            $subcontractId = $this->decodeFlexibleId($subcontractId);
+            if ($subcontractId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
+
         $result = $this->service()->list(MfgSubcontractIssue::class, [
             'keyword' => $request->input('keyword'),
-            'subcontract_id' => $request->input('subcontract_id'),
+            'subcontract_id' => $subcontractId,
             'status' => $request->input('status'),
         ], $page, $limit, [
             'searchFields' => ['code'],
@@ -100,23 +109,28 @@ class SubcontractIssueController extends BaseController
     {
         $validator = validator($request->all(), [
             'code' => 'required|string|max:50',
-            'subcontract_id' => 'required|integer',
-            'warehouse_id' => 'required|integer',
+            'subcontract_id' => 'required',
+            'warehouse_id' => 'required',
             'issue_date' => 'nullable|date',
             'remark' => 'nullable|string|max:255',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|integer',
-            'items.*.sku_id' => 'required|integer',
+            'items.*.product_id' => 'required',
+            'items.*.sku_id' => 'required',
             'items.*.quantity' => 'required|numeric',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $subcontractId = (int) $request->input('subcontract_id');
+        $data = $this->decodeFkIds($request->all(), ['subcontract_id' => true, 'warehouse_id' => true]);
+        $items = $this->decodeItemIds((array) $request->input('items', []), ['product_id', 'sku_id']);
+        if ($data === null || $items === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
+        $subcontractId = $data['subcontract_id'];
+        $warehouseId = $data['warehouse_id'];
         if (!MfgSubcontract::query()->where('id', $subcontractId)->exists()) {
             return $this->fail($this->trans('Subcontract order not found'), 422);
         }
-        $items = (array) $request->input('items', []);
         foreach ($items as $i => $row) {
             if (bccomp(bc_norm((string) ($row['quantity'] ?? '0')), '0', 4) <= 0) {
                 return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('Issue quantity per row must be greater than 0'), 422);
@@ -128,12 +142,12 @@ class SubcontractIssueController extends BaseController
 
         $id = $this->generateId();
         try {
-            DB::transaction(function () use ($request, $id, $items, $subcontractId) {
+            DB::transaction(function () use ($request, $id, $items, $subcontractId, $warehouseId) {
                 $doc = new MfgSubcontractIssue();
                 $doc->id = $id;
                 $doc->code = trim((string) $request->input('code'));
                 $doc->subcontract_id = $subcontractId;
-                $doc->warehouse_id = (int) $request->input('warehouse_id');
+                $doc->warehouse_id = $warehouseId;
                 $doc->issue_date = (string) $request->input('issue_date', '');
                 $doc->remark = (string) $request->input('remark', '');
                 $doc->total_cost = '0';
@@ -226,6 +240,17 @@ class SubcontractIssueController extends BaseController
         unset($data['code'], $data['subcontract_id'], $data['status']);
         $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : null;
         unset($data['items']);
+        // FK 双模解码（未传/空串 = 不改动）；直灌 hashid 串在 MySQL 严格模式报 1366
+        $data = $this->decodeFkIds($data, ['warehouse_id' => false]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
+        if ($items !== null) {
+            $items = $this->decodeItemIds($items, ['product_id', 'sku_id']);
+            if ($items === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
 
         // 明细先校验、后落库（同 MaterialIssue::update）：原先先写表头再校验明细，
         // 明细非法时 422 但表头已改。校验通过后表头与明细同包一个事务，任一失败一起回滚。
@@ -339,6 +364,35 @@ class SubcontractIssueController extends BaseController
         }
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Audited successfully; goods issued'));
+    }
+
+    /**
+     * 外键字段双模解码（hashid 串 / 原生数字，判定见 BaseController::decodeFlexibleId）。
+     * $fields 为 ['字段名' => 是否必填]：必填字段缺失/空/0、或任一非空字段解不出 → 返回 null
+     * （调用方 422）；可选字段缺失/空/0 → 删键，语义为"不改动/取缺省"。
+     *
+     * @param array<string,bool> $fields
+     * @return array<string,mixed>|null
+     */
+    private function decodeFkIds(array $data, array $fields): ?array
+    {
+        foreach ($fields as $field => $required) {
+            $raw = $data[$field] ?? null;
+            if ($raw === null || $raw === '' || $raw === 0 || $raw === '0') {
+                if ($required) {
+                    return null;
+                }
+                unset($data[$field]);
+                continue;
+            }
+            $id = $this->decodeFlexibleId($raw);
+            if ($id === null || $id < 1) {
+                return null;
+            }
+            $data[$field] = $id;
+        }
+
+        return $data;
     }
 
     /** 委外服务 */

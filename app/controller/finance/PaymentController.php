@@ -9,6 +9,7 @@ namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
 use app\model\FinancePayment;
+use app\model\FinanceSettlement;
 use app\model\Supplier;
 use support\Request;
 use support\Response;
@@ -109,7 +110,12 @@ class PaymentController extends BaseController
             return $this->fail($this->trans('Invalid supplier ID'), 422);
         }
         $item->supplier_id = $supplierId;
-        $item->bank_account_id = $this->decodeFlexibleId((string) $request->input('bank_account_id', '0')) ?? 0;
+        // 空串/缺省 = 不指定账户（0 哨兵）；非空解不出 → 422，不静默归零
+        $bankAccountId = $this->optionalId($request->input('bank_account_id', ''));
+        if ($bankAccountId === null) {
+            return $this->fail($this->trans('Invalid bank account ID'), 422);
+        }
+        $item->bank_account_id = $bankAccountId;
         $item->amount = (float) $request->input('amount');
         $item->method = $request->input('method', 'bank');
         $item->remark = $request->input('remark', '');
@@ -197,7 +203,11 @@ class PaymentController extends BaseController
             $item->supplier_id = $supplierId;
         }
         if ($request->input('bank_account_id') !== null && $request->input('bank_account_id') !== '') {
-            $item->bank_account_id = $this->decodeFlexibleId((string) $request->input('bank_account_id')) ?? 0;
+            $bankAccountId = $this->optionalId($request->input('bank_account_id'));
+            if ($bankAccountId === null) {
+                return $this->fail($this->trans('Invalid bank account ID'), 422);
+            }
+            $item->bank_account_id = $bankAccountId;
         }
         if ($request->input('amount') !== null) {
             $item->amount = (float) $request->input('amount');
@@ -215,7 +225,9 @@ class PaymentController extends BaseController
             }
             $item->status = 1;
         }
-        if ($request->input('paid_at') !== null) {
+        // 空串视同未填：列 NOT NULL 且非字符串，写入 '' 会走 MySQL 1292 → 500；
+        // 前端「空串一律不送」的约定下 '' 也不该表达"清空时间"（无法清空）
+        if ($request->input('paid_at') !== null && $request->input('paid_at') !== '') {
             $item->paid_at = $request->input('paid_at');
         }
         $item->save();
@@ -250,6 +262,11 @@ class PaymentController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
+        // 引用守卫：已被核销（erp_finance_settlement）的付款单不可删——原实现直接软删，
+        // 留下孤儿核销记录（应付台账的已核销额与凭证断链）
+        if (FinanceSettlement::query()->where('receipt_payment_id', $id)->exists()) {
+            return $this->fail($this->trans('The payment has been written off and cannot be deleted'), 422);
+        }
 
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
@@ -260,5 +277,19 @@ class PaymentController extends BaseController
         $item->delete();
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * 可选银行账户入参：缺省/null/空串 → 0（未指定哨兵）；非空 → decodeFlexibleId，
+     * 解不出（垃圾串/数组）→ null 由调用方 422。
+     * 不用 `decodeFlexibleId($v) ?? 0`：垃圾串会被当成"未指定"，静默清空已设账户。
+     */
+    private function optionalId(mixed $raw): ?int
+    {
+        if ($raw === null || $raw === '') {
+            return 0;
+        }
+
+        return $this->decodeFlexibleId($raw);
     }
 }

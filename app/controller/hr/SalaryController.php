@@ -63,7 +63,14 @@ class SalaryController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request);
+        // 筛选值同源下发（薪资页员工下拉取员工列表行，值为 hashid）：不解码会被真值过滤 (int) 静默成 0
         $employeeId = $request->input('employee_id');
+        if ($employeeId !== null && $employeeId !== '') {
+            $employeeId = $this->decodeFlexibleId($employeeId);
+            if ($employeeId === null) {
+                return $this->fail('员工ID' . $this->trans('Invalid'), 422);
+            }
+        }
         $periodYear = $request->input('period_year');
         $periodMonth = $request->input('period_month');
         $status = $request->input('status');
@@ -199,8 +206,10 @@ class SalaryController extends BaseController
         }
         $id = $this->decodeId($id);
 
+        // employee_id 与 store 同口径：hashid / 原生数字双模，原样落库会撞 1366（或 cast 后静默不改）
         try {
-            $item = $this->hr()->updateSalary($id, $request->all());
+            $data = $this->decodeForeignKeys($request, ['employee_id' => '员工ID']);
+            $item = $this->hr()->updateSalary($id, $data);
         } catch (InvalidArgumentException $e) {
             return $this->fail($e->getMessage(), 422);
         }
@@ -316,7 +325,13 @@ class SalaryController extends BaseController
         }
         $periodYear = (int) $request->input('period_year', (int) date('Y'));
         $periodMonth = (int) $request->input('period_month', (int) date('m'));
-        $departmentId = $request->input('department_id') ? (int) $request->input('department_id') : null;
+        // 原实现 (int) hashid = 0，而 0 是 falsy → 静默把范围放大成全部门
+        try {
+            $data = $this->decodeForeignKeys($request, ['department_id' => '部门ID']);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+        $departmentId = isset($data['department_id']) ? (int) $data['department_id'] : null;
 
         $created = $this->hr()->batchGenerateSalaries($periodYear, $periodMonth, $departmentId);
 
@@ -590,6 +605,33 @@ class SalaryController extends BaseController
         $payload['salary']['employee'] = !empty($payload['salary']['employee']) ? $this->encodeIds($payload['salary']['employee']) : null;
 
         return $this->success($payload);
+    }
+
+    /**
+     * 可选外键双模解码（与 EmployeeController 同口径）：
+     * 未传 / null / '' / '0' → 视为不改动/不限，从写入数据中剔除；
+     * 非空但解不出（含 (int) 会静默变 0 的垃圾串）→ 422，防范围被静默放大成「全部门」。
+     *
+     * @param array<string, string> $map 字段 => 提示名
+     */
+    private function decodeForeignKeys(Request $request, array $map): array
+    {
+        $data = $request->all();
+        foreach ($map as $field => $label) {
+            $raw = $request->input($field);
+            $rawStr = $raw === null ? '' : (string) $raw;
+            if ($rawStr === '' || $rawStr === '0') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($rawStr);
+            if ($decoded === null || $decoded < 1) {
+                throw new InvalidArgumentException($label . $this->trans('Invalid'));
+            }
+            $data[$field] = $decoded;
+        }
+
+        return $data;
     }
 
     /**

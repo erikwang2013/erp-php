@@ -8,8 +8,10 @@ declare(strict_types=1);
 namespace app\controller\hr;
 
 use app\admin\controller\BaseController;
+use app\model\HrDepartment;
 use app\model\HrPosition;
 use app\service\hr\HrService;
+use InvalidArgumentException;
 use support\Container;
 use support\Request;
 use support\Response;
@@ -56,7 +58,14 @@ class PositionController extends BaseController
         [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
+        // 同上：职位列表按部门筛选（下拉值为 hashid）
         $departmentId = $request->input('department_id');
+        if ($departmentId !== null && $departmentId !== '') {
+            $departmentId = $this->decodeFlexibleId($departmentId);
+            if ($departmentId === null) {
+                return $this->fail('部门ID' . $this->trans('Invalid'), 422);
+            }
+        }
 
         $result = $this->hr()->list(HrPosition::class, [
             'keyword' => $keyword,
@@ -67,7 +76,8 @@ class PositionController extends BaseController
             'eqFilters' => ['status'],
             'truthyFilters' => ['department_id'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'department_id']), $result['list']);
+        $list = $this->appendDepartmentName($result['list']);
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'department_id']), $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -99,7 +109,13 @@ class PositionController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $item = $this->hr()->create(HrPosition::class, $request->all());
+        try {
+            $data = $this->decodeForeignKeys($request);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $item = $this->hr()->create(HrPosition::class, $data);
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
     }
@@ -131,7 +147,9 @@ class PositionController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        $rows = $this->appendDepartmentName([$item->toArray()]);
+
+        return $this->success($this->encodeIds($rows[0]));
     }
 
     /**
@@ -156,7 +174,13 @@ class PositionController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $id = $this->decodeId($id);
-        $item = $this->hr()->update(HrPosition::class, $id, $request->all());
+        try {
+            $data = $this->decodeForeignKeys($request);
+        } catch (InvalidArgumentException $e) {
+            return $this->fail($e->getMessage(), 422);
+        }
+
+        $item = $this->hr()->update(HrPosition::class, $id, $data);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
@@ -192,6 +216,10 @@ class PositionController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        if ($this->hr()->hasEmployeesInPosition($id)) {
+            return $this->fail($this->trans('Employees exist under this position, please reassign them first'), 422);
+        }
+
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
         if ($error !== null) {
@@ -201,6 +229,47 @@ class PositionController extends BaseController
         $this->hr()->delete(HrPosition::class, $id);
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * 可选外键双模解码（与 EmployeeController 同口径）：
+     * 未传 / null / '' / '0' → 视为不改动，从写入数据中剔除；
+     * 非空但解不出（含 (int) 会静默变 0 的垃圾串）→ 422，防孤儿行/1366 落库报 500。
+     */
+    private function decodeForeignKeys(Request $request): array
+    {
+        $data = $request->all();
+        foreach (['department_id' => '部门ID'] as $field => $label) {
+            $raw = $request->input($field);
+            $rawStr = $raw === null ? '' : (string) $raw;
+            if ($rawStr === '' || $rawStr === '0') {
+                unset($data[$field]);
+                continue;
+            }
+            $decoded = $this->decodeFlexibleId($rawStr);
+            if ($decoded === null || $decoded < 1) {
+                throw new InvalidArgumentException($label . $this->trans('Invalid'));
+            }
+            $data[$field] = $decoded;
+        }
+
+        return $data;
+    }
+
+    /**
+     * 行级补 department_name（所属部门名，含已软删部门），一次 pluck 成映射、行内查表，无 N+1。
+     * 须在 encodeIds 之前调用（此后外键已变 hashid）。
+     */
+    private function appendDepartmentName(array $rows): array
+    {
+        $ids = array_values(array_unique(array_map(static fn ($r) => (int) ($r['department_id'] ?? 0), $rows)));
+        $names = HrDepartment::withTrashed()->whereIn('id', $ids)->pluck('name', 'id');
+
+        return array_map(static function (array $row) use ($names): array {
+            $row['department_name'] = (string) ($names[(int) ($row['department_id'] ?? 0)] ?? '');
+
+            return $row;
+        }, $rows);
     }
 
     /**

@@ -66,15 +66,47 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
     }
   }
 
+  /// 承运商/运单下拉：各取 limit=500（失败降级空表）。
+  Future<List<String>> _optionList(String endpoint, String Function(Map<String, dynamic>) label) async {
+    try {
+      final res = await ApiService.instance.get(endpoint, params: {'limit': '500'});
+      final rows = List<Map<String, dynamic>>.from(res['data']?['list'] ?? []);
+      return [for (final r in rows) '${r['id']} - ${label(r)}'];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// 弹窗前预取承运商/运单（编辑时补一行原值防回填落空）。
+  Future<List<FormFieldConfig>> _fieldsFor({Map<String, dynamic>? row}) async {
+    var carriers = await _optionList('/admin/v1/tms/carrier', (r) => '${r['name'] ?? r['id']}');
+    var shipments = await _optionList(
+      '/admin/v1/tms/shipment',
+      (r) => '${r['tracking_no'] ?? r['code'] ?? r['id']}',
+    );
+    if (!mounted) return _formFields([], []);
+    final cid = '${row?['carrier_id'] ?? ''}';
+    if (cid.isNotEmpty && !carriers.any((o) => o.startsWith('$cid - '))) {
+      carriers = [cid, ...carriers];
+    }
+    final sid = '${row?['shipment_id'] ?? ''}';
+    if (sid.isNotEmpty && !shipments.any((o) => o.startsWith('$sid - '))) {
+      shipments = [sid, ...shipments];
+    }
+    return _formFields(carriers, shipments);
+  }
+
   Future<void> _create() async {
+    final fields = await _fieldsFor();
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonAdd,
-      fields: _formFields(),
+      fields: fields,
       onSubmit: (data) async {
         await ApiService.instance.post(
           '/admin/v1/tms/freight-invoice',
-          data: data,
+          data: _buildPayload(data),
         );
         _load();
         return true;
@@ -83,15 +115,17 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    final fields = await _fieldsFor(row: row);
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonEdit,
-      fields: _formFields(),
-      initialData: row,
+      fields: fields,
+      initialData: _toEditData(row, fields),
       onSubmit: (data) async {
         await ApiService.instance.put(
           '/admin/v1/tms/freight-invoice/${row['id']}',
-          data: data,
+          data: _buildPayload(data),
         );
         _load();
         return true;
@@ -105,7 +139,7 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
       title: AppL10n.of(context).commonDeleteConfirm,
       content: AppL10n.of(
         context,
-      ).commonDeleteMsg('${row['name'] ?? row['code'] ?? row['id']}'),
+      ).commonDeleteMsg('${row['code'] ?? row['id']}'),
       onConfirm: (password) async {
         await ApiService.instance.delete(
           '/admin/v1/tms/freight-invoice/${row['id']}',
@@ -117,14 +151,56 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
     );
   }
 
-  List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(
-      name: 'name',
-      label: AppL10n.of(context).commonName,
-      required: true,
-    ),
+  // erp_tms_freight_invoice 无 name 列，且 carrier_id/shipment_id 为 NOT NULL 无默认
+  // （install.sql）；store 的 carrier_id/shipment_id decodeFlexibleId 失败即 422
+  // "Invalid carrier/shipment" —— 原 'name' 幻字段无意义，必填的是承运商 + 运单。
+  // 字段对齐 Web 两端（Angular/React fulfill 域：code/carrier_id/shipment_id/amount…）。
+  List<FormFieldConfig> _formFields(List<String> carrierOptions, List<String> shipmentOptions) => [
     FormFieldConfig(name: 'code', label: AppL10n.of(context).commonCode),
+    FormFieldConfig(
+      name: 'carrier_id',
+      label: AppL10n.of(context).tmsCarrierTitle,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: carrierOptions,
+    ),
+    FormFieldConfig(
+      name: 'shipment_id',
+      label: AppL10n.of(context).fieldTrackingNo,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: shipmentOptions,
+    ),
+    FormFieldConfig(name: 'amount', label: AppL10n.of(context).fieldAmount, type: FormFieldType.number),
   ];
+
+  /// 组装后端接收参数：下拉项 'id - 名称' 取回 hashid。
+  Map<String, dynamic> _buildPayload(Map<String, String> data) {
+    String pick(String key) => (data[key] ?? '').split(' - ').first.trim();
+    return {
+      'code': data['code']?.trim() ?? '',
+      'carrier_id': pick('carrier_id'),
+      'shipment_id': pick('shipment_id'),
+      'amount': data['amount']?.trim() ?? '',
+    };
+  }
+
+  /// 编辑回填：下拉值必须与 options 字符串完全一致（FormDialog 匹配不上会置空），
+  /// 而列表接口不带承运商/运单名，故按 id 前缀在选项里找 'id - 名称'、否则退回裸 id。
+  Map<String, dynamic> _toEditData(
+    Map<String, dynamic> row,
+    List<FormFieldConfig> fields,
+  ) {
+    final d = Map<String, dynamic>.from(row);
+    for (final key in ['carrier_id', 'shipment_id']) {
+      final options = fields.firstWhere((f) => f.name == key).options;
+      final id = '${row[key] ?? ''}';
+      d[key] = id.isEmpty
+          ? ''
+          : options.firstWhere((o) => o.startsWith('$id - '), orElse: () => id);
+    }
+    return d;
+  }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
@@ -159,17 +235,20 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
     ],
   );
 
+  // 列表接口不 join 承运商名：承运商列按原值（hashid）展示。
   List<String> _columns() => [
-    AppL10n.of(context).commonName,
     AppL10n.of(context).commonCode,
+    AppL10n.of(context).tmsCarrierTitle,
+    AppL10n.of(context).fieldAmount,
     AppL10n.of(context).commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
     return {
-      l.commonName: r['name'] ?? '',
       l.commonCode: r['code'] ?? '',
+      l.tmsCarrierTitle: r['carrier_id'] ?? '',
+      l.fieldAmount: r['amount'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

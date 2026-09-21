@@ -90,20 +90,20 @@ class _WorkflowListPageState extends State<WorkflowListPage> {
   );
 
   /// 提交审批：POST /admin/workflow/{id}/submit，需单据类型与单据ID。
+  /// target_id 约定为 hashid 字符串（ApprovalController::submit 按 string 校验并解码），
+  /// 不能转 int：hashid 经 int.tryParse 会失败，数字型输入也会把 hashid 变成 NaN。
   Future<void> _submit(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.workflowSubmitTitle(row['name'] ?? ''),
       fields: [
         FormFieldConfig(name: 'target_type', label: l10n.fieldDocType, required: true, hint: l10n.workflowDocTypeHint),
-        FormFieldConfig(name: 'target_id', label: l10n.fieldDocId, required: true, type: FormFieldType.number),
+        FormFieldConfig(name: 'target_id', label: l10n.fieldDocId, required: true),
       ],
       submitText: l10n.workflowSubmit,
       onSubmit: (data) async {
-        final targetId = int.tryParse(data['target_id'] ?? '');
-        if (targetId == null) throw FormatException(l10n.workflowDocIdInteger);
         await ApiService.instance.post('/admin/v1/workflow/${row['id']}/submit', data: {
           'target_type': data['target_type'],
-          'target_id': targetId,
+          'target_id': (data['target_id'] ?? '').trim(),
         });
         _load();
         if (mounted) {

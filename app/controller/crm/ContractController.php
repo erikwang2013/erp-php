@@ -54,7 +54,14 @@ class ContractController extends BaseController
         [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
+        // 筛选值来自前端客户下拉（hashid）：不解码则 eqFilters 里 (int)hashid=0，筛选恒不命中
         $customerId = $request->input('customer_id');
+        if ($customerId !== null && $customerId !== '') {
+            $customerId = $this->decodeFlexibleId($customerId);
+            if ($customerId === null || $customerId < 1) {
+                return $this->fail('客户ID' . $this->trans('Invalid'), 422);
+            }
+        }
 
         $result = $this->crm()->list(CrmContract::class, [
             'keyword' => $keyword,
@@ -65,7 +72,9 @@ class ContractController extends BaseController
             'eqFilters' => ['status', 'customer_id'],
             'with' => ['items'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'owner_user_id', 'quotation_id', 'opportunity_id']), $result['list']);
+        // 白名单须含嵌套明细外键（contract_id/product_id/sku_id）：$fields 非空时不再自动识别 id/*_id，
+        // 漏列即逐字返回裸数字（含 items[].*）
+        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'customer_id', 'owner_user_id', 'quotation_id', 'opportunity_id', 'contract_id', 'product_id', 'sku_id']), $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }
@@ -94,20 +103,28 @@ class ContractController extends BaseController
         }
 
         $data = $this->normalizeFkData($request->all());
+        if ($data === null) {
+            return $this->fail('客户ID/负责人ID' . $this->trans('Invalid'), 422);
+        }
         // erp_crm_contract.owner_user_id NOT NULL 无默认；请求未指定负责人时归属当前操作人
         $data['owner_user_id'] = $data['owner_user_id'] ?? ($request->adminId ?? 0);
         // code uk_code 唯一；留空自动生成，避免空串二次插入 1062
         if (trim((string) ($data['code'] ?? '')) === '') {
             $data['code'] = 'CT' . $this->generateId();
         }
+        // 明细外键在 create 之前校验（非法则 422 且不落主表，避免半写）
+        $items = $request->input('items', []);
+        $items = is_array($items) && $items !== [] ? $this->decodeItemIds($items, ['product_id', 'sku_id']) : [];
+        if ($items === null) {
+            return $this->fail('明细商品ID' . $this->trans('Invalid'), 422);
+        }
         $item = $this->crm()->create(CrmContract::class, $data, ['status' => 0], false);
 
-        $items = $request->input('items', []);
-        if (is_array($items)) {
+        if ($items !== []) {
             $this->crm()->replaceItems(CrmContractItem::class, 'contract_id', $item->id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id']), $this->trans('Created successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id', 'opportunity_id', 'contract_id', 'product_id', 'sku_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -137,7 +154,7 @@ class ContractController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id']));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id', 'opportunity_id', 'contract_id', 'product_id', 'sku_id']));
     }
 
     /**
@@ -173,14 +190,26 @@ class ContractController extends BaseController
             return $this->fail($this->trans('Only draft records can be edited'), 422);
         }
 
-        $item = $this->crm()->update(CrmContract::class, $id, $this->normalizeFkData($request->all()));
-
+        $data = $this->normalizeFkData($request->all());
+        if ($data === null) {
+            return $this->fail('客户ID/负责人ID' . $this->trans('Invalid'), 422);
+        }
+        // 明细外键先校验再落库，避免主表已改、明细未改的半写
         $items = $request->input('items', []);
+        if (!empty($items)) {
+            $items = $this->decodeItemIds((array) $items, ['product_id', 'sku_id']);
+            if ($items === null) {
+                return $this->fail('明细商品ID' . $this->trans('Invalid'), 422);
+            }
+        }
+
+        $item = $this->crm()->update(CrmContract::class, $id, $data);
+
         if (!empty($items)) {
             $this->crm()->replaceItems(CrmContractItem::class, 'contract_id', $id, $items);
         }
 
-        return $this->success($this->encodeIds($item->toArray(), ['id', 'quotation_id']), $this->trans('Updated successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'customer_id', 'owner_user_id', 'quotation_id', 'opportunity_id', 'contract_id', 'product_id', 'sku_id']), $this->trans('Updated successfully'));
     }
 
     /**
@@ -270,17 +299,29 @@ class ContractController extends BaseController
 
     /**
      * FK 兼容解码归一：customer_id/owner_user_id 接受 hashid 或裸 int → int 落库；
+     * 非法值（非空但解不出）返回 null 由调用方 422（原 decodeIdSafe ?? (int) 会把垃圾串静默写成 0）；
+     * 空串/0 按"未指定"移除（'' 直插 BIGINT 严格模式 1366 → 500）。
      * code 留空时移除该键（保留库内原值，避免空串覆写 uk_code）。
      *
      * @param array<string, mixed> $data
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    private function normalizeFkData(array $data): array
+    private function normalizeFkData(array $data): ?array
     {
         foreach (['customer_id', 'owner_user_id'] as $fk) {
-            if (isset($data[$fk]) && $data[$fk] !== '') {
-                $data[$fk] = $this->decodeIdSafe((string) $data[$fk]) ?? (int) $data[$fk];
+            if (!isset($data[$fk]) || $data[$fk] === '') {
+                unset($data[$fk]);
+                continue;
             }
+            $decoded = $this->decodeFlexibleId($data[$fk]);
+            if ($decoded === null) {
+                return null;
+            }
+            if ($decoded < 1) {
+                unset($data[$fk]);
+                continue;
+            }
+            $data[$fk] = $decoded;
         }
         if (isset($data['code']) && trim((string) $data['code']) === '') {
             unset($data['code']);

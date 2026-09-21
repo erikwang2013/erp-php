@@ -264,7 +264,12 @@ class PackController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('创建打包任务', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务拒绝（无待打包单据/门槛校验不通过）用 RuntimeException 表达 → 422；
+            // PDOException 属库故障，仍 500（判据同 Receive/Delivery）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 
@@ -339,7 +344,12 @@ class PackController extends BaseController
         } catch (\Throwable $e) {
             $this->logError('完成打包', $e);
 
-            return $this->fail($e->getMessage(), 500);
+            // 业务拒绝（打包任务不存在/请先开始打包）用 RuntimeException 表达 → 422；
+            // PDOException 属库故障，仍 500（判据同 Receive/Delivery）
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
     }
 }

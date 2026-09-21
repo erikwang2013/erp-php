@@ -149,6 +149,24 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* 树形行的折叠箭头：定宽 28px（与 React DataTable 的 TreeCaret 同宽），叶子用同宽空位占位 */
+.tree-caret,
+.tree-caret-gap {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  vertical-align: middle;
+}
+
+.tree-caret {
+  color: var(--text-3);
+}
+
+.tree-caret:hover {
+  color: var(--primary);
+}
+
 .row-actions {
   display: flex;
   align-items: center;

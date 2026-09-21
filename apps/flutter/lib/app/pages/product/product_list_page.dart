@@ -98,7 +98,9 @@ class _ProductListPageState extends State<ProductListPage> {
       FormFieldConfig(name: 'name', label: l10n.commonName, required: true),
       FormFieldConfig(name: 'code', label: l10n.fieldCode),
       FormFieldConfig(
-        name: 'category',
+        // 后端 ProductController::store 的必填入参是 category_id（hashid），
+        // 早期声明成 'category' 时该值会被 $request->only(fillable) 丢弃 → 分类永远存不上
+        name: 'category_id',
         label: l10n.fieldCategory,
         required: true,
         type: FormFieldType.dropdown,

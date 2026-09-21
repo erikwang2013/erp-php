@@ -109,9 +109,18 @@ class BudgetController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // 成本中心 FK 收 hashid 串（前端 source 下拉下发）；未传/空串＝不指定（列默认 0）
+        $ccRaw = $request->input('cost_center_id');
+        $costCenterId = $ccRaw === null || $ccRaw === '' ? 0 : $this->decodeFlexibleId($ccRaw);
+        if ($costCenterId === null) {
+            return $this->fail($this->trans('Invalid cost_center_id'), 422);
+        }
+
         $item = new FinanceBudget();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 覆盖回填：fillModelFromRequest 落的是请求原文（hashid 串直灌 BIGINT 报 1366 → 500）
+        $item->fill(['cost_center_id' => $costCenterId]);
         // 新建一律草稿，客户端不可直建已审批状态
         $item->status = 0;
         $item->save();
@@ -236,10 +245,17 @@ class BudgetController extends BaseController
             return $this->fail($this->trans('Only draft records can be edited'), 422);
         }
 
+        // 成本中心 FK 同 store：未传＝不改动，空串＝归 0
+        $ccRaw = $request->input('cost_center_id');
         $this->fillModelFromRequest($item, $request);
+        if ($ccRaw !== null) {
+            $costCenterId = $ccRaw === '' ? 0 : $this->decodeFlexibleId($ccRaw);
+            if ($costCenterId === null) {
+                return $this->fail($this->trans('Invalid cost_center_id'), 422);
+            }
+            $item->fill(['cost_center_id' => $costCenterId]);
+        }
         $item->save();
-
-        // 更新明细：先删后建（同一份白名单；校验在删除之前完成，非法明细不会先清空旧数据）
         $items = $request->input('items', []);
         if (!empty($items)) {
             [$rows, $error] = $this->prepareItems($items);

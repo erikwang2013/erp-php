@@ -19,6 +19,7 @@ import { ConfirmDialog, FormDialog, FormField } from '../../common/FormDialog';
 import { DetailCard, DetailRow } from '../../common/DetailCard';
 import { RowBadge, kindTint, kindInk } from '../../common/ListRow';
 import { RefDialog, RefField } from '../../common/RefDialog';
+import { Format } from '../../utils/Format';
 
 /** 单据类型 → 资源前缀（与后端 TARGET_REGISTRY 键集镜像；registry 外无下钻） */
 const TARGET_PREFIX: Record<string, string> = {
@@ -135,7 +136,7 @@ struct ApprovalDetailPage {
   private refFields(): Array<RefField> {
     return [
       new RefField('code', L10n.str(this.getUIContext(), 'ref_code')),
-      new RefField('created_at', L10n.str(this.getUIContext(), 'oms_d_created'))
+      new RefField('created_at', L10n.str(this.getUIContext(), 'oms_d_created'), true)
     ];
   }
 
@@ -235,7 +236,7 @@ struct ApprovalDetailPage {
           .borderRadius(10)
           .padding({ left: 8, right: 8, top: 3, bottom: 3 })
 
-        Text(item.created_at || '-')
+        Text(Format.dateTime(item.created_at) || '-')
           .fontSize(12)
           .fontColor($r('app.color.text_hint'))
           .margin({ left: 8 })
@@ -294,8 +295,8 @@ struct ApprovalDetailPage {
                   DetailRow({ label: L10n.str(this.getUIContext(), 'approval_d_type'), value: this.typeLabel() })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'approval_d_workflow'), value: this.hint(this.row['workflow_name']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'approval_d_node'), value: this.hint(this.row['current_node_name']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'approval_d_submitted'), value: this.hint(this.row['submitted_at']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'approval_d_completed'), value: this.hint(this.row['completed_at']) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'approval_d_submitted'), value: this.hint(Format.dateTime(this.row['submitted_at'])) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'approval_d_completed'), value: this.hint(Format.dateTime(this.row['completed_at'])) })
                 }
                 .width('100%')
               }

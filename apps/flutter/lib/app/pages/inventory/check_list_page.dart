@@ -66,13 +66,40 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
     }
   }
 
+  /// 仓库下拉：/admin/v1/warehouse?limit=500（失败降级空表）。
+  Future<List<String>> _loadWarehouseOptions() async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/warehouse', params: {'limit': '500'});
+      final rows = List<Map<String, dynamic>>.from(res['data']?['list'] ?? []);
+      return [for (final w in rows) '${w['id']} - ${w['name'] ?? w['id']}'];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// 弹窗前预取仓库（编辑时补一行原值防回填落空）。
+  Future<List<FormFieldConfig>> _fieldsFor({Map<String, dynamic>? row}) async {
+    var options = await _loadWarehouseOptions();
+    if (!mounted) return _formFields([]);
+    final wid = '${row?['warehouse_id'] ?? ''}';
+    if (wid.isNotEmpty && !options.any((o) => o.startsWith('$wid - '))) {
+      options = [wid, ...options];
+    }
+    return _formFields(options);
+  }
+
   Future<void> _create() async {
+    final fields = await _fieldsFor();
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonAdd,
-      fields: _formFields(),
+      fields: fields,
       onSubmit: (data) async {
-        await ApiService.instance.post('/admin/v1/inventory/check', data: data);
+        await ApiService.instance.post(
+          '/admin/v1/inventory/check',
+          data: _buildPayload(data),
+        );
         _load();
         return true;
       },
@@ -80,15 +107,17 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    final fields = await _fieldsFor(row: row);
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonEdit,
-      fields: _formFields(),
-      initialData: row,
+      fields: fields,
+      initialData: _toEditData(row, fields),
       onSubmit: (data) async {
         await ApiService.instance.put(
           '/admin/v1/inventory/check/${row['id']}',
-          data: data,
+          data: _buildPayload(data),
         );
         _load();
         return true;
@@ -102,7 +131,7 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
       title: AppL10n.of(context).commonDeleteConfirm,
       content: AppL10n.of(
         context,
-      ).commonDeleteMsg('${row['name'] ?? row['code'] ?? row['id']}'),
+      ).commonDeleteMsg('${row['code'] ?? row['id']}'),
       onConfirm: (password) async {
         await ApiService.instance.delete(
           '/admin/v1/inventory/check/${row['id']}',
@@ -114,14 +143,39 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
     );
   }
 
-  List<FormFieldConfig> _formFields() => [
+  // erp_check_task 无 name 列（install.sql：code/warehouse_id/type/status/
+  // check_user_id/checked_at/remark）；store 的 validator 为 'warehouse_id' => 'required'
+  // 且 decodeFlexibleId 失败即 422 —— 原 'name' 幻字段填了被 $fillable 吞掉、
+  // 真正必填的仓库又缺失，创建必然 422。字段对齐 Web 两端（Angular/React 库存域：
+  // warehouse_id + code）。code 留空由后端 doc_code 生成。
+  List<FormFieldConfig> _formFields(List<String> warehouseOptions) => [
     FormFieldConfig(
-      name: 'name',
-      label: AppL10n.of(context).commonName,
+      name: 'warehouse_id',
+      label: AppL10n.of(context).fieldWarehouse,
       required: true,
+      type: FormFieldType.dropdown,
+      options: warehouseOptions,
     ),
     FormFieldConfig(name: 'code', label: AppL10n.of(context).commonCode),
   ];
+
+  /// 组装后端接收参数：下拉项 'id - 名称' 取回 hashid。
+  Map<String, dynamic> _buildPayload(Map<String, String> data) => {
+    'warehouse_id': (data['warehouse_id'] ?? '').split(' - ').first.trim(),
+    'code': data['code']?.trim() ?? '',
+  };
+
+  /// 编辑回填：下拉值必须与 options 字符串完全一致（FormDialog 匹配不上会置空），
+  /// 而列表接口不带 warehouse_name，故按 id 前缀在选项里找 'id - 名称'、否则退回裸 id。
+  Map<String, dynamic> _toEditData(Map<String, dynamic> row, List<FormFieldConfig> fields) {
+    final d = Map<String, dynamic>.from(row);
+    final options = fields.firstWhere((f) => f.name == 'warehouse_id').options;
+    final wid = '${row['warehouse_id'] ?? ''}';
+    d['warehouse_id'] = wid.isEmpty
+        ? ''
+        : options.firstWhere((o) => o.startsWith('$wid - '), orElse: () => wid);
+    return d;
+  }
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
@@ -156,17 +210,18 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
     ],
   );
 
+  // 列表接口不 join 仓库名：仓库列按原值（hashid）展示，与 eam/mfg 各页对 FK 的处理一致。
   List<String> _columns() => [
-    AppL10n.of(context).commonName,
     AppL10n.of(context).commonCode,
+    AppL10n.of(context).fieldWarehouse,
     AppL10n.of(context).commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
     return {
-      l.commonName: r['name'] ?? '',
       l.commonCode: r['code'] ?? '',
+      l.fieldWarehouse: r['warehouse_id'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

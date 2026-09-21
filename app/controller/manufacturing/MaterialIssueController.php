@@ -59,10 +59,19 @@ class MaterialIssueController extends BaseController
         }
         [$page, $limit] = $this->pageParams($request);
 
+        // 筛选值来自列表下拉的 hashid：解不出就 422，别让 null 静默变成「不筛选」（返回全量，像是筛中了）
+        $orderId = $request->input('order_id');
+        if ($orderId !== null && $orderId !== '') {
+            $orderId = $this->decodeFlexibleId($orderId);
+            if ($orderId === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
+        }
+
         $result = $this->cost()->list(MfgMaterialIssue::class, [
             'keyword' => $request->input('keyword', ''),
             'status' => $request->input('status'),
-            'order_id' => $request->input('order_id'),
+            'order_id' => $orderId,
         ], $page, $limit, [
             'searchFields' => ['code'],
             'eqFilters' => ['status'],
@@ -92,20 +101,26 @@ class MaterialIssueController extends BaseController
     {
         $validator = validator($request->all(), [
             'code' => 'nullable|string|max:50',
-            'order_id' => 'required|integer',
+            'order_id' => 'required',
             'issue_date' => 'nullable|date',
-            'warehouse_id' => 'nullable|integer',
+            'warehouse_id' => 'nullable',
             'remark' => 'nullable|string|max:255',
             'items' => 'required|array|min:1',
-            'items.*.sku_id' => 'required|integer',
+            'items.*.sku_id' => 'required',
             'items.*.quantity' => 'required|numeric',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        // FK 双模解码（hashid 串/原生数字）；仓库可空，缺省取工单仓库
+        $data = $this->decodeFkIds($request->all(), ['order_id' => true, 'warehouse_id' => false]);
+        $rawItems = $this->decodeItemIds((array) $request->input('items', []), ['sku_id']);
+        if ($data === null || $rawItems === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
         // 数量>0 与 SKU 归属前置校验（bcmath，出库前不允许负数/不存在物料）
         $items = [];
-        foreach ((array) $request->input('items', []) as $i => $row) {
+        foreach ($rawItems as $i => $row) {
             $qty = bc_norm((string) ($row['quantity'] ?? '0'));
             if (bccomp($qty, '0', 4) <= 0) {
                 return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('Requisition quantity per row must be greater than 0'), 422);
@@ -116,11 +131,11 @@ class MaterialIssueController extends BaseController
             }
             $items[] = ['sku_id' => (int) $sku->id, 'product_id' => (int) $sku->product_id, 'quantity' => $qty];
         }
-        $order = MfgProductionOrder::query()->where('id', (int) $request->input('order_id'))->first();
+        $order = MfgProductionOrder::query()->where('id', $data['order_id'])->first();
         if (!$order) {
             return $this->fail($this->trans('Production order not found'), 422);
         }
-        $warehouseId = (int) ($request->input('warehouse_id') !== null ? $request->input('warehouse_id') : $order->warehouse_id);
+        $warehouseId = (int) ($data['warehouse_id'] ?? $order->warehouse_id);
 
         $id = $this->generateId();
         try {
@@ -219,12 +234,21 @@ class MaterialIssueController extends BaseController
         }
         $data = $request->all();
         unset($data['code'], $data['order_id'], $data['status']);
+        // FK 双模解码（未传/空串 = 不改动）；直灌 hashid 串在 MySQL 严格模式报 1366
+        $data = $this->decodeFkIds($data, ['warehouse_id' => false]);
+        if ($data === null) {
+            return $this->fail($this->trans('Invalid ID'), 422);
+        }
 
         // 明细先校验、后落库：原先「先写表头 → 再校验明细」，明细非法时返回 422 但表头已改，
         // 用户重试时面对的是改了一半的单子。校验通过后表头与明细同包一个事务，任一失败一起回滚。
         $rawItems = $request->input('items');
         $rows = null;
         if (is_array($rawItems)) {
+            $rawItems = $this->decodeItemIds($rawItems, ['sku_id']);
+            if ($rawItems === null) {
+                return $this->fail($this->trans('Invalid ID'), 422);
+            }
             $rows = [];
             foreach ($rawItems as $i => $row) {
                 $qty = bc_norm((string) ($row['quantity'] ?? '0'));
@@ -335,6 +359,35 @@ class MaterialIssueController extends BaseController
         }
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Audited successfully; goods issued'));
+    }
+
+    /**
+     * 外键字段双模解码（hashid 串 / 原生数字，判定见 BaseController::decodeFlexibleId）。
+     * $fields 为 ['字段名' => 是否必填]：必填字段缺失/空/0、或任一非空字段解不出 → 返回 null
+     * （调用方 422）；可选字段缺失/空/0 → 删键，语义为"不改动/取缺省"。
+     *
+     * @param array<string,bool> $fields
+     * @return array<string,mixed>|null
+     */
+    private function decodeFkIds(array $data, array $fields): ?array
+    {
+        foreach ($fields as $field => $required) {
+            $raw = $data[$field] ?? null;
+            if ($raw === null || $raw === '' || $raw === 0 || $raw === '0') {
+                if ($required) {
+                    return null;
+                }
+                unset($data[$field]);
+                continue;
+            }
+            $id = $this->decodeFlexibleId($raw);
+            if ($id === null || $id < 1) {
+                return null;
+            }
+            $data[$field] = $id;
+        }
+
+        return $data;
     }
 
     /** 成本核算服务 */

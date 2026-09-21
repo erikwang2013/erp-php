@@ -212,7 +212,9 @@ class WorkflowDesignerController extends BaseController
             return null;
         }
 
-        return $this->decodeIdSafe($raw);
+        // decodeFlexibleId（含 encode(decode(x))===x 往返校验）：decodeIdSafe 会把
+        // '410000000000000402' 这类纯数字串解成 PHP_INT_MAX，落到画布 id 上就是垃圾外键
+        return $this->decodeFlexibleId($raw);
     }
 
     /** 递归解码画布载荷中的 hashid（顶层 nodes[]/edges[] 为数组，encodeIds 不递归故此处显式处理） */
@@ -224,7 +226,7 @@ class WorkflowDesignerController extends BaseController
             }
             foreach ($fields as $field) {
                 if (isset($row[$field]) && $row[$field] !== '') {
-                    $decoded = $this->decodeIdSafe((string) $row[$field]);
+                    $decoded = $this->decodeFlexibleId($row[$field]);
                     if ($decoded !== null) {
                         $row[$field] = $decoded;
                     }

@@ -45,7 +45,8 @@ class ConsolidationController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $companyId = $this->decodeIdSafe((string) $request->input('company_id', ''));
+        // 双模：hashid 串或原生数字（数字 ID 也是合法入参，decodeIdSafe 会把后者静默判成 null → 误报「必填」）
+        $companyId = $this->decodeFlexibleId($request->input('company_id', ''));
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
         if ($companyId === null) {
@@ -88,7 +89,7 @@ class ConsolidationController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $companyId = $this->decodeIdSafe((string) $request->input('company_id', ''));
+        $companyId = $this->decodeFlexibleId($request->input('company_id', ''));
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
         if ($companyId === null) {
@@ -125,7 +126,7 @@ class ConsolidationController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $companyId = $this->decodeIdSafe((string) $request->input('company_id', ''));
+        $companyId = $this->decodeFlexibleId($request->input('company_id', ''));
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
         if ($companyId === null) {
@@ -159,7 +160,8 @@ class ConsolidationController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $reportId = $this->decodeIdSafe((string) $request->input('report_id', ''));
+        // 双模（同上）：decodeIdSafe 只认 hashid，数字 report_id 会被误报「必填」
+        $reportId = $this->decodeFlexibleId($request->input('report_id', ''));
         $rows = $request->input('eliminations', []);
         if ($reportId === null || !is_array($rows) || $rows === []) {
             return $this->fail($this->trans('report_id and eliminations are required'), 422);
@@ -192,7 +194,7 @@ class ConsolidationController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $reportId = $this->decodeIdSafe((string) $request->input('report_id', ''));
+        $reportId = $this->decodeFlexibleId($request->input('report_id', ''));
         if ($reportId === null) {
             return $this->fail($this->trans('report_id is required'), 422);
         }

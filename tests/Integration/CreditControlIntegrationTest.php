@@ -62,15 +62,18 @@ class CreditControlIntegrationTest extends IntegrationTestCase
         parent::setUp();
         $this->requireTestDatabase();
 
-        $creditCols = Capsule::select(
-            "SELECT COUNT(*) AS cnt FROM INFORMATION_SCHEMA.COLUMNS
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer'
-               AND COLUMN_NAME IN ('credit_days', 'credit_frozen', 'credit_over_ratio', 'credit_overdue_limit_amount')"
+        // 经 schema builder 判定（自动带 DB_PREFIX）：裸 SQL 查 INFORMATION_SCHEMA 时
+        // TABLE_NAME 必须写字面量 'erp_customer'，写成 'customer' 恒不命中 —— 该谓词曾
+        // 使整类 15 个用例长期静默跳过（列一直在 install.sql 里，不是缺 DDL）。
+        $schema = Capsule::schema();
+        $missing = array_filter(
+            ['credit_days', 'credit_frozen', 'credit_over_ratio', 'credit_overdue_limit_amount'],
+            static fn (string $col): bool => !$schema->hasColumn('customer', $col)
         );
-        if ((int) ($creditCols[0]->cnt ?? 0) < 4) {
+        if ($missing !== []) {
             self::markTestSkipped(
-                'erp_customer 缺信用控制列（credit_days/credit_frozen/credit_over_ratio/credit_overdue_limit_amount），'
-                . '请先对测试库执行 database/f7_credit.sql 后重跑'
+                'erp_customer 缺信用控制列（' . implode('/', $missing) . '），'
+                . '请确认测试库由 database/install.sql 初始化'
             );
         }
     }

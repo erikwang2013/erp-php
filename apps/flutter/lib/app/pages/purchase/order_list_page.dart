@@ -9,6 +9,7 @@ import '../../widgets/filter_chips_bar.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/form_dialog.dart';
 import '../../widgets/confirm_dialog.dart';
+import '../../widgets/line_items_editor.dart';
 
 class PurchaseOrderListPage extends StatefulWidget {
   const PurchaseOrderListPage({super.key});
@@ -46,8 +47,16 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
 
   Future<void> _create() async {
     final l10n = AppL10n.current;
-    await FormDialog.show(context, title: l10n.purchaseOrderAddTitle, fields: _formFields(), onSubmit: (data) async {
+    // 明细经 FormDialog 的 child 插槽接入（表单值 Map<String,String> 装不下数组），
+    // 累积结果由下面的 onSubmit 闭包捕获后塞进 payload。
+    // 明细仅新建期填写：编辑态不回填 items，避免「空编辑器 + 整表替换」误清明细。
+    var items = <Map<String, dynamic>>[];
+    await FormDialog.show(context, title: l10n.purchaseOrderAddTitle, fields: _formFields(),
+      child: LineItemsEditor(onChanged: (rows) => items = rows),
+      onSubmit: (data) async {
+      if (items.isEmpty) throw Exception(l10n.detailAllocateEmpty);
       final payload = _buildPayload(data);
+      payload['items'] = items;
       await ApiService.instance.post('/admin/v1/purchase/order', data: payload);
       _load(); return true;
     });

@@ -18,6 +18,7 @@ import '../../services/api_service.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/detail_page.dart';
 import '../../widgets/form_dialog.dart';
+import '../../utils/format.dart';
 import '../../widgets/status_badge.dart';
 
 class OmsOrderDetailPage extends StatefulWidget {
@@ -356,7 +357,7 @@ class _OmsOrderDetailPageState extends State<OmsOrderDetailPage> {
         detailRow(d, l.omsSellerNote, 'seller_note'),
       if ('${d['hold_until'] ?? ''}'.isNotEmpty && '${d['hold_until']}' != 'null')
         detailRow(d, l.omsHoldUntil, 'hold_until'),
-      detailRow(d, l.detailCreatedAt, 'created_at'),
+      detailRow(d, l.detailCreatedAt, 'created_at', fmt: fmtDateTime),
     ];
   }
 
@@ -405,6 +406,8 @@ class _OmsOrderDetailPageState extends State<OmsOrderDetailPage> {
                     decoration: TextDecoration.underline)),
           );
         }
+        // 履约创建时间：ISO-UTC → 本地时区（DetailItemsTable 默认原样展示）
+        if (key == 'created_at') return Text(fmtDateTime(row['created_at']));
         return null;
       },
     );

@@ -57,7 +57,12 @@ class ReportScheduleController extends BaseController
 
         $query = ReportSchedule::query();
         if ($templateId !== null && $templateId !== '') {
-            $query->where('template_id', $this->decodeIdSafe((string) $templateId) ?? (int) $templateId);
+            // 非法筛选值不许 (int) 成 0（where 0 恒不命中 → 静默空列表）
+            $decoded = $this->decodeFlexibleId($templateId);
+            if ($decoded === null) {
+                return $this->fail($this->trans('Invalid :field', ['field' => 'template_id']), 422);
+            }
+            $query->where('template_id', $decoded);
         }
         if ($enabled !== null && $enabled !== '') {
             $query->where('enabled', (int) $enabled);
@@ -124,7 +129,10 @@ class ReportScheduleController extends BaseController
 
         $item = new ReportSchedule();
         $item->id = $this->generateId();
-        $this->decodeFkIntoRequest($request);
+        $fkError = $this->decodeFkIntoRequest($request);
+        if ($fkError !== null) {
+            return $this->fail($fkError, 422);
+        }
         $this->fillModelFromRequest($item, $request);
 
         $item->next_run_at = $this->calcNextRun((int) $item->frequency);
@@ -197,7 +205,10 @@ class ReportScheduleController extends BaseController
         }
 
         $oldFreq = $item->frequency;
-        $this->decodeFkIntoRequest($request);
+        $fkError = $this->decodeFkIntoRequest($request);
+        if ($fkError !== null) {
+            return $this->fail($fkError, 422);
+        }
         $this->fillModelFromRequest($item, $request);
 
         if ((int) $item->frequency !== (int) $oldFreq) {
@@ -269,21 +280,36 @@ class ReportScheduleController extends BaseController
     /**
      * hashid 兼容解码：template_id/recipients 为表单下发的 hashid（/admin/v1/report、
      * /admin/v1/user 列表行），解码为 int 合并回请求，fill 落库即为 int（recipients 逗号分隔列表）。
+     * 解不出的 token 一律 422 —— 旧写法 (int) 兜底会把垃圾串写成收件人 0 / 模板 0。
      */
-    private function decodeFkIntoRequest(Request $request): void
+    private function decodeFkIntoRequest(Request $request): ?string
     {
         $templateId = $request->input('template_id', '');
         if ($templateId !== null && $templateId !== '') {
-            $request->setGet('template_id', $this->decodeIdSafe((string) $templateId) ?? (int) $templateId);
+            $decoded = $this->decodeFlexibleId($templateId);
+            if ($decoded === null) {
+                return $this->trans('Invalid :field', ['field' => 'template_id']);
+            }
+            $request->setGet('template_id', $decoded);
         }
         $recipients = $request->input('recipients', '');
         if ($recipients !== null && $recipients !== '') {
-            $tokens = array_map(
-                fn ($t) => (string) ($this->decodeIdSafe(trim((string) $t)) ?? (int) trim((string) $t)),
-                explode(',', (string) $recipients)
-            );
+            $tokens = [];
+            foreach (explode(',', (string) $recipients) as $token) {
+                $token = trim($token);
+                if ($token === '') {
+                    continue;
+                }
+                $decoded = $this->decodeFlexibleId($token);
+                if ($decoded === null) {
+                    return $this->trans('Invalid :field', ['field' => 'recipients']);
+                }
+                $tokens[] = (string) $decoded;
+            }
             $request->setGet('recipients', implode(',', $tokens));
         }
+
+        return null;
     }
 
     /**
