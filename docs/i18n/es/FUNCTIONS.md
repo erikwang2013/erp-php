@@ -497,10 +497,10 @@ Registro de horas → agregación a la tarea → acumulación en el coste del pr
 | Tablas de base de datos | 163 <!-- stats:tables=227 --> |
 | Modelos de datos | 161 <!-- stats:models=224 --> |
 | Controladores | 123 <!-- stats:controllers=159 --> |
-| Servicios de negocio | 27 <!-- stats:services=63 --> |
+| Servicios de negocio | 27 <!-- stats:services=64 --> |
 | Rutas de API | 198 (generadas dinámicamente; ver `scripts/check-endpoints.php`, no participan en la verificación de doc-stats) |
 | Middlewares | 11 <!-- stats:middleware=11 --> |
-| Archivos fuente PHP | 343 <!-- stats:php_files=481 --> |
+| Archivos fuente PHP | 343 <!-- stats:php_files=483 --> |
 | Script de instalación de base de datos | Archivo único `database/install.sql` (163 tablas, todas las migraciones consolidadas) |
 | Páginas frontend (Flutter) | 7 (estadísticas del frontend, no incluidas en la verificación de doc-stats) |
 | Páginas frontend (HarmonyOS) | 4 (estadísticas del frontend, no incluidas en la verificación de doc-stats) |

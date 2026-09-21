@@ -2,6 +2,62 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.0 (2026-09-21)
+
+**审计轮**：后端↔前端契约与「页面实际操作可达性」全量核对后的缺陷修复批次（153 个文件，其中 15 份为文档统计标注自愈）。重点是三类**必现故障**——创建即 500、明细行 ID 未解码（静默丢数据）、登录人机验证链（正确答案也判错）；另修掉一处 500 响应把原始异常（含库名与整条 SQL）回给客户端的错误处理死代码。范围只含缺陷，不含新功能开发，未修项见文末。
+
+### 修复 · 创建即 500（校验规则与真实列不符）
+- 真实 **`NOT NULL` 无默认列**无人提供 → MySQL 严格模式 1364：库位（`location_id`/`zone_id`）、库区（`warehouse_id`/`code`）、调拨（`from`/`to_warehouse_id`）、盘点（`code`/`warehouse_id`）、运输服务（`carrier_id`）、运费发票（`carrier_id`/`shipment_id`）、RMA（`customer_id`）——后端补 `required`，双端表单补必填项与下拉数据源
+- **幻键静默丢弃**：`fillModelFromRequest` 实为 `fill($request->only($model->getFillable()))` ⇒ 前端提交的幻列（如供应商 `credit_limit`，`erp_supplier` 无此列）既不报错也不落库，用户白填；已按真实列删幻列（`erp_customer.credit_limit` 是真列，保留）
+- **校验宽度大于真实列**：`code` 实列 `VARCHAR(50)` 而校验写 `max:200`，51–200 字符放过校验去撞 1406/500 —— 6 个 WMS `store` 改 `max:50`
+- **唯一键重复裸 500**：`POST /oms/channel`（`code NOT NULL` + `uk_code`，而双端表单**没有该字段**）、`POST /tms/carrier`（`code` 可选，留空入库 `''`，第二条撞 1062）——后端 `code` 改 `required|string|max:30`（真实列宽），双端表单补必填
+- **成本中心 / 利润中心列表必 500（内存耗尽）**：`index()` 先 `encodeIds` 再 `buildTree`，而 `buildTree` 用 `(int)$item['id']` 下钻、hashid 转 int 恒为 0 ⇒ 同一批顶层行无限自调用（实测 32M 限制必 OOM）；改为先建树后编码
+- **前端在调、后端未注册的路由**：`/inventory/{id}`、`/inventory/flow/{id}`、`/finance/settlement`、`/finance/cash-journal/{id}` ——补注册（变量路由必须排在 `/inventory/<静态段>` 之后，否则遮蔽静态路由触发 FastRoute 异常）
+
+### 修复 · 契约与交互不兼容
+- **明细行 ID 未解码（静默丢数据）**：`receiving/{id}/complete`、`pick/{id}/confirm`、`wave/{id}/release` 的 `items[].product_id`/`sku_id`/`location_id` 由前端下拉下发 **hashid**，后端直接进 SQL ⇒ 作 WHERE 时数字比较恒不命中（UPDATE 影响 0 行**且不报错**）、作 INSERT 值在严格模式 1366 → 500。新增 `BaseController::decodeItemIds()`（批量双模解码，任一行任一字段非法即 422），三个端点接入
+- **hashid 0 哨兵**：递归编码把 `*_id = 0`（318 个 `NOT NULL DEFAULT 0` 列的零值哨兵）编成真值串，破坏前端「falsy = 未选」契约 —— 哨兵保持原值
+- **422 消息把规则键甩给用户**：`resource/translations/zh_CN/validation.php` 只有扁平 `min`/`max`，而 illuminate 取 `validation.<规则>.<类型>`（**无扁平键回退**）⇒ 实测客户端看到的就是 `validation.max.string`。按 8 条带参规则 × 4 类型重写（影响 171 处 `max:` / 40 `min:` / 40 `size:` / 6 `between:` / 3 `gt:`）
+- **状态字典张冠李戴**：Angular `crm.ts` 全文件只有一个 `STAGE` 字典，却被商机/合同/报价/工单四张 status 域**各不相同**的表共用（工单 `status=3` 真实语义是「已关闭」，页面显示「赢单」）→ 拆成 OPP/CONTRACT/QUOT/TICKET 四份（对齐 React）
+- **表单字段键错**（必 422 或静默不落库）：`stage`→`stage_id`、`amount`→`estimated_amount`、`sign_date`→`signed_at`
+- **永久空列**：质量 IQC 的 `supplier_name`/`submit_quantity`/`pass_quantity`、NCR 的 `product_name`/`amount`（真列分别是 `inspected_qty`/`passed_qty`/`defect_qty`）、供应商 `credit_limit`；Flutter 侧 WMS `receiving`/`putaway`/`pick`/`pack`/`wave` 五页与 `asn_list_page` 渲染 `r['name']`，而这 6 张表无 `name` 列（真列 `code`）→ 全部按真实列改写
+- **登录失败的 401 被当成会话过期**：两端 API 层会「续期 + 重放」，密码错误既被伪装成「登录已过期」，又会累加后端失败计数（有锁号风险）→ 登录调用改 `noRetry`
+- 字符串状态（发票 `draft`/`audited`、工单 `open`/…）无处渲染 → `statusText` 兼容字符串键
+
+### 修复 · 安全与错误面
+- **500 把原始异常回给客户端**：`ApiHandler` 判 debug 写的是 `method_exists($this, 'debug')`，而框架 `$debug` 是**属性**不是方法 ⇒ 恒为 false，「非 debug 回通用文案」整段成了死代码 —— 任何 500 都把原始异常（SQLSTATE、库名、整条 SQL）原样回给客户端。现按 `$this->debug` 判定：500 回「服务器内部错误，请稍后重试（TraceId: …）」，完整异常进日志并补一条带 TraceId 的摘要（500 事件不过 TracingId 中间件，响应拿不到 `X-Trace-Id` 头）；`debug=true` 行为不变
+- **apidoc 文档站口令/密钥硬编码**（`'123456'` / `'apidoc#erik'`）→ 改为 `env('APIDOC_PASSWORD')` / `env('APIDOC_SECRET_KEY')` 并开启鉴权，两个 env 模板给 `CHANGE_ME_*` 占位
+- **信任边界未校验写**：`BudgetController` 明细 `foreach ($it as $k => $v) $detail->$k = $v`（客户端任意键直写模型）→ 白名单化
+
+### 修复 · 登录 / 人机验证链
+- **放行凭证与挑战不同源（正确答案也 500）**：`CaptchaController::verify` 硬编码 `Redis::setex`，而挑战按 `captcha.storage` 存盘（本机 auto→文件、Redis 未运行）⇒ 校验通过也写不进凭证，消息还误导为「验证码校验失败」（用户会以为点歪反复重试）。改为双方共用 `captcha_pass_store()`；写失败 fail-closed 且如实报「验证码服务异常，请稍后重试」
+- **rotate 方向反了（怎么摆正都判错）**：`GdDriver::rotate(+A)` 内部 `imagerotate(-A)`，实测把内容**顺时针**转 A°（4×4 标记：左上→右上）；四端前端旋钮读数顺时针递增并**直接提交读数**（摆正时读数 ≡ 360−A），服务端却按 A 比对 ⇒ 无解。修：`rotatePayload()` 取负（−(360−A) ≡ A mod 360）；`config/poster.php` 的 `image.driver` 由 `auto` **钉死 `gd`** —— 否则换台装了 imagick 的机器整套旋转几何换一套
+- **安装器口令口径与登录不一致（装完即锁死）**：`InstallController::validateAdmin` 用 `strlen`（字节）且只卡下界，登录是 `min:6|max:32`（字符，`getSize()` 走 `mb_strlen`）⇒ ①3–5 个汉字的密码安装期放行、登录恒 422；②33+ 字符同理；③2 个汉字的用户名亦然。改 `mb_strlen` 双向 3–50 / 6–32，`step4.php` 补 `maxlength`，12 语言文案改「6-32」「3-50」
+
+### 新增
+- `app/queue/redis/WebhookTask.php` —— Webhook 异步投递任务（`WebhookService` 此前 `use` 的类**文件不存在**，入队必致命错误）；因消费进程 `consumer_dir` 非递归扫描，故必须直接落在 `app/queue/redis/`
+- `app/service/workflow/ApprovalNotifier.php` —— 审批旁路副作用（站内通知 + Webhook 事件），失败只记日志、不影响主流程
+- 配置驱动表单新构件（双端同源）：`items`（明细行编辑器：`itemFields` 子字段 + 增删行）、`bodyFields`（动作执行前弹表单收集参数）、`showResult`（把返回数据渲染进弹窗）；React 侧抽出 `components/FormFields.tsx`
+- `database/install.sql` 补 19 条权限种子（WMS 作业闭环 + `mfg`/`hr`/`report` 三个此前无权限节点的模块顶级菜单）
+
+### 配置
+- `config/poster.php`：`image.driver` 由 `auto` 改 `gd`；`background_dir` 由不存在的 `assets/backgrounds` 指向 `public/img`（目录/文件缺失时回退程序化背景，不报错）
+- `composer.lock`：依赖补丁级更新（`doctrine/lexer` 3.0.1→3.0.2、`symfony/*` v7.4.18→v7.4.19、`phpunit/phpunit` 12.5.34→12.5.35 等）
+- `resource/translations/*/install.php` 12 语种文案同步（密码/用户名口径）
+
+### 升级须知
+- **已部署的库需补 19 条权限种子**（`install.sql` 只覆盖全新安装），否则新端点对已有角色不可见；幂等 SQL 的 id 为 `31000000000000751`–`31000000000000769`
+- **apidoc 文档站已开启鉴权**：须在 `.env` 设 `APIDOC_PASSWORD` / `APIDOC_SECRET_KEY`，留空则文档站拒绝访问（不影响应用启动）
+- 新增的 `required` 校验会把此前「静默丢数据」变为明确 422 —— 第三方客户端若未带这些字段需同步
+
+### 待办 / 已知遗留（本轮未修）
+- `max:200` 类宽度不符仍有 44 处；仓库内 30+ 处 `save()` 无唯一键冲突（1062）捕获 —— 建议加全局唯一键冲突处理器，而非逐处 `try/catch`
+- 6 个 WMS `store` 的 `warehouse_id`（`NOT NULL` 无默认）未加 `required`：桌面端无可达创建入口、Flutter 表单必填，仅手工构造请求可触发（加固项）
+- `WebhookService::dispatchAsync` 的队列往返（投递 + 退避重试）本机无 Redis，**未做端到端验证**
+- 多租户 `TenantScope` 故意未注册（`X-Tenant-Code` 可由客户端伪造，且缺 admin↔tenant 绑定表与鉴权）
+- `/purchase/rfq`、`/purchase/rfq-quote` 缺整页（主从录入，声明式表单表达不了）；`/report/schedule` 无任何执行者（补表单会让用户创建永不触发的调度）；供应商评估 `dimensions` 评分维度编辑器；`inventory/flow` 等 4 个无路由动作是否对外暴露需产品裁决
+- 移动端（Flutter）仍接不了需 `items` 非空的三条 WMS 动作（无明细数据源，属新功能）
+
 ## v1.18.9 (2026-09-21)
 
 资源页推断列表头按 `install.sql` 列注释补齐，两端各 698 键。

@@ -497,10 +497,10 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Database tables | 163 <!-- stats:tables=227 --> |
 | Data models | 161 <!-- stats:models=224 --> |
 | Controllers | 123 <!-- stats:controllers=159 --> |
-| Business services | 27 <!-- stats:services=63 --> |
+| Business services | 27 <!-- stats:services=64 --> |
 | API routes | 198 (dynamically generated, see `scripts/check-endpoints.php`, not subject to doc-stats validation) |
 | Middleware | 11 <!-- stats:middleware=11 --> |
-| PHP source files | 343 <!-- stats:php_files=481 --> |
+| PHP source files | 343 <!-- stats:php_files=483 --> |
 | Database install script | Single file `database/install.sql` (163 tables, all migrations merged in) |
 | Frontend pages (Flutter) | 7 (frontend statistics, not included in doc-stats validation) |
 | Frontend pages (HarmonyOS) | 4 (frontend statistics, not included in doc-stats validation) |

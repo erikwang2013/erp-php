@@ -572,14 +572,14 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 数据库表 | 163 <!-- stats:tables=227 --> |
 | 数据模型 | 161 <!-- stats:models=224 --> |
 | 控制器 | 122 <!-- stats:controllers=159 --> |
-| 业务服务 | 27 <!-- stats:services=63 --> |
+| 业务服务 | 27 <!-- stats:services=64 --> |
 | API 路由 | 198（动态生成，见 `scripts/check-endpoints.php`，不参与 doc-stats 校验）|
 | 中间件 | 11 <!-- stats:middleware=11 --> |
-| PHP 源文件 | 339 <!-- stats:php_files=481 --> |
+| PHP 源文件 | 339 <!-- stats:php_files=483 --> |
 | 数据库安装脚本 | 单文件 `database/install.sql`（227 张表，已并入全部迁移）|
 | 前端页面 (Flutter) | 107（2026-08-27 实测 `apps/flutter/lib/app/pages/` 页面文件数，未纳入 doc-stats 校验）|
 | 前端页面 (HarmonyOS) | 35（2026-08-27 实测 `apps/harmonyos/entry/src/main/ets/pages/` 页面文件数，未纳入 doc-stats 校验）|
-| 单元测试 | 107 个测试文件 <!-- stats:test_files=111 --> / 940 个测试用例 <!-- stats:tests=979 --> / 4575 条断言 <!-- stats:assertions=4637 -->（静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
+| 单元测试 | 107 个测试文件 <!-- stats:test_files=111 --> / 940 个测试用例 <!-- stats:tests=986 --> / 4575 条断言 <!-- stats:assertions=4654 -->（静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。

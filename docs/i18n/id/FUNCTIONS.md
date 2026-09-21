@@ -497,10 +497,10 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Tabel database | 163 <!-- stats:tables=227 --> |
 | Model data | 161 <!-- stats:models=224 --> |
 | Controller | 123 <!-- stats:controllers=159 --> |
-| Layanan bisnis | 27 <!-- stats:services=63 --> |
+| Layanan bisnis | 27 <!-- stats:services=64 --> |
 | Route API | 198 (dibuat dinamis, lihat `scripts/check-endpoints.php`, tidak ikut validasi doc-stats) |
 | Middleware | 11 <!-- stats:middleware=11 --> |
-| File sumber PHP | 343 <!-- stats:php_files=481 --> |
+| File sumber PHP | 343 <!-- stats:php_files=483 --> |
 | Skrip instalasi database | file tunggal `database/install.sql` (163 tabel, semua migrasi telah digabungkan) |
 | Halaman frontend (Flutter) | 7 (statistik frontend, tidak masuk validasi doc-stats) |
 | Halaman frontend (HarmonyOS) | 4 (statistik frontend, tidak masuk validasi doc-stats) |

@@ -497,10 +497,10 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 데이터베이스 테이블 | 163 <!-- stats:tables=227 --> |
 | 데이터 모델 | 161 <!-- stats:models=224 --> |
 | 컨트롤러 | 123 <!-- stats:controllers=159 --> |
-| 업무 서비스 | 27 <!-- stats:services=63 --> |
+| 업무 서비스 | 27 <!-- stats:services=64 --> |
 | API 라우트 | 198(동적 생성, `scripts/check-endpoints.php` 참고, doc-stats 검증 미포함) |
 | 미들웨어 | 11 <!-- stats:middleware=11 --> |
-| PHP 소스 파일 | 343 <!-- stats:php_files=481 --> |
+| PHP 소스 파일 | 343 <!-- stats:php_files=483 --> |
 | 데이터베이스 설치 스크립트 | 단일 파일 `database/install.sql`(163개 테이블, 전체 마이그레이션 병합 완료) |
 | 프론트엔드 페이지 (Flutter) | 7(프론트엔드 통계, doc-stats 검증 미포함) |
 | 프론트엔드 페이지 (HarmonyOS) | 4(프론트엔드 통계, doc-stats 검증 미포함) |
