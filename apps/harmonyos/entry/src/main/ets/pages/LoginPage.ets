@@ -119,7 +119,6 @@ struct LoginPage {
     this.dialogOpen = true;
     this.dialogController = new CustomDialogController({
       builder: CaptchaVerifyDialog({
-        baseUrl: BASE_URL,
         onResult: (r: CaptchaResult | null) => { this.onCaptchaResult(r); },
       }),
       autoCancel: false

@@ -69,6 +69,9 @@
         <div class="block-text">{{ error() }}</div>
         <button nz-button (click)="refresh()">{{ '重试' | tr }}</button>
       </div>
+    } @else if (report()) {
+      <!-- 报表对象（无 list 的对象响应）：整块渲染，不套表格与分页器 -->
+      <app-result-view [blocks]="reportView()" />
     } @else if (!view().length) {
       <div class="center-block">
         <app-icon name="box" class="block-icon" />
@@ -261,6 +264,127 @@
               </span>
             </div>
           }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 动作结果（act.showResult）：GET 动作回包按对象渲染，替代只弹「操作成功」 -->
+  @if (result(); as r) {
+    <div class="mask" (mousedown)="closeResult()">
+      <div
+        class="modal wide"
+        role="dialog"
+        aria-modal="true"
+        (mousedown)="$event.stopPropagation()"
+      >
+        <div class="modal-head">
+          {{ r.title | tr }}
+          <span class="sp"></span>
+          <button
+            nz-button
+            nzType="text"
+            nzSize="small"
+            [attr.aria-label]="'关闭' | tr"
+            (click)="closeResult()"
+          >
+            <app-icon name="close" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <app-result-view [blocks]="resultView()" />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 动作表单（act.bodyFields）：先填参数再执行，跳过确认框；requirePassword 仍在这里收 -->
+  @if (actionForm()) {
+    <div class="mask" (mousedown)="closeActionForm()">
+      <div
+        class="modal"
+        [class.wide]="actionViews().length > 2"
+        role="dialog"
+        aria-modal="true"
+        (mousedown)="$event.stopPropagation()"
+      >
+        <div class="modal-head">{{ actionTitle() }}</div>
+        <div class="modal-body">
+          <div class="af-fields">
+            @for (v of actionViews(); track v.f.key) {
+              <div class="af-field">
+                <div class="af-label">
+                  {{ v.f.label | tr }}@if (v.f.required) {<span class="req">*</span>}
+                </div>
+                @switch (v.kind) {
+                  @case ('items') {
+                    <app-items-field
+                      [views]="v.itemViews"
+                      [rows]="v.rows"
+                      (changed)="onFormItems(v.f, $event)"
+                    />
+                  }
+                  @case ('textarea') {
+                    <textarea
+                      class="textarea"
+                      [value]="formVal(v.f)"
+                      [disabled]="!!v.f.disabled"
+                      [attr.placeholder]="v.f.placeholder ? (v.f.placeholder | tr) : null"
+                      (input)="onFormInput(v.f, $event)"
+                    ></textarea>
+                  }
+                  @case ('select') {
+                    <select class="select" [disabled]="!!v.f.disabled" (change)="onFormInput(v.f, $event)">
+                      <option value="" [selected]="formVal(v.f) === ''">{{ '请选择' | tr }}</option>
+                      @for (o of v.options; track $index) {
+                        <option [value]="o.value" [selected]="formVal(v.f) === o.value">
+                          {{ o.label | tr }}
+                        </option>
+                      }
+                    </select>
+                  }
+                  @default {
+                    <input
+                      class="input"
+                      [type]="v.type"
+                      [value]="formVal(v.f)"
+                      [disabled]="!!v.f.disabled"
+                      [attr.placeholder]="v.f.placeholder ? (v.f.placeholder | tr) : null"
+                      (input)="onFormInput(v.f, $event)"
+                    />
+                  }
+                }
+                @if (v.f.help) {
+                  <div class="af-desc">{{ v.f.help | tr }}</div>
+                }
+              </div>
+            }
+          </div>
+          @if (actionNeedPassword()) {
+            <label class="cf-label">
+              {{ '当前密码' | tr }} <em>*</em>
+              <input
+                class="input"
+                type="password"
+                [value]="pw()"
+                (input)="onPw($event)"
+                [placeholder]="'请输入登录密码确认操作' | tr"
+                autofocus
+              />
+            </label>
+          }
+        </div>
+        <div class="modal-foot">
+          <button nz-button [disabled]="busy()" (click)="closeActionForm()">{{ '取消' | tr }}</button>
+          <button
+            nz-button
+            nzType="primary"
+            [disabled]="(actionNeedPassword() && !pw()) || busy()"
+            [nzLoading]="busy()"
+            (click)="submitActionForm()"
+          >
+            {{ '确定' | tr }}
+          </button>
         </div>
       </div>
     </div>

@@ -66,7 +66,29 @@ class _WavePageState extends State<WavePage> {
     }
   }
 
+  /// 仓库下拉：后端建单必填外键（install.sql erp_wms_wave `warehouse_id` NOT NULL
+  /// 无默认，控制器只校验 code）。选项值=行 id（hashid，符合对外 hashid 契约）。
+  /// 加载失败返回 false（弹提示）而不是静默空下拉，避免必填项无处可选。
+  Map<String, String> _warehouses = {};
+
+  Future<bool> _ensureRefs() async {
+    try {
+      final wh = await ApiService.instance.get('/admin/v1/warehouse', params: {'limit': '500'});
+      _warehouses = {
+        for (final r in List<Map<String, dynamic>>.from((wh['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['name'] ?? r['code'] ?? r['id']}',
+      };
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
+    if (!await _ensureRefs() || !mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonAdd,
@@ -80,6 +102,7 @@ class _WavePageState extends State<WavePage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureRefs() || !mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonEdit,
@@ -114,13 +137,18 @@ class _WavePageState extends State<WavePage> {
     );
   }
 
+  /// erp_wms_wave 无 `name` 列（原 name 字段提交后被后端丢弃）：只留真实列与必填外键。
+  /// code 后端 store() 校验 required（自生成分支因此不可达）。
   List<FormFieldConfig> _formFields() => [
+    FormFieldConfig(name: 'code', label: AppL10n.of(context).commonCode, required: true),
     FormFieldConfig(
-      name: 'name',
-      label: AppL10n.of(context).commonName,
+      name: 'warehouse_id',
+      label: AppL10n.of(context).fieldWarehouse,
       required: true,
+      type: FormFieldType.dropdown,
+      options: _warehouses.keys.toList(),
+      optionLabels: _warehouses,
     ),
-    FormFieldConfig(name: 'code', label: AppL10n.of(context).commonCode),
   ];
 
   @override
@@ -156,17 +184,16 @@ class _WavePageState extends State<WavePage> {
     ],
   );
 
+  /// erp_wms_wave 无 `name` 列 → 原「名称」列恒空，只留真实列：单号 + 操作。
   List<String> _columns() => [
-    AppL10n.of(context).commonName,
-    AppL10n.of(context).commonCode,
+    AppL10n.of(context).wmsDocNo,
     AppL10n.of(context).commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
     return {
-      l.commonName: r['name'] ?? '',
-      l.commonCode: r['code'] ?? '',
+      l.wmsDocNo: r['code'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

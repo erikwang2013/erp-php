@@ -15,11 +15,11 @@ import { Toast } from '../../core/toast.service';
 import { TrPipe } from '../../core/tr.pipe';
 import { IconComponent } from '../../ui/icon';
 
-/** React 的 JSX 三选一：Textarea / Select / Input；tree 是本端新增的权限树控件 */
-type CtrlKind = 'textarea' | 'select' | 'input' | 'tree';
+/** React 的 JSX 三选一：Textarea / Select / Input；tree 是本端新增的权限树控件，items 是明细行 */
+export type CtrlKind = 'textarea' | 'select' | 'input' | 'tree' | 'items';
 
 /** 下拉选项（值统一成字符串，模板里才能和控件值直接比相等） */
-interface OptView {
+export interface OptView {
   label: string;
   value: string;
 }
@@ -31,6 +31,14 @@ interface TreeData {
   subtree: Record<string, string[]>;
   /** 有子节点的 key：数据是异步到的，nzExpandAll 只作用于首帧，只能显式给展开键 */
   expanded: string[];
+}
+
+/** 明细行（type:'items'）的子字段视图：子字段只支持标量控件，选项由父级算好 */
+export interface ItemFieldView {
+  f: FormField;
+  kind: CtrlKind;
+  type: string;
+  options: OptView[];
 }
 
 /** 字段视图：控件类型、type 属性、选项都在 TS 里算好，模板只做 @switch */
@@ -45,14 +53,163 @@ interface FieldView {
   expandedKeys: string[];
   checkedKeys: string[];
   selectedKeys: string[];
+  /** kind='items'：子字段控件视图 + 当前行（状态在父级，控件只透传） */
+  itemViews: ItemFieldView[];
+  rows: Row[];
 }
 
-function controlKind(f: FormField): CtrlKind {
+/**
+ * 明细行控件（FormField.type:'items'）：子字段定义 → 可增删的重复行。
+ *
+ * 状态由父级持有（views/rows 进，(changed) 出）—— 主表单与动作弹窗共用同一份实现，
+ * 行值的类型约定也与主表单一致（number 转 Number，空串保留到提交时丢弃）。
+ * 子字段嵌套 items 不支持（配置里一层就够；真需要时把本组件递归进 @for 即可）。
+ */
+@Component({
+  selector: 'app-items-field',
+  standalone: true,
+  imports: [NzButtonModule, TrPipe, IconComponent],
+  template: `
+    @for (row of rows(); track $index; let i = $index) {
+      <div class="item-row">
+        @for (v of views(); track v.f.key) {
+          @if (v.kind === 'select') {
+            <select class="select" [disabled]="!!v.f.disabled" (change)="onCell(i, v.f, $event)">
+              <option value="" [selected]="cellOf(row, v.f) === ''">{{ '请选择' | tr }}</option>
+              @for (o of v.options; track $index) {
+                <option [value]="o.value" [selected]="cellOf(row, v.f) === o.value">
+                  {{ o.label | tr }}
+                </option>
+              }
+            </select>
+          } @else if (v.kind === 'textarea') {
+            <textarea
+              class="textarea"
+              [value]="cellOf(row, v.f)"
+              [disabled]="!!v.f.disabled"
+              [attr.placeholder]="v.f.label | tr"
+              (input)="onCell(i, v.f, $event)"
+            ></textarea>
+          } @else {
+            <input
+              class="input"
+              [type]="v.type"
+              [value]="cellOf(row, v.f)"
+              [disabled]="!!v.f.disabled"
+              [attr.placeholder]="v.f.label | tr"
+              (input)="onCell(i, v.f, $event)"
+            />
+          }
+        }
+        <button
+          nz-button
+          nzType="text"
+          nzSize="small"
+          type="button"
+          [attr.aria-label]="'删除' | tr"
+          (click)="remove(i)"
+        >
+          <app-icon name="delete" />
+        </button>
+      </div>
+    }
+    <button nz-button nzSize="small" type="button" (click)="add()">
+      <app-icon name="plus" />
+      {{ '新增' | tr }}
+    </button>
+  `,
+  styles: [
+    `
+      /* 控件基样式是 resource-form.less 的同值副本：组件样式隔离，那边的规则到不了子组件 */
+      .input,
+      .select,
+      .textarea {
+        height: var(--ctrl-h);
+        padding: 0 10px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-ctrl);
+        background: var(--surface);
+        color: var(--text-1);
+        font-size: var(--fs-base);
+        font-family: inherit;
+        outline: none;
+        width: 100%;
+      }
+      .textarea {
+        height: auto;
+        padding: 8px 10px;
+        resize: vertical;
+        min-height: 56px;
+      }
+      .input:focus,
+      .select:focus,
+      .textarea:focus {
+        border-color: var(--primary);
+        box-shadow: var(--ring);
+      }
+      .input:disabled,
+      .select:disabled,
+      .textarea:disabled {
+        color: var(--text-4);
+        background: var(--surface-alt);
+      }
+      .item-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      /* flex-basis 0 压过 width:100%，等分剩余宽度但留最小可点宽度 */
+      .item-row .input,
+      .item-row .select,
+      .item-row .textarea {
+        flex: 1 1 0;
+        min-width: 80px;
+      }
+    `,
+  ],
+})
+export class ItemsField {
+  readonly views = input.required<ItemFieldView[]>();
+  readonly rows = input.required<Row[]>();
+  readonly changed = output<Row[]>();
+
+  /** 行内取值：控件只认字符串 */
+  cellOf(row: Row, f: FormField): string {
+    const v = row[f.key];
+    return v === null || v === undefined ? '' : String(v);
+  }
+
+  onCell(i: number, f: FormField, e: Event): void {
+    const raw = (e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value;
+    const v = f.type === 'number' ? (raw === '' ? '' : Number(raw)) : raw;
+    this.changed.emit(this.rows().map((r, j) => (j === i ? { ...r, [f.key]: v } : r)));
+  }
+
+  /** 新行初值取子字段 defaultValue（如数量默认 1） */
+  add(): void {
+    const row: Row = {};
+    for (const v of this.views()) if (v.f.defaultValue !== undefined) row[v.f.key] = v.f.defaultValue;
+    this.changed.emit([...this.rows(), row]);
+  }
+
+  remove(i: number): void {
+    this.changed.emit(this.rows().filter((_r, j) => j !== i));
+  }
+}
+
+export function controlKind(f: FormField): CtrlKind {
+  if (f.type === 'items') return 'items';
   if (f.type === 'textarea') return 'textarea';
   if (f.type === 'tree') return 'tree';
   // source 联动也是下拉（React 同款分支判断）
   if (f.type === 'select' || f.source) return 'select';
   return 'input';
+}
+
+/** 字段选项 → 模板视图（显式 options 优先，其次 source 联动拉回的选项） */
+export function optionViews(f: FormField, remote?: FieldOption[]): OptView[] {
+  return (f.options ?? remote ?? []).map((o) => ({ label: o.label, value: String(o.value ?? '') }));
 }
 
 /**
@@ -84,7 +241,7 @@ function buildTreeData(rows: Row[], src: FieldSource): TreeData {
   return data;
 }
 
-function inputType(f: FormField): string {
+export function inputType(f: FormField): string {
   switch (f.type) {
     case 'password':
       return 'password';
@@ -112,6 +269,12 @@ function initVals(cfg: ResourceConfig, row: Row | null): Record<string, unknown>
       vals[f.key] = Array.isArray(raw) ? raw.map(String) : '';
       continue;
     }
+    // 明细行：行上没有 items（列表接口不带）时就是空表，不能落成 ''（会当成字符串提交）
+    if (f.type === 'items') {
+      const raw = row ? row[f.initKey ?? f.key] : f.defaultValue;
+      vals[f.key] = Array.isArray(raw) ? raw : [];
+      continue;
+    }
     vals[f.key] = f.defaultValue ?? (row ? row[f.key] : undefined) ?? '';
   }
   return vals;
@@ -131,7 +294,7 @@ function msg(e: unknown): string {
 @Component({
   selector: 'app-resource-form',
   standalone: true,
-  imports: [NzButtonModule, NzTreeModule, TrPipe, IconComponent],
+  imports: [NzButtonModule, NzTreeModule, TrPipe, IconComponent, ItemsField],
   templateUrl: './resource-form.html',
   styleUrl: './resource-form.less',
 })
@@ -167,10 +330,15 @@ export class ResourceForm implements OnInit {
         f,
         kind: controlKind(f),
         type: inputType(f),
-        options: (f.options ?? this.remote()[f.key] ?? []).map((o) => ({
-          label: o.label,
-          value: String(o.value ?? ''),
+        options: optionViews(f, this.remote()[f.key]),
+        // 子字段的 source 选项按 `${父key}.${子key}` 存（子键名可能与顶层字段重名）
+        itemViews: (f.itemFields ?? []).map((s) => ({
+          f: s,
+          kind: controlKind(s),
+          type: inputType(s),
+          options: optionViews(s, this.remote()[`${f.key}.${s.key}`]),
         })),
+        rows: Array.isArray(cur) ? (cur as Row[]) : [],
         nodes: tree?.nodes ?? [],
         expandedKeys: tree?.expanded ?? [],
         // 必须每次给新数组：树数据是异步到的，若这里回传 vals 里那个数组的同一引用，
@@ -249,6 +417,11 @@ export class ResourceForm implements OnInit {
     return String(v);
   }
 
+  /** 明细行增删改：整体换数组（值已由 ItemsField 转好类型） */
+  onItemRows(f: FormField, rows: Row[]): void {
+    this.vals.update((m) => ({ ...m, [f.key]: rows }));
+  }
+
   onInput(f: FormField, e: Event): void {
     const raw = (e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value;
     // 数字字段空串保留 ''（提交时会被丢弃），否则转 Number —— 与 React onChange 同义
@@ -266,7 +439,9 @@ export class ResourceForm implements OnInit {
     for (const f of this.fields()) {
       if (!f.required || f.noSubmit) continue;
       const v = this.vals()[f.key];
-      if (v === '' || v === undefined || v === null) {
+      const empty =
+        f.type === 'items' ? !Array.isArray(v) || !v.length : v === '' || v === undefined || v === null;
+      if (empty) {
         // React 的 toast 默认就是错误级（lib/toast.tsx: push(text, kind = 'err')）
         this.toast.error(tr('请填写「{label}」', { label: tr(f.label) }));
         return;
@@ -275,6 +450,16 @@ export class ResourceForm implements OnInit {
     const body: Record<string, unknown> = {};
     for (const f of this.fields()) {
       if (f.noSubmit) continue;
+      if (f.type === 'items') {
+        const rows = (Array.isArray(this.vals()[f.key]) ? this.vals()[f.key] : []) as Row[];
+        // 空值（空串/未填）不进明细行：送 '' 会被后端的 integer/number 规则拒，不送才吃默认值
+        const clean = rows.map((r) =>
+          Object.fromEntries(Object.entries(r).filter(([, v]) => v !== '' && v !== null && v !== undefined)),
+        );
+        // 空数组不送：后端 required|array|min:1 会拒，更新时不送才等于「不动明细」
+        if (clean.length) body[f.key] = clean;
+        continue;
+      }
       if (controlKind(f) === 'tree') {
         if (f.multiple) {
           const v = this.vals()[f.key];
@@ -311,20 +496,28 @@ export class ResourceForm implements OnInit {
    * 不设 React 那样的 alive 守卫：Angular 写已销毁组件的 signal 没有告警，也无副作用。
    */
   private async loadSources(): Promise<void> {
-    const srcs = (this.cfg().fields ?? []).filter((f) => f.source);
+    // 明细行的子字段 source 也要拉（键按 `${父key}.${子key}` 拼，避免与顶层同名字段相撞）
+    const srcs = (this.cfg().fields ?? []).flatMap(
+      (f): { f: FormField; key: string }[] =>
+        f.type === 'items'
+          ? (f.itemFields ?? []).filter((s) => s.source).map((s) => ({ f: s, key: `${f.key}.${s.key}` }))
+          : f.source
+            ? [{ f, key: f.key }]
+            : [],
+    );
     if (!srcs.length) return;
     const opts: [string, FieldOption[]][] = [];
     const trees: [string, TreeData][] = [];
     await Promise.all(
-      srcs.map(async (f): Promise<void> => {
+      srcs.map(async ({ f, key }): Promise<void> => {
         const src = f.source;
         if (!src) return;
         try {
           if (f.type === 'tree') {
             // 树字段直接吃嵌套 children（权限接口整表下发，limit 参数被忽略）
-            trees.push([f.key, buildTreeData(await this.sources.rows(src.endpoint), src)]);
+            trees.push([key, buildTreeData(await this.sources.rows(src.endpoint), src)]);
           } else {
-            opts.push([f.key, await this.sources.options(src)]);
+            opts.push([key, await this.sources.options(src)]);
           }
         } catch {
           // 单个资源失败保持空选项/空树，不连坐其他字段

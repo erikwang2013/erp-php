@@ -60,7 +60,7 @@ const isInt = (k: string): boolean =>
   /(quantity|qty|count|num|days|hours|age|stock|weight|width|height|length)/.test(k) && !isMoney(k);
 
 /** 常见状态字典（按资源前缀细化，未命中走通用档 COMMON_STATUS） */
-const STATUS_DICTS: Record<string, Record<number, string>> = {
+const STATUS_DICTS: Record<string, Record<number | string, string>> = {
   purchase: { 0: '草稿', 1: '待审核', 2: '已审核', 3: '已完成', 4: '已取消' },
   sales: { 0: '草稿', 1: '待审核', 2: '已审核', 3: '已完成', 4: '已取消' },
   crm: { 0: '未开始', 1: '跟进中', 2: '已报价', 3: '赢单', 4: '输单' },
@@ -254,6 +254,78 @@ export function inferDetailItems(
     });
 }
 
+/* ── 动作结果 / 报表对象 → 渲染分块 ── */
+
+/** 结果分块：head 非空 = 表格（cells 与 head 同序）；否则键值表（读 kv）；depth 供嵌套缩进 */
+export interface ResultBlock {
+  title: string;
+  depth: number;
+  head: string[];
+  cells: string[][];
+  kv: { k: string; v: string }[];
+}
+
+// ponytail: 报表整表下发，行数与嵌套深度先夹顶防渲染卡死；真需要再换虚拟滚动
+const RESULT_MAX_ROWS = 500;
+const RESULT_MAX_DEPTH = 4;
+
+const isPlainObject = (v: unknown): v is Row => !!v && typeof v === 'object' && !Array.isArray(v);
+
+/** 单元格文本：日期/金额按列名格式化，其余 text 兜底；对象/数组降级 JSON（绝不出 [object Object]） */
+function cellText(k: string, v: unknown): string {
+  if (isPlainObject(v) || Array.isArray(v)) return JSON.stringify(v) ?? '';
+  return isDate(k) ? dateTime(v) : isMoney(k) ? money(v) : text(v);
+}
+
+/**
+ * 任意 JSON → 渲染分块（动作结果弹窗与报表对象页共用）：
+ * 对象 → 键值表 + 值里的对象/数组递归成嵌套块；对象数组 → 表格（列取各行键并集，按首现序）；
+ * 标量数组 → 顿号连接的一行。
+ */
+export function resultBlocks(data: unknown, title = ''): ResultBlock[] {
+  const out: ResultBlock[] = [];
+  walkResult(data, title, 0, out);
+  return out;
+}
+
+function walkResult(v: unknown, title: string, depth: number, out: ResultBlock[]): void {
+  // 超过夹顶深度不再递归，但也不静默丢数据：降级成一行 JSON
+  if (depth > RESULT_MAX_DEPTH) {
+    if (title) out.push({ title, depth, head: [], cells: [], kv: [{ k: title, v: cellText('', v) }] });
+    return;
+  }
+  if (Array.isArray(v)) {
+    const rows = v.filter(isPlainObject);
+    if (rows.length && rows.length === v.length) {
+      const head: string[] = [];
+      for (const r of rows) for (const k of Object.keys(r)) if (!head.includes(k)) head.push(k);
+      out.push({
+        title,
+        depth,
+        head,
+        cells: rows.slice(0, RESULT_MAX_ROWS).map((r) => head.map((k) => cellText(k, r[k]))),
+        kv: [],
+      });
+      return;
+    }
+    if (title) out.push({ title, depth, head: [], cells: [], kv: [{ k: title, v: v.map((x) => cellText('', x)).join('、') }] });
+    return;
+  }
+  if (!isPlainObject(v)) {
+    if (title) out.push({ title, depth, head: [], cells: [], kv: [{ k: title, v: cellText('', v) }] });
+    return;
+  }
+  const kv: { k: string; v: string }[] = [];
+  const nested: [unknown, string][] = [];
+  for (const [k, val] of Object.entries(v)) {
+    if (k === 'id' || k.startsWith('__')) continue;
+    if (isPlainObject(val) || Array.isArray(val)) nested.push([val, k]);
+    else kv.push({ k: keyTitle(k), v: cellText(k, val) });
+  }
+  if (kv.length || !nested.length) out.push({ title, depth, head: [], cells: [], kv });
+  for (const [val, k] of nested) walkResult(val, k, depth + 1, out);
+}
+
 /* spec-attrs:start —— 解析器无依赖、纯函数；scripts/check-ng-spec-attrs.mjs 抽取本段真身自检 */
 
 /** 商品 `spec` 列宽：VARCHAR(200)。合成串超长必须拒绝提交，不静默截断 */
@@ -414,7 +486,8 @@ export function cellOf(c: ColumnDef, row: Row): Cell {
     }
     case 'map': {
       if (v === null || v === undefined || v === '') break;
-      const hit = c.dict?.[Number(v)];
+      // 对象键按字符串存：数字字典与字符串字典（draft…）都命中这一支
+      const hit = c.dict?.[String(v)];
       cell.text = hit !== undefined ? hit : String(v);
       break;
     }

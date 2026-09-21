@@ -10,6 +10,7 @@ import { LoadingView, ErrorView, EmptyView } from '../../common/Components';
 import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
+import { FilterBar } from '../../common/FilterBar';
 import { OrderFormView } from './OrderFormView';
 
 /**
@@ -63,6 +64,8 @@ struct OrderListPage {
   private pageShown: boolean = false; // 首次 onPageShow 不重复加载
   private readonly limit: number = 20;
   private api: ApiService = new ApiService();
+  /** 搜索关键词（后端 /admin/oms/order 支持订单号/渠道单号模糊，见 OrderController） */
+  private keyword: string = '';
 
   // 表单状态
   @State showForm: boolean = false;
@@ -107,7 +110,10 @@ struct OrderListPage {
     this.hasError = false;
 
     try {
-      const res = await this.api.get<Record<string, Object>>(`/admin/oms/order?page=${this.page}&limit=${this.limit}`);
+      const kw = this.keyword.trim();
+      const pager = `page=${this.page}&limit=${this.limit}`;
+      const query = kw.length > 0 ? `${pager}&keyword=${encodeURIComponent(kw)}` : pager;
+      const res = await this.api.get<Record<string, Object>>(`/admin/oms/order?${query}`);
       const data = res.data as Record<string, Object>;
       const list = (data['list'] as Array<Object>) ?? [];
       const mapped = list.map((item: Object) => item as OmsOrderItem);
@@ -336,12 +342,30 @@ struct OrderListPage {
       if (this.showForm) {
         this.buildForm()
       } else {
+        this.buildSearchBar()
         this.buildList()
       }
     }
     .width('100%')
     .height('100%')
     .backgroundColor($r('app.color.bg_page'))
+  }
+
+  /**
+   * 搜索条（FilterBar 内建 300ms 防抖 + 清空钮）：改关键词回第 1 页重查
+   */
+  @Builder
+  buildSearchBar() {
+    Row() {
+      FilterBar({
+        onSearch: (kw: string) => {
+          this.keyword = kw;
+          this.loadData(true);
+        }
+      })
+    }
+    .width('100%')
+    .padding({ left: 12, right: 12, top: 12 })
   }
 
   /**

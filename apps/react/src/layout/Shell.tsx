@@ -78,7 +78,8 @@ export function Shell() {
 
   const [unread, setUnread] = useState(0);
   const loadUnread = useCallback(() => {
-    http.get<{ count: number }>(`${NOTIFICATION_PATH}/unread-count`)
+    // 字面量后端路由：NOTIFICATION_PATH 是前端路由（/notification），拼不出接口路径
+    http.get<{ count: number }>('/admin/v1/notification/unread-count')
       .then((d) => setUnread(Number(d?.count ?? 0)))
       .catch(() => undefined);
   }, []);

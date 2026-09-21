@@ -208,6 +208,45 @@
   word-break: break-all;
 }
 
+/* ── 动作表单（act.bodyFields）：字段布局是 resource-form.less 的同值子集 ──
+   （组件样式隔离，那个文件里的 .fields/.field 到不了本组件，故这里另起一组前缀） */
+.af-fields {
+  display: block;
+}
+
+.af-field + .af-field {
+  margin-top: 14px;
+}
+
+.af-label {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  margin-bottom: 6px;
+
+  .req {
+    color: var(--danger);
+    margin-left: 4px;
+  }
+}
+
+.af-desc {
+  margin-top: 4px;
+  font-size: var(--fs-sm);
+  color: var(--text-4);
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-ctrl);
+  background: var(--surface);
+  color: var(--text-1);
+  font-size: var(--fs-base);
+  font-family: inherit;
+}
+
 /* ── 二次确认 ── */
 .confirm-text {
   color: var(--text-2);

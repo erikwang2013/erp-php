@@ -71,11 +71,13 @@ export const COMMON_STATUS: Record<number, string> = {
   4: '已取消',
 };
 
-export function statusText(status: unknown, dict?: Record<number, string>): string {
+export function statusText(status: unknown, dict?: Record<number | string, string>): string {
   const n = Number(status);
-  if (Number.isNaN(n)) return text(status);
-  const label = dict?.[n] ?? COMMON_STATUS[n];
+  // 字符串状态（发票 draft/audited、工单 open/…）与数字状态共用这一支：对象键本按字符串存，
+  // dict[3] 与 dict['3'] 等价，故数字字典不受影响。
+  const label = dict?.[String(status ?? '')] ?? (Number.isNaN(n) ? undefined : COMMON_STATUS[n]);
   if (label) return tr(label);
+  if (Number.isNaN(n)) return text(status);
   return currentLocale() === 'en' ? `Status ${n}` : `状态${n}`;
 }
 

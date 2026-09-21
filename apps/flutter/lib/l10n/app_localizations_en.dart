@@ -505,9 +505,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hrLeaveReason => 'Reason';
 
   @override
-  String get hrLeaveEmployeeHint => 'Numeric ID from the employee list page';
-
-  @override
   String get hrLeavePeriod => 'Leave Period';
 
   @override
@@ -2519,10 +2516,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wmsAsnTitle => 'Expected Receipts (ASN)';
 
   @override
+  String get wmsAsnNo => 'ASN No.';
+
+  @override
+  String get wmsDocNo => 'Doc No.';
+
+  @override
+  String get wmsAsnCreateReceiving => 'Create receiving task';
+
+  @override
   String get wmsReceivingTitle => 'Receiving';
 
   @override
+  String get wmsReceivingStart => 'Start receiving';
+
+  @override
   String get wmsPutawayTitle => 'Putaway';
+
+  @override
+  String get wmsPutawayStart => 'Start putaway';
+
+  @override
+  String get wmsPutawayComplete => 'Complete putaway';
 
   @override
   String get wmsWaveTitle => 'Waves';
@@ -2531,7 +2546,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wmsPickTitle => 'Picking';
 
   @override
+  String get wmsPickStart => 'Start picking';
+
+  @override
   String get wmsPackTitle => 'Packing';
+
+  @override
+  String get wmsPackStart => 'Start packing';
+
+  @override
+  String get wmsPackComplete => 'Complete packing';
 
   @override
   String get tmsCarrierTitle => 'Carriers';
@@ -2553,6 +2577,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mfgProductionTitle => 'Production Orders';
+
+  @override
+  String get mfgProductionStart => 'Start';
+
+  @override
+  String get mfgProductionComplete => 'Complete';
 
   @override
   String get mfgRoutingTitle => 'Routings';

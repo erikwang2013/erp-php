@@ -44,7 +44,9 @@ export type FieldType =
   | 'select'
   | 'password'
   | 'date'
-  | 'datetime';
+  | 'datetime'
+  /** 明细行编辑：值形如 Row[]，每行按 itemFields 子字段渲染，可增删 */
+  | 'items';
 
 export interface FormField {
   key: string;
@@ -64,6 +66,8 @@ export interface FormField {
   editOnly?: boolean;
   /** 提交时不带此字段 */
   noSubmit?: boolean;
+  /** type='items' 的子字段定义：每行按此渲染，值为该行对象（两端同名） */
+  itemFields?: FormField[];
   help?: string;
 }
 
@@ -82,6 +86,10 @@ export interface ActionDef {
   method?: 'POST' | 'PUT' | 'GET';
   /** 请求体；password 为二次确认密码（requirePassword 时注入） */
   body?: (row: Row, password: string) => unknown;
+  /** 执行前先弹表单收集参数，请求体 = 收集值（body 返回值覆盖同名键）；声明后不再弹确认框 */
+  bodyFields?: FormField[];
+  /** 成功后把返回数据渲染进弹窗（数组→表格、对象→键值表，嵌套递归），替代「操作成功」提示 */
+  showResult?: boolean;
   /** 危险操作需二次输入密码（后端 confirmPassword） */
   requirePassword?: boolean;
   message?: string;

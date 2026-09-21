@@ -61,11 +61,16 @@ export class AuthStore {
   }
 
   async login(username: string, password: string, captchaKey: string): Promise<void> {
-    const data = await http.post<LoginResult>('/api/v1/auth/login', {
-      username,
-      password,
-      captcha_key: captchaKey,
-    });
+    // noRetry：登录失败的 401（密码错误）不是会话过期，续期+重放会触发后端失败计数锁号
+    const data = await http.post<LoginResult>(
+      '/api/v1/auth/login',
+      {
+        username,
+        password,
+        captcha_key: captchaKey,
+      },
+      { noRetry: true },
+    );
     setTokens(data.access_token, data.refresh_token);
     saveUser(data.user);
     this.user.set(data.user);

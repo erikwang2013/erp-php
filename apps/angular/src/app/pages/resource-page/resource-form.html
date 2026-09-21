@@ -62,6 +62,14 @@
                   }
                 </select>
               }
+              @case ('items') {
+                <!-- 明细行：子字段视图与当前行都在 TS 里算好，控件只透传（见 ItemsField） -->
+                <app-items-field
+                  [views]="v.itemViews"
+                  [rows]="v.rows"
+                  (changed)="onItemRows(v.f, $event)"
+                />
+              }
               @case ('tree') {
                 <!--
                   权限树：多选走勾选框（nzCheckable + nzCheckStrictly），单选走点节点选父级（nzSelectMode）。

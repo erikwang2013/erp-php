@@ -91,11 +91,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       access_token: string;
       refresh_token: string;
       user: AuthUser;
-    }>('/api/v1/auth/login', {
-      username,
-      password,
-      captcha_key: captchaKey,
-    });
+    }>(
+      '/api/v1/auth/login',
+      {
+        username,
+        password,
+        captcha_key: captchaKey,
+      },
+      // 登录失败后端也回 code 401：不能触发续期重放，否则密码错误会被伪装成「登录已过期」
+      { noRetry: true },
+    );
     setTokens(data.access_token, data.refresh_token);
     saveUser(data.user);
     setUser(data.user);

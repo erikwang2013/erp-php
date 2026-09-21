@@ -8,6 +8,7 @@ import { TokenManager } from '../utils/TokenManager';
 import { LanguageManager } from '../utils/LanguageManager';
 import { L10n } from '../utils/L10n';
 import { PermissionService } from '../service/DataService';
+import { ApiService } from '../service/ApiService';
 import { TopBar } from '../common/TopBar';
 import { ConfirmDialog } from '../common/FormDialog';
 
@@ -35,6 +36,7 @@ struct ProfilePage {
   }
 
   private dialogController?: CustomDialogController;
+  private api: ApiService = new ApiService();
 
   /** 语言行副标题：当前语言的本地化显示名 */
   private languageLabel(): ResourceStr {
@@ -87,18 +89,22 @@ struct ProfilePage {
     this.dialogController.open();
   }
 
-  // 债务：服务端 refresh_token(14d) 吊销需后端 logout 接口，不在客户端范围内；当前仅清本地凭据
   /**
-   * 退出登录：清本地凭据后回登录页
+   * 退出登录：先调服务端吊销 access_token（写 JWT 黑名单），再清本地凭据回登录页
    */
-  logout(): void {
-    // clearTokens 为 async：链式等待 Preferences 落盘完成再跳转，避免磁盘残留旧凭据复活登录态
-    TokenManager.clearTokens().then(() => {
-      // 权限树缓存属登录态会话：登出即清，防下一账号复用旧树
-      PermissionService.clear();
-      promptAction.showToast({ message: $r('app.string.logout_success') });
-      router.replaceUrl({ url: 'pages/LoginPage' });
-    });
+  async logout(): Promise<void> {
+    try {
+      // 服务端吊销（POST /admin/v1/profile/logout 走 ApiService 注入版本段）
+      await this.api.post<Object>('/admin/profile/logout');
+    } catch (_) {
+      // 网络异常/令牌已失效（幂等成功）不阻断本地登出：离线也必须能退出
+    }
+    // clearTokens 为 async：等待 Preferences 落盘完成再跳转，避免磁盘残留旧凭据复活登录态
+    await TokenManager.clearTokens();
+    // 权限树缓存属登录态会话：登出即清，防下一账号复用旧树
+    PermissionService.clear();
+    promptAction.showToast({ message: $r('app.string.logout_success') });
+    router.replaceUrl({ url: 'pages/LoginPage' });
   }
 
   build() {

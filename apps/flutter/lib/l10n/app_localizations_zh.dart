@@ -501,9 +501,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hrLeaveReason => '请假原因';
 
   @override
-  String get hrLeaveEmployeeHint => '从员工列表页获取数字ID';
-
-  @override
   String get hrLeavePeriod => '请假日期';
 
   @override
@@ -2495,10 +2492,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wmsAsnTitle => '预到货(ASN)';
 
   @override
+  String get wmsAsnNo => 'ASN单号';
+
+  @override
+  String get wmsDocNo => '单号';
+
+  @override
+  String get wmsAsnCreateReceiving => '生成收货任务';
+
+  @override
   String get wmsReceivingTitle => '收货管理';
 
   @override
+  String get wmsReceivingStart => '开始收货';
+
+  @override
   String get wmsPutawayTitle => '上架管理';
+
+  @override
+  String get wmsPutawayStart => '开始上架';
+
+  @override
+  String get wmsPutawayComplete => '上架完成';
 
   @override
   String get wmsWaveTitle => '波次管理';
@@ -2507,7 +2522,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wmsPickTitle => '拣货管理';
 
   @override
+  String get wmsPickStart => '开始拣货';
+
+  @override
   String get wmsPackTitle => '打包管理';
+
+  @override
+  String get wmsPackStart => '开始打包';
+
+  @override
+  String get wmsPackComplete => '打包完成';
 
   @override
   String get tmsCarrierTitle => '承运商';
@@ -2529,6 +2553,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get mfgProductionTitle => '生产工单';
+
+  @override
+  String get mfgProductionStart => '开工';
+
+  @override
+  String get mfgProductionComplete => '完工';
 
   @override
   String get mfgRoutingTitle => '工艺路线';

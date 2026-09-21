@@ -147,8 +147,11 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
     method: opts.method ?? 'GET',
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
   });
+  const env = (await res.json().catch(() => null)) as Envelope<T> | null;
 
-  if (res.status === 401 && !opts.noRetry && refreshToken) {
+  // 会话失效判定在信封层：后端 json() 恒 HTTP 200，业务码在 body.code
+  // （app/middleware/AdminAuth.php:34 不调 withStatus，判 res.status === 401 是死代码）。
+  if (env?.code === 401 && !opts.noRetry) {
     try {
       await ensureRefreshed();
     } catch {
@@ -158,7 +161,6 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
     return api<T>(path, { ...opts, noRetry: true });
   }
 
-  const env = (await res.json().catch(() => null)) as Envelope<T> | null;
   if (!res.ok || !env || env.code !== 0) {
     const status = res.ok && env ? env.code : res.status;
     const msg = env?.message || tr('请求失败（{code}）', { code: String(status) });
@@ -179,17 +181,17 @@ export function qs(params: Record<string, string | number | undefined | null>): 
 }
 
 export interface Http {
-  get<T>(path: string): Promise<T>;
-  post<T>(path: string, body?: unknown): Promise<T>;
-  put<T>(path: string, body?: unknown): Promise<T>;
-  del<T>(path: string, body?: unknown): Promise<T>;
+  get<T>(path: string, opts?: RequestOptions): Promise<T>;
+  post<T>(path: string, body?: unknown, opts?: RequestOptions): Promise<T>;
+  put<T>(path: string, body?: unknown, opts?: RequestOptions): Promise<T>;
+  del<T>(path: string, body?: unknown, opts?: RequestOptions): Promise<T>;
 }
 
 export const http: Http = {
-  get: (p) => api(p),
-  post: (p, b) => api(p, { method: 'POST', body: b }),
-  put: (p, b) => api(p, { method: 'PUT', body: b }),
-  del: (p, b) => api(p, { method: 'DELETE', body: b }),
+  get: (p, o) => api(p, o),
+  post: (p, b, o) => api(p, { ...o, method: 'POST', body: b }),
+  put: (p, b, o) => api(p, { ...o, method: 'PUT', body: b }),
+  del: (p, b, o) => api(p, { ...o, method: 'DELETE', body: b }),
 };
 
 /** 文件下载：POST 拿 blob 走 <a download>（表格导出等） */

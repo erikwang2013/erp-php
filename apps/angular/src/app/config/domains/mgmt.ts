@@ -2,8 +2,24 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { DOC_DICT, DOC_FILTER, intCol, moneyCol, statusCol, ST_FILTER, textCol } from '../cells';
+import { dateCol, docStatus, intCol, moneyCol, statusCol, strStatus, ST_FILTER, textCol } from '../cells';
 import { res, type MenuGroup } from '../types';
+
+const LEAVE = docStatus(['待审批', '已批准', '已驳回']);
+const SALARY = docStatus(['草稿', '已发放']);
+const PROJECT = docStatus(['规划中', '进行中', '已延期', '已完成', '已取消']);
+const PROJECT_TASK = docStatus(['待开始', '进行中', '已完成', '已延期']);
+/** 维修工单状态是字符串（RepairOrderController：open→in_progress→completed/cancelled） */
+const REPAIR = strStatus({ open: '待处理', in_progress: '维修中', completed: '已完成', cancelled: '已取消' });
+
+/** 当前管理员 hashid（与列表回传的 submitter_id 同源）；未登录/解析失败返回 '' */
+const currentUserId = (): string => {
+  try {
+    return (JSON.parse(localStorage.getItem('erp_user') ?? '{}') as { id?: string }).id ?? '';
+  } catch {
+    return '';
+  }
+};
 
 export const mgmtMenus: MenuGroup[] = [
   {
@@ -19,9 +35,10 @@ export const mgmtMenus: MenuGroup[] = [
         path: '/hr/attendance',
         cfg: res('考勤管理', '/admin/v1/hr/attendance', {
           moduleKey: 'hr',
+          canDelete: false, // 考勤记录不可删，仅打卡
           actions: [
-            { label: '上班打卡', icon: 'clock', path: () => '/admin/v1/hr/attendance/clock-in', message: '打卡成功' },
-            { label: '下班打卡', icon: 'logout', path: () => '/admin/v1/hr/attendance/clock-out', message: '打卡成功' },
+            { label: '上班打卡', icon: 'clock', path: () => '/admin/v1/hr/attendance/clock-in', bodyFields: [{ key: 'employee_id', label: '员工', required: true, source: { endpoint: '/admin/v1/hr/employee', labelKey: 'name' } }], message: '打卡成功' },
+            { label: '下班打卡', icon: 'logout', path: () => '/admin/v1/hr/attendance/clock-out', bodyFields: [{ key: 'employee_id', label: '员工', required: true, source: { endpoint: '/admin/v1/hr/employee', labelKey: 'name' } }], message: '打卡成功' },
           ],
         }),
       },
@@ -30,7 +47,7 @@ export const mgmtMenus: MenuGroup[] = [
         path: '/hr/leave',
         cfg: res('请假管理', '/admin/v1/hr/leave', {
           moduleKey: 'hr',
-          filters: DOC_FILTER,
+          filters: LEAVE.filter,
           fields: [
             { key: 'employee_id', label: '员工', required: true, source: { endpoint: '/admin/v1/hr/employee', labelKey: 'name' } },
             { key: 'type', label: '请假类型', required: true, type: 'number' },
@@ -38,7 +55,11 @@ export const mgmtMenus: MenuGroup[] = [
             { key: 'end_date', label: '结束日期', required: true, type: 'date' },
             { key: 'days', label: '天数', required: true, type: 'number' },
           ],
-          actions: [{ label: '审批', icon: 'check', path: (r) => `/admin/v1/hr/leave/${String(r.id)}/approve`, message: '已审批' }],
+          // 后端 action 缺省 approve；驳回须显式带 action=reject
+          actions: [
+            { label: '审批', icon: 'check', path: (r) => `/admin/v1/hr/leave/${String(r.id)}/approve`, message: '已审批' },
+            { label: '驳回', icon: 'close', variant: 'icon-danger', path: (r) => `/admin/v1/hr/leave/${String(r.id)}/approve`, body: () => ({ action: 'reject' }), message: '已驳回' },
+          ],
         }),
       },
       {
@@ -46,8 +67,9 @@ export const mgmtMenus: MenuGroup[] = [
         path: '/hr/salary',
         cfg: res('薪资管理', '/admin/v1/hr/salary', {
           moduleKey: 'hr',
-          filters: DOC_FILTER,
-          columns: [textCol('code', '编号', true), textCol('employee_name', '员工'), intCol('month', '月份'), moneyCol('gross_salary', '应发'), moneyCol('net_salary', '实发'), statusCol(DOC_DICT)],
+          filters: SALARY.filter,
+          // 表无 code/employee_name/month/gross_salary：出参为薪资原列 + 嵌套 employee（SalaryController::index）
+          columns: [textCol('employee.name', '员工', true), intCol('period_month', '月份'), moneyCol('base_salary', '基本工资'), moneyCol('net_salary', '实发'), statusCol(SALARY.dict)],
           fields: [
             { key: 'employee_id', label: '员工', required: true, source: { endpoint: '/admin/v1/hr/employee', labelKey: 'name' } },
             { key: 'period_year', label: '薪资年度', required: true, type: 'number' },
@@ -60,7 +82,7 @@ export const mgmtMenus: MenuGroup[] = [
           ],
           actions: [
             { label: '算薪', icon: 'activity', path: () => '/admin/v1/hr/salary/calculate', message: '算薪完成' },
-            { label: '工资条', icon: 'file', path: (r) => `/admin/v1/hr/salary/${String(r.id)}/payslip`, method: 'GET' },
+            { label: '工资条', icon: 'file', path: (r) => `/admin/v1/hr/salary/${String(r.id)}/payslip`, method: 'GET', showResult: true },
             { label: '发放', icon: 'dollar', path: (r) => `/admin/v1/hr/salary/${String(r.id)}/pay`, message: '薪资已发放' },
           ],
         }),
@@ -228,8 +250,8 @@ export const mgmtMenus: MenuGroup[] = [
     icon: 'folder',
     moduleKey: 'project',
     children: [
-      { label: '项目列表', path: '/project/list', cfg: res('项目管理', '/admin/v1/project', { moduleKey: 'project', filters: DOC_FILTER, fields: [{ key: 'name', label: '项目名称', required: true }, { key: 'code', label: '项目编号', required: true }, { key: 'manager_user_id', label: '负责人', required: true, source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }] }) },
-      { label: '任务管理', path: '/project/task', cfg: res('任务管理', '/admin/v1/project/task', { moduleKey: 'project', filters: DOC_FILTER, fields: [{ key: 'project_id', label: '所属项目', required: true, source: { endpoint: '/admin/v1/project', labelKey: 'name' } }, { key: 'name', label: '任务名称', required: true }, { key: 'parent_id', label: '父任务', type: 'number' }, { key: 'assignee_user_id', label: '负责人', source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }] }) },
+      { label: '项目列表', path: '/project/list', cfg: res('项目管理', '/admin/v1/project', { moduleKey: 'project', filters: PROJECT.filter, fields: [{ key: 'name', label: '项目名称', required: true }, { key: 'code', label: '项目编号', required: true }, { key: 'manager_user_id', label: '负责人', required: true, source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }] }) },
+      { label: '任务管理', path: '/project/task', cfg: res('任务管理', '/admin/v1/project/task', { moduleKey: 'project', filters: PROJECT_TASK.filter, fields: [{ key: 'project_id', label: '所属项目', required: true, source: { endpoint: '/admin/v1/project', labelKey: 'name' } }, { key: 'name', label: '任务名称', required: true }, { key: 'parent_id', label: '父任务', type: 'number' }, { key: 'assignee_user_id', label: '负责人', source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }] }) },
       { label: '工时记录', path: '/project/timesheet', cfg: res('工时记录', '/admin/v1/project/timesheet', { moduleKey: 'project', fields: [{ key: 'project_id', label: '所属项目', source: { endpoint: '/admin/v1/project', labelKey: 'name' } }, { key: 'user_id', label: '用户', source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }, { key: 'work_date', label: '工作日期', required: true, type: 'date' }, { key: 'hours', label: '工时数', required: true, type: 'number' }] }) },
       {
         label: '项目成本',
@@ -257,8 +279,8 @@ export const mgmtMenus: MenuGroup[] = [
     icon: 'clipboard',
     moduleKey: 'workflow',
     children: [
-      { label: '工作流定义', path: '/workflow/definition', cfg: res('工作流定义', '/admin/v1/workflow', { moduleKey: 'workflow', fields: [{ key: 'name', label: '模板名称', required: true }, { key: 'code', label: '模板编码', required: true }, { key: 'target_type', label: '目标类型', required: true }, { key: 'remark', label: '备注', type: 'textarea', full: true }], actions: [{ label: '发起审批', icon: 'send', path: (r) => `/admin/v1/workflow/${String(r.id)}/submit`, message: '审批已发起' }] }) },
-      { label: '我的审批', path: '/workflow/my', cfg: res('我的审批', '/admin/v1/approval/my', { moduleKey: 'workflow', actions: [{ label: '通过', icon: 'check', path: (r) => `/admin/v1/approval/${String(r.id)}/approve`, message: '已通过' }, { label: '驳回', icon: 'close', variant: 'icon-danger', path: (r) => `/admin/v1/approval/${String(r.id)}/reject`, message: '已驳回' }, { label: '撤销', icon: 'refresh', path: (r) => `/admin/v1/approval/${String(r.id)}/withdraw`, message: '已撤销' }] }) },
+      { label: '工作流定义', path: '/workflow/definition', cfg: res('工作流定义', '/admin/v1/workflow', { moduleKey: 'workflow', fields: [{ key: 'name', label: '模板名称', required: true }, { key: 'code', label: '模板编码', required: true }, { key: 'target_type', label: '目标类型', required: true }, { key: 'remark', label: '备注', type: 'textarea', full: true }], actions: [{ label: '发起审批', icon: 'send', path: (r) => `/admin/v1/workflow/${String(r.id)}/submit`, bodyFields: [{ key: 'target_type', label: '单据类型', required: true, placeholder: '如 purchase_order' }, { key: 'target_id', label: '单据 ID', required: true, type: 'number', help: '后端按整数 ID 查实例，填单据的数字 ID' }], message: '审批已发起' }] }) },
+      { label: '我的审批', path: '/workflow/my', cfg: res('我的审批', '/admin/v1/approval/my', { moduleKey: 'workflow', canDelete: false, columns: [textCol('target_type', '单据类型', true), textCol('target_id', '单据'), statusCol(docStatus(['审批中', '已通过', '已驳回', '已撤回']).dict), dateCol('created_at', '提交时间')], actions: [{ label: '通过', icon: 'check', path: (r) => `/admin/v1/approval/${String(r.id)}/approve`, message: '已通过' }, { label: '驳回', icon: 'close', variant: 'icon-danger', path: (r) => `/admin/v1/approval/${String(r.id)}/reject`, bodyFields: [{ key: 'comment', label: '驳回意见', required: true, type: 'textarea', full: true }], message: '已驳回' }, { label: '撤销', icon: 'refresh', path: (r) => (String(r.submitter_id) === currentUserId() ? `/admin/v1/approval/${String(r.id)}/withdraw` : null), message: '已撤销' }] }) },
     ],
   },
   {
@@ -287,7 +309,14 @@ export const mgmtMenus: MenuGroup[] = [
     children: [
       { label: '设备台账', path: '/eam/equipment', cfg: res('设备台账', '/admin/v1/eam/equipment', { moduleKey: 'eam', filters: ST_FILTER, fields: [{ key: 'code', label: '设备编码', required: true }, { key: 'name', label: '设备名称', required: true }, { key: 'category', label: '设备分类' }] }) },
       { label: '保养计划', path: '/eam/maintenance', cfg: res('保养计划', '/admin/v1/eam/maintenance', { moduleKey: 'eam', fields: [{ key: 'equipment_id', label: '设备', required: true, source: { endpoint: '/admin/v1/eam/equipment', labelKey: 'name' } }, { key: 'name', label: '计划名称', required: true }, { key: 'frequency', label: '保养频率', required: true, placeholder: '如 monthly' }] }) },
-      { label: '维修工单', path: '/eam/repair', cfg: res('维修工单', '/admin/v1/eam/repair', { moduleKey: 'eam', filters: DOC_FILTER, fields: [{ key: 'code', label: '维修工单号', required: true }, { key: 'equipment_id', label: '设备', required: true, source: { endpoint: '/admin/v1/eam/equipment', labelKey: 'name' } }, { key: 'fault_description', label: '故障描述', required: true, type: 'textarea', full: true }, { key: 'repair_type', label: '维修类型', required: true }], actions: [{ label: '状态流转', icon: 'activity', path: (r) => `/admin/v1/eam/repair/${String(r.id)}/transition`, message: '状态已更新' }] }) },
+      { label: '维修工单', path: '/eam/repair', cfg: res('维修工单', '/admin/v1/eam/repair', { moduleKey: 'eam', filters: REPAIR.filter, columns: [textCol('code', '工单号', true), textCol('repair_type', '维修类型'), textCol('fault_description', '故障描述'), REPAIR.col, dateCol('created_at', '创建时间')], fields: [{ key: 'code', label: '维修工单号', required: true }, { key: 'equipment_id', label: '设备', required: true, source: { endpoint: '/admin/v1/eam/equipment', labelKey: 'name' } }, { key: 'fault_description', label: '故障描述', required: true, type: 'textarea', full: true }, { key: 'repair_type', label: '维修类型', required: true }], actions: [{
+            label: '状态流转',
+            icon: 'activity',
+            // RepairOrderController::STATUS_TRANSITIONS 仅 open/in_progress 可流转
+            path: (r) => (['open', 'in_progress'].includes(String(r.status)) ? `/admin/v1/eam/repair/${String(r.id)}/transition` : null),
+            bodyFields: [{ key: 'status', label: '目标状态', required: true, type: 'select', options: [{ label: '维修中', value: 'in_progress' }, { label: '已完成', value: 'completed' }, { label: '已取消', value: 'cancelled' }] }],
+            message: '状态已更新',
+          }] }) },
       { label: '备件管理', path: '/eam/spare-part', cfg: res('备件管理', '/admin/v1/eam/spare-part', { moduleKey: 'eam', fields: [{ key: 'code', label: '备件编码', required: true }, { key: 'name', label: '备件名称', required: true }] }) },
       { label: '点检任务', path: '/eam/inspection', cfg: res('点检任务', '/admin/v1/eam/inspection', { moduleKey: 'eam', canDelete: false, fields: [{ key: 'equipment_id', label: '设备', required: true, source: { endpoint: '/admin/v1/eam/equipment', labelKey: 'name' } }, { key: 'task_date', label: '点检日期', required: true, type: 'date' }, { key: 'assignee_id', label: '负责人', source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }, { key: 'remark', label: '备注', type: 'textarea', full: true }], actions: [{ label: '取消点检', icon: 'close', path: (r) => `/admin/v1/eam/inspection/${String(r.id)}/cancel`, message: '已取消' }] }) },
     ],

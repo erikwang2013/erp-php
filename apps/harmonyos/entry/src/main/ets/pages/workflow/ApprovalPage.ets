@@ -8,6 +8,7 @@ import { L10n } from '../../utils/L10n';
 import { ErrorView, EmptyView } from '../../common/Components';
 import { TopBar } from '../../common/TopBar';
 import { ListRow, RowAction, RowBadge, ListSectionHeader } from '../../common/ListRow';
+import { FilterBar } from '../../common/FilterBar';
 
 /** 单据类型 → l10n 键（registry 注释：sales_order/purchase_apply/purchase_order/expense/leave/other） */
 const TARGET_TYPE_KEYS: Record<string, string> = {
@@ -31,6 +32,8 @@ struct ApprovalPage {
   private pageShown: boolean = false; // 首次 onPageShow 不重复加载
   private api: ApiService = new ApiService();
   private readonly limit: number = 20;
+  /** 搜索关键词（后端 /admin/approval/my 的 keyword 过滤） */
+  private keyword: string = '';
 
   aboutToAppear() {
     this.loadData();
@@ -53,7 +56,10 @@ struct ApprovalPage {
     }
     this.errMsg = '';
     try {
-      const res = await this.api.get<Record<string, Object>>(`/admin/approval/my?page=${this.page}&limit=${this.limit}`);
+      const kw = this.keyword.trim();
+      const pager = `page=${this.page}&limit=${this.limit}`;
+      const query = kw.length > 0 ? `${pager}&keyword=${encodeURIComponent(kw)}` : pager;
+      const res = await this.api.get<Record<string, Object>>(`/admin/approval/my?${query}`);
       const data = res.data as Record<string, Object>;
       this.items = (data['list'] as Array<Object>) ?? [];
       this.total = (data['total'] as number) ?? 0;
@@ -92,6 +98,19 @@ struct ApprovalPage {
         onRefresh: (): void => { this.loadData(true); },
         refreshing: this.loading || this.isRefreshing,
       })
+
+      // 搜索条（FilterBar 内建 300ms 防抖 + 清空钮）：改关键词回第 1 页重查；
+      // 独立于下方状态分支，空结果时仍可清空关键词
+      Row() {
+        FilterBar({
+          onSearch: (kw: string) => {
+            this.keyword = kw;
+            this.loadData(true);
+          }
+        })
+      }
+      .width('100%')
+      .padding({ left: 12, right: 12, top: 12 })
 
       if (this.loading) {
         LoadingProgress()

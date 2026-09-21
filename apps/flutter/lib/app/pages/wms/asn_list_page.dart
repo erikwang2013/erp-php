@@ -66,7 +66,65 @@ class _AsnListPageState extends State<AsnListPage> {
     }
   }
 
+  /// 仓库/供应商下拉：后端建单必填外键（install.sql erp_wms_asn `supplier_id`/`warehouse_id`
+  /// NOT NULL 无默认，控制器只校验 code）。选项值=行 id（hashid，符合对外 hashid 契约）。
+  /// 加载失败返回 false（弹提示）而不是静默空下拉，避免必填项无处可选。
+  Map<String, String> _warehouses = {};
+  Map<String, String> _suppliers = {};
+
+  Future<bool> _ensureRefs() async {
+    try {
+      final wh = await ApiService.instance.get('/admin/v1/warehouse', params: {'limit': '500'});
+      _warehouses = {
+        for (final r in List<Map<String, dynamic>>.from((wh['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['name'] ?? r['code'] ?? r['id']}',
+      };
+      final sp = await ApiService.instance.get('/admin/v1/supplier', params: {'limit': '500'});
+      _suppliers = {
+        for (final r in List<Map<String, dynamic>>.from((sp['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['name'] ?? r['code'] ?? r['id']}',
+      };
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
+  /// 作业动作（生成收货任务）：二次确认后 POST，成功后刷新列表。
+  /// 按钮由行 status 门控（WmsInboundService::startReceiving 只接受 status==0，
+  /// 且置 ASN 为 1）。零 body：收货仓库由后端取 ASN 自身 warehouse_id，dock_location_id 缺省 0。
+  Future<void> _runAction(String label, String path) async {
+    final l10n = AppL10n.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(label),
+        content: Text(l10n.detailConfirmOp(label)),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.commonCancel)),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.commonConfirm)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await ApiService.instance.post(path);
+      _load();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.commonOpSuccess)));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+    }
+  }
+
   Future<void> _create() async {
+    if (!await _ensureRefs() || !mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonAdd,
@@ -80,6 +138,7 @@ class _AsnListPageState extends State<AsnListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureRefs() || !mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).commonEdit,
@@ -114,13 +173,26 @@ class _AsnListPageState extends State<AsnListPage> {
     );
   }
 
+  /// erp_wms_asn 无 `name` 列（原 name 字段提交后被后端丢弃）：只留真实列与必填外键。
+  /// code 后端 store() 校验 required（自生成分支因此不可达）。
   List<FormFieldConfig> _formFields() => [
+    FormFieldConfig(name: 'code', label: AppL10n.of(context).commonCode, required: true),
     FormFieldConfig(
-      name: 'name',
-      label: AppL10n.of(context).commonName,
+      name: 'warehouse_id',
+      label: AppL10n.of(context).fieldWarehouse,
       required: true,
+      type: FormFieldType.dropdown,
+      options: _warehouses.keys.toList(),
+      optionLabels: _warehouses,
     ),
-    FormFieldConfig(name: 'code', label: AppL10n.of(context).commonCode),
+    FormFieldConfig(
+      name: 'supplier_id',
+      label: AppL10n.of(context).fieldSupplier,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: _suppliers.keys.toList(),
+      optionLabels: _suppliers,
+    ),
   ];
 
   @override
@@ -156,20 +228,25 @@ class _AsnListPageState extends State<AsnListPage> {
     ],
   );
 
+  /// erp_wms_asn 无 `name` 列（原首列恒空），只留真实列：ASN单号 + 操作。
   List<String> _columns() => [
-    AppL10n.of(context).commonName,
-    AppL10n.of(context).commonCode,
+    AppL10n.of(context).wmsAsnNo,
     AppL10n.of(context).commonAction,
   ];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
     return {
-      l.commonName: r['name'] ?? '',
-      l.commonCode: r['code'] ?? '',
+      l.wmsAsnNo: r['code'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if ('${r['status']}' == '0')
+            IconButton(
+              icon: Icon(Icons.move_to_inbox, size: 18, color: AppColors.of(context).success),
+              tooltip: l.wmsAsnCreateReceiving,
+              onPressed: () => _runAction(l.wmsAsnCreateReceiving, '/admin/v1/wms/asn/${r['id']}/receive'),
+            ),
           IconButton(
             icon: const Icon(Icons.edit, size: 18),
             onPressed: () => _edit(r),

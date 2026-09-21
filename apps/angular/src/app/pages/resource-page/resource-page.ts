@@ -9,6 +9,7 @@ import {
   computed,
   effect,
   inject,
+  input,
   OnInit,
   signal,
 } from '@angular/core';
@@ -16,10 +17,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import type { ActionDef, ColumnDef, ResourceConfig, Row } from '../../config/types';
+import type {
+  ActionDef,
+  ColumnDef,
+  FieldOption,
+  FormField,
+  ResourceConfig,
+  Row,
+} from '../../config/types';
 import { accentOf } from '../../config/types';
 import { http, qs, type PageData } from '../../core/api.service';
-import { text } from '../../core/format';
+import { date, dateTime, text } from '../../core/format';
 import { tr } from '../../core/i18n.service';
 import { OptionSource } from '../../core/option-source.service';
 import { Toast } from '../../core/toast.service';
@@ -32,12 +40,23 @@ import {
   inferColumns,
   inferDetailItems,
   relSources,
+  resultBlocks,
   specTags,
   take,
   type Cell,
   type RelLabels,
+  type ResultBlock,
 } from './columns';
-import { ResourceForm } from './resource-form';
+import {
+  ItemsField,
+  ResourceForm,
+  controlKind,
+  inputType,
+  optionViews,
+  type CtrlKind,
+  type ItemFieldView,
+  type OptView,
+} from './resource-form';
 
 const DEFAULT_LIMIT = 15;
 // ponytail: 后端部分 service 把 limit 夹在 [1,100]，超限静默截断，这里先对齐上限
@@ -70,6 +89,97 @@ function msg(e: unknown): string {
   return e instanceof Error ? e.message : '操作失败';
 }
 
+/** 动作表单（act.bodyFields）的字段视图：控件判定与主表单共用（见 resource-form 的 controlKind/optionViews） */
+interface ActionFieldView {
+  f: FormField;
+  kind: CtrlKind;
+  type: string;
+  options: OptView[];
+  itemViews: ItemFieldView[];
+  rows: Row[];
+}
+
+/**
+ * 结果视图：动作结果（act.showResult）与报表对象（无 list 的对象响应）共用的渲染器。
+ *
+ * 分块数据在 columns.resultBlocks 里算好（模板不做取值/判断），本组件只贴 DOM。
+ * 表格复用全局 .table/.table-wrap；键值行是本组件独有的分栏，故样式就近写在 styles 里
+ * （组件样式默认隔离，resource-page.less 的 .desc-* 到不了这里）。
+ */
+@Component({
+  selector: 'app-result-view',
+  standalone: true,
+  imports: [TrPipe],
+  template: `
+    @for (b of blocks(); track $index) {
+      <div class="blk" [style.margin-left.px]="b.depth * 12">
+        @if (b.title) {
+          <div class="blk-title">{{ b.title | tr }}</div>
+        }
+        @if (b.head.length) {
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  @for (h of b.head; track $index) {
+                    <th>{{ h | tr }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of b.cells; track $index) {
+                  <tr>
+                    @for (c of r; track $index) {
+                      <td>{{ c }}</td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          @for (it of b.kv; track $index) {
+            <div class="kv">
+              <span class="kv-k">{{ it.k | tr }}</span>
+              <span class="kv-v">{{ it.v }}</span>
+            </div>
+          }
+        }
+      </div>
+    }
+  `,
+  styles: [
+    `
+      .blk {
+        margin-bottom: 14px;
+      }
+      .blk-title {
+        font-weight: 600;
+        color: var(--text-1);
+        margin-bottom: 6px;
+      }
+      .kv {
+        display: flex;
+        gap: 12px;
+        padding: 5px 0;
+        border-bottom: 1px dashed var(--border);
+      }
+      .kv-k {
+        width: 140px;
+        flex-shrink: 0;
+        color: var(--text-2);
+      }
+      .kv-v {
+        flex: 1;
+        word-break: break-all;
+      }
+    `,
+  ],
+})
+export class ResultView {
+  readonly blocks = input.required<ResultBlock[]>();
+}
+
 /**
  * 配置驱动的资源页引擎 —— 一份组件驱动全部资源列表页。
  *
@@ -80,7 +190,7 @@ function msg(e: unknown): string {
 @Component({
   selector: 'app-resource-page',
   standalone: true,
-  imports: [NzButtonModule, NzTagModule, TrPipe, IconComponent, ResourceForm],
+  imports: [NzButtonModule, NzTagModule, TrPipe, IconComponent, ResourceForm, ItemsField, ResultView],
   templateUrl: './resource-page.html',
   styleUrl: './resource-page.less',
 })
@@ -118,6 +228,15 @@ export class ResourcePage implements OnInit {
   readonly pending = signal<Pending | null>(null);
   readonly pw = signal('');
   readonly busy = signal(false);
+  /** 动作表单（act.bodyFields）：收集值后直接执行，不再弹确认框 */
+  readonly actionForm = signal<{ row: Row; act: ActionDef } | null>(null);
+  readonly formVals = signal<Row>({});
+  /** 动作表单里 source 联动拉回的选项：字段 key（明细行子字段为 `${父}.${子}`）→ 选项 */
+  readonly formOpts = signal<Record<string, FieldOption[]>>({});
+  /** 动作结果弹窗（act.showResult）：GET 动作的回包按对象渲染 */
+  readonly result = signal<{ title: string; data: unknown } | null>(null);
+  /** 报表对象（响应无 list 的对象，如资产负债表/现金流量表）：走结果渲染器，隐藏分页器 */
+  readonly report = signal<Row | null>(null);
 
   readonly pageSizes = PAGE_SIZES;
   readonly skeleton = [0, 1, 2, 3];
@@ -207,6 +326,39 @@ export class ResourcePage implements OnInit {
       : p.act?.requirePassword === true;
   });
 
+  // ── 动作表单 / 结果弹窗（见 ActionDef.bodyFields / showResult 注释） ──
+  readonly actionTitle = computed(() => {
+    const af = this.actionForm();
+    return af ? tr(af.act.label) : '';
+  });
+  /** 动作表单的密码框要单独判：确认框的 needPassword 读的是 pending() */
+  readonly actionNeedPassword = computed(() => this.actionForm()?.act.requirePassword === true);
+  readonly actionViews = computed<ActionFieldView[]>(() => {
+    const vals = this.formVals();
+    const opts = this.formOpts();
+    return (this.actionForm()?.act.bodyFields ?? []).map((f) => ({
+      f,
+      kind: controlKind(f),
+      type: inputType(f),
+      options: optionViews(f, opts[f.key]),
+      itemViews: (f.itemFields ?? []).map((s) => ({
+        f: s,
+        kind: controlKind(s),
+        type: inputType(s),
+        options: optionViews(s, opts[`${f.key}.${s.key}`]),
+      })),
+      rows: Array.isArray(vals[f.key]) ? (vals[f.key] as Row[]) : [],
+    }));
+  });
+  readonly resultView = computed<ResultBlock[]>(() => {
+    const r = this.result();
+    return r ? resultBlocks(r.data, tr(r.title)) : [];
+  });
+  readonly reportView = computed<ResultBlock[]>(() => {
+    const r = this.report();
+    return r ? resultBlocks(r) : [];
+  });
+
   constructor() {
     // 查询条件任一变即重新拉取 —— 对齐 React useEffect 的依赖数组 [page,limit,keyword,filter]。
     //
@@ -241,6 +393,9 @@ export class ResourcePage implements OnInit {
       this.local = null;
       this.localKey = '';
       this.paged.set(true);
+      this.report.set(null);
+      this.actionForm.set(null);
+      this.result.set(null);
     });
   }
 
@@ -282,11 +437,24 @@ export class ResourcePage implements OnInit {
       if (!Array.isArray(data) && data.page !== undefined) {
         this.local = null;
         this.localKey = '';
+        this.report.set(null);
         this.rows.set(data.list ?? []);
         this.total.set(Number(data.total ?? 0));
         this.paged.set(true);
+      } else if (!Array.isArray(data) && !Array.isArray(data.list) && Object.keys(data).length > 0) {
+        // 报表类接口（finance BalanceSheetController/CashFlowController）返回的是报表对象：
+        // 既非数组也无 list，按分页信封解包会恒空 —— 走结果渲染器整块展示，分页器隐藏。
+        // 空对象 `{}` 不算报表（回落下面的空态分支），免得把「没有数据」画成一张空白报表。
+        this.local = null;
+        this.localKey = '';
+        this.rows.set([]);
+        this.total.set(0);
+        this.paged.set(false);
+        // 报表对象没有 list 键，与分页信封不同形，故这里按任意行处理
+        this.report.set(data as unknown as Row);
       } else {
         // 裸数组、`{list}`、`{list,total}` 无 page：整表收下本地切片（权限树就是这种）
+        this.report.set(null);
         this.setLocal(Array.isArray(data) ? data : (data.list ?? []), key);
       }
     } catch (e) {
@@ -430,11 +598,81 @@ export class ResourcePage implements OnInit {
 
   askAction(row: Row, act: ActionDef): void {
     this.pw.set('');
+    // 有 bodyFields 就是「先填参数再执行」：跳过确认框（表单本身即确认），密码仍在表单里收
+    if (act.bodyFields?.length) {
+      this.formVals.set({});
+      this.actionForm.set({ row, act });
+      void this.loadFormOpts(act.bodyFields);
+      return;
+    }
     this.pending.set({ kind: 'action', row, act });
   }
 
   closePending(): void {
     if (!this.busy()) this.pending.set(null);
+  }
+
+  closeActionForm(): void {
+    if (!this.busy()) this.actionForm.set(null);
+  }
+
+  closeResult(): void {
+    this.result.set(null);
+  }
+
+  /** 动作表单取值：空串/空数组不送（与主表单同规则），密码单独交给 act.body 的第二参 */
+  submitActionForm(): void {
+    const af = this.actionForm();
+    if (!af) return;
+    const extra: Row = {};
+    for (const f of af.act.bodyFields ?? []) {
+      const v = this.formVals()[f.key];
+      if (v === '' || v === null || v === undefined) continue;
+      if (Array.isArray(v) && !v.length) continue;
+      extra[f.key] = v;
+    }
+    void this.runAction(af.act, af.row, this.pw(), extra);
+  }
+
+  /** 动作表单控件取值：与主表单同规则（number 转 Number，空串保留到提交时丢弃） */
+  onFormInput(f: FormField, e: Event): void {
+    const raw = (e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value;
+    const v = f.type === 'number' ? (raw === '' ? '' : Number(raw)) : raw;
+    this.formVals.update((m) => ({ ...m, [f.key]: v }));
+  }
+
+  onFormItems(f: FormField, rows: Row[]): void {
+    this.formVals.update((m) => ({ ...m, [f.key]: rows }));
+  }
+
+  /** 控件显示值：date/datetime 要与原生控件的取值格式对齐（同 ResourceForm.valOf） */
+  formVal(f: FormField): string {
+    const v = this.formVals()[f.key];
+    if (v === null || v === undefined) return '';
+    if (f.type === 'date') return date(v);
+    if (f.type === 'datetime') return dateTime(v).replace(' ', 'T').slice(0, 16);
+    return String(v);
+  }
+
+  /** 动作表单的 source 联动选项（与列表页共用 OptionSource 缓存） */
+  private async loadFormOpts(fields: FormField[]): Promise<void> {
+    const pairs: [string, FormField][] = [];
+    for (const f of fields) {
+      if (f.source) pairs.push([f.key, f]);
+      for (const s of f.itemFields ?? []) if (s.source) pairs.push([`${f.key}.${s.key}`, s]);
+    }
+    if (!pairs.length) return;
+    const out: Record<string, FieldOption[]> = {};
+    await Promise.all(
+      pairs.map(async ([key, f]): Promise<void> => {
+        try {
+          out[key] = await this.sources.options(f.source!);
+        } catch {
+          // 单个资源失败保持空选项，不连坐其他字段
+        }
+      }),
+    );
+    this.formOpts.update((m) => ({ ...m, ...out }));
   }
 
   /**
@@ -444,6 +682,8 @@ export class ResourcePage implements OnInit {
   @HostListener('document:keydown.escape')
   onEsc(): void {
     if (this.pending()) this.closePending();
+    else if (this.actionForm()) this.closeActionForm();
+    else if (this.result()) this.closeResult();
     else if (this.detail()) this.closeDetail();
     else if (this.editing()) this.closeForm();
   }
@@ -469,6 +709,8 @@ export class ResourcePage implements OnInit {
     const cfg = this.cfg();
     if (!cfg) return;
     const id = String(take(row, 'id') ?? '');
+    // 行上没有 id（报表类接口的行、推断失败的行）时不要发 `/endpoint/` 这种空 id 请求
+    if (!id) return;
     this.busy.set(true);
     try {
       // 敏感资源（用户/角色/权限）删除需二次密码，后端 confirmPassword 校验
@@ -483,17 +725,34 @@ export class ResourcePage implements OnInit {
     }
   }
 
-  private async runAction(act: ActionDef, row: Row, password: string): Promise<void> {
+  private async runAction(
+    act: ActionDef,
+    row: Row,
+    password: string,
+    extra: Row = {},
+  ): Promise<void> {
     const path = act.path?.(row);
     if (!path) return;
     this.busy.set(true);
     try {
-      const body = act.body?.(row, password) ?? {};
-      if (act.method === 'GET') await http.get(path);
-      else if (act.method === 'PUT') await http.put(path, body);
-      else await http.post(path, body);
-      this.toast.success(act.message ? tr(act.message) : tr('操作成功'));
+      // 表单收集值在前、act.body 在后：同名键由 body 覆盖（bodyFields 只负责收集）
+      const body: Row = { ...extra, ...((act.body?.(row, password) ?? {}) as Row) };
+      if (act.method === 'GET') {
+        // GET 没有请求体：bodyFields 收集的值转查询串（qs 丢空值）
+        const url = act.bodyFields?.length
+          ? `${path}${qs(body as Record<string, string | number | undefined | null>)}`
+          : path;
+        const data = await http.get<unknown>(url);
+        // showResult：把回包渲染成弹窗，替代只弹「操作成功」（工资条、比价矩阵这类只读动作）
+        if (act.showResult) this.result.set({ title: act.label, data });
+        else this.toast.success(act.message ? tr(act.message) : tr('操作成功'));
+      } else {
+        if (act.method === 'PUT') await http.put(path, body);
+        else await http.post(path, body);
+        this.toast.success(act.message ? tr(act.message) : tr('操作成功'));
+      }
       this.pending.set(null);
+      this.actionForm.set(null);
       this.refresh();
       if (act.navTo) void this.router.navigateByUrl(act.navTo(row));
     } catch (e) {

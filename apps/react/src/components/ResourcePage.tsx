@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, take } from '@/components/DataTable';
 import {
@@ -10,20 +10,19 @@ import {
   Chips,
   ConfirmDialog,
   DescList,
-  Field,
   Input,
   Modal,
   PageHead,
   Select,
-  Textarea,
 } from '@/components/ui';
+import { FieldsDialog, ResultView } from '@/components/FormFields';
 import { api, http, qs, type PageData } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { text } from '@/lib/format';
 import { useTr } from '@/lib/i18n';
-import { accentOf, type ActionDef, type FieldOption, type FieldSource, type FormField, type Row } from '@/config/types';
+import { accentOf, type ActionDef, type Row } from '@/config/types';
 import { inferColumns, inferDetailItems } from '@/lib/defaults';
-import { loadOptions, prefetch } from '@/lib/options';
+import { prefetch } from '@/lib/options';
 
 /**
  * 配置驱动的通用 CRUD 页。
@@ -32,8 +31,9 @@ import { loadOptions, prefetch } from '@/lib/options';
  * 列表/搜索/分页/新增/编辑/删除/详情/业务动作全部复用本组件。
  * 后端新增资源时前端只加配置，不写页面。
  *
- * 兼容两种列表形状：分页对象 {list,total,page,limit} 与全量数组；
- * 收到数组时自动隐藏分页器，无需在配置里声明。
+ * 兼容三种列表形状：分页对象 {list,total,page,limit}、全量数组、报表对象
+ * （资产负债表/现金流量表整对象返回，无 list → 按对象递归渲染并隐藏分页器）；
+ * 收到数组或报表对象时自动隐藏分页器，无需在配置里声明。
  */
 
 const DEFAULT_LIMIT = 15;
@@ -62,6 +62,10 @@ export function ResourcePage({
   const [paginated, setPaginated] = useState(cfg.paginated !== false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  /** 报表类接口返回的整对象（非 null 时替代表格渲染） */
+  const [report, setReport] = useState<unknown>(null);
+  /** showResult 动作的返回数据弹窗 */
+  const [result, setResult] = useState<{ title: string; data: unknown } | null>(null);
 
   const [editing, setEditing] = useState<Row | 'new' | null>(null);
   const [detail, setDetail] = useState<Row | null>(null);
@@ -87,18 +91,27 @@ export function ResourcePage({
         params.limit = Math.min(limit, MAX_LIMIT);
       }
       try {
-        const data = await api<Row[] | PageData<Row>>(
+        const data = await api<Row[] | PageData<Row> | Row>(
           `${cfg.endpoint}${qs(params)}`,
         );
         if (!alive) return;
+        const list = Array.isArray(data) ? null : (data as Partial<PageData<Row>>).list;
         if (Array.isArray(data)) {
           setRows(data);
           setTotal(data.length);
           setPaginated(false);
-        } else {
-          setRows(data.list ?? []);
-          setTotal(data.total ?? 0);
+          setReport(null);
+        } else if (Array.isArray(list)) {
+          setRows(list);
+          setTotal((data as PageData<Row>).total ?? 0);
           setPaginated(true);
+          setReport(null);
+        } else {
+          // 报表类接口：data 就是报表对象，没有 list/total
+          setRows([]);
+          setTotal(0);
+          setPaginated(false);
+          setReport(data);
         }
       } catch (e) {
         if (!alive) return;
@@ -150,16 +163,31 @@ export function ResourcePage({
     }
   };
 
-  const runAction = async (act: ActionDef, row: Row, password: string) => {
+  const runAction = async (
+    act: ActionDef,
+    row: Row,
+    password: string,
+    fields: Record<string, unknown> = {},
+  ) => {
     const path = act.path?.(row);
     if (!path) return;
     setBusy(true);
     try {
-      const body = act.body?.(row, password) ?? {};
-      if (act.method === 'GET') await api(path);
-      else if (act.method === 'PUT') await api(path, { method: 'PUT', body });
-      else await api(path, { method: 'POST', body });
-      toast(act.message ? t(act.message) : t('操作成功'), 'ok');
+      // bodyFields 收集值在前，动作自算的 body 覆盖同名键
+      const body = { ...fields, ...(act.body?.(row, password) ?? {}) };
+      // GET 无请求体：收集值改拼 query（数组/对象转 JSON 串），否则静默丢弃；path 自带 ? 的场景不支持
+      const q: Record<string, string | number | undefined | null> = {};
+      for (const [k, v] of Object.entries(body)) {
+        if (v !== undefined && v !== null && v !== '') {
+          q[k] = typeof v === 'object' ? JSON.stringify(v) : (v as string | number);
+        }
+      }
+      let data: unknown;
+      if (act.method === 'GET') data = await api(`${path}${qs(q)}`);
+      else if (act.method === 'PUT') data = await api(path, { method: 'PUT', body });
+      else data = await api(path, { method: 'POST', body });
+      if (act.showResult) setResult({ title: act.label, data });
+      else toast(act.message ? t(act.message) : t('操作成功'), 'ok');
       setPending(null);
       refresh();
       if (act.navTo) nav(act.navTo(row));
@@ -169,6 +197,9 @@ export function ResourcePage({
       setBusy(false);
     }
   };
+
+  /** 待执行动作（kind='action' 时才有） */
+  const pendingAct = pending?.kind === 'action' ? pending.act : undefined;
 
   const actions = (row: Row) => (
     <div className="row-actions">
@@ -266,19 +297,23 @@ export function ResourcePage({
           />
         )}
 
-        <DataTable
-          columns={cols}
-          rows={rows}
-          loading={loading}
-          error={error}
-          onRetry={refresh}
-          total={total}
-          page={page}
-          limit={limit}
-          onPage={setPage}
-          showPager={paginated}
-          emptyDesc={cfg.emptyDesc}
-        />
+        {report !== null ? (
+          <ResultView data={report} />
+        ) : (
+          <DataTable
+            columns={cols}
+            rows={rows}
+            loading={loading}
+            error={error}
+            onRetry={refresh}
+            total={total}
+            page={page}
+            limit={limit}
+            onPage={setPage}
+            showPager={paginated}
+            emptyDesc={cfg.emptyDesc}
+          />
+        )}
       </div>
 
       {editing && (
@@ -303,7 +338,26 @@ export function ResourcePage({
         </Modal>
       )}
 
-      {pending && (
+      {result && (
+        <Modal title={t(result.title)} onClose={() => setResult(null)} wide>
+          <ResultView data={result.data} />
+        </Modal>
+      )}
+
+      {pending && pendingAct && pendingAct.bodyFields?.length ? (
+        // 需要收集参数的动作：表单即确认，不再弹确认框（requirePassword 仍走密码栏）
+        <FieldsDialog
+          title={t(pendingAct.label)}
+          fields={pendingAct.bodyFields}
+          row={pending.row}
+          requirePassword={pendingAct.requirePassword === true}
+          loading={busy}
+          onClose={() => {
+            if (!busy) setPending(null);
+          }}
+          onOk={(body, pw) => void runAction(pendingAct, pending.row, pw, body)}
+        />
+      ) : pending ? (
         <ConfirmDialog
           title={pending.kind === 'delete' ? t('确认删除') : (pending.act?.label ? t(pending.act.label) : t('确认操作'))}
           message={
@@ -328,7 +382,7 @@ export function ResourcePage({
             if (!busy) setPending(null);
           }}
         />
-      )}
+      ) : null}
     </>
   );
 }
@@ -345,7 +399,7 @@ function rowLabel(row: Row): string {
   return String(row.code ?? row.name ?? row.title ?? row.username ?? row.id ?? '');
 }
 
-/** 声明式表单弹窗 */
+/** 声明式表单弹窗（新增/编辑） */
 function FormDialog({
   cfg,
   row,
@@ -360,128 +414,40 @@ function FormDialog({
   const toast = useToast();
   const t = useTr();
   const isNew = row === null;
-  const [vals, setVals] = useState<Record<string, unknown>>(() => {
-    const init: Record<string, unknown> = {};
-    for (const f of cfg.fields ?? []) {
-      if (isNew && f.editOnly) continue;
-      if (!isNew && f.createOnly) continue;
-      init[f.key] = f.defaultValue ?? row?.[f.key] ?? '';
-    }
-    return init;
-  });
   const [busy, setBusy] = useState(false);
-  /** 数据联动下拉的远程选项，key = 字段名；打开表单时按 source 拉取 */
-  const [remote, setRemote] = useState<Record<string, FieldOption[]>>({});
-
-  useEffect(() => {
-    let alive = true;
-    const sources = (cfg.fields ?? []).filter((f): f is FormField & { source: FieldSource } => Boolean(f.source));
-    if (sources.length === 0) return;
-    (async () => {
-      const next: Record<string, FieldOption[]> = {};
-      await Promise.all(
-        sources.map(async (f) => {
-          next[f.key] = await loadOptions(f.source);
-        }),
-      );
-      if (alive) setRemote(next);
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [cfg.fields]);
-
-  const set = (k: string, v: unknown) => setVals((s) => ({ ...s, [k]: v }));
-
-  const submit = async () => {
-    for (const f of cfg.fields ?? []) {
-      if (f.noSubmit) continue;
-      if (isNew && f.editOnly) continue;
-      if (!isNew && f.createOnly) continue;
-      if (f.required && (vals[f.key] === '' || vals[f.key] === null || vals[f.key] === undefined)) {
-        toast(t('请填写「{label}」', { label: f.label }));
-        return;
-      }
-    }
-    const body: Record<string, unknown> = {};
-    for (const f of cfg.fields ?? []) {
-      if (f.noSubmit) continue;
-      if (isNew && f.editOnly) continue;
-      if (!isNew && f.createOnly) continue;
-      let v = vals[f.key];
-      if (v === '') v = undefined;
-      if (v !== undefined) body[f.key] = v;
-    }
-    setBusy(true);
-    try {
-      if (isNew) await http.post(cfg.endpoint, body);
-      else await http.put(`${cfg.endpoint}/${String(row?.id)}`, body);
-      toast(isNew ? t('新增成功') : t('保存成功'), 'ok');
-      onSaved();
-    } catch (e) {
-      toast(msg(e));
-    } finally {
-      setBusy(false);
-    }
-  };
+  // 过滤后引用稳定：FieldsDialog 的远程选项以 fields 引用为加载依赖
+  const fields = useMemo(
+    () => (cfg.fields ?? []).filter((f) => (isNew ? !f.editOnly : !f.createOnly)),
+    [cfg.fields, isNew],
+  );
+  const name = cfg.title.replace(/管理|列表/g, '');
 
   return (
-    <Modal
+    <FieldsDialog
       title={
         isNew
-          ? (cfg.createTitle ? t(cfg.createTitle) : t('新增{name}', { name: cfg.title.replace(/管理|列表/g, '') }))
-          : (cfg.editTitle ? t(cfg.editTitle) : t('编辑{name}', { name: cfg.title.replace(/管理|列表/g, '') }))
+          ? (cfg.createTitle ? t(cfg.createTitle) : t('新增{name}', { name }))
+          : (cfg.editTitle ? t(cfg.editTitle) : t('编辑{name}', { name }))
       }
+      fields={fields}
+      row={row}
+      loading={busy}
+      submitLabel={t('保存')}
       onClose={onClose}
-      wide={(cfg.fields ?? []).some((f) => f.full || f.type === 'textarea')}
-      footer={
-        <>
-          <Btn onClick={onClose}>{t('取消')}</Btn>
-          <Btn variant="primary" loading={busy} onClick={submit}>
-            {t('保存')}
-          </Btn>
-        </>
-      }
-    >
-      <div className="fields">
-        {(cfg.fields ?? [])
-          .filter((f) => (isNew ? !f.editOnly : !f.createOnly))
-          .map((f) => {
-            const val = vals[f.key] ?? '';
-            const common = {
-              value: val as string,
-              disabled: f.disabled,
-              placeholder: f.placeholder ? t(f.placeholder) : undefined,
-              onChange: (e: { target: { value: string } }) =>
-                set(f.key, f.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value),
-            };
-            return (
-              <Field key={f.key} label={f.label} required={f.required} full={f.full} help={f.help}>
-                {f.type === 'textarea' ? (
-                  <Textarea {...common} />
-                ) : f.type === 'select' || f.source ? (
-                  <Select {...common}>
-                    <option value="">{t('请选择')}</option>
-                    {(f.options ?? remote[f.key] ?? []).map((o) => (
-                      <option key={String(o.value)} value={String(o.value)}>
-                        {t(o.label)}
-                      </option>
-                    ))}
-                  </Select>
-                ) : f.type === 'password' ? (
-                  <Input type="password" {...common} />
-                ) : f.type === 'date' ? (
-                  <Input type="date" {...common} />
-                ) : f.type === 'datetime' ? (
-                  <Input type="datetime-local" {...common} />
-                ) : (
-                  <Input type={f.type === 'number' ? 'number' : 'text'} {...common} />
-                )}
-              </Field>
-            );
-          })}
-      </div>
-    </Modal>
+      onOk={async (body) => {
+        setBusy(true);
+        try {
+          if (isNew) await http.post(cfg.endpoint, body);
+          else await http.put(`${cfg.endpoint}/${String(row?.id)}`, body);
+          toast(isNew ? t('新增成功') : t('保存成功'), 'ok');
+          onSaved();
+        } catch (e) {
+          toast(msg(e));
+        } finally {
+          setBusy(false);
+        }
+      }}
+    />
   );
 }
 

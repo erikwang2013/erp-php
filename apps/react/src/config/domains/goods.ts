@@ -22,6 +22,7 @@ export const goodsMenus: MenuGroup[] = [
         label: '商品列表',
         path: '/product/product',
         cfg: res('商品管理', '/admin/v1/product', {
+          deleteNeedsPassword: true,
           fields: [
             { key: 'name', label: '商品名称', required: true },
             { key: 'code', label: '商品编码', required: true },
@@ -38,12 +39,13 @@ export const goodsMenus: MenuGroup[] = [
       {
         label: '商品分类',
         path: '/product/category',
-        cfg: res('商品分类', '/admin/v1/category', { fields: [{ key: 'name', label: '分类名称', required: true }] }),
+        cfg: res('商品分类', '/admin/v1/category', { deleteNeedsPassword: true, fields: [{ key: 'name', label: '分类名称', required: true }] }),
       },
       {
         label: '品牌管理',
         path: '/product/brand',
         cfg: res('品牌管理', '/admin/v1/brand', {
+          deleteNeedsPassword: true,
           fields: [
             { key: 'name', label: '品牌名称', required: true },
             { key: 'logo', label: 'LOGO 地址' },
@@ -57,8 +59,10 @@ export const goodsMenus: MenuGroup[] = [
         label: '商品规格',
         path: '/product/spec',
         cfg: res('商品规格', '/admin/v1/spec', {
+          deleteNeedsPassword: true,
           fields: [
             { key: 'name', label: '规格名称', required: true },
+            { key: 'attrs', label: '规格属性', type: 'textarea', full: true, help: 'JSON 对象，如 {"颜色":["红","蓝"]}；留空为 {}' },
             { key: 'sort', label: '排序', type: 'number', defaultValue: 0 },
             { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: ON_OFF },
           ],
@@ -77,19 +81,19 @@ export const goodsMenus: MenuGroup[] = [
         cfg: {
           title: '供应商',
           endpoint: '/admin/v1/supplier',
+          deleteNeedsPassword: true,
           filters: ST_FILTER,
           columns: [
             { key: 'name', title: '供应商', primary: true },
             { key: 'code', title: '编码' },
-            { key: 'contact', title: '联系人' },
+            { key: 'contact_person', title: '联系人' },
             { key: 'phone', title: '电话' },
-            moneyCol('credit_limit', '信用额度'),
             enabledCol(),
             dateCol('created_at', '创建时间'),
           ],
           fields: [
             { key: 'name', label: '供应商名称', required: true },
-            { key: 'code', label: '编码' },
+            { key: 'code', label: '编码', required: true, help: '后端 NOT NULL，留空直接 500' },
             { key: 'contact_person', label: '联系人' },
             { key: 'phone', label: '电话' },
             { key: 'email', label: '邮箱' },
@@ -109,12 +113,13 @@ export const goodsMenus: MenuGroup[] = [
         cfg: {
           title: '客户',
           endpoint: '/admin/v1/customer',
+          deleteNeedsPassword: true,
           filters: ST_FILTER,
           columns: [
             { key: 'name', title: '客户', primary: true },
             { key: 'code', title: '编码' },
-            { key: 'level', title: '等级' },
-            { key: 'contact', title: '联系人' },
+            { key: 'level_id', title: '等级' },
+            { key: 'contact_person', title: '联系人' },
             { key: 'phone', title: '电话' },
             moneyCol('credit_limit', '信用额度'),
             enabledCol(),
@@ -122,8 +127,8 @@ export const goodsMenus: MenuGroup[] = [
           ],
           fields: [
             { key: 'name', label: '客户名称', required: true },
-            { key: 'code', label: '编码' },
-            { key: 'level_id', label: '等级' },
+            { key: 'code', label: '编码', required: true, help: '后端 NOT NULL，留空直接 500' },
+            { key: 'level_id', label: '等级', source: { endpoint: '/admin/v1/customer-level' } },
             { key: 'contact_person', label: '联系人' },
             { key: 'phone', label: '电话' },
             { key: 'email', label: '邮箱' },
@@ -139,9 +144,10 @@ export const goodsMenus: MenuGroup[] = [
         label: '仓库',
         path: '/partner/warehouse',
         cfg: res('仓库管理', '/admin/v1/warehouse', {
+          deleteNeedsPassword: true,
           fields: [
             { key: 'name', label: '仓库名称', required: true },
-            { key: 'code', label: '仓库编码' },
+            { key: 'code', label: '仓库编码', required: true, help: '后端 NOT NULL，留空直接 500' },
             { key: 'address', label: '地址' },
             { key: 'manager', label: '负责人' },
             { key: 'phone', label: '电话' },
@@ -153,6 +159,7 @@ export const goodsMenus: MenuGroup[] = [
         label: '库位',
         path: '/partner/location',
         cfg: res('库位管理', '/admin/v1/location', {
+          deleteNeedsPassword: true,
           fields: [
             { key: 'warehouse_id', label: '所属仓库', source: { endpoint: '/admin/v1/warehouse' } },
             { key: 'code', label: '库位编码' },

@@ -61,31 +61,52 @@ export class ApiService {
     }
 
     // 后端版本段置于 URL（/api/v1/*、/admin/v1/*），与 Flutter 端一致；
-    // 页面层统一写不带 v1 的业务路径，在此注入
-    const versionedPath = path.replace(/^\/(admin|api)\//, '/$1/v1/');
+    // 页面层统一写不带 v1 的业务路径，在此注入。
+    // 负向断言 (?!v\d+\/) 防二次注入：已带版本的路径保持原样，不再变 /api/v1/v1/...
+    const versionedPath = path.replace(/^\/(admin|api)\/(?!v\d+\/)/, '/$1/v1/');
     const url = `${BASE_URL}${versionedPath}`;
     const response = await ApiService.getHttp().request(url, options);
 
-    // 401 通道：首轮 401 → 单飞刷新 → 成功后重放原请求
-    if (response.responseCode === 401 && retryCount === 0) {
-      const refreshed = await ApiService.doRefresh();
-      if (refreshed) {
-        // 刷新成功，用新 token 重试原始请求
-        return this.request<T>(method, path, body, retryCount + 1);
-      }
-      // 刷新失败：清除语义已内聚在 doRefresh 的"服务器明确拒绝"路径，
-      // 此处不再 clear（网络抖动不误登出），仅抛 UNAUTHORIZED 由页面映射友好文案
-      throw new Error('UNAUTHORIZED');
-    }
-
-    // 二轮 401：服务器拒绝了新 token，确凿登出
+    // HTTP 层 401（网关/代理直出）：与信封层 401 同一处理
     if (response.responseCode === 401) {
-      await TokenManager.clearTokens();
-      throw new Error('UNAUTHORIZED');
+      return this.onUnauthorized<T>(method, path, body, retryCount);
     }
 
     // L3：解析失败抛业务错误，不透传原生异常导致崩溃
-    return ApiService.parseResult<T>(response.result as string);
+    const envelope = ApiService.parseResult<T>(response.result as string);
+
+    // 401 判定在信封层：后端鉴权失败 HTTP 恒 200、业务码在 body.code
+    // （app/middleware/AdminAuth.php:34），故 responseCode===401 永不成立
+    if (envelope.code === 401) {
+      return this.onUnauthorized<T>(method, path, body, retryCount);
+    }
+
+    // 业务码 ≠0：统一抛服务端 message，页面 catch 即可展示（不再静默拿空 data）
+    if (envelope.code !== 0) {
+      throw new Error(envelope.message && envelope.message.length > 0
+        ? envelope.message : `Request failed (code ${envelope.code})`);
+    }
+
+    return envelope;
+  }
+
+  /**
+   * 401 统一处理：首轮 → 单飞刷新后重放原请求；二轮 → 服务器拒绝新 token，确凿登出。
+   * 首轮刷新失败不 clear（清除语义已内聚在 doRefresh 的"服务器明确拒绝"路径，
+   * 网络抖动不误登出），仅抛 UNAUTHORIZED 由页面映射友好文案。
+   */
+  private async onUnauthorized<T>(method: http.RequestMethod, path: string, body: object | undefined,
+    retryCount: number): Promise<ApiResponse<T>> {
+    if (retryCount > 0) {
+      await TokenManager.clearTokens();
+      throw new Error('UNAUTHORIZED');
+    }
+    const refreshed = await ApiService.doRefresh();
+    if (refreshed) {
+      // 刷新成功，用新 token 重试原始请求
+      return this.request<T>(method, path, body, retryCount + 1);
+    }
+    throw new Error('UNAUTHORIZED');
   }
 
   /**

@@ -38,7 +38,16 @@ export interface FieldSource {
 }
 
 export type FieldType =
-  'text' | 'number' | 'textarea' | 'select' | 'password' | 'date' | 'datetime' | 'tree';
+  | 'text'
+  | 'number'
+  | 'textarea'
+  | 'select'
+  | 'password'
+  | 'date'
+  | 'datetime'
+  | 'tree'
+  /** 明细行：`itemFields` 是子字段定义，值是可增删的重复行，提交为对象数组 */
+  | 'items';
 
 export interface FormField {
   key: string;
@@ -63,6 +72,12 @@ export interface FormField {
   /** 编辑态初值取行上的此字段（默认同 key，如 permission_ids 取 row.permissions） */
   initKey?: string;
   help?: string;
+  /**
+   * type:'items' 的子字段定义（每行一个对象，键即子字段 key）。
+   * 子字段只支持标量控件（select/number/text/date…），不再嵌套 items；
+   * 子字段的 source 联动同主表单，值按 `${父key}.${子key}` 取回。
+   */
+  itemFields?: FormField[];
 }
 
 export interface FilterDef {
@@ -80,8 +95,19 @@ export interface ActionDef {
   method?: 'POST' | 'PUT' | 'GET';
   /** 请求体；password 为二次确认密码（requirePassword 时注入） */
   body?: (row: Row, password: string) => unknown;
+  /**
+   * 点击后先弹表单收集这些字段（FormField 同一套语义），再带着收集值执行；
+   * 配了它就不再弹确认框（收集表单本身即确认）。
+   * 最终请求体 = `{ ...收集值, ...(body?.(row, password) ?? {}) }`（body 覆盖同名字段）。
+   */
+  bodyFields?: FormField[];
   /** 危险操作需二次输入密码（后端 confirmPassword） */
   requirePassword?: boolean;
+  /**
+   * GET 动作：成功后把返回数据渲染进弹窗（数组→表格、对象→键值表，嵌套递归），
+   * 而不是只提示「操作成功」（如工资条、比价矩阵）。
+   */
+  showResult?: boolean;
   message?: string;
   /** 成功后跳转路由 */
   navTo?: (row: Row) => string;
@@ -113,8 +139,8 @@ export interface ColumnDef {
   kind?: ColumnKind;
   /** 树形平铺响应（行带 __depth）时按层级缩进本列 */
   indent?: boolean;
-  /** status/map 用字典：状态码 → 中文文案 */
-  dict?: Record<number, string>;
+  /** status/map 用字典：状态码或字符串状态（draft、in_progress…）→ 中文文案 */
+  dict?: Record<number | string, string>;
   /** kind:'rel' 的 id → 名称映射（来源于 FieldSource 的联动选项） */
   rel?: Record<string, string>;
 }

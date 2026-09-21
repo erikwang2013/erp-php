@@ -45,6 +45,37 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
     }
   }
 
+  /// 工单动作（开工/完工）：二次确认后 POST，成功后刷新列表。
+  /// 按钮由行 status 门控（后端状态机 0 待生产 → 1 生产中 → 2 已完成；
+  /// 开工要求 0、完工要求 1）。完工的 completed_quantity/warehouse_id 均可缺省
+  /// （后端取计划数量与工单仓库），故零 body 提交。
+  Future<void> _runAction(String label, String path) async {
+    final l10n = AppL10n.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(label),
+        content: Text(l10n.detailConfirmOp(label)),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.commonCancel)),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.commonConfirm)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await ApiService.instance.post(path);
+      _load();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.commonOpSuccess)));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+    }
+  }
+
   Future<void> _load() async {
     final seq = ++_reqSeq;
     setState(() => _loading = true);
@@ -89,7 +120,7 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
 
   // 与后端契约对齐（erp_mfg_production_order）：code/bom_id NOT NULL、store() 均 required；
   // planned_quantity 亦 required；表无 name 列（幻键已移除）。bom_id 为 FK：下拉选 BOM
-  // （值=hashid，后端双模解码）；列表行 bom_id 为原生整数不可回填 → 编辑时下拉为空需重选。
+  // （值=hashid，后端双模解码）；列表行 bom_id 亦为 hashid（index 已 encodeIds），故编辑可回填。
   List<FormFieldConfig> _formFields() => [
     FormFieldConfig(name: 'code', label: AppL10n.current.manufacturingCode, required: true),
     FormFieldConfig(
@@ -135,6 +166,14 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
     AppL10n.current.mfgBom: r['bom_id'] ?? '',
     AppL10n.current.manufacturingPlannedQty: r['planned_quantity'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
+      if ('${r['status']}' == '0')
+        IconButton(icon: Icon(Icons.play_arrow, size: 18, color: AppColors.of(context).success),
+          tooltip: AppL10n.current.mfgProductionStart,
+          onPressed: () => _runAction(AppL10n.current.mfgProductionStart, '/admin/v1/mfg/production/${r['id']}/start')),
+      if ('${r['status']}' == '1')
+        IconButton(icon: Icon(Icons.check_circle, size: 18, color: AppColors.of(context).success),
+          tooltip: AppL10n.current.mfgProductionComplete,
+          onPressed: () => _runAction(AppL10n.current.mfgProductionComplete, '/admin/v1/mfg/production/${r['id']}/complete')),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),

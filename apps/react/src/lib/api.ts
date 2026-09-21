@@ -69,7 +69,7 @@ export function clearTokens(): void {
   localStorage.removeItem(REFRESH_KEY);
 }
 
-interface RequestOptions {
+export interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: unknown;
   /** 为 true 时跳过 401 续期（登录/刷新接口自身） */
@@ -148,7 +148,9 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
 
 export const http = {
   get: <T>(path: string) => api<T>(path),
-  post: <T>(path: string, body?: unknown) => api<T>(path, { method: 'POST', body }),
+  /** opts 供预授权接口（登录）跳过 401 续期，否则密码错误会被当成登录过期重放 */
+  post: <T>(path: string, body?: unknown, opts?: RequestOptions) =>
+    api<T>(path, { ...opts, method: 'POST', body }),
   put: <T>(path: string, body?: unknown) => api<T>(path, { method: 'PUT', body }),
   del: <T>(path: string) => api<T>(path, { method: 'DELETE' }),
 };

@@ -43,7 +43,28 @@ class _SalaryPageState extends State<SalaryPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
+  /// 员工下拉：列表只回 hashid（index 已 encodeIds employee_id），故按 id 选项、
+  /// 姓名做展示文案。加载失败返回 false（弹提示）而不是静默空下拉。
+  Map<String, String> _employees = {};
+
+  Future<bool> _ensureEmployees() async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/hr/employee', params: {'limit': '500'});
+      _employees = {
+        for (final r in List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['name'] ?? r['code'] ?? r['id']}',
+      };
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
+    if (!await _ensureEmployees() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.hrSalaryCreateTitle, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/hr/salary', data: _buildPayload(data));
@@ -52,6 +73,7 @@ class _SalaryPageState extends State<SalaryPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureEmployees() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.hrSalaryEditTitle, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/hr/salary/${row['id']}', data: _buildPayload(data));
@@ -68,7 +90,10 @@ class _SalaryPageState extends State<SalaryPage> {
   }
 
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'employee_id', label: AppL10n.current.hrEmployeeId, required: true),
+    // employee_id 为员工下拉：选项值取行 id（hashid）——列表只回 hashid、不回数字 ID，
+    // 手输数字 ID 不可用；后端 salaryStore/salaryUpdate 双模解码。
+    FormFieldConfig(name: 'employee_id', label: AppL10n.current.hrEmployeeId, required: true,
+      type: FormFieldType.dropdown, options: _employees.keys.toList(), optionLabels: _employees),
     FormFieldConfig(name: 'period_year', label: AppL10n.current.hrSalaryYear, required: true, type: FormFieldType.number),
     FormFieldConfig(name: 'period_month', label: AppL10n.current.hrSalaryMonth, required: true, type: FormFieldType.number),
     FormFieldConfig(name: 'base_salary', label: AppL10n.current.hrSalaryBase, type: FormFieldType.number, hint: AppL10n.current.hrSalaryAmountHint),
@@ -214,6 +239,16 @@ class _SalaryPageState extends State<SalaryPage> {
     AppL10n.current.commonAction,
   ];
 
+  /// 员工列：优先 employee 关联中的姓名，缺失时回退员工ID（与 leave_page 同款）。
+  static String _empLabel(Map<String, dynamic> r) {
+    final emp = r['employee'];
+    if (emp is Map) {
+      final n = emp['name'];
+      if (n != null && '$n'.isNotEmpty) return '$n';
+    }
+    return '${r['employee_id'] ?? ''}';
+  }
+
   /// 后端 status 可能返回 int 或字符串数字，宽容解析。
   static bool _paid(Map<String, dynamic> r) {
     final s = r['status'];
@@ -221,7 +256,7 @@ class _SalaryPageState extends State<SalaryPage> {
   }
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.hrEmployeeId: r['employee_id'] ?? '',
+    AppL10n.current.hrEmployeeId: _empLabel(r),
     AppL10n.current.hrSalaryPeriod: '${r['period_year'] ?? ''}-${r['period_month'] ?? ''}',
     AppL10n.current.hrSalaryBase: r['base_salary'] ?? '',
     AppL10n.current.hrSalaryNet: r['net_salary'] ?? '',

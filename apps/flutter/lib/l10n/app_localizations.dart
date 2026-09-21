@@ -1046,12 +1046,6 @@ abstract class AppLocalizations {
   /// **'请假原因'**
   String get hrLeaveReason;
 
-  /// No description provided for @hrLeaveEmployeeHint.
-  ///
-  /// In zh, this message translates to:
-  /// **'从员工列表页获取数字ID'**
-  String get hrLeaveEmployeeHint;
-
   /// No description provided for @hrLeavePeriod.
   ///
   /// In zh, this message translates to:
@@ -4844,17 +4838,53 @@ abstract class AppLocalizations {
   /// **'预到货(ASN)'**
   String get wmsAsnTitle;
 
+  /// No description provided for @wmsAsnNo.
+  ///
+  /// In zh, this message translates to:
+  /// **'ASN单号'**
+  String get wmsAsnNo;
+
+  /// No description provided for @wmsDocNo.
+  ///
+  /// In zh, this message translates to:
+  /// **'单号'**
+  String get wmsDocNo;
+
+  /// No description provided for @wmsAsnCreateReceiving.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成收货任务'**
+  String get wmsAsnCreateReceiving;
+
   /// No description provided for @wmsReceivingTitle.
   ///
   /// In zh, this message translates to:
   /// **'收货管理'**
   String get wmsReceivingTitle;
 
+  /// No description provided for @wmsReceivingStart.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始收货'**
+  String get wmsReceivingStart;
+
   /// No description provided for @wmsPutawayTitle.
   ///
   /// In zh, this message translates to:
   /// **'上架管理'**
   String get wmsPutawayTitle;
+
+  /// No description provided for @wmsPutawayStart.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始上架'**
+  String get wmsPutawayStart;
+
+  /// No description provided for @wmsPutawayComplete.
+  ///
+  /// In zh, this message translates to:
+  /// **'上架完成'**
+  String get wmsPutawayComplete;
 
   /// No description provided for @wmsWaveTitle.
   ///
@@ -4868,11 +4898,29 @@ abstract class AppLocalizations {
   /// **'拣货管理'**
   String get wmsPickTitle;
 
+  /// No description provided for @wmsPickStart.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始拣货'**
+  String get wmsPickStart;
+
   /// No description provided for @wmsPackTitle.
   ///
   /// In zh, this message translates to:
   /// **'打包管理'**
   String get wmsPackTitle;
+
+  /// No description provided for @wmsPackStart.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始打包'**
+  String get wmsPackStart;
+
+  /// No description provided for @wmsPackComplete.
+  ///
+  /// In zh, this message translates to:
+  /// **'打包完成'**
+  String get wmsPackComplete;
 
   /// No description provided for @tmsCarrierTitle.
   ///
@@ -4915,6 +4963,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'生产工单'**
   String get mfgProductionTitle;
+
+  /// No description provided for @mfgProductionStart.
+  ///
+  /// In zh, this message translates to:
+  /// **'开工'**
+  String get mfgProductionStart;
+
+  /// No description provided for @mfgProductionComplete.
+  ///
+  /// In zh, this message translates to:
+  /// **'完工'**
+  String get mfgProductionComplete;
 
   /// No description provided for @mfgRoutingTitle.
   ///

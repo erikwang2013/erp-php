@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../config/menu_config.dart';
 import '../l10n/app_l10n.dart';
@@ -311,6 +312,11 @@ class _AdminLayoutState extends State<AdminLayout> {
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(ctx);
+                    // 服务端吊销令牌（须在 clearToken 之前，请求要带旧 token；
+                    // 失败不阻断本地登出，与 profile_page.dart 一致）
+                    try {
+                      await ApiService.instance.post('/admin/v1/profile/logout');
+                    } catch (_) {}
                     await AuthService.clearToken();
                     // 换号登录不得复用旧账号权限树（模块级缓存，deleteAll 清不到）
                     RoleController.clearPermissionCache();

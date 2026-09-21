@@ -58,7 +58,28 @@ class _LeavePageState extends State<LeavePage> {
     }
   }
 
+  /// 员工下拉：列表只回 hashid（leaveIndex 已 encodeIds employee_id），故按 id 选项、
+  /// 姓名做展示文案。加载失败返回 false（弹提示）而不是静默空下拉。
+  Map<String, String> _employees = {};
+
+  Future<bool> _ensureEmployees() async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/hr/employee', params: {'limit': '500'});
+      _employees = {
+        for (final r in List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['name'] ?? r['code'] ?? r['id']}',
+      };
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _create() async {
+    if (!await _ensureEmployees() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.hrLeaveCreateTitle, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/hr/leave', data: _buildPayload(data));
@@ -67,6 +88,7 @@ class _LeavePageState extends State<LeavePage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureEmployees() || !mounted) return;
     final l10n = AppL10n.of(context);
     await FormDialog.show(context, title: l10n.hrLeaveEditTitle, fields: _formFields(),
       initialData: _toEditData(row), onSubmit: (data) async {
@@ -84,8 +106,17 @@ class _LeavePageState extends State<LeavePage> {
   }
 
   /// 请假类型/状态/天数均为后端校验必填；日期需 YYYY-MM-DD 字符串（不做日历组件）。
+  /// employee_id 为员工下拉：选项值取行 id（hashid）——列表只回 hashid、不回数字 ID，
+  /// 手输数字 ID 不可用；后端 leaveStore/leaveUpdate 双模解码。
   List<FormFieldConfig> _formFields() => [
-    FormFieldConfig(name: 'employee_id', label: AppL10n.current.hrEmployeeId, required: true, hint: AppL10n.current.hrLeaveEmployeeHint),
+    FormFieldConfig(
+      name: 'employee_id',
+      label: AppL10n.current.hrEmployeeId,
+      required: true,
+      type: FormFieldType.dropdown,
+      options: _employees.keys.toList(),
+      optionLabels: _employees,
+    ),
     FormFieldConfig(name: 'type', label: AppL10n.current.hrLeaveType, type: FormFieldType.dropdown, required: true,
       options: [for (var i = 0; i < _typeLabels.length; i++) '${i + 1} - ${_typeLabels[i]}'], initialValue: '1 - ${_typeLabels[0]}'),
     FormFieldConfig(name: 'start_date', label: AppL10n.current.hrLeaveStartDate, required: true, hint: AppL10n.current.hrLeaveDateHint),

@@ -13,9 +13,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, fromEvent } from 'rxjs';
 import { MENUS, NOTIFICATION_PATH, RESOURCE_ROUTES, SCREENS, SPECIAL_ROUTES } from '../config/menu';
-import { http } from '../core/api.service';
+import { UNAUTHORIZED_EVENT, http } from '../core/api.service';
 import { AuthStore } from '../core/auth.store';
 import { LOCALES, currentLocale, setLocale, type Locale } from '../core/i18n.service';
 import { TrPipe } from '../core/tr.pipe';
@@ -108,6 +108,13 @@ export class Shell implements OnInit, OnDestroy {
         const g = MENUS.find((m) => m.children.some((c) => c.path === p));
         if (g && !this.open().has(g.label)) this.open.set(new Set([g.label]));
       });
+
+    // 会话失效（续期也失败）→ 回登录页。React 靠 App.tsx:18 的 authed 判定重渲染立即跳，
+    // Angular 的守卫只在导航时求值：这里不接，用户就只剩「状态被清空」而页面还在，
+    // 停在一个永远报错的空壳上反复点。
+    fromEvent(window, UNAUTHORIZED_EVENT)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => void this.router.navigateByUrl('/login', { replaceUrl: true }));
   }
 
   ngOnInit(): void {
@@ -120,8 +127,10 @@ export class Shell implements OnInit, OnDestroy {
   }
 
   private loadUnread(): void {
+    // 字面量后端路由（config/route.php:358）：NOTIFICATION_PATH 是前端路由 /notification，
+    // 当 API 前缀用会 404，角标恒 0
     http
-      .get<{ count: number }>(`${NOTIFICATION_PATH}/unread-count`)
+      .get<{ count: number }>('/admin/v1/notification/unread-count')
       .then((d) => this.unread.set(Number(d?.count ?? 0)))
       .catch(() => undefined);
   }
