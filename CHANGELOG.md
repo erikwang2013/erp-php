@@ -4,7 +4,7 @@
 
 ## v1.19.0 (2026-09-21)
 
-**审计轮**：后端↔前端契约与「页面实际操作可达性」全量核对后的缺陷修复批次（153 个文件，其中 15 份为文档统计标注自愈）。重点是三类**必现故障**——创建即 500、明细行 ID 未解码（静默丢数据）、登录人机验证链（正确答案也判错）；另修掉一处 500 响应把原始异常（含库名与整条 SQL）回给客户端的错误处理死代码。范围只含缺陷，不含新功能开发，未修项见文末。
+**审计轮**：后端↔前端契约与「页面实际操作可达性」全量核对后的缺陷修复批次（154 个文件，其中 15 份为文档统计标注自愈）。重点是三类**必现故障**——创建即 500、明细行 ID 未解码（静默丢数据）、登录人机验证链（正确答案也判错）；另修掉一处 500 响应把原始异常（含库名与整条 SQL）回给客户端的错误处理死代码。范围只含缺陷，不含新功能开发，未修项见文末。
 
 ### 修复 · 创建即 500（校验规则与真实列不符）
 - 真实 **`NOT NULL` 无默认列**无人提供 → MySQL 严格模式 1364：库位（`location_id`/`zone_id`）、库区（`warehouse_id`/`code`）、调拨（`from`/`to_warehouse_id`）、盘点（`code`/`warehouse_id`）、运输服务（`carrier_id`）、运费发票（`carrier_id`/`shipment_id`）、RMA（`customer_id`）——后端补 `required`，双端表单补必填项与下拉数据源
@@ -17,6 +17,7 @@
 ### 修复 · 契约与交互不兼容
 - **明细行 ID 未解码（静默丢数据）**：`receiving/{id}/complete`、`pick/{id}/confirm`、`wave/{id}/release` 的 `items[].product_id`/`sku_id`/`location_id` 由前端下拉下发 **hashid**，后端直接进 SQL ⇒ 作 WHERE 时数字比较恒不命中（UPDATE 影响 0 行**且不报错**）、作 INSERT 值在严格模式 1366 → 500。新增 `BaseController::decodeItemIds()`（批量双模解码，任一行任一字段非法即 422），三个端点接入
 - **hashid 0 哨兵**：递归编码把 `*_id = 0`（318 个 `NOT NULL DEFAULT 0` 列的零值哨兵）编成真值串，破坏前端「falsy = 未选」契约 —— 哨兵保持原值
+- **外键裸 ID 泄给客户端（写响应与部分列表）**：`encodeIds()` 旧默认名单只有 `id` 本身，`supplier_id`/`customer_id` 这类外键在下单/改单响应里直出雪花 ID —— 既与「所有 ID 经 hashids 加密传输」（`docs/FEATURE_DESIGN.md`）相悖，也让前端「行内 FK ↔ 下拉选项（hashid）」对不上（前端的下拉 `source` 拿到的都是 hashid）。改为默认递归编码任意层级的 `id` / `*_id`（显式名单仍可收窄），并加防二次编码；**客户端可见的契约变更**，写响应此后与 list/show 同形（详见升级须知）
 - **422 消息把规则键甩给用户**：`resource/translations/zh_CN/validation.php` 只有扁平 `min`/`max`，而 illuminate 取 `validation.<规则>.<类型>`（**无扁平键回退**）⇒ 实测客户端看到的就是 `validation.max.string`。按 8 条带参规则 × 4 类型重写（影响 171 处 `max:` / 40 `min:` / 40 `size:` / 6 `between:` / 3 `gt:`）
 - **状态字典张冠李戴**：Angular `crm.ts` 全文件只有一个 `STAGE` 字典，却被商机/合同/报价/工单四张 status 域**各不相同**的表共用（工单 `status=3` 真实语义是「已关闭」，页面显示「赢单」）→ 拆成 OPP/CONTRACT/QUOT/TICKET 四份（对齐 React）
 - **表单字段键错**（必 422 或静默不落库）：`stage`→`stage_id`、`amount`→`estimated_amount`、`sign_date`→`signed_at`
@@ -41,7 +42,7 @@
 - `database/install.sql` 补 19 条权限种子（WMS 作业闭环 + `mfg`/`hr`/`report` 三个此前无权限节点的模块顶级菜单）
 
 ### 配置
-- `config/poster.php`：`image.driver` 由 `auto` 改 `gd`；`background_dir` 由不存在的 `assets/backgrounds` 指向 `public/img`（目录/文件缺失时回退程序化背景，不报错）
+- `config/poster.php`：`image.driver` 由 `auto` 改 `gd`（rotate 几何随驱动变，四端读数只有一套）；`background_dir` 由不存在的 `assets/backgrounds` 改为 `null`（程序化背景 —— 上游对目录内图片**无尺寸守卫**，本机 `public/img` 里 3 张 ~30MP 照片单张解码峰值即 ~90MB，128M 上限下验证码请求直接 fatal）
 - `composer.lock`：依赖补丁级更新（`doctrine/lexer` 3.0.1→3.0.2、`symfony/*` v7.4.18→v7.4.19、`phpunit/phpunit` 12.5.34→12.5.35 等）
 - `resource/translations/*/install.php` 12 语种文案同步（密码/用户名口径）
 
@@ -49,6 +50,8 @@
 - **已部署的库需补 19 条权限种子**（`install.sql` 只覆盖全新安装），否则新端点对已有角色不可见；幂等 SQL 的 id 为 `31000000000000751`–`31000000000000769`
 - **apidoc 文档站已开启鉴权**：须在 `.env` 设 `APIDOC_PASSWORD` / `APIDOC_SECRET_KEY`，留空则文档站拒绝访问（不影响应用启动）
 - 新增的 `required` 校验会把此前「静默丢数据」变为明确 422 —— 第三方客户端若未带这些字段需同步
+- **写接口响应中的外键 ID 改为 hashid**（原先直出雪花 ID，如 `POST/PUT /admin/v1/purchase/order` 的 `supplier_id`）：仓库内四端前端都不读写响应（提交后重载列表），故不受影响；若有外部集成按整数解析这类响应，需同步改为 hashid（`HashidsService::decode()` 可还原）
+- `config/poster.php` 的 `background_dir` 留 `null`（程序化背景）。要换真实背景图请另建目录并**先把图压到验证码画布尺寸**（300×200 上下）——指向 `public/img` 这类原图目录会让每次验证码请求吃掉几十 MB 内存
 
 ### 待办 / 已知遗留（本轮未修）
 - `max:200` 类宽度不符仍有 44 处；仓库内 30+ 处 `save()` 无唯一键冲突（1062）捕获 —— 建议加全局唯一键冲突处理器，而非逐处 `try/catch`

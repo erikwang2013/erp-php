@@ -287,8 +287,10 @@ class DetailContractRegressionTest extends TestCase
             $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
             $data = $body['data'] ?? [];
             $orderId = HashidsService::decode((string) ($data['id'] ?? ''));
-            // store 响应与历史形状一致仅编码 id，supplier_id 出 raw int（解码后的值）
-            $this->assertSame($supplierId, $data['supplier_id'] ?? null);
+            // 对外 ID 一律 hashid（docs/FEATURE_DESIGN.md「所有ID…hashids 加密传输」）：
+            // 写响应与 list/show 同形，supplier_id 出解码落库后重编码的 hashid；
+            // 「fill 未用 hash 串覆写」由下面读库断言独立保证
+            $this->assertSame($this->encodeId($supplierId), $data['supplier_id'] ?? null);
 
             $row = PurchaseOrder::find($orderId);
             $this->assertSame($supplierId, (int) $row->supplier_id, 'store 落库 supplier_id 应为解码后的 int（fill 不得用 hash 串覆写）');
@@ -318,7 +320,7 @@ class DetailContractRegressionTest extends TestCase
             );
             $body = $this->jsonBody($resp);
             $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
-            $this->assertSame($supplierB, ($body['data']['supplier_id'] ?? null));
+            $this->assertSame($this->encodeId($supplierB), ($body['data']['supplier_id'] ?? null));
 
             $row = PurchaseOrder::find($orderId);
             $this->assertSame($supplierB, (int) $row->supplier_id, 'update 落库 supplier_id 应为解码后的 int');
@@ -343,8 +345,8 @@ class DetailContractRegressionTest extends TestCase
             $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
             $data = $body['data'] ?? [];
             $orderId = HashidsService::decode((string) ($data['id'] ?? ''));
-            // 响应形状与历史一致仅编码 id，customer_id 出 raw int（解码后的值）
-            $this->assertSame($customerId, $data['customer_id'] ?? null);
+            // 对外 ID 一律 hashid（同 purchase store）：写响应与 list/show 同形
+            $this->assertSame($this->encodeId($customerId), $data['customer_id'] ?? null);
 
             $row = SalesOrder::find($orderId);
             $this->assertSame($customerId, (int) $row->customer_id, 'store 落库 customer_id 应为解码后的 int（fill 不得用 hash 串覆写）');
@@ -374,7 +376,7 @@ class DetailContractRegressionTest extends TestCase
             );
             $body = $this->jsonBody($resp);
             $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
-            $this->assertSame($customerB, $body['data']['customer_id'] ?? null);
+            $this->assertSame($this->encodeId($customerB), $body['data']['customer_id'] ?? null);
 
             $row = SalesOrder::find($orderId);
             $this->assertSame($customerB, (int) $row->customer_id, 'update 落库 customer_id 应为解码后的 int');
