@@ -2,17 +2,20 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
+import { COLUMN_TITLES_EXTRA } from './column-titles-extra';
+
 /**
  * 列标题词典：字段名 → 中文标题（只给中文原文，翻译交给模板 | tr，语言切换才会重渲染）。
  *
- * 三层来源，按优先级合并（同名键只留高优先级）：
+ * 四层来源，按优先级合并（同名键只留高优先级）：
  * 1) 引擎原有通用档（编号/名称/合计… 32 条）—— 少了它们 no/total/subtotal 等会退回驼峰英文；
  * 2) 各域 config/domains/*.ts 表单字段的 {key,label}（按 key 去重，同 key 取出现最多者）；
- * 3) 常见外键与时间戳补充档（订单号/客户/创建时间…）。
+ * 3) 常见外键与时间戳补充档（订单号/客户/创建时间…）；
+ * 4) install.sql 列注释生成的全量补充档（`config/column-titles-extra/`，勿手改）。
  *
  * 键是中文 → core/zh-*.ts 词典能查到 → 各语种正常翻译。
  */
-export const COLUMN_TITLES: Record<string, string> = {
+const BASE: Record<string, string> = {
   acceptor: '承兑人',
   account_id: '费用科目',
   address: '地址',
@@ -190,3 +193,6 @@ export const COLUMN_TITLES: Record<string, string> = {
   workstation_id: '工作站',
   zone_id: '库区',
 };
+
+/** 上表（人工档）优先，补充档只补缺 —— 两端同源，见 scripts/gen-column-titles.mjs */
+export const COLUMN_TITLES: Record<string, string> = { ...COLUMN_TITLES_EXTRA, ...BASE };

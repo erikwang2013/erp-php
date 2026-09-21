@@ -5,6 +5,7 @@
 import type { ReactNode } from 'react';
 import type { Column } from '@/components/DataTable';
 import { Badge } from '@/components/ui';
+import { COLUMN_TITLES_EXTRA } from '@/config/column-titles-extra';
 import type { FieldSource, FormField, Row } from '@/config/types';
 import { dateTime, money, statusText, statusTone, text } from '@/lib/format';
 import { tr } from '@/lib/i18n';
@@ -25,6 +26,8 @@ import { optionLabel } from '@/lib/options';
  * 页面级差异交给 inferColumns 的 fields.label 覆盖。
  */
 const TITLES: Record<string, string> = {
+  // 补充档先铺底（install.sql 列注释生成，勿手改），下列人工档覆盖同名键
+  ...COLUMN_TITLES_EXTRA,
   acceptor: '承兑人',
   account_id: '费用科目',
   address: '地址',
