@@ -57,7 +57,8 @@ export class CaptchaDialog implements OnDestroy {
   readonly busy = signal(false);
   readonly challenge = signal<CaptchaChallenge | null>(null);
   readonly clicks = signal<ClickPoint[]>([]);
-  /** 旋转角度（0–359，顺时针为正，与服务端逆时针旋转的还原量对应） */
+  /** 旋转角度（0–359，顺时针为正）。服务端画的图本身已顺时针转了 A°，故摆正时读数 ≡ 360−A；
+   *  服务端按 −读数 ≡ A 比对（详见 CaptchaController::rotatePayload），本组件保持顺时针递增 */
   readonly angle = signal(0);
   /** 拼图块显示位移（CSS px）；提交前除以 scale 换算回原生像素 */
   readonly dist = signal(0);

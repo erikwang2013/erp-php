@@ -22,11 +22,13 @@ import { useToast } from '@/lib/toast';
  * 1. POST /api/v1/captcha/generate { type:'random', difficulty:'medium' }
  *    → { key, type:实际类型(click/rotate/slider), image(单层base64 PNG), extra }
  *      click:  extra.targets[{text,order}]（坐标属服务端秘密）
- *      rotate: extra={}（方形 200×200，内容被逆时针旋转了秘密角度 A）
+ *      rotate: extra={}（方形 200×200，内容被**顺时针**旋转了秘密角度 A°；
+ *              GdDriver 内部 imagerotate(-A) 即顺时针，勿按"逆时针"改本组件）
  *      slider: extra={puzzle(缺口原内容块), puzzle_w, puzzle_h}（缺口 y 不返回）
  * 2. 按 data.type 分支渲染并采集：
  *      click  → 用户按 targets.order 顺序点击 → verify { key, clicks:[{x,y}] }
- *      rotate → 用户用 0-359 旋钮顺时针把图转正（读数 θ≡A）→ verify { key, angle }
+ *      rotate → 用户用 0-359 旋钮顺时针把图转正（摆正时读数 θ≡360−A，服务端按 −θ≡A 比对）
+ *               → verify { key, angle }
  *      slider → 用户把拼图块从 x=0 右拖到缺口下方对齐 → verify { key, distance }
  * 3. 验证成功回调已验 key。
  * 坐标换算：click/slider 均按「显示尺寸 → 原图 300×200（原生像素）」换算。

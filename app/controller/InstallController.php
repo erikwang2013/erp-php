@@ -508,11 +508,18 @@ class InstallController
         $username = trim($request->input('admin_username', ''));
         $password = $request->input('admin_password', '');
         $confirm = $request->input('admin_password_confirm', '');
-        if (strlen($username) < 3) {
-            $errors[] = $this->t('Administrator user name must be at least 3 characters');
+        // 长度一律按「字符」计（mb_strlen），且上下界与登录/建档/改密完全对齐
+        // （AuthController: username min:3|max:50、password min:6|max:32）。
+        // 两处坑：strlen 数是字节数，而登录侧 illuminate 的 getSize() 对字符串用
+        // mb_strlen——中文口令「3 个字」= 9 字节能过 ≥6 的下界，登录却判 3<6 → 恒 422；
+        // 且安装期原本不卡上界，超长口令装出来的唯一管理员登不进、改密也要旧密码，
+        // 只能改库才能救回。列宽同界：username VARCHAR(50)（uk_username）、
+        // password VARCHAR(255) 存 bcrypt 哈希，故上界即接口策略而非列宽。
+        if (mb_strlen($username) < 3 || mb_strlen($username) > 50) {
+            $errors[] = $this->t('Administrator user name must be 3-50 characters');
         }
-        if (strlen($password) < 6) {
-            $errors[] = $this->t('Password must be at least 6 characters');
+        if (mb_strlen($password) < 6 || mb_strlen($password) > 32) {
+            $errors[] = $this->t('Password must be 6-32 characters');
         }
         if ($password !== $confirm) {
             $errors[] = $this->t('The two passwords do not match');

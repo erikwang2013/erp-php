@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace app\api\v1\controller;
 
 use support\Log;
-use support\Redis;
 use support\Request;
 use support\Response;
 use Throwable;
@@ -99,7 +98,7 @@ class CaptchaController
      * 校验验证码（三种类型统一入口，默认 click）
      */
     #[\erikwang2013\apidoc\annotation\Title('校验验证码')]
-    #[\erikwang2013\apidoc\annotation\Desc('三型验证码统一校验点：click 传 clicks 坐标序列、rotate 传 angle 角度、slider 传 distance 拖动距离（与原图同尺度像素）；通过即消费挑战并写入一次性放行凭证（captcha_pass:<key>，5 分钟有效），登录/注册接口凭 captcha_key 消费放行，不再重复比对')]
+    #[\erikwang2013\apidoc\annotation\Desc('三型验证码统一校验点：click 传 clicks 坐标序列、rotate 传 angle（用户为摆正图片所施加的顺时针读数 0-359）、slider 传 distance 拖动距离（与原图同尺度像素）；通过即消费挑战并写入一次性放行凭证（captcha_pass:<key>，5 分钟有效），登录/注册接口凭 captcha_key 消费放行，不再重复比对')]
     #[\erikwang2013\apidoc\annotation\Url('/api/v1/captcha/verify')]
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
@@ -107,7 +106,7 @@ class CaptchaController
     #[\erikwang2013\apidoc\annotation\Param(name:'type', type:'string', default:'click', desc:'验证码类型(click/rotate/slider)')]
     #[\erikwang2013\apidoc\annotation\Param(name:'key', type:'string', require:true, desc:'验证码标识')]
     #[\erikwang2013\apidoc\annotation\Param(name:'clicks', type:'array', desc:'点击坐标(click 必填, 如 [{"x":120,"y":80}])')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'angle', type:'number', desc:'旋转角度(rotate 必填, 0-359)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'angle', type:'number', desc:'旋转角度(rotate 必填, 0-359)：用户为摆正图片所施加的顺时针读数（图片被顺时针转了 A°，摆正时读数即 360-A）')]
     #[\erikwang2013\apidoc\annotation\Param(name:'distance', type:'number', desc:'滑块拖动距离(slider 必填, 与验证码原图同尺度像素)')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=验证通过,422=验证失败')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
@@ -128,7 +127,7 @@ class CaptchaController
         // 校验负载按类型提取；null = 参数缺失或格式错误
         $payload = match ($type) {
             'click' => $this->clickPayload($request),
-            'rotate' => $this->floatPayload($request, 'angle'),
+            'rotate' => $this->rotatePayload($request),
             'slider' => $this->floatPayload($request, 'distance'),
         };
         if ($payload === null) {
@@ -139,14 +138,20 @@ class CaptchaController
 
         if ($valid) {
             // 验证成功：插件挑战已被一次性消费（见 CaptchaManager::verify 成功即 del），
-            // 改记业务侧放行凭证，登录/注册凭 captcha_key 消费放行、不再重复比对坐标
+            // 改记业务侧放行凭证，登录/注册凭 captcha_key 消费放行、不再重复比对坐标。
+            // 存储必须与挑战同驱动（captcha_pass_store()），不能硬编码 Redis。
             try {
-                Redis::setex("captcha_pass:{$key}", 300, '1');
+                $written = captcha_pass_store()->set("captcha_pass:{$key}", ['pass' => 1], 300);
             } catch (\Throwable $e) {
-                // 凭证写失败 = 放行链断裂，fail-closed 拒绝并记录根因
-                Log::error('验证码放行凭证写入失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+                $written = false;
+                Log::error('验证码放行凭证写入异常: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+            }
+            if (!$written) {
+                // 凭证写失败 = 放行链断裂，fail-closed 拒绝；这是服务端存储故障，
+                // 不能报成「验证失败」（用户会以为是自己答错而反复重试）
+                Log::error("验证码放行凭证写入失败 key={$key} | TraceId: " . trace_id());
 
-                return json(['code' => 500, 'message' => '验证码校验失败，请重试', 'data' => []]);
+                return json(['code' => 500, 'message' => '验证码服务异常，请稍后重试', 'data' => []]);
             }
         }
 
@@ -175,5 +180,24 @@ class CaptchaController
         $value = $request->input($field);
 
         return is_numeric($value) ? (float)$value : null;
+    }
+
+    /**
+     * 旋转型负载：取客户端读数（用户为摆正图片所施加的顺时针度数）的负值交给插件。
+     *
+     * 插件按「还原幅度 A」比对（CaptchaManager::checkRotate 比 |θ-A| ≤ 容差），而
+     * GdDriver::rotate(+A) 画出的图片内容本身就是**顺时针 A°**（内部 imagerotate(-A)，
+     * 已实测），用户把图摆正时读数 = 360-A ≠ A —— 直接透传等于无论怎么摆正都判失败。
+     * 取负后 -(360-A) ≡ A (mod 360)，插件的负角归一化（fmod 后 +360）正好接住。
+     *
+     * 四个前端（Angular/React/Flutter/HarmonyOS）读数约定一致：顺时针递增、提交读数。
+     * 容差与一次性消费不变，取负是双射，不会放宽判定。驱动方向随驱动而变，
+     * 故 config/poster.php 把 image.driver 钉死 gd（该包硬依赖 ext-gd）。
+     */
+    private function rotatePayload(Request $request): ?float
+    {
+        $angle = $this->floatPayload($request, 'angle');
+
+        return $angle === null ? null : -$angle;
     }
 }

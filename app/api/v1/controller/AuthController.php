@@ -413,15 +413,20 @@ class AuthController
             return false;
         }
         try {
+            // 与 CaptchaController::verify 写凭证用同一驱动（详见 captcha_pass_store()）：
+            // 早先这里读 Redis 而挑战按配置存文件，Redis 不可用时放行链必断（登录恒 422）
+            $store = captcha_pass_store();
             $marker = "captcha_pass:{$key}";
-            $passed = Redis::get($marker) === '1';
-            if ($passed) {
-                Redis::del($marker);
+            $stored = $store->get($marker);
+            if ($stored !== null && ($stored['pass'] ?? null) === 1) {
+                $store->del($marker);
+
+                return true;
             }
 
-            return $passed;
+            return false;
         } catch (\Throwable $e) {
-            Log::error('人机验证放行凭证读取失败（Redis 不可用）: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+            Log::error('人机验证放行凭证读取失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
 
             return false;
         }

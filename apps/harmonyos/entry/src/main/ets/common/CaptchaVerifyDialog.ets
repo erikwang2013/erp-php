@@ -11,8 +11,7 @@
  *   2) 再凭 key 调业务接口（登录不再接收/比对坐标）。
  * 用户取消（点遮罩/右上角取消）回传 null。
  */
-import http from '@ohos.net.http';
-import { ApiResponse } from '../model/DataModels';
+import { ApiService } from '../service/ApiService';
 import { L10n } from '../utils/L10n';
 
 export interface CaptchaTarget {
@@ -51,6 +50,12 @@ interface CaptchaRespData {
   extra?: CaptchaExtra;
 }
 
+/** POST /api/v1/captcha/generate 请求体（ArkTS 禁止无类型对象字面量，须对应已声明 interface） */
+interface CaptchaGenerateBody {
+  type: string;
+  difficulty: string;
+}
+
 interface ClickMarker {
   x: number;
   y: number;
@@ -71,8 +76,6 @@ const UNDO_RADIUS = 14;
 
 @CustomDialog
 export struct CaptchaVerifyDialog {
-  /** API 前缀，如 http://127.0.0.1:8787/api/v1 */
-  baseUrl: string = '';
   /** 作答完成回调：result 携带 key+按类型作答；用户取消传 null */
   onResult: (result: CaptchaResult | null) => void = () => {
   };
@@ -91,7 +94,7 @@ export struct CaptchaVerifyDialog {
   @State rotAngle: number = 0;
   @State sliderNative: number = 0;
 
-  private httpClient: http.HttpRequest = http.createHttp();
+  private api: ApiService = new ApiService();
   private captchaKey: string = '';
   /** click 点满后延迟关框窗口（防最后一枚标记来不及绘制） */
   private closing: boolean = false;
@@ -100,12 +103,8 @@ export struct CaptchaVerifyDialog {
     this.load();
   }
 
-  aboutToDisappear(): void {
-    this.httpClient.destroy();
-  }
-
   /** 拉取随机验证码挑战；type='random' 由服务端三型分发，实际型见 data.type */
-  load(): void {
+  async load(): Promise<void> {
     this.loading = true;
     this.failed = false;
     this.closing = false;
@@ -115,40 +114,30 @@ export struct CaptchaVerifyDialog {
     this.sliderNative = 0;
     this.puzzleImg = '';
 
-    const req = http.createHttp();
-    req.request(
-      `${this.baseUrl}/captcha/generate`,
-      {
-        method: http.RequestMethod.POST,
-        header: { 'content-type': 'application/json' },
-        extraData: JSON.stringify({ type: 'random', difficulty: 'medium' }),
-        connectTimeout: 10000,
-        readTimeout: 10000,
-      },
-      (err, resp) => {
-        req.destroy();
-        if (err || resp.result === undefined) {
-          this.onLoadFailed();
-          return;
-        }
-        const body = JSON.parse(resp.result as string) as ApiResponse<CaptchaRespData>;
-        if (body.code !== 0 || !body.data) {
-          this.onLoadFailed();
-          return;
-        }
-        const d = body.data;
-        const type = d.type === 'rotate' || d.type === 'slider' ? d.type : 'click';
-        const extra = d.extra ?? {};
-        this.captchaKey = d.key;
-        this.type = type;
-        this.image = d.image;
-        this.targets = extra.targets ?? [];
-        this.puzzleW = extra.puzzle_w ?? 50;
-        this.puzzleH = extra.puzzle_h ?? 50;
-        this.puzzleImg = extra.puzzle ?? '';
-        this.loading = false;
-        this.failed = false;
-      });
+    try {
+      // 统一走 ApiService：由它注入 /api/v1 版本段并做信封/错误处理（勿再裸 createHttp）
+      const payload: CaptchaGenerateBody = { type: 'random', difficulty: 'medium' };
+      const body = await this.api.post<CaptchaRespData>('/api/captcha/generate', payload);
+      const d = body.data;
+      if (!d || !d.key) {
+        this.onLoadFailed();
+        return;
+      }
+      const type = d.type === 'rotate' || d.type === 'slider' ? d.type : 'click';
+      const extra = d.extra ?? {};
+      this.captchaKey = d.key;
+      this.type = type;
+      this.image = d.image;
+      this.targets = extra.targets ?? [];
+      this.puzzleW = extra.puzzle_w ?? 50;
+      this.puzzleH = extra.puzzle_h ?? 50;
+      this.puzzleImg = extra.puzzle ?? '';
+      this.loading = false;
+      this.failed = false;
+    } catch (_) {
+      // 网络异常 / 业务码≠0（ApiService 已抛出 message）统一走失败位，可点重试
+      this.onLoadFailed();
+    }
   }
 
   private onLoadFailed(): void {

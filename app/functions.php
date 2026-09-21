@@ -205,6 +205,24 @@ function db_prefix(): string
     return $prefix !== '' ? (string) $prefix : (string) (getenv('DB_PREFIX') ?: '');
 }
 
+/**
+ * 单据号：调用方给了就原样用（Flutter 端自生成 PREFIX+年月日时分秒下发），
+ * 留空（缺省/空串）用雪花号兜底，避免各端「新增」因 uk_code 必填而 422。
+ *
+ * 兜底不用「前缀+时间戳」：各表 code 有 uk_code 唯一索引，同秒并发即撞（500），
+ * 而雪花号跨进程单调唯一——与 wms/tms 服务生成单号的既有写法一致
+ * （WmsInboundService::'RCV'.SnowflakeService::generate() 等）。
+ */
+function doc_code(mixed $given, string $prefix): string
+{
+    $code = trim((string) $given);
+    if ($code !== '') {
+        return $code;
+    }
+
+    return $prefix . \app\common\SnowflakeService::generate();
+}
+
 // poster-php 配置挂载：PosterConfig 默认只读包内 vendor config（driver 硬编码 auto），
 // 项目 config/poster.php 需在此显式加载才生效（生产与测试共用此引导路径）。
 // PosterConfig::load(null) 会按包内默认路径重载并因 mtime 不等而覆盖已挂载配置
@@ -216,3 +234,20 @@ if (is_file($posterPkgConfig) && is_file($posterAppConfig)) {
     @touch($posterPkgConfig, (int) filemtime($posterAppConfig));
 }
 \Erikwang2013\Poster\PosterConfig::load($posterAppConfig);
+
+if (!function_exists('captcha_pass_store')) {
+    /**
+     * 人机验证「放行凭证」存储：必须与验证码挑战同一驱动（config/poster.php captcha.storage，
+     * 可经 .env POSTER_CAPTCHA_STORAGE 覆盖；auto = Redis > Session > File 自动探测）。
+     *
+     * 写入方 CaptchaController::verify、读取方 AuthController::consumeCaptchaPass 都走这里。
+     * 曾经写入方硬编码 Redis、而挑战按配置存文件：Redis 不可用时**正确答案也返回 500**，
+     * 且消息误报成「验证码校验失败，请重试」（用户会以为是自己点歪了而反复重试）。
+     */
+    function captcha_pass_store(): \Erikwang2013\Poster\Storage\StorageInterface
+    {
+        return \Erikwang2013\Poster\Storage\StorageFactory::create(
+            \Erikwang2013\Poster\PosterConfig::get('captcha.storage')
+        );
+    }
+}

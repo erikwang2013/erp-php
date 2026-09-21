@@ -9,8 +9,11 @@ return [
     // ── Image Driver 图像处理驱动 ──
     'image' => [
         // 驱动类型 / Driver type: 'auto' | 'gd' | 'imagick'
-        // 'auto' auto-detects available driver / 自动检测可用驱动
-        'driver' => 'auto',
+        // 钉死 gd：rotate 验证码的**画图方向**取决于驱动（GD 走 imagerotate(-A)，实测
+        // 内容顺时针转 A°；换 imagick 即换一套几何），而四端前端的旋钮读数约定只有一套。
+        // 'auto' 会随机器是否装 imagick 换驱动 → 同一份前端在另一台机器上整套旋转验证全判错。
+        // 本包硬依赖 ext-gd（composer require ext-gd），钉死 gd 不会缺驱动。
+        'driver' => 'gd',
 
         // JPEG output quality / JPEG 输出质量 0-100
         'quality' => 90,
@@ -45,7 +48,7 @@ return [
         // 默认背景图目录（放 png/jpg/gif/webp），随机选用
         // null = 使用程序化生成
         // Background image directory; null = procedural generation
-        'background_dir' => dirname(__DIR__) . '/assets/backgrounds',
+        'background_dir' => dirname(__DIR__) . '/public/img',
 
         // 程序化背景风格 / Procedural background styles
         // Available: 'minimal', 'vibrant', 'natural'

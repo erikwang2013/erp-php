@@ -79,7 +79,8 @@ class _CaptchaVerifyDialogState extends State<CaptchaVerifyDialog> {
   Uint8List? _image;
   Uint8List? _puzzle; // slider 拼图片（可能带 data: 前缀，解码时统一剥离）
   final List<Offset> _clicks = [];
-  // rotate：顺时针旋钮读数（0-359），图随之顺时针旋转，摆正时读数=服务端秘密角
+  // rotate：顺时针旋钮读数（0-359），图随之顺时针旋转；服务端画的图本身已顺时针转了
+  // 秘密角 A°，故摆正时读数 = 360-A（服务端按 -读数 ≡ A 比对，勿改成反向旋转）
   double _rot = 0;
   // slider：拼图左缘相对原点(0)的位移，原生 px（服务端校验口径）
   double _sliderNative = 0;
