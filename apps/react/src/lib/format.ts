@@ -42,6 +42,11 @@ export function text(v: unknown): string {
   return s === '' ? '-' : s;
 }
 
+/** 异常 → 可展示文案（Error.message，否则兜底「操作失败」） */
+export function errMsg(e: unknown): string {
+  return e instanceof Error ? e.message : '操作失败';
+}
+
 /** 截断长文本 */
 export function clip(s: unknown, n = 24): string {
   const t = text(s);

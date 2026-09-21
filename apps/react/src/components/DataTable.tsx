@@ -20,6 +20,8 @@ export interface Column<T> {
   width?: number;
   /** 主业务列：加粗 */
   primary?: boolean;
+  /** 树形平铺响应（行带 __depth）时按层级缩进本列 */
+  indent?: boolean;
 }
 
 export interface TableProps<T> {
@@ -111,7 +113,11 @@ export function DataTable<T extends Record<string, unknown>>({
                       c.primary ? 'primary' : '',
                       c.align === 'right' ? 'num' : '',
                     ].join(' ')}
-                    style={{ textAlign: c.align === 'right' ? 'right' : undefined }}
+                    style={{
+                      textAlign: c.align === 'right' ? 'right' : undefined,
+                      // 树形平铺行按 __depth 缩进（基准 12px 与 .table td 的 padding 对齐）
+                      paddingLeft: c.indent && row['__depth'] ? 12 + Number(row['__depth']) * 16 : undefined,
+                    }}
                   >
                     {c.render ? c.render(row) : String(take(row, c.key) ?? '-')}
                   </td>

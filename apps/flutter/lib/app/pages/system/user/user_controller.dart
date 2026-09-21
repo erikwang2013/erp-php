@@ -18,10 +18,42 @@ class UserController extends GetxController {
   final statusFilter = Rx<int?>(null);
   final selectedIds = <String>{}.obs;
 
+  /// 角色下拉数据源（弹框勾选用）：/admin/v1/role 行 id 为 hashid、label 取 name。
+  /// 懒加载——弹框打开前才拉，管理端不进用户弹框就零请求；失败降级空表（见 loadRoles）。
+  final roles = <dynamic>[].obs;
+
   @override
   void onInit() {
     super.onInit();
     loadUsers();
+  }
+
+  /// 拉取用户详情（phone/email 为明文，列表接口下发的是脱敏值）。
+  /// 编辑弹框初值必须走这里 —— 列表行的打码值回存会覆盖真值（写入不可恢复）。
+  /// 失败返回 null 由调用方回落列表行，不阻断弹框打开。
+  Future<Map<String, dynamic>?> getUser(String id) async {
+    try {
+      final resp = await api.get('/admin/v1/user/$id');
+      final data = resp['data'];
+      return data is Map ? Map<String, dynamic>.from(data) : null;
+    } catch (e) {
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackError, l10n.systemUserLoadFailedMsg('$e'));
+      return null;
+    }
+  }
+
+  /// 拉取角色清单。失败不抛：弹框仍可打开（勾选器为空、按「关联保持不动」
+  /// 语义提交，不会静默清空既有角色），并提示可重开弹框重试。
+  Future<void> loadRoles() async {
+    try {
+      // limit=500 与后端 pageParams 上限一致：默认 15 会让角色多的租户漏项
+      final resp = await api.get('/admin/v1/role', params: {'limit': 500});
+      roles.value = resp['data']['list'] as List<dynamic>? ?? [];
+    } catch (e) {
+      final l10n = AppL10n.current;
+      Get.snackbar(l10n.commonSnackError, l10n.systemRoleLoadFailedMsg('$e'));
+    }
   }
 
   Future<void> loadUsers({bool reset = false}) async {
@@ -71,7 +103,8 @@ class UserController extends GetxController {
   }
 
   /// 新建用户:data 为弹框收集的字符串键值(username/password/real_name/phone/email/status)。
-  Future<bool> createUser(Map<String, String> data) async {
+  /// [roleIds] 为角色 hashid 数组（弹框勾选结果，非字符串键值故单独传参）。
+  Future<bool> createUser(Map<String, String> data, {List<String> roleIds = const []}) async {
     final l10n = AppL10n.current;
     try {
       await api.post('/admin/v1/user', data: {
@@ -81,6 +114,7 @@ class UserController extends GetxController {
         'phone': data['phone'],
         'email': data['email'],
         'status': int.tryParse(data['status'] ?? '') ?? 1,
+        'role_ids': roleIds,
       });
       await loadUsers(reset: true);
       Get.snackbar(l10n.commonSnackSuccess, l10n.systemUserCreated);
@@ -93,7 +127,9 @@ class UserController extends GetxController {
 
   /// 更新用户:编辑弹框语义与旧 UserFormPage 一致 —— 用户名不可改、
   /// 密码留空不修改(非空才随 PUT 提交)。
-  Future<bool> updateUser(String id, Map<String, String> data) async {
+  /// [roleIds] 为角色 hashid 数组;null = 不提交该字段(后端语义「关联保持不动」)，
+  /// 用于列表行未下发 roles、拿不到当前选集的场景 —— 避免回存 [] 静默清空角色。
+  Future<bool> updateUser(String id, Map<String, String> data, {List<String>? roleIds}) async {
     final l10n = AppL10n.current;
     try {
       final payload = <String, dynamic>{
@@ -104,6 +140,7 @@ class UserController extends GetxController {
       };
       final pwd = data['password']?.trim() ?? '';
       if (pwd.isNotEmpty) payload['password'] = pwd;
+      if (roleIds != null) payload['role_ids'] = roleIds;
       await api.put('/admin/v1/user/$id', data: payload);
       await loadUsers();
       Get.snackbar(l10n.commonSnackSuccess, l10n.systemUserUpdated);

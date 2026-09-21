@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, take } from '@/components/DataTable';
 import {
@@ -16,13 +16,17 @@ import {
   Select,
 } from '@/components/ui';
 import { FieldsDialog, ResultView } from '@/components/FormFields';
+import { FormDialog } from '@/components/FormDialog';
 import { api, http, qs, type PageData } from '@/lib/api';
 import { useToast } from '@/lib/toast';
-import { text } from '@/lib/format';
+import { errMsg, text } from '@/lib/format';
 import { useTr } from '@/lib/i18n';
 import { accentOf, type ActionDef, type Row } from '@/config/types';
 import { inferColumns, inferDetailItems } from '@/lib/defaults';
+import { mergeEditRow } from '@/lib/edit-row';
 import { prefetch } from '@/lib/options';
+import { seqGuard } from '@/lib/seq';
+import { flattenIfTree } from '@/lib/tree';
 
 /**
  * 配置驱动的通用 CRUD 页。
@@ -68,6 +72,8 @@ export function ResourcePage({
   const [result, setResult] = useState<{ title: string; data: unknown } | null>(null);
 
   const [editing, setEditing] = useState<Row | 'new' | null>(null);
+  /** 编辑弹框详情请求的序号守卫（lib/seq.ts）：与列表/详情的请求互不干扰 */
+  const editSeq = useRef(seqGuard());
   const [detail, setDetail] = useState<Row | null>(null);
   const [pending, setPending] = useState<{
     kind: 'delete' | 'action';
@@ -97,12 +103,15 @@ export function ResourcePage({
         if (!alive) return;
         const list = Array.isArray(data) ? null : (data as Partial<PageData<Row>>).list;
         if (Array.isArray(data)) {
-          setRows(data);
-          setTotal(data.length);
+          // 整树下发的资源（权限）拍平成带 __depth 的行，列按 indent 缩进；非树响应原样
+          const flat = flattenIfTree(data);
+          setRows(flat);
+          setTotal(flat.length);
           setPaginated(false);
           setReport(null);
         } else if (Array.isArray(list)) {
-          setRows(list);
+          const flat = flattenIfTree(list);
+          setRows(flat);
           setTotal((data as PageData<Row>).total ?? 0);
           setPaginated(true);
           setReport(null);
@@ -144,6 +153,34 @@ export function ResourcePage({
     };
   }, [cfg.fields]);
 
+  /**
+   * 打开编辑弹框：**先拉详情再挂载**，用详情覆盖列表行交给表单。
+   * 列表接口会对 phone/email 打码（138****8888），直接拿列表行编辑 —— 什么都不改点保存
+   * 也会把打码值当成新值提交，真值被覆盖且不可恢复。isNew 之外必须走这里。
+   * 详情失败回落列表行照常开框（后端 update 另有 *** 护栏），不把用户挡在门外。
+   *
+   * 序号守卫：连点两行编辑时两个详情请求并行，先发的可能后到；只让最后一次生效，
+   * 否则迟到的旧记录会填进刚打开的框。别的入口（新增/关闭/保存成功）走 editTo 自增作废。
+   *
+   * 合并与「明细仅新建期填写」的摘除在 lib/edit-row.ts（与 Angular 端同语义、同自检脚本）。
+   */
+  const openEdit = async (row: Row) => {
+    const seq = editSeq.current.bump();
+    let detail: Row | null = null;
+    try {
+      detail = await http.get<Row>(`${cfg.endpoint}/${String(take(row, 'id') ?? '')}`);
+    } catch {
+      // 静默降级用列表行（回落到 mergeEditRow 的 null 分支）
+    }
+    if (editSeq.current.isCurrent(seq)) setEditing(mergeEditRow(cfg, row, detail));
+  };
+
+  /** 新增/关闭/保存成功：改编辑态前先自增序号，作废在途的详情响应（openEdit 自带守卫，不走这里） */
+  const editTo = (next: Row | 'new' | null) => {
+    editSeq.current.bump();
+    setEditing(next);
+  };
+
   const doDelete = async (row: Row, password: string) => {
     const id = String(take(row, 'id') ?? '');
     setBusy(true);
@@ -157,7 +194,7 @@ export function ResourcePage({
       setPending(null);
       refresh();
     } catch (e) {
-      toast(msg(e));
+      toast(errMsg(e));
     } finally {
       setBusy(false);
     }
@@ -192,7 +229,7 @@ export function ResourcePage({
       refresh();
       if (act.navTo) nav(act.navTo(row));
     } catch (e) {
-      toast(msg(e));
+      toast(errMsg(e));
     } finally {
       setBusy(false);
     }
@@ -205,7 +242,7 @@ export function ResourcePage({
     <div className="row-actions">
       <Btn variant="icon" icon="eye" title={t('详情')} onClick={() => setDetail(row)} />
       {cfg.fields && (
-        <Btn variant="icon" icon="edit" title={t('编辑')} onClick={() => setEditing(row)} />
+        <Btn variant="icon" icon="edit" title={t('编辑')} onClick={() => void openEdit(row)} />
       )}
       {cfg.actions?.map((a) => {
         if (a.path && a.path(row) === null) return null;
@@ -250,7 +287,7 @@ export function ResourcePage({
           {t('刷新')}
         </Btn>
         {cfg.fields && (
-          <Btn variant="primary" icon="plus" onClick={() => setEditing('new')}>
+          <Btn variant="primary" icon="plus" onClick={() => editTo('new')}>
             {t('新增')}
           </Btn>
         )}
@@ -320,9 +357,9 @@ export function ResourcePage({
         <FormDialog
           cfg={cfg}
           row={editing === 'new' ? null : editing}
-          onClose={() => setEditing(null)}
+          onClose={() => editTo(null)}
           onSaved={() => {
-            setEditing(null);
+            editTo(null);
             refresh();
           }}
         />
@@ -397,60 +434,4 @@ function actionCount(cfg: import('@/config/types').ResourceConfig): number {
 /** 行的可读标识，用于确认弹窗文案 */
 function rowLabel(row: Row): string {
   return String(row.code ?? row.name ?? row.title ?? row.username ?? row.id ?? '');
-}
-
-/** 声明式表单弹窗（新增/编辑） */
-function FormDialog({
-  cfg,
-  row,
-  onClose,
-  onSaved,
-}: {
-  cfg: import('@/config/types').ResourceConfig;
-  row: Row | null;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
-  const toast = useToast();
-  const t = useTr();
-  const isNew = row === null;
-  const [busy, setBusy] = useState(false);
-  // 过滤后引用稳定：FieldsDialog 的远程选项以 fields 引用为加载依赖
-  const fields = useMemo(
-    () => (cfg.fields ?? []).filter((f) => (isNew ? !f.editOnly : !f.createOnly)),
-    [cfg.fields, isNew],
-  );
-  const name = cfg.title.replace(/管理|列表/g, '');
-
-  return (
-    <FieldsDialog
-      title={
-        isNew
-          ? (cfg.createTitle ? t(cfg.createTitle) : t('新增{name}', { name }))
-          : (cfg.editTitle ? t(cfg.editTitle) : t('编辑{name}', { name }))
-      }
-      fields={fields}
-      row={row}
-      loading={busy}
-      submitLabel={t('保存')}
-      onClose={onClose}
-      onOk={async (body) => {
-        setBusy(true);
-        try {
-          if (isNew) await http.post(cfg.endpoint, body);
-          else await http.put(`${cfg.endpoint}/${String(row?.id)}`, body);
-          toast(isNew ? t('新增成功') : t('保存成功'), 'ok');
-          onSaved();
-        } catch (e) {
-          toast(msg(e));
-        } finally {
-          setBusy(false);
-        }
-      }}
-    />
-  );
-}
-
-function msg(e: unknown): string {
-  return e instanceof Error ? e.message : '操作失败';
 }

@@ -60,6 +60,16 @@ export const systemMenus: MenuGroup[] = [
             },
             { key: 'phone', label: '手机' },
             { key: 'email', label: '邮箱' },
+            {
+              key: 'role_ids',
+              label: '角色',
+              type: 'tree',
+              multiple: true,
+              // 编辑态勾选集取行上的 roles（hashid id 数组），不是表单字段名
+              initKey: 'roles',
+              source: { endpoint: '/admin/v1/role' },
+              full: true,
+            },
           ],
         },
       },

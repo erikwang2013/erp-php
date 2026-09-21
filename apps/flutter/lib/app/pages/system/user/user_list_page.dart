@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../../../theme/app_tokens.dart';
 import '../../../widgets/confirm_dialog.dart';
 import '../../../widgets/form_dialog.dart';
+import '../../../widgets/permission_tree_picker.dart';
 import '../../../l10n/app_l10n.dart';
 import 'user_controller.dart';
 
@@ -176,9 +177,33 @@ class UserListPage extends GetView<UserController> {
 
   /// 新增/编辑统一弹框(替换原 UserFormPage 整页)。编辑语义对齐后端与旧页:
   /// username 不可改;密码留空=不修改(仅新建必填)。
+  /// 角色多选:数据源 GET /admin/v1/role(hashid id + name),预选取行内 roles
+  /// (hashid 数组);提交键名 role_ids。
+  /// 编辑初值:详情优先 —— 列表接口对 phone/email 脱敏(UserController::index),
+  /// 详情返回明文,直接拿列表行当初值会把 `138****8000` 原样回存覆盖真值。
   Future<void> _showUserDialog(BuildContext context, UserController ctrl, {dynamic user}) async {
     final l10n = AppL10n.of(context);
     final isEdit = user != null;
+    // 表单初值:列表行打底,详情成功则覆盖(缺 key 时仍保留列表行的 roles)
+    Map<String, dynamic>? formData;
+    if (user is Map) {
+      formData = Map<String, dynamic>.from(user);
+      final detail = await ctrl.getUser('${user['id']}');
+      if (!context.mounted) return;
+      if (detail != null) formData = {...formData, ...detail}; // 失败:回落列表行,不阻断弹框
+    }
+    // 行数据未携带 roles = 当前选集未知 → 编辑不提交 role_ids(后端「缺省=关联保持不动」)，
+    // 否则空选集回存会把既有角色静默清空。
+    final rolesRaw = formData?['roles'] as List<dynamic>?;
+    final grantedIds = rolesRaw?.map((r) => '$r').toSet() ?? <String>{};
+    var roleIds = grantedIds.toSet();
+
+    // 懒加载角色清单:列表为空才拉(失败降级空表,重开弹框即重试),拉取期间先不开框
+    if (ctrl.roles.isEmpty) {
+      await ctrl.loadRoles();
+      if (!context.mounted) return;
+    }
+
     await FormDialog.show(
       context,
       title: isEdit ? l10n.systemUserEdit : l10n.systemUserAdd,
@@ -207,11 +232,35 @@ class UserListPage extends GetView<UserController> {
           optionLabels: {'1': l10n.commonEnabled, '0': l10n.commonDisabled},
         ),
       ],
-      initialData: isEdit ? user : null,
+      initialData: formData,
       submitText: l10n.commonSave,
+      // 复用权限树勾选器渲染角色扁平列表(角色无 children → 每行即叶子,
+      // 勾选只作用于自身;树组件因此无需新增组件)
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.systemUserRoleSection,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          PermissionTreePicker(
+            nodes: [
+              for (final r in ctrl.roles)
+                {
+                  'id': '${r['id']}',
+                  'name': '${r['name'] ?? ''}',
+                  'slug': '${r['slug'] ?? ''}',
+                },
+            ],
+            initialSelectedIds: grantedIds,
+            onChanged: (s) => roleIds = s,
+          ),
+        ],
+      ),
       onSubmit: (data) async => isEdit
-          ? ctrl.updateUser('${user['id']}', data)
-          : ctrl.createUser(data),
+          ? ctrl.updateUser('${user['id']}', data,
+              roleIds: rolesRaw == null ? null : roleIds.toList())
+          : ctrl.createUser(data, roleIds: roleIds.toList()),
     );
   }
 

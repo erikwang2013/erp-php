@@ -81,9 +81,10 @@ class _PurchaseApplyListPageState extends State<PurchaseApplyListPage> {
 
   List<FormFieldConfig> _formFields() {
     final l10n = AppL10n.current;
+    // 不下发 code（申请单号）与 apply_user_id（申请人）：
+    // 单号由后端 doc_code() 生成（PA+雪花号），申请人缺省=当前登录管理员。
+    // 前端自造单号（曾用 PA+秒级时间戳）既与后端重复，又会在同秒两次提交时撞 uk_code。
     return [
-      FormFieldConfig(name: 'code', label: l10n.purchaseApplyNo, hint: l10n.purchaseApplyNoHint),
-      FormFieldConfig(name: 'apply_user_id', label: l10n.purchaseApplyUserId, required: true, hint: l10n.purchaseApplyUserIdHint),
       FormFieldConfig(name: 'department', label: l10n.purchaseApplyDept),
       FormFieldConfig(name: 'status', label: l10n.commonStatus, type: FormFieldType.dropdown,
         options: [for (var i = 0; i < _statusLabels.length; i++) _statusOption(i)], initialValue: _statusOption(0)),
@@ -93,15 +94,8 @@ class _PurchaseApplyListPageState extends State<PurchaseApplyListPage> {
 
   /// 把表单提交值转换为后端 store()/update() 接收的参数（仅真实表列；status 拆出数字）。
   Map<String, dynamic> _buildPayload(Map<String, String> data) {
-    var code = data['code']?.trim() ?? '';
-    if (code.isEmpty) {
-      final now = DateTime.now();
-      code = 'PA${now.year}${_p2(now.month)}${_p2(now.day)}${_p2(now.hour)}${_p2(now.minute)}${_p2(now.second)}';
-    }
     final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
     return {
-      'code': code,
-      'apply_user_id': data['apply_user_id']?.trim(),
       'department': data['department']?.trim() ?? '',
       'status': statusRaw,
       'remark': data['remark']?.trim() ?? '',
@@ -117,8 +111,6 @@ class _PurchaseApplyListPageState extends State<PurchaseApplyListPage> {
     }
     return d;
   }
-
-  String _p2(int v) => v.toString().padLeft(2, '0');
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(

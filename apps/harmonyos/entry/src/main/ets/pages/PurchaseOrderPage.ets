@@ -9,6 +9,7 @@ import { L10n } from '../utils/L10n';
 import { LoadingView, ErrorView, EmptyView } from '../common/Components';
 import { TopBar, TopBarAction } from '../common/TopBar';
 import { ConfirmDialog } from '../common/FormDialog';
+import { PasswordConfirmBody } from '../model/DataModels';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../common/ListRow';
 import { PurchaseOrderFormView } from './PurchaseOrderFormView';
 
@@ -20,8 +21,8 @@ interface PurchaseOrderItem {
   code: string;
   supplier_name: string; // leftJoin 带出；供应商软删后为 null（表无 name 列）
   supplier_id: string; // hashid（后端 encodeIds 编码，保存原样回传）
-  apply_id: number;
-  warehouse_id: number;
+  apply_id: string; // hashid（后端 encodeIds 编码；原为裸雪花 ID，>2^53 会被 JS 丢精度）
+  warehouse_id: string; // hashid（同上）
   total_amount: number;
   status: number;
   ordered_at: string;
@@ -30,14 +31,13 @@ interface PurchaseOrderItem {
 
 /** 表单保存请求体（与后端 fillable 对齐） */
 interface SaveBody {
-  code: string | number;
   supplier_id: string; // hashid 原样回传（后端解码落库 int）
-  apply_id: string | number;
-  warehouse_id: string | number;
-  total_amount: string | number;
-  status: string | number;
-  ordered_at: string | number;
-  remark: string | number;
+  apply_id: string;
+  warehouse_id: string;
+  total_amount: string;
+  status: number;
+  ordered_at: string;
+  remark: string;
 }
 
 @Entry
@@ -60,13 +60,12 @@ struct PurchaseOrderPage {
   @State formId: string = '';
   @State isSubmitting: boolean = false;
 
-  // 表单字段（与后端 fillable 字段名严格一致）
-  @State formCode: string = '';
+  // 表单字段（与后端 fillable 字段名严格一致；单号由后端 doc_code() 生成，故无 code 项）
   @State formSupplierId: string = '';
   @State formApplyId: string = '';
   @State formWarehouseId: string = '';
   @State formTotalAmount: string = '';
-  @State formStatus: number = 1;
+  @State formStatus: number = 0; // 0=待审核（DDL 默认值；原写死 1=已审核，新建即假审核）
   @State formOrderedAt: string = '';
   @State formRemark: string = '';
 
@@ -135,12 +134,11 @@ struct PurchaseOrderPage {
   openCreate(): void {
     this.formMode = 'create';
     this.formId = '';
-    this.formCode = '';
     this.formSupplierId = '';
     this.formApplyId = '';
     this.formWarehouseId = '';
     this.formTotalAmount = '';
-    this.formStatus = 1;
+    this.formStatus = 0;
     this.formOrderedAt = '';
     this.formRemark = '';
     this.showForm = true;
@@ -157,12 +155,11 @@ struct PurchaseOrderPage {
     try {
       const res = await this.api.get<Record<string, Object>>(`/admin/purchase/order/${id}`);
       const row = res.data as Record<string, Object>;
-      this.formCode = (row['code'] as string) ?? '';
       this.formSupplierId = row['supplier_id'] != null ? String(row['supplier_id']) : '';
       this.formApplyId = row['apply_id'] != null ? String(row['apply_id']) : '';
       this.formWarehouseId = row['warehouse_id'] != null ? String(row['warehouse_id']) : '';
       this.formTotalAmount = row['total_amount'] != null ? String(row['total_amount']) : '';
-      this.formStatus = (row['status'] as number) ?? 1;
+      this.formStatus = (row['status'] as number) ?? 0;
       this.formOrderedAt = (row['ordered_at'] as string) ?? '';
       this.formRemark = (row['remark'] as string) ?? '';
     } catch (e) {
@@ -187,11 +184,13 @@ struct PurchaseOrderPage {
 
     this.isSubmitting = true;
     const body: SaveBody = {
-      code: this.formCode,
       supplier_id: this.formSupplierId, // hashid 原样（后端解码；Number() 强转 hashid 得 NaN）
-      apply_id: this.formApplyId ? Number(this.formApplyId) : 0,
-      warehouse_id: this.formWarehouseId ? Number(this.formWarehouseId) : 0,
-      total_amount: this.formTotalAmount ? Number(this.formTotalAmount) : 0,
+      // apply_id/warehouse_id 同为 hashid 串（后端 encodeIds 编码），原样回传：
+      // 走 Number() 得 NaN → JSON.stringify 变 null → 后端按缺省落 0，关联被静默丢弃
+      apply_id: this.formApplyId.trim(), // 留空即未关联（后端按 0 处理）
+      warehouse_id: this.formWarehouseId.trim(),
+      // 金额原样字符串下发（后端 numeric 校验 + bc_norm 落 DECIMAL(12,2)）：经 Number() 会引入浮点误差
+      total_amount: this.formTotalAmount.trim(),
       status: this.formStatus,
       ordered_at: this.formOrderedAt,
       remark: this.formRemark
@@ -219,32 +218,35 @@ struct PurchaseOrderPage {
     }
   }
 
-  private dialogController?: CustomDialogController;
+  private deleteDialogController?: CustomDialogController;
 
   /**
-   * 删除入口：行内删除先经 ConfirmDialog 确认（骨架收敛试点）
+   * 删除入口：ConfirmDialog + 管理员密码二次确认（后端 destroy 走 confirmPassword，
+   * 不带 password 一律 422「密码验证失败」，故必须走 needPassword 通道）
    */
   confirmDelete(id: string): void {
-    this.dialogController = new CustomDialogController({
+    this.deleteDialogController = new CustomDialogController({
       builder: ConfirmDialog({
         title: $r('app.string.delete_confirm'),
         message: $r('app.string.purchase_delete_msg'),
-        onConfirm: () => {
-          this.deleteItem(id);
-        },
+        needPassword: true,
+        confirmText: $r('app.string.delete'),
+        onConfirmPwd: (pwd: string) => this.deleteItem(id, pwd),
       }),
       alignment: DialogAlignment.Center,
       autoCancel: true,
     });
-    this.dialogController.open();
+    this.deleteDialogController.open();
   }
 
   /**
-   * 删除：DELETE /admin/purchase/order/{id}
+   * 删除：DELETE /admin/purchase/order/{id}（body 带管理员密码）
    */
-  async deleteItem(id: string): Promise<void> {
+  async deleteItem(id: string, password: string): Promise<void> {
     try {
-      await this.api.delete<Object>(`/admin/purchase/order/${id}`);
+      // ArkTS 严格模式不接受匿名对象字面量（arkts-no-untyped-obj-literals），须用已声明的接口
+      const body: PasswordConfirmBody = { password: password };
+      await this.api.delete<Object>(`/admin/purchase/order/${id}`, body);
       promptAction.showToast({ message: $r('app.string.delete_success') });
       this.loadData(true);
     } catch (e) {
@@ -252,7 +254,8 @@ struct PurchaseOrderPage {
         router.replaceUrl({ url: 'pages/LoginPage' });
         return;
       }
-      promptAction.showToast({ message: $r('app.string.delete_failed') });
+      // 422（密码错等）交回 ConfirmDialog：toast 后端 message 且弹窗保留可重试
+      throw new Error(e instanceof Error ? e.message : '');
     }
   }
 
@@ -370,7 +373,6 @@ struct PurchaseOrderPage {
     PurchaseOrderFormView({
       formMode: this.formMode,
       isSubmitting: this.isSubmitting,
-      formCode: this.formCode,
       formSupplierId: this.formSupplierId,
       formApplyId: this.formApplyId,
       formWarehouseId: this.formWarehouseId,

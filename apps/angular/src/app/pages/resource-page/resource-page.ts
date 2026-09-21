@@ -47,6 +47,7 @@ import {
   type RelLabels,
   type ResultBlock,
 } from './columns';
+import { mergeEditRow } from './edit-row';
 import {
   ItemsField,
   ResourceForm,
@@ -249,6 +250,12 @@ export class ResourcePage implements OnInit {
    * 骨架屏就永久卡住了。
    */
   private detailSeq = 0;
+  /**
+   * 编辑弹窗的详情请求序号：与上两个都分开（同一个理由，且编辑共用列表的 reqSeq
+   * 会互相作废）。任何改变编辑态的入口（开编辑/新增/关闭）都自增它，
+   * 使在途的详情响应作废 —— 否则迟到的响应会把表单初值对象与 row() 拆成两条记录。
+   */
+  private editSeq = 0;
   /**
    * 后端整表下发（裸数组 / 无 total 的 list，含权限树）时的全量行缓存：
    * 切页只在本地切片，不再重拉；筛选条件变了（指纹不符）才重新请求。
@@ -544,14 +551,41 @@ export class ResourcePage implements OnInit {
 
   // ── 弹窗开关 ──
   openNew(): void {
+    this.editSeq++;
     this.editing.set('new');
   }
 
-  openEdit(row: Row): void {
-    this.editing.set(row);
+  /**
+   * 打开编辑：先用详情接口刷新行数据，再挂表单。
+   *
+   * 列表行是脱敏过的（UserController::index 把 phone/email 变成 138****8888 / z***@x.com），
+   * 而表单只在 ngOnInit 算一次初值、提交又把非空字段原样送回 —— 直接拿列表行保存
+   * 就会把打码串写回真值（真值不可恢复）。详情接口下发的是明文，所以以它覆盖列表行。
+   * 合并**必须发生在挂载前**：表单挂载后再改 row 不会重算初值，只会让「显示的值」
+   * 和「提交用的 id」来自两条记录。
+   *
+   * 详情拉不到（该域没有详情路由 / 无权限 / 网络错）静默回落列表行，不阻断开框 ——
+   * 与 loadDetail 同一种降级风格。序号守卫见 editSeq 注释。
+   *
+   * 合并与「明细仅新建期填写」的摘除在 edit-row.ts（与 React 端同语义、同自检脚本）。
+   */
+  async openEdit(row: Row): Promise<void> {
+    const cfg = this.cfg();
+    const id = String(take(row, 'id') ?? '');
+    const seq = ++this.editSeq;
+    let detail: Row | null = null;
+    if (cfg && id) {
+      try {
+        detail = await http.get<Row>(`${cfg.endpoint}/${id}`);
+      } catch {
+        // 详见方法注释：静默降级用列表行（回落到 mergeEditRow 的 null 分支）
+      }
+    }
+    if (seq === this.editSeq) this.editing.set(mergeEditRow(cfg, row, detail));
   }
 
   closeForm(): void {
+    this.editSeq++;
     this.editing.set(null);
   }
 

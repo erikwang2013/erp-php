@@ -19,12 +19,37 @@ void main() {
 
   Future<FakeHttpClientAdapter> buildAdapter() async {
     return FakeHttpClientAdapter(routes: {
+      // 用户列表：phone/email 为脱敏值（后端 index 打码），roles 为角色 hashid 数组
       '/admin/v1/user': (o) async => FakeHttpClientAdapter.jsonResponse({
         'code': 0,
         'data': {
           'list': [
-            {'id': 1, 'username': 'admin', 'real_name': '管理员', 'phone': '13800138000', 'email': 'admin@erp.local', 'status': 1, 'last_login_at': '2026-08-26 09:00:00'},
-            {'id': 2, 'username': 'guest', 'real_name': '访客', 'phone': '', 'email': '', 'status': 0, 'last_login_at': null},
+            {'id': 1, 'username': 'admin', 'real_name': '管理员', 'phone': '138****8000', 'email': 'a***@erp.local', 'status': 1, 'last_login_at': '2026-08-26 09:00:00', 'roles': ['roleHash1']},
+            {'id': 2, 'username': 'guest', 'real_name': '访客', 'phone': '', 'email': '', 'status': 0, 'last_login_at': null, 'roles': []},
+          ],
+          'total': 2,
+        },
+      }),
+      // 用户详情：明文 phone/email（后端 show 不打码），编辑弹框初值取这里
+      '/admin/v1/user/1': (o) async => FakeHttpClientAdapter.jsonResponse({
+        'code': 0,
+        'data': {
+          'id': 1,
+          'username': 'admin',
+          'real_name': '管理员',
+          'phone': '13800138000',
+          'email': 'admin@erp.local',
+          'status': 1,
+          'roles': ['roleHash1'],
+        },
+      }),
+      // 角色多选数据源（弹框勾选器）
+      '/admin/v1/role': (o) async => FakeHttpClientAdapter.jsonResponse({
+        'code': 0,
+        'data': {
+          'list': [
+            {'id': 'roleHash1', 'name': '管理员角色', 'slug': 'admin', 'users_count': 1},
+            {'id': 'roleHash2', 'name': '审计角色', 'slug': 'auditor', 'users_count': 0},
           ],
           'total': 2,
         },
@@ -65,6 +90,10 @@ void main() {
       .descendant(of: find.byType(AlertDialog), matching: find.byType(TextField))
       .at(i);
 
+  /// 角色勾选行内的 Checkbox（行 key 为角色 hashid）。
+  Checkbox roleCheckbox(WidgetTester tester, String roleId) => tester.widget<Checkbox>(
+      find.descendant(of: find.byKey(ValueKey(roleId)), matching: find.byType(Checkbox)));
+
   group('UserListPage — 渲染', () {
     testWidgets('渲染标题与新增用户按钮', (tester) async {
       await pumpUserList(tester);
@@ -78,7 +107,7 @@ void main() {
 
       expect(find.text('admin'), findsOneWidget);
       expect(find.text('管理员'), findsOneWidget);
-      expect(find.text('13800138000'), findsOneWidget);
+      expect(find.text('138****8000'), findsOneWidget);
       // 状态徽章（筛选区的 ChoiceChip 也含「启用/禁用」字样，限定在 Chip 内查找）
       expect(find.widgetWithText(Chip, '启用'), findsOneWidget);
       expect(find.widgetWithText(Chip, '禁用'), findsOneWidget);
@@ -186,6 +215,162 @@ void main() {
       expect(body['status'], 1);
 
       await settleSnackbars(tester);
+    });
+  });
+
+  group('UserListPage — 角色多选(role_ids)', () {
+    testWidgets('编辑弹框:按行内 roles 预选,勾选后 PUT 带 role_ids(hashid 数组)', (tester) async {
+      await pumpUserList(tester);
+
+      await tester.tap(find.byIcon(Icons.edit).first); // admin 行(roles: [roleHash1])
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('角色:'), findsOneWidget);
+      expect(find.text('管理员角色'), findsOneWidget);
+      expect(find.text('审计角色'), findsOneWidget);
+      expect(roleCheckbox(tester, 'roleHash1').value, isTrue, reason: '既有角色应预选');
+      expect(roleCheckbox(tester, 'roleHash2').value, isFalse);
+
+      await tester.tap(find.text('审计角色')); // 整行 InkWell 可点
+      await tester.pump();
+      expect(roleCheckbox(tester, 'roleHash2').value, isTrue);
+
+      await tester.tap(find.text('保存'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final req = adapter.requests
+          .where((r) => r.method == 'PUT' && r.path == '/admin/v1/user/1')
+          .toList();
+      expect(req, hasLength(1));
+      expect((req.single.data as Map<String, dynamic>)['role_ids'],
+          ['roleHash1', 'roleHash2']);
+
+      await settleSnackbars(tester);
+    });
+
+    testWidgets('编辑弹框:取消勾选既有角色 → role_ids 为空数组(清空语义)', (tester) async {
+      await pumpUserList(tester);
+
+      await tester.tap(find.byIcon(Icons.edit).first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await tester.tap(find.text('管理员角色')); // 取消预选
+      await tester.pump();
+      expect(roleCheckbox(tester, 'roleHash1').value, isFalse);
+
+      await tester.tap(find.text('保存'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final body = adapter.requests
+          .lastWhere((r) => r.method == 'PUT' && r.path == '/admin/v1/user/1')
+          .data as Map<String, dynamic>;
+      expect(body['role_ids'], isEmpty, reason: '[] = 清空关联');
+
+      await settleSnackbars(tester);
+    });
+
+    testWidgets('新增弹框:选角色后 POST 带 role_ids', (tester) async {
+      await pumpUserList(tester);
+
+      await tester.tap(find.text('新增用户'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(roleCheckbox(tester, 'roleHash1').value, isFalse, reason: '新增无预选');
+      await tester.tap(find.text('管理员角色'));
+      await tester.pump();
+
+      await tester.enterText(dialogField(0), 'newuser');
+      await tester.enterText(dialogField(1), 'secret123');
+      await tester.enterText(dialogField(2), '新人');
+      await tester.tap(find.text('保存'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final body = adapter.requests
+          .lastWhere((r) => r.method == 'POST' && r.path == '/admin/v1/user')
+          .data as Map<String, dynamic>;
+      expect(body['role_ids'], ['roleHash1']);
+
+      await settleSnackbars(tester);
+    });
+
+    testWidgets('角色清单仅拉取一次:新增后再开编辑不再请求 /admin/v1/role', (tester) async {
+      await pumpUserList(tester);
+
+      int roleCalls() =>
+          adapter.requests.where((r) => r.path == '/admin/v1/role').length;
+
+      await tester.tap(find.text('新增用户'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(roleCalls(), 1);
+
+      await tester.tap(find.text('取消'));
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.edit).first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(roleCalls(), 1, reason: '已加载过即复用（弹框懒加载）');
+
+      await tester.tap(find.text('取消'));
+      await tester.pump();
+    });
+  });
+
+  group('UserListPage — 编辑初值来源(详情优先)', () {
+    testWidgets('编辑弹框预填明文而非列表行打码值,回存也是明文', (tester) async {
+      await pumpUserList(tester);
+
+      await tester.tap(find.byIcon(Icons.edit).first); // admin 行(列表 phone=138****8000)
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // 初值必须来自详情(GET /admin/v1/user/1 返回明文)
+      expect(
+          adapter.requests
+              .any((r) => r.method == 'GET' && r.path == '/admin/v1/user/1'),
+          isTrue,
+          reason: '编辑应拉详情取明文');
+      // 字段序:username0 密码1 real_name2 手机3 邮箱4
+      expect(tester.widget<TextField>(dialogField(3)).controller?.text, '13800138000');
+      expect(tester.widget<TextField>(dialogField(4)).controller?.text, 'admin@erp.local');
+
+      await tester.tap(find.text('保存'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final body = adapter.requests
+          .lastWhere((r) => r.method == 'PUT' && r.path == '/admin/v1/user/1')
+          .data as Map<String, dynamic>;
+      expect(body['phone'], '13800138000', reason: '不得回存打码值覆盖真值');
+      expect(body['email'], 'admin@erp.local');
+
+      await settleSnackbars(tester);
+    });
+
+    testWidgets('详情拉取失败:回落列表行初值、弹框仍打开且可提交', (tester) async {
+      adapter.routes.remove('/admin/v1/user/1');
+      adapter.fallback = (o) async =>
+          FakeHttpClientAdapter.jsonResponse({'code': 500, 'message': 'boom'});
+
+      await pumpUserList(tester);
+      await tester.tap(find.byIcon(Icons.edit).first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('编辑用户'), findsOneWidget, reason: '详情失败不阻断弹框');
+      // 回落打码值(不可恢复的真值已由后端 update 护栏丢弃含 *** 的值)
+      expect(tester.widget<TextField>(dialogField(3)).controller?.text, '138****8000');
+
+      await tester.tap(find.text('取消'));
+      await tester.pump();
+      await settleSnackbars(tester); // 详情失败的报错 snackbar 需收尾，否则残留 Ticker
     });
   });
 

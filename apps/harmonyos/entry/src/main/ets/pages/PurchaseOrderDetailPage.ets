@@ -239,8 +239,9 @@ struct PurchaseOrderDetailPage {
                   }
                   .width('100%')
 
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_apply'), value: this.num(this.row['apply_id']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_warehouse'), value: this.num(this.row['warehouse_id']) })
+                  // apply_id/warehouse_id 是 hashid 串（后端 encodeIds 编码）：走 num() 会得 NaN 显示 '-'
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_apply'), value: this.hint(this.row['apply_id']) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_warehouse'), value: this.hint(this.row['warehouse_id']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_total'), value: this.fmtMoney(this.row['total_amount']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_ordered_at'), value: this.hint(this.row['ordered_at']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_remark'), value: this.hint(this.row['remark']) })

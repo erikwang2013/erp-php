@@ -4586,6 +4586,12 @@ abstract class AppLocalizations {
   /// **'编辑用户'**
   String get systemUserEdit;
 
+  /// No description provided for @systemUserRoleSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'角色:'**
+  String get systemUserRoleSection;
+
   /// No description provided for @systemUserCreated.
   ///
   /// In zh, this message translates to:
@@ -5845,6 +5851,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'已出库'**
   String get purchaseReturnStatusDone;
+
+  /// No description provided for @purchaseReturnConfirmOut.
+  ///
+  /// In zh, this message translates to:
+  /// **'出库确认'**
+  String get purchaseReturnConfirmOut;
 
   /// No description provided for @salesReturnNoHint.
   ///

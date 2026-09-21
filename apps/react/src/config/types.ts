@@ -45,6 +45,8 @@ export type FieldType =
   | 'password'
   | 'date'
   | 'datetime'
+  /** 树字段：source 指向返回嵌套 children 的接口；multiple 复选（值为 id 数组），单选（值 = 父级 id，空 = 顶级） */
+  | 'tree'
   /** 明细行编辑：值形如 Row[]，每行按 itemFields 子字段渲染，可增删 */
   | 'items';
 
@@ -66,6 +68,10 @@ export interface FormField {
   editOnly?: boolean;
   /** 提交时不带此字段 */
   noSubmit?: boolean;
+  /** type='tree' 多选（勾选框，值为 hashid 数组）；默认单选（点节点选父级，空=顶级，提交 '0'） */
+  multiple?: boolean;
+  /** type='tree' 多选编辑态勾选集取行上的此字段（默认同 key，如 role_ids ← row.roles） */
+  initKey?: string;
   /** type='items' 的子字段定义：每行按此渲染，值为该行对象（两端同名） */
   itemFields?: FormField[];
   help?: string;
@@ -116,6 +122,8 @@ export interface ResourceConfig {
     align?: 'right';
     width?: number;
     primary?: boolean;
+    /** 树形平铺响应（行带 __depth）时按层级缩进本列 */
+    indent?: boolean;
   }[];
   /** 搜索框占位文案 */
   searchPlaceholder?: string;

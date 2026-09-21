@@ -5,7 +5,8 @@
 import { PermissionNode } from '../model/DataModels';
 
 /**
- * 权限树勾选器（纯组件；懒渲染版）。
+ * 权限树勾选器（纯组件；懒渲染版）。亦被用户表单复用为「角色」扁平多选：
+ * 角色清单映射成无 children 的 PermissionNode 数组传入，级联退化为单选开关。
  *
  * 输入：后端嵌套权限树 nodes（id 为 hashid 字符串、children 仅在有子节点时下发）+
  * 已授权平铺 id 集合 presetIds（角色编辑预选按后端逐条下发含中间目录的

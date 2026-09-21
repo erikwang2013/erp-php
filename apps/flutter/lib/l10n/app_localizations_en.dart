@@ -2370,6 +2370,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get systemUserEdit => 'Edit User';
 
   @override
+  String get systemUserRoleSection => 'Roles:';
+
+  @override
   String get systemUserCreated => 'User created';
 
   @override
@@ -3021,6 +3024,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchaseReturnStatusDone => 'Issued';
+
+  @override
+  String get purchaseReturnConfirmOut => 'Confirm outbound';
 
   @override
   String get salesReturnNoHint => 'Auto SRN+timestamp when blank';

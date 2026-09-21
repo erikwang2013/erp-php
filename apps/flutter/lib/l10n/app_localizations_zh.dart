@@ -2346,6 +2346,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get systemUserEdit => '编辑用户';
 
   @override
+  String get systemUserRoleSection => '角色:';
+
+  @override
   String get systemUserCreated => '用户创建成功';
 
   @override
@@ -2996,6 +2999,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get purchaseReturnStatusDone => '已出库';
+
+  @override
+  String get purchaseReturnConfirmOut => '出库确认';
 
   @override
   String get salesReturnNoHint => '留空自动生成 SRN+时间戳';

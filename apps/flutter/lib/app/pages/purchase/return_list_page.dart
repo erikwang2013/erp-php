@@ -95,13 +95,43 @@ class _PurchaseReturnListPageState extends State<PurchaseReturnListPage> {
     });
   }
 
-  // 与后端 ReturnController::store 契约对齐：code 留空自动生成 PRN+时间戳（uk_code 唯一）；
+  /// 出库确认（退货单唯一的库存动作）：二次确认后 PUT status=1，成功后刷新列表。
+  /// 契约对齐 ReturnController::update —— 仅 0→1，只下发 status 一个字段（其余字段后端
+  /// 按 null 跳过，无需回传）；已出库（status=1）后端 422 拒绝，故按钮同期不展示。
+  Future<void> _confirmOut(Map<String, dynamic> row) async {
+    final l = AppL10n.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.purchaseReturnConfirmOut),
+        content: Text(l.detailConfirmOp(l.purchaseReturnConfirmOut)),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l.commonCancel)),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l.commonConfirm)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await ApiService.instance.put('/admin/v1/purchase/return/${row['id']}', data: {'status': 1});
+      _load();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.commonOpSuccess)));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+    }
+  }
+
+  // 与后端 ReturnController::store 契约对齐：单号由后端 doc_code() 生成（PRN+雪花号，uk_code 唯一），
+  // 前端不下发也不自造（曾用 PRN+秒级时间戳，同秒两次提交必撞唯一键）；
   // receive 必填下拉，supplier/warehouse 由其自动带出（三个 FK 表列均 NOT NULL）
   List<FormFieldConfig> _formFields() {
     final now = DateTime.now();
     String pad(int v) => v.toString().padLeft(2, '0');
     return [
-      FormFieldConfig(name: 'code', label: AppL10n.of(context).purchaseReturnNo, hint: AppL10n.of(context).purchaseReturnNoHint),
       FormFieldConfig(
         name: 'receive_id',
         label: AppL10n.of(context).purchaseReceiveNo,
@@ -123,11 +153,6 @@ class _PurchaseReturnListPageState extends State<PurchaseReturnListPage> {
   /// 组装后端 store()/update() 接收的参数（仅真实表列；supplier/warehouse 随收货单选自动带出）。
   /// [row] 为编辑行时回退用（收货单选项失效时沿用原行 FK，保持引用不被抹除）。
   Map<String, dynamic> _buildPayload(Map<String, String> data, Map<String, dynamic>? row) {
-    var code = data['code']?.trim() ?? '';
-    if (code.isEmpty) {
-      final now = DateTime.now();
-      code = 'PRN${now.year}${_p2(now.month)}${_p2(now.day)}${_p2(now.hour)}${_p2(now.minute)}${_p2(now.second)}';
-    }
     final receiveId = data['receive_id']?.trim() ?? '';
     String fkOf(String field) {
       final viaReceive = _receiveMeta[receiveId]?[field];
@@ -135,7 +160,6 @@ class _PurchaseReturnListPageState extends State<PurchaseReturnListPage> {
       return '${row?[field] ?? ''}';
     }
     return {
-      'code': code,
       'receive_id': receiveId,
       'supplier_id': fkOf('supplier_id'),
       'warehouse_id': fkOf('warehouse_id'),
@@ -144,8 +168,6 @@ class _PurchaseReturnListPageState extends State<PurchaseReturnListPage> {
       'remark': data['remark']?.trim() ?? '',
     };
   }
-
-  String _p2(int v) => v.toString().padLeft(2, '0');
 
   @override
   Widget build(BuildContext context) => DataTableWrapper(
@@ -176,6 +198,13 @@ class _PurchaseReturnListPageState extends State<PurchaseReturnListPage> {
     AppL10n.current.purchaseTotalAmount: '${r['total_amount'] ?? ''}',
     AppL10n.current.commonStatus: _chip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
+      // 门控与 Angular/React trade.ts 一致：status===1 时不展示（后端 update 对已出库单 422）
+      if ('${r['status']}' != '1')
+        IconButton(
+          icon: Icon(Icons.check_circle, size: 18, color: AppColors.of(context).success),
+          tooltip: AppL10n.current.purchaseReturnConfirmOut,
+          onPressed: () => _confirmOut(r),
+        ),
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
     ]),

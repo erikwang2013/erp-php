@@ -738,15 +738,15 @@
     },
     {
       "name": "purchase_supplier_id_hint",
-      "value": "供应商数字ID（必填）"
+      "value": "供应商ID（字母数字串，见供应商列表）"
     },
     {
       "name": "purchase_apply_id_hint",
-      "value": "采购申请数字ID，留空为0"
+      "value": "采购申请ID（字母数字串），留空即不关联"
     },
     {
       "name": "purchase_warehouse_id_hint",
-      "value": "收货仓库数字ID，留空为0"
+      "value": "收货仓库ID（字母数字串），留空即不关联"
     },
     {
       "name": "purchase_total_amount_hint",
@@ -762,7 +762,7 @@
     },
     {
       "name": "purchase_supplier_id_required",
-      "value": "请输入供应商ID"
+      "value": "请填写供应商ID"
     },
     {
       "name": "carrier_list_title",
@@ -1761,6 +1761,22 @@
       "value": "暂无权限数据"
     },
     {
+      "name": "user_role_section",
+      "value": "角色"
+    },
+    {
+      "name": "user_role_loading",
+      "value": "角色加载中…"
+    },
+    {
+      "name": "user_role_load_failed",
+      "value": "角色数据加载失败，请重试"
+    },
+    {
+      "name": "user_role_empty",
+      "value": "暂无可分配角色"
+    },
+    {
       "name": "role_empty",
       "value": "暂无角色"
     },
@@ -1781,8 +1797,40 @@
       "value": "请先输入管理员密码"
     },
     {
+      "name": "dashboard_biz_title",
+      "value": "业务管理"
+    },
+    {
       "name": "dashboard_sys_title",
       "value": "系统管理"
+    },
+    {
+      "name": "dashboard_oms_title",
+      "value": "订单管理"
+    },
+    {
+      "name": "dashboard_wms_title",
+      "value": "仓储管理"
+    },
+    {
+      "name": "dashboard_tms_title",
+      "value": "运输管理"
+    },
+    {
+      "name": "dashboard_mfg_title",
+      "value": "生产制造"
+    },
+    {
+      "name": "dashboard_hr_title",
+      "value": "人力资源"
+    },
+    {
+      "name": "dashboard_workflow_title",
+      "value": "审批中心"
+    },
+    {
+      "name": "dashboard_order_tile",
+      "value": "订单列表"
     },
     {
       "name": "fulfillment_status_0",

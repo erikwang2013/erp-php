@@ -375,6 +375,7 @@ const List<MenuItem> menuConfig = [
     icon: Icons.dashboard_customize,
     children: [
       MenuItem(label: '仪表盘', icon: Icons.dashboard, route: '/bi/dashboard'),
+      MenuItem(label: '数据集', icon: Icons.dataset, route: '/bi/dataset'),
     ],
   ),
   MenuItem(
@@ -384,6 +385,7 @@ const List<MenuItem> menuConfig = [
       MenuItem(label: '设备台账', icon: Icons.list_alt, route: '/eam/equipment'),
       MenuItem(label: '保养计划', icon: Icons.event, route: '/eam/maintenance'),
       MenuItem(label: '维修工单', icon: Icons.construction, route: '/eam/repair'),
+      MenuItem(label: '备件管理', icon: Icons.widgets, route: '/eam/spare-part'),
     ],
   ),
   MenuItem(
@@ -530,11 +532,13 @@ const Map<String, String> menuLabelsEn = {
   '报表管理': 'Reports',
   '定时调度': 'Schedules',
   'BI 看板': 'BI Dashboards',
+  '数据集': 'Datasets',
   // 设备 / 文档
   '设备管理': 'Equipment',
   '设备台账': 'Equipment Ledger',
   '保养计划': 'Maintenance Plans',
   '维修工单': 'Repair Orders',
+  '备件管理': 'Spare Parts',
   '文档管理': 'Documents',
   '文档列表': 'Document List',
 };

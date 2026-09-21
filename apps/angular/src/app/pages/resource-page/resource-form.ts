@@ -257,7 +257,13 @@ export function inputType(f: FormField): string {
   }
 }
 
-/** 初始值：新增态跳过 editOnly，编辑态跳过 createOnly，其余默认值优先、行值兜底 */
+/**
+ * 初始值：新增态跳过 editOnly，编辑态跳过 createOnly。
+ * 取值顺序**编辑态行值优先**，行上确实没这个键才回落 defaultValue；新增态用 defaultValue。
+ * 反过来（defaultValue ?? row[f.key]）会让编辑态永远显示默认值并原样提交回去 ——
+ * status/type/sort 这类带 defaultValue 的字段就改不动了（React FormFields.tsx:31 同规则）。
+ * 用 ?? 不用 ||：0 / false 是合法值，|| 会把它们当空值丢掉。
+ */
 function initVals(cfg: ResourceConfig, row: Row | null): Record<string, unknown> {
   const vals: Record<string, unknown> = {};
   for (const f of cfg.fields ?? []) {
@@ -269,13 +275,14 @@ function initVals(cfg: ResourceConfig, row: Row | null): Record<string, unknown>
       vals[f.key] = Array.isArray(raw) ? raw.map(String) : '';
       continue;
     }
-    // 明细行：行上没有 items（列表接口不带）时就是空表，不能落成 ''（会当成字符串提交）
+    // 明细行：行上没带 items 时就是空表，不能落成 ''（会当成字符串提交）。
+    // 编辑态行上为何总是不带：见 resource-page.ts openEdit —— 明细是新建期输入，编辑前会摘掉。
     if (f.type === 'items') {
       const raw = row ? row[f.initKey ?? f.key] : f.defaultValue;
       vals[f.key] = Array.isArray(raw) ? raw : [];
       continue;
     }
-    vals[f.key] = f.defaultValue ?? (row ? row[f.key] : undefined) ?? '';
+    vals[f.key] = (row ? row[f.key] : undefined) ?? f.defaultValue ?? '';
   }
   return vals;
 }
@@ -438,6 +445,10 @@ export class ResourceForm implements OnInit {
     const row = this.row();
     for (const f of this.fields()) {
       if (!f.required || f.noSubmit) continue;
+      // 编辑态明细不参与必填：明细是新建期输入，编辑态不再回填（见 resource-page.ts openEdit），
+      // 而空数组按下面 body 组装的约定又根本不送 —— 这里再拦，带明细的单子就一张都保存不了
+      // （发货/收货/询价/报价/领料/发料 6 个域的 items 都是 required）。
+      if (f.type === 'items' && row !== null) continue;
       const v = this.vals()[f.key];
       const empty =
         f.type === 'items' ? !Array.isArray(v) || !v.length : v === '' || v === undefined || v === null;

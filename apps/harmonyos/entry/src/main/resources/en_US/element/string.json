@@ -1761,6 +1761,22 @@
       "value": "No permission data"
     },
     {
+      "name": "user_role_section",
+      "value": "Roles"
+    },
+    {
+      "name": "user_role_loading",
+      "value": "Loading roles…"
+    },
+    {
+      "name": "user_role_load_failed",
+      "value": "Failed to load roles. Retry."
+    },
+    {
+      "name": "user_role_empty",
+      "value": "No roles available"
+    },
+    {
       "name": "role_empty",
       "value": "No roles yet"
     },
@@ -1781,8 +1797,40 @@
       "value": "Enter your password first"
     },
     {
+      "name": "dashboard_biz_title",
+      "value": "Business"
+    },
+    {
       "name": "dashboard_sys_title",
       "value": "System"
+    },
+    {
+      "name": "dashboard_oms_title",
+      "value": "Orders"
+    },
+    {
+      "name": "dashboard_wms_title",
+      "value": "Warehouse"
+    },
+    {
+      "name": "dashboard_tms_title",
+      "value": "Transport"
+    },
+    {
+      "name": "dashboard_mfg_title",
+      "value": "Manufacturing"
+    },
+    {
+      "name": "dashboard_hr_title",
+      "value": "HR"
+    },
+    {
+      "name": "dashboard_workflow_title",
+      "value": "Approvals"
+    },
+    {
+      "name": "dashboard_order_tile",
+      "value": "Order List"
     },
     {
       "name": "fulfillment_status_0",

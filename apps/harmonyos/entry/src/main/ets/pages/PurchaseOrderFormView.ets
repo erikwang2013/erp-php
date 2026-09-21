@@ -3,17 +3,20 @@
  */
 
 // 表单视图（自 PurchaseOrderPage.buildForm 抽出，行为与样式不变）。
-// 8 个表单字段用 @Link 双向绑定父页状态；保存/取消走回调，业务逻辑仍留在父页。
+// 7 个表单字段用 @Link 双向绑定父页状态；保存/取消走回调，业务逻辑仍留在父页。
+// 单号（code）不设录入项：由后端 doc_code() 生成（PO+雪花号），列表/详情可见。
 // 用法：PurchaseOrderFormView({ formMode: this.formMode, isSubmitting: this.isSubmitting,
-//   formCode: this.formCode, ...8 项..., onSubmit: () => { this.save(); },
+//   formSupplierId: this.formSupplierId, ...7 项..., onSubmit: () => { this.save(); },
 //   onCancel: () => { this.showForm = false; } })
 
 import { L10n } from '../utils/L10n';
 import { DetailCard } from '../common/DetailCard';
 
+/** 订单状态码（与 install.sql 列注释 / 后端 0..4 校验一致），文案取 purchase_status_{code} */
+const PURCHASE_STATUS_CODES: Array<number> = [0, 1, 2, 3, 4];
+
 @Component
 export struct PurchaseOrderFormView {
-  @Link formCode: string;
   @Link formSupplierId: string;
   @Link formApplyId: string;
   @Link formWarehouseId: string;
@@ -32,23 +35,6 @@ export struct PurchaseOrderFormView {
         // F 批：inline 表单分组卡——单 DetailCard 套列表卡同款卡容器（标题复用既有表单 key）
         DetailCard({ title: L10n.str(this.getUIContext(), this.formMode === 'create' ? 'purchase_form_add' : 'purchase_form_edit') }) {
           Column() {
-
-            Row() {
-              Text($r('app.string.purchase_code'))
-              .fontSize(15)
-              .fontColor($r('app.color.text_primary'))
-              .width(80)
-
-              TextInput({ placeholder: $r('app.string.purchase_code_hint'), text: this.formCode })
-                .fontSize(15)
-                .onChange((v: string) => { this.formCode = v; })
-                .layoutWeight(1)
-            }
-            .width('100%')
-            .constraintSize({ minHeight: 56 })
-            .backgroundColor($r('app.color.surface'))
-            .border({ width: { bottom: 0.5 }, color: $r('app.color.divider') })
-            .alignItems(VerticalAlign.Center)
 
             Row() {
               Text($r('app.string.purchase_supplier_id'))
@@ -76,7 +62,7 @@ export struct PurchaseOrderFormView {
 
               TextInput({ placeholder: $r('app.string.purchase_apply_id_hint'), text: this.formApplyId })
                 .fontSize(15)
-                .type(InputType.Number)
+                // apply_id 是 hashid（可含字母）：默认键盘
                 .onChange((v: string) => { this.formApplyId = v; })
                 .layoutWeight(1)
             }
@@ -94,7 +80,7 @@ export struct PurchaseOrderFormView {
 
               TextInput({ placeholder: $r('app.string.purchase_warehouse_id_hint'), text: this.formWarehouseId })
                 .fontSize(15)
-                .type(InputType.Number)
+                // warehouse_id 是 hashid（可含字母）：默认键盘
                 .onChange((v: string) => { this.formWarehouseId = v; })
                 .layoutWeight(1)
             }
@@ -112,7 +98,8 @@ export struct PurchaseOrderFormView {
 
               TextInput({ placeholder: $r('app.string.purchase_total_amount_hint'), text: this.formTotalAmount })
                 .fontSize(15)
-                .type(InputType.Number)
+                // 金额列是 DECIMAL(12,2)：NUMBER_DECIMAL 键盘可输小数点（Number 键盘无小数点）
+                .type(InputType.NUMBER_DECIMAL)
                 .onChange((v: string) => { this.formTotalAmount = v; })
                 .layoutWeight(1)
             }
@@ -128,23 +115,20 @@ export struct PurchaseOrderFormView {
               .fontColor($r('app.color.text_primary'))
               .width(80)
 
-              Row() {
-                Button($r('app.string.status_enabled'))
-                  .fontSize(13)
-                  .fontColor(this.formStatus === 1 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
-                  .backgroundColor(this.formStatus === 1 ? $r('app.color.success') : $r('app.color.surface_alt'))
-                  .borderRadius(4)
-                  .height(32)
-                  .onClick(() => { this.formStatus = 1; })
-
-                Button($r('app.string.status_disabled'))
-                  .fontSize(13)
-                  .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
-                  .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
-                  .borderRadius(4)
-                  .height(32)
-                  .margin({ left: 12 })
-                  .onClick(() => { this.formStatus = 0; })
+              // 订单状态是 5 档业务状态（0待审核/1已审核/2部分收货/3已收货/4已取消，
+              // 见 install.sql 列注释），不是用户模块的「启用/禁用」1/0：
+              // 原先复用启用/禁用按钮 → 新建恒写 status=1=已审核，未审即记已审
+              Flex({ wrap: FlexWrap.Wrap }) {
+                ForEach(PURCHASE_STATUS_CODES, (code: number) => {
+                  Button(L10n.str(this.getUIContext(), `purchase_status_${code}`))
+                    .fontSize(13)
+                    .fontColor(this.formStatus === code ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+                    .backgroundColor(this.formStatus === code ? $r('app.color.primary') : $r('app.color.surface_alt'))
+                    .borderRadius(4)
+                    .height(32)
+                    .margin({ left: 8, top: 4, bottom: 4 })
+                    .onClick(() => { this.formStatus = code; })
+                }, (code: number) => code.toString())
               }
               .layoutWeight(1)
             }

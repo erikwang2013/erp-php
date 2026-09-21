@@ -119,6 +119,8 @@ export interface User {
   last_login_at: string;
   last_login_ip: string;
   created_at: string;
+  // 已授角色 hashid 数组（列表/详情后端均下发；编辑弹框按该集预选角色多选）
+  roles?: string[];
 }
 
 export interface UserListResult extends PageResult<User> {}
@@ -133,6 +135,7 @@ export interface UserQuery extends PageParams {
 
 /**
  * 新建用户表单
+ * role_ids：角色 hashid 数组；缺省=关联保持不动、[]=清空（新建即空关联，无差别）
  */
 export interface UserCreateForm {
   username: string;
@@ -141,6 +144,7 @@ export interface UserCreateForm {
   email: string;
   password: string;
   status: number;
+  role_ids?: string[];
 }
 
 /** 删除密码确认体（敏感删除需当前管理员密码二次确认，后端 422 校验） */
@@ -158,6 +162,7 @@ export interface UserUpdateForm {
   email: string;
   status: number;
   password?: string;
+  role_ids?: string[];
 }
 
 /**
@@ -173,13 +178,14 @@ export interface Role {
 
 /**
  * 权限节点（/admin/permission 树形下发：id 为 hashid 字符串、
- * parent_id 为后端原始数字 id、children 仅在含子节点时下发）
+ * parent_id 亦为 hashid 字符串（0=顶级，见 PermissionController::buildTree）、
+ * children 仅在含子节点时下发）
  */
 export interface PermissionNode {
   id: string;
   name: string;
   slug: string;
-  parent_id?: number;
+  parent_id?: string | number;
   type?: number; // 1=目录 2=菜单 3=按钮
   icon?: string;
   path?: string;

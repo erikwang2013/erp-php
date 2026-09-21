@@ -93,7 +93,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     final defaultOrderedAt =
         '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
     return [
-      FormFieldConfig(name: 'code', label: l10n.purchaseOrderCode, hint: l10n.purchaseOrderCodeHint),
+      // 表无「订单编号」录入项：单号由后端生成，列表/详情可见（见 _buildPayload 注释）
       // supplier_id 原样传 hashid 串（后端 store/update 已解码落库）
       FormFieldConfig(name: 'supplier_id', label: l10n.purchaseSupplierId, required: true, hint: l10n.purchaseSupplierIdHint),
       FormFieldConfig(name: 'apply_id', label: l10n.purchaseApplyId, hint: l10n.purchaseZeroHint),
@@ -109,14 +109,10 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
 
   /// 把表单提交值转换为后端 store()/update() 接收的参数（status 拆出数字）。
   Map<String, dynamic> _buildPayload(Map<String, String> data) {
-    var code = data['code']?.trim() ?? '';
-    if (code.isEmpty) {
-      final now = DateTime.now();
-      code = 'PO${now.year}${_p2(now.month)}${_p2(now.day)}${_p2(now.hour)}${_p2(now.minute)}${_p2(now.second)}';
-    }
+    // 不下发 code：订单编号由后端 doc_code() 生成（PO+雪花号）。
+    // 前端自造（曾用 PO+秒级时间戳）与后端重复，同秒两次提交必撞 uk_code。
     final statusRaw = (data['status'] ?? '').split(' - ').first.trim();
     return {
-      'code': code,
       // supplier_id 原样传 hashid 串（后端 store/update 已解码落库）
       'supplier_id': data['supplier_id']?.trim(),
       'apply_id': (data['apply_id']?.trim().isEmpty ?? true) ? '0' : data['apply_id']!.trim(),
@@ -137,8 +133,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     }
     return d;
   }
-
-  String _p2(int v) => v.toString().padLeft(2, '0');
 
   /// 详情页入口：写操作成功后详情页回传 changed=true → 刷新本列表。
   Future<void> _detail(Map<String, dynamic> row) async {

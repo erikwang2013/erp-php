@@ -51,6 +51,16 @@ export const systemMenus: MenuGroup[] = [
             { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] },
             { key: 'phone', label: '手机' },
             { key: 'email', label: '邮箱' },
+            {
+              key: 'role_ids',
+              label: '角色',
+              type: 'tree',
+              multiple: true,
+              // 编辑态勾选集取行上的 roles（hashid 数组），不是表单字段名
+              initKey: 'roles',
+              source: { endpoint: '/admin/v1/role' },
+              full: true,
+            },
           ],
         },
       },
@@ -63,7 +73,6 @@ export const systemMenus: MenuGroup[] = [
           endpoint: '/admin/v1/role',
           paginated: false,
           deleteNeedsPassword: true,
-          // ponytail: 权限勾选走权限树弹层，需专门组件；此处先给基础档案字段
           columns: [
             { key: 'name', title: '角色名', primary: true },
             { key: 'slug', title: '标识' },
@@ -77,6 +86,17 @@ export const systemMenus: MenuGroup[] = [
             { key: 'slug', label: '标识', placeholder: '如 admin、viewer' },
             { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] },
             { key: 'description', label: '描述', type: 'textarea', full: true },
+            {
+              key: 'permission_ids',
+              label: '权限',
+              type: 'tree',
+              multiple: true,
+              // 编辑态勾选集取行上的 permissions（hashid 数组），不是表单字段名
+              initKey: 'permissions',
+              source: { endpoint: '/admin/v1/permission' },
+              full: true,
+              help: '勾选父级即全选其下所有子项',
+            },
           ],
         },
       },
@@ -90,7 +110,8 @@ export const systemMenus: MenuGroup[] = [
           paginated: false,
           deleteNeedsPassword: true,
           columns: [
-            { key: 'name', title: '权限名', primary: true },
+            // 后端发的是树：ResourcePage 拍平后按 __depth 缩进这一列（子节点才可见）
+            { key: 'name', title: '权限名', primary: true, indent: true },
             { key: 'slug', title: '标识' },
             {
               key: 'type',
@@ -105,7 +126,14 @@ export const systemMenus: MenuGroup[] = [
             { key: 'slug', label: '标识', required: true, placeholder: '如 get.admin/user' },
             { key: 'type', label: '类型', type: 'select', defaultValue: 2, required: true, options: [{ label: '目录', value: 1 }, { label: '菜单', value: 2 }, { label: '按钮', value: 3 }] },
             { key: 'path', label: '路径', placeholder: '/admin/user' },
-            { key: 'parent_id', label: '父级 ID', placeholder: '0 为顶级' },
+            {
+              key: 'parent_id',
+              label: '父级',
+              type: 'tree',
+              source: { endpoint: '/admin/v1/permission' },
+              full: true,
+              help: '点节点选父级；点已选节点取消（空 = 顶级）',
+            },
             { key: 'icon', label: '图标' },
             { key: 'sort', label: '排序', type: 'number', defaultValue: 0 },
           ],

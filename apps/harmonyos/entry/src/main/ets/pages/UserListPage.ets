@@ -4,11 +4,12 @@
 
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
-import { UserService } from '../service/DataService';
-import { User, UserCreateForm, UserUpdateForm } from '../model/DataModels';
+import { UserService, RoleService } from '../service/DataService';
+import { User, UserCreateForm, UserUpdateForm, RoleItem, PermissionNode } from '../model/DataModels';
 import { LoadingView, ErrorView, EmptyView } from '../common/Components';
 import { TopBar, TopBarAction } from '../common/TopBar';
 import { ConfirmDialog, FormDialog, FormField } from '../common/FormDialog';
+import { PermissionTreePicker } from '../common/PermissionTreePicker';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../common/ListRow';
 import { L10n } from '../utils/L10n';
 
@@ -16,6 +17,10 @@ import { L10n } from '../utils/L10n';
  * 用户管理：列表 + 新建/编辑弹框（FormDialog）。
  * 原 UserDetailPage 整页形态已并入：用户名仅新建可填（编辑只读）、
  * 密码仅新建必填 / 编辑留空=不改（后端 has&&!empty 才改密）、状态下拉。
+ * 角色多选（弹框字段区下方插槽）：数据源 GET /admin/role，编辑预选该用户
+ * roles（hashid 数组），提交键 role_ids（hashid 字符串数组；[]=清空角色）。
+ * 扁平角色清单映射为 PermissionNode 形状复用 PermissionTreePicker（无子节点，
+ * 级联逻辑退化为单选开关，勾选态/行样式与角色页权限树一致，不另写组件）。
  * 删除经 ConfirmDialog needPassword（后端 422 校验，顺带修复旧版无条件删的缺陷）。
  */
 @Entry
@@ -30,6 +35,19 @@ struct UserListPage {
   @State keyword: string = '';
   @State isRefreshing: boolean = false;
   private readonly limit: number = 15;
+  // 角色清单一次拉全的每页条数：取后端 pageParams 上限 500（同 Flutter 各页
+  // 下拉数据源 {'limit': '500'} 约定，卡小值会把清单静默截断、有角色选不中）
+  private readonly roleLimit: number = 500;
+
+  // 角色多选（弹框插槽）
+  @State roleNodes: Array<PermissionNode> = [];
+  @State roleLoading: boolean = false;
+  @State roleFailed: boolean = false;
+  // 勾选提交集（编辑预选 detail.roles / onChange 上行累计；提交时快照发送）
+  @State rolePicked: Array<string> = [];
+  // presetIds 开框快照：弹框生命周期内不再变更（勾选只在 picker 内部演进）——
+  // 同 RoleListPage.permPreset，重开（含提交失败带原值重建）时重新快照
+  @State rolePreset: Array<string> = [];
 
   // 表单弹框状态
   @State formMode: string = 'create'; // create | edit
@@ -40,6 +58,32 @@ struct UserListPage {
 
   aboutToAppear(): void {
     this.loadData();
+    this.loadRoles();
+  }
+
+  /** 角色清单（编辑预选/新建勾选的数据源；失败不阻断表单，仅插槽内提示） */
+  async loadRoles(): Promise<void> {
+    this.roleLoading = true;
+    this.roleFailed = false;
+    try {
+      const res = await RoleService.getList(1, this.roleLimit);
+      this.roleNodes = res.list.map((role: RoleItem): PermissionNode => {
+        return { id: role.id, name: role.name, slug: role.slug };
+      });
+    } catch (e) {
+      if (e instanceof Error && e.message === 'UNAUTHORIZED') {
+        router.replaceUrl({ url: 'pages/LoginPage' });
+        return;
+      }
+      this.roleFailed = true;
+      if (this.roleNodes.length > 0) {
+        // 已有数据仅提示，不清空已渲染清单（同 RoleListPage.loadPerms）
+        promptAction.showToast({ message: (e instanceof Error && e.message)
+          ? e.message : L10n.str(this.getUIContext(), 'load_failed') });
+      }
+    } finally {
+      this.roleLoading = false;
+    }
   }
 
   async loadData(isRefresh: boolean = false): Promise<void> {
@@ -101,6 +145,7 @@ struct UserListPage {
   openCreate(): void {
     this.formMode = 'create';
     this.editUserId = '';
+    this.rolePicked = [];
     this.openUserDialog(['', '', '', '', '', '1']);
   }
 
@@ -114,6 +159,8 @@ struct UserListPage {
       const detail = await UserService.getDetail(user.id);
       this.formMode = 'edit';
       this.editUserId = detail.id;
+      // 预选=后端下发的已授角色全集，直传同集（未点改不丢）
+      this.rolePicked = (detail.roles ?? []).slice();
       this.openUserDialog([
         detail.username,
         '', // 密码：编辑留空=不改
@@ -160,12 +207,22 @@ struct UserListPage {
   }
 
   private openUserDialog(initial: Array<string>): void {
+    // 开框快照勾选集（含提交失败重建路径：此时 rolePicked 为失败前用户点选，原样保留）
+    this.rolePreset = this.rolePicked.slice();
+    // 清单为空（首载失败/未拉到）时补拉一次：重开弹框即自愈，不必另设刷新按钮
+    if (this.roleNodes.length === 0) {
+      this.loadRoles();
+    }
     const mode = this.formMode;
     this.formDialogController = new CustomDialogController({
       builder: FormDialog({
         title: mode === 'create' ? $r('app.string.user_form_add') : $r('app.string.user_form_edit'),
         fields: this.userFormFields(mode),
         initial: initial,
+        withSlot: true,
+        slotContent: (): void => {
+          this.roleSlot();
+        },
         onCancel: (): void => {
           this.formDialogController?.close();
         },
@@ -187,6 +244,8 @@ struct UserListPage {
     const email = vals[4] ?? '';
     const status = vals[5] === '1' ? 1 : 0;
     const isEdit = this.formMode === 'edit';
+    // 角色提交集快照：勾选集原样下发（[] = 清空角色，后端以字段是否提交区分「不动」）
+    const roleIds = this.rolePicked.slice();
 
     try {
       if (isEdit) {
@@ -194,7 +253,8 @@ struct UserListPage {
           real_name: realName,
           phone: phone,
           email: email,
-          status: status
+          status: status,
+          role_ids: roleIds
         };
         if (password.length > 0) {
           body.password = password;
@@ -208,7 +268,8 @@ struct UserListPage {
           password: password,
           phone: phone,
           email: email,
-          status: status
+          status: status,
+          role_ids: roleIds
         };
         await UserService.create(body);
         promptAction.showToast({ message: $r('app.string.create_success') });
@@ -258,6 +319,50 @@ struct UserListPage {
       // 422（密码错 / 关联约束等）交回 ConfirmDialog：toast 后端 message 且弹窗保留可重试
       throw new Error(e instanceof Error ? e.message : '');
     }
+  }
+
+  /** 弹框内角色多选区（FormDialog 字段下方插槽）：段标题 + 加载/空态 + 扁平多选 */
+  @Builder
+  roleSlot() {
+    Column() {
+      Text($r('app.string.user_role_section'))
+        .fontSize(14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_primary'))
+        .width('100%')
+
+      if (this.roleNodes.length === 0) {
+        Row({ space: 8 }) {
+          if (this.roleLoading) {
+            LoadingProgress()
+              .width(16)
+              .height(16)
+              .color($r('app.color.primary'))
+          }
+          // 空态三态文案：加载中 / 失败 / 无角色（同 RoleListPage.permSlot 分支）
+          Text(this.roleLoading ? $r('app.string.user_role_loading')
+            : (this.roleFailed ? $r('app.string.user_role_load_failed')
+              : $r('app.string.user_role_empty')))
+            .fontSize(12)
+            .fontColor($r('app.color.text_hint'))
+            .layoutWeight(1)
+            .textAlign(TextAlign.Center)
+        }
+        .width('100%')
+        .height(40)
+        .justifyContent(FlexAlign.Center)
+      } else {
+        PermissionTreePicker({
+          nodes: this.roleNodes,
+          presetIds: this.rolePreset,
+          onChange: (ids: Array<string>): void => {
+            this.rolePicked = ids;
+          }
+        })
+      }
+    }
+    .width('100%')
+    .margin({ top: 8 })
   }
 
   build() {

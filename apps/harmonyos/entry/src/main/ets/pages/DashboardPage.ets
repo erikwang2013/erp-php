@@ -292,6 +292,263 @@ struct DashboardPage {
             .padding({ left: 16, right: 16, top: 16 })
             .alignItems(HorizontalAlign.Start)
 
+            // 业务宫格：基础资料/销售/采购四页均已逐页核对（API 在 config/route.php、
+            // l10n 键在 base + en_US string.json 双双在册），列表/详情/表单/删除口令全链路可用
+            Column() {
+              Text($r('app.string.dashboard_biz_title'))
+                .fontSize(16)
+                .fontWeight(FontWeight.Medium)
+                .width('100%')
+                .margin({ bottom: 12 })
+
+              Grid() {
+                GridItem() {
+                  this.mgmtTile($r('app.string.sales_list_title'), '▥', 'pages/SalesOrderPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.purchase_list_title'), '▤', 'pages/PurchaseOrderPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.product_list_title'), '▦', 'pages/ProductListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.inventory_list_title'), '▧', 'pages/InventoryPage')
+                }
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(12)
+              .rowsGap(12)
+              .width('100%')
+              .scale({ x: this.mgmtZoom, y: this.mgmtZoom })
+              .animation({ duration: 120, curve: Curve.EaseOut })
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, top: 16 })
+            .alignItems(HorizontalAlign.Start)
+
+            // 订单管理宫格（oms：订单列表 → 详情 → 履约单，均为已注册路由 + 已核对端点）
+            Column() {
+              Text($r('app.string.dashboard_oms_title'))
+                .fontSize(16)
+                .fontWeight(FontWeight.Medium)
+                .width('100%')
+                .margin({ bottom: 12 })
+
+              Grid() {
+                GridItem() {
+                  this.mgmtTile($r('app.string.dashboard_order_tile'), '▩', 'pages/oms/OrderListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.fulfillment_title'), '◈', 'pages/oms/FulfillmentListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.rma_title'), '◧', 'pages/oms/RmaListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.channel_list_title'), '◨', 'pages/oms/ChannelListPage')
+                }
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(12)
+              .rowsGap(12)
+              .width('100%')
+              .scale({ x: this.mgmtZoom, y: this.mgmtZoom })
+              .animation({ duration: 120, curve: Curve.EaseOut })
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, top: 16 })
+            .alignItems(HorizontalAlign.Start)
+
+            // 仓储管理宫格（wms：拣货/打包带 POST 动作端点，行走 /pick/{id}/start、/pack/{id}/complete）
+            Column() {
+              Text($r('app.string.dashboard_wms_title'))
+                .fontSize(16)
+                .fontWeight(FontWeight.Medium)
+                .width('100%')
+                .margin({ bottom: 12 })
+
+              Grid() {
+                GridItem() {
+                  this.mgmtTile($r('app.string.zone_list_title'), '◇', 'pages/wms/ZoneListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.asn_list_title'), '▨', 'pages/wms/AsnListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.receiving_list_title'), '▣', 'pages/wms/ReceivingPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.putaway_list_title'), '◐', 'pages/wms/PutawayPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.wave_list_title'), '◑', 'pages/wms/WavePage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.pick_list_title'), '◒', 'pages/wms/PickPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.pack_list_title'), '◓', 'pages/wms/PackPage')
+                }
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(12)
+              .rowsGap(12)
+              .width('100%')
+              .scale({ x: this.mgmtZoom, y: this.mgmtZoom })
+              .animation({ duration: 120, curve: Curve.EaseOut })
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, top: 16 })
+            .alignItems(HorizontalAlign.Start)
+
+            // 运输管理宫格（tms：费率/轨迹/运费发票为只读列表页，承运商与运单含表单+详情）
+            Column() {
+              Text($r('app.string.dashboard_tms_title'))
+                .fontSize(16)
+                .fontWeight(FontWeight.Medium)
+                .width('100%')
+                .margin({ bottom: 12 })
+
+              Grid() {
+                GridItem() {
+                  this.mgmtTile($r('app.string.carrier_list_title'), '◎', 'pages/tms/CarrierListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.freight_rate_list_title'), '○', 'pages/tms/FreightRatePage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.shipment_list_title'), '●', 'pages/tms/ShipmentListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.tracking_list_title'), '◔', 'pages/tms/TrackingPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.freight_invoice_list_title'), '◕', 'pages/tms/FreightInvoicePage')
+                }
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(12)
+              .rowsGap(12)
+              .width('100%')
+              .scale({ x: this.mgmtZoom, y: this.mgmtZoom })
+              .animation({ duration: 120, curve: Curve.EaseOut })
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, top: 16 })
+            .alignItems(HorizontalAlign.Start)
+
+            // 生产制造宫格（mfg：BOM/工艺/工位/MRP 只读列表，生产工单含表单+详情）
+            Column() {
+              Text($r('app.string.dashboard_mfg_title'))
+                .fontSize(16)
+                .fontWeight(FontWeight.Medium)
+                .width('100%')
+                .margin({ bottom: 12 })
+
+              Grid() {
+                GridItem() {
+                  this.mgmtTile($r('app.string.bom_list_title'), '■', 'pages/mfg/BomListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.production_list_title'), '▶', 'pages/mfg/ProductionOrderPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.routing_list_title'), '◀', 'pages/mfg/RoutingPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.workstation_list_title'), '▲', 'pages/mfg/WorkstationPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.mrp_list_title'), '▼', 'pages/mfg/MrpPage')
+                }
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(12)
+              .rowsGap(12)
+              .width('100%')
+              .scale({ x: this.mgmtZoom, y: this.mgmtZoom })
+              .animation({ duration: 120, curve: Curve.EaseOut })
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, top: 16 })
+            .alignItems(HorizontalAlign.Start)
+
+            // 人力资源宫格（hr：部门/员工含表单，考勤为只读列表）
+            Column() {
+              Text($r('app.string.dashboard_hr_title'))
+                .fontSize(16)
+                .fontWeight(FontWeight.Medium)
+                .width('100%')
+                .margin({ bottom: 12 })
+
+              Grid() {
+                GridItem() {
+                  this.mgmtTile($r('app.string.department_list_title'), '◤', 'pages/hr/DepartmentPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.employee_list_title'), '◢', 'pages/hr/EmployeeListPage')
+                }
+
+                GridItem() {
+                  this.mgmtTile($r('app.string.attendance_list_title'), '◣', 'pages/hr/AttendancePage')
+                }
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(12)
+              .rowsGap(12)
+              .width('100%')
+              .scale({ x: this.mgmtZoom, y: this.mgmtZoom })
+              .animation({ duration: 120, curve: Curve.EaseOut })
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, top: 16 })
+            .alignItems(HorizontalAlign.Start)
+
+            // 审批中心宫格（workflow：我的审批 → 详情 → 同意/驳回/撤回）
+            Column() {
+              Text($r('app.string.dashboard_workflow_title'))
+                .fontSize(16)
+                .fontWeight(FontWeight.Medium)
+                .width('100%')
+                .margin({ bottom: 12 })
+
+              Grid() {
+                GridItem() {
+                  this.mgmtTile($r('app.string.approval_list_title'), '□', 'pages/workflow/ApprovalPage')
+                }
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(12)
+              .rowsGap(12)
+              .width('100%')
+              .scale({ x: this.mgmtZoom, y: this.mgmtZoom })
+              .animation({ duration: 120, curve: Curve.EaseOut })
+            }
+            .width('100%')
+            .padding({ left: 16, right: 16, top: 16 })
+            .alignItems(HorizontalAlign.Start)
+
             // KPI 数字滚动卡 2×2
             if (this.kpis.length > 0) {
               Grid() {
