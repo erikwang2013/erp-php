@@ -13,6 +13,8 @@ flowchart TB
     subgraph "Client-Schicht"
         A1["Flutter Web<br/>PC-Verwaltungsoberfläche<br/>(Port 3000)"]
         A2["HarmonyOS ArkTS<br/>Handy-/Tablet-Client"]
+        A3["Angular 22 + ng-zorro<br/>Web-Verwaltungsoberfläche"]
+        A4["React 19 + Vite<br/>Web-Verwaltungsoberfläche"]
     end
 
     subgraph "Gateway-/Edge-Schicht (Nginx Edge)"
@@ -20,8 +22,8 @@ flowchart TB
     end
 
     subgraph "Anwendungsschicht (webman v2)"
-        C_LOC["Locale-Middleware<br/>Accept-Language automatische Erkennung"]
-        C0["ApiVersion-Middleware<br/>API-Version-Header-Prüfung"]
+        C_LOC["I18n::getLocale()<br/>Accept-Language-Auswertung · 13 Sprachen"]
+        C0["Pfadversionierung<br/>/api/v1 · /admin/v1 (ohne Versions-Header)"]
         C1["AdminAuth-Middleware<br/>JWT-Verifizierung"]
         C2["AdminPermission-Middleware<br/>RBAC-Berechtigungsprüfung"]
         C3["Admin-Controller<br/>Dashboard / User / Role / Permission"]
@@ -42,6 +44,8 @@ flowchart TB
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -57,6 +61,8 @@ flowchart TB
 
     style A1 fill:#1677FF,color:#fff
     style A2 fill:#1677FF,color:#fff
+    style A3 fill:#1677FF,color:#fff
+    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -80,10 +86,10 @@ flowchart TD
     end
 
     subgraph "Middleware-Schicht"
-        M_LOC["Locale<br/>Accept-Language automatische Erkennung<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>Redis-Fensterratenbegrenzung<br/>X-RateLimit-Response-Header"]
+        M_CR["Cors<br/>CORS-Verarbeitung / OPTIONS-Preflight"]
         M_SF["SecurityFilter<br/>Angriffserkennung und -blockierung<br/>XSS/SQL-Injection/Pfad-Traversal/CSRF"]
-        M0["ApiVersion<br/>API-Versionsprüfung<br/>Injektion von apiVersion"]
+        M_RL["RateLimit<br/>Redis-Fensterratenbegrenzung<br/>X-RateLimit-Response-Header"]
+        M_TID["TracingId<br/>Generierung X-Trace-Id<br/>durchgängig über die gesamte Kette"]
         M1["AdminAuth<br/>JWT-Token-Prüfung<br/>Injektion von adminId"]
         M2["AdminPermission<br/>RBAC-Autorisierung<br/>method.path-Abgleich<br/>Redis 60s Berechtigungscache"]
     end
@@ -103,6 +109,7 @@ flowchart TD
         S1["HashidsService<br/>ID-Codierung/-Decodierung"]
         S2["SnowflakeService<br/>Globale eindeutige ID-Generierung"]
         S3["EncryptionService<br/>Verschlüsselung/-Entschlüsselung + Maskierung"]
+        M_LOC["I18n::getLocale()<br/>Accept-Language-Auswertung (keine Middleware)<br/>13 Sprachen zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "Model-Schicht"
@@ -119,11 +126,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +140,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +155,23 @@ Mit der Weiterentwicklung des Systems von einer reinen Verwaltungsoberfläche zu
 
 | Ebene | Verzeichnis | Beschreibung |
 |------|------|------|
-| Geschäftscontroller | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70 Stück, nach Modulen gegliedert, verarbeiten Geschäftsanfragen |
-| Geschäftsservices | `app/service/{inventory,finance,notification}/` | Lager-Ein-/Ausgang + Kostenrechnung, finanzielle Forderungen/Verbindlichkeiten + Verrechnung, Benachrichtigungsversand |
+| Geschäftscontroller | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 Stück (23 Geschäftsdomänen, zusätzlich die obersten Install / Index), nach Modulen gegliedert, verarbeiten Geschäftsanfragen |
+| Geschäftsservices | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 Serviceklassen / 64 Dateien / 20 Modul-Unterverzeichnisse; enthält Lager-Ein-/Ausgang + Kostenrechnung, finanzielle Forderungen/Verbindlichkeiten + Verrechnung, Benachrichtigungsversand |
+
+### Internationalisierung (13 Sprachen)
+
+Die Sprachauflösung erfolgt in `app/common/I18n.php` über `getLocale()` (aufgerufen von `I18n::trans()`, **keine Middleware**): Es wird das erste Tag des Headers `Accept-Language` genommen und das Hauptsprach-Subtag gemappt (`zh*` → `zh_CN`). Arbeitsteilung der Wörterbücher zwischen Backend und Frontend:
+
+| Seite | Wörterbuchposition | Umfang | Generator |
+|----|----------|------|--------|
+| Backend | `resource/translations/<locale>/{common,modules,validation}.php` | 13 Sprachverzeichnisse; `zh_CN` 565 Einträge, die übrigen 11 Sprachen je 544 Einträge, `en` 30 Einträge (Blatteintrags-Zählweise, die Feldlabels in `attributes` von `validation.php` zählen mit, deren Gruppenschlüssel nicht) | `scripts/gen-be-locales.mjs` |
+| Angular | Quelle `apps/angular/src/app/core/zh-en/part1..4.ts` → Produkt `core/zh-<code>.ts` | Quellwörterbuch 1456 Einträge | `scripts/gen-fe-locales.mjs --app angular` |
+| React | Quelle `apps/react/src/lib/i18n/zhEn.ts` → Produkt `lib/i18n/zh<Code>.ts` | Quellwörterbuch 1451 Einträge | `scripts/gen-fe-locales.mjs --app react` |
+
+- Sprachen: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`.
+- Backend „Englisch ist der Key": `en` lässt common/modules leer; die Schlüssel in `validation.php` sind Framework-Regelnamen, es werden nur die Werte übersetzt.
+- Die 11 neuen Frontend-Sprachwörterbücher werden jeweils per `import()` dynamisch als eigener Chunk geladen; fehlende Einträge fallen auf den chinesischen Originaltext zurück.
+- Beim Sprachwechsel wird der Header `Accept-Language` umgeschaltet, das Backend liefert die Texte je Sprache (`app/common/I18n.php` + `config/translation.php`).
 
 ---
 
@@ -158,10 +181,10 @@ Mit der Weiterentwicklung des Systems von einer reinen Verwaltungsoberfläche zu
 sequenceDiagram
     participant C as Client
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -170,10 +193,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: HTTPS-Request<br/>Header: API-Version: v1
-    N->>MW_LOC: Weiterleitung
-    MW_LOC->>MW_LOC: Accept-Language auswerten<br/>locale setzen
-    MW_LOC->>MW_SF: bestanden
+    C->>N: HTTPS-Request<br/>Pfad /api/v1 oder /admin/v1 (ohne Versions-Header)
+    N->>MW_CR: Weiterleitung
+    MW_CR->>MW_CR: OPTIONS-Preflight verarbeiten<br/>CORS-Response-Header injizieren
+    MW_CR->>MW_SF: bestanden
 
     alt Nicht standardmäßige HTTP-Methode (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +214,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: bestanden
-
-    alt Nicht unterstützte Version
-        MW0-->>C: 400 Nicht unterstützte API-Version
-    else Version gültig
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: bestanden
+    MW_TID->>MW_TID: X-Trace-Id generieren<br/>in Response-Header injizieren
+    MW_TID->>MW1: bestanden
 
     alt Token fehlt oder ungültig
         MW1-->>C: 401 Unauthorized
@@ -249,7 +268,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === Schritt 1: Captcha abrufen ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: 300×200 Hintergrundbild generieren
     CAP->>CAP: N chinesische Ziele zufällig platzieren
@@ -264,7 +283,7 @@ sequenceDiagram
     CL->>CL: clicks sammeln: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === Schritt 3: Login ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt Captcha falsch
         CAP-->>SV: false
@@ -284,7 +303,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === Folgeanfragen ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { dashboard data }
@@ -539,7 +558,7 @@ sequenceDiagram
     participant FS as Dateisystem
 
     Note over C,FS: === Excel-Export ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: Daten
     CTL->>CTL: Sensible Felder entschlüsseln
@@ -549,7 +568,7 @@ sequenceDiagram
     CTL-->>C: Datei-Download
 
     Note over C,FS: === PDF-Export ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>Seitenkopf: Titel + Copyright + Zeit<br/>Inhalt: Tabelle oder Karten<br/>Fußzeile: nicht entfernbarer Copyright
     CTL->>CTL: Dompdf-Rendering A4 Querformat
     CTL->>FS: Schreiben nach runtime/tmp/export_*.pdf
@@ -712,10 +731,12 @@ graph TB
         FW["Flutter Web<br/>PC-Verwaltungsoberfläche"]
         FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
         HW["HarmonyOS<br/>HarmonyOS-native App"]
+        NG["Angular 22 + ng-zorro<br/>Web-Verwaltungsoberfläche"]
+        RC["React 19 + Vite<br/>Web-Verwaltungsoberfläche"]
     end
 
     subgraph Gateway["API-Gateway-Schicht"]
-        MW["Middleware-Kette<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["Middleware-Kette<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>Routengruppe: AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["Geschäftsmodul-Schicht"]
@@ -742,7 +763,7 @@ graph TB
     end
 
     subgraph Data["Datenschicht"]
-        MySQL["MySQL 8.0<br/>163 Geschäftstabellen"]
+        MySQL["MySQL 8.0<br/>227 Geschäftstabellen"]
         Redis["Redis 7<br/>Cache/Ratenbegrenzung/Session"]
         ES["Elasticsearch 8<br/>Volltextsuche"]
     end
@@ -877,22 +898,31 @@ sequenceDiagram
 
 | Modul | Controllers (Verzeichnis) | Kern-Service | Wichtigste Models | Tabellen |
 |------|-------------------|-------------|-----------|------|
-| Systemverwaltung | admin/controller/ (14) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | AdminUser, AdminRole, AdminPermission | 7 |
-| Artikelverwaltung | controller/product/ (7) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
-| Einkaufsverwaltung | controller/purchase/ (5) | InventoryService, FinanceService ⚠ CRUD greift weiterhin direkt zu, bekannter Tech-Schuldposten | PurchaseOrder, PurchaseReceive | 9 |
+| Systemverwaltung | admin/controller/ (16) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | AdminUser, AdminRole, AdminPermission | 7 |
+| Artikelverwaltung | controller/product/ (8) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 12 |
+| Einkaufsverwaltung | controller/purchase/ (8) | InventoryService, FinanceService ⚠ CRUD greift weiterhin direkt zu, bekannter Tech-Schuldposten | PurchaseOrder, PurchaseReceive | 14 |
 | Vertriebsverwaltung | controller/sales/ (5) | InventoryService, FinanceService ⚠ CRUD greift weiterhin direkt zu, bekannter Tech-Schuldposten | SalesOrder, SalesDelivery | 9 |
-| Lagerverwaltung | controller/inventory/ (5) | InventoryService ⚠ CRUD greift weiterhin direkt zu, bekannter Tech-Schuldposten | Inventory, InventoryFlow, CostRecord | 11 |
-| Finanzverwaltung | controller/finance/ (20) | FinanceService ⚠ CRUD greift weiterhin direkt zu, bekannter Tech-Schuldposten | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| Lagerverwaltung | controller/inventory/ (6) | InventoryService ⚠ CRUD greift weiterhin direkt zu, bekannter Tech-Schuldposten | Inventory, InventoryFlow, CostRecord | 11 |
+| Finanzverwaltung | controller/finance/ (28) | FinanceService ⚠ CRUD greift weiterhin direkt zu, bekannter Tech-Schuldposten | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 38 |
 | CRM | controller/crm/ (10) | CrmService | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
-| Genehmigungs-Workflow | controller/workflow/ (2) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
-| Benachrichtigungen | controller/notification/ (1) | NotificationService ⚠ CRUD greift weiterhin direkt zu, bekannter Tech-Schuldposten | Notification, NotificationSetting, NotificationTemplate | 3 |
-| Projektverwaltung | controller/project/ (3) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| Personalwesen | controller/hr/ (5) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
-| Produktion | controller/manufacturing/ (5) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| Genehmigungs-Workflow | controller/workflow/ (3) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
+| Benachrichtigungen | controller/notification/ (2) | NotificationService ⚠ CRUD greift weiterhin direkt zu, bekannter Tech-Schuldposten | Notification, NotificationSetting, NotificationTemplate | 4 |
+| Projektverwaltung | controller/project/ (4) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 6 |
+| Personalwesen | controller/hr/ (9) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 21 |
+| Produktion | controller/manufacturing/ (13) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 21 |
 | Benutzerdefinierte Berichte | controller/report/ (2) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
-| EAM Anlagenverwaltung | controller/eam/ (4) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart | 4 |
+| EAM Anlagenverwaltung | controller/eam/ (5) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
 | DMS Dokumentenverwaltung | controller/dms/ (2) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
 | BI-Dashboard | controller/bi/ (3) | - ⚠ Controller greift direkt auf Model zu, bekannter Tech-Schuldposten | BiDashboard, BiWidget | 2 |
+
+> Diese Tabelle ist die frühe Modulzuordnung (Systemverwaltung + 15 Geschäftsdomänen); die später hinzugekommenen acht Domänen oms / wms / tms / quality / open / platform / print / retail sind nicht aufgeführt,
+> die vollständige Liste steht im Projektstrukturbaum in `docs/CLAUDE.md` (`app/controller/` umfasst 23 Modulverzeichnisse / 139 Controller, einschließlich der obersten Ebene Install, Index).
+>
+> Zählweise der `Tabellen`-Spalte (real gemessen am 2026-09-15): Ausgehend von den 227 Tabellen in `database/install.sql` wird jede Tabelle anhand ihres Tabellenpräfixes genau einem Modul zugeordnet — Systemverwaltung `admin_*`+`system_config`+`operation_log`;
+> Artikelverwaltung `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`; Einkaufsverwaltung `purchase_*`+`supplier_assessment`; Bestandsverwaltung `inventory*`/`transfer*`/`check_*`/`cost_record`;
+> alle übrigen Module nach dem gleichnamigen Tabellenpräfix (`sales_*`→Vertrieb, `finance_*`→Finanzen, `crm_*`→CRM, `approval_*`→Genehmigung, `notification*`→Benachrichtigungen, `project*`→Projekt, `hr_*`→Personal, `mfg_*`→Produktion, `report_*`→Berichte, `eam_*`→EAM, `dms_*`→DMS, `bi_*`→BI).
+> Eine Tabelle zählt nur zu einer Zeile; die später hinzugekommenen Domänen und gemeinsamen Tabellen umfassen zusammen 48 Stück (`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`print_template`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`) und sind in keiner Zeile dieser Tabelle enthalten.
+> Neuberechnung: ``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
 ### 20.1 Aufzeichnung der leichten Service-Schicht-Extraktion P2-F2 (crm/hr/manufacturing/product bereits extrahiert)
 
@@ -912,6 +942,14 @@ instanziiert über den class_exists-Fallback, daher bleiben alle Services ohne K
 
 Nicht extrahierte Module (Projektverwaltung 18, Benutzerdefinierte Berichte 18, Einkauf 24, Vertrieb 24, Systemverwaltung 42 usw.) sind in der Tabelle
 mit "Controller greift direkt auf Model zu, bekannter Tech-Schuldposten" gekennzeichnet und werden in Folgeiterationen nach demselben Muster extrahiert.
+
+> ⚠ Nachmessung (2026-09-15): Die Zahlen dieses Abschnitts sind der **Stand zum Extraktionszeitpunkt** (1051d83 / 2026-08-16) —
+> mit derselben Zählweise gegen diesen Commit geprüft, ergibt sich für die vier Module genau CRM 57→0, Personalwesen 36→0 (hier 38 angegeben), Produktion 33→0, Artikelverwaltung 29→0;
+> die nicht extrahierten Module lagen damals bei Projekt 18 / Berichte 18 / Einkauf 25 / Vertrieb 25 / Systemverwaltung 44 (angegeben 18/18/24/24/42; die Abweichung von 1–2 ist eine Frage der Zählweise).
+> Nach der Extraktion wurden neu hinzugekommene Seiten nicht an die Services angebunden, die Direktzugriffe sind zurückgeflossen: CRM 6 Stellen (Nachbefüllung zugehöriger Namen per `pluck`), Produktion 39 Stellen
+> (CostEntry/MaterialIssue/WorkReport/Subcontract-Ein-/Ausgang und weitere 6 spätere Controller), Artikelverwaltung 2 Stellen (LocationController Lagerplatz), Personalwesen weiterhin 0;
+> die nicht extrahierten Module liegen jetzt bei Projekt 24 / Berichte 20 / Einkauf 58 / Vertrieb 35 / Systemverwaltung 67.
+> Zählweise und Befehl der Nachmessung (`Model::class` zählt nicht mit): ``grep -rhoE '\b[A-Z][A-Za-z]*::(find|where|whereIn|query|first|all|count|paginate|insert|update|delete|save|create|pluck|exists)\(' app/controller/<Modul>/ | grep -vE '\b(Service|Container|Validator|Cache|Log)::' | wc -l``
 
 ---
 
@@ -957,7 +995,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | Dimension | Bewertung | Wichtigste Lücken |
 |------|------|----------|
 | Backend-API | 85/100 | Mehrere Module sind CRUD-Gerüste, es fehlen Geschäftsberechnungs-Engines |
-| Sicherheit | 95/100 | 18 Schichten abgestufter Verteidigung, produktionsbereit |
+| Sicherheit | 95/100 | 7 Ebenen Tiefenverteidigung (L0–L12-Panorama), produktionsbereit |
 | Frontend-UI | 20/100 | **Größte Schwäche**: Flutter 12 Seiten decken ~20 % der Module ab, Web-Admin-Panel fehlt |
 | Betriebs-Ökosystem | 70/100 | Es fehlen Migrations-Rollback, automatische Backups, Observability |
 | Geschäftstiefe | 55/100 | Kernalgorithmen für Finanzen/HR/Produktion nicht implementiert |
@@ -979,10 +1017,10 @@ P0(3-4 Wochen) → P1(4-6 Wochen) → P2(1-2 Wochen) → P3(2-3 Wochen) = insges
 ### 21.3 Entwicklung der Middleware-Kette
 
 ```
-Heute:    Locale → Cors → SecurityFilter → RateLimit → TracingId → {Routengruppen}
-Nach P1:  Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {Routengruppen}
-Nach P2:  Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {Routengruppen}
-Nach P3:  Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {Routengruppen}
+Heute:    Cors → SecurityFilter → RateLimit → TracingId → {Routengruppen}
+Nach P1:  Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {Routengruppen}
+Nach P2:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {Routengruppen}
+Nach P3:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {Routengruppen}
 ```
 
 ### 21.4 P0-Zielarchitektur — Flutter-Web-Admin-Panel
@@ -1028,25 +1066,25 @@ Hinweis: Das "Multi-Tenant-Isolation" in §21.2 Roadmap P3 wird entsprechend zu 
 Entscheidungsgrundlage (Review 2026-08):
 - Die bestehenden Bereitstellungen sind fast ausnahmslos Single-Tenant; eine Verkabelung würde unnötige Isolationskomplexität und Regressionsrisiken einführen;
 - Das aktuelle Gerüst hat technische Defizite (siehe 22.4), "Verkabelung = Isolation" trifft nicht zu; zuerst ist eine Designkorrektur erforderlich;
-- Die Isolation erfordert das Hinzufügen von Spalten je Geschäftstabelle unter den 163 Tabellen und das Aktivieren je Model — der Aufwand übersteigt eine "minimale Verkabelung" deutlich.
+- Die Isolation erfordert das Hinzufügen von Spalten je Geschäftstabelle unter den 227 Tabellen und das Aktivieren je Model — der Aufwand übersteigt eine "minimale Verkabelung" deutlich.
 
 ### 22.2 Aktueller Stand (Code- und Konfigurationsabgleich)
 
 | Position | Aktueller Stand |
 |----|------|
-| `app/middleware/TenantScope.php` | Vorhanden, nicht registriert; liest den Tenant aus dem `X-Tenant-Id`-Header, lässt bei fehlendem Header direkt durch |
-| `app/model/concerns/TenantScope.php` | Vorhanden, von keinem Model verwendet; der globale Scope in `bootTenantScope()` filtert nur, wenn ein Tenant gesetzt ist |
-| `config/middleware.php` | Globale Kette: Locale → Cors → SecurityFilter → RateLimit → TracingId, ohne TenantScope |
-| `/admin`-Gruppe in `config/route.php` | AdminAuth → AdminPermission → OperationLog, ohne TenantScope |
+| `app/middleware/TenantScope.php` | Vorhanden, nicht registriert; liest aus dem Header `X-Tenant-Code` den Mandantencode und schlägt in `erp_tenant` nach, um den Kontext zu injizieren; fehlt der Header, wird direkt durchgelassen |
+| `app/model/concerns/TenantScope.php` | Vorhanden; wird von 4 Finanzmodellen (`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`, Unternehmensfamilie, `tenantScopeByCompany()` liefert true) verwendet und filtert nach `company_id`; da die Middleware nicht registriert ist und der Request-Kontext nicht injiziert wird, ist der globale Scope derzeit nicht wirksam |
+| `config/middleware.php` | Globale Kette: Cors → SecurityFilter → RateLimit → TracingId, ohne TenantScope |
+| `/admin/v1`-Gruppe in `config/route.php` | AdminAuth → AdminPermission → OperationLog, ohne TenantScope |
 | JWT-Payload | Nur `sub` / `username` / `token_type`, **kein tenant_id-Claim** (`app/api/v1/controller/AuthController.php`) |
 | Datenbank | **Keine tenant_id-Spalte in der gesamten Datenbank** (auch nicht in install.sql) |
-| Models | **Kein Model verwendet den TenantScope-Trait** |
+| Models | 4 Finanzmodelle verwenden den Trait `TenantScope` (Unternehmensfamilie, filtert `company_id`) — Pilotisolierung; ohne injizierten Mandantenkontext wird nicht gefiltert |
 
 ### 22.3 Aktivierungsschritte (Referenz für später, in dieser Phase nicht ausgeführt)
 
-1. Middleware registrieren: in der `middleware()` der /admin-Gruppe in `config/route.php`
+1. Middleware registrieren: in der `middleware()` der /admin/v1-Gruppe in `config/route.php`
    `app\middleware\TenantScope::class` anhängen (nach AdminAuth, um authentifizierte Anfragen sicherzustellen).
-2. Der Anfragesteller trägt im Request-Header `X-Tenant-Id` (int Tenant-ID) ein.
+2. Der Anfragesteller führt im Request-Header `X-Tenant-Code` (Mandantencode als Zeichenkette).
 3. Für zu isolierende Geschäftstabellen die Spalte `tenant_id` hinzufügen (BIGINT + Index) und Bestandsdaten nachtragen;
    Wörterbuch-/Systemtabellen (z. B. `erp_admin_user`, `erp_role`, `erp_permission`) werden nicht isoliert.
 4. In den zu isolierenden Model-Klassen `use app\model\concerns\TenantScope;` einbinden — automatische Filterung nach aktuellem Tenant.
@@ -1055,15 +1093,17 @@ Entscheidungsgrundlage (Review 2026-08):
 
 ### 22.4 Bekannte technische Einschränkungen (müssen vor Aktivierung gelöst werden)
 
-- **Unterbrochene statische Übergabekette (mit PHP 8.3 getestet)**: Die Middleware ruft `setCurrentTenantId()` über den Trait-Namen auf
-   und schreibt damit in die statische Kopie des Traits selbst; Model-Klassen, die diesen Trait verwenden, können sie nicht lesen, die Abfrage wird nicht gefiltert.
-   Bei der Aktivierung auf eine requestkontextbasierte Injektion umstellen (z. B. `request()->tenantId`).
-- **Statische Globalzustands-Interferenz**: Workerman ist ein persistent laufender Prozess; statische Eigenschaften werden über Requests hinweg geteilt; bei aktiviertem Coroutine-Modus
-   (Swoole/Swow) kommt es zu tenantübergreifender Dateninterferenz — auf requestgebundene Bindung umstellen (`context()` / Request-Objekt).
-- **Datenebenen-Lücke**: Es gibt keine tenant_id-Spalte in der gesamten Datenbank; Migration ist je Tabelle erforderlich; für tenantübergreifend geteilte Wörterbuchtabellen muss ein Befreiungsmechanismus entworfen werden.
+- **Vertrauensgrenze (vor der Registrierung zwingend zu lösen)**: Der Mandantenkontext stammt aus dem Request-Header `X-Tenant-Code` und ist damit fälschbare Eingabe;
+   wird die Middleware aktiviert, bevor in `erp_admin_user` eine Bindung an Unternehmen/Mandant besteht (Zuordnung des Administrators),
+   entsteht eine Lücke in der Datenebene bei der Rechteüberschreitung (jeder authentifizierte Administrator kann einen beliebigen Mandanten deklarieren und dessen Daten lesen).
+- **Bruch der statischen Übergabekette (mit PHP 8.3 getestet) — durch die P2-4-B5-Fixversion abgelöst**: Der Trait `TenantScope` läuft jetzt über
+   requestkontextbasierte Injektion (`request()->tenantId` / `companyId`); dieser Pfad hat keinen statischen Zustand, die Interferenz über Requests hinweg im persistenten Prozess
+   entfällt damit; die statische Fassade über den Trait-Namen ist als `@deprecated` gekennzeichnet und dient nur noch als Rückfall für Tests/CLI.
+- **Lücke in der Datenebene**: Es gibt keine tenant_id-Spalte in der gesamten Datenbank; Migration ist je Tabelle erforderlich; für mandantenübergreifend geteilte Wörterbuchtabellen muss ein Befreiungsmechanismus entworfen werden.
 
 ### 22.5 Abnahmekriterien
 
 Abnahme dieser Phase = Dokumentation und Code stimmen überein: `config/middleware.php` und `config/route.php` enthalten
-keine TenantScope-Registrierung; Middleware und Trait-Kommentare kennzeichnen eindeutig "reservierte Fähigkeit, nicht aktiviert" und geben Aktivierungsschritte an;
+keine TenantScope-Registrierung; die Middleware-Kommentare kennzeichnen "implementiert, standardmäßig nicht registriert" und geben Registrierungspunkt sowie Vertrauensgrenze an,
+die Trait-Kommentare kennzeichnen die requestkontextbasierte Injektionskette sowie die Regressionslinie (ohne Mandantenkontext wird nicht gefiltert);
 dieser Abschnitt entspricht Punkt für Punkt dem Code-Stand.

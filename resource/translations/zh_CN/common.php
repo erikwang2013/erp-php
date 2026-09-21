@@ -434,4 +434,6 @@ return [
     'Material dispatch number already exists' => '发料单号已存在',
     'Audited material dispatches cannot be modified' => '已审核的发料单不可修改',
     'Audited material dispatches cannot be deleted' => '已审核的发料单不可删除',
+    'Number ":code" already exists; please refresh the page and use another one' => '单号「:code」已存在，请刷新页面后换一个',
+    'Issued-out records cannot be deleted' => '已出库记录不可删除',
 ];

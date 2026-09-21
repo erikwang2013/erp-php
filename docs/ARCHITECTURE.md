@@ -86,10 +86,10 @@ flowchart TD
     end
 
     subgraph "中间件层 Middleware Layer"
-        M_LOC["I18n::getLocale()<br/>Accept-Language 解析（非中间件）<br/>13 语种 zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
-        M_RL["RateLimit<br/>Redis 滑动窗口限流<br/>X-RateLimit 响应头"]
+        M_CR["Cors<br/>跨域处理 / OPTIONS 预检"]
         M_SF["SecurityFilter<br/>攻击检测拦截<br/>XSS/SQL注入/路径遍历/CSRF"]
-        M0["ApiVersion<br/>API 版本校验<br/>注入 apiVersion"]
+        M_RL["RateLimit<br/>Redis 滑动窗口限流<br/>X-RateLimit 响应头"]
+        M_TID["TracingId<br/>生成 X-Trace-Id<br/>贯穿全链路"]
         M1["AdminAuth<br/>JWT Token 校验<br/>注入 adminId"]
         M2["AdminPermission<br/>RBAC 鉴权<br/>method.path 匹配<br/>Redis 60s 缓存权限"]
     end
@@ -109,6 +109,7 @@ flowchart TD
         S1["HashidsService<br/>ID 编解码"]
         S2["SnowflakeService<br/>全局唯一 ID 生成"]
         S3["EncryptionService<br/>加解密 + 脱敏"]
+        M_LOC["I18n::getLocale()<br/>Accept-Language 解析（非中间件）<br/>13 语种 zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "模型层 Model Layer"
@@ -125,11 +126,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -139,9 +140,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -154,7 +156,7 @@ flowchart TD
 | 层级 | 目录 | 说明 |
 |------|------|------|
 | 业务控制器 | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 个（23 个业务域，另有顶层 Install / Index），按模块划分，处理业务请求 |
-| 业务服务 | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 个服务类 / 20 个模块子目录；含库存出入库+成本核算、财务应收应付+核销、通知发送 |
+| 业务服务 | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 个服务类 / 64 个文件 / 20 个模块子目录；含库存出入库+成本核算、财务应收应付+核销、通知发送 |
 
 ### 国际化（13 语种）
 
@@ -162,9 +164,9 @@ flowchart TD
 
 | 端 | 词典位置 | 规模 | 生成器 |
 |----|----------|------|--------|
-| 后端 | `resource/translations/<locale>/{common,modules,validation}.php` | 13 个语种目录；11 个语种各 542 条，`zh_CN` 533、`en` 30 | `scripts/gen-be-locales.mjs` |
-| Angular | 源 `apps/angular/src/app/core/zh-en/part1..4.ts` → 产物 `core/zh-<code>.ts` | 源词典 1453 条 | `scripts/gen-fe-locales.mjs --app angular` |
-| React | 源 `apps/react/src/lib/i18n/zhEn.ts` → 产物 `lib/i18n/zh<Code>.ts` | 源词典 1447 条 | `scripts/gen-fe-locales.mjs --app react` |
+| 后端 | `resource/translations/<locale>/{common,modules,validation}.php` | 13 个语种目录；`zh_CN` 565 条、其余 11 个语种各 544 条、`en` 30 条（叶子条目口径，`validation.php` 的 `attributes` 字段标签计入、其组键不计） | `scripts/gen-be-locales.mjs` |
+| Angular | 源 `apps/angular/src/app/core/zh-en/part1..4.ts` → 产物 `core/zh-<code>.ts` | 源词典 1456 条 | `scripts/gen-fe-locales.mjs --app angular` |
+| React | 源 `apps/react/src/lib/i18n/zhEn.ts` → 产物 `lib/i18n/zh<Code>.ts` | 源词典 1451 条 | `scripts/gen-fe-locales.mjs --app react` |
 
 - 语种：`zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`。
 - 后端「英文即 key」：`en` 的 common/modules 留空；`validation.php` 的键是框架规则名，只译值。
@@ -179,10 +181,10 @@ flowchart TD
 sequenceDiagram
     participant C as 客户端
     participant N as Nginx
-    participant MW_LOC as I18n
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -192,9 +194,9 @@ sequenceDiagram
     participant OPLOG as OperationLog
 
     C->>N: HTTPS 请求<br/>路径 /api/v1 或 /admin/v1（无版本头）
-    N->>MW_LOC: 转发
-    MW_LOC->>MW_LOC: 解析 Accept-Language<br/>设置 locale
-    MW_LOC->>MW_SF: 通过
+    N->>MW_CR: 转发
+    MW_CR->>MW_CR: 处理 OPTIONS 预检<br/>注入 CORS 响应头
+    MW_CR->>MW_SF: 通过
 
     alt 非标准 HTTP 方法 (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -212,13 +214,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: 通过
-
-    alt 不支持的版本
-        MW0-->>C: 400 不支持的API版本
-    else 版本有效
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: 通过
+    MW_TID->>MW_TID: 生成 X-Trace-Id<br/>注入响应头
+    MW_TID->>MW1: 通过
 
     alt Token 缺失或无效
         MW1-->>C: 401 Unauthorized
@@ -270,7 +268,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === 第一步: 获取验证码 ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: 生成 300×200 背景图
     CAP->>CAP: 随机放置 N 个中文目标
@@ -285,7 +283,7 @@ sequenceDiagram
     CL->>CL: 收集 clicks: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === 第三步: 登录 ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt 验证码错误
         CAP-->>SV: false
@@ -305,7 +303,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === 后续请求 ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { dashboard data }
@@ -560,7 +558,7 @@ sequenceDiagram
     participant FS as 文件系统
 
     Note over C,FS: === Excel 导出 ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: 数据
     CTL->>CTL: 解密敏感字段
@@ -570,7 +568,7 @@ sequenceDiagram
     CTL-->>C: 文件下载
 
     Note over C,FS: === PDF 导出 ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>页头: 标题+版权+时间<br/>内容: 表格或卡片<br/>页脚: 不可移除版权
     CTL->>CTL: Dompdf 渲染 A4 横向
     CTL->>FS: 写入 runtime/tmp/export_*.pdf
@@ -995,7 +993,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | 维度 | 评分 | 关键差距 |
 |------|------|----------|
 | 后端 API | 85/100 | 多模块为 CRUD 骨架，缺少业务计算引擎 |
-| 安全防护 | 95/100 | 18 层纵深防御，已生产就绪 |
+| 安全防护 | 95/100 | 7 层纵深防御（L0–L12 全景），已生产就绪 |
 | 前端 UI | 20/100 | **最大短板**: Flutter 12 页覆盖 ~20% 模块，Web 管理面板缺失 |
 | 运维生态 | 70/100 | 缺迁移回滚、自动备份、可观测性 |
 | 业务深度 | 55/100 | 财务/HR/制造核心算法未实现 |
@@ -1072,19 +1070,19 @@ SaaS 计费、租户自助开通等"多租户完整商业化方案"不在本项�
 
 | 项 | 现状 |
 |----|------|
-| `app/middleware/TenantScope.php` | 存在，未注册；从 `X-Tenant-Id` 头读取租户，头缺失时直接放行 |
-| `app/model/concerns/TenantScope.php` | 存在，无模型使用；`bootTenantScope()` 全局作用域仅在设置租户后过滤 |
+| `app/middleware/TenantScope.php` | 存在，未注册；从 `X-Tenant-Code` 头读取租户编码并查 `erp_tenant` 注入上下文，头缺失时直接放行 |
+| `app/model/concerns/TenantScope.php` | 存在；4 个财务模型（`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`，公司族 `tenantScopeByCompany()` 返回 true）使用，按 `company_id` 过滤；因中间件未注册、请求上下文不会被注入，全局作用域当前不生效 |
 | `config/middleware.php` | 全局链：Cors → SecurityFilter → RateLimit → TracingId，无 TenantScope |
-| `config/route.php` /admin 组 | AdminAuth → AdminPermission → OperationLog，无 TenantScope |
+| `config/route.php` /admin/v1 组 | AdminAuth → AdminPermission → OperationLog，无 TenantScope |
 | JWT 载荷 | 仅 `sub` / `username` / `token_type`，**无 tenant_id 声明**（`app/api/v1/controller/AuthController.php`） |
 | 数据库 | **全库无 tenant_id 列**（install.sql 亦无） |
-| 模型 | **无任何模型 use TenantScope trait** |
+| 模型 | 4 个财务模型 use `TenantScope` trait（公司族，过滤 `company_id`）——试点隔离；租户上下文未注入时不加任何过滤 |
 
 ### 22.3 启用步骤（预留参考，本期不执行）
 
-1. 注册中间件：在 `config/route.php` 的 /admin 分组 `middleware()` 中追加
+1. 注册中间件：在 `config/route.php` 的 /admin/v1 分组 `middleware()` 中追加
    `app\middleware\TenantScope::class`（置于 AdminAuth 之后，确保已认证）。
-2. 请求方在请求头携带 `X-Tenant-Id`（int 租户ID）。
+2. 请求方在请求头携带 `X-Tenant-Code`（租户编码字符串）。
 3. 为需要隔离的业务表增加 `tenant_id` 列（BIGINT + 索引）并回填存量数据；
    字典/系统表（如 `erp_admin_user`、`erp_role`、`erp_permission`）不隔离。
 4. 在需要隔离的模型类中 `use app\model\concerns\TenantScope;`，自动按当前租户过滤。
@@ -1093,15 +1091,18 @@ SaaS 计费、租户自助开通等"多租户完整商业化方案"不在本项�
 
 ### 22.4 已知技术限制（启用前必须解决）
 
-- **静态传递链路断裂（PHP 8.3 实测）**：中间件经 trait 名调用 `setCurrentTenantId()`
-  写入的是 trait 自身的静态拷贝，使用该 trait 的模型类读取不到，查询不会被过滤。
-  启用时需改为基于请求上下文注入（如 `request()->tenantId`）。
-- **静态全局状态串扰**：Workerman 为常驻进程，静态属性跨请求共享；若启用协程模式
-  （Swoole/Swow）会发生跨租户数据串扰，需改为请求级绑定（`context()` / 请求对象）。
+- **信任边界（注册前必须解决）**：租户上下文来源为 `X-Tenant-Code` 请求头，属可伪造
+  输入；在 `erp_admin_user` 与公司/租户建立绑定（管理员归属判定）之前启用中间件，
+  会造成越权数据面缺口（任意已认证管理员可声明任意租户并读取其数据）。
+- **静态传递链路断裂（PHP 8.3 实测）已由 P2-4 B5 修复版取代**：`TenantScope` trait
+  现走请求上下文注入（`request()->tenantId` / `companyId`），该路径无静态状态，
+  常驻进程内跨请求串扰随之消除；trait 名静态门面已标记 `@deprecated`，仅供
+  测试/CLI 兜底。
 - **数据面缺口**：全库无 tenant_id 列，需逐表迁移；跨租户共享的字典表需设计豁免机制。
 
 ### 22.5 验收口径
 
 本期验收 = 文档与代码一致：`config/middleware.php` 与 `config/route.php` 不含
-TenantScope 注册；中间件与 Trait 注释明确标注"预留能力，未启用"并给出启用步骤；
+TenantScope 注册；中间件注释标注"已实现、默认未注册"并给出注册点与信任边界，
+Trait 注释标注请求上下文注入链路与回归线（无租户上下文时不参与过滤）；
 本节描述与代码现状逐条对应。

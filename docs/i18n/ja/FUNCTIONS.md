@@ -4,9 +4,9 @@
 
 ## 概要
 
-オープンERPシステム (open-erp) は 19 の業務ドメイン <!-- stats:modules=23 -->、163 のデータテーブル <!-- stats:tables=227 --> をカバーし、進銷存（仕入・在庫・販売）から生産製造、財務会計から人事管理までを提供するフルスタック企業管理システムです。国際化: 中国語/English のバイリンガル対応、Accept-Language リクエストヘッダーで自動切替。
+オープンERPシステム (open-erp) は 23 の業務ドメイン <!-- stats:modules=23 -->、227 のデータテーブル <!-- stats:tables=227 --> をカバーし、進銷存（仕入・在庫・販売）から生産製造、財務会計から人事管理までを提供するフルスタック企業管理システムです。国際化: 13 語種対応（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia）、Accept-Language リクエストヘッダーで自動切替。
 
-> API ドキュメント: サービス起動後に `http://localhost:8788/apidoc` へアクセスして対話型インターフェースドキュメントを確認（hg/apidoc 自動生成）
+> API ドキュメント: サービス起動後に `http://localhost:8788/apidoc` へアクセスして対話型インターフェースドキュメントを確認（erikwang2013/apidoc-php 自動生成）
 
 ---
 
@@ -38,7 +38,7 @@
 - 読み取り専用照会、削除や変更は不可
 
 ### 1.5 セキュリティ対策
-- 18 層の多層防御：HTTP メソッド制限、XSS/SQL インジェクション/パストラバーサル/コマンドインジェクション/CSRF ブロック
+- 7 層の多層防御：HTTP メソッド制限、XSS/SQL インジェクション/パストラバーサル/コマンドインジェクション/CSRF ブロック
 - クリック式 CAPTCHA（ログイン/登録で強制検証）
 - Redis スライディングウィンドウレート制限（Lua アトミック、デフォルト 60回/分）
 - アカウントロック：5 回失敗で 15 分ロック
@@ -128,6 +128,11 @@
 - 顧客単位で集計：販売金額、回収済み、売掛
 - 注文/商品/顧客の次元で粗利を計算
 
+### 4.6 顧客与信管理（v1.4.0 納品）
+
+- 与信限度額管理：顧客ごとに与信限度額・占有・遮断ルールを維持
+- 受注/出荷前の遮断：CreditControlService assertOrderCreate / assertDeliveryCreate / guard が限度超過の注文を拒否し、理由を返します
+
 ---
 
 ## 5. 在庫管理
@@ -166,6 +171,11 @@
 ### 5.8 在庫アラート
 - SKU+倉庫 単位で上下限を設定
 - 下限未満/上限超過でアラートログを自動記録
+
+### 5.9 ロット/シリアル番号の追跡と有効期限アラート（v1.4.0 納品）
+
+- 追跡チェーン：TraceService forward/backward がロットの行き先/由来を正方向・逆方向に追跡、serial はシリアル番号台帳
+- 有効期限アラート：expiryAlert が期限間近および期限切れのロットを通知
 
 ---
 
@@ -223,6 +233,29 @@
 - コスト集計 + 費用配賦
 - 利益センターは独立採算
 
+### 6.12 期末振替 / 多組織会計 / 連結決算（v1.4.0 納品）
+
+- 期末損益振替：期間ごとに損益科目の発生額を集計（収益類 - 費用類 = 当期純利益、status=calculated）
+- 振替は伝票を生成しません（本年利益科目の設定と重複振替防止ルールが未整備）、コントローラーのエンドポイントもなし —— v1.4.0 の納品には含めず、TODO として保留
+- 多組織会計：CompanyController / LedgerPeriodController による独立した核算主体と会計期間（v1.4.0 納品）
+- 連結決算エンジン（v1.4.0 納品）：ConsolidationService rateToBase/translateLedger による期末レート換算（レートがなければ拒否）、addElimination による子会社間の相殺（貸借一致の検証付き）、generateDraft による出表（確定済み期間はスナップショットを読み、スナップショットがなければ承認済み伝票からリアルタイム再計算）、issue の重複出具防止、latest/list；結果は FinanceConsolidationReport に保存
+- テスト：PeriodCloseServiceTest 4 例 + ConsolidationServiceTest 3 例
+
+### 6.13 棚卸資産と生産原価の計算（v1.4.0 納品）
+
+- 生産への材料払出と原価集計：MaterialIssueController が払出を出庫として計上し、CostEntryController + MfgCostService が製造オーダー単位で材料費/労務費/製造間接費を集計
+- 伝票ルール：MfgCostVoucherRule が完成原価と差異の振替伝票を生成（§12 製造オーダーと連動）
+
+### 6.14 手形と銀行勘定調整（v1.4.0 納品）
+
+- 手形の全ライフサイクル：FinanceBillService store/update/endorse（裏書）/discount（割引）/collect（取立）/cash（決済）/reject + dueWarnings 期日アラート
+- 銀行勘定調整：BankReconService importStatement 明細取込、autoReconcile/manualReconcile/unreconcile 消込、reconReport 調整レポート
+
+### 6.15 仕入税額控除プールと電子インボイス（v1.4.0 納品）
+
+- 仕入プール：TaxInvoicePoolService registerOne/registerBatch/verify/check/deduct/deductStats；検証は MockTaxVerifier 経由（実際の税務当局チャネルはアダプターポイント）
+- 電子インボイス：EInvoiceService issueInvoice/voidInvoice/issueLogs、EInvoiceAdapter/MockEInvoiceAdapter 経由（実際の税務当局チャネルはアダプターポイント）
+
 ---
 
 ## 7. CRM
@@ -254,6 +287,11 @@
 - レポート自動生成（JSON データスナップショット）
 - 月次/四半期/年次対応
 
+### 7.6 会員価値エンジン（v1.4.0 納品）
+
+- 会員とチャージ：MemberService openMember/recharge/consume/refund
+- ポイントとクーポン：earnPoints/consumePoints/expirePoints のポイント流水 + issueCoupon/redeemCoupon のクーポン消込（MemberController / CouponController）
+
 ---
 
 ## 8. 承認ワークフローエンジン
@@ -268,6 +306,11 @@
 - 申請 → 段階的承認 → 承認/却下/撤回
 - 私の承認一覧（承認待ち + 承認済み）
 - 承認記録の完全な追跡
+
+### 8.3 ビジュアルフロー設計ツール（v1.4.0 納品）
+
+- キャンバス上の編集：WorkflowDesignerController がノード/接続の定義を読み書き（canvas_json で永続化）
+- 承認エンジンと同源：公開後はキャンバス定義に従って承認チェーンが流れます
 
 ---
 
@@ -307,6 +350,11 @@
 - タスクの実工数を自動集計
 - プロジェクト原価計算をサポート
 
+### 10.4 プロジェクト原価と予算差異（v1.4.0 納品）
+
+- 原価計上：ProjectCostService createManual による手動補記録 + generateFromTimesheet による工数×従業員単価の換算
+- 損益ビュー：projectPnl によるプロジェクト粗利と予算の比較
+
 ---
 
 ## 11. 人事管理
@@ -328,6 +376,17 @@
 - 給与計算：基本給 + 業績 + 残業 - 控除 - 個人所得税 = 実支給
 - 月次給与の一括生成対応
 - 給与支給確認
+
+### 11.4 採用と人事評価（v1.4.0 納品）
+
+- 採用：RecruitService による募集の公開/クローズ、候補者ファネルの推進、面接記録、オファーの送付/承諾/辞退
+- 人事評価：PerformanceService による評価指標テンプレートと考課計画、360 度評価（submitScore で複数評価者）、集計
+
+### 11.5 研修・社会保険・給与明細（v1.4.0 納品）
+
+- 研修：TrainingService によるコース/受講登録/修了/単位数の台帳（employeeCredits）
+- 社会保険：SocialSecurityService による基数ルール（createRule/setRate）、従業員の紐付け bind/unbind、試算 calculate と従業員明細 employeeSocialDetail
+- 給与明細：PayslipService view が給与項目を読み取り専用で展開（収入/控除/実支給、社会保険の補足付き）
 
 ---
 
@@ -357,6 +416,19 @@
 - 正味所要量計算：総所要量 - 計画受入 - 現有在庫 = 正味所要量
 - 期間（年度+月）単位で計画を生成
 - 状態：草稿 → 生成済み → 確定済み
+
+### 12.6 工程実績報告と出来高給与（v1.4.0 納品）
+
+- 実績報告：WorkReportService audit が工程の実績報告を審査
+- 出来高：PieceWageService accumulate の出来高台帳 / periodSummary による期間集計
+
+### 12.7 委外加工と消込（v1.4.0 納品）
+
+- SubcontractService：auditIssue の委外払出審査 → auditReceive の入荷消込までの閉環
+
+### 12.8 生産能力負荷（v1.4.0 納品）
+
+- MfgCapacityService：calendar はワークステーションの生産能力カレンダー、setException/removeException は生産能力の例外、report は負荷分析
 
 ---
 
@@ -493,25 +565,25 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 観点 | 数量 |
 |------|------|
-| 業務モジュール | 19 <!-- stats:modules=23 --> |
-| データベーステーブル | 163 <!-- stats:tables=227 --> |
-| データモデル | 161 <!-- stats:models=224 --> |
-| コントローラー | 123 <!-- stats:controllers=159 --> |
-| 業務サービス | 27 <!-- stats:services=64 --> |
-| API ルート | 198（動的生成、`scripts/check-endpoints.php` を参照、doc-stats 検証対象外）|
+| 業務モジュール | 23 <!-- stats:modules=23 --> |
+| データベーステーブル | 227 <!-- stats:tables=227 --> |
+| データモデル | 224 <!-- stats:models=224 --> |
+| コントローラー | 159 <!-- stats:controllers=159 --> |
+| 業務サービス | 64 <!-- stats:services=64 --> |
+| API ルート | 837（動的生成、`scripts/check-endpoints.php` を参照、doc-stats 検証対象外）|
 | ミドルウェア | 11 <!-- stats:middleware=11 --> |
-| PHP ソースファイル | 343 <!-- stats:php_files=483 --> |
-| データベースインストールスクリプト | 単一ファイル `database/install.sql`（163 テーブル、全マイグレーション統合済み）|
-| フロントエンドページ (Flutter) | 7（フロントエンド統計、doc-stats 検証対象外）|
-| フロントエンドページ (HarmonyOS) | 4（フロントエンド統計、doc-stats 検証対象外）|
-| ユニットテスト | 50 テストファイル <!-- stats:test_files=111 --> / 442 テストケース / 2238 アサーション（tests/assertions は PHP パッチバージョンと拡張により変動、stats の厳密検証対象外）|
+| PHP ソースファイル | 483 <!-- stats:php_files=483 --> |
+| データベースインストールスクリプト | 単一ファイル `database/install.sql`（227 テーブル、全マイグレーション統合済み）|
+| フロントエンドページ (Flutter) | 119（2026-09-22 実測 `apps/flutter/lib/app/pages/` 配下の `.dart` ページファイル数（再帰）、doc-stats 検証対象外）|
+| フロントエンドページ (HarmonyOS) | 52（2026-09-22 実測 `apps/harmonyos/entry/src/main/ets/pages/` 配下の `.ets` ページファイル数（再帰）、doc-stats 検証対象外）|
+| ユニットテスト | 111 テストファイル <!-- stats:test_files=111 --> / 1001 テストケース <!-- stats:tests=1008 --> / 4726 アサーション <!-- stats:assertions=4768 -->（静的計数：テストメソッド数 + アサーション呼び出し点数、実行環境に依存しません）|
 
 > 上記の数字は `bash scripts/doc-stats.sh` による実測値です。`<!-- stats:key=value -->` で注記された項目は CI
 > （`.github/workflows/ci.yml` の docs ジョブ）がコードの事実との一致を自動検証し、乖離があれば即レッドになります。
 
 ---
 
-## 19. モジュール完成度マトリクス (2026-08-16 校正)
+## 19. モジュール完成度マトリクス (2026-09-05 校正；v1.17.0 バッチ 2026-09-15)
 
 ### ステータス凡例
 
@@ -529,31 +601,48 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | モジュール | バックエンド API | 業務ロジック | Flutter | HarmonyOS | 次段階 |
 |------|----------|----------|---------|-----------|----------|
-| システム管理 | ✅ | ✅ | ⚠️ 7/10 | ⚠️ 4/10 | 🔵 P0 |
-| ダッシュボード | ✅ | ✅ | ⚠️ 基本 | ⚠️ 基本 | 🔵 P0 |
-| 商品基本データ | ✅ | ✅ | ⚠️ 3/7 | ⚠️ 1/7 | 🔵 P0 |
-| 購買管理 | ✅ | ⚠️ | ⚠️ 1/5 | ⚠️ 1/5 | 🔵 P0 |
-| 販売管理 | ✅ | ⚠️ | ⚠️ 1/5 | ⚠️ 1/5 | 🔵 P0 |
-| 在庫管理 | ✅ | ✅ | ⚠️ 基本 | ⚠️ 基本 | 🔵 P0 |
-| 財務 — 証憑/売掛買掛 | ✅ | ⚠️ | ⚠️ 2/10 | 🔴 | 🔵 P0 |
-| 財務 — 総勘定元帳/三表 | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| 財務 — 期末振替/連結 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| CRM 全モジュール | ✅ | ✅ | ⚠️ 1/8 | 🔴 | 🔵 P0 |
-| OMS 注文管理 | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| WMS 倉庫管理 | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| TMS 輸送管理 | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| 承認ワークフロー | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| 通知システム | ⚠️ | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
-| プロジェクト管理 | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| HR — 組織/勤怠/休暇 | ✅ | ⚠️ | 🔴 | 🔴 | 🔵 P0 |
-| HR — 給与エンジン | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| 製造 — BOM/生産/MRP | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| 品質管理 | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| カスタムレポート | ✅ | ⚠️ | 🔴 | 🔴 | 🔵 P0 |
-| BI ダッシュボード | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
-| 設備管理 EAM | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
-| マルチテナント | ⚠️ | ⚠️ | 🔴 | 🔴 | 🟣 P3 |
-| 文書管理 DMS | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
+| システム管理 | ✅ | ✅ | ⚠️ 9/14 | ⚠️ 5 ページ | 🔵 P0 |
+| ダッシュボード | ✅ | ✅ | ✅ 2 ページ | ⚠️ 1 ページ | 🔵 P0 |
+| 商品基本データ | ✅ | ✅ | ✅ 7/7 | ⚠️ 1/7 | 🔵 P0 |
+| 購買管理 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
+| 販売管理 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
+| 在庫管理 | ✅ | ✅ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
+| 財務 — 証憑/売掛買掛 | ✅ | ⚠️ | ✅ 16 ページ | 🔴 | 🔵 P0 |
+| 財務 — 総勘定元帳/三表 | ⚠️ | 🔴 | ⚠️ 3 ページ（動作深度は要確認） | 🔴 | 🟢 P1 |
+| 財務 — 連結決算 | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 財務 — 多組織会計 (F1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 財務 — 期末振替 | 🔴 | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
+| 財務 — 棚卸資産原価計算 (F3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| CRM 全モジュール | ✅ | ✅ | ✅ 10/10 | 🔴 | 🔵 P0 |
+| OMS 注文管理 | ✅ | ✅ | ✅ 4/4 | ⚠️ 4 ページ | 🔵 P0 |
+| WMS 倉庫管理 | ✅ | ✅ | ⚠️ 7/8 | ⚠️ 7 ページ | 🔵 P0 |
+| TMS 輸送管理 | ✅ | ✅ | ⚠️ 5/6 | ⚠️ 5 ページ | 🔵 P0 |
+| 承認ワークフロー | ✅ | ✅ | ⚠️ 2/3 | ⚠️ 1 ページ | v1.4.0 |
+| 通知システム | ✅ | ✅ | ⚠️ 1/2 | 🔴 | v1.4.0 |
+| 与信管理 (F7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 追跡チェーン/期限間近 (M6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 生産能力負荷 (M3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 工程実績報告/出来高/委外消込 (M1+M2) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| フロー設計ツール (B3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 印刷テンプレート (B1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 採用/評価/研修/社会保険 (H1-H4) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 点検コードスキャン (E1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| プロジェクト原価/予算 (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 手形/銀行勘定調整 (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 仕入プール/電子インボイス (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 会員価値 (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| マルチテナント (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 部分的有効化 |
+| チャネル通知/カスタムフィールド (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| プロジェクト管理 | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
+| HR — 組織/勤怠/休暇 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 3 ページ | 🔵 P0 |
+| HR — 給与エンジン | ⚠️ | 🔴 | ⚠️ 2 ページ | 🔴 | 🟢 P1 |
+| 製造 — BOM/生産/MRP | ✅ | ✅ | ⚠️ 5/13 | ⚠️ 5 ページ | v1.4.0 |
+| 品質管理 | ✅ | ✅ | ✅ 5/5 | 🔴 | 🟢 P1 |
+| カスタムレポート | ✅ | ⚠️ | ✅ 2/2 | 🔴 | 🔵 P0 |
+| BI ダッシュボード | ✅ | ✅ | ⚠️ 2/3 | 🔴 | 🟣 P3 |
+| 設備管理 EAM | ✅ | ✅ | ⚠️ 4/5 | 🔴 | v1.4.0 |
+| 文書管理 DMS | ✅ | ✅ | ⚠️ 1/2 | 🔴 | 🟣 P3 |
+| 多言語 (i18n) | ✅ | ✅ | ⚠️ 中/英のみ | ⚠️ 中/英のみ | v1.17.0 |
 | 可観測性 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 | マイグレーションロールバック/バックアップ | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 
@@ -561,18 +650,31 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 観点 | ✅ 完了 | ⚠️ 骨組み | 🔴 欠落 | N/A | 完了率 |
 |------|---------|----------|---------|-----|--------|
-| モジュール (27) | 14 | 12 | 1 | 0 | 52% |
-| バックエンド API | 19 | 7 | 1 | 0 | 70% |
-| 業務ロジック | 14 | 7 | 6 | 0 | 52% |
-| Flutter フロントエンド | 0 | 8 | 17 | 2 | 0% |
-| HarmonyOS | 0 | 6 | 19 | 2 | 0% |
+| モジュール (44) | 33 | 11 | 0 | 0 | 75% |
+| バックエンド API | 39 | 4 | 1 | 0 | 89% |
+| 業務ロジック | 33 | 7 | 4 | 0 | 75% |
+| Flutter フロントエンド | 12 | 12 | 18 | 2 | 29% |
+| HarmonyOS | 0 | 13 | 29 | 2 | 0%（✅ の計上；13 行は既にページあり ⚠️）|
 
-> **統計の口径（2026-08-16 校正）**：モジュール行は「バックエンド API と業務ロジックの両方が実装済み」で計上；
-> バックエンド API / 業務ロジックの 2 行はマトリクスの対応列で統計（今回はコード現状に基づき QMS/EAM/DMS/BI を ✅ に、
-> マルチテナントを ⚠️ に校正、根拠は下記「コード根拠」）；Flutter / HarmonyOS はフロントエンドページの工数統計
-> （可観測性、マイグレーションロールバックの 2 行は N/A 表記）、バックエンド doc-stats の検証対象外。
+> **統計の口径（2026-09-05 校正）**：モジュール行は「バックエンド API と業務ロジックの両方が実装済み」で計上——両方 ✅=完了、
+> 両方 ✅ に達しないものは骨組み ⚠️ に計上（「部分的有効化」の行を含む：マルチテナント B5 の隔離ミドルウェア未登録など歴史的な補完待ち項目はコード根拠を参照）；
+> バックエンド API / 業務ロジックの 2 行はマトリクスの対応列で統計し、完了率の分母からは N/A 行（可観測性、マイグレーションロールバックにはフロントエンドがない）を除きます。
+> **Flutter / HarmonyOS 列（2026-08-27 より「ページ動作カバレッジ」口径に変更）**：✅=そのモジュールにページが存在し、ページファイル数 ≥ バックエンドコントローラー数
+> （`n/n` またはページ数の注記あり）；⚠️=ページはあるがページファイル数 < バックエンドコントローラー数（部分カバレッジ）；🔴=ページなし；**要確認**=ページは存在するが
+> 動作深度（CRUD の閉環）をページごとに検証していない。**各行のページ数は 2026-08-27 時点のスナップショット口径**（`apps/flutter/lib/app/pages/<モジュール>/`
+> と `apps/harmonyos/entry/src/main/ets/pages/**` のファイル数。当時は Flutter 107 ページ / HarmonyOS 35 ページ）；
+> 2026-09-22 の全量再測では Flutter 119 ページ / HarmonyOS 52 ページです（**各行のページ数は新口径で再計算しておらず**、✅/⚠️ の判定は 2026-08-27 のスナップショットを踏襲）。
+> バックエンドの doc-stats 検証対象外です；HarmonyOS の完了率 0% は ✅ の計上（0/42）によるもので、実際には 13 行にページがあり（⚠️ 部分カバレッジ）、列全体の欠落ではありません。
+> **2026-09-15 重複排除**：マトリクスには元々 2 行の「マルチテナント」（`多租户 (B5)` と `多租户`、業務ロジック列が ✅ / ⚠️ で矛盾）があり、
+> 上記の口径で 1 行「マルチテナント (B5)」に統合し ⚠️（隔離ミドルウェア未登録）と計上、モジュール行は 45 → 44 になりました。
+> **v1.17.0 バッチ（2026-09-15）**：「多言語 (i18n)」行を追加（44 行中 1 行が v1.17.0 と注記）——バックエンドの 13 語種辞書
+> （`resource/translations/<locale>/`、13 ディレクトリ）と `Accept-Language` ネゴシエーションが ✅；Flutter / HarmonyOS 端は依然として中/英の 2 語種のため、
+> フロントエンド 2 列は ⚠️ に計上；Angular / React 端には 13 語種の辞書が既にあります（本マトリクスの列には含みません）。
+> **v1.4.0 バッチ（2026-09-05）**：44 行中 21 行が v1.4.0 と注記（「部分的有効化」の 1 行 = マルチテナント (B5) 行を含む）。
+> 多組織/連結決算/棚卸資産原価（F1-F3）、製造 M1/M2/M3/M6、与信 F7、手形/銀行勘定/仕入プール/電子インボイス F6/F5、
+> HR H1-H4、会員 C1、プラットフォーム B1-B5/B7、点検 E1、プロジェクト原価 P1 をカバー。根拠は下記「コード根拠」を参照。
 
-### コード根拠（2026-08-16 校正）
+### コード根拠（2026-09-05 校正；v1.17.0 バッチを含む）
 
 今回の完成度校正の根拠（ファイルの存在は `bash scripts/doc-stats.sh` と `find` で裏付け可能）：
 
@@ -580,8 +682,18 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 |------|------|----------|
 | 品質管理 | 🔴 → ✅ | `app/controller/quality/`（5 コントローラー）+ `app/service/quality/QmsInspectionService.php` + `tests/QualityModuleTest.php` |
 | BI ダッシュボード | 🔴 → ✅ | `app/controller/bi/`（3 コントローラー: Dashboard/Dataset/Widget）+ `tests/BiModuleTest.php` |
-| 設備管理 EAM | 🔴 → ✅ | `app/controller/eam/`（4 コントローラー）+ `tests/EamModuleTest.php` |
+| 設備管理 EAM | 🔴 → ✅（+E1 点検） | `app/controller/eam/`（5 コントローラー、`EamInspectionController.php` を含む）+ `app/service/eam/EamInspectionService.php` + `tests/EamModuleTest.php` |
 | 文書管理 DMS | 🔴 → ✅ | `app/controller/dms/`（2 コントローラー）+ `tests/DmsModuleTest.php` |
-| マルチテナント | 🔴 → ⚠️ | `app/middleware/TenantScope.php` + `app/model/concerns/TenantScope.php` + `tests/Integration/TenantScopeIntegrationTest.php`（既知の欠陥: 静的テナント ID がモデル間で伝播しないため、完了ではなく骨組み扱い） |
+| マルチテナント | ⚠️ → ⚠️（v1.4.0 部分的有効化） | `app/controller/platform/TenantController.php` + `app/service/platform/TenantService.php`（provision/suspend/resume/expireMark/renew/expiryWarnings の満期課金は納品済み）+ `tests/Integration/TenantScopeIntegrationTest.php`；隔離ミドルウェア `app/middleware/TenantScope.php` は依然未登録（隔離が効かない）ため部分的有効化 |
+| 連結決算 | ⚠️ → ✅（v1.4.0 納品） | `app/service/finance/ConsolidationService.php`（rateToBase/translateLedger 期末レート換算、addElimination 子会社間相殺と貸借一致検証、generateDraft スナップショット優先/なければリアルタイム再計算、issue 重複出具防止、latest/list；レートがなければ拒否）+ 結果は `app/model/FinanceConsolidationReport.php` に保存 + `tests/ConsolidationServiceTest.php`（3 例） |
+| 期末振替 | 🔴 → ⚠️ | `app/service/finance/PeriodCloseService.php:21` `closeProfitAndLoss()`（損益科目の集計は実装済み、振替伝票は生成せず、コントローラーのエンドポイントもなし）+ `tests/PeriodCloseServiceTest.php`（4 例） |
+| v1.4.0 — 多組織会計 (F1) | 新規 | `app/controller/finance/CompanyController.php` + `LedgerPeriodController.php`（独立した核算主体と会計期間） |
+| v1.4.0 — 棚卸資産と生産原価 (F3) | 新規 | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
+| v1.4.0 — 製造実行 M1/M2/M3/M6 | 新規 | `app/service/manufacturing/`（WorkReportService/PieceWageService/SubcontractService/MfgCapacityService）+ `app/service/inventory/TraceService.php`（ロット/シリアル追跡と期限アラート）+ 対応コントローラー WorkReport/PieceWage/Subcontract/Capacity |
+| v1.4.0 — 財務資金/税務 F6/F5 + F7 | 新規 | `app/service/finance/FinanceBillService.php` + `BankReconService.php`（明細取込/自動・手動消込）+ `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php`（EInvoiceAdapter/MockEInvoiceAdapter、実際の税務当局はアダプターポイント）+ `app/service/sales/CreditControlService.php`（限度超過注文のアサーションによる遮断） |
+| v1.4.0 — 会員/HR/プロジェクト C1/H1-H4/P1 | 新規 | `app/service/retail/MemberService.php` + `app/controller/retail/`（MemberController/CouponController）+ `app/service/hr/`（RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService）+ `app/service/project/ProjectCostService.php` |
+| v1.4.0 — プラットフォーム/チャネル B3/B4/B7/E1 | 新規 | `app/controller/workflow/WorkflowDesignerController.php`（canvas_json の永続化）+ `app/service/notification/`（ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver、失敗時リトライ）+ `app/controller/notification/NotificationChannelController.php`（`tests/NotificationChannelTest.php` 5 例）+ `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php`（点検コードスキャン） |
+| v1.17.0 — 多言語 (i18n) | 新規 | バックエンド：`resource/translations/`（13 語種ディレクトリ zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id、各語種 common+modules+validation の 3 ファイル、11 語種は各 542 条（zh_CN 533、en 30）；en は英語すなわち key）+ `app/common/I18n.php`（`getLocale()` が `Accept-Language` の先頭タグを解析し、主言語サブタグをマッピング zh*→zh_CN；`trans()` は en 以外なら `[リクエスト語種, zh_CN, en]`→key の順に解決し、en は中国語にフォールバックしない）+ `config/translation.php` + 生成スクリプト `scripts/gen-be-locales.mjs`；フロントエンド：`apps/react/src/lib/i18n/`（`index.tsx` + `zhEn` + 11 語種ファイル）と `apps/angular/src/app/core/`（`zh-en/`（index + part1..4）+ `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`）（11 新語種の辞書は語種ごとに遅延読み込み、Angular 1453 / React 1447 キー）+ `scripts/gen-fe-locales.mjs`；切替入口 = トップバーの地球アイコン + 個人センターのドロップダウン；Flutter（`apps/flutter/lib/l10n/`）と HarmonyOS（`entry/src/main/resources/`）は依然として中/英の 2 語種 |
 
+> 詳細なロードマップ設計仕様: `superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`
 > 詳細なロードマップ設計仕様: `superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`

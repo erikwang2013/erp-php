@@ -152,7 +152,7 @@ Ubicación del archivo: `runtime/logs/security.log`
 
 Ejemplo de formato de log:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -226,8 +226,8 @@ El script Lua se ejecuta de forma single-threaded en el servidor Redis, **atómi
 | Ruta | Límite | Ventana | Escenario |
 |------|------|------|------|
 | Por defecto (todas las rutas) | 60 veces/minuto | 60s | API general |
-| `/api/auth/login` | 10 veces/minuto | 60s | Login (previene fuerza bruta) |
-| `/api/auth/register` | 5 veces/minuto | 60s | Registro (previene registro masivo; desactivado por defecto, requiere `REGISTRATION_ENABLED=1`) |
+| `/api/v1/auth/login` | 10 veces/minuto | 60s | Login (previene fuerza bruta) |
+| `/api/v1/auth/register` | 5 veces/minuto | 60s | Registro (previene registro masivo; desactivado por defecto, requiere `REGISTRATION_ENABLED=1`) |
 
 ### Cabeceras de respuesta
 
@@ -300,9 +300,9 @@ Implementada por el middleware AdminAuth, montado en los grupos de rutas que req
 | Parámetro | Valor | Descripción |
 |------|-----|------|
 | Algoritmo | HS256 | Firma simétrica HMAC-SHA256 |
-| Clave | `JWT_SECRET` | Inyectada por variable de entorno; debe cambiarse en producción |
-| TTL access_token | 7200s (2h) | `JWT_TTL` |
-| TTL refresh_token | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| Clave | `JWT_SECRET_KEY` | Inyectada por variable de entorno; debe cambiarse en producción |
+| TTL access_token | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| TTL refresh_token | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | Emisor | `open-admin` | `JWT_ISSUER` |
 | Audiencia | `open-admin` | `JWT_AUDIENCE` |
 
@@ -489,7 +489,7 @@ Todas las claves se inyectan mediante variables de entorno en `.env`; los archiv
 
 | Variable de entorno | Uso | Paquete | Requisito de producción |
 |----------|------|-----|---------|
-| JWT_SECRET | Clave de firma JWT | erikwang2013/jwt-webman | Cadena aleatoria de 64+ caracteres |
+| JWT_SECRET_KEY | Clave de firma JWT | erikwang2013/jwt-webman | Cadena aleatoria de 64+ caracteres |
 | JWT_ALGORITHM | Algoritmo de firma JWT | Ídem | Mantener HS256 |
 | HASHIDS_SALT | Sal de codificación de ID | erikwang2013/hashids | Cadena aleatoria |
 | SNOWFLAKE_DATACENTER_ID | ID de centro de datos (0-31) | erikwang2013/snowflake-php | Mantener el valor por defecto en un único centro de datos |
@@ -509,7 +509,7 @@ Todas las claves se inyectan mediante variables de entorno en `.env`; los archiv
 | Cifrado de transmisión | `config/encryption.php` → `key` | `ENCRYPTION_KEY` |
 | Cifrado de almacenamiento | `config/encryptable.php` → `key` | `ENCRYPTABLE_KEY` |
 | Ofuscación de ID | `config/hashids.php` → `connections.main.salt` | `HASHIDS_SALT` |
-| Firma JWT | `config/plugin/erikwang2013/jwt/jwt` | `JWT_SECRET` |
+| Firma JWT | `config/plugin/erikwang2013/jwt/jwt.php` | `JWT_SECRET_KEY` |
 
 ---
 

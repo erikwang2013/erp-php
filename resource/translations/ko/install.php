@@ -149,6 +149,7 @@ return [
     ':envKey may only contain visible characters and must not contain $ or backslash' => ':envKey는 표시 가능한 문자만 포함할 수 있으며 $ 또는 백슬래시를 포함할 수 없습니다',
     ':envKey must be a 2-5 digit port' => ':envKey는 2-5자리 포트여야 합니다',
     ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => ':field는 16-128자의 영숫자 키여야 합니다 (자동 생성을 원하면 비워두세요)',
+    ':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate' => ':envKey 은(는) 정확히 32자의 영숫자(AES-256 키)여야 하며, 비워 두면 자동 생성됩니다',
     'Please enter the database host' => '데이터베이스 호스트를 입력하세요',
     'Please fill in host/port/database/user before testing' => '테스트 전에 호스트/포트/데이터베이스/사용자를 입력하세요',
     'Testing...' => '테스트 중...',

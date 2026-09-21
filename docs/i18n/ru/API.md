@@ -4,7 +4,7 @@
 
 ## Документация API
 
-Проект автоматически генерирует интерактивную документацию API через [hg/apidoc](https://github.com/hg-code/apidoc).
+Проект автоматически генерирует интерактивную документацию API через [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php).
 
 **Доступ:** после запуска сервиса откройте `http://localhost:8788/apidoc`
 
@@ -18,17 +18,20 @@
 | Заголовок | Описание |
 |--------|------|
 | `Authorization` | JWT Bearer Token |
-| `API-Version` | Версия API (v1) |
-| `Accept-Language` | Язык интернационализации (zh-CN/en) |
+| `Accept-Language` | Язык интернационализации, поддерживается 13 языков (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id), по умолчанию `zh_CN` |
+
+> **О версиях**: версионирование через путь URL во всей системе — админка `/admin/v1`, клиент `/api/v1`, открытые интерфейсы `/open/v1`;
+> номер версии находится в пути URL, **заголовок версии не требуется**; исключения: `GET /api/docs` (документация OpenAPI) и
+> колбэк трекинга перевозчика `/api/tms/tracking/callback` (подпись HMAC, без версии).
 
 **Соглашение об аннотациях:** все методы контроллеров аннотированы серией аннотаций `@Apidoc\*` с указанием имени интерфейса, описания, URL, метода запроса, параметров и структуры ответа.
 
 ## 1. Обзор
 
-Открытая админка (open-admin) построена на webman v2 и предоставляет RESTful JSON API. Все эндпоинты админки требуют JWT-аутентификации и проверки прав RBAC; публичные эндпоинты маршрутизируются в версионированные контроллеры по заголовку версии API.
+Открытая админка (open-admin) построена на webman v2 и предоставляет RESTful JSON API. Версионирование — через путь URL: эндпоинты админки смонтированы в `/admin/v1` (JWT-аутентификация + проверка прав RBAC), клиентские — в `/api/v1`, открытые — в `/open/v1`; номер версии включён в путь URL, заголовка версии нет.
 
 - **Базовый URL**: `http://localhost:8788`
-- **Версия API**: управляется заголовком `API-Version: v1` (без заголовка по умолчанию v1)
+- **Версия API**: версионирование через путь URL, номер версии в пути (админка `/admin/v1`, клиент `/api/v1`, открытые интерфейсы `/open/v1`), заголовок версии не нужен
 
 > **Обзор эндпоинтов**: аутентификация(5) | дашборд(1) | пользователи(7) | роли(4) | права(4) | конфигурация(4) | логи(1) | личный кабинет(3) | импорт/экспорт(3) | загрузка(1) | эксплуатация(4: health/metrics/docs/security.txt) | всего 37 эндпоинтов
 - **Аутентификация**: `Authorization: Bearer <token>` (JWT)
@@ -37,22 +40,35 @@
 
 ### Интернационализация
 
-API автоматически переключает язык по заголовку `Accept-Language`:
+API автоматически переключает язык по заголовку `Accept-Language`, поддерживается 13 языков: `zh_CN` (китайский, по умолчанию), `en` (English), `ja` (日本語), `ko` (한국어), `de` (Deutsch), `fr` (Français), `es` (Español), `pt` (Português), `ru` (Русский), `ar` (العربية), `hi` (हिन्दी), `bn` (বাংলা), `id` (Bahasa Indonesia).
 
-| Значение заголовка | Язык |
+| Первый языковой тег в заголовке | Разрешается в |
 |---------|------|
-| `zh-CN`, `zh` | Китайский (по умолчанию) |
-| `en`, `en-US` | English |
+| `zh`, `zh-CN`, `zh-TW` | `zh_CN` китайский (по умолчанию) |
+| `en`, `en-US` | `en` English |
+| `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id` | соответствующий язык (региональный суффикс игнорируется, например `de-DE` → `de`) |
+
+Правила разбора (`app/common/I18n.php` `getLocale()`):
+
+- браузер упорядочивает теги по убыванию языковых предпочтений, **берётся только первый тег** (часть до запятой), значение q не разбирается;
+- региональный подтег игнорируется, остаётся только основной языковой подтег (`zh-CN` → `zh`, `de-DE` → `de`);
+- `zh*` всегда отображается в `zh_CN`; остальные основные языковые подтеги используются как есть;
+- при отсутствии или пустом заголовке используется `config('translation.locale')` = `zh_CN`.
+
+Цепочка отката (`trans()`): язык запроса → `zh_CN` → `en` → возврат самого ключа (английский как ключ, поэтому ключ и есть английский оригинал). **`en` в откате не участвует** — при запросе `en` ищется только словарь `en`, при отсутствии сразу возвращается key.
 
 ```bash
 # ответ на английском
-curl -H "Accept-Language: en" http://localhost:8788/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
+
+# ответ на японском
+curl -H "Accept-Language: ja" http://localhost:8788/admin/v1/product
 
 # ответ на китайском (по умолчанию)
-curl http://localhost:8788/admin/product
+curl http://localhost:8788/admin/v1/product
 ```
 
-Поле `message` в ответе возвращается на соответствующем языке.
+Поле `message` в ответе возвращается на соответствующем языке. Файлы словарей находятся в `resource/translations/<locale>/{common,modules,validation}.php`.
 
 ### Требования к запросам
 
@@ -81,7 +97,7 @@ curl http://localhost:8788/admin/product
 
 ## 3. Публичные эндпоинты
 
-Все публичные эндпоинты смонтированы в группе `/api` и распределяются middleware `ApiVersion` по заголовку `API-Version` в соответствующие версионированные контроллеры (например, `app\api\v1\controller\AuthController`).
+Все публичные эндпоинты смонтированы в группе `/api/v1` (номер версии включён в путь URL, заголовка версии нет) и напрямую привязаны к контроллерам соответствующей версии (например, `app\api\v1\controller\AuthController`).
 
 ### 3.1 Проверка работоспособности
 
@@ -124,11 +140,11 @@ GET /api/docs
 ### 3.3 Генерация капчи по клику
 
 ```
-POST /api/captcha/generate
+POST /api/v1/captcha/generate
 ```
 
 - **Аутентификация**: не требуется
-- **Заголовок**: `API-Version: v1` (обязательно)
+- **Версия**: путь URL содержит /api/v1, заголовка версии нет
 - **Лимит запросов**: глобальный по умолчанию (60/мин)
 
 **Тело запроса**:
@@ -170,11 +186,11 @@ POST /api/captcha/generate
 ### 3.4 Проверка капчи по клику
 
 ```
-POST /api/captcha/verify
+POST /api/v1/captcha/verify
 ```
 
 - **Аутентификация**: не требуется
-- **Заголовок**: `API-Version: v1` (обязательно)
+- **Версия**: путь URL содержит /api/v1, заголовка версии нет
 - **Лимит запросов**: глобальный по умолчанию (60/мин)
 
 **Тело запроса**:
@@ -207,11 +223,11 @@ POST /api/captcha/verify
 ### 3.5 Вход
 
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 - **Аутентификация**: не требуется
-- **Заголовок**: `API-Version: v1` (обязательно)
+- **Версия**: путь URL содержит /api/v1, заголовка версии нет
 - **Лимит запросов**: 10/мин (по IP + путь)
 
 **Тело запроса**:
@@ -271,11 +287,11 @@ POST /api/auth/login
 ### 3.6 Регистрация
 
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 ```
 
 - **Аутентификация**: не требуется
-- **Заголовок**: `API-Version: v1` (обязательно)
+- **Версия**: путь URL содержит /api/v1, заголовка версии нет
 - **Лимит запросов**: 5/мин (по IP + путь)
 - **Переключатель**: по умолчанию выключен (`REGISTRATION_ENABLED=0`), при выключении возвращается 403; необходимо явно включить в `.env` (`REGISTRATION_ENABLED=1`)
 
@@ -324,11 +340,11 @@ POST /api/auth/register
 ### 3.7 Обновление токена
 
 ```
-POST /api/auth/refresh
+POST /api/v1/auth/refresh
 ```
 
 - **Аутентификация**: не требуется
-- **Заголовок**: `API-Version: v1` (обязательно)
+- **Версия**: путь URL содержит /api/v1, заголовка версии нет
 - **Лимит запросов**: глобальный по умолчанию (60/мин)
 
 **Тело запроса**:
@@ -406,12 +422,12 @@ openadmin_memory_usage_bytes 18874368
 
 ## 4. Дашборд
 
-Все эндпоинты админки смонтированы в группе `/admin` и проходят через три middleware: `AdminAuth` (JWT-аутентификация), `AdminPermission` (проверка RBAC), `OperationLog` (запись операций).
+Все эндпоинты админки смонтированы в группе `/admin/v1` и проходят через три middleware: `AdminAuth` (JWT-аутентификация), `AdminPermission` (проверка RBAC), `OperationLog` (запись операций).
 
 ### 4.1 Данные дашборда
 
 ```
-GET /admin/dashboard
+GET /admin/v1/dashboard
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -468,7 +484,7 @@ GET /admin/dashboard
         "id": "hashid...",
         "action": "Вход пользователя",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "user_name": "admin",
         "created_at": "2026-05-21 10:30:00"
@@ -498,7 +514,7 @@ GET /admin/dashboard
 ### 5.1 Список пользователей
 
 ```
-GET /admin/user
+GET /admin/v1/user
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -551,7 +567,7 @@ GET /admin/user
 ### 5.2 Создание пользователя
 
 ```
-POST /admin/user
+POST /admin/v1/user
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -601,7 +617,7 @@ POST /admin/user
 ### 5.3 Детали пользователя
 
 ```
-GET /admin/user/{id}
+GET /admin/v1/user/{id}
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -635,7 +651,7 @@ GET /admin/user/{id}
 ### 5.4 Обновление пользователя
 
 ```
-PUT /admin/user/{id}
+PUT /admin/v1/user/{id}
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -683,7 +699,7 @@ PUT /admin/user/{id}
 ### 5.5 Удаление пользователя
 
 ```
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -720,7 +736,7 @@ DELETE /admin/user/{id}
 ### 5.6 Массовое удаление пользователей
 
 ```
-POST /admin/user/batch/destroy
+POST /admin/v1/user/batch/destroy
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -760,7 +776,7 @@ POST /admin/user/batch/destroy
 ### 5.7 Массовое включение/отключение пользователей
 
 ```
-POST /admin/user/batch/status
+POST /admin/v1/user/batch/status
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -800,7 +816,7 @@ message динамически меняется по значению status: `"
 ### 6.1 Список ролей
 
 ```
-GET /admin/role
+GET /admin/v1/role
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -848,7 +864,7 @@ GET /admin/role
 ### 6.2 Создание роли
 
 ```
-POST /admin/role
+POST /admin/v1/role
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -890,7 +906,7 @@ POST /admin/role
 ### 6.3 Обновление роли
 
 ```
-PUT /admin/role/{id}
+PUT /admin/v1/role/{id}
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -930,7 +946,7 @@ PUT /admin/role/{id}
 ### 6.4 Удаление роли
 
 ```
-DELETE /admin/role/{id}
+DELETE /admin/v1/role/{id}
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -961,7 +977,7 @@ DELETE /admin/role/{id}
 ### 7.1 Дерево прав
 
 ```
-GET /admin/permission
+GET /admin/v1/permission
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -976,7 +992,7 @@ GET /admin/permission
       "id": "p1p2p3p4",
       "parent_id": "0",
       "name": "Управление пользователями",
-      "slug": "/admin/user",
+      "slug": "/admin/v1/user",
       "type": 1,
       "icon": "people",
       "path": "/user",
@@ -987,7 +1003,7 @@ GET /admin/permission
           "id": "p5p6p7p8",
           "parent_id": "p1p2p3p4",
           "name": "Список пользователей",
-          "slug": "/admin/user/index",
+          "slug": "/admin/v1/user/index",
           "type": 2,
           "icon": "",
           "path": "/user/index",
@@ -1014,7 +1030,7 @@ GET /admin/permission
 ### 7.2 Создание права
 
 ```
-POST /admin/permission
+POST /admin/v1/permission
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1024,7 +1040,7 @@ POST /admin/permission
 {
   "parent_id": 0,
   "name": "Системные настройки",
-  "slug": "/admin/config",
+  "slug": "/admin/v1/config",
   "type": 1,
   "icon": "settings",
   "path": "/config",
@@ -1051,7 +1067,7 @@ POST /admin/permission
     "id": "p9p0a1b2",
     "parent_id": "0",
     "name": "Системные настройки",
-    "slug": "/admin/config",
+    "slug": "/admin/v1/config",
     "type": 1,
     "icon": "settings",
     "path": "/config",
@@ -1063,7 +1079,7 @@ POST /admin/permission
 ### 7.3 Обновление права
 
 ```
-PUT /admin/permission/{id}
+PUT /admin/v1/permission/{id}
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1088,7 +1104,7 @@ PUT /admin/permission/{id}
 ### 7.4 Удаление права
 
 ```
-DELETE /admin/permission/{id}
+DELETE /admin/v1/permission/{id}
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1119,7 +1135,7 @@ DELETE /admin/permission/{id}
 ### 8.1 Список конфигурации
 
 ```
-GET /admin/config
+GET /admin/v1/config
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1168,7 +1184,7 @@ GET /admin/config
 ### 8.2 Создание конфигурации
 
 ```
-POST /admin/config
+POST /admin/v1/config
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1214,7 +1230,7 @@ POST /admin/config
 ### 8.3 Обновление конфигурации
 
 ```
-PUT /admin/config/{id}
+PUT /admin/v1/config/{id}
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1237,7 +1253,7 @@ PUT /admin/config/{id}
 ### 8.4 Удаление конфигурации
 
 ```
-DELETE /admin/config/{id}
+DELETE /admin/v1/config/{id}
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1259,7 +1275,7 @@ DELETE /admin/config/{id}
 ### 9.1 Список журнала операций
 
 ```
-GET /admin/log
+GET /admin/v1/log
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1288,7 +1304,7 @@ GET /admin/log
         "user_name": "admin",
         "action": "Вход пользователя",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "source": "web",
         "input": "{\"username\":\"admin\"}",
@@ -1321,7 +1337,7 @@ GET /admin/log
 ### 10.1 Обновление личных данных
 
 ```
-PUT /admin/profile
+PUT /admin/v1/profile
 ```
 
 - **Аутентификация**: JWT
@@ -1363,7 +1379,7 @@ PUT /admin/profile
 ### 10.2 Смена пароля
 
 ```
-PUT /admin/profile/password
+PUT /admin/v1/profile/password
 ```
 
 - **Аутентификация**: JWT
@@ -1398,7 +1414,7 @@ PUT /admin/profile/password
 ### 10.3 Выход
 
 ```
-POST /admin/profile/logout
+POST /admin/v1/profile/logout
 ```
 
 - **Аутентификация**: JWT
@@ -1423,7 +1439,7 @@ POST /admin/profile/logout
 ### 11.1 Экспорт Excel
 
 ```
-POST /admin/export/excel
+POST /admin/v1/export/excel
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1462,7 +1478,7 @@ POST /admin/export/excel
 ### 11.2 Экспорт PDF
 
 ```
-POST /admin/export/pdf
+POST /admin/v1/export/pdf
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1509,7 +1525,7 @@ POST /admin/export/pdf
 ### 11.3 Импорт пользователей (Excel)
 
 ```
-POST /admin/import/users
+POST /admin/v1/import/users
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1561,7 +1577,7 @@ POST /admin/import/users
 ## 12. Загрузка файлов
 
 ```
-POST /admin/upload
+POST /admin/v1/upload
 ```
 
 - **Аутентификация**: JWT + RBAC
@@ -1610,8 +1626,8 @@ POST /admin/upload
 
 Детали лимита:
 - Глобальный лимит по умолчанию: 60/мин / IP+путь
-- Эндпоинт входа `/api/auth/login`: 10/мин
-- Эндпоинт регистрации `/api/auth/register`: 5/мин
+- Эндпоинт входа `/api/v1/auth/login`: 10/мин
+- Эндпоинт регистрации `/api/v1/auth/register`: 5/мин
 - Атомарный алгоритм скользящего окна на Redis (Lua ZSET), исключает гонки TOCTOU
 - При недоступности Redis — fail open (пропуск), запросы не блокируются
 
@@ -1620,15 +1636,15 @@ POST /admin/upload
 Полная последовательность аутентификации:
 
 ```
-1. Клиент запрашивает POST /api/captcha/generate
-   (заголовок: API-Version: v1)
+1. Клиент запрашивает POST /api/v1/captcha/generate
+   (путь URL содержит /api/v1, заголовка версии нет)
     ↓
    Сервер возвращает: key + изображение base64 + подсказки целей кликов
 
 2. Пользователь кликает по целям на изображении, фронт/клиент собирает координаты кликов
 
-3. Клиент запрашивает POST /api/auth/login
-   (заголовки: API-Version: v1, Content-Type: application/json)
+3. Клиент запрашивает POST /api/v1/auth/login
+   (заголовки: Content-Type: application/json; путь URL содержит /api/v1)
    тело: { username, password, captcha_key, clicks: [{x,y}, ...] }
     ↓
    Сервер:
@@ -1660,7 +1676,7 @@ POST /admin/upload
    Response + заголовки X-RateLimit-*
 
 5. Обновление до истечения Access Token
-   Клиент запрашивает POST /api/auth/refresh
+   Клиент запрашивает POST /api/v1/auth/refresh
    тело: { refresh_token: "..." }
     ↓
    Сервер декодирует refresh_token → выпускает новые access + refresh
@@ -1668,7 +1684,7 @@ POST /admin/upload
    Клиент обновляет локальные токены
 
 6. Выход
-   Клиент запрашивает POST /admin/profile/logout
+   Клиент запрашивает POST /admin/v1/profile/logout
    заголовок: Authorization: Bearer <access_token>
     ↓
    Сервер:
@@ -1722,7 +1738,7 @@ docker-compose up -d
 
 ## 16. Бизнес-эндпоинты API (ERP)
 
-Все бизнес-эндпоинты в группе `/admin`, проходят через три middleware: `AdminAuth` (JWT-аутентификация), `AdminPermission` (проверка RBAC), `OperationLog` (запись операций).
+Все бизнес-эндпоинты в группе `/admin/v1`, проходят через три middleware: `AdminAuth` (JWT-аутентификация), `AdminPermission` (проверка RBAC), `OperationLog` (запись операций).
 
 > Всего эндпоинтов: товары(17) | закупки(8) | продажи(6) | склад(6) | финансы(17) | CRM(13) | workflow(6) | уведомления(4) | проекты(3) | HR(9) | производство(7) | отчёты(4) | дашборд(3) | клиент(2) | всего 105 эндпоинтов
 
@@ -1732,304 +1748,304 @@ docker-compose up -d
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/product | Список товаров (пагинация+поиск+фильтр по категории/статусу) |
-| POST | /admin/product | Создание товара (включая SKU и цены) |
-| GET | /admin/product/{id} | Детали товара (категория/бренд/SKU/цены/единицы) |
-| PUT | /admin/product/{id} | Обновление товара |
-| DELETE | /admin/product/{id} | Удаление товара (мягкое, требуется подтверждение паролем) |
-| GET | /admin/category | Список категорий (дерево) |
-| POST | /admin/category | Создание категории |
-| PUT | /admin/category/{id} | Обновление категории |
-| DELETE | /admin/category/{id} | Удаление категории |
-| GET | /admin/brand | Список брендов |
-| POST | /admin/brand | Создание бренда |
-| GET | /admin/warehouse | Список складов |
-| POST | /admin/warehouse | Создание склада |
-| GET | /admin/location | Список ячеек |
-| GET | /admin/warehouse/{id}/locations | Список ячеек склада |
-| GET | /admin/supplier | Список поставщиков (ES-поиск) |
-| POST | /admin/supplier | Создание поставщика |
-| GET | /admin/customer | Список клиентов (ES-поиск) |
-| POST | /admin/customer | Создание клиента |
+| GET | /admin/v1/product | Список товаров (пагинация+поиск+фильтр по категории/статусу) |
+| POST | /admin/v1/product | Создание товара (включая SKU и цены) |
+| GET | /admin/v1/product/{id} | Детали товара (категория/бренд/SKU/цены/единицы) |
+| PUT | /admin/v1/product/{id} | Обновление товара |
+| DELETE | /admin/v1/product/{id} | Удаление товара (мягкое, требуется подтверждение паролем) |
+| GET | /admin/v1/category | Список категорий (дерево) |
+| POST | /admin/v1/category | Создание категории |
+| PUT | /admin/v1/category/{id} | Обновление категории |
+| DELETE | /admin/v1/category/{id} | Удаление категории |
+| GET | /admin/v1/brand | Список брендов |
+| POST | /admin/v1/brand | Создание бренда |
+| GET | /admin/v1/warehouse | Список складов |
+| POST | /admin/v1/warehouse | Создание склада |
+| GET | /admin/v1/location | Список ячеек |
+| GET | /admin/v1/warehouse/{id}/locations | Список ячеек склада |
+| GET | /admin/v1/supplier | Список поставщиков (ES-поиск) |
+| POST | /admin/v1/supplier | Создание поставщика |
+| GET | /admin/v1/customer | Список клиентов (ES-поиск) |
+| POST | /admin/v1/customer | Создание клиента |
 
 ### 16.2 Закупки (Purchase)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/purchase/apply | Список заявок на закупку |
-| POST | /admin/purchase/apply | Создание заявки на закупку |
-| GET | /admin/purchase/order | Список заказов на закупку |
-| POST | /admin/purchase/order | Создание заказа на закупку |
-| 🔗 POST | /admin/purchase/receive | Создание документа приёмки (автооприходование + кредиторка) |
-| GET | /admin/purchase/receive | Список документов приёмки |
-| GET | /admin/purchase/receive/{id} | Детали документа приёмки |
-| POST | /admin/purchase/return | Создание документа возврата |
-| GET | /admin/purchase/settlement | Список расчётов с поставщиками |
+| GET | /admin/v1/purchase/apply | Список заявок на закупку |
+| POST | /admin/v1/purchase/apply | Создание заявки на закупку |
+| GET | /admin/v1/purchase/order | Список заказов на закупку |
+| POST | /admin/v1/purchase/order | Создание заказа на закупку |
+| 🔗 POST | /admin/v1/purchase/receive | Создание документа приёмки (автооприходование + кредиторка) |
+| GET | /admin/v1/purchase/receive | Список документов приёмки |
+| GET | /admin/v1/purchase/receive/{id} | Детали документа приёмки |
+| POST | /admin/v1/purchase/return | Создание документа возврата |
+| GET | /admin/v1/purchase/settlement | Список расчётов с поставщиками |
 
 ### 16.3 Продажи (Sales)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/sales/quotation | Список коммерческих предложений |
-| POST | /admin/sales/quotation | Создание коммерческого предложения |
-| GET | /admin/sales/order | Список заказов на продажу |
-| POST | /admin/sales/order | Создание заказа на продажу |
-| 🔗 POST | /admin/sales/delivery | Создание документа отгрузки (автосписание + дебиторка) |
-| GET | /admin/sales/delivery | Список документов отгрузки |
-| GET | /admin/sales/settlement | Список расчётов с клиентами |
+| GET | /admin/v1/sales/quotation | Список коммерческих предложений |
+| POST | /admin/v1/sales/quotation | Создание коммерческого предложения |
+| GET | /admin/v1/sales/order | Список заказов на продажу |
+| POST | /admin/v1/sales/order | Создание заказа на продажу |
+| 🔗 POST | /admin/v1/sales/delivery | Создание документа отгрузки (автосписание + дебиторка) |
+| GET | /admin/v1/sales/delivery | Список документов отгрузки |
+| GET | /admin/v1/sales/settlement | Список расчётов с клиентами |
 
 ### 16.4 Управление складом (Inventory)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/inventory | Реальные остатки (по складу/ячейке/партии/SKU) |
-| GET | /admin/inventory/flow | Операции прихода/расхода |
-| GET | /admin/inventory/transfer | Список документов перемещения |
-| POST | /admin/inventory/transfer | Создание документа перемещения |
-| GET | /admin/inventory/check | Список задач инвентаризации |
-| POST | /admin/inventory/check | Создание задачи инвентаризации |
-| GET | /admin/inventory/alert | Правила предупреждений об остатках |
+| GET | /admin/v1/inventory | Реальные остатки (по складу/ячейке/партии/SKU) |
+| GET | /admin/v1/inventory/flow | Операции прихода/расхода |
+| GET | /admin/v1/inventory/transfer | Список документов перемещения |
+| POST | /admin/v1/inventory/transfer | Создание документа перемещения |
+| GET | /admin/v1/inventory/check | Список задач инвентаризации |
+| POST | /admin/v1/inventory/check | Создание задачи инвентаризации |
+| GET | /admin/v1/inventory/alert | Правила предупреждений об остатках |
 
 ### 16.5 Финансы (Finance)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| POST | /admin/finance/voucher | Создание бухгалтерской проводки |
-| GET | /admin/finance/ar-ap | Список дебиторки/кредиторки |
-| POST | /admin/finance/receipt | Создание платёжного документа получения |
-| POST | /admin/finance/payment | Создание платёжного документа оплаты |
-| GET | /admin/finance/cash-journal | Кассовый/банковский журнал |
-| GET | /admin/finance/expense | Список возмещения расходов |
-| POST | /admin/finance/expense | Подача заявки на возмещение |
-| GET | /admin/finance/report/profit | Отчёт о прибыли |
-| GET | /admin/finance/general-ledger | Главная книга (сводка по счетам+периодам) |
-| GET | /admin/finance/subsidiary-ledger | Вспомогательная книга (пооперационные детали) |
-| GET | /admin/finance/report/balance-sheet | Балансовый отчёт (включая автогенерацию) |
-| GET | /admin/finance/report/cash-flow | Отчёт о движении денежных средств (операционная/инвестиционная/финансовая) |
-| GET | /admin/finance/bank-account | Список банковских счетов |
-| GET/POST/PUT/DELETE | /admin/finance/asset | CRUD основных средств + начисление амортизации |
-| GET/POST | /admin/finance/tax-rate | Конфигурация налоговых ставок |
-| GET | /admin/finance/tax-record | Налоговые записи |
-| GET/POST/PUT/DELETE | /admin/finance/currency | Управление валютами |
-| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | Управление курсами |
-| GET/POST/PUT/DELETE | /admin/finance/budget | Управление бюджетом (включая сравнение бюджет vs факт) |
-| GET/POST/PUT/DELETE | /admin/finance/cost-center | Центры затрат (древовидная структура) |
-| GET/POST/PUT/DELETE | /admin/finance/profit-center | Центры прибыли (древовидная структура) |
+| POST | /admin/v1/finance/voucher | Создание бухгалтерской проводки |
+| GET | /admin/v1/finance/ar-ap | Список дебиторки/кредиторки |
+| POST | /admin/v1/finance/receipt | Создание платёжного документа получения |
+| POST | /admin/v1/finance/payment | Создание платёжного документа оплаты |
+| GET | /admin/v1/finance/cash-journal | Кассовый/банковский журнал |
+| GET | /admin/v1/finance/expense | Список возмещения расходов |
+| POST | /admin/v1/finance/expense | Подача заявки на возмещение |
+| GET | /admin/v1/finance/report/profit | Отчёт о прибыли |
+| GET | /admin/v1/finance/general-ledger | Главная книга (сводка по счетам+периодам) |
+| GET | /admin/v1/finance/subsidiary-ledger | Вспомогательная книга (пооперационные детали) |
+| GET | /admin/v1/finance/report/balance-sheet | Балансовый отчёт (включая автогенерацию) |
+| GET | /admin/v1/finance/report/cash-flow | Отчёт о движении денежных средств (операционная/инвестиционная/финансовая) |
+| GET | /admin/v1/finance/bank-account | Список банковских счетов |
+| GET/POST/PUT/DELETE | /admin/v1/finance/asset | CRUD основных средств + начисление амортизации |
+| GET/POST | /admin/v1/finance/tax-rate | Конфигурация налоговых ставок |
+| GET | /admin/v1/finance/tax-record | Налоговые записи |
+| GET/POST/PUT/DELETE | /admin/v1/finance/currency | Управление валютами |
+| GET/POST/PUT/DELETE | /admin/v1/finance/exchange-rate | Управление курсами |
+| GET/POST/PUT/DELETE | /admin/v1/finance/budget | Управление бюджетом (включая сравнение бюджет vs факт) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/cost-center | Центры затрат (древовидная структура) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/profit-center | Центры прибыли (древовидная структура) |
 
 ### 16.6 CRM
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/crm/opportunity | Список сделок |
-| POST | /admin/crm/opportunity | Создание сделки |
-| GET | /admin/crm/follow | Список записей контактов |
-| POST | /admin/crm/follow | Создание записи контакта |
-| GET | /admin/crm/funnel | Конфигурация стадий воронки |
-| GET | /admin/crm/contact | Список контактов |
-| POST | /admin/crm/contact | Создание контакта |
-| GET | /admin/crm/pool | Список клиентов общего пула |
-| POST | /admin/crm/pool/claim/{id} | Взять клиента из пула |
-| POST | /admin/crm/pool/release/{id} | Освободить клиента в пул |
-| GET/POST | /admin/crm/pool/rules | CRUD правил пула |
-| GET | /admin/crm/contract | Список договоров |
-| POST | /admin/crm/contract | Создание договора |
-| GET | /admin/crm/contract/{id} | Детали договора |
-| PUT | /admin/crm/contract/{id} | Обновление договора |
-| DELETE | /admin/crm/contract/{id} | Удаление договора |
-| GET | /admin/crm/quotation | Список CRM-предложений |
-| POST | /admin/crm/quotation | Создание CRM-предложения |
-| POST | /admin/crm/quotation/{id}/to-contract | 🔗 Предложение в договор |
-| GET/POST/PUT/DELETE | /admin/crm/campaign | Маркетинговые кампании |
-| GET/POST/PUT/DELETE | /admin/crm/ticket | Сервисные тикеты |
-| POST | /admin/crm/ticket/{id}/assign | Назначение тикета |
-| POST | /admin/crm/ticket/{id}/resolve | Решение тикета |
-| GET/POST | /admin/crm/analytics/report | Аналитические отчёты по клиентам |
-| GET/POST | /admin/crm/analytics/metric | Аналитические метрики |
+| GET | /admin/v1/crm/opportunity | Список сделок |
+| POST | /admin/v1/crm/opportunity | Создание сделки |
+| GET | /admin/v1/crm/follow | Список записей контактов |
+| POST | /admin/v1/crm/follow | Создание записи контакта |
+| GET | /admin/v1/crm/funnel | Конфигурация стадий воронки |
+| GET | /admin/v1/crm/contact | Список контактов |
+| POST | /admin/v1/crm/contact | Создание контакта |
+| GET | /admin/v1/crm/pool | Список клиентов общего пула |
+| POST | /admin/v1/crm/pool/claim/{id} | Взять клиента из пула |
+| POST | /admin/v1/crm/pool/release/{id} | Освободить клиента в пул |
+| GET/POST | /admin/v1/crm/pool/rules | CRUD правил пула |
+| GET | /admin/v1/crm/contract | Список договоров |
+| POST | /admin/v1/crm/contract | Создание договора |
+| GET | /admin/v1/crm/contract/{id} | Детали договора |
+| PUT | /admin/v1/crm/contract/{id} | Обновление договора |
+| DELETE | /admin/v1/crm/contract/{id} | Удаление договора |
+| GET | /admin/v1/crm/quotation | Список CRM-предложений |
+| POST | /admin/v1/crm/quotation | Создание CRM-предложения |
+| POST | /admin/v1/crm/quotation/{id}/to-contract | 🔗 Предложение в договор |
+| GET/POST/PUT/DELETE | /admin/v1/crm/campaign | Маркетинговые кампании |
+| GET/POST/PUT/DELETE | /admin/v1/crm/ticket | Сервисные тикеты |
+| POST | /admin/v1/crm/ticket/{id}/assign | Назначение тикета |
+| POST | /admin/v1/crm/ticket/{id}/resolve | Решение тикета |
+| GET/POST | /admin/v1/crm/analytics/report | Аналитические отчёты по клиентам |
+| GET/POST | /admin/v1/crm/analytics/metric | Аналитические метрики |
 
 ### 16.7 Workflow согласования (Workflow)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/workflow | Список определений workflow |
-| POST | /admin/workflow | Создание определения workflow |
-| GET | /admin/workflow/{id} | Детали workflow |
-| PUT | /admin/workflow/{id} | Обновление workflow |
-| DELETE | /admin/workflow/{id} | Удаление workflow |
-| POST | /admin/workflow/{id}/submit | 🔗 Отправка на согласование (создание экземпляра согласования) |
-| POST | /admin/approval/{id}/approve | Утвердить |
-| POST | /admin/approval/{id}/reject | Отклонить |
-| POST | /admin/approval/{id}/withdraw | Отозвать |
-| ANY | /admin/approval/my | Мои согласования (ожидающие/завершённые) |
+| GET | /admin/v1/workflow | Список определений workflow |
+| POST | /admin/v1/workflow | Создание определения workflow |
+| GET | /admin/v1/workflow/{id} | Детали workflow |
+| PUT | /admin/v1/workflow/{id} | Обновление workflow |
+| DELETE | /admin/v1/workflow/{id} | Удаление workflow |
+| POST | /admin/v1/workflow/{id}/submit | 🔗 Отправка на согласование (создание экземпляра согласования) |
+| POST | /admin/v1/approval/{id}/approve | Утвердить |
+| POST | /admin/v1/approval/{id}/reject | Отклонить |
+| POST | /admin/v1/approval/{id}/withdraw | Отозвать |
+| ANY | /admin/v1/approval/my | Мои согласования (ожидающие/завершённые) |
 
 ### 16.8 Уведомления (Notification)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| ANY | /admin/notification/my | Мои уведомления (пагинация, по времени убыванию) |
-| POST | /admin/notification/{id}/read | Отметить одно прочитанным |
-| POST | /admin/notification/read-all | Отметить все прочитанными |
-| ANY | /admin/notification/unread-count | Число непрочитанных сообщений |
+| ANY | /admin/v1/notification/my | Мои уведомления (пагинация, по времени убыванию) |
+| POST | /admin/v1/notification/{id}/read | Отметить одно прочитанным |
+| POST | /admin/v1/notification/read-all | Отметить все прочитанными |
+| ANY | /admin/v1/notification/unread-count | Число непрочитанных сообщений |
 
 ### 16.9 Управление проектами (Project)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/project | Список проектов |
-| POST | /admin/project | Создание проекта |
-| GET | /admin/project/{id} | Детали проекта |
-| PUT | /admin/project/{id} | Обновление проекта |
-| DELETE | /admin/project/{id} | Удаление проекта |
-| GET | /admin/project/task | Список задач |
-| POST | /admin/project/task | Создание задачи |
-| PUT | /admin/project/task/{id} | Обновление задачи |
-| DELETE | /admin/project/task/{id} | Удаление задачи |
-| GET | /admin/project/timesheet | Список учёта трудозатрат |
-| POST | /admin/project/timesheet | Ввод трудозатрат |
-| PUT | /admin/project/timesheet/{id} | Обновление трудозатрат |
-| DELETE | /admin/project/timesheet/{id} | Удаление трудозатрат |
+| GET | /admin/v1/project | Список проектов |
+| POST | /admin/v1/project | Создание проекта |
+| GET | /admin/v1/project/{id} | Детали проекта |
+| PUT | /admin/v1/project/{id} | Обновление проекта |
+| DELETE | /admin/v1/project/{id} | Удаление проекта |
+| GET | /admin/v1/project/task | Список задач |
+| POST | /admin/v1/project/task | Создание задачи |
+| PUT | /admin/v1/project/task/{id} | Обновление задачи |
+| DELETE | /admin/v1/project/task/{id} | Удаление задачи |
+| GET | /admin/v1/project/timesheet | Список учёта трудозатрат |
+| POST | /admin/v1/project/timesheet | Ввод трудозатрат |
+| PUT | /admin/v1/project/timesheet/{id} | Обновление трудозатрат |
+| DELETE | /admin/v1/project/timesheet/{id} | Удаление трудозатрат |
 
 ### 16.10 Управление персоналом (HR)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/hr/department | Список отделов (дерево) |
-| POST | /admin/hr/department | Создание отдела |
-| PUT | /admin/hr/department/{id} | Обновление отдела |
-| DELETE | /admin/hr/department/{id} | Удаление отдела |
-| GET | /admin/hr/employee | Список сотрудников |
-| POST | /admin/hr/employee | Создание сотрудника |
-| PUT | /admin/hr/employee/{id} | Обновление сотрудника |
-| DELETE | /admin/hr/employee/{id} | Удаление сотрудника |
-| GET | /admin/hr/position | Список должностей |
-| POST | /admin/hr/position | Создание должности |
-| PUT | /admin/hr/position/{id} | Обновление должности |
-| DELETE | /admin/hr/position/{id} | Удаление должности |
-| ANY | /admin/hr/attendance | Запрос записей посещаемости |
-| POST | /admin/hr/attendance/clock-in | Отметка прихода |
-| POST | /admin/hr/attendance/clock-out | Отметка ухода |
-| ANY | /admin/hr/leave | Список отпусков |
-| POST | /admin/hr/leave | Подача заявки на отпуск |
-| GET | /admin/hr/leave/{id} | Детали отпуска |
-| PUT | /admin/hr/leave/{id} | Обновление отпуска |
-| DELETE | /admin/hr/leave/{id} | Удаление отпуска |
-| POST | /admin/hr/leave/{id}/approve | 🔗 Согласование отпуска |
-| GET | /admin/hr/salary | Список зарплат |
-| POST | /admin/hr/salary | Генерация зарплатной ведомости |
-| PUT | /admin/hr/salary/{id} | Обновление зарплаты |
-| DELETE | /admin/hr/salary/{id} | Удаление зарплаты |
-| POST | /admin/hr/salary/{id}/pay | Выплата зарплаты |
-| ANY | /admin/hr/salary-item | Список статей зарплаты |
-| POST | /admin/hr/salary-item | Создание статьи зарплаты |
-| GET | /admin/hr/salary-item/{id} | Детали статьи зарплаты |
-| PUT | /admin/hr/salary-item/{id} | Обновление статьи зарплаты |
-| DELETE | /admin/hr/salary-item/{id} | Удаление статьи зарплаты |
+| GET | /admin/v1/hr/department | Список отделов (дерево) |
+| POST | /admin/v1/hr/department | Создание отдела |
+| PUT | /admin/v1/hr/department/{id} | Обновление отдела |
+| DELETE | /admin/v1/hr/department/{id} | Удаление отдела |
+| GET | /admin/v1/hr/employee | Список сотрудников |
+| POST | /admin/v1/hr/employee | Создание сотрудника |
+| PUT | /admin/v1/hr/employee/{id} | Обновление сотрудника |
+| DELETE | /admin/v1/hr/employee/{id} | Удаление сотрудника |
+| GET | /admin/v1/hr/position | Список должностей |
+| POST | /admin/v1/hr/position | Создание должности |
+| PUT | /admin/v1/hr/position/{id} | Обновление должности |
+| DELETE | /admin/v1/hr/position/{id} | Удаление должности |
+| ANY | /admin/v1/hr/attendance | Запрос записей посещаемости |
+| POST | /admin/v1/hr/attendance/clock-in | Отметка прихода |
+| POST | /admin/v1/hr/attendance/clock-out | Отметка ухода |
+| ANY | /admin/v1/hr/leave | Список отпусков |
+| POST | /admin/v1/hr/leave | Подача заявки на отпуск |
+| GET | /admin/v1/hr/leave/{id} | Детали отпуска |
+| PUT | /admin/v1/hr/leave/{id} | Обновление отпуска |
+| DELETE | /admin/v1/hr/leave/{id} | Удаление отпуска |
+| POST | /admin/v1/hr/leave/{id}/approve | 🔗 Согласование отпуска |
+| GET | /admin/v1/hr/salary | Список зарплат |
+| POST | /admin/v1/hr/salary | Генерация зарплатной ведомости |
+| PUT | /admin/v1/hr/salary/{id} | Обновление зарплаты |
+| DELETE | /admin/v1/hr/salary/{id} | Удаление зарплаты |
+| POST | /admin/v1/hr/salary/{id}/pay | Выплата зарплаты |
+| ANY | /admin/v1/hr/salary-item | Список статей зарплаты |
+| POST | /admin/v1/hr/salary-item | Создание статьи зарплаты |
+| GET | /admin/v1/hr/salary-item/{id} | Детали статьи зарплаты |
+| PUT | /admin/v1/hr/salary-item/{id} | Обновление статьи зарплаты |
+| DELETE | /admin/v1/hr/salary-item/{id} | Удаление статьи зарплаты |
 
 ### 16.11 Производство (Manufacturing)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/mfg/bom | Список BOM |
-| POST | /admin/mfg/bom | Создание BOM |
-| PUT | /admin/mfg/bom/{id} | Обновление BOM |
-| DELETE | /admin/mfg/bom/{id} | Удаление BOM |
-| GET | /admin/mfg/production | Список производственных заказов |
-| POST | /admin/mfg/production | Создание производственного заказа |
-| PUT | /admin/mfg/production/{id} | Обновление производственного заказа |
-| DELETE | /admin/mfg/production/{id} | Удаление производственного заказа |
-| POST | /admin/mfg/production/{id}/start | Начало производства |
-| POST | /admin/mfg/production/{id}/complete | Завершение производства |
-| GET | /admin/mfg/routing | Список технологических маршрутов |
-| POST | /admin/mfg/routing | Создание технологического маршрута |
-| PUT | /admin/mfg/routing/{id} | Обновление технологического маршрута |
-| DELETE | /admin/mfg/routing/{id} | Удаление технологического маршрута |
-| GET | /admin/mfg/workstation | Список рабочих станций |
-| POST | /admin/mfg/workstation | Создание рабочей станции |
-| PUT | /admin/mfg/workstation/{id} | Обновление рабочей станции |
-| DELETE | /admin/mfg/workstation/{id} | Удаление рабочей станции |
-| GET | /admin/mfg/mrp | Список планов MRP |
-| POST | /admin/mfg/mrp | Создание плана MRP |
-| PUT | /admin/mfg/mrp/{id} | Обновление плана MRP |
-| DELETE | /admin/mfg/mrp/{id} | Удаление плана MRP |
-| POST | /admin/mfg/mrp/{id}/generate | 🔗 Запуск MRP: генерация закупочных/производственных рекомендаций |
+| GET | /admin/v1/mfg/bom | Список BOM |
+| POST | /admin/v1/mfg/bom | Создание BOM |
+| PUT | /admin/v1/mfg/bom/{id} | Обновление BOM |
+| DELETE | /admin/v1/mfg/bom/{id} | Удаление BOM |
+| GET | /admin/v1/mfg/production | Список производственных заказов |
+| POST | /admin/v1/mfg/production | Создание производственного заказа |
+| PUT | /admin/v1/mfg/production/{id} | Обновление производственного заказа |
+| DELETE | /admin/v1/mfg/production/{id} | Удаление производственного заказа |
+| POST | /admin/v1/mfg/production/{id}/start | Начало производства |
+| POST | /admin/v1/mfg/production/{id}/complete | Завершение производства |
+| GET | /admin/v1/mfg/routing | Список технологических маршрутов |
+| POST | /admin/v1/mfg/routing | Создание технологического маршрута |
+| PUT | /admin/v1/mfg/routing/{id} | Обновление технологического маршрута |
+| DELETE | /admin/v1/mfg/routing/{id} | Удаление технологического маршрута |
+| GET | /admin/v1/mfg/workstation | Список рабочих станций |
+| POST | /admin/v1/mfg/workstation | Создание рабочей станции |
+| PUT | /admin/v1/mfg/workstation/{id} | Обновление рабочей станции |
+| DELETE | /admin/v1/mfg/workstation/{id} | Удаление рабочей станции |
+| GET | /admin/v1/mfg/mrp | Список планов MRP |
+| POST | /admin/v1/mfg/mrp | Создание плана MRP |
+| PUT | /admin/v1/mfg/mrp/{id} | Обновление плана MRP |
+| DELETE | /admin/v1/mfg/mrp/{id} | Удаление плана MRP |
+| POST | /admin/v1/mfg/mrp/{id}/generate | 🔗 Запуск MRP: генерация закупочных/производственных рекомендаций |
 
 ### 16.12 Пользовательские отчёты (Report Builder)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/report | Список шаблонов отчётов |
-| POST | /admin/report | Создание шаблона отчёта |
-| GET | /admin/report/{id} | Детали шаблона отчёта |
-| PUT | /admin/report/{id} | Обновление шаблона отчёта |
-| DELETE | /admin/report/{id} | Удаление шаблона отчёта |
-| POST | /admin/report/{id}/execute | Выполнение отчёта, генерация данных |
-| ANY | /admin/report/{id}/result | Результат выполнения отчёта |
-| GET | /admin/report/schedule | Список расписаний |
-| POST | /admin/report/schedule | Создание расписания |
-| PUT | /admin/report/schedule/{id} | Обновление расписания |
-| DELETE | /admin/report/schedule/{id} | Удаление расписания |
+| GET | /admin/v1/report | Список шаблонов отчётов |
+| POST | /admin/v1/report | Создание шаблона отчёта |
+| GET | /admin/v1/report/{id} | Детали шаблона отчёта |
+| PUT | /admin/v1/report/{id} | Обновление шаблона отчёта |
+| DELETE | /admin/v1/report/{id} | Удаление шаблона отчёта |
+| POST | /admin/v1/report/{id}/execute | Выполнение отчёта, генерация данных |
+| ANY | /admin/v1/report/{id}/result | Результат выполнения отчёта |
+| GET | /admin/v1/report/schedule | Список расписаний |
+| POST | /admin/v1/report/schedule | Создание расписания |
+| PUT | /admin/v1/report/schedule/{id} | Обновление расписания |
+| DELETE | /admin/v1/report/schedule/{id} | Удаление расписания |
 
 ### 16.13 Дашборд (Dashboard)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/dashboard/sales | Панель продаж |
-| GET | /admin/dashboard/inventory | Панель склада |
-| GET | /admin/dashboard/finance | Панель финансов |
+| GET | /admin/v1/dashboard/sales | Панель продаж |
+| GET | /admin/v1/dashboard/inventory | Панель склада |
+| GET | /admin/v1/dashboard/finance | Панель финансов |
 
 ### 16.14 Клиентское API (Client API)
 
-Клиентские эндпоинты смонтированы в группе `/api` и требуют заголовок `API-Version`. Информация о товарах не содержит закупочной цены.
+Клиентские эндпоинты смонтированы в группе `/api/v1` (номер версии включён в путь URL, заголовка версии нет). Информация о товарах не содержит закупочной цены.
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /api/product | Список товаров (без закупочной цены) |
-| GET | /api/product/{hashid} | Детали товара (розничная/оптовая цена, без закупочной) |
+| GET | /api/v1/product | Список товаров (без закупочной цены) |
+| GET | /api/v1/product/{hashid} | Детали товара (розничная/оптовая цена, без закупочной) |
 
 ### 16.15 OMS (управление заказами)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/oms/order | Список OMS-заказов |
-| POST | /admin/oms/order | Создание OMS-заказа |
-| 🔗 POST | /admin/oms/order/{id}/allocate | Распределение остатков (резервирование) |
-| 🔗 POST | /admin/oms/order/{id}/fulfill | Создание исполнения |
-| POST | /admin/oms/order/{id}/cancel | Отмена заказа (освобождение резерва) |
-| POST | /admin/oms/rma/{id}/approve | Согласование RMA |
-| POST | /admin/oms/rma/{id}/refund | Возврат средств по RMA |
+| GET | /admin/v1/oms/order | Список OMS-заказов |
+| POST | /admin/v1/oms/order | Создание OMS-заказа |
+| 🔗 POST | /admin/v1/oms/order/{id}/allocate | Распределение остатков (резервирование) |
+| 🔗 POST | /admin/v1/oms/order/{id}/fulfill | Создание исполнения |
+| POST | /admin/v1/oms/order/{id}/cancel | Отмена заказа (освобождение резерва) |
+| POST | /admin/v1/oms/rma/{id}/approve | Согласование RMA |
+| POST | /admin/v1/oms/rma/{id}/refund | Возврат средств по RMA |
 
 ### 16.16 WMS (управление складом)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/wms/zone | Список зон (CRUD) |
-| GET | /admin/wms/location | Список WMS-ячеек (CRUD) |
-| GET | /admin/wms/asn | Список ASN (CRUD) |
-| POST | /admin/wms/receiving/{id}/complete | Завершение приёмки → автогенерация задач размещения |
-| POST | /admin/wms/putaway/{id}/complete | Подтверждение размещения → запуск stockIn |
-| POST | /admin/wms/wave/{id}/release | Выпуск волны → генерация задач комплектации |
-| POST | /admin/wms/pick/{id}/start | Начало комплектации |
-| POST | /admin/wms/pick/{id}/confirm | Подтверждение комплектации |
-| POST | /admin/wms/pack/{id}/complete | Завершение упаковки |
+| GET | /admin/v1/wms/zone | Список зон (CRUD) |
+| GET | /admin/v1/wms/location | Список WMS-ячеек (CRUD) |
+| GET | /admin/v1/wms/asn | Список ASN (CRUD) |
+| POST | /admin/v1/wms/receiving/{id}/complete | Завершение приёмки → автогенерация задач размещения |
+| POST | /admin/v1/wms/putaway/{id}/complete | Подтверждение размещения → запуск stockIn |
+| POST | /admin/v1/wms/wave/{id}/release | Выпуск волны → генерация задач комплектации |
+| POST | /admin/v1/wms/pick/{id}/start | Начало комплектации |
+| POST | /admin/v1/wms/pick/{id}/confirm | Подтверждение комплектации |
+| POST | /admin/v1/wms/pack/{id}/complete | Завершение упаковки |
 
 ### 16.17 TMS (транспорт)
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/tms/carrier | Список перевозчиков (CRUD) |
-| GET | /admin/tms/service | Услуги перевозчиков (CRUD) |
-| GET | /admin/tms/freight-rate | Тарифы фрахта (CRUD) |
-| GET | /admin/tms/shipment | Список накладных (CRUD) |
-| 🔗 POST | /admin/tms/shipment/{id}/ship | Подтверждение отгрузки (stockOut+AR) |
-| POST | /admin/tms/tracking/callback | Webhook трекинга перевозчика |
-| POST | /admin/tms/freight-invoice/{id}/pay | Оплата счёта за фрахт (генерация AP) |
+| GET | /admin/v1/tms/carrier | Список перевозчиков (CRUD) |
+| GET | /admin/v1/tms/service | Услуги перевозчиков (CRUD) |
+| GET | /admin/v1/tms/freight-rate | Тарифы фрахта (CRUD) |
+| GET | /admin/v1/tms/shipment | Список накладных (CRUD) |
+| 🔗 POST | /admin/v1/tms/shipment/{id}/ship | Подтверждение отгрузки (stockOut+AR) |
+| POST | /api/tms/tracking/callback | Webhook трекинга перевозчика |
+| POST | /admin/v1/tms/freight-invoice/{id}/pay | Оплата счёта за фрахт (генерация AP) |
 
 ### 16.18 Расширение дашборда
 
 | Метод | Путь | Описание |
 |------|------|------|
-| GET | /admin/dashboard/oms | OMS KPI (ожидает обработки/комплектуется/отгружено сегодня/RMA) |
-| GET | /admin/dashboard/wms | WMS KPI (ожидает приёмки/размещения/комплектации/упаковки) |
-| GET | /admin/dashboard/tms | TMS KPI (ожидает отгрузки/в пути/получено/сбой) |
+| GET | /admin/v1/dashboard/oms | OMS KPI (ожидает обработки/комплектуется/отгружено сегодня/RMA) |
+| GET | /admin/v1/dashboard/wms | WMS KPI (ожидает приёмки/размещения/комплектации/упаковки) |
+| GET | /admin/v1/dashboard/tms | TMS KPI (ожидает отгрузки/в пути/получено/сбой) |
 
 ### 16.19 Кросс-модульная автоматизация
 
@@ -2037,5 +2053,5 @@ docker-compose up -d
 
 | Эндпоинт | Автоматические действия |
 |------|---------|
-| 🔗 POST /admin/purchase/receive | Автоматический вызов InventoryService.stockIn() — обновление остатков + пересчёт скользящего средневзвешенного; вызов FinanceService.createAp() — генерация записи кредиторки |
-| 🔗 POST /admin/sales/delivery | Автоматический вызов InventoryService.stockOut() — списание (по скользящему средневзвешенному); вызов FinanceService.createAr() — генерация записи дебиторки |
+| 🔗 POST /admin/v1/purchase/receive | Автоматический вызов InventoryService.stockIn() — обновление остатков + пересчёт скользящего средневзвешенного; вызов FinanceService.createAp() — генерация записи кредиторки |
+| 🔗 POST /admin/v1/sales/delivery | Автоматический вызов InventoryService.stockOut() — списание (по скользящему средневзвешенному); вызов FinanceService.createAr() — генерация записи дебиторки |

@@ -2,6 +2,81 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.1 (2026-09-22)
+
+**收尾批**：把上一轮审计遗留的「用户报得出、代码查不到」的毛病修完——明细（`items`）在编辑态写不回去、列表脱敏值被回写覆盖真值、`mfg` 领料/委外发料 update 半写（表头已改、明细校验失败却回 422）、发货/收货编辑态字段静默丢失；同时收口错误面（唯一键冲突/超长输入/非法 hashid 由 500 改 422）、全仓分页参数归一，并把四端「用户分配角色、角色多选权限、权限树形展示」这条链路接到可用。范围只含缺陷修复与既有能力的接线：**0 个新增控制器、0 个新增路由、0 个新增数据表**（仅 +1 列 +16 条权限种子），未修项见文末。
+
+### 修复 · 错误面与状态码（客户端可见契约变化）
+- **唯一键冲突（1062）由 500 改 422 并点名重复单号** —— `app/exception/ApiHandler.php:42`（必须排在 debug 分支之前：1062 的 `getCode()` 也是 500，放后面会被吞掉）
+- **输入超长（SQLSTATE 22001 / MySQL 1406）由 500 改 422**，含表名/列名的 MySQL 原文只进日志（部分控制器 `max:` 比真实列宽大，超长输入过得了校验、到 MySQL 才炸）
+- **hashid 解码失败等 `InvalidArgumentException` 由 500 改 422**，消息原样回客户端（旧书签、被截断的串、扫描器批量探路径不再只看到「服务器内部错误」）
+- **收货/发货：业务拒绝 422、SQL/连接故障仍 500**（显式排除 `PDOException`，原先一律 500）
+- **mfg 领料/委外发料 update 不再半写**：明细校验全部前移到任何写库动作之前，表头与明细同一事务 —— 原先表头先落库、明细校验失败回 422，用户以为没保存而实际已改（`MaterialIssueController.php:245`、`SubcontractIssueController.php:247`，各配一条回归用例）
+
+### 修复 · 入参 / 出参形状（★契约变化）
+- **`/admin/v1/user` 新增 `role_ids`**（hashid 数组；**缺省=关联不动，`[]`=清空**），store/update 都在触库前归一，非法即 422；**用户列表/详情新增 `roles`（hashid 数组）**，依赖 `with('roles')`（注释已标「勿删」）
+- **用户 update 丢弃脱敏值**：phone/email 含 `***` 一律当「未改动」（列表下发 `138****8888`，客户端拿列表行回存会覆盖真值且不可恢复）
+- **采购申请 `apply_user_id` 缺省=当前登录管理员**，入参兼容 hashid、出参补编码；**采购订单 `ordered_at=''` 归一 NULL**（否则 1292 → 500）、FK 出参补 `apply_id`/`warehouse_id`
+- **收货/发货 `items[].order_item_id` 由 `required` 改 `nullable`**：缺省时按 `product_id` 在本单反查，本单该商品非唯一才 422；**明细 `product_id` 缺失从「静默落 0」改「拒绝」**
+- **RFQ 报价列表新增 `supplier_name` / `rfq_no`**（`RfqQuoteController.php:54`）
+- **分页参数全仓归一**：`page≥1`、`1≤limit≤500`（`BaseController::pageParams:171` + ~120 处 `list()` 改用）——负 `limit` 曾被编译成 `LIMIT -5` 直接 500，`?limit=100000` 曾无上限拉取
+
+### 修复 · 后端逻辑
+- **`decodeFlexibleId` 加往返校验**（`encode(decode(x))===x` 才采信）：纯数字串曾被静默解成 `PHP_INT_MAX` 写进无 FK 约束的列（`BaseController.php:92`）
+- **`validator()` 入口把 JSON float 规范成十进制串**：brick/math ≥0.14 对 float 发 `E_DEPRECATED`，webman 升级成 `ErrorException` → `quantity=1.5` / `price=12.34` 必 500（`app/functions.php:33`）
+- **供应商评估 `dimensions` 加 `array` 强转**：缺则把 `"Array"` 写进 json 列报 3140，建评分接口传什么入参都 500
+- **采购申请模型 `$fillable` 去掉 `approved_at`/`approved_by`**（客户端可自造「已审批」记录）；**采购退货 destroy 加「已出库不可删」守卫 + 启用 SoftDeletes**，`status` 仅 0→1
+- **寻源链路（RFQ/报价）整条修通**：`DB` 门面改 Capsule（原「A facade root has not been set.」必失败）、加 `lockForUpdate` + 状态守卫、仅草稿可改、报价行支持按 `product_id` 匹配、单价/行金额/中标总额上限守卫
+- **WMS ASN `store` 补 `warehouse_id`/`supplier_id` required**（NOT NULL 无默认列 → 1364 500）；**列宽校验收紧到真实列宽**（brand 200→100、category/contact/funnel/hr-candidate 200→50、warehouse/location 200→100、shipment code 200→50）
+- **`ChannelService` 重发 `limit` 封顶 500**（`?limit=100000` 单请求串行发完积压）；**采购结算 `receipt_payment_id` 先解码并拒绝**（原垃圾串在 int 形参上抛 TypeError，被 catch 成业务文案回给用户）
+- **角色权限归一函数上提到 `BaseController::normalizeIdArray`**（角色/用户共用同一套判定顺序）
+
+### 修复 · 前端（Angular / React，同构改动）
+- **编辑弹框先拉详情再挂载**：列表 phone/email 是脱敏值，直接拿列表行保存会把打码串写回真值且不可恢复；详情失败（无路由/无权限/网络错）静默回落列表行，由后端 `***` 护栏兜底 —— `mergeEditRow()` 抽成纯函数（`apps/*/lib|pages/edit-row.ts`），两端逐字节同语义
+- **新增序号守卫**：连点两行编辑时迟到的详情响应作废，避免「显示的值」与「提交用的 id」来自两条记录（`apps/react/src/lib/seq.ts`、Angular `editSeq`）
+- **表单初值优先级反转**：编辑态**行值优先**于 `defaultValue`（原顺序让 `status`/`type`/`sort` 类字段永远改不动）
+- **编辑态 `items` 免必填 + 编辑前摘除 `items`**：明细写不回去（更新接口要么不处理 `items`、改了不生效却提示成功，要么按 `(int) $row['sku_id']` 查 SKU → 哈希串落 0 → 422 整单存不了）
+- **发货/收货的 `order_id`/`supplier_id`/`warehouse_id`/`items` 标 `createOnly`**（更新接口只写 `remark`，原先四个字段静默丢失）
+- 采购申请去掉「申请人ID」、采购订单去掉「编号」录入（后端生成 / 缺省当前管理员）；**询价单页补 fields + 「发布」动作**（原先无入口，新单永停草稿，整条寻源在界面上走不通）、供应商报价页补 `supplier_name`/`rfq_no` 列
+- 新增 `type:'tree'` 字段类型（角色权限复选、权限「父级」单选）+ React 列级缩进（`DataTable` + `app.css` 的 `.tree-box`/`.tree-node`）
+
+### 修复 · 前端（Flutter / HarmonyOS）
+- **Flutter 采购申请/订单/退货不再前端自造单号**（原 `PA`/`PO`/`PRN` + 秒级时间戳，同秒两次提交撞 `uk_code`），`_p2()` 辅助函数一并删除
+- **Flutter 采购退货新增「出库确认」**（二次确认 → `PUT status=1`；`status=1` 不展示按钮）；用户弹框补角色多选（复用 `PermissionTreePicker` 渲染扁平角色清单）、编辑先拉详情取明文，`roles` 未下发则不提交 `role_ids`；补 BI「数据集」、EAM「备件管理」菜单
+- **HarmonyOS 采购订单**：删 `code` 录入（8 字段→7）、`apply_id`/`warehouse_id` 撤 `InputType.Number`（hashid 可含字母）、金额改 `NUMBER_DECIMAL`、状态改 0..4 码表；详情页 hashid 由 `num()` 改 `hint()`（走 `num()` 恒 NaN 显示 `-`）
+- **HarmonyOS 模型**：`User.roles?`、`UserCreateForm/UserUpdateForm.role_ids?`、`PermissionNode.parent_id` 改 `string | number`（后端已改 hashid 下发）；工作台新增 7 组业务宫格（29 个入口）
+
+### 新增
+- 前端自检脚本 3 个（**均未接入 CI**）：`scripts/check-fe-items-strip.mjs`（明细摘除，两端夹具逐字节对比）、`check-fe-edit-seq.mjs`（序号守卫）、`check-fe-tree.mjs`（树形权限）—— 走 node `--experimental-strip-types` 直接 import 真 TS 模块（被 import 的模块只允许 `import type`）
+- 测试：`tests/FieldContractRegressionTest.php`（+320：用户角色/权限、WMS 六表 `warehouse_id` 必填、采购越界输入、`dimensions` json 落库、FK hashid 出参、`order_item_id` 反查）、`tests/PurchaseModuleTest.php`（+588 真库：询价/报价/中标、超收、退货出库守卫，事务内自造行+回滚）、`tests/FakeRequest.php` 补 `__isset`（缺它 `$request->adminId ?? 0` 恒落默认值，测到的分支与线上不同）、`apps/flutter/test/routes/page_reachability_test.dart`（`_pageBuilders` 每键必须在 `getPages` 注册）
+- `database/install.sql`：新增 **16 条权限种子**（采购结算/询价单/供应商报价/供应商评估 4 条菜单 + 12 条动作）+ `erp_purchase_return.deleted_at`
+- Flutter l10n 新增 2 键（zh/en arb + 生成物同步）；HarmonyOS 两语种各补 12 键（键集一致、无删键）
+
+### 配置
+- `config/poster.php`：`background_dir` 由 `null` 改指 `public/img`（本机素材目录，见升级须知的内存警告）；`.gitignore` 增加 `public/img/`，该文件与该处的过时注释一并改写
+- `resource/translations/*/common.php` 12 语种各 +2 文案（重复单号、已出库不可删）、`*/install.php` 各 +1（AES-256 密钥长度）
+- `database/install-demo.sql`：采购 demo 的 `order_id`/`receive_id` 原指向全库不存在的行（收货按订单挑明细必空）→ 改指真实单据并补数量/金额
+- `scripts/`：`check-endpoints.php` 按 HarmonyOS `ApiService` 还原 `/admin`→`/admin/v1`；`doc-stats.sh` 新增「展示值≠标注」校验
+- `README.md`（+78/-43）与 `docs/` 31 个文件：事实校正（`/v1` 前缀、ApiVersion 中间件已删、L0–L12、227 表/159 控制器/224 模型/23 模块、Flutter 102 路由、HarmonyOS 41 页、Node ≥22.22.3）+ 统计标注自愈；`docs/i18n/` 252 个文件（12 语种 × 21）为**跟随 zh 源的镜像重建**
+
+### 升级须知
+- **已部署的库需补 16 条权限种子**（id `31000000000000165`–`168` 四条菜单、`169`/`170`/`172`–`180`/`198` 十二条动作），否则询价/报价/供应商评估/采购结算菜单对已有角色不可见；**`erp_purchase_return` 需补 `deleted_at` 列**（本轮启用了 SoftDeletes，缺列会让该表的删除与查询报 1054）
+- **错误面变化**：唯一键冲突、输入超长、非法 hashid 现在是 **422 而不是 500**，收货/发货的业务拒绝也由 500 改 422（SQL/连接故障仍是 500）。外部客户端若按 500 分支处理错误需同步
+- **`items[].order_item_id` 由必填放宽为可选**：缺省时后端按 `product_id` 在本单反查，本单该商品不唯一才 422
+- **分页 `limit` 上限 500、`page` 最小 1**：`?limit=100000` 不再全量拉取
+- **`/admin/v1/user` 的 `role_ids` 缺省=不动，`[]`=清空**（想清空角色必须显式传空数组）
+- **`config/poster.php` 的 `background_dir` 现指向 `public/img`**：该目录是本机个人素材目录（已 gitignore，不入库）。**部署环境请自备已压到画布尺寸（300×200 上下）的小图**——目录里放 ~30MP 原图会让每次验证码请求吃掉几十 MB，128M 上限下直接 fatal（本机跑全量 phpunit 就挂在 `CaptchaTest` 上）
+- 移动端本轮有表单字段变化（去掉前端自造单号、hashid 字段撤数字键盘），需重新构建安装包
+
+### 待办 / 已知遗留（本轮未修）
+- `docs/coverage-priority-2026-08-27.md` 列出的 15 项动作端点仍无前端入口（CRM 公海认领/释放、工单指派/解决、分析生成/指标、HR 请假审批、财务期末等；Flutter 页面存在但不调该端点）
+- `app/` 内 `max:200` 类校验宽度不符仍有 **51 处**（本轮只清了 9 处已知必现的）
+- 供应商评估 `dimensions`(JSON) 仍无评分维度编辑器（`trade.ts:289` 注释「暂不提供入口」）；询价/报价明细行同商品多行时仍要求调用方显式传 `rfq_item_id`
+- 三个前端自检脚本未接入 CI；`docker*` / `.github/workflows/ci.yml` 本轮未改
+- `ReportScheduleController` 仍只有模型+控制器、无任何执行者（补表单会让用户创建永不触发的调度）
+- 多租户 `TenantScope` 仍故意未注册（`X-Tenant-Code` 可由客户端伪造，且缺 admin↔tenant 绑定表与鉴权）
+- 本机「浏览器点击链路 / 真机」仍未实跑：两端 Web 前端无 DOM 测试框架，行为验证走 `scripts/check-*.mjs`（已跑）；Flutter/HarmonyOS 仅静态构建与用例
+
 ## v1.19.0 (2026-09-21)
 
 **审计轮**：后端↔前端契约与「页面实际操作可达性」全量核对后的缺陷修复批次（154 个文件，其中 15 份为文档统计标注自愈）。重点是三类**必现故障**——创建即 500、明细行 ID 未解码（静默丢数据）、登录人机验证链（正确答案也判错）；另修掉一处 500 响应把原始异常（含库名与整条 SQL）回给客户端的错误处理死代码。范围只含缺陷，不含新功能开发，未修项见文末。

@@ -9,15 +9,24 @@ declare(strict_types=1);
 namespace tests;
 
 use app\admin\controller\RoleController;
+use app\admin\controller\UserController;
 use app\common\HashidsService;
 use app\common\SnowflakeService;
 use app\controller\finance\BalanceSheetController;
 use app\controller\finance\ReportController;
 use app\controller\inventory\InventoryController;
+use app\controller\manufacturing\MaterialIssueController;
+use app\controller\manufacturing\SubcontractIssueController;
 use app\model\AdminPermission;
 use app\model\AdminRole;
+use app\model\AdminUser;
 use app\model\Inventory;
+use app\model\MfgMaterialIssue;
+use app\model\MfgProductionOrder;
+use app\model\MfgSubcontract;
+use app\model\MfgSubcontractIssue;
 use app\model\Product;
+use app\model\ProductSku;
 use app\model\Warehouse;
 use app\service\finance\LedgerService;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -309,6 +318,317 @@ class FieldContractRegressionTest extends TestCase
                 Capsule::connection()->table('admin_role_permission')->where('role_id', $roleId)->delete();
                 AdminRole::where('id', $roleId)->delete();
             }
+        }
+    }
+
+    /* ==================== User role_ids 同步契约 ==================== */
+
+    /**
+     * 用户 ↔ 角色（erp_admin_user_role）：hashid 数组入参同步、列表出口回 hashid 数组、
+     * 「字段缺省」与「空数组」语义分离（前者不动关联、后者清空）。
+     * 关联表无 FK 约束，垃圾串必须 422，不得退化成 (int)'abc'=0 的孤儿行。
+     */
+    public function testUserStoreSyncsRolesAndLeavesRelationUntouchedWhenAbsent(): void
+    {
+        $roleId = SnowflakeService::generate();
+        $suffix = (string) mt_rand(100000, 999999);
+        $username = 'batch1user' . $suffix;
+        $userId = null;
+        try {
+            $role = new AdminRole();
+            $role->id = $roleId;
+            $role->name = '批1用户角色' . $suffix;
+            $role->slug = 'batch1.userrole.' . $suffix;
+            $role->save();
+
+            $resp = (new UserController())->store(new FakeRequest([
+                'username' => $username,
+                'password' => 'secret123',
+                'real_name' => '批1用户' . $suffix,
+                'role_ids' => [$this->encodeId($roleId)],
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $userId = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                [$roleId],
+                array_map('intval', Capsule::connection()->table('admin_user_role')
+                    ->where('user_id', $userId)->pluck('role_id')->all()),
+                'role_ids 应按 hashid 解码写入 erp_admin_user_role'
+            );
+
+            // 列表出口带出角色 hashid 数组（编辑弹框预选的唯一来源）
+            $indexBody = $this->jsonBody((new UserController())->index(new FakeRequest(['keyword' => $username])));
+            $row = $indexBody['data']['list'][0] ?? [];
+            $this->assertSame($username, $row['username'] ?? null, $indexBody['message'] ?? '');
+            $this->assertSame([$this->encodeId($roleId)], (array) ($row['roles'] ?? null), 'roles 应为角色 hashid 数组');
+
+            // 缺省该字段 = 保持关联不动（不得静默清空）
+            $this->assertSame(0, (int) ($this->jsonBody((new UserController())->update(
+                new FakeRequest(['real_name' => '批1用户改名' . $suffix]),
+                $this->encodeId($userId)
+            ))['code'] ?? -1));
+            $this->assertSame(
+                [$roleId],
+                array_map('intval', Capsule::connection()->table('admin_user_role')
+                    ->where('user_id', $userId)->pluck('role_id')->all()),
+                '未提交 role_ids 时关联必须原样保留'
+            );
+
+            // 空数组 = 清空（与缺省区分）
+            $this->assertSame(0, (int) ($this->jsonBody((new UserController())->update(
+                new FakeRequest(['role_ids' => []]),
+                $this->encodeId($userId)
+            ))['code'] ?? -1));
+            $this->assertSame(
+                [],
+                Capsule::connection()->table('admin_user_role')->where('user_id', $userId)->pluck('role_id')->all(),
+                'role_ids=[] 必须清空关联'
+            );
+
+            $bad = (new UserController())->update(
+                new FakeRequest(['role_ids' => ['abc']]),
+                $this->encodeId($userId)
+            );
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 hashid 必须 422');
+        } finally {
+            if ($userId) {
+                Capsule::connection()->table('admin_user_role')->where('user_id', $userId)->delete();
+                AdminUser::where('id', $userId)->forceDelete();
+            }
+            AdminRole::where('id', $roleId)->delete();
+        }
+    }
+
+    /* ==================== 列表脱敏值不得回写覆盖真值 ==================== */
+
+    /**
+     * 列表接口下发 `138****1234` / `z***@x.com`，编辑表单若拿列表行当初值原样回存，
+     * 掩码会被写库覆盖真值（不可恢复）。update 必须把含 `***` 的 phone/email 当「未改动」丢弃。
+     */
+    public function testUserUpdateIgnoresMaskedPhoneAndEmailFromListRow(): void
+    {
+        $suffix = (string) mt_rand(100000, 999999);
+        $username = 'batch1mask' . $suffix;
+        $email = 'mask' . $suffix . '@example.com';
+        $userId = null;
+        try {
+            $created = $this->jsonBody((new UserController())->store(new FakeRequest([
+                'username' => $username,
+                'password' => 'secret123',
+                'real_name' => '批1脱敏' . $suffix,
+                'phone' => '13800001234',
+                'email' => $email,
+            ])));
+            $this->assertSame(0, (int) ($created['code'] ?? -1), $created['message'] ?? '');
+            $userId = HashidsService::decode((string) ($created['data']['id'] ?? ''));
+
+            // 前提校验：列表出口确实是打码值，否则本用例打不到靶
+            $row = $this->jsonBody((new UserController())->index(new FakeRequest(['keyword' => $username])))['data']['list'][0] ?? [];
+            $this->assertSame('138****1234', $row['phone'] ?? null, '列表手机应为打码值');
+            $this->assertStringContainsString('***@', (string) ($row['email'] ?? ''), '列表邮箱应为打码值');
+
+            // 把打码值原样回存（客户端编辑弹框的旧行为）
+            $resp = (new UserController())->update(new FakeRequest([
+                'phone' => $row['phone'],
+                'email' => $row['email'],
+            ]), $this->encodeId($userId));
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1));
+
+            $fresh = AdminUser::find($userId);
+            $this->assertSame('13800001234', $fresh->phone, '打码手机不得覆盖真值');
+            $this->assertSame($email, $fresh->email, '打码邮箱不得覆盖真值');
+
+            // 正常值仍要能改（护栏不能把更新功能一起挡掉）
+            $this->assertSame(0, (int) ($this->jsonBody((new UserController())->update(new FakeRequest([
+                'phone' => '13900005678',
+            ]), $this->encodeId($userId)))['code'] ?? -1));
+            $this->assertSame('13900005678', AdminUser::find($userId)->phone, '未打码的手机必须照常更新');
+        } finally {
+            if ($userId) {
+                AdminUser::where('id', $userId)->forceDelete();
+            }
+        }
+    }
+
+    /* ============ 明细非法时表头不得半写（mfg 领料/委外发料 update） ============ */
+
+    /**
+     * MaterialIssueController::update / SubcontractIssueController::update 原顺序是「先写表头 → 再校验明细」：
+     * 明细非法（SKU 不存在 / 数量<=0）时返回 422，但表头已经落库 —— 用户看到 422 以为整单没动，
+     * 重试时面对的却是一张改了一半的单子。现在明细先校验、后落库，表头与明细同包一个事务。
+     *
+     * 这里钉死 422 时的两个不变量：表头原样、明细原样；并保证护栏没把正常更新一起挡掉。
+     */
+    public function testMfgMaterialIssueUpdateDoesNotHalfWriteHeaderWhenItemsInvalid(): void
+    {
+        $suffix = (string) mt_rand(100000, 999999);
+        $orderId = SnowflakeService::generate();
+        $docId = SnowflakeService::generate();
+        $itemId = SnowflakeService::generate();
+        $productId = SnowflakeService::generate();
+        $keepSkuId = SnowflakeService::generate();
+        $newSkuId = SnowflakeService::generate();
+        $conn = Capsule::connection();
+        try {
+            $product = new Product();
+            $product->id = $productId;
+            $product->code = 'B1MI-' . $suffix;
+            $product->name = '批1领料物料' . $suffix;
+            $product->save();
+            foreach ([[$keepSkuId, 'B1MIK-' . $suffix], [$newSkuId, 'B1MIN-' . $suffix]] as [$skuId, $code]) {
+                $sku = new ProductSku();
+                $sku->id = $skuId;
+                $sku->product_id = $productId;
+                $sku->sku_code = $code;
+                $sku->save();
+            }
+
+            $order = new MfgProductionOrder();
+            $order->id = $orderId;
+            $order->code = 'B1MO-' . $suffix;
+            $order->bom_id = 0;
+            $order->warehouse_id = 0;
+            $order->save();
+
+            $doc = new MfgMaterialIssue();
+            $doc->id = $docId;
+            $doc->code = 'B1MID-' . $suffix;
+            $doc->order_id = $orderId;
+            $doc->warehouse_id = 0;
+            $doc->issue_date = date('Y-m-d');
+            $doc->status = 0;
+            $doc->remark = '原始备注';
+            $doc->save();
+            $conn->table('mfg_material_issue_item')->insert([
+                'id' => $itemId, 'issue_id' => $docId, 'product_id' => $productId,
+                'sku_id' => $keepSkuId, 'quantity' => 3,
+            ]);
+
+            $controller = new MaterialIssueController();
+            $itemsOf = fn () => $conn->table('mfg_material_issue_item')->where('issue_id', $docId)->orderBy('sku_id')->get();
+            $headerOf = fn () => MfgMaterialIssue::query()->where('id', $docId)->first();
+
+            // 1) SKU 不存在：422，且表头与明细都不得被碰过
+            $bad = $controller->update(new FakeRequest([
+                'remark' => '被改',
+                'items' => [['sku_id' => $newSkuId + 1, 'quantity' => 1]],
+            ]), $this->encodeId($docId));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '不存在的 SKU 必须 422');
+            $this->assertSame('原始备注', $headerOf()->remark, '422 时表头不得被半写');
+            $this->assertSame([$keepSkuId], array_map('intval', $itemsOf()->pluck('sku_id')->all()), '422 时原明细不得被清空');
+
+            // 2) 数量 <= 0：同样 422 且表头原样（另一条校验分支）
+            $badQty = $controller->update(new FakeRequest([
+                'remark' => '被改2',
+                'items' => [['sku_id' => $newSkuId, 'quantity' => 0]],
+            ]), $this->encodeId($docId));
+            $this->assertSame(422, (int) ($this->jsonBody($badQty)['code'] ?? -1), '数量 0 必须 422');
+            $this->assertSame('原始备注', $headerOf()->remark, '422 时表头不得被半写');
+
+            // 3) 空明细：422（区别于「不带 items」）
+            $empty = $controller->update(new FakeRequest(['remark' => '被改3', 'items' => []]), $this->encodeId($docId));
+            $this->assertSame(422, (int) ($this->jsonBody($empty)['code'] ?? -1), '空明细必须 422');
+            $this->assertSame('原始备注', $headerOf()->remark);
+
+            // 4) 护栏不得挡掉正常更新：表头 + 明细同事务落库
+            $okResp = $controller->update(new FakeRequest([
+                'remark' => '改后',
+                'items' => [['sku_id' => $newSkuId, 'quantity' => 2]],
+            ]), $this->encodeId($docId));
+            $this->assertSame(0, (int) ($this->jsonBody($okResp)['code'] ?? -1), $this->jsonBody($okResp)['message'] ?? '');
+            $this->assertSame('改后', $headerOf()->remark);
+            $rows = $itemsOf();
+            $this->assertSame([$newSkuId], array_map('intval', $rows->pluck('sku_id')->all()), '明细应被整单替换');
+            $this->assertSame($productId, (int) $rows->first()->product_id, 'product_id 取 SKU 所属商品，不信客户端传的');
+
+            // 5) 不带 items：只改表头，明细原样（编辑态「明细仅新建期填写」依赖这条）
+            $headerOnly = $controller->update(new FakeRequest(['remark' => '只改备注']), $this->encodeId($docId));
+            $this->assertSame(0, (int) ($this->jsonBody($headerOnly)['code'] ?? -1));
+            $this->assertSame('只改备注', $headerOf()->remark);
+            $this->assertSame([$newSkuId], array_map('intval', $itemsOf()->pluck('sku_id')->all()), '无 items 时明细不得被删');
+
+            // 6) 已审核（status=1）：整单只读
+            $conn->table('mfg_material_issue')->where('id', $docId)->update(['status' => 1]);
+            $audited = $controller->update(new FakeRequest(['remark' => '审核后改名']), $this->encodeId($docId));
+            $this->assertSame(422, (int) ($this->jsonBody($audited)['code'] ?? -1), '已审核单必须 422');
+            $this->assertSame('只改备注', $headerOf()->remark);
+        } finally {
+            $conn->table('mfg_material_issue_item')->where('issue_id', $docId)->delete();
+            $conn->table('mfg_material_issue')->where('id', $docId)->delete();
+            $conn->table('mfg_production_order')->where('id', $orderId)->delete();
+            $conn->table('product_sku')->whereIn('id', [$keepSkuId, $newSkuId])->delete();
+            $conn->table('product')->where('id', $productId)->delete();
+        }
+    }
+
+    /** 同一条不变量在委外发料单上的镜像（两端各修一次，回归也要各钉一次） */
+    public function testMfgSubcontractIssueUpdateDoesNotHalfWriteHeaderWhenItemsInvalid(): void
+    {
+        $suffix = (string) mt_rand(100000, 999999);
+        $subcontractId = SnowflakeService::generate();
+        $docId = SnowflakeService::generate();
+        $productId = SnowflakeService::generate();
+        $skuId = SnowflakeService::generate();
+        $conn = Capsule::connection();
+        try {
+            $product = new Product();
+            $product->id = $productId;
+            $product->code = 'B1SI-' . $suffix;
+            $product->name = '批1委外物料' . $suffix;
+            $product->save();
+            $sku = new ProductSku();
+            $sku->id = $skuId;
+            $sku->product_id = $productId;
+            $sku->sku_code = 'B1SIK-' . $suffix;
+            $sku->save();
+
+            $subcontract = new MfgSubcontract();
+            $subcontract->id = $subcontractId;
+            $subcontract->code = 'B1SC-' . $suffix;
+            $subcontract->supplier_id = 0;
+            $subcontract->product_id = $productId;
+            $subcontract->warehouse_id = 0;
+            $subcontract->save();
+
+            $doc = new MfgSubcontractIssue();
+            $doc->id = $docId;
+            $doc->code = 'B1SID-' . $suffix;
+            $doc->subcontract_id = $subcontractId;
+            $doc->warehouse_id = 0;
+            $doc->issue_date = date('Y-m-d');
+            $doc->status = 0;
+            $doc->remark = '原始备注';
+            $doc->save();
+
+            $controller = new SubcontractIssueController();
+            $bad = $controller->update(new FakeRequest([
+                'remark' => '被改',
+                'items' => [['product_id' => $productId, 'sku_id' => $skuId + 1, 'quantity' => 1]],
+            ]), $this->encodeId($docId));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '不存在的 SKU 必须 422');
+            $this->assertSame(
+                '原始备注',
+                MfgSubcontractIssue::query()->where('id', $docId)->first()->remark,
+                '422 时表头不得被半写'
+            );
+
+            $okResp = $controller->update(new FakeRequest([
+                'remark' => '改后',
+                'items' => [['product_id' => $productId, 'sku_id' => $skuId, 'quantity' => 2]],
+            ]), $this->encodeId($docId));
+            $this->assertSame(0, (int) ($this->jsonBody($okResp)['code'] ?? -1), $this->jsonBody($okResp)['message'] ?? '');
+            $this->assertSame('改后', MfgSubcontractIssue::query()->where('id', $docId)->first()->remark);
+            $this->assertSame(
+                [$skuId],
+                array_map('intval', $conn->table('mfg_subcontract_issue_item')->where('issue_id', $docId)->pluck('sku_id')->all())
+            );
+        } finally {
+            $conn->table('mfg_subcontract_issue_item')->where('issue_id', $docId)->delete();
+            $conn->table('mfg_subcontract_issue')->where('id', $docId)->delete();
+            $conn->table('mfg_subcontract')->where('id', $subcontractId)->delete();
+            $conn->table('product_sku')->where('id', $skuId)->delete();
+            $conn->table('product')->where('id', $productId)->delete();
         }
     }
 

@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * 取文档站凭据，**弱占位值一律按未配置处理**。
+ *
+ * .env.example 里预置的是 CHANGE_ME_* 占位串，而本文件是公开仓库的一部分 —— 照抄模板
+ * 上线等于「口令公开」（vendor Auth 用 md5 比对，反查即得），比留空更危险：留空时
+ * `Auth` 抛「缺少 secret_key」，文档站直接拒绝访问。故这里与 app/functions.php:142 的
+ * 弱占位判定同正则，命中即视为空，逼部署方显式设值（scripts/gen-env-keys.sh 会生成强随机值）。
+ */
+$credential = static function (string $key): string {
+    $value = (string) env($key, '');
+
+    return preg_match('/(change[-_]me|xxx)/i', $value) ? '' : $value;
+};
+
 return [
     'enable' => true,
     'apidoc' => [
@@ -21,8 +35,9 @@ return [
         'auto_register_routes' => false,
         'cache' => ['enable' => false],
         // 口令/密钥取自环境变量（.env / .env.docker，scripts/gen-env-keys.sh 生成强随机值）；
-        // 留空时仅文档站拒绝访问（vendor Auth 抛「缺少 secret_key」），不影响应用启动
-        'auth' => ['enable' => true, 'password' => env('APIDOC_PASSWORD', ''), 'secret_key' => env('APIDOC_SECRET_KEY', ''), 'expire' => 86400],
+        // 留空或仍是 CHANGE_ME_* 占位值时仅文档站拒绝访问（vendor Auth 抛「缺少 secret_key」），
+        // 不影响应用启动
+        'auth' => ['enable' => true, 'password' => $credential('APIDOC_PASSWORD'), 'secret_key' => $credential('APIDOC_SECRET_KEY'), 'expire' => 86400],
         'ignored_methods' => [],
          'params' => [
             // （选配）全局的请求Header

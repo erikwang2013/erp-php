@@ -6,7 +6,7 @@
 
 ## 1. システムアーキテクチャ
 
-> **機能リスト**：認証(login/register/refresh/logout + アカウントロック + セッション制限) | ダッシュボード(Redisキャッシュ) | ユーザーCRUD+一括+インポート | ロール権限(RBAC) | システム設定 | 操作監査(8プラットフォーム送信元) | ファイル(アップロード+エクスポート+マスキング) | セキュリティ(18層防御) | 運用(health/metrics/docs/Docker/CI)
+> **機能リスト**：認証(login/register/refresh/logout + アカウントロック + セッション制限) | ダッシュボード(Redisキャッシュ) | ユーザーCRUD+一括+インポート | ロール権限(RBAC) | システム設定 | 操作監査(8プラットフォーム送信元) | ファイル(アップロード+エクスポート+マスキング) | セキュリティ(7 層の多層防御、L0–L12 全景 + 35 類の攻撃検出器) | 運用(health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -59,9 +59,9 @@
 
 | 層 | ディレクトリ | 責務 |
 |---|------|------|
-| ルーティング | `config/route.php` | URL からコントローラーへのマッピング、中間ウェアのバインド、バージョン付きルート |
-| 中間ウェア | `app/middleware/` | 攻撃遮断(SecurityFilter)、レート制限(RateLimit)、認証(JWT)、認可(RBAC)、APIバージョン(ApiVersion) |
-| コントローラー | 14 個：Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (管理端) + Captcha/Auth (API v1) | リクエストパラメータ検証、業務ロジック呼び出し、レスポンス整形 |
+| ルーティング | `config/route.php` | URL からコントローラーへのマッピング、ミドルウェアのバインド、バージョン付きルート |
+| ミドルウェア | `app/middleware/` | クロスオリジン(Cors)、攻撃遮断(SecurityFilter)、レート制限(RateLimit)、链路トレース(TracingId)、認証(JWT)、認可(RBAC)、操作ログ(OperationLog)、オープンインターフェース署名(OpenApiAuth) 計 11 ファイル |
+| コントローラー | 管理端 15 個：Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook（ほかに基底クラス `BaseController`）+ API v1 3 個：Captcha/Auth/Product | リクエストパラメータ検証、業務ロジック呼び出し、レスポンス整形 |
 | 業務サービス | `app/service/` | 再利用可能な業務ロジック（予約） |
 | データモデル | `app/model/` | ORM マッピング、関連関係、フィールド暗号化/復号 |
 | 共通ユーティリティ | `app/common/` | Hashids、Snowflake、Encryption サービス |
@@ -79,14 +79,17 @@ Route 匹配
   │
   ▼
 中间件链:
+  Cors ────────────────► 处理 OPTIONS 预检，注入 CORS 响应头
+  │
+  ▼
   SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
   ▼
   RateLimit ───────────► Redis 滑动窗口限流
   │ (失败返回 429 + Retry-After 头)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  TracingId ──────────► 生成 X-Trace-Id，贯穿全链路
+  │ (版本号置于 URL 路径 /admin/v1 /api/v1 /open/v1，无版本头中间件)
   ▼
   AdminAuth ──────────► JWT 验证，注入 $request->adminId
   │ (失败返回 401)
@@ -169,58 +172,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 URL 規範
 
 ```
-公开接口:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+公开接口:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 管理端:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 资源路由:
-  GET    /admin/user          → 列表
-  POST   /admin/user          → 创建
-  GET    /admin/user/{hashid} → 详情
-  PUT    /admin/user/{hashid} → 更新
-  DELETE /admin/user/{hashid} → 删除（需密码确认）
+  GET    /admin/v1/user          → 列表
+  POST   /admin/v1/user          → 创建
+  GET    /admin/v1/user/{hashid} → 详情
+  PUT    /admin/v1/user/{hashid} → 更新
+  DELETE /admin/v1/user/{hashid} → 删除（需密码确认）
 
-系统配置:  /admin/config[/{hashid}]
-操作日志:  /admin/log
-个人中心:  /admin/profile[/password|/logout]
-导入:     /admin/import/users
-上传:     /admin/upload
-批量:     /admin/user/batch/{destroy|status}
+系统配置:  /admin/v1/config[/{hashid}]
+操作日志:  /admin/v1/log
+个人中心:  /admin/v1/profile[/password|/logout]
+导入:     /admin/v1/import/users
+上传:     /admin/v1/upload
+批量:     /admin/v1/user/batch/{destroy|status}
 文档:     /api/docs     (OpenAPI 3.0)
 健康:     /health
 ```
 
 ### 4.2 API バージョン戦略
 
-API バージョンはリクエストヘッダーで制御し、**URL パスには現れません**：
-
-```http
-API-Version: v1
-```
+API バージョンは**URL パスに配置**し、バージョンリクエストヘッダーは使用しません：管理画面 `/admin/v1`、クライアント `/api/v1`、オープンインターフェース `/open/v1`。
 
 | 仕組み | 説明 |
 |------|------|
-| デフォルトバージョン | `API-Version` ヘッダー未携帯時はデフォルト `v1` |
-| 検証 | `ApiVersion` 中間ウェアが検証し、未サポートのバージョンは 400 を返す |
-| ルーティング | `v()` ヘルパー関数がバージョンに応じてコントローラークラスを動的解決 |
+| バージョンの位置 | URL パス、例 `/api/v1/auth/login` |
+| ルートグループ | `config/route.php` の `Route::group('/api/v1', …)` がコントローラーを直接バインド |
 | ディレクトリ | コントローラーをバージョンごとに整理: `app/api/{version}/controller/` |
+| バージョンヘッダーミドルウェア | 歴史的な `v()` 動的解決と `ApiVersion` リクエストヘッダーミドルウェアは**削除済み** |
 
 拡張例——v2 API の追加：
 1. `app/api/v2/controller/AuthController.php` を作成
-2. `ApiVersion` 中間ウェアの `SUPPORTED` 定数に `'v2'` を追加
-3. ルート定義は修正不要
+2. `config/route.php` に `Route::group('/api/v2', …)` グループを登録しコントローラーを直バインド
+3. バージョンリクエストヘッダーはなし、ルートグループ自体がバージョン境界
 
 ```bash
-# 使用 v1
-curl -H "API-Version: v1" /api/auth/login
+# v1 を使用
+curl http://localhost:8788/api/v1/auth/login
 
-# 使用 v2
-curl -H "API-Version: v2" /api/auth/login
-
-# 不传，默认 v1
-curl /api/auth/login
+# v2 を使用
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 レート制限戦略
@@ -230,8 +226,8 @@ Redis Sorted Set スライディングウィンドウアルゴリズムベース
 | インターフェース | 制限 |
 |------|------|
 | デフォルト | 60 回/分/IP/ルート |
-| POST /api/auth/login | 10 回/分 |
-| POST /api/auth/register | 5 回/分 |
+| POST /api/v1/auth/login | 10 回/分 |
+| POST /api/v1/auth/register | 5 回/分 |
 
 超過時は 429 を返し、レスポンスヘッダーに X-RateLimit-Limit / Remaining / Reset / Retry-After を含む。
 
@@ -260,12 +256,12 @@ Redis Sorted Set スライディングウィンドウアルゴリズムベース
 ```
 客户端                               服务端
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② 用户点击图中文字位置              │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -274,7 +270,7 @@ Redis Sorted Set スライディングウィンドウアルゴリズムベース
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -302,7 +298,7 @@ Redis Sorted Set スライディングウィンドウアルゴリズムベース
 ```
 客户端                           服务端
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -356,11 +352,11 @@ Redis Sorted Set スライディングウィンドウアルゴリズムベース
 | 層面 | 対策 |
 |------|------|
 | メソッド制限 | SecurityFilter HTTP メソッドホワイトリスト、GET/POST/PUT/DELETE/OPTIONS/HEAD のみ許可、非標準メソッドは 405 |
-| 攻撃遮断 | SecurityFilter 中間ウェア、XSS/SQLインジェクション/パストラバーサル/コマンドインジェクション/CSRF 検出遮断 |
+| 攻撃遮断 | SecurityFilter ミドルウェア、XSS/SQLインジェクション/パストラバーサル/コマンドインジェクション/CSRF 検出遮断 |
 | 人機検証 | クリック検証コード（Click Captcha）、ログイン/登録で強制検証 |
 | アカウントロック | ログイン失敗 5 回連続で 15 分間ロック、ロック中は 429 を返す |
 | セッション制限 | 同一ユーザーの同時 Token は最大 3 個、超過時は最古の Token を自動ブラックリスト化 |
-| レート制限 | RateLimit 中間ウェア、Redis スライディングウィンドウ、Lua 原子化 |
+| レート制限 | RateLimit ミドルウェア、Redis スライディングウィンドウ、Lua 原子化 |
 | CSP | Content-Security-Policy ヘッダーでリソース送信元を制限、XSS とデータ注入を防ぐ |
 | 操作確認 | 削除などの機密操作は現在のユーザーのパスワード入力による二重確認が必要 |
 | 転送 | HTTPS + JWT Bearer Token |
@@ -398,7 +394,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 Excel エクスポート
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
+请求: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() 查询数据 (limit 10000)
   → 脱敏敏感字段
   → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
@@ -408,7 +404,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.2 PDF エクスポート
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
+请求: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
   → Dompdf 渲染 A4 横向
   → 写入 runtime/tmp/ → download 响应

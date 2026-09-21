@@ -11,10 +11,10 @@
 
 | 차원 | 현황 | 팀에 주는 의미 |
 |------|------|--------------|
-| 백엔드 | webman (Workerman) PHP 8.3+, **22개 업무 모듈**, 121+ 컨트롤러, 24개 서비스, 161개 모델, 163개 테이블, 12개 미들웨어(schema는 database/install.sql이 유일한 사실 소스) | 모놀리스 규모가 크므로 업무 도메인별 분업, 단일 agent 컨텍스트 폭발 방지 |
-| 프론트엔드 | Flutter **97페이지**(Web/모바일) + HarmonyOS **34페이지**, 전 모듈 커버 | 양단 병행 유지보수, 전담 프론트엔드 역할 필요 |
-| 품질 베이스라인 | PHPUnit 137 테스트 / 805 assertion, PHPStan + baseline, CS-Fixer, CI 다중 버전 매트릭스 | 이미 규율 확보, 테스트/리뷰 역할이 파이프라인에 직접 내장 |
-| 버전 매트릭스 | `lite` / `standard` / `full` 3개 브랜치(62/72/163 테이블) | 변경 시 브랜치 간 동기화 고려 필요, 버전 코디네이션 필요 |
+| 백엔드 | webman (Workerman) PHP 8.3+, **23개 업무 모듈**, 159 컨트롤러, 63 서비스, 224 모델, 227개 테이블, 11개 미들웨어(schema는 database/install.sql이 유일한 사실 소스) | 모놀리스 규모가 크므로 업무 도메인별 분업, 단일 agent 컨텍스트 폭발 방지 |
+| 프론트엔드 | Flutter **102개 메뉴 라우트**(`lib/app/config/menu_config.dart`; `main.dart`의 getPages는 총 110개 = 메뉴 102개 + 로그인/개인 센터/상세 6개) + HarmonyOS **41페이지**(`main_pages.json`), 전 모듈 커버 | 양단 병행 유지보수, 전담 프론트엔드 역할 필요 |
+| 품질 베이스라인 | PHPUnit 1001 테스트 / 4726 어서션, PHPStan + baseline, CS-Fixer, CI 다중 버전 매트릭스 | 이미 규율 확보, 테스트/리뷰 역할이 파이프라인에 직접 내장 |
+| 버전 매트릭스 | `main` 한 개 브랜치만 존재(`lite` / `standard` / `full`은 삭제됨, 아카이브 커밋 `eea90c0`은 여전히 `main` 이력에 있음) | 동기화할 버전 브랜치가 없으며 버전 차이는 tag로 추적, `docs/EDITIONS.md`「브랜치 전략」 참고 |
 | 로드맵 | P0~P3 이미 전달(종합 점수 89/100), 일상 반복과 진화 단계 진입 | 팀 규모는 태스크 유형별로 신축, 프로젝트제 대편성 아님 |
 | 기존 시설 | `.claude/agents/`(planner / sparc / testing / swarm / consensus), `.claude-flow`(hierarchical-mesh, 상한 15 agents, consensus 조정), hooks + 메모리 | 팀을 기존 설정에 바로 탑재, 새로 구축하지 않음 |
 
@@ -26,27 +26,27 @@
 
 | 역할 | 기존 agent 대응 | 책임(본 프로젝트 기준) |
 |------|-----------------|--------------------|
-| **프로젝트 매니저 Lead** | `planner` / `swarm/hierarchical-coordinator` | 요구사항 분해 → 라우팅 → 수락; 22개 모듈 태스크 큐 유지; pipeline / fan-out / supervisor 모드 결정; 역할 간 메시지 중계 |
-| **시스템 아키텍트** | `sparc/architecture` | 테이블 구조 설계(163개 테이블, schema는 database/install.sql이 유일한 사실 소스); 모듈 간 데이터 흐름(구매 입고→재고→매입채무, 판매 출고→매출채권→출고 등 체인); 마이크로서비스 분리 경계 결정 |
-| **백엔드 개발자** | `core` / 커스텀 `backend-dev` | 컨트롤러 / 서비스 / 모델 구현; `app/service` 계층과 미들웨어 체인(Locale→Cors→SecurityFilter→RateLimit→TracingId→업무 미들웨어) 준수 |
-| **테스트 엔지니어** | `testing/tdd-london-swarm` + `production-validator` | PHPUnit 케이스 우선 작성(엔진 경계 테스트); 3개 브랜치 회귀 검증; `tests/` 커버리지 공백 보강 |
-| **코드 리뷰어** | `consensus/security-manager` | PHPStan baseline 신규 추가 금지, CS-Fixer 준수, 18계층 보안 패턴 검사; 커밋 전 품질 게이트 수문장 |
+| **프로젝트 매니저 Lead** | `planner` / `swarm/hierarchical-coordinator` | 요구사항 분해 → 라우팅 → 수락; 23개 모듈 태스크 큐 유지; pipeline / fan-out / supervisor 모드 결정; 역할 간 메시지 중계 |
+| **시스템 아키텍트** | `sparc/architecture` | 테이블 구조 설계(227개 테이블, schema는 database/install.sql이 유일한 사실 소스); 모듈 간 데이터 흐름(구매 입고→재고→매입채무, 판매 출고→매출채권→출고 등 체인); 마이크로서비스 분리 경계 결정 |
+| **백엔드 개발자** | `core` / 커스텀 `backend-dev` | 컨트롤러 / 서비스 / 모델 구현; `app/service` 계층과 미들웨어 체인(Cors→SecurityFilter→RateLimit→TracingId→업무 미들웨어) 준수 |
+| **테스트 엔지니어** | `testing/tdd-london-swarm` + `production-validator` | PHPUnit 케이스 우선 작성(엔진 경계 테스트); `main` 단일 라인 회귀 검증; `tests/` 커버리지 공백 보강 |
+| **코드 리뷰어** | `consensus/security-manager` | PHPStan baseline 신규 추가 금지, CS-Fixer 준수, 7계층 심층 방어 보안 패턴 검사; 커밋 전 품질 게이트 수문장 |
 
 ### 2.2 전문 팀(태스크 유형별 차출, 4개 역할)
 
 | 역할 | 기존 agent 대응 | 투입 시나리오 | 대표 태스크 |
 |------|-----------------|----------|----------|
 | **업무 엔진 전문가** | 커스텀 `business-engineer` | 재무 / 급여 / MRP 등 알고리즘형 모듈 | 복식 부기 엔진, 급여 계산 엔진, MRP 엔진의 알고리즘 보강과 경계 처리(A등급 "산업 수준" 요구) |
-| **프론트엔드 엔지니어(Flutter)** | 커스텀 `frontend-flutter` | `apps/flutter/` 관련 모든 변경 | Web 관리 패널 페이지, GetX 상태, ApiService/내보내기 연동, 97페이지 유지보수 |
-| **프론트엔드 엔지니어(HarmonyOS)** | 커스텀 `frontend-harmonyos` | `apps/harmonyos/` 관련 모든 변경 | ArkTS 페이지, token 무감지 갱신, Flutter 기능 세트와 정렬(34페이지 유지보수) |
-| **보안/DevOps 엔지니어** | `consensus/security-manager` + `performance-benchmarker` | 보안 강화, 성능, 배포 | 18계층 방어 회귀, Docker/gRPC 하위 서비스, 마이그레이션 롤백, 관측성, Prometheus 지표 |
+| **프론트엔드 엔지니어(Flutter)** | 커스텀 `frontend-flutter` | `apps/flutter/` 관련 모든 변경 | Web 관리 패널 페이지, GetX 상태, ApiService/내보내기 연동, 102개 라우트 유지보수 |
+| **프론트엔드 엔지니어(HarmonyOS)** | 커스텀 `frontend-harmonyos` | `apps/harmonyos/` 관련 모든 변경 | ArkTS 페이지, token 무감지 갱신, Flutter 기능 세트와 정렬(41페이지 유지보수) |
+| **보안/DevOps 엔지니어** | `consensus/security-manager` + `performance-benchmarker` | 보안 강화, 성능, 배포 | 7계층 심층 방어 회귀, Docker/gRPC 하위 서비스, 마이그레이션 롤백, 관측성, Prometheus 지표 |
 
 ### 2.3 주문형 역할(태스크 트리거, 2개 역할)
 
 | 역할 | 기존 agent 대응 | 투입 조건 |
 |------|-----------------|----------|
 | **리서처** | 커스텀 `researcher` | 신규 모듈/신규 기능 설계 전: 경쟁사 조사, `docs/API.md`·`docs/FUNCTIONS.md`와 구현 차이 비교, 설계 인풋 산출 |
-| **버전 코디네이터** | 커스텀 `edition-coordinator` | `lite/standard/full` 차이 관련: 3개 브랜치 동기화, `docs/EDITIONS.md` 매트릭스 검증, 브랜치 간 회귀 |
+| **버전 코디네이터** | 커스텀 `edition-coordinator` | 버전 매트릭스 변경 관련: `docs/EDITIONS.md` 비교표 검증(`lite`/`standard` 열은 계획값이며 대응 브랜치 없음), 버전 tag와 릴리스 노트 일치성 |
 
 ---
 
@@ -78,18 +78,18 @@
 | 마이크로서비스 분리 / 대규모 리팩터링 | supervisor | Lead ↔ 아키텍트 + 백엔드 + 리뷰 다회 |
 | 보안 / 성능 특화 | 단일 스레드 심층 분석 | Lead → 보안/DevOps 엔지니어 → 리뷰 |
 | Bug 수정(단일 파일 / 1-2줄) | 팀 미투입 | Lead가 직접 처리, 또는 1개 agent로 완료 |
-| 3개 브랜치 차이 / 버전 릴리스 | pipeline | Lead → 버전 코디네이터 → 테스트(브랜치 간 회귀) → 리뷰 |
+| 버전 tag 차이 / 버전 릴리스 | pipeline | Lead → 버전 코디네이터 → 테스트(main 단일 라인 회귀) → 리뷰 |
 
 ### 3.4 품질 게이트(커밋 전 필수, 리뷰어가 수문장)
 
 ```
-phpunit            # 137 测试 / 805 断言全绿，新增用例随改动提交
-phpstan            # 不允许新增 baseline 之外的问题
-php-cs-fixer       # --dry-run 通过
-composer audit     # 无高危依赖漏洞
+phpunit            # 1001 테스트 / 4726 어서션 전부 통과, 신규 케이스는 변경과 함께 커밋
+phpstan            # baseline 밖의 신규 문제 추가 금지
+php-cs-fixer       # --dry-run 통과
+composer audit     # 고위험 의존성 취약점 없음
 ```
 
-데이터베이스 관련 변경은 반드시 아키텍트를 거쳐야 합니다(163개 테이블, schema는 database/install.sql이 유일한 사실 소스); 프론트엔드 관련 변경은 Flutter `flutter analyze` 0 error / 0 warning를 반드시 실행해야 합니다.
+데이터베이스 관련 변경은 반드시 아키텍트를 거쳐야 합니다(227개 테이블, schema는 database/install.sql이 유일한 사실 소스); 프론트엔드 관련 변경은 Flutter `flutter analyze` 0 error / 0 warning를 반드시 실행해야 합니다.
 
 ---
 

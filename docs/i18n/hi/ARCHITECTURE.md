@@ -20,8 +20,8 @@ flowchart TB
     end
 
     subgraph "एप्लिकेशन परत (webman v2)"
-        C_LOC["Locale मिडलवेयर<br/>Accept-Language स्वचालित पहचान"]
-        C0["ApiVersion मिडलवेयर<br/>API-Version हेडर सत्यापन"]
+        C_LOC["I18n::getLocale()<br/>Accept-Language पार्सिंग · 13 भाषाएँ"]
+        C0["पथ-आधारित संस्करण<br/>/api/v1 · /admin/v1 (कोई संस्करण हेडर नहीं)"]
         C1["AdminAuth मिडलवेयर<br/>JWT सत्यापन"]
         C2["AdminPermission मिडलवेयर<br/>RBAC अनुमति सत्यापन"]
         C3["प्रबंधन Controller<br/>Dashboard / User / Role / Permission"]
@@ -80,10 +80,10 @@ flowchart TD
     end
 
     subgraph "मिडलवेयर परत Middleware Layer"
-        M_LOC["Locale<br/>Accept-Language स्वचालित पहचान<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>Redis स्लाइडिंग विंडो रेट लिमिट<br/>X-RateLimit रिस्पॉन्स हेडर"]
+        M_CR["Cors<br/>क्रॉस-ओरिजिन प्रोसेसिंग / OPTIONS प्रीफ़्लाइट"]
         M_SF["SecurityFilter<br/>हमले की पहचान और रोकथाम<br/>XSS/SQL इंजेक्शन/पाथ ट्रैवर्सल/CSRF"]
-        M0["ApiVersion<br/>API संस्करण सत्यापन<br/>apiVersion इंजेक्शन"]
+        M_RL["RateLimit<br/>Redis स्लाइडिंग विंडो रेट लिमिट<br/>X-RateLimit रिस्पॉन्स हेडर"]
+        M_TID["TracingId<br/>X-Trace-Id जनरेट<br/>पूरी चेन में"]
         M1["AdminAuth<br/>JWT Token सत्यापन<br/>adminId इंजेक्शन"]
         M2["AdminPermission<br/>RBAC प्रमाणीकरण<br/>method.path मिलान<br/>Redis 60s अनुमति कैश"]
     end
@@ -103,6 +103,7 @@ flowchart TD
         S1["HashidsService<br/>ID एन्कोडिंग/डिकोडिंग"]
         S2["SnowflakeService<br/>वैश्विक अद्वितीय ID जनरेशन"]
         S3["EncryptionService<br/>एन्क्रिप्शन/डिक्रिप्शन + मास्किंग"]
+        M_LOC["I18n::getLocale()<br/>Accept-Language पार्सिंग (मिडलवेयर नहीं)<br/>13 भाषाएँ zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "मॉडल परत Model Layer"
@@ -119,11 +120,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +134,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +149,23 @@ flowchart TD
 
 | परत | निर्देशिका | विवरण |
 |------|------|------|
-| व्यावसायिक कंट्रोलर | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70, मॉड्यूल के अनुसार विभाजित, व्यावसायिक अनुरोधों को संभालते हैं |
-| व्यावसायिक सेवा | `app/service/{inventory,finance,notification}/` | इन्वेंटरी प्रवेश/निकास + लागत गणना, वित्तीय प्राप्य/देय + निपटान, नोटिफिकेशन भेजना |
+| व्यावसायिक कंट्रोलर | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 (23 व्यावसायिक क्षेत्र, इसके अतिरिक्त शीर्ष-स्तरीय Install / Index), मॉड्यूल के अनुसार विभाजित, व्यावसायिक अनुरोधों को संभालते हैं |
+| व्यावसायिक सेवा | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 सेवा क्लास / 64 फ़ाइल / 20 मॉड्यूल उप-निर्देशिकाएँ; इन्वेंटरी प्रवेश/निकास + लागत गणना, वित्तीय प्राप्य/देय + निपटान, नोटिफिकेशन भेजना सहित |
+
+### अंतर्राष्ट्रीयकरण (13 भाषाएँ)
+
+भाषा पार्सिंग `app/common/I18n.php` के `getLocale()` में है (`I18n::trans()` द्वारा कॉल होता है, **मिडलवेयर नहीं**): अनुरोध हेडर `Accept-Language` का पहला टैग लिया जाता है, मुख्य भाषा उप-टैग मैपिंग (`zh*` → `zh_CN`)। फ्रंटएंड-बैकएंड शब्दकोश का कार्यविभाजन:
+
+| पक्ष | शब्दकोश स्थान | परिमाण | जनरेटर |
+|----|----------|------|--------|
+| बैकएंड | `resource/translations/<locale>/{common,modules,validation}.php` | 13 भाषा निर्देशिकाएँ; `zh_CN` 565 प्रविष्टियाँ, शेष 11 भाषाओं में प्रत्येक 544, `en` 30 (लीफ प्रविष्टि गणना, `validation.php` के `attributes` फ़ील्ड लेबल गिने जाते हैं, उनकी समूह कुंजियाँ नहीं) | `scripts/gen-be-locales.mjs` |
+| Angular | स्रोत `apps/angular/src/app/core/zh-en/part1..4.ts` → उत्पाद `core/zh-<code>.ts` | स्रोत शब्दकोश 1456 प्रविष्टियाँ | `scripts/gen-fe-locales.mjs --app angular` |
+| React | स्रोत `apps/react/src/lib/i18n/zhEn.ts` → उत्पाद `lib/i18n/zh<Code>.ts` | स्रोत शब्दकोश 1451 प्रविष्टियाँ | `scripts/gen-fe-locales.mjs --app react` |
+
+- भाषाएँ: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`।
+- बैकएंड में "अंग्रेज़ी ही key": `en` के common/modules खाली रहते हैं; `validation.php` की कुंजियाँ फ्रेमवर्क नियम नाम हैं, केवल मान का अनुवाद होता है।
+- फ्रंटएंड की 11 नई भाषाओं के शब्दकोश प्रत्येक `import()` से गतिशील रूप से स्वतंत्र chunk के रूप में लोड होते हैं, अनुपलब्ध प्रविष्टि पर मूल चीनी पाठ पर वापसी।
+- भाषा बदलने का अर्थ है `Accept-Language` बदलना, बैकएंड भाषा-अनुसार पाठ लौटाता है (`app/common/I18n.php` + `config/translation.php`)।
 
 ---
 
@@ -158,10 +175,10 @@ flowchart TD
 sequenceDiagram
     participant C as क्लाइंट
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -170,10 +187,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: HTTPS अनुरोध<br/>Header: API-Version: v1
-    N->>MW_LOC: फॉरवर्ड
-    MW_LOC->>MW_LOC: Accept-Language पार्स करें<br/>locale सेट करें
-    MW_LOC->>MW_SF: पास
+    C->>N: HTTPS अनुरोध<br/>पथ /api/v1 या /admin/v1 (कोई संस्करण हेडर नहीं)
+    N->>MW_CR: फॉरवर्ड
+    MW_CR->>MW_CR: OPTIONS प्रीफ़्लाइट प्रोसेस<br/>CORS रिस्पॉन्स हेडर इंजेक्ट
+    MW_CR->>MW_SF: पास
 
     alt गैर-मानक HTTP विधि (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +208,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: पास
-
-    alt असमर्थित संस्करण
-        MW0-->>C: 400 असमर्थित API संस्करण
-    else संस्करण मान्य
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: पास
+    MW_TID->>MW_TID: X-Trace-Id जनरेट<br/>रिस्पॉन्स हेडर में इंजेक्ट
+    MW_TID->>MW1: पास
 
     alt Token अनुपलब्ध या अमान्य
         MW1-->>C: 401 Unauthorized
@@ -249,7 +262,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === चरण 1: कैप्चा प्राप्त करें ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: 300×200 बैकग्राउंड छवि बनाएँ
     CAP->>CAP: N चीनी लक्ष्य यादृच्छिक रूप से रखें
@@ -264,7 +277,7 @@ sequenceDiagram
     CL->>CL: clicks एकत्र करें: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === चरण 3: लॉगिन ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt कैप्चा गलत
         CAP-->>SV: false
@@ -284,7 +297,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === बाद के अनुरोध ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { dashboard data }
@@ -539,7 +552,7 @@ sequenceDiagram
     participant FS as फ़ाइल सिस्टम
 
     Note over C,FS: === Excel निर्यात ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: डेटा
     CTL->>CTL: संवेदनशील फ़ील्ड डिक्रिप्ट करें
@@ -549,7 +562,7 @@ sequenceDiagram
     CTL-->>C: फ़ाइल डाउनलोड
 
     Note over C,FS: === PDF निर्यात ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>पेज हेडर: शीर्षक+कॉपीराइट+समय<br/>सामग्री: तालिका या कार्ड<br/>फुटर: हटाने योग्य नहीं कॉपीराइट
     CTL->>CTL: Dompdf रेंडर A4 लैंडस्केप
     CTL->>FS: runtime/tmp/export_*.pdf लिखें
@@ -715,7 +728,7 @@ graph TB
     end
 
     subgraph Gateway["API गेटवे परत"]
-        MW["मिडलवेयर चेन<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["मिडलवेयर चेन<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>रूट समूह: AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["व्यावसायिक मॉड्यूल परत"]
@@ -742,7 +755,7 @@ graph TB
     end
 
     subgraph Data["डेटा परत"]
-        MySQL["MySQL 8.0<br/>163 व्यावसायिक तालिकाएँ"]
+        MySQL["MySQL 8.0<br/>227 व्यावसायिक तालिकाएँ"]
         Redis["Redis 7<br/>कैश/रेट लिमिट/Session"]
         ES["Elasticsearch 8<br/>फुल-टेक्स्ट खोज"]
     end
@@ -957,7 +970,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | आयाम | स्कोर | प्रमुख अंतर |
 |------|------|----------|
 | बैकएंड API | 85/100 | कई मॉड्यूल CRUD कंकाल हैं, व्यावसायिक गणना इंजन की कमी |
-| सुरक्षा सुरक्षा | 95/100 | 18 परत गहन रक्षा, उत्पादन-तैयार |
+| सुरक्षा सुरक्षा | 95/100 | 7 परत गहन रक्षा (L0–L12 पैनोरमा), उत्पादन के लिए तैयार |
 | फ्रंटएंड UI | 20/100 | **सबसे बड़ी कमी**: Flutter 12 पेज ~20% मॉड्यूल कवर करते हैं, Web प्रबंधन पैनल अनुपलब्ध |
 | ऑप्स इकोसिस्टम | 70/100 | माइग्रेशन रोलबैक, स्वचालित बैकअप, ऑब्ज़र्वेबिलिटी की कमी |
 | व्यावसायिक गहराई | 55/100 | वित्त/HR/निर्माण मुख्य एल्गोरिदम लागू नहीं |
@@ -979,10 +992,10 @@ P0(3-4 सप्ताह) → P1(4-6 सप्ताह) → P2(1-2 सप्�
 ### 21.3 मिडलवेयर चेन विकास
 
 ```
-वर्तमान:   Locale → Cors → SecurityFilter → RateLimit → TracingId → {रूट समूह}
-P1 के बाद:  Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {रूट समूह}
-P2 के बाद:  Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {रूट समूह}
-P3 के बाद:  Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {रूट समूह}
+वर्तमान:   Cors → SecurityFilter → RateLimit → TracingId → {रूट समूह}
+P1 के बाद:  Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {रूट समूह}
+P2 के बाद:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {रूट समूह}
+P3 के बाद:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {रूट समूह}
 ```
 
 ### 21.4 P0 लक्ष्य वास्तुकला — Flutter Web प्रबंधन पैनल
@@ -1028,25 +1041,25 @@ SaaS बिलिंग, टेनेंट सेल्फ-सर्विस �
 निर्णय आधार (2026-08 समीक्षा):
 - मौजूदा डिप्लॉयमेंट लगभग सभी सिंगल-टेनेंट हैं, वायर-अप अनावश्यक आइसोलेशन जटिलता और रिग्रेशन जोखिम लाएगा;
 - वर्तमान कंकाल में तकनीकी खामियाँ हैं (22.4 देखें), "वायर-अप = आइसोलेशन" सही नहीं है, पहले डिज़ाइन सुधार पूरा करना आवश्यक है;
-- आइसोलेशन के लिए 163 तालिकाओं में से व्यावसायिक तालिकाओं में एक-एक करके कॉलम जोड़ने और एक-एक मॉडल सक्षम करने की आवश्यकता है, लागत "न्यूनतम वायर-अप" से कहीं अधिक है।
+- आइसोलेशन के लिए 227 तालिकाओं में से व्यावसायिक तालिकाओं में एक-एक करके कॉलम जोड़ने और एक-एक मॉडल सक्षम करने की आवश्यकता है, लागत "न्यूनतम वायर-अप" से कहीं अधिक है।
 
 ### 22.2 वर्तमान तथ्य (कोड और कॉन्फ़िग सत्यापन)
 
 | आइटम | वर्तमान स्थिति |
 |----|------|
-| `app/middleware/TenantScope.php` | मौजूद है, पंजीकृत नहीं; `X-Tenant-Id` हेडर से टेनेंट पढ़ता है, हेडर अनुपलब्ध होने पर सीधे पास करता है |
-| `app/model/concerns/TenantScope.php` | मौजूद है, कोई मॉडल उपयोग नहीं करता; `bootTenantScope()` वैश्विक स्कोप केवल टेनेंट सेट होने पर फ़िल्टर करता है |
-| `config/middleware.php` | वैश्विक चेन: Locale → Cors → SecurityFilter → RateLimit → TracingId, कोई TenantScope नहीं |
-| `config/route.php` /admin समूह | AdminAuth → AdminPermission → OperationLog, कोई TenantScope नहीं |
+| `app/middleware/TenantScope.php` | मौजूद है, पंजीकृत नहीं; `X-Tenant-Code` हेडर से टेनेंट कोड पढ़कर `erp_tenant` में खोजता है और संदर्भ में इंजेक्ट करता है, हेडर अनुपलब्ध होने पर सीधे पास करता है |
+| `app/model/concerns/TenantScope.php` | मौजूद है; 4 वित्त मॉडल (`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`, कंपनी-परिवार `tenantScopeByCompany()` true लौटाते हैं) उपयोग करते हैं, `company_id` से फ़िल्टर करते हैं; चूँकि मिडलवेयर पंजीकृत नहीं है और अनुरोध संदर्भ इंजेक्ट नहीं होता, वैश्विक स्कोप अभी प्रभावी नहीं है |
+| `config/middleware.php` | वैश्विक चेन: Cors → SecurityFilter → RateLimit → TracingId, कोई TenantScope नहीं |
+| `config/route.php` /admin/v1 समूह | AdminAuth → AdminPermission → OperationLog, कोई TenantScope नहीं |
 | JWT पेलोड | केवल `sub` / `username` / `token_type`, **कोई tenant_id दावा नहीं** (`app/api/v1/controller/AuthController.php`) |
 | डेटाबेस | **पूरे डेटाबेस में कोई tenant_id कॉलम नहीं** (install.sql में भी नहीं) |
-| मॉडल | **कोई भी मॉडल TenantScope trait का उपयोग नहीं करता** |
+| मॉडल | 4 वित्त मॉडल `TenantScope` trait का उपयोग करते हैं (कंपनी-परिवार, `company_id` फ़िल्टर) — पायलट आइसोलेशन; टेनेंट संदर्भ इंजेक्ट न होने पर कोई फ़िल्टर नहीं लगता |
 
 ### 22.3 सक्षम करने के चरण (आरक्षित संदर्भ, इस चरण में निष्पादित नहीं)
 
-1. मिडलवेयर पंजीकृत करें: `config/route.php` के /admin समूह में `middleware()` में जोड़ें
+1. मिडलवेयर पंजीकृत करें: `config/route.php` के /admin/v1 समूह में `middleware()` में जोड़ें
    `app\middleware\TenantScope::class` (AdminAuth के बाद रखें, सुनिश्चित करें कि प्रमाणीकृत है)।
-2. अनुरोधकर्ता अनुरोध हेडर में `X-Tenant-Id` (int टेनेंट ID) भेजे।
+2. अनुरोधकर्ता अनुरोध हेडर में `X-Tenant-Code` (टेनेंट कोड स्ट्रिंग) भेजे।
 3. आइसोलेशन आवश्यक व्यावसायिक तालिकाओं में `tenant_id` कॉलम (BIGINT + इंडेक्स) जोड़ें और मौजूदा डेटा बैकफ़िल करें;
    डिक्शनरी/सिस्टम तालिकाएँ (जैसे `erp_admin_user`, `erp_role`, `erp_permission`) आइसोलेट नहीं होतीं।
 4. आइसोलेशन आवश्यक मॉडल वर्गों में `use app\model\concerns\TenantScope;` जोड़ें, स्वचालित रूप से वर्तमान टेनेंट द्वारा फ़िल्टर होगा।
@@ -1055,15 +1068,18 @@ SaaS बिलिंग, टेनेंट सेल्फ-सर्विस �
 
 ### 22.4 ज्ञात तकनीकी सीमाएँ (सक्षम करने से पहले हल करना अनिवार्य)
 
-- **स्टैटिक ट्रांसमिशन चेन टूटना (PHP 8.3 पर परीक्षित)**: मिडलवेयर trait नाम के माध्यम से `setCurrentTenantId()` कॉल करता है,
-  जो trait की स्वयं की स्टैटिक प्रतिलिपि में लिखता है, trait का उपयोग करने वाला मॉडल वर्ग इसे पढ़ नहीं पाता, क्वेरी फ़िल्टर नहीं होती।
-  सक्षम करते समय अनुरोध संदर्भ-आधारित इंजेक्शन (जैसे `request()->tenantId`) में बदलना होगा।
-- **स्टैटिक वैश्विक स्थिति क्रॉस-टॉक**: Workerman रेसिडेंट प्रोसेस है, स्टैटिक प्रॉपर्टी अनुरोधों के बीच साझा होती हैं; यदि कोरुटीन मोड
-  (Swoole/Swow) सक्षम हो तो क्रॉस-टेनेंट डेटा क्रॉस-टॉक होगा, अनुरोध-स्तर बाइंडिंग (`context()` / अनुरोध ऑब्जेक्ट) में बदलना होगा।
+- **ट्रस्ट बाउंडरी (पंजीकरण से पहले हल करना अनिवार्य)**: टेनेंट संदर्भ का स्रोत `X-Tenant-Code` अनुरोध हेडर है, जो **जाली बनाई जा सकती है**;
+  `erp_admin_user` का कंपनी/टेनेंट से बाइंडिंग (एडमिन की संबद्धता निर्धारण) स्थापित होने से पहले मिडलवेयर सक्षम करने पर
+  अधिकार-उल्लंघन वाला डेटा-प्लेन गैप बनेगा (कोई भी प्रमाणित एडमिन मनमाना टेनेंट घोषित करके उसका डेटा पढ़ सकता है)।
+- **स्टैटिक ट्रांसमिशन चेन टूटना (PHP 8.3 पर परीक्षित) P2-4 B5 फ़िक्स संस्करण से प्रतिस्थापित हो चुका है**: `TenantScope` trait
+  अब अनुरोध संदर्भ इंजेक्शन (`request()->tenantId` / `companyId`) पर चलता है, उस पथ में कोई स्टैटिक स्थिति नहीं है,
+  रेसिडेंट प्रोसेस में अनुरोधों के बीच क्रॉस-टॉक इसके साथ समाप्त हो गया; trait नाम का स्टैटिक फ़साड `@deprecated` चिह्नित है, केवल
+  टेस्ट/CLI बैकस्टॉप के लिए।
 - **डेटा प्लेन गैप**: पूरे डेटाबेस में tenant_id कॉलम नहीं है, तालिका-दर-तालिका माइग्रेशन आवश्यक है; क्रॉस-टेनेंट साझा डिक्शनरी तालिकाओं के लिए छूट तंत्र डिज़ाइन करना होगा।
 
 ### 22.5 स्वीकृति मानदंड
 
 इस चरण की स्वीकृति = दस्तावेज़ और कोड का समान होना: `config/middleware.php` और `config/route.php` में
-TenantScope पंजीकरण नहीं होना चाहिए; मिडलवेयर और Trait टिप्पणियों में स्पष्ट रूप से "आरक्षित क्षमता, सक्षम नहीं" चिह्नित और सक्षम करने के चरण दिए होने चाहिए;
+TenantScope पंजीकरण नहीं होना चाहिए; मिडलवेयर टिप्पणी में "लागू किया गया, डिफ़ॉल्ट रूप से अपंजीकृत" चिह्नित हो और पंजीकरण बिंदु व ट्रस्ट बाउंडरी दी गई हो,
+Trait टिप्पणी में अनुरोध संदर्भ इंजेक्शन चेन और रिग्रेशन लाइन (टेनेंट संदर्भ न होने पर फ़िल्टर में भाग नहीं लेता) चिह्नित हो;
 यह अनुभाग कोड की वर्तमान स्थिति के अनुरूप बिंदु-दर-बिंदु मेल खाना चाहिए।

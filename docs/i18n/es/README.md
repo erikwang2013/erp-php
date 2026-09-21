@@ -8,6 +8,21 @@ Sistema ERP full-stack basado en webman v2 + Flutter.
 
 > [Versión en inglés](../en/README.md) | [Comparación de ediciones](EDITIONS.md) | [Diagrama de diseño de arquitectura](ARCHITECTURE.md) | [Diagrama de arquitectura del sistema](#diagrama-de-arquitectura-del-sistema) | [Documento de diseño](DESIGN.md) | [Arquitectura de seguridad](SECURITY.md) | [Referencia de API](API.md) | [Manual de funciones](FUNCTIONS.md)
 
+## Introducción al proyecto
+
+open-erp es un **sistema ERP full-stack de código abierto** orientado a las pymes, que cubre los dominios de negocio completos de compras-ventas-inventario (compras/ventas/inventario), contabilidad financiera, producción y fabricación (BOM/MRP/reporte de operaciones/carga de capacidad), CRM, flujo de aprobación, recursos humanos, notificaciones de mensajes e informes personalizados. El backend está construido sobre webman v2 + MySQL 8.0 (prefijo de tablas `erp_`, clave primaria globalmente única Snowflake) y la consola de administración ofrece tres implementaciones: Angular 22 (`apps/angular/`), React 19 + Vite (`apps/react/`) y Flutter 3.x Web (`apps/flutter/`); el móvil se complementa con un cliente nativo HarmonyOS (`apps/harmonyos/`).
+
+El sistema se diseña en torno a **documento como motor, vinculación automática**: la validación de un documento de negocio dispara automáticamente el movimiento de inventario, la generación de cuentas por cobrar/pagar y la acumulación de costes; el flujo de aprobación y las notificaciones recorren todos los documentos clave; el MRP calcula las necesidades de materiales a partir de los pedidos de venta y el BOM y genera propuestas de compra/producción, formando un ciclo de negocio de extremo a extremo que va desde la recepción del pedido de venta hasta la recepción de la compra, y desde la programación de la producción hasta el cierre financiero.
+
+## Descripción del proyecto
+
+- **Cálculo decimal exacto**: los valores de negocio como importes, cantidades y pesos se calculan en decimal con bcmath; el coste de promedio ponderado móvil, la compensación de cuentas por cobrar/pagar y la salida de los distintos informes son de precisión de cadena, sin errores de coma flotante
+- **Línea base de seguridad de nivel empresarial**: token JWT + autorización RBAC a nivel de método, defensa en profundidad (panorama por capas L0–L12 + 35 detectores de ataques + cadena de 7 middlewares, XSS/inyección SQL/CSRF/limitación de frecuencia/CSP, etc.), cifrado de almacenamiento de campos sensibles y cifrado de transporte de la interfaz, y trazabilidad completa mediante auditoría de operaciones
+- **Capacidad configurable**: flujo de aprobación con múltiples nodos (incluido el lienzo del diseñador visual de flujos), motor de plantillas de impresión de documentos (renderizado de marcadores + salida a PDF con dompdf + etiquetas con código QR), bloqueo en tiempo real de la línea de crédito de clientes, y rastreo directo e inverso de toda la cadena por lote/número de serie
+- **Datos trazables**: cada movimiento de negocio deja rastro; los lotes y números de serie de inventario recorren todo el ciclo de vida entrada→consumo→salida→rastreo, con costeo hasta el nivel de línea del documento
+- **Despliegue sencillo**: arranque en un comando con Docker Compose v2 (MySQL/Redis/Elasticsearch); también se ejecuta directamente en local con `composer install`
+- **Internacionalización**: 13 idiomas (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id), con cobertura completa de los mensajes del backend y de las dos consolas de administración Angular/React; los diccionarios del frontend se cargan de forma diferida por idioma, y el README ofrece además documentación en 12 idiomas
+
 ## Lista de funciones
 
 | Dominio de negocio | Función | Descripción |
@@ -15,27 +30,29 @@ Sistema ERP full-stack basado en webman v2 + Flutter.
 | 🔐 Autenticación | Iniciar sesión/Registrarse/Refrescar token/Cerrar sesión | Captcha de clic + JWT + lista negra |
 | | Bloqueo de cuenta | 5 intentos fallidos bloquean 15 minutos |
 | | Límite de sesiones concurrentes | Máximo 3 tokens válidos por usuario |
-| 📊 Panel de control | Resumen de negocio/Panel de ventas/Panel de inventario/Panel financiero | Caché Redis 5 minutos |
+| 📊 Panel de control | Resumen de negocio + seis paneles (ventas/inventario/finanzas/OMS/WMS/TMS) | Caché Redis 5 minutos |
 | 👥 Gestión de usuarios | CRUD + eliminación masiva/activar-desactivar | Borrado suave + confirmación de contraseña |
 | | Importación masiva Excel | Validación línea por línea + informe de errores |
 | 🔒 Roles y permisos | CRUD de roles + árbol de permisos | Autorización RBAC con granularidad method.path |
 | ⚙ Configuración del sistema | CRUD de pares clave-valor | Gestión por grupos |
 | 📋 Auditoría de operaciones | Consulta de registros + detección de origen | Reconocimiento automático de 8 plataformas |
 | 📁 Gestión de archivos | Subida/Exportación Excel/Exportación PDF | Enmascarado automático de datos sensibles |
-| 🛡 Protección de seguridad | 18 capas de defensa en profundidad | XSS/Inyección SQL/Path traversal/Inyección de comandos/CSRF/Limitación de velocidad/CSP... |
+| 🛡 Protección de seguridad | 35 detectores de ataques + cadena de 7 middlewares | XSS/Inyección SQL/Path traversal/Inyección de comandos/CSRF/Limitación de velocidad/CSP... |
 | 🏥 Operaciones | Health check/metrics/Documentación de API/security.txt | Prometheus + OpenAPI 3.0 |
 | 📦 Gestión de productos | Ficha de producto/SKU/Múltiples especificaciones/Múltiples unidades/Categoría/Marca/Política de precios | Árbol de categorías multinivel + conversión de unidades |
 | | Almacenes y ubicaciones | Gestión multi-almacén y multi-ubicación |
 | | Fichas de proveedores/clientes | Contactos/cuentas bancarias/límites de crédito |
 | 📥 Gestión de compras | Solicitud→Pedido→Recepción→Devolución→Liquidación | Proceso de compra completo + aprobación |
+| | Compras por licitación (solicitud de oferta→cotización→adjudicación a pedido) | Comparación entre varios proveedores, las cotizaciones deben cubrir todas las líneas de la solicitud, la adjudicación se convierte en pedido de compra con un clic |
+| | Evaluación de proveedores | Puntuación total 0–100 con clasificación automática (A ≥ 90 / B ≥ 70 / C) + dimensiones de evaluación en JSON + trazabilidad del evaluador |
 | 📤 Gestión de ventas | Cotización→Pedido→Envío→Devolución→Liquidación | Cotización a pedido + margen bruto de ventas |
 | | Control de crédito del cliente | Gestión de límites/plazos de pago/congelación + bloqueo de pedidos y envíos fuera de límite o vencidos |
 | 🏗 Gestión de inventario | Inventario en tiempo real/Lotes/Números de serie/Transferencias/Conteos/Alertas | Costeo de promedio ponderado móvil |
-| 💰 Gestión financiera |
+| 💰 Gestión financiera | Cuentas por cobrar y por pagar/Cobros y pagos/Diario/Reembolsos/Estado de resultados/Activos fijos/Impuestos/Multidivisa/Presupuestos/Centros de costo y de beneficio | Generación automática de cuentas por cobrar y pagar + compensación + gestión financiera integral |
 | | Multi-organización + informes consolidados | Contabilidad multiempresa + asientos de eliminación (método de participación/costo) |
 | | Costeo de inventario/producción | Salida de materiales → acumulación de mano de obra/gastos de fabricación → costo de productos terminados → traslado de variaciones de costo |
 | | Letras de cambio + conciliación bancaria | Registro de letras + conciliación automática con importación de extractos bancarios |
-| | Pool de facturas de compra + factura electrónica | Gestión de facturas de compra + canal de emisión (adaptador + canal Mock) | Cuentas por cobrar y por pagar/Cobros y pagos/Diario/Reembolsos/Estado de resultados/Activos fijos/Impuestos/Multidivisa/Presupuestos/Centros de costo y de beneficio | Generación automática de cuentas por cobrar y pagar + compensación + gestión financiera integral |
+| | Pool de facturas de compra + factura electrónica | Gestión de facturas de compra + canal de emisión (adaptador + canal Mock) |
 | 🤝 CRM | Clientes/Contactos/Registros de seguimiento/Campañas de marketing/Tickets de servicio/Informes analíticos/Embudo de ventas/Pool compartido/Cotizaciones/Contratos | Gestión del ciclo de vida completo del cliente |
 | | Motor de valor del cliente | Operación de membresía con recargas/puntos/cupones |
 | ✅ Flujo de aprobación | Definición de flujos/Envío de aprobación/Aprobar/Rechazar/Retirar/Mis aprobaciones | Motor de flujos de aprobación de múltiples nodos |
@@ -87,7 +104,7 @@ Flujo de datos entre los módulos de negocio:
 | Framework backend | webman v2 (workerman) | Framework PHP de procesos residentes de alto rendimiento |
 | Versión de PHP | 8.3+ | |
 | Base de datos | MySQL 8.0+ | Prefijo de tablas `erp_`, claves primarias BIGINT no autoincrementales |
-| Motor de búsqueda | Elasticsearch | Sincronización y consulta mediante `webman-scout` |
+| Motor de búsqueda | Elasticsearch | Sincronización automática del índice al escribir/eliminar mediante `webman-scout` (componente opcional, ver la sección «Búsqueda de texto completo») |
 | Frontend de administración | Flutter 3.x | En web es un panel de administración estilo PC (`apps/flutter/`) |
 | Móvil | HarmonyOS ArkTS | Cliente nativo HarmonyOS (`apps/harmonyos/`), compatible con teléfonos/tabletas/2-en-1 |
 
@@ -106,61 +123,76 @@ Flujo de datos entre los módulos de negocio:
 | `erikwang2013/security-php` | Comprobaciones de herramientas de seguridad |
 | `phpoffice/phpspreadsheet` | Exportación Excel |
 | `barryvdh/laravel-dompdf` | Exportación PDF (basado en Dompdf) |
-| `hg/apidoc` | Generación automática de documentación de API | Documentación de interfaces anotada, agrupada en administración/cliente |
+| `erikwang2013/apidoc-php` | Generación automática de documentación de API | Documentación de interfaces anotada, agrupada en administración/cliente |
 
 ## Internacionalización
 
-Internacionalización | Detección automática del encabezado Accept-Language | Soporte bilingüe chino/inglés
+| Nivel | Ubicación del diccionario | Volumen |
+|---|---------|------|
+| Mensajes del backend | `resource/translations/{idioma}/` | 13 directorios de idioma: `zh_CN` 565 entradas, los otros 11 idiomas 544 entradas cada uno, `en` 30 entradas (criterio: entradas hoja de los tres archivos `common/modules/validation`; las etiquetas de campo de `attributes` en `validation.php` sí cuentan, sus claves de grupo no) |
+| Consola Angular | `apps/angular/src/app/core/zh-*.ts` (diccionario fuente `zh-en/`, fusión de 4 fragmentos) | Diccionario fuente 1456 claves × 11 idiomas nuevos (mismas claves que la fuente en cada idioma) |
+| Consola React | `apps/react/src/lib/i18n/zh*.ts` | Diccionario fuente 1451 claves × 11 idiomas nuevos |
 
 ## Estructura del proyecto
 
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # Controladores de administración del sistema (14)
-│   ├── api/v1/controller/      # API de cliente (la versión se controla con el encabezado API-Version)
-│   ├── controller/             # Controladores de módulos de negocio (88)
-│   │   ├── product/            # Productos/categorías/marcas/almacenes/ubicaciones/proveedores/clientes (7)
-│   │   ├── purchase/           # Solicitudes/pedidos/recepciones/devoluciones/liquidaciones de compra (5)
+│   ├── admin/controller/       # Controladores de administración del sistema (16)
+│   ├── api/v1/controller/      # API de cliente (versión en la ruta /api/v1, sin cabecera de versión)
+│   ├── controller/             # Controladores de módulos de negocio (139, 23 dominios)
+│   │   ├── product/            # Productos/categorías/marcas/almacenes/ubicaciones/proveedores/clientes (8)
+│   │   ├── purchase/           # Solicitudes/pedidos/recepciones/devoluciones/liquidaciones/ofertas/cotizaciones/evaluación de proveedores (8)
 │   │   ├── sales/              # Cotizaciones/pedidos/envíos/devoluciones/liquidaciones de venta (5)
-│   │   ├── inventory/          # Inventario/flujos/transferencias/conteos/alertas (5)
-│   │   ├── finance/            # Cuentas por cobrar y pagar/comprobantes/cobros y pagos/diario/libro mayor/libro auxiliar/informes/activos/impuestos/multidivisa/presupuestos/centros de costo y beneficio (20)
+│   │   ├── inventory/          # Inventario/flujos/transferencias/conteos/alertas (6)
+│   │   ├── finance/            # Cuentas por cobrar y pagar/comprobantes/cobros y pagos/diario/libro mayor/libro auxiliar/informes/activos/impuestos/multidivisa/presupuestos/centros de costo y beneficio/efectos/conciliación/facturas (28)
 │   │   ├── crm/                # Oportunidades/seguimientos/embudos/contactos/pool compartido/contratos/cotizaciones/marketing/tickets/análisis (10)
-│   │   ├── workflow/           # Definición de flujos/envío de aprobación/aprobar/rechazar/retirar (2)
-│   │   ├── notification/       # Lista de notificaciones/leído/conteo de no leídos (1)
-│   │   ├── project/            # Proyectos/tareas/registros de horas (3)
-│   │   ├── hr/                 # Departamentos/empleados/puestos/asistencia/permisos/salarios (5)
-│   │   ├── manufacturing/      # BOM/órdenes de producción/rutas de proceso/estaciones de trabajo/MRP (5)
+│   │   ├── workflow/           # Definición de flujos/aprobación/diseñador de procesos (3)
+│   │   ├── notification/       # Notificaciones internas/envío por canales (2)
+│   │   ├── project/            # Proyectos/tareas/horas/costes (4)
+│   │   ├── hr/                 # Departamentos/empleados/puestos/asistencia/permisos/salarios/reclutamiento/desempeño/seguridad social/formación (9)
+│   │   ├── manufacturing/      # BOM/órdenes/rutas/estaciones de trabajo/MRP/partes de trabajo/subcontratación/costes/capacidad (13)
 │   │   ├── report/             # Plantillas de informes/conjuntos de datos/ejecución/programación (2)
+│   │   ├── print/              # Motor de plantillas de impresión (1)
+│   │   ├── retail/             # Monedero de socios/puntos/cupones (2)
+│   │   ├── platform/           # Multitenencia/campos personalizados (2)
+│   │   ├── quality/            # Calidad (5)
+│   │   ├── eam/                # Equipos/mantenimiento/reparación/repuestos/inspección (5)
+│   │   ├── bi/                 # Inteligencia de negocio (3)
+│   │   ├── dms/                # Gestión documental (2)
 │   │   ├── oms/                # Pedidos OMS/cumplimiento/RMA/canales (4)
 │   │   ├── wms/                # Zonas/ubicaciones/ASN/recepción/ubicación en estantes/olas/picking/embalaje (8)
-│   │   └── tms/                # Transportistas/servicios/tarifas/guías/rastreo/facturas de flete (6)
-│   ├── service/                # Capa de lógica de negocio
+│   │   ├── tms/                # Transportistas/servicios/tarifas/guías/rastreo/facturas de flete (6)
+│   │   └── open/               # Interfaces de plataforma abierta (1)
+│   ├── service/                # Capa de lógica de negocio (64)
 │   │   ├── inventory/          # Entrada/salida + costeo de promedio ponderado móvil + reserva de inventario/ATP
 │   │   ├── finance/            # Generación automática de cuentas por cobrar y pagar + compensación
 │   │   ├── notification/       # Servicio de envío de notificaciones
 │   │   ├── oms/                # Orquestación de pedidos/asignación de inventario/ciclo de vida RMA
 │   │   ├── wms/                # Flujo de entrada (ASN→recepción→ubicación) / flujo de salida (ola→picking→embalaje)
 │   │   └── tms/                # Gestión de guías/comparación de fletes/rastreo logístico
-│   ├── model/                  # 161 modelos Eloquent (compartidos entre módulos)
-│   ├── middleware/             # 12 middlewares
+│   ├── model/                  # 224 modelos Eloquent (compartidos entre módulos)
+│   ├── middleware/             # 11 middlewares (ApiVersion eliminado, la versión va en la ruta)
 │   ├── common/                 # Servicios Hashids/Snowflake/Encryption
 │   └── queue/                  # Tareas de cola
 ├── apps/
+│   ├── angular/                # Consola Angular 22 (páginas de recursos guiadas por config, ng serve :4200)
+│   ├── react/                  # Consola React 19 + Vite (Vite :5173)
 │   ├── flutter/                # Flutter multiplataforma (Web PC + iOS/Android/macOS/Windows/Linux)
 │   └── harmonyos/              # Cliente nativo HarmonyOS
 ├── config/                     # Archivos de configuración (con comentarios en chino)
-│   ├── plugin/hg/apidoc/        # Configuración de documentación de API
+│   ├── plugin/erikwang2013/apidoc/  # Configuración de documentación de API
 ├── database/
-│   ├── install.sql              # SQL de instalación completo (163 tablas + datos semilla)
+│   ├── install.sql              # SQL de instalación completo (227 tablas + datos semilla)
 │   ├── e2e-seed.sql             # Semilla mínima para E2E/CI
 │   └── backup/                 # Scripts de copia de seguridad/restauración
 ├── docs/                       # Documentación de arquitectura, diseño, seguridad, API
-├── tests/                      # Pruebas PHPUnit (20 archivos de prueba, 137 métodos de prueba, 805 aserciones)
+├── tests/                      # Pruebas PHPUnit (<!-- stats:test_files=111 --> archivos de prueba, <!-- stats:tests=1008 --> métodos de prueba, <!-- stats:assertions=4768 --> aserciones)
 ├── resource/
-│   └── translations/           # Archivos de traducción (zh_CN, en)
-│       ├── zh_CN/              # Traducciones al chino (127 claves)
-│       └── en/                 # Traducciones al inglés (127 claves)
+│   └── translations/           # Diccionario de mensajes del backend en 13 idiomas (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
+│       ├── zh_CN/              # Traducciones al chino (565 entradas)
+│       ├── en/                 # El inglés es la clave: solo 30 entradas, nombres de reglas del framework, etc.
+│       └── ja|ko|de|.../       # Los otros 11 idiomas, 544 entradas cada uno (generador scripts/gen-be-locales.mjs)
 ├── public/                     # Entrada pública
 ├── runtime/                    # Archivos de ejecución
 └── vendor/                     # Dependencias Composer
@@ -186,19 +218,19 @@ open-erp/
 
 ![Functional Modules](diagrams/functional-modules-cn.svg)
 
-**19 dominios de negocio, 163 tablas de datos, 121 controladores**: cubre autenticación y seguridad, panel de control, administración del sistema, protección de seguridad, monitoreo de operaciones, gestión de productos, compras, ventas, inventario, finanzas (14 submódulos), CRM (10 submódulos), flujo de aprobación, notificaciones, gestión de proyectos, recursos humanos, fabricación (MRP), informes personalizados, gestión de pedidos (OMS), gestión de almacén (WMS), gestión de transporte (TMS), gestión de calidad (QMS), gestión de equipos (EAM), gestión de documentos (DMS), paneles BI.
+**23 dominios de negocio, 227 tablas de datos, 159 controladores**: cubre autenticación y seguridad, panel de control, administración del sistema, protección de seguridad, monitoreo de operaciones, gestión de productos, compras, ventas, inventario, finanzas (14 submódulos), CRM (10 submódulos), flujo de aprobación, notificaciones, gestión de proyectos, recursos humanos, fabricación (MRP), informes personalizados, gestión de pedidos (OMS), gestión de almacén (WMS), gestión de transporte (TMS), gestión de calidad (QMS), gestión de equipos (EAM), gestión de documentos (DMS), paneles BI.
 
 ### Ciclo de vida de una solicitud
 
 ![Request Lifecycle](diagrams/request-lifecycle-cn.svg)
 
-**Ruta completa de la solicitud, del cliente a la base de datos**: cliente (Flutter/HarmonyOS) → terminación SSL de Nginx → detección de idioma → manejo de CORS → filtro de seguridad → limitación de velocidad → validación de versión de API → [panel de administración: autenticación JWT → permisos RBAC → registro de operaciones] → controlador → capa de servicio → capa de modelos → caché/base de datos/motor de búsqueda → respuesta JSON. El diagrama incluye las rutas de acierto y fallo de caché.
+**Ruta completa de la solicitud, del cliente a la base de datos**: cliente (Angular/React/Flutter/HarmonyOS) → terminación SSL de Nginx → manejo de CORS → filtro de seguridad → limitación de velocidad → [panel de administración: autenticación JWT → permisos RBAC → registro de operaciones] → controlador → capa de servicio → capa de modelos → caché/base de datos/motor de búsqueda → respuesta JSON. El diagrama incluye las rutas de acierto y fallo de caché. (La versión de las interfaces está integrada en la ruta de la URL, sin paso de validación propio; el idioma lo resuelve `app/common/I18n.php` a partir de `Accept-Language`.)
 
 ### Arquitectura de defensa en profundidad
 
 ![Security Architecture](diagrams/security-architecture-cn.svg)
 
-**18 capas de defensa en profundidad**: L0 red física → L1 seguridad de transmisión → L2 encabezados de seguridad HTTP → L3 validación de solicitudes → L4 saneamiento de entrada → L5 protección CSRF → L6 limitación de velocidad → L7 autenticación (JWT+Captcha+lista negra+control de sesión) → L8 autorización RBAC → L9 protección de datos (cifrado de transmisión + cifrado de almacenamiento + ofuscación de IDs + enmascarado de datos) → L10 monitoreo de auditoría → L11 divulgación de cumplimiento.
+**Panorama de la defensa en profundidad (L0–L12)**: L0 red física → L1 seguridad de transmisión → L2 encabezados de seguridad HTTP → L3 validación de solicitudes → L4 saneamiento de entrada → L5 protección CSRF → L6 limitación de velocidad → L7 autenticación (JWT+Captcha+lista negra+control de sesión) → L8 autorización RBAC → L9 protección de datos (cifrado de transmisión + cifrado de almacenamiento + ofuscación de IDs + enmascarado de datos) → L10 monitoreo de auditoría → L11 divulgación de cumplimiento → L12 observabilidad (trazado distribuido X-Trace-Id + métricas de negocio + auditoría reforzada). La cadena ejecutable de los 7 middlewares está en `docs/SECURITY.md`; los 35 detectores de ataques en `config/plugin/erikwang2013/security-php/app.php`.
 
 ---
 
@@ -208,7 +240,20 @@ open-erp/
 - Composer 2.x
 - MySQL >= 8.0
 - Flutter >= 3.41 (solo para desarrollo frontend)
-- Elasticsearch >= 7.x (opcional, necesario para funciones de búsqueda)
+- Node >= 22.22.3 (solo para el desarrollo de las consolas de administración Angular/React; límite inferior de `engines` de Angular CLI 22)
+- Elasticsearch >= 7.x u OpenSearch >= 2.x (opcional, necesario para la sincronización del índice; sin instalarlo, la lectura y escritura de negocio no se ven afectadas)
+- DevEco Studio (opcional, solo para compilar el cliente HarmonyOS; por línea de comandos también sirve `hvigorw assembleHap`)
+
+## Dominio local por defecto
+
+El proyecto usa por defecto el dominio local **`http://erp.test`** (dirección de API por defecto del cliente Flutter y convención de entrada web del backend; el cliente HarmonyOS apunta por defecto a la máquina anfitriona del emulador `http://10.0.2.2:8788`).
+
+- **Acceso local**: añada una línea `127.0.0.1 erp.test` al archivo hosts y apunte el servidor web/proxy inverso al puerto de escucha del backend (por defecto `8788`, véase `APP_HTTP_PORT` en `.env`, modificable en el asistente de instalación o en el propio `.env`; WebSocket usa por defecto `8282`, correspondiente a `APP_WS_PORT`).
+- **Cambiar el dominio de despliegue**:
+  - Inyección en la compilación de Flutter: `flutter build web --dart-define=API_BASE_URL=https://su-dominio`
+  - HarmonyOS: edite `BASE_URL` en `apps/harmonyos/entry/src/main/ets/utils/Config.ets` (constante de solo lectura, por defecto `http://10.0.2.2:8788`)
+  - Para depurar en el emulador puede volver temporalmente a `http://10.0.2.2:8788` (acceso a la máquina anfitriona)
+- Todas las versiones de interfaz ya están en la ruta (`/admin/v1`, `/api/v1`, `/open/v1`); el cliente solo necesita configurar la dirección raíz.
 
 ## Inicio rápido
 
@@ -230,14 +275,17 @@ Elementos de configuración clave:
 
 | Variable de entorno | Descripción | Valor por defecto |
 |---------|------|--------|
-| `JWT_SECRET` | Clave de firma JWT | `open-admin-jwt-secret-change-in-production` |
-| `HASHIDS_SALT` | Sal de Hashids | `open-admin-hashids-salt-2026` |
-| `ENCRYPTION_KEY` | Clave de cifrado de API | Valor por defecto de 32 bytes |
+| `JWT_SECRET_KEY` | Clave de firma JWT (`env_required`: ausente/vacía o valor de ejemplo débil → se rechaza el arranque) | `.env.example` incluye un valor aleatorio de 48 caracteres |
+| `HASHIDS_SALT` | Sal de Hashids (`env_required`) | `.env.example` incluye un valor aleatorio de 48 caracteres |
+| `ENCRYPTION_KEY` | Clave maestra del cifrado de la capa de transporte y de la capa de almacenamiento (`env_crypto_key`: AES-256 exige 32 bytes, cualquier otra longitud → se rechaza el arranque) | `.env.example` incluye un valor aleatorio de 32 caracteres |
 | `SNOWFLAKE_DATACENTER_ID` | ID de centro de datos (0-31) | `1` |
 | `SNOWFLAKE_WORKER_ID` | ID de nodo de trabajo (0-31) | `1` |
 | `SCOUT_HOSTS` | Dirección de ES | `http://localhost:9200` |
+| `APP_HTTP_PORT` / `APP_WS_PORT` | Puertos de escucha HTTP/WebSocket del backend (el proxy inverso tipo Nginx apunta ahí) | `8788` / `8282` |
+| `ANGULAR_DEV_PORT` / `REACT_DEV_PORT` | Puertos de los servidores de desarrollo del frontend (`npm run dev`, solo en desarrollo) | `4200` / `5173` |
+| `NGINX_PORT` / `NGINX_SSL_PORT` / `MYSQL_PORT` / `ES_PORT` | Puertos publicados en el host por docker-compose (los puertos dentro de los contenedores son fijos) | `80` / `443` / `3306` / `9200` |
 
-**En producción, asegúrese de cambiar todas las claves por cadenas aleatorias.**
+**En producción, asegúrese de cambiar todas las claves por cadenas aleatorias** (`JWT_SECRET_KEY` / `ENCRYPTION_KEY` / `HASHIDS_SALT`, etc.: ausente, vacía o todavía un valor de ejemplo débil como `change-me`/`xxx` → `env_required` / `env_crypto_key` rechazan el arranque, sin degradación silenciosa; `ENCRYPTION_KEY` tiene además una validación estricta de longitud (AES-256 exige 32 bytes; cualquier otra longitud provoca un error al arrancar)):
 
 ### 3. Inicializar la base de datos
 
@@ -251,7 +299,7 @@ Después de iniciar el servicio, visite `http://localhost:8788/install` y siga l
 mysql -u root -p nombre_de_base_de_datos < database/install.sql
 ```
 
-`install.sql` se genera a partir de la fusión de 29 archivos de migración e incluye la estructura de las 163 tablas y los datos semilla.
+`install.sql` es una base completa en un solo archivo e incluye la estructura de las 227 tablas y los datos semilla.
 
 **Opción 3: Entorno Docker**
 
@@ -324,6 +372,16 @@ Tras iniciar sesión, entre a cada módulo desde la barra lateral: panel, produc
 
 Cambio automático mediante la cabecera `Accept-Language` (zh-CN / en), con el chino por defecto.
 
+### 5. Búsqueda de texto completo (opcional)
+
+La sincronización del índice se realiza mediante `erikwang2013/webman-scout` (cuando un modelo usa el trait `Searchable`, el índice se actualiza automáticamente al guardar). Se admiten **Elasticsearch** y **OpenSearch**.
+
+**Alcance del índice**: los 224 modelos de `app/model/` llevan `Searchable`; al escribir y al borrar lógico, el `ModelObserver` sincroniza el índice. En AdminUser, Customer, Product y Supplier, un `toSearchableArray()` propio indexa solo los campos de la lista blanca; el resto de modelos se indexan completos (fila entera).
+
+**Un motor inaccesible no impide escribir los datos de negocio** (probado: apuntando el driver a un puerto inaccesible, `save()` sigue teniendo éxito — solo se añade un tiempo de espera de conexión) — el motor de búsqueda es un componente opcional, todo el negocio funciona sin él.
+
+**Aclaración de alcance**: el proyecto solo integra por ahora la **sincronización del índice** (escritura/borrado lógico); no ofrece interfaz ni pantalla de búsqueda. Los filtros de las listas pasan por consultas `where` del backend y no por el motor de búsqueda.
+
 ## Convenciones de base de datos
 
 - **Prefijo de tablas**: `erp_`
@@ -337,11 +395,11 @@ Cambio automático mediante la cabecera `Accept-Language` (zh-CN / en), con el c
 
 ### Documentación de API
 
-El proyecto usa hg/apidoc para generar automáticamente la documentación de interfaces; visite `/apidoc` para verla.
+El proyecto usa erikwang2013/apidoc-php para generar automáticamente la documentación de interfaces; visite `/apidoc` para verla.
 
 - Interfaces de administración (Admin): 25 grupos de módulos, con parámetros de solicitud y estructuras de respuesta completos
 - Interfaces de cliente (Service API): 3 grupos: autenticación/captcha/productos
-- Todas las interfaces anotan los encabezados globales: autenticación JWT, versión de API, internacionalización, etc.
+- Todas las interfaces anotan los encabezados globales: autenticación JWT, internacionalización, etc.
 
 ### Formato de respuesta unificado
 
@@ -376,20 +434,16 @@ El encabezado de solicitud `Accept-Language` cambia automáticamente el idioma (
 ### Manejo de IDs
 
 - **IDs en solicitudes/respuestas**: cifrados con hashids como cadenas; no se exponen los IDs reales de la base de datos
-- **Rutas de interfaz**: `GET /admin/user/{hashid}` — el `{id}` en la ruta es una cadena hashid
+- **Rutas de interfaz**: `GET /admin/v1/user/{hashid}` — el `{id}` en la ruta es una cadena hashid
 - **Almacenamiento en base de datos**: valor original BIGINT, generado por snowflake
 
-### Versión de API
+### Versionado de las interfaces
 
-La versión de API se controla mediante el encabezado de solicitud, **no se refleja en la URL**:
+La versión de las interfaces va en la ruta de la URL (p. ej. `/admin/v1/*`, `/api/v1/*`, `/open/v1/*`); **el cliente no necesita ninguna cabecera de versión**:
 
-```http
-Path /api/v1
-```
-
-- Si no se incluye la versión, se usa `v1` por defecto
-- Las versiones no compatibles devuelven `400 Bad Request`
-- Para agregar una versión, solo hay que crear el directorio `app/api/{version}/controller/` y registrar la nueva versión en el middleware
+- Las interfaces públicas versionadas se vinculan directamente a su clase de controlador (`app/api/v1/controller/`)
+- Para una versión nueva se registra un nuevo grupo de rutas `/api/vN`; los controladores se guardan por versión en `app/api/vN/`
+- La antigua resolución dinámica `v()` y el middleware `ApiVersion` (cabecera de solicitud) se han eliminado
 
 ### Limitación de velocidad
 
@@ -404,17 +458,15 @@ Los encabezados de respuesta incluyen `X-RateLimit-Limit`, `X-RateLimit-Remainin
 Los middlewares globales se aplican a todas las solicitudes, en orden:
 
 ```
-Locale (detección automática de Accept-Language, establece la configuración regional)
-  → Cors (preprocesamiento CORS + encabezados de respuesta)
+Cors (preprocesamiento CORS + encabezados de respuesta)
   → SecurityFilter (limitación de métodos HTTP/tamaño del cuerpo/validación Content-Type/intercepción de XSS/inyección SQL/path traversal/inyección de comandos/CSRF)
   → RateLimit (limitación de velocidad por ventana deslizante de Redis + bloqueo de cuenta: 5 fallos de inicio de sesión bloquean 15 minutos)
-  → ApiVersion (validación de versión de API, grupo de rutas /api)
-  → AdminAuth (autenticación JWT + lista negra, grupo de rutas /admin)
-  → AdminPermission (autorización RBAC, grupo de rutas /admin)
-  → OperationLog (registro automático de POST/PUT/DELETE, con detección de origen, grupo de rutas /admin)
+  → TracingId (ID de trazabilidad de la cadena)
 ```
 
-`/health`, `/api/docs` y `/install` son endpoints públicos que solo pasan por `Locale → Cors → SecurityFilter → RateLimit`.
+Middlewares de grupo de rutas: `/admin/v1` monta `AdminAuth (autenticación JWT + lista negra) → AdminPermission (autorización RBAC) → OperationLog (registro automático de POST/PUT/DELETE, con detección de origen)`; `/open/v1` monta `OpenApiAuth`; la devolución de llamada de seguimiento de TMS monta `TrackingSignature`. El idioma lo resuelve `app/common/I18n.php` a partir de `Accept-Language`, no es un middleware.
+
+`/health`, `/api/docs` y `/install` son endpoints públicos que solo pasan por `Cors → SecurityFilter → RateLimit → TracingId`.
 
 Mejoras de seguridad:
 - **Bloqueo de cuenta**: 5 fallos consecutivos de inicio de sesión bloquean la cuenta 15 minutos; durante el bloqueo el inicio de sesión devuelve 429
@@ -426,12 +478,12 @@ Mejoras de seguridad:
 
 El inicio de sesión y el registro requieren primero pasar la verificación del **captcha de clic**:
 
-1. El cliente solicita `POST /api/captcha/generate` para obtener la imagen del captcha (PNG en base64) y la lista de textos objetivo
+1. El cliente solicita `POST /api/v1/captcha/generate` para obtener la imagen del captcha (PNG en base64) y la lista de textos objetivo
 2. El usuario hace clic en las posiciones correspondientes de la imagen en orden y el cliente recopila las coordenadas `[{x, y}, ...]`
 3. Al iniciar sesión se envían `captcha_key` y `clicks`; el servidor verifica primero el captcha y luego las credenciales
 
 ```http
-POST /api/auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -450,14 +502,14 @@ Authorization: Bearer <token>
 
 Tras un inicio de sesión exitoso se devuelve access_token, válido por 2 horas; también se devuelve refresh_token, válido por 14 días.
 
-Al cerrar sesión, el token se agrega a la lista negra de Redis y no puede reutilizarse durante su período de validez. POST /admin/profile/logout
+Al cerrar sesión, el token se agrega a la lista negra de Redis y no puede reutilizarse durante su período de validez. POST /admin/v1/profile/logout
 
 ### Confirmación secundaria de operaciones sensibles
 
 Las operaciones sensibles como eliminar usuarios, roles, permisos, etc. requieren enviar la `password` del usuario actualmente conectado en el cuerpo de la solicitud para confirmar la identidad:
 
 ```http
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 Content-Type: application/json
 Authorization: Bearer <token>
 
@@ -472,21 +524,76 @@ La lista completa de interfaces (interfaces públicas / de administración / de 
 
 ## Notas del frontend
 
-### Panel de administración Flutter (estilo PC)
+### Consola de administración Angular (`apps/angular/`)
+
+```bash
+cd apps/angular
+npm install
+npm run dev        # ng serve → http://localhost:4200 (puerto en ANGULAR_DEV_PORT de .env)
+npm run build      # tsc --noEmit + ng build, salida en dist/angular
+npm run typecheck  # solo comprobación de tipos
+```
+
+- **Requisito de versión de Node**: el `engines` de Angular CLI 22 exige **Node ≥ 22.22.3** (con una versión inferior, `ng build` se niega a arrancar).
+  Si el Node local es inferior, use npx para fijarlo temporalmente (la forma de compilar más habitual en este repositorio, seguida en todo salvo la CI):
+
+  ```bash
+  npx --yes --package=node@22.22.3 -- node node_modules/@angular/cli/bin/ng.js build
+  ```
+
+  En entornos sin `npx` (como la máquina de verificación sin conexión de este repositorio), use el tsc incluido en el CLI para la comprobación de tipos:
+  `./node_modules/.bin/tsc --noEmit -p tsconfig.app.json`
+
+- **Proxy de desarrollo**: `proxy.conf.js` ya redirige `/admin` `/api` `/open` `/health` `/metrics` `/install`
+  a `APP_HTTP_PORT` de `.env` (por defecto 8788), por lo que con `ng serve` **no** hace falta configurar la dirección del backend
+- **Arquitectura**: dirigida por configuración — `src/app/config/domains/*.ts` declara menús y páginas de recursos, y **un único `ResourcePage`
+  renderiza todas las páginas de negocio** (añadir una página de recurso ≈ añadir un objeto de configuración, sin escribir componentes)
+- **Multiidioma**: 13 idiomas, diccionarios cargados de forma diferida por idioma (cada uno en su propio chunk); se cambia con el icono de globo de la barra superior
+- **Autocomprobación** (todas sin navegador, ejecutables directamente con `node`): `scripts/check-ng-tree-semantics.mjs`,
+  `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
+
+### Consola de administración React (`apps/react/`)
+
+```bash
+cd apps/react
+npm install
+npm run dev        # Vite → http://localhost:5173 (puerto en REACT_DEV_PORT de .env)
+npm run build      # tsc --noEmit + vite build, salida en dist/
+```
+
+- Igual que Angular, está **dirigida por configuración**: `src/config/domains/*.ts` declara menús y páginas de recursos,
+  y el motor de renderizado está en `src/components/ResourcePage.tsx`; los tokens de estilo, en `src/styles/tokens.css`
+  (con los mismos valores que `styles/theme.less` en el lado Angular)
+- El punto de entrada para cambiar de idioma está en la página del **centro personal** (el lado Angular tiene además el icono de globo en la barra superior)
+
+### Panel de administración Flutter (estilo PC, `apps/flutter/`)
+
+```bash
+cd apps/flutter
+flutter pub get
+flutter run -d chrome    # Web (estilo panel de administración PC); también admite iOS/Android/macOS/Windows/Linux
+flutter analyze          # análisis estático (el mismo que usa la CI)
+```
 
 - **Diseño**: barra lateral (plegable 64px/240px) + barra superior + área de contenido, tres puntos de interrupción responsivos (móvil/tableta/escritorio)
-- **Páginas**: inicio de sesión, panel de control, gestión de usuarios, roles y permisos, configuración del sistema, registros de operaciones, centro personal
+- **Cobertura**: 22 grupos de menú, 102 páginas enrutables (rutas de menú declaradas en `lib/app/config/menu_config.dart`), 119 archivos de página (menú en `lib/app/config/menu_config.dart`, páginas en `lib/app/pages/`) — panel de control, administración del sistema, gestión de productos, terceros (clientes/proveedores), gestión de compras, gestión de ventas, gestión de inventario, gestión financiera, CRM, gestión de pedidos, gestión de almacén, gestión de transporte, manufactura, gestión de calidad, recursos humanos, gestión de proyectos, flujo de aprobación, centro de notificaciones, informes personalizados, paneles BI, gestión de equipos, gestión documental
 - **Gestión de estado**: GetX (singleton `ApiService` + persistencia de token `AuthService`)
-- **Panel de control**: tarjetas de estadísticas, gráfico de líneas de tendencia (fl_chart), gráfico circular, registros de operaciones recientes
-- **Exportación**: exportación Excel/PDF; el PDF incluye información de copyright no removible
+- **Panel de control**: tarjetas de estadísticas, línea de tendencia de ventas, productos más vendidos, distribución de estados de pedido, antigüedad de cuentas por cobrar/pagar, resumen de inventario (fl_chart)
+- **Exportación**: exportación Excel/PDF (`ExportService`); el PDF incluye información de copyright no removible
 - **Operaciones masivas**: eliminación masiva de selección múltiple, activar/desactivar masivo
 - **Tema**: Material 3 con temas claro/oscuro
+- **Internacionalización**: chino/inglés (`lib/l10n/app_zh.arb` como plantilla, generación con `flutter gen-l10n`)
 
-### Móvil HarmonyOS
+### Móvil HarmonyOS (`apps/harmonyos/`)
 
-- **Páginas**: inicio de sesión, panel de control, lista/detalle de usuarios, centro personal
+- **Compilación**: abra `apps/harmonyos/` con DevEco Studio; el equivalente en línea de comandos es
+  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
+  (requiere HarmonyOS SDK + command-line-tools; artefacto `entry/build/default/outputs/default/*.hap`)
+- **Páginas**: `entry/src/main/resources/base/profile/main_pages.json` registra **41 páginas, todas accesibles desde la interfaz** (inicio de sesión, panel de control, lista/detalle de usuarios, roles y permisos, centro personal, además de las páginas de los subsistemas productos/inventario/compras/ventas/OMS/WMS/TMS/producción/RR. HH./aprobación); la cuadrícula de módulos de negocio del panel ofrece **32 accesos directos** y las páginas de detalle de los subsistemas se abren desde las acciones de fila de las listas
 - **Autenticación**: JWT Bearer + renovación automática e imperceptible del token en 401; si falla la renovación, redirección automática a la página de inicio de sesión
 - **Almacenamiento**: el token se gestiona mediante AppStorage
+- **Internacionalización**: chino/inglés (`resources/base/element/string.json` y `resources/en_US/element/string.json`)
+- **Red**: el `BASE_URL` de `apps/harmonyos/entry/src/main/ets/utils/Config.ets` es una constante de solo lectura, por defecto `http://10.0.2.2:8788` (host del emulador); el valor por defecto del proyecto `http://erp.test` aplica al cliente Flutter y a la entrada web del backend
 
 ## Convenciones de desarrollo
 
@@ -522,11 +629,25 @@ docker compose up -d
 
 ### CI/CD
 
-Canalización de integración continua de GitHub Actions: `.github/workflows/ci.yml`
+Canalización de integración continua de GitHub Actions: `.github/workflows/ci.yml`, con cinco jobs:
 
-- Verificación de sintaxis PHP (`php -l`)
-- Pruebas unitarias PHPUnit
-- Análisis estático Flutter (`flutter analyze`, ya incluido en CI y habilitado — ver el job flutter en `.github/workflows/ci.yml`)
+| Job | Contenido |
+|------|------|
+| `php` (matriz PHP 8.3 / 8.4, con MySQL 8 + Redis 7 como servicios) | validación de composer y auditoría de seguridad → `php -l` → **PHPStan** (level 5 + baseline) → **PHP CS Fixer** (dry-run) → importación del `install.sql` completo → **PHPUnit** (con casos de integración) → recolección de cobertura con pcov → umbrales de cobertura (global ≥ 4 %, `app/service` ≥ 10 %, se endurecen progresivamente) |
+| `flutter` | `flutter analyze` + `flutter test` (`continue-on-error: true`, se endurecerá cuando el entorno se estabilice) |
+| `docs` | `bash scripts/doc-stats.sh --check`: comprueba que las anotaciones `<!-- stats:key=value -->` del README y de docs coincidan con los recuentos reales del código (controladores/servicios/modelos/tablas/número de pruebas, etc.); cualquier desviación se marca en rojo |
+| `e2e` | levanta un servicio webman real → health check → prueba de humo de las rutas HTTP críticas + cobertura de las API de administración |
+| `release` | tras un push a `main` y el éxito de los jobs anteriores: etiqueta patch+1 y publica una Release (ver abajo) |
+
+> Alcance de las comprobaciones estáticas de frontend: la CI solo ejecuta Flutter por ahora; Angular/React (`tsc --noEmit`) y HarmonyOS (`hvigorw assembleHap`) deben ejecutarse en local o en jobs añadidos más adelante.
+
+### Flujo de publicación (incremento de versión)
+
+Tras un push a `main` y con las comprobaciones php / docs / e2e superadas, el job `release` de `ci.yml` crea y publica automáticamente una nueva etiqueta de versión con el **patch+1** de la última etiqueta (`v1.1.4` → `v1.1.5`), y a continuación crea una GitHub Release con el mismo nombre (`--generate-notes` genera automáticamente la descripción de cambios).
+
+- **Disparo**: solo con push a `main` (las PR no lo disparan; el push de etiquetas no coincide con el filtro de rama, por lo que no vuelve a disparar este flujo de trabajo de forma recursiva)
+- **Idempotencia**: si la etiqueta o la release con el mismo nombre ya existen en el remoto (CI concurrente / ya creadas a mano) se omiten automáticamente, sin error
+- **Simulación local**: `bash scripts/bump-version.sh --check` imprime el siguiente número de versión (solo lectura, no escribe en el remoto)
 
 ### Copia de seguridad de la base de datos
 

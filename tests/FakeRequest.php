@@ -55,6 +55,16 @@ class FakeRequest extends \support\Request
         return $this->extraProperties[$name] ?? null;
     }
 
+    /**
+     * 动态属性存在性：`$request->adminId ?? 0` 先走 __isset 再走 __get，
+     * 缺了本方法 isset() 恒 false，`??` 直接落默认值 —— 与真实 support\Request
+     * （AdminAuth 注入的实属性）语义不一致，会让测到的分支与线上不同。
+     */
+    public function __isset(string $name): bool
+    {
+        return array_key_exists($name, $this->extraProperties);
+    }
+
     public function __set(string $name, mixed $value): void
     {
         $this->extraProperties[$name] = $value;

@@ -6,7 +6,7 @@
 
 ## 1. 系统架构
 
-> **功能清单**：认证(login/register/refresh/logout + 账号锁定 + 会话限制) | 仪表盘(Redis缓存) | 用户CRUD+批量+导入 | 角色权限(RBAC) | 系统配置 | 操作审计(8平台来源端) | 文件(上传+导出+脱敏) | 安全(18层防御) | 运维(health/metrics/docs/Docker/CI)
+> **功能清单**：认证(login/register/refresh/logout + 账号锁定 + 会话限制) | 仪表盘(Redis缓存) | 用户CRUD+批量+导入 | 角色权限(RBAC) | 系统配置 | 操作审计(8平台来源端) | 文件(上传+导出+脱敏) | 安全(7 层中间件纵深防御，L0–L12 全景 + 35 类攻击检测器) | 运维(health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -60,8 +60,8 @@
 | 层 | 目录 | 职责 |
 |---|------|------|
 | 路由 | `config/route.php` | URL 到控制器的映射，中间件绑定，版本化路由 |
-| 中间件 | `app/middleware/` | 攻击拦截(SecurityFilter)、限流(RateLimit)、认证(JWT)、授权(RBAC)、API版本(ApiVersion) |
-| 控制器 | 14 个：Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (管理端) + Captcha/Auth (API v1) | 请求参数校验、调用业务逻辑、响应格式化 |
+| 中间件 | `app/middleware/` | 跨域(Cors)、攻击拦截(SecurityFilter)、限流(RateLimit)、链路追踪(TracingId)、认证(JWT)、授权(RBAC)、操作日志(OperationLog)、开放接口签名(OpenApiAuth) 共 11 个文件 |
+| 控制器 | 管理端 15 个：Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook（另有基类 `BaseController`）+ API v1 3 个：Captcha/Auth/Product | 请求参数校验、调用业务逻辑、响应格式化 |
 | 业务服务 | `app/service/` | 可复用的业务逻辑（预留） |
 | 数据模型 | `app/model/` | ORM 映射、关联关系、字段加解密 |
 | 公共工具 | `app/common/` | Hashids、Snowflake、Encryption 服务 |
@@ -79,14 +79,17 @@ Route 匹配
   │
   ▼
 中间件链:
+  Cors ────────────────► 处理 OPTIONS 预检，注入 CORS 响应头
+  │
+  ▼
   SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
   ▼
   RateLimit ───────────► Redis 滑动窗口限流
   │ (失败返回 429 + Retry-After 头)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  TracingId ───────────► 生成 X-Trace-Id，贯穿全链路
+  │ (版本号置于 URL 路径 /admin/v1 /api/v1 /open/v1，无版本头中间件)
   ▼
   AdminAuth ──────────► JWT 验证，注入 $request->adminId
   │ (失败返回 401)
@@ -169,58 +172,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 URL 规范
 
 ```
-公开接口:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+公开接口:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 管理端:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 资源路由:
-  GET    /admin/user          → 列表
-  POST   /admin/user          → 创建
-  GET    /admin/user/{hashid} → 详情
-  PUT    /admin/user/{hashid} → 更新
-  DELETE /admin/user/{hashid} → 删除（需密码确认）
+  GET    /admin/v1/user          → 列表
+  POST   /admin/v1/user          → 创建
+  GET    /admin/v1/user/{hashid} → 详情
+  PUT    /admin/v1/user/{hashid} → 更新
+  DELETE /admin/v1/user/{hashid} → 删除（需密码确认）
 
-系统配置:  /admin/config[/{hashid}]
-操作日志:  /admin/log
-个人中心:  /admin/profile[/password|/logout]
-导入:     /admin/import/users
-上传:     /admin/upload
-批量:     /admin/user/batch/{destroy|status}
+系统配置:  /admin/v1/config[/{hashid}]
+操作日志:  /admin/v1/log
+个人中心:  /admin/v1/profile[/password|/logout]
+导入:     /admin/v1/import/users
+上传:     /admin/v1/upload
+批量:     /admin/v1/user/batch/{destroy|status}
 文档:     /api/docs     (OpenAPI 3.0)
 健康:     /health
 ```
 
 ### 4.2 API 版本策略
 
-API 版本通过请求头控制，**不在 URL 路径中体现**：
-
-```http
-API-Version: v1
-```
+API 版本**置于 URL 路径**，不使用版本请求头：管理端 `/admin/v1`、客户端 `/api/v1`、开放接口 `/open/v1`。
 
 | 机制 | 说明 |
 |------|------|
-| 默认版本 | 未携带 `API-Version` 头时默认 `v1` |
-| 校验 | `ApiVersion` 中间件校验，不支持的版本返回 400 |
-| 路由 | `v()` 辅助函数根据版本动态解析控制器类 |
+| 版本位置 | URL 路径，如 `/api/v1/auth/login` |
+| 路由分组 | `config/route.php` 中 `Route::group('/api/v1', …)` 直接绑定控制器 |
 | 目录 | 控制器按版本组织: `app/api/{version}/controller/` |
+| 版本头中间件 | 历史的 `v()` 动态解析与 `ApiVersion` 请求头中间件**已移除** |
 
 扩展示例——新增 v2 API：
 1. 创建 `app/api/v2/controller/AuthController.php`
-2. `ApiVersion` 中间件 `SUPPORTED` 常量添加 `'v2'`
-3. 路由定义无需修改
+2. 在 `config/route.php` 注册 `Route::group('/api/v2', …)` 分组并直绑控制器
+3. 无版本请求头，路由分组本身即版本边界
 
 ```bash
 # 使用 v1
-curl -H "API-Version: v1" /api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 
 # 使用 v2
-curl -H "API-Version: v2" /api/auth/login
-
-# 不传，默认 v1
-curl /api/auth/login
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 限流策略
@@ -230,8 +226,8 @@ curl /api/auth/login
 | 接口 | 限制 |
 |------|------|
 | 默认 | 60 次/分钟/IP/路由 |
-| POST /api/auth/login | 10 次/分钟 |
-| POST /api/auth/register | 5 次/分钟 |
+| POST /api/v1/auth/login | 10 次/分钟 |
+| POST /api/v1/auth/register | 5 次/分钟 |
 
 超限返回 429，响应头包含 X-RateLimit-Limit / Remaining / Reset / Retry-After。
 
@@ -260,12 +256,12 @@ curl /api/auth/login
 ```
 客户端                               服务端
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② 用户点击图中文字位置              │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -274,7 +270,7 @@ curl /api/auth/login
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -302,7 +298,7 @@ curl /api/auth/login
 ```
 客户端                           服务端
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -375,7 +371,7 @@ curl /api/auth/login
 ### 6.2 密钥管理
 
 ```
-JWT_SECRET          → 环境变量注入，64位随机字符串
+JWT_SECRET_KEY      → 环境变量注入，64位随机字符串
 HASHIDS_SALT        → 唯一盐值，泄漏后需全局更换
 ENCRYPTION_KEY      → API 传输加密密钥，32字节
 ENCRYPTABLE_KEY     → DB 存储加密密钥，与传输密钥独立
@@ -398,7 +394,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 Excel 导出
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
+请求: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() 查询数据 (limit 10000)
   → 脱敏敏感字段
   → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
@@ -408,7 +404,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.2 PDF 导出
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
+请求: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
   → Dompdf 渲染 A4 横向
   → 写入 runtime/tmp/ → download 响应
@@ -435,7 +431,7 @@ Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
 | `redis` | redis:7-alpine | 6379 | 缓存 / 限流 / 验证码 |
 | `elasticsearch` | elasticsearch:8.x | 9200 | 全文检索 |
 
-启动前将 `docker-compose.yml` 中的 `JWT_SECRET`、`HASHIDS_SALT`、`ENCRYPTION_KEY` 等密钥替换为随机字符串。
+启动前将 `docker-compose.yml` 中的 `JWT_SECRET_KEY`、`HASHIDS_SALT`、`ENCRYPTION_KEY` 等密钥替换为随机字符串。
 
 ```bash
 cp .env.docker .env

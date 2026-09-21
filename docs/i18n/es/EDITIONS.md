@@ -14,11 +14,57 @@ El sistema ERP abierto ofrece tres ediciones para adaptarse a las necesidades de
 | Dimensión | Edición Lite | Edición Standard | Edición Full |
 |------|:---:|:---:|:---:|
 | Rama | `lite` | `standard` | `full` |
-| Tablas de datos | 62 (valor planificado) | 72 (valor planificado) | 163 <!-- stats:tables=227 --> |
-| Controladores | 48 (valor planificado) | 42 (valor planificado) | 123 <!-- stats:controllers=159 --> |
-| Módulos de negocio | 6 (valor planificado) | 6 (valor planificado) | 19 <!-- stats:modules=23 --> |
+| Tablas de datos | 62 (valor planificado) | 72 (valor planificado) | 227 <!-- stats:tables=227 --> |
+| Controladores | 48 (valor planificado) | 42 (valor planificado) | 159 <!-- stats:controllers=159 --> |
+| Módulos de negocio | 6 (valor planificado) | 6 (valor planificado) | 23 <!-- stats:modules=23 --> |
 
-> **Criterio de cálculo**: el repositorio actualmente solo implementa la edición Full como un único conjunto de código; las columnas Lite/Standard son valores planificados del producto (no hay ramas correspondientes en el código) y no participan en la verificación de doc-stats. Las cifras de la columna Full se miden con `scripts/doc-stats.sh` (163 tablas / 123 controladores / 19 módulos de negocio), coherentes con el criterio del apéndice de `docs/FUNCTIONS.md`.
+> **Criterio de cálculo**: el repositorio actualmente solo implementa la edición Full como un único conjunto de código; las columnas Lite/Standard son valores planificados del producto
+> (sin rama correspondiente, véase más abajo «Estrategia de ramas») y no participan en la verificación de doc-stats.
+> Las cifras de la columna Full las mide `scripts/doc-stats.sh` (227 tablas / 159 controladores / 23 módulos de negocio),
+> coherentes con el criterio del apéndice de `docs/FUNCTIONS.md`.
+> **Hecho sobre las ramas** (medido el 2026-09-22 con `git branch -a` + `git ls-remote --heads origin`):
+> tanto en local como en el remoto solo queda la rama `main`; las tres ramas `lite` / `standard` / `full` **se han eliminado**
+> (el 2026-08-31 se midió que las tres coexistían, detenidas en el commit `eea90c0` del 2026-08-17, sin diferencias entre ellas y 38 commits por detrás de `main`).
+> Ese commit de archivo sigue en el historial de `main` (`git merge-base --is-ancestor eea90c0 main` se cumple),
+> es decir, hoy las diferencias de versión solo pueden rastrearse por commits y tags; en el repositorio ya no hay ninguna rama de versión que hacer checkout.
+
+---
+
+## Cambios de v1.17.0 (2026-09-15)
+
+> El posicionamiento de la versión no cambia: el repositorio sigue implementando solo la edición completa (Full) como un único conjunto de código; Lite/Standard son valores planificados del producto y sus ramas correspondientes ya están archivadas y congeladas.
+
+- **Las consolas de administración pasan de dos a tres**: se incorporan Angular 22 (`apps/angular/`) y React 19 + Vite (`apps/react/`),
+  en paralelo al ya existente Flutter 3.x Web (`apps/flutter/`); las tres comparten el mismo conjunto de interfaces `/admin/v1`, `/api/v1`, `/open/v1`.
+- **13 idiomas en toda la plataforma** (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id):
+  - Mensajes de respuesta del backend en `resource/translations/<locale>/` — `zh_CN` 565 entradas, los otros 11 idiomas 544 cada uno, `en` 30
+    (criterio: entradas hoja de los tres archivos; en `validation.php` las etiquetas de campo de `attributes` cuentan y sus claves de grupo no — `zh_CN` tiene 21 entradas más por traducir 21 etiquetas de campo. La fila `en` es «en inglés la clave es el propio texto», con un diccionario casi vacío)
+  - Interfaz de las consolas: diccionario fuente de Angular 1456 claves, React 1451 claves × 11 idiomas nuevos; **carga diferida por idioma**, cada idioma en su propio chunk
+  - Generadores: `scripts/gen-be-locales.mjs` (backend), `scripts/gen-fe-locales.mjs` (frontend, `--app angular|react`)
+  - Punto de cambio: **icono de globo independiente** en la barra superior + desplegable del centro personal (idéntico en ambos lados)
+- **Flutter y HarmonyOS siguen con dos idiomas, chino/inglés**, no incluidos en esta ronda.
+- **Impacto en la tabla siguiente**: la columna Full pasa de 163 tablas / 122 controladores / 19 módulos de negocio a **227 / 159 / 23**;
+  la matriz de completitud añade la fila «Multiidioma (i18n)» (filas de módulo 44 → 45, API de backend 39 → 40, lógica de negocio 33 → 34);
+  nota: tras fusionar el 2026-09-15 la fila «multitenencia» duplicada de la matriz, las filas de módulo vuelven a 44 (API de backend 39, lógica de negocio 33);
+  la frase anterior es el criterio incremental del momento de v1.17.0 y se conserva sin cambios.
+
+## Cambios de v1.4.0 (2026-09-05)
+
+> El posicionamiento de la versión no cambia: el repositorio sigue implementando solo la edición completa (Full) como un único conjunto de código; Lite/Standard son valores planificados del producto y sus ramas correspondientes ya están archivadas y congeladas.
+
+- **Versionado de rutas en todo el sitio**: `/admin/*` → `/admin/v1/*`, `/api/*` → `/api/v1/*`, `/open/*` → `/open/v1/*`;
+  las únicas excepciones son `GET /api/docs` (documentación OpenAPI) y el webhook de TMS; los puntos de permiso RBAC se autorizan por `method.path` sin el segmento de versión,
+  con migración cero de los datos de roles existentes (commit `3ee1430`; el control por cabecera `API-Version` ya se había eliminado antes, commit `8276a1b`).
+- **P0 multiempresa y contabilidad de costes**: contabilidad independiente multiempresa (Company/LedgerPeriod), motor de consolidación de informes (conversión al tipo de cambio de cierre + eliminaciones entre filiales,
+  con la instantánea guardada prioritariamente en FinanceConsolidationReport), costeo de inventario/producción (consumo de materiales + acumulación de costes).
+- **P1 ejecución de fabricación y colaboración**: reporte de operaciones/salario a destajo/entradas y salidas de subcontratación/carga de capacidad/rastreo por lote y número de serie (M1/M2/M6/M3), control de crédito (F7),
+  lienzo del flujo de aprobación (B3), plantillas de impresión (B1), nóminas de RR. HH. (H1/H2), escaneo de inspección de equipos (E1), coste del proyecto (P1).
+- **P2 diferenciación y ecosistema**: sistema de membresía (C1), libro de efectos y conciliación bancaria (F6), pool de facturas de proveedor y factura electrónica (F5, con la administración tributaria real como punto de adaptación),
+  canales multidriver con reintento de fallos (B4), campos personalizados (B7), facturación por vencimiento multiinquilino (B5 — el middleware de aislamiento de inquilinos sigue sin registrar, habilitación parcial),
+  formación y seguridad social (H3/H4).
+- **Matriz de funciones**: de las 44 filas de módulo, 33 filas con doble ✅; 21 filas marcadas con v1.4.0 (una de ellas con habilitación parcial), véase `docs/FUNCTIONS.md` §19.
+
+> El detalle de cambios está en `CHANGELOG.md`, en la raíz del repositorio.
 
 ---
 
@@ -35,8 +81,8 @@ El sistema ERP abierto ofrece tres ediciones para adaptarse a las necesidades de
 | Subida de archivos / exportación Excel / exportación PDF | ✔ | ✔ | ✔ |
 | Health check / métricas Prometheus | ✔ | ✔ | ✔ |
 | Autenticación JWT + captcha de clic | ✔ | ✔ | ✔ |
-| Protección de seguridad de 18 capas | ✔ | ✔ | ✔ |
-| Internacionalización (i18n) bilingüe chino/inglés | — | — | ✔ |
+| Protección de seguridad de 7 capas | ✔ | ✔ | ✔ |
+| Internacionalización (i18n) 13 idiomas (Angular/React; Flutter/HarmonyOS siguen en chino/inglés) | — | — | ✔ |
 
 ### Productos y datos maestros
 
@@ -111,7 +157,7 @@ El sistema ERP abierto ofrece tres ediciones para adaptarse a las necesidades de
 |------|:---:|:---:|:---:|
 | Motor de flujo de aprobación | — | — | ✔ |
 | Sistema de notificaciones | — | — | ✔ |
-| Documentación de API (hg/apidoc) | ✔ | ✔ | ✔ |
+| Documentación de API (erikwang2013/apidoc-php) | ✔ | ✔ | ✔ |
 
 ### Módulos de extensión
 
@@ -140,19 +186,20 @@ El sistema ERP abierto ofrece tres ediciones para adaptarse a las necesidades de
 |------|--------------------------|------|
 | Lite (edición simplificada) | 62 tablas / 6 módulos de negocio (valores planificados) | Sin aprobación/notificaciones/RR. HH./manufactura/informes |
 | Standard (edición estándar) | 72 tablas / 6 módulos de negocio (valores planificados) | Modelo de datos más simplificado |
-| Full (edición completa) | 163 tablas <!-- stats:tables=227 --> / 19 módulos de negocio <!-- stats:modules=23 --> | Capacidad integral de plataforma empresarial |
+| Full (edición completa) | 227 tablas <!-- stats:tables=227 --> / 23 módulos de negocio <!-- stats:modules=23 --> | Capacidad integral de plataforma empresarial |
 
 ---
 
-## Estrategia de ramas (a partir de 2026-08)
+## Estrategia de ramas (a partir de 2026-08-27)
 
-> Este documento corresponde a las convenciones de ramas de la versión actual del repositorio, aplicables a las tres ramas `lite` / `standard` / `full`.
+> Se aplica a las tres ramas de versión `lite` / `standard` / `full`, en línea con el job `release` de la CI (tag de versión idempotente).
+> **Nota de estado actual (medido el 2026-09-22)**: las tres ramas se han eliminado, por lo que los puntos restantes de esta sección deben entenderse como «archivo = commits y tags»,
+> y ya no hay ninguna rama de versión que se pueda hacer checkout.
 
-- **`main` es la única fuente de desarrollo**: todo desarrollo de funciones, correcciones de defectos y actualizaciones de dependencias se fusiona en `main`.
-- **Las ramas de edición solo reciben cherry-pick en cada versión**: `lite` / `standard` / `full` ya no reciben commits diarios como líneas de desarrollo independientes;
-  solo en el momento del lanzamiento el ingeniero de versiones hace cherry-pick de las funciones correspondientes desde `main` (o una fusión completa según sea necesario),
-  conservando en cada rama su intención de recorte (las diferencias de módulos se ven en la tabla de comparación de funciones anterior).
-- **Principio de recorte**: la rama de edición = subconjunto de main. Al fusionar/portar contenido de main, si el conflicto recae en la lógica de recorte de la edición
-  (como las diferencias de módulos de EDITIONS.md o el recorte de rutas), se conserva la intención de recorte de la rama; el código no relacionado se rige siempre por la versión de main.
-- **Verificación**: después de fusionar la rama de edición, debe pasar la verificación de sintaxis completa `php -l`; las pruebas que no apliquen por el recorte pueden omitirse registrando el motivo.
-- **Publicación**: la fusión/portabilidad de la rama de edición la realiza el ingeniero de versiones y se confirma con un merge commit; los commits de `main` los ejecuta de forma unificada el Lead.
+- **`main` es la única fuente de desarrollo**: todo el desarrollo de funciones, las correcciones de defectos y las actualizaciones de dependencias se integran en `main`; los commits los ejecuta de forma unificada el Lead.
+- **Las ramas de versión solo se archivan, no se mantienen**: `lite` / `standard` / `full` quedan congeladas como ramas de archivo histórico, ya no reciben nuevos commits,
+  ni sincronizan los incrementos de `main`, ni se fuerzan actualizaciones o pushes (para evitar mantener tres líneas de código); **una vez terminado el periodo de congelación, las tres ramas se han eliminado**,
+  y el contenido archivado permanece en el historial de `main` en `eea90c0`.
+- **Las diferencias de versión se registran con tags de versión**: la publicación la crea el job `release` de la CI de forma idempotente a partir de la última etiqueta `vX.Y.Z`
+  (véase `scripts/bump-version.sh`); las diferencias funcionales entre versiones se rigen por los tags y por la tabla de comparación de funciones anterior, no por mantener líneas de código en ramas.
+- **Verificación**: la CI de `main` es la verificación de la publicación de versión; las ramas archivadas ya no ejecutan CI por separado. (Desde el 2026-09-15 las dependencias del job `release` son `docs` + `e2e`; el job `php` se sigue ejecutando pero no bloquea la publicación — sus fallos son deuda histórica de pruebas de integración exclusivas de la CI, véanse los comentarios de `.github/workflows/ci.yml`.)

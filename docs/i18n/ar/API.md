@@ -4,7 +4,7 @@
 
 ## وثائق API
 
-يستخدم المشروع [hg/apidoc](https://github.com/hg-code/apidoc) لتوليد وثائق API تفاعلية تلقائيًا.
+يستخدم المشروع [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php) لتوليد وثائق API تفاعلية تلقائيًا.
 
 **طريقة الوصول:** بعد بدء الخدمة افتح `http://localhost:8788/apidoc`
 
@@ -18,17 +18,20 @@
 | الرأس | الوصف |
 |--------|------|
 | `Authorization` | JWT Bearer Token |
-| `API-Version` | رقم إصدار API (v1) |
-| `Accept-Language` | لغة التدويل (zh-CN/en) |
+| `Accept-Language` | لغة التدويل، تدعم 13 لغة (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)، والافتراضية `zh_CN` |
+
+> **ملاحظة الإصدار**: نسخنة المسارات على مستوى الموقع — واجهات الإدارة `/admin/v1`، وواجهات العميل `/api/v1`، والواجهات المفتوحة `/open/v1`،
+> ورقم الإصدار موضوع في مسار URL، **دون أي ترويسة إصدار**؛ والاستثناءان هما `GET /api/docs` (وثائق OpenAPI) و
+> رد نداء تتبع الناقل `/api/tms/tracking/callback` (توقيع HMAC، بلا إصدار).
 
 **معيار التعليقات التوضيحية:** تستخدم جميع طرق وحدات التحكم تعليقات `@Apidoc\*` لتوضيح اسم الواجهة ووصفها وعنوان URL وطريقة الطلب والمعاملات وهيكل القيمة المرجعة.
 
 ## 1. نظرة عامة
 
-نظام إدارة الخلفية المفتوح (open-admin) مبني على webman v2 ويوفر RESTful JSON API. تتطلب جميع واجهات الإدارة مصادقة JWT وتحقق صلاحيات RBAC، بينما تُوجَّه الواجهات العامة عبر رأس إصدار API إلى وحدات التحكم المصنفة بالإصدار.
+نظام إدارة الخلفية المفتوح (open-admin) مبني على webman v2 ويوفر RESTful JSON API. نسخنة المسارات على مستوى الموقع: واجهات الإدارة مثبَّتة تحت `/admin/v1` (مصادقة JWT + تحقق صلاحيات RBAC)، وواجهات العميل تحت `/api/v1`، والواجهات المفتوحة تحت `/open/v1`؛ ورقم الإصدار مدمج في مسار URL، بلا ترويسة إصدار.
 
 - **عنوان URL الأساسي**: `http://localhost:8788`
-- **إصدار API**: يُتحكم فيه عبر رأس الطلب `API-Version: v1` (عند غيابه يكون v1 افتراضيًا)
+- **إصدار API**: نسخنة المسارات على مستوى الموقع، ورقم الإصدار في مسار URL (الإدارة `/admin/v1`، العميل `/api/v1`، المفتوحة `/open/v1`)، بلا حاجة إلى أي ترويسة إصدار
 
 > **نظرة عامة على النقاط**: المصادقة(5) | لوحة المعلومات(1) | المستخدمون(7) | الأدوار(4) | الصلاحيات(4) | الإعدادات(4) | السجلات(1) | الملف الشخصي(3) | الاستيراد والتصدير(3) | الرفع(1) | التشغيل(4: health/metrics/docs/security.txt) | المجموع 37 نقطة
 - **المصادقة**: `Authorization: Bearer <token>` (JWT)
@@ -37,22 +40,35 @@
 
 ### التدويل
 
-يبدّل API اللغة تلقائيًا عبر رأس الطلب `Accept-Language`:
+يبدّل API اللغة تلقائيًا عبر رأس الطلب `Accept-Language`، ويدعم 13 لغة: `zh_CN` (الصينية، الافتراضية)، `en` (English)، `ja` (日本語)، `ko` (한국어)، `de` (Deutsch)، `fr` (Français)، `es` (Español)، `pt` (Português)، `ru` (Русский)، `ar` (العربية)، `hi` (हिन्दी)، `bn` (বাংলা)، `id` (Bahasa Indonesia).
 
-| قيمة الرأس | اللغة |
+| أول وسم لغة في الرأس | يُحلّ إلى |
 |---------|------|
-| `zh-CN`, `zh` | الصينية (الافتراضية) |
-| `en`, `en-US` | English |
+| `zh`، `zh-CN`، `zh-TW` | `zh_CN` الصينية (الافتراضية) |
+| `en`، `en-US` | `en` English |
+| `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id` | اللغة المقابلة (تُهمَل لاحقة المنطقة، مثل `de-DE` → `de`) |
+
+قواعد التحليل (`app/common/I18n.php` `getLocale()`):
+
+- يرتّب المتصفح الوسوم تنازليًا حسب تفضيل اللغة، **ويُؤخذ الوسم الأول فقط** (الجزء قبل الفاصلة)، دون تحليل قيم q؛
+- تُهمَل الوسوم الفرعية للمنطقة، ويُبقى على الوسم الفرعي للغة الرئيسية فقط (`zh-CN` → `zh`، `de-DE` → `de`)؛
+- تُربَط `zh*` دائمًا بـ `zh_CN`؛ وتُستخدم بقية وسوم اللغة الرئيسية كما هي؛
+- عند غياب الرأس أو كونه فارغًا يُستخدم `config('translation.locale')` = `zh_CN`.
+
+سلسلة الرجوع (`trans()`): لغة الطلب ← `zh_CN` ← `en` ← إرجاع المفتاح نفسه (الإنجليزية هي المفتاح، فالمفتاح هو النص الإنجليزي). **و`en` لا تشارك في الرجوع** — عند طلب `en` يُبحث في قاموس `en` فقط، وما لم يُوجد يُرجع المفتاح (النص الإنجليزي) مباشرة، دون الرجوع إلى الصينية.
 
 ```bash
-# 英文响应
-curl -H "Accept-Language: en" http://localhost:8788/admin/product
+# استجابة إنجليزية
+curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
 
-# 中文响应（默认）
-curl http://localhost:8788/admin/product
+# استجابة يابانية
+curl -H "Accept-Language: ja" http://localhost:8788/admin/v1/product
+
+# استجابة صينية (الافتراضية)
+curl http://localhost:8788/admin/v1/product
 ```
 
-يُرجع حقل `message` في الاستجابة باللغة المقابلة.
+يُرجع حقل `message` في الاستجابة باللغة المقابلة. وتقع ملفات القواميس في `resource/translations/<locale>/{common,modules,validation}.php`.
 
 ### متطلبات الطلب
 
@@ -81,7 +97,7 @@ curl http://localhost:8788/admin/product
 
 ## 3. النقاط العامة
 
-تُركَّب جميع النقاط العامة ضمن مجموعة `/api`، وتُوزَّع عبر وسيط `ApiVersion` حسب رأس `API-Version` إلى وحدات التحكم المصنفة بالإصدار (مثل `app\api\v1\controller\AuthController`).
+تُركَّب جميع النقاط العامة ضمن مجموعة `/api/v1` (رقم الإصدار مدمج في مسار URL، بلا ترويسة إصدار وبلا وسيط إصدار)، وترتبط وحدات التحكم مباشرة حسب الدليل (مثل `app\api\v1\controller\AuthController`).
 
 ### 3.1 فحص الصحة
 
@@ -124,11 +140,11 @@ GET /api/docs
 ### 3.3 توليد كابتشا النقر
 
 ```
-POST /api/captcha/generate
+POST /api/v1/captcha/generate
 ```
 
 - **المصادقة**: غير مطلوبة
-- **رأس الطلب**: `API-Version: v1` (إلزامي)
+- **الإصدار**: مسار URL يتضمن /api/v1، بلا ترويسة إصدار
 - **تحديد المعدل**: الافتراضي العام (60 مرة/دقيقة)
 
 **جسم الطلب**:
@@ -170,11 +186,11 @@ POST /api/captcha/generate
 ### 3.4 التحقق من كابتشا النقر
 
 ```
-POST /api/captcha/verify
+POST /api/v1/captcha/verify
 ```
 
 - **المصادقة**: غير مطلوبة
-- **رأس الطلب**: `API-Version: v1` (إلزامي)
+- **الإصدار**: مسار URL يتضمن /api/v1، بلا ترويسة إصدار
 - **تحديد المعدل**: الافتراضي العام (60 مرة/دقيقة)
 
 **جسم الطلب**:
@@ -207,11 +223,11 @@ POST /api/captcha/verify
 ### 3.5 تسجيل الدخول
 
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 - **المصادقة**: غير مطلوبة
-- **رأس الطلب**: `API-Version: v1` (إلزامي)
+- **الإصدار**: مسار URL يتضمن /api/v1، بلا ترويسة إصدار
 - **تحديد المعدل**: 10 مرات/دقيقة (حسب IP + المسار)
 
 **جسم الطلب**:
@@ -271,11 +287,11 @@ POST /api/auth/login
 ### 3.6 التسجيل
 
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 ```
 
 - **المصادقة**: غير مطلوبة
-- **رأس الطلب**: `API-Version: v1` (إلزامي)
+- **الإصدار**: مسار URL يتضمن /api/v1، بلا ترويسة إصدار
 - **تحديد المعدل**: 5 مرات/دقيقة (حسب IP + المسار)
 - **المفتاح**: مغلق افتراضيًا (`REGISTRATION_ENABLED=0`)، وعند الإغلاق تُرجع 403؛ يجب تفعيله صراحة في `.env` (`REGISTRATION_ENABLED=1`)
 
@@ -324,11 +340,11 @@ POST /api/auth/register
 ### 3.7 تحديث الرمز
 
 ```
-POST /api/auth/refresh
+POST /api/v1/auth/refresh
 ```
 
 - **المصادقة**: غير مطلوبة
-- **رأس الطلب**: `API-Version: v1` (إلزامي)
+- **الإصدار**: مسار URL يتضمن /api/v1، بلا ترويسة إصدار
 - **تحديد المعدل**: الافتراضي العام (60 مرة/دقيقة)
 
 **جسم الطلب**:
@@ -406,12 +422,12 @@ openadmin_memory_usage_bytes 18874368
 
 ## 4. لوحة المعلومات
 
-تُركَّب جميع واجهات الإدارة ضمن مجموعة `/admin`، وتمر عبر ثلاثة وسائط: `AdminAuth` (مصادقة JWT) و`AdminPermission` (تحقق صلاحيات RBAC) و`OperationLog` (تسجيل العمليات).
+تُركَّب جميع واجهات الإدارة ضمن مجموعة `/admin/v1`، وتمر عبر ثلاثة وسائط: `AdminAuth` (مصادقة JWT) و`AdminPermission` (تحقق صلاحيات RBAC) و`OperationLog` (تسجيل العمليات).
 
 ### 4.1 بيانات لوحة المعلومات
 
 ```
-GET /admin/dashboard
+GET /admin/v1/dashboard
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -468,7 +484,7 @@ GET /admin/dashboard
         "id": "hashid...",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "user_name": "admin",
         "created_at": "2026-05-21 10:30:00"
@@ -498,7 +514,7 @@ GET /admin/dashboard
 ### 5.1 قائمة المستخدمين
 
 ```
-GET /admin/user
+GET /admin/v1/user
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -551,7 +567,7 @@ GET /admin/user
 ### 5.2 إنشاء مستخدم
 
 ```
-POST /admin/user
+POST /admin/v1/user
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -601,7 +617,7 @@ POST /admin/user
 ### 5.3 تفاصيل المستخدم
 
 ```
-GET /admin/user/{id}
+GET /admin/v1/user/{id}
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -635,7 +651,7 @@ GET /admin/user/{id}
 ### 5.4 تحديث المستخدم
 
 ```
-PUT /admin/user/{id}
+PUT /admin/v1/user/{id}
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -683,7 +699,7 @@ PUT /admin/user/{id}
 ### 5.5 حذف مستخدم
 
 ```
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -720,7 +736,7 @@ DELETE /admin/user/{id}
 ### 5.6 حذف مستخدمين جماعيًا
 
 ```
-POST /admin/user/batch/destroy
+POST /admin/v1/user/batch/destroy
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -760,7 +776,7 @@ POST /admin/user/batch/destroy
 ### 5.7 تفعيل/تعطيل مستخدمين جماعيًا
 
 ```
-POST /admin/user/batch/status
+POST /admin/v1/user/batch/status
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -800,7 +816,7 @@ POST /admin/user/batch/status
 ### 6.1 قائمة الأدوار
 
 ```
-GET /admin/role
+GET /admin/v1/role
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -848,7 +864,7 @@ GET /admin/role
 ### 6.2 إنشاء دور
 
 ```
-POST /admin/role
+POST /admin/v1/role
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -890,7 +906,7 @@ POST /admin/role
 ### 6.3 تحديث دور
 
 ```
-PUT /admin/role/{id}
+PUT /admin/v1/role/{id}
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -930,7 +946,7 @@ PUT /admin/role/{id}
 ### 6.4 حذف دور
 
 ```
-DELETE /admin/role/{id}
+DELETE /admin/v1/role/{id}
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -961,7 +977,7 @@ DELETE /admin/role/{id}
 ### 7.1 شجرة الصلاحيات
 
 ```
-GET /admin/permission
+GET /admin/v1/permission
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -976,7 +992,7 @@ GET /admin/permission
       "id": "p1p2p3p4",
       "parent_id": "0",
       "name": "用户管理",
-      "slug": "/admin/user",
+      "slug": "/admin/v1/user",
       "type": 1,
       "icon": "people",
       "path": "/user",
@@ -987,7 +1003,7 @@ GET /admin/permission
           "id": "p5p6p7p8",
           "parent_id": "p1p2p3p4",
           "name": "用户列表",
-          "slug": "/admin/user/index",
+          "slug": "/admin/v1/user/index",
           "type": 2,
           "icon": "",
           "path": "/user/index",
@@ -1014,7 +1030,7 @@ GET /admin/permission
 ### 7.2 إنشاء صلاحية
 
 ```
-POST /admin/permission
+POST /admin/v1/permission
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1024,7 +1040,7 @@ POST /admin/permission
 {
   "parent_id": 0,
   "name": "系统设置",
-  "slug": "/admin/config",
+  "slug": "/admin/v1/config",
   "type": 1,
   "icon": "settings",
   "path": "/config",
@@ -1051,7 +1067,7 @@ POST /admin/permission
     "id": "p9p0a1b2",
     "parent_id": "0",
     "name": "系统设置",
-    "slug": "/admin/config",
+    "slug": "/admin/v1/config",
     "type": 1,
     "icon": "settings",
     "path": "/config",
@@ -1063,7 +1079,7 @@ POST /admin/permission
 ### 7.3 تحديث صلاحية
 
 ```
-PUT /admin/permission/{id}
+PUT /admin/v1/permission/{id}
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1088,7 +1104,7 @@ PUT /admin/permission/{id}
 ### 7.4 حذف صلاحية
 
 ```
-DELETE /admin/permission/{id}
+DELETE /admin/v1/permission/{id}
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1119,7 +1135,7 @@ DELETE /admin/permission/{id}
 ### 8.1 قائمة الإعدادات
 
 ```
-GET /admin/config
+GET /admin/v1/config
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1168,7 +1184,7 @@ GET /admin/config
 ### 8.2 إنشاء إعداد
 
 ```
-POST /admin/config
+POST /admin/v1/config
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1214,7 +1230,7 @@ POST /admin/config
 ### 8.3 تحديث إعداد
 
 ```
-PUT /admin/config/{id}
+PUT /admin/v1/config/{id}
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1237,7 +1253,7 @@ PUT /admin/config/{id}
 ### 8.4 حذف إعداد
 
 ```
-DELETE /admin/config/{id}
+DELETE /admin/v1/config/{id}
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1259,7 +1275,7 @@ DELETE /admin/config/{id}
 ### 9.1 قائمة سجل العمليات
 
 ```
-GET /admin/log
+GET /admin/v1/log
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1288,7 +1304,7 @@ GET /admin/log
         "user_name": "admin",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "source": "web",
         "input": "{\"username\":\"admin\"}",
@@ -1321,7 +1337,7 @@ GET /admin/log
 ### 10.1 تحديث المعلومات الشخصية
 
 ```
-PUT /admin/profile
+PUT /admin/v1/profile
 ```
 
 - **المصادقة**: JWT
@@ -1363,7 +1379,7 @@ PUT /admin/profile
 ### 10.2 تغيير كلمة المرور
 
 ```
-PUT /admin/profile/password
+PUT /admin/v1/profile/password
 ```
 
 - **المصادقة**: JWT
@@ -1398,7 +1414,7 @@ PUT /admin/profile/password
 ### 10.3 تسجيل الخروج
 
 ```
-POST /admin/profile/logout
+POST /admin/v1/profile/logout
 ```
 
 - **المصادقة**: JWT
@@ -1423,7 +1439,7 @@ POST /admin/profile/logout
 ### 11.1 تصدير Excel
 
 ```
-POST /admin/export/excel
+POST /admin/v1/export/excel
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1462,7 +1478,7 @@ POST /admin/export/excel
 ### 11.2 تصدير PDF
 
 ```
-POST /admin/export/pdf
+POST /admin/v1/export/pdf
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1509,7 +1525,7 @@ POST /admin/export/pdf
 ### 11.3 استيراد المستخدمين (Excel)
 
 ```
-POST /admin/import/users
+POST /admin/v1/import/users
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1561,7 +1577,7 @@ POST /admin/import/users
 ## 12. رفع الملفات
 
 ```
-POST /admin/upload
+POST /admin/v1/upload
 ```
 
 - **المصادقة**: JWT + RBAC
@@ -1610,8 +1626,8 @@ POST /admin/upload
 
 تفاصيل تحديد المعدل:
 - الحد العام الافتراضي: 60 مرة/دقيقة / IP+مسار
-- نقطة تسجيل الدخول `/api/auth/login`: 10 مرات/دقيقة
-- نقطة التسجيل `/api/auth/register`: 5 مرات/دقيقة
+- نقطة تسجيل الدخول `/api/v1/auth/login`: 10 مرات/دقيقة
+- نقطة التسجيل `/api/v1/auth/register`: 5 مرات/دقيقة
 - تستخدم خوارزمية نافذة منزلقة ذرية من Redis (Lua ZSET) لتجنب سباقات TOCTOU
 - عند تعذر استخدام Redis يُفشَل التساهل (تُمرَّر الطلبات)، ولا تُحجب
 
@@ -1620,61 +1636,61 @@ POST /admin/upload
 التسلسل الزمني الكامل للمصادقة:
 
 ```
-1. 客户端请求 POST /api/captcha/generate
-   (请求头: API-Version: v1)
+1. يطلب العميل POST /api/v1/captcha/generate
+   (مسار URL يتضمن /api/v1، بلا ترويسة إصدار)
     ↓
-   服务端返回: key + base64 图片 + 点击目标提示
+   يُرجع الخادم: key + صورة base64 + تلميح هدف النقر
    
-2. 用户点击图片目标位置，前/客户端收集点击坐标
+2. ينقر المستخدم على موضع الهدف في الصورة، ويجمع العميل/الطرف الأمامي إحداثيات النقر
    
-3. 客户端请求 POST /api/auth/login
-   (请求头: API-Version: v1, Content-Type: application/json)
-   请求体: { username, password, captcha_key, clicks: [{x,y}, ...] }
+3. يطلب العميل POST /api/v1/auth/login
+   (مسار URL يتضمن /api/v1، Content-Type: application/json)
+   جسم الطلب: { username, password, captcha_key, clicks: [{x,y}, ...] }
     ↓
-   服务端:
-   a. 参数校验 → 422
-   b. 校验验证码 → 422
-   c. 校验用户凭证 → 401
-   d. 检查账号状态 → 403
-   e. 签发 JWT (access + refresh) → 200
-   f. 更新 last_login_at / last_login_ip
+   الخادم:
+   a. التحقق من المعاملات → 422
+   b. التحقق من الكابتشا → 422
+   c. التحقق من بيانات اعتماد المستخدم → 401
+   d. فحص حالة الحساب → 403
+   e. إصدار JWT (access + refresh) → 200
+   f. تحديث last_login_at / last_login_ip
     ↓
-   客户端保存: access_token, refresh_token, expires_in
+   يحفظ العميل: access_token, refresh_token, expires_in
 
-4. 后续请求携带 JWT
-   请求头: Authorization: Bearer <access_token>
+4. الطلبات اللاحقة تحمل JWT
+   ترويسة الطلب: Authorization: Bearer <access_token>
     ↓
-   AdminAuth 中间件:
-   a. 提取 Bearer token
-   b. 检查黑名单 (Redis jwt_blacklist:{md5}) → 401
-   c. 解码 JWT，校验过期 → 401
-   d. 设置 $request->adminId = sub 字段
+   وسيط AdminAuth:
+   a. استخراج Bearer token
+   b. فحص القائمة السوداء (Redis jwt_blacklist:{md5}) → 401
+   c. فك ترميز JWT والتحقق من الانتهاء → 401
+   d. ضبط $request->adminId = الحقل sub
     ↓
-   AdminPermission 中间件:
-   a. 对资源路由解析权限标识
-   b. 查询用户角色 → 角色权限，进行匹配
-   c. 无权限 → 403
+   وسيط AdminPermission:
+   a. تحليل معرّف الصلاحية لمسارات الموارد
+   b. استعلام أدوار المستخدم ← صلاحيات الدور، والمطابقة
+   c. لا صلاحية → 403
     ↓
-   Controller 处理请求
+   معالجة الطلب في Controller
     ↓
-   Response + X-RateLimit-* 头
+   Response + ترويسات X-RateLimit-*
 
-5. Access Token 过期前刷新
-   客户端请求 POST /api/auth/refresh
-   请求体: { refresh_token: "..." }
+5. تحديث Access Token قبل انتهائه
+   يطلب العميل POST /api/v1/auth/refresh
+   جسم الطلب: { refresh_token: "..." }
     ↓
-   服务端解码 refresh_token → 签发新 access + refresh
+   يفكّ الخادم refresh_token → يصدر access + refresh جديدين
     ↓
-   客户端更新本地令牌
+   يحدّث العميل الرموز محليًا
 
-6. 登出
-   客户端请求 POST /admin/profile/logout
-   请求头: Authorization: Bearer <access_token>
+6. تسجيل الخروج
+   يطلب العميل POST /admin/v1/profile/logout
+   ترويسة الطلب: Authorization: Bearer <access_token>
     ↓
-   服务端:
-   a. 解码 JWT 获取剩余 TTL
-   b. 写入 Redis 黑名单: jwt_blacklist:{md5(token)} = 1, TTL = 剩余有效期
-   c. 返回成功
+   الخادم:
+   a. فك ترميز JWT للحصول على TTL المتبقي
+   b. كتابة القائمة السوداء في Redis: jwt_blacklist:{md5(token)} = 1, TTL = المدة المتبقية
+   c. إرجاع النجاح
 ```
 
 ### هيكل JWT
@@ -1722,7 +1738,7 @@ docker-compose up -d
 
 ## 16. نقاط API الخاصة بالأعمال (ERP)
 
-جميع نقاط الأعمال ضمن مجموعة `/admin`، وتمر عبر ثلاثة وسائط: `AdminAuth` (مصادقة JWT) و`AdminPermission` (تحقق صلاحيات RBAC) و`OperationLog` (تسجيل العمليات).
+جميع نقاط الأعمال ضمن مجموعة `/admin/v1`، وتمر عبر ثلاثة وسائط: `AdminAuth` (مصادقة JWT) و`AdminPermission` (تحقق صلاحيات RBAC) و`OperationLog` (تسجيل العمليات).
 
 > إجمالي النقاط: المنتجات(17) | المشتريات(8) | المبيعات(6) | المخزون(6) | المالية(17) | CRM(13) | سير العمل(6) | الإشعارات(4) | المشاريع(3) | الموارد البشرية(9) | التصنيع(7) | التقارير(4) | لوحة المعلومات(3) | العميل(2) | المجموع 105 نقاط
 
@@ -1732,304 +1748,304 @@ docker-compose up -d
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/product | قائمة المنتجات (ترقيم صفحات + بحث + فلترة تصنيف/حالة) |
-| POST | /admin/product | إنشاء منتج (يشمل SKU والأسعار) |
-| GET | /admin/product/{id} | تفاصيل المنتج (يشمل التصنيف/العلامة التجارية/SKU/الأسعار/الوحدة) |
-| PUT | /admin/product/{id} | تحديث منتج |
-| DELETE | /admin/product/{id} | حذف منتج (حذف ناعم، يتطلب تأكيد كلمة المرور) |
-| GET | /admin/category | قائمة التصنيفات (شجري) |
-| POST | /admin/category | إنشاء تصنيف |
-| PUT | /admin/category/{id} | تحديث تصنيف |
-| DELETE | /admin/category/{id} | حذف تصنيف |
-| GET | /admin/brand | قائمة العلامات التجارية |
-| POST | /admin/brand | إنشاء علامة تجارية |
-| GET | /admin/warehouse | قائمة المستودعات |
-| POST | /admin/warehouse | إنشاء مستودع |
-| GET | /admin/location | قائمة مواقع التخزين |
-| GET | /admin/warehouse/{id}/locations | قائمة مواقع تخزين المستودع |
-| GET | /admin/supplier | قائمة الموردين (بحث ES) |
-| POST | /admin/supplier | إنشاء مورد |
-| GET | /admin/customer | قائمة العملاء (بحث ES) |
-| POST | /admin/customer | إنشاء عميل |
+| GET | /admin/v1/product | قائمة المنتجات (ترقيم صفحات + بحث + فلترة تصنيف/حالة) |
+| POST | /admin/v1/product | إنشاء منتج (يشمل SKU والأسعار) |
+| GET | /admin/v1/product/{id} | تفاصيل المنتج (يشمل التصنيف/العلامة التجارية/SKU/الأسعار/الوحدة) |
+| PUT | /admin/v1/product/{id} | تحديث منتج |
+| DELETE | /admin/v1/product/{id} | حذف منتج (حذف ناعم، يتطلب تأكيد كلمة المرور) |
+| GET | /admin/v1/category | قائمة التصنيفات (شجري) |
+| POST | /admin/v1/category | إنشاء تصنيف |
+| PUT | /admin/v1/category/{id} | تحديث تصنيف |
+| DELETE | /admin/v1/category/{id} | حذف تصنيف |
+| GET | /admin/v1/brand | قائمة العلامات التجارية |
+| POST | /admin/v1/brand | إنشاء علامة تجارية |
+| GET | /admin/v1/warehouse | قائمة المستودعات |
+| POST | /admin/v1/warehouse | إنشاء مستودع |
+| GET | /admin/v1/location | قائمة مواقع التخزين |
+| GET | /admin/v1/warehouse/{id}/locations | قائمة مواقع تخزين المستودع |
+| GET | /admin/v1/supplier | قائمة الموردين (بحث ES) |
+| POST | /admin/v1/supplier | إنشاء مورد |
+| GET | /admin/v1/customer | قائمة العملاء (بحث ES) |
+| POST | /admin/v1/customer | إنشاء عميل |
 
 ### 16.2 إدارة المشتريات (Purchase)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/purchase/apply | قائمة طلبات الشراء |
-| POST | /admin/purchase/apply | إنشاء طلب شراء |
-| GET | /admin/purchase/order | قائمة أوامر الشراء |
-| POST | /admin/purchase/order | إنشاء أمر شراء |
-| 🔗 POST | /admin/purchase/receive | إنشاء سند استلام (إدخال تلقائي للمخزون + توليد ذمم دائنة) |
-| GET | /admin/purchase/receive | قائمة سندات الاستلام |
-| GET | /admin/purchase/receive/{id} | تفاصيل سند الاستلام |
-| POST | /admin/purchase/return | إنشاء سند إرجاع |
-| GET | /admin/purchase/settlement | قائمة تسويات الموردين |
+| GET | /admin/v1/purchase/apply | قائمة طلبات الشراء |
+| POST | /admin/v1/purchase/apply | إنشاء طلب شراء |
+| GET | /admin/v1/purchase/order | قائمة أوامر الشراء |
+| POST | /admin/v1/purchase/order | إنشاء أمر شراء |
+| 🔗 POST | /admin/v1/purchase/receive | إنشاء سند استلام (إدخال تلقائي للمخزون + توليد ذمم دائنة) |
+| GET | /admin/v1/purchase/receive | قائمة سندات الاستلام |
+| GET | /admin/v1/purchase/receive/{id} | تفاصيل سند الاستلام |
+| POST | /admin/v1/purchase/return | إنشاء سند إرجاع |
+| GET | /admin/v1/purchase/settlement | قائمة تسويات الموردين |
 
 ### 16.3 إدارة المبيعات (Sales)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/sales/quotation | قائمة عروض الأسعار |
-| POST | /admin/sales/quotation | إنشاء عرض سعر |
-| GET | /admin/sales/order | قائمة أوامر المبيعات |
-| POST | /admin/sales/order | إنشاء أمر مبيعات |
-| 🔗 POST | /admin/sales/delivery | إنشاء سند شحن (إخراج تلقائي من المخزون + توليد ذمم مدينة) |
-| GET | /admin/sales/delivery | قائمة سندات الشحن |
-| GET | /admin/sales/settlement | قائمة تسويات العملاء |
+| GET | /admin/v1/sales/quotation | قائمة عروض الأسعار |
+| POST | /admin/v1/sales/quotation | إنشاء عرض سعر |
+| GET | /admin/v1/sales/order | قائمة أوامر المبيعات |
+| POST | /admin/v1/sales/order | إنشاء أمر مبيعات |
+| 🔗 POST | /admin/v1/sales/delivery | إنشاء سند شحن (إخراج تلقائي من المخزون + توليد ذمم مدينة) |
+| GET | /admin/v1/sales/delivery | قائمة سندات الشحن |
+| GET | /admin/v1/sales/settlement | قائمة تسويات العملاء |
 
 ### 16.4 إدارة المخزون (Inventory)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/inventory | مخزون فوري (بأبعاد المستودع/موقع التخزين/الدفعة/SKU) |
-| GET | /admin/inventory/flow | سجلات الإدخال والإخراج |
-| GET | /admin/inventory/transfer | قائمة سندات التحويل |
-| POST | /admin/inventory/transfer | إنشاء سند تحويل |
-| GET | /admin/inventory/check | قائمة مهام الجرد |
-| POST | /admin/inventory/check | إنشاء مهمة جرد |
-| GET | /admin/inventory/alert | قواعد تنبيه المخزون |
+| GET | /admin/v1/inventory | مخزون فوري (بأبعاد المستودع/موقع التخزين/الدفعة/SKU) |
+| GET | /admin/v1/inventory/flow | سجلات الإدخال والإخراج |
+| GET | /admin/v1/inventory/transfer | قائمة سندات التحويل |
+| POST | /admin/v1/inventory/transfer | إنشاء سند تحويل |
+| GET | /admin/v1/inventory/check | قائمة مهام الجرد |
+| POST | /admin/v1/inventory/check | إنشاء مهمة جرد |
+| GET | /admin/v1/inventory/alert | قواعد تنبيه المخزون |
 
 ### 16.5 الإدارة المالية (Finance)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| POST | /admin/finance/voucher | إنشاء قيد محاسبي |
-| GET | /admin/finance/ar-ap | قائمة الذمم المدينة/الدائنة |
-| POST | /admin/finance/receipt | إنشاء سند مقبوضات |
-| POST | /admin/finance/payment | إنشاء سند مدفوعات |
-| GET | /admin/finance/cash-journal | دفتر اليومية النقدية والبنكية |
-| GET | /admin/finance/expense | قائمة تسديد المصاريف |
-| POST | /admin/finance/expense | تقديم طلب تسديد مصاريف |
-| GET | /admin/finance/report/profit | بيان الأرباح |
-| GET | /admin/finance/general-ledger | دفتر الأستاذ العام (ملخص حسب الحساب + الفترة) |
-| GET | /admin/finance/subsidiary-ledger | دفتر الأستاذ التفصيلي (تفاصيل كل معاملة للحساب) |
-| GET | /admin/finance/report/balance-sheet | الميزانية العمومية (تشمل التوليد التلقائي) |
-| GET | /admin/finance/report/cash-flow | قائمة التدفق النقدي (تشغيلي/استثماري/تمويلي) |
-| GET | /admin/finance/bank-account | قائمة الحسابات البنكية |
-| GET/POST/PUT/DELETE | /admin/finance/asset | CRUD الأصول الثابتة + احتساب الإهلاك |
-| GET/POST | /admin/finance/tax-rate | إعداد معدلات الضرائب |
-| GET | /admin/finance/tax-record | السجلات الضريبية |
-| GET/POST/PUT/DELETE | /admin/finance/currency | إدارة العملات |
-| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | إدارة أسعار الصرف |
-| GET/POST/PUT/DELETE | /admin/finance/budget | إدارة الميزانيات (تشمل مقارنة الميزانية مقابل الفعلي) |
-| GET/POST/PUT/DELETE | /admin/finance/cost-center | مراكز التكلفة (بنية شجرية) |
-| GET/POST/PUT/DELETE | /admin/finance/profit-center | مراكز الأرباح (بنية شجرية) |
+| POST | /admin/v1/finance/voucher | إنشاء قيد محاسبي |
+| GET | /admin/v1/finance/ar-ap | قائمة الذمم المدينة/الدائنة |
+| POST | /admin/v1/finance/receipt | إنشاء سند مقبوضات |
+| POST | /admin/v1/finance/payment | إنشاء سند مدفوعات |
+| GET | /admin/v1/finance/cash-journal | دفتر اليومية النقدية والبنكية |
+| GET | /admin/v1/finance/expense | قائمة تسديد المصاريف |
+| POST | /admin/v1/finance/expense | تقديم طلب تسديد مصاريف |
+| GET | /admin/v1/finance/report/profit | بيان الأرباح |
+| GET | /admin/v1/finance/general-ledger | دفتر الأستاذ العام (ملخص حسب الحساب + الفترة) |
+| GET | /admin/v1/finance/subsidiary-ledger | دفتر الأستاذ التفصيلي (تفاصيل كل معاملة للحساب) |
+| GET | /admin/v1/finance/report/balance-sheet | الميزانية العمومية (تشمل التوليد التلقائي) |
+| GET | /admin/v1/finance/report/cash-flow | قائمة التدفق النقدي (تشغيلي/استثماري/تمويلي) |
+| GET | /admin/v1/finance/bank-account | قائمة الحسابات البنكية |
+| GET/POST/PUT/DELETE | /admin/v1/finance/asset | CRUD الأصول الثابتة + احتساب الإهلاك |
+| GET/POST | /admin/v1/finance/tax-rate | إعداد معدلات الضرائب |
+| GET | /admin/v1/finance/tax-record | السجلات الضريبية |
+| GET/POST/PUT/DELETE | /admin/v1/finance/currency | إدارة العملات |
+| GET/POST/PUT/DELETE | /admin/v1/finance/exchange-rate | إدارة أسعار الصرف |
+| GET/POST/PUT/DELETE | /admin/v1/finance/budget | إدارة الميزانيات (تشمل مقارنة الميزانية مقابل الفعلي) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/cost-center | مراكز التكلفة (بنية شجرية) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/profit-center | مراكز الأرباح (بنية شجرية) |
 
 ### 16.6 إدارة علاقات العملاء (CRM)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/crm/opportunity | قائمة الفرص |
-| POST | /admin/crm/opportunity | إنشاء فرصة |
-| GET | /admin/crm/follow | قائمة سجلات المتابعة |
-| POST | /admin/crm/follow | إنشاء سجل متابعة |
-| GET | /admin/crm/funnel | إعداد مراحل القمع |
-| GET | /admin/crm/contact | قائمة جهات الاتصال |
-| POST | /admin/crm/contact | إنشاء جهة اتصال |
-| GET | /admin/crm/pool | قائمة عملاء التجمع العام |
-| POST | /admin/crm/pool/claim/{id} | استلام عميل من التجمع |
-| POST | /admin/crm/pool/release/{id} | إطلاق عميل إلى التجمع |
-| GET/POST | /admin/crm/pool/rules | CRUD قواعد التجمع العام |
-| GET | /admin/crm/contract | قائمة العقود |
-| POST | /admin/crm/contract | إنشاء عقد |
-| GET | /admin/crm/contract/{id} | تفاصيل العقد |
-| PUT | /admin/crm/contract/{id} | تحديث عقد |
-| DELETE | /admin/crm/contract/{id} | حذف عقد |
-| GET | /admin/crm/quotation | قائمة عروض أسعار CRM |
-| POST | /admin/crm/quotation | إنشاء عرض سعر CRM |
-| POST | /admin/crm/quotation/{id}/to-contract | 🔗 تحويل عرض السعر إلى عقد |
-| GET/POST/PUT/DELETE | /admin/crm/campaign | الحملات التسويقية |
-| GET/POST/PUT/DELETE | /admin/crm/ticket | تذاكر الخدمة |
-| POST | /admin/crm/ticket/{id}/assign | توزيع تذكرة |
-| POST | /admin/crm/ticket/{id}/resolve | حل تذكرة |
-| GET/POST | /admin/crm/analytics/report | تقارير تحليل العملاء |
-| GET/POST | /admin/crm/analytics/metric | مؤشرات التحليل |
+| GET | /admin/v1/crm/opportunity | قائمة الفرص |
+| POST | /admin/v1/crm/opportunity | إنشاء فرصة |
+| GET | /admin/v1/crm/follow | قائمة سجلات المتابعة |
+| POST | /admin/v1/crm/follow | إنشاء سجل متابعة |
+| GET | /admin/v1/crm/funnel | إعداد مراحل القمع |
+| GET | /admin/v1/crm/contact | قائمة جهات الاتصال |
+| POST | /admin/v1/crm/contact | إنشاء جهة اتصال |
+| GET | /admin/v1/crm/pool | قائمة عملاء التجمع العام |
+| POST | /admin/v1/crm/pool/claim/{id} | استلام عميل من التجمع |
+| POST | /admin/v1/crm/pool/release/{id} | إطلاق عميل إلى التجمع |
+| GET/POST | /admin/v1/crm/pool/rules | CRUD قواعد التجمع العام |
+| GET | /admin/v1/crm/contract | قائمة العقود |
+| POST | /admin/v1/crm/contract | إنشاء عقد |
+| GET | /admin/v1/crm/contract/{id} | تفاصيل العقد |
+| PUT | /admin/v1/crm/contract/{id} | تحديث عقد |
+| DELETE | /admin/v1/crm/contract/{id} | حذف عقد |
+| GET | /admin/v1/crm/quotation | قائمة عروض أسعار CRM |
+| POST | /admin/v1/crm/quotation | إنشاء عرض سعر CRM |
+| POST | /admin/v1/crm/quotation/{id}/to-contract | 🔗 تحويل عرض السعر إلى عقد |
+| GET/POST/PUT/DELETE | /admin/v1/crm/campaign | الحملات التسويقية |
+| GET/POST/PUT/DELETE | /admin/v1/crm/ticket | تذاكر الخدمة |
+| POST | /admin/v1/crm/ticket/{id}/assign | توزيع تذكرة |
+| POST | /admin/v1/crm/ticket/{id}/resolve | حل تذكرة |
+| GET/POST | /admin/v1/crm/analytics/report | تقارير تحليل العملاء |
+| GET/POST | /admin/v1/crm/analytics/metric | مؤشرات التحليل |
 
 ### 16.7 سير عمل الموافقات (Workflow)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/workflow | قائمة تعريفات سير العمل |
-| POST | /admin/workflow | إنشاء تعريف سير عمل |
-| GET | /admin/workflow/{id} | تفاصيل سير العمل |
-| PUT | /admin/workflow/{id} | تحديث سير العمل |
-| DELETE | /admin/workflow/{id} | حذف سير العمل |
-| POST | /admin/workflow/{id}/submit | 🔗 تقديم للموافقة (إنشاء مثيل موافقة) |
-| POST | /admin/approval/{id}/approve | موافقة |
-| POST | /admin/approval/{id}/reject | رفض |
-| POST | /admin/approval/{id}/withdraw | سحب |
-| ANY | /admin/approval/my | قائمة موافقاتي (قيد الانتظار/تمت الموافقة) |
+| GET | /admin/v1/workflow | قائمة تعريفات سير العمل |
+| POST | /admin/v1/workflow | إنشاء تعريف سير عمل |
+| GET | /admin/v1/workflow/{id} | تفاصيل سير العمل |
+| PUT | /admin/v1/workflow/{id} | تحديث سير العمل |
+| DELETE | /admin/v1/workflow/{id} | حذف سير العمل |
+| POST | /admin/v1/workflow/{id}/submit | 🔗 تقديم للموافقة (إنشاء مثيل موافقة) |
+| POST | /admin/v1/approval/{id}/approve | موافقة |
+| POST | /admin/v1/approval/{id}/reject | رفض |
+| POST | /admin/v1/approval/{id}/withdraw | سحب |
+| ANY | /admin/v1/approval/my | قائمة موافقاتي (قيد الانتظار/تمت الموافقة) |
 
 ### 16.8 إشعارات الرسائل (Notification)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| ANY | /admin/notification/my | قائمة إشعاراتي (ترقيم صفحات، بترتيب زمني عكسي) |
-| POST | /admin/notification/{id}/read | تحديد إشعار كمقروء |
-| POST | /admin/notification/read-all | تحديد الكل كمقروء |
-| ANY | /admin/notification/unread-count | عدد الرسائل غير المقروءة |
+| ANY | /admin/v1/notification/my | قائمة إشعاراتي (ترقيم صفحات، بترتيب زمني عكسي) |
+| POST | /admin/v1/notification/{id}/read | تحديد إشعار كمقروء |
+| POST | /admin/v1/notification/read-all | تحديد الكل كمقروء |
+| ANY | /admin/v1/notification/unread-count | عدد الرسائل غير المقروءة |
 
 ### 16.9 إدارة المشاريع (Project)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/project | قائمة المشاريع |
-| POST | /admin/project | إنشاء مشروع |
-| GET | /admin/project/{id} | تفاصيل المشروع |
-| PUT | /admin/project/{id} | تحديث مشروع |
-| DELETE | /admin/project/{id} | حذف مشروع |
-| GET | /admin/project/task | قائمة المهام |
-| POST | /admin/project/task | إنشاء مهمة |
-| PUT | /admin/project/task/{id} | تحديث مهمة |
-| DELETE | /admin/project/task/{id} | حذف مهمة |
-| GET | /admin/project/timesheet | قائمة سجلات ساعات العمل |
-| POST | /admin/project/timesheet | إدخال ساعات عمل |
-| PUT | /admin/project/timesheet/{id} | تحديث ساعات عمل |
-| DELETE | /admin/project/timesheet/{id} | حذف ساعات عمل |
+| GET | /admin/v1/project | قائمة المشاريع |
+| POST | /admin/v1/project | إنشاء مشروع |
+| GET | /admin/v1/project/{id} | تفاصيل المشروع |
+| PUT | /admin/v1/project/{id} | تحديث مشروع |
+| DELETE | /admin/v1/project/{id} | حذف مشروع |
+| GET | /admin/v1/project/task | قائمة المهام |
+| POST | /admin/v1/project/task | إنشاء مهمة |
+| PUT | /admin/v1/project/task/{id} | تحديث مهمة |
+| DELETE | /admin/v1/project/task/{id} | حذف مهمة |
+| GET | /admin/v1/project/timesheet | قائمة سجلات ساعات العمل |
+| POST | /admin/v1/project/timesheet | إدخال ساعات عمل |
+| PUT | /admin/v1/project/timesheet/{id} | تحديث ساعات عمل |
+| DELETE | /admin/v1/project/timesheet/{id} | حذف ساعات عمل |
 
 ### 16.10 إدارة الموارد البشرية (HR)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/hr/department | قائمة الأقسام (شجري) |
-| POST | /admin/hr/department | إنشاء قسم |
-| PUT | /admin/hr/department/{id} | تحديث قسم |
-| DELETE | /admin/hr/department/{id} | حذف قسم |
-| GET | /admin/hr/employee | قائمة الموظفين |
-| POST | /admin/hr/employee | إنشاء موظف |
-| PUT | /admin/hr/employee/{id} | تحديث موظف |
-| DELETE | /admin/hr/employee/{id} | حذف موظف |
-| GET | /admin/hr/position | قائمة المناصب |
-| POST | /admin/hr/position | إنشاء منصب |
-| PUT | /admin/hr/position/{id} | تحديث منصب |
-| DELETE | /admin/hr/position/{id} | حذف منصب |
-| ANY | /admin/hr/attendance | الاستعلام عن سجلات الحضور |
-| POST | /admin/hr/attendance/clock-in | تسجيل دخول العمل |
-| POST | /admin/hr/attendance/clock-out | تسجيل خروج العمل |
-| ANY | /admin/hr/leave | قائمة الإجازات |
-| POST | /admin/hr/leave | تقديم طلب إجازة |
-| GET | /admin/hr/leave/{id} | تفاصيل الإجازة |
-| PUT | /admin/hr/leave/{id} | تحديث إجازة |
-| DELETE | /admin/hr/leave/{id} | حذف إجازة |
-| POST | /admin/hr/leave/{id}/approve | 🔗 الموافقة على الإجازة |
-| GET | /admin/hr/salary | قائمة الرواتب |
-| POST | /admin/hr/salary | توليد سند رواتب |
-| PUT | /admin/hr/salary/{id} | تحديث راتب |
-| DELETE | /admin/hr/salary/{id} | حذف راتب |
-| POST | /admin/hr/salary/{id}/pay | صرف الراتب |
-| ANY | /admin/hr/salary-item | قائمة بنود الرواتب |
-| POST | /admin/hr/salary-item | إنشاء بند راتب |
-| GET | /admin/hr/salary-item/{id} | تفاصيل بند الراتب |
-| PUT | /admin/hr/salary-item/{id} | تحديث بند راتب |
-| DELETE | /admin/hr/salary-item/{id} | حذف بند راتب |
+| GET | /admin/v1/hr/department | قائمة الأقسام (شجري) |
+| POST | /admin/v1/hr/department | إنشاء قسم |
+| PUT | /admin/v1/hr/department/{id} | تحديث قسم |
+| DELETE | /admin/v1/hr/department/{id} | حذف قسم |
+| GET | /admin/v1/hr/employee | قائمة الموظفين |
+| POST | /admin/v1/hr/employee | إنشاء موظف |
+| PUT | /admin/v1/hr/employee/{id} | تحديث موظف |
+| DELETE | /admin/v1/hr/employee/{id} | حذف موظف |
+| GET | /admin/v1/hr/position | قائمة المناصب |
+| POST | /admin/v1/hr/position | إنشاء منصب |
+| PUT | /admin/v1/hr/position/{id} | تحديث منصب |
+| DELETE | /admin/v1/hr/position/{id} | حذف منصب |
+| ANY | /admin/v1/hr/attendance | الاستعلام عن سجلات الحضور |
+| POST | /admin/v1/hr/attendance/clock-in | تسجيل دخول العمل |
+| POST | /admin/v1/hr/attendance/clock-out | تسجيل خروج العمل |
+| ANY | /admin/v1/hr/leave | قائمة الإجازات |
+| POST | /admin/v1/hr/leave | تقديم طلب إجازة |
+| GET | /admin/v1/hr/leave/{id} | تفاصيل الإجازة |
+| PUT | /admin/v1/hr/leave/{id} | تحديث إجازة |
+| DELETE | /admin/v1/hr/leave/{id} | حذف إجازة |
+| POST | /admin/v1/hr/leave/{id}/approve | 🔗 الموافقة على الإجازة |
+| GET | /admin/v1/hr/salary | قائمة الرواتب |
+| POST | /admin/v1/hr/salary | توليد سند رواتب |
+| PUT | /admin/v1/hr/salary/{id} | تحديث راتب |
+| DELETE | /admin/v1/hr/salary/{id} | حذف راتب |
+| POST | /admin/v1/hr/salary/{id}/pay | صرف الراتب |
+| ANY | /admin/v1/hr/salary-item | قائمة بنود الرواتب |
+| POST | /admin/v1/hr/salary-item | إنشاء بند راتب |
+| GET | /admin/v1/hr/salary-item/{id} | تفاصيل بند الراتب |
+| PUT | /admin/v1/hr/salary-item/{id} | تحديث بند راتب |
+| DELETE | /admin/v1/hr/salary-item/{id} | حذف بند راتب |
 
 ### 16.11 التصنيع (Manufacturing)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/mfg/bom | قائمة BOM |
-| POST | /admin/mfg/bom | إنشاء BOM |
-| PUT | /admin/mfg/bom/{id} | تحديث BOM |
-| DELETE | /admin/mfg/bom/{id} | حذف BOM |
-| GET | /admin/mfg/production | قائمة أوامر الإنتاج |
-| POST | /admin/mfg/production | إنشاء أمر إنتاج |
-| PUT | /admin/mfg/production/{id} | تحديث أمر إنتاج |
-| DELETE | /admin/mfg/production/{id} | حذف أمر إنتاج |
-| POST | /admin/mfg/production/{id}/start | بدء التشغيل |
-| POST | /admin/mfg/production/{id}/complete | اكتمال الإنتاج |
-| GET | /admin/mfg/routing | قائمة مسارات التشغيل |
-| POST | /admin/mfg/routing | إنشاء مسار تشغيل |
-| PUT | /admin/mfg/routing/{id} | تحديث مسار تشغيل |
-| DELETE | /admin/mfg/routing/{id} | حذف مسار تشغيل |
-| GET | /admin/mfg/workstation | قائمة محطات العمل |
-| POST | /admin/mfg/workstation | إنشاء محطة عمل |
-| PUT | /admin/mfg/workstation/{id} | تحديث محطة عمل |
-| DELETE | /admin/mfg/workstation/{id} | حذف محطة عمل |
-| GET | /admin/mfg/mrp | قائمة خطط MRP |
-| POST | /admin/mfg/mrp | إنشاء خطة MRP |
-| PUT | /admin/mfg/mrp/{id} | تحديث خطة MRP |
-| DELETE | /admin/mfg/mrp/{id} | حذف خطة MRP |
-| POST | /admin/mfg/mrp/{id}/generate | 🔗 تشغيل MRP لتوليد اقتراحات شراء/إنتاج |
+| GET | /admin/v1/mfg/bom | قائمة BOM |
+| POST | /admin/v1/mfg/bom | إنشاء BOM |
+| PUT | /admin/v1/mfg/bom/{id} | تحديث BOM |
+| DELETE | /admin/v1/mfg/bom/{id} | حذف BOM |
+| GET | /admin/v1/mfg/production | قائمة أوامر الإنتاج |
+| POST | /admin/v1/mfg/production | إنشاء أمر إنتاج |
+| PUT | /admin/v1/mfg/production/{id} | تحديث أمر إنتاج |
+| DELETE | /admin/v1/mfg/production/{id} | حذف أمر إنتاج |
+| POST | /admin/v1/mfg/production/{id}/start | بدء التشغيل |
+| POST | /admin/v1/mfg/production/{id}/complete | اكتمال الإنتاج |
+| GET | /admin/v1/mfg/routing | قائمة مسارات التشغيل |
+| POST | /admin/v1/mfg/routing | إنشاء مسار تشغيل |
+| PUT | /admin/v1/mfg/routing/{id} | تحديث مسار تشغيل |
+| DELETE | /admin/v1/mfg/routing/{id} | حذف مسار تشغيل |
+| GET | /admin/v1/mfg/workstation | قائمة محطات العمل |
+| POST | /admin/v1/mfg/workstation | إنشاء محطة عمل |
+| PUT | /admin/v1/mfg/workstation/{id} | تحديث محطة عمل |
+| DELETE | /admin/v1/mfg/workstation/{id} | حذف محطة عمل |
+| GET | /admin/v1/mfg/mrp | قائمة خطط MRP |
+| POST | /admin/v1/mfg/mrp | إنشاء خطة MRP |
+| PUT | /admin/v1/mfg/mrp/{id} | تحديث خطة MRP |
+| DELETE | /admin/v1/mfg/mrp/{id} | حذف خطة MRP |
+| POST | /admin/v1/mfg/mrp/{id}/generate | 🔗 تشغيل MRP لتوليد اقتراحات شراء/إنتاج |
 
 ### 16.12 التقارير المخصصة (Report Builder)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/report | قائمة قوالب التقارير |
-| POST | /admin/report | إنشاء قالب تقرير |
-| GET | /admin/report/{id} | تفاصيل قالب التقرير |
-| PUT | /admin/report/{id} | تحديث قالب تقرير |
-| DELETE | /admin/report/{id} | حذف قالب تقرير |
-| POST | /admin/report/{id}/execute | تنفيذ التقرير لتوليد البيانات |
-| ANY | /admin/report/{id}/result | نتيجة تنفيذ التقرير |
-| GET | /admin/report/schedule | قائمة الجدولة الدورية |
-| POST | /admin/report/schedule | إنشاء جدولة دورية |
-| PUT | /admin/report/schedule/{id} | تحديث جدولة دورية |
-| DELETE | /admin/report/schedule/{id} | حذف جدولة دورية |
+| GET | /admin/v1/report | قائمة قوالب التقارير |
+| POST | /admin/v1/report | إنشاء قالب تقرير |
+| GET | /admin/v1/report/{id} | تفاصيل قالب التقرير |
+| PUT | /admin/v1/report/{id} | تحديث قالب تقرير |
+| DELETE | /admin/v1/report/{id} | حذف قالب تقرير |
+| POST | /admin/v1/report/{id}/execute | تنفيذ التقرير لتوليد البيانات |
+| ANY | /admin/v1/report/{id}/result | نتيجة تنفيذ التقرير |
+| GET | /admin/v1/report/schedule | قائمة الجدولة الدورية |
+| POST | /admin/v1/report/schedule | إنشاء جدولة دورية |
+| PUT | /admin/v1/report/schedule/{id} | تحديث جدولة دورية |
+| DELETE | /admin/v1/report/schedule/{id} | حذف جدولة دورية |
 
 ### 16.13 لوحة المعلومات (Dashboard)
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/dashboard/sales | لوحة المبيعات |
-| GET | /admin/dashboard/inventory | لوحة المخزون |
-| GET | /admin/dashboard/finance | لوحة المالية |
+| GET | /admin/v1/dashboard/sales | لوحة المبيعات |
+| GET | /admin/v1/dashboard/inventory | لوحة المخزون |
+| GET | /admin/v1/dashboard/finance | لوحة المالية |
 
 ### 16.14 واجهات العميل (Client API)
 
-تُركَّب واجهات العميل ضمن مجموعة `/api` وتتطلب رأس `API-Version`. معلومات المنتج لا تتضمن سعر الشراء.
+تُركَّب واجهات العميل ضمن مجموعة `/api/v1` (رقم الإصدار مدمج في مسار URL، بلا ترويسة إصدار). معلومات المنتج لا تتضمن سعر الشراء.
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /api/product | قائمة المنتجات (بدون سعر الشراء) |
-| GET | /api/product/{hashid} | تفاصيل المنتج (تشمل سعر التجزئة/الجملة، بدون سعر الشراء) |
+| GET | /api/v1/product | قائمة المنتجات (بدون سعر الشراء) |
+| GET | /api/v1/product/{hashid} | تفاصيل المنتج (تشمل سعر التجزئة/الجملة، بدون سعر الشراء) |
 
 ### 16.15 إدارة الطلبات OMS
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/oms/order | قائمة أوامر OMS |
-| POST | /admin/oms/order | إنشاء أمر OMS |
-| 🔗 POST | /admin/oms/order/{id}/allocate | توزيع المخزون (حجز) |
-| 🔗 POST | /admin/oms/order/{id}/fulfill | إنشاء التنفيذ |
-| POST | /admin/oms/order/{id}/cancel | إلغاء الطلب (تحرير الحجز) |
-| POST | /admin/oms/rma/{id}/approve | الموافقة على RMA |
-| POST | /admin/oms/rma/{id}/refund | استرداد RMA |
+| GET | /admin/v1/oms/order | قائمة أوامر OMS |
+| POST | /admin/v1/oms/order | إنشاء أمر OMS |
+| 🔗 POST | /admin/v1/oms/order/{id}/allocate | توزيع المخزون (حجز) |
+| 🔗 POST | /admin/v1/oms/order/{id}/fulfill | إنشاء التنفيذ |
+| POST | /admin/v1/oms/order/{id}/cancel | إلغاء الطلب (تحرير الحجز) |
+| POST | /admin/v1/oms/rma/{id}/approve | الموافقة على RMA |
+| POST | /admin/v1/oms/rma/{id}/refund | استرداد RMA |
 
 ### 16.16 إدارة المستودعات WMS
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/wms/zone | قائمة المناطق (CRUD) |
-| GET | /admin/wms/location | قائمة مواقع WMS (CRUD) |
-| GET | /admin/wms/asn | قائمة ASN (CRUD) |
-| POST | /admin/wms/receiving/{id}/complete | إكمال الاستلام ← توليد مهمة رفع تلقائيًا |
-| POST | /admin/wms/putaway/{id}/complete | تأكيد الرفع ← تفعيل stockIn |
-| POST | /admin/wms/wave/{id}/release | إطلاق الموجة ← توليد مهمة انتقاء |
-| POST | /admin/wms/pick/{id}/start | بدء الانتقاء |
-| POST | /admin/wms/pick/{id}/confirm | تأكيد الانتقاء |
-| POST | /admin/wms/pack/{id}/complete | اكتمال التغليف |
+| GET | /admin/v1/wms/zone | قائمة المناطق (CRUD) |
+| GET | /admin/v1/wms/location | قائمة مواقع WMS (CRUD) |
+| GET | /admin/v1/wms/asn | قائمة ASN (CRUD) |
+| POST | /admin/v1/wms/receiving/{id}/complete | إكمال الاستلام ← توليد مهمة رفع تلقائيًا |
+| POST | /admin/v1/wms/putaway/{id}/complete | تأكيد الرفع ← تفعيل stockIn |
+| POST | /admin/v1/wms/wave/{id}/release | إطلاق الموجة ← توليد مهمة انتقاء |
+| POST | /admin/v1/wms/pick/{id}/start | بدء الانتقاء |
+| POST | /admin/v1/wms/pick/{id}/confirm | تأكيد الانتقاء |
+| POST | /admin/v1/wms/pack/{id}/complete | اكتمال التغليف |
 
 ### 16.17 إدارة النقل TMS
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/tms/carrier | قائمة الناقلين (CRUD) |
-| GET | /admin/tms/service | خدمات الناقلين (CRUD) |
-| GET | /admin/tms/freight-rate | معدلات الشحن (CRUD) |
-| GET | /admin/tms/shipment | قائمة الشحنات (CRUD) |
-| 🔗 POST | /admin/tms/shipment/{id}/ship | تأكيد الشحن (stockOut+AR) |
-| POST | /admin/tms/tracking/callback | webhook تتبع الناقل |
-| POST | /admin/tms/freight-invoice/{id}/pay | دفع فاتورة الشحن (توليد AP) |
+| GET | /admin/v1/tms/carrier | قائمة الناقلين (CRUD) |
+| GET | /admin/v1/tms/service | خدمات الناقلين (CRUD) |
+| GET | /admin/v1/tms/freight-rate | معدلات الشحن (CRUD) |
+| GET | /admin/v1/tms/shipment | قائمة الشحنات (CRUD) |
+| 🔗 POST | /admin/v1/tms/shipment/{id}/ship | تأكيد الشحن (stockOut+AR) |
+| POST | /api/tms/tracking/callback | webhook تتبع الناقل |
+| POST | /admin/v1/tms/freight-invoice/{id}/pay | دفع فاتورة الشحن (توليد AP) |
 
 ### 16.18 توسعات لوحة المعلومات
 
 | الطريقة | المسار | الوصف |
 |------|------|------|
-| GET | /admin/dashboard/oms | مؤشرات OMS (قيد المعالجة/قيد الانتقاء/شحن اليوم/RMA) |
-| GET | /admin/dashboard/wms | مؤشرات WMS (قيد الاستلام/قيد الرفع/قيد الانتقاء/قيد التغليف) |
-| GET | /admin/dashboard/tms | مؤشرات TMS (قيد الشحن/قيد النقل/تم الاستلام/غير طبيعي) |
+| GET | /admin/v1/dashboard/oms | مؤشرات OMS (قيد المعالجة/قيد الانتقاء/شحن اليوم/RMA) |
+| GET | /admin/v1/dashboard/wms | مؤشرات WMS (قيد الاستلام/قيد الرفع/قيد الانتقاء/قيد التغليف) |
+| GET | /admin/v1/dashboard/tms | مؤشرات TMS (قيد الشحن/قيد النقل/تم الاستلام/غير طبيعي) |
 
 ### 16.19 شرح الترابط عبر الوحدات
 
@@ -2037,5 +2053,5 @@ docker-compose up -d
 
 | النقطة | إجراء الترابط |
 |------|---------|
-| 🔗 POST /admin/purchase/receive | استدعاء تلقائي لـ InventoryService.stockIn() لتحديث المخزون + إعادة حساب تكلفة المتوسط المتحرك المرجح؛ واستدعاء FinanceService.createAp() لتوليد سجل ذمم دائنة |
-| 🔗 POST /admin/sales/delivery | استدعاء تلقائي لـ InventoryService.stockOut() لخصم المخزون (بتكلفة المتوسط المتحرك المرجح)؛ واستدعاء FinanceService.createAr() لتوليد سجل ذمم مدينة |
+| 🔗 POST /admin/v1/purchase/receive | استدعاء تلقائي لـ InventoryService.stockIn() لتحديث المخزون + إعادة حساب تكلفة المتوسط المتحرك المرجح؛ واستدعاء FinanceService.createAp() لتوليد سجل ذمم دائنة |
+| 🔗 POST /admin/v1/sales/delivery | استدعاء تلقائي لـ InventoryService.stockOut() لخصم المخزون (بتكلفة المتوسط المتحرك المرجح)؛ واستدعاء FinanceService.createAr() لتوليد سجل ذمم مدينة |

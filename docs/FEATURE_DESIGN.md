@@ -50,7 +50,7 @@
 - 仅支持查询，不可删除/修改
 
 ### 2.5 安全防护
-- 18 层纵深防御（详见 SECURITY.md）
+- 7 层纵深防御（详见 SECURITY.md）
 - SecurityFilter: HTTP方法限制 + XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
 - RateLimit: Redis 滑动窗口限流（Lua 原子化，60次/分钟）
 - 点击验证码（登录/注册强制）

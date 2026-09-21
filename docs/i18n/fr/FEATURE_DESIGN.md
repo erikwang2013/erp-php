@@ -16,7 +16,7 @@ Le système Open ERP (open-erp) est un système de planification des ressources 
 ### 1.2 Contraintes techniques
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
 - Préfixe de table erp_, clé primaire BIGINT non auto-incrémentée
-- Version d'API contrôlée par l'en-tête de requête API-Version
+- Version d'API placée dans le chemin d'URL (/admin/v1, /api/v1, /open/v1), sans en-tête de version
 - Authentification JWT + permissions RBAC
 - Pas de préfixe `\` pour les fonctions globales
 
@@ -50,7 +50,7 @@ Le système Open ERP (open-erp) est un système de planification des ressources 
 - Consultation uniquement, pas de suppression ni de modification
 
 ### 2.5 Protection de la sécurité
-- 18 couches de défense en profondeur (voir SECURITY.md)
+- Défense en profondeur sur 7 couches (voir SECURITY.md)
 - SecurityFilter : limitation des méthodes HTTP + interception XSS/injection SQL/traversée de chemins/injection de commandes/CSRF
 - RateLimit : limitation de débit à fenêtre glissante Redis (atomique Lua, 60 requêtes/minute)
 - Captcha à clic (obligatoire à la connexion/inscription)

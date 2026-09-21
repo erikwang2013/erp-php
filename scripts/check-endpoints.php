@@ -327,7 +327,7 @@ REGEX;
                 }
             }
 
-            $info = analyzePath($raw, $method, $note);
+            $info = analyzePath($raw, $method, $note, $source);
             if ($info === null) {
                 continue; // 非 API 路径（如 AppStorage.get('access_token')）
             }
@@ -385,7 +385,7 @@ REGEX;
  * 解析单个路径字面量 → 规范化信息。
  * 返回 null 表示不是 API 路径（不以 / 开头）。
  */
-function analyzePath(string $raw, string $method, string $note = ''): ?array
+function analyzePath(string $raw, string $method, string $note = '', string $source = ''): ?array
 {
     // 剥离 ${BASE_URL} 模板前缀（HarmonyOS 常量）
     $trimmed = ltrim($raw);
@@ -423,6 +423,13 @@ function analyzePath(string $raw, string $method, string $note = ''): ?array
     // 动态段统一替换为 {param}
     $norm = preg_replace('/\$\{[^}]*\}/', '{param}', $trimmed);
     $norm = preg_replace('/\$[A-Za-z_][A-Za-z0-9_]*/', '{param}', $norm);
+
+    // HarmonyOS 的 ApiService.request() 会在发请求前把 /admin、/api 前缀补成 /admin/v1、/api/v1
+    // （apps/harmonyos/entry/src/main/ets/service/ApiService.ets 的 versionedPath 规则，带负向断言防二次注入）。
+    // 此处按同一规则还原，否则 .ets 里写的 /admin/user 与已注册的 /admin/v1/user 对不上，会被误报成"死端点"。
+    if ($source === 'harmonyos') {
+        $norm = (string) preg_replace('#^/(admin|api)/(?!v\d+/)#', '/$1/v1/', $norm);
+    }
     if (str_contains($norm, '${')) {
         $unresolved = true;
         $note       = trim($note . ' 含未闭合 ${ 插值');
@@ -820,7 +827,7 @@ function renderDoc(string $path, array $dead, array $gaps, array $unresolved, ar
     $md .= "```\n\n";
     $md .= "工作原理：\n\n";
     $md .= "1. **后端**：解析 `config/route.php`，还原 `Route::group` 前缀为完整路径；`Route::resource` 按控制器实际存在的方法展开（index/store/show/update/destroy 等）；`Route::any` 视为任意方法。\n";
-    $md .= '2. **前端**：扫描 `apps/flutter/lib` 目录下所有 `.dart` 与 `apps/harmonyos/entry/src/main/ets` 目录下所有 `.ets` 文件，提取 `ApiService.instance.*`、`api.*`、`_dio.*`、`apiService.*`、`httpRequest.request()` 等调用的路径字面量；支持 `${...}` / `$var` 插值与模板串（含 `${BASE_URL}` 前缀剥离）。' . "\n";
+    $md .= '2. **前端**：扫描 `apps/flutter/lib` 目录下所有 `.dart` 与 `apps/harmonyos/entry/src/main/ets` 目录下所有 `.ets` 文件，提取 `ApiService.instance.*`、`api.*`、`_dio.*`、`apiService.*`、`httpRequest.request()` 等调用的路径字面量；支持 `${...}` / `$var` 插值与模板串（含 `${BASE_URL}` 前缀剥离），并按 HarmonyOS `ApiService.request()` 的同一规则把 `.ets` 里的 `/admin`、`/api` 前缀还原为 `/admin/v1`、`/api/v1`（否则会与已注册的版本化路由对不上而误报死端点）。' . "\n";
     $md .= "3. **匹配**：前端字面量段仅匹配后端字面量段，前端动态段仅匹配后端 `{param}` 段（保证 `/admin/notification/my/read` 不会被误配到 `/admin/notification/{id}/read`）；方法按 HTTP 方法精确匹配，`any` 匹配一切。\n";
     $md .= "4. **清单**：① 死端点（前端调用但后端不存在，最优先）→ ② 覆盖缺口（后端存在但前端均未调用，按模块分组；webhook/健康检查等系统路由已标注）→ ③ 无法解析的路径（变量路径、字符串拼接、未闭合插值等，需人工复核）。\n\n";
 

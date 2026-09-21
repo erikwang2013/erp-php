@@ -14,13 +14,57 @@ O Sistema ERP Aberto oferece três versões para atender às necessidades de emp
 | Dimensão | Lite | Standard | Full |
 |------|:---:|:---:|:---:|
 | Branch | `lite` | `standard` | `full` |
-| Tabelas de dados | 62 (valor planejado) | 72 (valor planejado) | 163 <!-- stats:tables=227 --> |
-| Controladores | 48 (valor planejado) | 42 (valor planejado) | 123 <!-- stats:controllers=159 --> |
-| Módulos de negócio | 6 (valor planejado) | 6 (valor planejado) | 19 <!-- stats:modules=23 --> |
+| Tabelas de dados | 62 (valor planejado) | 72 (valor planejado) | 227 <!-- stats:tables=227 --> |
+| Controladores | 48 (valor planejado) | 42 (valor planejado) | 159 <!-- stats:controllers=159 --> |
+| Módulos de negócio | 6 (valor planejado) | 6 (valor planejado) | 23 <!-- stats:modules=23 --> |
 
-> **Critério das estatísticas**: o repositório implementa atualmente apenas a versão Full (um único código); as colunas Lite/Standard são valores planejados do produto (não existem branches correspondentes no código),
-> e não participam da validação do doc-stats. Os números da coluna Full são medidos por `scripts/doc-stats.sh` (163 tabelas / 123 controladores / 19 módulos de negócio),
+> **Critério das estatísticas**: o repositório implementa atualmente apenas a versão Full (um único código); as colunas Lite/Standard são valores planejados do produto
+> (sem branches correspondentes, ver «Estratégia de branches» abaixo) e não participam da validação do doc-stats.
+> Os números da coluna Full são medidos por `scripts/doc-stats.sh` (227 tabelas / 159 controladores / 23 módulos de negócio),
 > consistentes com o apêndice de `FUNCTIONS.md`.
+> **Fato sobre os branches** (medido em 2026-09-22 com `git branch -a` + `git ls-remote --heads origin`):
+> tanto no repositório local quanto no remoto resta apenas o branch `main`; os três branches `lite` / `standard` / `full` foram **excluídos**
+> (em 2026-08-31 ainda se media a coexistência dos três, todos parados no commit `eea90c0` de 2026-08-17, sem diferenças entre si e 38 commits atrás de `main`).
+> O commit de arquivo continua no histórico de `main` (`git merge-base --is-ancestor eea90c0 main` é verdadeiro),
+> ou seja, hoje as diferenças de versão só podem ser rastreadas por commits e tags — não há mais branch de versão para fazer checkout no repositório.
+
+---
+
+## Mudanças da v1.17.0 (2026-09-15)
+
+> O posicionamento das versões não muda: o repositório continua implementando apenas a versão Full (um único código); as colunas Lite/Standard são valores planejados do produto e seus branches foram arquivados e congelados.
+
+- **O painel administrativo passa de duas para três implementações**: entram o Angular 22 (`apps/angular/`) e o React 19 + Vite (`apps/react/`),
+  lado a lado com o já existente Flutter 3.x Web (`apps/flutter/`); as três pontas compartilham as mesmas interfaces `/admin/v1`, `/api/v1` e `/open/v1`.
+- **13 idiomas em toda a plataforma** (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id):
+  - Mensagens de resposta do backend em `resource/translations/<locale>/` — `zh_CN` com 565 entradas, cada um dos outros 11 idiomas com 544, `en` com 30
+    (critério: entradas folha dos três arquivos; os rótulos do campo `attributes` de `validation.php` entram na conta, as chaves de grupo não — `zh_CN` tem 21 entradas a mais por traduzir 21 rótulos de campo. Na linha `en` "inglês é a chave", o dicionário fica praticamente vazio)
+  - Interface do painel administrativo: dicionário fonte do Angular com 1456 chaves e do React com 1451 chaves × 11 novos idiomas; **carregamento sob demanda por idioma**, cada idioma vira um chunk
+  - Geradores: `scripts/gen-be-locales.mjs` (backend) e `scripts/gen-fe-locales.mjs` (frontend, `--app angular|react`)
+  - Ponto de troca: **ícone globe próprio** na barra superior + menu suspenso no centro pessoal (igual nas duas pontas)
+- **Flutter e HarmonyOS continuam com dois idiomas (chinês/inglês)**, fora deste ciclo.
+- **Impacto na tabela abaixo**: coluna Full de 163 tabelas / 122 controladores / 19 módulos de negócio → **227 / 159 / 23**;
+  a matriz de completude ganha a linha «multilíngue (i18n)» (linhas de módulo 44 → 45, API de backend 39 → 40, lógica de negócio 33 → 34);
+  nota: após a fusão da linha duplicada «multi-tenant» na matriz de 2026-09-15, as linhas de módulo voltam a 44 (API de backend 39, lógica de negócio 33) —
+  a frase acima é o critério incremental vigente no v1.17.0 e permanece como está.
+
+## Mudanças da v1.4.0 (2026-09-05)
+
+> O posicionamento das versões não muda: o repositório continua implementando apenas a versão Full (um único código); as colunas Lite/Standard são valores planejados do produto e seus branches foram arquivados e congelados.
+
+- **Versionamento de caminho em todo o site**: `/admin/*` → `/admin/v1/*`, `/api/*` → `/api/v1/*`, `/open/*` → `/open/v1/*`;
+  a única exceção é `GET /api/docs` (documentação OpenAPI) e o webhook do TMS; a autenticação dos pontos de permissão RBAC usa o `method.path` sem o segmento de versão,
+  sem qualquer migração dos dados de papéis existentes (commit `3ee1430`; o controle pelo cabeçalho `API-Version` foi removido antes, commit `8276a1b`).
+- **P0 multi-organização e contabilidade de custos**: contabilidade independente por organização (Company/LedgerPeriod), motor de relatórios consolidados (conversão pela taxa de fechamento + eliminação entre subsidiárias,
+  com snapshot preferencial em FinanceConsolidationReport), custeio de estoque/produção (requisição de materiais + apropriação de custos).
+- **P1 execução de manufatura e colaboração**: apontamento de operações/salário por peça/expedição e recebimento de terceirização/carga de capacidade/rastreabilidade de lotes e séries (M1/M2/M6/M3), controle de crédito (F7),
+  canvas do fluxo de aprovação (B3), modelos de impressão (B1), salários de RH (H1/H2), inspeção por leitura de QR em equipamentos (E1), custo de projeto (P1).
+- **P2 diferenciação e ecossistema**: programa de fidelidade (C1), registro de títulos e conciliação bancária (F6), pool de notas de entrada e faturamento eletrônico (F5, a integração real com a autoridade fiscal é um ponto de adaptação),
+  canal multicanal e novas tentativas em caso de falha (B4), campos personalizados (B7), cobrança por vencimento de multi-tenant (B5 — o middleware de isolamento de tenant ainda não está registrado, ativação parcial),
+  treinamento e previdência social (H3/H4).
+- **Matriz de funcionalidades**: das 44 linhas de módulo, 33 têm ✅ duplo; 21 linhas estão marcadas como v1.4.0 (incluindo 1 linha de ativação parcial), ver `FUNCTIONS.md` §19.
+
+> O detalhamento das mudanças está no `CHANGELOG.md` na raiz do repositório.
 
 ---
 
@@ -37,7 +81,7 @@ O Sistema ERP Aberto oferece três versões para atender às necessidades de emp
 | Upload de arquivos / Exportação Excel / Exportação PDF | ✔ | ✔ | ✔ |
 | Health check / Métricas Prometheus | ✔ | ✔ | ✔ |
 | Autenticação JWT + captcha de clique | ✔ | ✔ | ✔ |
-| 18 camadas de proteção de segurança | ✔ | ✔ | ✔ |
+| 7 camadas de proteção de segurança | ✔ | ✔ | ✔ |
 | Internacionalização (i18n) bilíngue chinês/inglês | — | — | ✔ |
 
 ### Produtos e dados básicos
@@ -113,7 +157,7 @@ O Sistema ERP Aberto oferece três versões para atender às necessidades de emp
 |------|:---:|:---:|:---:|
 | Mecanismo de fluxo de aprovação | — | — | ✔ |
 | Sistema de notificações | — | — | ✔ |
-| Documentação da API (hg/apidoc) | ✔ | ✔ | ✔ |
+| Documentação da API (erikwang2013/apidoc-php) | ✔ | ✔ | ✔ |
 
 ### Módulos de extensão
 
@@ -142,19 +186,20 @@ O Sistema ERP Aberto oferece três versões para atender às necessidades de emp
 |------|--------------------------|------|
 | Lite | 62 tabelas / 6 módulos de negócio (valores planejados) | Sem aprovação/notificações/RH/manufatura/relatórios |
 | Standard | 72 tabelas / 6 módulos de negócio (valores planejados) | Modelo de dados mais enxuto |
-| Full | 163 tabelas <!-- stats:tables=227 --> / 19 módulos de negócio <!-- stats:modules=23 --> | Capacidade completa de plataforma empresarial |
+| Full | 227 tabelas <!-- stats:tables=227 --> / 23 módulos de negócio <!-- stats:modules=23 --> | Capacidade completa de plataforma empresarial |
 
 ---
 
-## Estratégia de branches (a partir de 2026-08)
+## Estratégia de branches (a partir de 2026-08-27)
 
-> Este documento corresponde à convenção de branches da versão atual do repositório, aplicável aos três branches `lite` / `standard` / `full`.
+> Aplica-se aos três branches de versão `lite` / `standard` / `full` e é consistente com o job `release` do CI (tag de versão idempotente).
+> **Complemento de estado atual (medido em 2026-09-22)**: os três branches foram excluídos; os itens restantes desta seção devem ser lidos como «arquivo = commits e tags»,
+> pois não há mais branch de versão disponível para checkout.
 
-- **`main` é a única fonte de desenvolvimento**: todo desenvolvimento de funcionalidades, correção de defeitos e atualização de dependências é mesclado em `main`.
-- **Os branches de versão recebem apenas cherry-pick em releases**: `lite` / `standard` / `full` não são mais linhas de desenvolvimento independentes para commits diários;
-  na release, o engenheiro de versões faz cherry-pick das funcionalidades correspondentes a partir de `main` (ou faz uma fusão completa conforme necessário),
-  preservando nos branches as respectivas intenções de corte (as diferenças de módulos estão na tabela de comparação acima).
-- **Princípio de corte**: o branch de versão é um subconjunto de `main`. Ao mesclar/portar conteúdo de `main`, se o conflito recair na lógica de corte da versão
-  (como as diferenças de módulos em EDITIONS.md, corte de rotas), preserva-se a intenção de corte do branch; código não relacionado segue sempre a versão de `main`.
-- **Validação**: após a fusão, o branch de versão deve passar na verificação de sintaxe completa `php -l`; testes que não se aplicam por causa do corte podem ser pulados com a devida justificativa registrada.
-- **Release**: a fusão/portabilidade do branch de versão é feita pelo engenheiro de versões com um commit de merge; os commits em `main` são executados uniformemente pelo Lead.
+- **`main` é a única fonte de desenvolvimento**: todo desenvolvimento de funcionalidades, correção de defeitos e atualização de dependências é mesclado em `main`, e os commits são executados uniformemente pelo Lead.
+- **Branches de versão apenas arquivados, não mantidos**: `lite` / `standard` / `full` foram congelados como branches de arquivo histórico e não recebem mais commits novos,
+  nem sincronizam incrementos de `main`, nem sofrem atualização ou push forçado (para evitar manter três linhas de código); **encerrado o período de congelamento, os três branches foram excluídos**,
+  e o conteúdo arquivado permanece no commit `eea90c0` do histórico de `main`.
+- **As diferenças de versão são registradas por tags de versão**: a release é criada de forma idempotente pelo job `release` do CI a partir da tag mais recente, no formato `vX.Y.Z`
+  (ver `scripts/bump-version.sh`); as diferenças funcionais entre as versões seguem as tags e a tabela de comparação de funcionalidades acima, e não linhas de código de branches mantidos.
+- **Validação**: o CI de `main` é a validação da release; os branches arquivados não rodam mais CI separadamente. (A partir de 2026-09-15 o job `release` depende de `docs` + `e2e`; o job `php` continua rodando mas não bloqueia a release — seus pontos vermelhos são dívida histórica de testes de integração exclusiva do CI, ver os comentários em `.github/workflows/ci.yml`.)

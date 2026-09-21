@@ -149,6 +149,7 @@ return [
     ':envKey may only contain visible characters and must not contain $ or backslash' => ':envKey hanya boleh berisi karakter yang terlihat dan tidak boleh mengandung $ atau backslash',
     ':envKey must be a 2-5 digit port' => ':envKey harus berupa port 2-5 digit',
     ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => ':field harus berupa kunci alfanumerik 16-128 karakter (atau biarkan kosong untuk dibuat otomatis)',
+    ':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate' => ':envKey harus tepat 32 karakter alfanumerik (kunci AES-256), atau biarkan kosong untuk membuat otomatis',
     'Please enter the database host' => 'Silakan masukkan host database',
     'Please fill in host/port/database/user before testing' => 'Silakan isi host/port/database/user sebelum pengujian',
     'Testing...' => 'Menguji...',

@@ -4,7 +4,7 @@
 
 ## API दस्तावेज़
 
-परियोजना [hg/apidoc](https://github.com/hg-code/apidoc) से इंटरैक्टिव API दस्तावेज़ स्वतः उत्पन्न करती है।
+परियोजना [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php) से इंटरैक्टिव API दस्तावेज़ स्वतः उत्पन्न करती है।
 
 **पहुंच विधि:** सेवा प्रारंभ करने के बाद `http://localhost:8788/apidoc` पर जाएँ
 
@@ -18,17 +18,20 @@
 | अनुरोध हेडर | विवरण |
 |--------|------|
 | `Authorization` | JWT Bearer Token |
-| `API-Version` | API संस्करण संख्या (v1) |
-| `Accept-Language` | अंतर्राष्ट्रीयकरण भाषा (zh-CN/en) |
+| `Accept-Language` | अंतर्राष्ट्रीयकरण भाषा, 13 भाषाएँ समर्थित (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id), डिफ़ॉल्ट `zh_CN` |
+
+> **संस्करण नोट**: पूरी साइट पथ-आधारित संस्करणित है——प्रशासन एंड `/admin/v1`, क्लाइंट `/api/v1`, ओपन इंटरफ़ेस `/open/v1`,
+> संस्करण संख्या URL पथ में रखी जाती है, **किसी संस्करण अनुरोध हेडर की आवश्यकता नहीं**; अपवाद: `GET /api/docs` (OpenAPI दस्तावेज़) और
+> कैरियर ट्रैकिंग कॉलबैक `/api/tms/tracking/callback` (HMAC हस्ताक्षर, संस्करण रहित)।
 
 **एनोटेशन मानदंड:** सभी कंट्रोलर विधियाँ इंटरफ़ेस नाम, विवरण, URL, अनुरोध विधि, पैरामीटर और रिटर्न मान संरचना को चिह्नित करने के लिए `@Apidoc\*` श्रृंखला एनोटेशन का उपयोग करती हैं।
 
 ## 1. अवलोकन
 
-ओपन एडमिन बैकएंड (open-admin) webman v2 पर आधारित है, RESTful JSON API प्रदान करता है। सभी प्रशासन एंड इंटरफ़ेसों को JWT प्रमाणीकरण और RBAC अनुमति सत्यापन की आवश्यकता होती है, सार्वजनिक इंटरफ़ेस API संस्करण हेडर के माध्यम से संस्करणित कंट्रोलर में रूट होते हैं।
+ओपन एडमिन बैकएंड (open-admin) webman v2 पर आधारित है, RESTful JSON API प्रदान करता है। पूरी साइट पथ-आधारित संस्करणित है: प्रशासन एंड इंटरफ़ेस `/admin/v1` के अंतर्गत माउंट होते हैं (JWT प्रमाणीकरण + RBAC अनुमति सत्यापन), क्लाइंट इंटरफ़ेस `/api/v1` के अंतर्गत, ओपन इंटरफ़ेस `/open/v1` के अंतर्गत; संस्करण संख्या URL पथ में समाहित, कोई संस्करण अनुरोध हेडर नहीं।
 
 - **आधार URL**: `http://localhost:8788`
-- **API संस्करण**: अनुरोध हेडर `API-Version: v1` से नियंत्रित (अनुपस्थित होने पर डिफ़ॉल्ट v1)
+- **API संस्करण**: पूरी साइट पथ-आधारित संस्करणित, संस्करण संख्या URL पथ में (प्रशासन एंड `/admin/v1`, क्लाइंट `/api/v1`, ओपन इंटरफ़ेस `/open/v1`), कोई संस्करण अनुरोध हेडर आवश्यक नहीं
 
 > **एंडपॉइंट अवलोकन**: प्रमाणीकरण (5) | डैशबोर्ड (1) | उपयोगकर्ता (7) | भूमिका (4) | अनुमति (4) | कॉन्फ़िगरेशन (4) | लॉग (1) | व्यक्तिगत केंद्र (3) | आयात-निर्यात (3) | अपलोड (1) | संचालन (4: health/metrics/docs/security.txt) | कुल 37 एंडपॉइंट
 - **प्रमाणीकरण**: `Authorization: Bearer <token>` (JWT)
@@ -37,22 +40,35 @@
 
 ### अंतर्राष्ट्रीयकरण
 
-API अनुरोध हेडर `Accept-Language` से भाषा स्वतः स्विच करता है:
+API अनुरोध हेडर `Accept-Language` से भाषा स्वतः स्विच करता है, 13 भाषाएँ समर्थित: `zh_CN` (चीनी, डिफ़ॉल्ट), `en` (English), `ja` (日本語), `ko` (한국어), `de` (Deutsch), `fr` (Français), `es` (Español), `pt` (Português), `ru` (Русский), `ar` (العربية), `hi` (हिन्दी), `bn` (বাংলা), `id` (Bahasa Indonesia)।
 
-| अनुरोध हेडर मान | भाषा |
+| अनुरोध हेडर का पहला भाषा टैग | पार्स होकर |
 |---------|------|
-| `zh-CN`, `zh` | चीनी (डिफ़ॉल्ट) |
-| `en`, `en-US` | English |
+| `zh`, `zh-CN`, `zh-TW` | `zh_CN` चीनी (डिफ़ॉल्ट) |
+| `en`, `en-US` | `en` English |
+| `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id` | संबंधित भाषा (क्षेत्रीय उपसर्ग अनदेखा, जैसे `de-DE` → `de`) |
+
+पार्सिंग नियम (`app/common/I18n.php` `getLocale()`):
+
+- ब्राउज़र भाषा वरीयता के अवरोही क्रम में टैग भेजता है, **केवल पहला टैग** लिया जाता है (कॉमा से पहले का भाग), q मान पार्स नहीं होता;
+- क्षेत्रीय उप-टैग अनदेखा, केवल मुख्य भाषा उप-टैग रखा जाता है (`zh-CN` → `zh`, `de-DE` → `de`);
+- `zh*` सदैव `zh_CN` में मैप होता है; शेष मुख्य भाषा उप-टैग यथावत उपयोग होते हैं;
+- अनुरोध हेडर अनुपलब्ध या खाली होने पर `config('translation.locale')` = `zh_CN` उपयोग होता है।
+
+फ़ॉलबैक श्रृंखला (`trans()`): अनुरोध भाषा → `zh_CN` → `en` → key स्वयं लौटाएँ (अंग्रेज़ी ही key, अतः key यानी अंग्रेज़ी मूल पाठ)। **`en` फ़ॉलबैक में भाग नहीं लेता**——`en` अनुरोध पर केवल `en` शब्दकोश खोजा जाता है, न मिलने पर सीधे key (अंग्रेज़ी मूल पाठ) लौटता है, चीनी में नहीं गिरता।
 
 ```bash
 # 英文响应
-curl -H "Accept-Language: en" http://localhost:8788/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
+
+# 日文响应
+curl -H "Accept-Language: ja" http://localhost:8788/admin/v1/product
 
 # 中文响应（默认）
-curl http://localhost:8788/admin/product
+curl http://localhost:8788/admin/v1/product
 ```
 
-प्रतिक्रिया का `message` फ़ील्ड संबंधित भाषा में लौटाया जाएगा।
+प्रतिक्रिया का `message` फ़ील्ड संबंधित भाषा में लौटाया जाएगा। शब्दकोश फ़ाइलें `resource/translations/<locale>/{common,modules,validation}.php` में हैं।
 
 ### अनुरोध आवश्यकताएँ
 
@@ -81,7 +97,7 @@ curl http://localhost:8788/admin/product
 
 ## 3. सार्वजनिक एंडपॉइंट
 
-सभी सार्वजनिक एंडपॉइंट `/api` समूह के अंतर्गत माउंट होते हैं, `ApiVersion` मिडलवेयर के माध्यम से `API-Version` हेडर के अनुसार संबंधित संस्करणित कंट्रोलर में वितरित होते हैं (जैसे `app\api\v1\controller\AuthController`)।
+सभी सार्वजनिक एंडपॉइंट `/api/v1` समूह के अंतर्गत माउंट होते हैं (संस्करण संख्या URL पथ में समाहित, कोई संस्करण अनुरोध हेडर नहीं, कोई संस्करण मिडलवेयर भी नहीं), कंट्रोलर निर्देशिका अनुसार सीधे बाइंड होते हैं (जैसे `app\api\v1\controller\AuthController`)।
 
 ### 3.1 स्वास्थ्य जांच
 
@@ -124,11 +140,11 @@ GET /api/docs
 ### 3.3 क्लिक कैप्चा उत्पन्न करें
 
 ```
-POST /api/captcha/generate
+POST /api/v1/captcha/generate
 ```
 
 - **प्रमाणीकरण**: आवश्यक नहीं
-- **अनुरोध हेडर**: `API-Version: v1` (अनिवार्य)
+- **संस्करण**: URL पथ में /api/v1 समाहित, कोई संस्करण अनुरोध हेडर नहीं
 - **रेट लिमिट**: वैश्विक डिफ़ॉल्ट (60 बार/मिनट)
 
 **अनुरोध निकाय**:
@@ -170,11 +186,11 @@ POST /api/captcha/generate
 ### 3.4 क्लिक कैप्चा सत्यापित करें
 
 ```
-POST /api/captcha/verify
+POST /api/v1/captcha/verify
 ```
 
 - **प्रमाणीकरण**: आवश्यक नहीं
-- **अनुरोध हेडर**: `API-Version: v1` (अनिवार्य)
+- **संस्करण**: URL पथ में /api/v1 समाहित, कोई संस्करण अनुरोध हेडर नहीं
 - **रेट लिमिट**: वैश्विक डिफ़ॉल्ट (60 बार/मिनट)
 
 **अनुरोध निकाय**:
@@ -207,11 +223,11 @@ POST /api/captcha/verify
 ### 3.5 लॉगिन
 
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 - **प्रमाणीकरण**: आवश्यक नहीं
-- **अनुरोध हेडर**: `API-Version: v1` (अनिवार्य)
+- **संस्करण**: URL पथ में /api/v1 समाहित, कोई संस्करण अनुरोध हेडर नहीं
 - **रेट लिमिट**: 10 बार/मिनट (IP + पथ के अनुसार)
 
 **अनुरोध निकाय**:
@@ -271,11 +287,11 @@ POST /api/auth/login
 ### 3.6 पंजीकरण
 
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 ```
 
 - **प्रमाणीकरण**: आवश्यक नहीं
-- **अनुरोध हेडर**: `API-Version: v1` (अनिवार्य)
+- **संस्करण**: URL पथ में /api/v1 समाहित, कोई संस्करण अनुरोध हेडर नहीं
 - **रेट लिमिट**: 5 बार/मिनट (IP + पथ के अनुसार)
 - **स्विच**: डिफ़ॉल्ट बंद (`REGISTRATION_ENABLED=0`), बंद होने पर 403 लौटता है; `.env` में स्पष्ट रूप से खोलना आवश्यक (`REGISTRATION_ENABLED=1`)
 
@@ -324,11 +340,11 @@ POST /api/auth/register
 ### 3.7 टोकन रीफ्रेश
 
 ```
-POST /api/auth/refresh
+POST /api/v1/auth/refresh
 ```
 
 - **प्रमाणीकरण**: आवश्यक नहीं
-- **अनुरोध हेडर**: `API-Version: v1` (अनिवार्य)
+- **संस्करण**: URL पथ में /api/v1 समाहित, कोई संस्करण अनुरोध हेडर नहीं
 - **रेट लिमिट**: वैश्विक डिफ़ॉल्ट (60 बार/मिनट)
 
 **अनुरोध निकाय**:
@@ -406,12 +422,12 @@ openadmin_memory_usage_bytes 18874368
 
 ## 4. डैशबोर्ड
 
-सभी प्रशासन एंड इंटरफ़ेस `/admin` समूह के अंतर्गत माउंट होते हैं, तीन मिडलवेयर से गुजरते हैं: `AdminAuth` (JWT प्रमाणीकरण), `AdminPermission` (RBAC अनुमति सत्यापन), `OperationLog` (ऑपरेशन रिकॉर्ड)।
+सभी प्रशासन एंड इंटरफ़ेस `/admin/v1` समूह के अंतर्गत माउंट होते हैं, तीन मिडलवेयर से गुजरते हैं: `AdminAuth` (JWT प्रमाणीकरण), `AdminPermission` (RBAC अनुमति सत्यापन), `OperationLog` (ऑपरेशन रिकॉर्ड)।
 
 ### 4.1 डैशबोर्ड डेटा
 
 ```
-GET /admin/dashboard
+GET /admin/v1/dashboard
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -468,7 +484,7 @@ GET /admin/dashboard
         "id": "hashid...",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "user_name": "admin",
         "created_at": "2026-05-21 10:30:00"
@@ -498,7 +514,7 @@ GET /admin/dashboard
 ### 5.1 उपयोगकर्ता सूची
 
 ```
-GET /admin/user
+GET /admin/v1/user
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -551,7 +567,7 @@ GET /admin/user
 ### 5.2 उपयोगकर्ता बनाएँ
 
 ```
-POST /admin/user
+POST /admin/v1/user
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -601,7 +617,7 @@ POST /admin/user
 ### 5.3 उपयोगकर्ता विवरण
 
 ```
-GET /admin/user/{id}
+GET /admin/v1/user/{id}
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -635,7 +651,7 @@ GET /admin/user/{id}
 ### 5.4 उपयोगकर्ता अपडेट करें
 
 ```
-PUT /admin/user/{id}
+PUT /admin/v1/user/{id}
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -683,7 +699,7 @@ PUT /admin/user/{id}
 ### 5.5 उपयोगकर्ता हटाएँ
 
 ```
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -720,7 +736,7 @@ DELETE /admin/user/{id}
 ### 5.6 बैच उपयोगकर्ता हटाएँ
 
 ```
-POST /admin/user/batch/destroy
+POST /admin/v1/user/batch/destroy
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -760,7 +776,7 @@ POST /admin/user/batch/destroy
 ### 5.7 बैच उपयोगकर्ता सक्षम/अक्षम करें
 
 ```
-POST /admin/user/batch/status
+POST /admin/v1/user/batch/status
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -800,7 +816,7 @@ message status मान के अनुसार गतिशील रूप 
 ### 6.1 भूमिका सूची
 
 ```
-GET /admin/role
+GET /admin/v1/role
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -848,7 +864,7 @@ GET /admin/role
 ### 6.2 भूमिका बनाएँ
 
 ```
-POST /admin/role
+POST /admin/v1/role
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -890,7 +906,7 @@ POST /admin/role
 ### 6.3 भूमिका अपडेट करें
 
 ```
-PUT /admin/role/{id}
+PUT /admin/v1/role/{id}
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -930,7 +946,7 @@ PUT /admin/role/{id}
 ### 6.4 भूमिका हटाएँ
 
 ```
-DELETE /admin/role/{id}
+DELETE /admin/v1/role/{id}
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -961,7 +977,7 @@ DELETE /admin/role/{id}
 ### 7.1 अनुमति वृक्ष
 
 ```
-GET /admin/permission
+GET /admin/v1/permission
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -976,7 +992,7 @@ GET /admin/permission
       "id": "p1p2p3p4",
       "parent_id": "0",
       "name": "用户管理",
-      "slug": "/admin/user",
+      "slug": "/admin/v1/user",
       "type": 1,
       "icon": "people",
       "path": "/user",
@@ -987,7 +1003,7 @@ GET /admin/permission
           "id": "p5p6p7p8",
           "parent_id": "p1p2p3p4",
           "name": "用户列表",
-          "slug": "/admin/user/index",
+          "slug": "/admin/v1/user/index",
           "type": 2,
           "icon": "",
           "path": "/user/index",
@@ -1014,7 +1030,7 @@ GET /admin/permission
 ### 7.2 अनुमति बनाएँ
 
 ```
-POST /admin/permission
+POST /admin/v1/permission
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1024,7 +1040,7 @@ POST /admin/permission
 {
   "parent_id": 0,
   "name": "系统设置",
-  "slug": "/admin/config",
+  "slug": "/admin/v1/config",
   "type": 1,
   "icon": "settings",
   "path": "/config",
@@ -1051,7 +1067,7 @@ POST /admin/permission
     "id": "p9p0a1b2",
     "parent_id": "0",
     "name": "系统设置",
-    "slug": "/admin/config",
+    "slug": "/admin/v1/config",
     "type": 1,
     "icon": "settings",
     "path": "/config",
@@ -1063,7 +1079,7 @@ POST /admin/permission
 ### 7.3 अनुमति अपडेट करें
 
 ```
-PUT /admin/permission/{id}
+PUT /admin/v1/permission/{id}
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1088,7 +1104,7 @@ PUT /admin/permission/{id}
 ### 7.4 अनुमति हटाएँ
 
 ```
-DELETE /admin/permission/{id}
+DELETE /admin/v1/permission/{id}
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1119,7 +1135,7 @@ DELETE /admin/permission/{id}
 ### 8.1 कॉन्फ़िगरेशन सूची
 
 ```
-GET /admin/config
+GET /admin/v1/config
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1168,7 +1184,7 @@ GET /admin/config
 ### 8.2 कॉन्फ़िगरेशन बनाएँ
 
 ```
-POST /admin/config
+POST /admin/v1/config
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1214,7 +1230,7 @@ POST /admin/config
 ### 8.3 कॉन्फ़िगरेशन अपडेट करें
 
 ```
-PUT /admin/config/{id}
+PUT /admin/v1/config/{id}
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1237,7 +1253,7 @@ PUT /admin/config/{id}
 ### 8.4 कॉन्फ़िगरेशन हटाएँ
 
 ```
-DELETE /admin/config/{id}
+DELETE /admin/v1/config/{id}
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1259,7 +1275,7 @@ DELETE /admin/config/{id}
 ### 9.1 ऑपरेशन लॉग सूची
 
 ```
-GET /admin/log
+GET /admin/v1/log
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1288,7 +1304,7 @@ GET /admin/log
         "user_name": "admin",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "source": "web",
         "input": "{\"username\":\"admin\"}",
@@ -1321,7 +1337,7 @@ GET /admin/log
 ### 10.1 व्यक्तिगत जानकारी अपडेट करें
 
 ```
-PUT /admin/profile
+PUT /admin/v1/profile
 ```
 
 - **प्रमाणीकरण**: JWT
@@ -1363,7 +1379,7 @@ PUT /admin/profile
 ### 10.2 पासवर्ड बदलें
 
 ```
-PUT /admin/profile/password
+PUT /admin/v1/profile/password
 ```
 
 - **प्रमाणीकरण**: JWT
@@ -1398,7 +1414,7 @@ PUT /admin/profile/password
 ### 10.3 लॉगआउट
 
 ```
-POST /admin/profile/logout
+POST /admin/v1/profile/logout
 ```
 
 - **प्रमाणीकरण**: JWT
@@ -1423,7 +1439,7 @@ POST /admin/profile/logout
 ### 11.1 Excel निर्यात
 
 ```
-POST /admin/export/excel
+POST /admin/v1/export/excel
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1462,7 +1478,7 @@ POST /admin/export/excel
 ### 11.2 PDF निर्यात
 
 ```
-POST /admin/export/pdf
+POST /admin/v1/export/pdf
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1509,7 +1525,7 @@ PDF टेम्पलेट में कॉपीराइट जानका�
 ### 11.3 उपयोगकर्ता आयात करें (Excel)
 
 ```
-POST /admin/import/users
+POST /admin/v1/import/users
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1561,7 +1577,7 @@ POST /admin/import/users
 ## 12. फ़ाइल अपलोड
 
 ```
-POST /admin/upload
+POST /admin/v1/upload
 ```
 
 - **प्रमाणीकरण**: JWT + RBAC
@@ -1610,8 +1626,8 @@ POST /admin/upload
 
 रेट लिमिट विवरण:
 - डिफ़ॉल्ट वैश्विक सीमा: 60 बार/मिनट / IP+पथ
-- लॉगिन एंडपॉइंट `/api/auth/login`: 10 बार/मिनट
-- पंजीकरण एंडपॉइंट `/api/auth/register`: 5 बार/मिनट
+- लॉगिन एंडपॉइंट `/api/v1/auth/login`: 10 बार/मिनट
+- पंजीकरण एंडपॉइंट `/api/v1/auth/register`: 5 बार/मिनट
 - Redis परमाणु स्लाइडिंग विंडो एल्गोरिदम (Lua ZSET) उपयोग, TOCTOU रेस से बचाता है
 - Redis अनुपलब्ध होने पर fail open (अनुमति), अनुरोध अवरोधित नहीं होता
 
@@ -1620,15 +1636,15 @@ POST /admin/upload
 पूर्ण प्रमाणीकरण अनुक्रम:
 
 ```
-1. 客户端请求 POST /api/captcha/generate
-   (请求头: API-Version: v1)
+1. 客户端请求 POST /api/v1/captcha/generate
+   (URL 路径含 /api/v1，无版本请求头)
     ↓
    服务端返回: key + base64 图片 + 点击目标提示
    
 2. 用户点击图片目标位置，前/客户端收集点击坐标
    
-3. 客户端请求 POST /api/auth/login
-   (请求头: API-Version: v1, Content-Type: application/json)
+3. 客户端请求 POST /api/v1/auth/login
+   (URL 路径含 /api/v1, Content-Type: application/json)
    请求体: { username, password, captcha_key, clicks: [{x,y}, ...] }
     ↓
    服务端:
@@ -1660,7 +1676,7 @@ POST /admin/upload
    Response + X-RateLimit-* 头
 
 5. Access Token 过期前刷新
-   客户端请求 POST /api/auth/refresh
+   客户端请求 POST /api/v1/auth/refresh
    请求体: { refresh_token: "..." }
     ↓
    服务端解码 refresh_token → 签发新 access + refresh
@@ -1668,7 +1684,7 @@ POST /admin/upload
    客户端更新本地令牌
 
 6. 登出
-   客户端请求 POST /admin/profile/logout
+   客户端请求 POST /admin/v1/profile/logout
    请求头: Authorization: Bearer <access_token>
     ↓
    服务端:
@@ -1722,7 +1738,7 @@ docker-compose up -d
 
 ## 16. व्यावसायिक API एंडपॉइंट (ERP)
 
-सभी व्यावसायिक एंडपॉइंट `/admin` समूह के अंतर्गत हैं, तीन मिडलवेयर से गुजरते हैं: `AdminAuth` (JWT प्रमाणीकरण), `AdminPermission` (RBAC अनुमति सत्यापन), `OperationLog` (ऑपरेशन रिकॉर्ड)।
+सभी व्यावसायिक एंडपॉइंट `/admin/v1` समूह के अंतर्गत हैं, तीन मिडलवेयर से गुजरते हैं: `AdminAuth` (JWT प्रमाणीकरण), `AdminPermission` (RBAC अनुमति सत्यापन), `OperationLog` (ऑपरेशन रिकॉर्ड)।
 
 > एंडपॉइंट कुल: उत्पाद (17) | क्रय (8) | विक्रय (6) | इन्वेंटरी (6) | वित्त (17) | CRM (13) | वर्कफ़्लो (6) | अधिसूचना (4) | परियोजना (3) | HR (9) | विनिर्माण (7) | रिपोर्ट (4) | डैशबोर्ड (3) | क्लाइंट (2) | कुल 105 एंडपॉइंट
 
@@ -1732,304 +1748,304 @@ docker-compose up -d
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/product | उत्पाद सूची (पेजिंग+खोज+श्रेणी/स्थिति फ़िल्टर) |
-| POST | /admin/product | उत्पाद बनाएँ (SKU और मूल्य सहित) |
-| GET | /admin/product/{id} | उत्पाद विवरण (श्रेणी/ब्रांड/SKU/मूल्य/इकाई सहित) |
-| PUT | /admin/product/{id} | उत्पाद अपडेट करें |
-| DELETE | /admin/product/{id} | उत्पाद हटाएँ (सॉफ्ट डिलीट, पासवर्ड पुष्टि आवश्यक) |
-| GET | /admin/category | श्रेणी सूची (वृक्ष) |
-| POST | /admin/category | श्रेणी बनाएँ |
-| PUT | /admin/category/{id} | श्रेणी अपडेट करें |
-| DELETE | /admin/category/{id} | श्रेणी हटाएँ |
-| GET | /admin/brand | ब्रांड सूची |
-| POST | /admin/brand | ब्रांड बनाएँ |
-| GET | /admin/warehouse | वेयरहाउस सूची |
-| POST | /admin/warehouse | वेयरहाउस बनाएँ |
-| GET | /admin/location | स्थान सूची |
-| GET | /admin/warehouse/{id}/locations | वेयरहाउस के अंतर्गत स्थान सूची |
-| GET | /admin/supplier | आपूर्तिकर्ता सूची (ES खोज) |
-| POST | /admin/supplier | आपूर्तिकर्ता बनाएँ |
-| GET | /admin/customer | ग्राहक सूची (ES खोज) |
-| POST | /admin/customer | ग्राहक बनाएँ |
+| GET | /admin/v1/product | उत्पाद सूची (पेजिंग+खोज+श्रेणी/स्थिति फ़िल्टर) |
+| POST | /admin/v1/product | उत्पाद बनाएँ (SKU और मूल्य सहित) |
+| GET | /admin/v1/product/{id} | उत्पाद विवरण (श्रेणी/ब्रांड/SKU/मूल्य/इकाई सहित) |
+| PUT | /admin/v1/product/{id} | उत्पाद अपडेट करें |
+| DELETE | /admin/v1/product/{id} | उत्पाद हटाएँ (सॉफ्ट डिलीट, पासवर्ड पुष्टि आवश्यक) |
+| GET | /admin/v1/category | श्रेणी सूची (वृक्ष) |
+| POST | /admin/v1/category | श्रेणी बनाएँ |
+| PUT | /admin/v1/category/{id} | श्रेणी अपडेट करें |
+| DELETE | /admin/v1/category/{id} | श्रेणी हटाएँ |
+| GET | /admin/v1/brand | ब्रांड सूची |
+| POST | /admin/v1/brand | ब्रांड बनाएँ |
+| GET | /admin/v1/warehouse | वेयरहाउस सूची |
+| POST | /admin/v1/warehouse | वेयरहाउस बनाएँ |
+| GET | /admin/v1/location | स्थान सूची |
+| GET | /admin/v1/warehouse/{id}/locations | वेयरहाउस के अंतर्गत स्थान सूची |
+| GET | /admin/v1/supplier | आपूर्तिकर्ता सूची (ES खोज) |
+| POST | /admin/v1/supplier | आपूर्तिकर्ता बनाएँ |
+| GET | /admin/v1/customer | ग्राहक सूची (ES खोज) |
+| POST | /admin/v1/customer | ग्राहक बनाएँ |
 
 ### 16.2 क्रय प्रबंधन (Purchase)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/purchase/apply | क्रय अनुरोध सूची |
-| POST | /admin/purchase/apply | क्रय अनुरोध बनाएँ |
-| GET | /admin/purchase/order | क्रय आदेश सूची |
-| POST | /admin/purchase/order | क्रय आदेश बनाएँ |
-| 🔗 POST | /admin/purchase/receive | प्राप्ति दस्तावेज़ बनाएँ (स्वतः इनबाउंड + देय उत्पन्न) |
-| GET | /admin/purchase/receive | प्राप्ति दस्तावेज़ सूची |
-| GET | /admin/purchase/receive/{id} | प्राप्ति दस्तावेज़ विवरण |
-| POST | /admin/purchase/return | वापसी दस्तावेज़ बनाएँ |
-| GET | /admin/purchase/settlement | आपूर्तिकर्ता निपटान सूची |
+| GET | /admin/v1/purchase/apply | क्रय अनुरोध सूची |
+| POST | /admin/v1/purchase/apply | क्रय अनुरोध बनाएँ |
+| GET | /admin/v1/purchase/order | क्रय आदेश सूची |
+| POST | /admin/v1/purchase/order | क्रय आदेश बनाएँ |
+| 🔗 POST | /admin/v1/purchase/receive | प्राप्ति दस्तावेज़ बनाएँ (स्वतः इनबाउंड + देय उत्पन्न) |
+| GET | /admin/v1/purchase/receive | प्राप्ति दस्तावेज़ सूची |
+| GET | /admin/v1/purchase/receive/{id} | प्राप्ति दस्तावेज़ विवरण |
+| POST | /admin/v1/purchase/return | वापसी दस्तावेज़ बनाएँ |
+| GET | /admin/v1/purchase/settlement | आपूर्तिकर्ता निपटान सूची |
 
 ### 16.3 विक्रय प्रबंधन (Sales)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/sales/quotation | कोटेशन सूची |
-| POST | /admin/sales/quotation | कोटेशन बनाएँ |
-| GET | /admin/sales/order | विक्रय आदेश सूची |
-| POST | /admin/sales/order | विक्रय आदेश बनाएँ |
-| 🔗 POST | /admin/sales/delivery | डिलीवरी दस्तावेज़ बनाएँ (स्वतः आउटबाउंड + प्राप्य उत्पन्न) |
-| GET | /admin/sales/delivery | डिलीवरी दस्तावेज़ सूची |
-| GET | /admin/sales/settlement | ग्राहक निपटान सूची |
+| GET | /admin/v1/sales/quotation | कोटेशन सूची |
+| POST | /admin/v1/sales/quotation | कोटेशन बनाएँ |
+| GET | /admin/v1/sales/order | विक्रय आदेश सूची |
+| POST | /admin/v1/sales/order | विक्रय आदेश बनाएँ |
+| 🔗 POST | /admin/v1/sales/delivery | डिलीवरी दस्तावेज़ बनाएँ (स्वतः आउटबाउंड + प्राप्य उत्पन्न) |
+| GET | /admin/v1/sales/delivery | डिलीवरी दस्तावेज़ सूची |
+| GET | /admin/v1/sales/settlement | ग्राहक निपटान सूची |
 
 ### 16.4 इन्वेंटरी प्रबंधन (Inventory)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/inventory | रीयल-टाइम इन्वेंटरी (वेयरहाउस/स्थान/बैच/SKU आयाम) |
-| GET | /admin/inventory/flow | इनबाउंड-आउटबाउंड फ्लो |
-| GET | /admin/inventory/transfer | स्थानांतरण दस्तावेज़ सूची |
-| POST | /admin/inventory/transfer | स्थानांतरण दस्तावेज़ बनाएँ |
-| GET | /admin/inventory/check | गणना कार्य सूची |
-| POST | /admin/inventory/check | गणना कार्य बनाएँ |
-| GET | /admin/inventory/alert | इन्वेंटरी अलर्ट नियम |
+| GET | /admin/v1/inventory | रीयल-टाइम इन्वेंटरी (वेयरहाउस/स्थान/बैच/SKU आयाम) |
+| GET | /admin/v1/inventory/flow | इनबाउंड-आउटबाउंड फ्लो |
+| GET | /admin/v1/inventory/transfer | स्थानांतरण दस्तावेज़ सूची |
+| POST | /admin/v1/inventory/transfer | स्थानांतरण दस्तावेज़ बनाएँ |
+| GET | /admin/v1/inventory/check | गणना कार्य सूची |
+| POST | /admin/v1/inventory/check | गणना कार्य बनाएँ |
+| GET | /admin/v1/inventory/alert | इन्वेंटरी अलर्ट नियम |
 
 ### 16.5 वित्त प्रबंधन (Finance)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| POST | /admin/finance/voucher | बहीखाता वाउचर बनाएँ |
-| GET | /admin/finance/ar-ap | प्राप्य-देय सूची |
-| POST | /admin/finance/receipt | प्राप्ति आदेश बनाएँ |
-| POST | /admin/finance/payment | भुगतान आदेश बनाएँ |
-| GET | /admin/finance/cash-journal | नकद/बैंक जर्नल |
-| GET | /admin/finance/expense | व्यय प्रतिपूर्ति सूची |
-| POST | /admin/finance/expense | प्रतिपूर्ति अनुरोध सबमिट करें |
-| GET | /admin/finance/report/profit | लाभ विवरण |
-| GET | /admin/finance/general-ledger | सामान्य खाता बही (खाता+अवधि के अनुसार सारांश) |
-| GET | /admin/finance/subsidiary-ledger | विवरण खाता बही (खाते की क्रमबद्ध विवरण) |
-| GET | /admin/finance/report/balance-sheet | बैलेंस शीट (स्वतः उत्पादन सहित) |
-| GET | /admin/finance/report/cash-flow | नकदी प्रवाह विवरण (परिचालन/निवेश/वित्तपोषण) |
-| GET | /admin/finance/bank-account | बैंक खाता सूची |
-| GET/POST/PUT/DELETE | /admin/finance/asset | स्थायी संपत्ति CRUD + मूल्यह्रास आहरण |
-| GET/POST | /admin/finance/tax-rate | कर दर कॉन्फ़िगरेशन |
-| GET | /admin/finance/tax-record | कर रिकॉर्ड |
-| GET/POST/PUT/DELETE | /admin/finance/currency | मुद्रा प्रबंधन |
-| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | विनिमय दर प्रबंधन |
-| GET/POST/PUT/DELETE | /admin/finance/budget | बजट प्रबंधन (बजट बनाम वास्तविक तुलना सहित) |
-| GET/POST/PUT/DELETE | /admin/finance/cost-center | लागत केंद्र (वृक्ष संरचना) |
-| GET/POST/PUT/DELETE | /admin/finance/profit-center | लाभ केंद्र (वृक्ष संरचना) |
+| POST | /admin/v1/finance/voucher | बहीखाता वाउचर बनाएँ |
+| GET | /admin/v1/finance/ar-ap | प्राप्य-देय सूची |
+| POST | /admin/v1/finance/receipt | प्राप्ति आदेश बनाएँ |
+| POST | /admin/v1/finance/payment | भुगतान आदेश बनाएँ |
+| GET | /admin/v1/finance/cash-journal | नकद/बैंक जर्नल |
+| GET | /admin/v1/finance/expense | व्यय प्रतिपूर्ति सूची |
+| POST | /admin/v1/finance/expense | प्रतिपूर्ति अनुरोध सबमिट करें |
+| GET | /admin/v1/finance/report/profit | लाभ विवरण |
+| GET | /admin/v1/finance/general-ledger | सामान्य खाता बही (खाता+अवधि के अनुसार सारांश) |
+| GET | /admin/v1/finance/subsidiary-ledger | विवरण खाता बही (खाते की क्रमबद्ध विवरण) |
+| GET | /admin/v1/finance/report/balance-sheet | बैलेंस शीट (स्वतः उत्पादन सहित) |
+| GET | /admin/v1/finance/report/cash-flow | नकदी प्रवाह विवरण (परिचालन/निवेश/वित्तपोषण) |
+| GET | /admin/v1/finance/bank-account | बैंक खाता सूची |
+| GET/POST/PUT/DELETE | /admin/v1/finance/asset | स्थायी संपत्ति CRUD + मूल्यह्रास आहरण |
+| GET/POST | /admin/v1/finance/tax-rate | कर दर कॉन्फ़िगरेशन |
+| GET | /admin/v1/finance/tax-record | कर रिकॉर्ड |
+| GET/POST/PUT/DELETE | /admin/v1/finance/currency | मुद्रा प्रबंधन |
+| GET/POST/PUT/DELETE | /admin/v1/finance/exchange-rate | विनिमय दर प्रबंधन |
+| GET/POST/PUT/DELETE | /admin/v1/finance/budget | बजट प्रबंधन (बजट बनाम वास्तविक तुलना सहित) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/cost-center | लागत केंद्र (वृक्ष संरचना) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/profit-center | लाभ केंद्र (वृक्ष संरचना) |
 
 ### 16.6 CRM
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/crm/opportunity | अवसर सूची |
-| POST | /admin/crm/opportunity | अवसर बनाएँ |
-| GET | /admin/crm/follow | फॉलो-अप रिकॉर्ड सूची |
-| POST | /admin/crm/follow | फॉलो-अप रिकॉर्ड बनाएँ |
-| GET | /admin/crm/funnel | फ़नल चरण कॉन्फ़िगरेशन |
-| GET | /admin/crm/contact | संपर्क व्यक्ति सूची |
-| POST | /admin/crm/contact | संपर्क व्यक्ति बनाएँ |
-| GET | /admin/crm/pool | पब्लिक पूल ग्राहक सूची |
-| POST | /admin/crm/pool/claim/{id} | पब्लिक पूल ग्राहक लें |
-| POST | /admin/crm/pool/release/{id} | ग्राहक को पब्लिक पूल में जारी करें |
-| GET/POST | /admin/crm/pool/rules | पब्लिक पूल नियम CRUD |
-| GET | /admin/crm/contract | अनुबंध सूची |
-| POST | /admin/crm/contract | अनुबंध बनाएँ |
-| GET | /admin/crm/contract/{id} | अनुबंध विवरण |
-| PUT | /admin/crm/contract/{id} | अनुबंध अपडेट करें |
-| DELETE | /admin/crm/contract/{id} | अनुबंध हटाएँ |
-| GET | /admin/crm/quotation | CRM कोटेशन सूची |
-| POST | /admin/crm/quotation | CRM कोटेशन बनाएँ |
-| POST | /admin/crm/quotation/{id}/to-contract | 🔗 कोटेशन से अनुबंध |
-| GET/POST/PUT/DELETE | /admin/crm/campaign | मार्केटिंग अभियान |
-| GET/POST/PUT/DELETE | /admin/crm/ticket | सेवा टिकट |
-| POST | /admin/crm/ticket/{id}/assign | टिकट आवंटित करें |
-| POST | /admin/crm/ticket/{id}/resolve | टिकट हल करें |
-| GET/POST | /admin/crm/analytics/report | ग्राहक विश्लेषण रिपोर्ट |
-| GET/POST | /admin/crm/analytics/metric | विश्लेषण मेट्रिक |
+| GET | /admin/v1/crm/opportunity | अवसर सूची |
+| POST | /admin/v1/crm/opportunity | अवसर बनाएँ |
+| GET | /admin/v1/crm/follow | फॉलो-अप रिकॉर्ड सूची |
+| POST | /admin/v1/crm/follow | फॉलो-अप रिकॉर्ड बनाएँ |
+| GET | /admin/v1/crm/funnel | फ़नल चरण कॉन्फ़िगरेशन |
+| GET | /admin/v1/crm/contact | संपर्क व्यक्ति सूची |
+| POST | /admin/v1/crm/contact | संपर्क व्यक्ति बनाएँ |
+| GET | /admin/v1/crm/pool | पब्लिक पूल ग्राहक सूची |
+| POST | /admin/v1/crm/pool/claim/{id} | पब्लिक पूल ग्राहक लें |
+| POST | /admin/v1/crm/pool/release/{id} | ग्राहक को पब्लिक पूल में जारी करें |
+| GET/POST | /admin/v1/crm/pool/rules | पब्लिक पूल नियम CRUD |
+| GET | /admin/v1/crm/contract | अनुबंध सूची |
+| POST | /admin/v1/crm/contract | अनुबंध बनाएँ |
+| GET | /admin/v1/crm/contract/{id} | अनुबंध विवरण |
+| PUT | /admin/v1/crm/contract/{id} | अनुबंध अपडेट करें |
+| DELETE | /admin/v1/crm/contract/{id} | अनुबंध हटाएँ |
+| GET | /admin/v1/crm/quotation | CRM कोटेशन सूची |
+| POST | /admin/v1/crm/quotation | CRM कोटेशन बनाएँ |
+| POST | /admin/v1/crm/quotation/{id}/to-contract | 🔗 कोटेशन से अनुबंध |
+| GET/POST/PUT/DELETE | /admin/v1/crm/campaign | मार्केटिंग अभियान |
+| GET/POST/PUT/DELETE | /admin/v1/crm/ticket | सेवा टिकट |
+| POST | /admin/v1/crm/ticket/{id}/assign | टिकट आवंटित करें |
+| POST | /admin/v1/crm/ticket/{id}/resolve | टिकट हल करें |
+| GET/POST | /admin/v1/crm/analytics/report | ग्राहक विश्लेषण रिपोर्ट |
+| GET/POST | /admin/v1/crm/analytics/metric | विश्लेषण मेट्रिक |
 
 ### 16.7 अनुमोदन वर्कफ़्लो (Workflow)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/workflow | वर्कफ़्लो परिभाषा सूची |
-| POST | /admin/workflow | वर्कफ़्लो परिभाषा बनाएँ |
-| GET | /admin/workflow/{id} | वर्कफ़्लो विवरण |
-| PUT | /admin/workflow/{id} | वर्कफ़्लो अपडेट करें |
-| DELETE | /admin/workflow/{id} | वर्कफ़्लो हटाएँ |
-| POST | /admin/workflow/{id}/submit | 🔗 अनुमोदन सबमिट करें (अनुमोदन इंस्टेंस बनाएँ) |
-| POST | /admin/approval/{id}/approve | स्वीकृत |
-| POST | /admin/approval/{id}/reject | अस्वीकृत |
-| POST | /admin/approval/{id}/withdraw | वापस लें |
-| ANY | /admin/approval/my | मेरे अनुमोदन सूची (लंबित/अनुमोदित) |
+| GET | /admin/v1/workflow | वर्कफ़्लो परिभाषा सूची |
+| POST | /admin/v1/workflow | वर्कफ़्लो परिभाषा बनाएँ |
+| GET | /admin/v1/workflow/{id} | वर्कफ़्लो विवरण |
+| PUT | /admin/v1/workflow/{id} | वर्कफ़्लो अपडेट करें |
+| DELETE | /admin/v1/workflow/{id} | वर्कफ़्लो हटाएँ |
+| POST | /admin/v1/workflow/{id}/submit | 🔗 अनुमोदन सबमिट करें (अनुमोदन इंस्टेंस बनाएँ) |
+| POST | /admin/v1/approval/{id}/approve | स्वीकृत |
+| POST | /admin/v1/approval/{id}/reject | अस्वीकृत |
+| POST | /admin/v1/approval/{id}/withdraw | वापस लें |
+| ANY | /admin/v1/approval/my | मेरे अनुमोदन सूची (लंबित/अनुमोदित) |
 
 ### 16.8 संदेश अधिसूचना (Notification)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| ANY | /admin/notification/my | मेरी अधिसूचना सूची (पेजिंग, समय उल्टे क्रम में) |
-| POST | /admin/notification/{id}/read | एकल पठित चिह्नित करें |
-| POST | /admin/notification/read-all | सभी पठित चिह्नित करें |
-| ANY | /admin/notification/unread-count | अपठित संदेश संख्या |
+| ANY | /admin/v1/notification/my | मेरी अधिसूचना सूची (पेजिंग, समय उल्टे क्रम में) |
+| POST | /admin/v1/notification/{id}/read | एकल पठित चिह्नित करें |
+| POST | /admin/v1/notification/read-all | सभी पठित चिह्नित करें |
+| ANY | /admin/v1/notification/unread-count | अपठित संदेश संख्या |
 
 ### 16.9 परियोजना प्रबंधन (Project)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/project | परियोजना सूची |
-| POST | /admin/project | परियोजना बनाएँ |
-| GET | /admin/project/{id} | परियोजना विवरण |
-| PUT | /admin/project/{id} | परियोजना अपडेट करें |
-| DELETE | /admin/project/{id} | परियोजना हटाएँ |
-| GET | /admin/project/task | कार्य सूची |
-| POST | /admin/project/task | कार्य बनाएँ |
-| PUT | /admin/project/task/{id} | कार्य अपडेट करें |
-| DELETE | /admin/project/task/{id} | कार्य हटाएँ |
-| GET | /admin/project/timesheet | कार्य-घंटे रिकॉर्ड सूची |
-| POST | /admin/project/timesheet | कार्य-घंटे दर्ज करें |
-| PUT | /admin/project/timesheet/{id} | कार्य-घंटे अपडेट करें |
-| DELETE | /admin/project/timesheet/{id} | कार्य-घंटे हटाएँ |
+| GET | /admin/v1/project | परियोजना सूची |
+| POST | /admin/v1/project | परियोजना बनाएँ |
+| GET | /admin/v1/project/{id} | परियोजना विवरण |
+| PUT | /admin/v1/project/{id} | परियोजना अपडेट करें |
+| DELETE | /admin/v1/project/{id} | परियोजना हटाएँ |
+| GET | /admin/v1/project/task | कार्य सूची |
+| POST | /admin/v1/project/task | कार्य बनाएँ |
+| PUT | /admin/v1/project/task/{id} | कार्य अपडेट करें |
+| DELETE | /admin/v1/project/task/{id} | कार्य हटाएँ |
+| GET | /admin/v1/project/timesheet | कार्य-घंटे रिकॉर्ड सूची |
+| POST | /admin/v1/project/timesheet | कार्य-घंटे दर्ज करें |
+| PUT | /admin/v1/project/timesheet/{id} | कार्य-घंटे अपडेट करें |
+| DELETE | /admin/v1/project/timesheet/{id} | कार्य-घंटे हटाएँ |
 
 ### 16.10 मानव संसाधन प्रबंधन (HR)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/hr/department | विभाग सूची (वृक्ष) |
-| POST | /admin/hr/department | विभाग बनाएँ |
-| PUT | /admin/hr/department/{id} | विभाग अपडेट करें |
-| DELETE | /admin/hr/department/{id} | विभाग हटाएँ |
-| GET | /admin/hr/employee | कर्मचारी सूची |
-| POST | /admin/hr/employee | कर्मचारी बनाएँ |
-| PUT | /admin/hr/employee/{id} | कर्मचारी अपडेट करें |
-| DELETE | /admin/hr/employee/{id} | कर्मचारी हटाएँ |
-| GET | /admin/hr/position | पद सूची |
-| POST | /admin/hr/position | पद बनाएँ |
-| PUT | /admin/hr/position/{id} | पद अपडेट करें |
-| DELETE | /admin/hr/position/{id} | पद हटाएँ |
-| ANY | /admin/hr/attendance | उपस्थिति रिकॉर्ड क्वेरी |
-| POST | /admin/hr/attendance/clock-in | काम शुरू पंच |
-| POST | /admin/hr/attendance/clock-out | काम समाप्त पंच |
-| ANY | /admin/hr/leave | अवकाश सूची |
-| POST | /admin/hr/leave | अवकाश अनुरोध सबमिट करें |
-| GET | /admin/hr/leave/{id} | अवकाश विवरण |
-| PUT | /admin/hr/leave/{id} | अवकाश अपडेट करें |
-| DELETE | /admin/hr/leave/{id} | अवकाश हटाएँ |
-| POST | /admin/hr/leave/{id}/approve | 🔗 अवकाश अनुमोदन |
-| GET | /admin/hr/salary | वेतन सूची |
-| POST | /admin/hr/salary | वेतन पर्ची उत्पन्न करें |
-| PUT | /admin/hr/salary/{id} | वेतन अपडेट करें |
-| DELETE | /admin/hr/salary/{id} | वेतन हटाएँ |
-| POST | /admin/hr/salary/{id}/pay | वेतन भुगतान करें |
-| ANY | /admin/hr/salary-item | वेतन आइटम सूची |
-| POST | /admin/hr/salary-item | वेतन आइटम बनाएँ |
-| GET | /admin/hr/salary-item/{id} | वेतन आइटम विवरण |
-| PUT | /admin/hr/salary-item/{id} | वेतन आइटम अपडेट करें |
-| DELETE | /admin/hr/salary-item/{id} | वेतन आइटम हटाएँ |
+| GET | /admin/v1/hr/department | विभाग सूची (वृक्ष) |
+| POST | /admin/v1/hr/department | विभाग बनाएँ |
+| PUT | /admin/v1/hr/department/{id} | विभाग अपडेट करें |
+| DELETE | /admin/v1/hr/department/{id} | विभाग हटाएँ |
+| GET | /admin/v1/hr/employee | कर्मचारी सूची |
+| POST | /admin/v1/hr/employee | कर्मचारी बनाएँ |
+| PUT | /admin/v1/hr/employee/{id} | कर्मचारी अपडेट करें |
+| DELETE | /admin/v1/hr/employee/{id} | कर्मचारी हटाएँ |
+| GET | /admin/v1/hr/position | पद सूची |
+| POST | /admin/v1/hr/position | पद बनाएँ |
+| PUT | /admin/v1/hr/position/{id} | पद अपडेट करें |
+| DELETE | /admin/v1/hr/position/{id} | पद हटाएँ |
+| ANY | /admin/v1/hr/attendance | उपस्थिति रिकॉर्ड क्वेरी |
+| POST | /admin/v1/hr/attendance/clock-in | काम शुरू पंच |
+| POST | /admin/v1/hr/attendance/clock-out | काम समाप्त पंच |
+| ANY | /admin/v1/hr/leave | अवकाश सूची |
+| POST | /admin/v1/hr/leave | अवकाश अनुरोध सबमिट करें |
+| GET | /admin/v1/hr/leave/{id} | अवकाश विवरण |
+| PUT | /admin/v1/hr/leave/{id} | अवकाश अपडेट करें |
+| DELETE | /admin/v1/hr/leave/{id} | अवकाश हटाएँ |
+| POST | /admin/v1/hr/leave/{id}/approve | 🔗 अवकाश अनुमोदन |
+| GET | /admin/v1/hr/salary | वेतन सूची |
+| POST | /admin/v1/hr/salary | वेतन पर्ची उत्पन्न करें |
+| PUT | /admin/v1/hr/salary/{id} | वेतन अपडेट करें |
+| DELETE | /admin/v1/hr/salary/{id} | वेतन हटाएँ |
+| POST | /admin/v1/hr/salary/{id}/pay | वेतन भुगतान करें |
+| ANY | /admin/v1/hr/salary-item | वेतन आइटम सूची |
+| POST | /admin/v1/hr/salary-item | वेतन आइटम बनाएँ |
+| GET | /admin/v1/hr/salary-item/{id} | वेतन आइटम विवरण |
+| PUT | /admin/v1/hr/salary-item/{id} | वेतन आइटम अपडेट करें |
+| DELETE | /admin/v1/hr/salary-item/{id} | वेतन आइटम हटाएँ |
 
 ### 16.11 उत्पादन विनिर्माण (Manufacturing)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/mfg/bom | BOM सूची |
-| POST | /admin/mfg/bom | BOM बनाएँ |
-| PUT | /admin/mfg/bom/{id} | BOM अपडेट करें |
-| DELETE | /admin/mfg/bom/{id} | BOM हटाएँ |
-| GET | /admin/mfg/production | उत्पादन आदेश सूची |
-| POST | /admin/mfg/production | उत्पादन आदेश बनाएँ |
-| PUT | /admin/mfg/production/{id} | उत्पादन आदेश अपडेट करें |
-| DELETE | /admin/mfg/production/{id} | उत्पादन आदेश हटाएँ |
-| POST | /admin/mfg/production/{id}/start | आरंभ |
-| POST | /admin/mfg/production/{id}/complete | पूर्ण |
-| GET | /admin/mfg/routing | प्रक्रिया मार्ग सूची |
-| POST | /admin/mfg/routing | प्रक्रिया मार्ग बनाएँ |
-| PUT | /admin/mfg/routing/{id} | प्रक्रिया मार्ग अपडेट करें |
-| DELETE | /admin/mfg/routing/{id} | प्रक्रिया मार्ग हटाएँ |
-| GET | /admin/mfg/workstation | वर्कस्टेशन सूची |
-| POST | /admin/mfg/workstation | वर्कस्टेशन बनाएँ |
-| PUT | /admin/mfg/workstation/{id} | वर्कस्टेशन अपडेट करें |
-| DELETE | /admin/mfg/workstation/{id} | वर्कस्टेशन हटाएँ |
-| GET | /admin/mfg/mrp | MRP योजना सूची |
-| POST | /admin/mfg/mrp | MRP योजना बनाएँ |
-| PUT | /admin/mfg/mrp/{id} | MRP योजना अपडेट करें |
-| DELETE | /admin/mfg/mrp/{id} | MRP योजना हटाएँ |
-| POST | /admin/mfg/mrp/{id}/generate | 🔗 MRP चलाकर क्रय/उत्पादन सुझाव उत्पन्न करें |
+| GET | /admin/v1/mfg/bom | BOM सूची |
+| POST | /admin/v1/mfg/bom | BOM बनाएँ |
+| PUT | /admin/v1/mfg/bom/{id} | BOM अपडेट करें |
+| DELETE | /admin/v1/mfg/bom/{id} | BOM हटाएँ |
+| GET | /admin/v1/mfg/production | उत्पादन आदेश सूची |
+| POST | /admin/v1/mfg/production | उत्पादन आदेश बनाएँ |
+| PUT | /admin/v1/mfg/production/{id} | उत्पादन आदेश अपडेट करें |
+| DELETE | /admin/v1/mfg/production/{id} | उत्पादन आदेश हटाएँ |
+| POST | /admin/v1/mfg/production/{id}/start | आरंभ |
+| POST | /admin/v1/mfg/production/{id}/complete | पूर्ण |
+| GET | /admin/v1/mfg/routing | प्रक्रिया मार्ग सूची |
+| POST | /admin/v1/mfg/routing | प्रक्रिया मार्ग बनाएँ |
+| PUT | /admin/v1/mfg/routing/{id} | प्रक्रिया मार्ग अपडेट करें |
+| DELETE | /admin/v1/mfg/routing/{id} | प्रक्रिया मार्ग हटाएँ |
+| GET | /admin/v1/mfg/workstation | वर्कस्टेशन सूची |
+| POST | /admin/v1/mfg/workstation | वर्कस्टेशन बनाएँ |
+| PUT | /admin/v1/mfg/workstation/{id} | वर्कस्टेशन अपडेट करें |
+| DELETE | /admin/v1/mfg/workstation/{id} | वर्कस्टेशन हटाएँ |
+| GET | /admin/v1/mfg/mrp | MRP योजना सूची |
+| POST | /admin/v1/mfg/mrp | MRP योजना बनाएँ |
+| PUT | /admin/v1/mfg/mrp/{id} | MRP योजना अपडेट करें |
+| DELETE | /admin/v1/mfg/mrp/{id} | MRP योजना हटाएँ |
+| POST | /admin/v1/mfg/mrp/{id}/generate | 🔗 MRP चलाकर क्रय/उत्पादन सुझाव उत्पन्न करें |
 
 ### 16.12 कस्टम रिपोर्ट (Report Builder)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/report | रिपोर्ट टेम्पलेट सूची |
-| POST | /admin/report | रिपोर्ट टेम्पलेट बनाएँ |
-| GET | /admin/report/{id} | रिपोर्ट टेम्पलेट विवरण |
-| PUT | /admin/report/{id} | रिपोर्ट टेम्पलेट अपडेट करें |
-| DELETE | /admin/report/{id} | रिपोर्ट टेम्पलेट हटाएँ |
-| POST | /admin/report/{id}/execute | रिपोर्ट चलाकर डेटा उत्पन्न करें |
-| ANY | /admin/report/{id}/result | रिपोर्ट निष्पादन परिणाम |
-| GET | /admin/report/schedule | शेड्यूलिंग सूची |
-| POST | /admin/report/schedule | शेड्यूलिंग बनाएँ |
-| PUT | /admin/report/schedule/{id} | शेड्यूलिंग अपडेट करें |
-| DELETE | /admin/report/schedule/{id} | शेड्यूलिंग हटाएँ |
+| GET | /admin/v1/report | रिपोर्ट टेम्पलेट सूची |
+| POST | /admin/v1/report | रिपोर्ट टेम्पलेट बनाएँ |
+| GET | /admin/v1/report/{id} | रिपोर्ट टेम्पलेट विवरण |
+| PUT | /admin/v1/report/{id} | रिपोर्ट टेम्पलेट अपडेट करें |
+| DELETE | /admin/v1/report/{id} | रिपोर्ट टेम्पलेट हटाएँ |
+| POST | /admin/v1/report/{id}/execute | रिपोर्ट चलाकर डेटा उत्पन्न करें |
+| ANY | /admin/v1/report/{id}/result | रिपोर्ट निष्पादन परिणाम |
+| GET | /admin/v1/report/schedule | शेड्यूलिंग सूची |
+| POST | /admin/v1/report/schedule | शेड्यूलिंग बनाएँ |
+| PUT | /admin/v1/report/schedule/{id} | शेड्यूलिंग अपडेट करें |
+| DELETE | /admin/v1/report/schedule/{id} | शेड्यूलिंग हटाएँ |
 
 ### 16.13 डैशबोर्ड (Dashboard)
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/dashboard/sales | विक्रय पैनल |
-| GET | /admin/dashboard/inventory | इन्वेंटरी पैनल |
-| GET | /admin/dashboard/finance | वित्त पैनल |
+| GET | /admin/v1/dashboard/sales | विक्रय पैनल |
+| GET | /admin/v1/dashboard/inventory | इन्वेंटरी पैनल |
+| GET | /admin/v1/dashboard/finance | वित्त पैनल |
 
 ### 16.14 क्लाइंट API (Client API)
 
-क्लाइंट इंटरफ़ेस `/api` समूह के अंतर्गत माउंट होते हैं, `API-Version` अनुरोध हेडर की आवश्यकता होती है। उत्पाद जानकारी में खरीद मूल्य शामिल नहीं होता।
+क्लाइंट इंटरफ़ेस `/api/v1` समूह के अंतर्गत माउंट होते हैं (संस्करण संख्या URL पथ में समाहित, कोई संस्करण अनुरोध हेडर नहीं)। उत्पाद जानकारी में खरीद मूल्य शामिल नहीं होता।
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /api/product | उत्पाद सूची (खरीद मूल्य शामिल नहीं) |
-| GET | /api/product/{hashid} | उत्पाद विवरण (खुदरा/थोक मूल्य सहित, खरीद मूल्य शामिल नहीं) |
+| GET | /api/v1/product | उत्पाद सूची (खरीद मूल्य शामिल नहीं) |
+| GET | /api/v1/product/{hashid} | उत्पाद विवरण (खुदरा/थोक मूल्य सहित, खरीद मूल्य शामिल नहीं) |
 
 ### 16.15 OMS ऑर्डर प्रबंधन
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/oms/order | OMS ऑर्डर सूची |
-| POST | /admin/oms/order | OMS ऑर्डर बनाएँ |
-| 🔗 POST | /admin/oms/order/{id}/allocate | इन्वेंटरी आवंटन (प्री-रिज़र्वेशन) |
-| 🔗 POST | /admin/oms/order/{id}/fulfill | फ़ुलफ़िलमेंट बनाएँ |
-| POST | /admin/oms/order/{id}/cancel | ऑर्डर रद्द करें (रिज़र्वेशन रिलीज़) |
-| POST | /admin/oms/rma/{id}/approve | RMA अनुमोदन |
-| POST | /admin/oms/rma/{id}/refund | RMA रिफंड |
+| GET | /admin/v1/oms/order | OMS ऑर्डर सूची |
+| POST | /admin/v1/oms/order | OMS ऑर्डर बनाएँ |
+| 🔗 POST | /admin/v1/oms/order/{id}/allocate | इन्वेंटरी आवंटन (प्री-रिज़र्वेशन) |
+| 🔗 POST | /admin/v1/oms/order/{id}/fulfill | फ़ुलफ़िलमेंट बनाएँ |
+| POST | /admin/v1/oms/order/{id}/cancel | ऑर्डर रद्द करें (रिज़र्वेशन रिलीज़) |
+| POST | /admin/v1/oms/rma/{id}/approve | RMA अनुमोदन |
+| POST | /admin/v1/oms/rma/{id}/refund | RMA रिफंड |
 
 ### 16.16 WMS वेयरहाउस प्रबंधन
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/wms/zone | ज़ोन सूची (CRUD) |
-| GET | /admin/wms/location | WMS स्थान सूची (CRUD) |
-| GET | /admin/wms/asn | ASN सूची (CRUD) |
-| POST | /admin/wms/receiving/{id}/complete | प्राप्ति पूर्ण करें→स्वतः पुटअवे कार्य उत्पन्न |
-| POST | /admin/wms/putaway/{id}/complete | पुटअवे पुष्टि→stockIn ट्रिगर |
-| POST | /admin/wms/wave/{id}/release | वेव जारी करें→पिकिंग कार्य उत्पन्न |
-| POST | /admin/wms/pick/{id}/start | पिकिंग आरंभ करें |
-| POST | /admin/wms/pick/{id}/confirm | पिकिंग पुष्टि |
-| POST | /admin/wms/pack/{id}/complete | पैकिंग पूर्ण |
+| GET | /admin/v1/wms/zone | ज़ोन सूची (CRUD) |
+| GET | /admin/v1/wms/location | WMS स्थान सूची (CRUD) |
+| GET | /admin/v1/wms/asn | ASN सूची (CRUD) |
+| POST | /admin/v1/wms/receiving/{id}/complete | प्राप्ति पूर्ण करें→स्वतः पुटअवे कार्य उत्पन्न |
+| POST | /admin/v1/wms/putaway/{id}/complete | पुटअवे पुष्टि→stockIn ट्रिगर |
+| POST | /admin/v1/wms/wave/{id}/release | वेव जारी करें→पिकिंग कार्य उत्पन्न |
+| POST | /admin/v1/wms/pick/{id}/start | पिकिंग आरंभ करें |
+| POST | /admin/v1/wms/pick/{id}/confirm | पिकिंग पुष्टि |
+| POST | /admin/v1/wms/pack/{id}/complete | पैकिंग पूर्ण |
 
 ### 16.17 TMS परिवहन प्रबंधन
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/tms/carrier | कैरियर सूची (CRUD) |
-| GET | /admin/tms/service | कैरियर सेवा (CRUD) |
-| GET | /admin/tms/freight-rate | माल ढुलाई दर (CRUD) |
-| GET | /admin/tms/shipment | शिपमेंट सूची (CRUD) |
-| 🔗 POST | /admin/tms/shipment/{id}/ship | शिपमेंट पुष्टि (stockOut+AR) |
-| POST | /admin/tms/tracking/callback | कैरियर ट्रैकिंग webhook |
-| POST | /admin/tms/freight-invoice/{id}/pay | माल ढुलाई चालान भुगतान (AP उत्पन्न) |
+| GET | /admin/v1/tms/carrier | कैरियर सूची (CRUD) |
+| GET | /admin/v1/tms/service | कैरियर सेवा (CRUD) |
+| GET | /admin/v1/tms/freight-rate | माल ढुलाई दर (CRUD) |
+| GET | /admin/v1/tms/shipment | शिपमेंट सूची (CRUD) |
+| 🔗 POST | /admin/v1/tms/shipment/{id}/ship | शिपमेंट पुष्टि (stockOut+AR) |
+| POST | /api/tms/tracking/callback | कैरियर ट्रैकिंग webhook |
+| POST | /admin/v1/tms/freight-invoice/{id}/pay | माल ढुलाई चालान भुगतान (AP उत्पन्न) |
 
 ### 16.18 डैशबोर्ड विस्तार
 
 | विधि | पथ | विवरण |
 |------|------|------|
-| GET | /admin/dashboard/oms | OMS KPI (लंबित/पिकिंग में/आज की शिपमेंट/RMA) |
-| GET | /admin/dashboard/wms | WMS KPI (प्राप्ति लंबित/पुटअवे लंबित/पिकिंग लंबित/पैकिंग लंबित) |
-| GET | /admin/dashboard/tms | TMS KPI (शिपमेंट लंबित/पारगमन में/हस्ताक्षरित/असामान्य) |
+| GET | /admin/v1/dashboard/oms | OMS KPI (लंबित/पिकिंग में/आज की शिपमेंट/RMA) |
+| GET | /admin/v1/dashboard/wms | WMS KPI (प्राप्ति लंबित/पुटअवे लंबित/पिकिंग लंबित/पैकिंग लंबित) |
+| GET | /admin/v1/dashboard/tms | TMS KPI (शिपमेंट लंबित/पारगमन में/हस्ताक्षरित/असामान्य) |
 
 ### 16.19 क्रॉस-मॉड्यूल लिंकेज विवरण
 
@@ -2037,5 +2053,5 @@ docker-compose up -d
 
 | एंडपॉइंट | लिंकेज क्रिया |
 |------|---------|
-| 🔗 POST /admin/purchase/receive | स्वतः InventoryService.stockIn() कॉल कर इन्वेंटरी अपडेट + मूविंग वेटेड एवरेज लागत पुनर्गणना; FinanceService.createAp() कॉल कर देय रिकॉर्ड उत्पन्न |
-| 🔗 POST /admin/sales/delivery | स्वतः InventoryService.stockOut() कॉल कर इन्वेंटरी घटाना (मूविंग वेटेड एवरेज लागत के अनुसार); FinanceService.createAr() कॉल कर प्राप्य रिकॉर्ड उत्पन्न |
+| 🔗 POST /admin/v1/purchase/receive | स्वतः InventoryService.stockIn() कॉल कर इन्वेंटरी अपडेट + मूविंग वेटेड एवरेज लागत पुनर्गणना; FinanceService.createAp() कॉल कर देय रिकॉर्ड उत्पन्न |
+| 🔗 POST /admin/v1/sales/delivery | स्वतः InventoryService.stockOut() कॉल कर इन्वेंटरी घटाना (मूविंग वेटेड एवरेज लागत के अनुसार); FinanceService.createAr() कॉल कर प्राप्य रिकॉर्ड उत्पन्न |

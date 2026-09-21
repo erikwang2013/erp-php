@@ -9,7 +9,7 @@ digraph SecurityArchitectureCN {
 
     node [fontname="Arial", fontsize=9, style="filled,rounded", penwidth=1.5];
 
-    label="18 层纵深防御安全架构";
+    label="纵深防御安全架构（L0–L12）";
     fontsize=18;
     fontname="Arial Bold";
     labelloc="t";

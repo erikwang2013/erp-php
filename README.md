@@ -17,7 +17,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 ## 项目说明
 
 - **精确十进制核算**：金额、数量、权重等业务数值以 bcmath 十进制运算为准，移动加权平均成本、应收应付核销与各类报表输出为字符串精度，无浮点误差
-- **企业级安全基线**：JWT 令牌 + RBAC 方法级鉴权、18 层纵深防御（XSS/SQL 注入/CSRF/限流/CSP 等）、敏感字段存储加密与接口传输加密、操作审计全留痕
+- **企业级安全基线**：JWT 令牌 + RBAC 方法级鉴权、纵深防御（L0–L12 分层全景 + 35 类攻击检测器 + 7 层中间件链，XSS/SQL 注入/CSRF/限流/CSP 等）、敏感字段存储加密与接口传输加密、操作审计全留痕
 - **配置化能力**：多节点审批工作流（含可视化流程设计器画布）、单据打印模板引擎（占位符渲染 + dompdf 出 PDF + 二维码标签）、客户信用额度实时拦截、批次/序列号全链路正反向追溯
 - **数据可追溯**：业务流水逐笔留痕，库存批次与序列号贯穿 入库→领用→出库→追溯 全生命周期，成本核算到单据行级
 - **部署友好**：Docker Compose v2 一键启动（MySQL/Redis/Elasticsearch），本地 `composer install` 亦可直接运行
@@ -30,19 +30,21 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 | 🔐 认证 | 登录/注册/刷新令牌/登出 | 点击验证码 + JWT + 黑名单 |
 | | 账号锁定 | 5 次失败锁定 15 分钟 |
 | | 并发会话限制 | 同一用户最多 3 个有效 Token |
-| 📊 仪表盘 | 经营总览/销售看板/库存看板/财务看板 | 30日销售趋势/Top5热销/订单状态分布/应收应付账龄 + Redis 缓存 5 分钟 |
+| 📊 仪表盘 | 经营总览 + 销售/库存/财务/OMS/WMS/TMS 六块看板 | 30日销售趋势/Top5热销/订单状态分布/应收应付账龄 + Redis 缓存 5 分钟 |
 | 👥 用户管理 | CRUD + 批量删除/启禁用 | 软删除 + 密码二次确认 |
 | | Excel 批量导入 | 逐行校验 + 错误报告 |
 | 🔒 角色权限 | 角色 CRUD + 权限树 | RBAC method.path 粒度鉴权 |
 | ⚙ 系统配置 | 键值对 CRUD | 分组管理 |
 | 📋 操作审计 | 日志查询 + 来源端检测 | 8 平台自动识别 |
 | 📁 文件管理 | 上传/Excel 导出/PDF 导出 | 敏感数据自动脱敏 |
-| 🛡 安全防护 | 18 层纵深防御 | XSS/SQL注入/路径遍历/命令注入/CSRF/限流/CSP... |
+| 🛡 安全防护 | 35 类攻击检测 + 7 层中间件链 | XSS/SQL注入/路径遍历/命令注入/CSRF/限流/CSP... |
 | 🏥 运维 | 健康检查/metrics/API 文档/security.txt | Prometheus + OpenAPI 3.0 |
 | 📦 商品管理 | 商品档案/SKU/多规格/多单位/分类/品牌/价格策略 | 多级分类树 + 多单位换算 |
 | | 仓库库位 | 多仓库多库位管理 |
 | | 供应商/客户档案 | 联系人/银行账户/信用额度 |
 | 📥 采购管理 | 申请→订单→收货→退货→结算 | 完整采购流程 + 审批 |
+| | 寻源采购（询价→报价→中标转订单）| 多供应商比价、报价须覆盖全部询价明细、中标一键转采购订单 |
+| | 供应商评估 | 总分 0–100 自动评级（A ≥ 90 / B ≥ 70 / C）+ 评估维度 JSON + 评估人留痕 |
 | 📤 销售管理 | 报价→订单→发货→退货→结算 | 报价转订单 + 销售毛利 |
 | | 客户信用控制 | 额度/账期/冻结管理 + 订单/发货超限超期拦截 |
 | 🏗 库存管理 | 实时库存/批次/序列号/调拨/盘点/预警 | 移动加权平均成本核算 |
@@ -103,7 +105,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 | 后端框架 | webman v2 (workerman) | 超高性能 PHP 常驻进程框架 |
 | PHP 版本 | 8.3+ | |
 | 数据库 | MySQL 8.0+ | 表前缀 `erp_`，BIGINT 非自增主键 |
-| 搜索引擎 | Elasticsearch | 通过 `webman-scout` 同步与查询 |
+| 搜索引擎 | Elasticsearch | 经 `webman-scout` 在写入/删除时自动同步索引（可选组件，见「全文搜索引擎」节） |
 | 管理端前端 A | Angular 22 | config 驱动资源页，`ResourcePage` 渲染引擎（`apps/angular/`） |
 | 管理端前端 B | React 19 + Vite | 与 Angular 同源的 config 驱动 + 样式令牌（`apps/react/`） |
 | 管理端前端 C | Flutter 3.x | Web 端为 PC 管理后台风格（`apps/flutter/`） |
@@ -124,7 +126,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 | `erikwang2013/security-php` | 安全工具检查 |
 | `phpoffice/phpspreadsheet` | Excel 导出 |
 | `barryvdh/laravel-dompdf` | PDF 导出（基于 Dompdf） |
-| `hg/apidoc` | API 文档自动生成 | 注解式接口文档，管理端/客户端分组 |
+| `erikwang2013/apidoc-php` | API 文档自动生成（注解式接口文档，管理端/客户端分组）|
 
 ## 国际化
 
@@ -132,9 +134,9 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 
 | 层 | 词典位置 | 规模 |
 |---|---------|------|
-| 后端消息 | `resource/translations/{语种}/` | 13 个语种目录，11 个新语种各 542 条，另 `zh_CN` 533、`en` 30（口径：叶子条目；`validation.php` 的 `attributes` 是分组容器，不计入） |
-| Angular 管理端 | `apps/angular/src/app/core/zh-*.ts`（源词典 `zh-en/`） | 源词典 1453 键 × 11 新语种 |
-| React 管理端 | `apps/react/src/lib/i18n/zh*.ts` | 源词典 1447 键 × 11 新语种 |
+| 后端消息 | `resource/translations/{语种}/` | 13 个语种目录：`zh_CN` 565 条、其余 11 个语种各 544 条、`en` 30 条（口径：`common/modules/validation` 三文件的叶子条目，`validation.php` 的 `attributes` 字段标签计入、其组键不计） |
+| Angular 管理端 | `apps/angular/src/app/core/zh-*.ts`（源词典 `zh-en/`，4 个切片合并） | 源词典 1456 键 × 11 新语种（各语种键数与源词典 1:1） |
+| React 管理端 | `apps/react/src/lib/i18n/zh*.ts` | 源词典 1451 键 × 11 新语种 |
 
 - **后端「英文即 key」**：后端消息键本身为英文文案，`en` 只维护框架规则名等少量映射，无需完整词典
 - **按语种懒加载**：前端 12 份词典各自打包成独立 chunk，切换语言时按需拉取，不压首屏体积
@@ -151,7 +153,7 @@ open-erp/
 │   ├── api/v1/controller/      # 客户端 API（版本置于路径 /api/v1，无版本请求头）
 │   ├── controller/             # 业务模块控制器 (139 个，23 域)
 │   │   ├── product/            # 商品/分类/品牌/仓库/库位/供应商/客户 (8 个)
-│   │   ├── purchase/           # 采购申请/订单/收货/退货/结算 (8 个)
+│   │   ├── purchase/           # 采购申请/订单/收货/退货/结算/询价/报价/供应商评估 (8 个)
 │   │   ├── sales/              # 销售报价/订单/发货/退货/结算 (5 个)
 │   │   ├── inventory/          # 库存/流水/调拨/盘点/预警 (6 个)
 │   │   ├── finance/            # 应收应付/凭证/收付款/日记账/总账/明细账/报表/资产/税务/多币种/预算/成本利润中心/票据/对账/发票 (28 个)
@@ -173,7 +175,7 @@ open-erp/
 │   │   ├── wms/                # 库区/库位/ASN/收货/上架/波次/拣货/打包 (8 个)
 │   │   ├── tms/                # 承运商/服务/费率/运单/轨迹/运费发票 (6 个)
 │   │   └── open/               # 开放平台接口 (1 个)
-│   ├── service/                # 业务逻辑层 (63 个)
+│   ├── service/                # 业务逻辑层 (64 个)
 │   │   ├── inventory/          # 出入库 + 移动加权平均成本核算 + 库存预占/ATP
 │   │   ├── finance/            # 应收应付自动生成 + 核销
 │   │   ├── notification/       # 通知发送服务
@@ -183,25 +185,26 @@ open-erp/
 │   ├── model/                  # 224 个 Eloquent 模型（多模块共用）
 │   ├── middleware/             # 11 个中间件（ApiVersion 已移除，版本走路径）
 │   ├── common/                 # Hashids/Snowflake/Encryption 服务
-│   └── queue/                  # 队列任务
+│   ├── queue/                  # 队列任务（Redis 驱动 + 延迟/死信）
+│   └── process/                # 常驻进程（Http / WebSocket / QueueConsumer / Monitor）
 ├── apps/
 │   ├── angular/                # Angular 22 管理端（config 驱动资源页，ng serve :4200）
 │   ├── react/                  # React 19 + Vite 管理端（Vite :5173）
 │   ├── flutter/                # Flutter 跨平台（Web PC + iOS/Android/macOS/Windows/Linux）
 │   └── harmonyos/              # HarmonyOS 原生客户端
 ├── config/                     # 配置文件（含中文注释）
-│   ├── plugin/hg/apidoc/        # API 文档配置
+│   ├── plugin/erikwang2013/apidoc/ # API 文档配置（凭据取 .env 的 APIDOC_PASSWORD / APIDOC_SECRET_KEY）
 ├── database/
 │   ├── install.sql              # 完整安装SQL（227张表 + 种子数据）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（<!-- stats:test_files=111 --> 个测试文件，<!-- stats:tests=986 --> 个测试方法，<!-- stats:assertions=4654 --> 条断言）
+├── tests/                      # PHPUnit 测试（111 个测试文件，1001 个测试方法，4726 条断言；口径见 docs/FUNCTIONS.md 附录）
 ├── resource/
 │   └── translations/           # 13 语种后端消息词典 (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
-│       ├── zh_CN/              # 中文翻译 (533 条)
+│       ├── zh_CN/              # 中文翻译 (565 条)
 │       ├── en/                 # 英文即 key，仅框架规则名等 30 条
-│       └── ja|ko|de|.../       # 其余 11 语种各 542 条（生成器 scripts/gen-be-locales.mjs）
+│       └── ja|ko|de|.../       # 其余 11 语种各 544 条（生成器 scripts/gen-be-locales.mjs）
 ├── public/                     # 公共入口
 ├── runtime/                    # 运行时文件
 └── vendor/                     # Composer 依赖
@@ -239,7 +242,7 @@ open-erp/
 
 ![Security Architecture](./docs/diagrams/security-architecture-cn.svg)
 
-**18 层纵深防御**: L0 物理网络 → L1 传输安全 → L2 HTTP 安全头 → L3 请求校验 → L4 输入净化 → L5 CSRF 防护 → L6 限流 → L7 认证(JWT+Captcha+黑名单+会话控制) → L8 RBAC 授权 → L9 数据保护(传输加密+存储加密+ID混淆+数据脱敏) → L10 审计监控 → L11 合规披露。
+**纵深防御全景（L0–L12）**: L0 物理网络 → L1 传输安全 → L2 HTTP 安全头 → L3 请求校验 → L4 输入净化 → L5 CSRF 防护 → L6 限流 → L7 认证(JWT+Captcha+黑名单+会话控制) → L8 RBAC 授权 → L9 数据保护(传输加密+存储加密+ID混淆+数据脱敏) → L10 审计监控 → L11 合规披露 → L12 可观测性(X-Trace-Id 全链路追踪+业务指标+审计增强)。图源 `docs/diagrams/security-architecture-cn.dot`（L0–L12）；可执行链路的 7 层中间件见 `docs/SECURITY.md`；35 类攻击检测器见 `config/plugin/erikwang2013/security-php/app.php`。
 
 ---
 
@@ -249,16 +252,18 @@ open-erp/
 - Composer 2.x
 - MySQL >= 8.0
 - Flutter >= 3.41（仅前端开发需要）
-- Elasticsearch >= 7.x（可选，搜索功能需要）
+- Node >= 22.22.3（仅 Angular/React 管理端开发需要；Angular CLI 22 的 `engines` 下限）
+- Elasticsearch >= 7.x 或 OpenSearch >= 2.x（可选，索引同步需要；不装不影响业务读写）
+- DevEco Studio（可选，仅 HarmonyOS 客户端构建需要；命令行亦可 `hvigorw assembleHap`）
 
 ## 默认本地域名
 
-项目默认使用本地域名 **`http://erp.test`**（Flutter 与 HarmonyOS 客户端的默认 API 地址、后端 Web 入口约定）。
+项目默认使用本地域名 **`http://erp.test`**（Flutter 客户端的默认 API 地址、后端 Web 入口约定；HarmonyOS 客户端默认指向模拟器宿主机 `http://10.0.2.2:8788`）。
 
 - **本机访问**：在 hosts 中添加一行 `127.0.0.1 erp.test`，并将 Web 服务器/反代指向后端监听端口（默认 `8788`，见 `.env` 的 `APP_HTTP_PORT`，可在安装向导或 `.env` 中修改；WebSocket 默认 `8282` 对应 `APP_WS_PORT`）。
 - **改部署域名**：
   - Flutter 构建注入：`flutter build web --dart-define=API_BASE_URL=https://你的域名`
-  - HarmonyOS：编辑 `apps/harmonyos/entry/src/main/ets/service/ApiService.ets` 的 `BASE_URL`
+  - HarmonyOS：编辑 `apps/harmonyos/entry/src/main/ets/utils/Config.ets` 的 `BASE_URL`（只读常量，默认 `http://10.0.2.2:8788`）
   - 模拟器调试可临时改回 `http://10.0.2.2:8788`（访问宿主机）
 - 所有接口版本已置于路径（`/admin/v1`、`/api/v1`、`/open/v1`），客户端只需配置根地址。
 
@@ -282,9 +287,10 @@ cp .env.example .env
 
 | 环境变量 | 说明 | 默认值 |
 |---------|------|--------|
-| `JWT_SECRET` | JWT 签名密钥 | `open-admin-jwt-secret-change-in-production` |
-| `HASHIDS_SALT` | Hashids 盐值 | `open-admin-hashids-salt-2026` |
-| `ENCRYPTION_KEY` | API 加密密钥 | 32 字节默认值 |
+| `JWT_SECRET_KEY` | JWT 签名密钥（`env_required`：缺失/为空/弱占位值启动即拒绝） | `.env.example` 预置 48 位随机值 |
+| `HASHIDS_SALT` | Hashids 盐值（`env_required`） | `.env.example` 预置 48 位随机值 |
+| `ENCRYPTION_KEY` | API 传输层与存储层加密主密钥（`env_crypto_key`：AES-256 须 32 字节，长度不符启动即拒绝） | `.env.example` 预置 32 位随机值 |
+| `APIDOC_PASSWORD` / `APIDOC_SECRET_KEY` | 文档站访问口令与令牌签名密钥。留空、或仍是 `CHANGE_ME_*` 占位值时**一律按未配置处理**（占位值在本公开仓库里，照抄上线等于口令公开）→ 文档站拒绝访问，不影响应用启动 | `.env.example` 为 `CHANGE_ME_*` 占位（须跑下面的生成脚本替换） |
 | `SNOWFLAKE_DATACENTER_ID` | 数据中心 ID (0-31) | `1` |
 | `SNOWFLAKE_WORKER_ID` | 工作节点 ID (0-31) | `1` |
 | `SCOUT_HOSTS` | ES 地址 | `http://localhost:9200` |
@@ -292,7 +298,7 @@ cp .env.example .env
 | `ANGULAR_DEV_PORT` / `REACT_DEV_PORT` | 前端开发服务器端口（`npm run dev`，仅开发期用） | `4200` / `5173` |
 | `NGINX_PORT` / `NGINX_SSL_PORT` / `MYSQL_PORT` / `ES_PORT` | docker-compose 发布到宿主机的端口（容器内端口固定） | `80` / `443` / `3306` / `9200` |
 
-**生产环境务必修改所有密钥为随机字符串**（`JWT_SECRET` / `ENCRYPTION_KEY` / `HASHIDS_SALT` 等占位值会被 `env_required` 拒绝启动）：
+**生产环境务必替换所有密钥为随机字符串**（`JWT_SECRET_KEY` / `ENCRYPTION_KEY` / `HASHIDS_SALT` 等：缺失、为空或仍是 `change-me`/`xxx` 类弱占位值时，启动即被 `env_required` / `env_crypto_key` 拒绝，不会静默降级）：
 
 ```bash
 # 生成随机密钥并写入 .env（幂等，已配置的值不会被覆盖）
@@ -347,7 +353,7 @@ flutter run -d chrome    # Web 端（PC 管理后台风格）
 # 1. 配置 Docker 环境变量
 cp .env.docker .env
 
-# 2. 替换占位密钥为随机值（JWT_SECRET/ENCRYPTION_KEY/HASHIDS_SALT 等，幂等）
+# 2. 替换占位密钥为随机值（JWT_SECRET_KEY/ENCRYPTION_KEY/HASHIDS_SALT 等，幂等）
 bash scripts/gen-env-keys.sh .env
 
 # 3. 启动所有服务（需 Docker Compose v2：`docker compose`，v1 已弃用且不兼容 http+docker 协议）
@@ -385,7 +391,7 @@ docker compose ps --format "table {{.Name}}\t{{.Status}}"
 
 ### 4. 全文搜索引擎（可选）
 
-全文检索通过 `erikwang2013/webman-scout` 实现（模型加 `Searchable` trait 后，保存时自动同步索引）。支持 **Elasticsearch** 与 **OpenSearch** 两种引擎，二选一：
+索引同步通过 `erikwang2013/webman-scout` 实现（模型加 `Searchable` trait 后，保存时自动同步索引）。支持 **Elasticsearch** 与 **OpenSearch** 两种引擎，二选一：
 
 **① 安装对应客户端（Composer 包与驱动必须匹配，装错会报 "Please install the ... client"）**
 
@@ -421,7 +427,13 @@ SCOUT_SOFT_DELETE=true
 
   `config/scout.php` 中 `opensearch` 节默认 `ssl_verification=false`（本地自签证书）；生产环境应改 `true` 并配置证书，切勿使用弱口令。
 
-> 本项目 Docker Compose 内置 Elasticsearch（`open-admin-es` 服务）：走 Docker 部署选 **elasticsearch 驱动 + ES 客户端**；外部/独立 OpenSearch 容器选 **opensearch 驱动 + opensearch-php**。已启用索引的模型：AdminUser、Customer、Product、Supplier。
+> 本项目 Docker Compose 内置 Elasticsearch（`open-admin-es` 服务）：走 Docker 部署选 **elasticsearch 驱动 + ES 客户端**；外部/独立 OpenSearch 容器选 **opensearch 驱动 + opensearch-php**。
+>
+> **索引范围**：`app/model/` 下全部 224 个模型都带 `Searchable`，写库/软删即经 `ModelObserver` 同步索引；其中 AdminUser、Customer、Product、Supplier 4 个自定义 `toSearchableArray()` 白名单字段，其余模型按默认（整行）入索引。
+>
+> **引擎不可用不影响业务写入**（实测：把驱动指向不可达端口后 `save()` 仍成功，仅多一次连接超时的耗时）——搜索引擎是可选组件，不装也能跑全量业务。
+>
+> **范围说明**：本项目当前只接入了**索引同步**（写库/软删即同步），未提供检索接口或检索界面；业务需要检索时自行调用 Scout 的查询 API（管理端列表页的筛选走后端 `where` 查询，不经过搜索引擎）。
 
 ### 5. 多语言
 
@@ -498,8 +510,9 @@ http://localhost:8788/apidoc
 ### ID 处理
 
 - **请求/响应中的 ID**: 使用 hashids 加密为字符串，不暴露真实数据库 ID
-- **接口路径**: `GET /admin/user/{hashid}` — 路径中的 `{id}` 为 hashid 字符串
+- **接口路径**: `GET /admin/v1/user/{hashid}` — 路径中的 `{id}` 为 hashid 字符串
 - **数据库存储**: BIGINT 原值，由 snowflake 生成
+- **前端约定**: 所有 `*_id`（含明细行 `items[].*_id`）一律当作**不透明字符串**原样回传，禁止 `Number()`/`parseInt()` 转换或用真值判断 —— hashid 可能是全数字串，与裸 ID、`0` 哨兵从值本身无法区分（契约见 `tests/FieldContractRegressionTest.php`）
 
 ### API 版本
 
@@ -542,12 +555,12 @@ Cors（跨域预处理 + 响应头）
 
 登录与注册需要先通过**点击验证码**校验：
 
-1. 客户端请求 `POST /api/captcha/generate` 获取验证码图片（base64 PNG）和文字目标列表
+1. 客户端请求 `POST /api/v1/captcha/generate` 获取验证码图片（base64 PNG）和文字目标列表
 2. 用户按顺序点击图中对应文字位置，收集点击坐标 `[{x, y}, ...]`
 3. 登录时一并提交 `captcha_key` 和 `clicks`，服务端先校验验证码再校验凭证
 
 ```http
-POST /api/auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -566,14 +579,14 @@ Authorization: Bearer <token>
 
 登录成功后返回 access_token，有效期 2 小时；另返回 refresh_token，有效期 14 天。
 
-登出时 Token 加入 Redis 黑名单，有效期内不可复用。POST /admin/profile/logout
+登出时 Token 加入 Redis 黑名单，有效期内不可复用。POST /admin/v1/profile/logout
 
 ### 敏感操作二次确认
 
 删除用户、角色、权限等敏感操作需要在请求体中传入当前登录用户的 `password` 进行身份二次确认：
 
 ```http
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 Content-Type: application/json
 Authorization: Bearer <token>
 
@@ -598,12 +611,15 @@ npm run build      # tsc --noEmit + ng build，产物 dist/angular
 npm run typecheck  # 只做类型检查
 ```
 
-- **Node 版本要求**：Angular CLI 要求 **Node ≥ 22.22.3**。本机版本偏低时用 npx 临时指定
-  （本仓库最常用的构建姿势，CI 之外均照此）：
+- **Node 版本要求**：Angular CLI 22 的 `engines` 要求 **Node ≥ 22.22.3**（低版本 `ng build` 会直接拒绝启动）。
+  本机 Node 偏低时用 npx 临时指定（本仓库最常用的构建姿势，CI 之外均照此）：
 
   ```bash
   npx --yes --package=node@22.22.3 -- node node_modules/@angular/cli/bin/ng.js build
   ```
+
+  无 `npx` 的环境（如本仓库的离线校验机）改用 CLI 自带的 tsc 做类型检查：
+  `./node_modules/.bin/tsc --noEmit -p tsconfig.app.json`
 
 - **开发代理**：`proxy.conf.js` 已把 `/admin` `/api` `/open` `/health` `/metrics` `/install`
   代理到 `.env` 的 `APP_HTTP_PORT`（默认 8788），因此 `ng serve` 时**无需**再配置后端地址
@@ -627,21 +643,34 @@ npm run build      # tsc --noEmit + vite build，产物 dist/
   （Angular 端的 `styles/theme.less` 与之同值）
 - 语言切换入口在**个人中心**页（Angular 端另有顶栏 globe 图标）
 
-### Flutter 管理后台（PC 风格）
+### Flutter 管理后台（PC 风格，`apps/flutter/`）
+
+```bash
+cd apps/flutter
+flutter pub get
+flutter run -d chrome    # Web 端（PC 管理后台风格），亦支持 iOS/Android/macOS/Windows/Linux
+flutter analyze          # 静态检查（CI 同款）
+```
 
 - **布局**: 侧边栏（可折叠 64px/240px）+ 顶栏 + 内容区，响应式三断点（手机/平板/桌面）
-- **页面**: 登录、仪表盘、用户管理、角色权限、系统配置、操作日志、个人中心
+- **覆盖范围**: 22 个顶层菜单项（21 个分组 + 独立的仪表盘）、102 个可路由页面、119 个页面文件（菜单在 `lib/app/config/menu_config.dart` 声明，页面在 `lib/app/pages/`）—— 仪表盘、系统管理、商品管理、往来单位、采购管理、销售管理、库存管理、财务管理、CRM、订单管理、仓储管理、运输管理、生产制造、质量管理、人力资源、项目管理、审批工作流、通知中心、自定义报表、BI 看板、设备管理、文档管理
 - **状态管理**: GetX（`ApiService` 单例 + `AuthService` Token 持久化）
-- **仪表盘**: 统计卡片、趋势折线图（fl_chart）、饼图、最近操作日志
-- **导出**: Excel/PDF 导出，PDF 含不可移除版权信息
+- **仪表盘**: 统计卡片、销售趋势折线、Top 商品、订单状态分布、应收应付账龄、库存概览（fl_chart）
+- **导出**: Excel/PDF 导出（`ExportService`），PDF 含不可移除版权信息
 - **批量操作**: 多选批量删除、批量启用/禁用
 - **主题**: Material 3 浅色/深色双主题
+- **国际化**: 中/英双语（`lib/l10n/app_zh.arb` 为模板，`flutter gen-l10n` 生成）
 
-### HarmonyOS 移动端
+### HarmonyOS 移动端（`apps/harmonyos/`）
 
-- **页面**: 登录、仪表盘、用户列表/详情、个人中心
+- **构建**: DevEco Studio 打开 `apps/harmonyos/`；命令行等价物为
+  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
+  （需 HarmonyOS SDK + command-line-tools，产物 `entry/build/default/outputs/default/*.hap`）
+- **页面**: 注册表 `entry/src/main/resources/base/profile/main_pages.json` 共 **41 个已注册页面，全部可从界面到达**（登录、仪表盘、用户列表/详情、角色权限、个人中心，以及商品/库存/采购/销售/OMS/WMS/TMS/生产/HR/审批等子系统页面）；仪表盘「业务宫格」提供 **32 个直达入口**，子系统的详情页由列表行操作进入
 - **认证**: JWT Bearer + 401 自动无感刷新 Token，刷新失败自动重定向登录页
 - **存储**: Token 通过 AppStorage 管理
+- **国际化**: 中/英双语（`resources/base/element/string.json` 与 `resources/en_US/element/string.json`）
+- **网络**: `BASE_URL` 定义在 `entry/src/main/ets/utils/Config.ets`（只读常量，默认 `http://10.0.2.2:8788`，即模拟器访问宿主机；真机/生产改这里）
 
 ## 开发规范
 
@@ -677,11 +706,17 @@ docker compose up -d
 
 ### CI/CD
 
-GitHub Actions 持续集成流水线：`.github/workflows/ci.yml`
+GitHub Actions 持续集成流水线：`.github/workflows/ci.yml`，五个作业：
 
-- PHP 语法检查 (`php -l`)
-- PHPUnit 单元测试
-- Flutter 静态分析 (`flutter analyze`，CI 已含，启用中 — 见 `.github/workflows/ci.yml` 的 flutter job)
+| 作业 | 内容 |
+|------|------|
+| `php`（矩阵 PHP 8.3 / 8.4，带 MySQL 8 + Redis 7 服务） | composer 校验与安全审计 → `php -l` → **PHPStan**（level 5 + baseline）→ **PHP CS Fixer**（dry-run）→ 导入全量 `install.sql` → **PHPUnit**（含集成用例）→ pcov 覆盖率采集 → 覆盖率门槛（整体 ≥ 4%、`app/service` ≥ 10%，逐步收紧） |
+| `flutter` | `flutter analyze` + `flutter test`（`continue-on-error: true`，待环境稳定后收紧） |
+| `docs` | `bash scripts/doc-stats.sh --check`：校验 README 与 docs 中 `<!-- stats:key=value -->` 标注与源码实测计数一致（控制器/服务/模型/表/测试数等），漂移即红 |
+| `e2e` | 起 webman 真实服务 → 健康检查 → HTTP 核心链路冒烟 + 管理端 API 覆盖 |
+| `release` | push 至 `main` 且上述作业通过后按 patch+1 打 tag 并发 Release（见下） |
+
+> 前端静态检查覆盖面：CI 目前只跑 Flutter；Angular/React（`tsc --noEmit`）与 HarmonyOS（`hvigorw assembleHap`）需在本地或后续补充作业中执行。
 
 ### 发布流程（版本增量）
 

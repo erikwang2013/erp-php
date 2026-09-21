@@ -436,4 +436,6 @@ return [
     'Material dispatch number already exists' => '材料出庫番号は既に存在します',
     'Audited material dispatches cannot be modified' => '監査済みの材料出庫は変更できません',
     'Audited material dispatches cannot be deleted' => '監査済みの材料出庫は削除できません',
+    'Number ":code" already exists; please refresh the page and use another one' => '番号「:code」は既に存在します。ページを更新して別の番号を使用してください',
+    'Issued-out records cannot be deleted' => '出庫済みレコードは削除できません',
 ];

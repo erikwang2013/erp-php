@@ -436,4 +436,6 @@ return [
     'Material dispatch number already exists' => 'Le numéro de bon de sortie matière existe déjà',
     'Audited material dispatches cannot be modified' => 'Les bons de sortie matière audités ne peuvent pas être modifiés',
     'Audited material dispatches cannot be deleted' => 'Les bons de sortie matière audités ne peuvent pas être supprimés',
+    'Number ":code" already exists; please refresh the page and use another one' => 'Le numéro ":code" existe déjà ; veuillez actualiser la page et en utiliser un autre',
+    'Issued-out records cannot be deleted' => 'Les enregistrements de sortie ne peuvent pas être supprimés',
 ];

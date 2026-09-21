@@ -4,7 +4,7 @@
 
 ## API ドキュメント
 
-プロジェクトは [hg/apidoc](https://github.com/hg-code/apidoc) で対話型 API ドキュメントを自動生成します。
+プロジェクトは [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php) で対話型 API ドキュメントを自動生成します。
 
 **アクセス方法：** サービス起動後に `http://localhost:8788/apidoc` へアクセス
 
@@ -18,17 +18,20 @@
 | リクエストヘッダー | 説明 |
 |--------|------|
 | `Authorization` | JWT Bearer Token |
-| `API-Version` | API バージョン番号 (v1) |
-| `Accept-Language` | 国際化言語 (zh-CN/en) |
+| `Accept-Language` | 国際化言語、13 語種に対応（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id）、既定は `zh_CN` |
+
+> **バージョンについて**：全サイトをパスでバージョン管理します——管理画面 `/admin/v1`、クライアント `/api/v1`、オープンインターフェース `/open/v1`。
+> バージョン番号は URL パスに置かれ、**バージョンリクエストヘッダーは一切不要**です。例外：`GET /api/docs`（OpenAPI ドキュメント）と
+> 運送業者トラッキングのコールバック `/api/tms/tracking/callback`（HMAC 署名、バージョンなし）。
 
 **アノテーション規約：** すべてのコントローラーメソッドは `@Apidoc\*` 系アノテーションでインターフェース名、説明、URL、リクエストメソッド、パラメータ、戻り値構造を注記しています。
 
 ## 1. 概要
 
-オープン管理画面 (open-admin) は webman v2 で構築され、RESTful JSON API を提供します。すべての管理画面インターフェースには JWT 認証と RBAC 権限チェックが必要で、公開インターフェースは API バージョンヘッダーでバージョン管理されたコントローラーにルーティングされます。
+オープン管理画面 (open-admin) は webman v2 で構築され、RESTful JSON API を提供します。全サイトをパスでバージョン管理します：管理画面インターフェースは `/admin/v1` 配下（JWT 認証 + RBAC 権限チェック）、クライアントインターフェースは `/api/v1` 配下、オープンインターフェースは `/open/v1` 配下にマウントされます；バージョン番号は URL パスに含まれ、バージョンリクエストヘッダーはありません。
 
 - **ベース URL**: `http://localhost:8788`
-- **API バージョン**: リクエストヘッダー `API-Version: v1` で制御（省略時はデフォルト v1）
+- **API バージョン**: 全サイトをパスでバージョン管理、バージョン番号は URL パスに配置（管理画面 `/admin/v1`、クライアント `/api/v1`、オープンインターフェース `/open/v1`）、バージョンリクエストヘッダーは不要
 
 > **エンドポイント総覧**: 認証(5) | ダッシュボード(1) | ユーザー(7) | ロール(4) | 権限(4) | 設定(4) | ログ(1) | 個人センター(3) | インポート・エクスポート(3) | アップロード(1) | 運用(4: health/metrics/docs/security.txt) | 合計 37 エンドポイント
 - **認証**: `Authorization: Bearer <token>`（JWT）
@@ -37,19 +40,23 @@
 
 ### 国際化
 
-API はリクエストヘッダー `Accept-Language` で言語を自動切替します：
+API はリクエストヘッダー `Accept-Language` で言語を自動切替し、13 語種に対応します：`zh_CN`（中文、既定）、`en`（English）、`ja`（日本語）、`ko`（한국어）、`de`（Deutsch）、`fr`（Français）、`es`（Español）、`pt`（Português）、`ru`（Русский）、`ar`（العربية）、`hi`（हिन्दी）、`bn`（বাংলা）、`id`（Bahasa Indonesia）。
 
-| ヘッダー値 | 言語 |
+| リクエストヘッダーの先頭言語タグ | 解決結果 |
 |---------|------|
-| `zh-CN`, `zh` | 中国語（デフォルト） |
-| `en`, `en-US` | English |
+| `zh`、`zh-CN`、`zh-TW` | `zh_CN` 中国語（既定） |
+| `en`、`en-US` | `en` English |
+| `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id` | 対応する語種（地域サブタグは無視、例 `de-DE` → `de`） |
 
 ```bash
 # 英語レスポンス
-curl -H "Accept-Language: en" http://localhost:8788/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
+
+# 日本語レスポンス
+curl -H "Accept-Language: ja" http://localhost:8788/admin/v1/product
 
 # 中国語レスポンス（デフォルト）
-curl http://localhost:8788/admin/product
+curl http://localhost:8788/admin/v1/product
 ```
 
 レスポンス内の `message` フィールドは対応する言語で返されます。
@@ -81,7 +88,7 @@ curl http://localhost:8788/admin/product
 
 ## 3. 公開エンドポイント
 
-すべての公開エンドポイントは `/api` グループにマウントされ、`ApiVersion` ミドルウェアが `API-Version` ヘッダーに基づいて対応するバージョン管理コントローラー（例: `app\api\v1\controller\AuthController`）へ振り分けます。
+すべての公開エンドポイントは `/api/v1` グループにマウントされ（バージョン番号は URL パスに含まれ、バージョンリクエストヘッダーもバージョンミドルウェアもありません）、コントローラーはディレクトリに直接バインドされます（例: `app\api\v1\controller\AuthController`）。
 
 ### 3.1 ヘルスチェック
 
@@ -124,11 +131,11 @@ GET /api/docs
 ### 3.3 クリック式 CAPTCHA の生成
 
 ```
-POST /api/captcha/generate
+POST /api/v1/captcha/generate
 ```
 
 - **認証**: 不要
-- **リクエストヘッダー**: `API-Version: v1`（必須）
+- **バージョン**: URL パスに /api/v1 を含む、バージョンリクエストヘッダーなし
 - **レート制限**: グローバルデフォルト (60回/分)
 
 **リクエストボディ**:
@@ -170,11 +177,11 @@ POST /api/captcha/generate
 ### 3.4 クリック式 CAPTCHA の検証
 
 ```
-POST /api/captcha/verify
+POST /api/v1/captcha/verify
 ```
 
 - **認証**: 不要
-- **リクエストヘッダー**: `API-Version: v1`（必須）
+- **バージョン**: URL パスに /api/v1 を含む、バージョンリクエストヘッダーなし
 - **レート制限**: グローバルデフォルト (60回/分)
 
 **リクエストボディ**:
@@ -207,11 +214,11 @@ POST /api/captcha/verify
 ### 3.5 ログイン
 
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 - **認証**: 不要
-- **リクエストヘッダー**: `API-Version: v1`（必須）
+- **バージョン**: URL パスに /api/v1 を含む、バージョンリクエストヘッダーなし
 - **レート制限**: 10 回/分（IP + パス単位）
 
 **リクエストボディ**:
@@ -271,11 +278,11 @@ POST /api/auth/login
 ### 3.6 登録
 
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 ```
 
 - **認証**: 不要
-- **リクエストヘッダー**: `API-Version: v1`（必須）
+- **バージョン**: URL パスに /api/v1 を含む、バージョンリクエストヘッダーなし
 - **レート制限**: 5 回/分（IP + パス単位）
 - **スイッチ**: デフォルト無効（`REGISTRATION_ENABLED=0`）、無効時は 403 を返す。`.env` で明示的に有効化が必要（`REGISTRATION_ENABLED=1`）
 
@@ -324,11 +331,11 @@ POST /api/auth/register
 ### 3.7 トークン更新
 
 ```
-POST /api/auth/refresh
+POST /api/v1/auth/refresh
 ```
 
 - **認証**: 不要
-- **リクエストヘッダー**: `API-Version: v1`（必須）
+- **バージョン**: URL パスに /api/v1 を含む、バージョンリクエストヘッダーなし
 - **レート制限**: グローバルデフォルト (60回/分)
 
 **リクエストボディ**:
@@ -406,12 +413,12 @@ openadmin_memory_usage_bytes 18874368
 
 ## 4. ダッシュボード
 
-すべての管理画面インターフェースは `/admin` グループにマウントされ、`AdminAuth`（JWT 認証）、`AdminPermission`（RBAC 権限チェック）、`OperationLog`（操作記録）の 3 つのミドルウェアを通過します。
+すべての管理画面インターフェースは `/admin/v1` グループにマウントされ、`AdminAuth`（JWT 認証）、`AdminPermission`（RBAC 権限チェック）、`OperationLog`（操作記録）の 3 つのミドルウェアを通過します。
 
 ### 4.1 ダッシュボードデータ
 
 ```
-GET /admin/dashboard
+GET /admin/v1/dashboard
 ```
 
 - **認証**: JWT + RBAC
@@ -468,7 +475,7 @@ GET /admin/dashboard
         "id": "hashid...",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "user_name": "admin",
         "created_at": "2026-05-21 10:30:00"
@@ -498,7 +505,7 @@ GET /admin/dashboard
 ### 5.1 ユーザー一覧
 
 ```
-GET /admin/user
+GET /admin/v1/user
 ```
 
 - **認証**: JWT + RBAC
@@ -551,7 +558,7 @@ GET /admin/user
 ### 5.2 ユーザー作成
 
 ```
-POST /admin/user
+POST /admin/v1/user
 ```
 
 - **認証**: JWT + RBAC
@@ -601,7 +608,7 @@ POST /admin/user
 ### 5.3 ユーザー詳細
 
 ```
-GET /admin/user/{id}
+GET /admin/v1/user/{id}
 ```
 
 - **認証**: JWT + RBAC
@@ -635,7 +642,7 @@ GET /admin/user/{id}
 ### 5.4 ユーザー更新
 
 ```
-PUT /admin/user/{id}
+PUT /admin/v1/user/{id}
 ```
 
 - **認証**: JWT + RBAC
@@ -683,7 +690,7 @@ PUT /admin/user/{id}
 ### 5.5 ユーザー削除
 
 ```
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 ```
 
 - **認証**: JWT + RBAC
@@ -720,7 +727,7 @@ DELETE /admin/user/{id}
 ### 5.6 ユーザー一括削除
 
 ```
-POST /admin/user/batch/destroy
+POST /admin/v1/user/batch/destroy
 ```
 
 - **認証**: JWT + RBAC
@@ -760,7 +767,7 @@ POST /admin/user/batch/destroy
 ### 5.7 ユーザー一括有効/無効
 
 ```
-POST /admin/user/batch/status
+POST /admin/v1/user/batch/status
 ```
 
 - **認証**: JWT + RBAC
@@ -800,7 +807,7 @@ message は status 値に応じて `"批量启用成功"` または `"批量禁�
 ### 6.1 ロール一覧
 
 ```
-GET /admin/role
+GET /admin/v1/role
 ```
 
 - **認証**: JWT + RBAC
@@ -848,7 +855,7 @@ GET /admin/role
 ### 6.2 ロール作成
 
 ```
-POST /admin/role
+POST /admin/v1/role
 ```
 
 - **認証**: JWT + RBAC
@@ -890,7 +897,7 @@ POST /admin/role
 ### 6.3 ロール更新
 
 ```
-PUT /admin/role/{id}
+PUT /admin/v1/role/{id}
 ```
 
 - **認証**: JWT + RBAC
@@ -930,7 +937,7 @@ PUT /admin/role/{id}
 ### 6.4 ロール削除
 
 ```
-DELETE /admin/role/{id}
+DELETE /admin/v1/role/{id}
 ```
 
 - **認証**: JWT + RBAC
@@ -961,7 +968,7 @@ DELETE /admin/role/{id}
 ### 7.1 権限ツリー
 
 ```
-GET /admin/permission
+GET /admin/v1/permission
 ```
 
 - **認証**: JWT + RBAC
@@ -976,7 +983,7 @@ GET /admin/permission
       "id": "p1p2p3p4",
       "parent_id": "0",
       "name": "用户管理",
-      "slug": "/admin/user",
+      "slug": "/admin/v1/user",
       "type": 1,
       "icon": "people",
       "path": "/user",
@@ -987,7 +994,7 @@ GET /admin/permission
           "id": "p5p6p7p8",
           "parent_id": "p1p2p3p4",
           "name": "用户列表",
-          "slug": "/admin/user/index",
+          "slug": "/admin/v1/user/index",
           "type": 2,
           "icon": "",
           "path": "/user/index",
@@ -1014,7 +1021,7 @@ GET /admin/permission
 ### 7.2 権限作成
 
 ```
-POST /admin/permission
+POST /admin/v1/permission
 ```
 
 - **認証**: JWT + RBAC
@@ -1024,7 +1031,7 @@ POST /admin/permission
 {
   "parent_id": 0,
   "name": "系统设置",
-  "slug": "/admin/config",
+  "slug": "/admin/v1/config",
   "type": 1,
   "icon": "settings",
   "path": "/config",
@@ -1051,7 +1058,7 @@ POST /admin/permission
     "id": "p9p0a1b2",
     "parent_id": "0",
     "name": "系统设置",
-    "slug": "/admin/config",
+    "slug": "/admin/v1/config",
     "type": 1,
     "icon": "settings",
     "path": "/config",
@@ -1063,7 +1070,7 @@ POST /admin/permission
 ### 7.3 権限更新
 
 ```
-PUT /admin/permission/{id}
+PUT /admin/v1/permission/{id}
 ```
 
 - **認証**: JWT + RBAC
@@ -1088,7 +1095,7 @@ PUT /admin/permission/{id}
 ### 7.4 権限削除
 
 ```
-DELETE /admin/permission/{id}
+DELETE /admin/v1/permission/{id}
 ```
 
 - **認証**: JWT + RBAC
@@ -1119,7 +1126,7 @@ DELETE /admin/permission/{id}
 ### 8.1 設定一覧
 
 ```
-GET /admin/config
+GET /admin/v1/config
 ```
 
 - **認証**: JWT + RBAC
@@ -1168,7 +1175,7 @@ GET /admin/config
 ### 8.2 設定作成
 
 ```
-POST /admin/config
+POST /admin/v1/config
 ```
 
 - **認証**: JWT + RBAC
@@ -1214,7 +1221,7 @@ POST /admin/config
 ### 8.3 設定更新
 
 ```
-PUT /admin/config/{id}
+PUT /admin/v1/config/{id}
 ```
 
 - **認証**: JWT + RBAC
@@ -1237,7 +1244,7 @@ PUT /admin/config/{id}
 ### 8.4 設定削除
 
 ```
-DELETE /admin/config/{id}
+DELETE /admin/v1/config/{id}
 ```
 
 - **認証**: JWT + RBAC
@@ -1259,7 +1266,7 @@ DELETE /admin/config/{id}
 ### 9.1 操作ログ一覧
 
 ```
-GET /admin/log
+GET /admin/v1/log
 ```
 
 - **認証**: JWT + RBAC
@@ -1288,7 +1295,7 @@ GET /admin/log
         "user_name": "admin",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "source": "web",
         "input": "{\"username\":\"admin\"}",
@@ -1321,7 +1328,7 @@ GET /admin/log
 ### 10.1 個人情報の更新
 
 ```
-PUT /admin/profile
+PUT /admin/v1/profile
 ```
 
 - **認証**: JWT
@@ -1363,7 +1370,7 @@ PUT /admin/profile
 ### 10.2 パスワード変更
 
 ```
-PUT /admin/profile/password
+PUT /admin/v1/profile/password
 ```
 
 - **認証**: JWT
@@ -1398,7 +1405,7 @@ PUT /admin/profile/password
 ### 10.3 ログアウト
 
 ```
-POST /admin/profile/logout
+POST /admin/v1/profile/logout
 ```
 
 - **認証**: JWT
@@ -1423,7 +1430,7 @@ POST /admin/profile/logout
 ### 11.1 Excel エクスポート
 
 ```
-POST /admin/export/excel
+POST /admin/v1/export/excel
 ```
 
 - **認証**: JWT + RBAC
@@ -1462,7 +1469,7 @@ POST /admin/export/excel
 ### 11.2 PDF エクスポート
 
 ```
-POST /admin/export/pdf
+POST /admin/v1/export/pdf
 ```
 
 - **認証**: JWT + RBAC
@@ -1509,7 +1516,7 @@ PDF テンプレートには著作権情報とエクスポートタイムスタ�
 ### 11.3 ユーザーインポート (Excel)
 
 ```
-POST /admin/import/users
+POST /admin/v1/import/users
 ```
 
 - **認証**: JWT + RBAC
@@ -1561,7 +1568,7 @@ POST /admin/import/users
 ## 12. ファイルアップロード
 
 ```
-POST /admin/upload
+POST /admin/v1/upload
 ```
 
 - **認証**: JWT + RBAC
@@ -1610,8 +1617,8 @@ POST /admin/upload
 
 レート制限の詳細:
 - デフォルトのグローバル制限: 60 回/分 / IP+パス
-- ログインエンドポイント `/api/auth/login`: 10 回/分
-- 登録エンドポイント `/api/auth/register`: 5 回/分
+- ログインエンドポイント `/api/v1/auth/login`: 10 回/分
+- 登録エンドポイント `/api/v1/auth/register`: 5 回/分
 - Redis アトミックなスライディングウィンドウアルゴリズム（Lua ZSET）を使用、TOCTOU レースを回避
 - Redis 利用不可時は fail open（通過）、リクエストをブロックしない
 
@@ -1620,15 +1627,15 @@ POST /admin/upload
 完全な認証シーケンス：
 
 ```
-1. 客户端请求 POST /api/captcha/generate
-   (请求头: API-Version: v1)
+1. 客户端请求 POST /api/v1/captcha/generate
+   (URL 路径含 /api/v1，无版本请求头)
     ↓
    服务端返回: key + base64 图片 + 点击目标提示
    
 2. 用户点击图片目标位置，前/客户端收集点击坐标
    
-3. 客户端请求 POST /api/auth/login
-   (请求头: API-Version: v1, Content-Type: application/json)
+3. 客户端请求 POST /api/v1/auth/login
+   (URL 路径含 /api/v1, Content-Type: application/json)
    请求体: { username, password, captcha_key, clicks: [{x,y}, ...] }
     ↓
    服务端:
@@ -1660,7 +1667,7 @@ POST /admin/upload
    Response + X-RateLimit-* 头
 
 5. Access Token 过期前刷新
-   客户端请求 POST /api/auth/refresh
+   客户端请求 POST /api/v1/auth/refresh
    请求体: { refresh_token: "..." }
     ↓
    服务端解码 refresh_token → 签发新 access + refresh
@@ -1668,7 +1675,7 @@ POST /admin/upload
    客户端更新本地令牌
 
 6. 登出
-   客户端请求 POST /admin/profile/logout
+   客户端请求 POST /admin/v1/profile/logout
    请求头: Authorization: Bearer <access_token>
     ↓
    服务端:
@@ -1722,7 +1729,7 @@ docker-compose up -d
 
 ## 16. 業務 API エンドポイント (ERP)
 
-すべての業務エンドポイントは `/admin` グループにあり、`AdminAuth`（JWT 認証）、`AdminPermission`（RBAC 権限チェック）、`OperationLog`（操作記録）の 3 つのミドルウェアを通過します。
+すべての業務エンドポイントは `/admin/v1` グループにあり、`AdminAuth`（JWT 認証）、`AdminPermission`（RBAC 権限チェック）、`OperationLog`（操作記録）の 3 つのミドルウェアを通過します。
 
 > エンドポイント総数: 商品(17) | 購買(8) | 販売(6) | 在庫(6) | 財務(17) | CRM(13) | ワークフロー(6) | 通知(4) | プロジェクト(3) | HR(9) | 製造(7) | レポート(4) | ダッシュボード(3) | クライアント(2) | 合計 105 エンドポイント
 
@@ -1732,304 +1739,304 @@ docker-compose up -d
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/product | 商品一覧（ページング+検索+カテゴリ/状態フィルター） |
-| POST | /admin/product | 商品作成（SKU と価格含む） |
-| GET | /admin/product/{id} | 商品詳細（カテゴリ/ブランド/SKU/価格/単位含む） |
-| PUT | /admin/product/{id} | 商品更新 |
-| DELETE | /admin/product/{id} | 商品削除（ソフトデリート、パスワード確認必要） |
-| GET | /admin/category | カテゴリ一覧（ツリー型） |
-| POST | /admin/category | カテゴリ作成 |
-| PUT | /admin/category/{id} | カテゴリ更新 |
-| DELETE | /admin/category/{id} | カテゴリ削除 |
-| GET | /admin/brand | ブランド一覧 |
-| POST | /admin/brand | ブランド作成 |
-| GET | /admin/warehouse | 倉庫一覧 |
-| POST | /admin/warehouse | 倉庫作成 |
-| GET | /admin/location | ロケーション一覧 |
-| GET | /admin/warehouse/{id}/locations | 倉庫配下のロケーション一覧 |
-| GET | /admin/supplier | 仕入先一覧（ES 検索） |
-| POST | /admin/supplier | 仕入先作成 |
-| GET | /admin/customer | 顧客一覧（ES 検索） |
-| POST | /admin/customer | 顧客作成 |
+| GET | /admin/v1/product | 商品一覧（ページング+検索+カテゴリ/状態フィルター） |
+| POST | /admin/v1/product | 商品作成（SKU と価格含む） |
+| GET | /admin/v1/product/{id} | 商品詳細（カテゴリ/ブランド/SKU/価格/単位含む） |
+| PUT | /admin/v1/product/{id} | 商品更新 |
+| DELETE | /admin/v1/product/{id} | 商品削除（ソフトデリート、パスワード確認必要） |
+| GET | /admin/v1/category | カテゴリ一覧（ツリー型） |
+| POST | /admin/v1/category | カテゴリ作成 |
+| PUT | /admin/v1/category/{id} | カテゴリ更新 |
+| DELETE | /admin/v1/category/{id} | カテゴリ削除 |
+| GET | /admin/v1/brand | ブランド一覧 |
+| POST | /admin/v1/brand | ブランド作成 |
+| GET | /admin/v1/warehouse | 倉庫一覧 |
+| POST | /admin/v1/warehouse | 倉庫作成 |
+| GET | /admin/v1/location | ロケーション一覧 |
+| GET | /admin/v1/warehouse/{id}/locations | 倉庫配下のロケーション一覧 |
+| GET | /admin/v1/supplier | 仕入先一覧（ES 検索） |
+| POST | /admin/v1/supplier | 仕入先作成 |
+| GET | /admin/v1/customer | 顧客一覧（ES 検索） |
+| POST | /admin/v1/customer | 顧客作成 |
 
 ### 16.2 購買管理 (Purchase)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/purchase/apply | 購買申請一覧 |
-| POST | /admin/purchase/apply | 購買申請作成 |
-| GET | /admin/purchase/order | 購買注文一覧 |
-| POST | /admin/purchase/order | 購買注文作成 |
-| 🔗 POST | /admin/purchase/receive | 入荷伝票作成（自動入庫+買掛生成） |
-| GET | /admin/purchase/receive | 入荷伝票一覧 |
-| GET | /admin/purchase/receive/{id} | 入荷伝票詳細 |
-| POST | /admin/purchase/return | 返品伝票作成 |
-| GET | /admin/purchase/settlement | 仕入先決済一覧 |
+| GET | /admin/v1/purchase/apply | 購買申請一覧 |
+| POST | /admin/v1/purchase/apply | 購買申請作成 |
+| GET | /admin/v1/purchase/order | 購買注文一覧 |
+| POST | /admin/v1/purchase/order | 購買注文作成 |
+| 🔗 POST | /admin/v1/purchase/receive | 入荷伝票作成（自動入庫+買掛生成） |
+| GET | /admin/v1/purchase/receive | 入荷伝票一覧 |
+| GET | /admin/v1/purchase/receive/{id} | 入荷伝票詳細 |
+| POST | /admin/v1/purchase/return | 返品伝票作成 |
+| GET | /admin/v1/purchase/settlement | 仕入先決済一覧 |
 
 ### 16.3 販売管理 (Sales)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/sales/quotation | 見積一覧 |
-| POST | /admin/sales/quotation | 見積作成 |
-| GET | /admin/sales/order | 販売注文一覧 |
-| POST | /admin/sales/order | 販売注文作成 |
-| 🔗 POST | /admin/sales/delivery | 出荷伝票作成（自動出庫+売掛生成） |
-| GET | /admin/sales/delivery | 出荷伝票一覧 |
-| GET | /admin/sales/settlement | 顧客決済一覧 |
+| GET | /admin/v1/sales/quotation | 見積一覧 |
+| POST | /admin/v1/sales/quotation | 見積作成 |
+| GET | /admin/v1/sales/order | 販売注文一覧 |
+| POST | /admin/v1/sales/order | 販売注文作成 |
+| 🔗 POST | /admin/v1/sales/delivery | 出荷伝票作成（自動出庫+売掛生成） |
+| GET | /admin/v1/sales/delivery | 出荷伝票一覧 |
+| GET | /admin/v1/sales/settlement | 顧客決済一覧 |
 
 ### 16.4 在庫管理 (Inventory)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/inventory | リアルタイム在庫（倉庫/ロケーション/ロット/SKU の次元） |
-| GET | /admin/inventory/flow | 入出庫流水 |
-| GET | /admin/inventory/transfer | 振替伝票一覧 |
-| POST | /admin/inventory/transfer | 振替伝票作成 |
-| GET | /admin/inventory/check | 棚卸タスク一覧 |
-| POST | /admin/inventory/check | 棚卸タスク作成 |
-| GET | /admin/inventory/alert | 在庫アラートルール |
+| GET | /admin/v1/inventory | リアルタイム在庫（倉庫/ロケーション/ロット/SKU の次元） |
+| GET | /admin/v1/inventory/flow | 入出庫流水 |
+| GET | /admin/v1/inventory/transfer | 振替伝票一覧 |
+| POST | /admin/v1/inventory/transfer | 振替伝票作成 |
+| GET | /admin/v1/inventory/check | 棚卸タスク一覧 |
+| POST | /admin/v1/inventory/check | 棚卸タスク作成 |
+| GET | /admin/v1/inventory/alert | 在庫アラートルール |
 
 ### 16.5 財務管理 (Finance)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| POST | /admin/finance/voucher | 記帳証憑の作成 |
-| GET | /admin/finance/ar-ap | 売掛・買掛一覧 |
-| POST | /admin/finance/receipt | 入金伝票作成 |
-| POST | /admin/finance/payment | 出金伝票作成 |
-| GET | /admin/finance/cash-journal | 現金・銀行仕訳帳 |
-| GET | /admin/finance/expense | 費用精算一覧 |
-| POST | /admin/finance/expense | 精算申請の提出 |
-| GET | /admin/finance/report/profit | 損益計算書 |
-| GET | /admin/finance/general-ledger | 総勘定元帳（科目+期間で集計） |
-| GET | /admin/finance/subsidiary-ledger | 補助元帳（科目ごとの明細） |
-| GET | /admin/finance/report/balance-sheet | 貸借対照表（自動生成含む） |
-| GET | /admin/finance/report/cash-flow | キャッシュフロー計算書（営業/投資/財務） |
-| GET | /admin/finance/bank-account | 銀行口座一覧 |
-| GET/POST/PUT/DELETE | /admin/finance/asset | 固定資産 CRUD + 減価償却計上 |
-| GET/POST | /admin/finance/tax-rate | 税率設定 |
-| GET | /admin/finance/tax-record | 税務記録 |
-| GET/POST/PUT/DELETE | /admin/finance/currency | 通貨管理 |
-| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | 為替レート管理 |
-| GET/POST/PUT/DELETE | /admin/finance/budget | 予算管理（予算 vs 実績比較含む） |
-| GET/POST/PUT/DELETE | /admin/finance/cost-center | コストセンター（ツリー構造） |
-| GET/POST/PUT/DELETE | /admin/finance/profit-center | 利益センター（ツリー構造） |
+| POST | /admin/v1/finance/voucher | 記帳証憑の作成 |
+| GET | /admin/v1/finance/ar-ap | 売掛・買掛一覧 |
+| POST | /admin/v1/finance/receipt | 入金伝票作成 |
+| POST | /admin/v1/finance/payment | 出金伝票作成 |
+| GET | /admin/v1/finance/cash-journal | 現金・銀行仕訳帳 |
+| GET | /admin/v1/finance/expense | 費用精算一覧 |
+| POST | /admin/v1/finance/expense | 精算申請の提出 |
+| GET | /admin/v1/finance/report/profit | 損益計算書 |
+| GET | /admin/v1/finance/general-ledger | 総勘定元帳（科目+期間で集計） |
+| GET | /admin/v1/finance/subsidiary-ledger | 補助元帳（科目ごとの明細） |
+| GET | /admin/v1/finance/report/balance-sheet | 貸借対照表（自動生成含む） |
+| GET | /admin/v1/finance/report/cash-flow | キャッシュフロー計算書（営業/投資/財務） |
+| GET | /admin/v1/finance/bank-account | 銀行口座一覧 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/asset | 固定資産 CRUD + 減価償却計上 |
+| GET/POST | /admin/v1/finance/tax-rate | 税率設定 |
+| GET | /admin/v1/finance/tax-record | 税務記録 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/currency | 通貨管理 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/exchange-rate | 為替レート管理 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/budget | 予算管理（予算 vs 実績比較含む） |
+| GET/POST/PUT/DELETE | /admin/v1/finance/cost-center | コストセンター（ツリー構造） |
+| GET/POST/PUT/DELETE | /admin/v1/finance/profit-center | 利益センター（ツリー構造） |
 
 ### 16.6 CRM
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/crm/opportunity | 商機一覧 |
-| POST | /admin/crm/opportunity | 商機作成 |
-| GET | /admin/crm/follow | フォローアップ記録一覧 |
-| POST | /admin/crm/follow | フォローアップ記録作成 |
-| GET | /admin/crm/funnel | ファネル段階設定 |
-| GET | /admin/crm/contact | 連絡先一覧 |
-| POST | /admin/crm/contact | 連絡先作成 |
-| GET | /admin/crm/pool | パブリックプール顧客一覧 |
-| POST | /admin/crm/pool/claim/{id} | パブリックプール顧客の引き受け |
-| POST | /admin/crm/pool/release/{id} | 顧客をパブリックプールへ解放 |
-| GET/POST | /admin/crm/pool/rules | パブリックプールルール CRUD |
-| GET | /admin/crm/contract | 契約一覧 |
-| POST | /admin/crm/contract | 契約作成 |
-| GET | /admin/crm/contract/{id} | 契約詳細 |
-| PUT | /admin/crm/contract/{id} | 契約更新 |
-| DELETE | /admin/crm/contract/{id} | 契約削除 |
-| GET | /admin/crm/quotation | CRM 見積一覧 |
-| POST | /admin/crm/quotation | CRM 見積作成 |
-| POST | /admin/crm/quotation/{id}/to-contract | 🔗 見積から契約へ |
-| GET/POST/PUT/DELETE | /admin/crm/campaign | マーケティング活動 |
-| GET/POST/PUT/DELETE | /admin/crm/ticket | サービスチケット |
-| POST | /admin/crm/ticket/{id}/assign | チケット割当 |
-| POST | /admin/crm/ticket/{id}/resolve | チケット解決 |
-| GET/POST | /admin/crm/analytics/report | 顧客分析レポート |
-| GET/POST | /admin/crm/analytics/metric | 分析指標 |
+| GET | /admin/v1/crm/opportunity | 商機一覧 |
+| POST | /admin/v1/crm/opportunity | 商機作成 |
+| GET | /admin/v1/crm/follow | フォローアップ記録一覧 |
+| POST | /admin/v1/crm/follow | フォローアップ記録作成 |
+| GET | /admin/v1/crm/funnel | ファネル段階設定 |
+| GET | /admin/v1/crm/contact | 連絡先一覧 |
+| POST | /admin/v1/crm/contact | 連絡先作成 |
+| GET | /admin/v1/crm/pool | パブリックプール顧客一覧 |
+| POST | /admin/v1/crm/pool/claim/{id} | パブリックプール顧客の引き受け |
+| POST | /admin/v1/crm/pool/release/{id} | 顧客をパブリックプールへ解放 |
+| GET/POST | /admin/v1/crm/pool/rules | パブリックプールルール CRUD |
+| GET | /admin/v1/crm/contract | 契約一覧 |
+| POST | /admin/v1/crm/contract | 契約作成 |
+| GET | /admin/v1/crm/contract/{id} | 契約詳細 |
+| PUT | /admin/v1/crm/contract/{id} | 契約更新 |
+| DELETE | /admin/v1/crm/contract/{id} | 契約削除 |
+| GET | /admin/v1/crm/quotation | CRM 見積一覧 |
+| POST | /admin/v1/crm/quotation | CRM 見積作成 |
+| POST | /admin/v1/crm/quotation/{id}/to-contract | 🔗 見積から契約へ |
+| GET/POST/PUT/DELETE | /admin/v1/crm/campaign | マーケティング活動 |
+| GET/POST/PUT/DELETE | /admin/v1/crm/ticket | サービスチケット |
+| POST | /admin/v1/crm/ticket/{id}/assign | チケット割当 |
+| POST | /admin/v1/crm/ticket/{id}/resolve | チケット解決 |
+| GET/POST | /admin/v1/crm/analytics/report | 顧客分析レポート |
+| GET/POST | /admin/v1/crm/analytics/metric | 分析指標 |
 
 ### 16.7 承認ワークフロー (Workflow)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/workflow | ワークフロー定義一覧 |
-| POST | /admin/workflow | ワークフロー定義作成 |
-| GET | /admin/workflow/{id} | ワークフロー詳細 |
-| PUT | /admin/workflow/{id} | ワークフロー更新 |
-| DELETE | /admin/workflow/{id} | ワークフロー削除 |
-| POST | /admin/workflow/{id}/submit | 🔗 承認申請の提出（承認インスタンス作成） |
-| POST | /admin/approval/{id}/approve | 承認 |
-| POST | /admin/approval/{id}/reject | 却下 |
-| POST | /admin/approval/{id}/withdraw | 撤回 |
-| ANY | /admin/approval/my | 私の承認一覧（未承認/承認済み） |
+| GET | /admin/v1/workflow | ワークフロー定義一覧 |
+| POST | /admin/v1/workflow | ワークフロー定義作成 |
+| GET | /admin/v1/workflow/{id} | ワークフロー詳細 |
+| PUT | /admin/v1/workflow/{id} | ワークフロー更新 |
+| DELETE | /admin/v1/workflow/{id} | ワークフロー削除 |
+| POST | /admin/v1/workflow/{id}/submit | 🔗 承認申請の提出（承認インスタンス作成） |
+| POST | /admin/v1/approval/{id}/approve | 承認 |
+| POST | /admin/v1/approval/{id}/reject | 却下 |
+| POST | /admin/v1/approval/{id}/withdraw | 撤回 |
+| ANY | /admin/v1/approval/my | 私の承認一覧（未承認/承認済み） |
 
 ### 16.8 メッセージ通知 (Notification)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| ANY | /admin/notification/my | 私の通知一覧（ページング、時間降順） |
-| POST | /admin/notification/{id}/read | 1 件を既読にマーク |
-| POST | /admin/notification/read-all | 全件既読にマーク |
-| ANY | /admin/notification/unread-count | 未読メッセージ数 |
+| ANY | /admin/v1/notification/my | 私の通知一覧（ページング、時間降順） |
+| POST | /admin/v1/notification/{id}/read | 1 件を既読にマーク |
+| POST | /admin/v1/notification/read-all | 全件既読にマーク |
+| ANY | /admin/v1/notification/unread-count | 未読メッセージ数 |
 
 ### 16.9 プロジェクト管理 (Project)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/project | プロジェクト一覧 |
-| POST | /admin/project | プロジェクト作成 |
-| GET | /admin/project/{id} | プロジェクト詳細 |
-| PUT | /admin/project/{id} | プロジェクト更新 |
-| DELETE | /admin/project/{id} | プロジェクト削除 |
-| GET | /admin/project/task | タスク一覧 |
-| POST | /admin/project/task | タスク作成 |
-| PUT | /admin/project/task/{id} | タスク更新 |
-| DELETE | /admin/project/task/{id} | タスク削除 |
-| GET | /admin/project/timesheet | 工数記録一覧 |
-| POST | /admin/project/timesheet | 工数入力 |
-| PUT | /admin/project/timesheet/{id} | 工数更新 |
-| DELETE | /admin/project/timesheet/{id} | 工数削除 |
+| GET | /admin/v1/project | プロジェクト一覧 |
+| POST | /admin/v1/project | プロジェクト作成 |
+| GET | /admin/v1/project/{id} | プロジェクト詳細 |
+| PUT | /admin/v1/project/{id} | プロジェクト更新 |
+| DELETE | /admin/v1/project/{id} | プロジェクト削除 |
+| GET | /admin/v1/project/task | タスク一覧 |
+| POST | /admin/v1/project/task | タスク作成 |
+| PUT | /admin/v1/project/task/{id} | タスク更新 |
+| DELETE | /admin/v1/project/task/{id} | タスク削除 |
+| GET | /admin/v1/project/timesheet | 工数記録一覧 |
+| POST | /admin/v1/project/timesheet | 工数入力 |
+| PUT | /admin/v1/project/timesheet/{id} | 工数更新 |
+| DELETE | /admin/v1/project/timesheet/{id} | 工数削除 |
 
 ### 16.10 人事管理 (HR)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/hr/department | 部門一覧（ツリー型） |
-| POST | /admin/hr/department | 部門作成 |
-| PUT | /admin/hr/department/{id} | 部門更新 |
-| DELETE | /admin/hr/department/{id} | 部門削除 |
-| GET | /admin/hr/employee | 従業員一覧 |
-| POST | /admin/hr/employee | 従業員作成 |
-| PUT | /admin/hr/employee/{id} | 従業員更新 |
-| DELETE | /admin/hr/employee/{id} | 従業員削除 |
-| GET | /admin/hr/position | 役職一覧 |
-| POST | /admin/hr/position | 役職作成 |
-| PUT | /admin/hr/position/{id} | 役職更新 |
-| DELETE | /admin/hr/position/{id} | 役職削除 |
-| ANY | /admin/hr/attendance | 勤怠記録照会 |
-| POST | /admin/hr/attendance/clock-in | 出勤打刻 |
-| POST | /admin/hr/attendance/clock-out | 退勤打刻 |
-| ANY | /admin/hr/leave | 休暇一覧 |
-| POST | /admin/hr/leave | 休暇申請の提出 |
-| GET | /admin/hr/leave/{id} | 休暇詳細 |
-| PUT | /admin/hr/leave/{id} | 休暇更新 |
-| DELETE | /admin/hr/leave/{id} | 休暇削除 |
-| POST | /admin/hr/leave/{id}/approve | 🔗 休暇の承認 |
-| GET | /admin/hr/salary | 給与一覧 |
-| POST | /admin/hr/salary | 給与明細の生成 |
-| PUT | /admin/hr/salary/{id} | 給与更新 |
-| DELETE | /admin/hr/salary/{id} | 給与削除 |
-| POST | /admin/hr/salary/{id}/pay | 給与支給 |
-| ANY | /admin/hr/salary-item | 給与項目一覧 |
-| POST | /admin/hr/salary-item | 給与項目作成 |
-| GET | /admin/hr/salary-item/{id} | 給与項目詳細 |
-| PUT | /admin/hr/salary-item/{id} | 給与項目更新 |
-| DELETE | /admin/hr/salary-item/{id} | 給与項目削除 |
+| GET | /admin/v1/hr/department | 部門一覧（ツリー型） |
+| POST | /admin/v1/hr/department | 部門作成 |
+| PUT | /admin/v1/hr/department/{id} | 部門更新 |
+| DELETE | /admin/v1/hr/department/{id} | 部門削除 |
+| GET | /admin/v1/hr/employee | 従業員一覧 |
+| POST | /admin/v1/hr/employee | 従業員作成 |
+| PUT | /admin/v1/hr/employee/{id} | 従業員更新 |
+| DELETE | /admin/v1/hr/employee/{id} | 従業員削除 |
+| GET | /admin/v1/hr/position | 役職一覧 |
+| POST | /admin/v1/hr/position | 役職作成 |
+| PUT | /admin/v1/hr/position/{id} | 役職更新 |
+| DELETE | /admin/v1/hr/position/{id} | 役職削除 |
+| ANY | /admin/v1/hr/attendance | 勤怠記録照会 |
+| POST | /admin/v1/hr/attendance/clock-in | 出勤打刻 |
+| POST | /admin/v1/hr/attendance/clock-out | 退勤打刻 |
+| ANY | /admin/v1/hr/leave | 休暇一覧 |
+| POST | /admin/v1/hr/leave | 休暇申請の提出 |
+| GET | /admin/v1/hr/leave/{id} | 休暇詳細 |
+| PUT | /admin/v1/hr/leave/{id} | 休暇更新 |
+| DELETE | /admin/v1/hr/leave/{id} | 休暇削除 |
+| POST | /admin/v1/hr/leave/{id}/approve | 🔗 休暇の承認 |
+| GET | /admin/v1/hr/salary | 給与一覧 |
+| POST | /admin/v1/hr/salary | 給与明細の生成 |
+| PUT | /admin/v1/hr/salary/{id} | 給与更新 |
+| DELETE | /admin/v1/hr/salary/{id} | 給与削除 |
+| POST | /admin/v1/hr/salary/{id}/pay | 給与支給 |
+| ANY | /admin/v1/hr/salary-item | 給与項目一覧 |
+| POST | /admin/v1/hr/salary-item | 給与項目作成 |
+| GET | /admin/v1/hr/salary-item/{id} | 給与項目詳細 |
+| PUT | /admin/v1/hr/salary-item/{id} | 給与項目更新 |
+| DELETE | /admin/v1/hr/salary-item/{id} | 給与項目削除 |
 
 ### 16.11 生産製造 (Manufacturing)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/mfg/bom | BOM 一覧 |
-| POST | /admin/mfg/bom | BOM 作成 |
-| PUT | /admin/mfg/bom/{id} | BOM 更新 |
-| DELETE | /admin/mfg/bom/{id} | BOM 削除 |
-| GET | /admin/mfg/production | 製造オーダー一覧 |
-| POST | /admin/mfg/production | 製造オーダー作成 |
-| PUT | /admin/mfg/production/{id} | 製造オーダー更新 |
-| DELETE | /admin/mfg/production/{id} | 製造オーダー削除 |
-| POST | /admin/mfg/production/{id}/start | 着工 |
-| POST | /admin/mfg/production/{id}/complete | 完了 |
-| GET | /admin/mfg/routing | 工順一覧 |
-| POST | /admin/mfg/routing | 工順作成 |
-| PUT | /admin/mfg/routing/{id} | 工順更新 |
-| DELETE | /admin/mfg/routing/{id} | 工順削除 |
-| GET | /admin/mfg/workstation | ワークステーション一覧 |
-| POST | /admin/mfg/workstation | ワークステーション作成 |
-| PUT | /admin/mfg/workstation/{id} | ワークステーション更新 |
-| DELETE | /admin/mfg/workstation/{id} | ワークステーション削除 |
-| GET | /admin/mfg/mrp | MRP 計画一覧 |
-| POST | /admin/mfg/mrp | MRP 計画作成 |
-| PUT | /admin/mfg/mrp/{id} | MRP 計画更新 |
-| DELETE | /admin/mfg/mrp/{id} | MRP 計画削除 |
-| POST | /admin/mfg/mrp/{id}/generate | 🔗 MRP 実行で購買/生産提案を生成 |
+| GET | /admin/v1/mfg/bom | BOM 一覧 |
+| POST | /admin/v1/mfg/bom | BOM 作成 |
+| PUT | /admin/v1/mfg/bom/{id} | BOM 更新 |
+| DELETE | /admin/v1/mfg/bom/{id} | BOM 削除 |
+| GET | /admin/v1/mfg/production | 製造オーダー一覧 |
+| POST | /admin/v1/mfg/production | 製造オーダー作成 |
+| PUT | /admin/v1/mfg/production/{id} | 製造オーダー更新 |
+| DELETE | /admin/v1/mfg/production/{id} | 製造オーダー削除 |
+| POST | /admin/v1/mfg/production/{id}/start | 着工 |
+| POST | /admin/v1/mfg/production/{id}/complete | 完了 |
+| GET | /admin/v1/mfg/routing | 工順一覧 |
+| POST | /admin/v1/mfg/routing | 工順作成 |
+| PUT | /admin/v1/mfg/routing/{id} | 工順更新 |
+| DELETE | /admin/v1/mfg/routing/{id} | 工順削除 |
+| GET | /admin/v1/mfg/workstation | ワークステーション一覧 |
+| POST | /admin/v1/mfg/workstation | ワークステーション作成 |
+| PUT | /admin/v1/mfg/workstation/{id} | ワークステーション更新 |
+| DELETE | /admin/v1/mfg/workstation/{id} | ワークステーション削除 |
+| GET | /admin/v1/mfg/mrp | MRP 計画一覧 |
+| POST | /admin/v1/mfg/mrp | MRP 計画作成 |
+| PUT | /admin/v1/mfg/mrp/{id} | MRP 計画更新 |
+| DELETE | /admin/v1/mfg/mrp/{id} | MRP 計画削除 |
+| POST | /admin/v1/mfg/mrp/{id}/generate | 🔗 MRP 実行で購買/生産提案を生成 |
 
 ### 16.12 カスタムレポート (Report Builder)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/report | レポートテンプレート一覧 |
-| POST | /admin/report | レポートテンプレート作成 |
-| GET | /admin/report/{id} | レポートテンプレート詳細 |
-| PUT | /admin/report/{id} | レポートテンプレート更新 |
-| DELETE | /admin/report/{id} | レポートテンプレート削除 |
-| POST | /admin/report/{id}/execute | レポート実行でデータ生成 |
-| ANY | /admin/report/{id}/result | レポート実行結果 |
-| GET | /admin/report/schedule | スケジュール一覧 |
-| POST | /admin/report/schedule | スケジュール作成 |
-| PUT | /admin/report/schedule/{id} | スケジュール更新 |
-| DELETE | /admin/report/schedule/{id} | スケジュール削除 |
+| GET | /admin/v1/report | レポートテンプレート一覧 |
+| POST | /admin/v1/report | レポートテンプレート作成 |
+| GET | /admin/v1/report/{id} | レポートテンプレート詳細 |
+| PUT | /admin/v1/report/{id} | レポートテンプレート更新 |
+| DELETE | /admin/v1/report/{id} | レポートテンプレート削除 |
+| POST | /admin/v1/report/{id}/execute | レポート実行でデータ生成 |
+| ANY | /admin/v1/report/{id}/result | レポート実行結果 |
+| GET | /admin/v1/report/schedule | スケジュール一覧 |
+| POST | /admin/v1/report/schedule | スケジュール作成 |
+| PUT | /admin/v1/report/schedule/{id} | スケジュール更新 |
+| DELETE | /admin/v1/report/schedule/{id} | スケジュール削除 |
 
 ### 16.13 ダッシュボード (Dashboard)
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/dashboard/sales | 販売パネル |
-| GET | /admin/dashboard/inventory | 在庫パネル |
-| GET | /admin/dashboard/finance | 財務パネル |
+| GET | /admin/v1/dashboard/sales | 販売パネル |
+| GET | /admin/v1/dashboard/inventory | 在庫パネル |
+| GET | /admin/v1/dashboard/finance | 財務パネル |
 
 ### 16.14 クライアント API (Client API)
 
-クライアントインターフェースは `/api` グループにマウントされ、`API-Version` リクエストヘッダーが必要です。商品情報に仕入れ値は含まれません。
+クライアントインターフェースは `/api/v1` グループにマウントされます（バージョン番号は URL パスに含まれ、バージョンリクエストヘッダーはありません）。商品情報に仕入れ値は含まれません。
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /api/product | 商品一覧（仕入れ値なし） |
-| GET | /api/product/{hashid} | 商品詳細（小売/卸売価格含む、仕入れ値なし） |
+| GET | /api/v1/product | 商品一覧（仕入れ値なし） |
+| GET | /api/v1/product/{hashid} | 商品詳細（小売/卸売価格含む、仕入れ値なし） |
 
 ### 16.15 OMS 注文管理
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/oms/order | OMS 注文一覧 |
-| POST | /admin/oms/order | OMS 注文作成 |
-| 🔗 POST | /admin/oms/order/{id}/allocate | 在庫割当（予約） |
-| 🔗 POST | /admin/oms/order/{id}/fulfill | フルフィルメント作成 |
-| POST | /admin/oms/order/{id}/cancel | 注文キャンセル（予約解除） |
-| POST | /admin/oms/rma/{id}/approve | RMA 承認 |
-| POST | /admin/oms/rma/{id}/refund | RMA 返金 |
+| GET | /admin/v1/oms/order | OMS 注文一覧 |
+| POST | /admin/v1/oms/order | OMS 注文作成 |
+| 🔗 POST | /admin/v1/oms/order/{id}/allocate | 在庫割当（予約） |
+| 🔗 POST | /admin/v1/oms/order/{id}/fulfill | フルフィルメント作成 |
+| POST | /admin/v1/oms/order/{id}/cancel | 注文キャンセル（予約解除） |
+| POST | /admin/v1/oms/rma/{id}/approve | RMA 承認 |
+| POST | /admin/v1/oms/rma/{id}/refund | RMA 返金 |
 
 ### 16.16 WMS 倉庫管理
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/wms/zone | 庫区一覧(CURD) |
-| GET | /admin/wms/location | WMS ロケーション一覧(CRUD) |
-| GET | /admin/wms/asn | ASN 一覧(CRUD) |
-| POST | /admin/wms/receiving/{id}/complete | 入荷完了→上架タスクを自動生成 |
-| POST | /admin/wms/putaway/{id}/complete | 上架確認→stockIn をトリガー |
-| POST | /admin/wms/wave/{id}/release | ウェーブ解放→ピッキングタスクを生成 |
-| POST | /admin/wms/pick/{id}/start | ピッキング開始 |
-| POST | /admin/wms/pick/{id}/confirm | ピッキング確認 |
-| POST | /admin/wms/pack/{id}/complete | 梱包完了 |
+| GET | /admin/v1/wms/zone | 庫区一覧(CURD) |
+| GET | /admin/v1/wms/location | WMS ロケーション一覧(CRUD) |
+| GET | /admin/v1/wms/asn | ASN 一覧(CRUD) |
+| POST | /admin/v1/wms/receiving/{id}/complete | 入荷完了→上架タスクを自動生成 |
+| POST | /admin/v1/wms/putaway/{id}/complete | 上架確認→stockIn をトリガー |
+| POST | /admin/v1/wms/wave/{id}/release | ウェーブ解放→ピッキングタスクを生成 |
+| POST | /admin/v1/wms/pick/{id}/start | ピッキング開始 |
+| POST | /admin/v1/wms/pick/{id}/confirm | ピッキング確認 |
+| POST | /admin/v1/wms/pack/{id}/complete | 梱包完了 |
 
 ### 16.17 TMS 輸送管理
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/tms/carrier | 運送会社一覧(CRUD) |
-| GET | /admin/tms/service | 運送会社サービス(CRUD) |
-| GET | /admin/tms/freight-rate | 運賃レート(CRUD) |
-| GET | /admin/tms/shipment | 運送状一覧(CRUD) |
-| 🔗 POST | /admin/tms/shipment/{id}/ship | 出荷確認(stockOut+AR) |
-| POST | /admin/tms/tracking/callback | 運送会社追跡 webhook |
-| POST | /admin/tms/freight-invoice/{id}/pay | 運送費請求書の支払い(AP 生成) |
+| GET | /admin/v1/tms/carrier | 運送会社一覧(CRUD) |
+| GET | /admin/v1/tms/service | 運送会社サービス(CRUD) |
+| GET | /admin/v1/tms/freight-rate | 運賃レート(CRUD) |
+| GET | /admin/v1/tms/shipment | 運送状一覧(CRUD) |
+| 🔗 POST | /admin/v1/tms/shipment/{id}/ship | 出荷確認(stockOut+AR) |
+| POST | /api/tms/tracking/callback | 運送会社追跡 webhook |
+| POST | /admin/v1/tms/freight-invoice/{id}/pay | 運送費請求書の支払い(AP 生成) |
 
 ### 16.18 ダッシュボード拡張
 
 | メソッド | パス | 説明 |
 |------|------|------|
-| GET | /admin/dashboard/oms | OMS KPI(未処理/ピッキング中/本日出荷/RMA) |
-| GET | /admin/dashboard/wms | WMS KPI(入荷待ち/上架待ち/ピッキング待ち/梱包待ち) |
-| GET | /admin/dashboard/tms | TMS KPI(出荷待ち/輸送中/受領済み/異常) |
+| GET | /admin/v1/dashboard/oms | OMS KPI(未処理/ピッキング中/本日出荷/RMA) |
+| GET | /admin/v1/dashboard/wms | WMS KPI(入荷待ち/上架待ち/ピッキング待ち/梱包待ち) |
+| GET | /admin/v1/dashboard/tms | TMS KPI(出荷待ち/輸送中/受領済み/異常) |
 
 ### 16.19 モジュール横断の連動説明
 
@@ -2037,5 +2044,5 @@ docker-compose up -d
 
 | エンドポイント | 連動アクション |
 |------|---------|
-| 🔗 POST /admin/purchase/receive | InventoryService.stockIn() を自動呼び出し在庫を更新+移動加重平均原価を再計算；FinanceService.createAp() を呼び出し買掛記録を生成 |
-| 🔗 POST /admin/sales/delivery | InventoryService.stockOut() を自動呼び出し在庫を減算（移動加重平均原価ベース）；FinanceService.createAr() を呼び出し売掛記録を生成 |
+| 🔗 POST /admin/v1/purchase/receive | InventoryService.stockIn() を自動呼び出し在庫を更新+移動加重平均原価を再計算；FinanceService.createAp() を呼び出し買掛記録を生成 |
+| 🔗 POST /admin/v1/sales/delivery | InventoryService.stockOut() を自動呼び出し在庫を減算（移動加重平均原価ベース）；FinanceService.createAr() を呼び出し売掛記録を生成 |

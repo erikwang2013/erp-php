@@ -172,6 +172,7 @@ return [
     ':envKey may only contain visible characters and must not contain $ or backslash' => ':envKey 只能包含可见字符，且不能含 $ 与反斜杠',
     ':envKey must be a 2-5 digit port' => ':envKey 必须是 2-5 位数字端口',
     ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => ':field 必须是 16-128 位字母数字密钥（或留空自动生成）',
+    ':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate' => ':envKey 必须为恰好 32 位字母数字（AES-256 密钥），或留空自动生成',
 
     // 前端即时校验与测试连接
     'Please enter the database host' => '请填写数据库主机地址',

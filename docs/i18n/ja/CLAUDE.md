@@ -18,16 +18,16 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 > アーキテクチャ文書: `ARCHITECTURE.md` §21
 > 機能マトリクス: `FUNCTIONS.md` §19
 
-**現在の総合スコア 89/100** — 全ロードマップ P0~P3 完了、22 モジュールのフルスタックカバレッジ、本番利用可能。
+**現在の総合スコア 89/100** — 全ロードマップ P0~P3 完了、23 モジュールのフルスタックカバレッジ、本番利用可能。
 
 | 段階 | 工期 | 成果物 | 状態 |
 |------|------|--------|------|
-| 🔵 **P0** フロントエンドエコシステム | 3-4 週 | 97 Flutter ページ + 34 HarmonyOS ページ + 4 共通コンポーネント | ✅ |
+| 🔵 **P0** フロントエンドエコシステム | 3-4 週 | 102 Flutter メニュールート（menu_config.dart）+ 41 HarmonyOS ページ + 4 共通コンポーネント | ✅ |
 | 🟢 **P1** 業務深度 | 4-6 週 | 財務エンジン + 給与エンジン + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** 運用信頼性 | 1-2 週 | マイグレーションロールバック + 自動バックアップ + TraceId + キュー二重ドライバ | ✅ |
 | 🟣 **P3** 体験強化 | 2-3 週 | BI ダッシュボード + EAM + マルチテナント + DMS + 新テーブル 7 枚 | ✅ |
 
-**テスト**: 513 tests, 2368 assertions（32 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**テスト**: 1008<!-- stats:tests=1008 --> tests, 4768<!-- stats:assertions=4768 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 機能リスト
 
@@ -40,7 +40,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | システム設定 | キーバリュー CRUD |
 | 操作監査 | ログ照会 + 8 プラットフォーム送信元自動検出 |
 | ファイル | アップロード + Excel/PDF エクスポート（機密データのマスキング）|
-| セキュリティ | 18 層の多層防御（XSS/SQLインジェクション/CSRF/レート制限/CSP...）|
+| セキュリティ | 7 層の多層防御（XSS/SQLインジェクション/CSRF/レート制限/CSP...）|
 | 運用 | ヘルスチェック/Prometheus メトリクス/API ドキュメント/security.txt + Docker + CI/CD |
 | 商品管理 | 商品/SKU/分類/ブランド/倉庫/庫位/仕入先/顧客 |
 | 購買管理 | 申請→注文→入荷→返品→決済（自動入庫+買掛自動生成）|
@@ -74,20 +74,34 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - データベース機密フィールド暗号化/復号: `erikwang2013/encryptable`
 - ES 同期と検索: `erikwang2013/webman-scout`
 - 国旗: `erikwang2013/season`
-- API ドキュメント生成: `hg/apidoc` | アノテーション方式、/apidoc でアクセス
+- API ドキュメント生成: `erikwang2013/apidoc-php` | アノテーション方式、/apidoc でアクセス
 
 ### フロントエンド
 - Flutter 3.x、ソースディレクトリ `apps/flutter/`
 - Web 版は PC 管理后台スタイルで設計（モバイル App スタイルではない）
 - クライアント端と管理者端をサポート
 - HarmonyOS ArkTS、ソースディレクトリ `apps/harmonyos/`
+- Angular 22 CLI + ng-zorro-antd、ソースディレクトリ `apps/angular/`（Web 管理画面）
+- React 19 + Vite、ソースディレクトリ `apps/react/`（Web 管理画面）
+- 四端同源のバックエンド：Angular / React も Flutter と同様に `/admin/v1`、`/api/v1`、`/open/v1` を通り、開発期間中は各 dev server から webman へプロキシされます
+
+### 国際化（13 語種）
+- 語種一覧：`zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
+- バックエンド辞書：`resource/translations/<locale>/{common,modules,validation}.php`、13 の語種ディレクトリ；`zh_CN` 565 条、残り 11 語種は各 544 条、`en` 30 条（口径：3 ファイルのリーフ項目で、`validation.php` の `attributes` フィールドラベルは算入、そのグループキーは不算入）
+  - 「英語すなわち key」：`en` の common/modules は空；`validation.php` のキーはフレームワークのルール名で、値のみを翻訳
+  - 生成器：`scripts/gen-be-locales.mjs`
+- フロントエンド辞書（Angular）：ソース `apps/angular/src/app/core/zh-en/part1..4.ts`（1456 条）→ 成果物 `apps/angular/src/app/core/zh-<code>.ts`
+- フロントエンド辞書（React）：ソース `apps/react/src/lib/i18n/zhEn.ts`（1451 条）→ 成果物 `apps/react/src/lib/i18n/zh<Code>.ts`
+  - 11 新語種の辞書はそれぞれ `import()` で独立した chunk として動的読み込みされ、語条が欠ける場合は中国語原文にフォールバック
+  - 生成器：`scripts/gen-fe-locales.mjs --app angular|react`
+- 実行時：言語を切り替えるとリクエストヘッダー `Accept-Language` が切り替わり、バックエンドが語種に応じて文案を返します（`app/common/I18n.php` + `config/translation.php`）
 
 ## プロジェクト構成
 
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # 系统管理控制器 (14 个)
+│   ├── admin/controller/       # 系统管理控制器 (16 个)
 │   │   ├── BaseController.php      # 基础控制器
 │   │   ├── DashboardController.php # 仪表盘 + 销售/库存/财务面板
 │   │   ├── UserController.php      # 用户 CRUD + 批量操作
@@ -102,56 +116,61 @@ open-erp/
 │   │   ├── HealthController.php    # 健康检查
 │   │   ├── DocsController.php      # OpenAPI 文档
 │   │   └── MetricsController.php   # Prometheus 监控指标
-│   ├── api/v1/controller/      # 客户端 API（版本头控制）
+│   ├── api/v1/controller/      # 客户端 API（版本置于路径 /api/v1，无版本请求头）
 │   │   ├── CaptchaController.php   # 点击验证码
 │   │   ├── AuthController.php      # 登录/注册/刷新
 │   │   └── ProductController.php   # 商品查询（不含进价）
-│   ├── controller/              # 业务模块控制器（104 个，含 InstallController）
-│   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户 (7个)
-│   │   ├── purchase/            # 采购申请/订单/收货/退货/结算 (5个)
+│   ├── controller/              # 业务模块控制器（139 个，含顶层 InstallController / IndexController）
+│   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户/规格 (8个)
+│   │   ├── purchase/            # 申请/询价/报价/订单/收货/退货/结算/供应商评估 (8个)
 │   │   ├── sales/               # 销售报价/订单/发货/退货/结算 (5个)
-│   │   ├── inventory/           # 库存/流水/调拨/盘点/预警 (5个)
-│   │   ├── finance/             # 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算/成本利润中心 (20个)
+│   │   ├── inventory/           # 库存/流水/调拨/盘点/预警/追溯 (6个)
+│   │   ├── finance/             # 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算/成本利润中心/银行账户对账/费用/发票结算/合并报表/账期 (28个)
 │   │   ├── crm/                 # 商机/跟进/漏斗/联系人/公海池/报价/合同/营销/工单/分析 (10个)
-│   │   ├── workflow/            # 工作流定义/审批提交/批准/拒绝/撤回 (2个)
-│   │   ├── notification/        # 通知列表/已读/未读计数 (1个)
-│   │   ├── project/             # 项目/任务/工时记录 (3个)
-│   │   ├── hr/                  # 部门/员工/职位/考勤/请假/薪资 (5个)
-│   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP (5个)
+│   │   ├── workflow/            # 工作流定义/设计器/审批提交/批准/拒绝/撤回 (3个)
+│   │   ├── notification/        # 通知列表/已读/未读计数/通知渠道 (2个)
+│   │   ├── project/             # 项目/任务/工时记录/项目成本 (4个)
+│   │   ├── hr/                  # 部门/员工/职位/考勤/薪资/绩效/招聘/社保/培训 (9个)
+│   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP/产能/领料/报工/计件工资/成本录入/委外及收发 (13个)
 │   │   ├── report/              # 报表模板/数据集/执行/定时调度 (2个)
 │   │   ├── oms/                 # 订单/履约/库存预占/RMA/渠道 (4个)
 │   │   ├── wms/                 # 库区库位/ASN收货/上架/波次/拣货/打包 (8个)
 │   │   ├── tms/                 # 承运商/费率/运单/面单/轨迹 (6个)
 │   │   ├── quality/             # IQC/IPQC/OQC/检验标准/不合格品 (5个)
-│   │   ├── eam/                 # 设备/保养计划/维修工单/备件 (4个)
+│   │   ├── eam/                 # 设备/保养计划/维修工单/备件/点检 (5个)
 │   │   ├── dms/                 # 文档分类/文档/版本 (2个)
+│   │   ├── open/                # 开放 API (1个)
+│   │   ├── platform/            # 自定义字段/租户 (2个)
+│   │   ├── print/               # 打印模板 (1个)
+│   │   ├── retail/              # 优惠券/会员 (2个)
 │   │   └── bi/                  # BI看板/图表组件 (3个)
-│   ├── service/                 # 业务逻辑层（容器注册，24 个）
+│   ├── service/                 # 业务逻辑层（64 个文件 / 63 个服务类）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
 │   │   ├── notification/        # NotificationService: 通知发送
-│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/  # 订单/仓储/运输/质检/人事/制造服务
-│   ├── common/                  # 公共工具类（容器注册，4 个）
+│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/…  # 订单/仓储/运输/质检/人事/制造等（共 20 个模块子目录）
+│   ├── common/                  # 公共工具类（6 个）
 │   │   ├── HashidsService.php   # ID 编解码
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
 │   │   ├── EncryptionService.php# 数据加解密 + 脱敏
-│   │   └── I18n.php             # 国际化翻译
-│   ├── middleware/              # 中间件（12 个）
-│   │   ├── Locale.php           # Accept-Language 语言自动检测
+│   │   ├── I18n.php             # 国际化翻译
+│   │   ├── CorsPolicy.php       # CORS 策略（middleware/Cors 与 route.php 调用）
+│   │   └── AddressValidator.php # 地址校验（多国邮编格式 + 表单字段）
+│   ├── middleware/              # 中间件（11 个）
 │   │   ├── Cors.php             # 跨域
 │   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
 │   │   ├── RateLimit.php        # Redis 滑动窗口限流
-│   │   ├── ApiVersion.php       # API 版本校验
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   ├── OperationLog.php     # 操作日志自动记录
-│   │   ├── TenantScope.php      # 多租户隔离（静态调用）
+│   │   ├── OpenApiAuth.php      # 开放接口认证（X-API-Key + 签名，仅 /open/v1 分组挂载）
+│   │   ├── TenantScope.php      # 多租户隔离（预留未注册，见 ARCHITECTURE.md §22）
 │   │   ├── TracingId.php        # 全链路 TraceId
 │   │   ├── TrackingSignature.php# 请求签名校验
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
-│   ├── model/                   # 数据模型（161 个）
+│   ├── model/                   # 数据模型（224 个；连 concerns/TenantScope trait 共 225 个文件）
 │   ├── queue/                   # 队列任务
-│   └── process/                 # 进程 (Http, Monitor)
+│   └── process/                 # 进程 (Http, WebSocket, QueueConsumer, Monitor)
 ├── apps/
 │   ├── flutter/                 # Flutter 全平台 (Web/iOS/Android/macOS/Windows/Linux)
 │   │   └── lib/app/
@@ -159,14 +178,22 @@ open-erp/
 │   │       ├── services/        # ApiService + AuthService + CaptchaService + ExportService
 │   │       ├── layouts/        # 响应式布局
 │   │       └── theme/          # Material 3 主题
+│   ├── angular/                 # Angular 22 CLI + ng-zorro-antd Web 管理后台
+│   │   └── src/app/
+│   │       ├── core/            # ApiService / AuthStore / I18n 服务 + 语种词典（zh-en/ 源，zh-<code>.ts 产物）
+│   │       └── config/ layout/ pages/ ui/
+│   ├── react/                   # React 19 + Vite Web 管理后台
+│   │   └── src/
+│   │       ├── lib/i18n/        # 源词典 zhEn.ts + 11 个语种 zh<Code>.ts（按语种懒加载）
+│   │       └── components/ layout/ pages/ state/ config/domains/ styles/
 │   └── harmonyos/              # HarmonyOS 客户端
 ├── config/                     # 配置文件
 │   ├── route.php               # 路由 + API 版本策略
 │   ├── middleware.php           # 全局中间件注册
 │   ├── translation.php          # 语言配置
-│   └── plugin/hg/apidoc/        # API 文档配置（管理端25模块+客户端3模块）
+│   └── plugin/                  # 插件配置（erikwang2013/*；apidoc 见 erikwang2013/apidoc/）
 ├── database/
-│   ├── install.sql              # 完整安装SQL（163张表 + 种子数据，全部迁移已并入）
+│   ├── install.sql              # 完整安装SQL（227 张表 + 种子数据，全部迁移已并入）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
@@ -200,14 +227,15 @@ open-erp/
         └── ci.yml              # CI/CD 流水线（PHP语法+PHPStan+CS Fixer+PHPUnit+composer audit，多版本矩阵）
 ```
 
-## 中間ウェア実行チェーン
+## ミドルウェア実行チェーン
 
 ```
-全局:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
-/health:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
-/install: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
-/admin:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
-/api:     Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → ApiVersion → Controller
+全局:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
+/health:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/install: Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/admin/v1:   Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
+/api/v1:     Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/open/v1:    Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → OpenApiAuth → Controller
 ```
 
 ## セキュリティ強化
@@ -221,13 +249,13 @@ open-erp/
 
 ## API バージョン戦略
 
-バージョンはリクエストヘッダー `API-Version` で制御（デフォルト `v1`）、URL には現れません：
+バージョンは URL パスに置かれ（`/admin/v1`、`/api/v1`、`/open/v1`）、バージョン用リクエストヘッダーはありません：
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8788/api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 ```
 
-新バージョンは `app/api/{version}/controller/` ディレクトリを作成し、`ApiVersion` 中間ウェアに登録するだけです。
+新バージョンを追加するには `app/api/{version}/controller/` ディレクトリを作成し、`config/route.php` に `/api/v{version}` グループを登録するだけです（バージョン番号は URL パスにのみ現れ、コントローラーは直接バインドされます。バージョンヘッダー用の `ApiVersion` ミドルウェアは削除済みです）。
 
 ## レート制限戦略
 
@@ -257,8 +285,24 @@ Redis スライディングウィンドウ（Lua アトミック）、デフォ�
 
 ### HarmonyOS
 - `@ohos.net.http` ネイティブ HTTP クライアントを使用
-- Token 無感覚リフレッシュ：401 時に自動で `/api/auth/refresh` を呼び出し
+- Token 無感覚リフレッシュ：401 時に自動で `/api/v1/auth/refresh` を呼び出し
 - リフレッシュ失敗時は自動でログインページへリダイレクト
+
+## 既知の技術的負債
+
+> 以下の一覧は `grep -rn "new .*Service(" app/controller/` の実測（45 箇所）によるもので、コードの事実と一致します。
+> **P5 ではリファクタリングしない**：コントローラーがサービスを直接生成するのは既存のパターンであり、新規コードでのみコンテナ注入（`support\Container`）に切り替え、既存コードは現状を維持します。
+
+| モジュール | 直接生成するサービス数 | 説明 |
+|------|-----------|------|
+| finance | 22 | 売掛買掛/消込/仕訳帳/期末振替/連結決算 |
+| wms | 9 | 入荷/上架/ウェーブ/ピッキング/梱包などのプロセスサービス |
+| tms | 5 | 運送状/比較/追跡/運送費請求書 |
+| oms | 3 | 履行/予約/RMA |
+| quality | 2 | 検査/不合格品処理 |
+| hr | 2 | 給与/勤怠 |
+| platform | 1 | テナント |
+| notification | 1 | 通知チャネル |
 
 ## デプロイ
 

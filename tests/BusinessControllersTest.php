@@ -16,7 +16,13 @@ use app\controller\oms\ChannelController;
 use app\controller\product\BrandController;
 use app\controller\quality\InspectionStandardController;
 use app\controller\tms\CarrierController;
+use app\controller\wms\AsnController;
 use app\controller\wms\LocationController;
+use app\controller\wms\PackController;
+use app\controller\wms\PickController;
+use app\controller\wms\PutawayController;
+use app\controller\wms\ReceivingController;
+use app\controller\wms\WaveController;
 use PHPUnit\Framework\TestCase;
 use support\Response;
 
@@ -104,6 +110,34 @@ class BusinessControllersTest extends TestCase
             'amount' => -5,
         ]));
         $this->assertSame(422, $this->code($resp));
+    }
+
+    /**
+     * WMS 六张单据表（asn/receiving/putaway/pick/pack/wave）的 warehouse_id 是 NOT NULL 无默认列
+     * （asn 另有同款的 supplier_id）：请求体缺省时原先直插 → MySQL 1364 → 500。
+     * 现要求缺省与垃圾串都在边界拦成 422。
+     */
+    public function testWmsStoresRequireWarehouseId(): void
+    {
+        $controllers = [
+            new AsnController(),
+            new ReceivingController(),
+            new PutawayController(),
+            new PickController(),
+            new PackController(),
+            new WaveController(),
+        ];
+        foreach ($controllers as $controller) {
+            $class = $controller::class;
+            $missing = $controller->store(new FakeRequest(['code' => 'PROBE-1']));
+            $this->assertSame(422, $this->code($missing), "{$class} 缺 warehouse_id 应 422");
+
+            $garbage = $controller->store(new FakeRequest([
+                'code' => 'PROBE-1',
+                'warehouse_id' => 'not-a-hashid',
+            ]));
+            $this->assertSame(422, $this->code($garbage), "{$class} 垃圾 warehouse_id 应 422");
+        }
     }
 
     // 校验通过后的落库路径依赖真实 MySQL，属集成测试范畴，单测仅覆盖校验失败分支。

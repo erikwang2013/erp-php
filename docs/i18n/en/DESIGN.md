@@ -6,7 +6,7 @@
 
 ## 1. System Architecture
 
-> **Feature list**: authentication (login/register/refresh/logout + account lockout + session limit) | dashboard (Redis cache) | user CRUD + batch + import | roles & permissions (RBAC) | system config | operation audit (8 platform sources) | files (upload + export + masking) | security (18-layer defense) | operations (health/metrics/docs/Docker/CI)
+> **Feature list**: authentication (login/register/refresh/logout + account lockout + session limit) | dashboard (Redis cache) | user CRUD + batch + import | roles & permissions (RBAC) | system config | operation audit (8 platform sources) | files (upload + export + masking) | security (7-layer middleware defense in depth, L0–L12 panorama + 35 attack detector categories) | operations (health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -60,8 +60,8 @@
 | Layer | Directory | Responsibility |
 |---|------|------|
 | Routing | `config/route.php` | URL-to-controller mapping, middleware binding, versioned routes |
-| Middleware | `app/middleware/` | Attack blocking (SecurityFilter), rate limiting (RateLimit), authentication (JWT), authorization (RBAC), API version (ApiVersion) |
-| Controllers | 14: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (admin) + Captcha/Auth (API v1) | Request parameter validation, business logic invocation, response formatting |
+| Middleware | `app/middleware/` | Cross-origin (Cors), attack blocking (SecurityFilter), rate limiting (RateLimit), tracing (TracingId), authentication (JWT), authorization (RBAC), operation log (OperationLog), open API signature (OpenApiAuth) — 11 files in total |
+| Controllers | 15 admin: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (plus the `BaseController` base class) + 3 API v1: Captcha/Auth/Product | Request parameter validation, business logic invocation, response formatting |
 | Business services | `app/service/` | Reusable business logic (reserved) |
 | Data models | `app/model/` | ORM mapping, relationships, field encryption/decryption |
 | Shared utilities | `app/common/` | Hashids, Snowflake, Encryption services |
@@ -79,14 +79,17 @@ Route 匹配
   │
   ▼
 中间件链:
+  Cors ────────────────► 处理 OPTIONS 预检，注入 CORS 响应头
+  │
+  ▼
   SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
   ▼
   RateLimit ───────────► Redis 滑动窗口限流
   │ (失败返回 429 + Retry-After 头)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  TracingId ───────────► 生成 X-Trace-Id，贯穿全链路
+  │ (版本号置于 URL 路径 /admin/v1 /api/v1 /open/v1，无版本头中间件)
   ▼
   AdminAuth ──────────► JWT 验证，注入 $request->adminId
   │ (失败返回 401)
@@ -169,58 +172,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 URL Conventions
 
 ```
-公开接口:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+公开接口:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 管理端:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 资源路由:
-  GET    /admin/user          → 列表
-  POST   /admin/user          → 创建
-  GET    /admin/user/{hashid} → 详情
-  PUT    /admin/user/{hashid} → 更新
-  DELETE /admin/user/{hashid} → 删除（需密码确认）
+  GET    /admin/v1/user          → 列表
+  POST   /admin/v1/user          → 创建
+  GET    /admin/v1/user/{hashid} → 详情
+  PUT    /admin/v1/user/{hashid} → 更新
+  DELETE /admin/v1/user/{hashid} → 删除（需密码确认）
 
-系统配置:  /admin/config[/{hashid}]
-操作日志:  /admin/log
-个人中心:  /admin/profile[/password|/logout]
-导入:     /admin/import/users
-上传:     /admin/upload
-批量:     /admin/user/batch/{destroy|status}
+系统配置:  /admin/v1/config[/{hashid}]
+操作日志:  /admin/v1/log
+个人中心:  /admin/v1/profile[/password|/logout]
+导入:     /admin/v1/import/users
+上传:     /admin/v1/upload
+批量:     /admin/v1/user/batch/{destroy|status}
 文档:     /api/docs     (OpenAPI 3.0)
 健康:     /health
 ```
 
 ### 4.2 API Version Strategy
 
-API versions are controlled via the request header, **not reflected in the URL path**:
-
-```http
-API-Version: v1
-```
+API versions live **in the URL path**, with no version request header: admin `/admin/v1`, client `/api/v1`, open API `/open/v1`.
 
 | Mechanism | Description |
 |------|------|
-| Default version | `v1` when no `API-Version` header is present |
-| Validation | `ApiVersion` middleware validates; unsupported versions return 400 |
-| Routing | the `v()` helper dynamically resolves the controller class by version |
+| Version location | URL path, e.g. `/api/v1/auth/login` |
+| Route group | `Route::group('/api/v1', …)` in `config/route.php` binds the controllers directly |
 | Directory | controllers organized by version: `app/api/{version}/controller/` |
+| Version-header middleware | the historical dynamic `v()` resolution and the `ApiVersion` request-header middleware have been **removed** |
 
 Extension example — adding a v2 API:
 1. Create `app/api/v2/controller/AuthController.php`
-2. Add `'v2'` to the `SUPPORTED` constant of the `ApiVersion` middleware
-3. Route definitions need no changes
+2. Register the `Route::group('/api/v2', …)` group in `config/route.php` and bind the controllers directly
+3. No version request header; the route group itself is the version boundary
 
 ```bash
 # Using v1
-curl -H "API-Version: v1" /api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 
 # Using v2
-curl -H "API-Version: v2" /api/auth/login
-
-# Without header, defaults to v1
-curl /api/auth/login
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 Rate Limiting Strategy
@@ -230,8 +226,8 @@ Based on the Redis Sorted Set sliding-window algorithm, executed as atomic Lua s
 | Endpoint | Limit |
 |------|------|
 | Default | 60 times/minute/IP/route |
-| POST /api/auth/login | 10 times/minute |
-| POST /api/auth/register | 5 times/minute |
+| POST /api/v1/auth/login | 10 times/minute |
+| POST /api/v1/auth/register | 5 times/minute |
 
 Over limit returns 429, with X-RateLimit-Limit / Remaining / Reset / Retry-After response headers.
 
@@ -260,12 +256,12 @@ Over limit returns 429, with X-RateLimit-Limit / Remaining / Reset / Retry-After
 ```
 客户端                               服务端
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② 用户点击图中文字位置              │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -274,7 +270,7 @@ Over limit returns 429, with X-RateLimit-Limit / Remaining / Reset / Retry-After
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -302,7 +298,7 @@ Sensitive operations such as deleting users, roles, and permissions require pass
 ```
 客户端                           服务端
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -375,7 +371,7 @@ Data flow: Page ← DataService ← ApiService (JWT Bearer) ← HTTP ← webman
 ### 6.2 Key Management
 
 ```
-JWT_SECRET          → 环境变量注入，64位随机字符串
+JWT_SECRET_KEY      → 环境变量注入，64位随机字符串
 HASHIDS_SALT        → 唯一盐值，泄漏后需全局更换
 ENCRYPTION_KEY      → API 传输加密密钥，32字节
 ENCRYPTABLE_KEY     → DB 存储加密密钥，与传输密钥独立
@@ -398,7 +394,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 Excel Export
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
+请求: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() 查询数据 (limit 10000)
   → 脱敏敏感字段
   → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
@@ -408,7 +404,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.2 PDF Export
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
+请求: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
   → Dompdf 渲染 A4 横向
   → 写入 runtime/tmp/ → download 响应
@@ -435,7 +431,7 @@ The project root's `docker-compose.yml` orchestrates all services of the above t
 | `redis` | redis:7-alpine | 6379 | Cache / rate limiting / captcha |
 | `elasticsearch` | elasticsearch:8.x | 9200 | Full-text search |
 
-Before startup, replace the secrets in `docker-compose.yml` (`JWT_SECRET`, `HASHIDS_SALT`, `ENCRYPTION_KEY`, etc.) with random strings.
+Before startup, replace the secrets in `docker-compose.yml` (`JWT_SECRET_KEY`, `HASHIDS_SALT`, `ENCRYPTION_KEY`, etc.) with random strings.
 
 ```bash
 cp .env.docker .env

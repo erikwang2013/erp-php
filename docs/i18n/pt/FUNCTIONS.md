@@ -4,9 +4,9 @@
 
 ## Visão geral
 
-O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:modules=23 -->, 163 tabelas de dados <!-- stats:tables=227 -->, oferecendo um sistema de gestão empresarial full-stack que vai de compras/vendas/estoque a produção industrial, e de contabilidade financeira a recursos humanos. Internacionalização: suporte bilíngue Chinês/English, com alternância automática pelo cabeçalho Accept-Language.
+O Sistema ERP Aberto (open-erp) cobre 23 domínios de negócio <!-- stats:modules=23 -->, 227 tabelas de dados <!-- stats:tables=227 -->, oferecendo um sistema de gestão empresarial full-stack que vai de compras/vendas/estoque a produção industrial, e de contabilidade financeira a recursos humanos. Internacionalização: suporte bilíngue Chinês/English, com alternância automática pelo cabeçalho Accept-Language.
 
-> Documentação da API: após iniciar o serviço, acesse `http://localhost:8788/apidoc` para ver a documentação interativa da interface (gerada automaticamente pelo hg/apidoc)
+> Documentação da API: após iniciar o serviço, acesse `http://localhost:8788/apidoc` para ver a documentação interativa da interface (gerada automaticamente pelo erikwang2013/apidoc-php)
 
 ---
 
@@ -38,7 +38,7 @@ O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:module
 - Consulta somente leitura, sem exclusão ou alteração
 
 ### 1.5 Proteção de segurança
-- 18 camadas de defesa em profundidade: restrição de métodos HTTP, bloqueio de XSS/Injeção SQL/Path Traversal/Injeção de comandos/CSRF
+- 7 camadas de defesa em profundidade: restrição de métodos HTTP, bloqueio de XSS/Injeção SQL/Path Traversal/Injeção de comandos/CSRF
 - Captcha de clique (validação obrigatória no login/registro)
 - Rate limiting por janela deslizante no Redis (Lua atômico, padrão 60 vezes/minuto)
 - Bloqueio de conta: 5 falhas bloqueiam por 15 minutos
@@ -130,6 +130,13 @@ O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:module
 
 ---
 
+### 4.6 Controle de crédito do cliente (entregue na v1.4.0)
+
+- Gestão do limite de crédito: mantém por cliente o limite concedido, a ocupação e as regras de bloqueio
+- Bloqueio antes do pedido/expedição: CreditControlService assertOrderCreate / assertDeliveryCreate / guard rejeita pedidos acima do limite e devolve o motivo
+
+---
+
 ## 5. Gestão de estoque
 
 ### 5.1 Estoque em tempo real
@@ -166,6 +173,13 @@ O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:module
 ### 5.8 Alertas de estoque
 - Definição de limites superior/inferior por SKU+armazém
 - Registro automático de log de alerta abaixo do limite inferior/acima do limite superior
+
+---
+
+### 5.9 Rastreabilidade de lotes/números de série e alerta de validade (entregue na v1.4.0)
+
+- Cadeia de rastreabilidade: TraceService forward/backward rastreia destino/origem dos lotes nos dois sentidos; o serial mantém o registro de números de série
+- Alerta de validade: expiryAlert lembra lotes próximos do vencimento e já vencidos
 
 ---
 
@@ -225,6 +239,31 @@ O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:module
 
 ---
 
+### 6.12 Fechamento de período / contabilidade multi-organização / consolidação de relatórios (entregue na v1.4.0)
+
+- Fechamento de resultado do período: agrega por período os saldos das contas de resultado (receitas - despesas = lucro líquido, status=calculated)
+- O fechamento não gera lançamento contábil (faltam a configuração da conta de lucros acumulados e a regra anti-duplicação) e não tem endpoint em controller — não entrou na entrega da v1.4.0 e segue pendente
+- Contabilidade multi-organização: CompanyController / LedgerPeriodController com entidade contábil independente e período contábil (entregue na v1.4.0)
+- Motor de relatórios consolidados (entregue na v1.4.0): ConsolidationService rateToBase/translateLedger converte pela taxa de fechamento (recusa quando falta a taxa), addElimination elimina entre subsidiárias (com validação do equilíbrio débito/crédito), generateDraft emite o relatório (períodos já emitidos leem o snapshot; sem snapshot recalcula em tempo real pelos lançamentos aprovados), issue impede emissão duplicada, latest/list; o resultado fica em FinanceConsolidationReport
+- Testes: PeriodCloseServiceTest 4 casos + ConsolidationServiceTest 3 casos
+
+### 6.13 Custeio de estoque e de produção (entregue na v1.4.0)
+
+- Requisição de material e apropriação de custos: MaterialIssueController lança a saída de materiais, e CostEntryController + MfgCostService apropriam material / mão de obra / custos indiretos por ordem de produção
+- Regra de lançamento: MfgCostVoucherRule gera o lançamento do custo dos produtos acabados e da transferência de variações (integração com a §12 Ordens de produção)
+
+### 6.14 Títulos e conciliação bancária (entregue na v1.4.0)
+
+- Ciclo de vida completo dos títulos: FinanceBillService store/update/endorse (endosso)/discount (desconto)/collect (cobrança)/cash (resgate)/reject + dueWarnings de alerta de vencimento
+- Conciliação bancária: BankReconService importStatement importa o extrato, autoReconcile/manualReconcile/unreconcile fazem a baixa e reconReport gera o relatório de conciliação
+
+### 6.15 Pool de notas de entrada e faturamento eletrônico (entregue na v1.4.0)
+
+- Pool de entradas: TaxInvoicePoolService registerOne/registerBatch/verify/check/deduct/deductStats; a verificação usa MockTaxVerifier (o canal real da autoridade fiscal é um ponto de adaptação)
+- Faturamento eletrônico: EInvoiceService issueInvoice/voidInvoice/issueLogs, via EInvoiceAdapter/MockEInvoiceAdapter (o canal real da autoridade fiscal é um ponto de adaptação)
+
+---
+
 ## 7. CRM
 
 ### 7.1 Gestão de clientes
@@ -256,6 +295,13 @@ O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:module
 
 ---
 
+### 7.6 Motor de valor do cliente (entregue na v1.4.0)
+
+- Membros e saldo armazenado: MemberService openMember/recharge/consume/refund
+- Pontos e cupons: earnPoints/consumePoints/expirePoints no extrato de pontos + issueCoupon/redeemCoupon para baixa de cupons (MemberController / CouponController)
+
+---
+
 ## 8. Mecanismo de fluxo de aprovação
 
 ### 8.1 Modelos de fluxo de trabalho
@@ -268,6 +314,13 @@ O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:module
 - Envio → aprovação em cascata → aprovação/rejeição/retirada
 - Lista de minhas aprovações (pendentes + concluídas)
 - Rastreamento completo dos registros de aprovação
+
+---
+
+### 8.3 Designer visual de fluxos (entregue na v1.4.0)
+
+- Orquestração em canvas: WorkflowDesignerController lê e grava definições de nós/arestas (persistidas em canvas_json)
+- Mesma origem do motor de aprovação: após a publicação, a definição do canvas dirige o fluxo da cadeia de aprovação
 
 ---
 
@@ -309,6 +362,13 @@ O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:module
 
 ---
 
+### 10.4 Custo e desvio orçamentário de projetos (entregue na v1.4.0)
+
+- Lançamento de custos: ProjectCostService createManual para lançamento manual + generateFromTimesheet converte por horas × taxa do funcionário
+- Visão de resultado: projectPnl compara a margem bruta do projeto com o orçamento
+
+---
+
 ## 11. Gestão de recursos humanos
 
 ### 11.1 Estrutura organizacional
@@ -328,6 +388,19 @@ O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:module
 - Cálculo salarial: salário base + desempenho + horas extras - deduções - imposto de renda = valor líquido
 - Suporte à geração em lote do salário mensal
 - Confirmação do pagamento do salário
+
+---
+
+### 11.4 Recrutamento e desempenho (entregue na v1.4.0)
+
+- Recrutamento: RecruitService publica/encerra vagas, avança o funil de candidatos, registra entrevistas e envia/aceita/recusa ofertas
+- Desempenho: PerformanceService com modelos de indicadores e planos de avaliação, pontuação 360 (submitScore com múltiplos avaliadores) e consolidação
+
+### 11.5 Treinamento, previdência social e holerite (entregue na v1.4.0)
+
+- Treinamento: TrainingService com registro de cursos/inscrições/conclusões/créditos (employeeCredits)
+- Previdência social: SocialSecurityService com regras de base (createRule/setRate), vínculo e desvínculo de funcionários bind/unbind, simulação calculate e detalhamento por funcionário employeeSocialDetail
+- Holerite: PayslipService view abre os itens salariais em modo somente leitura (proventos/descontos/líquido, com complemento de previdência social)
 
 ---
 
@@ -357,6 +430,21 @@ O Sistema ERP Aberto (open-erp) cobre 19 domínios de negócio <!-- stats:module
 - Cálculo da necessidade líquida: necessidade total - recebimento planejado - estoque atual = necessidade líquida
 - Geração do plano por período (ano+mês)
 - Status: rascunho → gerado → confirmado
+
+---
+
+### 12.6 Apontamento de operações e salário por peça (entregue na v1.4.0)
+
+- Apontamento: WorkReportService audit audita o apontamento de operações
+- Salário por peça: PieceWageService accumulate no registro por peça / periodSummary consolidado por período
+
+### 12.7 Terceirização e baixa (entregue na v1.4.0)
+
+- SubcontractService: auditIssue audita a saída de material para terceiros → auditReceive fecha o ciclo com a baixa no recebimento
+
+### 12.8 Carga de capacidade (entregue na v1.4.0)
+
+- MfgCapacityService: calendar com o calendário de capacidade das estações de trabalho, setException/removeException para exceções de capacidade e report com a análise de carga
 
 ---
 
@@ -493,25 +581,25 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | Dimensão | Quantidade |
 |------|------|
-| Módulos de negócio | 19 <!-- stats:modules=23 --> |
-| Tabelas do banco de dados | 163 <!-- stats:tables=227 --> |
-| Modelos de dados | 161 <!-- stats:models=224 --> |
-| Controladores | 123 <!-- stats:controllers=159 --> |
-| Serviços de negócio | 27 <!-- stats:services=64 --> |
-| Rotas da API | 198 (geradas dinamicamente, ver `scripts/check-endpoints.php`, não participam da validação do doc-stats) |
+| Módulos de negócio | 23 <!-- stats:modules=23 --> |
+| Tabelas do banco de dados | 227 <!-- stats:tables=227 --> |
+| Modelos de dados | 224 <!-- stats:models=224 --> |
+| Controladores | 159 <!-- stats:controllers=159 --> |
+| Serviços de negócio | 64 <!-- stats:services=64 --> |
+| Rotas da API | 837 (geradas dinamicamente, ver `scripts/check-endpoints.php`, não participam da validação do doc-stats) |
 | Middlewares | 11 <!-- stats:middleware=11 --> |
-| Arquivos-fonte PHP | 343 <!-- stats:php_files=483 --> |
-| Script de instalação do banco | Arquivo único `database/install.sql` (163 tabelas, todas as migrações incorporadas) |
-| Páginas front-end (Flutter) | 7 (estatística do front-end, não incluída na validação do doc-stats) |
-| Páginas front-end (HarmonyOS) | 4 (estatística do front-end, não incluída na validação do doc-stats) |
-| Testes unitários | 50 arquivos de teste <!-- stats:test_files=111 --> / 442 casos de teste / 2238 asserções (tests/assertions flutuam com as versões de patch do PHP e extensões, não participam da validação precisa do stats) |
+| Arquivos-fonte PHP | 483 <!-- stats:php_files=483 --> |
+| Script de instalação do banco | Arquivo único `database/install.sql` (227 tabelas, todas as migrações incorporadas) |
+| Páginas front-end (Flutter) | 119 (medido em 2026-09-22: arquivos de página `.dart` em `apps/flutter/lib/app/pages/` (recursivo), não incluído na validação do doc-stats) |
+| Páginas front-end (HarmonyOS) | 52 (medido em 2026-09-22: arquivos de página `.ets` em `apps/harmonyos/entry/src/main/ets/pages/` (recursivo), não incluído na validação do doc-stats) |
+| Testes unitários | 111 arquivos de teste <!-- stats:test_files=111 --> / 1001 casos de teste / 4726 asserções (contagem estática: número de métodos de teste + pontos de chamada de asserção, independente do ambiente de execução) |
 
 > Os números acima são medidos por `bash scripts/doc-stats.sh`; os itens marcados com `<!-- stats:key=value -->` são validados automaticamente pelo CI
 > (job docs em `.github/workflows/ci.yml`) contra os fatos do código — qualquer divergência fica vermelha.
 
 ---
 
-## 19. Matriz de completude dos módulos (correção de 2026-08-16)
+## 19. Matriz de completude dos módulos (correção de 2026-09-05; lote v1.17.0 de 2026-09-15)
 
 ### Legenda de status
 
@@ -529,31 +617,48 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | Módulo | API back-end | Lógica de negócio | Flutter | HarmonyOS | Próxima fase |
 |------|----------|----------|---------|-----------|----------|
-| Administração do sistema | ✅ | ✅ | ⚠️ 7/10 | ⚠️ 4/10 | 🔵 P0 |
-| Dashboards | ✅ | ✅ | ⚠️ Básico | ⚠️ Básico | 🔵 P0 |
-| Dados básicos de produtos | ✅ | ✅ | ⚠️ 3/7 | ⚠️ 1/7 | 🔵 P0 |
-| Gestão de compras | ✅ | ⚠️ | ⚠️ 1/5 | ⚠️ 1/5 | 🔵 P0 |
-| Gestão de vendas | ✅ | ⚠️ | ⚠️ 1/5 | ⚠️ 1/5 | 🔵 P0 |
-| Gestão de estoque | ✅ | ✅ | ⚠️ Básico | ⚠️ Básico | 🔵 P0 |
-| Finanças — vouchers/contas a receber e a pagar | ✅ | ⚠️ | ⚠️ 2/10 | 🔴 | 🔵 P0 |
-| Finanças — razão geral/três demonstrações | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| Finanças — fechamento de exercício/consolidação | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| CRM completo | ✅ | ✅ | ⚠️ 1/8 | 🔴 | 🔵 P0 |
-| OMS — gestão de pedidos | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| WMS — gestão de armazém | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| TMS — gestão de transporte | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| Fluxo de aprovação | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| Sistema de notificações | ⚠️ | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
-| Gestão de projetos | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| RH — organização/ponto/afastamentos | ✅ | ⚠️ | 🔴 | 🔴 | 🔵 P0 |
-| RH — motor de salários | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| Industrial — BOM/produção/MRP | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| Gestão da qualidade | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| Relatórios personalizados | ✅ | ⚠️ | 🔴 | 🔴 | 🔵 P0 |
-| Painéis BI | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
-| Gestão de equipamentos EAM | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
-| Multitenancy | ⚠️ | ⚠️ | 🔴 | 🔴 | 🟣 P3 |
-| Gestão de documentos DMS | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
+| Administração do sistema | ✅ | ✅ | ⚠️ 9/14 | ⚠️ 5 páginas | 🔵 P0 |
+| Dashboards | ✅ | ✅ | ✅ 2 páginas | ⚠️ 1 página | 🔵 P0 |
+| Dados básicos de produtos | ✅ | ✅ | ✅ 7/7 | ⚠️ 1/7 | 🔵 P0 |
+| Gestão de compras | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
+| Gestão de vendas | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
+| Gestão de estoque | ✅ | ✅ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
+| Finanças — lançamentos/contas a receber e a pagar | ✅ | ⚠️ | ✅ 16 páginas | 🔴 | 🔵 P0 |
+| Finanças — razão geral/três demonstrações | ⚠️ | 🔴 | ⚠️ 3 páginas (profundidade das ações a verificar) | 🔴 | 🟢 P1 |
+| Finanças — consolidação de relatórios | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Finanças — contabilidade multi-organização (F1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Finanças — fechamento de período | 🔴 | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
+| Finanças — custeio de estoque (F3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| CRM completo | ✅ | ✅ | ✅ 10/10 | 🔴 | 🔵 P0 |
+| OMS — gestão de pedidos | ✅ | ✅ | ✅ 4/4 | ⚠️ 4 páginas | 🔵 P0 |
+| WMS — gestão de armazém | ✅ | ✅ | ⚠️ 7/8 | ⚠️ 7 páginas | 🔵 P0 |
+| TMS — gestão de transporte | ✅ | ✅ | ⚠️ 5/6 | ⚠️ 5 páginas | 🔵 P0 |
+| Fluxo de aprovação | ✅ | ✅ | ⚠️ 2/3 | ⚠️ 1 página | v1.4.0 |
+| Sistema de notificações | ✅ | ✅ | ⚠️ 1/2 | 🔴 | v1.4.0 |
+| Controle de crédito (F7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Cadeia de rastreabilidade/validade próxima (M6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Carga de capacidade (M3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Apontamento de operações/salário por peça/baixa de terceirização (M1+M2) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Designer de fluxos (B3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Modelos de impressão (B1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Recrutamento/desempenho/treinamento/previdência (H1-H4) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Inspeção por leitura de QR (E1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Custo/orçamento de projeto (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Títulos/conciliação bancária (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Pool de entradas/faturamento eletrônico (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Valor do cliente (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Multi-tenant (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0, ativação parcial |
+| Notificações de canal/campos personalizados (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| Gestão de projetos | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
+| RH — organização/ponto/férias | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 3 páginas | 🔵 P0 |
+| RH — motor de salários | ⚠️ | 🔴 | ⚠️ 2 páginas | 🔴 | 🟢 P1 |
+| Manufatura — BOM/produção/MRP | ✅ | ✅ | ⚠️ 5/13 | ⚠️ 5 páginas | v1.4.0 |
+| Gestão da qualidade | ✅ | ✅ | ✅ 5/5 | 🔴 | 🟢 P1 |
+| Relatórios personalizados | ✅ | ⚠️ | ✅ 2/2 | 🔴 | 🔵 P0 |
+| Painéis BI | ✅ | ✅ | ⚠️ 2/3 | 🔴 | 🟣 P3 |
+| Gestão de equipamentos EAM | ✅ | ✅ | ⚠️ 4/5 | 🔴 | v1.4.0 |
+| Gestão de documentos DMS | ✅ | ✅ | ⚠️ 1/2 | 🔴 | 🟣 P3 |
+| Multilíngue (i18n) | ✅ | ✅ | ⚠️ apenas zh/en | ⚠️ apenas zh/en | v1.17.0 |
 | Observabilidade | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 | Rollback de migração/backup | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 
@@ -561,27 +666,49 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | Dimensão | ✅ Concluído | ⚠️ Esqueleto | 🔴 Ausente | N/A | Taxa de conclusão |
 |------|---------|----------|---------|-----|--------|
-| Módulos (27) | 14 | 12 | 1 | 0 | 52% |
-| API back-end | 19 | 7 | 1 | 0 | 70% |
-| Lógica de negócio | 14 | 7 | 6 | 0 | 52% |
-| Front-end Flutter | 0 | 8 | 17 | 2 | 0% |
-| HarmonyOS | 0 | 6 | 19 | 2 | 0% |
+| Módulos (44) | 33 | 11 | 0 | 0 | 75% |
+| API back-end | 39 | 4 | 1 | 0 | 89% |
+| Lógica de negócio | 33 | 7 | 4 | 0 | 75% |
+| Front-end Flutter | 12 | 12 | 18 | 2 | 29% |
+| HarmonyOS | 0 | 13 | 29 | 2 | 0% (contagem de ✅; 13 linhas já têm páginas ⚠️) |
 
-> **Critério das estatísticas (correção de 2026-08-16)**: as linhas de módulos contam como «API back-end e lógica de negócio ambas implementadas»;
-> as linhas API back-end / lógica de negócio são contadas pelas colunas correspondentes da matriz (nesta versão, QMS/EAM/DMS/BI foram corrigidos para ✅
-> conforme o estado atual do código, e multitenancy para ⚠️, evidências na seção «Evidências de código» abaixo); Flutter / HarmonyOS são estatísticas
-> de trabalho das páginas front-end (as 2 linhas observabilidade e rollback de migração marcadas como N/A), não incluídas na validação do doc-stats do back-end.
+> **Critério das estatísticas (correção de 2026-09-05)**: as linhas de módulo contam como «API back-end e lógica de negócio ambas implementadas» — ✅ duplo = concluído,
+> e qualquer linha que não chegue a ✅ duplo conta como esqueleto ⚠️ (incluindo as linhas de «ativação parcial», como o middleware de isolamento do multi-tenant B5 ainda não registrado e outros pendentes históricos, ver as evidências de código);
+> as linhas API back-end / lógica de negócio são contadas pelas colunas correspondentes da matriz, e o denominador da taxa de conclusão exclui as linhas N/A (observabilidade e rollback de migração não têm front-end).
+> **Colunas Flutter / HarmonyOS (critério de «cobertura de ações da página» desde 2026-08-27)**: ✅ = o módulo tem página e o número de arquivos de página ≥ o número de controllers do back-end
+> (`n/n` ou contagem de páginas); ⚠️ = tem página mas o número de arquivos de página < o número de controllers do back-end (cobertura parcial); 🔴 = sem página; **a verificar** = a página existe, mas a
+> profundidade das ações (ciclo completo de criação/edição/exclusão/consulta) não foi conferida página a página. **A contagem de páginas de cada linha é o retrato de 2026-08-27** (`apps/flutter/lib/app/pages/<módulo>/`
+> e `apps/harmonyos/entry/src/main/ets/pages/**`, na época 107 páginas Flutter / 35 páginas HarmonyOS);
+> a remedição global de 2026-09-22 dá 119 páginas Flutter / 52 páginas HarmonyOS (**a contagem por linha não foi recalculada no novo critério**; a decisão ✅/⚠️ segue o retrato de 2026-08-27),
+> fora da validação do doc-stats do backend; a taxa de conclusão do HarmonyOS em 0% deve-se à contagem de ✅ (0/42), com 13 linhas já tendo páginas (⚠️ cobertura parcial) — não é ausência da coluna inteira.
+> **Deduplicação de 2026-09-15**: a matriz continha duas linhas «multi-tenant» (`多租户 (B5)` e `多租户`, com a coluna de lógica de negócio ✅ / ⚠️ contraditória entre si),
+> já mescladas no critério acima em uma única linha «Multi-tenant (B5)» contada como ⚠️ (middleware de isolamento não registrado), com as linhas de módulo indo de 45 → 44.
+> **Lote v1.17.0 (2026-09-15)**: acrescentada a linha «Multilíngue (i18n)» (1 das 44 linhas marcada como v1.17.0) — os dicionários de 13 idiomas no backend
+> (`resource/translations/<locale>/`, 13 diretórios) e a negociação por `Accept-Language` contam como ✅; Flutter e HarmonyOS continuam com dois idiomas (chinês/inglês),
+> portanto as duas colunas de front-end contam ⚠️; Angular e React já têm dicionários de 13 idiomas (não participam das colunas desta matriz).
+> **Lote v1.4.0 (2026-09-05)**: 21 das 44 linhas estão marcadas como v1.4.0 (incluindo 1 linha de «ativação parcial» = a linha Multi-tenant (B5)),
+> cobrindo multi-organização/consolidação de relatórios/custeio de estoque (F1-F3), manufatura M1/M2/M3/M6, crédito F7, títulos/conciliação bancária/pool de entradas/faturamento eletrônico F6/F5,
+> RH H1-H4, membros C1, plataforma B1-B5/B7, inspeção E1 e custo de projeto P1; as evidências estão em «Evidências de código» abaixo.
 
-### Evidências de código (correção de 2026-08-16)
+### Evidências de código (correção de 2026-09-05; incluindo o lote v1.17.0)
 
 Base das correções de completude desta versão (a existência dos arquivos pode ser comprovada por `bash scripts/doc-stats.sh` e `find`):
 
 | Módulo | Correção | Evidências de código |
 |------|------|----------|
-| Gestão da qualidade | 🔴 → ✅ | `app/controller/quality/` (5 controladores) + `app/service/quality/QmsInspectionService.php` + `tests/QualityModuleTest.php` |
-| Painéis BI | 🔴 → ✅ | `app/controller/bi/` (3 controladores: Dashboard/Dataset/Widget) + `tests/BiModuleTest.php` |
-| Gestão de equipamentos EAM | 🔴 → ✅ | `app/controller/eam/` (4 controladores) + `tests/EamModuleTest.php` |
-| Gestão de documentos DMS | 🔴 → ✅ | `app/controller/dms/` (2 controladores) + `tests/DmsModuleTest.php` |
-| Multitenancy | 🔴 → ⚠️ | `app/middleware/TenantScope.php` + `app/model/concerns/TenantScope.php` + `tests/Integration/TenantScopeIntegrationTest.php` (defeito conhecido: o ID estático do tenant não se propaga pelos modelos, por isso é esqueleto e não conclusão) |
+| Gestão da qualidade | 🔴 → ✅ | `app/controller/quality/` (5 controllers) + `app/service/quality/QmsInspectionService.php` + `tests/QualityModuleTest.php` |
+| Painéis BI | 🔴 → ✅ | `app/controller/bi/` (3 controllers: Dashboard/Dataset/Widget) + `tests/BiModuleTest.php` |
+| Gestão de equipamentos EAM | 🔴 → ✅ (+E1 inspeção) | `app/controller/eam/` (5 controllers, incluindo `EamInspectionController.php`) + `app/service/eam/EamInspectionService.php` + `tests/EamModuleTest.php` |
+| Gestão de documentos DMS | 🔴 → ✅ | `app/controller/dms/` (2 controllers) + `tests/DmsModuleTest.php` |
+| Multi-tenant | ⚠️ → ⚠️ (v1.4.0, ativação parcial) | `app/controller/platform/TenantController.php` + `app/service/platform/TenantService.php` (provision/suspend/resume/expireMark/renew/expiryWarnings com cobrança por vencimento já entregues) + `tests/Integration/TenantScopeIntegrationTest.php`; o middleware de isolamento `app/middleware/TenantScope.php` continua não registrado (o isolamento não está em vigor), por isso é ativação parcial |
+| Consolidação de relatórios | ⚠️ → ✅ (entregue na v1.4.0) | `app/service/finance/ConsolidationService.php` (rateToBase/translateLedger com conversão pela taxa de fechamento, addElimination com eliminação entre subsidiárias e validação do equilíbrio débito/crédito, generateDraft com snapshot preferencial / recálculo em tempo real sem snapshot, issue anti-duplicação, latest/list; recusa quando falta a taxa) + resultado em `app/model/FinanceConsolidationReport.php` + `tests/ConsolidationServiceTest.php` (3 casos) |
+| Fechamento de período | 🔴 → ⚠️ | `app/service/finance/PeriodCloseService.php:21` `closeProfitAndLoss()` (agregação das contas de resultado já implementada; não gera lançamento de fechamento e não tem endpoint em controller) + `tests/PeriodCloseServiceTest.php` (4 casos) |
+| v1.4.0 — contabilidade multi-organização (F1) | novo | `app/controller/finance/CompanyController.php` + `LedgerPeriodController.php` (entidade contábil independente e período contábil) |
+| v1.4.0 — estoque e custo de produção (F3) | novo | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
+| v1.4.0 — execução de manufatura M1/M2/M3/M6 | novo | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (rastreabilidade de lotes/números de série e alerta de validade) + os controllers correspondentes WorkReport/PieceWage/Subcontract/Capacity |
+| v1.4.0 — recursos e tributos financeiros F6/F5 + F7 | novo | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (importação de extrato/conciliação automática e manual) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter, autoridade fiscal real como ponto de adaptação reservado) + `app/service/sales/CreditControlService.php` (bloqueio por asserção de pedidos acima do limite) |
+| v1.4.0 — membros/RH/projetos C1/H1-H4/P1 | novo | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
+| v1.4.0 — plataforma/canais B3/B4/B7/E1 | novo | `app/controller/workflow/WorkflowDesignerController.php` (persistência em canvas_json) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, com novas tentativas em caso de falha) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` 5 casos) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (inspeção por leitura de QR) |
+| v1.17.0 — multilíngue (i18n) | novo | Backend: `resource/translations/` (13 diretórios de idioma zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, cada idioma com os três arquivos common+modules+validation, cada um dos 11 idiomas com 542 entradas (zh_CN 533, en 30); em `en` o inglês é a chave) + `app/common/I18n.php` (`getLocale()` resolve a primeira tag de `Accept-Language` e mapeia a sub-tag do idioma principal zh*→zh_CN; `trans()` para idiomas diferentes de en percorre `[idioma da requisição, zh_CN, en]`→key e, para `en`, não cai no chinês) + `config/translation.php` + script gerador `scripts/gen-be-locales.mjs`; frontend: `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + 11 arquivos de idioma) e `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (dicionários dos 11 novos idiomas carregados sob demanda por idioma, com Angular 1453 / React 1447 chaves) + `scripts/gen-fe-locales.mjs`; ponto de troca = ícone globe na barra superior + menu suspenso do centro pessoal; Flutter (`apps/flutter/lib/l10n/`) e HarmonyOS (`entry/src/main/resources/`) continuam com dois idiomas (chinês/inglês) |
 
 > Especificação detalhada do roteiro de design: `superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`

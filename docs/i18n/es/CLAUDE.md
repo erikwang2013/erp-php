@@ -18,16 +18,16 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 > Documento de arquitectura: `ARCHITECTURE.md` §21
 > Matriz de funciones: `FUNCTIONS.md` §19
 
-**Puntuación global actual 89/100** — La hoja de ruta completa P0~P3 está terminada, 22 módulos con cobertura full-stack, lista para producción.
+**Puntuación global actual 89/100** — La hoja de ruta completa P0~P3 está terminada, 23 módulos con cobertura full-stack, lista para producción.
 
 | Fase | Duración | Entregables | Estado |
 |------|------|--------|------|
-| 🔵 **P0** Ecosistema frontend | 3-4 semanas | 97 páginas Flutter + 34 páginas HarmonyOS + 4 componentes comunes | ✅ |
+| 🔵 **P0** Ecosistema frontend | 3-4 semanas | 102 rutas de menú Flutter + 41 páginas HarmonyOS + 4 componentes comunes | ✅ |
 | 🟢 **P1** Profundidad de negocio | 4-6 semanas | Motor financiero + motor de nóminas + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** Fiabilidad operativa | 1-2 semanas | Migración con reversión + copias de seguridad automáticas + TraceId + cola de doble driver | ✅ |
 | 🟣 **P3** Mejora de experiencia | 2-3 semanas | Paneles BI + EAM + multitenencia + DMS + 7 tablas nuevas | ✅ |
 
-**Pruebas**: 513 tests, 2368 assertions (32 skipped) — TODO EN VERDE. **Flutter**: 0 errors, 0 warnings.
+**Pruebas**: 1001 tests, 4726 assertions (23 skipped) — TODO EN VERDE. **Flutter**: 0 errors, 0 warnings.
 
 ## Lista de funciones
 
@@ -40,7 +40,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | Configuración del sistema | CRUD de pares clave-valor |
 | Auditoría de operaciones | Consulta de logs + detección automática del origen en 8 plataformas |
 | Archivos | Subida + exportación Excel/PDF (enmascarado de datos sensibles) |
-| Seguridad | 18 capas de defensa en profundidad (XSS/inyección SQL/CSRF/limitación de frecuencia/CSP...) |
+| Seguridad | 7 capas de defensa en profundidad (XSS/inyección SQL/CSRF/limitación de frecuencia/CSP...) |
 | Operaciones | Health check/métricas Prometheus/documentación de API/security.txt + Docker + CI/CD |
 | Gestión de productos | Producto/SKU/categoría/marca/almacén/ubicación/proveedor/cliente |
 | Gestión de compras | Solicitud→pedido→recepción→devolución→liquidación (entrada automática al almacén + generación de cuentas por pagar) |
@@ -74,7 +74,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - Cifrado de campos sensibles de la base de datos: `erikwang2013/encryptable`
 - Sincronización y consulta ES: `erikwang2013/webman-scout`
 - Banderas de países: `erikwang2013/season`
-- Generación de documentación de API: `hg/apidoc` | por anotaciones, acceso en /apidoc
+- Generación de documentación de API: `erikwang2013/apidoc-php` | por anotaciones, acceso en /apidoc
 
 ### Frontend
 - Flutter 3.x, código fuente en `apps/flutter/`
@@ -82,12 +82,23 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - Soporta la plataforma de clientes y la de administradores
 - HarmonyOS ArkTS, código fuente en `apps/harmonyos/`
 
+### Internacionalización (13 idiomas)
+- Lista de idiomas: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
+- Diccionarios del backend: `resource/translations/<locale>/{common,modules,validation}.php`, 13 directorios de idioma; `zh_CN` 565 entradas, los otros 11 idiomas 544 cada uno, `en` 30 (criterio: entradas hoja de los tres archivos; en `validation.php` las etiquetas de campo de `attributes` cuentan y sus claves de grupo no)
+  - «En inglés la clave es el propio texto»: los common/modules de `en` quedan vacíos; las claves de `validation.php` son nombres de reglas del framework, solo se traduce el valor
+  - Generador: `scripts/gen-be-locales.mjs`
+- Diccionario del frontend (Angular): fuente `apps/angular/src/app/core/zh-en/part1..4.ts` (1456 entradas) → producto `apps/angular/src/app/core/zh-<code>.ts`
+- Diccionario del frontend (React): fuente `apps/react/src/lib/i18n/zhEn.ts` (1451 entradas) → producto `apps/react/src/lib/i18n/zh<Code>.ts`
+  - Los diccionarios de los 11 idiomas nuevos se cargan dinámicamente con `import()` como chunks independientes; las entradas ausentes recaen en el texto original en chino
+  - Generador: `scripts/gen-fe-locales.mjs --app angular|react`
+- En tiempo de ejecución: cambiar de idioma es cambiar la cabecera `Accept-Language`; el backend devuelve el texto según el idioma (`app/common/I18n.php` + `config/translation.php`)
+
 ## Estructura del proyecto
 
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # Controladores de administración del sistema (14)
+│   ├── admin/controller/       # Controladores de administración del sistema (16)
 │   │   ├── BaseController.php      # Controlador base
 │   │   ├── DashboardController.php # Panel de control + paneles de ventas/inventario/finanzas
 │   │   ├── UserController.php      # CRUD de usuarios + operaciones masivas
@@ -102,56 +113,61 @@ open-erp/
 │   │   ├── HealthController.php    # Health check
 │   │   ├── DocsController.php      # Documentación OpenAPI
 │   │   └── MetricsController.php   # Métricas de monitoreo Prometheus
-│   ├── api/v1/controller/      # API de clientes (control por cabecera de versión)
+│   ├── api/v1/controller/      # API de clientes (versión en la ruta /api/v1, sin cabecera de versión)
 │   │   ├── CaptchaController.php   # Captcha de clic
 │   │   ├── AuthController.php      # Inicio de sesión/registro/refresco
 │   │   └── ProductController.php   # Consulta de productos (sin precio de compra)
-│   ├── controller/              # Controladores de módulos de negocio (104, incluido InstallController)
-│   │   ├── product/             # Producto/categoría/marca/almacén/ubicación/proveedor/cliente (7)
-│   │   ├── purchase/            # Solicitud de compra/pedido/recepción/devolución/liquidación (5)
+│   ├── controller/              # Controladores de módulos de negocio (139, incluidos InstallController / IndexController de nivel superior)
+│   │   ├── product/             # Producto/categoría/marca/almacén/ubicación/proveedor/cliente/especificaciones (8)
+│   │   ├── purchase/            # Solicitud/licitación/cotización/pedido/recepción/devolución/liquidación/evaluación de proveedores (8)
 │   │   ├── sales/               # Cotización/pedido/envío/devolución/liquidación de ventas (5)
-│   │   ├── inventory/           # Inventario/flujos/transferencias/conteos/alertas (5)
-│   │   ├── finance/             # AR-AP/comprobantes/cobros y pagos/diario/libro mayor/libro auxiliar/tres estados/activos fijos/impuestos/multidivisa/presupuestos/centros de coste y beneficio (20)
+│   │   ├── inventory/           # Inventario/flujos/transferencias/conteos/alertas/trazabilidad (6)
+│   │   ├── finance/             # AR-AP/comprobantes/cobros y pagos/diario/libro mayor/libro auxiliar/tres estados/activos fijos/impuestos/multidivisa/presupuestos/centros de coste y beneficio/cuentas bancarias y conciliación/gastos/facturas y liquidación/informes consolidados/plazos de pago (28)
 │   │   ├── crm/                 # Oportunidades/seguimiento/embudo/contactos/pool de clientes/cotizaciones/contratos/marketing/tickets/análisis (10)
-│   │   ├── workflow/            # Definición de flujos de trabajo/presentación de aprobación/aprobación/rechazo/retirada (2)
-│   │   ├── notification/        # Lista de notificaciones/leídas/contador de no leídas (1)
-│   │   ├── project/             # Proyectos/tareas/registro de horas (3)
-│   │   ├── hr/                  # Departamentos/empleados/puestos/asistencia/permisos/nóminas (5)
-│   │   ├── manufacturing/       # BOM/órdenes de producción/rutas de proceso/estaciones de trabajo/MRP (5)
+│   │   ├── workflow/            # Definición de flujos/diseñador/presentación de aprobación/aprobación/rechazo/retirada (3)
+│   │   ├── notification/        # Lista de notificaciones/leídas/contador de no leídas/canales de notificación (2)
+│   │   ├── project/             # Proyectos/tareas/registro de horas/coste del proyecto (4)
+│   │   ├── hr/                  # Departamentos/empleados/puestos/asistencia/nóminas/desempeño/reclutamiento/seguridad social/formación (9)
+│   │   ├── manufacturing/       # BOM/órdenes de producción/rutas de proceso/estaciones de trabajo/MRP/capacidad/consumo de materiales/reporte de operaciones/salario a destajo/registro de costes/subcontratación y entradas-salidas (13)
 │   │   ├── report/              # Plantillas de informe/conjuntos de datos/ejecución/ejecución programada (2)
 │   │   ├── oms/                 # Pedidos/cumplimiento/reserva de inventario/RMA/canales (4)
 │   │   ├── wms/                 # Zonas y ubicaciones/recepción ASN/ubicación en estanterías/oleadas/picking/embalaje (8)
 │   │   ├── tms/                 # Transportistas/tarifas/envíos/etiquetas/trazabilidad (6)
 │   │   ├── quality/             # IQC/IPQC/OQC/estándares de inspección/no conformidades (5)
-│   │   ├── eam/                 # Equipos/planes de mantenimiento/órdenes de reparación/repuestos (4)
+│   │   ├── eam/                 # Equipos/planes de mantenimiento/órdenes de reparación/repuestos/inspección (5)
 │   │   ├── dms/                 # Categorías de documentos/documentos/versiones (2)
+│   │   ├── open/                # API abierta (1)
+│   │   ├── platform/            # Campos personalizados/inquilino (2)
+│   │   ├── print/               # Plantillas de impresión (1)
+│   │   ├── retail/              # Cupones/membresía (2)
 │   │   └── bi/                  # Paneles BI/componentes de gráficos (3)
-│   ├── service/                 # Capa de lógica de negocio (registrada en el contenedor, 24)
+│   ├── service/                 # Capa de lógica de negocio (64 archivos / 63 clases de servicio)
 │   │   ├── finance/             # FinanceService: generación automática de AR-AP + compensación de cobros y pagos + diario
 │   │   ├── inventory/           # InventoryService: entradas y salidas + costeo de promedio ponderado móvil
 │   │   ├── notification/        # NotificationService: envío de notificaciones
-│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/  # Servicios de pedidos/almacenes/transporte/inspección/RR. HH./fabricación
-│   ├── common/                  # Clases de utilidades comunes (registradas en el contenedor, 4)
+│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/…  # Pedidos/almacenes/transporte/inspección/RR. HH./fabricación, etc. (20 subdirectorios de módulo)
+│   ├── common/                  # Clases de utilidades comunes (6)
 │   │   ├── HashidsService.php   # Codificación/decodificación de IDs
 │   │   ├── SnowflakeService.php # Generación de IDs Snowflake
 │   │   ├── EncryptionService.php# Cifrado/descifrado de datos + enmascarado
-│   │   └── I18n.php             # Traducción de internacionalización
-│   ├── middleware/              # Middlewares (12)
-│   │   ├── Locale.php           # Detección automática de idioma por Accept-Language
+│   │   ├── I18n.php             # Traducción de internacionalización
+│   │   ├── CorsPolicy.php       # Política CORS (invocada por middleware/Cors y route.php)
+│   │   └── AddressValidator.php # Validación de direcciones (formatos de código postal de varios países + campos de formulario)
+│   ├── middleware/              # Middlewares (11)
 │   │   ├── Cors.php             # CORS
 │   │   ├── SecurityFilter.php   # Interceptación de XSS/inyección SQL/recorrido de rutas/inyección de comandos/CSRF
 │   │   ├── RateLimit.php        # Limitación de frecuencia con ventana deslizante en Redis
-│   │   ├── ApiVersion.php       # Validación de versión de API
 │   │   ├── AdminAuth.php        # Autenticación JWT + lista negra
 │   │   ├── AdminPermission.php  # Validación de permisos RBAC
 │   │   ├── OperationLog.php     # Registro automático de logs de operaciones
-│   │   ├── TenantScope.php      # Aislamiento de multitenencia (llamada estática)
+│   │   ├── OpenApiAuth.php      # Autenticación de la API abierta (X-API-Key + firma, montada solo en el grupo /open/v1)
+│   │   ├── TenantScope.php      # Aislamiento de multitenencia (reservado sin registrar, ver ARCHITECTURE.md §22)
 │   │   ├── TracingId.php        # TraceId de toda la cadena
 │   │   ├── TrackingSignature.php# Validación de firma de solicitudes
 │   │   └── StaticFile.php       # Servicio de archivos estáticos (integrado en webman)
-│   ├── model/                   # Modelos de datos (161)
+│   ├── model/                   # Modelos de datos (224; 225 archivos contando el trait concerns/TenantScope)
 │   ├── queue/                   # Tareas de cola
-│   └── process/                 # Procesos (Http, Monitor)
+│   └── process/                 # Procesos (Http, WebSocket, QueueConsumer, Monitor)
 ├── apps/
 │   ├── flutter/                 # Flutter multiplataforma (Web/iOS/Android/macOS/Windows/Linux)
 │   │   └── lib/app/
@@ -159,14 +175,22 @@ open-erp/
 │   │       ├── services/        # ApiService + AuthService + CaptchaService + ExportService
 │   │       ├── layouts/        # Diseño responsive
 │   │       └── theme/          # Tema Material 3
+│   ├── angular/                 # Consola web Angular 22 CLI + ng-zorro-antd
+│   │   └── src/app/
+│   │       ├── core/            # Servicios ApiService / AuthStore / I18n + diccionarios de idioma (fuente zh-en/, productos zh-<code>.ts)
+│   │       └── config/ layout/ pages/ ui/
+│   ├── react/                   # Consola web React 19 + Vite
+│   │   └── src/
+│   │       ├── lib/i18n/        # Diccionario fuente zhEn.ts + 11 idiomas zh<Code>.ts (carga diferida por idioma)
+│   │       └── components/ layout/ pages/ state/ config/domains/ styles/
 │   └── harmonyos/              # Cliente HarmonyOS
 ├── config/                     # Archivos de configuración
 │   ├── route.php               # Rutas + política de versiones de API
 │   ├── middleware.php           # Registro de middlewares globales
 │   ├── translation.php          # Configuración de idiomas
-│   └── plugin/hg/apidoc/        # Configuración de documentación de API (25 módulos de administración + 3 de clientes)
+│   └── plugin/                  # Configuración de plugins (erikwang2013/*; apidoc ver erikwang2013/apidoc/)
 ├── database/
-│   ├── install.sql              # SQL de instalación completo (163 tablas + datos semilla, todas las migraciones consolidadas)
+│   ├── install.sql              # SQL de instalación completo (227 tablas + datos semilla, todas las migraciones consolidadas)
 │   ├── e2e-seed.sql             # Seed mínimo para E2E/CI
 │   └── backup/                 # Scripts de copia de seguridad de la base de datos
 │       ├── backup.sh           # mysqldump+gzip, retención de 30 días
@@ -203,11 +227,12 @@ open-erp/
 ## Cadena de ejecución de middlewares
 
 ```
-Global:  Locale → Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → {middlewares de ruta}
-/health:  Locale → Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → Controller
-/install: Locale → Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → Controller
-/admin:   Locale → Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
-/api:     Locale → Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → ApiVersion → Controller
+Global:  Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → {middlewares de ruta}
+/health:  Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → Controller
+/install: Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → Controller
+/admin/v1:   Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
+/api/v1:     Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → Controller
+/open/v1:    Cors → SecurityFilter(verificación de método→405) → RateLimit → TracingId → OpenApiAuth → Controller
 ```
 
 ## Refuerzo de seguridad
@@ -221,13 +246,13 @@ Global:  Locale → Cors → SecurityFilter(verificación de método→405) → 
 
 ## Política de versiones de API
 
-La versión se controla mediante la cabecera de solicitud `API-Version` (por defecto `v1`), no se refleja en la URL:
+La versión va en la ruta de la URL (`/admin/v1`, `/api/v1`, `/open/v1`), sin cabecera de versión:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8788/api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 ```
 
-Para añadir una versión nueva basta con crear el directorio `app/api/{version}/controller/` y registrarlo en el middleware `ApiVersion`.
+Para añadir una versión nueva basta con crear el directorio `app/api/{version}/controller/` y registrar el grupo `/api/v{version}` en `config/route.php` (el número de versión solo se refleja en la ruta de la URL; el controlador se vincula directamente, sin middleware de cabecera de versión: el antiguo middleware de cabecera `ApiVersion` se ha eliminado).
 
 ## Política de limitación de frecuencia
 
@@ -257,8 +282,24 @@ Ventana deslizante en Redis (Lua atómico), por defecto 60 veces/minuto/IP/ruta:
 
 ### HarmonyOS
 - Cliente HTTP nativo con `@ohos.net.http`
-- Refresco transparente de token: en 401 se llama automáticamente a `/api/auth/refresh`
+- Refresco transparente de token: en 401 se llama automáticamente a `/api/v1/auth/refresh`
 - Si el refresco falla, redirección automática a la página de inicio de sesión
+
+## Deuda técnica conocida
+
+> La siguiente lista está medida con `grep -rn "new .*Service(" app/controller/` (45 coincidencias) y concuerda con los hechos del código.
+> **P5 no refactoriza**: que el controlador instancie el servicio directamente es el patrón existente; solo el código nuevo pasa a inyección por contenedor (`support\Container`), el código existente se mantiene como está.
+
+| Módulo | Servicios instanciados directamente | Descripción |
+|------|-----------|------|
+| finance | 22 | Cuentas por cobrar/pagar / compensación / diario / cierre / informes consolidados |
+| wms | 9 | Servicios de proceso de recepción / ubicación en estanterías / oleadas / picking / embalaje |
+| tms | 5 | Envíos / comparación de tarifas / trazabilidad / facturas de flete |
+| oms | 3 | Cumplimiento / reserva / RMA |
+| quality | 2 | Inspección / tratamiento de no conformidades |
+| hr | 2 | Nóminas / asistencia |
+| platform | 1 | Inquilino |
+| notification | 1 | Canales de notificación |
 
 ## Despliegue
 

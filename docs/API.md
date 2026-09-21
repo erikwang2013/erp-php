@@ -97,7 +97,7 @@ curl http://localhost:8788/admin/v1/product
 
 ## 3. 公开端点
 
-所有公开端点挂载在 `/api/v1` 分组下（版本号并入 URL 路径，无版本请求头），由 `ApiVersion` 中间件校验后分发到对应的版本化控制器（如 `app\api\v1\controller\AuthController`）。
+所有公开端点挂载在 `/api/v1` 分组下（版本号并入 URL 路径，无版本请求头，也无版本中间件），控制器按目录直绑（如 `app\api\v1\controller\AuthController`）。
 
 ### 3.1 健康检查
 
@@ -422,7 +422,7 @@ openadmin_memory_usage_bytes 18874368
 
 ## 4. 仪表盘
 
-所有管理端接口挂载在 `/admin` 分组下，经过 `AdminAuth`（JWT 认证）、`AdminPermission`（RBAC 权限校验）、`OperationLog`（操作记录）三个中间件。
+所有管理端接口挂载在 `/admin/v1` 分组下，经过 `AdminAuth`（JWT 认证）、`AdminPermission`（RBAC 权限校验）、`OperationLog`（操作记录）三个中间件。
 
 ### 4.1 仪表盘数据
 
@@ -1738,7 +1738,7 @@ docker-compose up -d
 
 ## 16. 业务 API 端点 (ERP)
 
-所有业务端点在 `/admin` 分组下，经过 `AdminAuth`（JWT 认证）、`AdminPermission`（RBAC 权限校验）、`OperationLog`（操作记录）三个中间件。
+所有业务端点在 `/admin/v1` 分组下，经过 `AdminAuth`（JWT 认证）、`AdminPermission`（RBAC 权限校验）、`OperationLog`（操作记录）三个中间件。
 
 > 端点总数: 商品(17) | 采购(8) | 销售(6) | 库存(6) | 财务(17) | CRM(13) | 工作流(6) | 通知(4) | 项目(3) | HR(9) | 制造(7) | 报表(4) | 仪表盘(3) | 客户端(2) | 共 105 端点
 

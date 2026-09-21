@@ -8,6 +8,21 @@ Sistem ERP full-stack berbasis webman v2 + Flutter.
 
 > [English version](../en/README.md) | [Perbandingan Edisi](EDITIONS.md) | [Diagram Arsitektur](ARCHITECTURE.md) | [Diagram Sistem](#diagram-arsitektur-sistem) | [Dokumen Desain](DESIGN.md) | [Arsitektur Keamanan](SECURITY.md) | [Referensi API](API.md) | [Manual Fitur](FUNCTIONS.md)
 
+## Pengenalan Proyek
+
+open-erp adalah **sistem ERP open source full-stack** untuk UKM, mencakup domain bisnis lengkap seperti pembelian-penjualan-stok (pembelian/penjualan/stok), akuntansi keuangan, manufaktur (BOM/MRP/laporan kerja proses/beban kapasitas), CRM, alur persetujuan, sumber daya manusia, notifikasi pesan, dan laporan kustom. Backend dibangun di atas webman v2 + MySQL 8.0 (prefiks tabel `erp_`, primary key unik global Snowflake), panel admin menyediakan tiga implementasi: Angular 22 (`apps/angular/`), React 19 + Vite (`apps/react/`), dan Flutter 3.x Web (`apps/flutter/`), sisi seluler dilengkapi klien native HarmonyOS (`apps/harmonyos/`).
+
+Sistem berpusat pada desain **berbasis dokumen, penautan otomatis**: persetujuan dokumen bisnis secara otomatis memicu perubahan stok, pembentukan piutang-hutang, dan pengumpulan biaya; alur persetujuan dan notifikasi pesan menembus seluruh dokumen kunci; MRP menghitung kebutuhan material berdasarkan pesanan penjualan dan BOM lalu menghasilkan saran pembelian/produksi, membentuk siklus bisnis end-to-end dari penerimaan pesanan penjualan hingga penerimaan pembelian, dari penjadwalan produksi hingga penutupan buku keuangan.
+
+## Keterangan Proyek
+
+- **Perhitungan desimal presisi**: nilai bisnis seperti jumlah uang, kuantitas, dan bobot mengikuti aritmetika desimal bcmath; biaya rata-rata bergerak tertimbang, penyelesaian piutang-hutang, dan keluaran berbagai laporan berpresisi string, tanpa galat floating point
+- **Baseline keamanan tingkat perusahaan**: token JWT + otorisasi tingkat metode RBAC, pertahanan berlapis (panorama berlapis L0–L12 + 35 jenis detektor serangan + rantai 7 lapis middleware, XSS/injeksi SQL/CSRF/rate limit/CSP, dll.), enkripsi penyimpanan field sensitif dan enkripsi transmisi antarmuka, jejak audit operasi lengkap
+- **Kemampuan terkonfigurasi**: alur persetujuan multi-node (termasuk kanvas perancang proses visual), mesin template cetak dokumen (render placeholder + PDF dompdf + label kode QR), pencegat real-time batas kredit pelanggan, penelusuran maju-mundur rantai penuh batch/nomor seri
+- **Data dapat dilacak**: setiap transaksi bisnis meninggalkan jejak; batch stok dan nomor seri menembus seluruh siklus hidup masuk → pemakaian → keluar → penelusuran, penghitungan biaya hingga tingkat baris dokumen
+- **Ramah deployment**: Docker Compose v2 sekali klik (MySQL/Redis/Elasticsearch), `composer install` lokal juga dapat dijalankan langsung
+- **Internasionalisasi**: 13 bahasa (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id), pesan backend serta antarmuka dua panel admin Angular/React tercakup penuh, kamus frontend dimuat lambat per bahasa, README juga tersedia dalam 12 bahasa
+
 ## Daftar Fitur
 
 | Domain Bisnis | Fitur | Keterangan |
@@ -15,19 +30,21 @@ Sistem ERP full-stack berbasis webman v2 + Flutter.
 | 🔐 Autentikasi | Login/Registrasi/Refresh Token/Logout | Captcha klik + JWT + daftar hitam |
 | | Penguncian akun | 5 kali gagal dikunci 15 menit |
 | | Batas sesi bersamaan | Maksimal 3 Token valid per pengguna |
-| 📊 Dasbor | Ikhtisar operasional/Papan penjualan/Papan stok/Papan keuangan | Cache Redis 5 menit |
+| 📊 Dasbor | Ikhtisar operasional + enam papan penjualan/stok/keuangan/OMS/WMS/TMS | Cache Redis 5 menit |
 | 👥 Manajemen Pengguna | CRUD + Hapus massal/Aktif-Nonaktifkan | Soft delete + konfirmasi ulang kata sandi |
 | | Impor massal Excel | Validasi per baris + laporan kesalahan |
 | 🔒 Peran & Izin | CRUD Peran + Pohon izin | Otorisasi RBAC granular method.path |
 | ⚙ Konfigurasi Sistem | CRUD pasangan kunci-nilai | Manajemen berkelompok |
 | 📋 Audit Operasi | Kueri log + deteksi asal klien | Identifikasi otomatis 8 platform |
 | 📁 Manajemen File | Unggah/Ekspor Excel/Ekspor PDF | Data sensitif otomatis di-masking |
-| 🛡 Perlindungan Keamanan | Pertahanan berlapis 18 lapis | XSS/Injeksi SQL/Path traversal/Injeksi perintah/CSRF/Rate limit/CSP... |
+| 🛡 Perlindungan Keamanan | 35 jenis detektor serangan + rantai middleware 7 lapis | XSS/Injeksi SQL/Path traversal/Injeksi perintah/CSRF/Rate limit/CSP... |
 | 🏥 Operasi | Health check/metrics/dokumen API/security.txt | Prometheus + OpenAPI 3.0 |
 | 📦 Manajemen Produk | Arsip produk/SKU/banyak spesifikasi/banyak satuan/kategori/merek/strategi harga | Pohon kategori bertingkat + konversi multi-satuan |
 | | Gudang & lokasi | Manajemen multi-gudang multi-lokasi |
 | | Arsip pemasok/pelanggan | Kontak/akun bank/plafon kredit |
 | 📥 Manajemen Pembelian | Permintaan→Pesanan→Penerimaan→Retur→Penyelesaian | Proses pembelian lengkap + persetujuan |
+| | Pengadaan sourcing (RFQ → penawaran → pemenang jadi pesanan) | Perbandingan harga multi-pemasok, penawaran wajib mencakup semua baris RFQ, pemenang dikonversi satu klik menjadi pesanan pembelian |
+| | Evaluasi pemasok | Skor total 0–100 dengan peringkat otomatis (A ≥ 90 / B ≥ 70 / C) + JSON dimensi penilaian + jejak penilai |
 | 📤 Manajemen Penjualan | Penawaran→Pesanan→Pengiriman→Retur→Penyelesaian | Penawaran jadi pesanan + margin kotor penjualan |
 | | Kontrol kredit pelanggan | Manajemen plafon/jangka waktu/pembekuan + intersepsi pesanan/pengiriman melebihi batas/lewat jatuh tempo |
 | 🏗 Manajemen Stok | Stok real-time/batch/nomor seri/transfer/stok opname/peringatan | Perhitungan biaya rata-rata tertimbang bergerak |
@@ -87,7 +104,7 @@ Aliran data antar modul bisnis:
 | Framework Backend | webman v2 (workerman) | Framework PHP resident proses berkinerja ultra-tinggi |
 | Versi PHP | 8.3+ | |
 | Database | MySQL 8.0+ | Prefiks tabel `erp_`, primary key BIGINT non-auto-increment |
-| Mesin pencari | Elasticsearch | Sinkronisasi & kueri melalui `webman-scout` |
+| Mesin pencari | Elasticsearch | `webman-scout` menyinkronkan indeks otomatis saat tulis/hapus (komponen opsional) |
 | Frontend Admin | Flutter 3.x | Sisi Web bergaya dashboard admin PC (`apps/flutter/`) |
 | Seluler | HarmonyOS ArkTS | Klien asli HarmonyOS (`apps/harmonyos/`), mendukung ponsel/tablet/2in1 |
 
@@ -106,61 +123,76 @@ Aliran data antar modul bisnis:
 | `erikwang2013/security-php` | Pemeriksaan alat keamanan |
 | `phpoffice/phpspreadsheet` | Ekspor Excel |
 | `barryvdh/laravel-dompdf` | Ekspor PDF (berbasis Dompdf) |
-| `hg/apidoc` | Pembuatan otomatis dokumen API | Dokumen antarmuka berbasis anotasi, dikelompokkan untuk sisi admin/klien |
+| `erikwang2013/apidoc-php` | Pembuatan otomatis dokumen API | Dokumen antarmuka berbasis anotasi, dikelompokkan untuk sisi admin/klien |
 
 ## Internasionalisasi
 
-Internasionalisasi | Deteksi otomatis header Accept-Language | Dukungan bilingual 中文/English
+| Lapisan | Lokasi kamus | Skala |
+|---|---------|------|
+| Pesan backend | `resource/translations/{bahasa}/` | 13 direktori bahasa: `zh_CN` 565 entri, 11 bahasa lainnya masing-masing 544, `en` 30 (cakupan: entri daun dari tiga berkas common/modules/validation) |
+| Admin Angular | `apps/angular/src/app/core/zh-*.ts` (kamus sumber `zh-en/`, 4 irisan) | Kamus sumber 1456 kunci × 11 bahasa baru (jumlah kunci tiap bahasa 1:1) |
+| Admin React | `apps/react/src/lib/i18n/zh*.ts` | Kamus sumber 1451 kunci × 11 bahasa baru |
 
 ## Struktur Proyek
 
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # Controller manajemen sistem (14)
-│   ├── api/v1/controller/      # API klien (versi dikontrol header API-Version)
-│   ├── controller/             # Controller modul bisnis (88)
-│   │   ├── product/            # Produk/kategori/merek/gudang/lokasi/pemasok/pelanggan (7)
-│   │   ├── purchase/           # Permintaan/order/penerimaan/retur/penyelesaian pembelian (5)
+│   ├── admin/controller/       # Controller manajemen sistem (16)
+│   ├── api/v1/controller/      # API klien (versi berada di path /api/v1, tanpa header versi)
+│   ├── controller/             # Controller modul bisnis (139, 23 domain)
+│   │   ├── product/            # Produk/kategori/merek/gudang/lokasi/pemasok/pelanggan (8)
+│   │   ├── purchase/           # Permintaan/order/penerimaan/retur/penyelesaian/RFQ/penawaran/evaluasi pemasok (8)
 │   │   ├── sales/              # Penawaran/order/pengiriman/retur/penyelesaian penjualan (5)
-│   │   ├── inventory/          # Stok/transaksi/transfer/stok opname/peringatan (5)
-│   │   ├── finance/            # Piutang-hutang/voucher/penerimaan-pembayaran/jurnal/buku besar/buku pembantu/laporan/aset/pajak/multi-mata uang/anggaran/pusat biaya & laba (20)
+│   │   ├── inventory/          # Stok/transaksi/transfer/opname/peringatan (6)
+│   │   ├── finance/            # Piutang-hutang/voucher/penerimaan-pembayaran/jurnal/buku besar/buku pembantu/laporan/aset/pajak/multi-mata uang/anggaran/pusat biaya & laba/nota/rekonsiliasi/faktur (28)
 │   │   ├── crm/                # Peluang/tindak lanjut/corong/kontak/kolam bersama/kontrak/penawaran/pemasaran/tiket/analisis (10)
-│   │   ├── workflow/           # Definisi alur kerja/submit persetujuan/setujui/tolak/tarik (2)
-│   │   ├── notification/       # Daftar notifikasi/dibaca/jumlah belum dibaca (1)
-│   │   ├── project/            # Proyek/tugas/catatan jam kerja (3)
-│   │   ├── hr/                 # Departemen/karyawan/posisi/absensi/cuti/gaji (5)
-│   │   ├── manufacturing/      # BOM/pesanan produksi/rute proses/stasiun kerja/MRP (5)
-│   │   ├── report/             # Template laporan/set data/eksekusi/jadwal terjadwal (2)
-│   │   ├── oms/                # Pesanan OMS/pemenuhan/RMA/kanal (4)
+│   │   ├── workflow/           # Definisi alur kerja/persetujuan/perancang proses (3)
+│   │   ├── notification/       # Notifikasi internal/pengiriman kanal (2)
+│   │   ├── project/            # Proyek/tugas/jam kerja/biaya (4)
+│   │   ├── hr/                 # Departemen/karyawan/posisi/absensi/cuti/gaji/rekrutmen/kinerja/jaminan sosial/pelatihan (9)
+│   │   ├── manufacturing/      # BOM/work order/rute proses/stasiun kerja/MRP/laporan kerja/subkontrak/biaya/kapasitas (13)
+│   │   ├── report/             # Template laporan/dataset/eksekusi/jadwal terjadwal (2)
+│   │   ├── print/              # Mesin template cetak (1)
+│   │   ├── retail/             # Member/nilai tersimpan/poin/voucher (2)
+│   │   ├── platform/           # Multi-tenant/bidang kustom (2)
+│   │   ├── quality/            # Kontrol kualitas (5)
+│   │   ├── eam/                # Peralatan/perawatan/repair/suku cadang/inspeksi (5)
+│   │   ├── bi/                 # Business intelligence (3)
+│   │   ├── dms/                # Manajemen dokumen (2)
+│   │   ├── oms/                # Order OMS/pemenuhan/RMA/kanal (4)
 │   │   ├── wms/                # Zona/lokasi/ASN/penerimaan/putaway/gelombang/picking/packing (8)
-│   │   └── tms/                # Kurir/layanan/tarif/resi/lacak/invoice biaya kirim (6)
-│   ├── service/                # Lapisan logika bisnis
-│   │   ├── inventory/          # In/out stok + perhitungan biaya rata-rata tertimbang bergerak + pre-alokasi/ATP stok
+│   │   ├── tms/                # Kurir/layanan/tarif/resi/lacak/invoice biaya kirim (6)
+│   │   └── open/               # Antarmuka platform terbuka (1)
+│   ├── service/                # Lapisan logika bisnis (64)
+│   │   ├── inventory/          # In/out stok + biaya rata-rata tertimbang bergerak + reservasi stok/ATP
 │   │   ├── finance/            # Pembuatan otomatis piutang-hutang + write-off
 │   │   ├── notification/       # Layanan pengiriman notifikasi
-│   │   ├── oms/                # Orkestrasi pesanan/alokasi stok/siklus hidup RMA
+│   │   ├── oms/                # Orkestrasi order/alokasi stok/siklus hidup RMA
 │   │   ├── wms/                # Proses inbound (ASN→penerimaan→putaway) / proses outbound (gelombang→picking→packing)
 │   │   └── tms/                # Manajemen resi/perbandingan tarif/lacak logistik
-│   ├── model/                  # 161 model Eloquent (dipakai bersama antar modul)
-│   ├── middleware/             # 12 middleware
+│   ├── model/                  # 224 model Eloquent (dipakai bersama antar modul)
+│   ├── middleware/             # 11 middleware (ApiVersion dihapus, versi lewat path)
 │   ├── common/                 # Layanan Hashids/Snowflake/Encryption
 │   └── queue/                  # Tugas antrean
 ├── apps/
+│   ├── angular/                # Admin Angular 22 (halaman resource berbasis config, ng serve :4200)
+│   ├── react/                  # Admin React 19 + Vite (Vite :5173)
 │   ├── flutter/                # Flutter lintas platform (Web PC + iOS/Android/macOS/Windows/Linux)
-│   └── harmonyos/              # Klien asli HarmonyOS
+│   └── harmonyos/              # Klien native HarmonyOS
 ├── config/                     # File konfigurasi (berisi komentar 中文)
-│   ├── plugin/hg/apidoc/        # Konfigurasi dokumen API
+│   ├── plugin/erikwang2013/apidoc/ # Konfigurasi dokumen API
 ├── database/
-│   ├── install.sql              # SQL instalasi lengkap (163 tabel + data seed)
+│   ├── install.sql              # SQL instalasi lengkap (227 tabel + data seed)
 │   ├── e2e-seed.sql             # Seed minimal E2E/CI
 │   └── backup/                 # Skrip backup/restore
 ├── docs/                       # Dokumentasi arsitektur, desain, keamanan, API
-├── tests/                      # Pengujian PHPUnit (20 file pengujian, 137 metode pengujian, 805 asersi)
+├── tests/                      # Pengujian PHPUnit (<!-- stats:test_files=111 --> file pengujian, <!-- stats:tests=1008 --> metode pengujian, <!-- stats:assertions=4768 --> asersi)
 ├── resource/
-│   └── translations/           # File terjemahan (zh_CN, en)
-│       ├── zh_CN/              # Terjemahan 中文 (127 kunci)
-│       └── en/                 # Terjemahan English (127 kunci)
+│   └── translations/           # Kamus pesan backend 13 bahasa (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
+│       ├── zh_CN/              # Terjemahan 中文 (565 entri)
+│       ├── en/                 # Inggris sebagai key, hanya 30 entri seperti nama aturan framework
+│       └── ja|ko|de|.../       # 11 bahasa lainnya masing-masing 544 entri (generator scripts/gen-be-locales.mjs)
 ├── public/                     # Entry point publik
 ├── runtime/                    # File runtime
 └── vendor/                     # Dependensi Composer
@@ -186,19 +218,19 @@ open-erp/
 
 ![Functional Modules](./diagrams/functional-modules-cn.svg)
 
-**19 domain bisnis besar, 163 tabel data, 121 controller**: Mencakup keamanan autentikasi, dasbor, manajemen sistem, perlindungan keamanan, pemantauan operasi, manajemen produk, pembelian, penjualan, stok, keuangan (14 submodul), CRM (10 submodul), alur persetujuan, notifikasi pesan, manajemen proyek, sumber daya manusia, manufaktur (MRP), laporan kustom, manajemen pesanan (OMS), manajemen gudang (WMS), manajemen transportasi (TMS), manajemen kualitas (QMS), manajemen peralatan (EAM), manajemen dokumen (DMS), papan BI.
+**23 domain bisnis besar, 227 tabel data, 159 controller**: Mencakup keamanan autentikasi, dasbor, manajemen sistem, perlindungan keamanan, pemantauan operasi, manajemen produk, pembelian, penjualan, stok, keuangan (14 submodul), CRM (10 submodul), alur persetujuan, notifikasi pesan, manajemen proyek, sumber daya manusia, manufaktur (MRP), laporan kustom, manajemen pesanan (OMS), manajemen gudang (WMS), manajemen transportasi (TMS), manajemen kualitas (QMS), manajemen peralatan (EAM), manajemen dokumen (DMS), papan BI.
 
 ### Siklus Hidup Permintaan
 
 ![Request Lifecycle](./diagrams/request-lifecycle-cn.svg)
 
-**Jalur permintaan lengkap dari klien ke database**: Klien (Flutter/HarmonyOS) → terminasi SSL Nginx → deteksi bahasa → penanganan CORS → filter keamanan → rate limit → validasi versi API → [Admin: autentikasi JWT → izin RBAC → log operasi] → Controller → Lapisan layanan → Lapisan model → Cache/database/mesin pencari → Respons JSON. Diagram mencakup dua jalur: cache hit dan cache miss.
+**Jalur permintaan lengkap dari klien ke database**: Klien (Angular/React/Flutter/HarmonyOS) → terminasi SSL Nginx → penanganan CORS → filter keamanan → rate limit → [Admin: autentikasi JWT → izin RBAC → log operasi] → Controller → Lapisan layanan → Lapisan model → Cache/database/mesin pencari → Respons JSON. Diagram mencakup dua jalur: cache hit dan cache miss. (Versi API kini menyatu di path URL, tanpa langkah validasi terpisah; bahasa ditentukan `app/common/I18n.php` dari `Accept-Language`.)
 
 ### Arsitektur Pertahanan Berlapis Keamanan
 
 ![Security Architecture](./diagrams/security-architecture-cn.svg)
 
-**Pertahanan berlapis 18 lapis**: L0 jaringan fisik → L1 keamanan transportasi → L2 header keamanan HTTP → L3 validasi permintaan → L4 sanitasi input → L5 proteksi CSRF → L6 rate limit → L7 autentikasi (JWT+Captcha+daftar hitam+kontrol sesi) → L8 otorisasi RBAC → L9 proteksi data (enkripsi transportasi + enkripsi penyimpanan + obfuskasi ID + masking data) → L10 pemantauan audit → L11 pengungkapan kepatuhan.
+**Panorama pertahanan berlapis (L0–L12)**: L0 jaringan fisik → L1 keamanan transportasi → L2 header keamanan HTTP → L3 validasi permintaan → L4 sanitasi input → L5 proteksi CSRF → L6 rate limit → L7 autentikasi (JWT+Captcha+daftar hitam+kontrol sesi) → L8 otorisasi RBAC → L9 proteksi data (enkripsi transportasi + enkripsi penyimpanan + obfuskasi ID + masking data) → L10 pemantauan audit → L11 pengungkapan kepatuhan → L12 observabilitas (tracing terdistribusi X-Trace-Id + metrik bisnis + audit yang diperkuat). Untuk 7 lapis middleware pada rantai yang dapat dieksekusi lihat `docs/SECURITY.md`; untuk 35 jenis detektor serangan lihat `config/plugin/erikwang2013/security-php/app.php`.
 
 ---
 
@@ -208,7 +240,20 @@ open-erp/
 - Composer 2.x
 - MySQL >= 8.0
 - Flutter >= 3.41 (hanya diperlukan untuk pengembangan frontend)
-- Elasticsearch >= 7.x (opsional, diperlukan untuk fitur pencarian)
+- Node >= 22.22.3 (hanya untuk pengembangan frontend admin Angular/React; batas bawah `engines` Angular CLI 22)
+- Elasticsearch >= 7.x atau OpenSearch >= 2.x (opsional, diperlukan untuk sinkronisasi indeks; tidak dipasang pun tidak memengaruhi baca/tulis bisnis)
+- DevEco Studio (opsional, hanya untuk build klien HarmonyOS; padanan baris perintah `hvigorw assembleHap`)
+
+## Domain Lokal Default
+
+Proyek secara default menggunakan domain lokal **`http://erp.test`** (alamat API default klien Flutter dan konvensi entri Web backend; klien HarmonyOS secara default mengarah ke host emulator `http://10.0.2.2:8788`).
+
+- **Akses lokal**: tambahkan satu baris `127.0.0.1 erp.test` ke hosts, lalu arahkan server Web/reverse proxy ke port backend (default `8788`, lihat `APP_HTTP_PORT` di `.env`, dapat diubah di wizard instalasi atau `.env`; WebSocket default `8282` sesuai `APP_WS_PORT`).
+- **Mengubah domain deployment**:
+  - Injeksi saat build Flutter: `flutter build web --dart-define=API_BASE_URL=https://domain-anda`
+  - HarmonyOS: edit `BASE_URL` di `apps/harmonyos/entry/src/main/ets/utils/Config.ets` (konstanta read-only, default `http://10.0.2.2:8788`)
+  - Debug emulator dapat sementara dikembalikan ke `http://10.0.2.2:8788` (mengakses host)
+- Semua versi API sudah diletakkan di path (`/admin/v1`, `/api/v1`, `/open/v1`), klien hanya perlu mengonfigurasi alamat akar.
 
 ## Memulai Cepat
 
@@ -230,14 +275,14 @@ Item konfigurasi kunci:
 
 | Variabel Lingkungan | Keterangan | Nilai Default |
 |---------|------|--------|
-| `JWT_SECRET` | Kunci penandatanganan JWT | `open-admin-jwt-secret-change-in-production` |
-| `HASHIDS_SALT` | Salt Hashids | `open-admin-hashids-salt-2026` |
-| `ENCRYPTION_KEY` | Kunci enkripsi API | Nilai default 32 byte |
+| `JWT_SECRET_KEY` | Kunci penandatanganan JWT | `.env.example` sudah berisi nilai acak 48 karakter |
+| `HASHIDS_SALT` | Salt Hashids | `.env.example` sudah berisi nilai acak 48 karakter |
+| `ENCRYPTION_KEY` | Kunci enkripsi API | `.env.example` sudah berisi nilai acak 32 karakter (syarat keras AES-256) |
 | `SNOWFLAKE_DATACENTER_ID` | ID pusat data (0-31) | `1` |
 | `SNOWFLAKE_WORKER_ID` | ID node pekerja (0-31) | `1` |
 | `SCOUT_HOSTS` | Alamat ES | `http://localhost:9200` |
 
-**Di lingkungan produksi, wajib mengubah semua kunci menjadi string acak.**
+**Hilang, kosong, atau masih berupa nilai placeholder lemah seperti `change-me`/`xxx` → langsung ditolak saat startup oleh `env_required` / `env_crypto_key` (tanpa degradasi diam-diam); `ENCRYPTION_KEY` punya pemeriksaan panjang terpisah (AES-256 wajib 32 byte, tidak sesuai = error saat startup).**
 
 ### 3. Inisialisasi Database
 
@@ -251,7 +296,7 @@ Setelah layanan dimulai, akses `http://localhost:8788/install` dan ikuti panduan
 mysql -u root -p nama_database < database/install.sql
 ```
 
-`install.sql` digabungkan dari 29 file migrasi, berisi struktur seluruh 163 tabel dan data seed.
+`install.sql` adalah baseline lengkap satu berkas, berisi struktur seluruh 227 tabel dan data seed.
 
 **Cara 3: Lingkungan Docker**
 
@@ -319,9 +364,55 @@ Setelah login, masuk ke setiap modul dari sidebar: dashboard, produk, pembelian,
 - Operasi sensitif seperti menghapus pengguna/peran memerlukan konfirmasi kata sandi saat ini di badan permintaan
 - Setelah logout, token langsung masuk daftar hitam
 
-### 4. Multibahasa
+### 4. Mesin Pencari Teks Lengkap (opsional)
 
-Peralihan otomatis melalui header `Accept-Language` (zh-CN / en), default bahasa Mandarin.
+Sinkronisasi indeks diimplementasikan melalui `erikwang2013/webman-scout` (setelah model ditambahi trait `Searchable`, indeks tersinkron otomatis saat penyimpanan). Mendukung dua mesin: **Elasticsearch** dan **OpenSearch**, pilih salah satu:
+
+**① Pasang klien yang sesuai (paket Composer dan driver harus cocok; salah pasang akan muncul error "Please install the ... client")**
+
+| Mesin | Klien Composer |
+|---|---|
+| Elasticsearch | `composer require elasticsearch/elasticsearch:^9.5` |
+| OpenSearch | `composer require opensearch-project/opensearch-php:^2.0` |
+
+**② Konfigurasi `.env` untuk memilih driver**
+
+```ini
+# elasticsearch | opensearch (sesuai klien yang dipasang di atas)
+SCOUT_DRIVER=opensearch
+# Prefiks nama indeks / shard / replika / ukuran blok batch / soft delete (berlaku untuk kedua mesin)
+SCOUT_PREFIX=erp_
+SCOUT_SHARDS=1
+SCOUT_REPLICAS=0
+SCOUT_CHUNK_SIZE=500
+SCOUT_SOFT_DELETE=true
+```
+
+**③ Konfigurasi koneksi (lokasi pembacaan kedua mesin berbeda)**
+
+- **Elasticsearch**: `SCOUT_HOSTS` di `.env` (multi-node dipisah koma, mis. `http://localhost:9200`), koneksi langsung tanpa autentikasi;
+- **OpenSearch**: image resmi mengaktifkan plugin keamanan secara default (TLS self-signed + autentikasi akun), melalui bagian `opensearch` di `config/scout.php`, tidak membaca `SCOUT_HOSTS`:
+
+  ```ini
+  # .env
+  SCOUT_OPENSEARCH_HOST=https://localhost:9200
+  SCOUT_OPENSEARCH_USERNAME=admin
+  SCOUT_OPENSEARCH_PASSWORD=kata-sandi-anda
+  ```
+
+  Bagian `opensearch` di `config/scout.php` secara default `ssl_verification=false` (sertifikat self-signed lokal); lingkungan produksi harus mengubahnya menjadi `true` dan mengonfigurasi sertifikat, jangan pernah memakai kata sandi lemah.
+
+> Proyek ini menyertakan Elasticsearch di Docker Compose (layanan `open-admin-es`): untuk deployment Docker pilih **driver elasticsearch + klien ES**; untuk kontainer OpenSearch eksternal/mandiri pilih **driver opensearch + opensearch-php**.
+>
+> **Cakupan indeks**: seluruh 224 model di `app/model/` membawa `Searchable`, penulisan/pengsoftdeletan langsung menyinkronkan indeks melalui `ModelObserver`; di antaranya AdminUser, Customer, Product, Supplier 4 model menyesuaikan `toSearchableArray()` dengan daftar field putih, model lainnya masuk indeks sesuai default (seluruh baris).
+>
+> **Mesin tidak tersedia tidak memengaruhi penulisan bisnis** (terbukti: setelah driver diarahkan ke port yang tidak dapat dijangkau, `save()` tetap berhasil, hanya menambah satu kali waktu tunggu timeout koneksi) —— mesin pencari adalah komponen opsional, tanpa dipasang pun seluruh bisnis tetap berjalan.
+>
+> **Catatan cakupan**: proyek ini saat ini hanya mengintegrasikan **sinkronisasi indeks** (penulisan/pengsoftdeletan langsung sinkron), belum menyediakan antarmuka atau UI pencarian; bila bisnis memerlukan pencarian, panggil API kueri Scout sendiri (filter halaman daftar panel admin memakai kueri `where` backend, tidak melewati mesin pencari).
+
+### 5. Multibahasa
+
+Peralihan otomatis melalui header `Accept-Language`, mendukung 13 bahasa (`zh` default, serta `en`/`ja`/`ko`/`de`/`fr`/`es`/`pt`/`ru`/`ar`/`hi`/`bn`/`id`); panel admin Angular/React juga memiliki ikon globe di bilah atas dan dropdown di pusat pribadi. Lihat [Internasionalisasi](#internasionalisasi).
 
 ## Konvensi Database
 
@@ -336,11 +427,11 @@ Peralihan otomatis melalui header `Accept-Language` (zh-CN / en), default bahasa
 
 ### Dokumen API
 
-Proyek menggunakan hg/apidoc untuk menghasilkan dokumen antarmuka secara otomatis, akses `/apidoc` untuk melihat.
+Proyek menggunakan erikwang2013/apidoc-php untuk menghasilkan dokumen antarmuka secara otomatis, akses `/apidoc` untuk melihat.
 
 - Antarmuka admin (Admin): 25 grup modul, berisi parameter permintaan lengkap dan struktur respons
 - Antarmuka klien (Service API): 3 grup autentikasi/kaptcha/produk
-- Semua antarmuka ditandai dengan header global seperti autentikasi JWT, versi API, internasionalisasi
+- Semua antarmuka ditandai dengan header global seperti autentikasi JWT, internasionalisasi
 
 ### Format Respons Terpadu
 
@@ -375,20 +466,16 @@ Header permintaan `Accept-Language` otomatis mengganti bahasa (zh-CN → 中文,
 ### Penanganan ID
 
 - **ID dalam permintaan/respons**: dienkripsi sebagai string menggunakan hashids, tidak mengekspos ID database asli
-- **Path antarmuka**: `GET /admin/user/{hashid}` — `{id}` dalam path adalah string hashid
+- **Path antarmuka**: `GET /admin/v1/user/{hashid}` — `{id}` dalam path adalah string hashid
 - **Penyimpanan database**: nilai asli BIGINT, dibuat oleh snowflake
 
 ### Versi API
 
-Versi API dikontrol melalui header permintaan, **tidak tercermin di URL**:
+Versi API berada di path URL (mis. `/admin/v1/*`, `/api/v1/*`, `/open/v1/*`), **klien tidak memerlukan header versi apa pun**:
 
-```http
-Path /api/v1
-```
-
-- Saat tidak membawa nomor versi, default menggunakan `v1`
-- Versi yang tidak didukung mengembalikan `400 Bad Request`
-- Menambahkan versi baru cukup membuat direktori `app/api/{version}/controller/`, middleware mendaftarkan versi baru
+- Antarmuka publik berversi langsung terikat ke kelas controller versi terkait (`app/api/v1/controller/`)
+- Menambah versi baru berarti mendaftarkan grup route `/api/vN` baru, controller disimpan per versi di `app/api/vN/`
+- Parsing dinamis `v()` lama dan middleware header `ApiVersion` keduanya sudah dihapus
 
 ### Rate Limit
 
@@ -403,17 +490,15 @@ Header respons berisi `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit
 Middleware global berlaku untuk semua permintaan, dieksekusi berurutan:
 
 ```
-Locale (deteksi otomatis Accept-Language, atur lingkungan bahasa)
-  → Cors (praproses CORS + header respons)
+Cors (praproses CORS + header respons)
   → SecurityFilter (batasan metode HTTP/ukuran body/validasi Content-Type/XSS/injeksi SQL/path traversal/injeksi perintah/intercept serangan CSRF)
   → RateLimit (rate limit sliding window Redis + penguncian akun: 5 kali gagal login dikunci 15 menit)
-  → ApiVersion (validasi versi API, grup route /api)
-  → AdminAuth (autentikasi JWT + daftar hitam, grup route /admin)
-  → AdminPermission (otorisasi RBAC, grup route /admin)
-  → OperationLog (pencatatan otomatis POST/PUT/DELETE, termasuk deteksi asal klien, grup route /admin)
+  → TracingId (ID pelacakan rantai)
 ```
 
-`/health`, `/api/docs` dan `/install` adalah endpoint publik, hanya melalui `Locale → Cors → SecurityFilter → RateLimit`.
+Middleware grup route: `/admin/v1` memakai `AdminAuth` (autentikasi JWT + daftar hitam) → `AdminPermission` (otorisasi RBAC) → `OperationLog` (pencatatan otomatis POST/PUT/DELETE, termasuk deteksi asal klien); `/open/v1` memakai `OpenApiAuth`; callback pelacakan TMS memakai `TrackingSignature`. Bahasa ditentukan `app/common/I18n.php` dari `Accept-Language`, bukan middleware.
+
+`/health`, `/api/docs` dan `/install` adalah endpoint publik, hanya melalui `Cors → SecurityFilter → RateLimit → TracingId`.
 
 Peningkatan keamanan:
 - **Penguncian akun**: 5 kali gagal login berturut-turut, akun otomatis dikunci 15 menit, selama periode tersebut login mengembalikan 429
@@ -425,12 +510,12 @@ Peningkatan keamanan:
 
 Login dan registrasi harus melalui validasi **captcha klik** terlebih dahulu:
 
-1. Klien meminta `POST /api/captcha/generate` untuk mendapatkan gambar captcha (base64 PNG) dan daftar target teks
+1. Klien meminta `POST /api/v1/captcha/generate` untuk mendapatkan gambar captcha (base64 PNG) dan daftar target teks
 2. Pengguna mengklik posisi teks yang sesuai di gambar secara berurutan, mengumpulkan koordinat klik `[{x, y}, ...]`
 3. Saat login, kirim `captcha_key` dan `clicks` bersamaan, server memvalidasi captcha terlebih dahulu lalu memvalidasi kredensial
 
 ```http
-POST /api/auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -449,14 +534,14 @@ Authorization: Bearer <token>
 
 Setelah login berhasil, mengembalikan access_token, berlaku 2 jam; juga mengembalikan refresh_token, berlaku 14 hari.
 
-Saat logout, Token dimasukkan ke daftar hitam Redis, tidak dapat digunakan kembali selama masa berlaku. POST /admin/profile/logout
+Saat logout, Token dimasukkan ke daftar hitam Redis, tidak dapat digunakan kembali selama masa berlaku. POST /admin/v1/profile/logout
 
 ### Konfirmasi Ulang Operasi Sensitif
 
 Operasi sensitif seperti menghapus pengguna, peran, izin memerlukan pengiriman `password` pengguna yang sedang login di body permintaan untuk konfirmasi ulang identitas:
 
 ```http
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 Content-Type: application/json
 Authorization: Bearer <token>
 
@@ -471,21 +556,76 @@ Daftar lengkap antarmuka (antarmuka publik / antarmuka admin / antarmuka bisnis 
 
 ## Keterangan Frontend
 
-### Flutter Admin (gaya PC)
+### Panel Admin Angular (`apps/angular/`)
+
+```bash
+cd apps/angular
+npm install
+npm run dev        # ng serve → http://localhost:4200 (port lihat ANGULAR_DEV_PORT di .env)
+npm run build      # tsc --noEmit + ng build，keluaran dist/angular
+npm run typecheck  # hanya pemeriksaan tipe
+```
+
+- **Syarat versi Node**: `engines` pada Angular CLI 22 mensyaratkan **Node ≥ 22.22.3** (versi lebih rendah akan langsung menolak `ng build`).
+  Bila Node lokal lebih rendah, tentukan sementara lewat npx (cara build paling umum di repositori ini, dipakai di luar CI):
+
+  ```bash
+  npx --yes --package=node@22.22.3 -- node node_modules/@angular/cli/bin/ng.js build
+  ```
+
+  Untuk lingkungan tanpa `npx` (seperti mesin verifikasi offline repositori ini), gunakan tsc bawaan CLI untuk pemeriksaan tipe:
+  `./node_modules/.bin/tsc --noEmit -p tsconfig.app.json`
+
+- **Proxy pengembangan**: `proxy.conf.js` telah mem-proxy `/admin` `/api` `/open` `/health` `/metrics` `/install`
+  ke `APP_HTTP_PORT` di `.env` (default 8788), sehingga saat `ng serve` **tidak perlu** mengonfigurasi alamat backend lagi
+- **Arsitektur**: digerakkan konfigurasi —— `src/app/config/domains/*.ts` mendeklarasikan menu dan halaman resource, **satu `ResourcePage`
+  merender seluruh halaman bisnis** (menambah halaman resource ≈ menambah satu objek konfigurasi, tidak perlu menulis komponen)
+- **Multibahasa**: 13 bahasa, kamus dimuat lambat per bahasa (masing-masing menjadi satu chunk); ikon globe di bilah atas untuk beralih
+- **Pemeriksaan mandiri** (semuanya tanpa browser, dijalankan langsung dengan `node`): `scripts/check-ng-tree-semantics.mjs`,
+  `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
+
+### Panel Admin React (`apps/react/`)
+
+```bash
+cd apps/react
+npm install
+npm run dev        # Vite → http://localhost:5173 (port lihat REACT_DEV_PORT di .env)
+npm run build      # tsc --noEmit + vite build，keluaran dist/
+```
+
+- Sama seperti Angular, **digerakkan konfigurasi**: `src/config/domains/*.ts` mendeklarasikan menu dan halaman resource,
+  mesin render di `src/components/ResourcePage.tsx`; token gaya di `src/styles/tokens.css`
+  (nilainya sama dengan `styles/theme.less` di sisi Angular)
+- Pintu masuk peralihan bahasa ada di halaman **pusat pribadi** (sisi Angular juga memiliki ikon globe di bilah atas)
+
+### Flutter Admin (gaya PC, `apps/flutter/`)
+
+```bash
+cd apps/flutter
+flutter pub get
+flutter run -d chrome    # Sisi Web (bergaya panel admin PC), juga mendukung iOS/Android/macOS/Windows/Linux
+flutter analyze          # Pemeriksaan statis (sama seperti CI)
+```
 
 - **Tata letak**: sidebar (dapat dilipat 64px/240px) + top bar + area konten, tiga breakpoint responsif (ponsel/tablet/desktop)
-- **Halaman**: login, dasbor, manajemen pengguna, izin peran, konfigurasi sistem, log operasi, pusat pribadi
+- **Cakupan**: 22 grup menu, 102 halaman dapat dirutekan, 119 file halaman (menu dideklarasikan di `lib/app/config/menu_config.dart`, halaman di `lib/app/pages/`) —— Dasbor, Manajemen Sistem, Manajemen Produk, Mitra Bisnis, Manajemen Pembelian, Manajemen Penjualan, Manajemen Stok, Manajemen Keuangan, CRM, Manajemen Pesanan, Manajemen Gudang, Manajemen Transportasi, Manufaktur, Manajemen Kualitas, Sumber Daya Manusia, Manajemen Proyek, Alur Persetujuan, Pusat Notifikasi, Laporan Kustom, Papan BI, Manajemen Peralatan, Manajemen Dokumen
 - **Manajemen status**: GetX (`ApiService` singleton + persistensi Token `AuthService`)
-- **Dasbor**: kartu statistik, grafik garis tren (fl_chart), pie chart, log operasi terbaru
-- **Ekspor**: ekspor Excel/PDF, PDF berisi informasi hak cipta yang tidak dapat dihapus
+- **Dasbor**: kartu statistik, garis tren penjualan, Top produk, distribusi status pesanan, umur piutang-hutang, ikhtisar stok (fl_chart)
+- **Ekspor**: ekspor Excel/PDF (`ExportService`), PDF berisi informasi hak cipta yang tidak dapat dihapus
 - **Operasi massal**: hapus massal multi-pilih, aktif/nonaktifkan massal
 - **Tema**: Material 3 tema terang/gelap ganda
+- **Internasionalisasi**: bilingual 中文/Inggris (template `lib/l10n/app_zh.arb`, dibuat dengan `flutter gen-l10n`)
 
-### Seluler HarmonyOS
+### Seluler HarmonyOS (`apps/harmonyos/`)
 
-- **Halaman**: login, dasbor, daftar/detail pengguna, pusat pribadi
+- **Build**: buka `apps/harmonyos/` dengan DevEco Studio; padanan baris perintah
+  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
+  (perlu HarmonyOS SDK + command-line-tools, keluaran `entry/build/default/outputs/default/*.hap`)
+- **Halaman**: registri `entry/src/main/resources/base/profile/main_pages.json` memuat **41 halaman terdaftar, semuanya dapat dijangkau dari UI** (login, dasbor, daftar/detail pengguna, izin peran, pusat pribadi, serta halaman subsistem produk/stok/pembelian/penjualan/OMS/WMS/TMS/produksi/HR/persetujuan); grid bisnis dasbor menyediakan **32 pintu masuk langsung**, halaman detail subsistem dibuka dari aksi baris daftar
 - **Autentikasi**: JWT Bearer + 401 refresh Token otomatis tanpa terasa, gagal refresh otomatis redirect ke halaman login
 - **Penyimpanan**: Token dikelola melalui AppStorage
+- **Internasionalisasi**: bilingual 中文/Inggris (`resources/base/element/string.json` dan `resources/en_US/element/string.json`)
+- **Jaringan**: `BASE_URL` adalah konstanta read-only yang didefinisikan di `entry/src/main/ets/utils/Config.ets`, nilai default `http://10.0.2.2:8788` (emulator ke mesin host); tempat mengubah alamat ada di file ini
 
 ## Konvensi Pengembangan
 
@@ -521,11 +661,25 @@ docker compose up -d
 
 ### CI/CD
 
-Pipeline integrasi berkelanjutan GitHub Actions: `.github/workflows/ci.yml`
+Pipeline integrasi berkelanjutan GitHub Actions: `.github/workflows/ci.yml`, lima job:
 
-- Pemeriksaan sintaks PHP (`php -l`)
-- Pengujian unit PHPUnit
-- Analisis statis Flutter (`flutter analyze`, sudah termasuk di CI, aktif — lihat job flutter di `.github/workflows/ci.yml`)
+| Job | Isi |
+|------|------|
+| `php` (matriks PHP 8.3 / 8.4, dengan layanan MySQL 8 + Redis 7) | verifikasi & audit keamanan composer → `php -l` → **PHPStan** (level 5 + baseline) → **PHP CS Fixer** (dry-run) → impor `install.sql` lengkap → **PHPUnit** (termasuk kasus integrasi) → pengumpulan cakupan pcov → ambang cakupan (keseluruhan ≥ 4%, `app/service` ≥ 10%, diperketat bertahap) |
+| `flutter` | `flutter analyze` + `flutter test` (`continue-on-error: true`, diperketat setelah lingkungan stabil) |
+| `docs` | `bash scripts/doc-stats.sh --check`: memeriksa anotasi `stats:key=value` di README dan docs cocok dengan hitungan nyata kode sumber (jumlah controller/service/model/tabel/tes, dll.), menyimpang berarti merah |
+| `e2e` | menjalankan layanan webman sungguhan → health check → smoke jalur inti HTTP + cakupan API admin |
+| `release` | setelah push ke `main` dan job di atas lulus, menandai tag sesuai patch+1 dan menerbitkan Release (lihat di bawah) |
+
+> Cakupan pemeriksaan statis frontend: CI saat ini hanya menjalankan Flutter; Angular/React (`tsc --noEmit`) dan HarmonyOS (`hvigorw assembleHap`) harus dijalankan secara lokal atau di job tambahan nanti.
+
+### Proses Rilis (Increment Versi)
+
+Setelah push ke `main` dan pemeriksaan php / docs / e2e semuanya lulus, job `release` di `ci.yml` otomatis membuat tag versi baru dengan **patch+1** dari tag terbaru lalu mendorongnya (`v1.1.4` → `v1.1.5`), kemudian membuat GitHub Release bernama sama (catatan perubahan dibuat otomatis oleh `--generate-notes`).
+
+- **Pemicu**: hanya push ke `main` (PR tidak memicu; push tag tidak cocok dengan filter cabang, sehingga alur kerja ini tidak terpicu secara rekursif)
+- **Idempoten**: bila tag atau release dengan nama sama sudah ada di remote (CI bersamaan / sudah ditandai manual), otomatis dilewati tanpa error
+- **Uji coba lokal**: `bash scripts/bump-version.sh --check` mencetak nomor versi berikutnya (hanya baca, tidak menulis ke remote)
 
 ### Backup Database
 

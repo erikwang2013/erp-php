@@ -35,8 +35,8 @@ digraph SystemArchitecture {
             fontsize=12; fontname="Arial Bold";
             style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
             node [fillcolor="#ffffff", color="#78909c", fontsize=10];
-            m1 [label="Locale\ni18n Detect"]; m2 [label="CORS\nCross-Origin"]; m3 [label="Security\nFilter"]; m4 [label="Rate\nLimit"]; m5 [label="API\nVersion"];
-            m1 -> m2 -> m3 -> m4 -> m5 [color="#90a4ae"];
+            m1 [label="CORS\nCross-Origin"]; m2 [label="Security\nFilter"]; m3 [label="Rate\nLimit"]; m4 [label="TracingId\nX-Trace-Id"];
+            m1 -> m2 -> m3 -> m4 [color="#90a4ae"];
         }
 
         subgraph cluster_auth {
@@ -53,7 +53,7 @@ digraph SystemArchitecture {
             fontsize=12; fontname="Arial Bold";
             style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
             node [fillcolor="#ffffff", color="#78909c", fontsize=10];
-            c1 [label="Admin Controllers\n(14 files)"]; c2 [label="Business Controllers\n(104)"]; c3 [label="Service Layer\n(24 services)"]; c4 [label="API Controllers v1\n(Captcha/Auth/Product)"];
+            c1 [label="Admin Controllers\n(16 files)"]; c2 [label="Business Controllers\n(139)"]; c3 [label="Service Layer\n(63 services)"]; c4 [label="API Controllers v1\n(Captcha/Auth/Product)"];
         }
 
         subgraph cluster_common {
@@ -64,7 +64,7 @@ digraph SystemArchitecture {
             s1 [label="Hashids\nID Encrypt"]; s2 [label="Snowflake\nID Generate"]; s3 [label="Encryption\nData Encrypt"]; s4 [label="I18n\nTranslate"];
         }
 
-        m5 -> m6; m7 -> c1; m7 -> c2; m7 -> c4;
+        m4 -> m6; m7 -> c1; m7 -> c2; m7 -> c4;
         c1 -> c3; c2 -> c3; c4 -> c3;
         c3 -> s1; c3 -> s2; c3 -> s3; c3 -> s4;
     }
@@ -74,7 +74,7 @@ digraph SystemArchitecture {
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
         node [shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f", fontsize=10];
-        d1 [label="MySQL 8.0\nPrimary Storage\n163 tables\nerp_ prefix"];
+        d1 [label="MySQL 8.0\nPrimary Storage\n227 tables\nerp_ prefix"];
         d2 [label="Redis 7\nCache/Session\nRate Limit\nBlacklist"];
         d3 [label="Elasticsearch 8.x\nFull-text Search\nerp_ index prefix"];
     }

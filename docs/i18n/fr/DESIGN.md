@@ -6,7 +6,7 @@
 
 ## 1. Architecture système
 
-> **Liste des fonctionnalités** : authentification (login/register/refresh/logout + verrouillage de compte + limitation des sessions) | tableau de bord (cache Redis) | CRUD utilisateurs + opérations en masse + import | rôles et permissions (RBAC) | configuration système | audit des opérations (8 plateformes source) | fichiers (upload + export + masquage) | sécurité (18 couches de défense) | exploitation (health/metrics/docs/Docker/CI)
+> **Liste des fonctionnalités** : authentification (login/register/refresh/logout + verrouillage de compte + limitation des sessions) | tableau de bord (cache Redis) | CRUD utilisateurs + opérations en masse + import | rôles et permissions (RBAC) | configuration système | audit des opérations (8 plateformes source) | fichiers (upload + export + masquage) | sécurité (défense en profondeur sur 7 couches de middlewares, panorama L0–L12 + 35 détecteurs d'attaque) | exploitation (health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -60,8 +60,8 @@
 | Couche | Répertoire | Responsabilités |
 |---|------|------|
 | Routage | `config/route.php` | Mappage URL→contrôleur, liaison des middlewares, routes versionnées |
-| Middlewares | `app/middleware/` | Interception des attaques (SecurityFilter), limitation de débit (RateLimit), authentification (JWT), autorisation (RBAC), version d'API (ApiVersion) |
-| Contrôleurs | 14 : Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (côté admin) + Captcha/Auth (API v1) | Validation des paramètres de requête, appel de la logique métier, formatage des réponses |
+| Middlewares | `app/middleware/` | CORS (Cors), interception des attaques (SecurityFilter), limitation de débit (RateLimit), traçage de bout en bout (TracingId), authentification (JWT), autorisation (RBAC), journal des opérations (OperationLog), signature des interfaces ouvertes (OpenApiAuth), soit 11 fichiers |
+| Contrôleurs | Côté admin 15 : Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (plus la classe de base `BaseController`) + API v1 3 : Captcha/Auth/Product | Validation des paramètres de requête, appel de la logique métier, formatage des réponses |
 | Services métier | `app/service/` | Logique métier réutilisable (réservé) |
 | Modèles de données | `app/model/` | Mapping ORM, relations, chiffrement/déchiffrement des champs |
 | Utilitaires communs | `app/common/` | Services Hashids, Snowflake, Encryption |
@@ -79,14 +79,17 @@ Route 匹配
   │
   ▼
 中间件链:
+  Cors ────────────────► 处理 OPTIONS 预检，注入 CORS 响应头
+  │
+  ▼
   SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
   ▼
   RateLimit ───────────► Redis 滑动窗口限流
   │ (失败返回 429 + Retry-After 头)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  TracingId ───────────► 生成 X-Trace-Id，贯穿全链路
+  │ (版本号置于 URL 路径 /admin/v1 /api/v1 /open/v1，无版本头中间件)
   ▼
   AdminAuth ──────────► JWT 验证，注入 $request->adminId
   │ (失败返回 401)
@@ -169,58 +172,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 Normes d'URL
 
 ```
-接口公开:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+接口公开:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 管理端:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 路由 des ressources:
-  GET    /admin/user          → 列表
-  POST   /admin/user          → 创建
-  GET    /admin/user/{hashid} → 详情
-  PUT    /admin/user/{hashid} → 更新
-  DELETE /admin/user/{hashid} → 删除（需密码确认）
+  GET    /admin/v1/user          → 列表
+  POST   /admin/v1/user          → 创建
+  GET    /admin/v1/user/{hashid} → 详情
+  PUT    /admin/v1/user/{hashid} → 更新
+  DELETE /admin/v1/user/{hashid} → 删除（需密码确认）
 
-配置 système:  /admin/config[/{hashid}]
-Journal d'opérations:  /admin/log
-Espace personnel:  /admin/profile[/password|/logout]
-Import:     /admin/import/users
-Upload:     /admin/upload
-En masse:   /admin/user/batch/{destroy|status}
+配置 système:  /admin/v1/config[/{hashid}]
+Journal d'opérations:  /admin/v1/log
+Espace personnel:  /admin/v1/profile[/password|/logout]
+Import:     /admin/v1/import/users
+Upload:     /admin/v1/upload
+En masse:   /admin/v1/user/batch/{destroy|status}
 Documentation:  /api/docs     (OpenAPI 3.0)
 Health:     /health
 ```
 
 ### 4.2 Stratégie de version d'API
 
-La version de l'API est contrôlée par l'en-tête de requête, **et n'apparaît pas dans le chemin d'URL** :
-
-```http
-API-Version: v1
-```
+La version de l'API est **placée dans le chemin d'URL**, sans en-tête de version : console d'administration `/admin/v1`, client `/api/v1`, interfaces ouvertes `/open/v1`.
 
 | Mécanisme | Description |
 |------|------|
-| Version par défaut | Sans en-tête `API-Version`, la version par défaut est `v1` |
-| Validation | Validée par le middleware `ApiVersion`, les versions non prises en charge renvoient 400 |
-| Routage | La fonction d'aide `v()` résout dynamiquement la classe de contrôleur selon la version |
+| Emplacement de la version | Chemin d'URL, par exemple `/api/v1/auth/login` |
+| Groupe de routes | `Route::group('/api/v1', …)` dans `config/route.php` lie directement les contrôleurs |
 | Répertoires | Les contrôleurs sont organisés par version : `app/api/{version}/controller/` |
+| Middleware d'en-tête de version | L'ancienne résolution dynamique `v()` et le middleware d'en-tête `ApiVersion` **ont été supprimés** |
 
 Exemple d'extension — ajout d'une API v2 :
 1. Créer `app/api/v2/controller/AuthController.php`
-2. Ajouter `'v2'` à la constante `SUPPORTED` du middleware `ApiVersion`
-3. Aucune modification de la définition des routes
+2. Enregistrer le groupe `Route::group('/api/v2', …)` dans `config/route.php` et y lier directement les contrôleurs
+3. Sans en-tête de version, le groupe de routes constitue lui-même la frontière de version
 
 ```bash
-# Utilisation de v1
-curl -H "API-Version: v1" /api/auth/login
+# Utiliser v1
+curl http://localhost:8788/api/v1/auth/login
 
-# Utilisation de v2
-curl -H "API-Version: v2" /api/auth/login
-
-# Sans en-tête, défaut v1
-curl /api/auth/login
+# Utiliser v2
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 Stratégie de limitation de débit
@@ -230,8 +226,8 @@ Algorithme de fenêtre glissante basé sur Redis Sorted Set, exécuté en script
 | Interface | Limite |
 |------|------|
 | Par défaut | 60 requêtes/minute/IP/route |
-| POST /api/auth/login | 10 requêtes/minute |
-| POST /api/auth/register | 5 requêtes/minute |
+| POST /api/v1/auth/login | 10 requêtes/minute |
+| POST /api/v1/auth/register | 5 requêtes/minute |
 
 En cas de dépassement, renvoie 429 ; les en-têtes de réponse contiennent X-RateLimit-Limit / Remaining / Reset / Retry-After.
 
@@ -260,12 +256,12 @@ En cas de dépassement, renvoie 429 ; les en-têtes de réponse contiennent X-Ra
 ```
 客户端                               服务端
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② 用户点击图中文字位置              │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -274,7 +270,7 @@ En cas de dépassement, renvoie 429 ; les en-têtes de réponse contiennent X-Ra
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -302,7 +298,7 @@ Les opérations sensibles comme la suppression d'utilisateurs, de rôles ou de p
 ```
 客户端                           服务端
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -398,7 +394,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 Export Excel
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
+请求: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() 查询数据 (limit 10000)
   → 脱敏敏感字段
   → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
@@ -408,7 +404,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.2 Export PDF
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
+请求: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
   → Dompdf 渲染 A4 横向
   → 写入 runtime/tmp/ → download 响应

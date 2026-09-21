@@ -16,7 +16,7 @@
 ### 1.2 기술 제약
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
 - 테이블 접두사 erp_, 기본키 BIGINT 비자동증가
-- API 버전은 요청 헤더 API-Version으로 제어
+- API 버전은 URL 경로에 위치(/admin/v1, /api/v1, /open/v1), 버전 요청 헤더 없음
 - JWT 인증 + RBAC 권한
 - 전역 함수에 \ 접두사 없음
 
@@ -50,7 +50,7 @@
 - 조회만 지원, 삭제/수정 불가
 
 ### 2.5 보안 방어
-- 18계층 심층 방어(상세는 SECURITY.md 참고)
+- 7계층 심층 방어(상세는 SECURITY.md 참고)
 - SecurityFilter: HTTP 메서드 제한 + XSS/SQL 인젝션/경로 탐색/명령 인젝션/CSRF 차단
 - RateLimit: Redis 슬라이딩 윈도우 속도 제한(Lua 원자화, 60회/분)
 - 클릭 캡차(로그인/가입 강제)

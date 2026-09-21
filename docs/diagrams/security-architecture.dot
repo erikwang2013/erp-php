@@ -9,7 +9,7 @@ digraph SecurityArchitecture {
 
     node [fontname="Arial", fontsize=9, style="filled,rounded", penwidth=1.5];
 
-    label="18-LAYER DEFENSE-IN-DEPTH SECURITY ARCHITECTURE";
+    label="DEFENSE-IN-DEPTH SECURITY ARCHITECTURE (L0–L12)";
     fontsize=18;
     fontname="Arial Bold";
     labelloc="t";

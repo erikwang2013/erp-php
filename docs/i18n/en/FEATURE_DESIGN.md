@@ -16,7 +16,7 @@ The Open ERP System (open-erp) is a full-stack enterprise resource planning syst
 ### 1.2 Technical Constraints
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
 - Table prefix erp_, BIGINT non-auto-increment primary keys
-- API versions controlled via the API-Version request header
+- API versions live in the URL path (/admin/v1, /api/v1, /open/v1), with no version request header
 - JWT authentication + RBAC permissions
 - Global functions without `\` prefix
 
@@ -50,7 +50,7 @@ The Open ERP System (open-erp) is a full-stack enterprise resource planning syst
 - Query-only; cannot be deleted or modified
 
 ### 2.5 Security Protection
-- 18-layer defense in depth (see SECURITY.md)
+- 7-layer defense in depth (see SECURITY.md)
 - SecurityFilter: HTTP method restriction + XSS/SQL injection/path traversal/command injection/CSRF blocking
 - RateLimit: Redis sliding-window rate limiting (Lua atomic, 60 times/minute)
 - Click captcha (mandatory on login/registration)
@@ -502,15 +502,18 @@ Quote → Order → Delivery → Settlement
 ## 16. Internationalization (i18n)
 
 ### 16.1 Automatic Language Detection
-- `Accept-Language` request header auto-detection (zh-CN → Chinese, en → English)
-- Locale middleware runs first in the global middleware chain
-- Fallback chain: current language → configured fallback_locale → original key returned
+- `Accept-Language` request header auto-detection (`getLocale()` in `app/common/I18n.php`): only the first language tag is taken (browsers already order tags by descending q value, q is not parsed), `_` is normalized to `-` and lowercased, and only the primary language subtag is kept
+- Mapping: `zh` (`zh-CN` / `zh-TW` / `zh_CN`) → `zh_CN`; the other primary languages such as `en` / `ja` / `de` are returned as-is (region suffixes ignored); no request header → `config('translation.locale')` (`zh_CN`)
+- 13 locales supported: `zh_CN` / `en` / `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id`
+- Fallback chain (`getTranslated()`): non-en request → request locale → `zh_CN` → `en` → return the key itself; **an en request never falls back to Chinese** (English is the key: only the `en` dictionary is consulted, and a miss returns the original key text)
+- No Locale middleware: the locale is resolved only when `I18n::trans()` is called (falling back to the configured value when there is no request context, e.g. CLI / queue / tests)
 
 ### 16.2 Translation Files
-- Directory: `resource/translations/{locale}/`
-- Common messages: `common.php` (41 keys: success/failure/create/update/delete/validation, etc.)
-- Module names: `modules.php` (69 keys: products/purchase/sales/inventory/finance/CRM, etc.)
-- Validation rules: `validation.php` (11 rules + 10 field labels)
+- Directory: `resource/translations/{locale}/` (13 locale directories, each containing `common.php` / `modules.php` / `validation.php`)
+- Common messages: `common.php` (428 keys: success/failure/create/update/delete/validation, etc.)
+- Module names: `modules.php` (84 keys: products/purchase/sales/inventory/finance/CRM, etc.)
+- Validation rules: `validation.php` (zh_CN 12 top-level keys / 21 leaf keys; the other locales 21 top-level keys / 30 leaf keys, including the `attributes` field-label block)
+- The `en` dictionary is nearly empty (`common.php` / `modules.php` both 0 entries; the keys in `validation.php` are framework rule names) — English is the key, so a lookup miss returns the key itself, which is the English text
 
 ### 16.3 Usage
 - In controllers: `$this->trans('created')`

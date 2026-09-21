@@ -620,6 +620,7 @@ CREATE TABLE IF NOT EXISTS `erp_purchase_return` (
     `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待出库 1=已出库',
     `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
     `returned_at` DATETIME DEFAULT NULL COMMENT '退货时间',
+    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除时间',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
@@ -3088,7 +3089,11 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000080, 31000000000000002, '采购申请', 'purchase.apply', 1, '', '', 1, NOW(), NOW()),
 (31000000000000090, 31000000000000002, '采购订单', 'purchase.order', 1, '', '', 2, NOW(), NOW()),
 (31000000000000100, 31000000000000002, '采购收货', 'purchase.receive', 1, '', '', 3, NOW(), NOW()),
-(31000000000000110, 31000000000000002, '采购退货', 'purchase.return', 1, '', '', 4, NOW(), NOW());
+(31000000000000110, 31000000000000002, '采购退货', 'purchase.return', 1, '', '', 4, NOW(), NOW()),
+(31000000000000165, 31000000000000002, '采购结算', 'purchase.settlement', 1, '', '', 5, NOW(), NOW()),
+(31000000000000166, 31000000000000002, '询价单', 'purchase.rfq', 1, '', '', 6, NOW(), NOW()),
+(31000000000000167, 31000000000000002, '供应商报价', 'purchase.rfq_quote', 1, '', '', 7, NOW(), NOW()),
+(31000000000000168, 31000000000000002, '供应商评估', 'purchase.assessment', 1, '', '', 8, NOW(), NOW());
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000130, 31000000000000003, '销售报价', 'sales.quotation', 1, '', '', 1, NOW(), NOW()),
 (31000000000000140, 31000000000000003, '销售订单', 'sales.order', 1, '', '', 2, NOW(), NOW()),
@@ -3214,7 +3219,19 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000112, 31000000000000110, '采购退货-创建', 'post.admin/purchase/return', 3, '', '', 14, NOW(), NOW()),
 (31000000000000113, 31000000000000110, '采购退货-更新', 'put.admin/purchase/return', 3, '', '', 15, NOW(), NOW()),
 (31000000000000114, 31000000000000110, '采购退货-删除', 'delete.admin/purchase/return', 3, '', '', 16, NOW(), NOW()),
-(31000000000000121, 31000000000000002, '采购结算', 'any.admin/purchase/settlement', 3, '', '', 17, NOW(), NOW());
+(31000000000000121, 31000000000000002, '采购结算', 'any.admin/purchase/settlement', 3, '', '', 17, NOW(), NOW()),
+(31000000000000169, 31000000000000166, '询价单-查看', 'get.admin/purchase/rfq', 3, '', '', 18, NOW(), NOW()),
+(31000000000000170, 31000000000000166, '询价单-创建', 'post.admin/purchase/rfq', 3, '', '', 19, NOW(), NOW()),
+(31000000000000172, 31000000000000166, '询价单-更新', 'put.admin/purchase/rfq', 3, '', '', 20, NOW(), NOW()),
+(31000000000000173, 31000000000000166, '询价单-删除', 'delete.admin/purchase/rfq', 3, '', '', 21, NOW(), NOW()),
+(31000000000000174, 31000000000000167, '供应商报价-查看', 'get.admin/purchase/rfq-quote', 3, '', '', 22, NOW(), NOW()),
+(31000000000000175, 31000000000000167, '供应商报价-创建', 'post.admin/purchase/rfq-quote', 3, '', '', 23, NOW(), NOW()),
+(31000000000000176, 31000000000000167, '供应商报价-更新', 'put.admin/purchase/rfq-quote', 3, '', '', 24, NOW(), NOW()),
+(31000000000000177, 31000000000000167, '供应商报价-删除', 'delete.admin/purchase/rfq-quote', 3, '', '', 25, NOW(), NOW()),
+(31000000000000178, 31000000000000168, '供应商评估-查看', 'get.admin/purchase/supplier-assessment', 3, '', '', 26, NOW(), NOW()),
+(31000000000000179, 31000000000000168, '供应商评估-创建', 'post.admin/purchase/supplier-assessment', 3, '', '', 27, NOW(), NOW()),
+(31000000000000180, 31000000000000168, '供应商评估-更新', 'put.admin/purchase/supplier-assessment', 3, '', '', 28, NOW(), NOW()),
+(31000000000000198, 31000000000000168, '供应商评估-删除', 'delete.admin/purchase/supplier-assessment', 3, '', '', 29, NOW(), NOW());
 
 -- ============================================================
 -- ERP模块API权限 (type=3) — 销售

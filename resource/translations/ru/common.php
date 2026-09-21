@@ -436,4 +436,6 @@ return [
     'Material dispatch number already exists' => 'Номер расхода материалов уже существует',
     'Audited material dispatches cannot be modified' => 'Проведённые расходы материалов нельзя изменить',
     'Audited material dispatches cannot be deleted' => 'Проведённые расходы материалов нельзя удалить',
+    'Number ":code" already exists; please refresh the page and use another one' => 'Номер ":code" уже существует; обновите страницу и используйте другой',
+    'Issued-out records cannot be deleted' => 'Записи о выдаче нельзя удалить',
 ];

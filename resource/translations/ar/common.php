@@ -436,4 +436,6 @@ return [
     'Material dispatch number already exists' => 'رقم إرسالية المواد موجود بالفعل',
     'Audited material dispatches cannot be modified' => 'لا يمكن تعديل إرساليات المواد المدققة',
     'Audited material dispatches cannot be deleted' => 'لا يمكن حذف إرساليات المواد المدققة',
+    'Number ":code" already exists; please refresh the page and use another one' => 'الرقم ":code" موجود بالفعل؛ يرجى تحديث الصفحة واستخدام رقم آخر',
+    'Issued-out records cannot be deleted' => 'لا يمكن حذف سجلات الصرف',
 ];

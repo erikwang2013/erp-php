@@ -4,7 +4,7 @@
 
 ## API-Dokumentation
 
-Das Projekt erzeugt mit [hg/apidoc](https://github.com/hg-code/apidoc) automatisch eine interaktive API-Dokumentation.
+Das Projekt erzeugt mit [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php) automatisch eine interaktive API-Dokumentation.
 
 **Zugriff:** Nach dem Start des Dienstes `http://localhost:8788/apidoc` aufrufen
 
@@ -18,17 +18,20 @@ Das Projekt erzeugt mit [hg/apidoc](https://github.com/hg-code/apidoc) automatis
 | Request-Header | Beschreibung |
 |--------|------|
 | `Authorization` | JWT-Bearer-Token |
-| `API-Version` | API-Versionsnummer (v1) |
-| `Accept-Language` | Sprache (zh-CN/en) |
+| `Accept-Language` | Sprache der Internationalisierung, unterstützt 13 Sprachen (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id), Standard `zh_CN` |
+
+> **Versionshinweis**: Versionspfade auf der gesamten Seite — Admin `/admin/v1`, Client `/api/v1`, offene Schnittstelle `/open/v1`;
+> die Versionsnummer liegt im URL-Pfad, **es gibt keinen Versions-Request-Header**; Ausnahmen: `GET /api/docs` (OpenAPI-Dokumentation) und
+> der Spediteur-Tracking-Callback `/api/tms/tracking/callback` (HMAC-Signatur, ohne Version).
 
 **Annotations-Konvention:** Alle Controller-Methoden verwenden die `@Apidoc\*`-Annotationsserie zur Kennzeichnung von Schnittstellenname, Beschreibung, URL, HTTP-Methode, Parametern und Antwortstruktur.
 
 ## 1. Überblick
 
-Das Open-Admin-Backend (open-admin) basiert auf webman v2 und bietet RESTful-JSON-APIs. Alle Admin-Schnittstellen erfordern JWT-Authentifizierung und RBAC-Berechtigungsprüfung; öffentliche Schnittstellen werden über den API-Versionsheader an versionierte Controller geroutet.
+Das Open-Admin-Backend (open-admin) basiert auf webman v2 und bietet RESTful-JSON-APIs. Pfadversionierung auf der gesamten Seite: Die Admin-Schnittstellen hängen unter `/admin/v1` (JWT-Authentifizierung + RBAC-Berechtigungsprüfung), die Client-Schnittstellen unter `/api/v1`, die offenen Schnittstellen unter `/open/v1`; die Versionsnummer geht in den URL-Pfad ein, es gibt keinen Versions-Request-Header.
 
 - **Basis-URL**: `http://localhost:8788`
-- **API-Version**: über den Request-Header `API-Version: v1` gesteuert (ohne Angabe Standard v1)
+- **Versionierung**: Pfadversionierung auf der gesamten Seite, die Versionsnummer liegt im URL-Pfad (Admin `/admin/v1`, Client `/api/v1`, offene Schnittstelle `/open/v1`), kein Versions-Request-Header
 
 > **Endpunktübersicht**: Authentifizierung(5) | Dashboard(1) | Benutzer(7) | Rollen(4) | Berechtigungen(4) | Konfiguration(4) | Protokolle(1) | persönlicher Bereich(3) | Import/Export(3) | Upload(1) | Betrieb(4: health/metrics/docs/security.txt) | insgesamt 37 Endpunkte
 - **Authentifizierung**: `Authorization: Bearer <token>` (JWT)
@@ -37,22 +40,35 @@ Das Open-Admin-Backend (open-admin) basiert auf webman v2 und bietet RESTful-JSO
 
 ### Internationalisierung
 
-Die API wechselt die Sprache automatisch über den Request-Header `Accept-Language`:
+Die API wechselt die Sprache automatisch über den Request-Header `Accept-Language` und unterstützt 13 Sprachen: `zh_CN` (Chinesisch, Standard), `en` (English), `ja` (日本語), `ko` (한국어), `de` (Deutsch), `fr` (Français), `es` (Español), `pt` (Português), `ru` (Русский), `ar` (العربية), `hi` (हिन्दी), `bn` (বাংলা), `id` (Bahasa Indonesia).
 
-| Header-Wert | Sprache |
+| Erstes Sprach-Tag im Request-Header | Aufgelöst zu |
 |---------|------|
-| `zh-CN`, `zh` | Chinesisch (Standard) |
-| `en`, `en-US` | English |
+| `zh`, `zh-CN`, `zh-TW` | `zh_CN` Chinesisch (Standard) |
+| `en`, `en-US` | `en` English |
+| `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id` | die jeweilige Sprache (Regionssuffixe werden ignoriert, z. B. `de-DE` → `de`) |
+
+Auflösungsregeln (`app/common/I18n.php` `getLocale()`):
+
+- Der Browser sortiert die Tags nach absteigender Sprachpräferenz; **nur das erste Tag** (der Teil vor dem Komma) wird verwendet, q-Werte werden nicht ausgewertet;
+- Regions-Subtags werden ignoriert, nur das Hauptsprachen-Subtag bleibt erhalten (`zh-CN` → `zh`, `de-DE` → `de`);
+- `zh*` wird immer auf `zh_CN` abgebildet; alle anderen Hauptsprachen-Subtags werden unverändert verwendet;
+- Fehlt der Request-Header oder ist er leer, gilt `config('translation.locale')` = `zh_CN`.
+
+Rückfallkette (`trans()`): angeforderte Sprache → `zh_CN` → `en` → der Schlüssel selbst wird zurückgegeben (Englisch ist der Schlüssel, der Schlüssel ist also der englische Originaltext). **`en` nimmt nicht an der Rückfallkette teil** — bei einer Anfrage mit `en` wird nur das `en`-Wörterbuch durchsucht, ein Nichttreffer gibt direkt den Schlüssel (englischer Originaltext) zurück und fällt nicht auf Chinesisch zurück.
 
 ```bash
 # Englische Antwort
-curl -H "Accept-Language: en" http://localhost:8788/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
+
+# Japanische Antwort
+curl -H "Accept-Language: ja" http://localhost:8788/admin/v1/product
 
 # Chinesische Antwort (Standard)
-curl http://localhost:8788/admin/product
+curl http://localhost:8788/admin/v1/product
 ```
 
-Das Feld `message` in der Antwort wird in der entsprechenden Sprache zurückgegeben.
+Das Feld `message` in der Antwort wird in der entsprechenden Sprache zurückgegeben. Die Wörterbuchdateien liegen unter `resource/translations/<locale>/{common,modules,validation}.php`.
 
 ### Anforderungsregeln
 
@@ -81,7 +97,7 @@ Das Feld `message` in der Antwort wird in der entsprechenden Sprache zurückgege
 
 ## 3. Öffentliche Endpunkte
 
-Alle öffentlichen Endpunkte hängen unter der Gruppe `/api` und werden über die `ApiVersion`-Middleware anhand des `API-Version`-Headers an die passenden versionierten Controller verteilt (z. B. `app\api\v1\controller\AuthController`).
+Alle öffentlichen Endpunkte hängen unter der Gruppe `/api/v1` (die Versionsnummer geht in den URL-Pfad ein, es gibt weder einen Versions-Request-Header noch eine Versions-Middleware), die Controller sind direkt an das Verzeichnis gebunden (z. B. `app\api\v1\controller\AuthController`).
 
 ### 3.1 Health-Check
 
@@ -124,11 +140,11 @@ GET /api/docs
 ### 3.3 Klick-Captcha erzeugen
 
 ```
-POST /api/captcha/generate
+POST /api/v1/captcha/generate
 ```
 
 - **Authentifizierung**: keine
-- **Request-Header**: `API-Version: v1` (erforderlich)
+- **Version**: URL-Pfad enthält /api/v1, kein Versions-Request-Header
 - **Rate-Limit**: globaler Standard (60/Minute)
 
 **Request-Body**:
@@ -170,11 +186,11 @@ POST /api/captcha/generate
 ### 3.4 Klick-Captcha prüfen
 
 ```
-POST /api/captcha/verify
+POST /api/v1/captcha/verify
 ```
 
 - **Authentifizierung**: keine
-- **Request-Header**: `API-Version: v1` (erforderlich)
+- **Version**: URL-Pfad enthält /api/v1, kein Versions-Request-Header
 - **Rate-Limit**: globaler Standard (60/Minute)
 
 **Request-Body**:
@@ -207,11 +223,11 @@ Bei Validierungsfehler ist `code` 422, `message` ist `"验证失败，请重试"
 ### 3.5 Login
 
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 - **Authentifizierung**: keine
-- **Request-Header**: `API-Version: v1` (erforderlich)
+- **Version**: URL-Pfad enthält /api/v1, kein Versions-Request-Header
 - **Rate-Limit**: 10/Minute (nach IP + Pfad)
 
 **Request-Body**:
@@ -271,11 +287,11 @@ POST /api/auth/login
 ### 3.6 Registrierung
 
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 ```
 
 - **Authentifizierung**: keine
-- **Request-Header**: `API-Version: v1` (erforderlich)
+- **Version**: URL-Pfad enthält /api/v1, kein Versions-Request-Header
 - **Rate-Limit**: 5/Minute (nach IP + Pfad)
 - **Schalter**: Standardmäßig deaktiviert (`REGISTRATION_ENABLED=0`); bei deaktiviert liefert die Schnittstelle 403; muss in `.env` explizit aktiviert werden (`REGISTRATION_ENABLED=1`)
 
@@ -324,11 +340,11 @@ Nach erfolgreicher Registrierung werden direkt JWT-Tokens zurückgegeben; der Be
 ### 3.7 Token-Refresh
 
 ```
-POST /api/auth/refresh
+POST /api/v1/auth/refresh
 ```
 
 - **Authentifizierung**: keine
-- **Request-Header**: `API-Version: v1` (erforderlich)
+- **Version**: URL-Pfad enthält /api/v1, kein Versions-Request-Header
 - **Rate-Limit**: globaler Standard (60/Minute)
 
 **Request-Body**:
@@ -406,12 +422,12 @@ openadmin_memory_usage_bytes 18874368
 
 ## 4. Dashboard
 
-Alle Admin-Schnittstellen hängen unter der Gruppe `/admin` und durchlaufen die drei Middlewares `AdminAuth` (JWT-Authentifizierung), `AdminPermission` (RBAC-Berechtigungsprüfung) und `OperationLog` (Betriebsprotokoll).
+Alle Admin-Schnittstellen hängen unter der Gruppe `/admin/v1` und durchlaufen die drei Middlewares `AdminAuth` (JWT-Authentifizierung), `AdminPermission` (RBAC-Berechtigungsprüfung) und `OperationLog` (Betriebsprotokoll).
 
 ### 4.1 Dashboard-Daten
 
 ```
-GET /admin/dashboard
+GET /admin/v1/dashboard
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -468,7 +484,7 @@ GET /admin/dashboard
         "id": "hashid...",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "user_name": "admin",
         "created_at": "2026-05-21 10:30:00"
@@ -498,7 +514,7 @@ Alle von der Benutzerverwaltung zurückgegebenen `id` sind hashid-verschlüsselt
 ### 5.1 Benutzerliste
 
 ```
-GET /admin/user
+GET /admin/v1/user
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -551,7 +567,7 @@ GET /admin/user
 ### 5.2 Benutzer erstellen
 
 ```
-POST /admin/user
+POST /admin/v1/user
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -601,7 +617,7 @@ POST /admin/user
 ### 5.3 Benutzerdetails
 
 ```
-GET /admin/user/{id}
+GET /admin/v1/user/{id}
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -635,7 +651,7 @@ In der Detail-Schnittstelle werden `phone` und `email` im Klartext zurückgegebe
 ### 5.4 Benutzer aktualisieren
 
 ```
-PUT /admin/user/{id}
+PUT /admin/v1/user/{id}
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -683,7 +699,7 @@ PUT /admin/user/{id}
 ### 5.5 Benutzer löschen
 
 ```
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -720,7 +736,7 @@ Es wird ein Soft Delete ausgeführt (Eloquent SoftDeletes); die Daten werden mit
 ### 5.6 Benutzer massenweise löschen
 
 ```
-POST /admin/user/batch/destroy
+POST /admin/v1/user/batch/destroy
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -760,7 +776,7 @@ Es wird ein Soft Delete ausgeführt; `data.count` ist die tatsächlich gelöscht
 ### 5.7 Benutzer massenweise aktivieren/deaktivieren
 
 ```
-POST /admin/user/batch/status
+POST /admin/v1/user/batch/status
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -800,7 +816,7 @@ message ändert sich dynamisch je nach status-Wert zu `"批量启用成功"` ode
 ### 6.1 Rollenliste
 
 ```
-GET /admin/role
+GET /admin/v1/role
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -848,7 +864,7 @@ GET /admin/role
 ### 6.2 Rolle erstellen
 
 ```
-POST /admin/role
+POST /admin/v1/role
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -890,7 +906,7 @@ POST /admin/role
 ### 6.3 Rolle aktualisieren
 
 ```
-PUT /admin/role/{id}
+PUT /admin/v1/role/{id}
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -930,7 +946,7 @@ PUT /admin/role/{id}
 ### 6.4 Rolle löschen
 
 ```
-DELETE /admin/role/{id}
+DELETE /admin/v1/role/{id}
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -961,7 +977,7 @@ Berechtigungen sind baumförmig strukturiert (parent_id-Selbstreferenz) und in d
 ### 7.1 Berechtigungsbaum
 
 ```
-GET /admin/permission
+GET /admin/v1/permission
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -976,7 +992,7 @@ GET /admin/permission
       "id": "p1p2p3p4",
       "parent_id": "0",
       "name": "用户管理",
-      "slug": "/admin/user",
+      "slug": "/admin/v1/user",
       "type": 1,
       "icon": "people",
       "path": "/user",
@@ -987,7 +1003,7 @@ GET /admin/permission
           "id": "p5p6p7p8",
           "parent_id": "p1p2p3p4",
           "name": "用户列表",
-          "slug": "/admin/user/index",
+          "slug": "/admin/v1/user/index",
           "type": 2,
           "icon": "",
           "path": "/user/index",
@@ -1014,7 +1030,7 @@ GET /admin/permission
 ### 7.2 Berechtigung erstellen
 
 ```
-POST /admin/permission
+POST /admin/v1/permission
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1024,7 +1040,7 @@ POST /admin/permission
 {
   "parent_id": 0,
   "name": "系统设置",
-  "slug": "/admin/config",
+  "slug": "/admin/v1/config",
   "type": 1,
   "icon": "settings",
   "path": "/config",
@@ -1051,7 +1067,7 @@ POST /admin/permission
     "id": "p9p0a1b2",
     "parent_id": "0",
     "name": "系统设置",
-    "slug": "/admin/config",
+    "slug": "/admin/v1/config",
     "type": 1,
     "icon": "settings",
     "path": "/config",
@@ -1063,7 +1079,7 @@ POST /admin/permission
 ### 7.3 Berechtigung aktualisieren
 
 ```
-PUT /admin/permission/{id}
+PUT /admin/v1/permission/{id}
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1088,7 +1104,7 @@ PUT /admin/permission/{id}
 ### 7.4 Berechtigung löschen
 
 ```
-DELETE /admin/permission/{id}
+DELETE /admin/v1/permission/{id}
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1119,7 +1135,7 @@ Systemkonfigurationen sind über die Kombination `group` + `key` eindeutig.
 ### 8.1 Konfigurationsliste
 
 ```
-GET /admin/config
+GET /admin/v1/config
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1168,7 +1184,7 @@ GET /admin/config
 ### 8.2 Konfiguration erstellen
 
 ```
-POST /admin/config
+POST /admin/v1/config
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1214,7 +1230,7 @@ POST /admin/config
 ### 8.3 Konfiguration aktualisieren
 
 ```
-PUT /admin/config/{id}
+PUT /admin/v1/config/{id}
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1237,7 +1253,7 @@ PUT /admin/config/{id}
 ### 8.4 Konfiguration löschen
 
 ```
-DELETE /admin/config/{id}
+DELETE /admin/v1/config/{id}
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1259,7 +1275,7 @@ Das Betriebsprotokoll ist eine reine Lese-Schnittstelle, die von der `OperationL
 ### 9.1 Betriebsprotokoll-Liste
 
 ```
-GET /admin/log
+GET /admin/v1/log
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1288,7 +1304,7 @@ GET /admin/log
         "user_name": "admin",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "source": "web",
         "input": "{\"username\":\"admin\"}",
@@ -1321,7 +1337,7 @@ Die Schnittstellen des persönlichen Bereichs benötigen nur JWT-Authentifizieru
 ### 10.1 Persönliche Daten aktualisieren
 
 ```
-PUT /admin/profile
+PUT /admin/v1/profile
 ```
 
 - **Authentifizierung**: JWT
@@ -1363,7 +1379,7 @@ In der Antwort werden `phone` und `email` im Klartext zurückgegeben; `password`
 ### 10.2 Passwort ändern
 
 ```
-PUT /admin/profile/password
+PUT /admin/v1/profile/password
 ```
 
 - **Authentifizierung**: JWT
@@ -1398,7 +1414,7 @@ PUT /admin/profile/password
 ### 10.3 Logout
 
 ```
-POST /admin/profile/logout
+POST /admin/v1/profile/logout
 ```
 
 - **Authentifizierung**: JWT
@@ -1423,7 +1439,7 @@ Ohne Token wird 401 zurückgegeben. Bei abgelaufenem/ungültigem Token (Dekodier
 ### 11.1 Excel exportieren
 
 ```
-POST /admin/export/excel
+POST /admin/v1/export/excel
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1462,7 +1478,7 @@ Sensible Felder `phone`, `email`, `id_card` werden beim Export automatisch maski
 ### 11.2 PDF exportieren
 
 ```
-POST /admin/export/pdf
+POST /admin/v1/export/pdf
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1509,7 +1525,7 @@ Die PDF-Vorlage enthält Copyright-Informationen und den Export-Zeitstempel.
 ### 11.3 Benutzer importieren (Excel)
 
 ```
-POST /admin/import/users
+POST /admin/v1/import/users
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1561,7 +1577,7 @@ Zeile 1 enthält die Spaltenüberschriften (Groß-/Kleinschreibung egal), ab Zei
 ## 12. Datei-Upload
 
 ```
-POST /admin/upload
+POST /admin/v1/upload
 ```
 
 - **Authentifizierung**: JWT + RBAC
@@ -1610,8 +1626,8 @@ Alle Schnittstellen (in der globalen Middleware-Schicht injiziert) enthalten fol
 
 Rate-Limit-Details:
 - Standardmäßige globale Begrenzung: 60/Minute / IP+Pfad
-- Login-Endpunkt `/api/auth/login`: 10/Minute
-- Registrierungs-Endpunkt `/api/auth/register`: 5/Minute
+- Login-Endpunkt `/api/v1/auth/login`: 10/Minute
+- Registrierungs-Endpunkt `/api/v1/auth/register`: 5/Minute
 - Verwendet den atomaren Redis-Sliding-Window-Algorithmus (Lua ZSET), vermeidet TOCTOU-Races
 - Bei Redis-Ausfall fail open (Anfragen durchlassen), blockiert keine Anfragen
 
@@ -1620,15 +1636,15 @@ Rate-Limit-Details:
 Vollständige Authentifizierungssequenz:
 
 ```
-1. 客户端请求 POST /api/captcha/generate
-   (请求头: API-Version: v1)
+1. 客户端请求 POST /api/v1/captcha/generate
+   (URL-Pfad enthält /api/v1, kein Versions-Request-Header)
     ↓
    服务端返回: key + base64 图片 + 点击目标提示
    
 2. 用户点击图片目标位置，前/客户端收集点击坐标
    
-3. 客户端请求 POST /api/auth/login
-   (请求头: API-Version: v1, Content-Type: application/json)
+3. 客户端请求 POST /api/v1/auth/login
+   (URL-Pfad enthält /api/v1, Content-Type: application/json)
    请求体: { username, password, captcha_key, clicks: [{x,y}, ...] }
     ↓
    服务端:
@@ -1660,7 +1676,7 @@ Vollständige Authentifizierungssequenz:
    Response + X-RateLimit-* 头
 
 5. Access Token 过期前刷新
-   客户端请求 POST /api/auth/refresh
+   客户端请求 POST /api/v1/auth/refresh
    请求体: { refresh_token: "..." }
     ↓
    服务端解码 refresh_token → 签发新 access + refresh
@@ -1668,7 +1684,7 @@ Vollständige Authentifizierungssequenz:
    客户端更新本地令牌
 
 6. 登出
-   客户端请求 POST /admin/profile/logout
+   客户端请求 POST /admin/v1/profile/logout
    请求头: Authorization: Bearer <access_token>
     ↓
    服务端:
@@ -1722,7 +1738,7 @@ Für Produktionsumgebungen siehe `docs/nginx-security.conf` zur Härtung des Rev
 
 ## 16. Geschäfts-API-Endpunkte (ERP)
 
-Alle Geschäftsendpunkte hängen unter der Gruppe `/admin` und durchlaufen die drei Middlewares `AdminAuth` (JWT-Authentifizierung), `AdminPermission` (RBAC-Berechtigungsprüfung) und `OperationLog` (Betriebsprotokoll).
+Alle Geschäftsendpunkte hängen unter der Gruppe `/admin/v1` und durchlaufen die drei Middlewares `AdminAuth` (JWT-Authentifizierung), `AdminPermission` (RBAC-Berechtigungsprüfung) und `OperationLog` (Betriebsprotokoll).
 
 > Endpunktanzahl: Artikel(17) | Einkauf(8) | Vertrieb(6) | Bestand(6) | Finanzen(17) | CRM(13) | Workflow(6) | Benachrichtigungen(4) | Projekte(3) | HR(9) | Produktion(7) | Berichte(4) | Dashboard(3) | Client(2) | insgesamt 105 Endpunkte
 
@@ -1732,304 +1748,304 @@ Endpunkte mit modulübergreifender Verknüpfung sind mit 🔗 markiert.
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/product | Artikelliste (Seitennummerierung + Suche + Kategorie-/Statusfilter) |
-| POST | /admin/product | Artikel erstellen (inkl. SKU und Preise) |
-| GET | /admin/product/{id} | Artikeldetails (inkl. Kategorie/Marke/SKU/Preise/Einheiten) |
-| PUT | /admin/product/{id} | Artikel aktualisieren |
-| DELETE | /admin/product/{id} | Artikel löschen (Soft Delete, Passwort-Bestätigung erforderlich) |
-| GET | /admin/category | Kategorienliste (Baumstruktur) |
-| POST | /admin/category | Kategorie erstellen |
-| PUT | /admin/category/{id} | Kategorie aktualisieren |
-| DELETE | /admin/category/{id} | Kategorie löschen |
-| GET | /admin/brand | Markenliste |
-| POST | /admin/brand | Marke erstellen |
-| GET | /admin/warehouse | Lagerliste |
-| POST | /admin/warehouse | Lager erstellen |
-| GET | /admin/location | Lagerplatzliste |
-| GET | /admin/warehouse/{id}/locations | Lagerplätze eines Lagers |
-| GET | /admin/supplier | Lieferantenliste (ES-Suche) |
-| POST | /admin/supplier | Lieferant erstellen |
-| GET | /admin/customer | Kundenliste (ES-Suche) |
-| POST | /admin/customer | Kunde erstellen |
+| GET | /admin/v1/product | Artikelliste (Seitennummerierung + Suche + Kategorie-/Statusfilter) |
+| POST | /admin/v1/product | Artikel erstellen (inkl. SKU und Preise) |
+| GET | /admin/v1/product/{id} | Artikeldetails (inkl. Kategorie/Marke/SKU/Preise/Einheiten) |
+| PUT | /admin/v1/product/{id} | Artikel aktualisieren |
+| DELETE | /admin/v1/product/{id} | Artikel löschen (Soft Delete, Passwort-Bestätigung erforderlich) |
+| GET | /admin/v1/category | Kategorienliste (Baumstruktur) |
+| POST | /admin/v1/category | Kategorie erstellen |
+| PUT | /admin/v1/category/{id} | Kategorie aktualisieren |
+| DELETE | /admin/v1/category/{id} | Kategorie löschen |
+| GET | /admin/v1/brand | Markenliste |
+| POST | /admin/v1/brand | Marke erstellen |
+| GET | /admin/v1/warehouse | Lagerliste |
+| POST | /admin/v1/warehouse | Lager erstellen |
+| GET | /admin/v1/location | Lagerplatzliste |
+| GET | /admin/v1/warehouse/{id}/locations | Lagerplätze eines Lagers |
+| GET | /admin/v1/supplier | Lieferantenliste (ES-Suche) |
+| POST | /admin/v1/supplier | Lieferant erstellen |
+| GET | /admin/v1/customer | Kundenliste (ES-Suche) |
+| POST | /admin/v1/customer | Kunde erstellen |
 
 ### 16.2 Einkaufsverwaltung (Purchase)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/purchase/apply | Liste der Einkaufsanfragen |
-| POST | /admin/purchase/apply | Einkaufsanfrage erstellen |
-| GET | /admin/purchase/order | Liste der Einkaufsbestellungen |
-| POST | /admin/purchase/order | Einkaufsbestellung erstellen |
-| 🔗 POST | /admin/purchase/receive | Wareneingang erstellen (automatische Einlagerung + Erzeugung von Verbindlichkeiten) |
-| GET | /admin/purchase/receive | Liste der Wareneingänge |
-| GET | /admin/purchase/receive/{id} | Details des Wareneingangs |
-| POST | /admin/purchase/return | Retoure erstellen |
-| GET | /admin/purchase/settlement | Liste der Lieferantenabrechnungen |
+| GET | /admin/v1/purchase/apply | Liste der Einkaufsanfragen |
+| POST | /admin/v1/purchase/apply | Einkaufsanfrage erstellen |
+| GET | /admin/v1/purchase/order | Liste der Einkaufsbestellungen |
+| POST | /admin/v1/purchase/order | Einkaufsbestellung erstellen |
+| 🔗 POST | /admin/v1/purchase/receive | Wareneingang erstellen (automatische Einlagerung + Erzeugung von Verbindlichkeiten) |
+| GET | /admin/v1/purchase/receive | Liste der Wareneingänge |
+| GET | /admin/v1/purchase/receive/{id} | Details des Wareneingangs |
+| POST | /admin/v1/purchase/return | Retoure erstellen |
+| GET | /admin/v1/purchase/settlement | Liste der Lieferantenabrechnungen |
 
 ### 16.3 Vertriebsverwaltung (Sales)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/sales/quotation | Angebotsliste |
-| POST | /admin/sales/quotation | Angebot erstellen |
-| GET | /admin/sales/order | Liste der Verkaufsaufträge |
-| POST | /admin/sales/order | Verkaufsauftrag erstellen |
-| 🔗 POST | /admin/sales/delivery | Lieferschein erstellen (automatische Auslagerung + Erzeugung von Forderungen) |
-| GET | /admin/sales/delivery | Lieferscheinliste |
-| GET | /admin/sales/settlement | Liste der Kundenabrechnungen |
+| GET | /admin/v1/sales/quotation | Angebotsliste |
+| POST | /admin/v1/sales/quotation | Angebot erstellen |
+| GET | /admin/v1/sales/order | Liste der Verkaufsaufträge |
+| POST | /admin/v1/sales/order | Verkaufsauftrag erstellen |
+| 🔗 POST | /admin/v1/sales/delivery | Lieferschein erstellen (automatische Auslagerung + Erzeugung von Forderungen) |
+| GET | /admin/v1/sales/delivery | Lieferscheinliste |
+| GET | /admin/v1/sales/settlement | Liste der Kundenabrechnungen |
 
 ### 16.4 Bestandsverwaltung (Inventory)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/inventory | Echtzeitbestand (Dimensionen Lager/Lagerplatz/Charge/SKU) |
-| GET | /admin/inventory/flow | Ein-/Auslagerungs-Buchungen |
-| GET | /admin/inventory/transfer | Liste der Umlagerungen |
-| POST | /admin/inventory/transfer | Umlagerung erstellen |
-| GET | /admin/inventory/check | Liste der Inventuraufgaben |
-| POST | /admin/inventory/check | Inventuraufgabe erstellen |
-| GET | /admin/inventory/alert | Bestandswarnungsregeln |
+| GET | /admin/v1/inventory | Echtzeitbestand (Dimensionen Lager/Lagerplatz/Charge/SKU) |
+| GET | /admin/v1/inventory/flow | Ein-/Auslagerungs-Buchungen |
+| GET | /admin/v1/inventory/transfer | Liste der Umlagerungen |
+| POST | /admin/v1/inventory/transfer | Umlagerung erstellen |
+| GET | /admin/v1/inventory/check | Liste der Inventuraufgaben |
+| POST | /admin/v1/inventory/check | Inventuraufgabe erstellen |
+| GET | /admin/v1/inventory/alert | Bestandswarnungsregeln |
 
 ### 16.5 Finanzverwaltung (Finance)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| POST | /admin/finance/voucher | Buchungsbeleg erstellen |
-| GET | /admin/finance/ar-ap | Liste der Forderungen/Verbindlichkeiten |
-| POST | /admin/finance/receipt | Zahlungseingang erstellen |
-| POST | /admin/finance/payment | Zahlungsausgang erstellen |
-| GET | /admin/finance/cash-journal | Kassen- und Banktagebuch |
-| GET | /admin/finance/expense | Liste der Spesenabrechnungen |
-| POST | /admin/finance/expense | Spesenantrag einreichen |
-| GET | /admin/finance/report/profit | Gewinn- und Verlustrechnung |
-| GET | /admin/finance/general-ledger | Hauptbuch (Zusammenfassung nach Konto + Periode) |
-| GET | /admin/finance/subsidiary-ledger | Detailbuch (Kontodetails) |
-| GET | /admin/finance/report/balance-sheet | Bilanz (inkl. automatischer Erzeugung) |
-| GET | /admin/finance/report/cash-flow | Kapitalflussrechnung (Betrieb/Investition/Finanzierung) |
-| GET | /admin/finance/bank-account | Bankkontenliste |
-| GET/POST/PUT/DELETE | /admin/finance/asset | Anlagevermögen CRUD + Abschreibung |
-| GET/POST | /admin/finance/tax-rate | Steuersatzkonfiguration |
-| GET | /admin/finance/tax-record | Steueraufzeichnungen |
-| GET/POST/PUT/DELETE | /admin/finance/currency | Währungsverwaltung |
-| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | Wechselkursverwaltung |
-| GET/POST/PUT/DELETE | /admin/finance/budget | Budgetverwaltung (inkl. Budget vs. Ist-Vergleich) |
-| GET/POST/PUT/DELETE | /admin/finance/cost-center | Kosten-Center (Baumstruktur) |
-| GET/POST/PUT/DELETE | /admin/finance/profit-center | Profit-Center (Baumstruktur) |
+| POST | /admin/v1/finance/voucher | Buchungsbeleg erstellen |
+| GET | /admin/v1/finance/ar-ap | Liste der Forderungen/Verbindlichkeiten |
+| POST | /admin/v1/finance/receipt | Zahlungseingang erstellen |
+| POST | /admin/v1/finance/payment | Zahlungsausgang erstellen |
+| GET | /admin/v1/finance/cash-journal | Kassen- und Banktagebuch |
+| GET | /admin/v1/finance/expense | Liste der Spesenabrechnungen |
+| POST | /admin/v1/finance/expense | Spesenantrag einreichen |
+| GET | /admin/v1/finance/report/profit | Gewinn- und Verlustrechnung |
+| GET | /admin/v1/finance/general-ledger | Hauptbuch (Zusammenfassung nach Konto + Periode) |
+| GET | /admin/v1/finance/subsidiary-ledger | Detailbuch (Kontodetails) |
+| GET | /admin/v1/finance/report/balance-sheet | Bilanz (inkl. automatischer Erzeugung) |
+| GET | /admin/v1/finance/report/cash-flow | Kapitalflussrechnung (Betrieb/Investition/Finanzierung) |
+| GET | /admin/v1/finance/bank-account | Bankkontenliste |
+| GET/POST/PUT/DELETE | /admin/v1/finance/asset | Anlagevermögen CRUD + Abschreibung |
+| GET/POST | /admin/v1/finance/tax-rate | Steuersatzkonfiguration |
+| GET | /admin/v1/finance/tax-record | Steueraufzeichnungen |
+| GET/POST/PUT/DELETE | /admin/v1/finance/currency | Währungsverwaltung |
+| GET/POST/PUT/DELETE | /admin/v1/finance/exchange-rate | Wechselkursverwaltung |
+| GET/POST/PUT/DELETE | /admin/v1/finance/budget | Budgetverwaltung (inkl. Budget vs. Ist-Vergleich) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/cost-center | Kosten-Center (Baumstruktur) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/profit-center | Profit-Center (Baumstruktur) |
 
 ### 16.6 CRM
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/crm/opportunity | Liste der Chancen |
-| POST | /admin/crm/opportunity | Chance erstellen |
-| GET | /admin/crm/follow | Liste der Follow-up-Records |
-| POST | /admin/crm/follow | Follow-up-Record erstellen |
-| GET | /admin/crm/funnel | Funnel-Phasen-Konfiguration |
-| GET | /admin/crm/contact | Kontaktliste |
-| POST | /admin/crm/contact | Kontakt erstellen |
-| GET | /admin/crm/pool | Kundenliste des Shared-Pools |
-| POST | /admin/crm/pool/claim/{id} | Shared-Pool-Kunden übernehmen |
-| POST | /admin/crm/pool/release/{id} | Kunde in den Shared-Pool freigeben |
-| GET/POST | /admin/crm/pool/rules | CRUD der Shared-Pool-Regeln |
-| GET | /admin/crm/contract | Vertragsliste |
-| POST | /admin/crm/contract | Vertrag erstellen |
-| GET | /admin/crm/contract/{id} | Vertragsdetails |
-| PUT | /admin/crm/contract/{id} | Vertrag aktualisieren |
-| DELETE | /admin/crm/contract/{id} | Vertrag löschen |
-| GET | /admin/crm/quotation | CRM-Angebotsliste |
-| POST | /admin/crm/quotation | CRM-Angebot erstellen |
-| POST | /admin/crm/quotation/{id}/to-contract | 🔗 Angebot in Vertrag umwandeln |
-| GET/POST/PUT/DELETE | /admin/crm/campaign | Marketingkampagnen |
-| GET/POST/PUT/DELETE | /admin/crm/ticket | Service-Tickets |
-| POST | /admin/crm/ticket/{id}/assign | Ticket zuweisen |
-| POST | /admin/crm/ticket/{id}/resolve | Ticket lösen |
-| GET/POST | /admin/crm/analytics/report | Kundenanalyse-Berichte |
-| GET/POST | /admin/crm/analytics/metric | Analyse-Kennzahlen |
+| GET | /admin/v1/crm/opportunity | Liste der Chancen |
+| POST | /admin/v1/crm/opportunity | Chance erstellen |
+| GET | /admin/v1/crm/follow | Liste der Follow-up-Records |
+| POST | /admin/v1/crm/follow | Follow-up-Record erstellen |
+| GET | /admin/v1/crm/funnel | Funnel-Phasen-Konfiguration |
+| GET | /admin/v1/crm/contact | Kontaktliste |
+| POST | /admin/v1/crm/contact | Kontakt erstellen |
+| GET | /admin/v1/crm/pool | Kundenliste des Shared-Pools |
+| POST | /admin/v1/crm/pool/claim/{id} | Shared-Pool-Kunden übernehmen |
+| POST | /admin/v1/crm/pool/release/{id} | Kunde in den Shared-Pool freigeben |
+| GET/POST | /admin/v1/crm/pool/rules | CRUD der Shared-Pool-Regeln |
+| GET | /admin/v1/crm/contract | Vertragsliste |
+| POST | /admin/v1/crm/contract | Vertrag erstellen |
+| GET | /admin/v1/crm/contract/{id} | Vertragsdetails |
+| PUT | /admin/v1/crm/contract/{id} | Vertrag aktualisieren |
+| DELETE | /admin/v1/crm/contract/{id} | Vertrag löschen |
+| GET | /admin/v1/crm/quotation | CRM-Angebotsliste |
+| POST | /admin/v1/crm/quotation | CRM-Angebot erstellen |
+| POST | /admin/v1/crm/quotation/{id}/to-contract | 🔗 Angebot in Vertrag umwandeln |
+| GET/POST/PUT/DELETE | /admin/v1/crm/campaign | Marketingkampagnen |
+| GET/POST/PUT/DELETE | /admin/v1/crm/ticket | Service-Tickets |
+| POST | /admin/v1/crm/ticket/{id}/assign | Ticket zuweisen |
+| POST | /admin/v1/crm/ticket/{id}/resolve | Ticket lösen |
+| GET/POST | /admin/v1/crm/analytics/report | Kundenanalyse-Berichte |
+| GET/POST | /admin/v1/crm/analytics/metric | Analyse-Kennzahlen |
 
 ### 16.7 Genehmigungsworkflow (Workflow)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/workflow | Liste der Workflow-Definitionen |
-| POST | /admin/workflow | Workflow-Definition erstellen |
-| GET | /admin/workflow/{id} | Workflow-Details |
-| PUT | /admin/workflow/{id} | Workflow aktualisieren |
-| DELETE | /admin/workflow/{id} | Workflow löschen |
-| POST | /admin/workflow/{id}/submit | 🔗 Genehmigung einreichen (Genehmigungsinstanz erstellen) |
-| POST | /admin/approval/{id}/approve | Genehmigen |
-| POST | /admin/approval/{id}/reject | Ablehnen |
-| POST | /admin/approval/{id}/withdraw | Zurückziehen |
-| ANY | /admin/approval/my | Meine Genehmigungsliste (ausstehend/erledigt) |
+| GET | /admin/v1/workflow | Liste der Workflow-Definitionen |
+| POST | /admin/v1/workflow | Workflow-Definition erstellen |
+| GET | /admin/v1/workflow/{id} | Workflow-Details |
+| PUT | /admin/v1/workflow/{id} | Workflow aktualisieren |
+| DELETE | /admin/v1/workflow/{id} | Workflow löschen |
+| POST | /admin/v1/workflow/{id}/submit | 🔗 Genehmigung einreichen (Genehmigungsinstanz erstellen) |
+| POST | /admin/v1/approval/{id}/approve | Genehmigen |
+| POST | /admin/v1/approval/{id}/reject | Ablehnen |
+| POST | /admin/v1/approval/{id}/withdraw | Zurückziehen |
+| ANY | /admin/v1/approval/my | Meine Genehmigungsliste (ausstehend/erledigt) |
 
 ### 16.8 Benachrichtigungen (Notification)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| ANY | /admin/notification/my | Meine Benachrichtigungsliste (seitennummeriert, zeitlich absteigend) |
-| POST | /admin/notification/{id}/read | Einzelne als gelesen markieren |
-| POST | /admin/notification/read-all | Alle als gelesen markieren |
-| ANY | /admin/notification/unread-count | Anzahl ungelesener Nachrichten |
+| ANY | /admin/v1/notification/my | Meine Benachrichtigungsliste (seitennummeriert, zeitlich absteigend) |
+| POST | /admin/v1/notification/{id}/read | Einzelne als gelesen markieren |
+| POST | /admin/v1/notification/read-all | Alle als gelesen markieren |
+| ANY | /admin/v1/notification/unread-count | Anzahl ungelesener Nachrichten |
 
 ### 16.9 Projektmanagement (Project)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/project | Projektliste |
-| POST | /admin/project | Projekt erstellen |
-| GET | /admin/project/{id} | Projektdetails |
-| PUT | /admin/project/{id} | Projekt aktualisieren |
-| DELETE | /admin/project/{id} | Projekt löschen |
-| GET | /admin/project/task | Aufgabenliste |
-| POST | /admin/project/task | Aufgabe erstellen |
-| PUT | /admin/project/task/{id} | Aufgabe aktualisieren |
-| DELETE | /admin/project/task/{id} | Aufgabe löschen |
-| GET | /admin/project/timesheet | Liste der Zeitaufzeichnungen |
-| POST | /admin/project/timesheet | Arbeitszeit erfassen |
-| PUT | /admin/project/timesheet/{id} | Arbeitszeit aktualisieren |
-| DELETE | /admin/project/timesheet/{id} | Arbeitszeit löschen |
+| GET | /admin/v1/project | Projektliste |
+| POST | /admin/v1/project | Projekt erstellen |
+| GET | /admin/v1/project/{id} | Projektdetails |
+| PUT | /admin/v1/project/{id} | Projekt aktualisieren |
+| DELETE | /admin/v1/project/{id} | Projekt löschen |
+| GET | /admin/v1/project/task | Aufgabenliste |
+| POST | /admin/v1/project/task | Aufgabe erstellen |
+| PUT | /admin/v1/project/task/{id} | Aufgabe aktualisieren |
+| DELETE | /admin/v1/project/task/{id} | Aufgabe löschen |
+| GET | /admin/v1/project/timesheet | Liste der Zeitaufzeichnungen |
+| POST | /admin/v1/project/timesheet | Arbeitszeit erfassen |
+| PUT | /admin/v1/project/timesheet/{id} | Arbeitszeit aktualisieren |
+| DELETE | /admin/v1/project/timesheet/{id} | Arbeitszeit löschen |
 
 ### 16.10 Personalverwaltung (HR)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/hr/department | Abteilungsliste (Baumstruktur) |
-| POST | /admin/hr/department | Abteilung erstellen |
-| PUT | /admin/hr/department/{id} | Abteilung aktualisieren |
-| DELETE | /admin/hr/department/{id} | Abteilung löschen |
-| GET | /admin/hr/employee | Mitarbeiterliste |
-| POST | /admin/hr/employee | Mitarbeiter erstellen |
-| PUT | /admin/hr/employee/{id} | Mitarbeiter aktualisieren |
-| DELETE | /admin/hr/employee/{id} | Mitarbeiter löschen |
-| GET | /admin/hr/position | Positionsliste |
-| POST | /admin/hr/position | Position erstellen |
-| PUT | /admin/hr/position/{id} | Position aktualisieren |
-| DELETE | /admin/hr/position/{id} | Position löschen |
-| ANY | /admin/hr/attendance | Anwesenheitsabfrage |
-| POST | /admin/hr/attendance/clock-in | Kommen stempeln |
-| POST | /admin/hr/attendance/clock-out | Gehen stempeln |
-| ANY | /admin/hr/leave | Urlaubsliste |
-| POST | /admin/hr/leave | Urlaubsantrag einreichen |
-| GET | /admin/hr/leave/{id} | Urlaubsdetails |
-| PUT | /admin/hr/leave/{id} | Urlaub aktualisieren |
-| DELETE | /admin/hr/leave/{id} | Urlaub löschen |
-| POST | /admin/hr/leave/{id}/approve | 🔗 Urlaub genehmigen |
-| GET | /admin/hr/salary | Gehaltsliste |
-| POST | /admin/hr/salary | Gehaltsabrechnung erzeugen |
-| PUT | /admin/hr/salary/{id} | Gehalt aktualisieren |
-| DELETE | /admin/hr/salary/{id} | Gehalt löschen |
-| POST | /admin/hr/salary/{id}/pay | Gehalt auszahlen |
-| ANY | /admin/hr/salary-item | Liste der Gehaltsbestandteile |
-| POST | /admin/hr/salary-item | Gehaltsbestandteil erstellen |
-| GET | /admin/hr/salary-item/{id} | Details des Gehaltsbestandteils |
-| PUT | /admin/hr/salary-item/{id} | Gehaltsbestandteil aktualisieren |
-| DELETE | /admin/hr/salary-item/{id} | Gehaltsbestandteil löschen |
+| GET | /admin/v1/hr/department | Abteilungsliste (Baumstruktur) |
+| POST | /admin/v1/hr/department | Abteilung erstellen |
+| PUT | /admin/v1/hr/department/{id} | Abteilung aktualisieren |
+| DELETE | /admin/v1/hr/department/{id} | Abteilung löschen |
+| GET | /admin/v1/hr/employee | Mitarbeiterliste |
+| POST | /admin/v1/hr/employee | Mitarbeiter erstellen |
+| PUT | /admin/v1/hr/employee/{id} | Mitarbeiter aktualisieren |
+| DELETE | /admin/v1/hr/employee/{id} | Mitarbeiter löschen |
+| GET | /admin/v1/hr/position | Positionsliste |
+| POST | /admin/v1/hr/position | Position erstellen |
+| PUT | /admin/v1/hr/position/{id} | Position aktualisieren |
+| DELETE | /admin/v1/hr/position/{id} | Position löschen |
+| ANY | /admin/v1/hr/attendance | Anwesenheitsabfrage |
+| POST | /admin/v1/hr/attendance/clock-in | Kommen stempeln |
+| POST | /admin/v1/hr/attendance/clock-out | Gehen stempeln |
+| ANY | /admin/v1/hr/leave | Urlaubsliste |
+| POST | /admin/v1/hr/leave | Urlaubsantrag einreichen |
+| GET | /admin/v1/hr/leave/{id} | Urlaubsdetails |
+| PUT | /admin/v1/hr/leave/{id} | Urlaub aktualisieren |
+| DELETE | /admin/v1/hr/leave/{id} | Urlaub löschen |
+| POST | /admin/v1/hr/leave/{id}/approve | 🔗 Urlaub genehmigen |
+| GET | /admin/v1/hr/salary | Gehaltsliste |
+| POST | /admin/v1/hr/salary | Gehaltsabrechnung erzeugen |
+| PUT | /admin/v1/hr/salary/{id} | Gehalt aktualisieren |
+| DELETE | /admin/v1/hr/salary/{id} | Gehalt löschen |
+| POST | /admin/v1/hr/salary/{id}/pay | Gehalt auszahlen |
+| ANY | /admin/v1/hr/salary-item | Liste der Gehaltsbestandteile |
+| POST | /admin/v1/hr/salary-item | Gehaltsbestandteil erstellen |
+| GET | /admin/v1/hr/salary-item/{id} | Details des Gehaltsbestandteils |
+| PUT | /admin/v1/hr/salary-item/{id} | Gehaltsbestandteil aktualisieren |
+| DELETE | /admin/v1/hr/salary-item/{id} | Gehaltsbestandteil löschen |
 
 ### 16.11 Produktion (Manufacturing)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/mfg/bom | BOM-Liste |
-| POST | /admin/mfg/bom | BOM erstellen |
-| PUT | /admin/mfg/bom/{id} | BOM aktualisieren |
-| DELETE | /admin/mfg/bom/{id} | BOM löschen |
-| GET | /admin/mfg/production | Liste der Produktionsaufträge |
-| POST | /admin/mfg/production | Produktionsauftrag erstellen |
-| PUT | /admin/mfg/production/{id} | Produktionsauftrag aktualisieren |
-| DELETE | /admin/mfg/production/{id} | Produktionsauftrag löschen |
-| POST | /admin/mfg/production/{id}/start | Produktion starten |
-| POST | /admin/mfg/production/{id}/complete | Produktion abschließen |
-| GET | /admin/mfg/routing | Liste der Arbeitspläne |
-| POST | /admin/mfg/routing | Arbeitsplan erstellen |
-| PUT | /admin/mfg/routing/{id} | Arbeitsplan aktualisieren |
-| DELETE | /admin/mfg/routing/{id} | Arbeitsplan löschen |
-| GET | /admin/mfg/workstation | Arbeitsplatzliste |
-| POST | /admin/mfg/workstation | Arbeitsplatz erstellen |
-| PUT | /admin/mfg/workstation/{id} | Arbeitsplatz aktualisieren |
-| DELETE | /admin/mfg/workstation/{id} | Arbeitsplatz löschen |
-| GET | /admin/mfg/mrp | MRP-Planliste |
-| POST | /admin/mfg/mrp | MRP-Plan erstellen |
-| PUT | /admin/mfg/mrp/{id} | MRP-Plan aktualisieren |
-| DELETE | /admin/mfg/mrp/{id} | MRP-Plan löschen |
-| POST | /admin/mfg/mrp/{id}/generate | 🔗 MRP ausführen, Einkaufs-/Produktionsvorschläge erzeugen |
+| GET | /admin/v1/mfg/bom | BOM-Liste |
+| POST | /admin/v1/mfg/bom | BOM erstellen |
+| PUT | /admin/v1/mfg/bom/{id} | BOM aktualisieren |
+| DELETE | /admin/v1/mfg/bom/{id} | BOM löschen |
+| GET | /admin/v1/mfg/production | Liste der Produktionsaufträge |
+| POST | /admin/v1/mfg/production | Produktionsauftrag erstellen |
+| PUT | /admin/v1/mfg/production/{id} | Produktionsauftrag aktualisieren |
+| DELETE | /admin/v1/mfg/production/{id} | Produktionsauftrag löschen |
+| POST | /admin/v1/mfg/production/{id}/start | Produktion starten |
+| POST | /admin/v1/mfg/production/{id}/complete | Produktion abschließen |
+| GET | /admin/v1/mfg/routing | Liste der Arbeitspläne |
+| POST | /admin/v1/mfg/routing | Arbeitsplan erstellen |
+| PUT | /admin/v1/mfg/routing/{id} | Arbeitsplan aktualisieren |
+| DELETE | /admin/v1/mfg/routing/{id} | Arbeitsplan löschen |
+| GET | /admin/v1/mfg/workstation | Arbeitsplatzliste |
+| POST | /admin/v1/mfg/workstation | Arbeitsplatz erstellen |
+| PUT | /admin/v1/mfg/workstation/{id} | Arbeitsplatz aktualisieren |
+| DELETE | /admin/v1/mfg/workstation/{id} | Arbeitsplatz löschen |
+| GET | /admin/v1/mfg/mrp | MRP-Planliste |
+| POST | /admin/v1/mfg/mrp | MRP-Plan erstellen |
+| PUT | /admin/v1/mfg/mrp/{id} | MRP-Plan aktualisieren |
+| DELETE | /admin/v1/mfg/mrp/{id} | MRP-Plan löschen |
+| POST | /admin/v1/mfg/mrp/{id}/generate | 🔗 MRP ausführen, Einkaufs-/Produktionsvorschläge erzeugen |
 
 ### 16.12 Benutzerdefinierte Berichte (Report Builder)
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/report | Liste der Berichtsvorlagen |
-| POST | /admin/report | Berichtsvorlage erstellen |
-| GET | /admin/report/{id} | Details der Berichtsvorlage |
-| PUT | /admin/report/{id} | Berichtsvorlage aktualisieren |
-| DELETE | /admin/report/{id} | Berichtsvorlage löschen |
-| POST | /admin/report/{id}/execute | Bericht ausführen, Daten erzeugen |
-| ANY | /admin/report/{id}/result | Berichtsergebnis |
-| GET | /admin/report/schedule | Liste der Zeitpläne |
-| POST | /admin/report/schedule | Zeitplan erstellen |
-| PUT | /admin/report/schedule/{id} | Zeitplan aktualisieren |
-| DELETE | /admin/report/schedule/{id} | Zeitplan löschen |
+| GET | /admin/v1/report | Liste der Berichtsvorlagen |
+| POST | /admin/v1/report | Berichtsvorlage erstellen |
+| GET | /admin/v1/report/{id} | Details der Berichtsvorlage |
+| PUT | /admin/v1/report/{id} | Berichtsvorlage aktualisieren |
+| DELETE | /admin/v1/report/{id} | Berichtsvorlage löschen |
+| POST | /admin/v1/report/{id}/execute | Bericht ausführen, Daten erzeugen |
+| ANY | /admin/v1/report/{id}/result | Berichtsergebnis |
+| GET | /admin/v1/report/schedule | Liste der Zeitpläne |
+| POST | /admin/v1/report/schedule | Zeitplan erstellen |
+| PUT | /admin/v1/report/schedule/{id} | Zeitplan aktualisieren |
+| DELETE | /admin/v1/report/schedule/{id} | Zeitplan löschen |
 
 ### 16.13 Dashboard
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/dashboard/sales | Vertriebs-Dashboard |
-| GET | /admin/dashboard/inventory | Bestands-Dashboard |
-| GET | /admin/dashboard/finance | Finanz-Dashboard |
+| GET | /admin/v1/dashboard/sales | Vertriebs-Dashboard |
+| GET | /admin/v1/dashboard/inventory | Bestands-Dashboard |
+| GET | /admin/v1/dashboard/finance | Finanz-Dashboard |
 
 ### 16.14 Client-API (Client API)
 
-Client-Schnittstellen hängen unter der Gruppe `/api` und benötigen den `API-Version`-Request-Header. Artikelinformationen enthalten keinen Einkaufspreis.
+Client-Schnittstellen hängen unter der Gruppe `/api/v1` (die Versionsnummer geht in den URL-Pfad ein, kein Versions-Request-Header). Artikelinformationen enthalten keinen Einkaufspreis.
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /api/product | Artikelliste (ohne Einkaufspreis) |
-| GET | /api/product/{hashid} | Artikeldetails (mit Einzel-/Großhandelspreis, ohne Einkaufspreis) |
+| GET | /api/v1/product | Artikelliste (ohne Einkaufspreis) |
+| GET | /api/v1/product/{hashid} | Artikeldetails (mit Einzel-/Großhandelspreis, ohne Einkaufspreis) |
 
 ### 16.15 OMS-Auftragsverwaltung
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/oms/order | OMS-Auftragsliste |
-| POST | /admin/oms/order | OMS-Auftrag erstellen |
-| 🔗 POST | /admin/oms/order/{id}/allocate | Bestandszuordnung (Reservierung) |
-| 🔗 POST | /admin/oms/order/{id}/fulfill | Fulfillment erstellen |
-| POST | /admin/oms/order/{id}/cancel | Auftrag stornieren (Reservierung freigeben) |
-| POST | /admin/oms/rma/{id}/approve | RMA genehmigen |
-| POST | /admin/oms/rma/{id}/refund | RMA-Erstattung |
+| GET | /admin/v1/oms/order | OMS-Auftragsliste |
+| POST | /admin/v1/oms/order | OMS-Auftrag erstellen |
+| 🔗 POST | /admin/v1/oms/order/{id}/allocate | Bestandszuordnung (Reservierung) |
+| 🔗 POST | /admin/v1/oms/order/{id}/fulfill | Fulfillment erstellen |
+| POST | /admin/v1/oms/order/{id}/cancel | Auftrag stornieren (Reservierung freigeben) |
+| POST | /admin/v1/oms/rma/{id}/approve | RMA genehmigen |
+| POST | /admin/v1/oms/rma/{id}/refund | RMA-Erstattung |
 
 ### 16.16 WMS-Lagerverwaltung
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/wms/zone | Zonenliste (CRUD) |
-| GET | /admin/wms/location | WMS-Lagerplatzliste (CRUD) |
-| GET | /admin/wms/asn | ASN-Liste (CRUD) |
-| POST | /admin/wms/receiving/{id}/complete | Wareneingang abschließen → automatisch Einlagerungsaufgaben erzeugen |
-| POST | /admin/wms/putaway/{id}/complete | Einlagerung bestätigen → stockIn auslösen |
-| POST | /admin/wms/wave/{id}/release | Welle freigeben → Kommissionieraufgaben erzeugen |
-| POST | /admin/wms/pick/{id}/start | Kommissionierung starten |
-| POST | /admin/wms/pick/{id}/confirm | Kommissionierung bestätigen |
-| POST | /admin/wms/pack/{id}/complete | Verpackung abgeschlossen |
+| GET | /admin/v1/wms/zone | Zonenliste (CRUD) |
+| GET | /admin/v1/wms/location | WMS-Lagerplatzliste (CRUD) |
+| GET | /admin/v1/wms/asn | ASN-Liste (CRUD) |
+| POST | /admin/v1/wms/receiving/{id}/complete | Wareneingang abschließen → automatisch Einlagerungsaufgaben erzeugen |
+| POST | /admin/v1/wms/putaway/{id}/complete | Einlagerung bestätigen → stockIn auslösen |
+| POST | /admin/v1/wms/wave/{id}/release | Welle freigeben → Kommissionieraufgaben erzeugen |
+| POST | /admin/v1/wms/pick/{id}/start | Kommissionierung starten |
+| POST | /admin/v1/wms/pick/{id}/confirm | Kommissionierung bestätigen |
+| POST | /admin/v1/wms/pack/{id}/complete | Verpackung abgeschlossen |
 
 ### 16.17 TMS-Transportverwaltung
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/tms/carrier | Spediteurliste (CRUD) |
-| GET | /admin/tms/service | Spediteur-Dienste (CRUD) |
-| GET | /admin/tms/freight-rate | Frachttarife (CRUD) |
-| GET | /admin/tms/shipment | Frachtscheinliste (CRUD) |
-| 🔗 POST | /admin/tms/shipment/{id}/ship | Versand bestätigen (stockOut+AR) |
-| POST | /admin/tms/tracking/callback | Spediteur-Tracking-Webhook |
-| POST | /admin/tms/freight-invoice/{id}/pay | Frachtrechnung bezahlen (AP erzeugen) |
+| GET | /admin/v1/tms/carrier | Spediteurliste (CRUD) |
+| GET | /admin/v1/tms/service | Spediteur-Dienste (CRUD) |
+| GET | /admin/v1/tms/freight-rate | Frachttarife (CRUD) |
+| GET | /admin/v1/tms/shipment | Frachtscheinliste (CRUD) |
+| 🔗 POST | /admin/v1/tms/shipment/{id}/ship | Versand bestätigen (stockOut+AR) |
+| POST | /api/tms/tracking/callback | Spediteur-Tracking-Webhook |
+| POST | /admin/v1/tms/freight-invoice/{id}/pay | Frachtrechnung bezahlen (AP erzeugen) |
 
 ### 16.18 Dashboard-Erweiterungen
 
 | Methode | Pfad | Beschreibung |
 |------|------|------|
-| GET | /admin/dashboard/oms | OMS-KPIs (ausstehend/Kommissionierung/heutige Sendungen/RMA) |
-| GET | /admin/dashboard/wms | WMS-KPIs (ausstehender Eingang/ausstehende Einlagerung/ausstehende Kommissionierung/ausstehende Verpackung) |
-| GET | /admin/dashboard/tms | TMS-KPIs (ausstehender Versand/unterwegs/zugestellt/Abweichungen) |
+| GET | /admin/v1/dashboard/oms | OMS-KPIs (ausstehend/Kommissionierung/heutige Sendungen/RMA) |
+| GET | /admin/v1/dashboard/wms | WMS-KPIs (ausstehender Eingang/ausstehende Einlagerung/ausstehende Kommissionierung/ausstehende Verpackung) |
+| GET | /admin/v1/dashboard/tms | TMS-KPIs (ausstehender Versand/unterwegs/zugestellt/Abweichungen) |
 
 ### 16.19 Hinweise zur modulübergreifenden Verknüpfung
 
@@ -2037,5 +2053,5 @@ Folgende Endpunkte lösen automatische modulübergreifende Verknüpfungen aus un
 
 | Endpunkt | Verknüpfungsaktion |
 |------|---------|
-| 🔗 POST /admin/purchase/receive | Ruft automatisch InventoryService.stockIn() auf, aktualisiert den Bestand und berechnet die gleitenden Durchschnittskosten neu; ruft FinanceService.createAp() auf, um Verbindlichkeiten zu erzeugen |
-| 🔗 POST /admin/sales/delivery | Ruft automatisch InventoryService.stockOut() auf, reduziert den Bestand (zu gleitenden Durchschnittskosten); ruft FinanceService.createAr() auf, um Forderungen zu erzeugen |
+| 🔗 POST /admin/v1/purchase/receive | Ruft automatisch InventoryService.stockIn() auf, aktualisiert den Bestand und berechnet die gleitenden Durchschnittskosten neu; ruft FinanceService.createAp() auf, um Verbindlichkeiten zu erzeugen |
+| 🔗 POST /admin/v1/sales/delivery | Ruft automatisch InventoryService.stockOut() auf, reduziert den Bestand (zu gleitenden Durchschnittskosten); ruft FinanceService.createAr() auf, um Forderungen zu erzeugen |

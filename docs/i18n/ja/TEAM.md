@@ -11,10 +11,10 @@
 
 | 観点 | 現状 | チームへの意味 |
 |------|------|--------------|
-| バックエンド | webman (Workerman) PHP 8.3+、**22 業務モジュール**、121+ コントローラー、24 サービス、161 モデル、163 テーブル、12 ミドルウェア（schema は database/install.sql が唯一の事実源） | モノリシックで大きく網羅的。業務ドメインごとに分担し、単一 agent のコンテキスト爆発を防ぐ |
-| フロントエンド | Flutter **97 ページ**（Web/モバイル）+ HarmonyOS **34 ページ**、全モジュールをカバー | 双端並行メンテナンスのため、専任のフロントエンドロールが必要 |
-| 品質ベースライン | PHPUnit 137 テスト / 805 アサーション、PHPStan + baseline、CS-Fixer、CI 多バージョンマトリクス | 規律は確立済み。テスト/レビューのロールをパイプラインに直接組み込む |
-| バージョンマトリクス | `lite` / `standard` / `full` の 3 ブランチ（62/72/163 表） | 変更時にブランチ間同期を考慮する必要があり、バージョン調整が必要 |
+| バックエンド | webman (Workerman) PHP 8.3+、**23 業務モジュール**、159 コントローラー、63 サービス、224 モデル、227 テーブル、11 ミドルウェア（schema は database/install.sql が唯一の事実源） | モノリシックで大きく網羅的。業務ドメインごとに分担し、単一 agent のコンテキスト爆発を防ぐ |
+| フロントエンド | Flutter **102 メニュールート**（`lib/app/config/menu_config.dart`；`main.dart` の getPages は計 110 条 = 102 メニュー + ログイン/個人センター/詳細 6 ページ）+ HarmonyOS **41 ページ**（`main_pages.json`）、全モジュールをカバー | 双端並行メンテナンスのため、専任のフロントエンドロールが必要 |
+| 品質ベースライン | PHPUnit 1001 テスト / 4726 アサーション、PHPStan + baseline、CS-Fixer、CI 多バージョンマトリクス | 規律は確立済み。テスト/レビューのロールをパイプラインに直接組み込む |
+| バージョンマトリクス | `main` の 1 ブランチのみ（`lite` / `standard` / `full` は削除済み、アーカイブコミット `eea90c0` は `main` の履歴に残存） | 同期すべきバージョンブランチはなく、バージョン差異は tag で追跡。`docs/EDITIONS.md`「ブランチ戦略」を参照 |
 | ロードマップ | P0~P3 納品済み（総合スコア 89/100）、日常イテレーションと進化期へ | チーム規模はタスク種別に応じて伸縮。プロジェクト制の大人数編成ではない |
 | 既存インフラ | `.claude/agents/`（planner / sparc / testing / swarm / consensus）、`.claude-flow`（hierarchical-mesh、上限 15 agents、consensus 調整）、hooks + 記憶 | チームは既存設定に直接マウントし、新規構築はしない |
 
@@ -26,27 +26,27 @@
 
 | ロール | 既存 agent 対応 | 責務（本プロジェクト向け） |
 |------|-----------------|--------------------|
-| **プロジェクトマネージャー Lead** | `planner` / `swarm/hierarchical-coordinator` | 要件分解 → ルーティング → 検収；22 モジュールのタスクキューの維持；pipeline / fan-out / supervisor モードの決定；ロール間のメッセージ中継 |
-| **システムアーキテクト** | `sparc/architecture` | テーブル構造設計（163 表、schema は database/install.sql が唯一の事実源）；モジュール横断データフロー（購買入荷→在庫→買掛、販売出荷→売掛→出庫などのチェーン）；マイクロサービス分割境界の意思決定 |
-| **バックエンド開発者** | `core` / カスタム `backend-dev` | コントローラー / サービス / モデルの実装；`app/service` のレイヤリングとミドルウェアチェーン（Locale→Cors→SecurityFilter→RateLimit→TracingId→業務ミドルウェア）に従う |
-| **テストエンジニア** | `testing/tdd-london-swarm` + `production-validator` | PHPUnit ケース先行（エンジン境界テスト）；3 ブランチの回帰検証；`tests/` のカバーギャップ補填 |
-| **コードレビュアー** | `consensus/security-manager` | PHPStan の baseline 外ゼロ新規、CS-Fixer 準拠、18 層セキュリティパターンのチェック；コミット前の品質ゲート管理 |
+| **プロジェクトマネージャー Lead** | `planner` / `swarm/hierarchical-coordinator` | 要件分解 → ルーティング → 検収；23 モジュールのタスクキューの維持；pipeline / fan-out / supervisor モードの決定；ロール間のメッセージ中継 |
+| **システムアーキテクト** | `sparc/architecture` | テーブル構造設計（227 表、schema は database/install.sql が唯一の事実源）；モジュール横断データフロー（購買入荷→在庫→買掛、販売出荷→売掛→出庫などのチェーン）；マイクロサービス分割境界の意思決定 |
+| **バックエンド開発者** | `core` / カスタム `backend-dev` | コントローラー / サービス / モデルの実装；`app/service` のレイヤリングとミドルウェアチェーン（Cors→SecurityFilter→RateLimit→TracingId→業務ミドルウェア）に従う |
+| **テストエンジニア** | `testing/tdd-london-swarm` + `production-validator` | PHPUnit ケース先行（エンジン境界テスト）；`main` 単線の回帰検証；`tests/` のカバーギャップ補填 |
+| **コードレビュアー** | `consensus/security-manager` | PHPStan の baseline 外ゼロ新規、CS-Fixer 準拠、7 層の多層防御セキュリティパターンのチェック；コミット前の品質ゲート管理 |
 
 ### 2.2 専門チーム（タスク種別で招集、4 ロール）
 
 | ロール | 既存 agent 対応 | 起動シーン | 代表タスク |
 |------|-----------------|----------|----------|
 | **業務エンジン専門家** | カスタム `business-engineer` | 財務 / 給与 / MRP などのアルゴリズム型モジュール | 複式記帳エンジン、給与計算エンジン、MRP エンジンのアルゴリズム強化と境界処理（A 級「工業級」要件） |
-| **フロントエンドエンジニア（Flutter）** | カスタム `frontend-flutter` | `apps/flutter/` に触れるあらゆる変更 | Web 管理パネルのページ、GetX 状態、ApiService/エクスポート連動、97 ページのメンテナンス |
-| **フロントエンドエンジニア（HarmonyOS）** | カスタム `frontend-harmonyos` | `apps/harmonyos/` に触れるあらゆる変更 | ArkTS ページ、トークン無感覚更新、Flutter の機能セットとの整合（34 ページのメンテナンス） |
-| **セキュリティ/DevOps エンジニア** | `consensus/security-manager` + `performance-benchmarker` | セキュリティ強化、性能、デプロイ | 18 層防御の回帰、Docker/gRPC サブサービス、マイグレーションロールバック、可観測性、Prometheus 指標 |
+| **フロントエンドエンジニア（Flutter）** | カスタム `frontend-flutter` | `apps/flutter/` に触れるあらゆる変更 | Web 管理パネルのページ、GetX 状態、ApiService/エクスポート連動、102 ルートのメンテナンス |
+| **フロントエンドエンジニア（HarmonyOS）** | カスタム `frontend-harmonyos` | `apps/harmonyos/` に触れるあらゆる変更 | ArkTS ページ、トークン無感覚更新、Flutter の機能セットとの整合（41 ページのメンテナンス） |
+| **セキュリティ/DevOps エンジニア** | `consensus/security-manager` + `performance-benchmarker` | セキュリティ強化、性能、デプロイ | 7 層の多層防御の回帰、Docker/gRPC サブサービス、マイグレーションロールバック、可観測性、Prometheus 指標 |
 
 ### 2.3 オンデマンドロール（タスクトリガー、2 ロール）
 
 | ロール | 既存 agent 対応 | 起動条件 |
 |------|-----------------|----------|
 | **リサーチャー** | カスタム `researcher` | 新モジュール/新機能の設計前: 競合調査、`docs/API.md`、`docs/FUNCTIONS.md` と実装の差分比較、設計インプットを出力 |
-| **バージョンコーディネーター** | カスタム `edition-coordinator` | `lite/standard/full` の差異に関わる場合: 3 ブランチ同期、`docs/EDITIONS.md` マトリクス検証、ブランチ間回帰 |
+| **バージョンコーディネーター** | カスタム `edition-coordinator` | バージョンマトリクスの変更に関わる場合: `docs/EDITIONS.md` の比較表検証（`lite`/`standard` 列は計画値で、対応ブランチは存在しない）、バージョン tag とリリースノートの一致性 |
 
 ---
 
@@ -78,18 +78,18 @@
 | マイクロサービス分割 / 大規模リファクタリング | supervisor | Lead ↔ アーキテクト + バックエンド + レビュー の多ラウンド |
 | セキュリティ / 性能の専門対応 | 単線深掘り | Lead → セキュリティ/DevOps エンジニア → レビュー |
 | バグ修正（単一ファイル / 1-2 行） | チームに入れない | Lead が直接処理、または 1 agent で完了 |
-| 3 ブランチ差異 / バージョンリリース | pipeline | Lead → バージョンコーディネーター → テスト(ブランチ間回帰) → レビュー |
+| バージョン tag 差異 / バージョンリリース | pipeline | Lead → バージョンコーディネーター → テスト(main 単線回帰) → レビュー |
 
 ### 3.4 品質ゲート（コミット前必須、レビュアーが管理）
 
 ```
-phpunit            # 137 テスト / 805 アサーション全緑、新規ケースは変更とともにコミット
+phpunit            # 1001 テスト / 4726 アサーション全緑、新規ケースは変更とともにコミット
 phpstan            # baseline 外への新規問題は不可
 php-cs-fixer       # --dry-run 合格
 composer audit     # 高リスク依存関係の脆弱性なし
 ```
 
-データベースに関わる変更は必ずアーキテクトを通過（163 表、schema は database/install.sql が唯一の事実源）。フロントエンドに関わる変更は Flutter の `flutter analyze` 0 error / 0 warning を必ず実行。
+データベースに関わる変更は必ずアーキテクトを通過（227 表、schema は database/install.sql が唯一の事実源）。フロントエンドに関わる変更は Flutter の `flutter analyze` 0 error / 0 warning を必ず実行。
 
 ---
 

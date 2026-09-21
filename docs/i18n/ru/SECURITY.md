@@ -152,7 +152,7 @@ if (Redis::get("security_ban:{$ip}")) {
 
 Пример формата журнала:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ if (Redis::get("security_ban:{$ip}")) {
 |-----------|----------|------------|
 | Access-Control-Allow-Origin | `*` | Разрешены кросс-доменные запросы из любых источников (сценарий внутренней админ-панели) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | Разрешённый набор методов |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | Разрешённые пользовательские заголовки |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | Разрешённые пользовательские заголовки |
 | Access-Control-Max-Age | `86400` | Кэширование preflight-запроса на 24 часа |
 | X-Content-Type-Options | `nosniff` | Запрет MIME-сниффинга браузера |
 | X-Frame-Options | `DENY` | Запрет встраивания в любые iframe, защита от кликджекинга |
@@ -226,8 +226,8 @@ Lua-скрипт выполняется на сервере Redis в один п
 | Маршрут | Лимит | Окно | Сценарий |
 |---------|-------|------|----------|
 | По умолчанию (все маршруты) | 60 раз/мин | 60с | Общий API |
-| `/api/auth/login` | 10 раз/мин | 60с | Вход (защита от перебора) |
-| `/api/auth/register` | 5 раз/мин | 60с | Регистрация (защита от массовой регистрации; по умолчанию выключена, включается `REGISTRATION_ENABLED=1`) |
+| `/api/v1/auth/login` | 10 раз/мин | 60с | Вход (защита от перебора) |
+| `/api/v1/auth/register` | 5 раз/мин | 60с | Регистрация (защита от массовой регистрации; по умолчанию выключена, включается `REGISTRATION_ENABLED=1`) |
 
 ### Заголовки ответа
 
@@ -300,9 +300,9 @@ try {
 | Параметр | Значение | Описание |
 |----------|----------|----------|
 | Алгоритм | HS256 | Симметричная подпись HMAC-SHA256 |
-| Ключ | `JWT_SECRET` | Из переменной окружения, в проде обязателен к замене |
-| TTL access_token | 7200с (2ч) | `JWT_TTL` |
-| TTL refresh_token | 1209600с (14д) | `JWT_REFRESH_TTL` |
+| Ключ | `JWT_SECRET_KEY` | Из переменной окружения (`env_required`), в продакшене требует замены |
+| TTL access_token | 7200с (2ч) | `JWT_DEFAULT_EXPIRE` |
+| TTL refresh_token | 1209600с (14д) | `JWT_REFRESH_EXPIRE` |
 | Эмитент | `open-admin` | `JWT_ISSUER` |
 | Аудитория | `open-admin` | `JWT_AUDIENCE` |
 
@@ -489,7 +489,7 @@ try {
 
 | Переменная окружения | Назначение | Пакет | Требование для прода |
 |----------------------|------------|-------|----------------------|
-| JWT_SECRET | Ключ подписи JWT | erikwang2013/jwt-webman | Случайная строка из 64+ символов |
+| JWT_SECRET_KEY | Ключ подписи JWT | erikwang2013/jwt-webman | Случайная строка из 64+ символов |
 | JWT_ALGORITHM | Алгоритм подписи JWT | то же | Оставить HS256 |
 | HASHIDS_SALT | Соль кодирования ID | erikwang2013/hashids | Случайная строка |
 | SNOWFLAKE_DATACENTER_ID | ID центра обработки данных (0-31) | erikwang2013/snowflake-php | Оставить по умолчанию при одном ЦОД |
@@ -509,7 +509,7 @@ try {
 | Транспортное шифрование | `config/encryption.php` → `key` | `ENCRYPTION_KEY` |
 | Шифрование хранения | `config/encryptable.php` → `key` | `ENCRYPTABLE_KEY` |
 | Обфускация ID | `config/hashids.php` → `connections.main.salt` | `HASHIDS_SALT` |
-| Подпись JWT | `config/plugin/erikwang2013/jwt/jwt` | `JWT_SECRET` |
+| Подпись JWT | `config/plugin/erikwang2013/jwt/jwt.php` | `JWT_SECRET_KEY` |
 
 ---
 

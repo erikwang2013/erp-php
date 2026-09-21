@@ -149,6 +149,7 @@ return [
     ':envKey may only contain visible characters and must not contain $ or backslash' => ':envKey には表示可能な文字のみ使用でき、$ やバックスラッシュを含めることはできません',
     ':envKey must be a 2-5 digit port' => ':envKey は2〜5桁のポート番号である必要があります',
     ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => ':field は16〜128文字の英数字キーである必要があります（空欄の場合は自動生成されます）',
+    ':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate' => ':envKey はちょうど 32 文字の英数字（AES-256 キー）である必要があります。空欄のままにすると自動生成します',
     'Please enter the database host' => 'データベースホストを入力してください',
     'Please fill in host/port/database/user before testing' => 'テスト前にホスト/ポート/データベース/ユーザーを入力してください',
     'Testing...' => 'テスト中...',

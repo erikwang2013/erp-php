@@ -436,4 +436,6 @@ return [
     'Material dispatch number already exists' => '자재 발송 번호가 이미 존재합니다.',
     'Audited material dispatches cannot be modified' => '검수된 자재 발송은 수정할 수 없습니다.',
     'Audited material dispatches cannot be deleted' => '검수된 자재 발송은 삭제할 수 없습니다.',
+    'Number ":code" already exists; please refresh the page and use another one' => '번호 ":code"이(가) 이미 존재합니다. 페이지를 새로 고친 후 다른 번호를 사용하세요',
+    'Issued-out records cannot be deleted' => '출고된 기록은 삭제할 수 없습니다',
 ];

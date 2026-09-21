@@ -6,7 +6,7 @@
 
 ## 1. Arquitetura do sistema
 
-> **Lista de funcionalidades**: autenticação (login/register/refresh/logout + bloqueio de conta + limite de sessões) | dashboards (cache Redis) | usuários CRUD+lote+importação | papéis e permissões (RBAC) | configuração do sistema | auditoria de operações (origem em 8 plataformas) | arquivos (upload+exportação+mascaramento) | segurança (18 camadas) | operações (health/metrics/docs/Docker/CI)
+> **Lista de funcionalidades**: autenticação (login/register/refresh/logout + bloqueio de conta + limite de sessões) | dashboards (cache Redis) | usuários CRUD+lote+importação | papéis e permissões (RBAC) | configuração do sistema | auditoria de operações (origem em 8 plataformas) | arquivos (upload+exportação+mascaramento) | segurança (defesa em profundidade de 7 middlewares, panorama L0–L12 + 35 classes de detecção de ataque) | operações (health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -66,8 +66,8 @@
 | Camada | Diretório | Responsabilidades |
 |---|------|------|
 | Rotas | `config/route.php` | Mapeamento de URL para controladores, vínculo de middlewares, rotas versionadas |
-| Middlewares | `app/middleware/` | Bloqueio de ataques (SecurityFilter), rate limit (RateLimit), autenticação (JWT), autorização (RBAC), versão da API (ApiVersion) |
-| Controladores | 14: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (lado admin) + Captcha/Auth (API v1) | Validação dos parâmetros da requisição, chamada da lógica de negócio, formatação da resposta |
+| Middlewares | `app/middleware/` | CORS (Cors), bloqueio de ataques (SecurityFilter), rate limit (RateLimit), rastreamento distribuído (TracingId), autenticação (JWT), autorização (RBAC), log de operações (OperationLog), assinatura da interface aberta (OpenApiAuth) — 11 arquivos no total |
+| Controladores | 15 no lado administrativo: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (além da classe base `BaseController`) + 3 na API v1: Captcha/Auth/Product | Validação dos parâmetros da requisição, chamada da lógica de negócio, formatação da resposta |
 | Serviços de negócio | `app/service/` | Lógica de negócio reutilizável (reservado) |
 | Modelos de dados | `app/model/` | Mapeamento ORM, relações, criptografia de campos |
 | Utilitários comuns | `app/common/` | Serviços Hashids, Snowflake, Encryption |
@@ -85,14 +85,17 @@ Correspondência de Route
   │
   ▼
 Cadeia de middlewares:
+  Cors ────────────────► Trata o preflight OPTIONS e injeta os cabeçalhos de resposta CORS
+  │
+  ▼
   SecurityFilter ──────► Verificação de métodos HTTP → 405 (apenas GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     Bloqueio de ataques XSS/Injeção SQL/Path Traversal/Injeção de comandos/CSRF (403)
   ▼
   RateLimit ───────────► Rate limit por janela deslizante no Redis
   │ (falha retorna 429 + cabeçalho Retry-After)
   ▼
-  ApiVersion ─────────► Validação do cabeçalho API-Version, injeta $request->apiVersion
-  │ (falha retorna 400)
+  TracingId ───────────► Gera o X-Trace-Id, presente em toda a cadeia
+  │ (o número da versão vai no caminho da URL /admin/v1 /api/v1 /open/v1, sem middleware de cabeçalho de versão)
   ▼
   AdminAuth ──────────► Verificação JWT, injeta $request->adminId
   │ (falha retorna 401)
@@ -176,58 +179,51 @@ erp_system_config (configuração do sistema) — tabela independente
 ### 4.1 Convenção de URL
 
 ```
-Interfaces públicas:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+Interfaces públicas:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 Lado admin:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 Rotas de recurso:
-  GET    /admin/user          → listagem
-  POST   /admin/user          → criação
-  GET    /admin/user/{hashid} → detalhe
-  PUT    /admin/user/{hashid} → atualização
-  DELETE /admin/user/{hashid} → exclusão (exige confirmação de senha)
+  GET    /admin/v1/user          → listagem
+  POST   /admin/v1/user          → criação
+  GET    /admin/v1/user/{hashid} → detalhe
+  PUT    /admin/v1/user/{hashid} → atualização
+  DELETE /admin/v1/user/{hashid} → exclusão (exige confirmação de senha)
 
-Configuração do sistema:  /admin/config[/{hashid}]
-Log de operações:  /admin/log
-Central do usuário:  /admin/profile[/password|/logout]
-Importação:     /admin/import/users
-Upload:     /admin/upload
-Lote:     /admin/user/batch/{destroy|status}
+Configuração do sistema:  /admin/v1/config[/{hashid}]
+Log de operações:  /admin/v1/log
+Central do usuário:  /admin/v1/profile[/password|/logout]
+Importação:     /admin/v1/import/users
+Upload:     /admin/v1/upload
+Lote:     /admin/v1/user/batch/{destroy|status}
 Documentação:     /api/docs     (OpenAPI 3.0)
 Health:     /health
 ```
 
 ### 4.2 Estratégia de versões da API
 
-A versão da API é controlada pelo cabeçalho de requisição, **sem aparecer no caminho da URL**:
-
-```http
-API-Version: v1
-```
+A versão da API fica **no caminho da URL**, sem cabeçalho de versão de requisição: administração `/admin/v1`, cliente `/api/v1`, interface aberta `/open/v1`.
 
 | Mecanismo | Observação |
 |------|------|
-| Versão padrão | Sem o cabeçalho `API-Version`, o padrão é `v1` |
-| Validação | O middleware `ApiVersion` valida; versões não suportadas retornam 400 |
-| Rotas | A função auxiliar `v()` resolve dinamicamente a classe do controlador pela versão |
+| Posição da versão | Caminho da URL, como `/api/v1/auth/login` |
+| Agrupamento de rotas | `Route::group('/api/v1', …)` em `config/route.php` liga diretamente ao controller |
 | Diretório | Controladores organizados por versão: `app/api/{version}/controller/` |
+| Middleware de cabeçalho de versão | A resolução dinâmica `v()` e o middleware de cabeçalho `ApiVersion`, ambos históricos, **já foram removidos** |
 
 Exemplo de extensão — adicionar API v2:
 1. Criar `app/api/v2/controller/AuthController.php`
-2. Adicionar `'v2'` à constante `SUPPORTED` do middleware `ApiVersion`
-3. As definições de rotas não precisam ser alteradas
+2. Registrar o grupo `Route::group('/api/v2', …)` em `config/route.php` e ligar diretamente ao controller
+3. Sem cabeçalho de versão, o próprio grupo de rotas é a fronteira da versão
 
 ```bash
 # Usar v1
-curl -H "API-Version: v1" /api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 
 # Usar v2
-curl -H "API-Version: v2" /api/auth/login
-
-# Sem passar, padrão v1
-curl /api/auth/login
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 Estratégia de rate limit
@@ -237,8 +233,8 @@ Baseada no algoritmo de janela deslizante com Redis Sorted Set, executada por sc
 | Interface | Limite |
 |------|------|
 | Padrão | 60 vezes/minuto/IP/rota |
-| POST /api/auth/login | 10 vezes/minuto |
-| POST /api/auth/register | 5 vezes/minuto |
+| POST /api/v1/auth/login | 10 vezes/minuto |
+| POST /api/v1/auth/register | 5 vezes/minuto |
 
 Ao exceder, retorna 429, com os cabeçalhos X-RateLimit-Limit / Remaining / Reset / Retry-After.
 
@@ -267,13 +263,13 @@ Ao exceder, retorna 429, com os cabeçalhos X-RateLimit-Limit / Remaining / Rese
 ```
 Cliente                              Servidor
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② O usuário clica na posição     │
   │     do texto na imagem            │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -282,7 +278,7 @@ Cliente                              Servidor
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -310,7 +306,7 @@ Operações sensíveis como excluir usuário, papel ou permissão exigem que a s
 ```
 Cliente                            Servidor
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -387,7 +383,7 @@ Fluxo de dados: Page ← DataService ← ApiService (JWT Bearer) ← HTTP ← we
 ### 6.2 Gestão de chaves
 
 ```
-JWT_SECRET          → injetado por variável de ambiente, string aleatória de 64 caracteres
+JWT_SECRET_KEY      → injetado por variável de ambiente, string aleatória de 64 caracteres
 HASHIDS_SALT        → sal único; se vazar, exige troca global
 ENCRYPTION_KEY      → chave de criptografia de transmissão da API, 32 bytes
 ENCRYPTABLE_KEY     → chave de criptografia de armazenamento do banco, independente da chave de transmissão
@@ -410,7 +406,7 @@ SCOUT_HOSTS         → endereço do ES, implantação em rede interna
 ### 7.1 Exportação Excel
 
 ```
-Requisição: POST /admin/export/excel { table, columns, conditions, title }
+Requisição: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() consulta os dados (limit 10000)
   → mascaramento dos campos sensíveis
   → construção com PhpSpreadsheet (cabeçalho azul com texto branco + primeira linha congelada + filtro automático)
@@ -420,7 +416,7 @@ Requisição: POST /admin/export/excel { table, columns, conditions, title }
 ### 7.2 Exportação PDF
 
 ```
-Requisição: POST /admin/export/pdf { type: table|dashboard, title, data }
+Requisição: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + CSS inline + copyright no cabeçalho da página + copyright não removível no rodapé
   → renderização com Dompdf A4 paisagem
   → gravação em runtime/tmp/ → resposta de download
@@ -447,7 +443,7 @@ O `docker-compose.yml` na raiz do projeto orquestra todos os serviços da topolo
 | `redis` | redis:7-alpine | 6379 | Cache / rate limit / captcha |
 | `elasticsearch` | elasticsearch:8.x | 9200 | Busca full-text |
 
-Antes de iniciar, substitua as chaves `JWT_SECRET`, `HASHIDS_SALT`, `ENCRYPTION_KEY` etc. do `docker-compose.yml` por strings aleatórias.
+Antes de iniciar, substitua as chaves `JWT_SECRET_KEY`, `HASHIDS_SALT`, `ENCRYPTION_KEY` etc. do `docker-compose.yml` por strings aleatórias.
 
 ```bash
 cp .env.docker .env

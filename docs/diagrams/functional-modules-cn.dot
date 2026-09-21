@@ -8,7 +8,7 @@ digraph FunctionalModulesCN {
     compound=true;
     splines=polyline;
 
-    root [label="开放ERP系统\n功能模块总览\n19 个业务领域 / 163 张表\n121 个控制器",
+    root [label="开放ERP系统\n功能模块总览\n23 个业务领域 / 227 张表\n139 个控制器",
           shape="box", style="filled,rounded", fillcolor="#1a237e", color="#0d47a1",
           fontcolor="white", fontsize=14, fontname="Arial Bold", penwidth=2];
 
@@ -255,11 +255,11 @@ digraph FunctionalModulesCN {
     root -> q1; root -> ea1; root -> dm1; root -> bi1;
 
     subgraph cluster_legend {
-        label="模块状态图例 (2026-08-07)";
+        label="模块状态图例 (2026-09-22)";
         fontsize=12; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae"; penwidth=1;
         node [shape="box", fontsize=9, style="filled,rounded"];
-        lg1 [label="已完成\n24 个模块\n(19 业务 + 5 平台)", fillcolor="#c8e6c9", color="#388e3c"];
+        lg1 [label="已完成\n23 个业务域\n(含平台支撑模块)", fillcolor="#c8e6c9", color="#388e3c"];
         lg2 [label="路线图 P0~P3\n已全部交付", fillcolor="#a5d6a7", color="#2e7d32"];
     }
 }

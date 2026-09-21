@@ -6,13 +6,13 @@
 
 システムは 7 層の多層防御モデルを採用し、外から内へと層ごとに悪意のあるリクエストをフィルタリングし、任意の単一層が機能しなくても後続の防衛線が残ることを保証します。
 
-中間ウェアチェーン全体は以下の順序で実行されます（`config/middleware.php` 参照）：
+ミドルウェアチェーン全体は以下の順序で実行されます（`config/middleware.php` 参照）：
 
 ```
 请求 → Cors → SecurityFilter → RateLimit → [路由组中间件: AdminAuth → AdminPermission → OperationLog] → Controller
 ```
 
-| 層 | 中間ウェア/メカニズム | 防衛目標 |
+| 層 | ミドルウェア/メカニズム | 防衛目標 |
 |----|--------|---------|
 | 1 | SecurityFilter | XSS / SQL インジェクション / パストラバーサル / コマンドインジェクション / CSRF 攻撃のブロック |
 | 2 | Cors | クロスオリジンセキュリティ + レスポンスセキュリティヘッダー注入 |
@@ -152,7 +152,7 @@ if (Redis::get("security_ban:{$ip}")) {
 
 ログ形式の例：
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -168,13 +168,13 @@ POST/PUT リクエストは**必ず** `Content-Type` を `application/json` ま�
 
 ## 4. レスポンスセキュリティヘッダー
 
-すべてのヘッダーは `Cors` 中間ウェアで注入され、`$response->withHeaders()` で各レスポンスに追加されます。
+すべてのヘッダーは `Cors` ミドルウェアで注入され、`$response->withHeaders()` で各レスポンスに追加されます。
 
 | ヘッダー | 値 | 役割 |
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | 任意のオリジンのクロスオリジンを許可（社内ネットワーク管理バックエンドのシナリオ） |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | 許可されるメソッド集合 |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | 許可されるカスタムヘッダー |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | 許可されるカスタムヘッダー |
 | Access-Control-Max-Age | `86400` | プリフライトリクエストを 24 時間キャッシュ |
 | X-Content-Type-Options | `nosniff` | ブラウザの MIME スニッフィングを禁止 |
 | X-Frame-Options | `DENY` | すべての iframe 埋め込みを禁止し、クリックジャッキングを防止 |
@@ -186,7 +186,7 @@ OPTIONS プリフライトリクエストは直接 204 空レスポンスを返�
 
 ### 4.2 Content-Security-Policy (CSP)
 
-他のセキュリティヘッダーと同様に Cors 中間ウェアで注入され、多層防御を提供し、ブラウザがロードおよび実行できるリソースのソースを制限します。
+他のセキュリティヘッダーと同様に Cors ミドルウェアで注入され、多層防御を提供し、ブラウザがロードおよび実行できるリソースのソースを制限します。
 
 | ヘッダー | 値 | 役割 |
 |----|-----|------|
@@ -226,8 +226,8 @@ Lua スクリプトは Redis サーバー側でシングルスレッド実行さ
 | ルート | 制限 | ウィンドウ | シナリオ |
 |------|------|------|------|
 | デフォルト（全ルート） | 60 回/分 | 60s | 汎用 API |
-| `/api/auth/login` | 10 回/分 | 60s | ログイン（ブルートフォース対策） |
-| `/api/auth/register` | 5 回/分 | 60s | 登録（大量登録対策；デフォルト無効、`REGISTRATION_ENABLED=1` で有効化） |
+| `/api/v1/auth/login` | 10 回/分 | 60s | ログイン（ブルートフォース対策） |
+| `/api/v1/auth/register` | 5 回/分 | 60s | 登録（大量登録対策；デフォルト無効、`REGISTRATION_ENABLED=1` で有効化） |
 
 ### レスポンスヘッダー
 
@@ -293,7 +293,7 @@ try {
 
 ### 6.1 JWT 認証
 
-AdminAuth 中間ウェアで実装され、認証が必要なルートグループにマウントされています。
+AdminAuth ミドルウェアで実装され、認証が必要なルートグループにマウントされています。
 
 **パラメータ設定**（`config/plugin/erikwang2013/jwt/jwt`、`.env` から注入）：
 
@@ -301,8 +301,8 @@ AdminAuth 中間ウェアで実装され、認証が必要なルートグルー�
 |------|-----|------|
 | アルゴリズム | HS256 | HMAC-SHA256 対称署名 |
 | シークレット | `JWT_SECRET` | 環境変数から注入、本番環境では変更が必要 |
-| access_token TTL | 7200s (2h) | `JWT_TTL` |
-| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| access_token TTL | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | 発行者 | `open-admin` | `JWT_ISSUER` |
 | オーディエンス | `open-admin` | `JWT_AUDIENCE` |
 
@@ -345,7 +345,7 @@ Token 漏洩後の複数デバイスでの悪用を防ぐため、システム�
 
 ### 6.3 RBAC 権限モデル
 
-AdminPermission 中間ウェアで実装されています。
+AdminPermission ミドルウェアで実装されています。
 
 **データモデル**：User -> Role -> Permission の 3 層関連
 
@@ -385,7 +385,7 @@ API 権限識別子の形式：`{method}.{path}`
 
 ### 7.1 操作ログ
 
-OperationLog 中間ウェアは POST / PUT / DELETE リクエストの操作ログを自動記録します。GET リクエストは記録しません。
+OperationLog ミドルウェアは POST / PUT / DELETE リクエストの操作ログを自動記録します。GET リクエストは記録しません。
 
 **記録フィールド**：
 
@@ -543,7 +543,7 @@ Policy: https://erik.xyz/security-policy
 | Canonical | このファイルの正規 URL |
 | Policy | セキュリティポリシー/脆弱性開示ポリシーのリンク |
 
-このエンドポイントはレート制限、認証などの中間ウェアの影響を受けず、誰でも直接アクセスできます。
+このエンドポイントはレート制限、認証などのミドルウェアの影響を受けず、誰でも直接アクセスできます。
 
 ---
 

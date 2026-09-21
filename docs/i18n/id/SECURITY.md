@@ -152,7 +152,7 @@ Lokasi file: `runtime/logs/security.log`
 
 Contoh format log:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ Semua header diinjeksikan di middleware `Cors`, ditambahkan ke setiap respons me
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | Mengizinkan lintas domain sumber mana pun (skenario panel admin intranet) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | Kumpulan metode yang diizinkan |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | Header kustom yang diizinkan |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | Header kustom yang diizinkan |
 | Access-Control-Max-Age | `86400` | Cache permintaan preflight 24 jam |
 | X-Content-Type-Options | `nosniff` | Melarang browser MIME sniffing |
 | X-Frame-Options | `DENY` | Melarang semua embed iframe, mencegah clickjacking |
@@ -226,8 +226,8 @@ Skrip Lua dieksekusi single-thread di sisi server Redis, **secara alami atomik**
 | Rute | Batas | Jendela | Skenario |
 |------|------|------|------|
 | Default (semua rute) | 60 kali/menit | 60s | API umum |
-| `/api/auth/login` | 10 kali/menit | 60s | Login (mencegah brute force) |
-| `/api/auth/register` | 5 kali/menit | 60s | Registrasi (mencegah registrasi massal; nonaktif secara default, perlu `REGISTRATION_ENABLED=1` untuk mengaktifkan) |
+| `/api/v1/auth/login` | 10 kali/menit | 60s | Login (mencegah brute force) |
+| `/api/v1/auth/register` | 5 kali/menit | 60s | Registrasi (mencegah registrasi massal; nonaktif secara default, perlu `REGISTRATION_ENABLED=1` untuk mengaktifkan) |
 
 ### Header Respons
 
@@ -301,8 +301,8 @@ Diimplementasikan oleh middleware AdminAuth, dipasang pada grup rute yang memerl
 |------|-----|------|
 | Algoritma | HS256 | Tanda tangan simetris HMAC-SHA256 |
 | Kunci | `JWT_SECRET` | Diinjeksi dari variabel lingkungan, perlu diganti di produksi |
-| TTL access_token | 7200s (2h) | `JWT_TTL` |
-| TTL refresh_token | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| TTL access_token | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| TTL refresh_token | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | Issuer | `open-admin` | `JWT_ISSUER` |
 | Audience | `open-admin` | `JWT_AUDIENCE` |
 

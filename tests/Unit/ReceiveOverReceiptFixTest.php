@@ -47,8 +47,11 @@ class ReceiveOverReceiptFixTest extends TestCase
     {
         $src = $this->receiveSource();
 
-        // 校验器强制要求 order_item_id
-        $this->assertStringContainsString("'items.*.order_item_id' => 'required'", $src);
+        // order_item_id 可缺省（明细行 hashid 无界面可查）：缺省时按 product_id 在本单反查，
+        // 唯一才可判定；显式传入者仍走归属校验
+        $this->assertStringContainsString("'items.*.order_item_id' => 'nullable'", $src);
+        $this->assertStringContainsString("\$candidates = \$orderItems->where('product_id', \$productId)", $src, '缺省时应按商品反查本单明细行');
+        $this->assertStringContainsString('无法确定', $src, '同商品多行/不在本单应拒绝而非猜测');
         // 归属校验：先查明细归属（预取订单明细 + isset 判断）再入库
         $this->assertStringContainsString('$orderItems = PurchaseOrderItem::query()->where(\'order_id\', $orderId)->get()->keyBy(\'id\')', $src);
         $this->assertStringContainsString('order_item_id 缺失或不属于该采购订单', $src);
@@ -121,7 +124,11 @@ class ReceiveOverReceiptFixTest extends TestCase
         $src = $this->deliverySource();
 
         // 销售发货同模式修复：超发拒绝 + order_item 归属校验 + 逐行状态
-        $this->assertStringContainsString("'items.*.order_item_id' => 'required'", $src);
+        // order_item_id 由 required 改 nullable：前端拿不到明细行 ID（下拉数据源只有商品），
+        // 必填等于「必填但不可得」；改按本单商品唯一匹配解析，匹配不唯一才 422。
+        $this->assertStringContainsString("'items.*.order_item_id' => 'nullable'", $src);
+        $this->assertStringContainsString("where('product_id', \$productId)", $src);
+        $this->assertStringContainsString('无法确定，请显式传入 order_item_id', $src);
         $this->assertStringContainsString('超发拒绝', $src);
         $this->assertStringContainsString('order_item_id 缺失或不属于该销售订单', $src);
         $this->assertStringContainsString('sales_delivery_item.quantity) as total_delivered', $src);

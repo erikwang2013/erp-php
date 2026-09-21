@@ -152,7 +152,7 @@ Emplacement du fichier : `runtime/logs/security.log`
 
 Exemple de format de journal :
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ Tous les en-têtes sont injectés dans le middleware `Cors`, ajoutés à chaque 
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | autorise toute origine interdomaine (scénario console d'administration en intranet) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | ensemble des méthodes autorisées |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | en-têtes personnalisés autorisés |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | en-têtes personnalisés autorisés |
 | Access-Control-Max-Age | `86400` | cache de la requête de prévol 24 h |
 | X-Content-Type-Options | `nosniff` | interdit le sniffing MIME du navigateur |
 | X-Frame-Options | `DENY` | interdit tout embedding iframe, contre le détournement de clic |
@@ -226,8 +226,8 @@ Le script Lua s'exécute en un seul thread côté serveur Redis, **naturellement
 | Route | Limite | Fenêtre | Scénario |
 |------|------|------|------|
 | Défaut (toutes les routes) | 60 fois/minute | 60 s | API générale |
-| `/api/auth/login` | 10 fois/minute | 60 s | connexion (anti-force brute) |
-| `/api/auth/register` | 5 fois/minute | 60 s | inscription (anti-inscription de masse ; désactivée par défaut, nécessite `REGISTRATION_ENABLED=1`) |
+| `/api/v1/auth/login` | 10 fois/minute | 60 s | connexion (anti-force brute) |
+| `/api/v1/auth/register` | 5 fois/minute | 60 s | inscription (anti-inscription de masse ; désactivée par défaut, nécessite `REGISTRATION_ENABLED=1`) |
 
 ### En-têtes de réponse
 
@@ -301,8 +301,8 @@ Implémentée par le middleware AdminAuth, montée sur les groupes de routes né
 |------|-----|------|
 | Algorithme | HS256 | signature symétrique HMAC-SHA256 |
 | Clé | `JWT_SECRET` | injectée par variable d'environnement, à remplacer en production |
-| TTL access_token | 7200 s (2 h) | `JWT_TTL` |
-| TTL refresh_token | 1209600 s (14 j) | `JWT_REFRESH_TTL` |
+| TTL access_token | 7200 s (2 h) | `JWT_DEFAULT_EXPIRE` |
+| TTL refresh_token | 1209600 s (14 j) | `JWT_REFRESH_EXPIRE` |
 | Émetteur | `open-admin` | `JWT_ISSUER` |
 | Audience | `open-admin` | `JWT_AUDIENCE` |
 

@@ -149,6 +149,7 @@ return [
     ':envKey may only contain visible characters and must not contain $ or backslash' => 'قد يحتوي :envKey على أحرف مرئية فقط ويجب ألا يحتوي على $ أو شرطة مائلة عكسية',
     ':envKey must be a 2-5 digit port' => 'يجب أن يكون :envKey منفذًا مكونًا من 2-5 أرقام',
     ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => 'يجب أن يكون :field مفتاحًا أبجديًا رقميًا مكونًا من 16-128 حرفًا (أو اتركه فارغًا للإنشاء التلقائي)',
+    ':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate' => ':envKey يجب أن يتكون من 32 حرفًا أبجديًا رقميًا بالضبط (مفتاح AES-256)، أو اتركه فارغًا للتوليد التلقائي',
     'Please enter the database host' => 'يرجى إدخال مضيف قاعدة البيانات',
     'Please fill in host/port/database/user before testing' => 'يرجى ملء المضيف/المنفذ/قاعدة البيانات/المستخدم قبل الاختبار',
     'Testing...' => 'جارٍ الاختبار...',

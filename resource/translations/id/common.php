@@ -436,4 +436,6 @@ return [
     'Material dispatch number already exists' => 'Nomor pengiriman material sudah ada',
     'Audited material dispatches cannot be modified' => 'Pengiriman material yang telah diaudit tidak dapat diubah',
     'Audited material dispatches cannot be deleted' => 'Pengiriman material yang telah diaudit tidak dapat dihapus',
+    'Number ":code" already exists; please refresh the page and use another one' => 'Nomor ":code" sudah ada; silakan muat ulang halaman dan gunakan nomor lain',
+    'Issued-out records cannot be deleted' => 'Catatan pengeluaran tidak dapat dihapus',
 ];

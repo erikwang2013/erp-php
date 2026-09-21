@@ -6,7 +6,7 @@
 
 ## 1. सिस्टम आर्किटेक्चर
 
-> **फ़ीचर सूची**: प्रमाणीकरण (login/register/refresh/logout + खाता लॉक + सत्र सीमा) | डैशबोर्ड (Redis कैश) | उपयोगकर्ता CRUD+बैच+आयात | भूमिका-अनुमति (RBAC) | सिस्टम कॉन्फ़िगरेशन | ऑपरेशन ऑडिट (8 प्लेटफ़ॉर्म स्रोत एंडपॉइंट) | फ़ाइल (अपलोड+निर्यात+मास्किंग) | सुरक्षा (18 परत रक्षा) | संचालन (health/metrics/docs/Docker/CI)
+> **फ़ीचर सूची**: प्रमाणीकरण (login/register/refresh/logout + खाता लॉक + सत्र सीमा) | डैशबोर्ड (Redis कैश) | उपयोगकर्ता CRUD+बैच+आयात | भूमिका-अनुमति (RBAC) | सिस्टम कॉन्फ़िगरेशन | ऑपरेशन ऑडिट (8 प्लेटफ़ॉर्म स्रोत एंडपॉइंट) | फ़ाइल (अपलोड+निर्यात+मास्किंग) | सुरक्षा (7 परत मिडलवेयर गहन रक्षा, L0–L12 पैनोरमा + 35 प्रकार के आक्रमण डिटेक्टर) | संचालन (health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -60,8 +60,8 @@
 | परत | निर्देशिका | जिम्मेदारी |
 |---|------|------|
 | रूट | `config/route.php` | URL से कंट्रोलर मैपिंग, मिडलवेयर बाइंडिंग, संस्करणित रूट |
-| मिडलवेयर | `app/middleware/` | हमला अवरोधन (SecurityFilter), रेट लिमिट (RateLimit), प्रमाणीकरण (JWT), प्राधिकरण (RBAC), API संस्करण (ApiVersion) |
-| कंट्रोलर | 14: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (प्रशासन एंड) + Captcha/Auth (API v1) | अनुरोध पैरामीटर सत्यापन, व्यावसायिक तर्क कॉल, प्रतिक्रिया स्वरूपण |
+| मिडलवेयर | `app/middleware/` | क्रॉस-ओरिजिन(Cors), आक्रमण अवरोधन(SecurityFilter), रेट लिमिट(RateLimit), ट्रेस श्रृंखला(TracingId), प्रमाणीकरण(JWT), प्राधिकरण(RBAC), ऑपरेशन लॉग(OperationLog), ओपन इंटरफ़ेस हस्ताक्षर(OpenApiAuth) कुल 11 फ़ाइलें |
+| कंट्रोलर | प्रशासन एंड 15: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (साथ ही आधार क्लास `BaseController`) + API v1 3: Captcha/Auth/Product | अनुरोध पैरामीटर सत्यापन, व्यावसायिक तर्क कॉल, प्रतिक्रिया स्वरूपण |
 | व्यावसायिक सेवा | `app/service/` | पुन: प्रयोज्य व्यावसायिक तर्क (आरक्षित) |
 | डेटा मॉडल | `app/model/` | ORM मैपिंग, संबंध, फ़ील्ड एन्क्रिप्शन/डिक्रिप्शन |
 | सार्वजनिक उपकरण | `app/common/` | Hashids, Snowflake, Encryption सेवाएँ |
@@ -79,14 +79,17 @@ Route 匹配
   │
   ▼
 中间件链:
+  Cors ────────────────► 处理 OPTIONS 预检，注入 CORS 响应头
+  │
+  ▼
   SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
   ▼
   RateLimit ───────────► Redis 滑动窗口限流
   │ (失败返回 429 + Retry-After 头)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  TracingId ───────────► 生成 X-Trace-Id，贯穿全链路
+  │ (版本号置于 URL 路径 /admin/v1 /api/v1 /open/v1，无版本头中间件)
   ▼
   AdminAuth ──────────► JWT 验证，注入 $request->adminId
   │ (失败返回 401)
@@ -169,58 +172,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 URL मानदंड
 
 ```
-公开接口:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+公开接口:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 管理端:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 资源路由:
-  GET    /admin/user          → 列表
-  POST   /admin/user          → 创建
-  GET    /admin/user/{hashid} → 详情
-  PUT    /admin/user/{hashid} → 更新
-  DELETE /admin/user/{hashid} → 删除（需密码确认）
+  GET    /admin/v1/user          → 列表
+  POST   /admin/v1/user          → 创建
+  GET    /admin/v1/user/{hashid} → 详情
+  PUT    /admin/v1/user/{hashid} → 更新
+  DELETE /admin/v1/user/{hashid} → 删除（需密码确认）
 
-系统配置:  /admin/config[/{hashid}]
-操作日志:  /admin/log
-个人中心:  /admin/profile[/password|/logout]
-导入:     /admin/import/users
-上传:     /admin/upload
-批量:     /admin/user/batch/{destroy|status}
+系统配置:  /admin/v1/config[/{hashid}]
+操作日志:  /admin/v1/log
+个人中心:  /admin/v1/profile[/password|/logout]
+导入:     /admin/v1/import/users
+上传:     /admin/v1/upload
+批量:     /admin/v1/user/batch/{destroy|status}
 文档:     /api/docs     (OpenAPI 3.0)
 健康:     /health
 ```
 
 ### 4.2 API संस्करण रणनीति
 
-API संस्करण अनुरोध हेडर से नियंत्रित होता है, **URL पथ में दिखाई नहीं देता**:
-
-```http
-API-Version: v1
-```
+API संस्करण **URL पथ में** रखा जाता है, संस्करण अनुरोध हेडर का उपयोग नहीं होता: प्रशासन एंड `/admin/v1`, क्लाइंट `/api/v1`, ओपन इंटरफ़ेस `/open/v1`।
 
 | तंत्र | विवरण |
 |------|------|
-| डिफ़ॉल्ट संस्करण | `API-Version` हेडर न होने पर डिफ़ॉल्ट `v1` |
-| सत्यापन | `ApiVersion` मिडलवेयर सत्यापन, असमर्थित संस्करण पर 400 लौटता है |
-| रूट | `v()` सहायक फ़ंक्शन संस्करण के अनुसार कंट्रोलर क्लास गतिशील रूप से पार्स करता है |
+| संस्करण स्थान | URL पथ, जैसे `/api/v1/auth/login` |
+| रूट समूह | `config/route.php` में `Route::group('/api/v1', …)` सीधे कंट्रोलर बाइंड करता है |
 | निर्देशिका | कंट्रोलर संस्करण के अनुसार व्यवस्थित: `app/api/{version}/controller/` |
+| संस्करण हेडर मिडलवेयर | ऐतिहासिक `v()` गतिशील पार्सिंग और `ApiVersion` अनुरोध हेडर मिडलवेयर **हटा दिए गए हैं** |
 
 विस्तार उदाहरण — नया v2 API जोड़ना:
 1. `app/api/v2/controller/AuthController.php` बनाएँ
-2. `ApiVersion` मिडलवेयर `SUPPORTED` स्थिरांक में `'v2'` जोड़ें
-3. रूट परिभाषा में संशोधन आवश्यक नहीं
+2. `config/route.php` में `Route::group('/api/v2', …)` समूह पंजीकृत करें और सीधे कंट्रोलर बाइंड करें
+3. संस्करण अनुरोध हेडर नहीं, रूट समूह स्वयं संस्करण सीमा है
 
 ```bash
 # 使用 v1
-curl -H "API-Version: v1" /api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 
 # 使用 v2
-curl -H "API-Version: v2" /api/auth/login
-
-# 不传，默认 v1
-curl /api/auth/login
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 रेट लिमिट रणनीति
@@ -230,8 +226,8 @@ Redis Sorted Set स्लाइडिंग विंडो एल्गोर�
 | इंटरफ़ेस | सीमा |
 |------|------|
 | डिफ़ॉल्ट | 60 बार/मिनट/IP/रूट |
-| POST /api/auth/login | 10 बार/मिनट |
-| POST /api/auth/register | 5 बार/मिनट |
+| POST /api/v1/auth/login | 10 बार/मिनट |
+| POST /api/v1/auth/register | 5 बार/मिनट |
 
 सीमा पार करने पर 429 लौटता है, प्रतिक्रिया हेडर में X-RateLimit-Limit / Remaining / Reset / Retry-After शामिल।
 
@@ -260,12 +256,12 @@ Redis Sorted Set स्लाइडिंग विंडो एल्गोर�
 ```
 客户端                               服务端
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② 用户点击图中文字位置              │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -274,7 +270,7 @@ Redis Sorted Set स्लाइडिंग विंडो एल्गोर�
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -302,7 +298,7 @@ Redis Sorted Set स्लाइडिंग विंडो एल्गोर�
 ```
 客户端                           服务端
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -375,7 +371,7 @@ Redis Sorted Set स्लाइडिंग विंडो एल्गोर�
 ### 6.2 कुंजी प्रबंधन
 
 ```
-JWT_SECRET          → 环境变量注入，64位随机字符串
+JWT_SECRET_KEY      → 环境变量注入，64位随机字符串
 HASHIDS_SALT        → 唯一盐值，泄漏后需全局更换
 ENCRYPTION_KEY      → API 传输加密密钥，32字节
 ENCRYPTABLE_KEY     → DB 存储加密密钥，与传输密钥独立
@@ -398,7 +394,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 Excel निर्यात
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
+请求: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() 查询数据 (limit 10000)
   → 脱敏敏感字段
   → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
@@ -408,7 +404,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.2 PDF निर्यात
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
+请求: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
   → Dompdf 渲染 A4 横向
   → 写入 runtime/tmp/ → download 响应
@@ -435,7 +431,7 @@ Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
 | `redis` | redis:7-alpine | 6379 | कैश / रेट लिमिट / कैप्चा |
 | `elasticsearch` | elasticsearch:8.x | 9200 | फुल-टेक्स्ट खोज |
 
-प्रारंभ करने से पहले `docker-compose.yml` में `JWT_SECRET`, `HASHIDS_SALT`, `ENCRYPTION_KEY` आदि कुंजियों को यादृच्छिक स्ट्रिंग से बदलें।
+प्रारंभ करने से पहले `docker-compose.yml` में `JWT_SECRET_KEY`, `HASHIDS_SALT`, `ENCRYPTION_KEY` आदि कुंजियों को यादृच्छिक स्ट्रिंग से बदलें।
 
 ```bash
 cp .env.docker .env

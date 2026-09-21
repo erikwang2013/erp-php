@@ -152,7 +152,7 @@ File location: `runtime/logs/security.log`
 
 Log format example:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ All headers are injected in the `Cors` middleware, appended to every response vi
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | Allows any origin to make cross-origin requests (intranet admin console scenario) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | Allowed method set |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | Allowed custom headers |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | Allowed custom headers |
 | Access-Control-Max-Age | `86400` | Preflight request cache for 24 hours |
 | X-Content-Type-Options | `nosniff` | Prevents browser MIME sniffing |
 | X-Frame-Options | `DENY` | Forbids all iframe embedding, clickjacking protection |
@@ -226,8 +226,8 @@ The Lua script executes single-threaded on the Redis server, **naturally atomic*
 | Route | Limit | Window | Scenario |
 |------|------|------|------|
 | Default (all routes) | 60 times/minute | 60s | General API |
-| `/api/auth/login` | 10 times/minute | 60s | Login (brute-force protection) |
-| `/api/auth/register` | 5 times/minute | 60s | Registration (mass-registration protection; disabled by default, requires `REGISTRATION_ENABLED=1`) |
+| `/api/v1/auth/login` | 10 times/minute | 60s | Login (brute-force protection) |
+| `/api/v1/auth/register` | 5 times/minute | 60s | Registration (mass-registration protection; disabled by default, requires `REGISTRATION_ENABLED=1`) |
 
 ### Response Headers
 
@@ -300,9 +300,9 @@ Implemented in the AdminAuth middleware, mounted on route groups requiring authe
 | Parameter | Value | Description |
 |------|-----|------|
 | Algorithm | HS256 | HMAC-SHA256 symmetric signing |
-| Secret | `JWT_SECRET` | Environment variable injection, must be changed in production |
-| access_token TTL | 7200s (2h) | `JWT_TTL` |
-| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| Secret | `JWT_SECRET_KEY` | Environment variable injection (`env_required`), must be changed in production |
+| access_token TTL | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | Issuer | `open-admin` | `JWT_ISSUER` |
 | Audience | `open-admin` | `JWT_AUDIENCE` |
 
@@ -489,7 +489,7 @@ All keys are injected via `.env` environment variables; config files read them w
 
 | Environment Variable | Purpose | Package | Production Requirement |
 |----------|------|-----|---------|
-| JWT_SECRET | JWT signing secret | erikwang2013/jwt-webman | 64+ character random string |
+| JWT_SECRET_KEY | JWT signing secret | erikwang2013/jwt-webman | 64+ character random string |
 | JWT_ALGORITHM | JWT signing algorithm | same as above | keep HS256 |
 | HASHIDS_SALT | ID encoding salt | erikwang2013/hashids | random string |
 | SNOWFLAKE_DATACENTER_ID | Datacenter ID (0-31) | erikwang2013/snowflake-php | keep default for single datacenter |
@@ -509,7 +509,7 @@ All keys are injected via `.env` environment variables; config files read them w
 | Transport encryption | `config/encryption.php` → `key` | `ENCRYPTION_KEY` |
 | Storage encryption | `config/encryptable.php` → `key` | `ENCRYPTABLE_KEY` |
 | ID obfuscation | `config/hashids.php` → `connections.main.salt` | `HASHIDS_SALT` |
-| JWT signing | `config/plugin/erikwang2013/jwt/jwt` | `JWT_SECRET` |
+| JWT signing | `config/plugin/erikwang2013/jwt/jwt.php` | `JWT_SECRET_KEY` |
 
 ---
 

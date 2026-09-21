@@ -50,7 +50,7 @@ mysql -u root -p erp < database/install.sql
 ```bash
 cd /home/wwwroot/erp-php/service
 cp .env.example .env
-# 生成随机密钥并写入 .env（JWT_SECRET/ENCRYPTION_KEY/HASHIDS_SALT 等，幂等；占位值会被 env_required 拒绝启动）
+# 生成随机密钥并写入 .env（JWT_SECRET_KEY/ENCRYPTION_KEY/HASHIDS_SALT 等，幂等；占位值会被 env_required 拒绝启动）
 bash scripts/gen-env-keys.sh .env
 ```
 
@@ -68,7 +68,7 @@ REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 REDIS_PASSWORD=
 
-JWT_SECRET=修改为32位以上随机字符串
+JWT_SECRET_KEY=修改为32位以上随机字符串
 APP_KEY=修改为32位随机字符串
 
 # 开放注册开关（默认 0=关闭，接口返回 403；生产建议保持关闭）
@@ -97,6 +97,29 @@ curl http://localhost:8788/health
 ```
 
 浏览器访问 `http://localhost:8788/apidoc` 查看 API 文档。
+
+---
+
+## 升级已部署环境
+
+本仓库无迁移工具：schema 与种子以 `database/install.sql` 为唯一事实源，而它是**整库一次性安装脚本
+（普通 `INSERT`，非幂等）——不可在现网库上重跑**。升级按差异手工执行：
+
+```bash
+git diff <旧版本>..<新版本> -- database/install.sql    # 取出表结构与种子的差异
+```
+
+1. 差异中的 `CREATE TABLE`（带 `IF NOT EXISTS`，可原样跑）/ `ALTER TABLE` / 种子 `INSERT` 按序在现网库执行。
+2. **权限种子**：新端点对应的 `erp_admin_permission` 行需补录。超级管理员例外——它持有通配权限
+   （`erp_admin_permission` 中 `slug = '*'` 的「全部权限」行，`app/middleware/AdminPermission.php:38`
+   见 `*` 即全放行），新增端点自动生效；自定义角色需再补关联：
+
+   ```sql
+   INSERT INTO `erp_admin_role_permission` (`role_id`, `permission_id`)
+   SELECT <角色ID>, `id` FROM `erp_admin_permission` WHERE `slug` = '<新端点的权限 slug>';
+   ```
+
+3. 升级后跑一次 `curl http://localhost:8788/health` 与管理端登录冒烟，确认服务可用。
 
 ---
 

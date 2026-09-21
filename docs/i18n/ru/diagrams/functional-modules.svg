@@ -139,8 +139,8 @@
 <path fill="#1a237e" stroke="#0d47a1" stroke-width="2" d="M11429,-166.6C11429,-166.6 11217,-166.6 11217,-166.6 11211,-166.6 11205,-160.6 11205,-154.6 11205,-154.6 11205,-110.6 11205,-110.6 11205,-104.6 11211,-98.6 11217,-98.6 11217,-98.6 11429,-98.6 11429,-98.6 11435,-98.6 11441,-104.6 11441,-110.6 11441,-110.6 11441,-154.6 11441,-154.6 11441,-160.6 11435,-166.6 11429,-166.6"/>
 <text text-anchor="middle" x="11323" y="-151.4" font-family="Arial Bold" font-size="14.00" fill="white">Open ERP System</text>
 <text text-anchor="middle" x="11323" y="-136.4" font-family="Arial Bold" font-size="14.00" fill="white">Functional Modules</text>
-<text text-anchor="middle" x="11323" y="-121.4" font-family="Arial Bold" font-size="14.00" fill="white">19 Business Domains / 163 Tables</text>
-<text text-anchor="middle" x="11323" y="-106.4" font-family="Arial Bold" font-size="14.00" fill="white">121 Controllers</text>
+<text text-anchor="middle" x="11323" y="-121.4" font-family="Arial Bold" font-size="14.00" fill="white">23 Business Domains / 227 Tables</text>
+<text text-anchor="middle" x="11323" y="-106.4" font-family="Arial Bold" font-size="14.00" fill="white">139 Controllers</text>
 </g>
 <!-- a1 -->
 <g id="node2" class="node">
@@ -1218,4 +1218,4 @@
 <text text-anchor="middle" x="17950" y="-28.6" font-family="Arial" font-size="9.00">Metric Display</text>
 </g>
 </g>
-<text x="18152" y="189" font-size="13" fill="rgba(0,0,0,0.25)" font-family="sans-serif" text-anchor="end">erik.xyz</text></svg>
+</svg>

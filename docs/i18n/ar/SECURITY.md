@@ -152,7 +152,7 @@ if (Redis::get("security_ban:{$ip}")) {
 
 مثال على تنسيق السجل:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ if (Redis::get("security_ban:{$ip}")) {
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | السماح بأي مصدر عبر النطاقات (سيناريو لوحة إدارة الشبكة الداخلية) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | مجموعة الطرق المسموحة |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | الرؤوس المخصصة المسموحة |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | الرؤوس المخصصة المسموحة |
 | Access-Control-Max-Age | `86400` | تخزين طلب ما قبل الفحص 24 ساعة |
 | X-Content-Type-Options | `nosniff` | منع تخمين نوع MIME في المتصفح |
 | X-Frame-Options | `DENY` | منع كل التضمين عبر iframe، لمنع اختطاف النقر |
@@ -226,8 +226,8 @@ redis.call('EXPIRE', KEYS[1], window + 10)
 | المسار | الحد | النافذة | السيناريو |
 |------|------|------|------|
 | الافتراضي (كل المسارات) | 60 مرة/دقيقة | 60s | API عام |
-| `/api/auth/login` | 10 مرات/دقيقة | 60s | تسجيل الدخول (منع القوة الغاشمة) |
-| `/api/auth/register` | 5 مرات/دقيقة | 60s | التسجيل (منع التسجيل الجماعي؛ مغلق افتراضيًا، يُفتح بـ `REGISTRATION_ENABLED=1`) |
+| `/api/v1/auth/login` | 10 مرات/دقيقة | 60s | تسجيل الدخول (منع القوة الغاشمة) |
+| `/api/v1/auth/register` | 5 مرات/دقيقة | 60s | التسجيل (منع التسجيل الجماعي؛ مغلق افتراضيًا، يُفتح بـ `REGISTRATION_ENABLED=1`) |
 
 ### رؤوس الاستجابة
 
@@ -295,14 +295,14 @@ try {
 
 منفذة في وسيط AdminAuth، مركبة على مجموعات التوجيه التي تحتاج المصادقة.
 
-**إعدادات المعاملات** (`config/plugin/erikwang2013/jwt/jwt`، يُحقن عبر `.env`):
+**إعدادات المعاملات** (`config/plugin/erikwang2013/jwt/jwt.php`، يُحقن عبر `.env`):
 
 | المعامل | القيمة | الوصف |
 |------|-----|------|
 | الخوارزمية | HS256 | توقيع متماثل HMAC-SHA256 |
-| المفتاح | `JWT_SECRET` | يُحقن عبر متغير بيئة، يجب تغييره في الإنتاج |
-| TTL لـ access_token | 7200s (2h) | `JWT_TTL` |
-| TTL لـ refresh_token | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| المفتاح | `JWT_SECRET_KEY` | يُحقن عبر متغير بيئة، يجب تغييره في الإنتاج |
+| TTL لـ access_token | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| TTL لـ refresh_token | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | المُصدر | `open-admin` | `JWT_ISSUER` |
 | الجمهور | `open-admin` | `JWT_AUDIENCE` |
 
@@ -489,7 +489,7 @@ try {
 
 | متغير البيئة | الاستخدام | الحزمة | متطلب الإنتاج |
 |----------|------|-----|---------|
-| JWT_SECRET | مفتاح توقيع JWT | erikwang2013/jwt-webman | سلسلة عشوائية 64+ حرفًا |
+| JWT_SECRET_KEY | مفتاح توقيع JWT | erikwang2013/jwt-webman | سلسلة عشوائية 64+ حرفًا |
 | JWT_ALGORITHM | خوارزمية توقيع JWT | نفسها | الإبقاء على HS256 |
 | HASHIDS_SALT | ملح ترميز المعرّفات | erikwang2013/hashids | سلسلة عشوائية |
 | SNOWFLAKE_DATACENTER_ID | معرّف مركز البيانات (0-31) | erikwang2013/snowflake-php | الإبقاء على الافتراضي لمركز واحد |
@@ -509,7 +509,7 @@ try {
 | تشفير النقل | `config/encryption.php` → `key` | `ENCRYPTION_KEY` |
 | تشفير التخزين | `config/encryptable.php` → `key` | `ENCRYPTABLE_KEY` |
 | إخفاء المعرّفات | `config/hashids.php` → `connections.main.salt` | `HASHIDS_SALT` |
-| توقيع JWT | `config/plugin/erikwang2013/jwt/jwt` | `JWT_SECRET` |
+| توقيع JWT | `config/plugin/erikwang2013/jwt/jwt.php` | `JWT_SECRET_KEY` |
 
 ---
 

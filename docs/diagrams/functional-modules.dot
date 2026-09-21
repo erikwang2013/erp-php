@@ -9,7 +9,7 @@ digraph FunctionalModules {
     splines=polyline;
 
     // Root node
-    root [label="Open ERP System\nFunctional Modules\n19 Business Domains / 163 Tables\n121 Controllers",
+    root [label="Open ERP System\nFunctional Modules\n23 Business Domains / 227 Tables\n139 Controllers",
           shape="box", style="filled,rounded", fillcolor="#1a237e", color="#0d47a1",
           fontcolor="white", fontsize=14, fontname="Arial Bold", penwidth=2];
 

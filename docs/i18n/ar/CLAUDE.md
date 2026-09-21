@@ -18,16 +18,18 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 > وثيقة البنية: `ARCHITECTURE.md` §21
 > مصفوفة الوظائف: `FUNCTIONS.md` §19
 
-**النتيجة الشاملة الحالية 89/100** — اكتملت خارطة الطريق الكاملة P0~P3، تغطية شاملة 22 وحدة من الطرف إلى الطرف، جاهزة للإنتاج.
+**النتيجة الشاملة الحالية 89/100** — اكتملت خارطة الطريق الكاملة P0~P3، تغطية شاملة 23 وحدة من الطرف إلى الطرف، جاهزة للإنتاج.
 
 | المرحلة | المدة | التسليمات | الحالة |
 |------|------|--------|------|
-| 🔵 **P0** بيئة الواجهة | 3-4 أسابيع | 97 صفحة Flutter + 34 صفحة HarmonyOS + 4 مكونات عامة | ✅ |
+| 🔵 **P0** بيئة الواجهة | 3-4 أسابيع | 102 مسار قائمة Flutter (menu_config.dart) + 41 صفحة HarmonyOS + 4 مكونات عامة | ✅ |
 | 🟢 **P1** عمق الأعمال | 4-6 أسابيع | محرك المالية + محرك الرواتب + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** موثوقية التشغيل | 1-2 أسبوعين | استرجاع الهجرات + نسخ احتياطي تلقائي + TraceId + محركا قوائم انتظار | ✅ |
-| 🟣 **P3** تحسين التجربة | 2-3 أسابيع | لوحات BI + EAM + تعدد المستأجرين + DMS + 7 جداول جديدة | ✅ |
+| 🟣 **P3** تحسين التجربة | 2-3 أسابيع | لوحات BI + EAM + DMS | ✅ |
 
-**الاختبارات**: 513 اختبارًا، 2368 تأكيدًا (32 متخطيًا) — جميعها ناجحة. **Flutter**: 0 خطأ، 0 تحذير.
+(سُلّم تعدد المستأجرين B5 مبكرًا في P2: سياق طلب TenantScope + جدول `erp_tenant`، مع عدم تسجيل seam الوسيط الخاص بالعزل)
+
+**الاختبارات**: 1001 اختبارًا، 4726 تأكيدًا (23 متخطيًا) — جميعها ناجحة. **Flutter**: 0 خطأ، 0 تحذير.
 
 ## قائمة الوظائف
 
@@ -40,7 +42,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | إعدادات النظام | CRUD لأزواج المفاتيح والقيم |
 | تدقيق العمليات | استعلام السجلات + كشف تلقائي لمصدر 8 منصات |
 | الملفات | رفع + تصدير Excel/PDF (إخفاء البيانات الحساسة) |
-| الأمان | دفاع متعمق من 18 طبقة (XSS/حقن SQL/CSRF/تحديد المعدل/CSP...) |
+| الأمان | دفاع متعمق من 7 طبقات (XSS/حقن SQL/CSRF/تحديد المعدل/CSP...) |
 | التشغيل | فحص الصحة/مؤشرات Prometheus/وثائق API/security.txt + Docker + CI/CD |
 | إدارة المنتجات | المنتج/SKU/التصنيف/العلامة التجارية/المستودع/الموقع/المورد/العميل |
 | إدارة المشتريات | طلب←أمر←استلام←إرجاع←تسوية (إدخال تلقائي للمخزون + توليد مستحقات) |
@@ -74,20 +76,34 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - تشفير/فك تشفير حقول قاعدة البيانات الحساسة: `erikwang2013/encryptable`
 - مزامنة واستعلام ES: `erikwang2013/webman-scout`
 - أعلام الدول: `erikwang2013/season`
-- توليد وثائق API: `hg/apidoc` | بأسلوب التعليقات، الوصول عبر /apidoc
+- توليد وثائق API: `erikwang2013/apidoc-php` | بأسلوب التعليقات، الوصول عبر /apidoc
 
 ### الواجهة
 - Flutter 3.x، دليل المصدر `apps/flutter/`
 - مصمم الويب بأسلوب لوحة إدارة الكمبيوتر (وليس نمط تطبيقات الموبايل)
 - يدعم عميل المستخدمين وعميل المسؤولين
 - HarmonyOS ArkTS، دليل المصدر `apps/harmonyos/`
+- Angular 22 CLI + ng-zorro-antd، دليل المصدر `apps/angular/` (لوحة إدارة ويب)
+- React 19 + Vite، دليل المصدر `apps/react/` (لوحة إدارة ويب)
+- الأطراف الأربعة من خلفية واحدة: تسلك Angular / React مثل Flutter المسارات `/admin/v1` و`/api/v1` و`/open/v1`، وتمر عبر وكيل خادم التطوير الخاص بكل منها إلى webman في مرحلة التطوير
+
+### التدويل (13 لغة)
+- قائمة اللغات: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
+- قواميس الخلفية: `resource/translations/<locale>/{common,modules,validation}.php`، 13 دليل لغة؛ `zh_CN` 565 مدخلًا، واللغات الـ 11 الأخرى 544 مدخلًا لكل لغة، و`en` 30 مدخلًا (بمعيار المداخل الطرفية للملفات الثلاثة؛ تُحتسب تسميات الحقول في `attributes` بملف `validation.php`، ولا تُحتسب مفاتيح التجميع)
+  - «الإنجليزية هي المفتاح»: `common/modules` في `en` تُترك فارغة؛ ومفاتيح `validation.php` هي أسماء قواعد إطار العمل، ويُترجَم القيم فقط
+  - المولِّد: `scripts/gen-be-locales.mjs`
+- قواميس الواجهة (Angular): المصدر `apps/angular/src/app/core/zh-en/part1..4.ts` (1456 مدخلًا) ← الناتج `apps/angular/src/app/core/zh-<code>.ts`
+- قواميس الواجهة (React): المصدر `apps/react/src/lib/i18n/zhEn.ts` (1451 مدخلًا) ← الناتج `apps/react/src/lib/i18n/zh<Code>.ts`
+  - قواميس اللغات الـ 11 الجديدة تُحمَّل كلٌّ عبر `import()` ديناميكي ككتلة مستقلة، وعند غياب مدخل يُرجَع النص الصيني الأصلي
+  - المولِّد: `scripts/gen-fe-locales.mjs --app angular|react`
+- وقت التشغيل: تبديل اللغة يعني تبديل ترويسة الطلب `Accept-Language`، وتُعيد الخلفية النصوص حسب اللغة (`app/common/I18n.php` + `config/translation.php`)
 
 ## هيكل المشروع
 
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # وحدات تحكم إدارة النظام (14 وحدة)
+│   ├── admin/controller/       # وحدات تحكم إدارة النظام (16 وحدة)
 │   │   ├── BaseController.php      # وحدة التحكم الأساسية
 │   │   ├── DashboardController.php # لوحة المعلومات + لوحات المبيعات/المخزون/المالية
 │   │   ├── UserController.php      # مستخدمو CRUD + عمليات جماعية
@@ -102,11 +118,11 @@ open-erp/
 │   │   ├── HealthController.php    # فحص الصحة
 │   │   ├── DocsController.php      # وثائق OpenAPI
 │   │   └── MetricsController.php   # مؤشرات مراقبة Prometheus
-│   ├── api/v1/controller/      # واجهات عميل (تحكم إصدار الرأس)
+│   ├── api/v1/controller/      # واجهات عميل (الإصدار في المسار /api/v1، بلا رأس إصدار)
 │   │   ├── CaptchaController.php   # كابتشا النقر
 │   │   ├── AuthController.php      # تسجيل الدخول/التسجيل/التحديث
 │   │   └── ProductController.php   # استعلام المنتجات (بدون سعر الشراء)
-│   ├── controller/              # وحدات تحكم الأعمال (104 وحدات، بما فيها InstallController)
+│   ├── controller/              # وحدات تحكم الأعمال (139، بما فيها InstallController / IndexController)
 │   │   ├── product/             # منتجات/تصنيفات/علامات تجارية/مستودعات/مواقع/موردون/عملاء (7)
 │   │   ├── purchase/            # طلبات شراء/أوامر/استلام/إرجاع/تسوية (5)
 │   │   ├── sales/               # عروض مبيعات/أوامر/شحن/إرجاع/تسوية (5)
@@ -126,32 +142,33 @@ open-erp/
 │   │   ├── eam/                 # معدات/خطط صيانة/أوامر إصلاح/قطع غيار (4)
 │   │   ├── dms/                 # تصنيفات مستندات/مستندات/إصدارات (2)
 │   │   └── bi/                  # لوحات BI/مكونات رسوم بيانية (3)
-│   ├── service/                 # طبقة منطق الأعمال (تسجيل الحاوية، 24 خدمة)
+│   ├── service/                 # طبقة منطق الأعمال (64 ملفًا / 63 فئة خدمة)
 │   │   ├── finance/             # FinanceService: توليد تلقائي للمستحقات + تقييد المقبوضات والمدفوعات + دفتر اليومية
 │   │   ├── inventory/           # InventoryService: إدخال وإخراج + احتساب تكلفة المتوسط المتحرك المرجح
 │   │   ├── notification/        # NotificationService: إرسال الإشعارات
 │   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/  # خدمات الأوامر/المستودعات/النقل/الجودة/الموارد البشرية/التصنيع
-│   ├── common/                  # فئات أدوات عامة (تسجيل الحاوية، 4)
+│   ├── common/                  # فئات أدوات عامة (6)
 │   │   ├── HashidsService.php   # ترميز وفك ترميز المعرفات
 │   │   ├── SnowflakeService.php # توليد معرفات Snowflake
 │   │   ├── EncryptionService.php# تشفير وفك تشفير البيانات + الإخفاء
-│   │   └── I18n.php             # الترجمة الدولية
-│   ├── middleware/              # الوسائط (12)
-│   │   ├── Locale.php           # كشف تلقائي للغة عبر Accept-Language
+│   │   ├── I18n.php             # الترجمة الدولية
+│   │   ├── CorsPolicy.php       # سياسة CORS (يستدعيها middleware/Cors و route.php)
+│   │   └── AddressValidator.php # التحقق من العناوين (صيغ رموز بريدية متعددة الدول + حقول النماذج)
+│   ├── middleware/              # الوسائط (11)
 │   │   ├── Cors.php             # عبر النطاقات
 │   │   ├── SecurityFilter.php   # اعتراض XSS/حقن SQL/اجتياز المسارات/حقن الأوامر/CSRF
 │   │   ├── RateLimit.php        # نافذة منزلقة لتحديد المعدل عبر Redis
-│   │   ├── ApiVersion.php       # التحقق من إصدار API
 │   │   ├── AdminAuth.php        # مصادقة JWT + قائمة سوداء
 │   │   ├── AdminPermission.php  # التحقق من صلاحيات RBAC
 │   │   ├── OperationLog.php     # تسجيل تلقائي لسجلات العمليات
-│   │   ├── TenantScope.php      # عزل تعدد المستأجرين (استدعاء ثابت)
+│   │   ├── OpenApiAuth.php      # مصادقة الواجهات المفتوحة (X-API-Key + توقيع، تُركَّب على مجموعة /open/v1 فقط)
+│   │   ├── TenantScope.php      # عزل تعدد المستأجرين (محجوز وغير مسجل، انظر ARCHITECTURE.md §22)
 │   │   ├── TracingId.php        # TraceId كامل المسار
 │   │   ├── TrackingSignature.php# التحقق من توقيع الطلبات
 │   │   └── StaticFile.php       # خدمة الملفات الثابتة (مدمجة في webman)
-│   ├── model/                   # نماذج البيانات (161)
+│   ├── model/                   # نماذج البيانات (224؛ مع trait ‏concerns/TenantScope يصبح المجموع 225 ملفًا)
 │   ├── queue/                   # مهام قوائم الانتظار
-│   └── process/                 # العمليات (Http, Monitor)
+│   └── process/                 # العمليات (Http, WebSocket, QueueConsumer, Monitor)
 ├── apps/
 │   ├── flutter/                 # Flutter لجميع المنصات (ويب/iOS/Android/macOS/Windows/Linux)
 │   │   └── lib/app/
@@ -159,14 +176,22 @@ open-erp/
 │   │       ├── services/        # ApiService + AuthService + CaptchaService + ExportService
 │   │       ├── layouts/        # تخطيطات متجاوبة
 │   │       └── theme/          # سمة Material 3
+│   ├── angular/                 # واجهة إدارة ويب Angular 22 CLI + ng-zorro-antd
+│   │   └── src/app/
+│   │       ├── core/            # خدمات ApiService / AuthStore / I18n + قواميس اللغات (المصدر zh-en/، النواتج zh-<code>.ts)
+│   │       └── config/ layout/ pages/ ui/
+│   ├── react/                   # واجهة إدارة ويب React 19 + Vite
+│   │   └── src/
+│   │       ├── lib/i18n/        # قاموس المصدر zhEn.ts + 11 قاموسًا للغات zh<Code>.ts (تُحمَّل كسولًا حسب اللغة)
+│   │       └── components/ layout/ pages/ state/ config/domains/ styles/
 │   └── harmonyos/              # عميل HarmonyOS
 ├── config/                     # ملفات التكوين
 │   ├── route.php               # المسارات + استراتيجية إصدار API
 │   ├── middleware.php           # تسجيل الوسائط العامة
 │   ├── translation.php          # تكوين اللغات
-│   └── plugin/hg/apidoc/        # تكوين وثائق API (25 وحدة إدارة + 3 وحدات عميل)
+│   └── plugin/erikwang2013/apidoc/        # تكوين وثائق API (25 وحدة إدارة + 3 وحدات عميل)
 ├── database/
-│   ├── install.sql              # SQL التثبيت الكامل (163 جدولًا + بيانات البذرة، دُمجت جميع الهجرات)
+│   ├── install.sql              # SQL التثبيت الكامل (227 جدولًا + بيانات البذرة، دُمجت جميع الهجرات)
 │   ├── e2e-seed.sql             # بذر E2E/CI الأدنى
 │   └── backup/                 # سكربتات النسخ الاحتياطي لقاعدة البيانات
 │       ├── backup.sh           # mysqldump+gzip، احتفاظ 30 يومًا
@@ -203,11 +228,12 @@ open-erp/
 ## سلسلة تنفيذ الوسائط
 
 ```
-عام:  Locale → Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → {وسائط المسارات}
-/health:  Locale → Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → Controller
-/install: Locale → Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → Controller
-/admin:   Locale → Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
-/api:     Locale → Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → ApiVersion → Controller
+عام:  Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → {وسائط المسارات}
+/health:  Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → Controller
+/install: Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → Controller
+/admin/v1:   Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
+/api/v1:     Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → Controller
+/open/v1:    Cors → SecurityFilter(فحص الطرق→405) → RateLimit → TracingId → OpenApiAuth → Controller
 ```
 
 ## التحصين الأمني
@@ -221,13 +247,13 @@ open-erp/
 
 ## استراتيجية إصدارات API
 
-يتحكم الإصدار عبر رأس الطلب `API-Version` (الافتراضي `v1`)، ولا يظهر في عنوان URL:
+يُوضع الإصدار في مسار URL (`/admin/v1`، `/api/v1`، `/open/v1`)، ولا يوجد رأس إصدار:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8788/api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 ```
 
-لإضافة إصدار جديد يكفي إنشاء دليل `app/api/{version}/controller/` وتسجيله في وسيط `ApiVersion`.
+لإضافة إصدار جديد يكفي إنشاء دليل `app/api/{version}/controller/` وتسجيل مجموعة `/api/v{version}` في `config/route.php` (رقم الإصدار يظهر في مسار URL فقط، ووحدة التحكم تُربَط مباشرة، ولا يوجد وسيط رأس إصدار — وسيط `ApiVersion` القديم أُزيل).
 
 ## استراتيجية تحديد المعدل
 
@@ -257,8 +283,24 @@ curl -H "API-Version: v1" http://localhost:8788/api/auth/login
 
 ### HarmonyOS
 - استخدام عميل HTTP الأصلي `@ohos.net.http`
-- تجديد الرمز دون إحساس: عند 401 يستدعي تلقائيًا `/api/auth/refresh`
+- تجديد الرمز دون إحساس: عند 401 يستدعي تلقائيًا `/api/v1/auth/refresh`
 - عند فشل التحديث يعيد التوجيه تلقائيًا إلى صفحة تسجيل الدخول
+
+## الديون التقنية المعروفة
+
+> استُخرجت القائمة التالية بالقياس الفعلي عبر `grep -rn "new .*Service(" app/controller/` (45 موضعًا)، وهي مطابقة لواقع الكود.
+> **P5 لا يعيد الهيكلة**: إنشاء وحدات التحكم للخدمات مباشرة هو النمط القائم، ويُتحوَّل إلى حقن الحاوية (`support\Container`) في الكود الجديد فقط، ويبقى الكود القائم على حاله.
+
+| الوحدة | عدد الخدمات المُنشأة مباشرة | الشرح |
+|------|-----------|------|
+| finance | 22 | مستحقات/مقاصة/دفتر يومية/ترحيل إقفال/قوائم مدمجة |
+| wms | 9 | خدمات عمليات الاستلام/التخزين/الموجات/الانتقاء/التغليف |
+| tms | 5 | بوليصة/مقارنة أسعار/مسار/فاتورة شحن |
+| oms | 3 | تنفيذ/حجز مسبق/RMA |
+| quality | 2 | الفحص/معالجة غير المطابق |
+| hr | 2 | الرواتب/الحضور |
+| platform | 1 | المستأجر |
+| notification | 1 | قناة الإشعارات |
 
 ## النشر
 
@@ -276,6 +318,7 @@ curl -H "API-Version: v1" http://localhost:8788/api/auth/login
 
 ```bash
 cp .env.docker .env
+bash scripts/gen-env-keys.sh .env   # توليد مفاتيح حقيقية (المفاتيح البديلة تُرفض عند بدء التشغيل)
 docker-compose up -d
 ```
 

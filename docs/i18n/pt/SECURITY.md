@@ -152,7 +152,7 @@ Local do arquivo: `runtime/logs/security.log`
 
 Exemplo de formato de log:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ Todos os cabeçalhos são injetados no middleware `Cors`, anexados a cada respos
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | Permite cross-origin de qualquer origem (cenário de painel admin em intranet) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | Conjunto de métodos permitidos |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | Cabeçalhos personalizados permitidos |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | Cabeçalhos personalizados permitidos |
 | Access-Control-Max-Age | `86400` | Cache de preflight por 24 horas |
 | X-Content-Type-Options | `nosniff` | Proíbe MIME sniffing no navegador |
 | X-Frame-Options | `DENY` | Proíbe qualquer incorporação em iframe, proteção contra clickjacking |
@@ -226,8 +226,8 @@ O script Lua é executado em thread única no servidor Redis, **naturalmente at�
 | Rota | Limite | Janela | Cenário |
 |------|------|------|------|
 | Padrão (todas as rotas) | 60 vezes/minuto | 60s | API geral |
-| `/api/auth/login` | 10 vezes/minuto | 60s | Login (proteção contra força bruta) |
-| `/api/auth/register` | 5 vezes/minuto | 60s | Registro (proteção contra registro em massa; desativado por padrão, requer `REGISTRATION_ENABLED=1`) |
+| `/api/v1/auth/login` | 10 vezes/minuto | 60s | Login (proteção contra força bruta) |
+| `/api/v1/auth/register` | 5 vezes/minuto | 60s | Registro (proteção contra registro em massa; desativado por padrão, requer `REGISTRATION_ENABLED=1`) |
 
 ### Cabeçalhos de resposta
 
@@ -300,9 +300,9 @@ Implementada pelo middleware AdminAuth, montado no grupo de rotas que exige aute
 | Parâmetro | Valor | Observação |
 |------|-----|------|
 | Algoritmo | HS256 | Assinatura simétrica HMAC-SHA256 |
-| Chave | `JWT_SECRET` | Injetada via variável de ambiente, deve ser trocada em produção |
-| access_token TTL | 7200s (2h) | `JWT_TTL` |
-| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| Chave | `JWT_SECRET_KEY` | Injetada por variável de ambiente (`env_required`), deve ser trocada em produção |
+| access_token TTL | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | Emissor | `open-admin` | `JWT_ISSUER` |
 | Audiência | `open-admin` | `JWT_AUDIENCE` |
 
@@ -489,7 +489,7 @@ Todas as chaves são injetadas via variáveis de ambiente `.env`; os arquivos de
 
 | Variável de ambiente | Uso | Pacote | Requisito de produção |
 |----------|------|-----|---------|
-| JWT_SECRET | Chave de assinatura JWT | erikwang2013/jwt-webman | string aleatória com 64+ caracteres |
+| JWT_SECRET_KEY | Chave de assinatura JWT | erikwang2013/jwt-webman | string aleatória com 64+ caracteres |
 | JWT_ALGORITHM | Algoritmo de assinatura JWT | idem | manter HS256 |
 | HASHIDS_SALT | Salt de codificação de ID | erikwang2013/hashids | string aleatória |
 | SNOWFLAKE_DATACENTER_ID | ID do datacenter (0-31) | erikwang2013/snowflake-php | manter padrão em datacenter único |
@@ -509,7 +509,7 @@ Todas as chaves são injetadas via variáveis de ambiente `.env`; os arquivos de
 | Criptografia de transporte | `config/encryption.php` → `key` | `ENCRYPTION_KEY` |
 | Criptografia de armazenamento | `config/encryptable.php` → `key` | `ENCRYPTABLE_KEY` |
 | Ofuscação de ID | `config/hashids.php` → `connections.main.salt` | `HASHIDS_SALT` |
-| Assinatura JWT | `config/plugin/erikwang2013/jwt/jwt` | `JWT_SECRET` |
+| Assinatura JWT | `config/plugin/erikwang2013/jwt/jwt.php` | `JWT_SECRET_KEY` |
 
 ---
 

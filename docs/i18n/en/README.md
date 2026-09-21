@@ -6,7 +6,22 @@ A full-stack ERP system built on webman v2 + Flutter.
 
 <div align="center">🌐 [中文](../../../README.md) | English | [한국어](../ko/README.md) | [Русский](../ru/README.md) | [Deutsch](../de/README.md) | [Français](../fr/README.md) | [Español](../es/README.md) | [Português](../pt/README.md) | [हिन्दी](../hi/README.md) | [العربية](../ar/README.md) | [বাংলা](../bn/README.md) | [Bahasa Indonesia](../id/README.md) | [日本語](../ja/README.md)</div>
 
-> [中文版](../../../README.md) | [版本对比](EDITIONS.md) | [架构设计图](ARCHITECTURE.md) | [系统架构图](#system-architecture-diagram) | [设计文档](DESIGN.md) | [安全架构](SECURITY.md) | [API Reference](API.md) | [功能手册](FUNCTIONS.md)
+> [中文版](../../../README.md) | [Editions](EDITIONS.md) | [Architecture](ARCHITECTURE.md) | [System Architecture](#system-architecture-diagram) | [Design](DESIGN.md) | [Security](SECURITY.md) | [API Reference](API.md) | [Functions](FUNCTIONS.md)
+
+## Project Introduction
+
+open-erp is an **open-source full-stack ERP system** aimed at small and medium-sized businesses, covering the complete business domains of purchase-sales-inventory (purchase/sales/inventory), financial accounting, manufacturing (BOM/MRP/operation reporting/capacity load), CRM, approval workflow, human resources, message notifications and custom reports. The backend is built on webman v2 + MySQL 8.0 (table prefix `erp_`, Snowflake globally unique primary keys); the admin side offers three implementations — Angular 22 (`apps/angular/`), React 19 + Vite (`apps/react/`) and Flutter 3.x Web (`apps/flutter/`) — complemented by a native HarmonyOS client for mobile (`apps/harmonyos/`).
+
+The system is designed around **document-driven, automatic linkage**: approving a business document automatically triggers inventory movements, AR/AP generation and cost collection; the approval workflow and message notifications run through every key document; MRP calculates material requirements from sales orders and the BOM and generates purchase/production suggestions, forming an end-to-end business closed loop from sales order intake to purchase receiving, and from production scheduling to financial closing.
+
+## Project Description
+
+- **Exact decimal accounting**: business values such as amounts, quantities and weights are computed with bcmath decimal arithmetic; moving weighted average cost, AR/AP write-off and every report output are string-precision, with no floating-point error
+- **Enterprise-grade security baseline**: JWT tokens + RBAC method-level authorization, defense in depth (L0–L12 layered panorama + 35 attack detector categories + 7-layer middleware chain — XSS/SQL injection/CSRF/rate limiting/CSP etc.), encrypted storage of sensitive fields and encrypted API transport, and a complete operation audit trail
+- **Configurable capabilities**: multi-node approval workflow (including a visual process designer canvas), document print template engine (placeholder rendering + dompdf PDF output + QR-code labels), real-time customer credit limit interception, full-chain forward and reverse batch/serial traceability
+- **Traceable data**: every business transaction leaves a record; inventory batches and serial numbers span the entire inbound→issue→outbound→traceability lifecycle, and costing is traced down to the document line level
+- **Deployment-friendly**: one-click startup with Docker Compose v2 (MySQL/Redis/Elasticsearch); a local `composer install` also runs directly
+- **Internationalization**: 13 languages (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id), covering backend messages and both the Angular and React admin UIs, with frontend dictionaries lazily loaded per language; the README additionally provides documentation in 12 languages
 
 ## Feature List
 
@@ -15,32 +30,54 @@ A full-stack ERP system built on webman v2 + Flutter.
 | 🔐 Authentication | Login/Register/Refresh token/Logout | Click captcha + JWT + blacklist |
 | | Account lockout | Locked for 15 minutes after 5 failed attempts |
 | | Concurrent session limit | Max 3 valid tokens per user |
-| 📊 Dashboard | Business overview/Sales board/Inventory board/Finance board | 30-day sales trend/Top5 hot products/order status distribution/AR-AP aging + Redis cache 5 minutes |
+| 📊 Dashboard | Business overview + six boards: sales/inventory/finance/OMS/WMS/TMS | 30-day sales trend/Top5 hot products/order status distribution/AR-AP aging + Redis cache 5 minutes |
 | 👥 User Management | CRUD + batch delete/enable-disable | Soft delete + password re-confirmation |
 | | Excel bulk import | Row-by-row validation + error report |
 | 🔒 Roles & Permissions | Role CRUD + permission tree | RBAC method.path granular authorization |
 | ⚙ System Config | Key-value CRUD | Group management |
 | 📋 Operation Audit | Log query + source client detection | Auto-detects 8 platforms |
 | 📁 File Management | Upload/Excel export/PDF export | Sensitive data auto-masked |
-| 🛡 Security | 18 layers of defense in depth | XSS/SQL injection/path traversal/command injection/CSRF/rate limiting/CSP... |
+| 🛡 Security | 35 attack detectors + 7-layer middleware chain | XSS/SQL injection/path traversal/command injection/CSRF/rate limiting/CSP... |
 | 🏥 Operations | Health check/metrics/API docs/security.txt | Prometheus + OpenAPI 3.0 |
 | 📦 Product Management | Product master/SKU/multi-spec/multi-unit/category/brand/pricing strategy | Multi-level category tree + multi-unit conversion |
 | | Warehouses & locations | Multi-warehouse, multi-location management |
 | | Supplier/Customer master | Contacts/bank accounts/credit limits |
 | 📥 Purchase Management | Requisition→Order→Receiving→Return→Settlement | Full purchase flow + approval |
+| | Sourcing (RFQ → quotation → award-to-order) | Multi-supplier price comparison, quotations must cover every RFQ line, one-click conversion of the winning bid into a purchase order |
+| | Supplier evaluation | Automatic rating from a 0–100 total score (A ≥ 90 / B ≥ 70 / C) + evaluation-dimension JSON + evaluator audit trail |
 | 📤 Sales Management | Quotation→Order→Delivery→Return→Settlement | Quotation to order + sales gross margin |
+| | Customer credit control | Limit/credit-term/freeze management + blocking of over-limit or overdue orders and deliveries |
 | 🏗 Inventory Management | Live inventory/batch/serial/transfer/count/alert | Moving weighted average costing |
 | 💰 Finance Management | AR/AP/receipts & payments/journal/expense reimbursement/income statement/fixed assets/tax/multi-currency/budget/cost & profit centers | Auto-generated AR/AP + write-off + comprehensive financial management |
+| | Multi-organization + consolidated reports | Multi-company/ledger accounting + elimination entries (equity/cost method) |
+| | Inventory/production cost accounting | Production material issue→labour/overhead collection→completion cost→cost variance carry-over |
+| | Acceptance bills + bank-enterprise reconciliation | Bill ledger + bank statement import with automatic reconciliation |
+| | Input invoice pool + fully-digitalized e-invoices | Input invoice management + invoicing outlet (adapter + Mock channel) |
 | 🤝 CRM | Customers/contacts/follow-up records/campaigns/service tickets/analytics reports/sales funnel/shared pool/quotation/contracts | Full customer lifecycle management |
+| | Membership value engine | Stored value/points/coupon membership operations |
 | ✅ Approval Workflow | Workflow definition/submit approval/approve/reject/withdraw/my approvals | Multi-node approval process engine |
+| | Visual process designer | Canvas configuration of nodes/branches/rejection back-edges, reusing the approval engine |
 | 🔔 Notifications | Notification list/read marking/unread count/mark all read | Real-time message push and status tracking |
+| | Multi-channel notifications | SMS/email channel drivers (Mock channel + logging + retry) |
 | 📐 Project Management | Projects/tasks/timesheets | Project progress tracking and resource management |
+| | Project cost and budget | Hours × rate → project cost collection + budget variance |
 | 👤 Human Resources | Departments/employees/positions/attendance/leave/payroll | Comprehensive HR management |
+| | Recruiting/performance/training/social insurance | Recruiting funnel + KPI/360 appraisal + course credits + social insurance base rules and payslips |
 | 🏭 Manufacturing | BOM/production orders/routings/workstations/MRP | Material requirements planning and production execution |
+| | Operation reporting/piece-rate wages/subcontract write-off | MES operation execution layer + subcontract order issue/write-off |
+| | Capacity load analysis | Workstation calendar + rough-cut capacity load report |
+| | Batch/serial traceability | Forward and reverse traceability chains + near-expiry alerts |
 | 📈 Custom Reports | Report templates/datasets/fields/filters/execute/schedule | Visual report builder |
 | 📋 Order Management (OMS) | Multi-channel orders/fulfillment orchestration/inventory reservation/allocation/cancellation/RMA returns | Full order lifecycle management |
 | 🏗 Warehouse Management (WMS) | Zones/locations/ASN/receiving/putaway/waves/picking/packing/shipping | Complete warehouse operations flow |
 | 🚚 Transportation Management (TMS) | Carriers/services/rates/shipments/tracking/freight invoices | Multi-carrier freight comparison + tracking |
+| 🛠 Equipment Management (EAM) | Equipment register/maintenance plans/repair orders/spare parts | Full equipment lifecycle management |
+| | Spot-check scanning loop | Scan-based spot checks; exceptions automatically raise repair orders |
+| 🌐 Platform & Open | API path versioning | Admin `/admin/v1`, client `/api/v1`, open `/open/v1` (no version request header) |
+| | Document print template engine | Placeholder rendering + dompdf PDF + QR-code labels |
+| | Custom form fields | `custom_fields` JSON extension on master tables + validation |
+| | Multi-tenant architecture | `erp_tenant` tenants + TenantScope request context + expiry billing (middleware seam reserved but not registered) |
+| | Multi-language | 13 locales (backend messages + both the Angular/React admin UIs); dictionaries are lazily loaded into per-locale chunks; the switcher lives in the persistent top-bar globe and the personal-center dropdown |
 
 ## ERP Modules
 
@@ -68,8 +105,10 @@ Data flow between business modules:
 | Backend framework | webman v2 (workerman) | Ultra-high-performance PHP resident-process framework |
 | PHP version | 8.3+ | |
 | Database | MySQL 8.0+ | Table prefix `erp_`, BIGINT non-auto-increment primary keys |
-| Search engine | Elasticsearch | Synced and queried via `webman-scout` |
-| Admin frontend | Flutter 3.x | Web is a PC admin console style (`apps/flutter/`) |
+| Search engine | Elasticsearch | Index auto-synced on write/delete via `webman-scout` (optional component, see the "Full-Text Search Engine" section) |
+| Admin frontend A | Angular 22 | Config-driven resource pages, `ResourcePage` rendering engine (`apps/angular/`) |
+| Admin frontend B | React 19 + Vite | Config-driven like Angular, plus style tokens (`apps/react/`) |
+| Admin frontend C | Flutter 3.x | Web is a PC admin console style (`apps/flutter/`) |
 | Mobile | HarmonyOS ArkTS | HarmonyOS native client (`apps/harmonyos/`), supports phone/tablet/2in1 |
 
 ## Core Dependencies
@@ -87,64 +126,87 @@ Data flow between business modules:
 | `erikwang2013/security-php` | Security tool checks |
 | `phpoffice/phpspreadsheet` | Excel export |
 | `barryvdh/laravel-dompdf` | PDF export (based on Dompdf) |
-| `hg/apidoc` | Automatic API documentation | Annotation-based interface docs, admin/client groups |
+| `erikwang2013/apidoc-php` | Automatic API documentation | Annotation-based interface docs, admin/client groups |
 
 ## Internationalization
 
-Internationalization | Automatic detection via `Accept-Language` header | Chinese/English bilingual support
+The system supports **13 locales**: `zh` (default), `en`, `ja`, `ko`, `de`, `fr`, `es`, `pt`, `ru`, `ar`, `hi`, `bn`, `id`.
+
+| Layer | Dictionary location | Size |
+|---|---------|------|
+| Backend messages | `resource/translations/{locale}/` | 13 locale directories: `zh_CN` 565 entries, the other 11 locales 544 entries each, `en` 30 entries (counted as the leaf entries of the three files `common`/`modules`/`validation`; the `attributes` field labels in `validation.php` are counted, its group keys are not) |
+| Angular admin | `apps/angular/src/app/core/zh-*.ts` (source dictionary `zh-en/`, merged from 4 slices) | source dictionary 1456 keys × 11 locales (each locale has a 1:1 key count with the source dictionary) |
+| React admin | `apps/react/src/lib/i18n/zh*.ts` | source dictionary 1451 keys × 11 locales |
+
+- **"English as key" on the backend**: the backend message keys are English text themselves, and `en` only maintains a small mapping such as framework rule names — no full dictionary is required
+- **Lazy loading per locale**: the 12 frontend dictionaries are each bundled into a separate chunk and fetched on demand when switching languages, so first paint is unaffected
+- **Switching entry points**: a dedicated globe icon in the top bar plus a dropdown in the personal center (identical on the Angular and React sides)
+- **Interface layer**: the `Accept-Language` request header is negotiated automatically (zh-CN → Chinese, en → English, other locales matched against the list), defaulting to Chinese
+- **Generators**: `scripts/gen-be-locales.mjs` (backend) and `scripts/gen-fe-locales.mjs --app angular|react` (frontend), both resumable from the last checkpoint
 
 ## Project Structure
 
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # 系统管理控制器 (14 个)
-│   ├── api/v1/controller/      # 客户端 API（版本由 /api/v1 路径控制）
-│   ├── controller/             # Business module controllers (136, 23 domains + admin 18)
-│   │   ├── product/            # 商品/分类/品牌/仓库/库位/供应商/客户 (7 个)
-│   │   ├── purchase/           # 采购申请/订单/收货/退货/结算 (5 个)
-│   │   ├── sales/              # 销售报价/订单/发货/退货/结算 (5 个)
-│   │   ├── inventory/          # 库存/流水/调拨/盘点/预警 (5 个)
-│   │   ├── finance/            # 应收应付/凭证/收付款/日记账/总账/明细账/报表/资产/税务/多币种/预算/成本利润中心 (20 个)
-│   │   ├── crm/                # 商机/跟进/漏斗/联系人/公海池/合同/报价/营销/工单/分析 (10 个)
-│   │   ├── workflow/           # 工作流定义/审批提交/批准/拒绝/撤回 (2 个)
-│   │   ├── notification/       # 通知列表/已读/未读计数 (1 个)
-│   │   ├── project/            # 项目/任务/工时记录 (3 个)
-│   │   ├── hr/                 # 部门/员工/职位/考勤/请假/薪资 (5 个)
-│   │   ├── manufacturing/      # BOM/生产订单/工艺路线/工作站/MRP (5 个)
-│   │   ├── report/             # 报表模板/数据集/执行/定时调度 (2 个)
-│   │   ├── oms/                # OMS订单/履约/RMA/渠道 (4 个)
-│   │   ├── wms/                # 库区/库位/ASN/收货/上架/波次/拣货/打包 (8 个)
-│   │   └── tms/                # 承运商/服务/费率/运单/轨迹/运费发票 (6 个)
-│   ├── service/                # 业务逻辑层
-│   │   ├── inventory/          # 出入库 + 移动加权平均成本核算 + 库存预占/ATP
-│   │   ├── finance/            # 应收应付自动生成 + 核销
-│   │   ├── notification/       # 通知发送服务
-│   │   ├── oms/                # 订单编排/库存分配/RMA生命周期
-│   │   ├── wms/                # 入库流程(ASN→收货→上架) / 出库流程(波次→拣货→打包)
-│   │   └── tms/                # 运单管理/运费比价/物流轨迹
-│   ├── model/                  # 223 个 Eloquent 模型（多模块共用）
-│   ├── middleware/             # 11 个中间件
-│   ├── common/                 # Hashids/Snowflake/Encryption 服务
-│   └── queue/                  # 队列任务
+│   ├── admin/controller/       # System management controllers (16)
+│   ├── api/v1/controller/      # Client API (version in the path /api/v1, no version header)
+│   ├── controller/             # Business module controllers (139, 23 domains)
+│   │   ├── product/            # Products/categories/brands/warehouses/locations/suppliers/customers (8)
+│   │   ├── purchase/           # Purchase requisitions/orders/receiving/returns/settlement/inquiries/quotations/supplier evaluation (8)
+│   │   ├── sales/              # Sales quotations/orders/deliveries/returns/settlement (5)
+│   │   ├── inventory/          # Stock/stock movements/transfers/counts/alerts (6)
+│   │   ├── finance/            # AR-AP/vouchers/receipts & payments/journals/general ledger/subsidiary ledger/reports/assets/tax/multi-currency/budget/cost & profit centers/notes/reconciliation/invoices (28)
+│   │   ├── crm/                # Opportunities/follow-ups/funnel/contacts/public pool/contracts/quotations/campaigns/tickets/analytics (10)
+│   │   ├── workflow/           # Workflow definitions/approvals/process designer (3)
+│   │   ├── notification/       # In-app notifications/channel delivery (2)
+│   │   ├── project/            # Projects/tasks/timesheets/costs (4)
+│   │   ├── hr/                 # Departments/employees/positions/attendance/leave/payroll/recruiting/performance/social insurance/training (9)
+│   │   ├── manufacturing/      # BOM/work orders/routings/workstations/MRP/reporting/outsourcing/costing/capacity (13)
+│   │   ├── report/             # Report templates/datasets/execution/scheduled dispatch (2)
+│   │   ├── print/              # Print template engine (1)
+│   │   ├── retail/             # Member stored value/points/coupons (2)
+│   │   ├── platform/           # Multi-tenancy/custom fields (2)
+│   │   ├── quality/            # Quality inspection (5)
+│   │   ├── eam/                # Equipment/maintenance/repairs/spare parts/spot checks (5)
+│   │   ├── bi/                 # Business intelligence (3)
+│   │   ├── dms/                # Document management (2)
+│   │   ├── oms/                # OMS orders/fulfillment/RMA/channels (4)
+│   │   ├── wms/                # Zones/locations/ASN/receiving/putaway/waves/picking/packing (8)
+│   │   ├── tms/                # Carriers/services/rates/shipments/tracking/freight invoices (6)
+│   │   └── open/               # Open platform API (1)
+│   ├── service/                # Business logic layer (64)
+│   │   ├── inventory/          # Stock in/out + moving weighted average costing + inventory reservation/ATP
+│   │   ├── finance/            # Automatic AR-AP generation + write-off
+│   │   ├── notification/       # Notification delivery service
+│   │   ├── oms/                # Order orchestration/inventory allocation/RMA lifecycle
+│   │   ├── wms/                # Inbound flow (ASN→receiving→putaway) / outbound flow (wave→pick→pack)
+│   │   └── tms/                # Shipment management/freight comparison/logistics tracking
+│   ├── model/                  # 224 Eloquent models (shared across modules)
+│   ├── middleware/             # 11 middleware (ApiVersion removed, version lives in the path)
+│   ├── common/                 # Hashids/Snowflake/Encryption services
+│   └── queue/                  # Queue jobs
 ├── apps/
-│   ├── flutter/                # Flutter 跨平台（Web PC + iOS/Android/macOS/Windows/Linux）
-│   └── harmonyos/              # HarmonyOS 原生客户端
-├── config/                     # 配置文件（含中文注释）
-│   ├── plugin/hg/apidoc/        # API 文档配置
+│   ├── angular/                # Angular 22 admin (config-driven resource pages, ng serve :4200)
+│   ├── react/                  # React 19 + Vite admin (Vite :5173)
+│   ├── flutter/                # Flutter cross-platform (Web PC + iOS/Android/macOS/Windows/Linux)
+│   └── harmonyos/              # HarmonyOS native client
+├── config/                     # Config files (Chinese comments)
+│   ├── plugin/erikwang2013/apidoc/ # API documentation config
 ├── database/
-│   ├── install.sql              # 完整安装SQL（226 + 种子数据）
-│   ├── e2e-seed.sql             # E2E/CI 最小种子
-│   └── backup/                 # 备份/恢复脚本
-├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（20 个测试文件，137 个测试方法，805 条断言）
+│   ├── install.sql              # Complete install SQL (227 tables + seed data)
+│   ├── e2e-seed.sql             # Minimal E2E/CI seed
+│   └── backup/                 # Backup/restore scripts
+├── docs/                       # Architecture, design, security, API docs
+├── tests/                      # PHPUnit tests (<!-- stats:test_files=111 --> test files, <!-- stats:tests=1008 --> test methods, <!-- stats:assertions=4768 --> assertions)
 ├── resource/
-│   └── translations/           # 翻译文件 (zh_CN, en)
-│       ├── zh_CN/              # 中文翻译 (127 键)
-│       └── en/                 # English translations (127 keys)
-├── public/                     # 公共入口
-├── runtime/                    # 运行时文件
-└── vendor/                     # Composer 依赖
+│   └── translations/           # Backend message dictionaries for 13 locales (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
+│       ├── zh_CN/              # Chinese translations (565 entries)
+│       ├── en/                 # English is the key, only 30 entries such as framework rule names
+│       └── ja|ko|de|.../       # the other 11 locales, 544 entries each (generator scripts/gen-be-locales.mjs)
+├── public/                     # Public entry point
+├── runtime/                    # Runtime files
+└── vendor/                     # Composer dependencies
 ```
 
 ## System Architecture Diagram
@@ -167,19 +229,19 @@ open-erp/
 
 ![Functional Modules](./diagrams/functional-modules-cn.svg)
 
-**19 business domains, 226 data tables, 121 controllers**: Covering authentication & security, dashboard, system management, security protection, operations monitoring, product management, purchase, sales, inventory, finance (14 sub-modules), CRM (10 sub-modules), approval workflow, message notifications, project management, human resources, manufacturing (MRP), custom reports, order management (OMS), warehouse management (WMS), transportation management (TMS), quality management (QMS), equipment management (EAM), document management (DMS), BI dashboards.
+**23 business domains, 227 data tables, 159 controllers**: Covering authentication & security, dashboard, system management, security protection, operations monitoring, product management, purchase, sales, inventory, finance (14 sub-modules), CRM (10 sub-modules), approval workflow, message notifications, project management, human resources, manufacturing (MRP), custom reports, order management (OMS), warehouse management (WMS), transportation management (TMS), quality management (QMS), equipment management (EAM), document management (DMS), BI dashboards.
 
 ### Request Lifecycle
 
 ![Request Lifecycle](./diagrams/request-lifecycle-cn.svg)
 
-**Full request path from client to database**: Client (Flutter/HarmonyOS) → Nginx SSL termination → language detection → CORS handling → security filter → rate limiting → API version validation → [Admin: JWT authentication → RBAC permission → operation log] → Controller → Service layer → Model layer → cache/database/search engine → JSON response. The diagram includes both cache hit and cache miss paths.
+**Full request path from client to database**: Client (Angular/React/Flutter/HarmonyOS) → Nginx SSL termination → CORS handling → security filter → rate limiting → [Admin: JWT authentication → RBAC permission → operation log] → Controller → Service layer → Model layer → cache/database/search engine → JSON response. The diagram includes both cache hit and cache miss paths. (API versions are merged into the URL path, so there is no separate version-validation step; the locale is parsed by `app/common/I18n.php` from `Accept-Language`.)
 
 ### Security Defense-in-Depth Architecture
 
 ![Security Architecture](./diagrams/security-architecture-cn.svg)
 
-**18 layers of defense in depth**: L0 physical network → L1 transport security → L2 HTTP security headers → L3 request validation → L4 input sanitization → L5 CSRF protection → L6 rate limiting → L7 authentication (JWT+Captcha+blacklist+session control) → L8 RBAC authorization → L9 data protection (transport encryption + storage encryption + ID obfuscation + data masking) → L10 audit monitoring → L11 compliance disclosure.
+**Defense-in-depth panorama (L0–L12)**: L0 physical network → L1 transport security → L2 HTTP security headers → L3 request validation → L4 input sanitization → L5 CSRF protection → L6 rate limiting → L7 authentication (JWT+Captcha+blacklist+session control) → L8 RBAC authorization → L9 data protection (transport encryption + storage encryption + ID obfuscation + data masking) → L10 audit monitoring → L11 compliance disclosure → L12 observability (X-Trace-Id distributed tracing + business metrics + audit enhancement). Diagram source: `docs/diagrams/security-architecture-cn.dot` (L0–L12); the 7-layer executable middleware chain is documented in `docs/SECURITY.md`; the 35 attack detectors live in `config/plugin/erikwang2013/security-php/app.php`.
 
 ---
 
@@ -189,7 +251,20 @@ open-erp/
 - Composer 2.x
 - MySQL >= 8.0
 - Flutter >= 3.41 (frontend development only)
-- Elasticsearch >= 7.x (optional, required for search features)
+- Node >= 22.22.3 (Angular/React admin development only; the `engines` lower bound of Angular CLI 22)
+- Elasticsearch >= 7.x or OpenSearch >= 2.x (optional, required for index sync; not installing it does not affect business reads/writes)
+- DevEco Studio (optional, HarmonyOS client builds only; the command-line equivalent is `hvigorw assembleHap`)
+
+## Default Local Domain
+
+The project uses the local domain **`http://erp.test`** by default (the Flutter client's default API address and the convention for the backend web entry point; the HarmonyOS client defaults to the emulator host `http://10.0.2.2:8788`).
+
+- **Local access**: add a line `127.0.0.1 erp.test` to your hosts file, and point the web server/reverse proxy at the backend listening port (default `8788`, see `APP_HTTP_PORT` in `.env`; changeable in the install wizard or in `.env`; WebSocket defaults to `8282`, corresponding to `APP_WS_PORT`).
+- **Changing the deployment domain**:
+  - Flutter build injection: `flutter build web --dart-define=API_BASE_URL=https://your-domain`
+  - HarmonyOS: edit `BASE_URL` in `apps/harmonyos/entry/src/main/ets/utils/Config.ets` (a read-only constant, default `http://10.0.2.2:8788`)
+  - For emulator debugging you can temporarily switch back to `http://10.0.2.2:8788` (to reach the host machine)
+- All API versions are already placed in the path (`/admin/v1`, `/api/v1`, `/open/v1`), so the client only needs to configure the root address.
 
 ## Quick Start
 
@@ -211,14 +286,23 @@ Key configuration items:
 
 | Environment Variable | Description | Default |
 |---------|------|--------|
-| `JWT_SECRET` | JWT signing secret | `open-admin-jwt-secret-change-in-production` |
-| `HASHIDS_SALT` | Hashids salt | `open-admin-hashids-salt-2026` |
-| `ENCRYPTION_KEY` | API encryption key | 32-byte default |
+| `JWT_SECRET_KEY` | JWT signing secret (`env_required`: missing / empty / weak placeholder values are rejected at startup) | 48-character random value preset in `.env.example` |
+| `HASHIDS_SALT` | Hashids salt (`env_required`) | 48-character random value preset in `.env.example` |
+| `ENCRYPTION_KEY` | Master key for API transport-layer and storage-layer encryption (`env_crypto_key`: AES-256 requires 32 bytes, a length mismatch is rejected at startup) | 32-character random value preset in `.env.example` |
+| `APIDOC_PASSWORD` / `APIDOC_SECRET_KEY` | Documentation site access password and token signing key. Left empty, or still at the `CHANGE_ME_*` placeholder, they are **always treated as unconfigured** (the placeholder value lives in this public repository, so copying it to production means publishing the password) → the doc site refuses access, application startup is unaffected | `.env.example` ships `CHANGE_ME_*` placeholders (must be replaced by the generator script below) |
 | `SNOWFLAKE_DATACENTER_ID` | Datacenter ID (0-31) | `1` |
 | `SNOWFLAKE_WORKER_ID` | Worker node ID (0-31) | `1` |
 | `SCOUT_HOSTS` | ES address | `http://localhost:9200` |
+| `APP_HTTP_PORT` / `APP_WS_PORT` | Backend HTTP / WebSocket listening ports (reverse proxies such as Nginx point at them) | `8788` / `8282` |
+| `ANGULAR_DEV_PORT` / `REACT_DEV_PORT` | Frontend dev-server ports (`npm run dev`, development only) | `4200` / `5173` |
+| `NGINX_PORT` / `NGINX_SSL_PORT` / `MYSQL_PORT` / `ES_PORT` | Ports published to the host by docker-compose (container-internal ports are fixed) | `80` / `443` / `3306` / `9200` |
 
-**In production, be sure to replace all secrets with random strings.**
+**Always replace every key with a random string in production** (`JWT_SECRET_KEY` / `ENCRYPTION_KEY` / `HASHIDS_SALT` and the like: when missing, empty, or still a weak placeholder such as `change-me`/`xxx`, startup is rejected by `env_required` / `env_crypto_key` — there is no silent fallback):
+
+```bash
+# Generate random keys and write them into .env (idempotent; already-configured values are not overwritten)
+bash scripts/gen-env-keys.sh .env
+```
 
 ### 3. Initialize the Database
 
@@ -229,15 +313,14 @@ After starting the service, visit `http://localhost:8788/install` and follow the
 **Option 2: Command-line import**
 
 ```bash
-mysql -u root -p 数据库名 < database/install.sql
+mysql -u root -p your_database_name < database/install.sql
 ```
 
-`install.sql` is merged from 29 migration files and contains all 226 table structures and seed data.
+`install.sql` is a single-file complete baseline and contains all 227 table structures and seed data.
 
 **Option 3: Docker environment**
 
-```bash
-```
+Nothing needs to be imported manually: `install.sql` is mounted into the MySQL container at `/docker-entrypoint-initdb.d` and initializes automatically on first start.
 
 ### 4. Start the Service
 
@@ -268,20 +351,24 @@ The project provides a complete Docker orchestration with 5 services: Nginx, PHP
 ```bash
 # 1. Configure Docker environment variables
 cp .env.docker .env
-# 2. Replace placeholder keys with random values (idempotent)
+
+# 2. Replace placeholder keys with random values (JWT_SECRET_KEY/ENCRYPTION_KEY/HASHIDS_SALT etc., idempotent)
 bash scripts/gen-env-keys.sh .env
 
-# 3. Start all services
+# 3. Start all services (requires Docker Compose v2: `docker compose`; v1 is deprecated and incompatible with the http+docker protocol)
 docker compose up -d
 
-# 4. Initialize the database (run inside the app container)
+# 4. Check service status (MySQL imports database/install.sql automatically on first start, no manual initialization needed)
+docker compose ps --format "table {{.Name}}\t{{.Status}}"
 
-# 5. Access
-# http://localhost:8788  (webman)
-# http://localhost:8080  (Nginx reverse proxy)
+# 5. Access (Nginx publishes ${NGINX_PORT:-80}; webman 8788 is container-internal only, reverse-proxied by Nginx)
+# http://localhost
+
+# Reset hint: if you previously started with an old .env (the data volume has the old password/schema baked in), clear the volume first:
+# docker compose down -v   (⚠️ deletes MySQL/Redis/ES data; use only for first-time troubleshooting)
 ```
 
-- `Dockerfile`: PHP 8.3 + OPcache + Composer, based on `php:8.3-cli`
+- `Dockerfile`: PHP 8.3 + OPcache + Composer, based on `php:8.3-cli-alpine`
 - `docker-compose.yml`: 5-service orchestration, network isolation, data volume persistence
 - `.env.docker`: environment variables for the Docker environment
 
@@ -301,9 +388,55 @@ After login, enter each business module from the sidebar: dashboard, products, p
 - Sensitive operations such as deleting a user/role require re-entering the current password in the request body
 - After logout the token is immediately blacklisted and cannot be reused
 
-### 4. Multi-language
+### 4. Full-Text Search Engine (optional)
 
-Switched automatically via the `Accept-Language` request header (zh-CN / en), defaulting to Chinese.
+Index sync is implemented via `erikwang2013/webman-scout` (once a model uses the `Searchable` trait, saving it syncs the index automatically). Both **Elasticsearch** and **OpenSearch** are supported — pick one:
+
+**① Install the matching client (the Composer package and the driver must match; the wrong one reports "Please install the ... client")**
+
+| Engine | Composer client |
+|---|---|
+| Elasticsearch | `composer require elasticsearch/elasticsearch:^9.5` |
+| OpenSearch | `composer require opensearch-project/opensearch-php:^2.0` |
+
+**② Configure `.env` to pick the driver**
+
+```ini
+# elasticsearch | opensearch（与上面安装的客户端一致）
+SCOUT_DRIVER=opensearch
+# 索引名称前缀 / 分片 / 副本 / 批量块大小 / 软删除（两种引擎通用）
+SCOUT_PREFIX=erp_
+SCOUT_SHARDS=1
+SCOUT_REPLICAS=0
+SCOUT_CHUNK_SIZE=500
+SCOUT_SOFT_DELETE=true
+```
+
+**③ Connection configuration (the two engines read from different places)**
+
+- **Elasticsearch**: `SCOUT_HOSTS` in `.env` (multiple nodes comma-separated, e.g. `http://localhost:9200`), a direct connection with no authentication;
+- **OpenSearch**: the official image enables the security plugin by default (self-signed TLS + account authentication), so it goes through the `opensearch` section of `config/scout.php` and does not read `SCOUT_HOSTS`:
+
+  ```ini
+  # .env
+  SCOUT_OPENSEARCH_HOST=https://localhost:9200
+  SCOUT_OPENSEARCH_USERNAME=admin
+  SCOUT_OPENSEARCH_PASSWORD=你的密码
+  ```
+
+  The `opensearch` section of `config/scout.php` defaults to `ssl_verification=false` (for local self-signed certificates); in production set it to `true` and configure a certificate, and never use a weak password.
+
+> This project ships Elasticsearch inside Docker Compose (the `open-admin-es` service): for a Docker deployment choose the **elasticsearch driver + ES client**; for an external/standalone OpenSearch container choose the **opensearch driver + opensearch-php**.
+>
+> **Index scope**: all 224 models under `app/model/` use `Searchable`; writes and soft deletes sync the index through `ModelObserver`. AdminUser, Customer, Product and Supplier (4 in total) define a custom `toSearchableArray()` whitelist; every other model indexes the whole row.
+>
+> **Engine unavailability does not affect business writes** (verified: pointing the driver at an unreachable port still lets `save()` succeed, at the cost of one connection timeout) — the search engine is an optional component, and the full business scope runs without it.
+>
+> **Scope note**: this project currently wires up **index sync only** (synced on write/soft delete); no search API or search UI is provided. When you need search, call the Scout query API yourself (admin list-page filters use backend `where` queries and do not go through the search engine).
+
+### 5. Multi-language
+
+Switched automatically via the `Accept-Language` request header; 13 locales are supported (`zh` is the default, plus `en`/`ja`/`ko`/`de`/`fr`/`es`/`pt`/`ru`/`ar`/`hi`/`bn`/`id`); the Angular/React admin consoles additionally offer a dedicated globe icon in the top bar and a dropdown in the personal center. See [Internationalization](#internationalization).
 
 ## Database Conventions
 
@@ -318,11 +451,30 @@ Switched automatically via the `Accept-Language` request header (zh-CN / en), de
 
 ### API Documentation
 
-The project uses hg/apidoc to auto-generate interface documentation; visit `/apidoc` to view it.
+The project uses `erikwang2013/apidoc-php`, and **the documentation is generated automatically from controller annotations** — there is no separate documentation to maintain:
 
-- Admin endpoints: 25 module groups, with full request parameters and response structures
-- Client endpoints (Service API): 3 groups — authentication/captcha/products
-- All endpoints document the global request headers: JWT authentication, API version, internationalization
+```bash
+php start.php start          # start the backend
+# then open it in a browser
+http://localhost:8788/apidoc
+```
+
+- **Access path**: `/apidoc` (the plugin route prefix, see `config/plugin/erikwang2013/apidoc/route.php`);
+  this path is exempted in the rate-limit middleware, so browsing annotations in bulk will not be throttled
+- **Coverage**: admin endpoints (Admin) are grouped by module, with complete request parameters and response structures; client endpoints (Service API) cover authentication/captcha/products
+- **How to document a new endpoint**: just annotate the controller method — saving takes effect on the next `/apidoc` refresh
+
+  ```php
+  #[\erikwang2013\apidoc\annotation\Title("商品列表")]
+  #[\erikwang2013\apidoc\annotation\Desc("分页查询商品")]
+  #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+  #[\erikwang2013\apidoc\annotation\Method("GET")]
+  #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+  #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+  public function index(Request $request): Response { /* ... */ }
+  ```
+
+- To restrict access in production, see `docs/nginx-security.conf`
 
 ### Unified Response Format
 
@@ -352,18 +504,22 @@ The project uses hg/apidoc to auto-generate interface documentation; visit `/api
 
 ### Internationalization
 
-The `Accept-Language` request header switches language automatically (zh-CN → Chinese, en → English), Chinese is the default.
+The `Accept-Language` request header switches language automatically; 13 locales are supported (`zh` is the default, plus `en`/`ja`/`ko`/`de`/`fr`/`es`/`pt`/`ru`/`ar`/`hi`/`bn`/`id`).
 
 ### ID Handling
 
 - **IDs in requests/responses**: encrypted to strings with hashids, real database IDs are never exposed
-- **Endpoint paths**: `GET /admin/user/{hashid}` — `{id}` in the path is a hashid string
+- **Endpoint paths**: `GET /admin/v1/user/{hashid}` — `{id}` in the path is a hashid string
 - **Database storage**: BIGINT raw values, generated by snowflake
+- **Frontend convention**: every `*_id` (including detail-line `items[].*_id`) is passed straight back as an **opaque string**; `Number()`/`parseInt()` conversion and truthiness checks are forbidden — a hashid may be an all-digit string, indistinguishable by value alone from a bare ID or the `0` sentinel (the contract lives in `tests/FieldContractRegressionTest.php`)
 
 ### API Versioning
 
-API versions are placed in the URL path — `/api/v1/*`, `/admin/v1/*`, `/open/v1/*` — no version request headers are used.
-- To add a version, just create the `app/api/{version}/controller/` directory and register the new version in the middleware
+API versions are placed in the URL path (e.g. `/admin/v1/*`, `/api/v1/*`, `/open/v1/*`); **clients need no version request header at all**:
+
+- Versioned public endpoints are bound directly to the controller class of the matching version (`app/api/v1/controller/`)
+- To add a version, register a new `/api/vN` route group and place the controllers under `app/api/vN/`
+- The historic `v()` dynamic resolution and the `ApiVersion` request-header middleware have both been removed
 
 ### Rate Limiting
 
@@ -375,20 +531,18 @@ Response headers include `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLi
 
 ### Middleware Architecture
 
-Global middleware applies to all requests and executes in order:
+Global middleware (`config/middleware.php`) applies to all requests and executes in order:
 
 ```
-Locale（Accept-Language 自动检测，设置语言环境）
-  → Cors（跨域预处理 + 响应头）
-  → SecurityFilter（HTTP方法限制/请求体大小/Content-Type校验/XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截）
-  → RateLimit（Redis 滑动窗口限流 + 账号锁定：5次登录失败锁定15分钟）
-  → ApiVersion（API 版本校验，/api 路由组）
-  → AdminAuth（JWT 认证 + 黑名单，/admin 路由组）
-  → AdminPermission（RBAC 鉴权，/admin 路由组）
-  → OperationLog（POST/PUT/DELETE 自动记录，含来源端检测，/admin 路由组）
+Cors (CORS preflight + response headers)
+  → SecurityFilter (HTTP method restriction / request body size / Content-Type validation / XSS / SQL injection / path traversal / command injection / CSRF blocking)
+  → RateLimit (Redis sliding-window rate limiting + account lockout: 5 failed logins → 15-minute lockout)
+  → TracingId (tracing ID)
 ```
 
-`/health`, `/api/docs`, and `/install` are public endpoints that only pass through `Locale → Cors → SecurityFilter → RateLimit`.
+Route-group middleware: `/admin/v1` carries `AdminAuth (JWT authentication + blacklist) → AdminPermission (RBAC authorization) → OperationLog (automatic logging for POST/PUT/DELETE, including caller-side detection)`; `/open/v1` carries `OpenApiAuth`; TMS tracking callbacks carry `TrackingSignature`. The locale is parsed from `Accept-Language` by `app/common/I18n.php` — it is not middleware.
+
+`/health`, `/api/docs`, and `/install` are public endpoints that only pass through `Cors → SecurityFilter → RateLimit → TracingId`.
 
 Security enhancements:
 - **Account lockout**: after 5 consecutive failed logins, the account is locked for 15 minutes; login returns 429 during the lockout
@@ -400,12 +554,12 @@ Security enhancements:
 
 Login and registration must first pass the **click captcha**:
 
-1. The client requests `POST /api/captcha/generate` to get the captcha image (base64 PNG) and the list of target texts
+1. The client requests `POST /api/v1/captcha/generate` to get the captcha image (base64 PNG) and the list of target texts
 2. The user clicks the corresponding text positions in the image in order, collecting click coordinates `[{x, y}, ...]`
 3. Submit `captcha_key` and `clicks` together at login; the server validates the captcha first, then the credentials
 
 ```http
-POST /api/auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -424,14 +578,14 @@ Authorization: Bearer <token>
 
 After successful login, an access_token is returned, valid for 2 hours; a refresh_token is also returned, valid for 14 days.
 
-On logout the token is added to the Redis blacklist and cannot be reused while valid. POST /admin/profile/logout
+On logout the token is added to the Redis blacklist and cannot be reused while valid. POST /admin/v1/profile/logout
 
 ### Sensitive-Operation Re-confirmation
 
 Sensitive operations such as deleting users, roles, and permissions require passing the current logged-in user's `password` in the request body for identity re-confirmation:
 
 ```http
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 Content-Type: application/json
 Authorization: Bearer <token>
 
@@ -446,21 +600,76 @@ The complete endpoint list (public endpoints / admin endpoints / business endpoi
 
 ## Frontend Notes
 
-### Flutter Admin Console (PC Style)
+### Angular Admin (`apps/angular/`)
+
+```bash
+cd apps/angular
+npm install
+npm run dev        # ng serve → http://localhost:4200 (port: see ANGULAR_DEV_PORT in .env)
+npm run build      # tsc --noEmit + ng build, output in dist/angular
+npm run typecheck  # type checking only
+```
+
+- **Node version requirement**: Angular CLI 22's `engines` require **Node ≥ 22.22.3** (older versions make `ng build` refuse to start outright).
+  When the local Node is too old, pin it temporarily with npx (the most common build posture in this repository, used everywhere outside CI):
+
+  ```bash
+  npx --yes --package=node@22.22.3 -- node node_modules/@angular/cli/bin/ng.js build
+  ```
+
+  On environments without `npx` (such as this repository's offline verification machine), fall back to the CLI's bundled tsc for type checking:
+  `./node_modules/.bin/tsc --noEmit -p tsconfig.app.json`
+
+- **Dev proxy**: `proxy.conf.js` already proxies `/admin` `/api` `/open` `/health` `/metrics` `/install`
+  to `APP_HTTP_PORT` from `.env` (default 8788), so **no** backend address needs to be configured when running `ng serve`
+- **Architecture**: config-driven — `src/app/config/domains/*.ts` declares menus and resource pages, and **a single `ResourcePage`
+  renders every business page** (adding a resource page ≈ adding one config object, with no component to write)
+- **Internationalization**: 13 languages, dictionaries lazily loaded per language (each becomes its own chunk); switch via the globe icon in the top bar
+- **Self-checks** (none require a browser; run them directly with `node`): `scripts/check-ng-tree-semantics.mjs`,
+  `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
+
+### React Admin (`apps/react/`)
+
+```bash
+cd apps/react
+npm install
+npm run dev        # Vite → http://localhost:5173 (port: see REACT_DEV_PORT in .env)
+npm run build      # tsc --noEmit + vite build, output in dist/
+```
+
+- Like Angular, it is **config-driven**: `src/config/domains/*.ts` declares menus and resource pages,
+  the rendering engine lives in `src/components/ResourcePage.tsx`, and the style tokens are in `src/styles/tokens.css`
+  (matching the values of `styles/theme.less` on the Angular side)
+- The language switcher lives on the **personal center** page (the Angular side additionally has a globe icon in the top bar)
+
+### Flutter Admin Console (PC Style, `apps/flutter/`)
+
+```bash
+cd apps/flutter
+flutter pub get
+flutter run -d chrome    # Web (PC admin console style); iOS/Android/macOS/Windows/Linux are also supported
+flutter analyze          # static analysis (same as CI)
+```
 
 - **Layout**: sidebar (collapsible 64px/240px) + top bar + content area, responsive with three breakpoints (mobile/tablet/desktop)
-- **Pages**: login, dashboard, user management, role permissions, system config, operation logs, profile
+- **Coverage**: 22 top-level menu items (21 groups + the standalone dashboard), 102 routable pages, 119 page files (menus are declared in `lib/app/config/menu_config.dart`, pages live in `lib/app/pages/`) — Dashboard, System Management, Product Management, Business Partners, Purchase Management, Sales Management, Inventory Management, Finance Management, CRM, Order Management, Warehouse Management, Transportation Management, Manufacturing, Quality Management, Human Resources, Project Management, Approval Workflow, Notification Center, Custom Reports, BI Dashboards, Equipment Management, Document Management
 - **State management**: GetX (`ApiService` singleton + `AuthService` token persistence)
-- **Dashboard**: stat cards, trend line charts (fl_chart), pie chart, recent operation logs
-- **Export**: Excel/PDF export; PDF contains non-removable copyright information
+- **Dashboard**: stat cards, sales trend line, top products, order status distribution, AR/AP aging, inventory overview (fl_chart)
+- **Export**: Excel/PDF export (`ExportService`); PDF contains non-removable copyright information
 - **Batch operations**: multi-select batch delete, batch enable/disable
 - **Theme**: Material 3 light/dark dual themes
+- **Internationalization**: Chinese/English bilingual (`lib/l10n/app_zh.arb` is the template, generated with `flutter gen-l10n`)
 
-### HarmonyOS Mobile
+### HarmonyOS Mobile (`apps/harmonyos/`)
 
-- **Pages**: login, dashboard, user list/detail, profile
+- **Build**: open `apps/harmonyos/` with DevEco Studio; the command-line equivalent is
+  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
+  (requires the HarmonyOS SDK + command-line-tools; the artifact is `entry/build/default/outputs/default/*.hap`)
+- **Pages**: 41 pages are registered in `entry/src/main/resources/base/profile/main_pages.json` and every one of them is reachable from the UI — login, dashboard (KPI cards + business grid), user list/detail, role permissions, profile, plus subsystem pages for products/inventory/purchase/sales/OMS/WMS/TMS/manufacturing/HR/approval. The dashboard business grid provides 32 direct entry points; subsystem detail pages are opened from list-row actions.
 - **Authentication**: JWT Bearer + 401 automatic seamless token refresh; on refresh failure, auto-redirect to the login page
 - **Storage**: tokens managed via AppStorage
+- **Internationalization**: Chinese/English bilingual (`resources/base/element/string.json` and `resources/en_US/element/string.json`)
+- **Networking**: `BASE_URL` is defined in `entry/src/main/ets/utils/Config.ets` (a read-only constant, default `http://10.0.2.2:8788`, i.e. the emulator reaching the host machine; change it here for real devices/production)
 
 ## Development Conventions
 
@@ -485,22 +694,36 @@ The project root provides `docker-compose.yml`, orchestrating 5 services:
 | `redis` | redis:7-alpine | 6379 |
 | `elasticsearch` | elasticsearch:8.x | 9200 |
 
-The PHP image is built from the `Dockerfile`, base image `php:8.3-cli`, with OPcache enabled.
+The PHP image is built from the `Dockerfile`, base image `php:8.3-cli-alpine`, with OPcache enabled.
 
 ```bash
 cp .env.docker .env
-# Replace placeholder keys with random values (idempotent)
+# Replace placeholder keys with random values (idempotent; the C1 strict check rejects startup on CHANGE_ME_ placeholders)
 bash scripts/gen-env-keys.sh .env
 docker compose up -d
 ```
 
 ### CI/CD
 
-GitHub Actions continuous integration pipeline: `.github/workflows/ci.yml`
+GitHub Actions continuous integration pipeline: `.github/workflows/ci.yml`, with five jobs:
 
-- PHP syntax check (`php -l`)
-- PHPUnit unit tests
-- Flutter static analysis (`flutter analyze`, included in CI and enabled — see the flutter job in `.github/workflows/ci.yml`)
+| Job | Contents |
+|------|------|
+| `php` (matrix PHP 8.3 / 8.4, with MySQL 8 + Redis 7 services) | composer validation and security audit → `php -l` → **PHPStan** (level 5 + baseline) → **PHP CS Fixer** (dry-run) → import the full `install.sql` → **PHPUnit** (including integration cases) → pcov coverage collection → coverage gates (overall ≥ 4%, `app/service` ≥ 10%, tightened over time) |
+| `flutter` | `flutter analyze` + `flutter test` (`continue-on-error: true`, to be tightened once the environment is stable) |
+| `docs` | `bash scripts/doc-stats.sh --check`: verifies that the `stats` annotations in the README and docs match the counts measured from the source (controllers/services/models/tables/tests, etc.); drift turns the job red |
+| `e2e` | starts a real webman service → health check → HTTP core-path smoke tests + admin API coverage |
+| `release` | after a push to `main` with the jobs above passing, tags patch+1 and publishes a Release (see below) |
+
+> Frontend static-check coverage: CI currently only runs Flutter; Angular/React (`tsc --noEmit`) and HarmonyOS (`hvigorw assembleHap`) must be run locally or added as later jobs.
+
+### Release Process (Version Increment)
+
+Once a push to `main` passes the php / docs / e2e checks, the `release` job in `ci.yml` automatically creates and pushes a new version tag at the latest tag's **patch+1** (`v1.1.4` → `v1.1.5`), then creates a GitHub Release of the same name (`--generate-notes` generates the change notes automatically).
+
+- **Trigger**: pushes to `main` only (PRs do not trigger it; a tag push does not match the branch filter and so does not recursively trigger this workflow)
+- **Idempotent**: if a tag or release of the same name already exists remotely (concurrent CI runs / it was already tagged manually), it skips silently instead of failing
+- **Local dry run**: `bash scripts/bump-version.sh --check` prints the next version number (read-only, writes nothing remote)
 
 ### Database Backup
 

@@ -149,6 +149,7 @@ return [
     ':envKey may only contain visible characters and must not contain $ or backslash' => ':envKey শুধুমাত্র দৃশ্যমান অক্ষর থাকতে পারে এবং $ বা ব্যাকস্ল্যাশ থাকতে পারবে না',
     ':envKey must be a 2-5 digit port' => ':envKey অবশ্যই 2-5 সংখ্যার একটি পোর্ট হতে হবে',
     ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => ':field অবশ্যই 16-128 অক্ষরের একটি আলফানিউমেরিক কী হতে হবে (অথবা স্বয়ংক্রিয়ভাবে জেনারেট করতে ফাঁকা রাখুন)',
+    ':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate' => ':envKey অবশ্যই ঠিক 32টি আলফানিউমেরিক অক্ষর হতে হবে (AES-256 কী), অথবা স্বয়ংক্রিয়ভাবে জেনারেট করতে ফাঁকা রাখুন',
     'Please enter the database host' => 'অনুগ্রহ করে ডেটাবেস হোস্ট লিখুন',
     'Please fill in host/port/database/user before testing' => 'পরীক্ষা করার আগে অনুগ্রহ করে host/port/database/user পূরণ করুন',
     'Testing...' => 'পরীক্ষা করা হচ্ছে...',

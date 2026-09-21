@@ -13,6 +13,8 @@ flowchart TB
     subgraph "ক্লায়েন্ট লেয়ার"
         A1["Flutter Web<br/>PC ম্যানেজমেন্ট ব্যাকএন্ড<br/>(Port 3000)"]
         A2["HarmonyOS ArkTS<br/>মোবাইল/ট্যাবলেট ক্লায়েন্ট"]
+        A3["Angular 22 + ng-zorro<br/>Web ম্যানেজমেন্ট ব্যাকএন্ড"]
+        A4["React 19 + Vite<br/>Web ম্যানেজমেন্ট ব্যাকএন্ড"]
     end
 
     subgraph "গেটওয়ে/এজ লেয়ার (Nginx Edge)"
@@ -20,8 +22,8 @@ flowchart TB
     end
 
     subgraph "অ্যাপ্লিকেশন লেয়ার (webman v2)"
-        C_LOC["Locale মিডলওয়্যার<br/>Accept-Language স্বয়ংক্রিয় ডিটেকশন"]
-        C0["ApiVersion মিডলওয়্যার<br/>API-Version হেডার যাচাই"]
+        C_LOC["I18n::getLocale()<br/>Accept-Language পার্স · ১৩টি ভাষা"]
+        C0["পাথ-ভিত্তিক ভার্সনিং<br/>/api/v1 · /admin/v1（কোনো ভার্সন হেডার নেই）"]
         C1["AdminAuth মিডলওয়্যার<br/>JWT যাচাই"]
         C2["AdminPermission মিডলওয়্যার<br/>RBAC পারমিশন যাচাই"]
         C3["অ্যাডমিন কন্ট্রোলার<br/>Dashboard / User / Role / Permission"]
@@ -42,6 +44,8 @@ flowchart TB
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -57,6 +61,8 @@ flowchart TB
 
     style A1 fill:#1677FF,color:#fff
     style A2 fill:#1677FF,color:#fff
+    style A3 fill:#1677FF,color:#fff
+    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -80,10 +86,10 @@ flowchart TD
     end
 
     subgraph "মিডলওয়্যার লেয়ার Middleware Layer"
-        M_LOC["Locale<br/>Accept-Language স্বয়ংক্রিয় ডিটেকশন<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>Redis স্লাইডিং উইন্ডো রেট লিমিট<br/>X-RateLimit রেসপন্স হেডার"]
+        M_CR["Cors<br/>ক্রস-অরিজিন হ্যান্ডলিং / OPTIONS প্রি-ফ্লাইট"]
         M_SF["SecurityFilter<br/>অ্যাটাক ডিটেকশন ইন্টারসেপ্ট<br/>XSS/SQL ইনজেকশন/পাথ ট্রাভার্সাল/CSRF"]
-        M0["ApiVersion<br/>API ভার্সন যাচাই<br/>apiVersion ইনজেক্ট"]
+        M_RL["RateLimit<br/>Redis স্লাইডিং উইন্ডো রেট লিমিট<br/>X-RateLimit রেসপন্স হেডার"]
+        M_TID["TracingId<br/>X-Trace-Id জেনারেট<br/>পুরো চেইন জুড়ে"]
         M1["AdminAuth<br/>JWT Token যাচাই<br/>adminId ইনজেক্ট"]
         M2["AdminPermission<br/>RBAC অনুমোদন<br/>method.path ম্যাচিং<br/>Redis 60s ক্যাশ পারমিশন"]
     end
@@ -103,6 +109,7 @@ flowchart TD
         S1["HashidsService<br/>ID এনকোড/ডিকোড"]
         S2["SnowflakeService<br/>গ্লোবাল ইউনিক ID জেনারেশন"]
         S3["EncryptionService<br/>এনক্রিপ্ট/ডিক্রিপ্ট + ডিসেনসিটাইজেশন"]
+        M_LOC["I18n::getLocale()<br/>Accept-Language পার্স（মিডলওয়্যার নয়）<br/>১৩টি ভাষা zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "মডেল লেয়ার Model Layer"
@@ -119,11 +126,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +140,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +155,23 @@ flowchart TD
 
 | লেয়ার | ডিরেক্টরি | ব্যাখ্যা |
 |------|------|------|
-| বিজনেস কন্ট্রোলার | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70টি, মডিউল অনুযায়ী বিভক্ত, বিজনেস রিকোয়েস্ট প্রসেস করে |
-| বিজনেস সার্ভিস | `app/service/{inventory,finance,notification}/` | ইনভেন্টরি ইন-আউট + খরচ হিসাব、ফাইন্যান্স রিসিভেবল-পেবল + নিষ্পত্তি、নোটিফিকেশন পাঠানো |
+| বিজনেস কন্ট্রোলার | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | ১৩৯টি (২৩টি ব্যবসায়িক ডোমেইন, এছাড়া টপ-লেভেল Install / Index), মডিউল অনুযায়ী বিভক্ত, বিজনেস রিকোয়েস্ট প্রসেস করে |
+| বিজনেস সার্ভিস | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | ৬৩টি সার্ভিস ক্লাস / ৬৪টি ফাইল / ২০টি মডিউল সাব-ডিরেক্টরি; ইনভেন্টরি ইন-আউট+খরচ হিসাব、ফাইন্যান্স AR/AP+নিষ্পত্তি、নোটিফিকেশন পাঠানো সহ |
+
+### আন্তর্জাতিকীকরণ (১৩টি ভাষা)
+
+ভাষা নির্ধারণ হয় `app/common/I18n.php`-এর `getLocale()`-এ (`I18n::trans()` থেকে কল হয়, **এটি মিডলওয়্যার নয়**): রিকোয়েস্ট হেডার `Accept-Language`-এর প্রথম ট্যাগ নেওয়া হয়, তারপর প্রধান ভাষার সাব-ট্যাগ ম্যাপ করা হয় (`zh*` → `zh_CN`)। ফ্রন্টএন্ড ও ব্যাকএন্ডের অভিধানের ভূমিকা:
+
+| প্রান্ত | অভিধানের অবস্থান | পরিসর | জেনারেটর |
+|----|----------|------|--------|
+| ব্যাকএন্ড | `resource/translations/<locale>/{common,modules,validation}.php` | ১৩টি ভাষা ডিরেক্টরি; `zh_CN` ৫৬৫টি, বাকি ১১টি ভাষায় প্রতিটি ৫৪৪টি, `en` ৩০টি (লিফ এন্ট্রির গণনা, `validation.php`-এর `attributes` ফিল্ড লেবেল গণনায় ধরা হয়, তার গ্রুপ কী ধরা হয় না) | `scripts/gen-be-locales.mjs` |
+| Angular | সোর্স `apps/angular/src/app/core/zh-en/part1..4.ts` → প্রোডাক্ট `core/zh-<code>.ts` | সোর্স অভিধানে ১৪৫৬টি এন্ট্রি | `scripts/gen-fe-locales.mjs --app angular` |
+| React | সোর্স `apps/react/src/lib/i18n/zhEn.ts` → প্রোডাক্ট `lib/i18n/zh<Code>.ts` | সোর্স অভিধানে ১৪৫১টি এন্ট্রি | `scripts/gen-fe-locales.mjs --app react` |
+
+- ভাষা: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`।
+- ব্যাকএন্ডে "ইংরেজিই key": `en`-এর common/modules ফাঁকা; `validation.php`-এর কী হলো ফ্রেমওয়ার্কের রুলের নাম, কেবল ভ্যালু অনূদিত হয়।
+- ফ্রন্টএন্ডে ১১টি নতুন ভাষার অভিধান প্রতিটি `import()`-এ ডাইনামিকভাবে আলাদা chunk হিসেবে লোড হয়, এন্ট্রি না থাকলে চীনা মূল টেক্সটে ফিরে যায়।
+- ভাষা বদলালেই `Accept-Language` বদলায়, ব্যাকএন্ড ভাষা অনুযায়ী টেক্সট ফেরত দেয় (`app/common/I18n.php` + `config/translation.php`)।
 
 ---
 
@@ -158,10 +181,10 @@ flowchart TD
 sequenceDiagram
     participant C as ক্লায়েন্ট
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -170,10 +193,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: HTTPS রিকোয়েস্ট<br/>Header: API-Version: v1
-    N->>MW_LOC: ফরোয়ার্ড
-    MW_LOC->>MW_LOC: Accept-Language পার্স<br/>locale সেট
-    MW_LOC->>MW_SF: পাস
+    C->>N: HTTPS রিকোয়েস্ট<br/>পাথ /api/v1 বা /admin/v1（কোনো ভার্সন হেডার নেই）
+    N->>MW_CR: ফরোয়ার্ড
+    MW_CR->>MW_CR: OPTIONS প্রি-ফ্লাইট প্রসেস<br/>CORS রেসপন্স হেডার ইনজেক্ট
+    MW_CR->>MW_SF: পাস
 
     alt নন-স্ট্যান্ডার্ড HTTP মেথড (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +214,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: পাস
-
-    alt অসমর্থিত ভার্সন
-        MW0-->>C: 400 অসমর্থিত API ভার্সন
-    else ভার্সন বৈধ
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: পাস
+    MW_TID->>MW_TID: X-Trace-Id জেনারেট<br/>রেসপন্স হেডারে ইনজেক্ট
+    MW_TID->>MW1: পাস
 
     alt Token অনুপস্থিত বা অবৈধ
         MW1-->>C: 401 Unauthorized
@@ -249,7 +268,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === ধাপ ১: ক্যাপচা প্রাপ্তি ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: 300×200 ব্যাকগ্রাউন্ড ইমেজ জেনারেট
     CAP->>CAP: Nটি চীনা টার্গেট এলোমেলোভাবে বসানো
@@ -264,7 +283,7 @@ sequenceDiagram
     CL->>CL: clicks সংগ্রহ: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === ধাপ ৩: লগইন ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt ক্যাপচা ভুল
         CAP-->>SV: false
@@ -284,7 +303,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === পরবর্তী রিকোয়েস্ট ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { dashboard data }
@@ -539,7 +558,7 @@ sequenceDiagram
     participant FS as ফাইল সিস্টেম
 
     Note over C,FS: === Excel এক্সপোর্ট ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: ডেটা
     CTL->>CTL: সংবেদনশীল ফিল্ড ডিক্রিপ্ট
@@ -549,7 +568,7 @@ sequenceDiagram
     CTL-->>C: ফাইল ডাউনলোড
 
     Note over C,FS: === PDF এক্সপোর্ট ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>পেজ হেডার: শিরোনাম+কপিরাইট+সময়<br/>কনটেন্ট: টেবিল বা কার্ড<br/>ফুটার: অপসারণযোগ্য নয় কপিরাইট
     CTL->>CTL: Dompdf রেন্ডার A4 অনুভূমিক
     CTL->>FS: runtime/tmp/export_*.pdf এ লেখা
@@ -712,10 +731,12 @@ graph TB
         FW["Flutter Web<br/>PC ম্যানেজমেন্ট ব্যাকএন্ড"]
         FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
         HW["HarmonyOS<br/>হারমনি নেটিভ App"]
+        NG["Angular 22 + ng-zorro<br/>Web ম্যানেজমেন্ট ব্যাকএন্ড"]
+        RC["React 19 + Vite<br/>Web ম্যানেজমেন্ট ব্যাকএন্ড"]
     end
 
     subgraph Gateway["API গেটওয়ে লেয়ার"]
-        MW["মিডলওয়্যার চেইন<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["মিডলওয়্যার চেইন<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>রাউট গ্রুপ：AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["বিজনেস মডিউল লেয়ার"]
@@ -742,7 +763,7 @@ graph TB
     end
 
     subgraph Data["ডেটা লেয়ার"]
-        MySQL["MySQL 8.0<br/>163টি বিজনেস টেবিল"]
+        MySQL["MySQL 8.0<br/>২২৭টি বিজনেস টেবিল"]
         Redis["Redis 7<br/>ক্যাশ/রেট লিমিট/Session"]
         ES["Elasticsearch 8<br/>ফুল-টেক্সট সার্চ"]
     end
@@ -877,22 +898,31 @@ sequenceDiagram
 
 | মডিউল | Controllers (ডিরেক্টরি) | কোর Service | প্রধান Model | টেবিল সংখ্যা |
 |------|-------------------|-------------|-----------|------|
-| সিস্টেম ম্যানেজমেন্ট | admin/controller/ (14টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | AdminUser, AdminRole, AdminPermission | 7 |
-| পণ্য ম্যানেজমেন্ট | controller/product/ (7টি) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
-| ক্রয় ম্যানেজমেন্ট | controller/purchase/ (5টি) | InventoryService, FinanceService ⚠ CRUD এখনও সরাসরি কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | PurchaseOrder, PurchaseReceive | 9 |
+| সিস্টেম ম্যানেজমেন্ট | admin/controller/ (16টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | AdminUser, AdminRole, AdminPermission | 7 |
+| পণ্য ম্যানেজমেন্ট | controller/product/ (8টি) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 12 |
+| ক্রয় ম্যানেজমেন্ট | controller/purchase/ (8টি) | InventoryService, FinanceService ⚠ CRUD এখনও সরাসরি কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | PurchaseOrder, PurchaseReceive | 14 |
 | সেলস ম্যানেজমেন্ট | controller/sales/ (5টি) | InventoryService, FinanceService ⚠ CRUD এখনও সরাসরি কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | SalesOrder, SalesDelivery | 9 |
-| ইনভেন্টরি ম্যানেজমেন্ট | controller/inventory/ (5টি) | InventoryService ⚠ CRUD এখনও সরাসরি কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | Inventory, InventoryFlow, CostRecord | 11 |
-| ফাইন্যান্স ম্যানেজমেন্ট | controller/finance/ (20টি) | FinanceService ⚠ CRUD এখনও সরাসরি কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| ইনভেন্টরি ম্যানেজমেন্ট | controller/inventory/ (6টি) | InventoryService ⚠ CRUD এখনও সরাসরি কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | Inventory, InventoryFlow, CostRecord | 11 |
+| ফাইন্যান্স ম্যানেজমেন্ট | controller/finance/ (28টি) | FinanceService ⚠ CRUD এখনও সরাসরি কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 38 |
 | CRM | controller/crm/ (10টি) | CrmService | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
-| অ্যাপ্রুভাল ওয়ার্কফ্লো | controller/workflow/ (2টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
-| মেসেজ নোটিফিকেশন | controller/notification/ (1টি) | NotificationService ⚠ CRUD এখনও সরাসরি কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | Notification, NotificationSetting, NotificationTemplate | 3 |
-| প্রজেক্ট ম্যানেজমেন্ট | controller/project/ (3টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| হিউম্যান রিসোর্স | controller/hr/ (5টি) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
-| প্রোডাকশন ম্যানুফ্যাকচারিং | controller/manufacturing/ (5টি) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| অ্যাপ্রুভাল ওয়ার্কফ্লো | controller/workflow/ (3টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
+| মেসেজ নোটিফিকেশন | controller/notification/ (2টি) | NotificationService ⚠ CRUD এখনও সরাসরি কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | Notification, NotificationSetting, NotificationTemplate | 4 |
+| প্রজেক্ট ম্যানেজমেন্ট | controller/project/ (4টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 6 |
+| হিউম্যান রিসোর্স | controller/hr/ (9টি) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 21 |
+| প্রোডাকশন ম্যানুফ্যাকচারিং | controller/manufacturing/ (13টি) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 21 |
 | কাস্টম রিপোর্ট | controller/report/ (2টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
-| EAM ইকুইপমেন্ট ম্যানেজমেন্ট | controller/eam/ (4টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart | 4 |
+| EAM ইকুইপমেন্ট ম্যানেজমেন্ট | controller/eam/ (5টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
 | DMS ডকুমেন্ট ম্যানেজমেন্ট | controller/dms/ (2টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
 | BI ড্যাশবোর্ড | controller/bi/ (3টি) | - ⚠ কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট | BiDashboard, BiWidget | 2 |
+
+> এই টেবিলটি প্রাথমিক মডিউল ম্যাপিং (সিস্টেম ম্যানেজমেন্ট + ১৫টি ব্যবসায়িক ডোমেইন); পরবর্তীতে যোগ হওয়া oms / wms / tms / quality / open / platform / print / retail ৮টি ডোমেইন এতে অন্তর্ভুক্ত নয়,
+> সম্পূর্ণ তালিকা দেখুন `docs/CLAUDE.md` প্রজেক্ট স্ট্রাকচার ট্রিতে (`app/controller/` মোট ২৩টি মডিউল ডিরেক্টরি / ১৩৯টি কন্ট্রোলার, টপ-লেভেল Install ও Index সহ)।
+>
+> `টেবিল সংখ্যা`-র গণনার পদ্ধতি (2026-09-15 পরিমাপ): `database/install.sql`-এর ২২৭টি টেবিল নিয়ে টেবিল-নাম প্রিফিক্স অনুযায়ী একক মডিউলে বরাদ্দ —— সিস্টেম ম্যানেজমেন্ট `admin_*`+`system_config`+`operation_log`;
+> পণ্য ম্যানেজমেন্ট `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`; ক্রয় ম্যানেজমেন্ট `purchase_*`+`supplier_assessment`; ইনভেন্টরি ম্যানেজমেন্ট `inventory*`/`transfer*`/`check_*`/`cost_record`;
+> বাকি মডিউল একই-নাম প্রিফিক্সের টেবিল (`sales_*`→সেলস, `finance_*`→ফাইন্যান্স, `crm_*`→CRM, `approval_*`→অ্যাপ্রুভাল, `notification*`→নোটিফিকেশন, `project*`→প্রজেক্ট, `hr_*`→হিউম্যান রিসোর্স, `mfg_*`→প্রোডাকশন, `report_*`→রিপোর্ট, `eam_*`→EAM, `dms_*`→DMS, `bi_*`→BI)।
+> একটি টেবিল শুধু এক কলামে যায়; পরবর্তীতে যোগ হওয়া ডোমেইন ও শেয়ার্ড টেবিল মোট ৪৮টি (`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`print_template`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`) এই টেবিলের কোনো সারিতে গণনা করা হয় না।
+> পুনর্গণনা: ``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
 ### 20.1 P2-F2 সার্ভিস লেয়ার লাইটওয়েট এক্সট্রাকশন রেকর্ড (crm/hr/manufacturing/product এক্সট্রাকশন সম্পন্ন)
 
@@ -912,6 +942,12 @@ class_exists ফলব্যাক ইনস্ট্যান্টিয়ে
 
 এক্সট্রাক্ট না হওয়া মডিউল (প্রজেক্ট ম্যানেজমেন্ট 18 বার、কাস্টম রিপোর্ট 18 বার、ক্রয় 24 বার、সেলস 24 বার、সিস্টেম ম্যানেজমেন্ট 42 বার ইত্যাদি) টেবিলে
 "কন্ট্রোলার সরাসরি মডেল কোয়েরি, পরিচিত টেকনিক্যাল ডেব্ট" চিহ্নিত করা হয়েছে, পরবর্তী ইটারেশনে একই প্যাটার্নে এক্সট্রাক্ট হবে।
+
+> ⚠ পুনঃপরীক্ষা (2026-09-15): এই অংশের সংখ্যাগুলো **এক্সট্রাকশনের সময়বিন্দুর** (1051d83 / 2026-08-16) পরিমাপ —— একই পদ্ধতিতে ওই কমিট যাচাই করলে চার মডিউল ঠিক
+> CRM 57→0、হিউম্যান রিসোর্স 36→0 (এই অংশে লেখা 38)、প্রোডাকশন 33→0、পণ্য 29→0; তখন এক্সট্রাক্ট না হওয়া মডিউল ছিল প্রজেক্ট 18 / রিপোর্ট 18 / ক্রয় 25 / সেলস 25 / সিস্টেম ম্যানেজমেন্ট 44 (লেখা 18/18/24/24/42, 1~2-এর পার্থক্য গণনার পদ্ধতিগত পার্থক্য)।
+> এক্সট্রাকশনের পর যোগ হওয়া পেজগুলো Service-এ যুক্ত হয়নি, সরাসরি কোয়েরি ফিরে এসেছে: CRM ৬ জায়গায় (সম্পর্কিত নাম ব্যাকফিল `pluck`)、প্রোডাকশন ৩৯ জায়গায় (CostEntry/MaterialIssue/WorkReport/Subcontract ইন-আউট ইত্যাদি ৬টি পরবর্তী কন্ট্রোলার)、
+> পণ্য ২ জায়গায় (LocationController লকেশন), হিউম্যান রিসোর্স এখনও ০; এক্সট্রাক্ট না হওয়া মডিউল এখন প্রজেক্ট 24 / রিপোর্ট 20 / ক্রয় 58 / সেলস 35 / সিস্টেম ম্যানেজমেন্ট 67।
+> পুনঃপরীক্ষার পদ্ধতি ও কমান্ড (`Model::class` গণনায় ধরা হয় না): ``grep -rhoE '\b[A-Z][A-Za-z]*::(find|where|whereIn|query|first|all|count|paginate|insert|update|delete|save|create|pluck|exists)\(' app/controller/<মডিউল>/ | grep -vE '\b(Service|Container|Validator|Cache|Log)::' | wc -l``
 
 ---
 
@@ -957,7 +993,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | মাত্রা | স্কোর | মূল ফাঁক |
 |------|------|----------|
 | ব্যাকএন্ড API | 85/100 | একাধিক মডিউল CRUD কঙ্কাল, বিজনেস হিসাব ইঞ্জিন নেই |
-| সিকিউরিটি সুরক্ষা | 95/100 | 18-স্তর ডিপ ডিফেন্স, প্রোডাকশন-রেডি |
+| সিকিউরিটি সুরক্ষা | 95/100 | ৭ স্তরের ডিপ ডিফেন্স (L0–L12 প্যানোরামা), প্রোডাকশন-রেডি |
 | ফ্রন্টএন্ড UI | 20/100 | **সবচেয়ে বড় দুর্বলতা**: Flutter 12 পেজ ~20% মডিউল কভার করে, Web ম্যানেজমেন্ট প্যানেল নেই |
 | অপস ইকোসিস্টেম | 70/100 | মাইগ্রেশন রোলব্যাক、অটো ব্যাকআপ、অবজারভেবিলিটি নেই |
 | বিজনেস গভীরতা | 55/100 | ফাইন্যান্স/HR/ম্যানুফ্যাকচারিং কোর অ্যালগরিদম ইমপ্লিমেন্ট হয়নি |
@@ -979,10 +1015,10 @@ P0(3-4周) → P1(4-6周) → P2(1-2周) → P3(2-3周) = মোট প্রা
 ### 21.3 মিডলওয়্যার চেইন ইভোল্যুশন
 
 ```
-বর্তমান:  Locale → Cors → SecurityFilter → RateLimit → TracingId → {রাউট গ্রুপ}
-P1 পরে:   Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {রাউট গ্রুপ}
-P2 পরে:   Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {রাউট গ্রুপ}
-P3 পরে:   Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {রাউট গ্রুপ}
+বর্তমান:  Cors → SecurityFilter → RateLimit → TracingId → {রাউট গ্রুপ}
+P1 পরে:   Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {রাউট গ্রুপ}
+P2 পরে:   Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {রাউট গ্রুপ}
+P3 পরে:   Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {রাউট গ্রুপ}
 ```
 
 ### 21.4 P0 টার্গেট আর্কিটেকচার — Flutter Web ম্যানেজমেন্ট প্যানেল
@@ -1028,25 +1064,25 @@ SaaS বিলিং、টেন্যান্ট সেলফ-অনবোর�
 সিদ্ধান্তের ভিত্তি (2026-08 রিভিউ):
 - বর্তমান ডিপ্লয়মেন্ট প্রায় সব সিঙ্গেল-টেন্যান্ট, কানেক্ট করলে অপ্রয়োজনীয় আইসোলেশন জটিলতা ও রিগ্রেশন ঝুঁকি আসবে;
 - বর্তমান কঙ্কালে টেকনিক্যাল ত্রুটি আছে (22.4 দেখুন), "কানেক্ট মানেই আইসোলেশন" সত্য নয়, প্রথমে ডিজাইন সংশোধন সম্পন্ন করতে হবে;
-- আইসোলেশনের জন্য 163টি টেবিলের বিজনেস টেবিলে একে একে কলাম যোগ、একে একে মডেল সক্রিয় করতে হবে, খরচ "ন্যূনতম কানেক্ট"-এর চেয়ে অনেক বেশি।
+- আইসোলেশনের জন্য ২২৭টি ব্যবসায়িক টেবিলে একে একে কলাম যোগ করতে হবে、একে একে মডেল সক্রিয় করতে হবে, খরচ "ন্যূনতম কানেক্ট"-এর চেয়ে অনেক বেশি।
 
 ### 22.2 বর্তমান অবস্থা (কোড ও কনফিগ মিলিয়ে যাচাই)
 
 | আইটেম | বর্তমান অবস্থা |
 |----|------|
-| `app/middleware/TenantScope.php` | আছে, রেজিস্টার করা হয়নি; `X-Tenant-Id` হেডার থেকে টেন্যান্ট পড়ে, হেডার অনুপস্থিত থাকলে সরাসরি ছেড়ে দেয় |
-| `app/model/concerns/TenantScope.php` | আছে, কোনো মডেল ব্যবহার করে না; `bootTenantScope()` গ্লোবাল স্কোপ শুধু টেন্যান্ট সেটের পরে ফিল্টার করে |
-| `config/middleware.php` | গ্লোবাল চেইন: Locale → Cors → SecurityFilter → RateLimit → TracingId, TenantScope নেই |
-| `config/route.php` /admin গ্রুপ | AdminAuth → AdminPermission → OperationLog, TenantScope নেই |
+| `app/middleware/TenantScope.php` | আছে, রেজিস্টার করা হয়নি; `X-Tenant-Code` হেডার থেকে টেন্যান্ট কোড পড়ে `erp_tenant` টেবিল কোয়েরি করে কনটেক্সট ইনজেক্ট করে, হেডার অনুপস্থিত থাকলে সরাসরি ছেড়ে দেয় |
+| `app/model/concerns/TenantScope.php` | আছে; ৪টি ফাইন্যান্স মডেল (`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`, কোম্পানি-পরিবার `tenantScopeByCompany()` true রিটার্ন করে) ব্যবহার করে, `company_id` অনুযায়ী ফিল্টার করে; মিডলওয়্যার রেজিস্টার না থাকায় রিকোয়েস্ট কনটেক্সট ইনজেক্ট হয় না, গ্লোবাল স্কোপ বর্তমানে কার্যকর নয় |
+| `config/middleware.php` | গ্লোবাল চেইন: Cors → SecurityFilter → RateLimit → TracingId, TenantScope নেই |
+| `config/route.php` /admin/v1 গ্রুপ | AdminAuth → AdminPermission → OperationLog, TenantScope নেই |
 | JWT পেলোড | শুধু `sub` / `username` / `token_type`, **tenant_id ডিক্লারেশন নেই** (`app/api/v1/controller/AuthController.php`) |
 | ডেটাবেস | **পুরো ডেটাবেসে tenant_id কলাম নেই** (install.sql-এও নেই) |
-| মডেল | **কোনো মডেল TenantScope trait ব্যবহার করে না** |
+| মডেল | ৪টি ফাইন্যান্স মডেল `TenantScope` trait ব্যবহার করে (কোম্পানি-পরিবার, `company_id` ফিল্টার) —— পাইলট আইসোলেশন; টেন্যান্ট কনটেক্সট ইনজেক্ট না হলে কোনো ফিল্টার যোগ হয় না |
 
 ### 22.3 সক্রিয়করণ ধাপ (রিজার্ভড রেফারেন্স, এই পর্বে এক্সিকিউট নয়)
 
-1. মিডলওয়্যার রেজিস্টার: `config/route.php`-এর /admin গ্রুপের `middleware()`-এ
+1. মিডলওয়্যার রেজিস্টার: `config/route.php`-এর /admin/v1 গ্রুপের `middleware()`-এ
    `app\middleware\TenantScope::class` যুক্ত করুন (AdminAuth-এর পরে বসান, অথ সম্পন্ন হয়েছে তা নিশ্চিত করতে)।
-2. রিকোয়েস্টকারী রিকোয়েস্ট হেডারে `X-Tenant-Id` (int টেন্যান্ট ID) বহন করবে।
+2. রিকোয়েস্টকারী রিকোয়েস্ট হেডারে `X-Tenant-Code` (টেন্যান্ট কোড স্ট্রিং) বহন করবে।
 3. আইসোলেশন প্রয়োজন বিজনেস টেবিলে `tenant_id` কলাম যোগ (BIGINT + ইনডেক্স) করে বিদ্যমান ডেটা ব্যাকফিল করুন;
    ডিকশনারি/সিস্টেম টেবিল (যেমন `erp_admin_user`、`erp_role`、`erp_permission`) আইসোলেট হয় না।
 4. আইসোলেশন প্রয়োজন মডেল ক্লাসে `use app\model\concerns\TenantScope;` যোগ করুন, স্বয়ংক্রিয়ভাবে বর্তমান টেন্যান্ট অনুযায়ী ফিল্টার হবে।
@@ -1055,15 +1091,18 @@ SaaS বিলিং、টেন্যান্ট সেলফ-অনবোর�
 
 ### 22.4 পরিচিত টেকনিক্যাল সীমাবদ্ধতা (সক্রিয় করার আগে অবশ্যই সমাধান করতে হবে)
 
-- **স্ট্যাটিক ট্রান্সমিশন চেইন ভেঙে যাওয়া (PHP 8.3 পরীক্ষিত)**：মিডলওয়্যার trait নামের মাধ্যমে `setCurrentTenantId()` কল করে
-  লেখা হয় trait-এর নিজস্ব স্ট্যাটিক কপিতে, সেই trait ব্যবহার করা মডেল ক্লাস পড়তে পারে না, কোয়েরি ফিল্টার হয় না।
-  সক্রিয়করণে রিকোয়েস্ট কনটেক্সট ভিত্তিক ইনজেকশনে পরিবর্তন করতে হবে (যেমন `request()->tenantId`)।
-- **স্ট্যাটিক গ্লোবাল স্টেট ক্রস-টক**：Workerman রেসিডেন্ট প্রসেস, স্ট্যাটিক প্রপার্টি রিকোয়েস্ট জুড়ে শেয়ার হয়; কোরুটিন মোড
-  (Swoole/Swow) সক্রিয় করলে ক্রস-টেন্যান্ট ডেটা ক্রস-টক হবে, রিকোয়েস্ট-লেভেল বাইন্ডিং-এ পরিবর্তন করতে হবে (`context()` / রিকোয়েস্ট অবজেক্ট)।
+- **ট্রাস্ট বাউন্ডারি (রেজিস্টার করার আগে অবশ্যই সমাধান করতে হবে)**：টেন্যান্ট কনটেক্সটের উৎস `X-Tenant-Code` রিকোয়েস্ট হেডার, যা জাল করা যায়
+  এমন ইনপুট; `erp_admin_user`-এর সঙ্গে কোম্পানি/টেন্যান্টের বাইন্ডিং (অ্যাডমিনের সদস্যতা নির্ধারণ) প্রতিষ্ঠার আগে মিডলওয়্যার সক্রিয় করলে
+  অনধিকার ডেটা-প্লেন ফাঁক তৈরি হবে (যেকোনো অথেনটিকেটেড অ্যাডমিন যেকোনো টেন্যান্ট দাবি করে তার ডেটা পড়তে পারবে)।
+- **স্ট্যাটিক ট্রান্সমিশন চেইন ভেঙে যাওয়া (PHP 8.3 পরীক্ষিত) P2-4 B5 ফিক্স সংস্করণে প্রতিস্থাপিত হয়েছে**：`TenantScope` trait
+  এখন রিকোয়েস্ট কনটেক্সট ইনজেকশনে চলে (`request()->tenantId` / `companyId`), এই পাথে কোনো স্ট্যাটিক স্টেট নেই,
+  রেসিডেন্ট প্রসেসে রিকোয়েস্ট-জুড়ে ক্রস-টকও তাই দূর হয়েছে; trait নামের স্ট্যাটিক ফ্যাসাড `@deprecated` হিসেবে চিহ্নিত, শুধু
+  টেস্ট/CLI ফলব্যাকের জন্য।
 - **ডেটা প্লেন ফাঁক**：পুরো ডেটাবেসে tenant_id কলাম নেই, টেবিল প্রতি মাইগ্রেশন প্রয়োজন; ক্রস-টেন্যান্ট শেয়ার্ড ডিকশনারি টেবিলে এক্সেম্পশন মেকানিজম ডিজাইন করতে হবে।
 
 ### 22.5 অ্যাকসেপটেন্স ক্রাইটেরিয়া
 
 এই পর্বের অ্যাকসেপটেন্স = ডকুমেন্ট ও কোড সামঞ্জস্যপূর্ণ: `config/middleware.php` ও `config/route.php`-এ
-TenantScope রেজিস্ট্রেশন নেই; মিডলওয়্যার ও Trait কমেন্টে স্পষ্টভাবে "রিজার্ভড ক্যাপাবিলিটি, সক্রিয় নয়" চিহ্নিত এবং সক্রিয়করণ ধাপ দেওয়া আছে;
+TenantScope রেজিস্ট্রেশন নেই; মিডলওয়্যার কমেন্টে "বাস্তবায়িত, ডিফল্টে রেজিস্টার করা হয়নি" চিহ্নিত এবং রেজিস্ট্রেশন পয়েন্ট ও ট্রাস্ট বাউন্ডারি দেওয়া আছে,
+Trait কমেন্টে রিকোয়েস্ট কনটেক্সট ইনজেকশন চেইন ও রিগ্রেশন লাইন (টেন্যান্ট কনটেক্সট না থাকলে ফিল্টারে অংশ নেয় না) চিহ্নিত;
 এই সেকশনের বর্ণনা কোডের বর্তমান অবস্থার সাথে প্রতিটি পয়েন্ট মিলে।

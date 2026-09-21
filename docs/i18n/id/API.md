@@ -4,7 +4,7 @@
 
 ## Dokumen API
 
-Proyek menggunakan [hg/apidoc](https://github.com/hg-code/apidoc) untuk menghasilkan dokumen API interaktif secara otomatis.
+Proyek menggunakan [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php) untuk menghasilkan dokumen API interaktif secara otomatis.
 
 **Cara akses:** Setelah layanan dimulai, akses `http://localhost:8788/apidoc`
 
@@ -18,17 +18,20 @@ Proyek menggunakan [hg/apidoc](https://github.com/hg-code/apidoc) untuk menghasi
 | Header | Keterangan |
 |--------|------|
 | `Authorization` | JWT Bearer Token |
-| `API-Version` | Nomor versi API (v1) |
-| `Accept-Language` | Bahasa internasionalisasi (zh-CN/en) |
+| `Accept-Language` | Bahasa internasionalisasi, mendukung 13 bahasa (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id), default `zh_CN` |
+
+> **Keterangan versi**: seluruh situs memakai versi berbasis path —— sisi admin `/admin/v1`, sisi klien `/api/v1`, antarmuka terbuka `/open/v1`,
+> nomor versi berada di path URL, **tanpa header permintaan versi apa pun**; pengecualian: `GET /api/docs` (dokumen OpenAPI) dan
+> callback jejak kurir `/api/tms/tracking/callback` (tanda tangan HMAC, tanpa versi).
 
 **Konvensi anotasi:** Semua metode controller menggunakan seri anotasi `@Apidoc\*` untuk menandai nama antarmuka, deskripsi, URL, metode permintaan, parameter, dan struktur nilai kembali.
 
 ## 1. Ikhtisar
 
-Sistem Manajemen Terbuka (open-admin) dibangun di atas webman v2, menyediakan RESTful JSON API. Semua antarmuka admin memerlukan autentikasi JWT dan validasi izin RBAC, antarmuka publik dirutekan ke controller ber-versioning melalui header versi API.
+Sistem Manajemen Terbuka (open-admin) dibangun di atas webman v2, menyediakan RESTful JSON API. Seluruh situs memakai versi berbasis path: antarmuka admin dipasang di `/admin/v1` (autentikasi JWT + validasi izin RBAC), antarmuka klien dipasang di `/api/v1`, antarmuka terbuka dipasang di `/open/v1`; nomor versi menyatu ke path URL, tanpa header permintaan versi.
 
 - **URL Dasar**: `http://localhost:8788`
-- **Versi API**: dikontrol melalui header `API-Version: v1` (default v1 saat tidak ada)
+- **Versi API**: seluruh situs memakai versi berbasis path, nomor versi berada di path URL (admin `/admin/v1`, klien `/api/v1`, antarmuka terbuka `/open/v1`), tanpa header permintaan versi
 
 > **Ikhtisar endpoint**: Autentikasi(5) | Dasbor(1) | Pengguna(7) | Peran(4) | Izin(4) | Konfigurasi(4) | Log(1) | Pusat Pribadi(3) | Impor-Ekspor(3) | Unggah(1) | Operasi(4: health/metrics/docs/security.txt) | Total 37 endpoint
 - **Autentikasi**: `Authorization: Bearer <token>` (JWT)
@@ -37,19 +40,23 @@ Sistem Manajemen Terbuka (open-admin) dibangun di atas webman v2, menyediakan RE
 
 ### Internasionalisasi
 
-API otomatis mengganti bahasa melalui header `Accept-Language`:
+API secara otomatis mengganti bahasa melalui header `Accept-Language`, mendukung 13 bahasa: `zh_CN` (中文, default), `en` (English), `ja` (日本語), `ko` (한국어), `de` (Deutsch), `fr` (Français), `es` (Español), `pt` (Português), `ru` (Русский), `ar` (العربية), `hi` (हिन्दी), `bn` (বাংলা), `id` (Bahasa Indonesia):
 
-| Nilai Header | Bahasa |
+| Label bahasa pertama pada header | Dipetakan ke |
 |---------|------|
-| `zh-CN`, `zh` | 中文 (default) |
-| `en`, `en-US` | English |
+| `zh`, `zh-CN`, `zh-TW` | `zh_CN` 中文 (default) |
+| `en`, `en-US` | `en` English |
+| `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id` | Bahasa terkait (sufiks wilayah diabaikan, misalnya `de-DE` → `de`) |
 
 ```bash
 # Respons bahasa Inggris
-curl -H "Accept-Language: en" http://localhost:8788/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
+
+# Respons bahasa Jepang
+curl -H "Accept-Language: ja" http://localhost:8788/admin/v1/product
 
 # Respons 中文 (default)
-curl http://localhost:8788/admin/product
+curl http://localhost:8788/admin/v1/product
 ```
 
 Field `message` dalam respons akan dikembalikan dalam bahasa yang sesuai.
@@ -81,7 +88,7 @@ Field `message` dalam respons akan dikembalikan dalam bahasa yang sesuai.
 
 ## 3. Endpoint Publik
 
-Semua endpoint publik dipasang di bawah grup `/api`, didistribusikan oleh middleware `ApiVersion` sesuai header `API-Version` ke controller ber-versioning yang sesuai (misalnya `app\api\v1\controller\AuthController`).
+Semua endpoint publik dipasang di bawah grup `/api/v1` (nomor versi menyatu ke path URL, tanpa header permintaan versi, juga tanpa middleware versi), controller diikat langsung per direktori (misalnya `app\api\v1\controller\AuthController`).
 
 ### 3.1 Health Check
 
@@ -124,11 +131,11 @@ GET /api/docs
 ### 3.3 Membuat Captcha Klik
 
 ```
-POST /api/captcha/generate
+POST /api/v1/captcha/generate
 ```
 
 - **Autentikasi**: Tidak perlu
-- **Header**: `API-Version: v1` (wajib)
+- **Versi**: path URL memuat /api/v1, tanpa header permintaan versi
 - **Rate limit**: Default global (60 kali/menit)
 
 **Body permintaan**:
@@ -170,11 +177,11 @@ POST /api/captcha/generate
 ### 3.4 Memverifikasi Captcha Klik
 
 ```
-POST /api/captcha/verify
+POST /api/v1/captcha/verify
 ```
 
 - **Autentikasi**: Tidak perlu
-- **Header**: `API-Version: v1` (wajib)
+- **Versi**: path URL memuat /api/v1, tanpa header permintaan versi
 - **Rate limit**: Default global (60 kali/menit)
 
 **Body permintaan**:
@@ -207,11 +214,11 @@ Saat verifikasi gagal, `code` adalah 422, `message` adalah `"Verifikasi gagal, s
 ### 3.5 Login
 
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 - **Autentikasi**: Tidak perlu
-- **Header**: `API-Version: v1` (wajib)
+- **Versi**: path URL memuat /api/v1, tanpa header permintaan versi
 - **Rate limit**: 10 kali/menit (berdasarkan IP + path)
 
 **Body permintaan**:
@@ -271,11 +278,11 @@ POST /api/auth/login
 ### 3.6 Registrasi
 
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 ```
 
 - **Autentikasi**: Tidak perlu
-- **Header**: `API-Version: v1` (wajib)
+- **Versi**: path URL memuat /api/v1, tanpa header permintaan versi
 - **Rate limit**: 5 kali/menit (berdasarkan IP + path)
 - **Sakelar**: default nonaktif (`REGISTRATION_ENABLED=0`), saat nonaktif mengembalikan 403; perlu diaktifkan secara eksplisit di `.env` (`REGISTRATION_ENABLED=1`)
 
@@ -324,11 +331,11 @@ Setelah registrasi berhasil langsung mengembalikan token JWT, status pengguna de
 ### 3.7 Refresh Token
 
 ```
-POST /api/auth/refresh
+POST /api/v1/auth/refresh
 ```
 
 - **Autentikasi**: Tidak perlu
-- **Header**: `API-Version: v1` (wajib)
+- **Versi**: path URL memuat /api/v1, tanpa header permintaan versi
 - **Rate limit**: Default global (60 kali/menit)
 
 **Body permintaan**:
@@ -406,12 +413,12 @@ openadmin_memory_usage_bytes 18874368
 
 ## 4. Dasbor
 
-Semua antarmuka admin dipasang di bawah grup `/admin`, melalui tiga middleware `AdminAuth` (autentikasi JWT), `AdminPermission` (validasi izin RBAC), `OperationLog` (pencatatan operasi).
+Semua antarmuka admin dipasang di bawah grup `/admin/v1`, melalui tiga middleware `AdminAuth` (autentikasi JWT), `AdminPermission` (validasi izin RBAC), `OperationLog` (pencatatan operasi).
 
 ### 4.1 Data Dasbor
 
 ```
-GET /admin/dashboard
+GET /admin/v1/dashboard
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -468,7 +475,7 @@ GET /admin/dashboard
         "id": "hashid...",
         "action": "Login pengguna",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "user_name": "admin",
         "created_at": "2026-05-21 10:30:00"
@@ -498,7 +505,7 @@ Semua `id` yang dikembalikan antarmuka manajemen pengguna adalah string terenkri
 ### 5.1 Daftar Pengguna
 
 ```
-GET /admin/user
+GET /admin/v1/user
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -551,7 +558,7 @@ GET /admin/user
 ### 5.2 Membuat Pengguna
 
 ```
-POST /admin/user
+POST /admin/v1/user
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -601,7 +608,7 @@ POST /admin/user
 ### 5.3 Detail Pengguna
 
 ```
-GET /admin/user/{id}
+GET /admin/v1/user/{id}
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -635,7 +642,7 @@ Di antarmuka detail, `phone` dan `email` dikembalikan plaintext (di database dis
 ### 5.4 Memperbarui Pengguna
 
 ```
-PUT /admin/user/{id}
+PUT /admin/v1/user/{id}
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -683,7 +690,7 @@ PUT /admin/user/{id}
 ### 5.5 Menghapus Pengguna
 
 ```
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -720,7 +727,7 @@ Melakukan soft delete (Eloquent SoftDeletes), data ditandai deleted_at tanpa pen
 ### 5.6 Menghapus Pengguna Massal
 
 ```
-POST /admin/user/batch/destroy
+POST /admin/v1/user/batch/destroy
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -760,7 +767,7 @@ Melakukan soft delete, `data.count` adalah jumlah yang benar-benar dihapus.
 ### 5.7 Mengaktifkan/Nonaktifkan Pengguna Massal
 
 ```
-POST /admin/user/batch/status
+POST /admin/v1/user/batch/status
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -800,7 +807,7 @@ message berubah dinamis sesuai nilai status menjadi `"Pengaktifan massal berhasi
 ### 6.1 Daftar Peran
 
 ```
-GET /admin/role
+GET /admin/v1/role
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -848,7 +855,7 @@ GET /admin/role
 ### 6.2 Membuat Peran
 
 ```
-POST /admin/role
+POST /admin/v1/role
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -890,7 +897,7 @@ POST /admin/role
 ### 6.3 Memperbarui Peran
 
 ```
-PUT /admin/role/{id}
+PUT /admin/v1/role/{id}
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -930,7 +937,7 @@ PUT /admin/role/{id}
 ### 6.4 Menghapus Peran
 
 ```
-DELETE /admin/role/{id}
+DELETE /admin/v1/role/{id}
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -961,7 +968,7 @@ Izin menggunakan struktur pohon (parent_id self-referencing), dibagi menjadi tig
 ### 7.1 Pohon Izin
 
 ```
-GET /admin/permission
+GET /admin/v1/permission
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -976,7 +983,7 @@ GET /admin/permission
       "id": "p1p2p3p4",
       "parent_id": "0",
       "name": "Manajemen Pengguna",
-      "slug": "/admin/user",
+      "slug": "/admin/v1/user",
       "type": 1,
       "icon": "people",
       "path": "/user",
@@ -987,7 +994,7 @@ GET /admin/permission
           "id": "p5p6p7p8",
           "parent_id": "p1p2p3p4",
           "name": "Daftar Pengguna",
-          "slug": "/admin/user/index",
+          "slug": "/admin/v1/user/index",
           "type": 2,
           "icon": "",
           "path": "/user/index",
@@ -1014,7 +1021,7 @@ GET /admin/permission
 ### 7.2 Membuat Izin
 
 ```
-POST /admin/permission
+POST /admin/v1/permission
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1024,7 +1031,7 @@ POST /admin/permission
 {
   "parent_id": 0,
   "name": "Pengaturan Sistem",
-  "slug": "/admin/config",
+  "slug": "/admin/v1/config",
   "type": 1,
   "icon": "settings",
   "path": "/config",
@@ -1051,7 +1058,7 @@ POST /admin/permission
     "id": "p9p0a1b2",
     "parent_id": "0",
     "name": "Pengaturan Sistem",
-    "slug": "/admin/config",
+    "slug": "/admin/v1/config",
     "type": 1,
     "icon": "settings",
     "path": "/config",
@@ -1063,7 +1070,7 @@ POST /admin/permission
 ### 7.3 Memperbarui Izin
 
 ```
-PUT /admin/permission/{id}
+PUT /admin/v1/permission/{id}
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1088,7 +1095,7 @@ PUT /admin/permission/{id}
 ### 7.4 Menghapus Izin
 
 ```
-DELETE /admin/permission/{id}
+DELETE /admin/v1/permission/{id}
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1119,7 +1126,7 @@ Konfigurasi sistem unik dengan kombinasi `group` + `key`.
 ### 8.1 Daftar Konfigurasi
 
 ```
-GET /admin/config
+GET /admin/v1/config
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1168,7 +1175,7 @@ GET /admin/config
 ### 8.2 Membuat Konfigurasi
 
 ```
-POST /admin/config
+POST /admin/v1/config
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1214,7 +1221,7 @@ POST /admin/config
 ### 8.3 Memperbarui Konfigurasi
 
 ```
-PUT /admin/config/{id}
+PUT /admin/v1/config/{id}
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1237,7 +1244,7 @@ PUT /admin/config/{id}
 ### 8.4 Menghapus Konfigurasi
 
 ```
-DELETE /admin/config/{id}
+DELETE /admin/v1/config/{id}
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1259,7 +1266,7 @@ Log operasi adalah antarmuka read-only, ditulis otomatis oleh middleware `Operat
 ### 9.1 Daftar Log Operasi
 
 ```
-GET /admin/log
+GET /admin/v1/log
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1288,7 +1295,7 @@ GET /admin/log
         "user_name": "admin",
         "action": "Login pengguna",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "source": "web",
         "input": "{\"username\":\"admin\"}",
@@ -1321,7 +1328,7 @@ Antarmuka pusat pribadi hanya memerlukan autentikasi JWT (tidak memerlukan valid
 ### 10.1 Memperbarui Informasi Pribadi
 
 ```
-PUT /admin/profile
+PUT /admin/v1/profile
 ```
 
 - **Autentikasi**: JWT
@@ -1363,7 +1370,7 @@ Dalam respons, `phone` dan `email` dikembalikan plaintext, `password` dan `id_ca
 ### 10.2 Mengubah Kata Sandi
 
 ```
-PUT /admin/profile/password
+PUT /admin/v1/profile/password
 ```
 
 - **Autentikasi**: JWT
@@ -1398,7 +1405,7 @@ PUT /admin/profile/password
 ### 10.3 Logout
 
 ```
-POST /admin/profile/logout
+POST /admin/v1/profile/logout
 ```
 
 - **Autentikasi**: JWT
@@ -1423,7 +1430,7 @@ Saat tidak ada token mengembalikan 401. Saat token kedaluwarsa/tidak valid (peng
 ### 11.1 Ekspor Excel
 
 ```
-POST /admin/export/excel
+POST /admin/v1/export/excel
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1462,7 +1469,7 @@ Field sensitif `phone`, `email`, `id_card` diproses masking otomatis saat ekspor
 ### 11.2 Ekspor PDF
 
 ```
-POST /admin/export/pdf
+POST /admin/v1/export/pdf
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1509,7 +1516,7 @@ Template PDF berisi informasi hak cipta dan timestamp ekspor.
 ### 11.3 Impor Pengguna (Excel)
 
 ```
-POST /admin/import/users
+POST /admin/v1/import/users
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1561,7 +1568,7 @@ Baris ke-1 adalah judul kolom (tidak case-sensitive), baris ke-2 dan seterusnya 
 ## 12. Unggah File
 
 ```
-POST /admin/upload
+POST /admin/v1/upload
 ```
 
 - **Autentikasi**: JWT + RBAC
@@ -1610,8 +1617,8 @@ Semua antarmuka (diinjeksi di lapisan middleware global) berisi header respons b
 
 Detail rate limit:
 - Batas global default: 60 kali/menit / IP+path
-- Endpoint login `/api/auth/login`: 10 kali/menit
-- Endpoint registrasi `/api/auth/register`: 5 kali/menit
+- Endpoint login `/api/v1/auth/login`: 10 kali/menit
+- Endpoint registrasi `/api/v1/auth/register`: 5 kali/menit
 - Menggunakan algoritma sliding window Redis atomik (Lua ZSET), menghindari race condition TOCTOU
 - Saat Redis tidak tersedia, fail open (izinkan), tidak memblokir permintaan
 
@@ -1620,15 +1627,15 @@ Detail rate limit:
 Urutan autentikasi lengkap:
 
 ```
-1. Klien meminta POST /api/captcha/generate
-   (Header: API-Version: v1)
+1. Klien meminta POST /api/v1/captcha/generate
+   (path URL memuat /api/v1, tanpa header permintaan versi)
     ↓
    Server mengembalikan: key + gambar base64 + petunjuk target klik
    
 2. Pengguna mengklik posisi target gambar, frontend/klien mengumpulkan koordinat klik
    
-3. Klien meminta POST /api/auth/login
-   (Header: API-Version: v1, Content-Type: application/json)
+3. Klien meminta POST /api/v1/auth/login
+   (path URL memuat /api/v1, Content-Type: application/json)
    Body: { username, password, captcha_key, clicks: [{x,y}, ...] }
     ↓
    Server:
@@ -1660,7 +1667,7 @@ Urutan autentikasi lengkap:
    Response + header X-RateLimit-*
 
 5. Refresh sebelum Access Token kedaluwarsa
-   Klien meminta POST /api/auth/refresh
+   Klien meminta POST /api/v1/auth/refresh
    Body: { refresh_token: "..." }
     ↓
    Server mendekode refresh_token → terbitkan access + refresh baru
@@ -1668,7 +1675,7 @@ Urutan autentikasi lengkap:
    Klien memperbarui token lokal
 
 6. Logout
-   Klien meminta POST /admin/profile/logout
+   Klien meminta POST /admin/v1/profile/logout
    Header: Authorization: Bearer <access_token>
     ↓
    Server:
@@ -1722,7 +1729,7 @@ Untuk deployment lingkungan produksi, lihat `nginx-security.conf` untuk konfigur
 
 ## 16. Endpoint API Bisnis (ERP)
 
-Semua endpoint bisnis berada di bawah grup `/admin`, melalui tiga middleware `AdminAuth` (autentikasi JWT), `AdminPermission` (validasi izin RBAC), `OperationLog` (pencatatan operasi).
+Semua endpoint bisnis berada di bawah grup `/admin/v1`, melalui tiga middleware `AdminAuth` (autentikasi JWT), `AdminPermission` (validasi izin RBAC), `OperationLog` (pencatatan operasi).
 
 > Total endpoint: Produk(17) | Pembelian(8) | Penjualan(6) | Stok(6) | Keuangan(17) | CRM(13) | Alur kerja(6) | Notifikasi(4) | Proyek(3) | HR(9) | Manufaktur(7) | Laporan(4) | Dasbor(3) | Klien(2) | Total 105 endpoint
 
@@ -1732,304 +1739,304 @@ Endpoint linkage lintas modul ditandai dengan 🔗.
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/product | Daftar produk (paginasi+penelusuran+filter kategori/status) |
-| POST | /admin/product | Membuat produk (termasuk SKU dan harga) |
-| GET | /admin/product/{id} | Detail produk (termasuk kategori/merek/SKU/harga/satuan) |
-| PUT | /admin/product/{id} | Memperbarui produk |
-| DELETE | /admin/product/{id} | Menghapus produk (soft delete, perlu konfirmasi kata sandi) |
-| GET | /admin/category | Daftar kategori (pohon) |
-| POST | /admin/category | Membuat kategori |
-| PUT | /admin/category/{id} | Memperbarui kategori |
-| DELETE | /admin/category/{id} | Menghapus kategori |
-| GET | /admin/brand | Daftar merek |
-| POST | /admin/brand | Membuat merek |
-| GET | /admin/warehouse | Daftar gudang |
-| POST | /admin/warehouse | Membuat gudang |
-| GET | /admin/location | Daftar lokasi |
-| GET | /admin/warehouse/{id}/locations | Daftar lokasi di bawah gudang |
-| GET | /admin/supplier | Daftar pemasok (pencarian ES) |
-| POST | /admin/supplier | Membuat pemasok |
-| GET | /admin/customer | Daftar pelanggan (pencarian ES) |
-| POST | /admin/customer | Membuat pelanggan |
+| GET | /admin/v1/product | Daftar produk (paginasi+penelusuran+filter kategori/status) |
+| POST | /admin/v1/product | Membuat produk (termasuk SKU dan harga) |
+| GET | /admin/v1/product/{id} | Detail produk (termasuk kategori/merek/SKU/harga/satuan) |
+| PUT | /admin/v1/product/{id} | Memperbarui produk |
+| DELETE | /admin/v1/product/{id} | Menghapus produk (soft delete, perlu konfirmasi kata sandi) |
+| GET | /admin/v1/category | Daftar kategori (pohon) |
+| POST | /admin/v1/category | Membuat kategori |
+| PUT | /admin/v1/category/{id} | Memperbarui kategori |
+| DELETE | /admin/v1/category/{id} | Menghapus kategori |
+| GET | /admin/v1/brand | Daftar merek |
+| POST | /admin/v1/brand | Membuat merek |
+| GET | /admin/v1/warehouse | Daftar gudang |
+| POST | /admin/v1/warehouse | Membuat gudang |
+| GET | /admin/v1/location | Daftar lokasi |
+| GET | /admin/v1/warehouse/{id}/locations | Daftar lokasi di bawah gudang |
+| GET | /admin/v1/supplier | Daftar pemasok (pencarian ES) |
+| POST | /admin/v1/supplier | Membuat pemasok |
+| GET | /admin/v1/customer | Daftar pelanggan (pencarian ES) |
+| POST | /admin/v1/customer | Membuat pelanggan |
 
 ### 16.2 Manajemen Pembelian (Purchase)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/purchase/apply | Daftar permintaan pembelian |
-| POST | /admin/purchase/apply | Membuat permintaan pembelian |
-| GET | /admin/purchase/order | Daftar pesanan pembelian |
-| POST | /admin/purchase/order | Membuat pesanan pembelian |
-| 🔗 POST | /admin/purchase/receive | Membuat surat penerimaan (otomatis masuk gudang + membuat utang) |
-| GET | /admin/purchase/receive | Daftar surat penerimaan |
-| GET | /admin/purchase/receive/{id} | Detail surat penerimaan |
-| POST | /admin/purchase/return | Membuat surat retur |
-| GET | /admin/purchase/settlement | Daftar penyelesaian pemasok |
+| GET | /admin/v1/purchase/apply | Daftar permintaan pembelian |
+| POST | /admin/v1/purchase/apply | Membuat permintaan pembelian |
+| GET | /admin/v1/purchase/order | Daftar pesanan pembelian |
+| POST | /admin/v1/purchase/order | Membuat pesanan pembelian |
+| 🔗 POST | /admin/v1/purchase/receive | Membuat surat penerimaan (otomatis masuk gudang + membuat utang) |
+| GET | /admin/v1/purchase/receive | Daftar surat penerimaan |
+| GET | /admin/v1/purchase/receive/{id} | Detail surat penerimaan |
+| POST | /admin/v1/purchase/return | Membuat surat retur |
+| GET | /admin/v1/purchase/settlement | Daftar penyelesaian pemasok |
 
 ### 16.3 Manajemen Penjualan (Sales)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/sales/quotation | Daftar surat penawaran |
-| POST | /admin/sales/quotation | Membuat surat penawaran |
-| GET | /admin/sales/order | Daftar pesanan penjualan |
-| POST | /admin/sales/order | Membuat pesanan penjualan |
-| 🔗 POST | /admin/sales/delivery | Membuat surat pengiriman (otomatis keluar gudang + membuat piutang) |
-| GET | /admin/sales/delivery | Daftar surat pengiriman |
-| GET | /admin/sales/settlement | Daftar penyelesaian pelanggan |
+| GET | /admin/v1/sales/quotation | Daftar surat penawaran |
+| POST | /admin/v1/sales/quotation | Membuat surat penawaran |
+| GET | /admin/v1/sales/order | Daftar pesanan penjualan |
+| POST | /admin/v1/sales/order | Membuat pesanan penjualan |
+| 🔗 POST | /admin/v1/sales/delivery | Membuat surat pengiriman (otomatis keluar gudang + membuat piutang) |
+| GET | /admin/v1/sales/delivery | Daftar surat pengiriman |
+| GET | /admin/v1/sales/settlement | Daftar penyelesaian pelanggan |
 
 ### 16.4 Manajemen Stok (Inventory)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/inventory | Stok real-time (dimensi gudang/lokasi/batch/SKU) |
-| GET | /admin/inventory/flow | Transaksi in/out stok |
-| GET | /admin/inventory/transfer | Daftar surat transfer |
-| POST | /admin/inventory/transfer | Membuat surat transfer |
-| GET | /admin/inventory/check | Daftar tugas stok opname |
-| POST | /admin/inventory/check | Membuat tugas stok opname |
-| GET | /admin/inventory/alert | Aturan peringatan stok |
+| GET | /admin/v1/inventory | Stok real-time (dimensi gudang/lokasi/batch/SKU) |
+| GET | /admin/v1/inventory/flow | Transaksi in/out stok |
+| GET | /admin/v1/inventory/transfer | Daftar surat transfer |
+| POST | /admin/v1/inventory/transfer | Membuat surat transfer |
+| GET | /admin/v1/inventory/check | Daftar tugas stok opname |
+| POST | /admin/v1/inventory/check | Membuat tugas stok opname |
+| GET | /admin/v1/inventory/alert | Aturan peringatan stok |
 
 ### 16.5 Manajemen Keuangan (Finance)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| POST | /admin/finance/voucher | Membuat voucher pembukuan |
-| GET | /admin/finance/ar-ap | Daftar piutang-hutang |
-| POST | /admin/finance/receipt | Membuat surat penerimaan |
-| POST | /admin/finance/payment | Membuat surat pembayaran |
-| GET | /admin/finance/cash-journal | Jurnal kas & bank |
-| GET | /admin/finance/expense | Daftar reimbursement biaya |
-| POST | /admin/finance/expense | Submit permohonan reimbursement |
-| GET | /admin/finance/report/profit | Laporan laba rugi |
-| GET | /admin/finance/general-ledger | Buku besar (rekap berdasarkan akun+periode) |
-| GET | /admin/finance/subsidiary-ledger | Buku pembantu (detail per transaksi akun) |
-| GET | /admin/finance/report/balance-sheet | Neraca (termasuk pembuatan otomatis) |
-| GET | /admin/finance/report/cash-flow | Laporan arus kas (operasi/investasi/pendanaan) |
-| GET | /admin/finance/bank-account | Daftar akun bank |
-| GET/POST/PUT/DELETE | /admin/finance/asset | CRUD aset tetap + penyusutan |
-| GET/POST | /admin/finance/tax-rate | Konfigurasi tarif pajak |
-| GET | /admin/finance/tax-record | Catatan pajak |
-| GET/POST/PUT/DELETE | /admin/finance/currency | Manajemen mata uang |
-| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | Manajemen kurs |
-| GET/POST/PUT/DELETE | /admin/finance/budget | Manajemen anggaran (termasuk perbandingan anggaran vs aktual) |
-| GET/POST/PUT/DELETE | /admin/finance/cost-center | Pusat biaya (struktur pohon) |
-| GET/POST/PUT/DELETE | /admin/finance/profit-center | Pusat laba (struktur pohon) |
+| POST | /admin/v1/finance/voucher | Membuat voucher pembukuan |
+| GET | /admin/v1/finance/ar-ap | Daftar piutang-hutang |
+| POST | /admin/v1/finance/receipt | Membuat surat penerimaan |
+| POST | /admin/v1/finance/payment | Membuat surat pembayaran |
+| GET | /admin/v1/finance/cash-journal | Jurnal kas & bank |
+| GET | /admin/v1/finance/expense | Daftar reimbursement biaya |
+| POST | /admin/v1/finance/expense | Submit permohonan reimbursement |
+| GET | /admin/v1/finance/report/profit | Laporan laba rugi |
+| GET | /admin/v1/finance/general-ledger | Buku besar (rekap berdasarkan akun+periode) |
+| GET | /admin/v1/finance/subsidiary-ledger | Buku pembantu (detail per transaksi akun) |
+| GET | /admin/v1/finance/report/balance-sheet | Neraca (termasuk pembuatan otomatis) |
+| GET | /admin/v1/finance/report/cash-flow | Laporan arus kas (operasi/investasi/pendanaan) |
+| GET | /admin/v1/finance/bank-account | Daftar akun bank |
+| GET/POST/PUT/DELETE | /admin/v1/finance/asset | CRUD aset tetap + penyusutan |
+| GET/POST | /admin/v1/finance/tax-rate | Konfigurasi tarif pajak |
+| GET | /admin/v1/finance/tax-record | Catatan pajak |
+| GET/POST/PUT/DELETE | /admin/v1/finance/currency | Manajemen mata uang |
+| GET/POST/PUT/DELETE | /admin/v1/finance/exchange-rate | Manajemen kurs |
+| GET/POST/PUT/DELETE | /admin/v1/finance/budget | Manajemen anggaran (termasuk perbandingan anggaran vs aktual) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/cost-center | Pusat biaya (struktur pohon) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/profit-center | Pusat laba (struktur pohon) |
 
 ### 16.6 CRM
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/crm/opportunity | Daftar peluang |
-| POST | /admin/crm/opportunity | Membuat peluang |
-| GET | /admin/crm/follow | Daftar catatan tindak lanjut |
-| POST | /admin/crm/follow | Membuat catatan tindak lanjut |
-| GET | /admin/crm/funnel | Konfigurasi tahap corong |
-| GET | /admin/crm/contact | Daftar kontak |
-| POST | /admin/crm/contact | Membuat kontak |
-| GET | /admin/crm/pool | Daftar pelanggan kolam bersama |
-| POST | /admin/crm/pool/claim/{id} | Mengambil pelanggan kolam bersama |
-| POST | /admin/crm/pool/release/{id} | Melepas pelanggan ke kolam bersama |
-| GET/POST | /admin/crm/pool/rules | CRUD aturan kolam bersama |
-| GET | /admin/crm/contract | Daftar kontrak |
-| POST | /admin/crm/contract | Membuat kontrak |
-| GET | /admin/crm/contract/{id} | Detail kontrak |
-| PUT | /admin/crm/contract/{id} | Memperbarui kontrak |
-| DELETE | /admin/crm/contract/{id} | Menghapus kontrak |
-| GET | /admin/crm/quotation | Daftar penawaran CRM |
-| POST | /admin/crm/quotation | Membuat penawaran CRM |
-| POST | /admin/crm/quotation/{id}/to-contract | 🔗 Penawaran jadi kontrak |
-| GET/POST/PUT/DELETE | /admin/crm/campaign | Kampanye pemasaran |
-| GET/POST/PUT/DELETE | /admin/crm/ticket | Tiket layanan |
-| POST | /admin/crm/ticket/{id}/assign | Mengalokasikan tiket |
-| POST | /admin/crm/ticket/{id}/resolve | Menyelesaikan tiket |
-| GET/POST | /admin/crm/analytics/report | Laporan analisis pelanggan |
-| GET/POST | /admin/crm/analytics/metric | Metrik analisis |
+| GET | /admin/v1/crm/opportunity | Daftar peluang |
+| POST | /admin/v1/crm/opportunity | Membuat peluang |
+| GET | /admin/v1/crm/follow | Daftar catatan tindak lanjut |
+| POST | /admin/v1/crm/follow | Membuat catatan tindak lanjut |
+| GET | /admin/v1/crm/funnel | Konfigurasi tahap corong |
+| GET | /admin/v1/crm/contact | Daftar kontak |
+| POST | /admin/v1/crm/contact | Membuat kontak |
+| GET | /admin/v1/crm/pool | Daftar pelanggan kolam bersama |
+| POST | /admin/v1/crm/pool/claim/{id} | Mengambil pelanggan kolam bersama |
+| POST | /admin/v1/crm/pool/release/{id} | Melepas pelanggan ke kolam bersama |
+| GET/POST | /admin/v1/crm/pool/rules | CRUD aturan kolam bersama |
+| GET | /admin/v1/crm/contract | Daftar kontrak |
+| POST | /admin/v1/crm/contract | Membuat kontrak |
+| GET | /admin/v1/crm/contract/{id} | Detail kontrak |
+| PUT | /admin/v1/crm/contract/{id} | Memperbarui kontrak |
+| DELETE | /admin/v1/crm/contract/{id} | Menghapus kontrak |
+| GET | /admin/v1/crm/quotation | Daftar penawaran CRM |
+| POST | /admin/v1/crm/quotation | Membuat penawaran CRM |
+| POST | /admin/v1/crm/quotation/{id}/to-contract | 🔗 Penawaran jadi kontrak |
+| GET/POST/PUT/DELETE | /admin/v1/crm/campaign | Kampanye pemasaran |
+| GET/POST/PUT/DELETE | /admin/v1/crm/ticket | Tiket layanan |
+| POST | /admin/v1/crm/ticket/{id}/assign | Mengalokasikan tiket |
+| POST | /admin/v1/crm/ticket/{id}/resolve | Menyelesaikan tiket |
+| GET/POST | /admin/v1/crm/analytics/report | Laporan analisis pelanggan |
+| GET/POST | /admin/v1/crm/analytics/metric | Metrik analisis |
 
 ### 16.7 Alur Persetujuan (Workflow)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/workflow | Daftar definisi alur kerja |
-| POST | /admin/workflow | Membuat definisi alur kerja |
-| GET | /admin/workflow/{id} | Detail alur kerja |
-| PUT | /admin/workflow/{id} | Memperbarui alur kerja |
-| DELETE | /admin/workflow/{id} | Menghapus alur kerja |
-| POST | /admin/workflow/{id}/submit | 🔗 Submit persetujuan (membuat instansi persetujuan) |
-| POST | /admin/approval/{id}/approve | Menyetujui |
-| POST | /admin/approval/{id}/reject | Menolak |
-| POST | /admin/approval/{id}/withdraw | Menarik |
-| ANY | /admin/approval/my | Daftar persetujuan saya (menunggu/disetujui) |
+| GET | /admin/v1/workflow | Daftar definisi alur kerja |
+| POST | /admin/v1/workflow | Membuat definisi alur kerja |
+| GET | /admin/v1/workflow/{id} | Detail alur kerja |
+| PUT | /admin/v1/workflow/{id} | Memperbarui alur kerja |
+| DELETE | /admin/v1/workflow/{id} | Menghapus alur kerja |
+| POST | /admin/v1/workflow/{id}/submit | 🔗 Submit persetujuan (membuat instansi persetujuan) |
+| POST | /admin/v1/approval/{id}/approve | Menyetujui |
+| POST | /admin/v1/approval/{id}/reject | Menolak |
+| POST | /admin/v1/approval/{id}/withdraw | Menarik |
+| ANY | /admin/v1/approval/my | Daftar persetujuan saya (menunggu/disetujui) |
 
 ### 16.8 Notifikasi Pesan (Notification)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| ANY | /admin/notification/my | Daftar notifikasi saya (paginasi, urutan waktu terbalik) |
-| POST | /admin/notification/{id}/read | Menandai satu sudah dibaca |
-| POST | /admin/notification/read-all | Menandai semua sudah dibaca |
-| ANY | /admin/notification/unread-count | Jumlah pesan belum dibaca |
+| ANY | /admin/v1/notification/my | Daftar notifikasi saya (paginasi, urutan waktu terbalik) |
+| POST | /admin/v1/notification/{id}/read | Menandai satu sudah dibaca |
+| POST | /admin/v1/notification/read-all | Menandai semua sudah dibaca |
+| ANY | /admin/v1/notification/unread-count | Jumlah pesan belum dibaca |
 
 ### 16.9 Manajemen Proyek (Project)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/project | Daftar proyek |
-| POST | /admin/project | Membuat proyek |
-| GET | /admin/project/{id} | Detail proyek |
-| PUT | /admin/project/{id} | Memperbarui proyek |
-| DELETE | /admin/project/{id} | Menghapus proyek |
-| GET | /admin/project/task | Daftar tugas |
-| POST | /admin/project/task | Membuat tugas |
-| PUT | /admin/project/task/{id} | Memperbarui tugas |
-| DELETE | /admin/project/task/{id} | Menghapus tugas |
-| GET | /admin/project/timesheet | Daftar catatan jam kerja |
-| POST | /admin/project/timesheet | Mencatat jam kerja |
-| PUT | /admin/project/timesheet/{id} | Memperbarui jam kerja |
-| DELETE | /admin/project/timesheet/{id} | Menghapus jam kerja |
+| GET | /admin/v1/project | Daftar proyek |
+| POST | /admin/v1/project | Membuat proyek |
+| GET | /admin/v1/project/{id} | Detail proyek |
+| PUT | /admin/v1/project/{id} | Memperbarui proyek |
+| DELETE | /admin/v1/project/{id} | Menghapus proyek |
+| GET | /admin/v1/project/task | Daftar tugas |
+| POST | /admin/v1/project/task | Membuat tugas |
+| PUT | /admin/v1/project/task/{id} | Memperbarui tugas |
+| DELETE | /admin/v1/project/task/{id} | Menghapus tugas |
+| GET | /admin/v1/project/timesheet | Daftar catatan jam kerja |
+| POST | /admin/v1/project/timesheet | Mencatat jam kerja |
+| PUT | /admin/v1/project/timesheet/{id} | Memperbarui jam kerja |
+| DELETE | /admin/v1/project/timesheet/{id} | Menghapus jam kerja |
 
 ### 16.10 Manajemen Sumber Daya Manusia (HR)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/hr/department | Daftar departemen (pohon) |
-| POST | /admin/hr/department | Membuat departemen |
-| PUT | /admin/hr/department/{id} | Memperbarui departemen |
-| DELETE | /admin/hr/department/{id} | Menghapus departemen |
-| GET | /admin/hr/employee | Daftar karyawan |
-| POST | /admin/hr/employee | Membuat karyawan |
-| PUT | /admin/hr/employee/{id} | Memperbarui karyawan |
-| DELETE | /admin/hr/employee/{id} | Menghapus karyawan |
-| GET | /admin/hr/position | Daftar posisi |
-| POST | /admin/hr/position | Membuat posisi |
-| PUT | /admin/hr/position/{id} | Memperbarui posisi |
-| DELETE | /admin/hr/position/{id} | Menghapus posisi |
-| ANY | /admin/hr/attendance | Kueri catatan absensi |
-| POST | /admin/hr/attendance/clock-in | Clock-in |
-| POST | /admin/hr/attendance/clock-out | Clock-out |
-| ANY | /admin/hr/leave | Daftar cuti |
-| POST | /admin/hr/leave | Submit permohonan cuti |
-| GET | /admin/hr/leave/{id} | Detail cuti |
-| PUT | /admin/hr/leave/{id} | Memperbarui cuti |
-| DELETE | /admin/hr/leave/{id} | Menghapus cuti |
-| POST | /admin/hr/leave/{id}/approve | 🔗 Menyetujui cuti |
-| GET | /admin/hr/salary | Daftar gaji |
-| POST | /admin/hr/salary | Membuat slip gaji |
-| PUT | /admin/hr/salary/{id} | Memperbarui gaji |
-| DELETE | /admin/hr/salary/{id} | Menghapus gaji |
-| POST | /admin/hr/salary/{id}/pay | Membayarkan gaji |
-| ANY | /admin/hr/salary-item | Daftar item gaji |
-| POST | /admin/hr/salary-item | Membuat item gaji |
-| GET | /admin/hr/salary-item/{id} | Detail item gaji |
-| PUT | /admin/hr/salary-item/{id} | Memperbarui item gaji |
-| DELETE | /admin/hr/salary-item/{id} | Menghapus item gaji |
+| GET | /admin/v1/hr/department | Daftar departemen (pohon) |
+| POST | /admin/v1/hr/department | Membuat departemen |
+| PUT | /admin/v1/hr/department/{id} | Memperbarui departemen |
+| DELETE | /admin/v1/hr/department/{id} | Menghapus departemen |
+| GET | /admin/v1/hr/employee | Daftar karyawan |
+| POST | /admin/v1/hr/employee | Membuat karyawan |
+| PUT | /admin/v1/hr/employee/{id} | Memperbarui karyawan |
+| DELETE | /admin/v1/hr/employee/{id} | Menghapus karyawan |
+| GET | /admin/v1/hr/position | Daftar posisi |
+| POST | /admin/v1/hr/position | Membuat posisi |
+| PUT | /admin/v1/hr/position/{id} | Memperbarui posisi |
+| DELETE | /admin/v1/hr/position/{id} | Menghapus posisi |
+| ANY | /admin/v1/hr/attendance | Kueri catatan absensi |
+| POST | /admin/v1/hr/attendance/clock-in | Clock-in |
+| POST | /admin/v1/hr/attendance/clock-out | Clock-out |
+| ANY | /admin/v1/hr/leave | Daftar cuti |
+| POST | /admin/v1/hr/leave | Submit permohonan cuti |
+| GET | /admin/v1/hr/leave/{id} | Detail cuti |
+| PUT | /admin/v1/hr/leave/{id} | Memperbarui cuti |
+| DELETE | /admin/v1/hr/leave/{id} | Menghapus cuti |
+| POST | /admin/v1/hr/leave/{id}/approve | 🔗 Menyetujui cuti |
+| GET | /admin/v1/hr/salary | Daftar gaji |
+| POST | /admin/v1/hr/salary | Membuat slip gaji |
+| PUT | /admin/v1/hr/salary/{id} | Memperbarui gaji |
+| DELETE | /admin/v1/hr/salary/{id} | Menghapus gaji |
+| POST | /admin/v1/hr/salary/{id}/pay | Membayarkan gaji |
+| ANY | /admin/v1/hr/salary-item | Daftar item gaji |
+| POST | /admin/v1/hr/salary-item | Membuat item gaji |
+| GET | /admin/v1/hr/salary-item/{id} | Detail item gaji |
+| PUT | /admin/v1/hr/salary-item/{id} | Memperbarui item gaji |
+| DELETE | /admin/v1/hr/salary-item/{id} | Menghapus item gaji |
 
 ### 16.11 Manufaktur (Manufacturing)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/mfg/bom | Daftar BOM |
-| POST | /admin/mfg/bom | Membuat BOM |
-| PUT | /admin/mfg/bom/{id} | Memperbarui BOM |
-| DELETE | /admin/mfg/bom/{id} | Menghapus BOM |
-| GET | /admin/mfg/production | Daftar pesanan produksi |
-| POST | /admin/mfg/production | Membuat pesanan produksi |
-| PUT | /admin/mfg/production/{id} | Memperbarui pesanan produksi |
-| DELETE | /admin/mfg/production/{id} | Menghapus pesanan produksi |
-| POST | /admin/mfg/production/{id}/start | Mulai produksi |
-| POST | /admin/mfg/production/{id}/complete | Selesai produksi |
-| GET | /admin/mfg/routing | Daftar rute proses |
-| POST | /admin/mfg/routing | Membuat rute proses |
-| PUT | /admin/mfg/routing/{id} | Memperbarui rute proses |
-| DELETE | /admin/mfg/routing/{id} | Menghapus rute proses |
-| GET | /admin/mfg/workstation | Daftar stasiun kerja |
-| POST | /admin/mfg/workstation | Membuat stasiun kerja |
-| PUT | /admin/mfg/workstation/{id} | Memperbarui stasiun kerja |
-| DELETE | /admin/mfg/workstation/{id} | Menghapus stasiun kerja |
-| GET | /admin/mfg/mrp | Daftar rencana MRP |
-| POST | /admin/mfg/mrp | Membuat rencana MRP |
-| PUT | /admin/mfg/mrp/{id} | Memperbarui rencana MRP |
-| DELETE | /admin/mfg/mrp/{id} | Menghapus rencana MRP |
-| POST | /admin/mfg/mrp/{id}/generate | 🔗 Menjalankan MRP untuk menghasilkan saran pembelian/produksi |
+| GET | /admin/v1/mfg/bom | Daftar BOM |
+| POST | /admin/v1/mfg/bom | Membuat BOM |
+| PUT | /admin/v1/mfg/bom/{id} | Memperbarui BOM |
+| DELETE | /admin/v1/mfg/bom/{id} | Menghapus BOM |
+| GET | /admin/v1/mfg/production | Daftar pesanan produksi |
+| POST | /admin/v1/mfg/production | Membuat pesanan produksi |
+| PUT | /admin/v1/mfg/production/{id} | Memperbarui pesanan produksi |
+| DELETE | /admin/v1/mfg/production/{id} | Menghapus pesanan produksi |
+| POST | /admin/v1/mfg/production/{id}/start | Mulai produksi |
+| POST | /admin/v1/mfg/production/{id}/complete | Selesai produksi |
+| GET | /admin/v1/mfg/routing | Daftar rute proses |
+| POST | /admin/v1/mfg/routing | Membuat rute proses |
+| PUT | /admin/v1/mfg/routing/{id} | Memperbarui rute proses |
+| DELETE | /admin/v1/mfg/routing/{id} | Menghapus rute proses |
+| GET | /admin/v1/mfg/workstation | Daftar stasiun kerja |
+| POST | /admin/v1/mfg/workstation | Membuat stasiun kerja |
+| PUT | /admin/v1/mfg/workstation/{id} | Memperbarui stasiun kerja |
+| DELETE | /admin/v1/mfg/workstation/{id} | Menghapus stasiun kerja |
+| GET | /admin/v1/mfg/mrp | Daftar rencana MRP |
+| POST | /admin/v1/mfg/mrp | Membuat rencana MRP |
+| PUT | /admin/v1/mfg/mrp/{id} | Memperbarui rencana MRP |
+| DELETE | /admin/v1/mfg/mrp/{id} | Menghapus rencana MRP |
+| POST | /admin/v1/mfg/mrp/{id}/generate | 🔗 Menjalankan MRP untuk menghasilkan saran pembelian/produksi |
 
 ### 16.12 Laporan Kustom (Report Builder)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/report | Daftar template laporan |
-| POST | /admin/report | Membuat template laporan |
-| GET | /admin/report/{id} | Detail template laporan |
-| PUT | /admin/report/{id} | Memperbarui template laporan |
-| DELETE | /admin/report/{id} | Menghapus template laporan |
-| POST | /admin/report/{id}/execute | Mengeksekusi laporan untuk menghasilkan data |
-| ANY | /admin/report/{id}/result | Hasil eksekusi laporan |
-| GET | /admin/report/schedule | Daftar jadwal terjadwal |
-| POST | /admin/report/schedule | Membuat jadwal terjadwal |
-| PUT | /admin/report/schedule/{id} | Memperbarui jadwal terjadwal |
-| DELETE | /admin/report/schedule/{id} | Menghapus jadwal terjadwal |
+| GET | /admin/v1/report | Daftar template laporan |
+| POST | /admin/v1/report | Membuat template laporan |
+| GET | /admin/v1/report/{id} | Detail template laporan |
+| PUT | /admin/v1/report/{id} | Memperbarui template laporan |
+| DELETE | /admin/v1/report/{id} | Menghapus template laporan |
+| POST | /admin/v1/report/{id}/execute | Mengeksekusi laporan untuk menghasilkan data |
+| ANY | /admin/v1/report/{id}/result | Hasil eksekusi laporan |
+| GET | /admin/v1/report/schedule | Daftar jadwal terjadwal |
+| POST | /admin/v1/report/schedule | Membuat jadwal terjadwal |
+| PUT | /admin/v1/report/schedule/{id} | Memperbarui jadwal terjadwal |
+| DELETE | /admin/v1/report/schedule/{id} | Menghapus jadwal terjadwal |
 
 ### 16.13 Dasbor (Dashboard)
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/dashboard/sales | Papan penjualan |
-| GET | /admin/dashboard/inventory | Papan stok |
-| GET | /admin/dashboard/finance | Papan keuangan |
+| GET | /admin/v1/dashboard/sales | Papan penjualan |
+| GET | /admin/v1/dashboard/inventory | Papan stok |
+| GET | /admin/v1/dashboard/finance | Papan keuangan |
 
 ### 16.14 API Klien (Client API)
 
-Antarmuka klien dipasang di bawah grup `/api`, memerlukan header `API-Version`. Informasi produk tidak menyertakan harga beli.
+Antarmuka klien dipasang di bawah grup `/api/v1` (nomor versi menyatu ke path URL, tanpa header permintaan versi). Informasi produk tidak menyertakan harga beli.
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /api/product | Daftar produk (tanpa harga beli) |
-| GET | /api/product/{hashid} | Detail produk (termasuk harga eceran/grosir, tanpa harga beli) |
+| GET | /api/v1/product | Daftar produk (tanpa harga beli) |
+| GET | /api/v1/product/{hashid} | Detail produk (termasuk harga eceran/grosir, tanpa harga beli) |
 
 ### 16.15 Manajemen Pesanan OMS
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/oms/order | Daftar pesanan OMS |
-| POST | /admin/oms/order | Membuat pesanan OMS |
-| 🔗 POST | /admin/oms/order/{id}/allocate | Alokasi stok (pre-alokasi) |
-| 🔗 POST | /admin/oms/order/{id}/fulfill | Membuat pemenuhan |
-| POST | /admin/oms/order/{id}/cancel | Membatalkan pesanan (melepas reservasi) |
-| POST | /admin/oms/rma/{id}/approve | Menyetujui RMA |
-| POST | /admin/oms/rma/{id}/refund | Refund RMA |
+| GET | /admin/v1/oms/order | Daftar pesanan OMS |
+| POST | /admin/v1/oms/order | Membuat pesanan OMS |
+| 🔗 POST | /admin/v1/oms/order/{id}/allocate | Alokasi stok (pre-alokasi) |
+| 🔗 POST | /admin/v1/oms/order/{id}/fulfill | Membuat pemenuhan |
+| POST | /admin/v1/oms/order/{id}/cancel | Membatalkan pesanan (melepas reservasi) |
+| POST | /admin/v1/oms/rma/{id}/approve | Menyetujui RMA |
+| POST | /admin/v1/oms/rma/{id}/refund | Refund RMA |
 
 ### 16.16 Manajemen Gudang WMS
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/wms/zone | Daftar zona (CURD) |
-| GET | /admin/wms/location | Daftar lokasi WMS (CRUD) |
-| GET | /admin/wms/asn | Daftar ASN (CRUD) |
-| POST | /admin/wms/receiving/{id}/complete | Menyelesaikan penerimaan → otomatis membuat tugas putaway |
-| POST | /admin/wms/putaway/{id}/complete | Konfirmasi putaway → memicu stockIn |
-| POST | /admin/wms/wave/{id}/release | Melepas gelombang → membuat tugas picking |
-| POST | /admin/wms/pick/{id}/start | Mulai picking |
-| POST | /admin/wms/pick/{id}/confirm | Konfirmasi picking |
-| POST | /admin/wms/pack/{id}/complete | Selesai packing |
+| GET | /admin/v1/wms/zone | Daftar zona (CURD) |
+| GET | /admin/v1/wms/location | Daftar lokasi WMS (CRUD) |
+| GET | /admin/v1/wms/asn | Daftar ASN (CRUD) |
+| POST | /admin/v1/wms/receiving/{id}/complete | Menyelesaikan penerimaan → otomatis membuat tugas putaway |
+| POST | /admin/v1/wms/putaway/{id}/complete | Konfirmasi putaway → memicu stockIn |
+| POST | /admin/v1/wms/wave/{id}/release | Melepas gelombang → membuat tugas picking |
+| POST | /admin/v1/wms/pick/{id}/start | Mulai picking |
+| POST | /admin/v1/wms/pick/{id}/confirm | Konfirmasi picking |
+| POST | /admin/v1/wms/pack/{id}/complete | Selesai packing |
 
 ### 16.17 Manajemen Transportasi TMS
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/tms/carrier | Daftar kurir (CRUD) |
-| GET | /admin/tms/service | Layanan kurir (CRUD) |
-| GET | /admin/tms/freight-rate | Tarif ongkos kirim (CRUD) |
-| GET | /admin/tms/shipment | Daftar resi (CRUD) |
-| 🔗 POST | /admin/tms/shipment/{id}/ship | Konfirmasi pengiriman (stockOut+AR) |
-| POST | /admin/tms/tracking/callback | Webhook lacak kurir |
-| POST | /admin/tms/freight-invoice/{id}/pay | Pembayaran invoice ongkos kirim (membuat AP) |
+| GET | /admin/v1/tms/carrier | Daftar kurir (CRUD) |
+| GET | /admin/v1/tms/service | Layanan kurir (CRUD) |
+| GET | /admin/v1/tms/freight-rate | Tarif ongkos kirim (CRUD) |
+| GET | /admin/v1/tms/shipment | Daftar resi (CRUD) |
+| 🔗 POST | /admin/v1/tms/shipment/{id}/ship | Konfirmasi pengiriman (stockOut+AR) |
+| POST | /api/tms/tracking/callback | Webhook lacak kurir (tanpa versi, tanda tangan HMAC) |
+| POST | /admin/v1/tms/freight-invoice/{id}/pay | Pembayaran invoice ongkos kirim (membuat AP) |
 
 ### 16.18 Ekstensi Dasbor
 
 | Metode | Path | Keterangan |
 |------|------|------|
-| GET | /admin/dashboard/oms | KPI OMS (menunggu diproses/dalam picking/pengiriman hari ini/RMA) |
-| GET | /admin/dashboard/wms | KPI WMS (menunggu penerimaan/menunggu putaway/menunggu picking/menunggu packing) |
-| GET | /admin/dashboard/tms | KPI TMS (menunggu pengiriman/dalam transportasi/sudah diterima/abnormal) |
+| GET | /admin/v1/dashboard/oms | KPI OMS (menunggu diproses/dalam picking/pengiriman hari ini/RMA) |
+| GET | /admin/v1/dashboard/wms | KPI WMS (menunggu penerimaan/menunggu putaway/menunggu picking/menunggu packing) |
+| GET | /admin/v1/dashboard/tms | KPI TMS (menunggu pengiriman/dalam transportasi/sudah diterima/abnormal) |
 
 ### 16.19 Keterangan Linkage Lintas Modul
 
@@ -2037,5 +2044,5 @@ Endpoint berikut memicu linkage otomatis lintas modul, ditandai dengan 🔗:
 
 | Endpoint | Aksi Linkage |
 |------|---------|
-| 🔗 POST /admin/purchase/receive | Otomatis memanggil InventoryService.stockIn() memperbarui stok + menghitung ulang biaya rata-rata tertimbang bergerak; memanggil FinanceService.createAp() membuat catatan utang |
-| 🔗 POST /admin/sales/delivery | Otomatis memanggil InventoryService.stockOut() mengurangi stok (berdasarkan biaya rata-rata tertimbang bergerak); memanggil FinanceService.createAr() membuat catatan piutang |
+| 🔗 POST /admin/v1/purchase/receive | Otomatis memanggil InventoryService.stockIn() memperbarui stok + menghitung ulang biaya rata-rata tertimbang bergerak; memanggil FinanceService.createAp() membuat catatan utang |
+| 🔗 POST /admin/v1/sales/delivery | Otomatis memanggil InventoryService.stockOut() mengurangi stok (berdasarkan biaya rata-rata tertimbang bergerak); memanggil FinanceService.createAr() membuat catatan piutang |

@@ -13,6 +13,8 @@ flowchart TB
     subgraph "Lapisan Klien"
         A1["Flutter Web<br/>Panel Admin PC<br/>(Port 3000)"]
         A2["HarmonyOS ArkTS<br/>Klien Ponsel/Tablet"]
+        A3["Angular 22 + ng-zorro<br/>Panel Admin Web"]
+        A4["React 19 + Vite<br/>Panel Admin Web"]
     end
 
     subgraph "Lapisan Gateway/Edge (Nginx Edge)"
@@ -20,8 +22,8 @@ flowchart TB
     end
 
     subgraph "Lapisan Aplikasi (webman v2)"
-        C_LOC["Middleware Locale<br/>Deteksi Otomatis Accept-Language"]
-        C0["Middleware ApiVersion<br/>Validasi Header API-Version"]
+        C_LOC["I18n::getLocale()<br/>Parsing Accept-Language · 13 bahasa"]
+        C0["Versi berbasis path<br/>/api/v1 · /admin/v1 (tanpa header versi)"]
         C1["Middleware AdminAuth<br/>Verifikasi JWT"]
         C2["Middleware AdminPermission<br/>Validasi Izin RBAC"]
         C3["Controller Admin<br/>Dashboard / User / Role / Permission"]
@@ -42,6 +44,8 @@ flowchart TB
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -80,10 +84,10 @@ flowchart TD
     end
 
     subgraph "Lapisan Middleware"
-        M_LOC["Locale<br/>Deteksi Otomatis Accept-Language<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>Rate Limit Sliding Window Redis<br/>Header Respons X-RateLimit"]
+        M_CR["Cors<br/>Penanganan lintas domain / preflight OPTIONS"]
         M_SF["SecurityFilter<br/>Intercept Deteksi Serangan<br/>XSS/SQL Injection/Path Traversal/CSRF"]
-        M0["ApiVersion<br/>Validasi Versi API<br/>Injeksi apiVersion"]
+        M_RL["RateLimit<br/>Rate Limit Sliding Window Redis<br/>Header Respons X-RateLimit"]
+        M_TID["TracingId<br/>Menghasilkan X-Trace-Id<br/>Menembus seluruh rantai"]
         M1["AdminAuth<br/>Validasi Token JWT<br/>Injeksi adminId"]
         M2["AdminPermission<br/>Otorisasi RBAC<br/>Pencocokan method.path<br/>Cache izin Redis 60s"]
     end
@@ -103,6 +107,7 @@ flowchart TD
         S1["HashidsService<br/>Encode/Decode ID"]
         S2["SnowflakeService<br/>Pembuatan ID Unik Global"]
         S3["EncryptionService<br/>Enkripsi/Deskripsi + Masking"]
+        M_LOC["I18n::getLocale()<br/>Parsing Accept-Language (bukan middleware)<br/>13 bahasa zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "Lapisan Model"
@@ -119,11 +124,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +138,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +153,23 @@ Seiring evolusi sistem dari panel admin murni menjadi sistem ERP lengkap, lapisa
 
 | Lapisan | Direktori | Keterangan |
 |------|------|------|
-| Controller Bisnis | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70 buah, dikelompokkan per modul, menangani permintaan bisnis |
-| Service Bisnis | `app/service/{inventory,finance,notification}/` | Stok masuk/keluar + kalkulasi biaya, piutang/hutang finansial + penghapusan, pengiriman notifikasi |
+| Controller Bisnis | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 buah (23 domain bisnis, plus Install / Index di tingkat atas), dibagi per modul, menangani permintaan bisnis |
+| Service Bisnis | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 kelas service / 64 berkas / 20 subdirektori modul; mencakup stok masuk-keluar + kalkulasi biaya, piutang-hutang keuangan + penyelesaian, pengiriman notifikasi |
+
+### Internasionalisasi (13 bahasa)
+
+Resolusi bahasa ada di `getLocale()` pada `app/common/I18n.php` (dipanggil oleh `I18n::trans()`, **bukan middleware**): mengambil label pertama header permintaan `Accept-Language` lalu memetakan sub-label bahasa utama (`zh*` → `zh_CN`). Pembagian kamus frontend-backend:
+
+| Ujung | Lokasi kamus | Skala | Generator |
+|----|----------|------|--------|
+| Backend | `resource/translations/<locale>/{common,modules,validation}.php` | 13 direktori bahasa; `zh_CN` 565 entri, 11 bahasa lainnya masing-masing 544 entri, `en` 30 entri (cakupan entri daun, label field `attributes` pada `validation.php` dihitung, kunci grupnya tidak) | `scripts/gen-be-locales.mjs` |
+| Angular | sumber `apps/angular/src/app/core/zh-en/part1..4.ts` → produk `core/zh-<code>.ts` | kamus sumber 1456 entri | `scripts/gen-fe-locales.mjs --app angular` |
+| React | sumber `apps/react/src/lib/i18n/zhEn.ts` → produk `lib/i18n/zh<Code>.ts` | kamus sumber 1451 entri | `scripts/gen-fe-locales.mjs --app react` |
+
+- Daftar bahasa: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`.
+- Backend 「Inggris adalah key」: `en` pada common/modules dibiarkan kosong; kunci `validation.php` adalah nama aturan framework, hanya nilainya diterjemahkan.
+- Kamus 11 bahasa baru di frontend masing-masing dimuat dinamis dengan `import()` menjadi chunk mandiri; entri yang hilang kembali ke teks asli 中文.
+- Mengganti bahasa berarti mengganti `Accept-Language`, backend mengembalikan teks sesuai bahasa (`app/common/I18n.php` + `config/translation.php`).
 
 ---
 
@@ -158,10 +179,10 @@ Seiring evolusi sistem dari panel admin murni menjadi sistem ERP lengkap, lapisa
 sequenceDiagram
     participant C as Klien
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -170,10 +191,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: Permintaan HTTPS<br/>Header: API-Version: v1
-    N->>MW_LOC: Meneruskan
-    MW_LOC->>MW_LOC: Parse Accept-Language<br/>Set locale
-    MW_LOC->>MW_SF: Lolos
+    C->>N: Permintaan HTTPS<br/>Path /api/v1 atau /admin/v1 (tanpa header versi)
+    N->>MW_CR: Meneruskan
+    MW_CR->>MW_CR: Menangani preflight OPTIONS<br/>Menyuntik header respons CORS
+    MW_CR->>MW_SF: Lolos
 
     alt Metode HTTP non-standar (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +212,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: Lolos
-
-    alt Versi tidak didukung
-        MW0-->>C: 400 Versi API tidak didukung
-    else Versi valid
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: Lolos
+    MW_TID->>MW_TID: Menghasilkan X-Trace-Id<br/>Menyuntik header respons
+    MW_TID->>MW1: Lolos
 
     alt Token hilang atau tidak valid
         MW1-->>C: 401 Unauthorized
@@ -249,7 +266,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === Langkah 1: Mendapatkan Captcha ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: Menghasilkan gambar latar 300×200
     CAP->>CAP: Menempatkan N target karakter acak
@@ -264,7 +281,7 @@ sequenceDiagram
     CL->>CL: Mengumpulkan clicks: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === Langkah 3: Login ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt Captcha salah
         CAP-->>SV: false
@@ -284,7 +301,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === Permintaan Berikutnya ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { data dashboard }
@@ -539,7 +556,7 @@ sequenceDiagram
     participant FS as Sistem File
 
     Note over C,FS: === Ekspor Excel ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: Data
     CTL->>CTL: Mendekripsi bidang sensitif
@@ -549,7 +566,7 @@ sequenceDiagram
     CTL-->>C: Unduh file
 
     Note over C,FS: === Ekspor PDF ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>Header: judul + hak cipta + waktu<br/>Isi: tabel atau kartu<br/>Footer: hak cipta yang tidak dapat dihapus
     CTL->>CTL: Render Dompdf A4 lanskap
     CTL->>FS: Menulis runtime/tmp/export_*.pdf
@@ -712,10 +729,12 @@ graph TB
         FW["Flutter Web<br/>Panel Admin PC"]
         FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
         HW["HarmonyOS<br/>App Native HarmonyOS"]
+        NG["Angular 22 + ng-zorro<br/>Panel Admin Web"]
+        RC["React 19 + Vite<br/>Panel Admin Web"]
     end
 
     subgraph Gateway["Lapisan API Gateway"]
-        MW["Rantai middleware<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["Rantai middleware<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>Grup rute: AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["Lapisan Modul Bisnis"]
@@ -742,7 +761,7 @@ graph TB
     end
 
     subgraph Data["Lapisan Data"]
-        MySQL["MySQL 8.0<br/>163 tabel bisnis"]
+        MySQL["MySQL 8.0<br/>227 tabel bisnis"]
         Redis["Redis 7<br/>Cache/Rate limit/Session"]
         ES["Elasticsearch 8<br/>Pencarian teks lengkap"]
     end
@@ -877,22 +896,31 @@ sequenceDiagram
 
 | Modul | Controllers (Direktori) | Service Inti | Model Utama | Jumlah Tabel |
 |------|-------------------|-------------|-----------|------|
-| Manajemen Sistem | admin/controller/ (14) | - ⚠Controller langsung query model, technical debt diketahui | AdminUser, AdminRole, AdminPermission | 7 |
-| Manajemen Produk | controller/product/ (7) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
-| Manajemen Pembelian | controller/purchase/ (5) | InventoryService, FinanceService ⚠CRUD masih langsung query, technical debt diketahui | PurchaseOrder, PurchaseReceive | 9 |
+| Manajemen Sistem | admin/controller/ (16) | - ⚠Controller langsung query model, technical debt diketahui | AdminUser, AdminRole, AdminPermission | 7 |
+| Manajemen Produk | controller/product/ (8) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 12 |
+| Manajemen Pembelian | controller/purchase/ (8) | InventoryService, FinanceService ⚠CRUD masih langsung query, technical debt diketahui | PurchaseOrder, PurchaseReceive | 14 |
 | Manajemen Penjualan | controller/sales/ (5) | InventoryService, FinanceService ⚠CRUD masih langsung query, technical debt diketahui | SalesOrder, SalesDelivery | 9 |
-| Manajemen Inventaris | controller/inventory/ (5) | InventoryService ⚠CRUD masih langsung query, technical debt diketahui | Inventory, InventoryFlow, CostRecord | 11 |
-| Manajemen Keuangan | controller/finance/ (20) | FinanceService ⚠CRUD masih langsung query, technical debt diketahui | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| Manajemen Inventaris | controller/inventory/ (6) | InventoryService ⚠CRUD masih langsung query, technical debt diketahui | Inventory, InventoryFlow, CostRecord | 11 |
+| Manajemen Keuangan | controller/finance/ (28) | FinanceService ⚠CRUD masih langsung query, technical debt diketahui | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 38 |
 | CRM | controller/crm/ (10) | CrmService | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
-| Alur Kerja Persetujuan | controller/workflow/ (2) | - ⚠Controller langsung query model, technical debt diketahui | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
-| Notifikasi Pesan | controller/notification/ (1) | NotificationService ⚠CRUD masih langsung query, technical debt diketahui | Notification, NotificationSetting, NotificationTemplate | 3 |
-| Manajemen Proyek | controller/project/ (3) | - ⚠Controller langsung query model, technical debt diketahui | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| Sumber Daya Manusia | controller/hr/ (5) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
-| Manufaktur | controller/manufacturing/ (5) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| Alur Kerja Persetujuan | controller/workflow/ (3) | - ⚠Controller langsung query model, technical debt diketahui | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
+| Notifikasi Pesan | controller/notification/ (2) | NotificationService ⚠CRUD masih langsung query, technical debt diketahui | Notification, NotificationSetting, NotificationTemplate | 4 |
+| Manajemen Proyek | controller/project/ (4) | - ⚠Controller langsung query model, technical debt diketahui | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 6 |
+| Sumber Daya Manusia | controller/hr/ (9) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 21 |
+| Manufaktur | controller/manufacturing/ (13) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 21 |
 | Laporan Kustom | controller/report/ (2) | - ⚠Controller langsung query model, technical debt diketahui | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
-| Manajemen Peralatan EAM | controller/eam/ (4) | - ⚠Controller langsung query model, technical debt diketahui | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart | 4 |
+| Manajemen Peralatan EAM | controller/eam/ (5) | - ⚠Controller langsung query model, technical debt diketahui | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
 | Manajemen Dokumen DMS | controller/dms/ (2) | - ⚠Controller langsung query model, technical debt diketahui | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
 | Dashboard BI | controller/bi/ (3) | - ⚠Controller langsung query model, technical debt diketahui | BiDashboard, BiWidget | 2 |
+
+> Tabel ini adalah pemetaan modul awal (Manajemen Sistem + 15 domain bisnis); 8 domain yang ditambahkan kemudian —— oms / wms / tms / quality / open / platform / print / retail —— tidak dicantumkan,
+> daftar lengkapnya lihat pohon struktur proyek di `docs/CLAUDE.md` (`app/controller/` total 23 direktori modul / 139 controller, termasuk Install dan Index di tingkat atas).
+>
+> Cakupan `Jumlah Tabel` (terukur 2026-09-15): mengambil 227 tabel dari `database/install.sql`, dipetakan berdasarkan prefiks nama tabel ke satu modul saja —— Manajemen Sistem `admin_*`+`system_config`+`operation_log`;
+> Manajemen Produk `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`; Manajemen Pembelian `purchase_*`+`supplier_assessment`; Manajemen Inventaris `inventory*`/`transfer*`/`check_*`/`cost_record`;
+> modul lain memakai prefiks tabel bernama sama (`sales_*`→Penjualan, `finance_*`→Keuangan, `crm_*`→CRM, `approval_*`→Persetujuan, `notification*`→Notifikasi, `project*`→Proyek, `hr_*`→SDM, `mfg_*`→Produksi, `report_*`→Laporan, `eam_*`→EAM, `dms_*`→DMS, `bi_*`→BI).
+> Satu tabel hanya masuk satu kolom; domain baru dan tabel bersama yang ditambahkan kemudian berjumlah 48 tabel (`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`print_template`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`) tidak dihitung pada baris mana pun tabel ini.
+> Hitung ulang: ``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
 ### 20.1 Catatan Ekstraksi Ringan Lapisan Service P2-F2 (crm/hr/manufacturing/product telah selesai diekstrak)
 
@@ -912,6 +940,12 @@ dipakai dengan fallback class_exists, sehingga semua Service mempertahankan kons
 
 Modul yang belum diekstrak (Manajemen Proyek 18 kali, Laporan Kustom 18 kali, Pembelian 24 kali, Penjualan 24 kali, Manajemen Sistem 42 kali, dll.) telah ditandai di tabel
 "Controller langsung query model, technical debt diketahui", akan diekstrak bertahap dengan pola yang sama pada iterasi berikutnya.
+
+> ⚠ Pengujian ulang (2026-09-15): nilai pada bagian ini adalah hasil pengukuran **pada titik ekstraksi** (1051d83 / 2026-08-16) —— dengan cakupan yang sama pada commit tersebut, keempat modul tepat
+> CRM 57→0, SDM 36→0 (bagian ini menandai 38), Produksi 33→0, Produk 29→0; modul yang belum diekstrak saat itu adalah Proyek 18 / Laporan 18 / Pembelian 25 / Penjualan 25 / Manajemen Sistem 44 (penandaan 18/18/24/24/42, selisih 1~2 berasal dari perbedaan cakupan penghitungan).
+> Setelah ekstraksi, halaman baru yang ditambahkan belum terhubung ke Service, query langsung sudah mengalir kembali: CRM 6 tempat (pengisian nama relasi `pluck`), Produksi 39 tempat (CostEntry/MaterialIssue/WorkReport/Subkontrak penerimaan-pengiriman dan 6 controller periode berikutnya),
+> Manajemen Produk 2 tempat (LocationController lokasi), SDM masih 0; modul yang belum diekstrak kini Proyek 24 / Laporan 20 / Pembelian 58 / Penjualan 35 / Manajemen Sistem 67.
+> Cakupan pengujian ulang dan perintahnya (`Model::class` tidak dihitung): ``grep -rhoE '\b[A-Z][A-Za-z]*::(find|where|whereIn|query|first|all|count|paginate|insert|update|delete|save|create|pluck|exists)\(' app/controller/<modul>/ | grep -vE '\b(Service|Container|Validator|Cache|Log)::' | wc -l``
 
 ---
 
@@ -957,7 +991,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | Dimensi | Skor | Kesenjangan Kunci |
 |------|------|----------|
 | API Backend | 85/100 | Banyak modul merupakan kerangka CRUD, kekurangan mesin kalkulasi bisnis |
-| Keamanan | 95/100 | 18 lapis pertahanan berlapis, siap produksi |
+| Keamanan | 95/100 | Pertahanan berlapis 7 lapis (panorama L0–L12), siap produksi |
 | UI Frontend | 20/100 | **Kelemahan terbesar**: Flutter 12 halaman mencakup ~20% modul, panel admin Web belum ada |
 | Ekosistem Operasional | 70/100 | Kekurangan rollback migrasi, backup otomatis, observabilitas |
 | Kedalaman Bisnis | 55/100 | Algoritma inti keuangan/HR/manufaktur belum diimplementasikan |
@@ -979,10 +1013,10 @@ P0(3-4 minggu) → P1(4-6 minggu) → P2(1-2 minggu) → P3(2-3 minggu) = Total 
 ### 21.3 Evolusi Rantai Middleware
 
 ```
-Saat ini:   Locale → Cors → SecurityFilter → RateLimit → TracingId → {Grup rute}
-Setelah P1:  Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {Grup rute}
-Setelah P2:  Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {Grup rute}
-Setelah P3:  Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {Grup rute}
+Saat ini:   Cors → SecurityFilter → RateLimit → TracingId → {Grup rute}
+Setelah P1:  Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {Grup rute}
+Setelah P2:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {Grup rute}
+Setelah P3:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {Grup rute}
 ```
 
 ### 21.4 Arsitektur Target P0 — Panel Admin Flutter Web
@@ -1028,25 +1062,25 @@ Catatan: "Isolasi multi-tenant" di roadmap §21.2 P3 disesuaikan menjadi "kapabi
 Dasar keputusan (tinjauan 2026-08):
 - Deployment yang ada hampir semuanya single-tenant, menghubungkan akan membawa kompleksitas isolasi dan risiko regresi yang tidak perlu;
 - Kerangka saat ini memiliki cacat teknis (lihat 22.4), "terhubung berarti terisolasi" tidak berlaku, perlu menyelesaikan perbaikan desain terlebih dahulu;
-- Isolasi memerlukan penambahan kolom per tabel bisnis di antara 163 tabel, mengaktifkan per model, biayanya jauh melebihi "koneksi minimal".
+- Isolasi memerlukan penambahan kolom per tabel pada 227 tabel bisnis dan pengaktifan per model, biayanya jauh melebihi "koneksi minimal".
 
 ### 22.2 Fakta Saat Ini (verifikasi kode dan konfigurasi)
 
 | Item | Kondisi Saat Ini |
 |----|------|
-| `app/middleware/TenantScope.php` | Ada, tidak didaftarkan; membaca tenant dari header `X-Tenant-Id`, langsung meloloskan jika header tidak ada |
-| `app/model/concerns/TenantScope.php` | Ada, tidak digunakan model apa pun; `bootTenantScope()` global scope hanya memfilter setelah tenant diatur |
-| `config/middleware.php` | Rantai global: Locale → Cors → SecurityFilter → RateLimit → TracingId, tanpa TenantScope |
-| `config/route.php` grup /admin | AdminAuth → AdminPermission → OperationLog, tanpa TenantScope |
+| `app/middleware/TenantScope.php` | Ada, tidak didaftarkan; membaca kode tenant dari header `X-Tenant-Code` lalu mencari `erp_tenant` dan menyuntikkan konteks, langsung meloloskan jika header tidak ada |
+| `app/model/concerns/TenantScope.php` | Ada; dipakai 4 model keuangan (`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`, keluarga perusahaan `tenantScopeByCompany()` mengembalikan true), memfilter berdasarkan `company_id`; karena middleware tidak terdaftar, konteks permintaan tidak akan disuntikkan, sehingga global scope saat ini tidak berlaku |
+| `config/middleware.php` | Rantai global: Cors → SecurityFilter → RateLimit → TracingId, tanpa TenantScope |
+| `config/route.php` grup /admin/v1 | AdminAuth → AdminPermission → OperationLog, tanpa TenantScope |
 | Payload JWT | Hanya `sub` / `username` / `token_type`, **tanpa klaim tenant_id** (`app/api/v1/controller/AuthController.php`) |
 | Database | **Seluruh database tanpa kolom tenant_id** (install.sql juga tidak) |
-| Model | **Tidak ada model yang menggunakan trait TenantScope** |
+| Model | 4 model keuangan memakai trait `TenantScope` (keluarga perusahaan, memfilter `company_id`) —— isolasi percontohan; saat konteks tenant tidak disuntikkan, tidak ada filter yang diterapkan |
 
 ### 22.3 Langkah Aktivasi (referensi cadangan, tidak dieksekusi periode ini)
 
-1. Daftarkan middleware: pada grup /admin di `config/route.php`, tambahkan
+1. Daftarkan middleware: pada grup /admin/v1 di `config/route.php`, tambahkan
    `app\middleware\TenantScope::class` pada `middleware()` (ditempatkan setelah AdminAuth, memastikan telah terautentikasi).
-2. Peminta membawa `X-Tenant-Id` (int ID tenant) pada header permintaan.
+2. Peminta membawa `X-Tenant-Code` (string kode tenant) pada header permintaan.
 3. Tambahkan kolom `tenant_id` (BIGINT + indeks) pada tabel bisnis yang perlu diisolasi dan isi ulang data yang ada;
    tabel kamus/sistem (seperti `erp_admin_user`, `erp_role`, `erp_permission`) tidak diisolasi.
 4. Gunakan `use app\model\concerns\TenantScope;` pada kelas model yang perlu diisolasi, otomatis memfilter sesuai tenant saat ini.
@@ -1055,15 +1089,19 @@ Dasar keputusan (tinjauan 2026-08):
 
 ### 22.4 Keterbatasan Teknis yang Diketahui (harus diselesaikan sebelum aktivasi)
 
-- **Rantai transmisi statis putus (teruji PHP 8.3)**: middleware memanggil `setCurrentTenantId()` melalui nama trait,
-   yang menulis ke salinan statis milik trait itu sendiri; kelas model yang menggunakan trait tersebut tidak dapat membacanya, query tidak akan difilter.
-   Saat aktivasi, perlu diubah menjadi injeksi berbasis konteks permintaan (seperti `request()->tenantId`).
-- **Interferensi status global statis**: Workerman adalah proses yang menetap, properti statis dibagikan lintas permintaan; jika mode coroutine diaktifkan
-   (Swoole/Swow), akan terjadi interferensi data lintas tenant, perlu diubah menjadi binding level permintaan (`context()` / objek permintaan).
+- **Batas kepercayaan (harus diselesaikan sebelum pendaftaran)**: sumber konteks tenant adalah header permintaan `X-Tenant-Code`,
+   yaitu input yang dapat dipalsukan; jika middleware diaktifkan sebelum `erp_admin_user` diikatkan ke perusahaan/tenant
+   (penentuan kepemilikan admin), akan timbul celah bidang data lintas kewenangan (setiap admin terautentikasi dapat
+   mengklaim tenant mana pun dan membaca datanya).
+- **Rantai transmisi statis putus (teruji PHP 8.3) sudah digantikan oleh versi perbaikan P2-4 B5**: trait `TenantScope`
+   kini melalui injeksi konteks permintaan (`request()->tenantId` / `companyId`), jalur ini tanpa status statis,
+   sehingga interferensi lintas permintaan dalam proses menetap hilang; fasad statis bernama trait telah ditandai
+   `@deprecated`, hanya untuk cadangan pengujian/CLI.
 - **Kesenjangan data plane**: seluruh database tidak memiliki kolom tenant_id, perlu migrasi per tabel; tabel kamus yang dibagikan lintas tenant perlu mekanisme pengecualian desain.
 
 ### 22.5 Kriteria Penerimaan
 
 Penerimaan periode ini = dokumen dan kode konsisten: `config/middleware.php` dan `config/route.php` tidak mengandung
-registrasi TenantScope; middleware dan Trait dengan jelas menandai "kapabilitas dicadangkan, tidak diaktifkan" pada komentar dan memberikan langkah aktivasi;
+registrasi TenantScope; komentar middleware menandai "sudah diimplementasikan, default tidak didaftarkan" dan memberikan titik pendaftaran serta batas kepercayaan,
+komentar trait menandai jalur injeksi konteks permintaan dan garis regresi (tanpa konteks tenant tidak ikut memfilter);
 deskripsi bagian ini berkorespondensi satu per satu dengan kondisi kode saat ini.

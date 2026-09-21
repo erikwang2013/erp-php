@@ -6,50 +6,50 @@
 
 ## 1. Systemarchitektur
 
-> **Funktionsliste**: Authentifizierung(login/register/refresh/logout + Kontosperrung + Sitzungsbegrenzung) | Dashboards(Redis-Cache) | Benutzer-CRUD+Batch+Import | Rollen & Berechtigungen(RBAC) | Systemkonfiguration | Betriebsprüfung(8 Plattform-Quellgeräte) | Dateien(Upload+Export+Maskierung) | Sicherheit(18 Ebenen Verteidigung) | Betrieb(health/metrics/docs/Docker/CI)
+> **Funktionsliste**: Authentifizierung(login/register/refresh/logout + Kontosperrung + Sitzungsbegrenzung) | Dashboards(Redis-Cache) | Benutzer-CRUD+Batch+Import | Rollen & Berechtigungen(RBAC) | Systemkonfiguration | Betriebsprüfung(8 Plattform-Quellgeräte) | Dateien(Upload+Export+Maskierung) | Sicherheit(7 Ebenen Tiefenverteidigung der Middleware, L0–L12-Panorama + 35 Klassen Angriffsdetektoren) | Betrieb(health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                        客户端层                               │
+│                        Client-Schicht                        │
 │  ┌──────────────────────┐  ┌──────────────────────────────┐  │
-│  │  Flutter Web (PC)    │  │  HarmonyOS ArkTS (Mobile)    │  │
-│  │  管理后台 (桌面风格)   │  │  客户端 (手机/平板/2in1)      │  │
-│  └──────────┬───────────┘  └──────────────┬───────────────┘  │
+│  │   Flutter Web (PC)   │  │   HarmonyOS ArkTS (Mobil)    │  │
+│  │ Verwaltung (Desktop) │  │    Client (Handy/Tablet)     │  │
+│  └──────────┬───────────┘  └───────────────┬──────────────┘  │
 └─────────────┼──────────────────────────────┼─────────────────┘
-              │        HTTPS / JSON          │
-              │   Authorization: Bearer JWT  │
+              │         HTTPS / JSON         │                  
+              │  Authorization: Bearer JWT   │                  
 ┌─────────────┼──────────────────────────────┼─────────────────┐
-│             ▼                              ▼                  │
+│             ▼                              ▼                 │
 │  ┌──────────────────────────────────────────────────────┐    │
-│  │                   API 网关层                          │    │
-│  │  AdminAuth(认证) → AdminPermission(授权) → Controller │    │
+│  │                 API-Gateway-Schicht                  │    │
+│  │ AdminAuth(Auth) → AdminPermission(RBAC) → Controller │    │
 │  └──────────────────────────┬───────────────────────────┘    │
-│                             │                                  │
+│  │                          │                           │    │
 │  ┌──────────────────────────┼───────────────────────────┐    │
-│  │              业务逻辑层 (Controller/Service)           │    │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌─────────┐ │    │
-│  │  │Dashboard │ │  User    │ │  Role    │ │ Export  │ │    │
-│  │  │Controller│ │Controller│ │Controller│ │Controller│ │    │
-│  │  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬────┘ │    │
-│  └───────┼────────────┼─────────────┼────────────┼──────┘    │
-│          │            │             │            │            │
-│  ┌───────┼────────────┼─────────────┼────────────┼──────┐    │
-│  │       ▼            ▼             ▼            ▼       │    │
-│  │                   Model 层                            │    │
-│  │  ┌──────────────────────────────────────────────┐    │    │
-│  │  │  Snowflake ID ← encryptable → Encryption     │    │    │
-│  │  │  (主键生成)     (DB字段加密)   (API传输加密)    │    │    │
-│  │  └──────────────────────────────────────────────┘    │    │
+│  │      Geschäftslogikschicht (Controller/Service)      │    │
+│  │ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │    │
+│  │ │Dashboard │ │   User   │ │   Role   │ │  Export  │  │    │
+│  │ │Controller│ │Controller│ │Controller│ │Controller│  │    │
+│  │ └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘  │    │
+│  └───────┼────────────┼────────────┼────────────┼───────┘    │
+│  │       │            │            │            │       │    │
+│  ┌───────┼────────────┼────────────┼────────────┼───────┐    │
+│  │       ▼            ▼            ▼            ▼       │    │
+│  │                    Model-Schicht                     │    │
+│  │   ┌────────────────────────────────────────────┐     │    │
+│  │   │  Snowflake ID ← encryptable → Encryption   │     │    │
+│  │   │(PK-Erzeugung) (DB-Verschl.) (API-Transport)│     │    │
+│  │   └────────────────────────────────────────────┘     │    │
 │  └──────────────────────────┬───────────────────────────┘    │
-│                             │                                  │
+│  │                          │                           │    │
 │  ┌──────────────────────────┼───────────────────────────┐    │
-│  │              数据存储层                                │    │
+│  │                 Datenspeicherschicht                 │    │
 │  │  ┌──────────┐  ┌──────────────┐  ┌──────────┐        │    │
-│  │  │  MySQL   │  │ Elasticsearch│  │  Redis   │        │    │
-│  │  │ (主存储)  │  │ (全文检索)    │  │ (缓存)   │        │    │
+│  │  │  MySQL   │  │Elasticsearch │  │  Redis   │        │    │
+│  │  │(Haupt-DB)│  │  (Volltext)  │  │ (Cache)  │        │    │
 │  │  └──────────┘  └──────────────┘  └──────────┘        │    │
 │  └──────────────────────────────────────────────────────┘    │
-│                       webman v2                               │
+│                          webman v2                           │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -60,8 +60,8 @@
 | Schicht | Verzeichnis | Zuständigkeit |
 |---|------|------|
 | Routing | `config/route.php` | Zuordnung URL zu Controller, Middleware-Bindung, versionierte Routen |
-| Middleware | `app/middleware/` | Angriffsabwehr (SecurityFilter), Rate-Limit (RateLimit), Authentifizierung (JWT), Autorisierung (RBAC), API-Version (ApiVersion) |
-| Controller | 14: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (Admin) + Captcha/Auth (API v1) | Validierung der Request-Parameter, Aufruf der Businesslogik, Antwortformatierung |
+| Middleware | `app/middleware/` | Cross-Origin (Cors), Angriffsabwehr (SecurityFilter), Rate-Limit (RateLimit), Kettenverfolgung (TracingId), Authentifizierung (JWT), Autorisierung (RBAC), Betriebsprotokoll (OperationLog), Signatur der offenen Schnittstellen (OpenApiAuth), insgesamt 11 Dateien |
+| Controller | Admin 15: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (zusätzlich die Basisklasse `BaseController`) + API v1 3: Captcha/Auth/Product | Validierung der Request-Parameter, Aufruf der Businesslogik, Antwortformatierung |
 | Business-Services | `app/service/` | Wiederverwendbare Businesslogik (reserviert) |
 | Datenmodelle | `app/model/` | ORM-Zuordnung, Beziehungen, Feld-Verschlüsselung |
 | Gemeinsame Tools | `app/common/` | Hashids-, Snowflake-, Encryption-Services |
@@ -69,40 +69,43 @@
 ### 2.2 Request-Lebenszyklus
 
 ```
-客户端请求
+Client-Anfrage
   │
   ▼
 webman HTTP Server (workerman)
   │
   ▼
-Route 匹配
+Route-Abgleich
   │
   ▼
-中间件链:
-  SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
-  │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
+Middleware-Kette:
+  Cors ────────────────► OPTIONS-Preflight verarbeiten, CORS-Response-Header injizieren
+  │
   ▼
-  RateLimit ───────────► Redis 滑动窗口限流
-  │ (失败返回 429 + Retry-After 头)
+  SecurityFilter ──────► HTTP-Methodenprüfung → 405 (nur GET/POST/PUT/DELETE/OPTIONS/HEAD erlaubt)
+  │                     Abfang von XSS/SQL-Injection/Pfad-Traversal/Befehlsinjektion/CSRF (403)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  RateLimit ───────────► Redis-Sliding-Window-Rate-Limit
+  │ (bei Überschreitung 429 + Retry-After-Header)
   ▼
-  AdminAuth ──────────► JWT 验证，注入 $request->adminId
-  │ (失败返回 401)
+  TracingId ───────────► X-Trace-Id generieren, durchgängig über die gesamte Kette
+  │ (Versionsnummer liegt im URL-Pfad /admin/v1 /api/v1 /open/v1, keine Versions-Header-Middleware)
   ▼
-  AdminPermission ────► RBAC 权限校验（Redis 60s 缓存）
-  │ (失败返回 403)
+  AdminAuth ──────────► JWT-Verifizierung, Injektion von $request->adminId
+  │ (bei Fehler 401)
   ▼
-  OperationLog ───────► 操作日志记录 (POST/PUT/DELETE)，自动检测来源端
+  AdminPermission ────► RBAC-Berechtigungsprüfung (Redis-60s-Cache)
+  │ (bei Fehler 403)
+  ▼
+  OperationLog ───────► Betriebsprotokollierung (POST/PUT/DELETE), automatische Erkennung des Quellgeräts
   │
   ▼
 Controller::method()
   │
-  ├─► 参数验证 (validator)
-  ├─► 敏感操作确认 (confirmPassword)
+  ├─► Parameterprüfung (validator)
+  ├─► Bestätigung sensibler Operationen (confirmPassword)
   ├─► decodeId() — hashid → BIGINT
-  ├─► Model 操作 (自动 encryptable 加解密)
+  ├─► Model-Operation (automatische encryptable Ver-/Entschlüsselung)
   ├─► encodeId() — BIGINT → hashid
   └─► Response JSON
 ```
@@ -110,17 +113,17 @@ Controller::method()
 ### 2.3 ID-Lebenszyklus
 
 ```
-生成 (Snowflake) → 存储 (MySQL BIGINT) → 传输 (Hashids 编码) → 外部 (hash 字符串)
-                                                                    │
-                            HashidsService::decode() ←──────────────┘
+Erzeugung (Snowflake) → Speicherung (MySQL BIGINT) → Übertragung (Hashids-Kodierung) → außen (Hash-String)
+                                                                                                         │
+                                                                         HashidsService::decode()        ┘
 ```
 
 ### 2.4 Datenverschlüsselungs-System
 
 ```
-传输层 (encryption)     — AES-256-CBC，独立密钥
-存储层 (encryptable)    — AES-128-ECB，独立密钥，Model $casts 自动处理
-展示层 (mask)           — 手机号: 138****1234，邮箱: a***@example.com
+Transportschicht (encryption)  — AES-256-CBC, eigener Schlüssel
+Speicherschicht (encryptable)  — AES-128-ECB, eigener Schlüssel, Model-$casts automatisch
+Darstellungsschicht (mask)     — Telefon: 138****1234, E-Mail: a***@example.com
 ```
 
 ## 3. Datenbankdesign
@@ -129,20 +132,20 @@ Controller::method()
 
 ```
 erp_admin_user ──┬── erp_admin_user_role ──┬── erp_admin_role
-  (用户)           │    (用户-角色关联)         │     (角色)
-                  │                          │
-                  │                    erp_admin_role_permission
-                  │                     (角色-权限关联)
-                  │                          │
-                  │                          ▼
-                  │                    erp_admin_permission
-                  │                      (权限/菜单)
-                  │
-                  ▼
-           erp_operation_log
-             (操作日志)
+  (Benutzer)       │    (Benutzer-Rolle)       │     (Rolle)
+                   │                           │
+                   │                 erp_admin_role_permission
+                   │                  (Rolle-Berechtigung)
+                   │                           │
+                   │                           ▼
+                   │                 erp_admin_permission
+                   │                   (Berechtigung/Menü)
+                   │
+                   ▼
+            erp_operation_log
+              (Betriebsprotokoll)
 
-erp_system_config (系统配置) — 独立表
+erp_system_config (Systemkonfiguration) — eigenständige Tabelle
 ```
 
 ### 3.2 Kern-Tabellenstruktur
@@ -169,58 +172,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 URL-Konvention
 
 ```
-Öffentliche Schnittstellen:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+Öffentliche Schnittstellen:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 Admin:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 Ressourcen-Routen:
-  GET    /admin/user          → Liste
-  POST   /admin/user          → Erstellen
-  GET    /admin/user/{hashid} → Details
-  PUT    /admin/user/{hashid} → Aktualisieren
-  DELETE /admin/user/{hashid} → Löschen (erfordert Passwortbestätigung)
+  GET    /admin/v1/user          → Liste
+  POST   /admin/v1/user          → Erstellen
+  GET    /admin/v1/user/{hashid} → Details
+  PUT    /admin/v1/user/{hashid} → Aktualisieren
+  DELETE /admin/v1/user/{hashid} → Löschen (erfordert Passwortbestätigung)
 
-Systemkonfiguration:  /admin/config[/{hashid}]
-Betriebsprotokoll:  /admin/log
-Persönlicher Bereich:  /admin/profile[/password|/logout]
-Import:     /admin/import/users
-Upload:     /admin/upload
-Batch:     /admin/user/batch/{destroy|status}
+Systemkonfiguration:  /admin/v1/config[/{hashid}]
+Betriebsprotokoll:  /admin/v1/log
+Persönlicher Bereich:  /admin/v1/profile[/password|/logout]
+Import:     /admin/v1/import/users
+Upload:     /admin/v1/upload
+Batch:     /admin/v1/user/batch/{destroy|status}
 Dokumentation:     /api/docs     (OpenAPI 3.0)
 Health:     /health
 ```
 
 ### 4.2 API-Versionsstrategie
 
-Die API-Version wird über den Request-Header gesteuert, **nicht im URL-Pfad abgebildet**:
-
-```http
-API-Version: v1
-```
+Die API-Version liegt **im URL-Pfad**, es wird kein Versions-Request-Header verwendet: Verwaltung `/admin/v1`, Client `/api/v1`, offene Schnittstelle `/open/v1`.
 
 | Mechanismus | Beschreibung |
 |------|------|
-| Standardversion | ohne `API-Version`-Header Standard `v1` |
-| Validierung | `ApiVersion`-Middleware prüft, nicht unterstützte Versionen liefern 400 |
-| Routing | Hilfsfunktion `v()` löst die Controller-Klasse dynamisch nach Version auf |
+| Versionsposition | URL-Pfad, z. B. `/api/v1/auth/login` |
+| Routengruppe | `Route::group('/api/v1', …)` in `config/route.php` bindet direkt an den Controller |
 | Verzeichnis | Controller nach Version organisiert: `app/api/{version}/controller/` |
+| Versions-Header-Middleware | Die historische dynamische `v()`-Auflösung und die `ApiVersion`-Request-Header-Middleware sind **entfernt** |
 
 Erweiterungsbeispiel — neue v2-API:
 1. `app/api/v2/controller/AuthController.php` erstellen
-2. In der `ApiVersion`-Middleware der Konstanten `SUPPORTED` `'v2'` hinzufügen
-3. Routendefinitionen müssen nicht geändert werden
+2. In `config/route.php` die Gruppe `Route::group('/api/v2', …)` registrieren und direkt an den Controller binden
+3. Kein Versions-Request-Header; die Routengruppe selbst ist die Versionsgrenze
 
 ```bash
 # v1 verwenden
-curl -H "API-Version: v1" /api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 
 # v2 verwenden
-curl -H "API-Version: v2" /api/auth/login
-
-# nicht übergeben, Standard v1
-curl /api/auth/login
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 Rate-Limit-Strategie
@@ -230,8 +226,8 @@ Basiert auf dem Redis-Sorted-Set-Sliding-Window-Algorithmus, Ausführung als ato
 | Schnittstelle | Limit |
 |------|------|
 | Standard | 60 Mal/Minute/IP/Routing |
-| POST /api/auth/login | 10 Mal/Minute |
-| POST /api/auth/register | 5 Mal/Minute |
+| POST /api/v1/auth/login | 10 Mal/Minute |
+| POST /api/v1/auth/register | 5 Mal/Minute |
 
 Bei Überschreitung wird 429 geliefert, die Antwort-Header enthalten X-RateLimit-Limit / Remaining / Reset / Retry-After.
 
@@ -258,41 +254,40 @@ Bei Überschreitung wird 429 geliefert, die Antwort-Header enthalten X-RateLimit
 ### 4.5 Authentifizierungsablauf (einschließlich Click-Captcha)
 
 ```
-客户端                               服务端
+Client                                 Server
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
-  │◄── {key, image(base64), targets}  │
+  │ ① POST /api/v1/captcha/generate       │ captcha_create('click')
+  │◄── {key, image(base64), targets}   │
   │                                    │
-  │  ② 用户点击图中文字位置              │
+  │ ② Klick auf die Textposition       │
   │                                    │
-  │  ③ POST /api/auth/login           │
-  │     {username, password,          │
-  │      captcha_key, clicks}         │
-  │────────────────────────────────►  │
+  │ ③ POST /api/v1/auth/login             │
+  │     {username, password,           │
+  │      captcha_key, clicks}          │
+  │────────────────────────────────►   │
   │                                    │ ① captcha_verify()
   │                                    │ ② password_verify()
   │                                    │ ③ jwt()->create()
-  │◄── {access_token, refresh_token}  │
+  │◄── {access_token, refresh_token}   │
   │                                    │
-  │  ④ GET /admin/dashboard           │
-  │     Authorization: Bearer xxx     │
-  │────────────────────────────────►  │ AdminAuth → AdminPermission
-  │◄── 200 {dashboard data}           │
+  │ ④ GET /admin/v1/dashboard             │
+  │     Authorization: Bearer xxx      │
+  │────────────────────────────────►   │ AdminAuth → AdminPermission
+  │◄── 200 {dashboard data}            │
 ```
 
 ### 4.6 Berechtigungsmodell (RBAC)
 
 ```
-  用户 ──┬── 角色 ──┬── 权限
-  User     Role      Permission
-                 │
-                 ├── type=1: 菜单 (控制侧边栏可见)
-                 ├── type=2: 按钮 (控制页面内操作)
-                 └── type=3: API  (控制接口访问)
+  Benutzer ──┬── Rolle ──┬── Berechtigung
+                         │
+                         ├── type=1: Menü (steuert die Sichtbarkeit der Sidebar)
+                         ├── type=2: Button (steuert Aktionen innerhalb der Seite)
+                         └── type=3: API  (steuert den Schnittstellenzugriff)
 
-  权限标识格式: {method}.{path}
-  例: get.admin/user  post.admin/user  delete.admin/user
-  超级管理员标识: * (跳过所有权限检查)
+  Berechtigungsformat: {method}.{path}
+  Beispiel: get.admin/user  post.admin/user  delete.admin/user
+  Super-Admin-Kennung: * (überspringt alle Berechtigungsprüfungen)
 ```
 
 ### 4.7 Zweite Bestätigung bei sensiblen Operationen
@@ -300,14 +295,14 @@ Bei Überschreitung wird 429 geliefert, die Antwort-Header enthalten X-RateLimit
 Sensible Operationen wie das Löschen von Benutzern, Rollen und Berechtigungen erfordern die Übermittlung des aktuellen Benutzerpassworts im Request-Body zur Identitätsprüfung:
 
 ```
-客户端                           服务端
-  │                                │
-  │  DELETE /admin/user/{hashid}  │
-  │  { password: "******" }       │
-  │────────────────────────────►  │
-  │                                │ confirmPassword(adminId, password)
-  │                                │ → 密码错误返回 422
-  │                                │ → 密码正确继续执行
+Client                           Server
+  │                              │
+  │ DELETE /admin/v1/user/{hashid}  │
+  │ { password: "******" }       │
+  │────────────────────────────► │
+  │                              │ confirmPassword(adminId, password)
+  │                              │ → falsches Passwort liefert 422
+  │                              │ → korrektes Passwort läuft weiter
   │◄── 200 { code: 0 }           │
 ```
 
@@ -318,19 +313,20 @@ Das Frontend zeigt vor dem Auslösen der Löschoperation einen Bestätigungsdial
 ### 5.1 Flutter-Web-Verwaltungsoberfläche
 
 ```
-┌────────────────────────────────────────────────┐
-│  Header (56px)                                 │
-│  ☰ 菜单按钮           🔔 消息  👤 管理员  ▼    │
-├──────────┬─────────────────────────────────────┤
-│ Sidebar  │  Content Area                       │
-│ (64/240) │                                     │
-│          │  ┌──────────────┐ ┌──────────┐     │
-│ 📊 仪表盘│  │ 统计卡片×4    │ │ 趋势图   │     │
-│ 👥 用户  │  └──────────────┘ └──────────┘     │
-│ 🔒 角色  │  ┌──────┐ ┌────────────────┐       │
-│ ⚙ 配置  │  │饼图  │ │ 最近操作日志    │       │
-│ 📋 日志  │  └──────┘ └────────────────┘       │
-└──────────┴─────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│  Header (56px)                                       │
+│  ☰ Menü                 🔔 Mitteilungen  👤 Admin  ▼ │
+├──────────────────┬───────────────────────────────────┤
+│ Sidebar          │  Content Area                     │
+│ (64/240)         │                                   │
+│                  │  ┌────────────────┐ ┌────────────┐│
+│ 📊 Übersicht     │  │ Kennzahlen ×4  │ │ Trendkurve ││
+│ 👥 Benutzer      │  └────────────────┘ └────────────┘│
+│                  │  ┌────────────────┐ ┌────────────┐│
+│ 🔒 Rollen        │  │ Tortendiagramm │ │Letzte Logs ││
+│ ⚙ Konfiguration  │  └────────────────┘ └────────────┘│
+│ 📋 Logs          │                                   │
+└──────────────────┴───────────────────────────────────┘
 ```
 
 Eigenschaften: einklappbare Sidebar, Material-3-Doppel-Theme, hochdichte Datentabellen, Dialog-Popups, Hover-Interaktionen
@@ -375,11 +371,11 @@ Datenfluss: Page ← DataService ← ApiService (JWT Bearer) ← HTTP ← webman
 ### 6.2 Schlüsselverwaltung
 
 ```
-JWT_SECRET          → 环境变量注入，64位随机字符串
-HASHIDS_SALT        → 唯一盐值，泄漏后需全局更换
-ENCRYPTION_KEY      → API 传输加密密钥，32字节
-ENCRYPTABLE_KEY     → DB 存储加密密钥，与传输密钥独立
-SCOUT_HOSTS         → ES 地址，内网部署
+JWT_SECRET_KEY      → Injektion über Umgebungsvariable, 64-stellige Zufallszeichenkette
+HASHIDS_SALT        → eindeutiger Salt, nach einem Leak global zu wechseln
+ENCRYPTION_KEY      → Schlüssel der API-Transportverschlüsselung, 32 Byte
+ENCRYPTABLE_KEY     → Schlüssel der DB-Speicherverschlüsselung, unabhängig vom Transportschlüssel
+SCOUT_HOSTS         → ES-Adresse, Deployment im internen Netz
 ```
 
 ### 6.3 Schutz sensibler Daten
@@ -398,20 +394,20 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 Excel-Export
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
-  → fetchExportData() 查询数据 (limit 10000)
-  → 脱敏敏感字段
-  → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
-  → 写入 runtime/tmp/ → download 响应
+Request: POST /admin/v1/export/excel { table, columns, conditions, title }
+  → fetchExportData() fragt die Daten ab (limit 10000)
+  → sensible Felder maskieren
+  → PhpSpreadsheet-Aufbau (blauer Kopf mit weißer Schrift + erste Zeile fixiert + Autofilter)
+  → Schreiben nach runtime/tmp/ → download-Antwort
 ```
 
 ### 7.2 PDF-Export
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
-  → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
-  → Dompdf 渲染 A4 横向
-  → 写入 runtime/tmp/ → download 响应
+Request: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
+  → buildPdfHtml() HTML + Inline-CSS + Kopfzeilen-Copyright + nicht entfernbarer Fußzeilen-Copyright
+  → Dompdf rendert A4 quer
+  → Schreiben nach runtime/tmp/ → download-Antwort
 ```
 
 ## 8. Deployment-Architektur
@@ -419,8 +415,8 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 8.1 Empfohlene Topologie
 
 ```
-Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
-                    静态文件: Flutter Web build/
+Nginx (:443 HTTPS) → webman-Worker × N (:8788) → MySQL + ES + Redis
+                     statische Dateien: Flutter-Web-Build/
 ```
 
 ### 8.2 Docker Compose (empfohlen für Produktion)
@@ -435,7 +431,7 @@ Die `docker-compose.yml` im Projektstamm orchestriert alle Dienste der obigen To
 | `redis` | redis:7-alpine | 6379 | Cache / Rate-Limit / Captcha |
 | `elasticsearch` | elasticsearch:8.x | 9200 | Volltextsuche |
 
-Vor dem Start die Schlüssel `JWT_SECRET`, `HASHIDS_SALT`, `ENCRYPTION_KEY` usw. in der `docker-compose.yml` durch zufällige Zeichenketten ersetzen.
+Vor dem Start die Schlüssel `JWT_SECRET_KEY`, `HASHIDS_SALT`, `ENCRYPTION_KEY` usw. in der `docker-compose.yml` durch zufällige Zeichenketten ersetzen.
 
 ```bash
 cp .env.docker .env

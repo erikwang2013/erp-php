@@ -4,7 +4,7 @@
 
 ## API 문서
 
-프로젝트는 [hg/apidoc](https://github.com/hg-code/apidoc)으로 인터랙티브 API 문서를 자동 생성합니다.
+프로젝트는 [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php)으로 인터랙티브 API 문서를 자동 생성합니다.
 
 **접속 방법:** 서비스 시작 후 `http://localhost:8788/apidoc` 접속
 
@@ -18,17 +18,20 @@
 | 요청 헤더 | 설명 |
 |--------|------|
 | `Authorization` | JWT Bearer Token |
-| `API-Version` | API 버전 번호 (v1) |
-| `Accept-Language` | 국제화 언어 (zh-CN/en) |
+| `Accept-Language` | 국제화 언어, 13개 로케일 지원(zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id), 기본값 `zh_CN` |
+
+> **버전 안내**: 전역 경로 버전화 — 관리단 `/admin/v1`, 클라이언트 `/api/v1`, 오픈 인터페이스 `/open/v1`,
+> 버전 번호는 URL 경로에 위치하며 **어떤 버전 요청 헤더도 필요하지 않습니다**. 예외: `GET /api/docs`(OpenAPI 문서)와
+> 운송사 궤적 콜백 `/api/tms/tracking/callback`(HMAC 서명, 버전 없음).
 
 **어노테이션 규약:** 모든 컨트롤러 메서드는 `@Apidoc\*` 계열 어노테이션으로 인터페이스 이름, 설명, URL, 요청 메서드, 파라미터와 반환값 구조를 표기합니다.
 
 ## 1. 개요
 
-오픈 관리 백오피스 (open-admin)는 webman v2 기반으로 구축되었으며 RESTful JSON API를 제공합니다. 모든 관리단 인터페이스는 JWT 인증과 RBAC 권한 검증이 필요하며, 공개 인터페이스는 API 버전 헤더를 통해 버전별 컨트롤러로 라우팅됩니다.
+오픈 관리 백오피스 (open-admin)는 webman v2 기반으로 구축되었으며 RESTful JSON API를 제공합니다. 전역 경로 버전화: 관리단 인터페이스는 `/admin/v1` 아래에 마운트되며(JWT 인증 + RBAC 권한 검증), 클라이언트 인터페이스는 `/api/v1` 아래에, 오픈 인터페이스는 `/open/v1` 아래에 마운트됩니다. 버전 번호는 URL 경로에 포함되며 버전 요청 헤더는 없습니다.
 
 - **기본 URL**: `http://localhost:8788`
-- **API 버전**: 요청 헤더 `API-Version: v1`로 제어(누락 시 기본 v1)
+- **API 버전**: 전역 경로 버전화, 버전 번호는 URL 경로에 위치(관리단 `/admin/v1`, 클라이언트 `/api/v1`, 오픈 인터페이스 `/open/v1`), 버전 요청 헤더 불필요
 
 > **엔드포인트 총람**: 인증(5) | 대시보드(1) | 사용자(7) | 역할(4) | 권한(4) | 설정(4) | 로그(1) | 개인 센터(3) | 가져오기·내보내기(3) | 업로드(1) | 운영(4: health/metrics/docs/security.txt) | 총 37개 엔드포인트
 - **인증**: `Authorization: Bearer <token>`(JWT)
@@ -37,22 +40,35 @@
 
 ### 국제화
 
-API는 요청 헤더 `Accept-Language`로 언어를 자동 전환합니다:
+API는 요청 헤더 `Accept-Language`로 언어를 자동 전환하며, 13개 로케일을 지원합니다: `zh_CN`(중국어, 기본), `en`(English), `ja`(日本語), `ko`(한국어), `de`(Deutsch), `fr`(Français), `es`(Español), `pt`(Português), `ru`(Русский), `ar`(العربية), `hi`(हिन्दी), `bn`(বাংলা), `id`(Bahasa Indonesia).
 
-| 요청 헤더 값 | 언어 |
+| 요청 헤더의 첫 번째 언어 태그 | 해석 결과 |
 |---------|------|
-| `zh-CN`, `zh` | 중국어(기본) |
-| `en`, `en-US` | English |
+| `zh`, `zh-CN`, `zh-TW` | `zh_CN` 중국어(기본) |
+| `en`, `en-US` | `en` English |
+| `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id` | 해당 로케일(지역 접미사는 무시, 예: `de-DE` → `de`) |
+
+해석 규칙(`app/common/I18n.php` `getLocale()`):
+
+- 브라우저는 언어 선호도 내림차순으로 태그를 나열하며, **첫 번째 태그만 사용**(쉼표 앞부분)하고 q 값은 해석하지 않습니다;
+- 지역 하위 태그는 무시하고 주 언어 하위 태그만 유지합니다(`zh-CN` → `zh`, `de-DE` → `de`);
+- `zh*`는 일괄 `zh_CN`으로 매핑하고, 나머지 주 언어 하위 태그는 그대로 사용합니다;
+- 요청 헤더가 없거나 비어 있으면 `config('translation.locale')` = `zh_CN`을 사용합니다.
+
+폴백 체인(`trans()`): 요청 로케일 → `zh_CN` → `en` → key 자체 반환(영어가 곧 key이므로 key가 곧 영어 원문). **`en`은 폴백에 참여하지 않습니다** — `en` 요청 시 `en` 사전만 조회하고, 없으면 key(영어 원문)를 그대로 반환하며 중국어로 폴백하지 않습니다.
 
 ```bash
 # 영어 응답
-curl -H "Accept-Language: en" http://localhost:8788/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
+
+# 일본어 응답
+curl -H "Accept-Language: ja" http://localhost:8788/admin/v1/product
 
 # 중국어 응답(기본)
-curl http://localhost:8788/admin/product
+curl http://localhost:8788/admin/v1/product
 ```
 
-응답의 `message` 필드는 해당 언어로 반환됩니다.
+응답의 `message` 필드는 해당 언어로 반환됩니다. 사전 파일은 `resource/translations/<locale>/{common,modules,validation}.php`에 있습니다.
 
 ### 요청 요건
 
@@ -81,7 +97,7 @@ curl http://localhost:8788/admin/product
 
 ## 3. 공개 엔드포인트
 
-모든 공개 엔드포인트는 `/api` 그룹 아래에 있으며, `ApiVersion` 미들웨어가 `API-Version` 헤더에 따라 버전별 컨트롤러(예: `app\api\v1\controller\AuthController`)로 분배합니다.
+모든 공개 엔드포인트는 `/api/v1` 그룹 아래에 있으며(버전 번호는 URL 경로에 포함, 버전 요청 헤더 없음, 버전 미들웨어도 없음), 컨트롤러는 디렉토리에 직결됩니다(예: `app\api\v1\controller\AuthController`).
 
 ### 3.1 헬스 체크
 
@@ -124,11 +140,11 @@ GET /api/docs
 ### 3.3 클릭 캡차 생성
 
 ```
-POST /api/captcha/generate
+POST /api/v1/captcha/generate
 ```
 
 - **인증**: 불필요
-- **요청 헤더**: `API-Version: v1`(필수)
+- **버전**: URL 경로에 /api/v1 포함, 버전 요청 헤더 없음
 - **속도 제한**: 전역 기본(60회/분)
 
 **요청 본문**:
@@ -170,11 +186,11 @@ POST /api/captcha/generate
 ### 3.4 클릭 캡차 검증
 
 ```
-POST /api/captcha/verify
+POST /api/v1/captcha/verify
 ```
 
 - **인증**: 불필요
-- **요청 헤더**: `API-Version: v1`(필수)
+- **버전**: URL 경로에 /api/v1 포함, 버전 요청 헤더 없음
 - **속도 제한**: 전역 기본(60회/분)
 
 **요청 본문**:
@@ -207,11 +223,11 @@ POST /api/captcha/verify
 ### 3.5 로그인
 
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 - **인증**: 불필요
-- **요청 헤더**: `API-Version: v1`(필수)
+- **버전**: URL 경로에 /api/v1 포함, 버전 요청 헤더 없음
 - **속도 제한**: 10회/분(IP + 경로 기준)
 
 **요청 본문**:
@@ -271,11 +287,11 @@ POST /api/auth/login
 ### 3.6 회원가입
 
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 ```
 
 - **인증**: 불필요
-- **요청 헤더**: `API-Version: v1`(필수)
+- **버전**: URL 경로에 /api/v1 포함, 버전 요청 헤더 없음
 - **속도 제한**: 5회/분(IP + 경로 기준)
 - **스위치**: 기본 꺼짐(`REGISTRATION_ENABLED=0`), 꺼져 있으면 403 반환; `.env`에서 명시적으로 켜야 함(`REGISTRATION_ENABLED=1`)
 
@@ -324,11 +340,11 @@ POST /api/auth/register
 ### 3.7 토큰 갱신
 
 ```
-POST /api/auth/refresh
+POST /api/v1/auth/refresh
 ```
 
 - **인증**: 불필요
-- **요청 헤더**: `API-Version: v1`(필수)
+- **버전**: URL 경로에 /api/v1 포함, 버전 요청 헤더 없음
 - **속도 제한**: 전역 기본(60회/분)
 
 **요청 본문**:
@@ -406,12 +422,12 @@ openadmin_memory_usage_bytes 18874368
 
 ## 4. 대시보드
 
-모든 관리단 인터페이스는 `/admin` 그룹 아래에 있으며, `AdminAuth`(JWT 인증), `AdminPermission`(RBAC 권한 검증), `OperationLog`(작업 기록) 세 미들웨어를 거칩니다.
+모든 관리단 인터페이스는 `/admin/v1` 그룹 아래에 있으며, `AdminAuth`(JWT 인증), `AdminPermission`(RBAC 권한 검증), `OperationLog`(작업 기록) 세 미들웨어를 거칩니다.
 
 ### 4.1 대시보드 데이터
 
 ```
-GET /admin/dashboard
+GET /admin/v1/dashboard
 ```
 
 - **인증**: JWT + RBAC
@@ -468,7 +484,7 @@ GET /admin/dashboard
         "id": "hashid...",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "user_name": "admin",
         "created_at": "2026-05-21 10:30:00"
@@ -498,7 +514,7 @@ GET /admin/dashboard
 ### 5.1 사용자 목록
 
 ```
-GET /admin/user
+GET /admin/v1/user
 ```
 
 - **인증**: JWT + RBAC
@@ -551,7 +567,7 @@ GET /admin/user
 ### 5.2 사용자 생성
 
 ```
-POST /admin/user
+POST /admin/v1/user
 ```
 
 - **인증**: JWT + RBAC
@@ -601,7 +617,7 @@ POST /admin/user
 ### 5.3 사용자 상세
 
 ```
-GET /admin/user/{id}
+GET /admin/v1/user/{id}
 ```
 
 - **인증**: JWT + RBAC
@@ -635,7 +651,7 @@ GET /admin/user/{id}
 ### 5.4 사용자 수정
 
 ```
-PUT /admin/user/{id}
+PUT /admin/v1/user/{id}
 ```
 
 - **인증**: JWT + RBAC
@@ -683,7 +699,7 @@ PUT /admin/user/{id}
 ### 5.5 사용자 삭제
 
 ```
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 ```
 
 - **인증**: JWT + RBAC
@@ -720,7 +736,7 @@ DELETE /admin/user/{id}
 ### 5.6 사용자 일괄 삭제
 
 ```
-POST /admin/user/batch/destroy
+POST /admin/v1/user/batch/destroy
 ```
 
 - **인증**: JWT + RBAC
@@ -760,7 +776,7 @@ POST /admin/user/batch/destroy
 ### 5.7 사용자 일괄 활성/비활성화
 
 ```
-POST /admin/user/batch/status
+POST /admin/v1/user/batch/status
 ```
 
 - **인증**: JWT + RBAC
@@ -800,7 +816,7 @@ message는 status 값에 따라 `"批量启用成功"` 또는 `"批量禁用成�
 ### 6.1 역할 목록
 
 ```
-GET /admin/role
+GET /admin/v1/role
 ```
 
 - **인증**: JWT + RBAC
@@ -848,7 +864,7 @@ GET /admin/role
 ### 6.2 역할 생성
 
 ```
-POST /admin/role
+POST /admin/v1/role
 ```
 
 - **인증**: JWT + RBAC
@@ -890,7 +906,7 @@ POST /admin/role
 ### 6.3 역할 수정
 
 ```
-PUT /admin/role/{id}
+PUT /admin/v1/role/{id}
 ```
 
 - **인증**: JWT + RBAC
@@ -930,7 +946,7 @@ PUT /admin/role/{id}
 ### 6.4 역할 삭제
 
 ```
-DELETE /admin/role/{id}
+DELETE /admin/v1/role/{id}
 ```
 
 - **인증**: JWT + RBAC
@@ -961,7 +977,7 @@ DELETE /admin/role/{id}
 ### 7.1 권한 트리
 
 ```
-GET /admin/permission
+GET /admin/v1/permission
 ```
 
 - **인증**: JWT + RBAC
@@ -976,7 +992,7 @@ GET /admin/permission
       "id": "p1p2p3p4",
       "parent_id": "0",
       "name": "用户管理",
-      "slug": "/admin/user",
+      "slug": "/admin/v1/user",
       "type": 1,
       "icon": "people",
       "path": "/user",
@@ -987,7 +1003,7 @@ GET /admin/permission
           "id": "p5p6p7p8",
           "parent_id": "p1p2p3p4",
           "name": "用户列表",
-          "slug": "/admin/user/index",
+          "slug": "/admin/v1/user/index",
           "type": 2,
           "icon": "",
           "path": "/user/index",
@@ -1014,7 +1030,7 @@ GET /admin/permission
 ### 7.2 권한 생성
 
 ```
-POST /admin/permission
+POST /admin/v1/permission
 ```
 
 - **인증**: JWT + RBAC
@@ -1024,7 +1040,7 @@ POST /admin/permission
 {
   "parent_id": 0,
   "name": "系统设置",
-  "slug": "/admin/config",
+  "slug": "/admin/v1/config",
   "type": 1,
   "icon": "settings",
   "path": "/config",
@@ -1051,7 +1067,7 @@ POST /admin/permission
     "id": "p9p0a1b2",
     "parent_id": "0",
     "name": "系统设置",
-    "slug": "/admin/config",
+    "slug": "/admin/v1/config",
     "type": 1,
     "icon": "settings",
     "path": "/config",
@@ -1063,7 +1079,7 @@ POST /admin/permission
 ### 7.3 권한 수정
 
 ```
-PUT /admin/permission/{id}
+PUT /admin/v1/permission/{id}
 ```
 
 - **인증**: JWT + RBAC
@@ -1088,7 +1104,7 @@ PUT /admin/permission/{id}
 ### 7.4 권한 삭제
 
 ```
-DELETE /admin/permission/{id}
+DELETE /admin/v1/permission/{id}
 ```
 
 - **인증**: JWT + RBAC
@@ -1119,7 +1135,7 @@ DELETE /admin/permission/{id}
 ### 8.1 설정 목록
 
 ```
-GET /admin/config
+GET /admin/v1/config
 ```
 
 - **인증**: JWT + RBAC
@@ -1168,7 +1184,7 @@ GET /admin/config
 ### 8.2 설정 생성
 
 ```
-POST /admin/config
+POST /admin/v1/config
 ```
 
 - **인증**: JWT + RBAC
@@ -1214,7 +1230,7 @@ POST /admin/config
 ### 8.3 설정 수정
 
 ```
-PUT /admin/config/{id}
+PUT /admin/v1/config/{id}
 ```
 
 - **인증**: JWT + RBAC
@@ -1237,7 +1253,7 @@ PUT /admin/config/{id}
 ### 8.4 설정 삭제
 
 ```
-DELETE /admin/config/{id}
+DELETE /admin/v1/config/{id}
 ```
 
 - **인증**: JWT + RBAC
@@ -1259,7 +1275,7 @@ DELETE /admin/config/{id}
 ### 9.1 작업 로그 목록
 
 ```
-GET /admin/log
+GET /admin/v1/log
 ```
 
 - **인증**: JWT + RBAC
@@ -1288,7 +1304,7 @@ GET /admin/log
         "user_name": "admin",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "source": "web",
         "input": "{\"username\":\"admin\"}",
@@ -1321,7 +1337,7 @@ GET /admin/log
 ### 10.1 개인 정보 수정
 
 ```
-PUT /admin/profile
+PUT /admin/v1/profile
 ```
 
 - **인증**: JWT
@@ -1363,7 +1379,7 @@ PUT /admin/profile
 ### 10.2 비밀번호 변경
 
 ```
-PUT /admin/profile/password
+PUT /admin/v1/profile/password
 ```
 
 - **인증**: JWT
@@ -1398,7 +1414,7 @@ PUT /admin/profile/password
 ### 10.3 로그아웃
 
 ```
-POST /admin/profile/logout
+POST /admin/v1/profile/logout
 ```
 
 - **인증**: JWT
@@ -1423,7 +1439,7 @@ token이 없으면 401을 반환합니다. token이 만료/무효(디코딩 예�
 ### 11.1 Excel 내보내기
 
 ```
-POST /admin/export/excel
+POST /admin/v1/export/excel
 ```
 
 - **인증**: JWT + RBAC
@@ -1462,7 +1478,7 @@ POST /admin/export/excel
 ### 11.2 PDF 내보내기
 
 ```
-POST /admin/export/pdf
+POST /admin/v1/export/pdf
 ```
 
 - **인증**: JWT + RBAC
@@ -1509,7 +1525,7 @@ PDF 템플릿에는 저작권 정보와 내보내기 타임스탬프가 포함�
 ### 11.3 사용자 가져오기 (Excel)
 
 ```
-POST /admin/import/users
+POST /admin/v1/import/users
 ```
 
 - **인증**: JWT + RBAC
@@ -1561,7 +1577,7 @@ POST /admin/import/users
 ## 12. 파일 업로드
 
 ```
-POST /admin/upload
+POST /admin/v1/upload
 ```
 
 - **인증**: JWT + RBAC
@@ -1610,8 +1626,8 @@ POST /admin/upload
 
 속도 제한 상세:
 - 기본 전역 제한: 60회/분 / IP+경로
-- 로그인 엔드포인트 `/api/auth/login`: 10회/분
-- 가입 엔드포인트 `/api/auth/register`: 5회/분
+- 로그인 엔드포인트 `/api/v1/auth/login`: 10회/분
+- 가입 엔드포인트 `/api/v1/auth/register`: 5회/분
 - Redis 원자화 슬라이딩 윈도우 알고리즘(Lua ZSET) 사용, TOCTOU 경쟁 방지
 - Redis 사용 불가 시 fail open(통과), 요청 차단 안 함
 
@@ -1620,15 +1636,15 @@ POST /admin/upload
 완전한 인증 시퀀스:
 
 ```
-1. 클라이언트가 POST /api/captcha/generate 요청
-   (요청 헤더: API-Version: v1)
+1. 클라이언트가 POST /api/v1/captcha/generate 요청
+   (URL 경로에 /api/v1 포함, 버전 요청 헤더 없음)
     ↓
    서버가 반환: key + base64 이미지 + 클릭 대상 안내
 
 2. 사용자가 이미지의 대상 위치 클릭, 프론트/클라이언트가 클릭 좌표 수집
 
-3. 클라이언트가 POST /api/auth/login 요청
-   (요청 헤더: API-Version: v1, Content-Type: application/json)
+3. 클라이언트가 POST /api/v1/auth/login 요청
+   (URL 경로에 /api/v1 포함, Content-Type: application/json)
    요청 본문: { username, password, captcha_key, clicks: [{x,y}, ...] }
     ↓
    서버:
@@ -1660,7 +1676,7 @@ POST /admin/upload
    Response + X-RateLimit-* 헤더
 
 5. Access Token 만료 전 갱신
-   클라이언트가 POST /api/auth/refresh 요청
+   클라이언트가 POST /api/v1/auth/refresh 요청
    요청 본문: { refresh_token: "..." }
     ↓
    서버가 refresh_token 디코딩 → 새 access + refresh 발급
@@ -1668,7 +1684,7 @@ POST /admin/upload
    클라이언트가 로컬 토큰 업데이트
 
 6. 로그아웃
-   클라이언트가 POST /admin/profile/logout 요청
+   클라이언트가 POST /admin/v1/profile/logout 요청
    요청 헤더: Authorization: Bearer <access_token>
     ↓
    서버:
@@ -1722,7 +1738,7 @@ docker-compose up -d
 
 ## 16. 업무 API 엔드포인트 (ERP)
 
-모든 업무 엔드포인트는 `/admin` 그룹 아래에 있으며, `AdminAuth`(JWT 인증), `AdminPermission`(RBAC 권한 검증), `OperationLog`(작업 기록) 세 미들웨어를 거칩니다.
+모든 업무 엔드포인트는 `/admin/v1` 그룹 아래에 있으며, `AdminAuth`(JWT 인증), `AdminPermission`(RBAC 권한 검증), `OperationLog`(작업 기록) 세 미들웨어를 거칩니다.
 
 > 엔드포인트 총수: 상품(17) | 구매(8) | 판매(6) | 재고(6) | 재무(17) | CRM(13) | 워크플로(6) | 알림(4) | 프로젝트(3) | HR(9) | 제조(7) | 리포트(4) | 대시보드(3) | 클라이언트(2) | 총 105개 엔드포인트
 
@@ -1732,304 +1748,304 @@ docker-compose up -d
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/product | 상품 목록(페이징+검색+분류/상태 필터) |
-| POST | /admin/product | 상품 생성(SKU와 가격 포함) |
-| GET | /admin/product/{id} | 상품 상세(분류/브랜드/SKU/가격/단위 포함) |
-| PUT | /admin/product/{id} | 상품 수정 |
-| DELETE | /admin/product/{id} | 상품 삭제(소프트 삭제, 비밀번호 확인 필요) |
-| GET | /admin/category | 분류 목록(트리형) |
-| POST | /admin/category | 분류 생성 |
-| PUT | /admin/category/{id} | 분류 수정 |
-| DELETE | /admin/category/{id} | 분류 삭제 |
-| GET | /admin/brand | 브랜드 목록 |
-| POST | /admin/brand | 브랜드 생성 |
-| GET | /admin/warehouse | 창고 목록 |
-| POST | /admin/warehouse | 창고 생성 |
-| GET | /admin/location | 로케이션 목록 |
-| GET | /admin/warehouse/{id}/locations | 창고 하위 로케이션 목록 |
-| GET | /admin/supplier | 공급업체 목록(ES 검색) |
-| POST | /admin/supplier | 공급업체 생성 |
-| GET | /admin/customer | 고객 목록(ES 검색) |
-| POST | /admin/customer | 고객 생성 |
+| GET | /admin/v1/product | 상품 목록(페이징+검색+분류/상태 필터) |
+| POST | /admin/v1/product | 상품 생성(SKU와 가격 포함) |
+| GET | /admin/v1/product/{id} | 상품 상세(분류/브랜드/SKU/가격/단위 포함) |
+| PUT | /admin/v1/product/{id} | 상품 수정 |
+| DELETE | /admin/v1/product/{id} | 상품 삭제(소프트 삭제, 비밀번호 확인 필요) |
+| GET | /admin/v1/category | 분류 목록(트리형) |
+| POST | /admin/v1/category | 분류 생성 |
+| PUT | /admin/v1/category/{id} | 분류 수정 |
+| DELETE | /admin/v1/category/{id} | 분류 삭제 |
+| GET | /admin/v1/brand | 브랜드 목록 |
+| POST | /admin/v1/brand | 브랜드 생성 |
+| GET | /admin/v1/warehouse | 창고 목록 |
+| POST | /admin/v1/warehouse | 창고 생성 |
+| GET | /admin/v1/location | 로케이션 목록 |
+| GET | /admin/v1/warehouse/{id}/locations | 창고 하위 로케이션 목록 |
+| GET | /admin/v1/supplier | 공급업체 목록(ES 검색) |
+| POST | /admin/v1/supplier | 공급업체 생성 |
+| GET | /admin/v1/customer | 고객 목록(ES 검색) |
+| POST | /admin/v1/customer | 고객 생성 |
 
 ### 16.2 구매 관리 (Purchase)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/purchase/apply | 구매 신청 목록 |
-| POST | /admin/purchase/apply | 구매 신청 생성 |
-| GET | /admin/purchase/order | 구매 오더 목록 |
-| POST | /admin/purchase/order | 구매 오더 생성 |
-| 🔗 POST | /admin/purchase/receive | 입고 전표 생성(자동 입창+매입채무 생성) |
-| GET | /admin/purchase/receive | 입고 전표 목록 |
-| GET | /admin/purchase/receive/{id} | 입고 전표 상세 |
-| POST | /admin/purchase/return | 반품 전표 생성 |
-| GET | /admin/purchase/settlement | 공급업체 정산 목록 |
+| GET | /admin/v1/purchase/apply | 구매 신청 목록 |
+| POST | /admin/v1/purchase/apply | 구매 신청 생성 |
+| GET | /admin/v1/purchase/order | 구매 오더 목록 |
+| POST | /admin/v1/purchase/order | 구매 오더 생성 |
+| 🔗 POST | /admin/v1/purchase/receive | 입고 전표 생성(자동 입창+매입채무 생성) |
+| GET | /admin/v1/purchase/receive | 입고 전표 목록 |
+| GET | /admin/v1/purchase/receive/{id} | 입고 전표 상세 |
+| POST | /admin/v1/purchase/return | 반품 전표 생성 |
+| GET | /admin/v1/purchase/settlement | 공급업체 정산 목록 |
 
 ### 16.3 판매 관리 (Sales)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/sales/quotation | 견적서 목록 |
-| POST | /admin/sales/quotation | 견적서 생성 |
-| GET | /admin/sales/order | 판매 오더 목록 |
-| POST | /admin/sales/order | 판매 오더 생성 |
-| 🔗 POST | /admin/sales/delivery | 출하 전표 생성(자동 출창+매출채권 생성) |
-| GET | /admin/sales/delivery | 출하 전표 목록 |
-| GET | /admin/sales/settlement | 고객 정산 목록 |
+| GET | /admin/v1/sales/quotation | 견적서 목록 |
+| POST | /admin/v1/sales/quotation | 견적서 생성 |
+| GET | /admin/v1/sales/order | 판매 오더 목록 |
+| POST | /admin/v1/sales/order | 판매 오더 생성 |
+| 🔗 POST | /admin/v1/sales/delivery | 출하 전표 생성(자동 출창+매출채권 생성) |
+| GET | /admin/v1/sales/delivery | 출하 전표 목록 |
+| GET | /admin/v1/sales/settlement | 고객 정산 목록 |
 
 ### 16.4 재고 관리 (Inventory)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/inventory | 실시간 재고(창고/로케이션/로트/SKU 차원) |
-| GET | /admin/inventory/flow | 입출고 이력 |
-| GET | /admin/inventory/transfer | 이동 전표 목록 |
-| POST | /admin/inventory/transfer | 이동 전표 생성 |
-| GET | /admin/inventory/check | 실사 작업 목록 |
-| POST | /admin/inventory/check | 실사 작업 생성 |
-| GET | /admin/inventory/alert | 재고 경고 규칙 |
+| GET | /admin/v1/inventory | 실시간 재고(창고/로케이션/로트/SKU 차원) |
+| GET | /admin/v1/inventory/flow | 입출고 이력 |
+| GET | /admin/v1/inventory/transfer | 이동 전표 목록 |
+| POST | /admin/v1/inventory/transfer | 이동 전표 생성 |
+| GET | /admin/v1/inventory/check | 실사 작업 목록 |
+| POST | /admin/v1/inventory/check | 실사 작업 생성 |
+| GET | /admin/v1/inventory/alert | 재고 경고 규칙 |
 
 ### 16.5 재무 관리 (Finance)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| POST | /admin/finance/voucher | 회계 전표 생성 |
-| GET | /admin/finance/ar-ap | 매출채권·매입채무 목록 |
-| POST | /admin/finance/receipt | 수금 전표 생성 |
-| POST | /admin/finance/payment | 지급 전표 생성 |
-| GET | /admin/finance/cash-journal | 현금·은행 일계부 |
-| GET | /admin/finance/expense | 비용 정산 목록 |
-| POST | /admin/finance/expense | 정산 신청 제출 |
-| GET | /admin/finance/report/profit | 손익계산서 |
-| GET | /admin/finance/general-ledger | 총계정원장(계정+기간별 집계) |
-| GET | /admin/finance/subsidiary-ledger | 명세장(계정별 건별 상세) |
-| GET | /admin/finance/report/balance-sheet | 대차대조표(자동 생성 포함) |
-| GET | /admin/finance/report/cash-flow | 현금흐름표(영업/투자/재무) |
-| GET | /admin/finance/bank-account | 은행 계좌 목록 |
-| GET/POST/PUT/DELETE | /admin/finance/asset | 고정자산 CRUD + 감가상각 계상 |
-| GET/POST | /admin/finance/tax-rate | 세율 설정 |
-| GET | /admin/finance/tax-record | 세무 기록 |
-| GET/POST/PUT/DELETE | /admin/finance/currency | 통화 관리 |
-| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | 환율 관리 |
-| GET/POST/PUT/DELETE | /admin/finance/budget | 예산 관리(예산 vs 실적 비교 포함) |
-| GET/POST/PUT/DELETE | /admin/finance/cost-center | 원가센터(트리 구조) |
-| GET/POST/PUT/DELETE | /admin/finance/profit-center | 이익센터(트리 구조) |
+| POST | /admin/v1/finance/voucher | 회계 전표 생성 |
+| GET | /admin/v1/finance/ar-ap | 매출채권·매입채무 목록 |
+| POST | /admin/v1/finance/receipt | 수금 전표 생성 |
+| POST | /admin/v1/finance/payment | 지급 전표 생성 |
+| GET | /admin/v1/finance/cash-journal | 현금·은행 일계부 |
+| GET | /admin/v1/finance/expense | 비용 정산 목록 |
+| POST | /admin/v1/finance/expense | 정산 신청 제출 |
+| GET | /admin/v1/finance/report/profit | 손익계산서 |
+| GET | /admin/v1/finance/general-ledger | 총계정원장(계정+기간별 집계) |
+| GET | /admin/v1/finance/subsidiary-ledger | 명세장(계정별 건별 상세) |
+| GET | /admin/v1/finance/report/balance-sheet | 대차대조표(자동 생성 포함) |
+| GET | /admin/v1/finance/report/cash-flow | 현금흐름표(영업/투자/재무) |
+| GET | /admin/v1/finance/bank-account | 은행 계좌 목록 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/asset | 고정자산 CRUD + 감가상각 계상 |
+| GET/POST | /admin/v1/finance/tax-rate | 세율 설정 |
+| GET | /admin/v1/finance/tax-record | 세무 기록 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/currency | 통화 관리 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/exchange-rate | 환율 관리 |
+| GET/POST/PUT/DELETE | /admin/v1/finance/budget | 예산 관리(예산 vs 실적 비교 포함) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/cost-center | 원가센터(트리 구조) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/profit-center | 이익센터(트리 구조) |
 
 ### 16.6 CRM
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/crm/opportunity | 영업 기회 목록 |
-| POST | /admin/crm/opportunity | 영업 기회 생성 |
-| GET | /admin/crm/follow | 팔로우 기록 목록 |
-| POST | /admin/crm/follow | 팔로우 기록 생성 |
-| GET | /admin/crm/funnel | 퍼널 단계 설정 |
-| GET | /admin/crm/contact | 담당자 목록 |
-| POST | /admin/crm/contact | 담당자 생성 |
-| GET | /admin/crm/pool | 공해 풀 고객 목록 |
-| POST | /admin/crm/pool/claim/{id} | 공해 고객 가져가기 |
-| POST | /admin/crm/pool/release/{id} | 고객을 공해 풀로 해제 |
-| GET/POST | /admin/crm/pool/rules | 공해 풀 규칙 CRUD |
-| GET | /admin/crm/contract | 계약 목록 |
-| POST | /admin/crm/contract | 계약 생성 |
-| GET | /admin/crm/contract/{id} | 계약 상세 |
-| PUT | /admin/crm/contract/{id} | 계약 수정 |
-| DELETE | /admin/crm/contract/{id} | 계약 삭제 |
-| GET | /admin/crm/quotation | CRM 견적 목록 |
-| POST | /admin/crm/quotation | CRM 견적 생성 |
-| POST | /admin/crm/quotation/{id}/to-contract | 🔗 견적→계약 전환 |
-| GET/POST/PUT/DELETE | /admin/crm/campaign | 마케팅 캠페인 |
-| GET/POST/PUT/DELETE | /admin/crm/ticket | 서비스 티켓 |
-| POST | /admin/crm/ticket/{id}/assign | 티켓 배정 |
-| POST | /admin/crm/ticket/{id}/resolve | 티켓 해결 |
-| GET/POST | /admin/crm/analytics/report | 고객 분석 리포트 |
-| GET/POST | /admin/crm/analytics/metric | 분석 지표 |
+| GET | /admin/v1/crm/opportunity | 영업 기회 목록 |
+| POST | /admin/v1/crm/opportunity | 영업 기회 생성 |
+| GET | /admin/v1/crm/follow | 팔로우 기록 목록 |
+| POST | /admin/v1/crm/follow | 팔로우 기록 생성 |
+| GET | /admin/v1/crm/funnel | 퍼널 단계 설정 |
+| GET | /admin/v1/crm/contact | 담당자 목록 |
+| POST | /admin/v1/crm/contact | 담당자 생성 |
+| GET | /admin/v1/crm/pool | 공해 풀 고객 목록 |
+| POST | /admin/v1/crm/pool/claim/{id} | 공해 고객 가져가기 |
+| POST | /admin/v1/crm/pool/release/{id} | 고객을 공해 풀로 해제 |
+| GET/POST | /admin/v1/crm/pool/rules | 공해 풀 규칙 CRUD |
+| GET | /admin/v1/crm/contract | 계약 목록 |
+| POST | /admin/v1/crm/contract | 계약 생성 |
+| GET | /admin/v1/crm/contract/{id} | 계약 상세 |
+| PUT | /admin/v1/crm/contract/{id} | 계약 수정 |
+| DELETE | /admin/v1/crm/contract/{id} | 계약 삭제 |
+| GET | /admin/v1/crm/quotation | CRM 견적 목록 |
+| POST | /admin/v1/crm/quotation | CRM 견적 생성 |
+| POST | /admin/v1/crm/quotation/{id}/to-contract | 🔗 견적→계약 전환 |
+| GET/POST/PUT/DELETE | /admin/v1/crm/campaign | 마케팅 캠페인 |
+| GET/POST/PUT/DELETE | /admin/v1/crm/ticket | 서비스 티켓 |
+| POST | /admin/v1/crm/ticket/{id}/assign | 티켓 배정 |
+| POST | /admin/v1/crm/ticket/{id}/resolve | 티켓 해결 |
+| GET/POST | /admin/v1/crm/analytics/report | 고객 분석 리포트 |
+| GET/POST | /admin/v1/crm/analytics/metric | 분석 지표 |
 
 ### 16.7 승인 워크플로 (Workflow)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/workflow | 워크플로 정의 목록 |
-| POST | /admin/workflow | 워크플로 정의 생성 |
-| GET | /admin/workflow/{id} | 워크플로 상세 |
-| PUT | /admin/workflow/{id} | 워크플로 수정 |
-| DELETE | /admin/workflow/{id} | 워크플로 삭제 |
-| POST | /admin/workflow/{id}/submit | 🔗 승인 제출(승인 인스턴스 생성) |
-| POST | /admin/approval/{id}/approve | 승인 |
-| POST | /admin/approval/{id}/reject | 거부 |
-| POST | /admin/approval/{id}/withdraw | 철회 |
-| ANY | /admin/approval/my | 내 승인 목록(대기/완료) |
+| GET | /admin/v1/workflow | 워크플로 정의 목록 |
+| POST | /admin/v1/workflow | 워크플로 정의 생성 |
+| GET | /admin/v1/workflow/{id} | 워크플로 상세 |
+| PUT | /admin/v1/workflow/{id} | 워크플로 수정 |
+| DELETE | /admin/v1/workflow/{id} | 워크플로 삭제 |
+| POST | /admin/v1/workflow/{id}/submit | 🔗 승인 제출(승인 인스턴스 생성) |
+| POST | /admin/v1/approval/{id}/approve | 승인 |
+| POST | /admin/v1/approval/{id}/reject | 거부 |
+| POST | /admin/v1/approval/{id}/withdraw | 철회 |
+| ANY | /admin/v1/approval/my | 내 승인 목록(대기/완료) |
 
 ### 16.8 메시지 알림 (Notification)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| ANY | /admin/notification/my | 내 알림 목록(페이징, 시간 역순) |
-| POST | /admin/notification/{id}/read | 단일 읽음 표시 |
-| POST | /admin/notification/read-all | 전체 읽음 표시 |
-| ANY | /admin/notification/unread-count | 안읽음 메시지 수 |
+| ANY | /admin/v1/notification/my | 내 알림 목록(페이징, 시간 역순) |
+| POST | /admin/v1/notification/{id}/read | 단일 읽음 표시 |
+| POST | /admin/v1/notification/read-all | 전체 읽음 표시 |
+| ANY | /admin/v1/notification/unread-count | 안읽음 메시지 수 |
 
 ### 16.9 프로젝트 관리 (Project)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/project | 프로젝트 목록 |
-| POST | /admin/project | 프로젝트 생성 |
-| GET | /admin/project/{id} | 프로젝트 상세 |
-| PUT | /admin/project/{id} | 프로젝트 수정 |
-| DELETE | /admin/project/{id} | 프로젝트 삭제 |
-| GET | /admin/project/task | 작업 목록 |
-| POST | /admin/project/task | 작업 생성 |
-| PUT | /admin/project/task/{id} | 작업 수정 |
-| DELETE | /admin/project/task/{id} | 작업 삭제 |
-| GET | /admin/project/timesheet | 공수 기록 목록 |
-| POST | /admin/project/timesheet | 공수 입력 |
-| PUT | /admin/project/timesheet/{id} | 공수 수정 |
-| DELETE | /admin/project/timesheet/{id} | 공수 삭제 |
+| GET | /admin/v1/project | 프로젝트 목록 |
+| POST | /admin/v1/project | 프로젝트 생성 |
+| GET | /admin/v1/project/{id} | 프로젝트 상세 |
+| PUT | /admin/v1/project/{id} | 프로젝트 수정 |
+| DELETE | /admin/v1/project/{id} | 프로젝트 삭제 |
+| GET | /admin/v1/project/task | 작업 목록 |
+| POST | /admin/v1/project/task | 작업 생성 |
+| PUT | /admin/v1/project/task/{id} | 작업 수정 |
+| DELETE | /admin/v1/project/task/{id} | 작업 삭제 |
+| GET | /admin/v1/project/timesheet | 공수 기록 목록 |
+| POST | /admin/v1/project/timesheet | 공수 입력 |
+| PUT | /admin/v1/project/timesheet/{id} | 공수 수정 |
+| DELETE | /admin/v1/project/timesheet/{id} | 공수 삭제 |
 
 ### 16.10 인사 관리 (HR)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/hr/department | 부서 목록(트리형) |
-| POST | /admin/hr/department | 부서 생성 |
-| PUT | /admin/hr/department/{id} | 부서 수정 |
-| DELETE | /admin/hr/department/{id} | 부서 삭제 |
-| GET | /admin/hr/employee | 사원 목록 |
-| POST | /admin/hr/employee | 사원 생성 |
-| PUT | /admin/hr/employee/{id} | 사원 수정 |
-| DELETE | /admin/hr/employee/{id} | 사원 삭제 |
-| GET | /admin/hr/position | 직위 목록 |
-| POST | /admin/hr/position | 직위 생성 |
-| PUT | /admin/hr/position/{id} | 직위 수정 |
-| DELETE | /admin/hr/position/{id} | 직위 삭제 |
-| ANY | /admin/hr/attendance | 근태 기록 조회 |
-| POST | /admin/hr/attendance/clock-in | 출근 체크 |
-| POST | /admin/hr/attendance/clock-out | 퇴근 체크 |
-| ANY | /admin/hr/leave | 휴가 목록 |
-| POST | /admin/hr/leave | 휴가 신청 제출 |
-| GET | /admin/hr/leave/{id} | 휴가 상세 |
-| PUT | /admin/hr/leave/{id} | 휴가 수정 |
-| DELETE | /admin/hr/leave/{id} | 휴가 삭제 |
-| POST | /admin/hr/leave/{id}/approve | 🔗 휴가 승인 |
-| GET | /admin/hr/salary | 급여 목록 |
-| POST | /admin/hr/salary | 급여 전표 생성 |
-| PUT | /admin/hr/salary/{id} | 급여 수정 |
-| DELETE | /admin/hr/salary/{id} | 급여 삭제 |
-| POST | /admin/hr/salary/{id}/pay | 급여 지급 |
-| ANY | /admin/hr/salary-item | 급여 항목 목록 |
-| POST | /admin/hr/salary-item | 급여 항목 생성 |
-| GET | /admin/hr/salary-item/{id} | 급여 항목 상세 |
-| PUT | /admin/hr/salary-item/{id} | 급여 항목 수정 |
-| DELETE | /admin/hr/salary-item/{id} | 급여 항목 삭제 |
+| GET | /admin/v1/hr/department | 부서 목록(트리형) |
+| POST | /admin/v1/hr/department | 부서 생성 |
+| PUT | /admin/v1/hr/department/{id} | 부서 수정 |
+| DELETE | /admin/v1/hr/department/{id} | 부서 삭제 |
+| GET | /admin/v1/hr/employee | 사원 목록 |
+| POST | /admin/v1/hr/employee | 사원 생성 |
+| PUT | /admin/v1/hr/employee/{id} | 사원 수정 |
+| DELETE | /admin/v1/hr/employee/{id} | 사원 삭제 |
+| GET | /admin/v1/hr/position | 직위 목록 |
+| POST | /admin/v1/hr/position | 직위 생성 |
+| PUT | /admin/v1/hr/position/{id} | 직위 수정 |
+| DELETE | /admin/v1/hr/position/{id} | 직위 삭제 |
+| ANY | /admin/v1/hr/attendance | 근태 기록 조회 |
+| POST | /admin/v1/hr/attendance/clock-in | 출근 체크 |
+| POST | /admin/v1/hr/attendance/clock-out | 퇴근 체크 |
+| ANY | /admin/v1/hr/leave | 휴가 목록 |
+| POST | /admin/v1/hr/leave | 휴가 신청 제출 |
+| GET | /admin/v1/hr/leave/{id} | 휴가 상세 |
+| PUT | /admin/v1/hr/leave/{id} | 휴가 수정 |
+| DELETE | /admin/v1/hr/leave/{id} | 휴가 삭제 |
+| POST | /admin/v1/hr/leave/{id}/approve | 🔗 휴가 승인 |
+| GET | /admin/v1/hr/salary | 급여 목록 |
+| POST | /admin/v1/hr/salary | 급여 전표 생성 |
+| PUT | /admin/v1/hr/salary/{id} | 급여 수정 |
+| DELETE | /admin/v1/hr/salary/{id} | 급여 삭제 |
+| POST | /admin/v1/hr/salary/{id}/pay | 급여 지급 |
+| ANY | /admin/v1/hr/salary-item | 급여 항목 목록 |
+| POST | /admin/v1/hr/salary-item | 급여 항목 생성 |
+| GET | /admin/v1/hr/salary-item/{id} | 급여 항목 상세 |
+| PUT | /admin/v1/hr/salary-item/{id} | 급여 항목 수정 |
+| DELETE | /admin/v1/hr/salary-item/{id} | 급여 항목 삭제 |
 
 ### 16.11 생산 제조 (Manufacturing)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/mfg/bom | BOM 목록 |
-| POST | /admin/mfg/bom | BOM 생성 |
-| PUT | /admin/mfg/bom/{id} | BOM 수정 |
-| DELETE | /admin/mfg/bom/{id} | BOM 삭제 |
-| GET | /admin/mfg/production | 생산 오더 목록 |
-| POST | /admin/mfg/production | 생산 오더 생성 |
-| PUT | /admin/mfg/production/{id} | 생산 오더 수정 |
-| DELETE | /admin/mfg/production/{id} | 생산 오더 삭제 |
-| POST | /admin/mfg/production/{id}/start | 착공 |
-| POST | /admin/mfg/production/{id}/complete | 완공 |
-| GET | /admin/mfg/routing | 공정 라우팅 목록 |
-| POST | /admin/mfg/routing | 공정 라우팅 생성 |
-| PUT | /admin/mfg/routing/{id} | 공정 라우팅 수정 |
-| DELETE | /admin/mfg/routing/{id} | 공정 라우팅 삭제 |
-| GET | /admin/mfg/workstation | 작업장 목록 |
-| POST | /admin/mfg/workstation | 작업장 생성 |
-| PUT | /admin/mfg/workstation/{id} | 작업장 수정 |
-| DELETE | /admin/mfg/workstation/{id} | 작업장 삭제 |
-| GET | /admin/mfg/mrp | MRP 계획 목록 |
-| POST | /admin/mfg/mrp | MRP 계획 생성 |
-| PUT | /admin/mfg/mrp/{id} | MRP 계획 수정 |
-| DELETE | /admin/mfg/mrp/{id} | MRP 계획 삭제 |
-| POST | /admin/mfg/mrp/{id}/generate | 🔗 MRP 실행으로 구매/생산 제안 생성 |
+| GET | /admin/v1/mfg/bom | BOM 목록 |
+| POST | /admin/v1/mfg/bom | BOM 생성 |
+| PUT | /admin/v1/mfg/bom/{id} | BOM 수정 |
+| DELETE | /admin/v1/mfg/bom/{id} | BOM 삭제 |
+| GET | /admin/v1/mfg/production | 생산 오더 목록 |
+| POST | /admin/v1/mfg/production | 생산 오더 생성 |
+| PUT | /admin/v1/mfg/production/{id} | 생산 오더 수정 |
+| DELETE | /admin/v1/mfg/production/{id} | 생산 오더 삭제 |
+| POST | /admin/v1/mfg/production/{id}/start | 착공 |
+| POST | /admin/v1/mfg/production/{id}/complete | 완공 |
+| GET | /admin/v1/mfg/routing | 공정 라우팅 목록 |
+| POST | /admin/v1/mfg/routing | 공정 라우팅 생성 |
+| PUT | /admin/v1/mfg/routing/{id} | 공정 라우팅 수정 |
+| DELETE | /admin/v1/mfg/routing/{id} | 공정 라우팅 삭제 |
+| GET | /admin/v1/mfg/workstation | 작업장 목록 |
+| POST | /admin/v1/mfg/workstation | 작업장 생성 |
+| PUT | /admin/v1/mfg/workstation/{id} | 작업장 수정 |
+| DELETE | /admin/v1/mfg/workstation/{id} | 작업장 삭제 |
+| GET | /admin/v1/mfg/mrp | MRP 계획 목록 |
+| POST | /admin/v1/mfg/mrp | MRP 계획 생성 |
+| PUT | /admin/v1/mfg/mrp/{id} | MRP 계획 수정 |
+| DELETE | /admin/v1/mfg/mrp/{id} | MRP 계획 삭제 |
+| POST | /admin/v1/mfg/mrp/{id}/generate | 🔗 MRP 실행으로 구매/생산 제안 생성 |
 
 ### 16.12 커스텀 리포트 (Report Builder)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/report | 리포트 템플릿 목록 |
-| POST | /admin/report | 리포트 템플릿 생성 |
-| GET | /admin/report/{id} | 리포트 템플릿 상세 |
-| PUT | /admin/report/{id} | 리포트 템플릿 수정 |
-| DELETE | /admin/report/{id} | 리포트 템플릿 삭제 |
-| POST | /admin/report/{id}/execute | 리포트 실행으로 데이터 생성 |
-| ANY | /admin/report/{id}/result | 리포트 실행 결과 |
-| GET | /admin/report/schedule | 정기 스케줄 목록 |
-| POST | /admin/report/schedule | 정기 스케줄 생성 |
-| PUT | /admin/report/schedule/{id} | 정기 스케줄 수정 |
-| DELETE | /admin/report/schedule/{id} | 정기 스케줄 삭제 |
+| GET | /admin/v1/report | 리포트 템플릿 목록 |
+| POST | /admin/v1/report | 리포트 템플릿 생성 |
+| GET | /admin/v1/report/{id} | 리포트 템플릿 상세 |
+| PUT | /admin/v1/report/{id} | 리포트 템플릿 수정 |
+| DELETE | /admin/v1/report/{id} | 리포트 템플릿 삭제 |
+| POST | /admin/v1/report/{id}/execute | 리포트 실행으로 데이터 생성 |
+| ANY | /admin/v1/report/{id}/result | 리포트 실행 결과 |
+| GET | /admin/v1/report/schedule | 정기 스케줄 목록 |
+| POST | /admin/v1/report/schedule | 정기 스케줄 생성 |
+| PUT | /admin/v1/report/schedule/{id} | 정기 스케줄 수정 |
+| DELETE | /admin/v1/report/schedule/{id} | 정기 스케줄 삭제 |
 
 ### 16.13 대시보드 (Dashboard)
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/dashboard/sales | 판매 패널 |
-| GET | /admin/dashboard/inventory | 재고 패널 |
-| GET | /admin/dashboard/finance | 재무 패널 |
+| GET | /admin/v1/dashboard/sales | 판매 패널 |
+| GET | /admin/v1/dashboard/inventory | 재고 패널 |
+| GET | /admin/v1/dashboard/finance | 재무 패널 |
 
 ### 16.14 클라이언트 API (Client API)
 
-클라이언트 인터페이스는 `/api` 그룹 아래에 있으며 `API-Version` 요청 헤더가 필요합니다. 상품 정보에는 매입가가 포함되지 않습니다.
+클라이언트 인터페이스는 `/api/v1` 그룹 아래에 있습니다(버전 번호는 URL 경로에 포함, 버전 요청 헤더 없음). 상품 정보에는 매입가가 포함되지 않습니다.
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /api/product | 상품 목록(매입가 제외) |
-| GET | /api/product/{hashid} | 상품 상세(소매/도매가 포함, 매입가 제외) |
+| GET | /api/v1/product | 상품 목록(매입가 제외) |
+| GET | /api/v1/product/{hashid} | 상품 상세(소매/도매가 포함, 매입가 제외) |
 
 ### 16.15 OMS 주문 관리
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/oms/order | OMS 주문 목록 |
-| POST | /admin/oms/order | OMS 주문 생성 |
-| 🔗 POST | /admin/oms/order/{id}/allocate | 재고 할당(예약) |
-| 🔗 POST | /admin/oms/order/{id}/fulfill | 이행 생성 |
-| POST | /admin/oms/order/{id}/cancel | 주문 취소(예약 해제) |
-| POST | /admin/oms/rma/{id}/approve | RMA 승인 |
-| POST | /admin/oms/rma/{id}/refund | RMA 환불 |
+| GET | /admin/v1/oms/order | OMS 주문 목록 |
+| POST | /admin/v1/oms/order | OMS 주문 생성 |
+| 🔗 POST | /admin/v1/oms/order/{id}/allocate | 재고 할당(예약) |
+| 🔗 POST | /admin/v1/oms/order/{id}/fulfill | 이행 생성 |
+| POST | /admin/v1/oms/order/{id}/cancel | 주문 취소(예약 해제) |
+| POST | /admin/v1/oms/rma/{id}/approve | RMA 승인 |
+| POST | /admin/v1/oms/rma/{id}/refund | RMA 환불 |
 
 ### 16.16 WMS 창고 관리
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/wms/zone | 구역 목록(CRUD) |
-| GET | /admin/wms/location | WMS 로케이션 목록(CRUD) |
-| GET | /admin/wms/asn | ASN 목록(CRUD) |
-| POST | /admin/wms/receiving/{id}/complete | 입고 완료→상재 작업 자동 생성 |
-| POST | /admin/wms/putaway/{id}/complete | 상재 확정→stockIn 트리거 |
-| POST | /admin/wms/wave/{id}/release | 웨이브 해제→피킹 작업 생성 |
-| POST | /admin/wms/pick/{id}/start | 피킹 시작 |
-| POST | /admin/wms/pick/{id}/confirm | 피킹 확정 |
-| POST | /admin/wms/pack/{id}/complete | 패킹 완료 |
+| GET | /admin/v1/wms/zone | 구역 목록(CRUD) |
+| GET | /admin/v1/wms/location | WMS 로케이션 목록(CRUD) |
+| GET | /admin/v1/wms/asn | ASN 목록(CRUD) |
+| POST | /admin/v1/wms/receiving/{id}/complete | 입고 완료→상재 작업 자동 생성 |
+| POST | /admin/v1/wms/putaway/{id}/complete | 상재 확정→stockIn 트리거 |
+| POST | /admin/v1/wms/wave/{id}/release | 웨이브 해제→피킹 작업 생성 |
+| POST | /admin/v1/wms/pick/{id}/start | 피킹 시작 |
+| POST | /admin/v1/wms/pick/{id}/confirm | 피킹 확정 |
+| POST | /admin/v1/wms/pack/{id}/complete | 패킹 완료 |
 
 ### 16.17 TMS 운송 관리
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/tms/carrier | 운송사 목록(CRUD) |
-| GET | /admin/tms/service | 운송사 서비스(CRUD) |
-| GET | /admin/tms/freight-rate | 운임 요율(CRUD) |
-| GET | /admin/tms/shipment | 운송장 목록(CRUD) |
-| 🔗 POST | /admin/tms/shipment/{id}/ship | 출고 확정(stockOut+AR) |
-| POST | /admin/tms/tracking/callback | 운송사 트래킹 webhook |
-| POST | /admin/tms/freight-invoice/{id}/pay | 운임 인보이스 결제(AP 생성) |
+| GET | /admin/v1/tms/carrier | 운송사 목록(CRUD) |
+| GET | /admin/v1/tms/service | 운송사 서비스(CRUD) |
+| GET | /admin/v1/tms/freight-rate | 운임 요율(CRUD) |
+| GET | /admin/v1/tms/shipment | 운송장 목록(CRUD) |
+| 🔗 POST | /admin/v1/tms/shipment/{id}/ship | 출고 확정(stockOut+AR) |
+| POST | /api/tms/tracking/callback | 운송사 트래킹 webhook |
+| POST | /admin/v1/tms/freight-invoice/{id}/pay | 운임 인보이스 결제(AP 생성) |
 
 ### 16.18 대시보드 확장
 
 | 메서드 | 경로 | 설명 |
 |------|------|------|
-| GET | /admin/dashboard/oms | OMS KPI(대기 처리/피킹 중/오늘 출고/RMA) |
-| GET | /admin/dashboard/wms | WMS KPI(대기 입고/대기 상재/대기 피킹/대기 패킹) |
-| GET | /admin/dashboard/tms | TMS KPI(대기 출고/운송 중/수령/이상) |
+| GET | /admin/v1/dashboard/oms | OMS KPI(대기 처리/피킹 중/오늘 출고/RMA) |
+| GET | /admin/v1/dashboard/wms | WMS KPI(대기 입고/대기 상재/대기 피킹/대기 패킹) |
+| GET | /admin/v1/dashboard/tms | TMS KPI(대기 출고/운송 중/수령/이상) |
 
 ### 16.19 크로스 모듈 연동 설명
 
@@ -2037,5 +2053,5 @@ docker-compose up -d
 
 | 엔드포인트 | 연동 동작 |
 |------|---------|
-| 🔗 POST /admin/purchase/receive | InventoryService.stockIn() 자동 호출로 재고 갱신+이동가중평균 원가 재계산; FinanceService.createAp() 호출로 매입채무 기록 생성 |
-| 🔗 POST /admin/sales/delivery | InventoryService.stockOut() 자동 호출로 재고 차감(이동가중평균 원가 기준); FinanceService.createAr() 호출로 매출채권 기록 생성 |
+| 🔗 POST /admin/v1/purchase/receive | InventoryService.stockIn() 자동 호출로 재고 갱신+이동가중평균 원가 재계산; FinanceService.createAp() 호출로 매입채무 기록 생성 |
+| 🔗 POST /admin/v1/sales/delivery | InventoryService.stockOut() 자동 호출로 재고 차감(이동가중평균 원가 기준); FinanceService.createAr() 호출로 매출채권 기록 생성 |

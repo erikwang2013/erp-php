@@ -18,17 +18,17 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 > 架构文档: `docs/ARCHITECTURE.md` §21
 > 功能矩阵: `docs/FUNCTIONS.md` §19
 
-**当前综合评分 89/100** — 全量路线图 P0~P3 已完成，22 模块全栈覆盖，生产可用。
+**当前综合评分 89/100** — 全量路线图 P0~P3 已完成，23 模块全栈覆盖，生产可用。
 
 | 阶段 | 工期 | 交付物 | 状态 |
 |------|------|--------|------|
-| 🔵 **P0** 前端生态 | 3-4 周 | 97 Flutter 页 + 34 HarmonyOS 页 + 4 通用组件 | ✅ |
+| 🔵 **P0** 前端生态 | 3-4 周 | 102 Flutter 菜单路由 + 41 HarmonyOS 页 + 4 通用组件 | ✅ |
 | 🟢 **P1** 业务深度 | 4-6 周 | 财务引擎 + 薪资引擎 + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + DMS | ✅ |
 （多租户 B5 已提前于 P2 交付：TenantScope 请求上下文 + erp_tenant，隔离中间件 seam 未注册）
 
-**测试**: <!-- stats:tests=986 --> tests, <!-- stats:assertions=4654 --> assertions（51 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: 1008<!-- stats:tests=1008 --> tests, 4768<!-- stats:assertions=4768 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 
@@ -41,7 +41,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 系统配置 | 键值对 CRUD |
 | 操作审计 | 日志查询 + 8 平台来源端自动检测 |
 | 文件 | 上传 + Excel/PDF 导出（敏感数据脱敏）|
-| 安全 | 18 层纵深防御（XSS/SQL注入/CSRF/限流/CSP...）|
+| 安全 | 7 层纵深防御（XSS/SQL注入/CSRF/限流/CSP...）|
 | 运维 | 健康检查/Prometheus 指标/API 文档/security.txt + Docker + CI/CD |
 | 商品管理 | 商品/SKU/分类/品牌/仓库/库位/供应商/客户 |
 | 采购管理 | 申请→订单→收货→退货→结算（自动入库+生成应付）|
@@ -88,11 +88,11 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 ### 国际化（13 语种）
 - 语种清单：`zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
-- 后端词典：`resource/translations/<locale>/{common,modules,validation}.php`，13 个语种目录；11 个语种各 542 条，`zh_CN` 533、`en` 30（叶子条目口径，容器键不计）
+- 后端词典：`resource/translations/<locale>/{common,modules,validation}.php`，13 个语种目录；`zh_CN` 565 条、其余 11 个语种各 544 条、`en` 30 条（口径：三文件的叶子条目，`validation.php` 的 `attributes` 字段标签计入、其组键不计）
   - 「英文即 key」：`en` 的 common/modules 留空；`validation.php` 的键是框架规则名，只译值
   - 生成器：`scripts/gen-be-locales.mjs`
-- 前端词典（Angular）：源 `apps/angular/src/app/core/zh-en/part1..4.ts`（1453 条）→ 产物 `apps/angular/src/app/core/zh-<code>.ts`
-- 前端词典（React）：源 `apps/react/src/lib/i18n/zhEn.ts`（1447 条）→ 产物 `apps/react/src/lib/i18n/zh<Code>.ts`
+- 前端词典（Angular）：源 `apps/angular/src/app/core/zh-en/part1..4.ts`（1456 条）→ 产物 `apps/angular/src/app/core/zh-<code>.ts`
+- 前端词典（React）：源 `apps/react/src/lib/i18n/zhEn.ts`（1451 条）→ 产物 `apps/react/src/lib/i18n/zh<Code>.ts`
   - 11 个新语种词典各自动态 `import()` 成独立 chunk，缺词条回退中文原文
   - 生成器：`scripts/gen-fe-locales.mjs --app angular|react`
 - 运行期：切换语言即切换请求头 `Accept-Language`，后端按语种返回文案（`app/common/I18n.php` + `config/translation.php`）
@@ -117,7 +117,7 @@ open-erp/
 │   │   ├── HealthController.php    # 健康检查
 │   │   ├── DocsController.php      # OpenAPI 文档
 │   │   └── MetricsController.php   # Prometheus 监控指标
-│   ├── api/v1/controller/      # 客户端 API（版本头控制）
+│   ├── api/v1/controller/      # 客户端 API（版本置于路径 /api/v1，无版本请求头）
 │   │   ├── CaptchaController.php   # 点击验证码
 │   │   ├── AuthController.php      # 登录/注册/刷新
 │   │   └── ProductController.php   # 商品查询（不含进价）
@@ -145,7 +145,7 @@ open-erp/
 │   │   ├── print/               # 打印模板 (1个)
 │   │   ├── retail/              # 优惠券/会员 (2个)
 │   │   └── bi/                  # BI看板/图表组件 (3个)
-│   ├── service/                 # 业务逻辑层（63 个服务类）
+│   ├── service/                 # 业务逻辑层（64 个文件 / 63 个服务类）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
 │   │   ├── notification/        # NotificationService: 通知发送
@@ -164,13 +164,14 @@ open-erp/
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   ├── OperationLog.php     # 操作日志自动记录
+│   │   ├── OpenApiAuth.php      # 开放接口认证（X-API-Key + 签名，仅 /open/v1 分组挂载）
 │   │   ├── TenantScope.php      # 多租户隔离（预留未注册，见 ARCHITECTURE.md §22）
 │   │   ├── TracingId.php        # 全链路 TraceId
 │   │   ├── TrackingSignature.php# 请求签名校验
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
 │   ├── model/                   # 数据模型（224 个；连 concerns/TenantScope trait 共 225 个文件）
 │   ├── queue/                   # 队列任务
-│   └── process/                 # 进程 (Http, Monitor)
+│   └── process/                 # 进程 (Http, WebSocket, QueueConsumer, Monitor)
 ├── apps/
 │   ├── flutter/                 # Flutter 全平台 (Web/iOS/Android/macOS/Windows/Linux)
 │   │   └── lib/app/
@@ -191,7 +192,7 @@ open-erp/
 │   ├── route.php               # 路由 + API 版本策略
 │   ├── middleware.php           # 全局中间件注册
 │   ├── translation.php          # 语言配置
-│   └── plugin/                  # 插件配置（erikwang2013/* + hg/*）
+│   └── plugin/                  # 插件配置（erikwang2013/*；apidoc 见 erikwang2013/apidoc/）
 ├── database/
 │   ├── install.sql              # 完整安装SQL（227 张表 + 种子数据，全部迁移已并入）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
@@ -233,8 +234,9 @@ open-erp/
 全局:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
 /health:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
 /install: Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
-/admin:   Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
-/api:     Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → ApiVersion → Controller
+/admin/v1:   Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
+/api/v1:     Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/open/v1:    Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → OpenApiAuth → Controller
 ```
 
 ## 安全增强
@@ -254,7 +256,7 @@ open-erp/
 curl http://localhost:8788/api/v1/auth/login
 ```
 
-新增版本只需创建 `app/api/{version}/controller/` 目录并注册到 `ApiVersion` 中间件。
+新增版本只需创建 `app/api/{version}/controller/` 目录，并在 `config/route.php` 注册 `/api/v{version}` 分组（版本号只体现在 URL 路径上，控制器直绑，无版本头中间件——原 `ApiVersion` 头中间件已移除）。
 
 ## 限流策略
 
@@ -284,18 +286,18 @@ Redis 滑动窗口（Lua 原子化），默认 60 次/分钟/IP/路由：
 
 ### HarmonyOS
 - 使用 `@ohos.net.http` 原生 HTTP 客户端
-- Token 无感刷新：401 时自动调用 `/api/auth/refresh`
+- Token 无感刷新：401 时自动调用 `/api/v1/auth/refresh`
 - 刷新失败自动重定向登录页
 
 ## 已知技术债
 
-> 以下清单由 `grep -rn "new .*Service(" app/controller/` 实测（44 处），与代码事实一致。
+> 以下清单由 `grep -rn "new .*Service(" app/controller/` 实测（45 处），与代码事实一致。
 > **P5 不重构**：控制器直建服务为既有模式，仅在新建代码时改走容器注入（`support\Container`），存量代码维持现状。
 
 | 模块 | 直建服务数 | 说明 |
 |------|-----------|------|
 | finance | 22 | 应收应付/核销/日记账/结转/合并报表 |
-| wms | 8 | 收货/上架/波次/拣货/打包等流程服务 |
+| wms | 9 | 收货/上架/波次/拣货/打包等流程服务 |
 | tms | 5 | 运单/比价/轨迹/运费发票 |
 | oms | 3 | 履约/预占/RMA |
 | quality | 2 | 检验/不合格品处理 |

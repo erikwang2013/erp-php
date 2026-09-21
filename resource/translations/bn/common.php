@@ -436,4 +436,6 @@ return [
     'Material dispatch number already exists' => 'মেটেরিয়াল ডিসপ্যাচ নম্বর ইতিমধ্যে বিদ্যমান',
     'Audited material dispatches cannot be modified' => 'অডিটেড মেটেরিয়াল ডিসপ্যাচ পরিবর্তন করা যাবে না',
     'Audited material dispatches cannot be deleted' => 'অডিটেড মেটেরিয়াল ডিসপ্যাচ মুছে ফেলা যাবে না',
+    'Number ":code" already exists; please refresh the page and use another one' => 'নম্বর ":code" ইতিমধ্যেই বিদ্যমান; অনুগ্রহ করে পৃষ্ঠাটি রিফ্রেশ করে অন্য একটি ব্যবহার করুন',
+    'Issued-out records cannot be deleted' => 'ইস্যু করা রেকর্ড মুছে ফেলা যাবে না',
 ];

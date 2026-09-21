@@ -152,7 +152,7 @@ if (Redis::get("security_ban:{$ip}")) {
 
 লগ ফরম্যাট উদাহরণ:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ POST/PUT রিকোয়েস্ট-কে **অবশ্যই** `Content-T
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | যেকোনো উৎসের ক্রস-অরিজিন অনুমতি (ইন্টারনাল নেটওয়ার্ক অ্যাডমিন ব্যাকএন্ড সিনারিও) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | অনুমোদিত মেথড সেট |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | অনুমোদিত কাস্টম হেডার |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | অনুমোদিত কাস্টম হেডার |
 | Access-Control-Max-Age | `86400` | প্রি-ফ্লাইট রিকোয়েস্ট ক্যাশ 24 ঘণ্টা |
 | X-Content-Type-Options | `nosniff` | ব্রাউজার MIME স্নিফিং নিষিদ্ধ |
 | X-Frame-Options | `DENY` | সব iframe এমবেড নিষিদ্ধ, ক্লিকজ্যাকিং প্রতিরোধ |
@@ -226,8 +226,8 @@ Lua স্ক্রিপ্ট Redis সার্ভারে সিঙ্গ�
 | রাউট | সীমা | উইন্ডো | সিনারিও |
 |------|------|------|------|
 | ডিফল্ট (সব রাউট) | 60 বার/মিনিট | 60s | জেনেরিক API |
-| `/api/auth/login` | 10 বার/মিনিট | 60s | লগইন (ব্রুট ফোর্স প্রতিরোধ) |
-| `/api/auth/register` | 5 বার/মিনিট | 60s | রেজিস্ট্রেশন (ব্যাচ রেজিস্ট্রেশন প্রতিরোধ; ডিফল্ট বন্ধ, `REGISTRATION_ENABLED=1` দিয়ে চালু করতে হবে) |
+| `/api/v1/auth/login` | 10 বার/মিনিট | 60s | লগইন (ব্রুট ফোর্স প্রতিরোধ) |
+| `/api/v1/auth/register` | 5 বার/মিনিট | 60s | রেজিস্ট্রেশন (ব্যাচ রেজিস্ট্রেশন প্রতিরোধ; ডিফল্ট বন্ধ, `REGISTRATION_ENABLED=1` দিয়ে চালু করতে হবে) |
 
 ### রেসপন্স হেডার
 
@@ -301,8 +301,8 @@ AdminAuth মিডলওয়্যারে ইমপ্লিমেন্ট
 |------|-----|------|
 | অ্যালগরিদম | HS256 | HMAC-SHA256 সিমেট্রিক সিগনেচার |
 | কী | `JWT_SECRET` | এনভায়রনমেন্ট ভেরিয়েবল ইনজেকশন, প্রোডাকশনে পরিবর্তন প্রয়োজন |
-| access_token TTL | 7200s (2h) | `JWT_TTL` |
-| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| access_token TTL | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | ইস্যুয়ার | `open-admin` | `JWT_ISSUER` |
 | অডিয়েন্স | `open-admin` | `JWT_AUDIENCE` |
 

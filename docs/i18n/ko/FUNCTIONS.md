@@ -4,9 +4,9 @@
 
 ## 개요
 
-오픈ERP 시스템(open-erp)은 19개 업무 도메인 <!-- stats:modules=23 -->, 163개 데이터 테이블 <!-- stats:tables=227 -->을 포괄하며, 매입·판매·재고부터 생산 제조, 재무 회계부터 인사 관리까지의 풀스택 기업 관리 시스템을 제공합니다. 국제화: 중문/English 이중 언어 지원, Accept-Language 요청 헤더로 자동 전환됩니다.
+오픈ERP 시스템(open-erp)은 23개 업무 도메인 <!-- stats:modules=23 -->, 227개 데이터 테이블 <!-- stats:tables=227 -->을 포괄하며, 매입·판매·재고부터 생산 제조, 재무 회계부터 인사 관리까지의 풀스택 기업 관리 시스템을 제공합니다. 국제화: 13개 로케일 지원(중국어/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), Accept-Language 요청 헤더로 자동 전환됩니다.
 
-> API 문서: 서비스 시작 후 `http://localhost:8788/apidoc`에 접속하면 인터랙티브 인터페이스 문서를 볼 수 있습니다(hg/apidoc 자동 생성)
+> API 문서: 서비스 시작 후 `http://localhost:8788/apidoc`에 접속하면 인터랙티브 인터페이스 문서를 볼 수 있습니다(erikwang2013/apidoc-php 자동 생성)
 
 ---
 
@@ -38,7 +38,7 @@
 - 읽기 전용 조회, 삭제하거나 수정할 수 없음
 
 ### 1.5 보안 방어
-- 18계층 심층 방어: HTTP 메서드 제한, XSS/SQL 인젝션/경로 탐색/명령 인젝션/CSRF 차단
+- 7계층 심층 방어: HTTP 메서드 제한, XSS/SQL 인젝션/경로 탐색/명령 인젝션/CSRF 차단
 - 클릭 캡차(로그인/가입 필수 검증)
 - Redis 슬라이딩 윈도우 속도 제한(Lua 원자화, 기본 60회/분)
 - 계정 잠금: 5회 실패 시 15분 잠금
@@ -128,6 +128,11 @@
 - 고객별 집계: 판매 금액, 수금 완료, 미수금
 - 오더/상품/고객 차원의 매출이익 계산
 
+### 4.6 고객 신용 통제(v1.4.0 전달)
+
+- 신용 한도 관리: 고객별로 신용 한도, 점유, 차단 규칙을 유지
+- 주문/출고 전 차단: CreditControlService assertOrderCreate / assertDeliveryCreate / guard가 한도 초과 주문을 거부하고 사유를 반환
+
 ---
 
 ## 5. 재고 관리
@@ -166,6 +171,11 @@
 ### 5.8 재고 경고
 - SKU+창고별 상한/하한 설정
 - 하한 미만/상한 초과 시 자동으로 경고 로그 기록
+
+### 5.9 로트/시리얼 번호 추적과 유효기간 경고(v1.4.0 전달)
+
+- 추적 체인: TraceService forward/backward가 로트의 행선지/출처를 정·역방향으로 추적하고, serial은 시리얼 번호 대장
+- 유효기간 경고: expiryAlert가 유효기간 임박 및 경과 로트를 알림
 
 ---
 
@@ -223,6 +233,29 @@
 - 원가 귀속 + 비용 배분
 - 이익센터 독립 회계
 
+### 6.12 기말 이월 / 다중 조직 회계 / 재무제표 연결(v1.4.0 전달)
+
+- 기말 손익 이월: 기간별로 손익 계정 발생액 집계(수익 - 비용 = 순이익, status=calculated)
+- 이월은 전표를 생성하지 않으며(당기순이익 계정 설정과 중복 이월 방지 규칙 부재), 컨트롤러 엔드포인트도 없음 — v1.4.0 전달 목록에 포함되지 않고 보류 항목으로 유지
+- 다중 조직 회계: CompanyController / LedgerPeriodController로 독립 회계 주체와 회계 기간 관리(v1.4.0 전달)
+- 연결 재무제표 엔진(v1.4.0 전달): ConsolidationService rateToBase/translateLedger 기말 환율 환산(환율이 없으면 거부), addElimination 자회사 간 상계(차변·대변 균형 검증), generateDraft 출력(이미 발행된 기간은 스냅샷 조회, 스냅샷이 없으면 승인된 전표로 실시간 재계산), issue 중복 발행 방지, latest/list; 결과는 FinanceConsolidationReport에 저장
+- 테스트: PeriodCloseServiceTest 4건 + ConsolidationServiceTest 3건
+
+### 6.13 재고·생산 원가 계산(v1.4.0 전달)
+
+- 생산 자재 출고와 원가 집계: MaterialIssueController가 자재 출고를 입고 처리, CostEntryController + MfgCostService가 작업 오더별로 자재비/노무비/제조경비 집계
+- 전표 규칙: MfgCostVoucherRule이 완성품 원가와 차이 이월 전표 생성(§12 생산 오더와 연동)
+
+### 6.14 어음과 은행 거래 대사(v1.4.0 전달)
+
+- 어음 전 생애주기: FinanceBillService store/update/endorse(배서)/discount(할인)/collect(추심)/cash(현금화)/reject + dueWarnings 만기 경고
+- 은행 거래 대사: BankReconService importStatement 거래내역 가져오기, autoReconcile/manualReconcile/unreconcile 상계, reconReport 대사 보고서
+
+### 6.15 매입 세금계산서 풀과 전자세금계산서(v1.4.0 전달)
+
+- 매입 풀: TaxInvoicePoolService registerOne/registerBatch/verify/check/deduct/deductStats; 검증은 MockTaxVerifier 경유(실제 세무 당국 연동은 어댑터 지점)
+- 전자세금계산서: EInvoiceService issueInvoice/voidInvoice/issueLogs, EInvoiceAdapter/MockEInvoiceAdapter 경유(실제 세무 당국 연동은 어댑터 지점)
+
 ---
 
 ## 7. CRM
@@ -254,6 +287,11 @@
 - 리포트 자동 생성(JSON 데이터 스냅샷)
 - 월간/분기/연간 지원
 
+### 7.6 멤버 가치 엔진(v1.4.0 전달)
+
+- 멤버와 선불 충전: MemberService openMember/recharge/consume/refund
+- 포인트와 쿠폰: earnPoints/consumePoints/expirePoints 포인트 이력 + issueCoupon/redeemCoupon 쿠폰 사용(MemberController / CouponController)
+
 ---
 
 ## 8. 승인 워크플로 엔진
@@ -268,6 +306,11 @@
 - 제출 → 단계별 승인 → 통과/반려/회수
 - 내 승인 목록(승인 대기 + 승인 완료)
 - 승인 기록 완전 추적
+
+### 8.3 비주얼 프로세스 디자이너(v1.4.0 전달)
+
+- 캔버스 구성: WorkflowDesignerController가 노드/연결선 정의를 읽고 씀(canvas_json 영속화)
+- 승인 엔진과 동일 소스: 발행 후 캔버스 정의에 따라 승인 체인 흐름 구동
 
 ---
 
@@ -307,6 +350,11 @@
 - 태스크 실제 공수 자동 집계
 - 프로젝트 원가 계산 지원
 
+### 10.4 프로젝트 원가·예산 편차(v1.4.0 전달)
+
+- 원가 기록: ProjectCostService createManual 수동 보정 입력 + generateFromTimesheet 공수×직원 요율 환산
+- 손익 뷰: projectPnl 프로젝트 매출이익과 예산 비교
+
 ---
 
 ## 11. 인사 관리
@@ -328,6 +376,17 @@
 - 급여 계산: 기본급 + 성과급 + 연장근무 - 공제 - 개인소득세 = 실지급
 - 월간 급여 일괄 생성 지원
 - 급여 지급 확인
+
+### 11.4 채용과 성과(v1.4.0 전달)
+
+- 채용: RecruitService 직위 공고/마감, 후보자 퍼널 진행, 면접 기록, Offer 발송/수락/거절
+- 성과: PerformanceService 지표 템플릿과 평가 계획, 360 평가(submitScore 다중 평가자), 집계
+
+### 11.5 교육, 사회보험과 급여명세서(v1.4.0 전달)
+
+- 교육: TrainingService 과정/신청/이수/학점 대장(employeeCredits)
+- 사회보험: SocialSecurityService 기준 규칙(createRule/setRate), 직원 바인딩 bind/unbind, 모의 계산 calculate와 직원 명세 employeeSocialDetail
+- 급여명세서: PayslipService view 읽기 전용으로 급여 항목 전개(수입/공제/실지급, 사회보험 보충 포함)
 
 ---
 
@@ -357,6 +416,19 @@
 - 순소요 계산: 총소요 - 계획 수령 - 기존 재고 = 순소요
 - 기간(연도+월)별 계획 생성
 - 상태: 초안 → 생성 완료 → 확정
+
+### 12.6 공정 실적 등록과 도급 임금(v1.4.0 전달)
+
+- 실적 등록: WorkReportService audit이 공정 실적 등록을 심사
+- 도급: PieceWageService accumulate 도급 대장 / periodSummary 기간별 집계
+
+### 12.7 외주 가공과 상계(v1.4.0 전달)
+
+- SubcontractService: auditIssue 외주 자재 출고 심사 → auditReceive 입고 상계 폐루프
+
+### 12.8 생산능력 부하(v1.4.0 전달)
+
+- MfgCapacityService: calendar 작업장 생산능력 캘린더, setException/removeException 생산능력 예외, report 부하 분석
 
 ---
 
@@ -493,25 +565,25 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 차원 | 수량 |
 |------|------|
-| 업무 모듈 | 19 <!-- stats:modules=23 --> |
-| 데이터베이스 테이블 | 163 <!-- stats:tables=227 --> |
-| 데이터 모델 | 161 <!-- stats:models=224 --> |
-| 컨트롤러 | 123 <!-- stats:controllers=159 --> |
-| 업무 서비스 | 27 <!-- stats:services=64 --> |
-| API 라우트 | 198(동적 생성, `scripts/check-endpoints.php` 참고, doc-stats 검증 미포함) |
+| 업무 모듈 | 23 <!-- stats:modules=23 --> |
+| 데이터베이스 테이블 | 227 <!-- stats:tables=227 --> |
+| 데이터 모델 | 224 <!-- stats:models=224 --> |
+| 컨트롤러 | 159 <!-- stats:controllers=159 --> |
+| 업무 서비스 | 64 <!-- stats:services=64 --> |
+| API 라우트 | 837(동적 생성, `scripts/check-endpoints.php` 참고, doc-stats 검증 미포함) |
 | 미들웨어 | 11 <!-- stats:middleware=11 --> |
-| PHP 소스 파일 | 343 <!-- stats:php_files=483 --> |
-| 데이터베이스 설치 스크립트 | 단일 파일 `database/install.sql`(163개 테이블, 전체 마이그레이션 병합 완료) |
-| 프론트엔드 페이지 (Flutter) | 7(프론트엔드 통계, doc-stats 검증 미포함) |
-| 프론트엔드 페이지 (HarmonyOS) | 4(프론트엔드 통계, doc-stats 검증 미포함) |
-| 단위 테스트 | 50개 테스트 파일 <!-- stats:test_files=111 --> / 442개 테스트 케이스 / 2238개 assertion(tests/assertions는 PHP 패치 버전과 확장에 따라 변동, stats 정밀 검증 미참여) |
+| PHP 소스 파일 | 483 <!-- stats:php_files=483 --> |
+| 데이터베이스 설치 스크립트 | 단일 파일 `database/install.sql`(227개 테이블, 전체 마이그레이션 병합 완료) |
+| 프론트엔드 페이지 (Flutter) | 119(2026-09-22 실측, `apps/flutter/lib/app/pages/` 하위 `.dart` 페이지 파일 수(재귀), doc-stats 검증 미포함) |
+| 프론트엔드 페이지 (HarmonyOS) | 52(2026-09-22 실측, `apps/harmonyos/entry/src/main/ets/pages/` 하위 `.ets` 페이지 파일 수(재귀), doc-stats 검증 미포함) |
+| 단위 테스트 | 111개 테스트 파일 <!-- stats:test_files=111 --> / 1001개 테스트 케이스 <!-- stats:tests=1008 --> / 4726개 assertion <!-- stats:assertions=4768 -->(정적 카운트: 테스트 메서드 수 + 어설션 호출 지점 수, 실행 환경과 무관) |
 
 > 위 숫자는 `bash scripts/doc-stats.sh`가 실측한 값입니다. `<!-- stats:key=value -->`로 표기된 항목은 CI
 > (`.github/workflows/ci.yml` docs 작업)가 코드 사실과의 일치를 자동 검증하며, 어긋나면 빨간불이 켜집니다.
 
 ---
 
-## 19. 모듈 완성도 매트릭스 (2026-08-16 보정)
+## 19. 모듈 완성도 매트릭스 (2026-09-05 보정; v1.17.0 배치 2026-09-15)
 
 ### 상태 범례
 
@@ -529,31 +601,48 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 모듈 | 백엔드 API | 비즈니스 로직 | Flutter | HarmonyOS | 다음 단계 |
 |------|----------|----------|---------|-----------|----------|
-| 시스템 관리 | ✅ | ✅ | ⚠️ 7/10 | ⚠️ 4/10 | 🔵 P0 |
-| 대시보드 | ✅ | ✅ | ⚠️ 기본 | ⚠️ 기본 | 🔵 P0 |
-| 상품 기초 데이터 | ✅ | ✅ | ⚠️ 3/7 | ⚠️ 1/7 | 🔵 P0 |
-| 구매 관리 | ✅ | ⚠️ | ⚠️ 1/5 | ⚠️ 1/5 | 🔵 P0 |
-| 판매 관리 | ✅ | ⚠️ | ⚠️ 1/5 | ⚠️ 1/5 | 🔵 P0 |
-| 재고 관리 | ✅ | ✅ | ⚠️ 기본 | ⚠️ 기본 | 🔵 P0 |
-| 재무 — 전표/매출채권·매입채무 | ✅ | ⚠️ | ⚠️ 2/10 | 🔴 | 🔵 P0 |
-| 재무 — 총계정원장/3대 재무제표 | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| 재무 — 기말 결산/합병 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| CRM 전체 모듈 | ✅ | ✅ | ⚠️ 1/8 | 🔴 | 🔵 P0 |
-| OMS 주문 관리 | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| WMS 창고 관리 | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| TMS 운송 관리 | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| 승인 워크플로 | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| 알림 시스템 | ⚠️ | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
-| 프로젝트 관리 | ✅ | ✅ | 🔴 | 🔴 | 🔵 P0 |
-| HR — 조직/근태/휴가 | ✅ | ⚠️ | 🔴 | 🔴 | 🔵 P0 |
-| HR — 급여 엔진 | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| 제조 — BOM/생산/MRP | ⚠️ | 🔴 | 🔴 | 🔴 | 🟢 P1 |
-| 품질 관리 | ✅ | ✅ | 🔴 | 🔴 | 🟢 P1 |
-| 커스텀 리포트 | ✅ | ⚠️ | 🔴 | 🔴 | 🔵 P0 |
-| BI 보드 | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
-| 설비 관리 EAM | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
-| 멀티테넌트 | ⚠️ | ⚠️ | 🔴 | 🔴 | 🟣 P3 |
-| 문서 관리 DMS | ✅ | ✅ | 🔴 | 🔴 | 🟣 P3 |
+| 시스템 관리 | ✅ | ✅ | ⚠️ 9/14 | ⚠️ 5 페이지 | 🔵 P0 |
+| 대시보드 | ✅ | ✅ | ✅ 2 페이지 | ⚠️ 1 페이지 | 🔵 P0 |
+| 상품 기초 데이터 | ✅ | ✅ | ✅ 7/7 | ⚠️ 1/7 | 🔵 P0 |
+| 구매 관리 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
+| 판매 관리 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
+| 재고 관리 | ✅ | ✅ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
+| 재무 — 전표/매출채권·매입채무 | ✅ | ⚠️ | ✅ 16 페이지 | 🔴 | 🔵 P0 |
+| 재무 — 총계정원장/3대 재무제표 | ⚠️ | 🔴 | ⚠️ 3 페이지(동작 깊이 미검증) | 🔴 | 🟢 P1 |
+| 재무 — 재무제표 연결 | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 재무 — 다중 조직 회계 (F1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 재무 — 기말 이월 | 🔴 | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
+| 재무 — 재고 원가 계산 (F3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| CRM 전체 모듈 | ✅ | ✅ | ✅ 10/10 | 🔴 | 🔵 P0 |
+| OMS 주문 관리 | ✅ | ✅ | ✅ 4/4 | ⚠️ 4 페이지 | 🔵 P0 |
+| WMS 창고 관리 | ✅ | ✅ | ⚠️ 7/8 | ⚠️ 7 페이지 | 🔵 P0 |
+| TMS 운송 관리 | ✅ | ✅ | ⚠️ 5/6 | ⚠️ 5 페이지 | 🔵 P0 |
+| 승인 워크플로 | ✅ | ✅ | ⚠️ 2/3 | ⚠️ 1 페이지 | v1.4.0 |
+| 알림 시스템 | ✅ | ✅ | ⚠️ 1/2 | 🔴 | v1.4.0 |
+| 신용 통제 (F7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 추적 체인/유효기간 임박 (M6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 생산능력 부하 (M3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 공정 실적 등록/도급 임금/외주 상계 (M1+M2) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 프로세스 디자이너 (B3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 인쇄 템플릿 (B1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 채용/성과/교육/사회보험 (H1-H4) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 점검 스캔 (E1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 프로젝트 원가/예산 (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 어음/은행 거래 대사 (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 매입 세금계산서 풀/전자세금계산서 (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 멤버 가치 (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 멀티테넌트 (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 일부 활성화 |
+| 채널 알림/커스텀 필드 (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 프로젝트 관리 | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
+| HR — 조직/근태/휴가 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 3 페이지 | 🔵 P0 |
+| HR — 급여 엔진 | ⚠️ | 🔴 | ⚠️ 2 페이지 | 🔴 | 🟢 P1 |
+| 제조 — BOM/생산/MRP | ✅ | ✅ | ⚠️ 5/13 | ⚠️ 5 페이지 | v1.4.0 |
+| 품질 관리 | ✅ | ✅ | ✅ 5/5 | 🔴 | 🟢 P1 |
+| 커스텀 리포트 | ✅ | ⚠️ | ✅ 2/2 | 🔴 | 🔵 P0 |
+| BI 보드 | ✅ | ✅ | ⚠️ 2/3 | 🔴 | 🟣 P3 |
+| 설비 관리 EAM | ✅ | ✅ | ⚠️ 4/5 | 🔴 | v1.4.0 |
+| 문서 관리 DMS | ✅ | ✅ | ⚠️ 1/2 | 🔴 | 🟣 P3 |
+| 다국어 (i18n) | ✅ | ✅ | ⚠️ 중/영만 | ⚠️ 중/영만 | v1.17.0 |
 | 관측성 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 | 마이그레이션 롤백/백업 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 
@@ -561,27 +650,49 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 차원 | ✅ 완료 | ⚠️ 스켈레톤 | 🔴 누락 | N/A | 완성률 |
 |------|---------|----------|---------|-----|--------|
-| 모듈 (27) | 14 | 12 | 1 | 0 | 52% |
-| 백엔드 API | 19 | 7 | 1 | 0 | 70% |
-| 비즈니스 로직 | 14 | 7 | 6 | 0 | 52% |
-| Flutter 프론트엔드 | 0 | 8 | 17 | 2 | 0% |
-| HarmonyOS | 0 | 6 | 19 | 2 | 0% |
+| 모듈 (44) | 33 | 11 | 0 | 0 | 75% |
+| 백엔드 API | 39 | 4 | 1 | 0 | 89% |
+| 비즈니스 로직 | 33 | 7 | 4 | 0 | 75% |
+| Flutter 프론트엔드 | 12 | 12 | 18 | 2 | 29% |
+| HarmonyOS | 0 | 13 | 29 | 2 | 0%(✅ 기준; 13개 행에 페이지 있음 ⚠️) |
 
-> **통계 산정 기준(2026-08-16 보정)**: 모듈 행은 「백엔드 API와 비즈니스 로직 모두 구현」 기준으로 집계.
-> 백엔드 API / 비즈니스 로직 두 행은 매트릭스 해당 열 기준으로 통계(이번에 코드 현황에 따라 QMS/EAM/DMS/BI를 ✅로,
-> 멀티테넌트를 ⚠️로 보정, 증거는 아래 「코드 증거」 참고); Flutter / HarmonyOS는 프론트엔드 페이지 작업량 통계
-> (관측성, 마이그레이션 롤백 2행은 N/A 표기), 백엔드 doc-stats 검증 미포함.
+> **통계 산정 기준(2026-09-05 보정)**: 모듈 행은 「백엔드 API와 비즈니스 로직 모두 구현」 기준으로 집계 — 둘 다 ✅면 완료,
+> 둘 다 ✅에 이르지 못하면 스켈레톤 ⚠️로 집계(「일부 활성화」 행 포함: 멀티테넌트 B5의 격리 미들웨어 미등록 등 기존 보류 항목, 코드 증거 참고);
+> 백엔드 API / 비즈니스 로직 두 행은 매트릭스 해당 열 기준으로 통계하며, 완성률 분모에서 N/A 행(관측성, 마이그레이션 롤백 — 프론트엔드 없음)을 제외합니다.
+> **Flutter / HarmonyOS 열(2026-08-27부터 「페이지 동작 커버리지」 기준)**: ✅=해당 모듈에 페이지가 있고 페이지 파일 수 ≥ 백엔드 컨트롤러 수
+> (`n/n` 또는 페이지 수 표기); ⚠️=페이지는 있으나 페이지 파일 수 < 백엔드 컨트롤러 수(부분 커버리지); 🔴=페이지 없음; **미검증**=페이지는 있으나
+> 동작 깊이(CRUD 폐루프)를 페이지별로 확인하지 않음. **각 행의 페이지 수는 2026-08-27 스냅샷 기준**(`apps/flutter/lib/app/pages/<모듈>/`
+> 및 `apps/harmonyos/entry/src/main/ets/pages/**` 파일 수, 당시 Flutter 107 페이지 / HarmonyOS 35 페이지);
+> 2026-09-22 전량 재측정 결과 Flutter 119 페이지 / HarmonyOS 52 페이지(**행별 페이지 수는 새 기준으로 재계산하지 않았고**, ✅/⚠️ 판정은 2026-08-27 스냅샷을 그대로 사용),
+> 백엔드 doc-stats 검증 대상이 아닙니다. HarmonyOS 완성률 0%는 ✅ 집계(0/42) 때문이며, 실제로는 13개 행에 페이지가 있으므로(⚠️ 부분 커버리지) 열 전체가 비어 있는 것은 아닙니다.
+> **2026-09-15 중복 제거**: 매트릭스에 원래 「멀티테넌트」 행이 두 개(「멀티테넌트 (B5)」와 「멀티테넌트」, 비즈니스 로직 열이 ✅ / ⚠️로 서로 모순) 있었으나,
+> 위 기준에 따라 「멀티테넌트 (B5)」 ⚠️(격리 미들웨어 미등록) 한 행으로 병합하여 모듈 행이 45 → 44가 되었습니다.
+> **v1.17.0 배치(2026-09-15)**: 「다국어 (i18n)」 행 신설(44행 중 1행이 v1.17.0 표기) — 백엔드 13개 로케일 사전
+> (`resource/translations/<locale>/`, 13개 디렉터리)과 `Accept-Language` 협상은 ✅; Flutter / HarmonyOS 단은 여전히 중/영 2개 로케일이므로
+> 프론트엔드 두 열은 ⚠️; Angular / React 단은 이미 13개 로케일 사전을 갖췄습니다(이 매트릭스 열에는 포함되지 않음).
+> **v1.4.0 배치(2026-09-05)**: 44행 중 21행이 v1.4.0 표기(「일부 활성화」 1행 = 멀티테넌트 (B5) 행 포함),
+> 다중 조직/연결 재무제표/재고 원가(F1-F3), 제조 M1/M2/M3/M6, 신용 F7, 어음/은행 대사/매입 세금계산서 풀/전자세금계산서 F6/F5,
+> HR H1-H4, 멤버 C1, 플랫폼 B1-B5/B7, 점검 E1, 프로젝트 원가 P1을 포괄하며, 증거는 아래 「코드 증거」 참고.
 
-### 코드 증거 (2026-08-16 보정)
+### 코드 증거 (2026-09-05 보정; v1.17.0 배치 포함)
 
 이번 완성도 보정 근거(파일 존재 여부는 `bash scripts/doc-stats.sh`와 `find`로 확인 가능):
 
 | 모듈 | 보정 | 코드 증거 |
 |------|------|----------|
-| 품질 관리 | 🔴 → ✅ | `app/controller/quality/`(5개 컨트롤러) + `app/service/quality/QmsInspectionService.php` + `tests/QualityModuleTest.php` |
-| BI 보드 | 🔴 → ✅ | `app/controller/bi/`(3개 컨트롤러: Dashboard/Dataset/Widget) + `tests/BiModuleTest.php` |
-| 설비 관리 EAM | 🔴 → ✅ | `app/controller/eam/`(4개 컨트롤러) + `tests/EamModuleTest.php` |
-| 문서 관리 DMS | 🔴 → ✅ | `app/controller/dms/`(2개 컨트롤러) + `tests/DmsModuleTest.php` |
-| 멀티테넌트 | 🔴 → ⚠️ | `app/middleware/TenantScope.php` + `app/model/concerns/TenantScope.php` + `tests/Integration/TenantScopeIntegrationTest.php`(알려진 결함: 정적 테넌트 ID가 모델에 전파되지 않아 스켈레톤으로 처리) |
+| 품질 관리 | 🔴 → ✅ | `app/controller/quality/`(컨트롤러 5개) + `app/service/quality/QmsInspectionService.php` + `tests/QualityModuleTest.php` |
+| BI 보드 | 🔴 → ✅ | `app/controller/bi/`(컨트롤러 3개: Dashboard/Dataset/Widget) + `tests/BiModuleTest.php` |
+| 설비 관리 EAM | 🔴 → ✅(+E1 점검) | `app/controller/eam/`(컨트롤러 5개, `EamInspectionController.php` 포함) + `app/service/eam/EamInspectionService.php` + `tests/EamModuleTest.php` |
+| 문서 관리 DMS | 🔴 → ✅ | `app/controller/dms/`(컨트롤러 2개) + `tests/DmsModuleTest.php` |
+| 멀티테넌트 | ⚠️ → ⚠️(v1.4.0 일부 활성화) | `app/controller/platform/TenantController.php` + `app/service/platform/TenantService.php`(provision/suspend/resume/expireMark/renew/expiryWarnings 만료 과금 전달 완료) + `tests/Integration/TenantScopeIntegrationTest.php`; 격리 미들웨어 `app/middleware/TenantScope.php`는 여전히 미등록(격리 미동작)이므로 일부 활성화로 처리 |
+| 재무제표 연결 | ⚠️ → ✅(v1.4.0 전달) | `app/service/finance/ConsolidationService.php`(rateToBase/translateLedger 기말 환율 환산, addElimination 자회사 간 상계 및 차변·대변 균형 검증, generateDraft 스냅샷 우선/스냅샷 없으면 실시간 재계산, issue 중복 방지, latest/list; 환율 없으면 거부) + 결과는 `app/model/FinanceConsolidationReport.php`에 저장 + `tests/ConsolidationServiceTest.php`(3건) |
+| 기말 이월 | 🔴 → ⚠️ | `app/service/finance/PeriodCloseService.php:21` `closeProfitAndLoss()`(손익 계정 집계는 구현, 이월 전표 미생성·컨트롤러 엔드포인트 없음) + `tests/PeriodCloseServiceTest.php`(4건) |
+| v1.4.0 — 다중 조직 회계 (F1) | 신설 | `app/controller/finance/CompanyController.php` + `LedgerPeriodController.php`(독립 회계 주체와 회계 기간) |
+| v1.4.0 — 재고·생산 원가 (F3) | 신설 | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
+| v1.4.0 — 제조 실행 M1/M2/M3/M6 | 신설 | `app/service/manufacturing/`(WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php`(로트/시리얼 추적과 유효기간 경고) + 대응 컨트롤러 WorkReport/PieceWage/Subcontract/Capacity |
+| v1.4.0 — 재무 자금/세무 F6/F5 + F7 | 신설 | `app/service/finance/FinanceBillService.php` + `BankReconService.php`(거래내역 가져오기/자동·수동 상계) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php`(EInvoiceAdapter/MockEInvoiceAdapter, 실제 세무 당국은 예약 어댑터 지점) + `app/service/sales/CreditControlService.php`(한도 초과 주문 단언 차단) |
+| v1.4.0 — 멤버/HR/프로젝트 C1/H1-H4/P1 | 신설 | `app/service/retail/MemberService.php` + `app/controller/retail/`(MemberController/CouponController) + `app/service/hr/`(RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
+| v1.4.0 — 플랫폼/채널 B3/B4/B7/E1 | 신설 | `app/controller/workflow/WorkflowDesignerController.php`(canvas_json 영속화) + `app/service/notification/`(ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, 실패 재시도) + `app/controller/notification/NotificationChannelController.php`(`tests/NotificationChannelTest.php` 5건) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php`(점검 스캔) |
+| v1.17.0 — 다국어 (i18n) | 신설 | 백엔드: `resource/translations/`(13개 로케일 디렉터리 zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, 로케일마다 common+modules+validation 3개 파일, 11개 로케일 각 542건(zh_CN 533, en 30). en은 영어가 곧 key) + `app/common/I18n.php`(`getLocale()`이 `Accept-Language` 첫 태그를 파싱하고 주 언어 서브태그를 zh*→zh_CN으로 매핑. `trans()`는 en이 아니면 `[요청 로케일, zh_CN, en]` 순으로 조회하고 en은 중국어로 폴백하지 않음) + `config/translation.php` + 생성 스크립트 `scripts/gen-be-locales.mjs`; 프론트엔드: `apps/react/src/lib/i18n/`(`index.tsx` + `zhEn` + 11개 로케일 파일)과 `apps/angular/src/app/core/`(`zh-en/`(index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`)(11개 신규 로케일 사전을 로케일별 지연 로딩, Angular 1453 / React 1447 키) + `scripts/gen-fe-locales.mjs`; 전환 진입점 = 상단 바 지구본 아이콘 + 개인 센터 드롭다운; Flutter(`apps/flutter/lib/l10n/`)와 HarmonyOS(`entry/src/main/resources/`)는 여전히 중/영 2개 로케일 |
 
 > 상세 로드맵 설계 규격: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`

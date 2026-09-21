@@ -16,7 +16,7 @@
 ### 1.2 技術制約
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
 - テーブルプレフィックス erp_、主キー BIGINT 非オートインクリメント
-- API バージョンはリクエストヘッダー API-Version で制御
+- API バージョンは URL パスに配置（/admin/v1、/api/v1、/open/v1）、バージョン用リクエストヘッダーなし
 - JWT 認証 + RBAC 権限
 - グローバル関数に \ プレフィックスを付けない
 
@@ -37,7 +37,7 @@
 - 権限識別形式: {method}.{path}（例: get.admin/product, post.admin/user/batch/destroy）
 - ロール-権限の多対多関連
 - スーパー管理者(super_admin)はすべての権限チェックをスキップ
-- AdminPermission 中間ウェアが権限を Redis キャッシュ（TTL=60s）
+- AdminPermission ミドルウェアが権限を Redis キャッシュ（TTL=60s）
 
 ### 2.3 システム設定
 - キーバリュー保存、グループ対応
@@ -50,7 +50,7 @@
 - 照会のみ対応、削除/変更不可
 
 ### 2.5 セキュリティ対策
-- 18 層の多層防御（詳細は SECURITY.md）
+- 7 層の多層防御（詳細は SECURITY.md）
 - SecurityFilter: HTTP メソッド制限 + XSS/SQLインジェクション/パストラバーサル/コマンドインジェクション/CSRF 遮断
 - RateLimit: Redis スライディングウィンドウのレート制限（Lua 原子化、60回/分）
 - クリック検証コード（ログイン/登録で強制）
@@ -502,15 +502,18 @@
 ## 16. 国際化 (i18n)
 
 ### 16.1 言語自動検出
-- リクエストヘッダー `Accept-Language` で自動識別（zh-CN → 中文, en → English）
-- Locale 中間ウェアはグローバル中間ウェアチェーンの先頭で実行
-- フォールバックチェーン: 現在の言語 → 設定の fallback_locale → 元のキーを返す
+- リクエストヘッダー `Accept-Language` による自動識別（`app/common/I18n.php` の `getLocale()`）：先頭の言語タグのみを取得（ブラウザは既に q 値の降順で並んでいるため q は解析しない）、`_` は `-` に正規化して小文字化し、主言語のサブタグのみを保持
+- マッピング：`zh`（`zh-CN` / `zh-TW` / `zh_CN`）→ `zh_CN`；`en` / `ja` / `de` などその他の主言語はそのまま返す（地域サフィックスは無視）；ヘッダーなし → `config('translation.locale')`（`zh_CN`）
+- 13 語種をサポート：`zh_CN` / `en` / `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id`
+- フォールバックチェーン（`getTranslated()`）：非 en リクエスト → リクエスト語種 → `zh_CN` → `en` → key 自体を返す；**en リクエストは中国語にフォールバックしない**（英語即 key：`en` 辞書のみを引き、見つからなければ key 原文を返す）
+- Locale ミドルウェアなし：locale は `I18n::trans()` 呼び出し時にのみ解析される（CLI / キュー / テストなどリクエストコンテキストがない場合は設定値にフォールバック）
 
 ### 16.2 翻訳ファイル
-- ディレクトリ: `resource/translations/{locale}/`
-- 共通メッセージ: `common.php`（41 キー: 成功/失敗/作成/更新/削除/検証など）
-- モジュール名: `modules.php`（69 キー: 商品/購買/販売/在庫/財務/CRM など）
-- 検証ルール: `validation.php`（11 ルール + 10 フィールドラベル）
+- ディレクトリ：`resource/translations/{locale}/`（13 の語種ディレクトリ、各々 `common.php` / `modules.php` / `validation.php` を含む）
+- 共通メッセージ：`common.php`（428 キー：成功/失敗/作成/更新/削除/検証など）
+- モジュール名：`modules.php`（84 キー：商品/購買/販売/在庫/財務/CRM など）
+- 検証ルール：`validation.php`（zh_CN は 12 のトップレベルキー / 21 のリーフキー；その他の語種は 21 のトップレベルキー / 30 のリーフキー、`attributes` フィールドラベルブロックを含む）
+- `en` 辞書はほぼ空（`common.php` / `modules.php` はともに 0 条、`validation.php` のキーはフレームワークのルール名）——英語即 key で、エントリが見つからない場合は key 自体（＝英語原文）を返す
 
 ### 16.3 使用方法
 - コントローラー内: `$this->trans('created')`

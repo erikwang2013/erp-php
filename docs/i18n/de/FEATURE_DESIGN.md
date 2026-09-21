@@ -16,7 +16,7 @@ Das Open-ERP-System (open-erp) ist ein Full-Stack-Enterprise-Resource-Planning-S
 ### 1.2 Technische Randbedingungen
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
 - Tabellenpräfix erp_, Primärschlüssel BIGINT nicht auto-increment
-- API-Version über den Request-Header API-Version gesteuert
+- API-Version liegt im URL-Pfad (/admin/v1, /api/v1, /open/v1), kein Versions-Request-Header
 - JWT-Authentifizierung + RBAC-Berechtigungen
 - Globale Funktionen ohne \ -Präfix
 
@@ -50,7 +50,7 @@ Das Open-ERP-System (open-erp) ist ein Full-Stack-Enterprise-Resource-Planning-S
 - Nur Abfrage unterstützt, weder löschbar noch änderbar
 
 ### 2.5 Sicherheitsschutz
-- 18 Ebenen Tiefenverteidigung (Details siehe SECURITY.md)
+- 7 Ebenen Tiefenverteidigung (Details siehe SECURITY.md)
 - SecurityFilter: HTTP-Methodeneinschränkung + XSS/SQL-Injection/Pfad-Traversal/Befehlsinjektion/CSRF-Abfang
 - RateLimit: Redis-Sliding-Window-Rate-Limit (Lua-Atomar, 60 Mal/Minute)
 - Click-Captcha (Pflicht bei Login/Registrierung)
@@ -502,15 +502,18 @@ Angebot → Auftrag → Versand → Abrechnung
 ## 16. Internationalisierung (i18n)
 
 ### 16.1 Automatische Spracherkennung
-- Automatische Erkennung über den Request-Header `Accept-Language` (zh-CN → Chinesisch, en → Englisch)
-- Die Locale-Middleware wird als erste der globalen Middleware-Kette ausgeführt
-- Fallback-Kette: aktuelle Sprache → konfigurierte fallback_locale → Rückgabe des Original-Keys
+- Automatische Erkennung über den Request-Header `Accept-Language` (`getLocale()` in `app/common/I18n.php`): Es wird nur das erste Sprach-Tag genommen (der Browser sortiert bereits absteigend nach q-Wert, q wird nicht ausgewertet), `_` wird zu `-` normalisiert und kleingeschrieben, nur das Hauptsprach-Subtag bleibt erhalten
+- Zuordnung: `zh` (`zh-CN` / `zh-TW` / `zh_CN`) → `zh_CN`; die übrigen Hauptsprachen wie `en` / `ja` / `de` werden unverändert zurückgegeben (Regionssuffix wird ignoriert); ohne Request-Header → `config('translation.locale')` (`zh_CN`)
+- Unterstützt 13 Sprachen: `zh_CN` / `en` / `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id`
+- Rückfallkette (`getTranslated()`): Anfrage ≠ en → angefragte Sprache → `zh_CN` → `en` → Rückgabe des Keys selbst; **eine en-Anfrage fällt nicht auf Chinesisch zurück** (Englisch ist der Key: es wird nur das `en`-Wörterbuch durchsucht, ein Nichttreffer liefert den Key im Originaltext)
+- Keine Locale-Middleware: Die Locale wird erst beim Aufruf von `I18n::trans()` aufgelöst (CLI / Queue / Tests fallen ohne Request-Kontext auf den Konfigurationswert zurück)
 
 ### 16.2 Übersetzungsdateien
-- Verzeichnis: `resource/translations/{locale}/`
-- Allgemeine Nachrichten: `common.php` (41 Keys: Erfolg/Fehler/Erstellen/Aktualisieren/Löschen/Validierung usw.)
-- Modulnamen: `modules.php` (69 Keys: Artikel/Einkauf/Vertrieb/Bestand/Finanzen/CRM usw.)
-- Validierungsregeln: `validation.php` (11 Regeln + 10 Feld-Labels)
+- Verzeichnis: `resource/translations/{locale}/` (13 Sprachverzeichnisse, jeweils mit `common.php` / `modules.php` / `validation.php`)
+- Allgemeine Nachrichten: `common.php` (428 Keys: Erfolg/Fehler/Erstellen/Aktualisieren/Löschen/Validierung usw.)
+- Modulnamen: `modules.php` (84 Keys: Artikel/Einkauf/Vertrieb/Bestand/Finanzen/CRM usw.)
+- Validierungsregeln: `validation.php` (zh_CN 12 Schlüssel auf oberster Ebene / 21 Blattschlüssel; die übrigen Sprachen 21 Schlüssel auf oberster Ebene / 30 Blattschlüssel, einschließlich des Feldlabel-Blocks `attributes`)
+- Das `en`-Wörterbuch ist nahezu leer (`common.php` / `modules.php` je 0 Einträge, die Schlüssel in `validation.php` sind Framework-Regelnamen) — Englisch ist der Key; wird ein Eintrag nicht gefunden, ist der zurückgegebene Key selbst der englische Originaltext
 
 ### 16.3 Verwendungsweise
 - Im Controller: `$this->trans('created')`

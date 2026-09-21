@@ -120,6 +120,40 @@ class AdminUserRoleControllerTest extends TestCase
         $this->assertSame(422, $this->code($resp));
     }
 
+    /**
+     * role_ids 非法即 422（须在触库前拦下：归一发生在 find/exists 之前，故本用例无需 DB）。
+     * 关联表 erp_admin_user_role 无 FK 约束，放行垃圾值只会静默写孤儿行。
+     */
+    public function testStoreRejectsInvalidRoleIds(): void
+    {
+        $resp = (new UserController())->store(new FakeRequest([
+            'username' => 'zhangsan',
+            'password' => 'secret123',
+            'real_name' => '张三',
+            'role_ids' => ['abc'],
+        ]));
+        $this->assertSame(422, $this->code($resp));
+        $this->assertStringContainsString('role_ids', $this->message($resp));
+    }
+
+    /** 数组元素不是标量：PHP 里 (int)[] === 1，若不拦会凭空授出 id=1 */
+    public function testStoreRejectsNonScalarRoleIds(): void
+    {
+        $resp = (new UserController())->store(new FakeRequest([
+            'username' => 'zhangsan',
+            'password' => 'secret123',
+            'real_name' => '张三',
+            'role_ids' => [[]],
+        ]));
+        $this->assertSame(422, $this->code($resp));
+    }
+
+    public function testUpdateRejectsInvalidRoleIds(): void
+    {
+        $resp = (new UserController())->update(new FakeRequest(['role_ids' => ['abc']]), 'irrelevant');
+        $this->assertSame(422, $this->code($resp));
+    }
+
     /* ======================== RoleController ======================== */
 
     public function testRoleStoreRejectsMissingName(): void

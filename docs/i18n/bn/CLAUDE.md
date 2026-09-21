@@ -18,16 +18,17 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 > আর্কিটেকচার ডকুমেন্ট: `ARCHITECTURE.md` §21
 > ফিচার ম্যাট্রিক্স: `FUNCTIONS.md` §19
 
-**বর্তমান কম্পোজিট স্কোর 89/100** — পূর্ণ রোডম্যাপ P0~P3 সম্পন্ন, 22 মডিউল ফুল-স্ট্যাক কভারেজ, প্রোডাকশন-রেডি।
+**বর্তমান কম্পোজিট স্কোর 89/100** — পূর্ণ রোডম্যাপ P0~P3 সম্পন্ন, 23 মডিউল ফুল-স্ট্যাক কভারেজ, প্রোডাকশন-রেডি।
 
 | ফেজ | সময়কাল | ডেলিভারেবল | স্ট্যাটাস |
 |------|------|--------|------|
-| 🔵 **P0** ফ্রন্টএন্ড ইকোসিস্টেম | 3-4 সপ্তাহ | 97 Flutter পেজ + 34 HarmonyOS পেজ + 4 সাধারণ কম্পোনেন্ট | ✅ |
+| 🔵 **P0** ফ্রন্টএন্ড ইকোসিস্টেম | 3-4 সপ্তাহ | 102 Flutter মেনু রুট + 41 HarmonyOS পেজ + 4 সাধারণ কম্পোনেন্ট | ✅ |
 | 🟢 **P1** বিজনেস ডেপথ | 4-6 সপ্তাহ | ফাইন্যান্স ইঞ্জিন + বেতন ইঞ্জিন + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** অপারেশনাল রিলায়েবিলিটি | 1-2 সপ্তাহ | মাইগ্রেশন রোলব্যাক + স্বয়ংক্রিয় ব্যাকআপ + TraceId + কিউ ডুয়াল-ড্রাইভার | ✅ |
-| 🟣 **P3** এক্সপেরিয়েন্স এনহ্যান্সমেন্ট | 2-3 সপ্তাহ | BI কানবান + EAM + মাল্টি-টেন্যান্ট + DMS + 7 নতুন টেবিল | ✅ |
+| 🟣 **P3** এক্সপেরিয়েন্স এনহ্যান্সমেন্ট | 2-3 সপ্তাহ | BI কানবান + EAM + DMS | ✅ |
+(মাল্টি-টেন্যান্সি B5 আগেই P2-এ ডেলিভার হয়েছে: TenantScope রিকোয়েস্ট কনটেক্সট + erp_tenant, আইসোলেশন মিডলওয়্যার seam রেজিস্টার্ড নয়)
 
-**টেস্ট**: 513 tests, 2368 assertions (32 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**টেস্ট**: 1008<!-- stats:tests=1008 --> tests, 4768<!-- stats:assertions=4768 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## ফিচার তালিকা
 
@@ -40,7 +41,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | সিস্টেম কনফিগ | কী-ভ্যালু CRUD |
 | অপারেশন অডিট | লগ কোয়েরি + 8 প্ল্যাটফর্ম সোর্স অটো ডিটেকশন |
 | ফাইল | আপলোড + Excel/PDF এক্সপোর্ট (সংবেদনশীল ডেটা ডিসেন্সিটাইজেশন) |
-| নিরাপত্তা | 18 স্তরের ডিফেন্স-ইন-ডেপথ (XSS/SQL ইনজেকশন/CSRF/রেট লিমিট/CSP...) |
+| নিরাপত্তা | 7 স্তরের ডিফেন্স-ইন-ডেপথ (XSS/SQL ইনজেকশন/CSRF/রেট লিমিট/CSP...) |
 | অপারেশন | হেলথ চেক/Prometheus মেট্রিক/API ডকুমেন্টেশন/security.txt + Docker + CI/CD |
 | পণ্য ম্যানেজমেন্ট | পণ্য/SKU/ক্যাটাগরি/ব্র্যান্ড/গুদাম/লোকেশন/সাপ্লায়ার/কাস্টমার |
 | ক্রয় ম্যানেজমেন্ট | আবেদন→অর্ডার→রিসিভ→রিটার্ন→সেটেলমেন্ট (স্বয়ংক্রিয় স্টক-ইন + AP তৈরি) |
@@ -74,20 +75,34 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - ডেটাবেস সংবেদনশীল ফিল্ড এনক্রিপশন/ডিক্রিপশন: `erikwang2013/encryptable`
 - ES সিঙ্ক ও কোয়েরি: `erikwang2013/webman-scout`
 - দেশের পতাকা: `erikwang2013/season`
-- API ডকুমেন্টেশন জেনারেশন: `hg/apidoc` | অ্যানোটেশন-ভিত্তিক, /apidoc দেখুন
+- API ডকুমেন্টেশন জেনারেশন: `erikwang2013/apidoc-php` | অ্যানোটেশন-ভিত্তিক, /apidoc দেখুন
 
 ### ফ্রন্টএন্ড
 - Flutter 3.x, সোর্স ডিরেক্টরি `apps/flutter/`
 - Web এন্ড PC ম্যানেজমেন্ট ব্যাকএন্ড স্টাইলে ডিজাইন করা (মোবাইল অ্যাপ স্টাইল নয়)
 - ক্লায়েন্ট এন্ড ও অ্যাডমিন এন্ড সাপোর্ট
 - HarmonyOS ArkTS, সোর্স ডিরেক্টরি `apps/harmonyos/`
+- Angular 22 CLI + ng-zorro-antd, সোর্স ডিরেক্টরি `apps/angular/` (Web ম্যানেজমেন্ট ব্যাকএন্ড)
+- React 19 + Vite, সোর্স ডিরেক্টরি `apps/react/` (Web ম্যানেজমেন্ট ব্যাকএন্ড)
+- চার প্রান্ত একই ব্যাকএন্ড: Angular / React, Flutter-এর মতোই `/admin/v1`、`/api/v1`、`/open/v1` ব্যবহার করে; ডেভেলপমেন্টের সময় নিজ নিজ dev server থেকে webman-এ প্রক্সি হয়
+
+### আন্তর্জাতিকীকরণ (১৩টি ভাষা)
+- ভাষার তালিকা: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
+- ব্যাকএন্ড অভিধান: `resource/translations/<locale>/{common,modules,validation}.php`, ১৩টি ভাষা ডিরেক্টরি; `zh_CN` ৫৬৫টি এন্ট্রি, বাকি ১১টি ভাষায় প্রতিটি ৫৪৪টি, `en` ৩০টি (গণনা: তিন ফাইলের লিফ এন্ট্রি, `validation.php`-এর `attributes` ফিল্ড লেবেল গণনায় ধরা হয়, তার গ্রুপ কী ধরা হয় না)
+  - "ইংরেজিই key": `en`-এর common/modules ফাঁকা রাখা হয়; `validation.php`-এর কী হলো ফ্রেমওয়ার্কের রুলের নাম, কেবল ভ্যালু অনূদিত হয়
+  - জেনারেটর: `scripts/gen-be-locales.mjs`
+- ফ্রন্টএন্ড অভিধান (Angular): সোর্স `apps/angular/src/app/core/zh-en/part1..4.ts` (১৪৫৬টি এন্ট্রি) → প্রোডাক্ট `apps/angular/src/app/core/zh-<code>.ts`
+- ফ্রন্টএন্ড অভিধান (React): সোর্স `apps/react/src/lib/i18n/zhEn.ts` (১৪৫১টি এন্ট্রি) → প্রোডাক্ট `apps/react/src/lib/i18n/zh<Code>.ts`
+  - ১১টি নতুন ভাষার অভিধান প্রতিটি ডাইনামিক `import()`-এ আলাদা chunk হয়, এন্ট্রি না থাকলে চীনা মূল টেক্সটে ফিরে যায়
+  - জেনারেটর: `scripts/gen-fe-locales.mjs --app angular|react`
+- রানটাইম: ভাষা বদলালেই রিকোয়েস্ট হেডার `Accept-Language` বদলায়, ব্যাকএন্ড ভাষা অনুযায়ী টেক্সট ফেরত দেয় (`app/common/I18n.php` + `config/translation.php`)
 
 ## প্রজেক্ট স্ট্রাকচার
 
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # 系统管理控制器 (14 个)
+│   ├── admin/controller/       # 系统管理控制器 (16 个)
 │   │   ├── BaseController.php      # 基础控制器
 │   │   ├── DashboardController.php # 仪表盘 + 销售/库存/财务面板
 │   │   ├── UserController.php      # 用户 CRUD + 批量操作
@@ -102,56 +117,61 @@ open-erp/
 │   │   ├── HealthController.php    # 健康检查
 │   │   ├── DocsController.php      # OpenAPI 文档
 │   │   └── MetricsController.php   # Prometheus 监控指标
-│   ├── api/v1/controller/      # 客户端 API（版本头控制）
+│   ├── api/v1/controller/      # 客户端 API（版本置于路径 /api/v1，无版本请求头）
 │   │   ├── CaptchaController.php   # 点击验证码
 │   │   ├── AuthController.php      # 登录/注册/刷新
 │   │   └── ProductController.php   # 商品查询（不含进价）
-│   ├── controller/              # 业务模块控制器（104 个，含 InstallController）
-│   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户 (7个)
-│   │   ├── purchase/            # 采购申请/订单/收货/退货/结算 (5个)
+│   ├── controller/              # 业务模块控制器（139 个，含顶层 InstallController / IndexController）
+│   │   ├── product/             # 商品/分类/品牌/仓库/库位/供应商/客户/规格 (8个)
+│   │   ├── purchase/            # 申请/询价/报价/订单/收货/退货/结算/供应商评估 (8个)
 │   │   ├── sales/               # 销售报价/订单/发货/退货/结算 (5个)
-│   │   ├── inventory/           # 库存/流水/调拨/盘点/预警 (5个)
-│   │   ├── finance/             # 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算/成本利润中心 (20个)
+│   │   ├── inventory/           # 库存/流水/调拨/盘点/预警/追溯 (6个)
+│   │   ├── finance/             # 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算/成本利润中心/银行账户对账/费用/发票结算/合并报表/账期 (28个)
 │   │   ├── crm/                 # 商机/跟进/漏斗/联系人/公海池/报价/合同/营销/工单/分析 (10个)
-│   │   ├── workflow/            # 工作流定义/审批提交/批准/拒绝/撤回 (2个)
-│   │   ├── notification/        # 通知列表/已读/未读计数 (1个)
-│   │   ├── project/             # 项目/任务/工时记录 (3个)
-│   │   ├── hr/                  # 部门/员工/职位/考勤/请假/薪资 (5个)
-│   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP (5个)
+│   │   ├── workflow/            # 工作流定义/设计器/审批提交/批准/拒绝/撤回 (3个)
+│   │   ├── notification/        # 通知列表/已读/未读计数/通知渠道 (2个)
+│   │   ├── project/             # 项目/任务/工时记录/项目成本 (4个)
+│   │   ├── hr/                  # 部门/员工/职位/考勤/薪资/绩效/招聘/社保/培训 (9个)
+│   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP/产能/领料/报工/计件工资/成本录入/委外及收发 (13个)
 │   │   ├── report/              # 报表模板/数据集/执行/定时调度 (2个)
 │   │   ├── oms/                 # 订单/履约/库存预占/RMA/渠道 (4个)
 │   │   ├── wms/                 # 库区库位/ASN收货/上架/波次/拣货/打包 (8个)
 │   │   ├── tms/                 # 承运商/费率/运单/面单/轨迹 (6个)
 │   │   ├── quality/             # IQC/IPQC/OQC/检验标准/不合格品 (5个)
-│   │   ├── eam/                 # 设备/保养计划/维修工单/备件 (4个)
+│   │   ├── eam/                 # 设备/保养计划/维修工单/备件/点检 (5个)
 │   │   ├── dms/                 # 文档分类/文档/版本 (2个)
+│   │   ├── open/                # 开放 API (1个)
+│   │   ├── platform/            # 自定义字段/租户 (2个)
+│   │   ├── print/               # 打印模板 (1个)
+│   │   ├── retail/              # 优惠券/会员 (2个)
 │   │   └── bi/                  # BI看板/图表组件 (3个)
-│   ├── service/                 # 业务逻辑层（容器注册，24 个）
+│   ├── service/                 # 业务逻辑层（64 个文件 / 63 个服务类）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算
 │   │   ├── notification/        # NotificationService: 通知发送
-│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/  # 订单/仓储/运输/质检/人事/制造服务
-│   ├── common/                  # 公共工具类（容器注册，4 个）
+│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/…  # 订单/仓储/运输/质检/人事/制造等（共 20 个模块子目录）
+│   ├── common/                  # 公共工具类（6 个）
 │   │   ├── HashidsService.php   # ID 编解码
 │   │   ├── SnowflakeService.php # Snowflake ID 生成
 │   │   ├── EncryptionService.php# 数据加解密 + 脱敏
-│   │   └── I18n.php             # 国际化翻译
-│   ├── middleware/              # 中间件（12 个）
-│   │   ├── Locale.php           # Accept-Language 语言自动检测
+│   │   ├── I18n.php             # 国际化翻译
+│   │   ├── CorsPolicy.php       # CORS 策略（middleware/Cors 与 route.php 调用）
+│   │   └── AddressValidator.php # 地址校验（多国邮编格式 + 表单字段）
+│   ├── middleware/              # 中间件（11 个）
 │   │   ├── Cors.php             # 跨域
 │   │   ├── SecurityFilter.php   # XSS/SQL注入/路径遍历/命令注入/CSRF 拦截
 │   │   ├── RateLimit.php        # Redis 滑动窗口限流
-│   │   ├── ApiVersion.php       # API 版本校验
 │   │   ├── AdminAuth.php        # JWT 认证 + 黑名单
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   ├── OperationLog.php     # 操作日志自动记录
-│   │   ├── TenantScope.php      # 多租户隔离（静态调用）
+│   │   ├── OpenApiAuth.php      # 开放接口认证（X-API-Key + 签名，仅 /open/v1 分组挂载）
+│   │   ├── TenantScope.php      # 多租户隔离（预留未注册，见 ARCHITECTURE.md §22）
 │   │   ├── TracingId.php        # 全链路 TraceId
 │   │   ├── TrackingSignature.php# 请求签名校验
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
-│   ├── model/                   # 数据模型（161 个）
+│   ├── model/                   # 数据模型（224 个；连 concerns/TenantScope trait 共 225 个文件）
 │   ├── queue/                   # 队列任务
-│   └── process/                 # 进程 (Http, Monitor)
+│   └── process/                 # 进程 (Http, WebSocket, QueueConsumer, Monitor)
 ├── apps/
 │   ├── flutter/                 # Flutter 全平台 (Web/iOS/Android/macOS/Windows/Linux)
 │   │   └── lib/app/
@@ -159,14 +179,22 @@ open-erp/
 │   │       ├── services/        # ApiService + AuthService + CaptchaService + ExportService
 │   │       ├── layouts/        # 响应式布局
 │   │       └── theme/          # Material 3 主题
+│   ├── angular/                 # Angular 22 CLI + ng-zorro-antd Web 管理后台
+│   │   └── src/app/
+│   │       ├── core/            # ApiService / AuthStore / I18n 服务 + 语种词典（zh-en/ 源，zh-<code>.ts 产物）
+│   │       └── config/ layout/ pages/ ui/
+│   ├── react/                   # React 19 + Vite Web 管理后台
+│   │   └── src/
+│   │       ├── lib/i18n/        # 源词典 zhEn.ts + 11 个语种 zh<Code>.ts（按语种懒加载）
+│   │       └── components/ layout/ pages/ state/ config/domains/ styles/
 │   └── harmonyos/              # HarmonyOS 客户端
 ├── config/                     # 配置文件
 │   ├── route.php               # 路由 + API 版本策略
 │   ├── middleware.php           # 全局中间件注册
 │   ├── translation.php          # 语言配置
-│   └── plugin/hg/apidoc/        # API 文档配置（管理端25模块+客户端3模块）
+│   └── plugin/                  # 插件配置（erikwang2013/*；apidoc 见 erikwang2013/apidoc/）
 ├── database/
-│   ├── install.sql              # 完整安装SQL（163张表 + 种子数据，全部迁移已并入）
+│   ├── install.sql              # 完整安装SQL（227 张表 + 种子数据，全部迁移已并入）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
@@ -203,11 +231,12 @@ open-erp/
 ## মিডলওয়্যার এক্সিকিউশন চেইন
 
 ```
-全局:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
-/health:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
-/install: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
-/admin:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
-/api:     Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → ApiVersion → Controller
+全局:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
+/health:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/install: Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/admin/v1:   Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
+/api/v1:     Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/open/v1:    Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → OpenApiAuth → Controller
 ```
 
 ## নিরাপত্তা শক্তিশালীকরণ
@@ -221,13 +250,13 @@ open-erp/
 
 ## API ভার্সন স্ট্র্যাটেজি
 
-ভার্সন রিকোয়েস্ট হেডার `API-Version` দিয়ে নিয়ন্ত্রিত (ডিফল্ট `v1`), URL-এ প্রকাশিত হয় না:
+ভার্সন URL পাথে রাখা হয় (`/admin/v1`, `/api/v1`, `/open/v1`), কোনো ভার্সন রিকোয়েস্ট হেডার নেই:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8788/api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 ```
 
-নতুন ভার্সন যোগ করতে শুধু `app/api/{version}/controller/` ডিরেক্টরি তৈরি করে `ApiVersion` মিডলওয়্যারে রেজিস্টার করুন।
+নতুন ভার্সন যোগ করতে শুধু `app/api/{version}/controller/` ডিরেক্টরি তৈরি করে `config/route.php`-এ `/api/v{version}` গ্রুপ রেজিস্টার করুন (ভার্সন নম্বর শুধু URL পাথে প্রকাশ পায়, কন্ট্রোলার সরাসরি বাইন্ড, কোনো ভার্সন-হেডার মিডলওয়্যার নেই — পূর্বের `ApiVersion` হেডার মিডলওয়্যার সরানো হয়েছে)।
 
 ## রেট লিমিট স্ট্র্যাটেজি
 
@@ -257,8 +286,24 @@ Redis স্লাইডিং উইন্ডো (Lua অ্যাটমিক)
 
 ### HarmonyOS
 - `@ohos.net.http` নেটিভ HTTP ক্লায়েন্ট ব্যবহার
-- Token সাইলেন্ট রিফ্রেশ: 401 হলে স্বয়ংক্রিয়ভাবে `/api/auth/refresh` কল
+- Token সাইলেন্ট রিফ্রেশ: 401 হলে স্বয়ংক্রিয়ভাবে `/api/v1/auth/refresh` কল
 - রিফ্রেশ ব্যর্থ হলে স্বয়ংক্রিয় লগইন পেজে রিডাইরেক্ট
+
+## পরিচিত টেকনিক্যাল ঋণ
+
+> নিচের তালিকা `grep -rn "new .*Service(" app/controller/` দিয়ে মাপা (৪৫টি জায়গা), কোডের বাস্তব অবস্থার সাথে সঙ্গতিপূর্ণ।
+> **P5-এ রিফ্যাক্টর করা হবে না**: কন্ট্রোলারে সরাসরি সার্ভিস তৈরি করা বিদ্যমান প্যাটার্ন; কেবল নতুন কোড লেখার সময় কন্টেইনার ইনজেকশন (`support\Container`) ব্যবহার করা হবে, পুরনো কোড আগের মতোই থাকবে।
+
+| মডিউল | সরাসরি তৈরি সার্ভিসের সংখ্যা | বিবরণ |
+|------|-----------|------|
+| finance | ২২ | AR/AP/সমন্বয়/জার্নাল/ক্লোজিং/কনসোলিডেশন রিপোর্ট |
+| wms | ৯ | রিসিভ/পুটঅ্যাওয়ে/ওয়েভ/পিকিং/প্যাকিং ইত্যাদি প্রসেস সার্ভিস |
+| tms | ৫ | শিপমেন্ট/কম্পারিজন/ট্র্যাকিং/ফ্রেট ইনভয়েস |
+| oms | ৩ | ফুলফিলমেন্ট/রিজার্ভেশন/RMA |
+| quality | ২ | ইন্সপেকশন/নন-কনফরমিটি হ্যান্ডলিং |
+| hr | ২ | বেতন/অ্যাটেনডেন্স |
+| platform | ১ | টেন্যান্ট |
+| notification | ১ | নোটিফিকেশন চ্যানেল |
 
 ## ডিপ্লয়মেন্ট
 

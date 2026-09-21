@@ -19,13 +19,14 @@
 | 业务模块 | 6（规划值） | 6（规划值） | 23 <!-- stats:modules=23 --> |
 
 > **统计口径**：仓库当前只实现完整版（Full）一套代码；Lite/Standard 列为产品规划值
-> （对应分支已归档冻结，见下文「分支策略」），不参与 doc-stats 校验。
+> （无对应分支，见下文「分支策略」），不参与 doc-stats 校验。
 > Full 列数字由 `scripts/doc-stats.sh` 实测（227 表 / 159 控制器 / 23 业务模块），
 > 与 `docs/FUNCTIONS.md` 附录口径一致。
-> **分支事实**（2026-08-31 实测 `git rev-list --left-right --count main...lite|standard|full`）：
-> `lite` / `standard` / `full` 三分支均存在，停在 2026-08-17 提交 `eea90c0`，三分支 merge-base 同为
-> `eea90c0`（即三分支彼此无任何差异），各自落后 `main` 38 个提交且无独有提交——分支仅归档不维护，
-> 与 `main` 无分叉、无需 cherry-pick 历史差异。
+> **分支事实**（2026-09-22 实测 `git branch -a` + `git ls-remote --heads origin`）：
+> 仓库本地与远程均只剩 `main` 一条分支；`lite` / `standard` / `full` 三分支**已删除**
+> （2026-08-31 曾实测三分支并存、同停在 2026-08-17 提交 `eea90c0`、彼此无差异且落后 `main` 38 个提交）。
+> 该归档提交仍在 `main` 历史中（`git merge-base --is-ancestor eea90c0 main` 成立），
+> 即版本差异如今只能靠提交与 tag 追溯，仓库里已无版本分支可 checkout。
 
 ---
 
@@ -36,9 +37,9 @@
 - **管理端从两套变三套**：Angular 22（`apps/angular/`）与 React 19 + Vite（`apps/react/`）加入，
   与既有 Flutter 3.x Web（`apps/flutter/`）并列，三端共用同一套 `/admin/v1`、`/api/v1`、`/open/v1` 接口。
 - **全平台 13 语种**（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id）：
-  - 后端响应消息 `resource/translations/<locale>/`——11 个语种各 542 条、`zh_CN` 533、`en` 30
-    （口径：叶子条目；`validation.php` 的 `attributes` 为分组容器不计入。`en` 行「英文即 key」，词典近乎为空）
-  - 管理端界面：Angular 源词典 1453 键、React 1447 键 × 11 个新语种；**按语种懒加载**、每语种各成一个 chunk
+  - 后端响应消息 `resource/translations/<locale>/`——`zh_CN` 565 条、其余 11 个语种各 544 条、`en` 30 条
+    （口径：三文件叶子条目，`validation.php` 的 `attributes` 字段标签计入、其组键不计——`zh_CN` 因译出 21 个字段标签而多 21 条。`en` 行「英文即 key」，词典近乎为空）
+  - 管理端界面：Angular 源词典 1456 键、React 1451 键 × 11 个新语种；**按语种懒加载**、每语种各成一个 chunk
   - 生成器：`scripts/gen-be-locales.mjs`（后端）、`scripts/gen-fe-locales.mjs`（前端，`--app angular|react`）
   - 切换入口：顶栏**独立 globe 图标** + 个人中心下拉（两端一致）
 - **Flutter 与 HarmonyOS 仍为中/英两语种**，未纳入本轮。
@@ -80,7 +81,7 @@
 | 文件上传 / Excel 导出 / PDF 导出 | ✔ | ✔ | ✔ |
 | 健康检查 / Prometheus 指标 | ✔ | ✔ | ✔ |
 | JWT 认证 + 点击验证码 | ✔ | ✔ | ✔ |
-| 18 层安全防护 | ✔ | ✔ | ✔ |
+| 7 层纵深防御安全防护 | ✔ | ✔ | ✔ |
 | 国际化 (i18n) 13 语种（Angular/React；Flutter/HarmonyOS 仍中/英） | — | — | ✔ |
 
 ### 商品与基础数据
@@ -156,7 +157,7 @@
 |------|:---:|:---:|:---:|
 | 审批工作流引擎 | — | — | ✔ |
 | 消息通知系统 | — | — | ✔ |
-| API 文档 (hg/apidoc) | ✔ | ✔ | ✔ |
+| API 文档 (erikwang2013/apidoc-php) | ✔ | ✔ | ✔ |
 
 ### 扩展模块
 
@@ -192,10 +193,13 @@
 ## 分支策略（2026-08-27 起）
 
 > 适用于 `lite` / `standard` / `full` 三个版本分支，与 CI release 作业（幂等版本 tag）一致。
+> **现状补充（2026-09-22 实测）**：三分支已删除，本节余下条目按「归档=提交与 tag」理解，
+> 不再有可 checkout 的版本分支。
 
 - **`main` 是唯一开发源**：所有功能开发、缺陷修复、依赖升级一律合入 `main`，提交由 Lead 统一执行。
 - **版本分支仅归档、不维护**：`lite` / `standard` / `full` 冻结为历史归档分支，不再接收新提交、
-  不再同步 `main` 增量，也不做强制更新或推送（避免维护三条代码线）。
+  不再同步 `main` 增量，也不做强制更新或推送（避免维护三条代码线）；**冻结期结束后三分支已删除**，
+  归档内容留存在 `main` 历史的 `eea90c0`。
 - **版本差异以版本 tag 记录**：发版由 CI release 作业按最新 tag 幂等创建 `vX.Y.Z`
   （见 `scripts/bump-version.sh`）；各版本间的功能差异以 tag 及上文功能对比表为准，而非维护分支代码线。
 - **验证**：`main` 的 CI 即版本发布验证，归档分支不再单独运行 CI。（2026-09-15 起 release 作业依赖为 `docs` + `e2e`；php 作业照跑但不拦发版——其红点是 CI 专属的集成测试历史债，见 `.github/workflows/ci.yml` 注释。）

@@ -18,16 +18,17 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 > Architecture doc: `ARCHITECTURE.md` §21
 > Feature matrix: `FUNCTIONS.md` §19
 
-**Current overall score 89/100** — full roadmap P0~P3 completed, 22 modules full-stack coverage, production-ready.
+**Current overall score 89/100** — full roadmap P0~P3 completed, 23 modules full-stack coverage, production-ready.
 
 | Phase | Duration | Deliverables | Status |
 |------|------|--------|------|
-| 🔵 **P0** Frontend ecosystem | 3-4 weeks | 97 Flutter pages + 34 HarmonyOS pages + 4 shared components | ✅ |
+| 🔵 **P0** Frontend ecosystem | 3-4 weeks | 102 Flutter routes + 41 HarmonyOS pages + 4 shared components | ✅ |
 | 🟢 **P1** Business depth | 4-6 weeks | Finance engine + payroll engine + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** Operations reliability | 1-2 weeks | Migration rollback + auto backup + TraceId + dual queue drivers | ✅ |
-| 🟣 **P3** Experience enhancement | 2-3 weeks | BI dashboards + EAM + multi-tenancy + DMS + 7 new tables | ✅ |
+| 🟣 **P3** Experience enhancement | 2-3 weeks | BI dashboards + EAM + DMS | ✅ |
+(Multi-tenancy B5 was delivered ahead of schedule in P2: TenantScope request context + erp_tenant; the isolation middleware seam is not registered)
 
-**Tests**: 513 tests, 2368 assertions (32 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**Tests**: 1008<!-- stats:tests=1008 --> tests, 4768<!-- stats:assertions=4768 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## Feature List
 
@@ -40,7 +41,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | System config | Key-value CRUD |
 | Operation audit | Log queries + 8-platform source detection |
 | Files | Upload + Excel/PDF export (sensitive data masked) |
-| Security | 18-layer defense in depth (XSS/SQL injection/CSRF/rate limiting/CSP...) |
+| Security | 7-layer defense in depth (XSS/SQL injection/CSRF/rate limiting/CSP...) |
 | Operations | Health check/Prometheus metrics/API docs/security.txt + Docker + CI/CD |
 | Product management | Products/SKUs/categories/brands/warehouses/locations/suppliers/customers |
 | Purchase management | Requisition→order→receiving→return→settlement (auto stock-in + AP generation) |
@@ -74,20 +75,34 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - Database sensitive field encryption: `erikwang2013/encryptable`
 - ES sync and query: `erikwang2013/webman-scout`
 - Country flags: `erikwang2013/season`
-- API doc generation: `hg/apidoc` | annotation-based, visit /apidoc
+- API doc generation: `erikwang2013/apidoc-php` | annotation-based, visit /apidoc
 
 ### Frontend
 - Flutter 3.x, source directory `apps/flutter/`
 - Web is designed in PC admin console style (not mobile app style)
 - Supports both client and administrator ends
 - HarmonyOS ArkTS, source directory `apps/harmonyos/`
+- Angular 22 CLI + ng-zorro-antd, source directory `apps/angular/` (web admin console)
+- React 19 + Vite, source directory `apps/react/` (web admin console)
+- All four frontends share one backend: Angular / React use `/admin/v1`, `/api/v1`, `/open/v1` just like Flutter, with each dev server proxying to webman during development
+
+### Internationalization (13 Languages)
+- Language list: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
+- Backend dictionaries: `resource/translations/<locale>/{common,modules,validation}.php`, 13 locale directories; `zh_CN` 565 entries, each of the other 11 locales 544 entries, `en` 30 entries (scope: leaf entries across the three files; the `attributes` field labels in `validation.php` count, their group keys do not)
+  - "English is the key": `en`'s common/modules are left empty; the keys in `validation.php` are framework rule names, so only the values are translated
+  - Generator: `scripts/gen-be-locales.mjs`
+- Frontend dictionary (Angular): source `apps/angular/src/app/core/zh-en/part1..4.ts` (1456 entries) → artifacts `apps/angular/src/app/core/zh-<code>.ts`
+- Frontend dictionary (React): source `apps/react/src/lib/i18n/zhEn.ts` (1451 entries) → artifacts `apps/react/src/lib/i18n/zh<Code>.ts`
+  - Each of the 11 new locale dictionaries is dynamically `import()`ed into its own chunk; missing entries fall back to the original Chinese text
+  - Generator: `scripts/gen-fe-locales.mjs --app angular|react`
+- Runtime: switching language switches the `Accept-Language` request header, and the backend returns text per locale (`app/common/I18n.php` + `config/translation.php`)
 
 ## Project Structure
 
 ```
 open-erp/
 ├── app/
-│   ├── admin/controller/       # System management controllers (14)
+│   ├── admin/controller/       # System management controllers (16)
 │   │   ├── BaseController.php      # Base controller
 │   │   ├── DashboardController.php # Dashboard + sales/inventory/finance panels
 │   │   ├── UserController.php      # User CRUD + batch operations
@@ -102,56 +117,61 @@ open-erp/
 │   │   ├── HealthController.php    # Health check
 │   │   ├── DocsController.php      # OpenAPI docs
 │   │   └── MetricsController.php   # Prometheus metrics
-│   ├── api/v1/controller/      # Client API (version-header controlled)
+│   ├── api/v1/controller/      # Client API (version in the path /api/v1, no version header)
 │   │   ├── CaptchaController.php   # Click captcha
 │   │   ├── AuthController.php      # Login/register/refresh
 │   │   └── ProductController.php   # Product queries (no purchase price)
-│   ├── controller/              # Business module controllers (104, incl. InstallController)
-│   │   ├── product/             # Products/categories/brands/warehouses/locations/suppliers/customers (7)
-│   │   ├── purchase/            # Purchase requisitions/orders/receiving/returns/settlement (5)
+│   ├── controller/              # Business module controllers (139, incl. top-level InstallController / IndexController)
+│   │   ├── product/             # Products/categories/brands/warehouses/locations/suppliers/customers/specs (8)
+│   │   ├── purchase/            # Requisitions/inquiries/quotations/orders/receiving/returns/settlement/supplier evaluation (8)
 │   │   ├── sales/               # Sales quotations/orders/deliveries/returns/settlement (5)
-│   │   ├── inventory/           # Inventory/flows/transfers/counts/alerts (5)
-│   │   ├── finance/             # AR-AP/vouchers/receipts-payments/journals/general ledger/subsidiary ledger/three statements/fixed assets/tax/multi-currency/budget/cost-profit centers (20)
+│   │   ├── inventory/           # Inventory/flows/transfers/counts/alerts/traceability (6)
+│   │   ├── finance/             # AR-AP/vouchers/receipts-payments/journals/general ledger/subsidiary ledger/three statements/fixed assets/tax/multi-currency/budget/cost & profit centers/bank reconciliation/expenses/invoices & settlement/consolidated reports/credit terms (28)
 │   │   ├── crm/                 # Opportunities/follow-ups/funnel/contacts/public pool/quotations/contracts/campaigns/tickets/analytics (10)
-│   │   ├── workflow/            # Workflow definitions/approval submits/approvals/rejections/withdrawals (2)
-│   │   ├── notification/        # Notification lists/read/unread counts (1)
-│   │   ├── project/             # Projects/tasks/timesheets (3)
-│   │   ├── hr/                  # Departments/employees/positions/attendance/leave/payroll (5)
-│   │   ├── manufacturing/       # BOM/production orders/routings/workstations/MRP (5)
+│   │   ├── workflow/            # Workflow definitions/designer/approval submits/approvals/rejections/withdrawals (3)
+│   │   ├── notification/        # Notification lists/read/unread counts/channels (2)
+│   │   ├── project/             # Projects/tasks/timesheets/project costs (4)
+│   │   ├── hr/                  # Departments/employees/positions/attendance/payroll/performance/recruiting/social insurance/training (9)
+│   │   ├── manufacturing/       # BOM/production orders/routings/workstations/MRP/capacity/material issue/reporting/piece-rate wages/cost entry/outsourcing (13)
 │   │   ├── report/              # Report templates/datasets/execution/scheduled dispatch (2)
 │   │   ├── oms/                 # Orders/fulfillment/inventory reservation/RMA/channels (4)
 │   │   ├── wms/                 # Zones & locations/ASN receiving/putaway/waves/picking/packing (8)
 │   │   ├── tms/                 # Carriers/rates/shipments/labels/tracking (6)
 │   │   ├── quality/             # IQC/IPQC/OQC/inspection standards/nonconformities (5)
-│   │   ├── eam/                 # Equipment/maintenance plans/repair orders/spare parts (4)
+│   │   ├── eam/                 # Equipment/maintenance plans/repair orders/spare parts/spot checks (5)
 │   │   ├── dms/                 # Document categories/documents/versions (2)
+│   │   ├── open/                # Open platform API (1)
+│   │   ├── platform/            # Custom fields/tenants (2)
+│   │   ├── print/               # Print templates (1)
+│   │   ├── retail/              # Coupons/members (2)
 │   │   └── bi/                  # BI dashboards/chart widgets (3)
-│   ├── service/                 # Business logic layer (container-registered, 24)
+│   ├── service/                 # Business logic layer (64 files / 63 service classes)
 │   │   ├── finance/             # FinanceService: AR-AP auto-generation + receipt-payment reconciliation + journals
 │   │   ├── inventory/           # InventoryService: stock in/out + moving weighted average costing
 │   │   ├── notification/        # NotificationService: notification sending
-│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/  # Order/warehouse/transportation/QC/HR/manufacturing services
-│   ├── common/                  # Shared utility classes (container-registered, 4)
+│   │   └── oms/ wms/ tms/ quality/ hr/ manufacturing/…  # Order/warehouse/transportation/QC/HR/manufacturing services (20 module subdirectories in total)
+│   ├── common/                  # Shared utility classes (6)
 │   │   ├── HashidsService.php   # ID encode/decode
 │   │   ├── SnowflakeService.php # Snowflake ID generation
 │   │   ├── EncryptionService.php# Data encryption + masking
-│   │   └── I18n.php             # i18n translation
-│   ├── middleware/              # Middleware (12)
-│   │   ├── Locale.php           # Accept-Language auto-detection
+│   │   ├── I18n.php             # i18n translation
+│   │   ├── CorsPolicy.php       # CORS policy (called by middleware/Cors and route.php)
+│   │   └── AddressValidator.php # Address validation (multi-country postal formats + form fields)
+│   ├── middleware/              # Middleware (11)
 │   │   ├── Cors.php             # Cross-origin
 │   │   ├── SecurityFilter.php   # XSS/SQL injection/path traversal/command injection/CSRF blocking
 │   │   ├── RateLimit.php        # Redis sliding-window rate limiting
-│   │   ├── ApiVersion.php       # API version validation
 │   │   ├── AdminAuth.php        # JWT authentication + blacklist
 │   │   ├── AdminPermission.php  # RBAC permission validation
 │   │   ├── OperationLog.php     # Auto operation-log recording
-│   │   ├── TenantScope.php      # Multi-tenant isolation (static calls)
+│   │   ├── OpenApiAuth.php      # Open API authentication (X-API-Key + signature, mounted on the /open/v1 group only)
+│   │   ├── TenantScope.php      # Multi-tenant isolation (reserved, not registered; see ARCHITECTURE.md §22)
 │   │   ├── TracingId.php        # End-to-end TraceId
 │   │   ├── TrackingSignature.php# Request signature validation
 │   │   └── StaticFile.php       # Static file serving (built into webman)
-│   ├── model/                   # Data models (161)
+│   ├── model/                   # Data models (224; 225 files including the concerns/TenantScope trait)
 │   ├── queue/                   # Queue tasks
-│   └── process/                 # Processes (Http, Monitor)
+│   └── process/                 # Processes (Http, WebSocket, QueueConsumer, Monitor)
 ├── apps/
 │   ├── flutter/                 # Flutter all platforms (Web/iOS/Android/macOS/Windows/Linux)
 │   │   └── lib/app/
@@ -159,14 +179,22 @@ open-erp/
 │   │       ├── services/        # ApiService + AuthService + CaptchaService + ExportService
 │   │       ├── layouts/        # Responsive layouts
 │   │       └── theme/          # Material 3 theme
+│   ├── angular/                 # Angular 22 CLI + ng-zorro-antd web admin console
+│   │   └── src/app/
+│   │       ├── core/            # ApiService / AuthStore / I18n services + locale dictionaries (zh-en/ source, zh-<code>.ts artifacts)
+│   │       └── config/ layout/ pages/ ui/
+│   ├── react/                   # React 19 + Vite web admin console
+│   │   └── src/
+│   │       ├── lib/i18n/        # Source dictionary zhEn.ts + 11 locale files zh<Code>.ts (lazy-loaded per locale)
+│   │       └── components/ layout/ pages/ state/ config/domains/ styles/
 │   └── harmonyos/              # HarmonyOS client
 ├── config/                     # Config files
 │   ├── route.php               # Routes + API version strategy
 │   ├── middleware.php           # Global middleware registration
 │   ├── translation.php          # Language config
-│   └── plugin/hg/apidoc/        # API doc config (25 admin modules + 3 client modules)
+│   └── plugin/                  # Plugin configs (erikwang2013/*; apidoc in erikwang2013/apidoc/)
 ├── database/
-│   ├── install.sql              # Full install SQL (163 tables + seed data, all migrations merged)
+│   ├── install.sql              # Full install SQL (227 tables + seed data, all migrations merged)
 │   ├── e2e-seed.sql             # E2E/CI minimal seed
 │   └── backup/                 # Database backup scripts
 │       ├── backup.sh           # mysqldump+gzip, 30-day retention
@@ -203,11 +231,12 @@ open-erp/
 ## Middleware Execution Chain
 
 ```
-全局:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
-/health:  Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
-/install: Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
-/admin:   Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
-/api:     Locale → Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → ApiVersion → Controller
+全局:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → {路由中间件}
+/health:  Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/install: Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/admin/v1:   Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → AdminAuth → AdminPermission → OperationLog → Controller
+/api/v1:     Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → Controller
+/open/v1:    Cors → SecurityFilter(方法检查→405) → RateLimit → TracingId → OpenApiAuth → Controller
 ```
 
 ## Security Hardening
@@ -221,13 +250,13 @@ open-erp/
 
 ## API Version Strategy
 
-Versions are controlled by the `API-Version` request header (default `v1`), not reflected in the URL:
+Versions live in the URL path (`/admin/v1`, `/api/v1`, `/open/v1`); there is no version request header:
 
 ```bash
-curl -H "API-Version: v1" http://localhost:8788/api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 ```
 
-Adding a version only requires creating the `app/api/{version}/controller/` directory and registering it in the `ApiVersion` middleware.
+Adding a version only requires creating the `app/api/{version}/controller/` directory and registering the `/api/v{version}` group in `config/route.php` (the version appears in the URL path only, controllers are bound directly, and there is no version-header middleware — the former `ApiVersion` header middleware has been removed).
 
 ## Rate Limiting Strategy
 
@@ -257,8 +286,24 @@ Redis sliding window (Lua atomic), default 60 times/minute/IP/route:
 
 ### HarmonyOS
 - Native HTTP client via `@ohos.net.http`
-- Token silent refresh: auto-calls `/api/auth/refresh` on 401
+- Token silent refresh: auto-calls `/api/v1/auth/refresh` on 401
 - Refresh failure auto-redirects to the login page
+
+## Known Technical Debt
+
+> The list below was measured with `grep -rn "new .*Service(" app/controller/` (45 occurrences) and matches the code as it stands.
+> **P5: no refactoring**: controllers constructing services directly is the established pattern; only new code should move to container injection (`support\Container`), and existing code stays as it is.
+
+| Module | Directly-constructed services | Notes |
+|------|-----------|------|
+| finance | 22 | AR/AP, write-off, journals, period close, consolidated reports |
+| wms | 9 | Receiving, putaway, wave, picking, packing and other flow services |
+| tms | 5 | Shipments, rate comparison, tracking, freight invoices |
+| oms | 3 | Fulfillment, reservation, RMA |
+| quality | 2 | Inspection, nonconformity handling |
+| hr | 2 | Payroll, attendance |
+| platform | 1 | Tenants |
+| notification | 1 | Notification channels |
 
 ## Deployment
 

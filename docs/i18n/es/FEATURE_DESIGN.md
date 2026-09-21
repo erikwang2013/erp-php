@@ -50,7 +50,7 @@ El Sistema ERP Abierto (open-erp) es un sistema de planificación de recursos em
 - Solo admite consulta; no se puede eliminar/modificar
 
 ### 2.5 Protección de seguridad
-- 18 capas de defensa en profundidad (ver SECURITY.md)
+- 7 capas de defensa en profundidad (véase SECURITY.md)
 - SecurityFilter: restricción de métodos HTTP + interceptación de XSS/inyección SQL/recorrido de rutas/inyección de comandos/CSRF
 - RateLimit: limitación de frecuencia con ventana deslizante en Redis (Lua atómico, 60 veces/minuto)
 - Captcha de clic (obligatorio en inicio de sesión/registro)

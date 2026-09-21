@@ -35,8 +35,8 @@ digraph SystemArchitectureCN {
             fontsize=12; fontname="Arial Bold";
             style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
             node [fillcolor="#ffffff", color="#78909c", fontsize=10];
-            m1 [label="语言检测\n国际化"]; m2 [label="跨域处理\nCORS"]; m3 [label="安全\n过滤器"]; m4 [label="限流\n控制"]; m5 [label="API\n版本"];
-            m1 -> m2 -> m3 -> m4 -> m5 [color="#90a4ae"];
+            m1 [label="跨域处理\nCORS"]; m2 [label="安全\n过滤器"]; m3 [label="限流\n控制"]; m4 [label="链路追踪\nX-Trace-Id"];
+            m1 -> m2 -> m3 -> m4 [color="#90a4ae"];
         }
 
         subgraph cluster_auth {
@@ -53,7 +53,7 @@ digraph SystemArchitectureCN {
             fontsize=12; fontname="Arial Bold";
             style="filled,rounded"; fillcolor="#fafafa"; color="#90a4ae";
             node [fillcolor="#ffffff", color="#78909c", fontsize=10];
-            c1 [label="管理端控制器\n(14 个文件)"]; c2 [label="业务控制器\n(104 个)"]; c3 [label="服务层\n(24 个服务)"]; c4 [label="API 控制器 v1\n(验证码/认证/商品)"];
+            c1 [label="管理端控制器\n(16 个文件)"]; c2 [label="业务控制器\n(139 个)"]; c3 [label="服务层\n(63 个服务)"]; c4 [label="API 控制器 v1\n(验证码/认证/商品)"];
         }
 
         subgraph cluster_common {
@@ -64,7 +64,7 @@ digraph SystemArchitectureCN {
             s1 [label="Hashids\nID 加密"]; s2 [label="Snowflake\nID 生成"]; s3 [label="数据加密\n加解密"]; s4 [label="国际化\n翻译"];
         }
 
-        m5 -> m6; m7 -> c1; m7 -> c2; m7 -> c4;
+        m4 -> m6; m7 -> c1; m7 -> c2; m7 -> c4;
         c1 -> c3; c2 -> c3; c4 -> c3;
         c3 -> s1; c3 -> s2; c3 -> s3; c3 -> s4;
     }
@@ -74,7 +74,7 @@ digraph SystemArchitectureCN {
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#fce4ec"; color="#c62828"; penwidth=2;
         node [shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f", fontsize=10];
-        d1 [label="MySQL 8.0\n主数据库\n163 张表\nerp_ 前缀"];
+        d1 [label="MySQL 8.0\n主数据库\n227 张表\nerp_ 前缀"];
         d2 [label="Redis 7\n缓存/会话\n限流/黑名单"];
         d3 [label="Elasticsearch 8.x\n全文检索\nerp_ 索引前缀"];
     }

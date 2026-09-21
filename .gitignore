@@ -37,6 +37,9 @@ apps/harmonyos/entry/build/
 apps/harmonyos/.hvigor/
 
 # 本地备份/诊断残留
+# public/img：本机存放的照片（单张可达 ~30MP），被 config/poster.php 的 background_dir 引用
+# 作验证码背景图。属于本机素材、不入版本库，避免误提交（部署环境的该目录请自备小图，见该文件注释）
+public/img/
 .env.bak-*
 # .env 的人工备份：含 DB/JWT/加密密钥，与 .env 同级敏感（writeEnv 不产生此文件，纯手工残留）
 .env.back

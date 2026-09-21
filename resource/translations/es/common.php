@@ -436,4 +436,6 @@ return [
     'Material dispatch number already exists' => 'El número de despacho de material ya existe',
     'Audited material dispatches cannot be modified' => 'Los despachos de material auditados no se pueden modificar',
     'Audited material dispatches cannot be deleted' => 'Los despachos de material auditados no se pueden eliminar',
+    'Number ":code" already exists; please refresh the page and use another one' => 'El número ":code" ya existe; actualice la página y utilice otro',
+    'Issued-out records cannot be deleted' => 'Los registros de salida emitidos no se pueden eliminar',
 ];

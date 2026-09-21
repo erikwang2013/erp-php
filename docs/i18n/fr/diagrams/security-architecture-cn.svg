@@ -8,7 +8,7 @@
  viewBox="0.00 0.00 958.00 1341.76" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 1337.76)">
 <title>SecurityArchitectureCN</title>
-<text text-anchor="middle" x="475" y="-1315.36" font-family="Arial Bold" font-size="18.00">18 层纵深防御安全架构</text>
+<text text-anchor="middle" x="475" y="-1315.36" font-family="Arial Bold" font-size="18.00">纵深防御安全架构（L0–L12）</text>
 <g id="clust1" class="cluster">
 <title>cluster_L0</title>
 <path fill="#e3f2fd" stroke="#1565c0" stroke-width="2" d="M553,-1207.02C553,-1207.02 892,-1207.02 892,-1207.02 898,-1207.02 904,-1213.02 904,-1219.02 904,-1219.02 904,-1285.76 904,-1285.76 904,-1291.76 898,-1297.76 892,-1297.76 892,-1297.76 553,-1297.76 553,-1297.76 547,-1297.76 541,-1291.76 541,-1285.76 541,-1285.76 541,-1219.02 541,-1219.02 541,-1213.02 547,-1207.02 553,-1207.02"/>
@@ -532,4 +532,4 @@
 <text text-anchor="middle" x="579" y="-30.67" font-family="Arial" font-size="9.00">敏感操作完整记录</text>
 </g>
 </g>
-<text x="950" y="1334" font-size="13" fill="rgba(0,0,0,0.25)" font-family="sans-serif" text-anchor="end">erik.xyz</text></svg>
+</svg>

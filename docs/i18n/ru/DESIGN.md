@@ -6,7 +6,7 @@
 
 ## 1. Системная архитектура
 
-> **Перечень функций**: аутентификация (login/register/refresh/logout + блокировка аккаунта + ограничение сессий) | дашборды (кэш Redis) | CRUD пользователей + массовые + импорт | роли и права (RBAC) | системная конфигурация | аудит операций (источник по 8 платформам) | файлы (загрузка + экспорт + маскирование) | безопасность (18 уровней) | эксплуатация (health/metrics/docs/Docker/CI)
+> **Перечень функций**: аутентификация (login/register/refresh/logout + блокировка аккаунта + ограничение сессий) | дашборды (кэш Redis) | CRUD пользователей + массовые + импорт | роли и права (RBAC) | системная конфигурация | аудит операций (источник по 8 платформам) | файлы (загрузка + экспорт + маскирование) | безопасность (7 уровней эшелонированной обороны middleware, панорама L0–L12 + 35 классов детекторов атак) | эксплуатация (health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -64,8 +64,8 @@
 | Слой | Каталог | Обязанности |
 |---|------|------|
 | Маршруты | `config/route.php` | сопоставление URL с контроллерами, привязка middleware, версионированные маршруты |
-| Middleware | `app/middleware/` | блокировка атак (SecurityFilter), лимит запросов (RateLimit), аутентификация (JWT), авторизация (RBAC), версия API (ApiVersion) |
-| Контроллеры | 14 шт.: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (админка) + Captcha/Auth (API v1) | валидация параметров запроса, вызов бизнес-логики, форматирование ответа |
+| Middleware | `app/middleware/` | межсайтовые запросы (Cors), блокировка атак (SecurityFilter), лимит запросов (RateLimit), трассировка (TracingId), аутентификация (JWT), авторизация (RBAC), журнал операций (OperationLog), подпись открытых API (OpenApiAuth) — всего 11 файлов |
+| Контроллеры | Админка 15 шт.: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (плюс базовый класс `BaseController`) + API v1 3 шт.: Captcha/Auth/Product | валидация параметров запроса, вызов бизнес-логики, форматирование ответа |
 | Бизнес-сервисы | `app/service/` | переиспользуемая бизнес-логика (зарезервировано) |
 | Модели данных | `app/model/` | ORM-сопоставление, связи, шифрование/дешифрование полей |
 | Общие утилиты | `app/common/` | сервисы Hashids, Snowflake, Encryption |
@@ -83,14 +83,17 @@ webman HTTP Server (workerman)
   │
   ▼
 Цепочка middleware:
+  Cors ────────────────► обработка предварительного запроса OPTIONS, внедрение заголовков CORS
+  │
+  ▼
   SecurityFilter ──────► проверка HTTP-метода → 405 (только GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     блокировка XSS/SQL-инъекций/обхода путей/инъекций команд/CSRF (403)
   ▼
   RateLimit ───────────► лимит скользящим окном Redis
   │ (при превышении 429 + заголовок Retry-After)
   ▼
-  ApiVersion ─────────► проверка заголовка API-Version, внедрение $request->apiVersion
-  │ (при ошибке 400)
+  TracingId ───────────► генерация X-Trace-Id, сквозная по всей цепочке
+  │ (номер версии в пути URL /admin/v1 /api/v1 /open/v1, middleware заголовка версии отсутствует)
   ▼
   AdminAuth ──────────► проверка JWT, внедрение $request->adminId
   │ (при ошибке 401)
@@ -173,58 +176,51 @@ erp_system_config (системная конфигурация) — отдель
 ### 4.1 Спецификация URL
 
 ```
-Публичные интерфейсы:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+Публичные интерфейсы:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 Админка:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 Маршруты ресурсов:
-  GET    /admin/user          → список
-  POST   /admin/user          → создание
-  GET    /admin/user/{hashid} → детали
-  PUT    /admin/user/{hashid} → обновление
-  DELETE /admin/user/{hashid} → удаление (требуется подтверждение паролем)
+  GET    /admin/v1/user          → список
+  POST   /admin/v1/user          → создание
+  GET    /admin/v1/user/{hashid} → детали
+  PUT    /admin/v1/user/{hashid} → обновление
+  DELETE /admin/v1/user/{hashid} → удаление (требуется подтверждение паролем)
 
-Системная конфигурация:  /admin/config[/{hashid}]
-Журнал операций:  /admin/log
-Личный кабинет:  /admin/profile[/password|/logout]
-Импорт:     /admin/import/users
-Загрузка:     /admin/upload
-Массовые:     /admin/user/batch/{destroy|status}
+Системная конфигурация:  /admin/v1/config[/{hashid}]
+Журнал операций:  /admin/v1/log
+Личный кабинет:  /admin/v1/profile[/password|/logout]
+Импорт:     /admin/v1/import/users
+Загрузка:     /admin/v1/upload
+Массовые:     /admin/v1/user/batch/{destroy|status}
 Документация:     /api/docs     (OpenAPI 3.0)
 Здоровье:     /health
 ```
 
 ### 4.2 Стратегия версий API
 
-Версия API задаётся заголовком запроса, **в пути URL не отражается**:
-
-```http
-API-Version: v1
-```
+Версия API **находится в пути URL**, заголовок версии не используется: админка `/admin/v1`, клиент `/api/v1`, открытые интерфейсы `/open/v1`.
 
 | Механизм | Описание |
 |------|------|
-| Версия по умолчанию | при отсутствии заголовка `API-Version` — по умолчанию `v1` |
-| Проверка | middleware `ApiVersion`, неподдерживаемая версия возвращает 400 |
-| Маршруты | вспомогательная функция `v()` динамически разрешает класс контроллера по версии |
-| Каталоги | контроллеры сгруппированы по версиям: `app/api/{version}/controller/` |
+| Расположение версии | путь URL, например `/api/v1/auth/login` |
+| Группы маршрутов | в `config/route.php` `Route::group('/api/v1', …)` напрямую привязывает контроллеры |
+| Каталоги | контроллеры организованы по версиям: `app/api/{version}/controller/` |
+| Middleware версии | исторический динамический разбор `v()` и middleware заголовка `ApiVersion` **удалены** |
 
 Пример расширения — добавление API v2:
 1. Создайте `app/api/v2/controller/AuthController.php`
-2. В константе `SUPPORTED` middleware `ApiVersion` добавьте `'v2'`
-3. Определения маршрутов менять не нужно
+2. Зарегистрируйте в `config/route.php` группу `Route::group('/api/v2', …)` и привяжите контроллеры напрямую
+3. Заголовка версии нет — границей версии является сама группа маршрутов
 
 ```bash
 # использование v1
-curl -H "API-Version: v1" /api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 
 # использование v2
-curl -H "API-Version: v2" /api/auth/login
-
-# без заголовка, по умолчанию v1
-curl /api/auth/login
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 Политика лимита запросов
@@ -234,8 +230,8 @@ curl /api/auth/login
 | Интерфейс | Ограничение |
 |------|------|
 | По умолчанию | 60 раз/мин/IP/маршрут |
-| POST /api/auth/login | 10 раз/мин |
-| POST /api/auth/register | 5 раз/мин |
+| POST /api/v1/auth/login | 10 раз/мин |
+| POST /api/v1/auth/register | 5 раз/мин |
 
 При превышении возвращается 429, заголовки ответа содержат X-RateLimit-Limit / Remaining / Reset / Retry-After.
 
@@ -264,13 +260,13 @@ curl /api/auth/login
 ```
 Клиент                               Сервер
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② пользователь нажимает           │
   │     на позицию текста на картинке  │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -279,7 +275,7 @@ curl /api/auth/login
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -307,7 +303,7 @@ curl /api/auth/login
 ```
 Клиент                           Сервер
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -380,7 +376,7 @@ curl /api/auth/login
 ### 6.2 Управление ключами
 
 ```
-JWT_SECRET          → внедрение через переменную окружения, случайная строка 64 символа
+JWT_SECRET_KEY      → внедрение через переменную окружения, случайная строка 64 символа
 HASHIDS_SALT        → уникальная соль, при утечке требуется глобальная замена
 ENCRYPTION_KEY      → ключ шифрования передачи API, 32 байта
 ENCRYPTABLE_KEY     → ключ шифрования хранения в БД, независим от ключа передачи
@@ -403,7 +399,7 @@ SCOUT_HOSTS         → адрес ES, развёртывание во внут�
 ### 7.1 Экспорт Excel
 
 ```
-Запрос: POST /admin/export/excel { table, columns, conditions, title }
+Запрос: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() запрос данных (limit 10000)
   → маскирование чувствительных полей
   → построение через PhpSpreadsheet (шапка белым по синему + закрепление первой строки + автофильтр)
@@ -413,7 +409,7 @@ SCOUT_HOSTS         → адрес ES, развёртывание во внут�
 ### 7.2 Экспорт PDF
 
 ```
-Запрос: POST /admin/export/pdf { type: table|dashboard, title, data }
+Запрос: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + инлайн-CSS + копирайт в колонтитуле + неудаляемый копирайт в подвале
   → рендер Dompdf, A4 альбомный
   → запись в runtime/tmp/ → ответ download
@@ -440,7 +436,7 @@ Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
 | `redis` | redis:7-alpine | 6379 | кэш / лимит запросов / капча |
 | `elasticsearch` | elasticsearch:8.x | 9200 | полнотекстовый поиск |
 
-Перед запуском замените ключи `JWT_SECRET`, `HASHIDS_SALT`, `ENCRYPTION_KEY` в `docker-compose.yml` на случайные строки.
+Перед запуском замените ключи `JWT_SECRET_KEY`, `HASHIDS_SALT`, `ENCRYPTION_KEY` в `docker-compose.yml` на случайные строки.
 
 ```bash
 cp .env.docker .env

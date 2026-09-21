@@ -120,7 +120,7 @@ collect() {
 # ------------------------------------------------------------
 check_docs() {
   local docs_dir="${1:-$ROOT/docs}"
-  local fail=0 checked=0 line file lineno ann inner key val actual
+  local fail=0 checked=0 line file lineno ann inner key val actual shown
 
   if [[ ! -d "$docs_dir" ]]; then
     echo "✗ 文档目录不存在: $docs_dir"
@@ -155,6 +155,17 @@ check_docs() {
     elif [[ "$actual" != "$val" ]]; then
       echo "✗ $file:$lineno — stats:${key} 标注 ${val} ≠ 实测 ${actual}"
       fail=$((fail + 1))
+    fi
+
+    # 展示值校验：标注若紧跟在某数字之后（数字 + 空白 + 标注），该数字即给人看的
+    # 「展示值」，必须与标注一致。否则标注是绿的、正文却是旧数字（--fix 原先只改
+    # 标注，不动展示值，于是 227 的标注旁边写着 163 也能通过校验）。
+    if [[ "$(sed -n "${lineno}p" "$file")" =~ ([0-9]+)[[:space:]]*"$ann" ]]; then
+      shown="${BASH_REMATCH[1]}"
+      if [[ "$shown" != "$val" ]]; then
+        echo "✗ $file:$lineno — 展示值 ${shown} ≠ 标注 ${key}=${val}"
+        fail=$((fail + 1))
+      fi
     fi
   done < <(grep -rnoE '<!-- stats:[a-zA-Z0-9_]+=[0-9]+ -->' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null || true)
 
@@ -209,6 +220,11 @@ fix_docs() {
       continue
     fi
     expr+="s|<!-- stats:${key}=[0-9]+ -->|<!-- stats:${key}=${val} -->|g"$'\n'
+    # 展示值同步：标注紧跟数字时（`163 <!-- stats:tables=227 -->`），那个数字是给人看的
+    # 展示值，一并改写。要求「数字 + 仅空白 + 标注」严格相邻，故 `（23 skipped）<!-- … -->`
+    # 这类中间夹了别的字符的标注不会误伤。展示值与标注本就不同（人为写错）时，只能改标注，
+    # 需人工订正展示值 —— 由 check_docs 的展示值校验报红提示。
+    expr+="s|([0-9]+)([[:space:]]*<!-- stats:${key}=)[0-9]+( -->)|${val}\2${val}\3|g"$'\n'
   done <<< "$keys"
 
   if [[ -z "$expr" ]]; then

@@ -11,10 +11,10 @@
 
 | Dimension | État actuel | Implications pour l'équipe |
 |------|------|--------------|
-| Backend | webman (Workerman) PHP 8.3+, **22 modules métier**, 121+ contrôleurs, 24 services, 161 modèles, 163 tables, 12 middlewares (le schéma a `database/install.sql` comme source unique de vérité) | Monolithe grand et complet, réparti par domaines métier pour éviter l'explosion de contexte d'un agent unique |
-| Frontend | Flutter **97 pages** (Web / mobile) + HarmonyOS **34 pages**, couvrant tous les modules | Maintenance parallèle des deux plateformes, nécessite des rôles frontend dédiés |
-| Ligne de base qualité | PHPUnit 137 tests / 805 assertions, PHPStan + baseline, CS-Fixer, matrice multi-versions CI | La discipline existe déjà ; les rôles de test / revue sont directement intégrés au pipeline |
-| Matrice de versions | Trois branches `lite` / `standard` / `full` (62/72/163 tables) | Les modifications doivent tenir compte de la synchronisation entre branches, coordination des versions nécessaire |
+| Backend | webman (Workerman) PHP 8.3+, **23 modules métier**, 159 contrôleurs, 63 services, 224 modèles, 227 tables, 11 middlewares (le schéma a `database/install.sql` comme source unique de vérité) | Monolithe grand et complet, réparti par domaines métier pour éviter l'explosion de contexte d'un agent unique |
+| Frontend | Flutter **102 routes de menu** (`lib/app/config/menu_config.dart` ; les `getPages` de `main.dart` enregistrent 110 entrées au total = 102 menus + connexion / espace personnel / 6 pages de détail) + HarmonyOS **41 pages** (`main_pages.json`), couvrant tous les modules | Maintenance parallèle des deux plateformes, nécessite des rôles frontend dédiés |
+| Ligne de base qualité | PHPUnit 1001 tests / 4726 assertions, PHPStan + baseline, CS-Fixer, matrice multi-versions CI | La discipline existe déjà ; les rôles de test / revue sont directement intégrés au pipeline |
+| Matrice de versions | Une seule branche `main` (`lite` / `standard` / `full` supprimées, le commit d'archivage `eea90c0` reste dans l'historique de `main`) | Aucune branche de version à synchroniser, les différences de version se tracent par tag, voir `docs/EDITIONS.md` « Stratégie de branches » |
 | Feuille de route | P0~P3 livrés (score global 89/100), entrée dans l'itération quotidienne et la phase d'évolution | Taille de l'équipe adaptée au type de tâche, pas de grand effectif de type projet |
 | Infrastructures existantes | `.claude/agents/` (planner / sparc / testing / swarm / consensus), `.claude-flow` (hierarchical-mesh, max 15 agents, coordination consensus), hooks + mémoire | L'équipe se monte directement sur la configuration existante, sans repartir de zéro |
 
@@ -26,27 +26,27 @@
 
 | Rôle | Agent existant correspondant | Responsabilités (pour ce projet) |
 |------|-----------------|--------------------|
-| **Chef de projet Lead** | `planner` / `swarm/hierarchical-coordinator` | Décomposition des besoins → routage → recette ; maintien de la file de tâches des 22 modules ; décision pipeline / fan-out / supervisor ; relais de messages entre rôles |
-| **Architecte système** | `sparc/architecture` | Conception des structures de tables (163 tables, schéma avec `database/install.sql` comme source unique de vérité) ; flux de données inter-modules (réception d'achat → stocks → comptes à payer, expédition de vente → comptes à recevoir → sortie de stock, etc.) ; décisions de limites de découpage microservices |
-| **Développeur backend** | `core` / `backend-dev` personnalisé | Implémentation des contrôleurs / services / modèles ; respect de la stratification `app/service` et de la chaîne de middlewares (Locale→Cors→SecurityFilter→RateLimit→TracingId→middlewares métier) |
-| **Ingénieur de test** | `testing/tdd-london-swarm` + `production-validator` | Cas PHPUnit d'abord (tests de limites des moteurs) ; validation de régression sur les trois branches ; complétion des lacunes de couverture `tests/` |
-| **Réviseur de code** | `consensus/security-manager` | Zéro nouvelle entrée PHPStan baseline, conformité CS-Fixer, contrôle du schéma de sécurité sur 18 couches ; gardien de la porte qualité avant soumission |
+| **Chef de projet Lead** | `planner` / `swarm/hierarchical-coordinator` | Décomposition des besoins → routage → recette ; maintien de la file de tâches des 23 modules ; décision pipeline / fan-out / supervisor ; relais de messages entre rôles |
+| **Architecte système** | `sparc/architecture` | Conception des structures de tables (227 tables, schéma avec `database/install.sql` comme source unique de vérité) ; flux de données inter-modules (réception d'achat → stocks → comptes à payer, expédition de vente → comptes à recevoir → sortie de stock, etc.) ; décisions de limites de découpage microservices |
+| **Développeur backend** | `core` / `backend-dev` personnalisé | Implémentation des contrôleurs / services / modèles ; respect de la stratification `app/service` et de la chaîne de middlewares (Cors→SecurityFilter→RateLimit→TracingId→middlewares métier) |
+| **Ingénieur de test** | `testing/tdd-london-swarm` + `production-validator` | Cas PHPUnit d'abord (tests de limites des moteurs) ; validation de régression sur la ligne unique `main` ; complétion des lacunes de couverture `tests/` |
+| **Réviseur de code** | `consensus/security-manager` | Zéro nouvelle entrée PHPStan baseline, conformité CS-Fixer, contrôle du schéma de sécurité sur 7 couches ; gardien de la porte qualité avant soumission |
 
 ### 2.2 Équipe spécialisée (mobilisée selon le type de tâche, 4 rôles)
 
 | Rôle | Agent existant correspondant | Scénario d'activation | Tâches typiques |
 |------|-----------------|----------|----------|
 | **Expert en moteurs métier** | `business-engineer` personnalisé | Modules algorithmiques : finance / salaires / MRP | Renforcement algorithmique et traitement des cas limites des moteurs de comptabilité en partie double, de calcul des salaires, de MRP (exigence « niveau industriel » de la classe A) |
-| **Ingénieur frontend (Flutter)** | `frontend-flutter` personnalisé | Toute modification impliquant `apps/flutter/` | Pages de la console Web, état GetX, interconnexion ApiService/export, maintenance des 97 pages |
-| **Ingénieur frontend (HarmonyOS)** | `frontend-harmonyos` personnalisé | Toute modification impliquant `apps/harmonyos/` | Pages ArkTS, rafraîchissement transparent du jeton, alignement fonctionnel avec Flutter (maintenance des 34 pages) |
-| **Ingénieur sécurité / DevOps** | `consensus/security-manager` + `performance-benchmarker` | Durcissement de sécurité, performance, déploiement | Régression des 18 couches de protection, sous-services Docker/gRPC, migration / rollback, observabilité, métriques Prometheus |
+| **Ingénieur frontend (Flutter)** | `frontend-flutter` personnalisé | Toute modification impliquant `apps/flutter/` | Pages de la console Web, état GetX, interconnexion ApiService/export, maintenance des 102 routes |
+| **Ingénieur frontend (HarmonyOS)** | `frontend-harmonyos` personnalisé | Toute modification impliquant `apps/harmonyos/` | Pages ArkTS, rafraîchissement transparent du jeton, alignement fonctionnel avec Flutter (maintenance des 41 pages) |
+| **Ingénieur sécurité / DevOps** | `consensus/security-manager` + `performance-benchmarker` | Durcissement de sécurité, performance, déploiement | Régression des 7 couches de protection, sous-services Docker/gRPC, migration / rollback, observabilité, métriques Prometheus |
 
 ### 2.3 Rôles à la demande (déclenchés par les tâches, 2 rôles)
 
 | Rôle | Agent existant correspondant | Condition d'activation |
 |------|-----------------|----------|
 | **Chercheur** | `researcher` personnalisé | Avant la conception d'un nouveau module / d'une nouvelle fonctionnalité : étude des concurrents, comparaison de `docs/API.md`, `docs/FUNCTIONS.md` avec l'implémentation, production des entrées de conception |
-| **Coordinateur de versions** | `edition-coordinator` personnalisé | Toute différence `lite/standard/full` : synchronisation des trois branches, validation de la matrice `docs/EDITIONS.md`, régression entre branches |
+| **Coordinateur de versions** | `edition-coordinator` personnalisé | Toute modification de la matrice de versions : validation du tableau comparatif `docs/EDITIONS.md` (les colonnes `lite`/`standard` sont des valeurs de planification, sans branche correspondante), cohérence des tags de version et des notes de publication |
 
 ---
 
@@ -78,18 +78,18 @@
 | Découpage microservices / refonte à grande échelle | supervisor | Lead ↔ architecte + backend + revue, plusieurs allers-retours |
 | Projet sécurité / performance | approfondissement mono-thread | Lead → ingénieur sécurité / DevOps → revue |
 | Correctif de bug (fichier unique / 1-2 lignes) | hors équipe | Traité directement par le Lead, ou par 1 agent |
-| Différences de trois branches / publication de version | pipeline | Lead → coordinateur de versions → test (régression inter-branches) → revue |
+| Différences de tag de version / publication de version | pipeline | Lead → coordinateur de versions → test (régression sur la ligne unique `main`) → revue |
 
 ### 3.4 Porte qualité (obligatoire avant soumission, gardée par le réviseur)
 
 ```
-phpunit            # 137 测试 / 805 断言全绿，新增用例随改动提交
-phpstan            # 不允许新增 baseline 之外的问题
-php-cs-fixer       # --dry-run 通过
-composer audit     # 无高危依赖漏洞
+phpunit            # 1001 tests / 4726 assertions au vert, les nouveaux cas sont livrés avec la modification
+phpstan            # aucune nouvelle remontée hors baseline autorisée
+php-cs-fixer       # --dry-run passé
+composer audit     # aucune vulnérabilité de dépendance à haut risque
 ```
 
-Toute modification touchant la base de données doit passer par l'architecte (163 tables, schéma avec `database/install.sql` comme source unique de vérité) ; toute modification frontend doit passer le `flutter analyze` à 0 error / 0 warning.
+Toute modification touchant la base de données doit passer par l'architecte (227 tables, schéma avec `database/install.sql` comme source unique de vérité) ; toute modification frontend doit passer le `flutter analyze` à 0 error / 0 warning.
 
 ---
 

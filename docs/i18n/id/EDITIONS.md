@@ -14,13 +14,56 @@ Sistem ERP Terbuka menyediakan tiga edisi, menyesuaikan kebutuhan perusahaan dar
 | Dimensi | Edisi Ringkas (Lite) | Edisi Standar (Standard) | Edisi Lengkap (Full) |
 |------|:---:|:---:|:---:|
 | Cabang | `lite` | `standard` | `full` |
-| Tabel data | 62 (nilai rencana) | 72 (nilai rencana) | 163 <!-- stats:tables=227 --> |
-| Controller | 48 (nilai rencana) | 42 (nilai rencana) | 123 <!-- stats:controllers=159 --> |
-| Modul bisnis | 6 (nilai rencana) | 6 (nilai rencana) | 19 <!-- stats:modules=23 --> |
+| Tabel data | 62 (nilai rencana) | 72 (nilai rencana) | 227 <!-- stats:tables=227 --> |
+| Controller | 48 (nilai rencana) | 42 (nilai rencana) | 159 <!-- stats:controllers=159 --> |
+| Modul bisnis | 6 (nilai rencana) | 6 (nilai rencana) | 23 <!-- stats:modules=23 --> |
 
 > **Metodologi statistik**: repositori saat ini hanya mengimplementasikan satu set kode edisi Lengkap (Full); kolom Lite/Standard adalah nilai perencanaan produk (tidak ada cabang terkait di codebase),
-> tidak ikut validasi doc-stats. Angka kolom Full diukur oleh `scripts/doc-stats.sh` (163 tabel / 123 controller / 19 modul bisnis),
+> tidak ikut validasi doc-stats. Angka kolom Full diukur oleh `scripts/doc-stats.sh` (227 tabel / 159 controller / 23 modul bisnis),
 > konsisten dengan metodologi lampiran `FUNCTIONS.md`.
+> **Fakta cabang** (terukur 2026-09-22 dengan `git branch -a` + `git ls-remote --heads origin`):
+> repositori, baik lokal maupun remote, hanya menyisakan satu cabang `main`; tiga cabang `lite` / `standard` / `full` **sudah dihapus**
+> (pada 2026-08-31 sempat terukur ketiga cabang berdampingan, sama-sama berhenti di commit `eea90c0` tanggal 2026-08-17, tidak berbeda satu sama lain dan tertinggal 38 commit dari `main`).
+> Commit arsip tersebut masih ada dalam riwayat `main` (`git merge-base --is-ancestor eea90c0 main` bernilai benar),
+> artinya perbedaan edisi kini hanya dapat dilacak melalui commit dan tag, tidak ada lagi cabang versi yang dapat di-checkout di repositori.
+
+---
+
+## Perubahan v1.17.0 (2026-09-15)
+
+> Posisi edisi tidak berubah: repositori tetap hanya mengimplementasikan satu set kode edisi Lengkap (Full); kolom Lite/Standard adalah nilai perencanaan produk, cabangnya sudah diarsipkan dan dibekukan.
+
+- **Panel admin dari dua menjadi tiga**: Angular 22 (`apps/angular/`) dan React 19 + Vite (`apps/react/`) bergabung,
+  berdampingan dengan Flutter 3.x Web (`apps/flutter/`) yang sudah ada, ketiga ujung berbagi satu set antarmuka `/admin/v1`, `/api/v1`, `/open/v1`.
+- **13 bahasa di seluruh platform** (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id):
+  - Pesan respons backend `resource/translations/<locale>/` —— `zh_CN` 565 entri, 11 bahasa lainnya masing-masing 544 entri, `en` 30 entri
+    (cakupan: entri daun dari tiga berkas, label field `attributes` pada `validation.php` dihitung, kunci grupnya tidak —— `zh_CN` lebih 21 entri karena menerjemahkan 21 label field. Baris `en` "Inggris adalah key", kamusnya nyaris kosong)
+  - Antarmuka panel admin: kamus sumber Angular 1456 kunci, React 1451 kunci × 11 bahasa baru; **dimuat lambat per bahasa**, setiap bahasa menjadi satu chunk
+  - Generator: `scripts/gen-be-locales.mjs` (backend), `scripts/gen-fe-locales.mjs` (frontend, `--app angular|react`)
+  - Pintu masuk peralihan: **ikon globe independen** di bilah atas + dropdown di pusat pribadi (sama di kedua ujung)
+- **Flutter dan HarmonyOS masih bilingual 中文/Inggris**, tidak termasuk dalam putaran ini.
+- **Dampak terhadap tabel di bawah**: kolom Full 163 tabel / 122 controller / 19 modul bisnis → **227 / 159 / 23**;
+  matriks kelengkapan menambah baris 「Multi-bahasa (i18n)」 (baris modul 44 → 45, API backend 39 → 40, logika bisnis 33 → 34);
+  catatan: setelah baris 「Multi-tenant」 yang duplikat di matriks digabung pada 2026-09-15, baris modul kembali ke 44 (API backend 39, logika bisnis 33),
+  kalimat di atas adalah cakupan penambahan saat v1.17.0 dan dipertahankan apa adanya.
+
+## Perubahan v1.4.0 (2026-09-05)
+
+> Posisi edisi tidak berubah: repositori tetap hanya mengimplementasikan satu set kode edisi Lengkap (Full); kolom Lite/Standard adalah nilai perencanaan produk, cabangnya sudah diarsipkan dan dibekukan.
+
+- **Versioning path seluruh situs**: `/admin/*` → `/admin/v1/*`, `/api/*` → `/api/v1/*`, `/open/*` → `/open/v1/*`;
+  pengecualian hanya `GET /api/docs` (dokumen OpenAPI) dan webhook TMS; titik izin RBAC diautentikasi berdasarkan `method.path` tanpa segmen versi,
+  data peran lama tanpa migrasi (commit `3ee1430`; kontrol header permintaan `API-Version` sudah dihapus lebih dulu, commit `8276a1b`).
+- **P0 multi-organisasi dan akuntansi biaya**: akuntansi independen multi-organisasi (Company/LedgerPeriod), mesin laporan konsolidasi (konversi kurs akhir periode + eliminasi antar anak perusahaan,
+  snapshot diutamakan disimpan ke FinanceConsolidationReport), akuntansi biaya stok/produksi (pengeluaran material + pengumpulan biaya).
+- **P1 eksekusi manufaktur dan kolaborasi**: laporan kerja proses/upah satuan/serah-terima subkontrak/beban kapasitas/penelusuran batch-nomor seri (M1/M2/M6/M3), kontrol kredit (F7),
+  kanvas alur persetujuan (B3), template cetak (B1), penggajian HR (H1/H2), inspeksi peralatan dengan pemindaian kode (E1), biaya proyek (P1).
+- **P2 diferensiasi dan ekosistem**: sistem member (C1), buku besar nota dan rekonsiliasi bank-perusahaan (F6), kolam faktur masukan dan e-faktur (F5, otoritas pajak nyata sebagai titik adaptasi),
+  kanal multi-driver dengan percobaan ulang saat gagal (B4), field kustom (B7), penagihan jatuh tempo multi-tenant (B5 —— middleware isolasi tenant masih belum terdaftar, aktif sebagian),
+  pelatihan dan jaminan sosial (H3/H4).
+- **Matriks fitur**: dari 44 baris modul, 33 baris ✅ ganda; 21 baris ditandai v1.4.0 (termasuk 1 baris aktif sebagian), lihat `docs/FUNCTIONS.md` §19.
+
+> Rincian perubahan lihat `CHANGELOG.md` di akar repositori.
 
 ---
 
@@ -37,8 +80,8 @@ Sistem ERP Terbuka menyediakan tiga edisi, menyesuaikan kebutuhan perusahaan dar
 | Unggah file / Ekspor Excel / Ekspor PDF | ✔ | ✔ | ✔ |
 | Health check / metrik Prometheus | ✔ | ✔ | ✔ |
 | Autentikasi JWT + captcha klik | ✔ | ✔ | ✔ |
-| Proteksi keamanan 18 lapis | ✔ | ✔ | ✔ |
-| Internasionalisasi (i18n) bilingual 中文/English | — | — | ✔ |
+| Proteksi keamanan 7 lapis | ✔ | ✔ | ✔ |
+| Internasionalisasi (i18n) 13 bahasa (Angular/React; Flutter/HarmonyOS masih 中文/Inggris) | — | — | ✔ |
 
 ### Produk dan Data Dasar
 
@@ -113,7 +156,7 @@ Sistem ERP Terbuka menyediakan tiga edisi, menyesuaikan kebutuhan perusahaan dar
 |------|:---:|:---:|:---:|
 | Mesin alur persetujuan | — | — | ✔ |
 | Sistem notifikasi pesan | — | — | ✔ |
-| Dokumen API (hg/apidoc) | ✔ | ✔ | ✔ |
+| Dokumen API (erikwang2013/apidoc-php) | ✔ | ✔ | ✔ |
 
 ### Modul Ekstensi
 
@@ -142,19 +185,20 @@ Sistem ERP Terbuka menyediakan tiga edisi, menyesuaikan kebutuhan perusahaan dar
 |------|--------------------------|------|
 | Lite (Ringkas) | 62 tabel / 6 modul bisnis (nilai rencana) | Tanpa persetujuan/notifikasi/HR/manufaktur/laporan |
 | Standard (Standar) | 72 tabel / 6 modul bisnis (nilai rencana) | Model data lebih ringkas |
-| Full (Lengkap) | 163 tabel <!-- stats:tables=227 --> / 19 modul bisnis <!-- stats:modules=23 --> | Kapabilitas platform perusahaan menyeluruh |
+| Full (Lengkap) | 227 tabel <!-- stats:tables=227 --> / 23 modul bisnis <!-- stats:modules=23 --> | Kapabilitas platform perusahaan menyeluruh |
 
 ---
 
-## Strategi Cabang (mulai 2026-08)
+## Strategi Cabang (mulai 2026-08-27)
 
-> Dokumen ini sesuai dengan konvensi cabang versi repositori saat ini, berlaku untuk tiga cabang `lite` / `standard` / `full`.
+> Berlaku untuk tiga cabang versi `lite` / `standard` / `full`, selaras dengan job release CI (tag versi idempoten).
+> **Tambahan kondisi terkini (terukur 2026-09-22)**: ketiga cabang sudah dihapus, sisa butir di bagian ini dipahami sebagai「arsip = commit dan tag」,
+> tidak ada lagi cabang versi yang dapat di-checkout.
 
-- **`main` adalah satu-satunya sumber pengembangan**: semua pengembangan fitur, perbaikan bug, upgrade dependensi selalu di-merge ke `main`.
-- **Cabang versi hanya di-cherry-pick saat rilis**: `lite` / `standard` / `full` tidak lagi menerima commit harian sebagai jalur pengembangan independen,
-  hanya saat rilis, engineer versi melakukan cherry-pick fitur terkait dari `main` (atau melakukan satu kali merge keseluruhan sesuai kebutuhan),
-  dan mempertahankan niat pemangkasan masing-masing di cabang (perbedaan modul lihat tabel perbandingan fitur di atas).
-- **Prinsip pemangkasan**: cabang versi = subset dari main. Saat menggabungkan/memindahkan konten main, jika konflik jatuh pada logika pemangkasan versi
-  (misalnya perbedaan modul di EDITIONS.md, pemangkasan route), pertahankan niat pemangkasan cabang; kode yang tidak terkait selalu mengikuti versi main.
-- **Verifikasi**: setelah cabang versi di-merge, harus lulus pemeriksaan sintaks penuh `php -l`; pengujian yang tidak berlaku karena pemangkasan diizinkan dilewati dengan mencatat alasannya.
-- **Rilis**: merge/pemindahan cabang versi dilakukan oleh engineer versi dan dikirim sebagai merge commit; commit di `main` dieksekusi terpadu oleh Lead.
+- **`main` adalah satu-satunya sumber pengembangan**: semua pengembangan fitur, perbaikan bug, dan upgrade dependensi selalu di-merge ke `main`, commit dieksekusi terpadu oleh Lead.
+- **Cabang versi hanya diarsipkan, tidak dipelihara**: `lite` / `standard` / `full` dibekukan sebagai cabang arsip historis, tidak lagi menerima commit baru,
+  tidak lagi menyinkronkan penambahan dari `main`, dan tidak dilakukan pembaruan paksa atau push (menghindari pemeliharaan tiga jalur kode); **setelah masa pembekuan berakhir ketiga cabang sudah dihapus**,
+  konten arsipnya tersimpan pada commit `eea90c0` di riwayat `main`.
+- **Perbedaan versi dicatat melalui tag versi**: rilis dibuat secara idempoten oleh job release CI berdasarkan tag terbaru menjadi `vX.Y.Z`
+  (lihat `scripts/bump-version.sh`); perbedaan fitur antar edisi berpedoman pada tag dan tabel perbandingan fitur di atas, bukan pada pemeliharaan jalur kode cabang.
+- **Verifikasi**: CI pada `main` adalah verifikasi rilis versi; cabang arsip tidak lagi menjalankan CI tersendiri. (Sejak 2026-09-15 dependensi job release adalah `docs` + `e2e`; job php tetap berjalan tetapi tidak menghalangi rilis —— titik merahnya adalah utang historis pengujian integrasi khusus CI, lihat komentar di `.github/workflows/ci.yml`.)

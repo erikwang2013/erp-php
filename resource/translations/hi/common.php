@@ -436,4 +436,6 @@ return [
     'Material dispatch number already exists' => 'सामग्री प्रेषण संख्या पहले से मौजूद है',
     'Audited material dispatches cannot be modified' => 'ऑडिट किए गए सामग्री प्रेषण को संशोधित नहीं किया जा सकता',
     'Audited material dispatches cannot be deleted' => 'ऑडिट किए गए सामग्री प्रेषण को हटाया नहीं जा सकता',
+    'Number ":code" already exists; please refresh the page and use another one' => 'नंबर ":code" पहले से मौजूद है; कृपया पृष्ठ रीफ़्रेश करके दूसरा उपयोग करें',
+    'Issued-out records cannot be deleted' => 'जारी किए गए रिकॉर्ड हटाए नहीं जा सकते',
 ];

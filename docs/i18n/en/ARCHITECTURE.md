@@ -13,6 +13,8 @@ flowchart TB
     subgraph "Client Layer"
         A1["Flutter Web<br/>PC Admin Console<br/>(Port 3000)"]
         A2["HarmonyOS ArkTS<br/>Phone/Tablet Client"]
+        A3["Angular 22 + ng-zorro<br/>Web Admin Console"]
+        A4["React 19 + Vite<br/>Web Admin Console"]
     end
 
     subgraph "Gateway/Edge Layer (Nginx Edge)"
@@ -20,8 +22,8 @@ flowchart TB
     end
 
     subgraph "Application Layer (webman v2)"
-        C_LOC["Locale Middleware<br/>Accept-Language auto-detection"]
-        C0["ApiVersion Middleware<br/>API-Version header validation"]
+        C_LOC["I18n::getLocale()<br/>Accept-Language parsing · 13 locales"]
+        C0["Path-based versioning<br/>/api/v1 · /admin/v1 (no version header)"]
         C1["AdminAuth Middleware<br/>JWT verification"]
         C2["AdminPermission Middleware<br/>RBAC permission validation"]
         C3["Admin Controllers<br/>Dashboard / User / Role / Permission"]
@@ -42,6 +44,8 @@ flowchart TB
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -57,6 +61,8 @@ flowchart TB
 
     style A1 fill:#1677FF,color:#fff
     style A2 fill:#1677FF,color:#fff
+    style A3 fill:#1677FF,color:#fff
+    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -80,10 +86,10 @@ flowchart TD
     end
 
     subgraph "Middleware Layer"
-        M_LOC["Locale<br/>Accept-Language auto-detection<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>Redis sliding-window rate limiting<br/>X-RateLimit response headers"]
+        M_CR["Cors<br/>Cross-origin handling / OPTIONS preflight"]
         M_SF["SecurityFilter<br/>Attack detection and blocking<br/>XSS/SQL injection/path traversal/CSRF"]
-        M0["ApiVersion<br/>API version validation<br/>injects apiVersion"]
+        M_RL["RateLimit<br/>Redis sliding-window rate limiting<br/>X-RateLimit response headers"]
+        M_TID["TracingId<br/>Generates X-Trace-Id<br/>spans the whole chain"]
         M1["AdminAuth<br/>JWT Token validation<br/>injects adminId"]
         M2["AdminPermission<br/>RBAC authorization<br/>method.path matching<br/>Redis 60s permission cache"]
     end
@@ -103,6 +109,7 @@ flowchart TD
         S1["HashidsService<br/>ID encode/decode"]
         S2["SnowflakeService<br/>Globally unique ID generation"]
         S3["EncryptionService<br/>Encryption + masking"]
+        M_LOC["I18n::getLocale()<br/>Accept-Language parsing (not a middleware)<br/>13 locales zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "Model Layer"
@@ -119,11 +126,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +140,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +155,23 @@ As the system evolves from a pure admin console into a complete ERP system, the 
 
 | Layer | Directory | Description |
 |------|------|------|
-| Business controllers | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70, organized per module, handling business requests |
-| Business services | `app/service/{inventory,finance,notification}/` | Inventory stock in/out + costing, finance AR/AP + settlement, notification sending |
+| Business controllers | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 (23 business domains, plus top-level Install / Index), organized per module, handling business requests |
+| Business services | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 service classes / 64 files / 20 module subdirectories; covering inventory stock in/out + costing, finance AR/AP + write-off, notification sending |
+
+### Internationalization (13 Languages)
+
+Locale resolution lives in `getLocale()` in `app/common/I18n.php` (called by `I18n::trans()`, **not a middleware**): it takes the first tag of the `Accept-Language` request header and maps the primary language subtag (`zh*` → `zh_CN`). Division of labour between the frontend and backend dictionaries:
+
+| End | Dictionary location | Scale | Generator |
+|----|----------|------|--------|
+| Backend | `resource/translations/<locale>/{common,modules,validation}.php` | 13 locale directories; `zh_CN` 565 entries, each of the other 11 locales 544 entries, `en` 30 entries (leaf-entry scope; the `attributes` field labels in `validation.php` count, their group keys do not) | `scripts/gen-be-locales.mjs` |
+| Angular | source `apps/angular/src/app/core/zh-en/part1..4.ts` → artifacts `core/zh-<code>.ts` | 1456 source entries | `scripts/gen-fe-locales.mjs --app angular` |
+| React | source `apps/react/src/lib/i18n/zhEn.ts` → artifacts `lib/i18n/zh<Code>.ts` | 1451 source entries | `scripts/gen-fe-locales.mjs --app react` |
+
+- Languages: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`.
+- Backend "English is the key": `en`'s common/modules are left empty; the keys in `validation.php` are framework rule names, so only the values are translated.
+- Each of the 11 new frontend locale dictionaries is dynamically `import()`ed into its own chunk; missing entries fall back to the original Chinese text.
+- Switching language switches `Accept-Language`, and the backend returns text per locale (`app/common/I18n.php` + `config/translation.php`).
 
 ---
 
@@ -158,10 +181,10 @@ As the system evolves from a pure admin console into a complete ERP system, the 
 sequenceDiagram
     participant C as Client
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -170,10 +193,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: HTTPS request<br/>Header: API-Version: v1
-    N->>MW_LOC: Forward
-    MW_LOC->>MW_LOC: Parse Accept-Language<br/>set locale
-    MW_LOC->>MW_SF: Pass
+    C->>N: HTTPS request<br/>path /api/v1 or /admin/v1 (no version header)
+    N->>MW_CR: Forward
+    MW_CR->>MW_CR: Handle OPTIONS preflight<br/>inject CORS response headers
+    MW_CR->>MW_SF: Pass
 
     alt Non-standard HTTP method (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +214,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: Pass
-
-    alt Unsupported version
-        MW0-->>C: 400 Unsupported API version
-    else Valid version
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: Pass
+    MW_TID->>MW_TID: Generate X-Trace-Id<br/>inject response header
+    MW_TID->>MW1: Pass
 
     alt Token missing or invalid
         MW1-->>C: 401 Unauthorized
@@ -249,7 +268,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === Step 1: Get captcha ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: Generate 300×200 background image
     CAP->>CAP: Randomly place N Chinese targets
@@ -264,7 +283,7 @@ sequenceDiagram
     CL->>CL: Collect clicks: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === Step 3: Login ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt Captcha error
         CAP-->>SV: false
@@ -284,7 +303,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === Subsequent requests ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { dashboard data }
@@ -539,7 +558,7 @@ sequenceDiagram
     participant FS as File System
 
     Note over C,FS: === Excel export ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: Data
     CTL->>CTL: Decrypt sensitive fields
@@ -548,7 +567,7 @@ sequenceDiagram
     CTL->>FS: Write runtime/tmp/export_*.xlsx
     CTL-->>C: File download
     Note over C,FS: === PDF export ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>header: title+copyright+time<br/>content: table or cards<br/>footer: non-removable copyright
     CTL->>CTL: Dompdf renders A4 landscape
     CTL->>FS: Write runtime/tmp/export_*.pdf
@@ -708,10 +727,12 @@ graph TB
         FW["Flutter Web<br/>PC Admin Panel"]
         FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
         HW["HarmonyOS<br/>HarmonyOS Native App"]
+        NG["Angular 22 + ng-zorro<br/>Web Admin Console"]
+        RC["React 19 + Vite<br/>Web Admin Console"]
     end
 
     subgraph Gateway["API Gateway Layer"]
-        MW["Middleware Chain<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["Middleware Chain<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>route groups: AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["Business Module Layer"]
@@ -738,7 +759,7 @@ graph TB
     end
 
     subgraph Data["Data Layer"]
-        MySQL["MySQL 8.0<br/>163 Business Tables"]
+        MySQL["MySQL 8.0<br/>227 Business Tables"]
         Redis["Redis 7<br/>Cache/Rate Limiting/Session"]
         ES["Elasticsearch 8<br/>Full-Text Search"]
     end
@@ -875,22 +896,31 @@ sequenceDiagram
 
 | Module | Controllers (Directory) | Core Service | Main Models | Tables |
 |------|-------------------|-------------|-----------|------|
-| System Management | admin/controller/ (14) | - ⚠ controller queries model directly, known tech debt | AdminUser, AdminRole, AdminPermission | 7 |
-| Product Management | controller/product/ (7) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
-| Purchase Management | controller/purchase/ (5) | InventoryService, FinanceService ⚠ CRUD still queries directly, known tech debt | PurchaseOrder, PurchaseReceive | 9 |
+| System Management | admin/controller/ (16) | - ⚠ controller queries model directly, known tech debt | AdminUser, AdminRole, AdminPermission | 7 |
+| Product Management | controller/product/ (8) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 12 |
+| Purchase Management | controller/purchase/ (8) | InventoryService, FinanceService ⚠ CRUD still queries directly, known tech debt | PurchaseOrder, PurchaseReceive | 14 |
 | Sales Management | controller/sales/ (5) | InventoryService, FinanceService ⚠ CRUD still queries directly, known tech debt | SalesOrder, SalesDelivery | 9 |
-| Inventory Management | controller/inventory/ (5) | InventoryService ⚠ CRUD still queries directly, known tech debt | Inventory, InventoryFlow, CostRecord | 11 |
-| Finance Management | controller/finance/ (20) | FinanceService ⚠ CRUD still queries directly, known tech debt | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| Inventory Management | controller/inventory/ (6) | InventoryService ⚠ CRUD still queries directly, known tech debt | Inventory, InventoryFlow, CostRecord | 11 |
+| Finance Management | controller/finance/ (28) | FinanceService ⚠ CRUD still queries directly, known tech debt | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 38 |
 | CRM | controller/crm/ (10) | CrmService | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
-| Approval Workflow | controller/workflow/ (2) | - ⚠ controller queries model directly, known tech debt | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
-| Message Notifications | controller/notification/ (1) | NotificationService ⚠ CRUD still queries directly, known tech debt | Notification, NotificationSetting, NotificationTemplate | 3 |
-| Project Management | controller/project/ (3) | - ⚠ controller queries model directly, known tech debt | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| Human Resources | controller/hr/ (5) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
-| Manufacturing | controller/manufacturing/ (5) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| Approval Workflow | controller/workflow/ (3) | - ⚠ controller queries model directly, known tech debt | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
+| Message Notifications | controller/notification/ (2) | NotificationService ⚠ CRUD still queries directly, known tech debt | Notification, NotificationSetting, NotificationTemplate | 4 |
+| Project Management | controller/project/ (4) | - ⚠ controller queries model directly, known tech debt | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 6 |
+| Human Resources | controller/hr/ (9) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 21 |
+| Manufacturing | controller/manufacturing/ (13) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 21 |
 | Custom Reports | controller/report/ (2) | - ⚠ controller queries model directly, known tech debt | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
-| EAM Equipment Management | controller/eam/ (4) | - ⚠ controller queries model directly, known tech debt | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart | 4 |
+| EAM Equipment Management | controller/eam/ (5) | - ⚠ controller queries model directly, known tech debt | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
 | DMS Document Management | controller/dms/ (2) | - ⚠ controller queries model directly, known tech debt | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
 | BI Dashboards | controller/bi/ (3) | - ⚠ controller queries model directly, known tech debt | BiDashboard, BiWidget | 2 |
+
+> This table is an early module mapping (system management + 15 business domains); the 8 domains added later — oms / wms / tms / quality / open / platform / print / retail — are not listed;
+> the full list is in the `docs/CLAUDE.md` project structure tree (`app/controller/` has 23 module directories / 139 controllers in total, including the top-level Install and Index).
+>
+> `Tables` caliber (measured 2026-09-15): take the 227 tables in `database/install.sql` and attribute each to exactly one module by table-name prefix — system management `admin_*`+`system_config`+`operation_log`;
+> product management `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`; purchase management `purchase_*`+`supplier_assessment`; inventory management `inventory*`/`transfer*`/`check_*`/`cost_record`;
+> the remaining modules use their same-named table prefixes (`sales_*`→sales, `finance_*`→finance, `crm_*`→CRM, `approval_*`→approval, `notification*`→notification, `project*`→project, `hr_*`→HR, `mfg_*`→manufacturing, `report_*`→reports, `eam_*`→EAM, `dms_*`→DMS, `bi_*`→BI).
+> One table is attributed to only one column; the domains added later plus shared tables total 48 tables (`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`print_template`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`) and are not counted in any row of this table.
+> Recompute: ``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
 ### 20.1 P2-F2 Lightweight Service-Layer Extraction Record (crm/hr/manufacturing/product extraction completed)
 
@@ -913,6 +943,12 @@ container instantiates via the class_exists fallback, so all Services keep no-ar
 Modules not yet extracted (Project Management 18 calls, Custom Reports 18, Purchase 24, Sales 24,
 System Management 42, etc.) are marked in the table as "controller queries model directly, known tech debt"
 and will be extracted under the same pattern in later iterations.
+
+> ⚠ Re-measurement (2026-09-15): the figures in this section are as measured at **extraction time** (1051d83 / 2026-08-16) — re-checking that commit with the same caliber gives exactly
+> CRM 57→0, HR 36→0 (this section records 38), Manufacturing 33→0, Product 29→0; the not-yet-extracted modules at that time were Project 18 / Reports 18 / Purchase 25 / Sales 25 / System Management 44 (recorded as 18/18/24/24/42, the difference of 1–2 being a counting-caliber difference).
+> Pages added after extraction were not wired into the Services, so direct queries have crept back: CRM 6 places (relation-name backfill via `pluck`), Manufacturing 39 places (CostEntry/MaterialIssue/WorkReport/Subcontract receiving-issuing and the like — 6 later controllers in total),
+> Product Management 2 places (LocationController warehouse locations), HR still 0; the not-yet-extracted modules now stand at Project 24 / Reports 20 / Purchase 58 / Sales 35 / System Management 67.
+> Re-measurement caliber and command (`Model::class` not counted): ``grep -rhoE '\b[A-Z][A-Za-z]*::(find|where|whereIn|query|first|all|count|paginate|insert|update|delete|save|create|pluck|exists)\(' app/controller/<module>/ | grep -vE '\b(Service|Container|Validator|Cache|Log)::' | wc -l``
 
 ---
 
@@ -958,7 +994,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | Dimension | Score | Key Gap |
 |------|------|----------|
 | Backend APIs | 85/100 | Most modules are CRUD skeletons, missing business calculation engines |
-| Security | 95/100 | 18-layer defense in depth, production-ready |
+| Security | 95/100 | 7-layer defense in depth (L0–L12 panorama), production-ready |
 | Frontend UI | 20/100 | **Biggest shortfall**: Flutter 12 pages cover ~20% of modules, Web admin panel missing |
 | Ops ecosystem | 70/100 | Missing migration rollback, auto backup, observability |
 | Business depth | 55/100 | Finance/HR/manufacturing core algorithms not implemented |
@@ -980,10 +1016,10 @@ P0(3-4 weeks) → P1(4-6 weeks) → P2(1-2 weeks) → P3(2-3 weeks) = ~13 weeks 
 ### 21.3 Middleware Chain Evolution
 
 ```
-Current:  Locale → Cors → SecurityFilter → RateLimit → TracingId → {route group}
-After P1: Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {route group}
-After P2: Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {route group}
-After P3: Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {route group}
+Current:  Cors → SecurityFilter → RateLimit → TracingId → {route group}
+After P1: Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {route group}
+After P2: Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {route group}
+After P3: Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {route group}
 ```
 
 ### 21.4 P0 Target Architecture — Flutter Web Admin Panel
@@ -1029,24 +1065,24 @@ Note: the "multi-tenant isolation" item in roadmap §21.2 P3 is accordingly adju
 Decision basis (2026-08 review):
 - Existing deployments are almost entirely single-tenant; wiring it up would introduce unnecessary isolation complexity and regression risk;
 - The current skeleton has technical flaws (see 22.4); "wired up equals isolated" does not hold, a design fix must come first;
-- Isolation would require adding a column per business table across all 163 tables and enabling per model, a cost far exceeding "minimal wiring".
+- Isolation would require adding a column per business table across all 227 tables and enabling per model, a cost far exceeding "minimal wiring".
 
 ### 22.2 Current Facts (Code and Config Verification)
 
 | Item | Current State |
 |----|------|
-| `app/middleware/TenantScope.php` | Exists, not registered; reads the tenant from the `X-Tenant-Id` header, passes through directly when the header is missing |
-| `app/model/concerns/TenantScope.php` | Exists, no model uses it; the `bootTenantScope()` global scope only filters after a tenant is set |
-| `config/middleware.php` | Global chain: Locale → Cors → SecurityFilter → RateLimit → TracingId, no TenantScope |
-| `config/route.php` /admin group | AdminAuth → AdminPermission → OperationLog, no TenantScope |
+| `app/middleware/TenantScope.php` | Exists, not registered; reads the tenant code from the `X-Tenant-Code` header and looks up `erp_tenant` to inject the context, passes through directly when the header is missing |
+| `app/model/concerns/TenantScope.php` | Exists; used by 4 finance models (`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`, whose company family `tenantScopeByCompany()` returns true), filtering by `company_id`; because the middleware is not registered and the request context is never injected, the global scope does not take effect at present |
+| `config/middleware.php` | Global chain: Cors → SecurityFilter → RateLimit → TracingId, no TenantScope |
+| `config/route.php` /admin/v1 group | AdminAuth → AdminPermission → OperationLog, no TenantScope |
 | JWT payload | Only `sub` / `username` / `token_type`, **no tenant_id claim** (`app/api/v1/controller/AuthController.php`) |
 | Database | **No tenant_id column anywhere in the database** (nor in install.sql) |
-| Models | **No model uses the TenantScope trait** |
+| Models | 4 finance models use the `TenantScope` trait (company family, filtering `company_id`) — pilot isolation; when no tenant context is injected, no filtering is applied |
 
 ### 22.3 Enablement Steps (Reserved Reference, Not Executed This Phase)
 
-1. Register the middleware: append `app\middleware\TenantScope::class` to the `middleware()` of the /admin group in `config/route.php` (place it after AdminAuth to ensure authentication).
-2. Requesters carry `X-Tenant-Id` (int tenant ID) in the request header.
+1. Register the middleware: append `app\middleware\TenantScope::class` to the `middleware()` of the /admin/v1 group in `config/route.php` (place it after AdminAuth to ensure authentication).
+2. Requesters carry `X-Tenant-Code` (tenant code string) in the request header.
 3. Add a `tenant_id` column (BIGINT + index) to business tables requiring isolation and backfill existing data;
    dictionary/system tables (e.g. `erp_admin_user`, `erp_role`, `erp_permission`) are not isolated.
 4. Add `use app\model\concerns\TenantScope;` in models requiring isolation for automatic filtering by the current tenant.
@@ -1054,15 +1090,19 @@ Decision basis (2026-08 review):
 
 ### 22.4 Known Technical Limitations (Must Be Resolved Before Enablement)
 
-- **Broken static pass-through chain (verified on PHP 8.3)**: the middleware calls `setCurrentTenantId()` via the trait name,
-  which writes to the trait's own static copy that models using the trait cannot read, so queries are not filtered.
-  Enablement requires switching to request-context injection (e.g. `request()->tenantId`).
-- **Static global state crosstalk**: Workerman is a long-running process where static properties are shared across requests; if coroutine mode
-  (Swoole/Swow) is enabled, cross-tenant data crosstalk occurs, requiring request-level binding (`context()` / request object).
+- **Trust boundary (must be resolved before registration)**: the tenant context comes from the `X-Tenant-Code` request header, which is
+  forgeable input; enabling the middleware before a binding between `erp_admin_user` and companies/tenants
+  (administrator ownership determination) is established would open a privilege-escalation gap in the data plane
+  (any authenticated administrator could claim any tenant and read its data).
+- **The broken static pass-through chain (measured on PHP 8.3) has been superseded by the P2-4 B5 fix**: the `TenantScope` trait
+  now goes through request-context injection (`request()->tenantId` / `companyId`), a path with no static state, so
+  cross-request crosstalk within the long-running process is eliminated as a result; the trait's static facade is marked `@deprecated`
+  and remains only as a test/CLI fallback.
 - **Data-plane gap**: no tenant_id column anywhere in the database; a per-table migration is needed, and cross-tenant shared dictionary tables require an exemption mechanism.
 
 ### 22.5 Acceptance Criteria
 
-This phase's acceptance = documentation consistent with code: `config/middleware.php` and `config/route.php` contain no
-TenantScope registration; the middleware and Trait comments explicitly mark "reserved capability, not enabled" and provide enablement steps;
+This phase's acceptance = documentation consistent with code: neither `config/middleware.php` nor `config/route.php` contains a
+TenantScope registration; the middleware comment marks it "implemented, not registered by default" and gives the registration point and the trust boundary,
+the Trait comment marks the request-context injection chain and the regression line (it takes no part in filtering when there is no tenant context);
 each item described in this section corresponds one-to-one with the current code state.

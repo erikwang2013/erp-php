@@ -12,9 +12,9 @@
 | 维度 | 现状 | 对团队的含义 |
 |------|------|--------------|
 | 后端 | webman (Workerman) PHP 8.3+，**23 个业务模块**、159 控制器、63 服务、224 模型、227 张表、11 中间件（schema 以 database/install.sql 为唯一事实源） | 单体大而全，按业务域分工，防止单 agent 上下文爆炸 |
-| 前端 | Flutter **97 页**（Web/移动端）+ HarmonyOS **34 页**，覆盖全部模块 | 双端并行维护，需要专职前端角色 |
-| 质量基线 | PHPUnit 137 测试 / 805 断言、PHPStan + baseline、CS-Fixer、CI 多版本矩阵 | 已具备纪律，测试/审查角色直接嵌入流水线 |
-| 版本矩阵 | `lite` / `standard` / `full` 三分支（62/72/227 表） | 改动需考虑跨分支同步，需版本协调 |
+| 前端 | Flutter **102 菜单路由**（`lib/app/config/menu_config.dart`；`main.dart` 的 getPages 共 110 条 = 102 菜单 + 登录/个人中心/6 详情页）+ HarmonyOS **41 页**（`main_pages.json`），覆盖全部模块 | 双端并行维护，需要专职前端角色 |
+| 质量基线 | PHPUnit 1001 测试 / 4726 断言、PHPStan + baseline、CS-Fixer、CI 多版本矩阵 | 已具备纪律，测试/审查角色直接嵌入流水线 |
+| 版本矩阵 | 仅 `main` 一条分支（`lite` / `standard` / `full` 已删除，归档提交 `eea90c0` 仍在 `main` 历史中） | 无版本分支可同步，版本差异以 tag 追溯，见 `docs/EDITIONS.md`「分支策略」 |
 | 路线图 | P0~P3 已交付（综合评分 89/100），进入日常迭代与演进期 | 团队规模按任务类型伸缩，非项目制大编制 |
 | 已有设施 | `.claude/agents/`（planner / sparc / testing / swarm / consensus）、`.claude-flow`（hierarchical-mesh，上限 15 agents，consensus 协调）、hooks + 记忆 | 团队直接挂载到现有配置，不另起炉灶 |
 
@@ -26,27 +26,27 @@
 
 | 角色 | 现有 agent 对应 | 职责（针对本项目） |
 |------|-----------------|--------------------|
-| **项目经理 Lead** | `planner` / `swarm/hierarchical-coordinator` | 需求拆解 → 路由 → 验收；维护 22 模块任务队列；决定 pipeline / fan-out / supervisor 模式；跨角色消息中转 |
+| **项目经理 Lead** | `planner` / `swarm/hierarchical-coordinator` | 需求拆解 → 路由 → 验收；维护 23 模块任务队列；决定 pipeline / fan-out / supervisor 模式；跨角色消息中转 |
 | **系统架构师** | `sparc/architecture` | 表结构设计（227 表，schema 以 database/install.sql 为唯一事实源）；跨模块数据流（采购收货→库存→应付、销售发货→应收→出库等链路）；微服务拆分边界决策 |
 | **后端开发者** | `core` / 自定义 `backend-dev` | 控制器 / 服务 / 模型实现；遵循 `app/service` 分层与中间件链（Cors→SecurityFilter→RateLimit→TracingId→业务中间件） |
-| **测试工程师** | `testing/tdd-london-swarm` + `production-validator` | PHPUnit 用例先行（引擎边界测试）；三分支回归验证；`tests/` 覆盖缺口补齐 |
-| **代码审查员** | `consensus/security-manager` | PHPStan 零新增 baseline、CS-Fixer 合规、18 层安全模式检查；提交前质量门禁把守 |
+| **测试工程师** | `testing/tdd-london-swarm` + `production-validator` | PHPUnit 用例先行（引擎边界测试）；`main` 单线回归验证；`tests/` 覆盖缺口补齐 |
+| **代码审查员** | `consensus/security-manager` | PHPStan 零新增 baseline、CS-Fixer 合规、7 层纵深防御安全模式检查；提交前质量门禁把守 |
 
 ### 2.2 专业团队（按任务类型抽调，4 角色）
 
 | 角色 | 现有 agent 对应 | 启用场景 | 典型任务 |
 |------|-----------------|----------|----------|
 | **业务引擎专家** | 自定义 `business-engineer` | 财务 / 薪资 / MRP 等算法型模块 | 复式记账引擎、薪资计算引擎、MRP 引擎的算法补强与边界处理（A 档"工业级"要求） |
-| **前端工程师（Flutter）** | 自定义 `frontend-flutter` | 任何涉及 `apps/flutter/` 的改动 | Web 管理面板页面、GetX 状态、ApiService/导出联动、97 页维护 |
-| **前端工程师（HarmonyOS）** | 自定义 `frontend-harmonyos` | 任何涉及 `apps/harmonyos/` 的改动 | ArkTS 页面、token 无感刷新、与 Flutter 功能集对齐（34 页维护） |
-| **安全/DevOps 工程师** | `consensus/security-manager` + `performance-benchmarker` | 安全加固、性能、部署 | 18 层防护回归、Docker/gRPC 子服务、迁移回滚、可观测性、Prometheus 指标 |
+| **前端工程师（Flutter）** | 自定义 `frontend-flutter` | 任何涉及 `apps/flutter/` 的改动 | Web 管理面板页面、GetX 状态、ApiService/导出联动、102 路由维护 |
+| **前端工程师（HarmonyOS）** | 自定义 `frontend-harmonyos` | 任何涉及 `apps/harmonyos/` 的改动 | ArkTS 页面、token 无感刷新、与 Flutter 功能集对齐（41 页维护） |
+| **安全/DevOps 工程师** | `consensus/security-manager` + `performance-benchmarker` | 安全加固、性能、部署 | 7 层纵深防御回归、Docker/gRPC 子服务、迁移回滚、可观测性、Prometheus 指标 |
 
 ### 2.3 按需角色（任务触发，2 角色）
 
 | 角色 | 现有 agent 对应 | 启用条件 |
 |------|-----------------|----------|
 | **研究员** | 自定义 `researcher` | 新模块/新功能设计前：调研竞品，比对 `docs/API.md`、`docs/FUNCTIONS.md` 与实现差异，输出设计输入 |
-| **版本协调员** | 自定义 `edition-coordinator` | 涉及 `lite/standard/full` 差异：三分支同步、`docs/EDITIONS.md` 矩阵校验、分支间回归 |
+| **版本协调员** | 自定义 `edition-coordinator` | 涉及版本矩阵改动：`docs/EDITIONS.md` 对比表校验（`lite`/`standard` 列为规划值，已无对应分支）、版本 tag 与发布说明一致性 |
 
 ---
 
@@ -78,12 +78,12 @@
 | 微服务拆分 / 大规模重构 | supervisor | Lead ↔ 架构师 + 后端 + 审查 多轮 |
 | 安全 / 性能专项 | 单线程深挖 | Lead → 安全/DevOps 工程师 → 审查 |
 | Bug 修复（单文件 / 1-2 行） | 不进团队 | Lead 直接处理，或 1 个 agent 完成 |
-| 三分支差异 / 版本发布 | pipeline | Lead → 版本协调员 → 测试(跨分支回归) → 审查 |
+| 版本 tag 差异 / 版本发布 | pipeline | Lead → 版本协调员 → 测试(main 单线回归) → 审查 |
 
 ### 3.4 质量门禁（提交前必经，由审查员把守）
 
 ```
-phpunit            # 137 测试 / 805 断言全绿，新增用例随改动提交
+phpunit            # 1001 测试 / 4726 断言全绿，新增用例随改动提交
 phpstan            # 不允许新增 baseline 之外的问题
 php-cs-fixer       # --dry-run 通过
 composer audit     # 无高危依赖漏洞

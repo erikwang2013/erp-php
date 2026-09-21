@@ -6,7 +6,7 @@
 
 ## 1. 시스템 아키텍처
 
-> **기능 목록**: 인증(login/register/refresh/logout + 계정 잠금 + 세션 제한) | 대시보드(Redis 캐시) | 사용자 CRUD+일괄+가져오기 | 역할 권한(RBAC) | 시스템 설정 | 작업 감사(8개 플랫폼 출처 단말) | 파일(업로드+내보내기+마스킹) | 보안(18계층 방어) | 운영(health/metrics/docs/Docker/CI)
+> **기능 목록**: 인증(login/register/refresh/logout + 계정 잠금 + 세션 제한) | 대시보드(Redis 캐시) | 사용자 CRUD+일괄+가져오기 | 역할 권한(RBAC) | 시스템 설정 | 작업 감사(8개 플랫폼 출처 단말) | 파일(업로드+내보내기+마스킹) | 보안(7계층 미들웨어 심층 방어, L0–L12 전경 + 35종 공격 탐지기) | 운영(health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -60,8 +60,8 @@
 | 계층 | 디렉토리 | 책임 |
 |---|------|------|
 | 라우트 | `config/route.php` | URL에서 컨트롤러로의 매핑, 미들웨어 바인딩, 버전별 라우트 |
-| 미들웨어 | `app/middleware/` | 공격 차단(SecurityFilter), 속도 제한(RateLimit), 인증(JWT), 인가(RBAC), API 버전(ApiVersion) |
-| 컨트롤러 | 14개: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs(관리 단) + Captcha/Auth(API v1) | 요청 파라미터 검증, 업무 로직 호출, 응답 포맷 |
+| 미들웨어 | `app/middleware/` | CORS(Cors), 공격 차단(SecurityFilter), 속도 제한(RateLimit), 전 구간 추적(TracingId), 인증(JWT), 인가(RBAC), 작업 로그(OperationLog), 오픈 API 서명(OpenApiAuth) 총 11개 파일 |
+| 컨트롤러 | 관리단 15개: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook(기본 클래스 `BaseController` 별도) + API v1 3개: Captcha/Auth/Product | 요청 파라미터 검증, 업무 로직 호출, 응답 포맷 |
 | 업무 서비스 | `app/service/` | 재사용 가능한 업무 로직(예약) |
 | 데이터 모델 | `app/model/` | ORM 매핑, 연관 관계, 필드 암·복호화 |
 | 공통 도구 | `app/common/` | Hashids, Snowflake, Encryption 서비스 |
@@ -79,14 +79,17 @@ Route 匹配
   │
   ▼
 中间件链:
+  Cors ────────────────► 处理 OPTIONS 预检，注入 CORS 响应头
+  │
+  ▼
   SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
   ▼
   RateLimit ───────────► Redis 滑动窗口限流
   │ (失败返回 429 + Retry-After 头)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  TracingId ───────────► 生成 X-Trace-Id，贯穿全链路
+  │ (版本号置于 URL 路径 /admin/v1 /api/v1 /open/v1，无版本头中间件)
   ▼
   AdminAuth ──────────► JWT 验证，注入 $request->adminId
   │ (失败返回 401)
@@ -169,58 +172,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 URL 규약
 
 ```
-公开接口:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+公开接口:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 管理端:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 资源路由:
-  GET    /admin/user          → 列表
-  POST   /admin/user          → 创建
-  GET    /admin/user/{hashid} → 详情
-  PUT    /admin/user/{hashid} → 更新
-  DELETE /admin/user/{hashid} → 删除（需密码确认）
+  GET    /admin/v1/user          → 列表
+  POST   /admin/v1/user          → 创建
+  GET    /admin/v1/user/{hashid} → 详情
+  PUT    /admin/v1/user/{hashid} → 更新
+  DELETE /admin/v1/user/{hashid} → 删除（需密码确认）
 
-系统配置:  /admin/config[/{hashid}]
-操作日志:  /admin/log
-个人中心:  /admin/profile[/password|/logout]
-导入:     /admin/import/users
-上传:     /admin/upload
-批量:     /admin/user/batch/{destroy|status}
+系统配置:  /admin/v1/config[/{hashid}]
+操作日志:  /admin/v1/log
+个人中心:  /admin/v1/profile[/password|/logout]
+导入:     /admin/v1/import/users
+上传:     /admin/v1/upload
+批量:     /admin/v1/user/batch/{destroy|status}
 文档:     /api/docs     (OpenAPI 3.0)
 健康:     /health
 ```
 
 ### 4.2 API 버전 전략
 
-API 버전은 요청 헤더로 제어하며, **URL 경로에는 반영하지 않습니다**:
-
-```http
-API-Version: v1
-```
+API 버전은 **URL 경로에 위치**하며 버전 요청 헤더를 사용하지 않습니다: 관리단 `/admin/v1`, 클라이언트 `/api/v1`, 오픈 인터페이스 `/open/v1`.
 
 | 메커니즘 | 설명 |
 |------|------|
-| 기본 버전 | `API-Version` 헤더 미포함 시 기본 `v1` |
-| 검증 | `ApiVersion` 미들웨어가 검증, 지원하지 않는 버전은 400 반환 |
-| 라우트 | `v()` 헬퍼 함수가 버전에 따라 컨트롤러 클래스를 동적 해석 |
+| 버전 위치 | URL 경로, 예: `/api/v1/auth/login` |
+| 라우트 그룹 | `config/route.php`의 `Route::group('/api/v1', …)`가 컨트롤러를 직접 바인딩 |
 | 디렉토리 | 컨트롤러를 버전별로 구성: `app/api/{version}/controller/` |
+| 버전 헤더 미들웨어 | 과거의 `v()` 동적 해석과 `ApiVersion` 요청 헤더 미들웨어는 **제거됨** |
 
 확장 예시 — v2 API 추가:
 1. `app/api/v2/controller/AuthController.php` 생성
-2. `ApiVersion` 미들웨어 `SUPPORTED` 상수에 `'v2'` 추가
-3. 라우트 정의는 수정 불필요
+2. `config/route.php`에 `Route::group('/api/v2', …)` 그룹을 등록하고 컨트롤러를 직접 바인딩
+3. 버전 요청 헤더는 없으며, 라우트 그룹 자체가 버전 경계
 
 ```bash
-# 使用 v1
-curl -H "API-Version: v1" /api/auth/login
+# v1 사용
+curl http://localhost:8788/api/v1/auth/login
 
-# 使用 v2
-curl -H "API-Version: v2" /api/auth/login
-
-# 不传，默认 v1
-curl /api/auth/login
+# v2 사용
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 속도 제한 전략
@@ -230,8 +226,8 @@ Redis Sorted Set 슬라이딩 윈도우 알고리즘 기반, 원자화 Lua 스�
 | 인터페이스 | 제한 |
 |------|------|
 | 기본 | 60회/분/IP/라우트 |
-| POST /api/auth/login | 10회/분 |
-| POST /api/auth/register | 5회/분 |
+| POST /api/v1/auth/login | 10회/분 |
+| POST /api/v1/auth/register | 5회/분 |
 
 한도 초과 시 429 반환, 응답 헤더에 X-RateLimit-Limit / Remaining / Reset / Retry-After 포함.
 
@@ -260,12 +256,12 @@ Redis Sorted Set 슬라이딩 윈도우 알고리즘 기반, 원자화 Lua 스�
 ```
 客户端                               服务端
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② 用户点击图中文字位置              │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -274,7 +270,7 @@ Redis Sorted Set 슬라이딩 윈도우 알고리즘 기반, 원자화 Lua 스�
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -302,7 +298,7 @@ Redis Sorted Set 슬라이딩 윈도우 알고리즘 기반, 원자화 Lua 스�
 ```
 客户端                           服务端
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -375,7 +371,7 @@ Redis Sorted Set 슬라이딩 윈도우 알고리즘 기반, 원자화 Lua 스�
 ### 6.2 키 관리
 
 ```
-JWT_SECRET          → 环境变量注入，64位随机字符串
+JWT_SECRET_KEY      → 环境变量注入，64位随机字符串
 HASHIDS_SALT        → 唯一盐值，泄漏后需全局更换
 ENCRYPTION_KEY      → API 传输加密密钥，32字节
 ENCRYPTABLE_KEY     → DB 存储加密密钥，与传输密钥独立
@@ -398,7 +394,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 Excel 내보내기
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
+请求: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() 查询数据 (limit 10000)
   → 脱敏敏感字段
   → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
@@ -408,7 +404,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.2 PDF 내보내기
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
+请求: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
   → Dompdf 渲染 A4 横向
   → 写入 runtime/tmp/ → download 响应
@@ -435,7 +431,7 @@ Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
 | `redis` | redis:7-alpine | 6379 | 캐시 / 속도 제한 / 캡차 |
 | `elasticsearch` | elasticsearch:8.x | 9200 | 전문 검색 |
 
-시작 전에 `docker-compose.yml`의 `JWT_SECRET`, `HASHIDS_SALT`, `ENCRYPTION_KEY` 등 키를 랜덤 문자열로 교체하세요.
+시작 전에 `docker-compose.yml`의 `JWT_SECRET_KEY`, `HASHIDS_SALT`, `ENCRYPTION_KEY` 등 키를 랜덤 문자열로 교체하세요.
 
 ```bash
 cp .env.docker .env

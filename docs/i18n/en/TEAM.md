@@ -11,10 +11,10 @@
 
 | Dimension | Current State | Implication for the Team |
 |------|------|--------------|
-| Backend | webman (Workerman) PHP 8.3+, **22 business modules**, 121+ controllers, 24 services, 161 models, 163 tables, 12 middleware (schema uses database/install.sql as its single source of truth) | Large all-in-one monolith; divide work by business domain to prevent single-agent context explosion |
-| Frontend | Flutter **97 pages** (Web/mobile) + HarmonyOS **34 pages**, covering all modules | Two frontends maintained in parallel; dedicated frontend roles required |
-| Quality baseline | PHPUnit 137 tests / 805 assertions, PHPStan + baseline, CS-Fixer, CI multi-version matrix | Discipline already in place; testing/review roles plug directly into the pipeline |
-| Version matrix | `lite` / `standard` / `full` three branches (62/72/163 tables) | Changes must consider cross-branch sync; version coordination needed |
+| Backend | webman (Workerman) PHP 8.3+, **23 business modules**, 159 controllers, 63 services, 224 models, 227 tables, 11 middleware (schema uses database/install.sql as its single source of truth) | Large all-in-one monolith; divide work by business domain to prevent single-agent context explosion |
+| Frontend | Flutter **102 menu routes** (`lib/app/config/menu_config.dart`; `main.dart`'s getPages totals 110 entries = 102 menus + login/profile + 6 detail pages) + HarmonyOS **41 pages** (`main_pages.json`), covering all modules | Two frontends maintained in parallel; dedicated frontend roles required |
+| Quality baseline | PHPUnit 1001 tests / 4726 assertions, PHPStan + baseline, CS-Fixer, CI multi-version matrix | Discipline already in place; testing/review roles plug directly into the pipeline |
+| Version matrix | Only the `main` branch (`lite` / `standard` / `full` have been deleted; the archived commit `eea90c0` is still in `main`'s history) | No edition branch left to sync; edition differences are traced through tags, see "Branch Strategy" in `docs/EDITIONS.md` |
 | Roadmap | P0~P3 delivered (overall score 89/100), entering daily iteration and evolution phase | Team scales by task type, not a large permanent project staff |
 | Existing facilities | `.claude/agents/` (planner / sparc / testing / swarm / consensus), `.claude-flow` (hierarchical-mesh, max 15 agents, consensus coordination), hooks + memory | Team mounts directly onto existing config; no reinvention |
 
@@ -26,27 +26,27 @@
 
 | Role | Existing Agent Mapping | Responsibilities (for this project) |
 |------|-----------------|--------------------|
-| **Project Manager Lead** | `planner` / `swarm/hierarchical-coordinator` | Requirement breakdown → routing → acceptance; maintains the 22-module task queue; decides pipeline / fan-out / supervisor patterns; relays messages across roles |
-| **System Architect** | `sparc/architecture` | Table structure design (163 tables, schema uses database/install.sql as its single source of truth); cross-module data flows (purchase receiving→inventory→AP, sales delivery→AR→stock-out chains, etc.); microservice split boundary decisions |
-| **Backend Developer** | `core` / custom `backend-dev` | Controller / service / model implementation; follows the `app/service` layering and middleware chain (Locale→Cors→SecurityFilter→RateLimit→TracingId→business middleware) |
-| **Test Engineer** | `testing/tdd-london-swarm` + `production-validator` | PHPUnit test-first (engine boundary tests); three-branch regression verification; filling `tests/` coverage gaps |
-| **Code Reviewer** | `consensus/security-manager` | PHPStan zero new baseline issues, CS-Fixer compliance, 18-layer security pattern checks; guards the pre-commit quality gate |
+| **Project Manager Lead** | `planner` / `swarm/hierarchical-coordinator` | Requirement breakdown → routing → acceptance; maintains the 23-module task queue; decides pipeline / fan-out / supervisor patterns; relays messages across roles |
+| **System Architect** | `sparc/architecture` | Table structure design (227 tables, schema uses database/install.sql as its single source of truth); cross-module data flows (purchase receiving→inventory→AP, sales delivery→AR→stock-out chains, etc.); microservice split boundary decisions |
+| **Backend Developer** | `core` / custom `backend-dev` | Controller / service / model implementation; follows the `app/service` layering and middleware chain (Cors→SecurityFilter→RateLimit→TracingId→business middleware) |
+| **Test Engineer** | `testing/tdd-london-swarm` + `production-validator` | PHPUnit test-first (engine boundary tests); single-line `main` regression verification; filling `tests/` coverage gaps |
+| **Code Reviewer** | `consensus/security-manager` | PHPStan zero new baseline issues, CS-Fixer compliance, 7-layer defense-in-depth security pattern checks; guards the pre-commit quality gate |
 
 ### 2.2 Specialist Team (drawn per task type, 4 roles)
 
 | Role | Existing Agent Mapping | Activation Scenario | Typical Tasks |
 |------|-----------------|----------|----------|
 | **Business Engine Expert** | custom `business-engineer` | Algorithm-heavy modules such as finance / payroll / MRP | Algorithm hardening and boundary handling for the double-entry engine, payroll engine, MRP engine (A-tier "industrial-grade" requirement) |
-| **Frontend Engineer (Flutter)** | custom `frontend-flutter` | Any change touching `apps/flutter/` | Web admin panel pages, GetX state, ApiService/export integration, 97-page maintenance |
-| **Frontend Engineer (HarmonyOS)** | custom `frontend-harmonyos` | Any change touching `apps/harmonyos/` | ArkTS pages, token silent refresh, feature alignment with Flutter (34-page maintenance) |
-| **Security/DevOps Engineer** | `consensus/security-manager` + `performance-benchmarker` | Security hardening, performance, deployment | 18-layer protection regression, Docker/gRPC sub-services, migration rollback, observability, Prometheus metrics |
+| **Frontend Engineer (Flutter)** | custom `frontend-flutter` | Any change touching `apps/flutter/` | Web admin panel pages, GetX state, ApiService/export integration, 102-route maintenance |
+| **Frontend Engineer (HarmonyOS)** | custom `frontend-harmonyos` | Any change touching `apps/harmonyos/` | ArkTS pages, token silent refresh, feature alignment with Flutter (41-page maintenance) |
+| **Security/DevOps Engineer** | `consensus/security-manager` + `performance-benchmarker` | Security hardening, performance, deployment | 7-layer defense-in-depth regression, Docker/gRPC sub-services, migration rollback, observability, Prometheus metrics |
 
 ### 2.3 On-Demand Roles (task-triggered, 2 roles)
 
 | Role | Existing Agent Mapping | Activation Condition |
 |------|-----------------|----------|
 | **Researcher** | custom `researcher` | Before new module/feature design: research competitors, compare `API.md`, `FUNCTIONS.md` against implementation differences, produce design inputs |
-| **Edition Coordinator** | custom `edition-coordinator` | When `lite/standard/full` differences are involved: three-branch sync, `EDITIONS.md` matrix validation, cross-branch regression |
+| **Edition Coordinator** | custom `edition-coordinator` | When edition-matrix changes are involved: validation of the `EDITIONS.md` comparison table (the `lite`/`standard` columns are planning values with no corresponding branches), and consistency between version tags and release notes |
 
 ---
 
@@ -83,13 +83,13 @@
 ### 3.4 Quality Gate (mandatory before commit, guarded by the reviewer)
 
 ```
-phpunit            # 137 tests / 805 assertions all green; new cases submitted with changes
+phpunit            # 1001 tests / 4726 assertions all green; new cases submitted with changes
 phpstan            # no issues beyond the baseline allowed
 php-cs-fixer       # --dry-run passes
 composer audit     # no high-severity dependency vulnerabilities
 ```
 
-Database-related changes must go through the architect (163 tables, schema uses database/install.sql as its single source of truth); frontend changes must pass Flutter `flutter analyze` with 0 error / 0 warning.
+Database-related changes must go through the architect (227 tables, schema uses database/install.sql as its single source of truth); frontend changes must pass Flutter `flutter analyze` with 0 error / 0 warning.
 
 ---
 

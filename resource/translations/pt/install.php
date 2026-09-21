@@ -149,6 +149,7 @@ return [
     ':envKey may only contain visible characters and must not contain $ or backslash' => ':envKey pode conter apenas caracteres visíveis e não deve conter $ ou barra invertida',
     ':envKey must be a 2-5 digit port' => ':envKey deve ser uma porta de 2-5 dígitos',
     ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => ':field deve ser uma chave alfanumérica de 16-128 caracteres (ou deixe em branco para gerar automaticamente)',
+    ':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate' => ':envKey deve ter exatamente 32 caracteres alfanuméricos (chave AES-256), ou deixe em branco para gerar automaticamente',
     'Please enter the database host' => 'Por favor, insira o host do banco de dados',
     'Please fill in host/port/database/user before testing' => 'Preencha host/porta/banco de dados/usuário antes de testar',
     'Testing...' => 'Testando...',

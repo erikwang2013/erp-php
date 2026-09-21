@@ -152,7 +152,7 @@ if (Redis::get("security_ban:{$ip}")) {
 
 लॉग प्रारूप उदाहरण:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ POST/PUT अनुरोध **अनिवार्य रूप से** `Conte
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | किसी भी ओरिजिन को क्रॉस-डोमेन अनुमति (इंट्रानेट प्रबंधन बैकएंड परिदृश्य) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | अनुमत विधियों का सेट |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | अनुमत कस्टम हेडर |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | अनुमत कस्टम हेडर |
 | Access-Control-Max-Age | `86400` | प्रीफ़्लाइट अनुरोध कैश 24 घंटे |
 | X-Content-Type-Options | `nosniff` | ब्राउज़र MIME स्निफिंग प्रतिबंधित |
 | X-Frame-Options | `DENY` | सभी iframe एम्बेडिंग प्रतिबंधित, क्लिकजैकिंग रोकथाम |
@@ -226,8 +226,8 @@ Lua स्क्रिप्ट Redis सर्वर पर सिंगल-थ
 | रूट | सीमा | विंडो | परिदृश्य |
 |------|------|------|------|
 | डिफ़ॉल्ट (सभी रूट) | 60 बार/मिनट | 60s | सामान्य API |
-| `/api/auth/login` | 10 बार/मिनट | 60s | लॉगिन (ब्रूट-फोर्स रोकथाम) |
-| `/api/auth/register` | 5 बार/मिनट | 60s | रजिस्टर (बैच रजिस्ट्रेशन रोकथाम; डिफ़ॉल्ट रूप से बंद, `REGISTRATION_ENABLED=1` की आवश्यकता) |
+| `/api/v1/auth/login` | 10 बार/मिनट | 60s | लॉगिन (ब्रूट-फोर्स रोकथाम) |
+| `/api/v1/auth/register` | 5 बार/मिनट | 60s | रजिस्टर (बैच रजिस्ट्रेशन रोकथाम; डिफ़ॉल्ट रूप से बंद, `REGISTRATION_ENABLED=1` की आवश्यकता) |
 
 ### रिस्पॉन्स हेडर
 
@@ -295,14 +295,14 @@ try {
 
 AdminAuth मिडलवेयर में लागू, प्रमाणीकरण आवश्यक रूट समूहों पर माउंट होता है।
 
-**पैरामीटर कॉन्फ़िग** (`config/plugin/erikwang2013/jwt/jwt`, `.env` से इंजेक्ट):
+**पैरामीटर कॉन्फ़िग** (`config/plugin/erikwang2013/jwt/jwt.php`, `.env` से इंजेक्ट):
 
 | पैरामीटर | मान | विवरण |
 |------|-----|------|
 | एल्गोरिदम | HS256 | HMAC-SHA256 सममित हस्ताक्षर |
-| कुंजी | `JWT_SECRET` | पर्यावरण चर इंजेक्शन, उत्पादन में बदलना आवश्यक |
-| access_token TTL | 7200s (2h) | `JWT_TTL` |
-| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| कुंजी | `JWT_SECRET_KEY` | पर्यावरण चर इंजेक्शन, उत्पादन में बदलना आवश्यक |
+| access_token TTL | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | जारीकर्ता | `open-admin` | `JWT_ISSUER` |
 | श्रोता | `open-admin` | `JWT_AUDIENCE` |
 
@@ -489,7 +489,7 @@ OperationLog मिडलवेयर POST / PUT / DELETE अनुरोधो�
 
 | पर्यावरण चर | उपयोग | पैकेज | उत्पादन आवश्यकता |
 |----------|------|-----|---------|
-| JWT_SECRET | JWT हस्ताक्षर कुंजी | erikwang2013/jwt-webman | 64+ वर्ण यादृच्छिक स्ट्रिंग |
+| JWT_SECRET_KEY | JWT हस्ताक्षर कुंजी | erikwang2013/jwt-webman | 64+ वर्ण यादृच्छिक स्ट्रिंग |
 | JWT_ALGORITHM | JWT हस्ताक्षर एल्गोरिदम | वही | HS256 बनाए रखें |
 | HASHIDS_SALT | ID एन्कोडिंग साल्ट | erikwang2013/hashids | यादृच्छिक स्ट्रिंग |
 | SNOWFLAKE_DATACENTER_ID | डेटासेंटर ID (0-31) | erikwang2013/snowflake-php | सिंगल डेटासेंटर डिफ़ॉल्ट रखें |
@@ -509,7 +509,7 @@ OperationLog मिडलवेयर POST / PUT / DELETE अनुरोधो�
 | ट्रांसमिशन एन्क्रिप्शन | `config/encryption.php` → `key` | `ENCRYPTION_KEY` |
 | स्टोरेज एन्क्रिप्शन | `config/encryptable.php` → `key` | `ENCRYPTABLE_KEY` |
 | ID ऑब्स्क्यूरेशन | `config/hashids.php` → `connections.main.salt` | `HASHIDS_SALT` |
-| JWT हस्ताक्षर | `config/plugin/erikwang2013/jwt/jwt` | `JWT_SECRET` |
+| JWT हस्ताक्षर | `config/plugin/erikwang2013/jwt/jwt.php` | `JWT_SECRET_KEY` |
 
 ---
 

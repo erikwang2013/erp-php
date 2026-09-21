@@ -13,6 +13,8 @@ flowchart TB
     subgraph "Клиентский слой"
         A1["Flutter Web<br/>Панель администрирования ПК<br/>(Port 3000)"]
         A2["HarmonyOS ArkTS<br/>Мобильный/планшетный клиент"]
+        A3["Angular 22 + ng-zorro<br/>Веб-панель управления"]
+        A4["React 19 + Vite<br/>Веб-панель управления"]
     end
 
     subgraph "Шлюз / пограничный слой (Nginx Edge)"
@@ -20,8 +22,8 @@ flowchart TB
     end
 
     subgraph "Прикладной слой (webman v2)"
-        C_LOC["Middleware Locale<br/>Автоопределение Accept-Language"]
-        C0["Middleware ApiVersion<br/>Проверка заголовка API-Version"]
+        C_LOC["I18n::getLocale()<br/>Разбор Accept-Language · 13 языков"]
+        C0["Версионирование через путь<br/>/api/v1 · /admin/v1 (без заголовка версии)"]
         C1["Middleware AdminAuth<br/>Проверка JWT"]
         C2["Middleware AdminPermission<br/>Проверка прав RBAC"]
         C3["Контроллеры админ-панели<br/>Dashboard / User / Role / Permission"]
@@ -42,6 +44,8 @@ flowchart TB
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -57,6 +61,8 @@ flowchart TB
 
     style A1 fill:#1677FF,color:#fff
     style A2 fill:#1677FF,color:#fff
+    style A3 fill:#1677FF,color:#fff
+    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -80,10 +86,10 @@ flowchart TD
     end
 
     subgraph "Слой промежуточного ПО Middleware Layer"
-        M_LOC["Locale<br/>Автоопределение Accept-Language<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>Скользящее окно ограничения на Redis<br/>Заголовки ответа X-RateLimit"]
+        M_CR["Cors<br/>Кросс-доменная обработка / предварительный запрос OPTIONS"]
         M_SF["SecurityFilter<br/>Блокировка по обнаружению атак<br/>XSS/инъекции SQL/обход путей/CSRF"]
-        M0["ApiVersion<br/>Проверка версии API<br/>Внедрение apiVersion"]
+        M_RL["RateLimit<br/>Скользящее окно ограничения на Redis<br/>Заголовки ответа X-RateLimit"]
+        M_TID["TracingId<br/>Генерация X-Trace-Id<br/>Сквозная по всей цепочке"]
         M1["AdminAuth<br/>Проверка JWT-токена<br/>Внедрение adminId"]
         M2["AdminPermission<br/>Авторизация RBAC<br/>Сопоставление method.path<br/>Кэш прав в Redis на 60 с"]
     end
@@ -103,6 +109,7 @@ flowchart TD
         S1["HashidsService<br/>Кодирование/декодирование ID"]
         S2["SnowflakeService<br/>Генерация глобально уникальных ID"]
         S3["EncryptionService<br/>Шифрование/дешифрование + маскирование"]
+        M_LOC["I18n::getLocale()<br/>Разбор Accept-Language (не middleware)<br/>13 языков zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "Слой моделей Model Layer"
@@ -119,11 +126,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +140,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +155,23 @@ flowchart TD
 
 | Слой | Каталог | Описание |
 |------|---------|----------|
-| Бизнес-контроллеры | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70 шт., разделены по модулям, обрабатывают бизнес-запросы |
-| Бизнес-сервисы | `app/service/{inventory,finance,notification}/` | Приход/расход склада + расчёт себестоимости, дебиторская/кредиторская задолженность + взаимозачёт, отправка уведомлений |
+| Бизнес-контроллеры | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 шт. (23 бизнес-домена, плюс верхнеуровневые Install / Index), разделены по модулям, обрабатывают бизнес-запросы |
+| Бизнес-сервисы | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 класса сервисов / 64 файла / 20 подкаталогов модулей; включая приход/расход склада и расчёт себестоимости, дебиторскую/кредиторскую задолженность и взаимозачёт, отправку уведомлений |
+
+### Интернационализация (13 языков)
+
+Определение языка выполняется в `getLocale()` файла `app/common/I18n.php` (вызывается из `I18n::trans()`, **это не middleware**): берётся первый тег заголовка `Accept-Language`, подтег основного языка отображается (`zh*` → `zh_CN`). Распределение словарей между бэкендом и фронтендом:
+
+| Сторона | Расположение словаря | Объём | Генератор |
+|----|----------|------|--------|
+| Бэкенд | `resource/translations/<locale>/{common,modules,validation}.php` | 13 каталогов языков; `zh_CN` 565 записей, остальные 11 языков по 544 записи, `en` 30 записей (критерий листовых записей: метки полей в `attributes` файла `validation.php` учитываются, ключи группировки — нет) | `scripts/gen-be-locales.mjs` |
+| Angular | источник `apps/angular/src/app/core/zh-en/part1..4.ts` → артефакт `core/zh-<code>.ts` | исходный словарь 1456 записей | `scripts/gen-fe-locales.mjs --app angular` |
+| React | источник `apps/react/src/lib/i18n/zhEn.ts` → артефакт `lib/i18n/zh<Code>.ts` | исходный словарь 1451 запись | `scripts/gen-fe-locales.mjs --app react` |
+
+- Языки: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`.
+- «Английский как ключ» на бэкенде: в `en` файлы common/modules пусты; ключи `validation.php` — имена правил фреймворка, переводятся только значения.
+- Каждый из 11 новых словарей фронтенда подгружается динамически через `import()` отдельным chunk; при отсутствии записи используется китайский оригинал.
+- Переключение языка меняет заголовок `Accept-Language`, бэкенд возвращает текст на соответствующем языке (`app/common/I18n.php` + `config/translation.php`).
 
 ---
 
@@ -158,10 +181,10 @@ flowchart TD
 sequenceDiagram
     participant C as Клиент
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Контроллер
@@ -170,10 +193,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: HTTPS-запрос<br/>Header: API-Version: v1
-    N->>MW_LOC: Передача
-    MW_LOC->>MW_LOC: Разбор Accept-Language<br/>Установка locale
-    MW_LOC->>MW_SF: Пройдено
+    C->>N: HTTPS-запрос<br/>путь /api/v1 или /admin/v1 (без заголовка версии)
+    N->>MW_CR: Передача
+    MW_CR->>MW_CR: Обработка предварительного запроса OPTIONS<br/>внедрение заголовков ответа CORS
+    MW_CR->>MW_SF: Пройдено
 
     alt Нестандартный HTTP-метод (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +214,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: Пройдено
-
-    alt Неподдерживаемая версия
-        MW0-->>C: 400 Неподдерживаемая версия API
-    else Версия допустима
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: Пройдено
+    MW_TID->>MW_TID: Генерация X-Trace-Id<br/>внедрение в заголовок ответа
+    MW_TID->>MW1: Пройдено
 
     alt Токен отсутствует или недействителен
         MW1-->>C: 401 Unauthorized
@@ -249,7 +268,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === Шаг 1: получение капчи ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: Генерация фонового изображения 300×200
     CAP->>CAP: Случайное размещение N целей с китайскими символами
@@ -264,7 +283,7 @@ sequenceDiagram
     CL->>CL: Сбор clicks: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === Шаг 3: вход ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt Ошибка капчи
         CAP-->>SV: false
@@ -284,7 +303,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === Последующие запросы ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { данные дашборда }
@@ -539,7 +558,7 @@ sequenceDiagram
     participant FS as Файловая система
 
     Note over C,FS: === Экспорт Excel ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: Данные
     CTL->>CTL: Расшифровка чувствительных полей
@@ -549,7 +568,7 @@ sequenceDiagram
     CTL-->>C: Скачивание файла
 
     Note over C,FS: === Экспорт PDF ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>Колонтитул: заголовок + копирайт + время<br/>Содержимое: таблица или карточки<br/>Нижний колонтитул: неудаляемый копирайт
     CTL->>CTL: Отрисовка Dompdf A4 альбомная
     CTL->>FS: Запись runtime/tmp/export_*.pdf
@@ -712,10 +731,12 @@ graph TB
         FW["Flutter Web<br/>Панель администрирования ПК"]
         FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
         HW["HarmonyOS<br/>Нативное приложение HarmonyOS"]
+        NG["Angular 22 + ng-zorro<br/>Веб-панель управления"]
+        RC["React 19 + Vite<br/>Веб-панель управления"]
     end
 
     subgraph Gateway["Слой API-шлюза"]
-        MW["Цепочка промежуточного ПО<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["Цепочка промежуточного ПО<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>Группа маршрутов: AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["Слой бизнес-модулей"]
@@ -742,7 +763,7 @@ graph TB
     end
 
     subgraph Data["Слой данных"]
-        MySQL["MySQL 8.0<br/>163 бизнес-таблицы"]
+        MySQL["MySQL 8.0<br/>227 бизнес-таблиц"]
         Redis["Redis 7<br/>Кэш/лимиты/сессии"]
         ES["Elasticsearch 8<br/>Полнотекстовый поиск"]
     end
@@ -879,22 +900,32 @@ sequenceDiagram
 
 | Модуль | Контроллеры (каталог) | Ключевой Service | Основные модели | Число таблиц |
 |--------|-----------------------|------------------|-----------------|--------------|
-| Системное администрирование | admin/controller/ (14) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | AdminUser, AdminRole, AdminPermission | 7 |
-| Управление товарами | controller/product/ (7) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
-| Управление закупками | controller/purchase/ (5) | InventoryService, FinanceService ⚠ CRUD пока напрямую, известный технический долг | PurchaseOrder, PurchaseReceive | 9 |
+| Системное администрирование | admin/controller/ (16) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | AdminUser, AdminRole, AdminPermission | 7 |
+| Управление товарами | controller/product/ (8) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 12 |
+| Управление закупками | controller/purchase/ (8) | InventoryService, FinanceService ⚠ CRUD пока напрямую, известный технический долг | PurchaseOrder, PurchaseReceive | 14 |
 | Управление продажами | controller/sales/ (5) | InventoryService, FinanceService ⚠ CRUD пока напрямую, известный технический долг | SalesOrder, SalesDelivery | 9 |
-| Управление складом | controller/inventory/ (5) | InventoryService ⚠ CRUD пока напрямую, известный технический долг | Inventory, InventoryFlow, CostRecord | 11 |
-| Управление финансами | controller/finance/ (20) | FinanceService ⚠ CRUD пока напрямую, известный технический долг | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| Управление складом | controller/inventory/ (6) | InventoryService ⚠ CRUD пока напрямую, известный технический долг | Inventory, InventoryFlow, CostRecord | 11 |
+| Управление финансами | controller/finance/ (28) | FinanceService ⚠ CRUD пока напрямую, известный технический долг | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 38 |
 | CRM | controller/crm/ (10) | CrmService | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
-| Согласование рабочих процессов | controller/workflow/ (2) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
-| Уведомления | controller/notification/ (1) | NotificationService ⚠ CRUD пока напрямую, известный технический долг | Notification, NotificationSetting, NotificationTemplate | 3 |
-| Управление проектами | controller/project/ (3) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| HR | controller/hr/ (5) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
-| Производство | controller/manufacturing/ (5) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| Согласование рабочих процессов | controller/workflow/ (3) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
+| Уведомления | controller/notification/ (2) | NotificationService ⚠ CRUD пока напрямую, известный технический долг | Notification, NotificationSetting, NotificationTemplate | 4 |
+| Управление проектами | controller/project/ (4) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 6 |
+| HR | controller/hr/ (9) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 21 |
+| Производство | controller/manufacturing/ (13) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 21 |
 | Пользовательские отчёты | controller/report/ (2) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
-| EAM (управление оборудованием) | controller/eam/ (4) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart | 4 |
+| EAM (управление оборудованием) | controller/eam/ (4) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
 | DMS (управление документами) | controller/dms/ (2) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
 | BI-дашборды | controller/bi/ (3) | - ⚠ контроллер напрямую обращается к модели, известный технический долг | BiDashboard, BiWidget | 2 |
+
+> Данная таблица — раннее сопоставление модулей (системное администрирование + 15 бизнес-доменов); добавленные позже домены
+> oms / wms / tms / quality / open / platform / print / retail (8 шт.) в неё не включены;
+> полный список — в дереве структуры проекта `docs/CLAUDE.md` (`app/controller/` — всего 23 каталога модулей / 139 контроллеров, включая верхнеуровневые Install, Index).
+>
+> Критерий подсчёта `Число таблиц` (измерено 2026-09-15): берутся 227 таблиц из `database/install.sql` и по префиксу имени относятся к единственному модулю — системное администрирование `admin_*`+`system_config`+`operation_log`;
+> управление товарами `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`; управление закупками `purchase_*`+`supplier_assessment`; управление складом `inventory*`/`transfer*`/`check_*`/`cost_record`;
+> остальные модули — по одноимённому префиксу таблиц (`sales_*`→продажи, `finance_*`→финансы, `crm_*`→CRM, `approval_*`→согласование, `notification*`→уведомления, `project*`→проекты, `hr_*`→кадры, `mfg_*`→производство, `report_*`→отчёты, `eam_*`→EAM, `dms_*`→DMS, `bi_*`→BI).
+> Одна таблица входит только в одну строку; таблицы, добавленные поздними доменами, и общие таблицы — всего 48 шт. (`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`print_template`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`) — не входят ни в одну строку этой таблицы.
+> Пересчёт: ``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
 ### 20.1 Журнал лёгкого выделения сервисного слоя P2-F2 (crm/hr/manufacturing/product уже выделены)
 
@@ -914,6 +945,12 @@ sequenceDiagram
 
 Модули без выделения (управление проектами — 18 вызовов, пользовательские отчёты — 18, закупки — 24, продажи — 24, системное администрирование — 42 и т. д.)
 отмечены в таблице как «контроллер напрямую обращается к модели, известный технический долг»; в следующих итерациях будут выделены по той же схеме.
+
+> ⚠ Повторное измерение (2026-09-15): значения этого раздела — результат замера **на момент выделения** (1051d83 / 2026-08-16); по тому же критерию на этом коммите проверено, что для четырёх модулей они равны в точности
+> CRM 57→0, HR 36→0 (в разделе указано 38), производство 33→0, товары 29→0; у невыделенных модулей тогда было проекты 18 / отчёты 18 / закупки 25 / продажи 25 / системное администрирование 44 (в разделе 18/18/24/24/42 — расхождение в 1~2 объясняется разницей в критерии подсчёта).
+> После выделения новые страницы не подключались к Service, и прямые обращения вернулись: CRM — 6 мест (заполнение связанных имён через `pluck`), производство — 39 мест (CostEntry/MaterialIssue/WorkReport/Subcontract и ещё 6 поздних контроллеров),
+> управление товарами — 2 места (LocationController, ячейки), в HR по-прежнему 0; у невыделенных модулей сейчас проекты 24 / отчёты 20 / закупки 58 / продажи 35 / системное администрирование 67.
+> Критерий и команда повторного замера (`Model::class` не учитывается): ``grep -rhoE '\b[A-Z][A-Za-z]*::(find|where|whereIn|query|first|all|count|paginate|insert|update|delete|save|create|pluck|exists)\(' app/controller/<модуль>/ | grep -vE '\b(Service|Container|Validator|Cache|Log)::' | wc -l``
 
 ---
 
@@ -959,7 +996,7 @@ RMA: Заявка → Одобрение → Возврат → Приёмка (
 | Измерение | Оценка | Ключевые пробелы |
 |-----------|--------|------------------|
 | Backend API | 85/100 | Многие модули — CRUD-скелеты, не хватает бизнес-движков расчётов |
-| Безопасность | 95/100 | 18 уровней защиты, готово к продакшену |
+| Безопасность | 95/100 | 7 уровней эшелонированной обороны (панорама L0–L12), готово к продакшену |
 | Frontend UI | 20/100 | **Самое слабое место**: Flutter 12 страниц покрывают ~20% модулей, нет веб-панели администрирования |
 | Операционная экосистема | 70/100 | Нет отката миграций, автоматических резервных копий, наблюдаемости |
 | Глубина бизнеса | 55/100 | Ключевые алгоритмы финансов/HR/производства не реализованы |
@@ -981,10 +1018,10 @@ P0(3-4 недели) → P1(4-6 недель) → P2(1-2 недели) → P3(2-
 ### 21.3 Эволюция цепочки промежуточного ПО
 
 ```
-Сейчас:   Locale → Cors → SecurityFilter → RateLimit → TracingId → {группа маршрутов}
-После P1: Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {группа маршрутов}
-После P2: Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {группа маршрутов}
-После P3: Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {группа маршрутов}
+Сейчас:   Cors → SecurityFilter → RateLimit → TracingId → {группа маршрутов}
+После P1: Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {группа маршрутов}
+После P2: Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {группа маршрутов}
+После P3: Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {группа маршрутов}
 ```
 
 ### 21.4 Целевая архитектура P0 — веб-панель Flutter Web
@@ -1030,25 +1067,25 @@ SaaS-биллинг, самостоятельное подключение ар�
 Основания решения (рецензия 2026-08):
 - Почти все существующие развёртывания — однократные арендаторы; подключение внесёт ненужную сложность изоляции и риски регрессий;
 - Текущий каркас имеет технические недостатки (см. 22.4), «подключение = изоляция» не выполняется, требуется сначала завершить исправление проекта;
-- Изоляция требует добавления колонки в каждую из 163 бизнес-таблиц и включения для каждой модели — затраты намного превышают «минимальное подключение».
+- Изоляция требует добавления колонки в каждую из 227 бизнес-таблиц и включения для каждой модели — затраты намного превышают «минимальное подключение».
 
 ### 22.2 Текущие факты (сверка кода и конфигурации)
 
 | Пункт | Текущее состояние |
 |-------|-------------------|
-| `app/middleware/TenantScope.php` | Существует, не зарегистрирован; читает арендатора из заголовка `X-Tenant-Id`, при отсутствии заголовка пропускает |
-| `app/model/concerns/TenantScope.php` | Существует, ни одна модель не использует; `bootTenantScope()` — глобальная область видимости, фильтрует только после установки арендатора |
-| `config/middleware.php` | Глобальная цепочка: Locale → Cors → SecurityFilter → RateLimit → TracingId, без TenantScope |
+| `app/middleware/TenantScope.php` | Существует, не зарегистрирован; читает код арендатора из заголовка `X-Tenant-Code`, ищет запись в `erp_tenant` и внедряет контекст; при отсутствии заголовка пропускает запрос без изменений |
+| `app/model/concerns/TenantScope.php` | Существует; используется 4 финансовыми моделями (`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`, семейство компаний: `tenantScopeByCompany()` возвращает true), фильтрация по `company_id`; поскольку промежуточное ПО не зарегистрировано и контекст запроса не внедряется, глобальная область видимости сейчас не действует |
+| `config/middleware.php` | Глобальная цепочка: Cors → SecurityFilter → RateLimit → TracingId, без TenantScope |
 | `config/route.php` /admin-группа | AdminAuth → AdminPermission → OperationLog, без TenantScope |
 | Нагрузка JWT | Только `sub` / `username` / `token_type`, **без объявления tenant_id** (`app/api/v1/controller/AuthController.php`) |
 | База данных | **Во всей БД нет колонки tenant_id** (в install.sql тоже нет) |
-| Модели | **Ни одна модель не использует Trait TenantScope** |
+| Модели | 4 финансовые модели используют Trait `TenantScope` (семейство компаний, фильтрация по `company_id`) — пилотная изоляция; при невнедрённом контексте арендатора фильтрация не применяется |
 
 ### 22.3 Шаги включения (справочник, в текущем цикле не выполняются)
 
-1. Зарегистрировать промежуточное ПО: в группе /admin файла `config/route.php` добавить в `middleware()`
+1. Зарегистрировать промежуточное ПО: в группе /admin/v1 файла `config/route.php` добавить в `middleware()`
    `app\middleware\TenantScope::class` (после AdminAuth, чтобы гарантировать аутентификацию).
-2. Запрашивающая сторона передаёт `X-Tenant-Id` в заголовке запроса (int — ID арендатора).
+2. Запрашивающая сторона передаёт `X-Tenant-Code` в заголовке запроса (строка — код арендатора).
 3. Добавить колонку `tenant_id` (BIGINT + индекс) в бизнес-таблицы, требующие изоляции, и заполнить существующие данные;
    словарные/системные таблицы (например, `erp_admin_user`, `erp_role`, `erp_permission`) не изолируются.
 4. В моделях, требующих изоляции, подключить `use app\model\concerns\TenantScope;` — автоматическая фильтрация по текущему арендатору.
@@ -1057,15 +1094,19 @@ SaaS-биллинг, самостоятельное подключение ар�
 
 ### 22.4 Известные технические ограничения (обязательно решить до включения)
 
-- **Разрыв статической цепочки передачи (проверено на PHP 8.3)**: вызов `setCurrentTenantId()` из промежуточного ПО через имя trait
-   записывает в собственную статическую копию trait, которую модель, использующая этот trait, не видит — запросы не фильтруются.
-   При включении нужно перейти на внедрение на основе контекста запроса (например, `request()->tenantId`).
-- **Перекрёстные помехи статического глобального состояния**: Workerman — резидентный процесс, статические свойства разделяются между запросами; при включении кооперативного режима
-   (Swoole/Swow) возможны перекрёстные помехи данных между арендаторами; нужно перейти на привязку на уровне запроса (`context()` / объект запроса).
+- **Граница доверия (обязательно решить до регистрации)**: источник контекста арендатора — заголовок `X-Tenant-Code`,
+   то есть подделываемый вход; регистрация промежуточного ПО до установления связи `erp_admin_user` с компанией/арендатором
+   (определение принадлежности администратора) создаст разрыв в плоскости данных с превышением прав
+   (любой аутентифицированный администратор сможет объявить любой арендатор и прочитать его данные).
+- **Разрыв статической цепочки передачи (проверено на PHP 8.3) заменён исправленной версией P2-4 B5**: Trait `TenantScope`
+   теперь работает через внедрение контекста запроса (`request()->tenantId` / `companyId`), на этом пути нет статического состояния,
+   и перекрёстные помехи между запросами в резидентном процессе устранены; статический фасад по имени trait помечен `@deprecated`
+   и служит только подстраховкой для тестов/CLI.
 - **Пробел на стороне данных**: во всей БД нет колонки tenant_id, требуется миграция по каждой таблице; для словарных таблиц, общих для арендаторов, нужен механизм исключений.
 
 ### 22.5 Критерии приёмки
 
 Приёмка текущего цикла = согласованность документации и кода: `config/middleware.php` и `config/route.php` не содержат
-регистрации TenantScope; в комментариях промежуточного ПО и Trait явно указано «зарезервированная возможность, не включена» и приведены шаги включения;
+регистрации TenantScope; в комментариях промежуточного ПО указано «реализовано, по умолчанию не зарегистрировано» с указанием точки регистрации и границы доверия,
+в комментариях Trait — цепочка внедрения через контекст запроса и линия регрессии (без контекста арендатора фильтрация не участвует);
 описание этого раздела построчно соответствует текущему состоянию кода.

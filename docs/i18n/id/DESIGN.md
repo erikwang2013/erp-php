@@ -6,7 +6,7 @@
 
 ## 1. Arsitektur Sistem
 
-> **Daftar fitur**: Autentikasi (login/register/refresh/logout + penguncian akun + batas sesi) | Papan dasbor (cache Redis) | Pengguna CRUD + massal + impor | Peran & izin (RBAC) | Konfigurasi sistem | Audit operasi (8 platform sumber) | File (upload + ekspor + masking) | Keamanan (pertahanan 18 lapis) | Operasional (health/metrics/docs/Docker/CI)
+> **Daftar fitur**: Autentikasi (login/register/refresh/logout + penguncian akun + batas sesi) | Papan dasbor (cache Redis) | Pengguna CRUD + massal + impor | Peran & izin (RBAC) | Konfigurasi sistem | Audit operasi (8 platform sumber) | File (upload + ekspor + masking) | Keamanan (pertahanan berlapis 7 lapis middleware, panorama L0–L12 + 35 jenis detektor serangan) | Operasional (health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -60,8 +60,8 @@
 | Lapisan | Direktori | Tanggung jawab |
 |---|------|------|
 | Route | `config/route.php` | Pemetaan URL ke controller, binding middleware, route berversi |
-| Middleware | `app/middleware/` | Pencegahan serangan (SecurityFilter), rate limit (RateLimit), autentikasi (JWT), otorisasi (RBAC), versi API (ApiVersion) |
-| Controller | 14: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (sisi admin) + Captcha/Auth (API v1) | Validasi parameter permintaan, memanggil logika bisnis, format respons |
+| Middleware | `app/middleware/` | Lintas domain (Cors), intersepsi serangan (SecurityFilter), rate limit (RateLimit), pelacakan rantai (TracingId), autentikasi (JWT), otorisasi (RBAC), log operasi (OperationLog), tanda tangan antarmuka terbuka (OpenApiAuth), total 11 berkas |
+| Controller | Sisi admin 15 buah: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (ditambah kelas dasar `BaseController`) + API v1 3 buah: Captcha/Auth/Product | Validasi parameter permintaan, memanggil logika bisnis, format respons |
 | Layanan bisnis | `app/service/` | Logika bisnis yang dapat digunakan kembali (dicadangkan) |
 | Model data | `app/model/` | Pemetaan ORM, relasi, enkripsi-dekripsi bidang |
 | Utilitas umum | `app/common/` | Layanan Hashids, Snowflake, Encryption |
@@ -79,14 +79,17 @@ Route 匹配
   │
   ▼
 中间件链:
+  Cors ────────────────► 处理 OPTIONS 预检，注入 CORS 响应头
+  │
+  ▼
   SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
   ▼
   RateLimit ───────────► Redis 滑动窗口限流
   │ (失败返回 429 + Retry-After 头)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  TracingId ───────────► 生成 X-Trace-Id，贯穿全链路
+  │ (版本号置于 URL 路径 /admin/v1 /api/v1 /open/v1，无版本头中间件)
   ▼
   AdminAuth ──────────► JWT 验证，注入 $request->adminId
   │ (失败返回 401)
@@ -169,58 +172,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 Standar URL
 
 ```
-公开接口:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+公开接口:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 管理端:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 资源路由:
-  GET    /admin/user          → 列表
-  POST   /admin/user          → 创建
-  GET    /admin/user/{hashid} → 详情
-  PUT    /admin/user/{hashid} → 更新
-  DELETE /admin/user/{hashid} → 删除（需密码确认）
+  GET    /admin/v1/user          → 列表
+  POST   /admin/v1/user          → 创建
+  GET    /admin/v1/user/{hashid} → 详情
+  PUT    /admin/v1/user/{hashid} → 更新
+  DELETE /admin/v1/user/{hashid} → 删除（需密码确认）
 
-系统配置:  /admin/config[/{hashid}]
-操作日志:  /admin/log
-个人中心:  /admin/profile[/password|/logout]
-导入:     /admin/import/users
-上传:     /admin/upload
-批量:     /admin/user/batch/{destroy|status}
+系统配置:  /admin/v1/config[/{hashid}]
+操作日志:  /admin/v1/log
+个人中心:  /admin/v1/profile[/password|/logout]
+导入:     /admin/v1/import/users
+上传:     /admin/v1/upload
+批量:     /admin/v1/user/batch/{destroy|status}
 文档:     /api/docs     (OpenAPI 3.0)
 健康:     /health
 ```
 
 ### 4.2 Strategi Versi API
 
-Versi API dikontrol melalui header permintaan, **tidak tercermin di jalur URL**:
-
-```http
-API-Version: v1
-```
+Versi API **diletakkan pada path URL**, tidak menggunakan header permintaan versi: sisi admin `/admin/v1`, klien `/api/v1`, antarmuka terbuka `/open/v1`.
 
 | Mekanisme | Keterangan |
 |------|------|
-| Versi default | tanpa header `API-Version` default `v1` |
-| Validasi | middleware `ApiVersion` memvalidasi, versi tidak didukung mengembalikan 400 |
-| Route | fungsi bantuan `v()` me-resolve kelas controller secara dinamis berdasarkan versi |
-| Direktori | controller diorganisasi per versi: `app/api/{version}/controller/` |
+| Lokasi versi | Path URL, misalnya `/api/v1/auth/login` |
+| Grup route | `Route::group('/api/v1', …)` di `config/route.php` mengikat controller secara langsung |
+| Direktori | Controller diorganisasi per versi: `app/api/{version}/controller/` |
+| Middleware header versi | `v()` dinamis dan middleware header permintaan `ApiVersion` warisan **sudah dihapus** |
 
 Contoh ekstensi—menambah API v2:
 1. Buat `app/api/v2/controller/AuthController.php`
-2. Tambah `'v2'` di konstanta `SUPPORTED` middleware `ApiVersion`
-3. Definisi route tidak perlu diubah
+2. Daftarkan grup `Route::group('/api/v2', …)` di `config/route.php` dan ikat controller langsung
+3. Tanpa header versi, grup route itu sendiri adalah batas versi
 
 ```bash
 # 使用 v1
-curl -H "API-Version: v1" /api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 
 # 使用 v2
-curl -H "API-Version: v2" /api/auth/login
-
-# 不传，默认 v1
-curl /api/auth/login
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 Strategi Rate Limit
@@ -230,8 +226,8 @@ Berbasis algoritma sliding window Redis Sorted Set, dieksekusi dengan skrip Lua 
 | Antarmuka | Batasan |
 |------|------|
 | Default | 60 kali/menit/IP/route |
-| POST /api/auth/login | 10 kali/menit |
-| POST /api/auth/register | 5 kali/menit |
+| POST /api/v1/auth/login | 10 kali/menit |
+| POST /api/v1/auth/register | 5 kali/menit |
 
 Terlampaui mengembalikan 429, header respons berisi X-RateLimit-Limit / Remaining / Reset / Retry-After.
 
@@ -260,12 +256,12 @@ Terlampaui mengembalikan 429, header respons berisi X-RateLimit-Limit / Remainin
 ```
 客户端                               服务端
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② 用户点击图中文字位置              │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -274,7 +270,7 @@ Terlampaui mengembalikan 429, header respons berisi X-RateLimit-Limit / Remainin
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -302,7 +298,7 @@ Operasi sensitif seperti menghapus pengguna, peran, izin, perlu memasukkan kata 
 ```
 客户端                           服务端
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -398,7 +394,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 Ekspor Excel
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
+请求: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() 查询数据 (limit 10000)
   → 脱敏敏感字段
   → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
@@ -408,7 +404,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.2 Ekspor PDF
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
+请求: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
   → Dompdf 渲染 A4 横向
   → 写入 runtime/tmp/ → download 响应

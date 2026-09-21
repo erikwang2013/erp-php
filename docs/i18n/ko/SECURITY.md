@@ -152,7 +152,7 @@ if (Redis::get("security_ban:{$ip}")) {
 
 로그 형식 예시:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ POST/PUT 요청은 반드시 `Content-Type`이 `application/json` 또는 `applic
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | 임의 오리진 크로스 도메인 허용(내부망 관리 백오피스 시나리오) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | 허용 메서드 집합 |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | 허용 커스텀 헤더 |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | 허용 커스텀 헤더 |
 | Access-Control-Max-Age | `86400` | 프리플라이트 요청 캐시 24시간 |
 | X-Content-Type-Options | `nosniff` | 브라우저 MIME 스니핑 금지 |
 | X-Frame-Options | `DENY` | 모든 iframe 임베딩 금지, 클릭재킹 방지 |
@@ -226,8 +226,8 @@ Lua 스크립트는 Redis 서버에서 단일 스레드로 실행되어 **자연
 | 라우트 | 제한 | 윈도우 | 시나리오 |
 |------|------|------|------|
 | 기본 (모든 라우트) | 60회/분 | 60s | 일반 API |
-| `/api/auth/login` | 10회/분 | 60s | 로그인 (무차별 대입 방지) |
-| `/api/auth/register` | 5회/분 | 60s | 등록 (대량 등록 방지; 기본 비활성화, `REGISTRATION_ENABLED=1`로 활성화) |
+| `/api/v1/auth/login` | 10회/분 | 60s | 로그인 (무차별 대입 방지) |
+| `/api/v1/auth/register` | 5회/분 | 60s | 등록 (대량 등록 방지; 기본 비활성화, `REGISTRATION_ENABLED=1`로 활성화) |
 
 ### 응답 헤더
 
@@ -300,9 +300,9 @@ AdminAuth 미들웨어에서 구현하며, 인증이 필요한 라우트 그룹�
 | 파라미터 | 값 | 설명 |
 |------|-----|------|
 | 알고리즘 | HS256 | HMAC-SHA256 대칭 서명 |
-| 키 | `JWT_SECRET` | 환경 변수 주입, 운영 환경에서 교체 필요 |
-| access_token TTL | 7200s (2h) | `JWT_TTL` |
-| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| 키 | `JWT_SECRET_KEY` | 환경 변수 주입(`env_required`), 운영 환경에서 교체 필요 |
+| access_token TTL | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | 발급자 | `open-admin` | `JWT_ISSUER` |
 | 대상 | `open-admin` | `JWT_AUDIENCE` |
 
@@ -489,7 +489,7 @@ OperationLog 미들웨어는 POST / PUT / DELETE 요청에 대해 작업 로그�
 
 | 환경 변수 | 용도 | 패키지 | 운영 요구 사항 |
 |----------|------|-----|---------|
-| JWT_SECRET | JWT 서명 키 | erikwang2013/jwt-webman | 64+자 랜덤 문자열 |
+| JWT_SECRET_KEY | JWT 서명 키 | erikwang2013/jwt-webman | 64+자 랜덤 문자열 |
 | JWT_ALGORITHM | JWT 서명 알고리즘 | 동일 | HS256 유지 |
 | HASHIDS_SALT | ID 인코딩 솔트 | erikwang2013/hashids | 랜덤 문자열 |
 | SNOWFLAKE_DATACENTER_ID | 데이터센터 ID (0-31) | erikwang2013/snowflake-php | 단일 IDC 기본값 유지 |
@@ -509,7 +509,7 @@ OperationLog 미들웨어는 POST / PUT / DELETE 요청에 대해 작업 로그�
 | 전송 암호화 | `config/encryption.php` → `key` | `ENCRYPTION_KEY` |
 | 저장 암호화 | `config/encryptable.php` → `key` | `ENCRYPTABLE_KEY` |
 | ID 난독화 | `config/hashids.php` → `connections.main.salt` | `HASHIDS_SALT` |
-| JWT 서명 | `config/plugin/erikwang2013/jwt/jwt` | `JWT_SECRET` |
+| JWT 서명 | `config/plugin/erikwang2013/jwt/jwt.php` | `JWT_SECRET_KEY` |
 
 ---
 

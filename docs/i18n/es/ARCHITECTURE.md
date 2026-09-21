@@ -13,6 +13,8 @@ flowchart TB
     subgraph "Capa de cliente"
         A1["Flutter Web<br/>Panel de administración PC<br/>(Puerto 3000)"]
         A2["HarmonyOS ArkTS<br/>Cliente móvil/tabla"]
+        A3["Angular 22 + ng-zorro<br/>Panel de administración Web"]
+        A4["React 19 + Vite<br/>Panel de administración Web"]
     end
 
     subgraph "Capa de puerta de enlace/borde (Nginx Edge)"
@@ -20,8 +22,8 @@ flowchart TB
     end
 
     subgraph "Capa de aplicación (webman v2)"
-        C_LOC["Middleware Locale<br/>Detección automática de Accept-Language"]
-        C0["Middleware ApiVersion<br/>Validación de cabecera API-Version"]
+        C_LOC["I18n::getLocale()<br/>Análisis de Accept-Language · 13 idiomas"]
+        C0["Versionado de rutas<br/>/api/v1 · /admin/v1 (sin cabecera de versión)"]
         C1["Middleware AdminAuth<br/>Verificación JWT"]
         C2["Middleware AdminPermission<br/>Verificación de permisos RBAC"]
         C3["Controladores de administración<br/>Dashboard / User / Role / Permission"]
@@ -42,6 +44,8 @@ flowchart TB
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -57,6 +61,8 @@ flowchart TB
 
     style A1 fill:#1677FF,color:#fff
     style A2 fill:#1677FF,color:#fff
+    style A3 fill:#1677FF,color:#fff
+    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -80,10 +86,10 @@ flowchart TD
     end
 
     subgraph "Capa de middleware Middleware Layer"
-        M_LOC["Locale<br/>Detección automática de Accept-Language<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>Limitación de ventana deslizante Redis<br/>Cabeceras de respuesta X-RateLimit"]
+        M_CR["Cors<br/>Gestión CORS / preflight OPTIONS"]
         M_SF["SecurityFilter<br/>Detección e interceptación de ataques<br/>XSS/Inyección SQL/Path traversal/CSRF"]
-        M0["ApiVersion<br/>Validación de versión de API<br/>Inyecta apiVersion"]
+        M_RL["RateLimit<br/>Limitación de ventana deslizante Redis<br/>Cabeceras de respuesta X-RateLimit"]
+        M_TID["TracingId<br/>Genera X-Trace-Id<br/>en toda la cadena"]
         M1["AdminAuth<br/>Validación de Token JWT<br/>Inyecta adminId"]
         M2["AdminPermission<br/>Autorización RBAC<br/>Coincidencia method.path<br/>Caché de permisos Redis 60s"]
     end
@@ -103,6 +109,7 @@ flowchart TD
         S1["HashidsService<br/>Codificación/decodificación de ID"]
         S2["SnowflakeService<br/>Generación de ID único global"]
         S3["EncryptionService<br/>Cifrado/descifrado + Enmascaramiento"]
+        M_LOC["I18n::getLocale()<br/>Análisis de Accept-Language (no es un middleware)<br/>13 idiomas zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "Capa de modelos Model Layer"
@@ -119,11 +126,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +140,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +155,23 @@ A medida que el sistema evoluciona de un panel de administración puro a un sist
 
 | Capa | Directorio | Descripción |
 |------|------|------|
-| Controladores de negocio | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70, divididos por módulo, manejan solicitudes de negocio |
-| Servicios de negocio | `app/service/{inventory,finance,notification}/` | Entradas/salidas de inventario + cálculo de costos, cuentas por cobrar/pagar + liquidación, envío de notificaciones |
+| Controladores de negocio | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 (23 dominios de negocio, más Install / Index de nivel superior), divididos por módulo, manejan solicitudes de negocio |
+| Servicios de negocio | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 clases de servicio / 64 archivos / 20 subdirectorios de módulo; incluye entradas/salidas de inventario + costeo, cuentas por cobrar/pagar + liquidación de finanzas, envío de notificaciones |
+
+### Internacionalización (13 idiomas)
+
+La resolución del idioma está en `getLocale()` de `app/common/I18n.php` (invocado por `I18n::trans()`, **no es un middleware**): toma la primera etiqueta de la cabecera `Accept-Language` y la asigna mediante la subetiqueta del idioma principal (`zh*` → `zh_CN`). Reparto de diccionarios entre frontend y backend:
+
+| Lado | Ubicación del diccionario | Tamaño | Generador |
+|----|----------|------|--------|
+| Backend | `resource/translations/<locale>/{common,modules,validation}.php` | 13 directorios de idioma; `zh_CN` 565 entradas, los otros 11 idiomas 544 cada uno, `en` 30 (criterio de entradas hoja; en `validation.php` las etiquetas de campo de `attributes` cuentan, sus claves de grupo no) | `scripts/gen-be-locales.mjs` |
+| Angular | fuente `apps/angular/src/app/core/zh-en/part1..4.ts` → producto `core/zh-<code>.ts` | diccionario fuente de 1456 entradas | `scripts/gen-fe-locales.mjs --app angular` |
+| React | fuente `apps/react/src/lib/i18n/zhEn.ts` → producto `lib/i18n/zh<Code>.ts` | diccionario fuente de 1451 entradas | `scripts/gen-fe-locales.mjs --app react` |
+
+- Idiomas: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`.
+- «En inglés la clave es el propio texto» en el backend: los common/modules de `en` quedan vacíos; las claves de `validation.php` son nombres de reglas del framework, solo se traduce el valor.
+- Los diccionarios de los 11 idiomas nuevos del frontend se cargan dinámicamente con `import()` como chunks independientes; las entradas ausentes recaen en el texto original en chino.
+- Cambiar de idioma es cambiar la cabecera `Accept-Language`; el backend devuelve el texto según el idioma (`app/common/I18n.php` + `config/translation.php`).
 
 ---
 
@@ -158,10 +181,10 @@ A medida que el sistema evoluciona de un panel de administración puro a un sist
 sequenceDiagram
     participant C as Cliente
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -170,10 +193,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: Solicitud HTTPS<br/>Header: API-Version: v1
-    N->>MW_LOC: Reenvío
-    MW_LOC->>MW_LOC: Analiza Accept-Language<br/>Establece locale
-    MW_LOC->>MW_SF: Pasa
+    C->>N: Solicitud HTTPS<br/>Ruta /api/v1 o /admin/v1 (sin cabecera de versión)
+    N->>MW_CR: Reenvío
+    MW_CR->>MW_CR: Procesa el preflight OPTIONS<br/>Inyecta cabeceras de respuesta CORS
+    MW_CR->>MW_SF: Pasa
 
     alt Método HTTP no estándar (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +214,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: Pasa
-
-    alt Versión no soportada
-        MW0-->>C: 400 Versión de API no soportada
-    else Versión válida
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: Pasa
+    MW_TID->>MW_TID: Genera X-Trace-Id<br/>Inyecta la cabecera de respuesta
+    MW_TID->>MW1: Pasa
 
     alt Token ausente o inválido
         MW1-->>C: 401 Unauthorized
@@ -249,7 +268,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === Paso 1: Obtener captcha ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: Genera imagen de fondo 300×200
     CAP->>CAP: Coloca aleatoriamente N objetivos chinos
@@ -264,7 +283,7 @@ sequenceDiagram
     CL->>CL: Recopila clicks: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === Paso 3: Inicio de sesión ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt Captcha incorrecto
         CAP-->>SV: false
@@ -284,7 +303,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === Solicitudes posteriores ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { dashboard data }
@@ -539,7 +558,7 @@ sequenceDiagram
     participant FS as Sistema de archivos
 
     Note over C,FS: === Exportación Excel ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: Datos
     CTL->>CTL: Descifra campos sensibles
@@ -549,7 +568,7 @@ sequenceDiagram
     CTL-->>C: Descarga del archivo
 
     Note over C,FS: === Exportación PDF ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>Encabezado: título + copyright + hora<br/>Contenido: tabla o tarjetas<br/>Pie de página: copyright no removible
     CTL->>CTL: Renderizado Dompdf A4 horizontal
     CTL->>FS: Escribe runtime/tmp/export_*.pdf
@@ -715,7 +734,7 @@ graph TB
     end
 
     subgraph Gateway["Capa de puerta de enlace API"]
-        MW["Cadena de middleware<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["Cadena de middleware<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>Grupo de rutas: AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["Capa de módulos de negocio"]
@@ -742,7 +761,7 @@ graph TB
     end
 
     subgraph Data["Capa de datos"]
-        MySQL["MySQL 8.0<br/>163 tablas de negocio"]
+        MySQL["MySQL 8.0<br/>227 tablas de negocio"]
         Redis["Redis 7<br/>Caché/Limitación/Session"]
         ES["Elasticsearch 8<br/>Búsqueda de texto completo"]
     end
@@ -957,7 +976,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | Dimensión | Puntuación | Brechas clave |
 |------|------|----------|
 | API backend | 85/100 | Varios módulos son esqueletos CRUD, faltan motores de cálculo de negocio |
-| Seguridad | 95/100 | Defensa en profundidad de 18 capas, lista para producción |
+| Seguridad | 95/100 | 7 capas de defensa en profundidad (panorama L0–L12), lista para producción |
 | UI frontend | 20/100 | **Mayor deficiencia**: Flutter cubre ~20 % de los módulos con 12 páginas, falta el panel de administración web |
 | Ecosistema de operaciones | 70/100 | Faltan rollback de migraciones, copias de seguridad automáticas, observabilidad |
 | Profundidad de negocio | 55/100 | Algoritmos core de finanzas/HR/fabricación no implementados |
@@ -979,10 +998,10 @@ P0(3-4 semanas) → P1(4-6 semanas) → P2(1-2 semanas) → P3(2-3 semanas) = to
 ### 21.3 Evolución de la cadena de middleware
 
 ```
-Actual:  Locale → Cors → SecurityFilter → RateLimit → TracingId → {grupo de rutas}
-Tras P1: Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {grupo de rutas}
-Tras P2: Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {grupo de rutas}
-Tras P3: Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {grupo de rutas}
+Actual:  Cors → SecurityFilter → RateLimit → TracingId → {grupo de rutas}
+Tras P1: Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {grupo de rutas}
+Tras P2: Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {grupo de rutas}
+Tras P3: Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {grupo de rutas}
 ```
 
 ### 21.4 Arquitectura objetivo de P0 — Panel de administración Flutter Web
@@ -1028,24 +1047,24 @@ Nota: el "aislamiento multitenant" del P3 de la hoja de ruta §21.2 se ajusta po
 Base de la decisión (revisión 2026-08):
 - Los despliegues existentes son casi todos de un solo tenant; conectarlo introduciría complejidad de aislamiento y riesgo de regresión innecesarios;
 - El esqueleto actual tiene defectos técnicos (ver 22.4), "conectarlo es aislarlo" no se sostiene; primero hay que corregir el diseño;
-- El aislamiento requiere añadir columna por columna y habilitar modelo por modelo en las tablas de negocio entre las 163 tablas; el costo supera con creces la "conexión mínima".
+- El aislamiento exige añadir columna por columna y habilitar modelo por modelo en las 227 tablas de negocio; el costo supera con creces la "conexión mínima".
 
 ### 22.2 Hechos actuales (verificación de código y configuración)
 
 | Ítem | Estado actual |
 |----|------|
-| `app/middleware/TenantScope.php` | Existe, no registrado; lee el tenant de la cabecera `X-Tenant-Id`, y si la cabecera falta deja pasar directamente |
-| `app/model/concerns/TenantScope.php` | Existe, ningún modelo lo usa; el scope global `bootTenantScope()` solo filtra tras establecer el tenant |
-| `config/middleware.php` | Cadena global: Locale → Cors → SecurityFilter → RateLimit → TracingId, sin TenantScope |
-| `config/route.php` grupo /admin | AdminAuth → AdminPermission → OperationLog, sin TenantScope |
+| `app/middleware/TenantScope.php` | Existe, no registrado; lee el código de tenant de la cabecera `X-Tenant-Code` y consulta `erp_tenant` para inyectarlo en el contexto; si la cabecera falta, deja pasar directamente |
+| `app/model/concerns/TenantScope.php` | Existe; lo usan 4 modelos financieros (`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`, familia de empresa con `tenantScopeByCompany()` devolviendo true), filtrando por `company_id`; como el middleware no está registrado, el contexto de la solicitud no se inyecta y el scope global no surte efecto actualmente |
+| `config/middleware.php` | Cadena global: Cors → SecurityFilter → RateLimit → TracingId, sin TenantScope |
+| `config/route.php` grupo /admin/v1 | AdminAuth → AdminPermission → OperationLog, sin TenantScope |
 | Carga JWT | Solo `sub` / `username` / `token_type`, **sin declaración tenant_id** (`app/api/v1/controller/AuthController.php`) |
 | Base de datos | **Ninguna columna tenant_id en toda la base de datos** (tampoco en install.sql) |
-| Modelos | **Ningún modelo usa el Trait TenantScope** |
+| Modelos | 4 modelos financieros hacen `use` del trait `TenantScope` (familia de empresa, filtra `company_id`) —— aislamiento piloto; sin contexto de tenant inyectado no aplican ningún filtro |
 
 ### 22.3 Pasos de habilitación (referencia reservada, no ejecutar en esta iteración)
 
-1. Registrar el middleware: añadir `app\middleware\TenantScope::class` en el `middleware()` del grupo /admin de `config/route.php` (después de AdminAuth, garantizando autenticación).
-2. El solicitante envía `X-Tenant-Id` (int ID de tenant) en la cabecera de la solicitud.
+1. Registrar el middleware: añadir `app\middleware\TenantScope::class` en el `middleware()` del grupo /admin/v1 de `config/route.php` (después de AdminAuth, garantizando autenticación).
+2. El solicitante envía `X-Tenant-Code` (cadena de código de tenant) en la cabecera de la solicitud.
 3. Añadir la columna `tenant_id` (BIGINT + índice) a las tablas de negocio que requieran aislamiento y rellenar los datos existentes;
    las tablas de diccionario/sistema (como `erp_admin_user`, `erp_role`, `erp_permission`) no se aíslan.
 4. En las clases de modelo que requieran aislamiento, `use app\model\concerns\TenantScope;` para filtrar automáticamente por el tenant actual.
@@ -1054,15 +1073,13 @@ Base de la decisión (revisión 2026-08):
 
 ### 22.4 Limitaciones técnicas conocidas (deben resolverse antes de habilitar)
 
-- **Cadena de transmisión estática rota (comprobado en PHP 8.3)**: el middleware llama a `setCurrentTenantId()` por nombre de trait
-  y escribe en la copia estática propia del trait; las clases de modelo que usan ese trait no pueden leerlo y las consultas no se filtran.
-  Al habilitar, debe cambiarse a inyección basada en el contexto de la solicitud (p. ej. `request()->tenantId`).
-- **Contaminación cruzada del estado global estático**: Workerman es un proceso residente; las propiedades estáticas se comparten entre solicitudes; si se habilita el modo coroutine
-  (Swoole/Swow) habrá contaminación cruzada de datos entre tenants; debe cambiarse a enlace a nivel de solicitud (`context()` / objeto de solicitud).
+- **Frontera de confianza (debe resolverse antes de registrar)**: el contexto de tenant proviene de la cabecera `X-Tenant-Code`, que es una entrada falsificable; habilitar el middleware antes de establecer el vínculo entre `erp_admin_user` y la empresa/tenant (determinación de pertenencia del administrador) dejaría una brecha de escalada de privilegios en el plano de datos (cualquier administrador autenticado podría declarar cualquier tenant y leer sus datos).
+- **La ruptura de la cadena de transmisión estática (medida en PHP 8.3) ha sido sustituida por la versión corregida de P2-4 B5**: el trait `TenantScope` ahora usa inyección por contexto de solicitud (`request()->tenantId` / `companyId`); esa ruta no tiene estado estático, con lo que desaparece la contaminación cruzada entre solicitudes dentro del proceso residente; la fachada estática por nombre de trait queda marcada como `@deprecated`, solo como respaldo para pruebas/CLI.
 - **Brecha en el plano de datos**: no hay columna tenant_id en toda la base de datos; requiere migración tabla por tabla; las tablas de diccionario compartidas entre tenants requieren un mecanismo de exención.
 
 ### 22.5 Criterios de aceptación
 
 Aceptación de esta iteración = coherencia entre documentación y código: `config/middleware.php` y `config/route.php` no contienen
-registro de TenantScope; el middleware y el Trait llevan comentarios que indican explícitamente "capacidad reservada, no habilitada" y proporcionan los pasos de habilitación;
+registro de TenantScope; los comentarios del middleware indican "implementado, no registrado por defecto" y dan el punto de registro y la frontera de confianza;
+los comentarios del Trait indican la cadena de inyección por contexto de solicitud y la línea de regresión (sin contexto de tenant no participa en el filtrado);
 esta sección se corresponde punto por punto con el estado actual del código.

@@ -25,11 +25,10 @@ digraph RequestLifecycle {
            fillcolor="#fff3e0", color="#e65100", fontsize=10];
 
     // Middleware chain
-    locale [label="Locale Middleware\nDetect Accept-Language\nSet locale (zh_CN/en)", fillcolor="#e8eaf6", color="#3949ab"];
     cors [label="CORS Middleware\nHandle OPTIONS Preflight\nAdd CORS Headers", fillcolor="#e8eaf6", color="#3949ab"];
     secfilter [label="Security Filter\nMethod Check (405)\nBody Size <=10MB (413)\nContent-Type=JSON (415)\nXSS/SQLi/Path Traversal\nCommand Injection/CSRF", fillcolor="#ffebee", color="#c62828"];
     ratelimit [label="Rate Limit\nRedis Sliding Window\n60 req/min/IP default\nLogin:10/min Register:5/min\nAccount Lockout Check\nSet RateLimit Headers", fillcolor="#ede7f6", color="#4527a0"];
-    apiversion [label="API Version\nValidate API-Version Header\nDefault: v1\nUnknown -> 400", fillcolor="#e0f2f1", color="#00695c"];
+    tracing [label="TracingId\nGenerate X-Trace-Id\nPropagate Through the Chain", fillcolor="#e0f2f1", color="#00695c"];
 
     // Auth
     adminauth [label="AdminAuth Middleware\nDecode JWT Token\nCheck Blacklist (Redis)\nCheck Expiry\nSet Auth Context", fillcolor="#e8f5e9", color="#2e7d32"];
@@ -44,11 +43,11 @@ digraph RequestLifecycle {
 
     // Service and Data layers
     service [label="Service Layer\nInventory/Finance/Notification\nBusiness Orchestration", fillcolor="#f3e5f5", color="#6a1b9a"];
-    model [label="Model Layer\n(161 Eloquent Models)\nQuery / Mutate Data", fillcolor="#f3e5f5", color="#6a1b9a"];
+    model [label="Model Layer\n(224 Eloquent Models)\nQuery / Mutate Data", fillcolor="#f3e5f5", color="#6a1b9a"];
 
     // Storage
     redis [label="Redis 7\nCache\nTTL 5min", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
-    mysql [label="MySQL 8.0\nPrimary DB\n163 tables", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
+    mysql [label="MySQL 8.0\nPrimary DB\n227 tables", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
     es [label="Elasticsearch 8.x\nFull-text Search", shape="cylinder", fillcolor="#ffcdd2", color="#d32f2f"];
 
     // Response
@@ -57,23 +56,22 @@ digraph RequestLifecycle {
 
     // Edges
     client -> nginx [label="HTTPS Request\nAuthorization: Bearer JWT\nAccept-Language: zh-CN", fontsize=9, color="#1a237e", penwidth=1.5];
-    nginx -> locale [label="Forward to webman :8787", fontsize=9, color="#e65100", penwidth=1.5];
+    nginx -> cors [label="Forward to webman :8788", fontsize=9, color="#e65100", penwidth=1.5];
 
-    locale -> cors [color="#3949ab"];
     cors -> secfilter [color="#3949ab"];
     secfilter -> ratelimit [color="#c62828"];
-    ratelimit -> apiversion [color="#4527a0"];
+    ratelimit -> tracing [color="#4527a0"];
 
     // Branch: Public
-    apiversion -> pubctrl [label="Public Endpoints\n/health /api/docs /install", fontsize=9, color="#f9a825"];
+    tracing -> pubctrl [label="Public Endpoints\n/health /api/docs /install", fontsize=9, color="#f9a825"];
     pubctrl -> response [color="#f9a825"];
 
     // Branch: API
-    apiversion -> apictrl [label="API Endpoints\n/api/*", fontsize=9, color="#f9a825"];
+    tracing -> apictrl [label="API Endpoints\n/api/*", fontsize=9, color="#f9a825"];
     apictrl -> response [color="#f9a825"];
 
     // Branch: Admin
-    apiversion -> adminauth [label="Admin Endpoints\n/admin/*", fontsize=9, color="#2e7d32", penwidth=1.5];
+    tracing -> adminauth [label="Admin Endpoints\n/admin/*", fontsize=9, color="#2e7d32", penwidth=1.5];
     adminauth -> adminperm [color="#2e7d32"];
     adminperm -> oplog [color="#2e7d32"];
     oplog -> admctrl [color="#2e7d32"];

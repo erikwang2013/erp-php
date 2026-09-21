@@ -20,8 +20,8 @@ flowchart TB
     end
 
     subgraph "アプリケーション層 (webman v2)"
-        C_LOC["Locale ミドルウェア<br/>Accept-Language 自動検出"]
-        C0["ApiVersion ミドルウェア<br/>API-Version ヘッダー検証"]
+        C_LOC["I18n::getLocale()<br/>Accept-Language 解析 · 13 語種"]
+        C0["パスバージョン管理<br/>/api/v1 · /admin/v1（バージョンヘッダーなし）"]
         C1["AdminAuth ミドルウェア<br/>JWT 検証"]
         C2["AdminPermission ミドルウェア<br/>RBAC 権限チェック"]
         C3["管理側 Controller<br/>Dashboard / User / Role / Permission"]
@@ -80,10 +80,10 @@ flowchart TD
     end
 
     subgraph "ミドルウェア層 (Middleware Layer)"
-        M_LOC["Locale<br/>Accept-Language 自動検出<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>Redis スライディングウィンドウ制限<br/>X-RateLimit レスポンスヘッダー"]
+        M_CR["Cors<br/>クロスオリジン処理 / OPTIONS プリフライト"]
         M_SF["SecurityFilter<br/>攻撃検知ブロック<br/>XSS/SQLインジェクション/パストラバーサル/CSRF"]
-        M0["ApiVersion<br/>API バージョン検証<br/>apiVersion 注入"]
+        M_RL["RateLimit<br/>Redis スライディングウィンドウ制限<br/>X-RateLimit レスポンスヘッダー"]
+        M_TID["TracingId<br/>X-Trace-Id 生成<br/>全链路を貫通"]
         M1["AdminAuth<br/>JWT Token 検証<br/>adminId 注入"]
         M2["AdminPermission<br/>RBAC 認可<br/>method.path マッチング<br/>Redis 60s 権限キャッシュ"]
     end
@@ -103,6 +103,7 @@ flowchart TD
         S1["HashidsService<br/>ID エンコード/デコード"]
         S2["SnowflakeService<br/>グローバル一意 ID 生成"]
         S3["EncryptionService<br/>暗号化/復号 + マスキング"]
+        M_LOC["I18n::getLocale()<br/>Accept-Language 解析（ミドルウェアではない）<br/>13 語種 zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "モデル層 (Model Layer)"
@@ -119,11 +120,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +134,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +149,23 @@ flowchart TD
 
 | 階層 | ディレクトリ | 説明 |
 |------|------|------|
-| 業務コントローラー | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70 個、モジュールごとに分類され業務リクエストを処理 |
-| 業務サービス | `app/service/{inventory,finance,notification}/` | 在庫入出庫+コスト計算、財務の売掛/買掛+消込、通知送信 |
+| 業務コントローラー | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 個（23 の業務ドメイン、ほかにトップレベルの Install / Index）、モジュールごとに分類され業務リクエストを処理 |
+| 業務サービス | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 のサービス実装クラス / 64 ファイル / 20 のモジュールサブディレクトリ；在庫の入出庫+原価計算、財務の売掛買掛+消込、通知送信を含む |
+
+### 国際化（13 語種）
+
+言語の解決は `app/common/I18n.php` の `getLocale()`（`I18n::trans()` から呼び出され、**ミドルウェアではありません**）：リクエストヘッダー `Accept-Language` の先頭タグを取得し、主言語サブタグをマッピング（`zh*` → `zh_CN`）。フロントエンドとバックエンドの辞書の分担は以下のとおり：
+
+| 端 | 辞書の位置 | 規模 | 生成器 |
+|----|----------|------|--------|
+| バックエンド | `resource/translations/<locale>/{common,modules,validation}.php` | 13 語種ディレクトリ；`zh_CN` 565 条、残り 11 語種は各 544 条、`en` 30 条（リーフ項目の口径で、`validation.php` の `attributes` フィールドラベルは算入、そのグループキーは不算入） | `scripts/gen-be-locales.mjs` |
+| Angular | ソース `apps/angular/src/app/core/zh-en/part1..4.ts` → 成果物 `core/zh-<code>.ts` | ソース辞書 1456 条 | `scripts/gen-fe-locales.mjs --app angular` |
+| React | ソース `apps/react/src/lib/i18n/zhEn.ts` → 成果物 `lib/i18n/zh<Code>.ts` | ソース辞書 1451 条 | `scripts/gen-fe-locales.mjs --app react` |
+
+- 語種：`zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`。
+- バックエンドは「英語すなわち key」：`en` の common/modules は空；`validation.php` のキーはフレームワークのルール名で、値のみを翻訳。
+- フロントエンドの 11 新語種の辞書はそれぞれ `import()` で独立した chunk として動的読み込みされ、語条が欠ける場合は中国語原文にフォールバック。
+- 言語を切り替えると `Accept-Language` が切り替わり、バックエンドが語種に応じて文案を返します（`app/common/I18n.php` + `config/translation.php`）。
 
 ---
 
@@ -158,10 +175,10 @@ flowchart TD
 sequenceDiagram
     participant C as クライアント
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -170,10 +187,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: HTTPS リクエスト<br/>Header: API-Version: v1
-    N->>MW_LOC: 転送
-    MW_LOC->>MW_LOC: Accept-Language を解析<br/>locale を設定
-    MW_LOC->>MW_SF: 通過
+    C->>N: HTTPS リクエスト<br/>パス /api/v1 または /admin/v1（バージョンヘッダーなし）
+    N->>MW_CR: 転送
+    MW_CR->>MW_CR: OPTIONS プリフライトを処理<br/>CORS レスポンスヘッダーを注入
+    MW_CR->>MW_SF: 通過
 
     alt 非標準 HTTP メソッド (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +208,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: 通過
-
-    alt サポート外のバージョン
-        MW0-->>C: 400 サポート外のAPIバージョン
-    else バージョン有効
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: 通過
+    MW_TID->>MW_TID: X-Trace-Id を生成<br/>レスポンスヘッダーに注入
+    MW_TID->>MW1: 通過
 
     alt Token 欠落または無効
         MW1-->>C: 401 Unauthorized
@@ -249,7 +262,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === ステップ1: 認証コード取得 ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: 300×200 背景画像を生成
     CAP->>CAP: ランダムに N 個の中国語ターゲットを配置
@@ -264,7 +277,7 @@ sequenceDiagram
     CL->>CL: clicks を収集: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === ステップ3: ログイン ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt 認証コードエラー
         CAP-->>SV: false
@@ -284,7 +297,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === 後続リクエスト ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { dashboard data }
@@ -539,7 +552,7 @@ sequenceDiagram
     participant FS as ファイルシステム
 
     Note over C,FS: === Excel エクスポート ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: データ
     CTL->>CTL: 機密フィールドを復号
@@ -549,7 +562,7 @@ sequenceDiagram
     CTL-->>C: ファイルダウンロード
 
     Note over C,FS: === PDF エクスポート ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>ページヘッダー: タイトル+著作権+時間<br/>内容: テーブルまたはカード<br/>ページフッター: 削除不可の著作権
     CTL->>CTL: Dompdf で A4 横向きレンダリング
     CTL->>FS: runtime/tmp/export_*.pdf に書き込み
@@ -715,7 +728,7 @@ graph TB
     end
 
     subgraph Gateway["API ゲートウェイ層"]
-        MW["ミドルウェアチェーン<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["ミドルウェアチェーン<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>ルートグループ：AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["業務モジュール層"]
@@ -742,7 +755,7 @@ graph TB
     end
 
     subgraph Data["データ層"]
-        MySQL["MySQL 8.0<br/>163 の業務テーブル"]
+        MySQL["MySQL 8.0<br/>227 の業務テーブル"]
         Redis["Redis 7<br/>キャッシュ/レート制限/Session"]
         ES["Elasticsearch 8<br/>全文検索"]
     end
@@ -949,7 +962,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | 次元 | スコア | 主なギャップ |
 |------|------|----------|
 | バックエンド API | 85/100 | 多くのモジュールが CRUD の骨組みのみで、業務計算エンジンが不足 |
-| セキュリティ防御 | 95/100 | 18 層の多層防御、本番対応済み |
+| セキュリティ防御 | 95/100 | 7 層の多層防御（L0–L12 全景）、本番対応済み |
 | フロントエンド UI | 20/100 | **最大の弱点**: Flutter 12 ページでモジュールの約 20% のみカバー、Web 管理パネルが未整備 |
 | 運用エコシステム | 70/100 | マイグレーションロールバック、自動バックアップ、可観測性が不足 |
 | 業務深度 | 55/100 | 財務/人事/製造のコアアルゴリズムが未実装 |
@@ -971,10 +984,10 @@ P0(3-4周) → P1(4-6周) → P2(1-2周) → P3(2-3周) = 总计约13周
 ### 21.3 ミドルウェアチェーン進化
 
 ```
-現状:   Locale → Cors → SecurityFilter → RateLimit → TracingId → {路由组}
-P1 後:  Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {路由组}
-P2 後:  Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {路由组}
-P3 後:  Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {路由组}
+現状:   Cors → SecurityFilter → RateLimit → TracingId → {ルートグループ}
+P1 後:  Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {ルートグループ}
+P2 後:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {ルートグループ}
+P3 後:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {ルートグループ}
 ```
 
 ### 21.4 P0 目標アーキテクチャ — Flutter Web 管理パネル
@@ -1017,34 +1030,34 @@ P3 後:  Locale → Cors → SecurityFilter → RateLimit → TracingId → Tena
 判断根拠（2026-08 レビュー）：
 - 既存のデプロイはほぼすべてシングルテナントであり、接続すると不要な分離の複雑さとリグレッションリスクが生じる；
 - 現在の骨格には技術的欠陥がある（22.4 参照）、「接続すれば即分離」は成立せず、先に設計修正を完了する必要がある；
-- 分離には 163 テーブルのうち業務テーブルごとにカラム追加とモデルごとの有効化が必要で、コストが「最小限の接続」をはるかに超える。
+- 分離には 227 テーブルのうち業務テーブルごとにカラム追加とモデルごとの有効化が必要で、コストが「最小限の接続」をはるかに超える。
 
 ### 22.2 現状の事実（コードと設定の確認）
 
 | 項目 | 現状 |
 |----|------|
-| `app/middleware/TenantScope.php` | 存在するが未登録；`X-Tenant-Id` ヘッダーからテナントを読み取り、ヘッダー欠落時はそのまま通過 |
-| `app/model/concerns/TenantScope.php` | 存在するが、使用するモデルなし；`bootTenantScope()` のグローバルスコープはテナント設定後のみフィルタリング |
-| `config/middleware.php` | グローバルチェーン：Locale → Cors → SecurityFilter → RateLimit → TracingId、TenantScope なし |
-| `config/route.php` /admin グループ | AdminAuth → AdminPermission → OperationLog、TenantScope なし |
+| `app/middleware/TenantScope.php` | 存在するが未登録；`X-Tenant-Code` ヘッダーからテナントコードを読み取り、`erp_tenant` を照会してコンテキストに注入、ヘッダー欠落時はそのまま通過 |
+| `app/model/concerns/TenantScope.php` | 存在する；4 つの財務モデル（`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`、会社族 `tenantScopeByCompany()` が true を返す）が使用し、`company_id` でフィルタリング；ミドルウェアが未登録でリクエストコンテキストが注入されないため、グローバルスコープは現在有効ではありません |
+| `config/middleware.php` | グローバルチェーン：Cors → SecurityFilter → RateLimit → TracingId、TenantScope なし |
+| `config/route.php` /admin/v1 グループ | AdminAuth → AdminPermission → OperationLog、TenantScope なし |
 | JWT ペイロード | `sub` / `username` / `token_type` のみ、**tenant_id クレームなし**（`app/api/v1/controller/AuthController.php`） |
 | データベース | **全テーブルに tenant_id カラムなし**（install.sql にもなし） |
-| モデル | **TenantScope trait を使用するモデルは存在しない** |
+| モデル | 4 つの財務モデルが `TenantScope` trait を使用（会社族、`company_id` でフィルタリング）——試験的な分離；テナントコンテキストが注入されない場合はいかなるフィルタリングも行いません |
 
 ### 22.3 有効化手順（予約用の参考、今回の期間では実行しない）
 
-1. ミドルウェアを登録：`config/route.php` の /admin グループの `middleware()` に `app\middleware\TenantScope::class` を追加（AdminAuth の後に配置し、認証済みであることを保証）。
-2. リクエスト側はリクエストヘッダーに `X-Tenant-Id`（int テナントID）を付与。
+1. ミドルウェアを登録：`config/route.php` の /admin/v1 グループの `middleware()` に `app\middleware\TenantScope::class` を追加（AdminAuth の後に配置し、認証済みであることを保証）。
+2. リクエスト側はリクエストヘッダーに `X-Tenant-Code`（テナントコード文字列）を付与。
 3. 分離が必要な業務テーブルに `tenant_id` カラム（BIGINT + インデックス）を追加し、既存データをバックフィル；辞書/システムテーブル（例：`erp_admin_user`、`erp_role`、`erp_permission`）は分離しない。
 4. 分離が必要なモデルクラスで `use app\model\concerns\TenantScope;` を記述し、現在のテナントで自動フィルタリング。
 5. （任意）リクエストヘッダーではなく JWT からテナントを取得する場合：ログイン発行ペイロードを拡張して `tenant_id` クレームを追加し、ミドルウェアで `$payload['tenant_id']` から読み取る。
 
 ### 22.4 既知の技術的制限（有効化前に必ず解決）
 
-- **静的受け渡しチェーンの断裂（PHP 8.3 実測）**：ミドルウェアが trait 名で `setCurrentTenantId()` を呼び出すと trait 自身の静的コピーに書き込まれ、その trait を使用するモデルクラスからは読み取れず、クエリはフィルタリングされません。有効化時はリクエストコンテキストベースの注入（例：`request()->tenantId`）に変更する必要があります。
-- **静的グローバル状態の干渉**：Workerman は常駐プロセスのため、静的プロパティがリクエスト間で共有されます；コルーチンモード（Swoole/Swow）を有効化するとテナント間のデータ干渉が発生するため、リクエストレベルバインド（`context()` / リクエストオブジェクト）に変更する必要があります。
+- **信頼境界（登録前に必ず解決）**：テナントコンテキストの供給源は `X-Tenant-Code` リクエストヘッダーで、偽造可能な入力です；`erp_admin_user` と会社/テナントの紐付け（管理者の帰属判定）を確立する前に本ミドルウェアを有効化すると、権限外データへのアクセス缺口が生じます（任意の認証済み管理者が任意のテナントを宣言し、そのテナントが有効化されていればそのデータを読み取れてしまいます）。
+- **静的な受け渡しチェーンの断裂（PHP 8.3 実測）は P2-4 B5 修正版に置き換えられました**：`TenantScope` trait は現在リクエストコンテキスト注入（`request()->tenantId` / `companyId`）を通り、この経路に静的状態はなく、常駐プロセス内のリクエスト間クロストークも解消されています；trait 名の静的ファサードには `@deprecated` が付与され、テスト/CLI のフォールバック専用です。
 - **データプレーンのギャップ**：全テーブルに tenant_id カラムがないため、テーブルごとのマイグレーションが必要；テナント間で共有される辞書テーブルには免除メカニズムの設計が必要。
 
 ### 22.5 受入基準
 
-今回の受入基準 = ドキュメントとコードの一致：`config/middleware.php` と `config/route.php` に TenantScope の登録が含まれない；ミドルウェアと Trait のコメントに「予約機能、未有効化」と明記され、有効化手順が提示されている；本節の記述がコードの現状と1件ずつ対応している。
+今回の受入基準 = ドキュメントとコードの一致：`config/middleware.php` と `config/route.php` に TenantScope の登録が含まれない；ミドルウェアのコメントに「実装済み・既定では未登録」と明記され、登録点と信頼境界が示されている；Trait のコメントにリクエストコンテキスト注入の経路と回帰ライン（テナントコンテキストがない場合はフィルタリングに参加しない）が示されている；本節の記述がコードの現状と 1 件ずつ対応している。

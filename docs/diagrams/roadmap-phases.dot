@@ -60,7 +60,7 @@ digraph RoadmapPhases {
         fontsize=14; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#f5f5f5"; color="#616161"; penwidth=2;
         node [fillcolor="#e0e0e0", color="#757575", fontsize=9, shape="box"];
-        cur [label="Backend 19 Business Modules 121 Controllers 161 Models\nSecurity 18-Layer Defense-in-Depth\n24 Business Services\nDocker Compose 5 Services + CI/CD\nOverall Score: 89/100"];
+        cur [label="Backend 23 Business Domains 159 Controllers 224 Models\nSecurity 7-Layer Middleware Chain (L0-L12 Panorama)\n63 Business Services\nDocker Compose 5 Services + CI/CD\nOverall Score: 89/100"];
     }
 
     cur -> p0a [color="#1565c0", penwidth=2];

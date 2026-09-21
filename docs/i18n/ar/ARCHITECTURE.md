@@ -13,6 +13,8 @@ flowchart TB
     subgraph "طبقة العميل"
         A1["Flutter Web<br/>لوحة إدارة PC<br/>(Port 3000)"]
         A2["HarmonyOS ArkTS<br/>عميل الهاتف/الجهاز اللوحي"]
+        A3["Angular 22 + ng-zorro<br/>لوحة إدارة Web"]
+        A4["React 19 + Vite<br/>لوحة إدارة Web"]
     end
 
     subgraph "طبقة البوابة/الحافة (Nginx Edge)"
@@ -20,8 +22,8 @@ flowchart TB
     end
 
     subgraph "طبقة التطبيق (webman v2)"
-        C_LOC["وسيط Locale<br/>كشف Accept-Language تلقائيًا"]
-        C0["وسيط ApiVersion<br/>التحقق من رأس API-Version"]
+        C_LOC["I18n::getLocale()<br/>تحليل Accept-Language · 13 لغة"]
+        C0["نسخنة المسارات<br/>/api/v1 · /admin/v1 (بلا ترويسة إصدار)"]
         C1["وسيط AdminAuth<br/>التحقق من JWT"]
         C2["وسيط AdminPermission<br/>التحقق من صلاحيات RBAC"]
         C3["وحدات تحكم الإدارة<br/>Dashboard / User / Role / Permission"]
@@ -42,6 +44,8 @@ flowchart TB
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -57,6 +61,8 @@ flowchart TB
 
     style A1 fill:#1677FF,color:#fff
     style A2 fill:#1677FF,color:#fff
+    style A3 fill:#1677FF,color:#fff
+    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -80,10 +86,10 @@ flowchart TD
     end
 
     subgraph "طبقة الوسائط Middleware Layer"
-        M_LOC["Locale<br/>كشف Accept-Language تلقائيًا<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>تحديد معدل Redis بنافذة منزلقة<br/>رأس استجابة X-RateLimit"]
+        M_CR["Cors<br/>معالجة عبر النطاقات / تمهيد OPTIONS"]
         M_SF["SecurityFilter<br/>اعتراض وكشف الهجمات<br/>XSS/حقن SQL/اجتياز المسار/CSRF"]
-        M0["ApiVersion<br/>التحقق من إصدار API<br/>حقن apiVersion"]
+        M_RL["RateLimit<br/>تحديد معدل Redis بنافذة منزلقة<br/>رأس استجابة X-RateLimit"]
+        M_TID["TracingId<br/>توليد X-Trace-Id<br/>يخترق السلسلة كاملة"]
         M1["AdminAuth<br/>التحقق من JWT Token<br/>حقن adminId"]
         M2["AdminPermission<br/>تفويض RBAC<br/>مطابقة method.path<br/>تخزين مؤقت للصلاحيات 60s في Redis"]
     end
@@ -103,6 +109,7 @@ flowchart TD
         S1["HashidsService<br/>ترميز وفك ترميز المعرفات"]
         S2["SnowflakeService<br/>توليد معرفات فريدة عالمية"]
         S3["EncryptionService<br/>تشفير وفك تشفير + إخفاء"]
+        M_LOC["I18n::getLocale()<br/>تحليل Accept-Language (ليس وسيطًا)<br/>13 لغة zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "طبقة النماذج Model Layer"
@@ -119,11 +126,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +140,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +155,23 @@ flowchart TD
 
 | الطبقة | الدليل | الوصف |
 |------|------|------|
-| وحدات تحكم الأعمال | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70 وحدة، مقسمة حسب الوحدات، تعالج طلبات الأعمال |
-| خدمات الأعمال | `app/service/{inventory,finance,notification}/` | إدخال/إخراج المخزون + احتساب التكلفة، المستحقات/الذمم المالية + المقاصة، إرسال الإشعارات |
+| وحدات تحكم الأعمال | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 وحدة (23 مجالًا تجاريًا، إضافة إلى Install / Index في المستوى الأعلى)، مقسمة حسب الوحدات، تعالج طلبات الأعمال |
+| خدمات الأعمال | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 فئة خدمة / 64 ملفًا / 20 دليل وحدة فرعي؛ تشمل إدخال/إخراج المخزون + احتساب التكلفة، والمستحقات/الذمم المالية + المقاصة، وإرسال الإشعارات |
+
+### التدويل (13 لغة)
+
+يُحلّد تحديد اللغة في `getLocale()` داخل `app/common/I18n.php` (يُستدعى من `I18n::trans()`، و**ليس وسيطًا**): يُقرأ أول وسم من ترويسة `Accept-Language`، ثم يُربَط باللغة الرئيسية (`zh*` → `zh_CN`). تقسيم القواميس بين الخلفية والواجهة:
+
+| الطرف | موضع القاموس | الحجم | المولِّد |
+|----|----------|------|--------|
+| الخلفية | `resource/translations/<locale>/{common,modules,validation}.php` | 13 دليل لغة؛ `zh_CN` 565 مدخلًا، واللغات الـ 11 الأخرى 544 مدخلًا لكل لغة، و`en` 30 مدخلًا (بمعيار المداخل الطرفية؛ تُحتسب تسميات الحقول في `attributes` بملف `validation.php`، ولا تُحتسب مفاتيح التجميع) | `scripts/gen-be-locales.mjs` |
+| Angular | المصدر `apps/angular/src/app/core/zh-en/part1..4.ts` ← الناتج `core/zh-<code>.ts` | قاموس المصدر 1456 مدخلًا | `scripts/gen-fe-locales.mjs --app angular` |
+| React | المصدر `apps/react/src/lib/i18n/zhEn.ts` ← الناتج `lib/i18n/zh<Code>.ts` | قاموس المصدر 1451 مدخلًا | `scripts/gen-fe-locales.mjs --app react` |
+
+- اللغات: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`.
+- «الإنجليزية هي المفتاح» في الخلفية: `common/modules` في `en` تُترك فارغة؛ ومفاتيح `validation.php` هي أسماء قواعد إطار العمل، ويُترجَم القيم فقط.
+- قواميس اللغات الـ 11 الجديدة في الواجهة تُحمَّل كلٌّ عبر `import()` ديناميكي ككتلة مستقلة، وعند غياب مدخل يُرجَع النص الصيني الأصلي.
+- تبديل اللغة يعني تبديل `Accept-Language`، وتُعيد الخلفية النصوص حسب اللغة (`app/common/I18n.php` + `config/translation.php`).
 
 ---
 
@@ -158,10 +181,10 @@ flowchart TD
 sequenceDiagram
     participant C as العميل
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -170,10 +193,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: طلب HTTPS<br/>Header: API-Version: v1
-    N->>MW_LOC: إعادة توجيه
-    MW_LOC->>MW_LOC: تحليل Accept-Language<br/>تعيين locale
-    MW_LOC->>MW_SF: تمرير
+    C->>N: طلب HTTPS<br/>المسار /api/v1 أو /admin/v1 (بلا ترويسة إصدار)
+    N->>MW_CR: إعادة توجيه
+    MW_CR->>MW_CR: معالجة تمهيد OPTIONS<br/>حقن رؤوس استجابة CORS
+    MW_CR->>MW_SF: تمرير
 
     alt طريقة HTTP غير قياسية (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +214,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: تمرير
-
-    alt إصدار غير مدعوم
-        MW0-->>C: 400 إصدار API غير مدعوم
-    else إصدار صالح
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: تمرير
+    MW_TID->>MW_TID: توليد X-Trace-Id<br/>حقنه في رؤوس الاستجابة
+    MW_TID->>MW1: تمرير
 
     alt Token مفقود أو غير صالح
         MW1-->>C: 401 Unauthorized
@@ -249,7 +268,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === الخطوة الأولى: الحصول على الكابتشا ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: توليد صورة خلفية 300×200
     CAP->>CAP: وضع N من أهداف النصوص الصينية عشوائيًا
@@ -264,7 +283,7 @@ sequenceDiagram
     CL->>CL: تجميع clicks: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === الخطوة الثالثة: تسجيل الدخول ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt كابتشا خاطئة
         CAP-->>SV: false
@@ -284,7 +303,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === الطلبات اللاحقة ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { dashboard data }
@@ -539,7 +558,7 @@ sequenceDiagram
     participant FS as نظام الملفات
 
     Note over C,FS: === تصدير Excel ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: البيانات
     CTL->>CTL: فك تشفير الحقول الحساسة
@@ -549,7 +568,7 @@ sequenceDiagram
     CTL-->>C: تنزيل الملف
 
     Note over C,FS: === تصدير PDF ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>الترويسة: عنوان + حقوق + وقت<br/>المحتوى: جدول أو بطاقات<br/>التذييل: حقوق غير قابلة للإزالة
     CTL->>CTL: عرض Dompdf A4 أفقي
     CTL->>FS: كتابة runtime/tmp/export_*.pdf
@@ -715,7 +734,7 @@ graph TB
     end
 
     subgraph Gateway["طبقة بوابة API"]
-        MW["سلسلة الوسائط<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["سلسلة الوسائط<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>مجموعة التوجيه：AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["طبقة الوحدات التجارية"]
@@ -742,7 +761,7 @@ graph TB
     end
 
     subgraph Data["طبقة البيانات"]
-        MySQL["MySQL 8.0<br/>163 جدول أعمال"]
+        MySQL["MySQL 8.0<br/>227 جدول أعمال"]
         Redis["Redis 7<br/>تخزين مؤقت/تحديد معدل/جلسة"]
         ES["Elasticsearch 8<br/>بحث نصي كامل"]
     end
@@ -957,7 +976,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | البعد | النتيجة | الفجوة الرئيسية |
 |------|------|----------|
 | API الخلفية | 85/100 | وحدات متعددة هي هياكل CRUD، تفتقر إلى محركات احتساب الأعمال |
-| الحماية الأمنية | 95/100 | دفاع متعمق من 18 طبقة، جاهز للإنتاج |
+| الحماية الأمنية | 95/100 | دفاع متعمق من 7 طبقات (لوحة L0–L12)، جاهز للإنتاج |
 | واجهة المستخدم | 20/100 | **أكبر قصور**: 12 صفحة Flutter تغطي ~20% من الوحدات، لوحة إدارة الويب مفقودة |
 | بيئة التشغيل | 70/100 | ينقصها تراجع الهجرات والنسخ الاحتياطي التلقائي وقابلية المراقبة |
 | عمق الأعمال | 55/100 | الخوارزميات الأساسية للمالية/HR/التصنيع غير منفذة |
@@ -979,10 +998,10 @@ P0(3-4 أسابيع) → P1(4-6 أسابيع) → P2(1-2 أسبوعين) → P3(
 ### 21.3 تطور سلسلة الوسائط
 
 ```
-الوضع الحالي: Locale → Cors → SecurityFilter → RateLimit → TracingId → {مجموعة التوجيه}
-بعد P1:  Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {مجموعة التوجيه}
-بعد P2:  Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {مجموعة التوجيه}
-بعد P3:  Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {مجموعة التوجيه}
+الوضع الحالي: Cors → SecurityFilter → RateLimit → TracingId → {مجموعة التوجيه}
+بعد P1:  Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {مجموعة التوجيه}
+بعد P2:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {مجموعة التوجيه}
+بعد P3:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {مجموعة التوجيه}
 ```
 
 ### 21.4 البنية المستهدفة لـ P0 — لوحة إدارة Flutter Web
@@ -1028,25 +1047,25 @@ P0(3-4 أسابيع) → P1(4-6 أسابيع) → P2(1-2 أسبوعين) → P3(
 أساس القرار (مراجعة 2026-08):
 - جميع عمليات النشر الحالية تقريبًا أحادية المستأجر، والتوصيل سيُدخل تعقيد عزل غير ضروري ومخاطر انحدار؛
 - الهيكل الحالي يعاني عيوبًا تقنية (انظر 22.4)، و«التوصيل يعني العزل» غير صحيح، يجب إصلاح التصميم أولًا؛
-- يتطلب العزل إضافة أعمدة لكل جدول أعمال من الجداول الـ 163 وتفعيلها لكل نموذج، والتكلفة تتجاوز بكثير «الحد الأدنى من التوصيل».
+- يتطلب العزل إضافة أعمدة لكل جدول أعمال من الجداول الـ 227 وتفعيلها لكل نموذج، والتكلفة تتجاوز بكثير «الحد الأدنى من التوصيل».
 
 ### 22.2 الوقائع الحالية (التحقق من الكود والإعدادات)
 
 | البند | الوضع الحالي |
 |----|------|
-| `app/middleware/TenantScope.php` | موجود، غير مسجل؛ يقرأ المستأجر من رأس `X-Tenant-Id`، ويمرر مباشرة عند غياب الرأس |
-| `app/model/concerns/TenantScope.php` | موجود، لا تستخدمه أي نماذج؛ `bootTenantScope()` نطاق عالمي لا يفلتر إلا بعد تعيين المستأجر |
-| `config/middleware.php` | السلسلة العامة: Locale → Cors → SecurityFilter → RateLimit → TracingId، بدون TenantScope |
-| `config/route.php` مجموعة /admin | AdminAuth → AdminPermission → OperationLog، بدون TenantScope |
+| `app/middleware/TenantScope.php` | موجود، غير مسجل؛ يقرأ رمز المستأجر من رأس `X-Tenant-Code` ويستعلم `erp_tenant` ليحقن السياق، ويمرر مباشرة عند غياب الرأس |
+| `app/model/concerns/TenantScope.php` | موجود؛ تستخدمه 4 نماذج مالية (`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`، عائلة الشركة `tenantScopeByCompany()` تُعيد true)، وتُفلتر حسب `company_id`؛ ولأن الوسيط غير مسجل فلن يُحقن سياق الطلب، والنطاق العالمي غير فعّال حاليًا |
+| `config/middleware.php` | السلسلة العامة: Cors → SecurityFilter → RateLimit → TracingId، بدون TenantScope |
+| `config/route.php` مجموعة /admin/v1 | AdminAuth → AdminPermission → OperationLog، بدون TenantScope |
 | حمولة JWT | `sub` / `username` / `token_type` فقط، **بدون ادعاء tenant_id** (`app/api/v1/controller/AuthController.php`) |
 | قاعدة البيانات | **لا توجد أي أعمدة tenant_id في القاعدة** (ولا في install.sql) |
-| النماذج | **لا يستخدم أي نموذج trait TenantScope** |
+| النماذج | 4 نماذج مالية تستخدم trait ‏`TenantScope` (عائلة الشركة، فلترة `company_id`) — عزل تجريبي؛ وعند عدم حقن سياق المستأجر لا يُضاف أي فلتر |
 
 ### 22.3 خطوات التفعيل (مرجع محجوز، لا تنفَّذ في هذه المرحلة)
 
-1. تسجيل الوسيط: إضافة `app\middleware\TenantScope::class` في `middleware()` لمجموعة /admin في `config/route.php`
+1. تسجيل الوسيط: إضافة `app\middleware\TenantScope::class` في `middleware()` لمجموعة /admin/v1 في `config/route.php`
    (وضعه بعد AdminAuth، لضمان المصادقة).
-2. يحمل الطالب رأس `X-Tenant-Id` (int معرف المستأجر) في ترويسة الطلب.
+2. يحمل الطالب رأس `X-Tenant-Code` (سلسلة رمز المستأجر) في ترويسة الطلب.
 3. إضافة عمود `tenant_id` (BIGINT + فهرس) لجداول الأعمال التي تحتاج العزل وإعادة ملء البيانات القائمة؛
    جداول القواميس/النظام (مثل `erp_admin_user` و`erp_role` و`erp_permission`) لا تُعزل.
 4. في فئات النماذج التي تحتاج العزل: `use app\model\concerns\TenantScope;`، فيتم الفلترة تلقائيًا حسب المستأجر الحالي.
@@ -1055,15 +1074,18 @@ P0(3-4 أسابيع) → P1(4-6 أسابيع) → P2(1-2 أسبوعين) → P3(
 
 ### 22.4 القيود التقنية المعروفة (يجب حلها قبل التفعيل)
 
-- **انقطاع سلسلة النقل الثابتة (مُختبَر فعليًا على PHP 8.3)**: الوسيط يستدعي `setCurrentTenantId()` عبر اسم trait
-   ويكتب نسخة ثابتة خاصة بالـ trait نفسه، ولا تستطيع فئات النماذج التي تستخدم الـ trait قراءتها، ولن تُفلتر الاستعلامات.
-   عند التفعيل يجب التحول إلى الحقن المستند إلى سياق الطلب (مثل `request()->tenantId`).
-- **تداخل الحالة العامة الثابتة**: Workerman عملية مقيمة، الخصائص الثابتة مشتركة عبر الطلبات؛ إذا فُعِّل وضع coroutine
-   (Swoole/Swow) سيحدث تداخل بيانات عبر المستأجرين، يجب التحول إلى الربط على مستوى الطلب (`context()` / كائن الطلب).
+- **حد الثقة (يجب حله قبل التسجيل)**: مصدر سياق المستأجر هو ترويسة الطلب `X-Tenant-Code`، وهو مُدخَل قابل للتزوير؛
+   وتفعيل الوسيط قبل إنشاء ربط بين `erp_admin_user` والشركة/المستأجر (تحديد انتماء المدير) سيُحدث ثغرة في مستوى
+   البيانات تتجاوز الصلاحيات (أي مدير مُصادَق يمكنه الإعلان عن أي مستأجر وقراءة بياناته).
+- **انقطاع سلسلة النقل الثابتة (مُختبَر فعليًا على PHP 8.3) استُبدل بنسخة إصلاح P2-4 B5**: صار trait ‏`TenantScope`
+   يمر عبر حقن سياق الطلب (`request()->tenantId` / `companyId`)، وهذا المسار بلا حالة ثابتة، وبذلك يزول
+   التداخل بين الطلبات داخل العملية المقيمة؛ وقد وُسمت الواجهة الثابتة باسم الـ trait بـ `@deprecated`،
+   للاستخدام الاحتياطي في الاختبارات/CLI فقط.
 - **فجوة مستوى البيانات**: لا توجد أعمدة tenant_id في القاعدة، يتطلب ترحيلًا جدولًا بجدول؛ جدول القواميس المشتركة عبر المستأجرين يحتاج آلية استثناء مصممة.
 
 ### 22.5 معايير القبول
 
 قبول هذه المرحلة = توافق المستندات مع الكود: `config/middleware.php` و`config/route.php` لا يحتويان على
-تسجيل TenantScope؛ التعليقات في الوسيط والـ trait تشير بوضوح إلى «قدرة محجوزة، غير مفعلة» مع خطوات التفعيل؛
+تسجيل TenantScope؛ تعليقات الوسيط تشير إلى «مُنجَز، غير مسجل افتراضيًا» مع نقطة التسجيل وحد الثقة،
+وتعليقات الـ trait تشير إلى سلسلة حقن سياق الطلب وخط الانحدار (لا يشارك في الفلترة عند غياب سياق المستأجر)؛
 هذا القسم يتطابق بندًا ببند مع الوضع الحالي للكود.

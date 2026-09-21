@@ -4,9 +4,9 @@
 
 ## Resumen
 
-El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:modules=23 --> y 163 tablas de datos <!-- stats:tables=227 -->, y ofrece un sistema de gestión empresarial full-stack que va desde compra-venta-inventario hasta producción y fabricación, y desde contabilidad financiera hasta recursos humanos. Internacionalización: soporte bilingüe chino/inglés, con cambio automático de idioma mediante el encabezado de solicitud Accept-Language.
+El Sistema ERP Abierto (open-erp) cubre 23 dominios de negocio <!-- stats:modules=23 --> y 227 tablas de datos <!-- stats:tables=227 -->, y ofrece un sistema de gestión empresarial full-stack que va desde compra-venta-inventario hasta producción y fabricación, y desde contabilidad financiera hasta recursos humanos. Internacionalización: soporte de 13 idiomas (中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), con cambio automático de idioma mediante el encabezado de solicitud Accept-Language.
 
-> Documentación de API: tras iniciar el servicio, visite `http://localhost:8788/apidoc` para consultar la documentación interactiva de interfaces (generada automáticamente por hg/apidoc)
+> Documentación de API: tras iniciar el servicio, visite `http://localhost:8788/apidoc` para consultar la documentación interactiva de interfaces (generada automáticamente por erikwang2013/apidoc-php)
 
 ---
 
@@ -38,7 +38,7 @@ El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:module
 - Consulta de solo lectura; no se puede eliminar ni modificar
 
 ### 1.5 Protección de seguridad
-- 18 capas de defensa en profundidad: restricción de métodos HTTP, interceptación de XSS/inyección SQL/recorrido de rutas/inyección de comandos/CSRF
+- 7 capas de defensa en profundidad: restricción de métodos HTTP, interceptación de XSS/inyección SQL/recorrido de rutas/inyección de comandos/CSRF
 - Captcha de clic (verificación obligatoria en inicio de sesión/registro)
 - Limitación de frecuencia con ventana deslizante en Redis (Lua atómico, por defecto 60 veces/minuto)
 - Bloqueo de cuenta: 5 fallos bloquean durante 15 minutos
@@ -128,6 +128,11 @@ El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:module
 - Resumen por cliente: importe de venta, cobrado, por cobrar
 - Cálculo del margen bruto por pedido/producto/cliente
 
+### 4.6 Control de crédito de clientes (entregado en v1.4.0)
+
+- Gestión del límite de crédito: mantenimiento por cliente de la línea de crédito, la ocupación y las reglas de bloqueo
+- Bloqueo antes del pedido/envío: CreditControlService assertOrderCreate / assertDeliveryCreate / guard rechazan los pedidos que superan el límite y devuelven el motivo
+
 ---
 
 ## 5. Gestión de inventario
@@ -166,6 +171,11 @@ El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:module
 ### 5.8 Alertas de inventario
 - Límites superior e inferior por SKU + almacén
 - Registro automático de log de alerta cuando se está por debajo del límite inferior o por encima del superior
+
+### 5.9 Rastreo por lote/número de serie y alerta de caducidad (entregado en v1.4.0)
+
+- Cadena de rastreo: TraceService forward/backward rastrean en ambos sentidos el destino/origen del lote; libro de números de serie con serial
+- Alerta de caducidad: expiryAlert avisa de los lotes próximos a caducar y de los caducados
 
 ---
 
@@ -223,6 +233,29 @@ El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:module
 - Acumulación de costes + distribución de gastos
 - Contabilidad independiente para los centros de beneficio
 
+### 6.12 Cierre de periodo / contabilidad multiempresa / consolidación de informes (entregado en v1.4.0)
+
+- Cierre de pérdidas y ganancias del periodo: agregación por periodo de los movimientos de las cuentas de resultados (cuentas de ingresos − cuentas de gastos = beneficio neto, status=calculated)
+- El cierre no genera asientos (faltan la configuración de la cuenta de resultado del ejercicio y las reglas anti-duplicado) ni tiene endpoint de controlador — no se incluyó en la entrega de v1.4.0, queda pendiente
+- Contabilidad multiempresa: CompanyController / LedgerPeriodController gestionan entidades contables y periodos contables independientes (entregado en v1.4.0)
+- Motor de consolidación de informes (entregado en v1.4.0): ConsolidationService rateToBase/translateLedger con conversión al tipo de cambio de cierre (sin tipo de cambio se rechaza), addElimination para las eliminaciones entre filiales (validación de equilibrio debe=haber), generateDraft para emitir el informe (los periodos ya emitidos leen la instantánea; sin instantánea se recalcula en tiempo real a partir de los asientos aprobados), issue con protección anti-duplicado, latest/list; el resultado se guarda en FinanceConsolidationReport
+- Pruebas: PeriodCloseServiceTest 4 casos + ConsolidationServiceTest 3 casos
+
+### 6.13 Costeo de inventario y de producción (entregado en v1.4.0)
+
+- Consumo de materiales de producción y acumulación de costes: MaterialIssueController registra la salida por consumo de materiales; CostEntryController + MfgCostService acumulan por orden de trabajo material/mano de obra/costes indirectos de fabricación
+- Reglas de asientos: MfgCostVoucherRule genera el asiento de coste de fabricación terminada y de traspaso de desviaciones (vinculado con el §12 órdenes de producción)
+
+### 6.14 Efectos y conciliación bancaria (entregado en v1.4.0)
+
+- Ciclo de vida completo de los efectos: FinanceBillService store/update/endorse (endoso)/discount (descuento)/collect (cobro)/cash (cobro en efectivo)/reject + dueWarnings de aviso de vencimiento
+- Conciliación bancaria: BankReconService importStatement de importación de movimientos, autoReconcile/manualReconcile/unreconcile de compensación, reconReport de informe de conciliación
+
+### 6.15 Pool de facturas de proveedor y factura electrónica (entregado en v1.4.0)
+
+- Pool de facturas de proveedor: TaxInvoicePoolService registerOne/registerBatch/verify/check/deduct/deductStats; la verificación pasa por MockTaxVerifier (el canal real con la administración tributaria es un punto de adaptación)
+- Factura electrónica: EInvoiceService issueInvoice/voidInvoice/issueLogs, a través de EInvoiceAdapter/MockEInvoiceAdapter (el canal real con la administración tributaria es un punto de adaptación)
+
 ---
 
 ## 7. CRM
@@ -254,6 +287,11 @@ El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:module
 - Generación automática de informes (instantánea de datos en JSON)
 - Soporte mensual/trimestral/anual
 
+### 7.6 Motor de valor de los miembros (entregado en v1.4.0)
+
+- Miembros y saldo prepago: MemberService openMember/recharge/consume/refund
+- Puntos y cupones: earnPoints/consumePoints/expirePoints como flujo de puntos + issueCoupon/redeemCoupon para la compensación de cupones (MemberController / CouponController)
+
 ---
 
 ## 8. Motor de flujo de aprobación
@@ -268,6 +306,11 @@ El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:module
 - Presentación → aprobación nivel a nivel → aprobar/rechazar/retirar
 - Lista de mis aprobaciones (pendientes + aprobadas)
 - Seguimiento completo de los registros de aprobación
+
+### 8.3 Diseñador visual de flujos (entregado en v1.4.0)
+
+- Composición en lienzo: WorkflowDesignerController lee y escribe las definiciones de nodos/conexiones (persistencia en canvas_json)
+- Misma fuente que el motor de aprobación: tras la publicación, la definición del lienzo impulsa el flujo de la cadena de aprobación
 
 ---
 
@@ -307,6 +350,11 @@ El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:module
 - Agregación automática de las horas reales de las tareas
 - Soporte del costeo del proyecto
 
+### 10.4 Coste del proyecto y desviación presupuestaria (entregado en v1.4.0)
+
+- Registro de costes: ProjectCostService createManual para el alta manual + generateFromTimesheet que convierte por horas × tarifa del empleado
+- Vista de rentabilidad: projectPnl compara el margen bruto del proyecto con el presupuesto
+
 ---
 
 ## 11. Gestión de recursos humanos
@@ -328,6 +376,17 @@ El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:module
 - Cálculo salarial: salario base + rendimiento + horas extra − deducciones − IRPF = neto a pagar
 - Soporte de generación masiva de salarios mensuales
 - Confirmación de pago de salarios
+
+### 11.4 Reclutamiento y desempeño (entregado en v1.4.0)
+
+- Reclutamiento: RecruitService con publicación/cierre de puestos, avance del embudo de candidatos, registros de entrevista, envío/aceptación/rechazo de ofertas
+- Desempeño: PerformanceService con plantillas de indicadores y planes de evaluación, puntuación 360 (submitScore con múltiples evaluadores) y agregación
+
+### 11.5 Formación, seguridad social y nómina (entregado en v1.4.0)
+
+- Formación: TrainingService con cursos/inscripción/finalización/libro de créditos (employeeCredits)
+- Seguridad social: SocialSecurityService con reglas de base (createRule/setRate), vinculación del empleado bind/unbind, simulación calculate y detalle por empleado employeeSocialDetail
+- Nómina: PayslipService view despliega la nómina en solo lectura (ingresos/deducciones/neto a pagar, con el complemento de seguridad social)
 
 ---
 
@@ -357,6 +416,19 @@ El Sistema ERP Abierto (open-erp) cubre 19 dominios de negocio <!-- stats:module
 - Cálculo de necesidades netas: demanda total − recepciones planificadas − inventario disponible = necesidad neta
 - Generación de planes por período (año + mes)
 - Estado: borrador → generado → confirmado
+
+### 12.6 Reporte de operaciones y salario a destajo (entregado en v1.4.0)
+
+- Reporte de operaciones: WorkReportService audit valida el reporte de las operaciones del proceso
+- Destajo: PieceWageService accumulate lleva el libro de destajo / periodSummary agrega por periodo
+
+### 12.7 Subcontratación y compensación (entregado en v1.4.0)
+
+- SubcontractService: auditIssue valida la entrega de material al subcontratista → auditReceive cierra el ciclo con la compensación de la recepción
+
+### 12.8 Carga de capacidad (entregado en v1.4.0)
+
+- MfgCapacityService: calendar con el calendario de capacidad de las estaciones de trabajo, setException/removeException para excepciones de capacidad, report para el análisis de carga
 
 ---
 
@@ -493,18 +565,18 @@ Registro de horas → agregación a la tarea → acumulación en el coste del pr
 
 | Dimensión | Cantidad |
 |------|------|
-| Módulos de negocio | 19 <!-- stats:modules=23 --> |
-| Tablas de base de datos | 163 <!-- stats:tables=227 --> |
-| Modelos de datos | 161 <!-- stats:models=224 --> |
-| Controladores | 123 <!-- stats:controllers=159 --> |
-| Servicios de negocio | 27 <!-- stats:services=64 --> |
-| Rutas de API | 198 (generadas dinámicamente; ver `scripts/check-endpoints.php`, no participan en la verificación de doc-stats) |
+| Módulos de negocio | 23 <!-- stats:modules=23 --> |
+| Tablas de base de datos | 227 <!-- stats:tables=227 --> |
+| Modelos de datos | 224 <!-- stats:models=224 --> |
+| Controladores | 159 <!-- stats:controllers=159 --> |
+| Servicios de negocio | 64 <!-- stats:services=64 --> |
+| Rutas de API | 837 (generadas dinámicamente; ver `scripts/check-endpoints.php`, no participan en la verificación de doc-stats) |
 | Middlewares | 11 <!-- stats:middleware=11 --> |
-| Archivos fuente PHP | 343 <!-- stats:php_files=483 --> |
-| Script de instalación de base de datos | Archivo único `database/install.sql` (163 tablas, todas las migraciones consolidadas) |
-| Páginas frontend (Flutter) | 7 (estadísticas del frontend, no incluidas en la verificación de doc-stats) |
-| Páginas frontend (HarmonyOS) | 4 (estadísticas del frontend, no incluidas en la verificación de doc-stats) |
-| Pruebas unitarias | 50 archivos de prueba <!-- stats:test_files=111 --> / 442 casos de prueba / 2238 aserciones (tests/assertions varían con la versión de parche de PHP y las extensiones; no participan en la verificación exacta de stats) |
+| Archivos fuente PHP | 483 <!-- stats:php_files=483 --> |
+| Script de instalación de base de datos | Archivo único `database/install.sql` (227 tablas, todas las migraciones consolidadas) |
+| Páginas frontend (Flutter) | 119 (medido el 2026-09-22: archivos de página `.dart` bajo `apps/flutter/lib/app/pages/` (recursivo); no incluido en la verificación de doc-stats) |
+| Páginas frontend (HarmonyOS) | 52 (medido el 2026-09-22: archivos de página `.ets` bajo `apps/harmonyos/entry/src/main/ets/pages/` (recursivo); no incluido en la verificación de doc-stats) |
+| Pruebas unitarias | 111 archivos de prueba <!-- stats:test_files=111 --> / 1001 casos de prueba <!-- stats:tests=1008 --> / 4726 aserciones <!-- stats:assertions=4768 --> (recuento estático: número de métodos de prueba + puntos de llamada a aserciones, independiente del entorno de ejecución) |
 
 > Las cifras anteriores se generan midiendo con `bash scripts/doc-stats.sh`; los elementos marcados con `<!-- stats:key=value -->`
 > los verifica automáticamente el CI (el job de docs en `.github/workflows/ci.yml`) contra los hechos del código; si hay desviación, se marca en rojo.

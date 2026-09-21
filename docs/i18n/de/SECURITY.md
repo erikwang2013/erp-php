@@ -152,7 +152,7 @@ Dateiposition: `runtime/logs/security.log`
 
 Beispiel für das Protokollformat:
 ```
-2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
+2026-05-20 14:32:11 [SECURITY] XSS attack blocked | IP: 192.168.1.100 | Path: /admin/v1/user | Field: body.username | Source: body | Payload: <script>alert(1)</script>
 2026-05-20 14:32:15 [SECURITY] IP banned 15min | IP: 192.168.1.100 | Triggers: 5
 ```
 
@@ -174,7 +174,7 @@ Alle Header werden in der `Cors`-Middleware injiziert und über `$response->with
 |----|-----|------|
 | Access-Control-Allow-Origin | `*` | Erlaubt Cross-Origin von beliebigen Quellen (Intranet-Verwaltungsoberflächen-Szenario) |
 | Access-Control-Allow-Methods | `GET,POST,PUT,DELETE,OPTIONS` | Zulässige Methodenmenge |
-| Access-Control-Allow-Headers | `Authorization,Content-Type,API-Version` | Zulässige benutzerdefinierte Header |
+| Access-Control-Allow-Headers | `Authorization,Content-Type` | Zulässige benutzerdefinierte Header |
 | Access-Control-Max-Age | `86400` | Cache der Preflight-Requests 24 Stunden |
 | X-Content-Type-Options | `nosniff` | Verbietet MIME-Sniffing des Browsers |
 | X-Frame-Options | `DENY` | Verbietet jede iframe-Einbettung, schützt vor Clickjacking |
@@ -226,8 +226,8 @@ Das Lua-Skript wird serverseitig in Redis single-threaded ausgeführt — **von 
 | Route | Limit | Fenster | Szenario |
 |------|------|------|------|
 | Standard (alle Routen) | 60 Anfragen/Minute | 60s | Allgemeine API |
-| `/api/auth/login` | 10 Anfragen/Minute | 60s | Login (Schutz vor Brute-Force) |
-| `/api/auth/register` | 5 Anfragen/Minute | 60s | Registrierung (Schutz vor Massenregistrierung; standardmäßig deaktiviert, erfordert `REGISTRATION_ENABLED=1`) |
+| `/api/v1/auth/login` | 10 Anfragen/Minute | 60s | Login (Schutz vor Brute-Force) |
+| `/api/v1/auth/register` | 5 Anfragen/Minute | 60s | Registrierung (Schutz vor Massenregistrierung; standardmäßig deaktiviert, erfordert `REGISTRATION_ENABLED=1`) |
 
 ### Response-Header
 
@@ -300,18 +300,18 @@ Implementiert in der AdminAuth-Middleware, eingebunden in die Routengruppen, die
 | Parameter | Wert | Beschreibung |
 |------|-----|------|
 | Algorithmus | HS256 | Symmetrische HMAC-SHA256-Signatur |
-| Schlüssel | `JWT_SECRET` | Per Umgebungsvariable injiziert, in Produktion zu ändern |
-| access_token TTL | 7200s (2h) | `JWT_TTL` |
-| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_TTL` |
+| Schlüssel | `JWT_SECRET_KEY` | Per Umgebungsvariable injiziert, in Produktion zu ändern |
+| access_token TTL | 7200s (2h) | `JWT_DEFAULT_EXPIRE` |
+| refresh_token TTL | 1209600s (14d) | `JWT_REFRESH_EXPIRE` |
 | Aussteller | `open-admin` | `JWT_ISSUER` |
 | Zielgruppe | `open-admin` | `JWT_AUDIENCE` |
 
 **Token-Extraktion**: Aus dem Header `Authorization: Bearer <token>` extrahieren, Präfix `Bearer ` entfernen, um das rohe JWT zu erhalten.
 
 **Authentifizierungsablauf**:
-1. Leeres Token → direkt 401 `{"code": 401, "message": "未登录"}`
-2. Redis-Blacklist `jwt_blacklist:{md5(token)}` prüfen → Treffer → 401 `Token已失效，请重新登录`
-3. JWT-Dekodierung → Fehler (abgelaufen/Signatur stimmt nicht) → 401 `Token已过期或无效`
+1. Leeres Token → direkt 401 `{"code": 401, "message": "Nicht angemeldet"}`
+2. Redis-Blacklist `jwt_blacklist:{md5(token)}` prüfen → Treffer → 401 `Token ungültig, bitte erneut anmelden`
+3. JWT-Dekodierung → Fehler (abgelaufen/Signatur stimmt nicht) → 401 `Token abgelaufen oder ungültig`
 4. Erfolg → `$request->adminId` und `$request->adminUsername` injizieren
 
 **Blacklist-Mechanismus**: Beim Logout wird `md5(token)` in Redis geschrieben, TTL wird auf die verbleibende JWT-Gültigkeitsdauer gesetzt. Bei Redis-Ausfall wird die Blacklist-Prüfung übersprungen (fail-open); dann bleibt ein ausgeloggtes Token kurzzeitig verwendbar, aber die kurze JWT-Gültigkeitsdauer (2h) selbst dient als Fallback-Schutz.
@@ -339,7 +339,7 @@ Login erfolgreich → neues Token ausstellen
 |------|-----|------|
 | MAX_CONCURRENT_SESSIONS | 3 | Maximale Anzahl gleichzeitiger Token pro Benutzer |
 
-**Abgemeldet-Szenario**: Beim Login auf einem 4. Gerät wird das Token des 1. Geräts erzwungen auf die Blacklist gesetzt; Folgeanfragen liefern 401 "Token已失效，请重新登录".
+**Abgemeldet-Szenario**: Beim Login auf einem 4. Gerät wird das Token des 1. Geräts erzwungen auf die Blacklist gesetzt; Folgeanfragen liefern 401 "Token ungültig, bitte erneut anmelden".
 
 Beim Logout wird das aktuelle Token aus der Menge entfernt. Läuft ein Token natürlich ab, verfällt der Redis-Key automatisch und die Mengenmitglieder reduzieren sich entsprechend.
 
@@ -375,7 +375,7 @@ Zum Beispiel:
 2. Benutzer → Rollen (deaktivierte Rollen mit `status=0` überspringen) → Berechtigungsliste abrufen
 3. Superadministrator (`slug = '*'`) → direkt durchlassen
 4. `strtolower(method) . '.' . trim(path, '/')` konstruieren → mit der Berechtigungsliste vergleichen
-5. Keine Übereinstimmung → 403 `{"code": 403, "message": "无权限访问"}`
+5. Keine Übereinstimmung → 403 `{"code": 403, "message": "Kein Zugriff"}`
 
 **Zweitbestätigung**: BaseController bietet die Methode `confirmPassword()`, sensible Operationen (Benutzer löschen, Datenexport usw.) verlangen auf Controller-Ebene zusätzlich die Eingabe des aktuellen Passworts, um unbefugte Operationen nach einer Session-Übernahme zu verhindern.
 
@@ -489,7 +489,7 @@ Alle Schlüssel werden über Umgebungsvariablen in `.env` injiziert; die Konfigu
 
 | Umgebungsvariable | Verwendung | Paket | Produktionsanforderung |
 |----------|------|-----|---------|
-| JWT_SECRET | JWT-Signaturschlüssel | erikwang2013/jwt-webman | Zufallsstring mit 64+ Zeichen |
+| JWT_SECRET_KEY | JWT-Signaturschlüssel | erikwang2013/jwt-webman | Zufallsstring mit 64+ Zeichen |
 | JWT_ALGORITHM | JWT-Signaturalgorithmus | wie oben | HS256 beibehalten |
 | HASHIDS_SALT | Salt für ID-Codierung | erikwang2013/hashids | Zufallsstring |
 | SNOWFLAKE_DATACENTER_ID | Rechenzentrums-ID (0-31) | erikwang2013/snowflake-php | bei Einzelstandort Standard beibehalten |
@@ -509,7 +509,7 @@ Alle Schlüssel werden über Umgebungsvariablen in `.env` injiziert; die Konfigu
 | Übertragungsverschlüsselung | `config/encryption.php` → `key` | `ENCRYPTION_KEY` |
 | Speicherverschlüsselung | `config/encryptable.php` → `key` | `ENCRYPTABLE_KEY` |
 | ID-Verschleierung | `config/hashids.php` → `connections.main.salt` | `HASHIDS_SALT` |
-| JWT-Signatur | `config/plugin/erikwang2013/jwt/jwt` | `JWT_SECRET` |
+| JWT-Signatur | `config/plugin/erikwang2013/jwt/jwt` | `JWT_SECRET_KEY` |
 
 ---
 

@@ -16,7 +16,7 @@ Sistem ERP Terbuka (open-erp) adalah sistem perencanaan sumber daya perusahaan f
 ### 1.2 Batasan Teknis
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
 - Prefiks tabel erp_, primary key BIGINT non-auto-increment
-- Versi API dikontrol melalui header permintaan API-Version
+- Versi API berada di path URL (/admin/v1, /api/v1, /open/v1), tanpa header permintaan versi
 - Autentikasi JWT + izin RBAC
 - Fungsi global tanpa prefix \
 
@@ -50,7 +50,7 @@ Sistem ERP Terbuka (open-erp) adalah sistem perencanaan sumber daya perusahaan f
 - Hanya mendukung kueri, tidak dapat dihapus/diubah
 
 ### 2.5 Perlindungan Keamanan
-- Pertahanan berlapis 18 lapis (detail lihat SECURITY.md)
+- Pertahanan berlapis 7 lapis (detail lihat SECURITY.md)
 - SecurityFilter: pembatasan metode HTTP + pencegahan XSS/SQL injection/path traversal/command injection/CSRF
 - RateLimit: rate limit Redis sliding window (atomik Lua, 60 kali/menit)
 - Captcha klik (wajib saat login/registrasi)
@@ -502,15 +502,18 @@ Penawaran → pesanan → pengiriman → penyelesaian
 ## 16. Internasionalisasi (i18n)
 
 ### 16.1 Deteksi Bahasa Otomatis
-- Header permintaan `Accept-Language` dikenali otomatis (zh-CN → Mandarin, en → English)
-- Middleware Locale dieksekusi di posisi pertama rantai middleware global
-- Rantai fallback: bahasa saat ini → fallback_locale yang dikonfigurasi → mengembalikan kunci asli
+- Header permintaan `Accept-Language` dikenali otomatis (`getLocale()` pada `app/common/I18n.php`): hanya mengambil label bahasa pertama (browser sudah mengurutkan menurun berdasarkan q, q tidak diurai), `_` dinormalkan menjadi `-` dan dihuruf-kecilkan, hanya sub-label bahasa utama yang dipertahankan
+- Pemetaan: `zh` (`zh-CN` / `zh-TW` / `zh_CN`) → `zh_CN`; `en` / `ja` / `de` dan bahasa utama lainnya dikembalikan apa adanya (sufiks wilayah diabaikan); tanpa header permintaan → `config('translation.locale')` (`zh_CN`)
+- Mendukung 13 bahasa: `zh_CN` / `en` / `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id`
+- Rantai fallback (`getTranslated()`): permintaan non-en → bahasa permintaan → `zh_CN` → `en` → mengembalikan kunci itu sendiri; **permintaan `en` tidak jatuh ke 中文** (Inggris adalah key: hanya mencari kamus `en`, tidak ditemukan langsung mengembalikan kunci asli)
+- Tanpa middleware Locale: locale hanya diurai saat `I18n::trans()` dipanggil (CLI / antrean / pengujian tanpa konteks permintaan jatuh ke nilai konfigurasi)
 
 ### 16.2 File Terjemahan
-- Direktori: `resource/translations/{locale}/`
-- Pesan umum: `common.php` (41 kunci: sukses/gagal/buat/ubah/hapus/validasi, dll.)
-- Nama modul: `modules.php` (69 kunci: produk/pembelian/penjualan/stok/keuangan/CRM, dll.)
-- Aturan validasi: `validation.php` (11 aturan + 10 label bidang)
+- Direktori: `resource/translations/{locale}/` (13 direktori bahasa, masing-masing berisi `common.php` / `modules.php` / `validation.php`)
+- Pesan umum: `common.php` (428 kunci: sukses/gagal/buat/ubah/hapus/validasi, dll.)
+- Nama modul: `modules.php` (84 kunci: produk/pembelian/penjualan/stok/keuangan/CRM, dll.)
+- Aturan validasi: `validation.php` (zh_CN 12 kunci tingkat atas / 21 kunci daun; bahasa lain 21 kunci tingkat atas / 30 kunci daun, termasuk blok label field `attributes`)
+- Kamus `en` nyaris kosong (baik `common.php` maupun `modules.php` 0 entri, kunci `validation.php` adalah nama aturan framework) —— Inggris adalah key, saat entri tidak ditemukan yang dikembalikan adalah key itu sendiri, yaitu teks Inggris asli
 
 ### 16.3 Cara Penggunaan
 - Di dalam controller: `$this->trans('created')`

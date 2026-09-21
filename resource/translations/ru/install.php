@@ -149,6 +149,7 @@ return [
     ':envKey may only contain visible characters and must not contain $ or backslash' => ':envKey может содержать только видимые символы и не должен содержать $ или обратную косую черту',
     ':envKey must be a 2-5 digit port' => ':envKey должен быть портом из 2–5 цифр',
     ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => ':field должен быть буквенно-цифровым ключом длиной 16–128 символов (или оставьте пустым для автогенерации)',
+    ':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate' => ':envKey должен состоять ровно из 32 буквенно-цифровых символов (ключ AES-256), либо оставьте пустым для автогенерации',
     'Please enter the database host' => 'Введите хост базы данных',
     'Please fill in host/port/database/user before testing' => 'Перед проверкой заполните хост/порт/базу данных/пользователя',
     'Testing...' => 'Проверка...',

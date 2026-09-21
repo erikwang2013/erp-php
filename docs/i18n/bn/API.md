@@ -4,7 +4,7 @@
 
 ## API ডকুমেন্টেশন
 
-প্রজেক্টটি [hg/apidoc](https://github.com/hg-code/apidoc) দিয়ে স্বয়ংক্রিয়ভাবে ইন্টারঅ্যাক্টিভ API ডকুমেন্টেশন তৈরি করে।
+প্রজেক্টটি [erikwang2013/apidoc-php](https://github.com/erikwang2013/apidoc-php) দিয়ে স্বয়ংক্রিয়ভাবে ইন্টারঅ্যাক্টিভ API ডকুমেন্টেশন তৈরি করে।
 
 **অ্যাক্সেস পদ্ধতি:** সার্ভিস চালু হওয়ার পর `http://localhost:8788/apidoc` দেখুন
 
@@ -18,17 +18,20 @@
 | হেডার | বিবরণ |
 |--------|------|
 | `Authorization` | JWT Bearer Token |
-| `API-Version` | API ভার্সন নম্বর (v1) |
-| `Accept-Language` | ইন্টারন্যাশনালাইজেশন ভাষা (zh-CN/en) |
+| `Accept-Language` | ইন্টারন্যাশনালাইজেশন ভাষা, ১৩টি ভাষা সমর্থিত (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id), ডিফল্ট `zh_CN` |
+
+> **ভার্সন নোট**: পুরো সাইটে পাথ-ভিত্তিক ভার্সনিং —— অ্যাডমিন `/admin/v1`, ক্লায়েন্ট `/api/v1`, ওপেন ইন্টারফেস `/open/v1`,
+> ভার্সন নম্বর URL পাথেই থাকে, **কোনো ভার্সন রিকোয়েস্ট হেডার লাগে না**; ব্যতিক্রম: `GET /api/docs` (OpenAPI ডকুমেন্ট) ও
+> ক্যারিয়ার ট্র্যাকিং কলব্যাক `/api/tms/tracking/callback` (HMAC সিগনেচার, ভার্সন ছাড়া)।
 
 **অ্যানোটেশন নিয়মাবলী:** সব কন্ট্রোলার মেথডে `@Apidoc\*` সিরিজের অ্যানোটেশন দিয়ে ইন্টারফেসের নাম, বিবরণ, URL, রিকোয়েস্ট মেথড, প্যারামিটার ও রেসপন্স স্ট্রাকচার চিহ্নিত করা আছে।
 
 ## 1. ওভারভিউ
 
-ওপেন অ্যাডমিন ব্যাকএন্ড (open-admin) webman v2 ভিত্তিক, RESTful JSON API প্রদান করে। সব অ্যাডমিন ইন্টারফেসে JWT প্রমাণীকরণ ও RBAC অনুমোদন যাচাই প্রয়োজন, পাবলিক ইন্টারফেস API ভার্সন হেডারের মাধ্যমে ভার্সনযুক্ত কন্ট্রোলারে রাউট হয়।
+ওপেন অ্যাডমিন ব্যাকএন্ড (open-admin) webman v2 ভিত্তিক, RESTful JSON API প্রদান করে। পুরো সাইটে পাথ-ভিত্তিক ভার্সনিং: অ্যাডমিন ইন্টারফেস `/admin/v1`-এর অধীনে মাউন্ট করা (JWT প্রমাণীকরণ + RBAC অনুমোদন যাচাই), ক্লায়েন্ট ইন্টারফেস `/api/v1`-এর অধীনে, ওপেন ইন্টারফেস `/open/v1`-এর অধীনে; ভার্সন নম্বর URL পাথে যুক্ত, কোনো ভার্সন রিকোয়েস্ট হেডার নেই।
 
 - **বেস URL**: `http://localhost:8788`
-- **API ভার্সন**: রিকোয়েস্ট হেডার `API-Version: v1` দিয়ে নিয়ন্ত্রিত (না থাকলে ডিফল্ট v1)
+- **API ভার্সন**: পুরো সাইটে পাথ-ভিত্তিক ভার্সনিং, ভার্সন নম্বর URL পাথে (অ্যাডমিন `/admin/v1`, ক্লায়েন্ট `/api/v1`, ওপেন ইন্টারফেস `/open/v1`), কোনো ভার্সন রিকোয়েস্ট হেডার নেই
 
 > **এন্ডপয়েন্ট ওভারভিউ**: প্রমাণীকরণ(5) | ড্যাশবোর্ড(1) | ইউজার(7) | রোল(4) | পারমিশন(4) | কনফিগ(4) | লগ(1) | প্রোফাইল(3) | ইমপোর্ট-এক্সপোর্ট(3) | আপলোড(1) | অপারেশন(4: health/metrics/docs/security.txt) | মোট 37 এন্ডপয়েন্ট
 - **প্রমাণীকরণ**: `Authorization: Bearer <token>` (JWT)
@@ -37,19 +40,32 @@
 
 ### ইন্টারন্যাশনালাইজেশন
 
-API রিকোয়েস্ট হেডার `Accept-Language` দিয়ে স্বয়ংক্রিয়ভাবে ভাষা পরিবর্তন করে:
+API রিকোয়েস্ট হেডার `Accept-Language` দিয়ে স্বয়ংক্রিয়ভাবে ভাষা পরিবর্তন করে, ১৩টি ভাষা সমর্থিত: `zh_CN` (চীনা, ডিফল্ট), `en` (English), `ja` (日本語), `ko` (한국어), `de` (Deutsch), `fr` (Français), `es` (Español), `pt` (Português), `ru` (Русский), `ar` (العربية), `hi` (हिन्दी), `bn` (বাংলা), `id` (Bahasa Indonesia)。
 
-| হেডার মান | ভাষা |
+| হেডারের প্রথম ভাষা ট্যাগ | যেভাবে পার্স হয় |
 |---------|------|
-| `zh-CN`, `zh` | চীনা (ডিফল্ট) |
-| `en`, `en-US` | English |
+| `zh`、`zh-CN`、`zh-TW` | `zh_CN` চীনা (ডিফল্ট) |
+| `en`、`en-US` | `en` English |
+| `ja` / `ko` / `de` / `fr` / `es` / `pt` / `ru` / `ar` / `hi` / `bn` / `id` | সংশ্লিষ্ট ভাষা (রিজিওন সাফিক্স উপেক্ষা করা হয়, যেমন `de-DE` → `de`) |
+
+পার্সিং নিয়ম (`app/common/I18n.php` `getLocale()`):
+
+- ব্রাউজার ভাষার পছন্দ অনুযায়ী ট্যাগগুলো অবরোহ ক্রমে সাজায়, **শুধু প্রথম ট্যাগটি নেওয়া হয়** (কমার-এর আগের অংশ), q ভ্যালু পার্স করা হয় না;
+- রিজিওন সাব-ট্যাগ উপেক্ষা করা হয়, শুধু প্রধান ভাষার সাব-ট্যাগ রাখা হয় (`zh-CN` → `zh`, `de-DE` → `de`);
+- `zh*` সবসময় `zh_CN`-এ ম্যাপ হয়; বাকি প্রধান ভাষার সাব-ট্যাগ অপরিবর্তিত ব্যবহার হয়;
+- হেডার অনুপস্থিত বা ফাঁকা হলে `config('translation.locale')` = `zh_CN` ব্যবহার হয়।
+
+ফলব্যাক চেইন (`trans()`): রিকোয়েস্টের ভাষা → `zh_CN` → `en` → key নিজেই ফেরত (ইংরেজিই key, তাই key-ই ইংরেজি মূল টেক্সট)। **`en` ফলব্যাকে অংশ নেয় না** —— `en` চাইলে শুধু `en` অভিধান খোঁজা হয়, না পেলে সরাসরি key (ইংরেজি মূল টেক্সট) ফেরত দেয়, চীনা টেক্সটে ফিরে যায় না।
 
 ```bash
 # 英文响应
-curl -H "Accept-Language: en" http://localhost:8788/admin/product
+curl -H "Accept-Language: en" http://localhost:8788/admin/v1/product
+
+# 日文响应
+curl -H "Accept-Language: ja" http://localhost:8788/admin/v1/product
 
 # 中文响应（默认）
-curl http://localhost:8788/admin/product
+curl http://localhost:8788/admin/v1/product
 ```
 
 রেসপন্সের `message` ফিল্ড সংশ্লিষ্ট ভাষায় রিটার্ন হয়।
@@ -81,7 +97,7 @@ curl http://localhost:8788/admin/product
 
 ## 3. পাবলিক এন্ডপয়েন্ট
 
-সব পাবলিক এন্ডপয়েন্ট `/api` গ্রুপে মাউন্ট করা, `ApiVersion` মিডলওয়্যার `API-Version` হেডার অনুযায়ী সংশ্লিষ্ট ভার্সনযুক্ত কন্ট্রোলারে বিতরণ করে (যেমন `app\api\v1\controller\AuthController`)।
+সব পাবলিক এন্ডপয়েন্ট `/api/v1` গ্রুপে মাউন্ট করা (ভার্সন নম্বর URL পাথে যুক্ত, কোনো ভার্সন রিকোয়েস্ট হেডার নেই, ভার্সন মিডলওয়্যারও নেই), কন্ট্রোলার ডিরেক্টরি অনুযায়ী সরাসরি বাইন্ড (যেমন `app\api\v1\controller\AuthController`)।
 
 ### 3.1 হেলথ চেক
 
@@ -124,11 +140,11 @@ GET /api/docs
 ### 3.3 ক্লিক ক্যাপচা তৈরি
 
 ```
-POST /api/captcha/generate
+POST /api/v1/captcha/generate
 ```
 
 - **প্রমাণীকরণ**: প্রয়োজন নেই
-- **হেডার**: `API-Version: v1` (বাধ্যতামূলক)
+- **ভার্সন**: URL পাথে /api/v1 আছে, কোনো ভার্সন রিকোয়েস্ট হেডার নেই
 - **রেট লিমিট**: গ্লোবাল ডিফল্ট (60 বার/মিনিট)
 
 **রিকোয়েস্ট বডি**:
@@ -170,11 +186,11 @@ POST /api/captcha/generate
 ### 3.4 ক্লিক ক্যাপচা যাচাই
 
 ```
-POST /api/captcha/verify
+POST /api/v1/captcha/verify
 ```
 
 - **প্রমাণীকরণ**: প্রয়োজন নেই
-- **হেডার**: `API-Version: v1` (বাধ্যতামূলক)
+- **ভার্সন**: URL পাথে /api/v1 আছে, কোনো ভার্সন রিকোয়েস্ট হেডার নেই
 - **রেট লিমিট**: গ্লোবাল ডিফল্ট (60 বার/মিনিট)
 
 **রিকোয়েস্ট বডি**:
@@ -207,11 +223,11 @@ POST /api/captcha/verify
 ### 3.5 লগইন
 
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 - **প্রমাণীকরণ**: প্রয়োজন নেই
-- **হেডার**: `API-Version: v1` (বাধ্যতামূলক)
+- **ভার্সন**: URL পাথে /api/v1 আছে, কোনো ভার্সন রিকোয়েস্ট হেডার নেই
 - **রেট লিমিট**: 10 বার/মিনিট (IP + পাথ অনুযায়ী)
 
 **রিকোয়েস্ট বডি**:
@@ -271,11 +287,11 @@ POST /api/auth/login
 ### 3.6 রেজিস্টার
 
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 ```
 
 - **প্রমাণীকরণ**: প্রয়োজন নেই
-- **হেডার**: `API-Version: v1` (বাধ্যতামূলক)
+- **ভার্সন**: URL পাথে /api/v1 আছে, কোনো ভার্সন রিকোয়েস্ট হেডার নেই
 - **রেট লিমিট**: 5 বার/মিনিট (IP + পাথ অনুযায়ী)
 - **সুইচ**: ডিফল্ট বন্ধ (`REGISTRATION_ENABLED=0`), বন্ধ থাকলে 403 রিটার্ন; `.env`-এ স্পষ্টভাবে চালু করতে হবে (`REGISTRATION_ENABLED=1`)
 
@@ -324,11 +340,11 @@ POST /api/auth/register
 ### 3.7 টোকেন রিফ্রেশ
 
 ```
-POST /api/auth/refresh
+POST /api/v1/auth/refresh
 ```
 
 - **প্রমাণীকরণ**: প্রয়োজন নেই
-- **হেডার**: `API-Version: v1` (বাধ্যতামূলক)
+- **ভার্সন**: URL পাথে /api/v1 আছে, কোনো ভার্সন রিকোয়েস্ট হেডার নেই
 - **রেট লিমিট**: গ্লোবাল ডিফল্ট (60 বার/মিনিট)
 
 **রিকোয়েস্ট বডি**:
@@ -406,12 +422,12 @@ openadmin_memory_usage_bytes 18874368
 
 ## 4. ড্যাশবোর্ড
 
-সব অ্যাডমিন ইন্টারফেস `/admin` গ্রুপে মাউন্ট করা, `AdminAuth` (JWT প্রমাণীকরণ), `AdminPermission` (RBAC অনুমোদন), `OperationLog` (অপারেশন রেকর্ড) তিনটি মিডলওয়্যারের মধ্য দিয়ে যায়।
+সব অ্যাডমিন ইন্টারফেস `/admin/v1` গ্রুপে মাউন্ট করা, `AdminAuth` (JWT প্রমাণীকরণ), `AdminPermission` (RBAC অনুমোদন), `OperationLog` (অপারেশন রেকর্ড) তিনটি মিডলওয়্যারের মধ্য দিয়ে যায়।
 
 ### 4.1 ড্যাশবোর্ড ডেটা
 
 ```
-GET /admin/dashboard
+GET /admin/v1/dashboard
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -468,7 +484,7 @@ GET /admin/dashboard
         "id": "hashid...",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "user_name": "admin",
         "created_at": "2026-05-21 10:30:00"
@@ -498,7 +514,7 @@ GET /admin/dashboard
 ### 5.1 ইউজার লিস্ট
 
 ```
-GET /admin/user
+GET /admin/v1/user
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -551,7 +567,7 @@ GET /admin/user
 ### 5.2 ইউজার তৈরি
 
 ```
-POST /admin/user
+POST /admin/v1/user
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -601,7 +617,7 @@ POST /admin/user
 ### 5.3 ইউজার ডিটেইল
 
 ```
-GET /admin/user/{id}
+GET /admin/v1/user/{id}
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -635,7 +651,7 @@ GET /admin/user/{id}
 ### 5.4 ইউজার আপডেট
 
 ```
-PUT /admin/user/{id}
+PUT /admin/v1/user/{id}
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -683,7 +699,7 @@ PUT /admin/user/{id}
 ### 5.5 ইউজার ডিলিট
 
 ```
-DELETE /admin/user/{id}
+DELETE /admin/v1/user/{id}
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -720,7 +736,7 @@ DELETE /admin/user/{id}
 ### 5.6 ইউজার ব্যাচ ডিলিট
 
 ```
-POST /admin/user/batch/destroy
+POST /admin/v1/user/batch/destroy
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -760,7 +776,7 @@ POST /admin/user/batch/destroy
 ### 5.7 ইউজার ব্যাচ সক্রিয়/নিষ্ক্রিয়
 
 ```
-POST /admin/user/batch/status
+POST /admin/v1/user/batch/status
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -800,7 +816,7 @@ message status মান অনুযায়ী `"批量启用成功"` বা 
 ### 6.1 রোল লিস্ট
 
 ```
-GET /admin/role
+GET /admin/v1/role
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -848,7 +864,7 @@ GET /admin/role
 ### 6.2 রোল তৈরি
 
 ```
-POST /admin/role
+POST /admin/v1/role
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -890,7 +906,7 @@ POST /admin/role
 ### 6.3 রোল আপডেট
 
 ```
-PUT /admin/role/{id}
+PUT /admin/v1/role/{id}
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -930,7 +946,7 @@ PUT /admin/role/{id}
 ### 6.4 রোল ডিলিট
 
 ```
-DELETE /admin/role/{id}
+DELETE /admin/v1/role/{id}
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -961,7 +977,7 @@ DELETE /admin/role/{id}
 ### 7.1 পারমিশন ট্রি
 
 ```
-GET /admin/permission
+GET /admin/v1/permission
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -976,7 +992,7 @@ GET /admin/permission
       "id": "p1p2p3p4",
       "parent_id": "0",
       "name": "用户管理",
-      "slug": "/admin/user",
+      "slug": "/admin/v1/user",
       "type": 1,
       "icon": "people",
       "path": "/user",
@@ -987,7 +1003,7 @@ GET /admin/permission
           "id": "p5p6p7p8",
           "parent_id": "p1p2p3p4",
           "name": "用户列表",
-          "slug": "/admin/user/index",
+          "slug": "/admin/v1/user/index",
           "type": 2,
           "icon": "",
           "path": "/user/index",
@@ -1014,7 +1030,7 @@ GET /admin/permission
 ### 7.2 পারমিশন তৈরি
 
 ```
-POST /admin/permission
+POST /admin/v1/permission
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1024,7 +1040,7 @@ POST /admin/permission
 {
   "parent_id": 0,
   "name": "系统设置",
-  "slug": "/admin/config",
+  "slug": "/admin/v1/config",
   "type": 1,
   "icon": "settings",
   "path": "/config",
@@ -1051,7 +1067,7 @@ POST /admin/permission
     "id": "p9p0a1b2",
     "parent_id": "0",
     "name": "系统设置",
-    "slug": "/admin/config",
+    "slug": "/admin/v1/config",
     "type": 1,
     "icon": "settings",
     "path": "/config",
@@ -1063,7 +1079,7 @@ POST /admin/permission
 ### 7.3 পারমিশন আপডেট
 
 ```
-PUT /admin/permission/{id}
+PUT /admin/v1/permission/{id}
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1088,7 +1104,7 @@ PUT /admin/permission/{id}
 ### 7.4 পারমিশন ডিলিট
 
 ```
-DELETE /admin/permission/{id}
+DELETE /admin/v1/permission/{id}
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1119,7 +1135,7 @@ DELETE /admin/permission/{id}
 ### 8.1 কনফিগ লিস্ট
 
 ```
-GET /admin/config
+GET /admin/v1/config
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1168,7 +1184,7 @@ GET /admin/config
 ### 8.2 কনফিগ তৈরি
 
 ```
-POST /admin/config
+POST /admin/v1/config
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1214,7 +1230,7 @@ POST /admin/config
 ### 8.3 কনফিগ আপডেট
 
 ```
-PUT /admin/config/{id}
+PUT /admin/v1/config/{id}
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1237,7 +1253,7 @@ PUT /admin/config/{id}
 ### 8.4 কনফিগ ডিলিট
 
 ```
-DELETE /admin/config/{id}
+DELETE /admin/v1/config/{id}
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1259,7 +1275,7 @@ DELETE /admin/config/{id}
 ### 9.1 অপারেশন লগ লিস্ট
 
 ```
-GET /admin/log
+GET /admin/v1/log
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1288,7 +1304,7 @@ GET /admin/log
         "user_name": "admin",
         "action": "用户登录",
         "method": "POST",
-        "path": "/api/auth/login",
+        "path": "/api/v1/auth/login",
         "ip": "192.168.1.1",
         "source": "web",
         "input": "{\"username\":\"admin\"}",
@@ -1321,7 +1337,7 @@ GET /admin/log
 ### 10.1 ব্যক্তিগত তথ্য আপডেট
 
 ```
-PUT /admin/profile
+PUT /admin/v1/profile
 ```
 
 - **প্রমাণীকরণ**: JWT
@@ -1363,7 +1379,7 @@ PUT /admin/profile
 ### 10.2 পাসওয়ার্ড পরিবর্তন
 
 ```
-PUT /admin/profile/password
+PUT /admin/v1/profile/password
 ```
 
 - **প্রমাণীকরণ**: JWT
@@ -1398,7 +1414,7 @@ PUT /admin/profile/password
 ### 10.3 লগআউট
 
 ```
-POST /admin/profile/logout
+POST /admin/v1/profile/logout
 ```
 
 - **প্রমাণীকরণ**: JWT
@@ -1423,7 +1439,7 @@ token না থাকলে 401 রিটার্ন হয়। token মে
 ### 11.1 Excel এক্সপোর্ট
 
 ```
-POST /admin/export/excel
+POST /admin/v1/export/excel
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1462,7 +1478,7 @@ POST /admin/export/excel
 ### 11.2 PDF এক্সপোর্ট
 
 ```
-POST /admin/export/pdf
+POST /admin/v1/export/pdf
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1509,7 +1525,7 @@ PDF টেমপ্লেটে কপিরাইট তথ্য ও এক্
 ### 11.3 ইউজার ইমপোর্ট (Excel)
 
 ```
-POST /admin/import/users
+POST /admin/v1/import/users
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1561,7 +1577,7 @@ POST /admin/import/users
 ## 12. ফাইল আপলোড
 
 ```
-POST /admin/upload
+POST /admin/v1/upload
 ```
 
 - **প্রমাণীকরণ**: JWT + RBAC
@@ -1610,8 +1626,8 @@ POST /admin/upload
 
 রেট লিমিট বিবরণ:
 - ডিফল্ট গ্লোবাল লিমিট: 60 বার/মিনিট / IP+পাথ
-- লগইন এন্ডপয়েন্ট `/api/auth/login`: 10 বার/মিনিট
-- রেজিস্টার এন্ডপয়েন্ট `/api/auth/register`: 5 বার/মিনিট
+- লগইন এন্ডপয়েন্ট `/api/v1/auth/login`: 10 বার/মিনিট
+- রেজিস্টার এন্ডপয়েন্ট `/api/v1/auth/register`: 5 বার/মিনিট
 - Redis অ্যাটমিক স্লাইডিং উইন্ডো অ্যালগরিদম (Lua ZSET) ব্যবহার করে, TOCTOU রেস এড়ায়
 - Redis অনুপলব্ধ হলে fail open (ছেড়ে দেওয়া), রিকোয়েস্ট ব্লক হয় না
 
@@ -1620,15 +1636,15 @@ POST /admin/upload
 সম্পূর্ণ প্রমাণীকরণ সিকোয়েন্স:
 
 ```
-1. 客户端请求 POST /api/captcha/generate
-   (请求头: API-Version: v1)
+1. 客户端请求 POST /api/v1/captcha/generate
+   (URL 路径含 /api/v1，无版本请求头)
     ↓
    服务端返回: key + base64 图片 + 点击目标提示
    
 2. 用户点击图片目标位置，前/客户端收集点击坐标
    
-3. 客户端请求 POST /api/auth/login
-   (请求头: API-Version: v1, Content-Type: application/json)
+3. 客户端请求 POST /api/v1/auth/login
+   (URL 路径含 /api/v1, Content-Type: application/json)
    请求体: { username, password, captcha_key, clicks: [{x,y}, ...] }
     ↓
    服务端:
@@ -1660,7 +1676,7 @@ POST /admin/upload
    Response + X-RateLimit-* 头
 
 5. Access Token 过期前刷新
-   客户端请求 POST /api/auth/refresh
+   客户端请求 POST /api/v1/auth/refresh
    请求体: { refresh_token: "..." }
     ↓
    服务端解码 refresh_token → 签发新 access + refresh
@@ -1668,7 +1684,7 @@ POST /admin/upload
    客户端更新本地令牌
 
 6. 登出
-   客户端请求 POST /admin/profile/logout
+   客户端请求 POST /admin/v1/profile/logout
    请求头: Authorization: Bearer <access_token>
     ↓
    服务端:
@@ -1722,7 +1738,7 @@ docker-compose up -d
 
 ## 16. ব্যবসায়িক API এন্ডপয়েন্ট (ERP)
 
-সব ব্যবসায়িক এন্ডপয়েন্ট `/admin` গ্রুপে, `AdminAuth` (JWT প্রমাণীকরণ), `AdminPermission` (RBAC অনুমোদন), `OperationLog` (অপারেশন রেকর্ড) তিনটি মিডলওয়্যারের মধ্য দিয়ে যায়।
+সব ব্যবসায়িক এন্ডপয়েন্ট `/admin/v1` গ্রুপে, `AdminAuth` (JWT প্রমাণীকরণ), `AdminPermission` (RBAC অনুমোদন), `OperationLog` (অপারেশন রেকর্ড) তিনটি মিডলওয়্যারের মধ্য দিয়ে যায়।
 
 > মোট এন্ডপয়েন্ট: পণ্য(17) | ক্রয়(8) | বিক্রয়(6) | ইনভেন্টরি(6) | ফাইন্যান্স(17) | CRM(13) | ওয়ার্কফ্লো(6) | নোটিফিকেশন(4) | প্রজেক্ট(3) | HR(9) | ম্যানুফ্যাকচারিং(7) | রিপোর্ট(4) | ড্যাশবোর্ড(3) | ক্লায়েন্ট(2) | মোট 105 এন্ডপয়েন্ট
 
@@ -1732,304 +1748,304 @@ docker-compose up -d
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/product | পণ্য লিস্ট (পেজিনেশন+সার্চ+ক্যাটাগরি/স্ট্যাটাস ফিল্টার) |
-| POST | /admin/product | পণ্য তৈরি (SKU ও প্রাইস সহ) |
-| GET | /admin/product/{id} | পণ্য ডিটেইল (ক্যাটাগরি/ব্র্যান্ড/SKU/প্রাইস/ইউনিট সহ) |
-| PUT | /admin/product/{id} | পণ্য আপডেট |
-| DELETE | /admin/product/{id} | পণ্য ডিলিট (সফট ডিলিট, পাসওয়ার্ড নিশ্চিতকরণ প্রয়োজন) |
-| GET | /admin/category | ক্যাটাগরি লিস্ট (ট্রি) |
-| POST | /admin/category | ক্যাটাগরি তৈরি |
-| PUT | /admin/category/{id} | ক্যাটাগরি আপডেট |
-| DELETE | /admin/category/{id} | ক্যাটাগরি ডিলিট |
-| GET | /admin/brand | ব্র্যান্ড লিস্ট |
-| POST | /admin/brand | ব্র্যান্ড তৈরি |
-| GET | /admin/warehouse | গুদাম লিস্ট |
-| POST | /admin/warehouse | গুদাম তৈরি |
-| GET | /admin/location | লোকেশন লিস্ট |
-| GET | /admin/warehouse/{id}/locations | গুদামের অধীনে লোকেশন লিস্ট |
-| GET | /admin/supplier | সাপ্লায়ার লিস্ট (ES সার্চ) |
-| POST | /admin/supplier | সাপ্লায়ার তৈরি |
-| GET | /admin/customer | কাস্টমার লিস্ট (ES সার্চ) |
-| POST | /admin/customer | কাস্টমার তৈরি |
+| GET | /admin/v1/product | পণ্য লিস্ট (পেজিনেশন+সার্চ+ক্যাটাগরি/স্ট্যাটাস ফিল্টার) |
+| POST | /admin/v1/product | পণ্য তৈরি (SKU ও প্রাইস সহ) |
+| GET | /admin/v1/product/{id} | পণ্য ডিটেইল (ক্যাটাগরি/ব্র্যান্ড/SKU/প্রাইস/ইউনিট সহ) |
+| PUT | /admin/v1/product/{id} | পণ্য আপডেট |
+| DELETE | /admin/v1/product/{id} | পণ্য ডিলিট (সফট ডিলিট, পাসওয়ার্ড নিশ্চিতকরণ প্রয়োজন) |
+| GET | /admin/v1/category | ক্যাটাগরি লিস্ট (ট্রি) |
+| POST | /admin/v1/category | ক্যাটাগরি তৈরি |
+| PUT | /admin/v1/category/{id} | ক্যাটাগরি আপডেট |
+| DELETE | /admin/v1/category/{id} | ক্যাটাগরি ডিলিট |
+| GET | /admin/v1/brand | ব্র্যান্ড লিস্ট |
+| POST | /admin/v1/brand | ব্র্যান্ড তৈরি |
+| GET | /admin/v1/warehouse | গুদাম লিস্ট |
+| POST | /admin/v1/warehouse | গুদাম তৈরি |
+| GET | /admin/v1/location | লোকেশন লিস্ট |
+| GET | /admin/v1/warehouse/{id}/locations | গুদামের অধীনে লোকেশন লিস্ট |
+| GET | /admin/v1/supplier | সাপ্লায়ার লিস্ট (ES সার্চ) |
+| POST | /admin/v1/supplier | সাপ্লায়ার তৈরি |
+| GET | /admin/v1/customer | কাস্টমার লিস্ট (ES সার্চ) |
+| POST | /admin/v1/customer | কাস্টমার তৈরি |
 
 ### 16.2 ক্রয় ম্যানেজমেন্ট
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/purchase/apply | ক্রয় আবেদন লিস্ট |
-| POST | /admin/purchase/apply | ক্রয় আবেদন তৈরি |
-| GET | /admin/purchase/order | ক্রয় অর্ডার লিস্ট |
-| POST | /admin/purchase/order | ক্রয় অর্ডার তৈরি |
-| 🔗 POST | /admin/purchase/receive | রিসিভিং ডকুমেন্ট তৈরি (স্বয়ংক্রিয় স্টক-ইন+AP তৈরি) |
-| GET | /admin/purchase/receive | রিসিভিং ডকুমেন্ট লিস্ট |
-| GET | /admin/purchase/receive/{id} | রিসিভিং ডকুমেন্ট ডিটেইল |
-| POST | /admin/purchase/return | রিটার্ন ডকুমেন্ট তৈরি |
-| GET | /admin/purchase/settlement | সাপ্লায়ার সেটেলমেন্ট লিস্ট |
+| GET | /admin/v1/purchase/apply | ক্রয় আবেদন লিস্ট |
+| POST | /admin/v1/purchase/apply | ক্রয় আবেদন তৈরি |
+| GET | /admin/v1/purchase/order | ক্রয় অর্ডার লিস্ট |
+| POST | /admin/v1/purchase/order | ক্রয় অর্ডার তৈরি |
+| 🔗 POST | /admin/v1/purchase/receive | রিসিভিং ডকুমেন্ট তৈরি (স্বয়ংক্রিয় স্টক-ইন+AP তৈরি) |
+| GET | /admin/v1/purchase/receive | রিসিভিং ডকুমেন্ট লিস্ট |
+| GET | /admin/v1/purchase/receive/{id} | রিসিভিং ডকুমেন্ট ডিটেইল |
+| POST | /admin/v1/purchase/return | রিটার্ন ডকুমেন্ট তৈরি |
+| GET | /admin/v1/purchase/settlement | সাপ্লায়ার সেটেলমেন্ট লিস্ট |
 
 ### 16.3 বিক্রয় ম্যানেজমেন্ট
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/sales/quotation | কোটেশন লিস্ট |
-| POST | /admin/sales/quotation | কোটেশন তৈরি |
-| GET | /admin/sales/order | সেলস অর্ডার লিস্ট |
-| POST | /admin/sales/order | সেলস অর্ডার তৈরি |
-| 🔗 POST | /admin/sales/delivery | ডেলিভারি ডকুমেন্ট তৈরি (স্বয়ংক্রিয় স্টক-আউট+AR তৈরি) |
-| GET | /admin/sales/delivery | ডেলিভারি ডকুমেন্ট লিস্ট |
-| GET | /admin/sales/settlement | কাস্টমার সেটেলমেন্ট লিস্ট |
+| GET | /admin/v1/sales/quotation | কোটেশন লিস্ট |
+| POST | /admin/v1/sales/quotation | কোটেশন তৈরি |
+| GET | /admin/v1/sales/order | সেলস অর্ডার লিস্ট |
+| POST | /admin/v1/sales/order | সেলস অর্ডার তৈরি |
+| 🔗 POST | /admin/v1/sales/delivery | ডেলিভারি ডকুমেন্ট তৈরি (স্বয়ংক্রিয় স্টক-আউট+AR তৈরি) |
+| GET | /admin/v1/sales/delivery | ডেলিভারি ডকুমেন্ট লিস্ট |
+| GET | /admin/v1/sales/settlement | কাস্টমার সেটেলমেন্ট লিস্ট |
 
 ### 16.4 ইনভেন্টরি ম্যানেজমেন্ট
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/inventory | রিয়েল-টাইম ইনভেন্টরি (গুদাম/লোকেশন/ব্যাচ/SKU মাত্রা) |
-| GET | /admin/inventory/flow | ইন/আউট স্টক ফ্লো |
-| GET | /admin/inventory/transfer | ট্রান্সফার ডকুমেন্ট লিস্ট |
-| POST | /admin/inventory/transfer | ট্রান্সফার ডকুমেন্ট তৈরি |
-| GET | /admin/inventory/check | কাউন্ট টাস্ক লিস্ট |
-| POST | /admin/inventory/check | কাউন্ট টাস্ক তৈরি |
-| GET | /admin/inventory/alert | ইনভেন্টরি সতর্কতা নিয়ম |
+| GET | /admin/v1/inventory | রিয়েল-টাইম ইনভেন্টরি (গুদাম/লোকেশন/ব্যাচ/SKU মাত্রা) |
+| GET | /admin/v1/inventory/flow | ইন/আউট স্টক ফ্লো |
+| GET | /admin/v1/inventory/transfer | ট্রান্সফার ডকুমেন্ট লিস্ট |
+| POST | /admin/v1/inventory/transfer | ট্রান্সফার ডকুমেন্ট তৈরি |
+| GET | /admin/v1/inventory/check | কাউন্ট টাস্ক লিস্ট |
+| POST | /admin/v1/inventory/check | কাউন্ট টাস্ক তৈরি |
+| GET | /admin/v1/inventory/alert | ইনভেন্টরি সতর্কতা নিয়ম |
 
 ### 16.5 ফাইন্যান্স ম্যানেজমেন্ট
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| POST | /admin/finance/voucher | জার্নাল ভাউচার তৈরি |
-| GET | /admin/finance/ar-ap | AR/AP লিস্ট |
-| POST | /admin/finance/receipt | রসিদ তৈরি |
-| POST | /admin/finance/payment | পেমেন্ট তৈরি |
-| GET | /admin/finance/cash-journal | ক্যাশ ও ব্যাংক জার্নাল |
-| GET | /admin/finance/expense | খরচ রিইমবার্সমেন্ট লিস্ট |
-| POST | /admin/finance/expense | রিইমবার্সমেন্ট আবেদন সাবমিট |
-| GET | /admin/finance/report/profit | লাভ-লস স্টেটমেন্ট |
-| GET | /admin/finance/general-ledger | জেনারেল লেজার (অ্যাকাউন্ট+পিরিয়ড সমষ্টি) |
-| GET | /admin/finance/subsidiary-ledger | সাবসিডিয়ারি লেজার (অ্যাকাউন্টের প্রতি লেনদেন) |
-| GET | /admin/finance/report/balance-sheet | ব্যালেন্স শিট (স্বয়ংক্রিয় তৈরি সহ) |
-| GET | /admin/finance/report/cash-flow | ক্যাশ ফ্লো স্টেটমেন্ট (অপারেটিং/ইনভেস্টিং/ফাইন্যান্সিং) |
-| GET | /admin/finance/bank-account | ব্যাংক অ্যাকাউন্ট লিস্ট |
-| GET/POST/PUT/DELETE | /admin/finance/asset | স্থায়ী সম্পদ CRUD + অবচয় |
-| GET/POST | /admin/finance/tax-rate | ট্যাক্স রেট কনফিগ |
-| GET | /admin/finance/tax-record | ট্যাক্স রেকর্ড |
-| GET/POST/PUT/DELETE | /admin/finance/currency | কারেন্সি ম্যানেজমেন্ট |
-| GET/POST/PUT/DELETE | /admin/finance/exchange-rate | এক্সচেঞ্জ রেট ম্যানেজমেন্ট |
-| GET/POST/PUT/DELETE | /admin/finance/budget | বাজেট ম্যানেজমেন্ট (বাজেট বনাম প্রকৃত তুলনা সহ) |
-| GET/POST/PUT/DELETE | /admin/finance/cost-center | কস্ট সেন্টার (ট্রি স্ট্রাকচার) |
-| GET/POST/PUT/DELETE | /admin/finance/profit-center | প্রফিট সেন্টার (ট্রি স্ট্রাকচার) |
+| POST | /admin/v1/finance/voucher | জার্নাল ভাউচার তৈরি |
+| GET | /admin/v1/finance/ar-ap | AR/AP লিস্ট |
+| POST | /admin/v1/finance/receipt | রসিদ তৈরি |
+| POST | /admin/v1/finance/payment | পেমেন্ট তৈরি |
+| GET | /admin/v1/finance/cash-journal | ক্যাশ ও ব্যাংক জার্নাল |
+| GET | /admin/v1/finance/expense | খরচ রিইমবার্সমেন্ট লিস্ট |
+| POST | /admin/v1/finance/expense | রিইমবার্সমেন্ট আবেদন সাবমিট |
+| GET | /admin/v1/finance/report/profit | লাভ-লস স্টেটমেন্ট |
+| GET | /admin/v1/finance/general-ledger | জেনারেল লেজার (অ্যাকাউন্ট+পিরিয়ড সমষ্টি) |
+| GET | /admin/v1/finance/subsidiary-ledger | সাবসিডিয়ারি লেজার (অ্যাকাউন্টের প্রতি লেনদেন) |
+| GET | /admin/v1/finance/report/balance-sheet | ব্যালেন্স শিট (স্বয়ংক্রিয় তৈরি সহ) |
+| GET | /admin/v1/finance/report/cash-flow | ক্যাশ ফ্লো স্টেটমেন্ট (অপারেটিং/ইনভেস্টিং/ফাইন্যান্সিং) |
+| GET | /admin/v1/finance/bank-account | ব্যাংক অ্যাকাউন্ট লিস্ট |
+| GET/POST/PUT/DELETE | /admin/v1/finance/asset | স্থায়ী সম্পদ CRUD + অবচয় |
+| GET/POST | /admin/v1/finance/tax-rate | ট্যাক্স রেট কনফিগ |
+| GET | /admin/v1/finance/tax-record | ট্যাক্স রেকর্ড |
+| GET/POST/PUT/DELETE | /admin/v1/finance/currency | কারেন্সি ম্যানেজমেন্ট |
+| GET/POST/PUT/DELETE | /admin/v1/finance/exchange-rate | এক্সচেঞ্জ রেট ম্যানেজমেন্ট |
+| GET/POST/PUT/DELETE | /admin/v1/finance/budget | বাজেট ম্যানেজমেন্ট (বাজেট বনাম প্রকৃত তুলনা সহ) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/cost-center | কস্ট সেন্টার (ট্রি স্ট্রাকচার) |
+| GET/POST/PUT/DELETE | /admin/v1/finance/profit-center | প্রফিট সেন্টার (ট্রি স্ট্রাকচার) |
 
 ### 16.6 CRM
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/crm/opportunity | সুযোগ লিস্ট |
-| POST | /admin/crm/opportunity | সুযোগ তৈরি |
-| GET | /admin/crm/follow | ফলো-আপ রেকর্ড লিস্ট |
-| POST | /admin/crm/follow | ফলো-আপ রেকর্ড তৈরি |
-| GET | /admin/crm/funnel | ফানেল স্টেজ কনফিগ |
-| GET | /admin/crm/contact | কন্টাক্ট লিস্ট |
-| POST | /admin/crm/contact | কন্টাক্ট তৈরি |
-| GET | /admin/crm/pool | পাবলিক পুল কাস্টমার লিস্ট |
-| POST | /admin/crm/pool/claim/{id} | পাবলিক পুল কাস্টমার ক্লেইম |
-| POST | /admin/crm/pool/release/{id} | পাবলিক পুলে কাস্টমার রিলিজ |
-| GET/POST | /admin/crm/pool/rules | পাবলিক পুল নিয়ম CRUD |
-| GET | /admin/crm/contract | কন্ট্রাক্ট লিস্ট |
-| POST | /admin/crm/contract | কন্ট্রাক্ট তৈরি |
-| GET | /admin/crm/contract/{id} | কন্ট্রাক্ট ডিটেইল |
-| PUT | /admin/crm/contract/{id} | কন্ট্রাক্ট আপডেট |
-| DELETE | /admin/crm/contract/{id} | কন্ট্রাক্ট ডিলিট |
-| GET | /admin/crm/quotation | CRM কোটেশন লিস্ট |
-| POST | /admin/crm/quotation | CRM কোটেশন তৈরি |
-| POST | /admin/crm/quotation/{id}/to-contract | 🔗 কোটেশন থেকে কন্ট্রাক্ট |
-| GET/POST/PUT/DELETE | /admin/crm/campaign | মার্কেটিং ক্যাম্পেইন |
-| GET/POST/PUT/DELETE | /admin/crm/ticket | সার্ভিস টিকেট |
-| POST | /admin/crm/ticket/{id}/assign | টিকেট অ্যাসাইন |
-| POST | /admin/crm/ticket/{id}/resolve | টিকেট সমাধান |
-| GET/POST | /admin/crm/analytics/report | কাস্টমার অ্যানালিটিক্স রিপোর্ট |
-| GET/POST | /admin/crm/analytics/metric | অ্যানালিটিক্স মেট্রিক |
+| GET | /admin/v1/crm/opportunity | সুযোগ লিস্ট |
+| POST | /admin/v1/crm/opportunity | সুযোগ তৈরি |
+| GET | /admin/v1/crm/follow | ফলো-আপ রেকর্ড লিস্ট |
+| POST | /admin/v1/crm/follow | ফলো-আপ রেকর্ড তৈরি |
+| GET | /admin/v1/crm/funnel | ফানেল স্টেজ কনফিগ |
+| GET | /admin/v1/crm/contact | কন্টাক্ট লিস্ট |
+| POST | /admin/v1/crm/contact | কন্টাক্ট তৈরি |
+| GET | /admin/v1/crm/pool | পাবলিক পুল কাস্টমার লিস্ট |
+| POST | /admin/v1/crm/pool/claim/{id} | পাবলিক পুল কাস্টমার ক্লেইম |
+| POST | /admin/v1/crm/pool/release/{id} | পাবলিক পুলে কাস্টমার রিলিজ |
+| GET/POST | /admin/v1/crm/pool/rules | পাবলিক পুল নিয়ম CRUD |
+| GET | /admin/v1/crm/contract | কন্ট্রাক্ট লিস্ট |
+| POST | /admin/v1/crm/contract | কন্ট্রাক্ট তৈরি |
+| GET | /admin/v1/crm/contract/{id} | কন্ট্রাক্ট ডিটেইল |
+| PUT | /admin/v1/crm/contract/{id} | কন্ট্রাক্ট আপডেট |
+| DELETE | /admin/v1/crm/contract/{id} | কন্ট্রাক্ট ডিলিট |
+| GET | /admin/v1/crm/quotation | CRM কোটেশন লিস্ট |
+| POST | /admin/v1/crm/quotation | CRM কোটেশন তৈরি |
+| POST | /admin/v1/crm/quotation/{id}/to-contract | 🔗 কোটেশন থেকে কন্ট্রাক্ট |
+| GET/POST/PUT/DELETE | /admin/v1/crm/campaign | মার্কেটিং ক্যাম্পেইন |
+| GET/POST/PUT/DELETE | /admin/v1/crm/ticket | সার্ভিস টিকেট |
+| POST | /admin/v1/crm/ticket/{id}/assign | টিকেট অ্যাসাইন |
+| POST | /admin/v1/crm/ticket/{id}/resolve | টিকেট সমাধান |
+| GET/POST | /admin/v1/crm/analytics/report | কাস্টমার অ্যানালিটিক্স রিপোর্ট |
+| GET/POST | /admin/v1/crm/analytics/metric | অ্যানালিটিক্স মেট্রিক |
 
 ### 16.7 অ্যাপ্রুভাল ওয়ার্কফ্লো
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/workflow | ওয়ার্কফ্লো ডেফিনিশন লিস্ট |
-| POST | /admin/workflow | ওয়ার্কফ্লো ডেফিনিশন তৈরি |
-| GET | /admin/workflow/{id} | ওয়ার্কফ্লো ডিটেইল |
-| PUT | /admin/workflow/{id} | ওয়ার্কফ্লো আপডেট |
-| DELETE | /admin/workflow/{id} | ওয়ার্কফ্লো ডিলিট |
-| POST | /admin/workflow/{id}/submit | 🔗 অনুমোদন সাবমিট (অ্যাপ্রুভাল ইন্সট্যান্স তৈরি) |
-| POST | /admin/approval/{id}/approve | অনুমোদন |
-| POST | /admin/approval/{id}/reject | প্রত্যাখ্যান |
-| POST | /admin/approval/{id}/withdraw | প্রত্যাহার |
-| ANY | /admin/approval/my | আমার অনুমোদন লিস্ট (অপেক্ষমাণ/অনুমোদিত) |
+| GET | /admin/v1/workflow | ওয়ার্কফ্লো ডেফিনিশন লিস্ট |
+| POST | /admin/v1/workflow | ওয়ার্কফ্লো ডেফিনিশন তৈরি |
+| GET | /admin/v1/workflow/{id} | ওয়ার্কফ্লো ডিটেইল |
+| PUT | /admin/v1/workflow/{id} | ওয়ার্কফ্লো আপডেট |
+| DELETE | /admin/v1/workflow/{id} | ওয়ার্কফ্লো ডিলিট |
+| POST | /admin/v1/workflow/{id}/submit | 🔗 অনুমোদন সাবমিট (অ্যাপ্রুভাল ইন্সট্যান্স তৈরি) |
+| POST | /admin/v1/approval/{id}/approve | অনুমোদন |
+| POST | /admin/v1/approval/{id}/reject | প্রত্যাখ্যান |
+| POST | /admin/v1/approval/{id}/withdraw | প্রত্যাহার |
+| ANY | /admin/v1/approval/my | আমার অনুমোদন লিস্ট (অপেক্ষমাণ/অনুমোদিত) |
 
 ### 16.8 নোটিফিকেশন
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| ANY | /admin/notification/my | আমার নোটিফিকেশন লিস্ট (পেজিনেশন, সময়ের উল্টো ক্রমে) |
-| POST | /admin/notification/{id}/read | একটি পঠিত চিহ্নিত |
-| POST | /admin/notification/read-all | সব পঠিত চিহ্নিত |
-| ANY | /admin/notification/unread-count | অপঠিত মেসেজ সংখ্যা |
+| ANY | /admin/v1/notification/my | আমার নোটিফিকেশন লিস্ট (পেজিনেশন, সময়ের উল্টো ক্রমে) |
+| POST | /admin/v1/notification/{id}/read | একটি পঠিত চিহ্নিত |
+| POST | /admin/v1/notification/read-all | সব পঠিত চিহ্নিত |
+| ANY | /admin/v1/notification/unread-count | অপঠিত মেসেজ সংখ্যা |
 
 ### 16.9 প্রজেক্ট ম্যানেজমেন্ট
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/project | প্রজেক্ট লিস্ট |
-| POST | /admin/project | প্রজেক্ট তৈরি |
-| GET | /admin/project/{id} | প্রজেক্ট ডিটেইল |
-| PUT | /admin/project/{id} | প্রজেক্ট আপডেট |
-| DELETE | /admin/project/{id} | প্রজেক্ট ডিলিট |
-| GET | /admin/project/task | টাস্ক লিস্ট |
-| POST | /admin/project/task | টাস্ক তৈরি |
-| PUT | /admin/project/task/{id} | টাস্ক আপডেট |
-| DELETE | /admin/project/task/{id} | টাস্ক ডিলিট |
-| GET | /admin/project/timesheet | টাইমশিট লিস্ট |
-| POST | /admin/project/timesheet | টাইমশিট এন্ট্রি |
-| PUT | /admin/project/timesheet/{id} | টাইমশিট আপডেট |
-| DELETE | /admin/project/timesheet/{id} | টাইমশিট ডিলিট |
+| GET | /admin/v1/project | প্রজেক্ট লিস্ট |
+| POST | /admin/v1/project | প্রজেক্ট তৈরি |
+| GET | /admin/v1/project/{id} | প্রজেক্ট ডিটেইল |
+| PUT | /admin/v1/project/{id} | প্রজেক্ট আপডেট |
+| DELETE | /admin/v1/project/{id} | প্রজেক্ট ডিলিট |
+| GET | /admin/v1/project/task | টাস্ক লিস্ট |
+| POST | /admin/v1/project/task | টাস্ক তৈরি |
+| PUT | /admin/v1/project/task/{id} | টাস্ক আপডেট |
+| DELETE | /admin/v1/project/task/{id} | টাস্ক ডিলিট |
+| GET | /admin/v1/project/timesheet | টাইমশিট লিস্ট |
+| POST | /admin/v1/project/timesheet | টাইমশিট এন্ট্রি |
+| PUT | /admin/v1/project/timesheet/{id} | টাইমশিট আপডেট |
+| DELETE | /admin/v1/project/timesheet/{id} | টাইমশিট ডিলিট |
 
 ### 16.10 হিউম্যান রিসোর্স ম্যানেজমেন্ট (HR)
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/hr/department | ডিপার্টমেন্ট লিস্ট (ট্রি) |
-| POST | /admin/hr/department | ডিপার্টমেন্ট তৈরি |
-| PUT | /admin/hr/department/{id} | ডিপার্টমেন্ট আপডেট |
-| DELETE | /admin/hr/department/{id} | ডিপার্টমেন্ট ডিলিট |
-| GET | /admin/hr/employee | এমপ্লয়ি লিস্ট |
-| POST | /admin/hr/employee | এমপ্লয়ি তৈরি |
-| PUT | /admin/hr/employee/{id} | এমপ্লয়ি আপডেট |
-| DELETE | /admin/hr/employee/{id} | এমপ্লয়ি ডিলিট |
-| GET | /admin/hr/position | পজিশন লিস্ট |
-| POST | /admin/hr/position | পজিশন তৈরি |
-| PUT | /admin/hr/position/{id} | পজিশন আপডেট |
-| DELETE | /admin/hr/position/{id} | পজিশন ডিলিট |
-| ANY | /admin/hr/attendance | অ্যাটেনডেন্স রেকর্ড কোয়েরি |
-| POST | /admin/hr/attendance/clock-in | কাজ শুরু ক্লক-ইন |
-| POST | /admin/hr/attendance/clock-out | কাজ শেষ ক্লক-আউট |
-| ANY | /admin/hr/leave | ছুটির লিস্ট |
-| POST | /admin/hr/leave | ছুটির আবেদন সাবমিট |
-| GET | /admin/hr/leave/{id} | ছুটির ডিটেইল |
-| PUT | /admin/hr/leave/{id} | ছুটি আপডেট |
-| DELETE | /admin/hr/leave/{id} | ছুটি ডিলিট |
-| POST | /admin/hr/leave/{id}/approve | 🔗 ছুটি অনুমোদন |
-| GET | /admin/hr/salary | বেতন লিস্ট |
-| POST | /admin/hr/salary | বেতন স্লিপ তৈরি |
-| PUT | /admin/hr/salary/{id} | বেতন আপডেট |
-| DELETE | /admin/hr/salary/{id} | বেতন ডিলিট |
-| POST | /admin/hr/salary/{id}/pay | বেতন প্রদান |
-| ANY | /admin/hr/salary-item | বেতন আইটেম লিস্ট |
-| POST | /admin/hr/salary-item | বেতন আইটেম তৈরি |
-| GET | /admin/hr/salary-item/{id} | বেতন আইটেম ডিটেইল |
-| PUT | /admin/hr/salary-item/{id} | বেতন আইটেম আপডেট |
-| DELETE | /admin/hr/salary-item/{id} | বেতন আইটেম ডিলিট |
+| GET | /admin/v1/hr/department | ডিপার্টমেন্ট লিস্ট (ট্রি) |
+| POST | /admin/v1/hr/department | ডিপার্টমেন্ট তৈরি |
+| PUT | /admin/v1/hr/department/{id} | ডিপার্টমেন্ট আপডেট |
+| DELETE | /admin/v1/hr/department/{id} | ডিপার্টমেন্ট ডিলিট |
+| GET | /admin/v1/hr/employee | এমপ্লয়ি লিস্ট |
+| POST | /admin/v1/hr/employee | এমপ্লয়ি তৈরি |
+| PUT | /admin/v1/hr/employee/{id} | এমপ্লয়ি আপডেট |
+| DELETE | /admin/v1/hr/employee/{id} | এমপ্লয়ি ডিলিট |
+| GET | /admin/v1/hr/position | পজিশন লিস্ট |
+| POST | /admin/v1/hr/position | পজিশন তৈরি |
+| PUT | /admin/v1/hr/position/{id} | পজিশন আপডেট |
+| DELETE | /admin/v1/hr/position/{id} | পজিশন ডিলিট |
+| ANY | /admin/v1/hr/attendance | অ্যাটেনডেন্স রেকর্ড কোয়েরি |
+| POST | /admin/v1/hr/attendance/clock-in | কাজ শুরু ক্লক-ইন |
+| POST | /admin/v1/hr/attendance/clock-out | কাজ শেষ ক্লক-আউট |
+| ANY | /admin/v1/hr/leave | ছুটির লিস্ট |
+| POST | /admin/v1/hr/leave | ছুটির আবেদন সাবমিট |
+| GET | /admin/v1/hr/leave/{id} | ছুটির ডিটেইল |
+| PUT | /admin/v1/hr/leave/{id} | ছুটি আপডেট |
+| DELETE | /admin/v1/hr/leave/{id} | ছুটি ডিলিট |
+| POST | /admin/v1/hr/leave/{id}/approve | 🔗 ছুটি অনুমোদন |
+| GET | /admin/v1/hr/salary | বেতন লিস্ট |
+| POST | /admin/v1/hr/salary | বেতন স্লিপ তৈরি |
+| PUT | /admin/v1/hr/salary/{id} | বেতন আপডেট |
+| DELETE | /admin/v1/hr/salary/{id} | বেতন ডিলিট |
+| POST | /admin/v1/hr/salary/{id}/pay | বেতন প্রদান |
+| ANY | /admin/v1/hr/salary-item | বেতন আইটেম লিস্ট |
+| POST | /admin/v1/hr/salary-item | বেতন আইটেম তৈরি |
+| GET | /admin/v1/hr/salary-item/{id} | বেতন আইটেম ডিটেইল |
+| PUT | /admin/v1/hr/salary-item/{id} | বেতন আইটেম আপডেট |
+| DELETE | /admin/v1/hr/salary-item/{id} | বেতন আইটেম ডিলিট |
 
 ### 16.11 ম্যানুফ্যাকচারিং
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/mfg/bom | BOM লিস্ট |
-| POST | /admin/mfg/bom | BOM তৈরি |
-| PUT | /admin/mfg/bom/{id} | BOM আপডেট |
-| DELETE | /admin/mfg/bom/{id} | BOM ডিলিট |
-| GET | /admin/mfg/production | প্রোডাকশন অর্ডার লিস্ট |
-| POST | /admin/mfg/production | প্রোডাকশন অর্ডার তৈরি |
-| PUT | /admin/mfg/production/{id} | প্রোডাকশন অর্ডার আপডেট |
-| DELETE | /admin/mfg/production/{id} | প্রোডাকশন অর্ডার ডিলিট |
-| POST | /admin/mfg/production/{id}/start | কাজ শুরু |
-| POST | /admin/mfg/production/{id}/complete | কাজ সম্পন্ন |
-| GET | /admin/mfg/routing | রাউটিং লিস্ট |
-| POST | /admin/mfg/routing | রাউটিং তৈরি |
-| PUT | /admin/mfg/routing/{id} | রাউটিং আপডেট |
-| DELETE | /admin/mfg/routing/{id} | রাউটিং ডিলিট |
-| GET | /admin/mfg/workstation | ওয়ার্কস্টেশন লিস্ট |
-| POST | /admin/mfg/workstation | ওয়ার্কস্টেশন তৈরি |
-| PUT | /admin/mfg/workstation/{id} | ওয়ার্কস্টেশন আপডেট |
-| DELETE | /admin/mfg/workstation/{id} | ওয়ার্কস্টেশন ডিলিট |
-| GET | /admin/mfg/mrp | MRP প্ল্যান লিস্ট |
-| POST | /admin/mfg/mrp | MRP প্ল্যান তৈরি |
-| PUT | /admin/mfg/mrp/{id} | MRP প্ল্যান আপডেট |
-| DELETE | /admin/mfg/mrp/{id} | MRP প্ল্যান ডিলিট |
-| POST | /admin/mfg/mrp/{id}/generate | 🔗 MRP চালিয়ে ক্রয়/উৎপাদন পরামর্শ তৈরি |
+| GET | /admin/v1/mfg/bom | BOM লিস্ট |
+| POST | /admin/v1/mfg/bom | BOM তৈরি |
+| PUT | /admin/v1/mfg/bom/{id} | BOM আপডেট |
+| DELETE | /admin/v1/mfg/bom/{id} | BOM ডিলিট |
+| GET | /admin/v1/mfg/production | প্রোডাকশন অর্ডার লিস্ট |
+| POST | /admin/v1/mfg/production | প্রোডাকশন অর্ডার তৈরি |
+| PUT | /admin/v1/mfg/production/{id} | প্রোডাকশন অর্ডার আপডেট |
+| DELETE | /admin/v1/mfg/production/{id} | প্রোডাকশন অর্ডার ডিলিট |
+| POST | /admin/v1/mfg/production/{id}/start | কাজ শুরু |
+| POST | /admin/v1/mfg/production/{id}/complete | কাজ সম্পন্ন |
+| GET | /admin/v1/mfg/routing | রাউটিং লিস্ট |
+| POST | /admin/v1/mfg/routing | রাউটিং তৈরি |
+| PUT | /admin/v1/mfg/routing/{id} | রাউটিং আপডেট |
+| DELETE | /admin/v1/mfg/routing/{id} | রাউটিং ডিলিট |
+| GET | /admin/v1/mfg/workstation | ওয়ার্কস্টেশন লিস্ট |
+| POST | /admin/v1/mfg/workstation | ওয়ার্কস্টেশন তৈরি |
+| PUT | /admin/v1/mfg/workstation/{id} | ওয়ার্কস্টেশন আপডেট |
+| DELETE | /admin/v1/mfg/workstation/{id} | ওয়ার্কস্টেশন ডিলিট |
+| GET | /admin/v1/mfg/mrp | MRP প্ল্যান লিস্ট |
+| POST | /admin/v1/mfg/mrp | MRP প্ল্যান তৈরি |
+| PUT | /admin/v1/mfg/mrp/{id} | MRP প্ল্যান আপডেট |
+| DELETE | /admin/v1/mfg/mrp/{id} | MRP প্ল্যান ডিলিট |
+| POST | /admin/v1/mfg/mrp/{id}/generate | 🔗 MRP চালিয়ে ক্রয়/উৎপাদন পরামর্শ তৈরি |
 
 ### 16.12 কাস্টম রিপোর্ট (রিপোর্ট বিল্ডার)
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/report | রিপোর্ট টেমপ্লেট লিস্ট |
-| POST | /admin/report | রিপোর্ট টেমপ্লেট তৈরি |
-| GET | /admin/report/{id} | রিপোর্ট টেমপ্লেট ডিটেইল |
-| PUT | /admin/report/{id} | রিপোর্ট টেমপ্লেট আপডেট |
-| DELETE | /admin/report/{id} | রিপোর্ট টেমপ্লেট ডিলিট |
-| POST | /admin/report/{id}/execute | রিপোর্ট এক্সিকিউট করে ডেটা তৈরি |
-| ANY | /admin/report/{id}/result | রিপোর্ট এক্সিকিউশন ফলাফল |
-| GET | /admin/report/schedule | শিডিউল লিস্ট |
-| POST | /admin/report/schedule | শিডিউল তৈরি |
-| PUT | /admin/report/schedule/{id} | শিডিউল আপডেট |
-| DELETE | /admin/report/schedule/{id} | শিডিউল ডিলিট |
+| GET | /admin/v1/report | রিপোর্ট টেমপ্লেট লিস্ট |
+| POST | /admin/v1/report | রিপোর্ট টেমপ্লেট তৈরি |
+| GET | /admin/v1/report/{id} | রিপোর্ট টেমপ্লেট ডিটেইল |
+| PUT | /admin/v1/report/{id} | রিপোর্ট টেমপ্লেট আপডেট |
+| DELETE | /admin/v1/report/{id} | রিপোর্ট টেমপ্লেট ডিলিট |
+| POST | /admin/v1/report/{id}/execute | রিপোর্ট এক্সিকিউট করে ডেটা তৈরি |
+| ANY | /admin/v1/report/{id}/result | রিপোর্ট এক্সিকিউশন ফলাফল |
+| GET | /admin/v1/report/schedule | শিডিউল লিস্ট |
+| POST | /admin/v1/report/schedule | শিডিউল তৈরি |
+| PUT | /admin/v1/report/schedule/{id} | শিডিউল আপডেট |
+| DELETE | /admin/v1/report/schedule/{id} | শিডিউল ডিলিট |
 
 ### 16.13 ড্যাশবোর্ড
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/dashboard/sales | সেলস প্যানেল |
-| GET | /admin/dashboard/inventory | ইনভেন্টরি প্যানেল |
-| GET | /admin/dashboard/finance | ফাইন্যান্স প্যানেল |
+| GET | /admin/v1/dashboard/sales | সেলস প্যানেল |
+| GET | /admin/v1/dashboard/inventory | ইনভেন্টরি প্যানেল |
+| GET | /admin/v1/dashboard/finance | ফাইন্যান্স প্যানেল |
 
 ### 16.14 ক্লায়েন্ট API
 
-ক্লায়েন্ট ইন্টারফেস `/api` গ্রুপে মাউন্ট করা, `API-Version` রিকোয়েস্ট হেডার প্রয়োজন। পণ্য তথ্যে ক্রয়মূল্য থাকে না।
+ক্লায়েন্ট ইন্টারফেস `/api/v1` গ্রুপে মাউন্ট করা (ভার্সন নম্বর URL পাথে যুক্ত, কোনো ভার্সন রিকোয়েস্ট হেডার নেই)। পণ্য তথ্যে ক্রয়মূল্য থাকে না।
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /api/product | পণ্য লিস্ট (ক্রয়মূল্য ছাড়া) |
-| GET | /api/product/{hashid} | পণ্য ডিটেইল (রিটেইল/হোলসেল প্রাইস সহ, ক্রয়মূল্য ছাড়া) |
+| GET | /api/v1/product | পণ্য লিস্ট (ক্রয়মূল্য ছাড়া) |
+| GET | /api/v1/product/{hashid} | পণ্য ডিটেইল (রিটেইল/হোলসেল প্রাইস সহ, ক্রয়মূল্য ছাড়া) |
 
 ### 16.15 OMS অর্ডার ম্যানেজমেন্ট
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/oms/order | OMS অর্ডার লিস্ট |
-| POST | /admin/oms/order | OMS অর্ডার তৈরি |
-| 🔗 POST | /admin/oms/order/{id}/allocate | ইনভেন্টরি অ্যালোকেশন (রিজার্ভেশন) |
-| 🔗 POST | /admin/oms/order/{id}/fulfill | ফুলফিলমেন্ট তৈরি |
-| POST | /admin/oms/order/{id}/cancel | অর্ডার ক্যান্সেল (রিজার্ভেশন রিলিজ) |
-| POST | /admin/oms/rma/{id}/approve | RMA অনুমোদন |
-| POST | /admin/oms/rma/{id}/refund | RMA রিফান্ড |
+| GET | /admin/v1/oms/order | OMS অর্ডার লিস্ট |
+| POST | /admin/v1/oms/order | OMS অর্ডার তৈরি |
+| 🔗 POST | /admin/v1/oms/order/{id}/allocate | ইনভেন্টরি অ্যালোকেশন (রিজার্ভেশন) |
+| 🔗 POST | /admin/v1/oms/order/{id}/fulfill | ফুলফিলমেন্ট তৈরি |
+| POST | /admin/v1/oms/order/{id}/cancel | অর্ডার ক্যান্সেল (রিজার্ভেশন রিলিজ) |
+| POST | /admin/v1/oms/rma/{id}/approve | RMA অনুমোদন |
+| POST | /admin/v1/oms/rma/{id}/refund | RMA রিফান্ড |
 
 ### 16.16 WMS ওয়্যারহাউস ম্যানেজমেন্ট
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/wms/zone | জোন লিস্ট (CRUD) |
-| GET | /admin/wms/location | WMS লোকেশন লিস্ট (CRUD) |
-| GET | /admin/wms/asn | ASN লিস্ট (CRUD) |
-| POST | /admin/wms/receiving/{id}/complete | রিসিভিং সম্পন্ন → স্বয়ংক্রিয় পুটওয়ে টাস্ক তৈরি |
-| POST | /admin/wms/putaway/{id}/complete | পুটওয়ে নিশ্চিত → stockIn ট্রিগার |
-| POST | /admin/wms/wave/{id}/release | ওয়েভ রিলিজ → পিকিং টাস্ক তৈরি |
-| POST | /admin/wms/pick/{id}/start | পিকিং শুরু |
-| POST | /admin/wms/pick/{id}/confirm | পিকিং নিশ্চিতকরণ |
-| POST | /admin/wms/pack/{id}/complete | প্যাকিং সম্পন্ন |
+| GET | /admin/v1/wms/zone | জোন লিস্ট (CRUD) |
+| GET | /admin/v1/wms/location | WMS লোকেশন লিস্ট (CRUD) |
+| GET | /admin/v1/wms/asn | ASN লিস্ট (CRUD) |
+| POST | /admin/v1/wms/receiving/{id}/complete | রিসিভিং সম্পন্ন → স্বয়ংক্রিয় পুটওয়ে টাস্ক তৈরি |
+| POST | /admin/v1/wms/putaway/{id}/complete | পুটওয়ে নিশ্চিত → stockIn ট্রিগার |
+| POST | /admin/v1/wms/wave/{id}/release | ওয়েভ রিলিজ → পিকিং টাস্ক তৈরি |
+| POST | /admin/v1/wms/pick/{id}/start | পিকিং শুরু |
+| POST | /admin/v1/wms/pick/{id}/confirm | পিকিং নিশ্চিতকরণ |
+| POST | /admin/v1/wms/pack/{id}/complete | প্যাকিং সম্পন্ন |
 
 ### 16.17 TMS ট্রান্সপোর্ট ম্যানেজমেন্ট
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/tms/carrier | ক্যারিয়ার লিস্ট (CRUD) |
-| GET | /admin/tms/service | ক্যারিয়ার সার্ভিস (CRUD) |
-| GET | /admin/tms/freight-rate | ফ্রেট রেট (CRUD) |
-| GET | /admin/tms/shipment | শিপমেন্ট লিস্ট (CRUD) |
-| 🔗 POST | /admin/tms/shipment/{id}/ship | ডেলিভারি নিশ্চিতকরণ (stockOut+AR) |
-| POST | /admin/tms/tracking/callback | ক্যারিয়ার ট্র্যাকিং webhook |
-| POST | /admin/tms/freight-invoice/{id}/pay | ফ্রেট ইনভয়েস পেমেন্ট (AP তৈরি) |
+| GET | /admin/v1/tms/carrier | ক্যারিয়ার লিস্ট (CRUD) |
+| GET | /admin/v1/tms/service | ক্যারিয়ার সার্ভিস (CRUD) |
+| GET | /admin/v1/tms/freight-rate | ফ্রেট রেট (CRUD) |
+| GET | /admin/v1/tms/shipment | শিপমেন্ট লিস্ট (CRUD) |
+| 🔗 POST | /admin/v1/tms/shipment/{id}/ship | ডেলিভারি নিশ্চিতকরণ (stockOut+AR) |
+| POST | /api/tms/tracking/callback | ক্যারিয়ার ট্র্যাকিং webhook |
+| POST | /admin/v1/tms/freight-invoice/{id}/pay | ফ্রেট ইনভয়েস পেমেন্ট (AP তৈরি) |
 
 ### 16.18 ড্যাশবোর্ড এক্সটেনশন
 
 | মেথড | পাথ | বিবরণ |
 |------|------|------|
-| GET | /admin/dashboard/oms | OMS KPI (অপেক্ষমাণ/পিকিং চলছে/আজকের ডেলিভারি/RMA) |
-| GET | /admin/dashboard/wms | WMS KPI (রিসিভ অপেক্ষা/পুটওয়ে অপেক্ষা/পিক অপেক্ষা/প্যাক অপেক্ষা) |
-| GET | /admin/dashboard/tms | TMS KPI (ডেলিভারি অপেক্ষা/পরিবহনে/স্বাক্ষরিত/অস্বাভাবিক) |
+| GET | /admin/v1/dashboard/oms | OMS KPI (অপেক্ষমাণ/পিকিং চলছে/আজকের ডেলিভারি/RMA) |
+| GET | /admin/v1/dashboard/wms | WMS KPI (রিসিভ অপেক্ষা/পুটওয়ে অপেক্ষা/পিক অপেক্ষা/প্যাক অপেক্ষা) |
+| GET | /admin/v1/dashboard/tms | TMS KPI (ডেলিভারি অপেক্ষা/পরিবহনে/স্বাক্ষরিত/অস্বাভাবিক) |
 
 ### 16.19 ক্রস-মডিউল লিংকড এন্ডপয়েন্ট বিবরণ
 
@@ -2037,5 +2053,5 @@ docker-compose up -d
 
 | এন্ডপয়েন্ট | লিংক অ্যাকশন |
 |------|---------|
-| 🔗 POST /admin/purchase/receive | স্বয়ংক্রিয়ভাবে InventoryService.stockIn() কল করে ইনভেন্টরি আপডেট + মুভিং ওয়েটেড এভারেজ খরচ পুনরায় গণনা; FinanceService.createAp() কল করে AP রেকর্ড তৈরি |
-| 🔗 POST /admin/sales/delivery | স্বয়ংক্রিয়ভাবে InventoryService.stockOut() কল করে ইনভেন্টরি কমানো (মুভিং ওয়েটেড এভারেজ খরচ অনুযায়ী); FinanceService.createAr() কল করে AR রেকর্ড তৈরি |
+| 🔗 POST /admin/v1/purchase/receive | স্বয়ংক্রিয়ভাবে InventoryService.stockIn() কল করে ইনভেন্টরি আপডেট + মুভিং ওয়েটেড এভারেজ খরচ পুনরায় গণনা; FinanceService.createAp() কল করে AP রেকর্ড তৈরি |
+| 🔗 POST /admin/v1/sales/delivery | স্বয়ংক্রিয়ভাবে InventoryService.stockOut() কল করে ইনভেন্টরি কমানো (মুভিং ওয়েটেড এভারেজ খরচ অনুযায়ী); FinanceService.createAr() কল করে AR রেকর্ড তৈরি |

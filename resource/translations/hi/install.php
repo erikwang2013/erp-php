@@ -149,6 +149,7 @@ return [
     ':envKey may only contain visible characters and must not contain $ or backslash' => ':envKey में केवल दृश्यमान वर्ण हो सकते हैं और इसमें $ या बैकस्लैश नहीं होना चाहिए',
     ':envKey must be a 2-5 digit port' => ':envKey 2-5 अंकों का पोर्ट होना चाहिए',
     ':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)' => ':field 16-128 वर्णों की अल्फ़ान्यूमेरिक कुंजी होनी चाहिए (या स्वतः जनरेट करने के लिए खाली छोड़ें)',
+    ':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate' => ':envKey में ठीक 32 अल्फ़ान्यूमेरिक वर्ण होने चाहिए (AES-256 कुंजी), या स्वतः जनरेट करने के लिए खाली छोड़ें',
     'Please enter the database host' => 'कृपया डेटाबेस होस्ट दर्ज करें',
     'Please fill in host/port/database/user before testing' => 'परीक्षण से पहले कृपया होस्ट/पोर्ट/डेटाबेस/उपयोगकर्ता भरें',
     'Testing...' => 'परीक्षण हो रहा है...',

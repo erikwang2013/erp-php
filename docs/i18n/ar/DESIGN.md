@@ -6,14 +6,15 @@
 
 ## 1. بنية النظام
 
-> **قائمة الوظائف**: المصادقة (login/register/refresh/logout + قفل الحساب + تقييد الجلسات) | لوحة المعلومات (تخزين مؤقت Redis) | مستخدمو CRUD + جماعي + استيراد | صلاحيات الأدوار (RBAC) | إعدادات النظام | تدقيق العمليات (8 منصات مصدر) | الملفات (رفع + تصدير + إخفاء) | الأمان (دفاع من 18 طبقة) | التشغيل (health/metrics/docs/Docker/CI)
+> **قائمة الوظائف**: المصادقة (login/register/refresh/logout + قفل الحساب + تقييد الجلسات) | لوحة المعلومات (تخزين مؤقت Redis) | مستخدمو CRUD + جماعي + استيراد | صلاحيات الأدوار (RBAC) | إعدادات النظام | تدقيق العمليات (8 منصات مصدر) | الملفات (رفع + تصدير + إخفاء) | الأمان (دفاع متعمق من 7 طبقات وسطية، لوحة L0–L12 + 35 فئة كاشف هجمات) | التشغيل (health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                        客户端层                               │
+│                        طبقة العملاء                            │
 │  ┌──────────────────────┐  ┌──────────────────────────────┐  │
 │  │  Flutter Web (PC)    │  │  HarmonyOS ArkTS (Mobile)    │  │
-│  │  管理后台 (桌面风格)   │  │  客户端 (手机/平板/2in1)      │  │
+│  │  لوحة الإدارة (نمط    │  │  العميل (هاتف/جهاز لوحي/     │  │
+│  │  سطح المكتب)          │  │  2in1)                       │  │
 │  └──────────┬───────────┘  └──────────────┬───────────────┘  │
 └─────────────┼──────────────────────────────┼─────────────────┘
               │        HTTPS / JSON          │
@@ -21,12 +22,13 @@
 ┌─────────────┼──────────────────────────────┼─────────────────┐
 │             ▼                              ▼                  │
 │  ┌──────────────────────────────────────────────────────┐    │
-│  │                   API 网关层                          │    │
-│  │  AdminAuth(认证) → AdminPermission(授权) → Controller │    │
+│  │                  طبقة بوابة API                       │    │
+│  │  AdminAuth(مصادقة) → AdminPermission(تفويض) →         │    │
+│  │  Controller                                          │    │
 │  └──────────────────────────┬───────────────────────────┘    │
 │                             │                                  │
 │  ┌──────────────────────────┼───────────────────────────┐    │
-│  │              业务逻辑层 (Controller/Service)           │    │
+│  │        طبقة منطق الأعمال (Controller/Service)          │    │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌─────────┐ │    │
 │  │  │Dashboard │ │  User    │ │  Role    │ │ Export  │ │    │
 │  │  │Controller│ │Controller│ │Controller│ │Controller│ │    │
@@ -35,18 +37,19 @@
 │          │            │             │            │            │
 │  ┌───────┼────────────┼─────────────┼────────────┼──────┐    │
 │  │       ▼            ▼             ▼            ▼       │    │
-│  │                   Model 层                            │    │
+│  │                   طبقة Model                          │    │
 │  │  ┌──────────────────────────────────────────────┐    │    │
 │  │  │  Snowflake ID ← encryptable → Encryption     │    │    │
-│  │  │  (主键生成)     (DB字段加密)   (API传输加密)    │    │    │
+│  │  │  (توليد المفتاح)  (تشفير حقول DB) (تشفير النقل) │    │    │
 │  │  └──────────────────────────────────────────────┘    │    │
 │  └──────────────────────────┬───────────────────────────┘    │
 │                             │                                  │
 │  ┌──────────────────────────┼───────────────────────────┐    │
-│  │              数据存储层                                │    │
+│  │              طبقة تخزين البيانات                       │    │
 │  │  ┌──────────┐  ┌──────────────┐  ┌──────────┐        │    │
 │  │  │  MySQL   │  │ Elasticsearch│  │  Redis   │        │    │
-│  │  │ (主存储)  │  │ (全文检索)    │  │ (缓存)   │        │    │
+│  │  │(التخزين  │  │(البحث النصي  │  │(التخزين  │        │    │
+│  │  │ الرئيسي) │  │ الكامل)      │  │ المؤقت)  │        │    │
 │  │  └──────────┘  └──────────────┘  └──────────┘        │    │
 │  └──────────────────────────────────────────────────────┘    │
 │                       webman v2                               │
@@ -60,8 +63,8 @@
 | الطبقة | الدليل | المسؤولية |
 |---|------|------|
 | المسارات | `config/route.php` | تعيين URL إلى وحدات التحكم، ربط الوسائط، المسارات المتجهزة |
-| الوسائط | `app/middleware/` | اعتراض الهجمات (SecurityFilter)، تحديد المعدل (RateLimit)، المصادقة (JWT)، التفويض (RBAC)، إصدار API (ApiVersion) |
-| وحدات التحكم | 14 وحدة: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (جهة الإدارة) + Captcha/Auth (API v1) | التحقق من معاملات الطلب، استدعاء منطق الأعمال، تنسيق الاستجابة |
+| الوسائط | `app/middleware/` | عبر النطاقات (Cors)، اعتراض الهجمات (SecurityFilter)، تحديد المعدل (RateLimit)، تتبع السلسلة (TracingId)، المصادقة (JWT)، التفويض (RBAC)، سجل العمليات (OperationLog)، توقيع الواجهات المفتوحة (OpenApiAuth) — 11 ملفًا |
+| وحدات التحكم | جهة الإدارة 15: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (يُضاف إليها الأساس `BaseController`) + API v1 ثلاثة: Captcha/Auth/Product | التحقق من معاملات الطلب، استدعاء منطق الأعمال، تنسيق الاستجابة |
 | خدمات الأعمال | `app/service/` | منطق أعمال قابل لإعادة الاستخدام (محجوز) |
 | نماذج البيانات | `app/model/` | تعيين ORM، العلاقات، تشفير وفك تشفير الحقول |
 | الأدوات العامة | `app/common/` | خدمات Hashids وSnowflake وEncryption |
@@ -69,40 +72,43 @@
 ### 2.2 دورة حياة الطلب
 
 ```
-客户端请求
+طلب العميل
   │
   ▼
 webman HTTP Server (workerman)
   │
   ▼
-Route 匹配
+مطابقة Route
   │
   ▼
-中间件链:
-  SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
-  │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
+سلسلة الوسائط:
+  Cors ────────────────► معالجة تمهيد OPTIONS وحقن رؤوس استجابة CORS
+  │
   ▼
-  RateLimit ───────────► Redis 滑动窗口限流
-  │ (失败返回 429 + Retry-After 头)
+  SecurityFilter ──────► فحص طريقة HTTP → 405 (يسمح فقط بـ GET/POST/PUT/DELETE/OPTIONS/HEAD)
+  │                     اعتراض XSS/حقن SQL/اجتياز المسار/حقن الأوامر/هجمات CSRF (403)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  RateLimit ───────────► تحديد المعدل بنافذة منزلقة عبر Redis
+  │ (الفشل يُرجع 429 + ترويسة Retry-After)
   ▼
-  AdminAuth ──────────► JWT 验证，注入 $request->adminId
-  │ (失败返回 401)
+  TracingId ───────────► توليد X-Trace-Id يخترق السلسلة كاملة
+  │ (رقم الإصدار في مسار URL ‎/admin/v1 ‎/api/v1 ‎/open/v1، بلا وسيط ترويسة إصدار)
   ▼
-  AdminPermission ────► RBAC 权限校验（Redis 60s 缓存）
-  │ (失败返回 403)
+  AdminAuth ──────────► التحقق من JWT وحقن $request->adminId
+  │ (الفشل يُرجع 401)
   ▼
-  OperationLog ───────► 操作日志记录 (POST/PUT/DELETE)，自动检测来源端
+  AdminPermission ────► التحقق من صلاحيات RBAC (تخزين مؤقت Redis 60 ثانية)
+  │ (الفشل يُرجع 403)
+  ▼
+  OperationLog ───────► تسجيل سجل العمليات (POST/PUT/DELETE)، مع كشف تلقائي للجهة المصدر
   │
   ▼
 Controller::method()
   │
-  ├─► 参数验证 (validator)
-  ├─► 敏感操作确认 (confirmPassword)
+  ├─► التحقق من المعاملات (validator)
+  ├─► تأكيد العمليات الحساسة (confirmPassword)
   ├─► decodeId() — hashid → BIGINT
-  ├─► Model 操作 (自动 encryptable 加解密)
+  ├─► عمليات Model (تشفير وفك تشفير encryptable تلقائيًا)
   ├─► encodeId() — BIGINT → hashid
   └─► Response JSON
 ```
@@ -110,7 +116,7 @@ Controller::method()
 ### 2.3 دورة حياة المعرفات
 
 ```
-生成 (Snowflake) → 存储 (MySQL BIGINT) → 传输 (Hashids 编码) → 外部 (hash 字符串)
+التوليد (Snowflake) → التخزين (MySQL BIGINT) → النقل (ترميز Hashids) → الخارج (سلسلة hash)
                                                                     │
                             HashidsService::decode() ←──────────────┘
 ```
@@ -118,9 +124,9 @@ Controller::method()
 ### 2.4 منظومة تشفير البيانات
 
 ```
-传输层 (encryption)     — AES-256-CBC，独立密钥
-存储层 (encryptable)    — AES-128-ECB，独立密钥，Model $casts 自动处理
-展示层 (mask)           — 手机号: 138****1234，邮箱: a***@example.com
+طبقة النقل (encryption)     — AES-256-CBC، مفتاح مستقل
+طبقة التخزين (encryptable)  — AES-128-ECB، مفتاح مستقل، ويعالجه Model $casts تلقائيًا
+طبقة العرض (mask)           — الهاتف: 138****1234، البريد: a***@example.com
 ```
 
 ## 3. تصميم قاعدة البيانات
@@ -129,20 +135,20 @@ Controller::method()
 
 ```
 erp_admin_user ──┬── erp_admin_user_role ──┬── erp_admin_role
-  (用户)           │    (用户-角色关联)         │     (角色)
+  (المستخدم)      │    (ربط المستخدم-الدور)     │     (الدور)
                   │                          │
                   │                    erp_admin_role_permission
-                  │                     (角色-权限关联)
+                  │                     (ربط الدور-الصلاحية)
                   │                          │
                   │                          ▼
                   │                    erp_admin_permission
-                  │                      (权限/菜单)
+                  │                      (الصلاحية/القائمة)
                   │
                   ▼
            erp_operation_log
-             (操作日志)
+             (سجل العمليات)
 
-erp_system_config (系统配置) — 独立表
+erp_system_config (إعدادات النظام) — جدول مستقل
 ```
 
 ### 3.2 بنية الجداول الأساسية
@@ -169,58 +175,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 معيار URL
 
 ```
-公开接口:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+الواجهات العامة: /api/v1/captcha/{generate|verify}
+                 /api/v1/auth/{login|register|refresh}
 
-管理端:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+جهة الإدارة:     /admin/{resource}[/{hashid}]
+                 /admin/v1/export/{excel|pdf}
 
-资源路由:
-  GET    /admin/user          → 列表
-  POST   /admin/user          → 创建
-  GET    /admin/user/{hashid} → 详情
-  PUT    /admin/user/{hashid} → 更新
-  DELETE /admin/user/{hashid} → 删除（需密码确认）
+مسارات الموارد:
+  GET    /admin/v1/user          → القائمة
+  POST   /admin/v1/user          → إنشاء
+  GET    /admin/v1/user/{hashid} → التفاصيل
+  PUT    /admin/v1/user/{hashid} → تحديث
+  DELETE /admin/v1/user/{hashid} → حذف (يتطلب تأكيد كلمة المرور)
 
-系统配置:  /admin/config[/{hashid}]
-操作日志:  /admin/log
-个人中心:  /admin/profile[/password|/logout]
-导入:     /admin/import/users
-上传:     /admin/upload
-批量:     /admin/user/batch/{destroy|status}
-文档:     /api/docs     (OpenAPI 3.0)
-健康:     /health
+إعدادات النظام: /admin/v1/config[/{hashid}]
+سجل العمليات:   /admin/v1/log
+المركز الشخصي:  /admin/v1/profile[/password|/logout]
+الاستيراد:      /admin/v1/import/users
+الرفع:          /admin/v1/upload
+الجماعي:        /admin/v1/user/batch/{destroy|status}
+الوثائق:        /api/docs     (OpenAPI 3.0)
+الصحة:          /health
 ```
 
 ### 4.2 استراتيجية إصدارات API
 
-يتحكم إصدار API عبر رأس الطلب، **ولا يظهر في مسار URL**:
-
-```http
-API-Version: v1
-```
+إصدار API **موضوع في مسار URL**، ولا يُستخدم رأس طلب إصدار: جهة الإدارة `/admin/v1`، والعميل `/api/v1`، والواجهات المفتوحة `/open/v1`.
 
 | الآلية | الشرح |
 |------|------|
-| الإصدار الافتراضي | عند عدم حمل `API-Version` يكون الافتراضي `v1` |
-| التحقق | يتحقق وسيط `ApiVersion`، ويعيد 400 للإصدارات غير المدعومة |
-| التوجيه | الدالة المساعدة `v()` تحلل فئة وحدة التحكم ديناميكيًا حسب الإصدار |
+| موضع الإصدار | مسار URL، مثل `/api/v1/auth/login` |
+| مجموعة التوجيه | `Route::group('/api/v1', …)` في `config/route.php` تربط وحدات التحكم مباشرة |
 | الدليل | وحدات التحكم منظمة حسب الإصدار: `app/api/{version}/controller/` |
+| وسيط ترويسة الإصدار | التحليل الديناميكي التاريخي `v()` ووسيط ترويسة الطلب `ApiVersion` **قد أُزيلا** |
 
 مثال التوسعة — إضافة API v2:
 1. أنشئ `app/api/v2/controller/AuthController.php`
-2. أضف `'v2'` إلى ثابت `SUPPORTED` في وسيط `ApiVersion`
-3. تعريفات المسارات لا تحتاج تعديلًا
+2. سجّل مجموعة `Route::group('/api/v2', …)` في `config/route.php` واربط وحدات التحكم مباشرة
+3. لا ترويسة إصدار؛ مجموعة التوجيه نفسها هي حدّ الإصدار
 
 ```bash
-# 使用 v1
-curl -H "API-Version: v1" /api/auth/login
+# استخدام v1
+curl http://localhost:8788/api/v1/auth/login
 
-# 使用 v2
-curl -H "API-Version: v2" /api/auth/login
-
-# 不传，默认 v1
-curl /api/auth/login
+# استخدام v2
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 استراتيجية تحديد المعدل
@@ -230,8 +229,8 @@ curl /api/auth/login
 | الواجهة | التحديد |
 |------|------|
 | الافتراضي | 60 مرة/دقيقة/IP/مسار |
-| POST /api/auth/login | 10 مرات/دقيقة |
-| POST /api/auth/register | 5 مرات/دقيقة |
+| POST /api/v1/auth/login | 10 مرات/دقيقة |
+| POST /api/v1/auth/register | 5 مرات/دقيقة |
 
 عند التجاوز يُعاد 429، وتتضمن رؤوس الاستجابة X-RateLimit-Limit / Remaining / Reset / Retry-After.
 
@@ -258,14 +257,14 @@ curl /api/auth/login
 ### 4.5 تدفق المصادقة (يشمل كابتشا النقر)
 
 ```
-客户端                               服务端
+العميل                              الخادم
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
-  │  ② 用户点击图中文字位置              │
+  │  ② ينقر المستخدم على موضع النص في الصورة
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -274,7 +273,7 @@ curl /api/auth/login
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -283,16 +282,16 @@ curl /api/auth/login
 ### 4.6 نموذج الصلاحيات (RBAC)
 
 ```
-  用户 ──┬── 角色 ──┬── 权限
-  User     Role      Permission
+  المستخدم ──┬── الدور ──┬── الصلاحية
+  User         Role        Permission
                  │
-                 ├── type=1: 菜单 (控制侧边栏可见)
-                 ├── type=2: 按钮 (控制页面内操作)
-                 └── type=3: API  (控制接口访问)
+                 ├── type=1: قائمة (يتحكم بظهور الشريط الجانبي)
+                 ├── type=2: زر (يتحكم بالعمليات داخل الصفحة)
+                 └── type=3: API  (يتحكم بالوصول إلى الواجهات)
 
-  权限标识格式: {method}.{path}
-  例: get.admin/user  post.admin/user  delete.admin/user
-  超级管理员标识: * (跳过所有权限检查)
+  صيغة معرّف الصلاحية: {method}.{path}
+  مثال: get.admin/user  post.admin/user  delete.admin/user
+  معرّف المدير الفائق: * (يتجاوز جميع فحوصات الصلاحيات)
 ```
 
 ### 4.7 التأكيد الثانوي للعمليات الحساسة
@@ -300,14 +299,14 @@ curl /api/auth/login
 تتطلب العمليات الحساسة مثل حذف المستخدمين والأدوار والصلاحيات تمرير كلمة مرور المستخدم الحالي في جسم الطلب لإعادة التحقق من الهوية:
 
 ```
-客户端                           服务端
+العميل                          الخادم
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
-  │                                │ → 密码错误返回 422
-  │                                │ → 密码正确继续执行
+  │                                │ → كلمة مرور خاطئة تُرجع 422
+  │                                │ → كلمة مرور صحيحة تُكمل التنفيذ
   │◄── 200 { code: 0 }           │
 ```
 
@@ -320,16 +319,17 @@ curl /api/auth/login
 ```
 ┌────────────────────────────────────────────────┐
 │  Header (56px)                                 │
-│  ☰ 菜单按钮           🔔 消息  👤 管理员  ▼    │
+│  ☰ زر القائمة         🔔 الرسائل  👤 المدير  ▼ │
 ├──────────┬─────────────────────────────────────┤
 │ Sidebar  │  Content Area                       │
 │ (64/240) │                                     │
 │          │  ┌──────────────┐ ┌──────────┐     │
-│ 📊 仪表盘│  │ 统计卡片×4    │ │ 趋势图   │     │
-│ 👥 用户  │  └──────────────┘ └──────────┘     │
-│ 🔒 角色  │  ┌──────┐ ┌────────────────┐       │
-│ ⚙ 配置  │  │饼图  │ │ 最近操作日志    │       │
-│ 📋 日志  │  └──────┘ └────────────────┘       │
+│ 📊 لوحة  │  │بطاقات إحصاء  │ │ مخطط     │     │
+│ 👥 المست │  │     ×4       │ │ الاتجاه  │     │
+│ 🔒 الأدوا│  └──────────────┘ └──────────┘     │
+│ ⚙ الإعدا│  ┌──────┐ ┌────────────────┐       │
+│ 📋 السجل │  │مخطط  │ │ أحدث سجل       │       │
+│          │  │دائري │ │ العمليات       │       │
 └──────────┴─────────────────────────────────────┘
 ```
 
@@ -375,11 +375,11 @@ curl /api/auth/login
 ### 6.2 إدارة المفاتيح
 
 ```
-JWT_SECRET          → 环境变量注入，64位随机字符串
-HASHIDS_SALT        → 唯一盐值，泄漏后需全局更换
-ENCRYPTION_KEY      → API 传输加密密钥，32字节
-ENCRYPTABLE_KEY     → DB 存储加密密钥，与传输密钥独立
-SCOUT_HOSTS         → ES 地址，内网部署
+JWT_SECRET_KEY      → يُحقن عبر متغيرات البيئة، سلسلة عشوائية من 64 خانة
+HASHIDS_SALT        → قيمة ملح فريدة، تتطلب استبدالًا شاملًا عند تسريبها
+ENCRYPTION_KEY      → مفتاح تشفير نقل API، 32 بايت
+ENCRYPTABLE_KEY     → مفتاح تشفير تخزين DB، مستقل عن مفتاح النقل
+SCOUT_HOSTS         → عنوان ES، نشر داخل الشبكة الداخلية
 ```
 
 ### 6.3 حماية البيانات الحساسة
@@ -398,20 +398,20 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 تصدير Excel
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
-  → fetchExportData() 查询数据 (limit 10000)
-  → 脱敏敏感字段
-  → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
-  → 写入 runtime/tmp/ → download 响应
+الطلب: POST /admin/v1/export/excel { table, columns, conditions, title }
+  → fetchExportData() استعلام البيانات (limit 10000)
+  → إخفاء الحقول الحساسة
+  → بناء PhpSpreadsheet (ترويسة بخلفية زرقاء ونص أبيض + تثبيت الصف الأول + تصفية تلقائية)
+  → الكتابة إلى runtime/tmp/ → استجابة download
 ```
 
 ### 7.2 تصدير PDF
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
-  → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
-  → Dompdf 渲染 A4 横向
-  → 写入 runtime/tmp/ → download 响应
+الطلب: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
+  → buildPdfHtml() HTML + CSS مضمّن + حقوق النشر في الترويسة + حقوق غير قابلة للإزالة في التذييل
+  → عرض Dompdf بمقاس A4 أفقي
+  → الكتابة إلى runtime/tmp/ → استجابة download
 ```
 
 ## 8. بنية النشر
@@ -420,7 +420,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 
 ```
 Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
-                    静态文件: Flutter Web build/
+                    الملفات الثابتة: Flutter Web build/
 ```
 
 ### 8.2 Docker Compose (موصى به للإنتاج)
@@ -435,7 +435,7 @@ Nginx (:443 HTTPS) → webman worker × N (:8788) → MySQL + ES + Redis
 | `redis` | redis:7-alpine | 6379 | تخزين مؤقت / تحديد معدل / كابتشا |
 | `elasticsearch` | elasticsearch:8.x | 9200 | بحث نصي كامل |
 
-قبل التشغيل استبدل المفاتيح في `docker-compose.yml` مثل `JWT_SECRET` و `HASHIDS_SALT` و `ENCRYPTION_KEY` بسلاسل عشوائية.
+قبل التشغيل استبدل المفاتيح في `docker-compose.yml` مثل `JWT_SECRET_KEY` و `HASHIDS_SALT` و `ENCRYPTION_KEY` بسلاسل عشوائية.
 
 ```bash
 cp .env.docker .env

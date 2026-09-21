@@ -6,7 +6,7 @@
 
 ## 1. Arquitectura del sistema
 
-> **Lista de funciones**: autenticación (login/register/refresh/logout + bloqueo de cuenta + límite de sesiones) | panel de control (caché Redis) | CRUD de usuarios + masivo + importación | roles y permisos (RBAC) | configuración del sistema | auditoría de operaciones (8 plataformas de origen) | archivos (subida + exportación + enmascarado) | seguridad (18 capas de defensa) | operaciones (health/metrics/docs/Docker/CI)
+> **Lista de funciones**: autenticación (login/register/refresh/logout + bloqueo de cuenta + límite de sesiones) | panel de control (caché Redis) | CRUD de usuarios + masivo + importación | roles y permisos (RBAC) | configuración del sistema | auditoría de operaciones (8 plataformas de origen) | archivos (subida + exportación + enmascarado) | seguridad (7 capas de middleware con defensa en profundidad, panorama L0–L12 + 35 detectores de ataques) | operaciones (health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -63,8 +63,8 @@
 | Capa | Directorio | Responsabilidad |
 |---|------|------|
 | Rutas | `config/route.php` | Mapeo de URL a controladores, enlace de middlewares, rutas versionadas |
-| Middlewares | `app/middleware/` | Interceptación de ataques (SecurityFilter), limitación de frecuencia (RateLimit), autenticación (JWT), autorización (RBAC), versión de API (ApiVersion) |
-| Controladores | 14: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (administración) + Captcha/Auth (API v1) | Validación de parámetros de solicitud, llamada a la lógica de negocio, formato de respuesta |
+| Middlewares | `app/middleware/` | CORS (Cors), interceptación de ataques (SecurityFilter), limitación de frecuencia (RateLimit), trazabilidad de cadena (TracingId), autenticación (JWT), autorización (RBAC), log de operaciones (OperationLog), firma de interfaces abiertas (OpenApiAuth), 11 archivos en total |
+| Controladores | 15 de administración: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (más la clase base `BaseController`) + 3 de API v1: Captcha/Auth/Product | Validación de parámetros de solicitud, llamada a la lógica de negocio, formato de respuesta |
 | Servicios de negocio | `app/service/` | Lógica de negocio reutilizable (reservado) |
 | Modelos de datos | `app/model/` | Mapeo ORM, relaciones, cifrado/descifrado de campos |
 | Utilidades comunes | `app/common/` | Servicios Hashids, Snowflake, Encryption |
@@ -82,6 +82,9 @@ Coincidencia de ruta
   │
   ▼
 Cadena de middlewares:
+  Cors ────────────────► Procesa el preflight OPTIONS, inyecta cabeceras de respuesta CORS
+  │
+  ▼
   SecurityFilter ──────► Verificación de método HTTP → 405 (solo GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     Interceptación de ataques XSS/inyección SQL/recorrido
   │                     de rutas/inyección de comandos/CSRF (403)
@@ -89,8 +92,8 @@ Cadena de middlewares:
   RateLimit ───────────► Limitación de frecuencia con ventana deslizante en Redis
   │ (fallo → 429 + cabecera Retry-After)
   ▼
-  ApiVersion ─────────► Validación de la cabecera API-Version, inyección de $request->apiVersion
-  │ (fallo → 400)
+  TracingId ───────────► Genera X-Trace-Id, presente en toda la cadena
+  │ (el número de versión va en la ruta de la URL /admin/v1 /api/v1 /open/v1, sin middleware de cabecera de versión)
   ▼
   AdminAuth ──────────► Verificación JWT, inyección de $request->adminId
   │ (fallo → 401)
@@ -173,58 +176,51 @@ erp_system_config (configuración del sistema) — tabla independiente
 ### 4.1 Norma de URL
 
 ```
-Interfaces públicas:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+Interfaces públicas:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 Administración:   /admin/{recurso}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 Rutas de recursos:
-  GET    /admin/user          → lista
-  POST   /admin/user          → crear
-  GET    /admin/user/{hashid} → detalle
-  PUT    /admin/user/{hashid} → actualizar
-  DELETE /admin/user/{hashid} → eliminar (requiere confirmación de contraseña)
+  GET    /admin/v1/user          → lista
+  POST   /admin/v1/user          → crear
+  GET    /admin/v1/user/{hashid} → detalle
+  PUT    /admin/v1/user/{hashid} → actualizar
+  DELETE /admin/v1/user/{hashid} → eliminar (requiere confirmación de contraseña)
 
-Configuración del sistema:  /admin/config[/{hashid}]
-Log de operaciones:  /admin/log
-Centro personal:  /admin/profile[/password|/logout]
-Importación:     /admin/import/users
-Subida:     /admin/upload
-Masivo:     /admin/user/batch/{destroy|status}
+Configuración del sistema:  /admin/v1/config[/{hashid}]
+Log de operaciones:  /admin/v1/log
+Centro personal:  /admin/v1/profile[/password|/logout]
+Importación:     /admin/v1/import/users
+Subida:     /admin/v1/upload
+Masivo:     /admin/v1/user/batch/{destroy|status}
 Documentación:     /api/docs     (OpenAPI 3.0)
 Health:     /health
 ```
 
 ### 4.2 Política de versiones de API
 
-La versión de la API se controla mediante la cabecera de solicitud, **no se refleja en la ruta de la URL**:
-
-```http
-API-Version: v1
-```
+La versión de la API **va en la ruta de la URL**, sin cabecera de versión: administración `/admin/v1`, cliente `/api/v1`, interfaz abierta `/open/v1`.
 
 | Mecanismo | Descripción |
 |------|------|
-| Versión predeterminada | Sin la cabecera `API-Version`, el valor predeterminado es `v1` |
-| Validación | La valida el middleware `ApiVersion`; las versiones no soportadas devuelven 400 |
-| Rutas | La función auxiliar `v()` resuelve dinámicamente la clase de controlador según la versión |
+| Ubicación de la versión | Ruta de la URL, por ejemplo `/api/v1/auth/login` |
+| Grupo de rutas | `Route::group('/api/v1', …)` en `config/route.php` vincula directamente al controlador |
 | Directorios | Controladores organizados por versión: `app/api/{version}/controller/` |
+| Middleware de cabecera de versión | El histórico análisis dinámico `v()` y el middleware de cabecera `ApiVersion` **se han eliminado** |
 
 Ejemplo de ampliación — añadir la API v2:
 1. Crear `app/api/v2/controller/AuthController.php`
-2. Añadir `'v2'` a la constante `SUPPORTED` del middleware `ApiVersion`
-3. La definición de rutas no necesita modificarse
+2. Registrar el grupo `Route::group('/api/v2', …)` en `config/route.php` y vincularlo directamente al controlador
+3. Sin cabecera de versión: el propio grupo de rutas es la frontera de versión
 
 ```bash
 # Usar v1
-curl -H "API-Version: v1" /api/auth/login
+curl http://localhost:8788/api/v1/auth/login
 
 # Usar v2
-curl -H "API-Version: v2" /api/auth/login
-
-# Sin la cabecera, por defecto v1
-curl /api/auth/login
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 Política de limitación de frecuencia
@@ -234,8 +230,8 @@ Basada en el algoritmo de ventana deslizante de Redis Sorted Set, ejecutada con 
 | Interfaz | Límite |
 |------|------|
 | Predeterminado | 60 veces/minuto/IP/ruta |
-| POST /api/auth/login | 10 veces/minuto |
-| POST /api/auth/register | 5 veces/minuto |
+| POST /api/v1/auth/login | 10 veces/minuto |
+| POST /api/v1/auth/register | 5 veces/minuto |
 
 Al superar el límite devuelve 429, con las cabeceras de respuesta X-RateLimit-Limit / Remaining / Reset / Retry-After.
 
@@ -264,13 +260,13 @@ Al superar el límite devuelve 429, con las cabeceras de respuesta X-RateLimit-L
 ```
 Cliente                               Servidor
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② El usuario hace clic en la     │
   │     posición del texto en la imagen│
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -279,7 +275,7 @@ Cliente                               Servidor
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -307,7 +303,7 @@ Las operaciones sensibles como eliminar usuarios, roles o permisos requieren pas
 ```
 Cliente                           Servidor
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -381,7 +377,7 @@ Flujo de datos: Page ← DataService ← ApiService (JWT Bearer) ← HTTP ← we
 ### 6.2 Gestión de claves
 
 ```
-JWT_SECRET          → inyección por variable de entorno, cadena aleatoria de 64 caracteres
+JWT_SECRET_KEY      → inyección por variable de entorno, cadena aleatoria de 64 caracteres
 HASHIDS_SALT        → valor de sal único; si se filtra, hay que cambiarlo globalmente
 ENCRYPTION_KEY      → clave de cifrado de transmisión de API, 32 bytes
 ENCRYPTABLE_KEY     → clave de cifrado de almacenamiento en DB, independiente de la clave de transmisión
@@ -404,7 +400,7 @@ SCOUT_HOSTS         → dirección de ES, despliegue en red interna
 ### 7.1 Exportación a Excel
 
 ```
-Solicitud: POST /admin/export/excel { table, columns, conditions, title }
+Solicitud: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() consulta los datos (limit 10000)
   → enmascara los campos sensibles
   → construcción con PhpSpreadsheet (encabezado de fondo azul y texto
@@ -415,7 +411,7 @@ Solicitud: POST /admin/export/excel { table, columns, conditions, title }
 ### 7.2 Exportación a PDF
 
 ```
-Solicitud: POST /admin/export/pdf { type: table|dashboard, title, data }
+Solicitud: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + CSS en línea + copyright de cabecera + pie
     con copyright no removible
   → renderizado con Dompdf, A4 horizontal
@@ -443,7 +439,7 @@ El `docker-compose.yml` de la raíz del proyecto orquesta todos los servicios de
 | `redis` | redis:7-alpine | 6379 | Caché / limitación de frecuencia / captcha |
 | `elasticsearch` | elasticsearch:8.x | 9200 | Búsqueda de texto completo |
 
-Antes de arrancar, sustituya las claves `JWT_SECRET`, `HASHIDS_SALT`, `ENCRYPTION_KEY` del `docker-compose.yml` por cadenas aleatorias.
+Antes de arrancar, sustituya las claves `JWT_SECRET_KEY`, `HASHIDS_SALT`, `ENCRYPTION_KEY` del `docker-compose.yml` por cadenas aleatorias.
 
 ```bash
 cp .env.docker .env

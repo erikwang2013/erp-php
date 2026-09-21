@@ -6,7 +6,7 @@
 
 ## 1. সিস্টেম আর্কিটেকচার
 
-> **ফিচার তালিকা**: অথেনটিকেশন(login/register/refresh/logout + অ্যাকাউন্ট লক + সেশন লিমিট) | ড্যাশবোর্ড(Redis ক্যাশ) | ইউজার CRUD+ব্যাচ+ইমপোর্ট | রোল পারমিশন(RBAC) | সিস্টেম কনফিগ | অপারেশন অডিট(8 প্ল্যাটফর্ম সোর্স) | ফাইল(আপলোড+এক্সপোর্ট+ডিসেন্সিটাইজেশন) | নিরাপত্তা(18 স্তর ডিফেন্স) | অপারেশন(health/metrics/docs/Docker/CI)
+> **ফিচার তালিকা**: অথেনটিকেশন(login/register/refresh/logout + অ্যাকাউন্ট লক + সেশন লিমিট) | ড্যাশবোর্ড(Redis ক্যাশ) | ইউজার CRUD+ব্যাচ+ইমপোর্ট | রোল পারমিশন(RBAC) | সিস্টেম কনফিগ | অপারেশন অডিট(8 প্ল্যাটফর্ম সোর্স) | ফাইল(আপলোড+এক্সপোর্ট+ডিসেন্সিটাইজেশন) | নিরাপত্তা(৭ স্তর মিডলওয়্যার ডিপ ডিফেন্স, L0–L12 প্যানোরামা + ৩৫ ধরনের অ্যাটাক ডিটেক্টর) | অপারেশন(health/metrics/docs/Docker/CI)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -60,8 +60,8 @@
 | লেয়ার | ডিরেক্টরি | দায়িত্ব |
 |---|------|------|
 | রাউট | `config/route.php` | URL থেকে কন্ট্রোলার ম্যাপিং, মিডলওয়্যার বাইন্ডিং, ভার্সনড রাউট |
-| মিডলওয়্যার | `app/middleware/` | অ্যাটাক ইন্টারসেপশন(SecurityFilter)、রেট লিমিট(RateLimit)、অথেনটিকেশন(JWT)、অথোরাইজেশন(RBAC)、API ভার্সন(ApiVersion) |
-| কন্ট্রোলার | 14টি: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs (অ্যাডমিন এন্ড) + Captcha/Auth (API v1) | রিকোয়েস্ট প্যারামিটার ভ্যালিডেশন, বিজনেস লজিক কল, রেসপন্স ফরম্যাটিং |
+| মিডলওয়্যার | `app/middleware/` | ক্রস-ওরিজিন(Cors)、অ্যাটাক ইন্টারসেপশন(SecurityFilter)、রেট লিমিট(RateLimit)、ট্রেসিং(TracingId)、অথেনটিকেশন(JWT)、অথোরাইজেশন(RBAC)、অপারেশন লগ(OperationLog)、ওপেন ইন্টারফেস সিগনেচার(OpenApiAuth) মোট 11টি ফাইল |
+| কন্ট্রোলার | অ্যাডমিন এন্ড 15টি: Dashboard/User/Role/Permission/Config/Log/Profile/Export/Import/Upload/Health/Docs/Metrics/OpenApi/Webhook (এছাড়া বেস ক্লাস `BaseController`) + API v1 3টি: Captcha/Auth/Product | রিকোয়েস্ট প্যারামিটার ভ্যালিডেশন, বিজনেস লজিক কল, রেসপন্স ফরম্যাটিং |
 | বিজনেস সার্ভিস | `app/service/` | পুনঃব্যবহারযোগ্য বিজনেস লজিক (সংরক্ষিত) |
 | ডেটা মডেল | `app/model/` | ORM ম্যাপিং, সম্পর্ক, ফিল্ড এনক্রিপশন/ডিক্রিপশন |
 | কমন টুল | `app/common/` | Hashids、Snowflake、Encryption সার্ভিস |
@@ -79,14 +79,17 @@ Route 匹配
   │
   ▼
 中间件链:
+  Cors ────────────────► 处理 OPTIONS 预检，注入 CORS 响应头
+  │
+  ▼
   SecurityFilter ──────► HTTP方法检查 → 405 (仅允许 GET/POST/PUT/DELETE/OPTIONS/HEAD)
   │                     XSS/SQL注入/路径遍历/命令注入/CSRF 攻击拦截 (403)
   ▼
   RateLimit ───────────► Redis 滑动窗口限流
   │ (失败返回 429 + Retry-After 头)
   ▼
-  ApiVersion ─────────► API-Version 头校验，注入 $request->apiVersion
-  │ (失败返回 400)
+  TracingId ───────────► X-Trace-Id তৈরি করে, পুরো চেইন জুড়ে
+  │ (ভার্সন নম্বর কেবল URL পাথে /admin/v1 /api/v1 /open/v1, কোনো ভার্সন হেডার মিডলওয়্যার নেই)
   ▼
   AdminAuth ──────────► JWT 验证，注入 $request->adminId
   │ (失败返回 401)
@@ -169,58 +172,51 @@ erp_system_config (系统配置) — 独立表
 ### 4.1 URL কনভেনশন
 
 ```
-公开接口:  /api/captcha/{generate|verify}
-           /api/auth/{login|register|refresh}
+公开接口:  /api/v1/captcha/{generate|verify}
+           /api/v1/auth/{login|register|refresh}
 
 管理端:   /admin/{resource}[/{hashid}]
-          /admin/export/{excel|pdf}
+          /admin/v1/export/{excel|pdf}
 
 资源路由:
-  GET    /admin/user          → 列表
-  POST   /admin/user          → 创建
-  GET    /admin/user/{hashid} → 详情
-  PUT    /admin/user/{hashid} → 更新
-  DELETE /admin/user/{hashid} → 删除（需密码确认）
+  GET    /admin/v1/user          → 列表
+  POST   /admin/v1/user          → 创建
+  GET    /admin/v1/user/{hashid} → 详情
+  PUT    /admin/v1/user/{hashid} → 更新
+  DELETE /admin/v1/user/{hashid} → 删除（需密码确认）
 
-系统配置:  /admin/config[/{hashid}]
-操作日志:  /admin/log
-个人中心:  /admin/profile[/password|/logout]
-导入:     /admin/import/users
-上传:     /admin/upload
-批量:     /admin/user/batch/{destroy|status}
+系统配置:  /admin/v1/config[/{hashid}]
+操作日志:  /admin/v1/log
+个人中心:  /admin/v1/profile[/password|/logout]
+导入:     /admin/v1/import/users
+上传:     /admin/v1/upload
+批量:     /admin/v1/user/batch/{destroy|status}
 文档:     /api/docs     (OpenAPI 3.0)
 健康:     /health
 ```
 
 ### 4.2 API ভার্সন স্ট্র্যাটেজি
 
-API ভার্সন রিকোয়েস্ট হেডার দিয়ে নিয়ন্ত্রিত, **URL পাথে প্রকাশিত হয় না**:
-
-```http
-API-Version: v1
-```
+API ভার্সন **URL পাথে** থাকে, কোনো ভার্সন রিকোয়েস্ট হেডার ব্যবহার হয় না: অ্যাডমিন `/admin/v1`, ক্লায়েন্ট `/api/v1`, ওপেন ইন্টারফেস `/open/v1`।
 
 | মেকানিজম | ব্যাখ্যা |
 |------|------|
-| ডিফল্ট ভার্সন | `API-Version` হেডার ছাড়া ডিফল্ট `v1` |
-| ভ্যালিডেশন | `ApiVersion` মিডলওয়্যার ভ্যালিডেট করে, অসমর্থিত ভার্সনে 400 রিটার্ন |
-| রাউট | `v()` হেল্পার ফাংশন ভার্সন অনুযায়ী ডাইনামিক কন্ট্রোলার ক্লাস রিজলভ করে |
+| ভার্সনের অবস্থান | URL পাথ, যেমন `/api/v1/auth/login` |
+| রাউট গ্রুপ | `config/route.php`-এ `Route::group('/api/v1', …)` সরাসরি কন্ট্রোলার বাইন্ড করে |
 | ডিরেক্টরি | কন্ট্রোলার ভার্সন অনুযায়ী সংগঠিত: `app/api/{version}/controller/` |
+| ভার্সন হেডার মিডলওয়্যার | ঐতিহাসিক `v()` ডাইনামিক রিজলভ ও `ApiVersion` রিকোয়েস্ট হেডার মিডলওয়্যার **সরিয়ে ফেলা হয়েছে** |
 
 এক্সটেনশন উদাহরণ——নতুন v2 API যোগ করা:
 1. `app/api/v2/controller/AuthController.php` তৈরি করুন
-2. `ApiVersion` মিডলওয়্যারের `SUPPORTED` কনস্ট্যান্টে `'v2'` যোগ করুন
-3. রাউট ডেফিনিশন পরিবর্তনের প্রয়োজন নেই
+2. `config/route.php`-এ `Route::group('/api/v2', …)` গ্রুপ নিবন্ধন করে কন্ট্রোলার সরাসরি বাইন্ড করুন
+3. কোনো ভার্সন রিকোয়েস্ট হেডার নেই, রাউট গ্রুপ নিজেই ভার্সনের সীমানা
 
 ```bash
-# 使用 v1
-curl -H "API-Version: v1" /api/auth/login
+# v1 ব্যবহার
+curl http://localhost:8788/api/v1/auth/login
 
-# 使用 v2
-curl -H "API-Version: v2" /api/auth/login
-
-# 不传，默认 v1
-curl /api/auth/login
+# v2 ব্যবহার
+curl http://localhost:8788/api/v2/auth/login
 ```
 
 ### 4.3 রেট লিমিট স্ট্র্যাটেজি
@@ -230,8 +226,8 @@ Redis Sorted Set স্লাইডিং উইন্ডো অ্যালগ�
 | ইন্টারফেস | সীমা |
 |------|------|
 | ডিফল্ট | 60 বার/মিনিট/IP/রাউট |
-| POST /api/auth/login | 10 বার/মিনিট |
-| POST /api/auth/register | 5 বার/মিনিট |
+| POST /api/v1/auth/login | 10 বার/মিনিট |
+| POST /api/v1/auth/register | 5 বার/মিনিট |
 
 সীমা অতিক্রম করলে 429 রিটার্ন, রেসপন্স হেডারে X-RateLimit-Limit / Remaining / Reset / Retry-After অন্তর্ভুক্ত।
 
@@ -260,12 +256,12 @@ Redis Sorted Set স্লাইডিং উইন্ডো অ্যালগ�
 ```
 客户端                               服务端
   │                                    │
-  │  ① POST /api/captcha/generate     │ captcha_create('click')
+  │  ① POST /api/v1/captcha/generate     │ captcha_create('click')
   │◄── {key, image(base64), targets}  │
   │                                    │
   │  ② 用户点击图中文字位置              │
   │                                    │
-  │  ③ POST /api/auth/login           │
+  │  ③ POST /api/v1/auth/login           │
   │     {username, password,          │
   │      captcha_key, clicks}         │
   │────────────────────────────────►  │
@@ -274,7 +270,7 @@ Redis Sorted Set স্লাইডিং উইন্ডো অ্যালগ�
   │                                    │ ③ jwt()->create()
   │◄── {access_token, refresh_token}  │
   │                                    │
-  │  ④ GET /admin/dashboard           │
+  │  ④ GET /admin/v1/dashboard           │
   │     Authorization: Bearer xxx     │
   │────────────────────────────────►  │ AdminAuth → AdminPermission
   │◄── 200 {dashboard data}           │
@@ -302,7 +298,7 @@ Redis Sorted Set স্লাইডিং উইন্ডো অ্যালগ�
 ```
 客户端                           服务端
   │                                │
-  │  DELETE /admin/user/{hashid}  │
+  │  DELETE /admin/v1/user/{hashid}  │
   │  { password: "******" }       │
   │────────────────────────────►  │
   │                                │ confirmPassword(adminId, password)
@@ -398,7 +394,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.1 Excel এক্সপোর্ট
 
 ```
-请求: POST /admin/export/excel { table, columns, conditions, title }
+请求: POST /admin/v1/export/excel { table, columns, conditions, title }
   → fetchExportData() 查询数据 (limit 10000)
   → 脱敏敏感字段
   → PhpSpreadsheet 构建（蓝底白字表头 + 冻结首行 + 自动筛选）
@@ -408,7 +404,7 @@ SCOUT_HOSTS         → ES 地址，内网部署
 ### 7.2 PDF এক্সপোর্ট
 
 ```
-请求: POST /admin/export/pdf { type: table|dashboard, title, data }
+请求: POST /admin/v1/export/pdf { type: table|dashboard, title, data }
   → buildPdfHtml() HTML + 内联CSS + 页头版权 + 页脚不可移除版权
   → Dompdf 渲染 A4 横向
   → 写入 runtime/tmp/ → download 响应

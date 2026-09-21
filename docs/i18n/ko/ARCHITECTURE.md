@@ -13,6 +13,8 @@ flowchart TB
     subgraph "클라이언트 계층"
         A1["Flutter Web<br/>PC 관리 백오피스<br/>(Port 3000)"]
         A2["HarmonyOS ArkTS<br/>모바일/태블릿 클라이언트"]
+        A3["Angular 22 + ng-zorro<br/>Web 관리 백오피스"]
+        A4["React 19 + Vite<br/>Web 관리 백오피스"]
     end
 
     subgraph "게이트웨이/엣지 계층 (Nginx Edge)"
@@ -20,8 +22,8 @@ flowchart TB
     end
 
     subgraph "애플리케이션 계층 (webman v2)"
-        C_LOC["Locale 미들웨어<br/>Accept-Language 자동 감지"]
-        C0["ApiVersion 미들웨어<br/>API-Version 헤더 검증"]
+        C_LOC["I18n::getLocale()<br/>Accept-Language 해석 · 13개 로케일"]
+        C0["경로 버전화<br/>/api/v1 · /admin/v1(버전 헤더 없음)"]
         C1["AdminAuth 미들웨어<br/>JWT 검증"]
         C2["AdminPermission 미들웨어<br/>RBAC 권한 검증"]
         C3["관리자 Controller<br/>Dashboard / User / Role / Permission"]
@@ -42,6 +44,8 @@ flowchart TB
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
+    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -57,6 +61,8 @@ flowchart TB
 
     style A1 fill:#1677FF,color:#fff
     style A2 fill:#1677FF,color:#fff
+    style A3 fill:#1677FF,color:#fff
+    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -80,10 +86,10 @@ flowchart TD
     end
 
     subgraph "미들웨어 계층 Middleware Layer"
-        M_LOC["Locale<br/>Accept-Language 자동 감지<br/>zh_CN/en"]
-        M_RL["RateLimit<br/>Redis 슬라이딩 윈도우 제한<br/>X-RateLimit 응답 헤더"]
+        M_CR["Cors<br/>CORS 처리 / OPTIONS 사전 요청"]
         M_SF["SecurityFilter<br/>공격 탐지 차단<br/>XSS/SQL 주입/경로 탐색/CSRF"]
-        M0["ApiVersion<br/>API 버전 검증<br/>apiVersion 주입"]
+        M_RL["RateLimit<br/>Redis 슬라이딩 윈도우 제한<br/>X-RateLimit 응답 헤더"]
+        M_TID["TracingId<br/>X-Trace-Id 생성<br/>전 구간 관통"]
         M1["AdminAuth<br/>JWT Token 검증<br/>adminId 주입"]
         M2["AdminPermission<br/>RBAC 인증<br/>method.path 매칭<br/>Redis 60s 권한 캐시"]
     end
@@ -103,6 +109,7 @@ flowchart TD
         S1["HashidsService<br/>ID 인코딩/디코딩"]
         S2["SnowflakeService<br/>전역 고유 ID 생성"]
         S3["EncryptionService<br/>암복호화 + 마스킹"]
+        M_LOC["I18n::getLocale()<br/>Accept-Language 해석(미들웨어 아님)<br/>13개 로케일 zh_CN/en/ja/ko/de<br/>fr/es/pt/ru/ar/hi/bn/id"]
     end
 
     subgraph "모델 계층 Model Layer"
@@ -119,11 +126,11 @@ flowchart TD
         D3["Redis"]
     end
 
-    R1 --> M_LOC --> M_SF --> M_RL --> M0
-    M0 --> M1
+    R1 --> M_CR --> M_SF --> M_RL --> M_TID
+    M_TID --> M1
     M1 --> M2
     M2 --> CT2 & CT3 & CT4 & CT5 & CT6
-    M0 --> CT7 & CT8
+    M_TID --> CT7 & CT8
     CT1 -.->|extends| CT2 & CT3 & CT4 & CT5 & CT6
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> S1 & S2 & S3
     CT2 & CT3 & CT4 & CT5 & CT6 & CT7 & CT8 --> MD1 & MD2 & MD3 & MD4 & MD5
@@ -133,9 +140,10 @@ flowchart TD
 
     style R1 fill:#722ED1,color:#fff
     style M_LOC fill:#13C2C2,color:#fff
+    style M_CR fill:#2F54EB,color:#fff
     style M_SF fill:#FF4D4F,color:#fff
     style M_RL fill:#EB2F96,color:#fff
-    style M0 fill:#EB2F96,color:#fff
+    style M_TID fill:#EB2F96,color:#fff
     style M1 fill:#FA8C16,color:#fff
     style M2 fill:#FA8C16,color:#fff
     style CT1 fill:#1677FF,color:#fff
@@ -147,8 +155,23 @@ flowchart TD
 
 | 계층 | 디렉토리 | 설명 |
 |------|------|------|
-| 비즈니스 컨트롤러 | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report}/` | 70개, 모듈별로 구분되어 비즈니스 요청 처리 |
-| 비즈니스 서비스 | `app/service/{inventory,finance,notification}/` | 재고 입출고+원가 계산, 재무 외상 매입/매출+정산, 알림 발송 |
+| 비즈니스 컨트롤러 | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139개(23개 업무 도메인, 최상위 Install / Index 별도), 모듈별로 구분되어 비즈니스 요청 처리 |
+| 비즈니스 서비스 | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63개 서비스 클래스 / 64개 파일 / 20개 모듈 하위 디렉토리; 재고 입출고+원가 계산, 재무 매출채권·매입채무+정산, 알림 발송 포함 |
+
+### 국제화(13개 로케일)
+
+로케일 해석은 `app/common/I18n.php`의 `getLocale()`에서 이루어집니다(`I18n::trans()`가 호출, **미들웨어가 아님**): 요청 헤더 `Accept-Language`의 첫 번째 태그를 취하고 주 언어 하위 태그를 매핑합니다(`zh*` → `zh_CN`). 프론트엔드·백엔드 사전 분담:
+
+| 단 | 사전 위치 | 규모 | 생성기 |
+|----|----------|------|--------|
+| 백엔드 | `resource/translations/<locale>/{common,modules,validation}.php` | 13개 로케일 디렉토리; `zh_CN` 565건, 나머지 11개 로케일 각 544건, `en` 30건(리프 항목 기준, `validation.php`의 `attributes` 필드 라벨은 포함하고 그룹 키는 불포함) | `scripts/gen-be-locales.mjs` |
+| Angular | 소스 `apps/angular/src/app/core/zh-en/part1..4.ts` → 산출물 `core/zh-<code>.ts` | 소스 사전 1456건 | `scripts/gen-fe-locales.mjs --app angular` |
+| React | 소스 `apps/react/src/lib/i18n/zhEn.ts` → 산출물 `lib/i18n/zh<Code>.ts` | 소스 사전 1451건 | `scripts/gen-fe-locales.mjs --app react` |
+
+- 로케일: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`.
+- 백엔드 "영어가 곧 key": `en`의 common/modules는 비어 있고, `validation.php`의 키는 프레임워크 규칙명이므로 값만 번역합니다.
+- 프론트엔드 11개 신규 로케일 사전은 각각 `import()`로 동적 로드되어 독립 chunk가 되며, 누락된 항목은 중국어 원문으로 폴백합니다.
+- 언어 전환은 곧 `Accept-Language` 전환이며, 백엔드가 로케일에 맞는 문구를 반환합니다(`app/common/I18n.php` + `config/translation.php`).
 
 ---
 
@@ -158,10 +181,10 @@ flowchart TD
 sequenceDiagram
     participant C as 클라이언트
     participant N as Nginx
-    participant MW_LOC as Locale
+    participant MW_CR as Cors
     participant MW_SF as SecurityFilter
     participant MW_RL as RateLimit
-    participant MW0 as ApiVersion
+    participant MW_TID as TracingId
     participant MW1 as AdminAuth
     participant MW2 as AdminPermission
     participant CTL as Controller
@@ -170,10 +193,10 @@ sequenceDiagram
     participant DB as MySQL
     participant OPLOG as OperationLog
 
-    C->>N: HTTPS 요청<br/>Header: API-Version: v1
-    N->>MW_LOC: 전달
-    MW_LOC->>MW_LOC: Accept-Language 파싱<br/>locale 설정
-    MW_LOC->>MW_SF: 통과
+    C->>N: HTTPS 요청<br/>경로 /api/v1 또는 /admin/v1(버전 헤더 없음)
+    N->>MW_CR: 전달
+    MW_CR->>MW_CR: OPTIONS 사전 요청 처리<br/>CORS 응답 헤더 주입
+    MW_CR->>MW_SF: 통과
 
     alt 비표준 HTTP 메서드 (TRACE/CONNECT/PATCH...)
         MW_SF-->>C: 405 Method Not Allowed
@@ -191,13 +214,9 @@ sequenceDiagram
         MW_RL-->>C: 429 + Retry-After
     end
 
-    MW_RL->>MW0: 통과
-
-    alt 지원되지 않는 버전
-        MW0-->>C: 400 지원되지 않는 API 버전
-    else 버전 유효
-        MW0->>MW0: $request->apiVersion = v1
-    end
+    MW_RL->>MW_TID: 통과
+    MW_TID->>MW_TID: X-Trace-Id 생성<br/>응답 헤더 주입
+    MW_TID->>MW1: 통과
 
     alt Token 누락 또는 무효
         MW1-->>C: 401 Unauthorized
@@ -249,7 +268,7 @@ sequenceDiagram
     participant CAP as Captcha Service
 
     Note over U,CAP: === 1단계: 캡차 획득 ===
-    CL->>SV: POST /api/captcha/generate
+    CL->>SV: POST /api/v1/captcha/generate
     SV->>CAP: captcha_create('click')
     CAP->>CAP: 300×200 배경 이미지 생성
     CAP->>CAP: N개의 중국어 타깃 무작위 배치
@@ -264,7 +283,7 @@ sequenceDiagram
     CL->>CL: clicks 수집: [{x,y}, {x,y}, {x,y}]
 
     Note over U,CAP: === 3단계: 로그인 ===
-    CL->>SV: POST /api/auth/login { username, password, captcha_key, clicks }
+    CL->>SV: POST /api/v1/auth/login { username, password, captcha_key, clicks }
     SV->>CAP: captcha_verify(key, 'click', clicks)
     alt 캡차 오류
         CAP-->>SV: false
@@ -284,7 +303,7 @@ sequenceDiagram
     end
 
     Note over U,CAP: === 이후 요청 ===
-    CL->>SV: GET /admin/dashboard<br/>Authorization: Bearer access_token
+    CL->>SV: GET /admin/v1/dashboard<br/>Authorization: Bearer access_token
     SV->>JWT: jwt()->verify(token)
     JWT-->>SV: { sub, username }
     SV-->>CL: 200 { dashboard data }
@@ -539,7 +558,7 @@ sequenceDiagram
     participant FS as 파일 시스템
 
     Note over C,FS: === Excel 내보내기 ===
-    C->>CTL: POST /admin/export/excel<br/>{ table, columns, conditions }
+    C->>CTL: POST /admin/v1/export/excel<br/>{ table, columns, conditions }
     CTL->>DB: SELECT ... LIMIT 10000
     DB-->>CTL: 데이터
     CTL->>CTL: 민감 필드 복호화
@@ -549,7 +568,7 @@ sequenceDiagram
     CTL-->>C: 파일 다운로드
 
     Note over C,FS: === PDF 내보내기 ===
-    C->>CTL: POST /admin/export/pdf<br/>{ type, title, data }
+    C->>CTL: POST /admin/v1/export/pdf<br/>{ type, title, data }
     CTL->>CTL: buildPdfHtml()<br/>페이지 헤더: 제목+저작권+시간<br/>내용: 테이블 또는 카드<br/>페이지 푸터: 제거 불가 저작권
     CTL->>CTL: Dompdf 렌더링 A4 가로
     CTL->>FS: runtime/tmp/export_*.pdf 기록
@@ -712,10 +731,12 @@ graph TB
         FW["Flutter Web<br/>PC 관리 백오피스"]
         FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
         HW["HarmonyOS<br/>하모니 네이티브 App"]
+        NG["Angular 22 + ng-zorro<br/>Web 관리 백오피스"]
+        RC["React 19 + Vite<br/>Web 관리 백오피스"]
     end
 
     subgraph Gateway["API 게이트웨이 계층"]
-        MW["미들웨어 체인<br/>Locale→Cors→SecurityFilter→RateLimit→Auth→Permission→OpLog"]
+        MW["미들웨어 체인<br/>Cors→SecurityFilter→RateLimit→TracingId<br/>라우트 그룹: AdminAuth→AdminPermission→OperationLog"]
     end
 
     subgraph Business["비즈니스 모듈 계층"]
@@ -742,7 +763,7 @@ graph TB
     end
 
     subgraph Data["데이터 계층"]
-        MySQL["MySQL 8.0<br/>163개 비즈니스 테이블"]
+        MySQL["MySQL 8.0<br/>227개 비즈니스 테이블"]
         Redis["Redis 7<br/>캐시/제한/Session"]
         ES["Elasticsearch 8<br/>전문 검색"]
     end
@@ -877,22 +898,31 @@ sequenceDiagram
 
 | 모듈 | Controllers (디렉토리) | 핵심 Service | 주요 Model | 테이블 수 |
 |------|-------------------|-------------|-----------|------|
-| 시스템 관리 | admin/controller/ (14개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | AdminUser, AdminRole, AdminPermission | 7 |
-| 상품 관리 | controller/product/ (7개) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 11 |
-| 구매 관리 | controller/purchase/ (5개) | InventoryService, FinanceService ⚠CRUD는 여전히 직접 조회, 알려진 기술 부채 | PurchaseOrder, PurchaseReceive | 9 |
+| 시스템 관리 | admin/controller/ (16개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | AdminUser, AdminRole, AdminPermission | 7 |
+| 상품 관리 | controller/product/ (8개) | ProductService | Product, Category, Brand, Warehouse, Supplier, Customer | 12 |
+| 구매 관리 | controller/purchase/ (8개) | InventoryService, FinanceService ⚠CRUD는 여전히 직접 조회, 알려진 기술 부채 | PurchaseOrder, PurchaseReceive | 14 |
 | 판매 관리 | controller/sales/ (5개) | InventoryService, FinanceService ⚠CRUD는 여전히 직접 조회, 알려진 기술 부채 | SalesOrder, SalesDelivery | 9 |
-| 재고 관리 | controller/inventory/ (5개) | InventoryService ⚠CRUD는 여전히 직접 조회, 알려진 기술 부채 | Inventory, InventoryFlow, CostRecord | 11 |
-| 재무 관리 | controller/finance/ (20개) | FinanceService ⚠CRUD는 여전히 직접 조회, 알려진 기술 부채 | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 26 |
+| 재고 관리 | controller/inventory/ (6개) | InventoryService ⚠CRUD는 여전히 직접 조회, 알려진 기술 부채 | Inventory, InventoryFlow, CostRecord | 11 |
+| 재무 관리 | controller/finance/ (28개) | FinanceService ⚠CRUD는 여전히 직접 조회, 알려진 기술 부채 | FinanceArAp, FinanceVoucher, FinanceReceipt, FinancePayment, FinanceGeneralLedger, FinanceBalanceSheet, FinanceAsset, FinanceBudget, FinanceCostCenter | 38 |
 | CRM | controller/crm/ (10개) | CrmService | CrmOpportunity, CrmFollowRecord, CrmContract, CrmPoolRule, CrmQuotation, CrmCampaign, CrmTicket, CrmAnalyticsReport | 16 |
-| 승인 워크플로우 | controller/workflow/ (2개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
-| 메시지 알림 | controller/notification/ (1개) | NotificationService ⚠CRUD는 여전히 직접 조회, 알려진 기술 부채 | Notification, NotificationSetting, NotificationTemplate | 3 |
-| 프로젝트 관리 | controller/project/ (3개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 5 |
-| 인사 관리 | controller/hr/ (5개) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 8 |
-| 생산 제조 | controller/manufacturing/ (5개) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 8 |
+| 승인 워크플로우 | controller/workflow/ (3개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | ApprovalWorkflow, ApprovalInstance, ApprovalNode, ApprovalRecord | 4 |
+| 메시지 알림 | controller/notification/ (2개) | NotificationService ⚠CRUD는 여전히 직접 조회, 알려진 기술 부채 | Notification, NotificationSetting, NotificationTemplate | 4 |
+| 프로젝트 관리 | controller/project/ (4개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | Project, ProjectTask, ProjectTimesheet, ProjectMember, ProjectGantt | 6 |
+| 인사 관리 | controller/hr/ (9개) | HrService | HrDepartment, HrEmployee, HrPosition, HrAttendance, HrLeave, HrSalary | 21 |
+| 생산 제조 | controller/manufacturing/ (13개) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 21 |
 | 커스텀 리포트 | controller/report/ (2개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
-| EAM 장비 관리 | controller/eam/ (4개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart | 4 |
+| EAM 장비 관리 | controller/eam/ (5개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
 | DMS 문서 관리 | controller/dms/ (2개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
 | BI 대시보드 | controller/bi/ (3개) | - ⚠컨트롤러 모델 직접 조회, 알려진 기술 부채 | BiDashboard, BiWidget | 2 |
+
+> 이 표는 초기 모듈 매핑(시스템 관리 + 15개 업무 도메인)이며, 이후 추가된 oms / wms / tms / quality / open / platform / print / retail 8개 도메인은 미포함입니다.
+> 전체 목록은 `docs/CLAUDE.md` 프로젝트 구조 트리를 참고하세요(`app/controller/` 총 23개 모듈 디렉토리 / 139개 컨트롤러, 최상위 Install·Index 포함).
+>
+> `테이블 수` 기준(2026-09-15 실측): `database/install.sql`의 227개 테이블을 테이블명 접두사로 단일 모듈에 귀속 —— 시스템 관리 `admin_*`+`system_config`+`operation_log`;
+> 상품 관리 `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`; 구매 관리 `purchase_*`+`supplier_assessment`; 재고 관리 `inventory*`/`transfer*`/`check_*`/`cost_record`;
+> 나머지 모듈은 동일 접두사(`sales_*`→판매, `finance_*`→재무, `crm_*`→CRM, `approval_*`→승인, `notification*`→알림, `project*`→프로젝트, `hr_*`→인사, `mfg_*`→생산, `report_*`→리포트, `eam_*`→EAM, `dms_*`→DMS, `bi_*`→BI).
+> 한 테이블은 한 행에만 귀속되며, 후기 신규 도메인과 공용 테이블 48개(`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`print_template`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`)는 이 표의 어느 행에도 포함되지 않습니다.
+> 재계산: ``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
 ### 20.1 P2-F2 서비스 계층 경량 추출 기록 (crm/hr/manufacturing/product 추출 완료)
 
@@ -912,6 +942,12 @@ class_exists 폴백으로 인스턴스화하므로 모든 Service는 무인자 �
 
 추출되지 않은 모듈(프로젝트 관리 18회, 커스텀 리포트 18회, 구매 24회, 판매 24회, 시스템 관리 42회 등)은 테이블에
 "컨트롤러 모델 직접 조회, 알려진 기술 부채"로 표시되어 있으며, 이후 반복에서 동일한 패턴으로 추출할 예정입니다.
+
+> ⚠ 재측정(2026-09-15): 이 절의 수치는 **추출 시점**(1051d83 / 2026-08-16) 실측값입니다 —— 동일 기준으로 해당 커밋을 재검증하면 네 모듈은 정확히
+> CRM 57→0, 인사 36→0(이 절 표기는 38), 생산 33→0, 상품 29→0이며, 미추출 모듈은 당시 프로젝트 18 / 리포트 18 / 구매 25 / 판매 25 / 시스템 관리 44였습니다(표기 18/18/24/24/42, 1~2 차이는 집계 기준 차이).
+> 추출 이후 신규 페이지가 Service에 연결되지 않아 직접 조회가 다시 유입되었습니다: CRM 6곳(연관 명칭 채우기 `pluck`), 생산 제조 39곳(CostEntry/MaterialIssue/WorkReport/Subcontract 수발 등 후기 컨트롤러 6개),
+> 상품 관리 2곳(LocationController 로케이션)이며, 인사 관리는 여전히 0입니다. 미추출 모듈은 현재 프로젝트 24 / 리포트 20 / 구매 58 / 판매 35 / 시스템 관리 67입니다.
+> 재측정 기준과 명령(`Model::class` 불포함): ``grep -rhoE '\b[A-Z][A-Za-z]*::(find|where|whereIn|query|first|all|count|paginate|insert|update|delete|save|create|pluck|exists)\(' app/controller/<모듈>/ | grep -vE '\b(Service|Container|Validator|Cache|Log)::' | wc -l``
 
 ---
 
@@ -957,7 +993,7 @@ RMA: Request → Approve → Return → Receive (stockIn) → Refund
 | 차원 | 점수 | 핵심 격차 |
 |------|------|----------|
 | 백엔드 API | 85/100 | 다수 모듈이 CRUD 골격에 불과, 비즈니스 계산 엔진 부재 |
-| 보안 방어 | 95/100 | 18계층 심층 방어, 운영 준비 완료 |
+| 보안 방어 | 95/100 | 7계층 심층 방어(L0–L12 전경), 운영 준비 완료 |
 | 프론트엔드 UI | 20/100 | **최대 약점**: Flutter 12페이지가 ~20% 모듈만 커버, 웹 관리 패널 부재 |
 | 운영 생태계 | 70/100 | 마이그레이션 롤백, 자동 백업, 관측성 부족 |
 | 비즈니스 깊이 | 55/100 | 재무/인사/제조 핵심 알고리즘 미구현 |
@@ -979,10 +1015,10 @@ P0(3-4주) → P1(4-6주) → P2(1-2주) → P3(2-3주) = 총 약 13주
 ### 21.3 미들웨어 체인 진화
 
 ```
-현재:   Locale → Cors → SecurityFilter → RateLimit → TracingId → {라우트 그룹}
-P1 후:  Locale → Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {라우트 그룹}
-P2 후:  Locale → Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {라우트 그룹}
-P3 후:  Locale → Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {라우트 그룹}
+현재:   Cors → SecurityFilter → RateLimit → TracingId → {라우트 그룹}
+P1 후:  Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {라우트 그룹}
+P2 후:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {라우트 그룹}
+P3 후:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {라우트 그룹}
 ```
 
 ### 21.4 P0 목표 아키텍처 — Flutter Web 관리 패널
@@ -1028,25 +1064,25 @@ SaaS 과금, 테넌트 자체 개통 등 "멀티 테넌트 완전 상용화 방�
 결정 근거 (2026-08 리뷰):
 - 기존 배포가 거의 전부 단일 테넌트이며, 연결은 불필요한 격리 복잡성과 회귀 위험을 도입합니다;
 - 현재 골격에 기술 결함이 있으며(22.4 참조), "연결=격리"가 성립하지 않아 먼저 설계 수정을 완료해야 합니다;
-- 격리는 163개 테이블 중 비즈니스 테이블에 테이블별로 컬럼을 추가하고 모델별로 활성화해야 하므로 비용이 "최소 연결"을 훨씬 초과합니다.
+- 격리는 227개 비즈니스 테이블에 테이블별로 컬럼을 추가하고 모델별로 활성화해야 하므로 비용이 "최소 연결"을 훨씬 초과합니다.
 
 ### 22.2 현재 사실 (코드와 설정 대조)
 
 | 항목 | 현재 상태 |
 |----|------|
-| `app/middleware/TenantScope.php` | 존재, 미등록; `X-Tenant-Id` 헤더에서 테넌트를 읽으며, 헤더 부재 시 그대로 통과 |
-| `app/model/concerns/TenantScope.php` | 존재, 사용 모델 없음; `bootTenantScope()` 전역 스코프는 테넌트 설정 후에만 필터링 |
-| `config/middleware.php` | 전역 체인: Locale → Cors → SecurityFilter → RateLimit → TracingId, TenantScope 없음 |
-| `config/route.php` /admin 그룹 | AdminAuth → AdminPermission → OperationLog, TenantScope 없음 |
+| `app/middleware/TenantScope.php` | 존재, 미등록; `X-Tenant-Code` 헤더에서 테넌트 코드를 읽어 `erp_tenant`를 조회한 뒤 컨텍스트에 주입하며, 헤더 부재 시 그대로 통과 |
+| `app/model/concerns/TenantScope.php` | 존재; 4개 재무 모델(`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`, 회사 계열 `tenantScopeByCompany()`가 true 반환)이 사용하며 `company_id`로 필터링; 미들웨어가 미등록이라 요청 컨텍스트가 주입되지 않아 전역 스코프는 현재 작동하지 않음 |
+| `config/middleware.php` | 전역 체인: Cors → SecurityFilter → RateLimit → TracingId, TenantScope 없음 |
+| `config/route.php` /admin/v1 그룹 | AdminAuth → AdminPermission → OperationLog, TenantScope 없음 |
 | JWT 페이로드 | `sub` / `username` / `token_type`만, **tenant_id 선언 없음** (`app/api/v1/controller/AuthController.php`) |
 | 데이터베이스 | **전체 DB에 tenant_id 컬럼 없음** (install.sql에도 없음) |
-| 모델 | **어떤 모델도 TenantScope trait를 사용하지 않음** |
+| 모델 | 4개 재무 모델이 `TenantScope` trait 사용(회사 계열, `company_id` 필터링) — 파일럿 격리; 테넌트 컨텍스트가 주입되지 않으면 어떤 필터도 추가하지 않음 |
 
 ### 22.3 활성화 절차 (예약 참고, 이번 기간에는 미실행)
 
-1. 미들웨어 등록: `config/route.php`의 /admin 그룹 `middleware()`에
+1. 미들웨어 등록: `config/route.php`의 /admin/v1 그룹 `middleware()`에
    `app\middleware\TenantScope::class` 추가(AdminAuth 뒤에 배치하여 인증 완료 보장).
-2. 요청 측이 요청 헤더에 `X-Tenant-Id`(int 테넌트 ID)를 전달.
+2. 요청 측이 요청 헤더에 `X-Tenant-Code`(테넌트 인코딩 문자열)를 전달.
 3. 격리가 필요한 비즈니스 테이블에 `tenant_id` 컬럼(BIGINT + 인덱스) 추가 및 기존 데이터 백필;
    사전/시스템 테이블(예: `erp_admin_user`, `erp_role`, `erp_permission`)은 격리하지 않음.
 4. 격리가 필요한 모델 클래스에서 `use app\model\concerns\TenantScope;`를 사용하면 현재 테넌트 기준으로 자동 필터링.
@@ -1055,15 +1091,18 @@ SaaS 과금, 테넌트 자체 개통 등 "멀티 테넌트 완전 상용화 방�
 
 ### 22.4 알려진 기술 제약 (활성화 전 반드시 해결)
 
-- **정적 전달 체인 단절(PHP 8.3 실측)**: 미들웨어가 trait 이름으로 `setCurrentTenantId()`를 호출하면
-  trait 자체의 정적 복사본에 기록되므로, 해당 trait를 사용하는 모델 클래스는 읽을 수 없고 쿼리가 필터링되지 않습니다.
-  활성화 시 요청 컨텍스트 기반 주입(예: `request()->tenantId`)으로 변경해야 합니다.
-- **정적 전역 상태 간섭**: Workerman은 상주 프로세스이므로 정적 속성이 요청 간 공유됩니다. 코루틴 모드를 활성화하면
-  (Swoole/Swow) 테넌트 간 데이터 간섭이 발생할 수 있으므로 요청 레벨 바인딩(`context()` / 요청 객체)으로 변경해야 합니다.
+- **신뢰 경계(등록 전 반드시 해결)**: 테넌트 컨텍스트의 출처가 `X-Tenant-Code` 요청 헤더로, 위조 가능한
+  입력입니다; `erp_admin_user`와 회사/테넌트 간 바인딩(관리자 귀속 판정)을 구축하기 전에 미들웨어를
+  활성화하면 권한 초과 데이터 노출 결함이 발생합니다(인증된 임의 관리자가 임의 테넌트를 선언하고 그 데이터를 읽을 수 있음).
+- **정적 전달 체인 단절(PHP 8.3 실측)은 P2-4 B5 수정판으로 대체됨**: `TenantScope` trait은 이제
+  요청 컨텍스트 주입(`request()->tenantId` / `companyId`) 경로를 사용하며, 이 경로에는 정적 상태가 없어
+  상주 프로세스 내 요청 간 간섭이 제거되었습니다; trait 이름 정적 파사드는 `@deprecated`로 표시되어
+  테스트/CLI 폴백 전용입니다.
 - **데이터 플레인 격차**: 전체 DB에 tenant_id 컬럼이 없으므로 테이블별 마이그레이션이 필요하며, 테넌트 간 공유 사전 테이블은 면제 메커니즘 설계가 필요합니다.
 
 ### 22.5 수용 기준
 
 이번 기간 수용 = 문서와 코드 일치: `config/middleware.php`와 `config/route.php`에
-TenantScope 등록이 없음; 미들웨어와 Trait 주석에 "예약 능력, 미활성화" 명시 및 활성화 절차 제공;
+TenantScope 등록이 없음; 미들웨어 주석에 "구현 완료, 기본 미등록"이 표기되고 등록 지점과 신뢰 경계가
+제시됨, Trait 주석에 요청 컨텍스트 주입 경로와 회귀선(테넌트 컨텍스트가 없으면 필터링에 참여하지 않음)이 표기됨;
 본 절 설명이 코드 현황과 항목별로 대응.
