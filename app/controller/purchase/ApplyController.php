@@ -45,8 +45,7 @@ class ApplyController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
@@ -76,8 +75,8 @@ class ApplyController extends BaseController
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('采购管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', require:true, desc:'申请单号，留空后端自生成')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'apply_user_id', type:'int', require:true, desc:'申请人ID')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'code', type:'string', default:'', desc:'申请单号，留空后端自生成')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'apply_user_id', type:'string', default:'', desc:'申请人ID（hashid 或数字），留空默认当前登录管理员')]
     #[\erikwang2013\apidoc\annotation\Param(name:'department', type:'string', default:'', desc:'申请部门')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:0, desc:'状态: 0=待审批 1=已批准 2=已驳回 3=已转订单')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
@@ -89,22 +88,44 @@ class ApplyController extends BaseController
         // 校验真实表列（原 name 必填校验指向不存在的列，随 fill 落入 INSERT 必 SQL 错）
         $validator = validator($request->all(), [
             'code' => 'nullable|string|max:50',
-            'apply_user_id' => 'required|integer',
-            'department' => 'string',
-            'status' => 'integer',
+            // 申请人可缺省（缺省=当前登录管理员），且须兼容 hashid 串：
+            // 列表/详情回显的 apply_user_id 就是 hashid，下拉回填后原样提交会被 integer 规则打回
+            'apply_user_id' => 'nullable',
+            // department/remark 上限对齐建表列宽（varchar 50 / 500）：不设上限时超长输入
+            // 直落列报 1406，最终以 500「服务器内部错误」返回
+            'department' => 'string|max:50',
+            'remark' => 'nullable|string|max:500',
+            // status 落 TINYINT UNSIGNED（0待审批/1已批准/2已驳回/3已转订单）：
+            // 裸 integer 放行 -1/999 会以 1264 Out of range → 500
+            'status' => 'integer|between:0,3',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // 申请人缺省 = 当前登录管理员（中间件 AdminAuth 注入 adminId）：采购申请本就是
+        // 「我提交的单子」，要求操作员手填一个雪花 ID 既不符合实际操作也无从获知
+        $rawApplyUser = $request->input('apply_user_id');
+        $applyUserId = ($rawApplyUser === null || $rawApplyUser === '')
+            ? (int) ($request->adminId ?? 0)
+            : $this->decodeFlexibleId($rawApplyUser);
+        if ($applyUserId === null || $applyUserId < 1) {
+            return $this->fail($this->trans('Invalid apply_user_id'), 422);
+        }
+
         $item = new PurchaseApply();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
-        // 单号缺省自生成（前缀与 Flutter apply_list_page.dart 下发的 'PA'+时间戳一致）
-        $item->fill(['code' => doc_code($request->input('code'), 'PA')]);
+        $item->fill(['code' => doc_code($request->input('code'), 'PA')]); // 单号缺省后端自生成
+        // apply_user_id 在 $fillable 内，fill 会把 hashid 串直填 BIGINT 列（严格模式 1366），
+        // 故解码结果须在 fill 之后覆写（走 fill 而非直写属性：模型无 @property，
+        // 直写 $item->apply_user_id 会给 PHPStan 新增 property.notFound）
+        $item->fill(['apply_user_id' => $applyUserId]);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
+        // 与列表同一 FK 名单：apply_user_id 漏编码会把 4.1e17 的雪花 ID 原样下发，
+        // 前端按数字回传即丢精度（>2^53），回写时 hashid 解码失败 → 422
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -134,7 +155,7 @@ class ApplyController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id']));
     }
 
     /**
@@ -157,9 +178,12 @@ class ApplyController extends BaseController
     {
         $validator = validator($request->all(), [
             'id' => 'string',
-            'code' => 'string',
-            'department' => 'string',
-            'status' => 'integer',
+            'code' => 'string|max:50',
+            'department' => 'string|max:50',
+            'remark' => 'nullable|string|max:500',
+            // status 落 TINYINT UNSIGNED（0待审批/1已批准/2已驳回/3已转订单）：
+            // 裸 integer 放行 -1/999 会以 1264 Out of range → 500
+            'status' => 'integer|between:0,3',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -178,11 +202,12 @@ class ApplyController extends BaseController
             if ($applyUserId === null || $applyUserId < 1) {
                 return $this->fail($this->trans('Invalid apply_user_id'), 422);
             }
-            $item->apply_user_id = $applyUserId;
+            // 同 store：走 fill 而非直写属性（模型无 @property，直写会新增 PHPStan property.notFound）
+            $item->fill(['apply_user_id' => $applyUserId]);
         }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'apply_user_id']), $this->trans('Updated successfully'));
     }
 
     /**

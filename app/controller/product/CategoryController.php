@@ -47,8 +47,7 @@ class CategoryController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
@@ -80,7 +79,8 @@ class CategoryController extends BaseController
 
     public function store(Request $request): Response
     {
-        $validator = validator($request->all(), ['name' => 'required|string|max:200']);
+        // name 真实列宽 VARCHAR(50)：原 max:200 会放过超长串去撞 MySQL 1406
+        $validator = validator($request->all(), ['name' => 'required|string|max:50']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

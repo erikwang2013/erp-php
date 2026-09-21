@@ -54,8 +54,7 @@ class SettlementController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
@@ -131,11 +130,18 @@ class SettlementController extends BaseController
             return $this->fail($this->trans('No payable record exists for this receipt; please confirm the receipt is audited first'), 404);
         }
 
+        // 先在信任边界上解码并拒绝：原样透传时垃圾串在 settlePayment 的 int 形参上抛 TypeError，
+        // 被下面的 catch 当成业务文案回给用户（看不出是参数问题）
+        $paymentId = $this->decodeFlexibleId($request->input('receipt_payment_id'));
+        if ($paymentId === null || $paymentId < 1) {
+            return $this->fail('付款单（receipt_payment_id）无效', 422);
+        }
+
         try {
             /** @var FinanceService $service */
             $service = Container::get(FinanceService::class);
             $service->settlePayment(
-                $this->decodeId((string) $request->input('receipt_payment_id')),
+                $paymentId,
                 (int) $arAp->id,
                 (float) $request->input('amount')
             );

@@ -53,12 +53,11 @@ class UserController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $query = AdminUser::query();
+        $query = AdminUser::query()->with('roles');
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
                 $q->where('username', 'like', "%{$keyword}%")
@@ -85,6 +84,12 @@ class UserController extends BaseController
                               $parts = explode('@', $data['email']);
                               $data['email'] = mb_substr($parts[0], 0, 1) . '***@' . ($parts[1] ?? '');
                           }
+                          // roles → hashid id 数组：编辑弹框预选只比对 id（角色清单另拉 GET /role）。
+                          // 该关系不加载时字段恒缺 → 前端回存 role_ids=[] 会静默清空，勿删 with('roles')。
+                          $data['roles'] = $user->roles
+                              ->pluck('id')
+                              ->map(fn ($roleId) => $this->encodeId((int) $roleId))
+                              ->values();
 
                           return $this->encodeIds($data);
                       });
@@ -112,6 +117,7 @@ class UserController extends BaseController
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:1, desc:'状态:0禁用1启用')]
     #[\erikwang2013\apidoc\annotation\Param(name:'phone', type:'string', default:'', desc:'手机号')]
     #[\erikwang2013\apidoc\annotation\Param(name:'email', type:'string', default:'', desc:'邮箱')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'role_ids', type:'array', desc:'角色ID列表(hashid)，不提交该字段则保持关联不动')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'用户信息')]
@@ -125,10 +131,20 @@ class UserController extends BaseController
             'status' => 'in:0,1',
             'phone' => 'string',
             'email' => 'string',
+            'role_ids' => 'array',
         ]);
 
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
+        }
+
+        // 先归一角色再落库：含无效项直接 422，不留「用户已建、角色未同步」的半成品
+        $roleIds = null;
+        if ($request->has('role_ids')) {
+            $roleIds = $this->normalizeIdArray($request->input('role_ids', []));
+            if ($roleIds === null) {
+                return $this->fail($this->trans('Invalid ID: ') . 'role_ids', 422);
+            }
         }
 
         $exists = AdminUser::where('username', $request->input('username'))->exists();
@@ -145,6 +161,11 @@ class UserController extends BaseController
         $user->phone = $request->input('phone', '');
         $user->email = $request->input('email', '');
         $user->save();
+
+        // 同步角色（$roleIds 为 null = 未提交该字段，保持关联不动；空数组 = 清空角色）
+        if ($roleIds !== null) {
+            $user->roles()->sync($roleIds);
+        }
 
         $data = $user->toArray();
         unset($data['password'], $data['id_card']);
@@ -174,13 +195,17 @@ class UserController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $id = $this->decodeId($id);
-        $user = AdminUser::find($id);
+        $user = AdminUser::with('roles')->find($id);
         if (!$user) {
             return $this->fail($this->trans('User not found'), 404);
         }
 
         $data = $user->toArray();
         unset($data['password'], $data['id_card']);
+        $data['roles'] = $user->roles
+            ->pluck('id')
+            ->map(fn ($roleId) => $this->encodeId((int) $roleId))
+            ->values();
 
         // Encryptable cast 已自动解密，phone/email 直接为明文
         return $this->success($this->encodeIds($data));
@@ -200,6 +225,7 @@ class UserController extends BaseController
     #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'新密码(留空不修改)')]
     #[\erikwang2013\apidoc\annotation\Param(name:'phone', type:'string', default:'', desc:'手机号')]
     #[\erikwang2013\apidoc\annotation\Param(name:'email', type:'string', default:'', desc:'邮箱')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'role_ids', type:'array', desc:'角色ID列表(hashid)，不提交该字段则保持关联不动')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
     #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的用户信息')]
@@ -213,10 +239,21 @@ class UserController extends BaseController
             'password' => 'string',
             'phone' => 'string',
             'email' => 'string',
+            'role_ids' => 'array',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+
+        // 先归一角色再改字段：含无效项直接 422，不留「字段已改、角色未同步」的半成品
+        $roleIds = null;
+        if ($request->has('role_ids')) {
+            $roleIds = $this->normalizeIdArray($request->input('role_ids', []));
+            if ($roleIds === null) {
+                return $this->fail($this->trans('Invalid ID: ') . 'role_ids', 422);
+            }
+        }
+
         $id = $this->decodeId($id);
         $user = AdminUser::find($id);
         if (!$user) {
@@ -229,14 +266,29 @@ class UserController extends BaseController
         if ($request->has('password') && !empty($request->input('password'))) {
             $user->password = password_hash($request->input('password'), PASSWORD_BCRYPT);
         }
+        // 列表接口下发的手机/邮箱是脱敏值（`138****8888` / `z***@x.com`）。客户端若把列表行
+        // 直接当编辑表单初值回存，掩码会被当成真值写库（覆盖后不可恢复）——掩码不可能是
+        // 合法手机号/邮箱，一律当「未改动」丢弃。根因（编辑前拉详情取明文）已在 Web 端修复，
+        // 本护栏兜住其余客户端、旧版本客户端与未来接入方。
         if ($request->has('phone')) {
-            $user->phone = $request->input('phone', '');
+            $phone = (string) $request->input('phone', '');
+            if (!str_contains($phone, '***')) {
+                $user->phone = $phone;
+            }
         }
         if ($request->has('email')) {
-            $user->email = $request->input('email', '');
+            $email = (string) $request->input('email', '');
+            if (!str_contains($email, '***')) {
+                $user->email = $email;
+            }
         }
 
         $user->save();
+
+        // 同步角色（$roleIds 为 null = 未提交该字段，保持关联不动；空数组 = 清空角色）
+        if ($roleIds !== null) {
+            $user->roles()->sync($roleIds);
+        }
 
         $data = $user->toArray();
         unset($data['password'], $data['id_card']);

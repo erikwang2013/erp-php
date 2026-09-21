@@ -41,8 +41,7 @@ class RoleController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
 
         $query = AdminRole::withCount('users')
             ->with(['permissions' => fn ($q) => $q->select(['id', 'name', 'slug', 'type', 'parent_id'])]);
@@ -145,7 +144,7 @@ class RoleController extends BaseController
         // 先归一权限再落库：含无效项直接 422，不留「角色已建、权限未同步」的半成品
         $permissionIds = null;
         if ($request->has('permission_ids')) {
-            $permissionIds = $this->normalizePermissionIds($request->input('permission_ids', []));
+            $permissionIds = $this->normalizeIdArray($request->input('permission_ids', []));
             if ($permissionIds === null) {
                 return $this->fail($this->trans('permission_ids contains invalid ID(s)'), 422);
             }
@@ -203,7 +202,7 @@ class RoleController extends BaseController
         // 先归一权限再改字段：含无效项直接 422，不留「字段已改、权限未同步」的半成品
         $permissionIds = null;
         if ($request->has('permission_ids')) {
-            $permissionIds = $this->normalizePermissionIds($request->input('permission_ids', []));
+            $permissionIds = $this->normalizeIdArray($request->input('permission_ids', []));
             if ($permissionIds === null) {
                 return $this->fail($this->trans('permission_ids contains invalid ID(s)'), 422);
             }
@@ -220,31 +219,6 @@ class RoleController extends BaseController
         }
 
         return $this->success($this->encodeIds($role->toArray()), $this->trans('Updated successfully'));
-    }
-
-    /**
-     * permission_ids 归一为原始 snowflake id 数组；含无效项返回 null（调用方 422）。
-     * 判定顺序与 BaseController::decodeFlexibleId 一致（hashid 优先、数字兜底）：
-     * 传输层契约是 hashid 字符串数组（三端均按 string 集合下发），而 hashid 字母表含 0-9，
-     * 纯数字 hashid 真实存在（id=9 → '69'），is_numeric 先行会把它误读成 id=69 授错权限。
-     * 关联表无 FK 约束，放行垃圾值只会静默写入孤儿行 —— 故拒绝而非退化。
-     */
-    private function normalizePermissionIds($ids): ?array
-    {
-        $normalized = [];
-        foreach ((array) $ids as $v) {
-            // 只收 int/string 两种合法形态：PHP 里 (int)[] === 1，数组元素会凭空变成权限 id=1
-            if (!is_string($v) && !is_int($v)) {
-                return null;
-            }
-            $decoded = $this->decodeFlexibleId((string) $v);
-            if ($decoded === null) {
-                return null;
-            }
-            $normalized[] = $decoded;
-        }
-
-        return $normalized;
     }
 
     /**

@@ -15,7 +15,10 @@ use app\model\PurchaseRfq;
 use app\model\PurchaseRfqItem;
 use app\model\PurchaseRfqQuote;
 use app\model\PurchaseRfqQuoteItem;
-use Illuminate\Support\Facades\DB;
+// 门面 \Illuminate\Support\Facades\DB 在本项目没有根（无 Facade::setFacadeApplication），
+// 一调用就抛 RuntimeException「A facade root has not been set.」——询价全链路必失败；
+// 统一用 Capsule 管理器（其余控制器同款）。
+use Illuminate\Database\Capsule\Manager as DB;
 
 /**
  * 寻源采购核心逻辑：报价金额 bcmath 汇总、比价取最低、中标转采购订单草稿。
@@ -147,6 +150,11 @@ class RfqService
                 $rfqItem = $rfqItems->get((int) $qi->rfq_item_id);
                 $quantity = $rfqItem ? (string) $rfqItem->quantity : '0';
                 $amount = $this->lineAmount((string) $qi->unit_price, $quantity);
+                // 报价行金额列是 DECIMAL(14,2)，采购订单明细行只有 DECIMAL(12,2)：
+                // 单价 × 数量超过后者即 1264 Out of range，须在写库前给出可读原因
+                if (bccomp($amount, '9999999999.99', 2) > 0) {
+                    throw new \RuntimeException('报价行金额（单价 × 询价数量）超出采购订单明细上限 9999999999.99，请先调整报价');
+                }
                 $amounts[] = $amount;
                 $lines[] = [
                     'quantity' => $quantity,
@@ -160,6 +168,9 @@ class RfqService
                 throw new \RuntimeException('中标报价缺少报价明细，无法转采购订单');
             }
             $totalAmount = $this->sumAmounts($amounts);
+            if (bccomp($totalAmount, '9999999999.99', 2) > 0) {
+                throw new \RuntimeException('中标总额超出采购订单上限 9999999999.99，请先调整报价');
+            }
 
             // 1) 报价标记中标、询价单置「已中标」
             $quote->awarded = 1;

@@ -48,8 +48,7 @@ class LocationController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
@@ -128,7 +127,8 @@ class LocationController extends BaseController
     {
         // 库位旧表单以仓库名（幻列 warehouse）代替 warehouse_id 提交 → 引用永不落库；
         // 现改为显式赋值：warehouse_id 必填且 hashid/原生数字双模解码，垃圾串 422 拒绝
-        $validator = validator($request->all(), ['name' => 'required|string|max:200', 'code' => 'string', 'warehouse_id' => 'string', 'status' => 'integer']);
+        // name 真实列宽 VARCHAR(100)：原 max:200 会放过超长串去撞 MySQL 1406
+        $validator = validator($request->all(), ['name' => 'required|string|max:100', 'code' => 'string', 'warehouse_id' => 'string', 'status' => 'integer']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

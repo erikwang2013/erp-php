@@ -48,8 +48,7 @@ class ReturnController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
@@ -108,7 +107,19 @@ class ReturnController extends BaseController
     {
         // 表无 name 列：旧规则要求必填属幻列（name 永不落库）；模型仅 $guarded，
         // fill 会把请求任意键（含 name）直写列 → 必须显式赋值只落真实列
-        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'receive_id' => 'string', 'supplier_id' => 'string', 'warehouse_id' => 'string', 'total_amount' => 'numeric', 'remark' => 'string', 'returned_at' => 'string']);
+        // remark/returned_at 上限对齐列宽与列类型：超长落 varchar(500) 报 1406、
+        // 非日期串落 datetime 列报 1292，两者都会以 500 返回
+        $validator = validator($request->all(), [
+            'code' => 'nullable|string|max:50',
+            'receive_id' => 'string',
+            'supplier_id' => 'string',
+            'warehouse_id' => 'string',
+            // 落 DECIMAL(12,2)（退货金额本就非负）：非数值/负数/超量程一律 422，
+            // 否则以 1265/1264 报 500
+            'total_amount' => 'nullable|numeric|min:0|max:9999999999.99',
+            'remark' => 'nullable|string|max:500',
+            'returned_at' => 'nullable|date',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -127,7 +138,9 @@ class ReturnController extends BaseController
         $item->total_amount = (float) ($request->input('total_amount', 0) ?: 0);
         $item->status = 0; // 0=待出库；出库确认仅可经 update 0→1
         $item->remark = (string) $request->input('remark', '');
-        $item->returned_at = $request->input('returned_at');
+        // 清空的日期字段下发 ''：nullable|date 放行 ''，但 '' 落 datetime 列报 1292，
+        // 空串语义即「不填」（列可空），归一成 NULL
+        $item->returned_at = $request->input('returned_at') ?: null;
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray(), ['id', 'receive_id', 'supplier_id', 'warehouse_id']), $this->trans('Created successfully'));
@@ -184,9 +197,13 @@ class ReturnController extends BaseController
     {
         $validator = validator($request->all(), [
             'id' => 'string',
-            'code' => 'string',
+            'code' => 'string|max:50',
             'receive_id' => 'string',
-            'total_amount' => 'numeric',
+            // 落 DECIMAL(12,2)（退货金额本就非负）：非数值/负数/超量程一律 422，
+            // 否则以 1265/1264 报 500
+            'total_amount' => 'nullable|numeric|min:0|max:9999999999.99',
+            'remark' => 'nullable|string|max:500',
+            'returned_at' => 'nullable|date',
             'status' => 'integer',
         ]);
         if ($validator->fails()) {
@@ -221,7 +238,8 @@ class ReturnController extends BaseController
             $item->remark = (string) $request->input('remark');
         }
         if ($request->input('returned_at') !== null) {
-            $item->returned_at = $request->input('returned_at');
+            // 同 store：清空下发 ''，列可空但 '' 落库报 1292，归一成 NULL
+            $item->returned_at = $request->input('returned_at') ?: null;
         }
         // status 仅可 0→1（出库确认），客户端传其他值一律拒绝
         if ($request->input('status') !== null) {
@@ -261,6 +279,10 @@ class ReturnController extends BaseController
         $item = PurchaseReturn::find($id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+        // 与收货 destroy 同一守卫：已出库（status=1）的退货单是库存/财务凭证，不允许删除
+        if ((int) $item->status === 1) {
+            return $this->fail($this->trans('Issued-out records cannot be deleted'), 422);
         }
 
         $adminId = $request->adminId ?? 0;

@@ -48,8 +48,7 @@ class RecruitController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $result = $this->recruit()->list(HrJob::class, [
             'status' => $request->input('status'),
             'job_title' => $request->input('job_title'),
@@ -215,8 +214,7 @@ class RecruitController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $result = $this->recruit()->list(HrCandidate::class, [
             'status' => $request->input('status'),
             'job_id' => $request->input('job_id'),
@@ -244,7 +242,8 @@ class RecruitController extends BaseController
     public function candidateStore(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'name' => 'required|string|max:100',
+            // name 真实列宽 VARCHAR(50)（erp_hr_candidate）：原 max:100 会放过超长串去撞 MySQL 1406
+            'name' => 'required|string|max:50',
             'job_id' => 'required|integer',
             'phone' => 'string',
             'source' => 'string',
@@ -370,8 +369,7 @@ class RecruitController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $result = $this->recruit()->list(HrInterview::class, [
             'candidate_id' => $request->input('candidate_id'),
         ], $page, $limit, [
@@ -460,8 +458,7 @@ class RecruitController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $result = $this->recruit()->list(HrOffer::class, [
             'candidate_id' => $request->input('candidate_id'),
             'status' => $request->input('status'),

@@ -46,8 +46,7 @@ class AsnController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
@@ -87,7 +86,12 @@ class AsnController extends BaseController
     public function store(Request $request): Response
     {
         // code 列宽 VARCHAR(50)（uk_code）：max:200 会放过超长串去撞 MySQL 1406/500
-        $validator = validator($request->all(), ['code' => 'required|string|max:50']);
+        // warehouse_id / supplier_id 是 NOT NULL 无默认列：请求体缺省即直插 → MySQL 1364 → 500，故边界拦下
+        $validator = validator($request->all(), [
+            'code' => 'required|string|max:50',
+            'warehouse_id' => 'required',
+            'supplier_id' => 'required',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }

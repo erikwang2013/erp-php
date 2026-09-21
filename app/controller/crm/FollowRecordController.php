@@ -49,8 +49,7 @@ class FollowRecordController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $customerId = $request->input('customer_id');
 
         // 表无 name/code/status 列（erp_crm_follow_record：customer_id/method/content 等），

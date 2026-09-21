@@ -47,8 +47,7 @@ class ExchangeRateController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $fromCurrencyId = $request->input('from_currency_id');
         $toCurrencyId = $request->input('to_currency_id');
         $effectiveDate = $request->input('effective_date', '');

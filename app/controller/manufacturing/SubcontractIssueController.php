@@ -61,8 +61,7 @@ class SubcontractIssueController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
 
         $result = $this->service()->list(MfgSubcontractIssue::class, [
             'keyword' => $request->input('keyword'),
@@ -227,14 +226,9 @@ class SubcontractIssueController extends BaseController
         unset($data['code'], $data['subcontract_id'], $data['status']);
         $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : null;
         unset($data['items']);
-        try {
-            $this->service()->update(MfgSubcontractIssue::class, $id, $data, ['code', 'subcontract_id', 'status', 'total_cost', 'audit_at']);
-        } catch (QueryException $e) {
-            if ($this->service()->isDuplicateKey($e)) {
-                return $this->fail($this->trans('Material dispatch number already exists'), 422);
-            }
-            throw $e;
-        }
+
+        // 明细先校验、后落库（同 MaterialIssue::update）：原先先写表头再校验明细，
+        // 明细非法时 422 但表头已改。校验通过后表头与明细同包一个事务，任一失败一起回滚。
         if ($items !== null) {
             if (count($items) === 0) {
                 return $this->fail($this->trans('Details cannot be empty'), 422);
@@ -247,7 +241,14 @@ class SubcontractIssueController extends BaseController
                     return $this->fail($this->trans('Detail row ') . ($i + 1) . $this->trans('SKU does not exist on the row'), 422);
                 }
             }
-            DB::transaction(function () use ($id, $items) {
+        }
+
+        try {
+            DB::transaction(function () use ($data, $id, $items) {
+                $this->service()->update(MfgSubcontractIssue::class, $id, $data, ['code', 'subcontract_id', 'status', 'total_cost', 'audit_at']);
+                if ($items === null) {
+                    return;
+                }
                 MfgSubcontractIssueItem::query()->where('issue_id', $id)->delete();
                 foreach ($items as $row) {
                     $item = new MfgSubcontractIssueItem();
@@ -261,6 +262,11 @@ class SubcontractIssueController extends BaseController
                     $item->save();
                 }
             });
+        } catch (QueryException $e) {
+            if ($this->service()->isDuplicateKey($e)) {
+                return $this->fail($this->trans('Material dispatch number already exists'), 422);
+            }
+            throw $e;
         }
 
         return $this->success($this->encodeIds(['id' => $id]), $this->trans('Updated successfully'));

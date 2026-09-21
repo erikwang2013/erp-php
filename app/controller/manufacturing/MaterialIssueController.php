@@ -57,8 +57,7 @@ class MaterialIssueController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
 
         $result = $this->cost()->list(MfgMaterialIssue::class, [
             'keyword' => $request->input('keyword', ''),
@@ -220,9 +219,11 @@ class MaterialIssueController extends BaseController
         }
         $data = $request->all();
         unset($data['code'], $data['order_id'], $data['status']);
-        $item = $this->cost()->update(MfgMaterialIssue::class, $id, $data, ['status', 'total_cost', 'audit_at']);
 
+        // 明细先校验、后落库：原先「先写表头 → 再校验明细」，明细非法时返回 422 但表头已改，
+        // 用户重试时面对的是改了一半的单子。校验通过后表头与明细同包一个事务，任一失败一起回滚。
         $rawItems = $request->input('items');
+        $rows = null;
         if (is_array($rawItems)) {
             $rows = [];
             foreach ($rawItems as $i => $row) {
@@ -239,21 +240,26 @@ class MaterialIssueController extends BaseController
             if ($rows === []) {
                 return $this->fail($this->trans('Details cannot be empty'), 422);
             }
-            DB::transaction(function () use ($rows, $id) {
-                MfgMaterialIssueItem::query()->where('issue_id', $id)->delete();
-                foreach ($rows as $row) {
-                    $item = new MfgMaterialIssueItem();
-                    $item->id = $this->generateId();
-                    $item->issue_id = $id;
-                    $item->sku_id = $row['sku_id'];
-                    $item->product_id = $row['product_id'];
-                    $item->quantity = $row['quantity'];
-                    $item->unit_cost = '0';
-                    $item->amount = '0';
-                    $item->save();
-                }
-            });
         }
+
+        DB::transaction(function () use ($data, $id, $rows) {
+            $this->cost()->update(MfgMaterialIssue::class, $id, $data, ['status', 'total_cost', 'audit_at']);
+            if ($rows === null) {
+                return;
+            }
+            MfgMaterialIssueItem::query()->where('issue_id', $id)->delete();
+            foreach ($rows as $row) {
+                $item = new MfgMaterialIssueItem();
+                $item->id = $this->generateId();
+                $item->issue_id = $id;
+                $item->sku_id = $row['sku_id'];
+                $item->product_id = $row['product_id'];
+                $item->quantity = $row['quantity'];
+                $item->unit_cost = '0';
+                $item->amount = '0';
+                $item->save();
+            }
+        });
 
         $doc = MfgMaterialIssue::query()->with('items')->where('id', $id)->first();
         $data = $doc->toArray();

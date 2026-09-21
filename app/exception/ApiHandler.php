@@ -8,6 +8,10 @@ declare(strict_types=1);
 
 namespace app\exception;
 
+use app\common\I18n;
+use Illuminate\Database\QueryException;
+use Illuminate\Database\UniqueConstraintViolationException;
+use InvalidArgumentException;
 use support\exception\Handler;
 use support\Log;
 use Throwable;
@@ -34,6 +38,55 @@ class ApiHandler extends Handler
         $code = $exception->getCode();
         $code = is_numeric($code) ? (int) $code : 0;
         $statusCode = ($code >= 400 && $code < 600) ? $code : 500;
+
+        // 唯一键冲突是**客户端可纠正的输入问题**，不是服务端故障：各模块 store() 直落
+        // uk_code（采购申请/采购订单/收货单等 code 唯一键），手填重复单号、或前端自造
+        // 秒级时间戳单号同秒两次提交，都会抛 1062。原样走下面的 500 分支用户只拿到一句
+        // 「服务器内部错误」+ TraceId，无从下手；这里回到 422 并点名单号。
+        // 必须排在 debug 分支之前：唯一键冲突的 getCode() 也是 500，放后面会被吞掉。
+        if ($exception instanceof UniqueConstraintViolationException) {
+            // 异常原文形如 Duplicate entry 'PA2026…' for key 'erp_purchase_apply.uk_code'
+            $dup = preg_match("/Duplicate entry '([^']*)'/", $exception->getMessage(), $m) ? $m[1] : '';
+
+            return json([
+                'code' => 422,
+                'message' => I18n::trans(
+                    $dup === ''
+                        ? 'Record already exists'
+                        : 'Number ":code" already exists; please refresh the page and use another one',
+                    ['code' => $dup]
+                ),
+                'data' => [],
+            ])->withStatus(422);
+        }
+
+        // 数据超长（SQLSTATE 22001 / MySQL 1406）同属「客户端可纠正的输入问题」：部分控制器的
+        // max 校验宽度比真实列宽大（例：BrandController 的 name 写 max:200，而 erp_brand.name
+        // 是 VARCHAR(100)），超长输入过得了校验、到 MySQL 才炸，原本用户只看到 500 + TraceId。
+        // 这里兜底回 422，复用既有「参数验证失败」文案（不新增词典键）；报文只给通用提示，
+        // 含表名/列名的 MySQL 原文进日志。各站点仍应按真实列宽收紧校验（本轮另做清扫）。
+        if ($exception instanceof QueryException && ($exception->errorInfo[0] ?? '') === '22001') {
+            Log::warning('输入超出列宽，已按 422 拒绝 TraceId=' . trace_id() . '：' . $exception->getMessage());
+
+            return json([
+                'code' => 422,
+                'message' => I18n::trans('Validation failed'),
+                'data' => [],
+            ])->withStatus(422);
+        }
+
+        // 无效入参类异常本质是客户端输入问题，不是服务端故障。最典型的是 hashid 解码失败
+        // （HashidsService::decode 抛 InvalidArgumentException「无效的加密ID」，各控制器
+        // 的 decodeId() 直接透传）：路径/查询里的 ID 不是合法 hashid（旧书签、被截断的串、
+        // 扫描器批量探路径）时，未捕获就是 500 + TraceId，用户看不出「这条链接的 ID 不对」。
+        // 服务层（product/eam/project 等）抛的同类异常消息本就面向用户，故原样回 422。
+        if ($exception instanceof InvalidArgumentException) {
+            return json([
+                'code' => 422,
+                'message' => I18n::trans($exception->getMessage()),
+                'data' => [],
+            ])->withStatus(422);
+        }
 
         // 框架 Handler::$debug 是**属性**（构造时由 config('app.debug') 注入），不是方法。
         // 原实现写的是 method_exists($this, 'debug') —— 恒为 false，于是「非 debug 时回

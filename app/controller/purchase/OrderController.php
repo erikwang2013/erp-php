@@ -46,8 +46,7 @@ class OrderController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
@@ -94,11 +93,23 @@ class OrderController extends BaseController
     {
         // 表无 name 列（erp_purchase_order 仅 code/apply_id/supplier_id 等，见 install.sql）；
         // supplier_id 无 DB 默认值且入参为 hashid，缺省/无效直插会 1364 崩——解码落库为 int
-        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'supplier_id' => 'string', 'status' => 'integer']);
+        // remark/ordered_at 上限对齐列宽与列类型：超长落 varchar(500) 报 1406、
+        // 非日期串落 datetime 列报 1292，两者都以 500 返回
+        $validator = validator($request->all(), [
+            'code' => 'nullable|string|max:50',
+            'supplier_id' => 'string',
+            'remark' => 'nullable|string|max:500',
+            'ordered_at' => 'nullable|date',
+            // status 落 TINYINT UNSIGNED（0待审核/1已审核/2部分收货/3已收货/4已取消）：
+            // integer 放行 -1/999 会以 1264 Out of range → 500；total_amount 落 DECIMAL(12,2)，
+            // 非数值/超 10 位整数部分以 1265/1264 → 500（两者都经 fillModelFromRequest 直落列）
+            'status' => 'integer|between:0,4',
+            'total_amount' => 'nullable|numeric|min:0|max:9999999999.99',
+        ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $supplierId = $this->decodeIdSafe((string) $request->input('supplier_id', ''));
+        $supplierId = $this->decodeFlexibleId((string) $request->input('supplier_id', ''));
         if ($supplierId === null || $supplierId < 1) {
             return $this->fail($this->trans('Invalid supplier_id'), 422);
         }
@@ -113,9 +124,16 @@ class OrderController extends BaseController
         $item->supplier_id = $supplierId;
         $item->apply_id = $this->decodeFlexibleId((string) $request->input('apply_id', '0')) ?? 0;
         $item->warehouse_id = $this->decodeFlexibleId((string) $request->input('warehouse_id', '0')) ?? 0;
+        // 日期字段清空后前端下发 ''：nullable|date 放行 ''，但 '' 落 datetime 列同样 1292，
+        // 空串语义即「不填」（列可空），归一成 NULL
+        if ($request->input('ordered_at') === '') {
+            $item->fill(['ordered_at' => null]);
+        }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
+        // FK 一律 hashid 出参（与列表/详情同一名单）：漏编码会把 4.1e17 的雪花 ID 原样下发，
+        // 前端按数字回传即丢精度（>2^53），回写时 hashid 解码失败 → 422
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'supplier_id', 'apply_id', 'warehouse_id']), $this->trans('Created successfully'));
     }
 
     /**
@@ -149,7 +167,9 @@ class OrderController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        $data = $this->encodeIds($item->toArray(), ['id', 'supplier_id']);
+        // 与 index/store/update 同一 FK 名单：apply_id/warehouse_id 漏编码时详情页拿到裸雪花 ID，
+        // JSON.parse 即已丢精度（4.1e17 > 2^53），据此回填的编辑表单必然写错
+        $data = $this->encodeIds($item->toArray(), ['id', 'supplier_id', 'apply_id', 'warehouse_id']);
         // 嵌套明细：行级 id/order_id/product_id 均 hashid；product 缺失以 null 兜底不丢行
         $items = PurchaseOrderItem::query()
             ->leftJoin('product', 'product.id', '=', 'purchase_order_item.product_id')
@@ -184,8 +204,12 @@ class OrderController extends BaseController
         $validator = validator($request->all(), [
             'id' => 'string',
             'supplier_id' => 'string',
-            'code' => 'string',
-            'status' => 'integer',
+            'code' => 'string|max:50',
+            'remark' => 'nullable|string|max:500',
+            'ordered_at' => 'nullable|date',
+            // 同 store：status 卡 TINYINT UNSIGNED 语义域，total_amount 卡 DECIMAL(12,2) 量程
+            'status' => 'integer|between:0,4',
+            'total_amount' => 'nullable|numeric|min:0|max:9999999999.99',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -200,7 +224,7 @@ class OrderController extends BaseController
         // 同 store：三个 FK 在 $fillable 内，fill 会把请求 hash 串直填列——提供时解码 int 覆写
         $supplierRaw = $request->input('supplier_id', null);
         if ($supplierRaw !== null && $supplierRaw !== '') {
-            $supplierId = $this->decodeIdSafe((string) $supplierRaw);
+            $supplierId = $this->decodeFlexibleId((string) $supplierRaw);
             if ($supplierId === null || $supplierId < 1) {
                 return $this->fail($this->trans('Invalid supplier_id'), 422);
             }
@@ -212,9 +236,13 @@ class OrderController extends BaseController
                 $item->{$field} = $this->decodeFlexibleId((string) $raw) ?? 0;
             }
         }
+        // 同 store：清空的日期字段下发 ''，列可空但 '' 落库报 1292，归一成 NULL
+        if ($request->input('ordered_at') === '') {
+            $item->fill(['ordered_at' => null]);
+        }
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
+        return $this->success($this->encodeIds($item->toArray(), ['id', 'supplier_id', 'apply_id', 'warehouse_id']), $this->trans('Updated successfully'));
     }
 
     /**

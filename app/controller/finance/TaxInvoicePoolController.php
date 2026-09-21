@@ -78,8 +78,7 @@ class TaxInvoicePoolController extends BaseController
             'issue_date_from' => (string) $request->input('issue_date_from', ''),
             'issue_date_to' => (string) $request->input('issue_date_to', ''),
         ];
-        $page = max(1, (int) $request->input('page', 1));
-        $limit = min(100, max(1, (int) $request->input('limit', 20)));
+        [$page, $limit] = $this->pageParams($request, 20, 100);
         $result = $this->service()->list($filters, $page, $limit);
         $list = array_map(
             fn (array $row) => $this->encodeIds($row, self::ID_FIELDS),

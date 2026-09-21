@@ -601,6 +601,12 @@ class InstallController
     {
         $adv = [];
         $hex = '/^[A-Za-z0-9]{16,128}$/';
+        // 加解密主密钥必须**恰好 32 字节**：encryptable 的 Encrypter（strlen($key)!==32 →
+        // MissingEncryptionKeyException）与 encryption 的 EncryptionManagerFactory
+        // （Master key must be exactly 32 bytes）都硬校验，且都只在首次加解密时才查。
+        // 此前这里一律 bin2hex(random_bytes(24)) = 48 字符 ⇒ 照向导装完的站点，用户点开
+        // 任何一个会解密字段的页面（如采购收货页拉供应商下拉）就吃 500，只看到一个 TraceId。
+        $cryptoKeys = ['ENCRYPTION_KEY', 'ENCRYPTABLE_KEY'];
         $map = [
             'jwt_secret' => 'JWT_SECRET_KEY',
             'encryption_key' => 'ENCRYPTION_KEY',
@@ -624,11 +630,12 @@ class InstallController
         }
 
         foreach ($map as $field => $envKey) {
+            $isCrypto = in_array($envKey, $cryptoKeys, true);
             $raw = trim((string) $request->input($field, ''));
             if ($raw === '') {
                 $adv[$envKey] = str_ends_with($envKey, '_PORT')
                     ? ($envKey === 'APP_HTTP_PORT' ? '8788' : '8282')
-                    : bin2hex(random_bytes(24));
+                    : bin2hex(random_bytes($isCrypto ? 16 : 24));
                 continue;
             }
             if (str_ends_with($envKey, '_PORT')) {
@@ -636,7 +643,10 @@ class InstallController
                     throw new \InvalidArgumentException($this->t(':envKey must be a 2-5 digit port', ['envKey' => $envKey]));
                 }
                 $adv[$envKey] = $raw;
-            } elseif (!preg_match($hex, $raw)) {
+            } elseif ($isCrypto && !preg_match('/^[A-Za-z0-9]{32}$/', $raw)) {
+                // 长度错在这里挡住，别留到用户点页面时才炸（见 $cryptoKeys 注释）
+                throw new \InvalidArgumentException($this->t(':envKey must be exactly 32 alphanumeric characters (AES-256 key), or leave blank to auto-generate', ['envKey' => $envKey]));
+            } elseif (!$isCrypto && !preg_match($hex, $raw)) {
                 throw new \InvalidArgumentException($this->t(':field must be a 16-128 character alphanumeric key (or leave blank to auto-generate)', ['field' => $field]));
             } else {
                 $adv[$envKey] = $raw;

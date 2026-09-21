@@ -57,8 +57,7 @@ class FinanceBillController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = max(1, (int) $request->input('page', 1));
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $query = FinanceBill::query();
         $direction = (int) $request->input('direction', 0);
         if (in_array($direction, [1, 2], true)) {

@@ -60,8 +60,7 @@ class BankReconController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = max(1, (int) $request->input('page', 1));
-        $limit = min(100, max(1, (int) $request->input('limit', 15)));
+        [$page, $limit] = $this->pageParams($request, 15, 100);
         $accountId = $this->decodeMaybe((string) $request->input('bank_account_id', '0'));
         $matched = (int) $request->input('matched', -1);
         [$data, $error] = $this->service()->statementList(

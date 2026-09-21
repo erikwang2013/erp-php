@@ -9,11 +9,14 @@ declare(strict_types=1);
 namespace app\model;
 
 use Erikwang2013\WebmanScout\Searchable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
 class PurchaseReturn extends Model
 {
     use Searchable;
+    use SoftDeletes;
+
     protected $table = 'purchase_return';
     protected $primaryKey = 'id';
     public $incrementing = false;

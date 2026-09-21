@@ -39,8 +39,7 @@ class SupplierAssessmentController extends BaseController
 
     public function index(Request $request): Response
     {
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $supplierId = $request->input('supplier_id');
         $grade = $request->input('grade');
 
@@ -50,7 +49,11 @@ class SupplierAssessmentController extends BaseController
             ->leftJoin('supplier', 'supplier.id', '=', 'supplier_assessment.supplier_id')
             ->select('supplier_assessment.*', 'supplier.name as supplier_name');
         if ($supplierId) {
-            $query->where('supplier_assessment.supplier_id', $this->decodeId($supplierId));
+            // 双模解码（hashid/原生数字）；无法解析即视为未筛选（同收货列表的过滤惯例）
+            $decodedSupplier = $this->decodeFlexibleId($supplierId);
+            if ($decodedSupplier !== null && $decodedSupplier > 0) {
+                $query->where('supplier_assessment.supplier_id', $decodedSupplier);
+            }
         }
         if ($grade) {
             $query->where('supplier_assessment.grade', (string) $grade);
@@ -77,14 +80,27 @@ class SupplierAssessmentController extends BaseController
         $validator = validator($request->all(), [
             'supplier_id' => 'required|string',
             'total_score' => 'required|numeric|between:0,100',
+            // 上限/类型对齐建表列：dimensions 是 json 列（非数组入参不落库）、
+            // assessed_at 是 datetime（非日期串报 1292）、remark varchar(500)（超长报 1406），
+            // 三者原先都以 500「服务器内部错误」返回
+            'dimensions' => 'nullable|array',
+            'assessed_at' => 'nullable|date',
+            'remark' => 'nullable|string|max:500',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        // 双模解码 + 显式拒绝：原样透传时垃圾串抛「无效的加密ID」（兜在 ApiHandler 里，
+        // 文案指不出是哪个参数），且「像 hashid 的数字串」会解成 PHP_INT_MAX 落库成孤儿
+        $supplierId = $this->decodeFlexibleId($request->input('supplier_id'));
+        if ($supplierId === null || $supplierId < 1) {
+            return $this->fail('供应商（supplier_id）无效', 422);
+        }
+
         $assessment = new SupplierAssessment();
         $assessment->id = $this->generateId();
-        $assessment->supplier_id = $this->decodeId($request->input('supplier_id'));
+        $assessment->supplier_id = $supplierId;
         $assessment->total_score = bc_norm($request->input('total_score'));
         $assessment->grade = static::gradeFor($assessment->total_score);
         $assessment->dimensions = (array) ($request->input('dimensions', []));
@@ -136,10 +152,21 @@ class SupplierAssessmentController extends BaseController
             $assessment->total_score = bc_norm($score);
             $assessment->grade = static::gradeFor($assessment->total_score);
         }
-        foreach (['assessed_at', 'remark'] as $field) {
-            if ($request->has($field)) {
-                $assessment->{$field} = $request->input($field) ?: null;
-            }
+        // 同 store：日期/文本/JSON 三类入参须先按列类型校验，否则 1292 / 1406 / 3140 一律以 500 返回
+        $validator = validator($request->all(), [
+            'assessed_at' => 'nullable|date',
+            'remark' => 'nullable|string|max:500',
+            'dimensions' => 'nullable|array',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
+        // remark 列 NOT NULL default ''，不可按「空即成 NULL」处理（1048 → 500）：空串就是空串
+        if ($request->has('remark')) {
+            $assessment->remark = (string) $request->input('remark', '');
+        }
+        if ($request->has('assessed_at')) {
+            $assessment->assessed_at = $request->input('assessed_at') ?: null;
         }
         if ($request->has('dimensions')) {
             $assessment->dimensions = (array) $request->input('dimensions');

@@ -33,6 +33,20 @@ function validator(array $data = [], array $rules = [], array $messages = [], ar
 {
     static $factory = null;
 
+    // JSON 体里的数字由 json_decode 还原成 int/float。gt/gte/lt/lte/between/size 这些规则在
+    // Laravel 内一律经 Brick\BigNumber::of() 比较，而 brick/math ≥0.14 对 float 入参发
+    // E_DEPRECATED；webman（support/App::run 的 error_reporting(E_ALL) + support/bootstrap.php
+    // 里抛异常的 set_error_handler）会把它升级成 ErrorException → 未捕获 → 500「服务器内部错误」
+    // +TraceId（实测：quantity=1.5 走 numeric|gt:0 即 500，quantity=2 或 "1.5" 正常）。
+    // 小数数量/单价是常规输入（收货 1.5、单价 12.34），故在校验入口按 bc_norm() 同口径把 float
+    // 规范成十进制串——bcmath 与规则两侧本就只吃十进制串；整数与字符串原样不动。
+    // 只规范本次校验的副本，$request->input() 取到的原始入参不变。
+    array_walk_recursive($data, static function (&$value): void {
+        if (is_float($value)) {
+            $value = bc_norm($value);
+        }
+    });
+
     if ($factory === null) {
         $loader = new \Illuminate\Translation\ArrayLoader();
         foreach (['zh_CN', 'en'] as $locale) {
@@ -61,6 +75,34 @@ function env_required(string $key): string
     }
 
     assert_env_not_placeholder($key, $value);
+
+    return $value;
+}
+
+/**
+ * 读取加解密主密钥并**按算法校验长度**（AES-256 → 32 字节；AES-128 / SM4 → 16 字节）。
+ *
+ * 两个插件都只在**首次使用**时才校验长度（encryptable 的 Encrypter.php:71、
+ * encryption 的 EncryptionManagerFactory.php:29 都是 strlen 硬校验），而 env_required()
+ * 只看非空与占位值 —— 于是长度不对的站点能正常启动，直到某个用户点开一个会解密字段的
+ * 页面才 500（实测：安装向导生成的密钥是 bin2hex(random_bytes(24)) = 48 字符，
+ * 装完后 GET /admin/v1/supplier 读 phone/email 直接 500，用户只看到一个 TraceId）。
+ * 启动即拒绝并给出修复命令，比运行期 500 好归因。
+ *
+ * @param string $key    环境变量名
+ * @param string $cipher 生效的加密算法名
+ */
+function env_crypto_key(string $key, string $cipher): string
+{
+    $value = env_required($key);
+    $need = str_contains(strtolower($cipher), '256') ? 32 : 16;
+    if (strlen($value) !== $need) {
+        throw new \RuntimeException(
+            "环境变量 {$key} 长度必须为 {$need} 字节（当前 " . strlen($value) . '）：'
+            . "算法 {$cipher} 在首次加解密时硬校验该长度，长度不符会让页面报 500。"
+            . '修复：bash scripts/gen-env-keys.sh .env'
+        );
+    }
 
     return $value;
 }

@@ -14,7 +14,10 @@ use app\model\PurchaseRfq;
 use app\model\PurchaseRfqItem;
 use app\model\PurchaseRfqQuote;
 use app\service\purchase\RfqService;
-use Illuminate\Support\Facades\DB;
+// 门面 \Illuminate\Support\Facades\DB 在本项目没有根（无 Facade::setFacadeApplication），
+// 一调用就抛 RuntimeException「A facade root has not been set.」——询价全链路必失败；
+// 统一用 Capsule 管理器（其余控制器同款）。
+use Illuminate\Database\Capsule\Manager as DB;
 use support\Container;
 use support\Request;
 use support\Response;
@@ -35,8 +38,7 @@ class RfqController extends BaseController
 
     public function index(Request $request): Response
     {
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $status = $request->input('status');
         $keyword = (string) $request->input('keyword', '');
 
@@ -67,10 +69,21 @@ class RfqController extends BaseController
 
     public function store(Request $request): Response
     {
+        // 头字段同样按列型校验（原先只校验 items）：supplier_range/remark 超 varchar(500)
+        // 报 1406、require_date 落 datetime 报 1292、明细 unit 超 varchar(20)/target_price
+        // 非数值落 DECIMAL 报 1265——都被下方 catch 包成 422 并把原始 SQL 文案抛给用户
         $validator = validator($request->all(), [
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|integer',
-            'items.*.quantity' => 'required|numeric|gt:0',
+            // product_id 是商品下拉下发的 hashid（与收货/发货明细同一契约），
+            // 用 integer 规则会把它整条挡回 422；解码在 saveItems 里做，垃圾串在那里报错
+            'items.*.product_id' => 'required',
+            'items.*.quantity' => 'required|numeric|gt:0|max:9999999999.99',
+            'items.*.unit' => 'nullable|string|max:20',
+            'items.*.target_price' => 'nullable|numeric|min:0|max:9999999999.99',
+            'buyer_id' => 'nullable',
+            'supplier_range' => 'nullable|string|max:500',
+            'remark' => 'nullable|string|max:500',
+            'require_date' => 'nullable|date',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -81,8 +94,18 @@ class RfqController extends BaseController
                 $rfq = new PurchaseRfq();
                 $rfq->id = $this->generateId();
                 $rfq->rfq_no = 'RFQ' . SnowflakeService::generate();
-                $rfq->buyer_id = (int) ($request->input('buyer_id', 0)) ?: (int) ($request->adminId ?? 0);
+                // buyer_id 由采购员下拉下发 hashid（详情/列表也按 hashid 出参）：原写法 (int)'rwkrlayn'
+                // = 0 → 静默落回当前登录管理员，采购员被悄悄记错。缺省仍取当前登录管理员
+                $rawBuyer = $request->input('buyer_id');
+                $buyerId = ($rawBuyer === null || $rawBuyer === '')
+                    ? (int) ($request->adminId ?? 0)
+                    : $this->decodeFlexibleId($rawBuyer);
+                if ($buyerId === null || $buyerId < 1) {
+                    throw new \RuntimeException('采购员（buyer_id）无效');
+                }
+                $rfq->buyer_id = $buyerId;
                 $rfq->supplier_range = (string) $request->input('supplier_range', '');
+                // 清空下发 ''：列可空但 '' 落 datetime 报 1292，空串语义即「不填」
                 $rfq->require_date = $request->input('require_date') ?: null;
                 $rfq->status = PurchaseRfq::STATUS_DRAFT;
                 $rfq->remark = (string) $request->input('remark', '');
@@ -141,13 +164,54 @@ class RfqController extends BaseController
             return $this->fail($this->trans('Only draft RFQs can be edited'), 422);
         }
 
+        // 与 store 同一套边界：头字段直写列型不符会以 1264/1292/1366/1406 被 catch 成 422 原始 SQL
+        $validator = validator($request->all(), [
+            'items' => 'nullable|array|min:1',
+            'items.*.product_id' => 'required',
+            'items.*.quantity' => 'required|numeric|gt:0|max:9999999999.99',
+            'items.*.unit' => 'nullable|string|max:20',
+            'items.*.target_price' => 'nullable|numeric|min:0|max:9999999999.99',
+            'buyer_id' => 'nullable',
+            'supplier_range' => 'nullable|string|max:500',
+            'remark' => 'nullable|string|max:500',
+            'require_date' => 'nullable|date',
+        ]);
+        if ($validator->fails()) {
+            return $this->fail($validator->errors()->first(), 422);
+        }
+
         try {
-            DB::transaction(function () use ($request, $rfq) {
-                foreach (['buyer_id', 'supplier_range', 'require_date', 'remark'] as $field) {
-                    if ($request->has($field)) {
-                        $value = $request->input($field);
-                        $rfq->{$field} = ($field === 'remark' || $field === 'supplier_range') ? (string) $value : ($value ?: null);
+            // 返回值即事务内取得行锁的那份实例：响应若沿用闭包外的旧实例会回显改前值
+            $rfq = DB::transaction(function () use ($request, $id) {
+                // 事务内行锁重读：上面的 DRAFT 检查在事务外，并发 award 会 lockForUpdate 后把
+                // 状态置为已中标，两边都通过校验就会出现「已中标单被改写头/明细」（award 同款双保险）
+                $rfq = PurchaseRfq::query()->lockForUpdate()->find($this->decodeId($id));
+                if (!$rfq) {
+                    throw new \RuntimeException($this->trans('RFQ not found'));
+                }
+                if ((int) $rfq->status !== PurchaseRfq::STATUS_DRAFT) {
+                    throw new \RuntimeException($this->trans('Only draft RFQs can be edited'));
+                }
+                // buyer_id 原写法把下拉下发的 hashid 直写 buyer_id BIGINT UNSIGNED → 1366；
+                // 而 show() 出参的 buyer_id 恰是 hashid（编辑表单回显即是它），故「改采购员」必失败
+                if ($request->has('buyer_id')) {
+                    $rawBuyer = $request->input('buyer_id');
+                    if ($rawBuyer !== null && $rawBuyer !== '') {
+                        $buyerId = $this->decodeFlexibleId($rawBuyer);
+                        if ($buyerId === null || $buyerId < 1) {
+                            throw new \RuntimeException('采购员（buyer_id）无效');
+                        }
+                        $rfq->buyer_id = $buyerId;
                     }
+                }
+                foreach (['supplier_range', 'remark'] as $field) {
+                    if ($request->has($field)) {
+                        $rfq->{$field} = (string) $request->input($field);
+                    }
+                }
+                if ($request->has('require_date')) {
+                    // 清空下发 ''：列可空但 '' 落 datetime 报 1292，空串语义即「不填」
+                    $rfq->require_date = $request->input('require_date') ?: null;
                 }
                 $rfq->save();
                 if ($request->has('items')) {
@@ -158,6 +222,8 @@ class RfqController extends BaseController
                     PurchaseRfqItem::query()->where('rfq_id', $rfq->id)->delete();
                     $this->saveItems($rfq->id, $items);
                 }
+
+                return $rfq;
             });
         } catch (\Throwable $e) {
             $this->logError('rfq.update', $e);
@@ -181,7 +247,9 @@ class RfqController extends BaseController
         if (!$rfq) {
             return $this->fail($this->trans('RFQ not found'), 404);
         }
-        if ((int) $rfq->status !== PurchaseRfq::STATUS_DRAFT) {
+        // 草稿经 close() 变「已取消」，只认草稿会让取消单永远删不掉（终态死路）。
+        // 取消态只可能来自草稿（报价须已发布），故不存在「删主单留孤儿报价」
+        if (!in_array((int) $rfq->status, [PurchaseRfq::STATUS_DRAFT, PurchaseRfq::STATUS_CANCELLED], true)) {
             return $this->fail($this->trans('Only draft RFQs can be deleted'), 422);
         }
         $error = $this->confirmPassword((int) ($request->adminId ?? 0), (string) $request->input('password', ''), $request);
@@ -298,7 +366,7 @@ class RfqController extends BaseController
 
     public function award(Request $request, string $id): Response
     {
-        $quoteId = $this->decodeIdSafe((string) $request->input('quote_id', ''));
+        $quoteId = $this->decodeFlexibleId((string) $request->input('quote_id', ''));
         if ($quoteId === null || $quoteId <= 0) {
             return $this->fail($this->trans('Missing a valid quote_id'), 422);
         }
@@ -330,8 +398,29 @@ class RfqController extends BaseController
         if (in_array($status, [PurchaseRfq::STATUS_CLOSED, PurchaseRfq::STATUS_CANCELLED], true)) {
             return $this->fail($this->trans('The RFQ has been closed or cancelled'), 422);
         }
-        $rfq->status = $status === PurchaseRfq::STATUS_DRAFT ? PurchaseRfq::STATUS_CANCELLED : PurchaseRfq::STATUS_CLOSED;
-        $rfq->save();
+        $rfqId = $this->decodeId($id);
+        try {
+            $rfq = DB::transaction(function () use ($rfqId) {
+                // 状态判定须在行锁内重做：与 award 并发时，事务外读到「询价中」再写关闭会把
+                // 刚落定的「已中标」（及其已生成的采购订单）覆盖成「已关闭」
+                $locked = PurchaseRfq::query()->lockForUpdate()->find($rfqId);
+                if (!$locked) {
+                    throw new \RuntimeException($this->trans('RFQ not found'));
+                }
+                $status = (int) $locked->status;
+                if (in_array($status, [PurchaseRfq::STATUS_CLOSED, PurchaseRfq::STATUS_CANCELLED], true)) {
+                    throw new \RuntimeException($this->trans('The RFQ has been closed or cancelled'));
+                }
+                $locked->status = $status === PurchaseRfq::STATUS_DRAFT ? PurchaseRfq::STATUS_CANCELLED : PurchaseRfq::STATUS_CLOSED;
+                $locked->save();
+
+                return $locked;
+            });
+        } catch (\Throwable $e) {
+            $this->logError('rfq.close', $e);
+
+            return $this->fail($e->getMessage(), 422);
+        }
 
         return $this->success($this->encodeIds($rfq->toArray(), ['id', 'buyer_id']), $this->trans('Operation successful'));
     }
@@ -346,7 +435,12 @@ class RfqController extends BaseController
             $item = new PurchaseRfqItem();
             $item->id = $this->generateId();
             $item->rfq_id = $rfqId;
-            $item->product_id = (int) $row['product_id'];
+            // hashid 双模解码：原写法 (int)'rwkrlayn0eAr' = 0，垃圾/未解码串会静默落 0 成孤儿行
+            $productId = $this->decodeFlexibleId($row['product_id']);
+            if ($productId === null || $productId < 1) {
+                throw new \RuntimeException('明细 product_id 无效');
+            }
+            $item->product_id = $productId;
             $item->quantity = bc_norm($row['quantity'] ?? '0');
             $item->unit = (string) ($row['unit'] ?? '');
             $item->target_price = bc_norm($row['target_price'] ?? '0');

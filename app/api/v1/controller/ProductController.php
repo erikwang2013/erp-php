@@ -35,8 +35,7 @@ class ProductController extends BaseController
 
     public function index(Request $request): Response
     {
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 20);
+        [$page, $limit] = $this->pageParams($request, 20);
         $keyword = $request->input('keyword', '');
 
         $query = Product::where('status', 1);

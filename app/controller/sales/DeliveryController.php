@@ -66,8 +66,7 @@ class DeliveryController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
         $orderId = $request->input('order_id');
@@ -130,16 +129,24 @@ class DeliveryController extends BaseController
             'warehouse_id' => 'required|string',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required',
-            'items.*.order_item_id' => 'required',
-            'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.price' => 'required|numeric|min:0',
-            'remark' => 'string',
+            // order_item_id 可缺省：订单明细行的 hashid 没有界面能查到（通用表单只能选到商品），
+            // 缺省时在下方按 product_id 在本单内反查（同采购收货契约），归属校验照旧
+            'items.*.order_item_id' => 'nullable',
+            'items.*.quantity' => 'required|numeric|min:0.01|max:9999999999.99',
+            'items.*.price' => 'required|numeric|min:0|max:9999999999.99',
+            // 上限对齐列宽（varchar 50 / 20）：超长落库报 1406，会以 500 返回
+            'items.*.batch_code' => 'nullable|string|max:50',
+            'items.*.unit' => 'nullable|string|max:20',
+            'remark' => 'string|max:500',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        $orderId = $this->decodeId($request->input('order_id'));
+        $orderId = $this->decodeFlexibleId($request->input('order_id'));
+        if ($orderId === null || $orderId < 1) {
+            return $this->fail($this->trans('Invalid order_id'), 422);
+        }
         $order = SalesOrder::find($orderId);
         if (!$order) {
             return $this->fail($this->trans('Sales order not found'), 404);
@@ -165,8 +172,14 @@ class DeliveryController extends BaseController
             $delivery->id = $this->generateId();
             $delivery->code = doc_code($request->input('code'), 'SD');
             $delivery->order_id = $orderId;
-            $delivery->customer_id = $this->decodeId($request->input('customer_id'));
-            $delivery->warehouse_id = $this->decodeId($request->input('warehouse_id'));
+            // 两个外键同套双模解码（hashid 或原生数字）：垃圾串 422 而不是落 0 成孤儿单
+            $customerId = $this->decodeFlexibleId($request->input('customer_id'));
+            $warehouseId = $this->decodeFlexibleId($request->input('warehouse_id'));
+            if ($customerId === null || $customerId < 1 || $warehouseId === null || $warehouseId < 1) {
+                throw new \RuntimeException('客户或仓库（customer_id/warehouse_id）无效');
+            }
+            $delivery->customer_id = $customerId;
+            $delivery->warehouse_id = $warehouseId;
             $delivery->status = 0; // 待发货
             $delivery->remark = $request->input('remark', '');
             $delivery->delivered_at = date('Y-m-d H:i:s');
@@ -179,16 +192,33 @@ class DeliveryController extends BaseController
 
             // 2. 创建发货明细 + 执行出库
             foreach ($request->input('items') as $itemData) {
-                $productId = ($itemData['product_id'] ?? '') ? $this->decodeId($itemData['product_id']) : 0;
-                $skuId = ($itemData['sku_id'] ?? '') ? $this->decodeId($itemData['sku_id']) : 0;
-                $locationId = ($itemData['location_id'] ?? '') ? $this->decodeId($itemData['location_id']) : 0;
-                $orderItemId = ($itemData['order_item_id'] ?? '') ? $this->decodeId($itemData['order_item_id']) : 0;
+                // 明细外键同采购收货一套双模解码（hashid 或原生数字）：product_id 缺失/无效必须拒绝
+                // （落 0 会出库到无商品的行），其余三个是可选归属列，无法解析即按「未提供」落 0
+                $productId = $this->decodeFlexibleId($itemData['product_id'] ?? '');
+                if ($productId === null || $productId < 1) {
+                    throw new \RuntimeException('发货明细 product_id 无效');
+                }
+                $skuId = $this->decodeFlexibleId($itemData['sku_id'] ?? '') ?? 0;
+                $locationId = $this->decodeFlexibleId($itemData['location_id'] ?? '') ?? 0;
+                $orderItemId = $this->decodeFlexibleId($itemData['order_item_id'] ?? '') ?? 0;
                 $quantity = bc_norm($itemData['quantity']);
                 $price = bc_norm($itemData['price']);
                 $amount = bc_round(bcmul($quantity, $price, 6), 2);
                 $batchCode = $itemData['batch_code'] ?? '';
                 $unit = $itemData['unit'] ?? '';
                 $totalDeliveryAmount = bcadd($totalDeliveryAmount, $amount, 6);
+
+                // order_item_id 缺省时按商品反查本单明细行：本单该商品恰好一行才可判定，
+                // 0 行（商品不在本单）或多行（同商品多行，价/批不同）都必须让调用方显式指定
+                if ($orderItemId <= 0) {
+                    $candidates = $orderItems->where('product_id', $productId);
+                    if ($candidates->count() !== 1) {
+                        throw new \RuntimeException(
+                            "发货明细未指定订单明细行，且本单商品({$productId})对应 {$candidates->count()} 行，无法确定，请显式传入 order_item_id"
+                        );
+                    }
+                    $orderItemId = (int) $candidates->keys()->first();
+                }
 
                 // 归属校验：order_item_id 必须属于该销售单
                 if ($orderItemId <= 0 || !isset($orderItems[$orderItemId])) {
@@ -268,7 +298,12 @@ class DeliveryController extends BaseController
             DB::rollBack();
             $this->logError('执行发货', $e);
 
-            return $this->fail($this->trans('Shipment failed: ') . $e->getMessage(), 500);
+            // 同采购收货：业务规则拒绝（超发/明细不属本单/商品对应多行/库存不足）是调用方可纠正的
+            // 输入问题 → 422；PDOException 也是 RuntimeException（SQL/连接故障属服务端），须排除后再判 500
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $this->fail($this->trans('Shipment failed: ') . $e->getMessage(), $clientFault ? 422 : 500);
         }
     }
 

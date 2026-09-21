@@ -113,7 +113,9 @@ class ChannelService
         if ($channel !== null && $channel !== '') {
             $query->where('channel', $channel);
         }
-        $logs = $query->orderBy('id')->limit(max(1, $limit))->get();
+        // 上限 500 与 BaseController::pageParams 同口径：limit 来自请求体且下游要逐条真实发送，
+        // 不封顶时 ?limit=100000 会在单个请求里串行发完积压，拖到超时（同期其它批量接口同款风险）
+        $logs = $query->orderBy('id')->limit(min(max(1, $limit), 500))->get();
 
         $attempted = 0;
         $succeeded = 0;

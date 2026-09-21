@@ -79,6 +79,11 @@ class BaseController
     /**
      * 双模解码：hashid 串解码；原生数字（int/数字串）直用；其余（含数组等非标量）返回 null
      * （调用方 422 拒绝，避免 (int)'abc'=0 静默写入无 FK 约束的关联列产生孤儿行）
+     *
+     * hashid 只在「解回来再编一次与原文逐字相同」时才采信：hashids 会把某些纯数字串
+     * （实测 '410000000000000402'）当成合法密文解出 PHP_INT_MAX，只认解码不认往返就会把
+     * 数字 ID 静默写成 9223372036854775807 这种垃圾外键（关联列无 FK 约束时无人拦）。
+     * 真实 hashid 的往返恒等（encode(decode(x)) === x），故往返校验不会误拒。
      */
     protected function decodeFlexibleId(mixed $raw): ?int
     {
@@ -87,11 +92,36 @@ class BaseController
         }
         $raw = (string) $raw;
         $decoded = $this->decodeIdSafe($raw);
-        if ($decoded !== null) {
+        if ($decoded !== null && $decoded > 0 && HashidsService::encode($decoded) === $raw) {
             return $decoded;
         }
 
         return is_numeric($raw) ? (int) $raw : null;
+    }
+
+    /**
+     * ID 数组归一为原始 ID 数组；含无效项返回 null（调用方 422 拒绝）。
+     * 判定顺序与 decodeFlexibleId 一致（hashid 优先、数字兜底）：
+     * 传输层契约是 hashid 字符串数组（前端均按 string 集合下发），而 hashid 字母表含 0-9，
+     * 纯数字 hashid 真实存在（id=9 → '69'），is_numeric 先行会把它误读成 id=69 授错权限。
+     * 关联表无 FK 约束，放行垃圾值只会静默写入孤儿行 —— 故拒绝而非退化。
+     */
+    protected function normalizeIdArray(mixed $ids): ?array
+    {
+        $normalized = [];
+        foreach ((array) $ids as $v) {
+            // 只收 int/string 两种合法形态：PHP 里 (int)[] === 1，数组元素会凭空变成 id=1
+            if (!is_string($v) && !is_int($v)) {
+                return null;
+            }
+            $decoded = $this->decodeFlexibleId((string) $v);
+            if ($decoded === null) {
+                return null;
+            }
+            $normalized[] = $decoded;
+        }
+
+        return $normalized;
     }
 
     /**
@@ -127,6 +157,23 @@ class BaseController
     protected function encodeIds(array $data, array $idFields = []): array
     {
         return HashidsService::encodeIds($data, $idFields);
+    }
+
+    /**
+     * 分页参数归一：page ≥ 1，1 ≤ limit ≤ maxLimit（缺省 500）。
+     * 负 page/limit 会被编译成 `limit -5` 落 MySQL 语法错误（→500）；超大 limit 是一次
+     * 无上限拉取（分页参数是外部输入，属信任边界）。默认 15 与前端列表页一致；
+     * 上限取 500 而不是更小，是因为前端下拉数据源普遍请求 `?limit=500`
+     * （Flutter 各页下拉、Angular/React 的 source 拉取），卡到 100 会把下拉静默截断。
+     *
+     * @return array{0:int,1:int} [page, limit]
+     */
+    protected function pageParams(Request $request, int $defaultLimit = 15, int $maxLimit = 500): array
+    {
+        $page = max(1, (int) $request->input('page', 1));
+        $limit = (int) $request->input('limit', $defaultLimit);
+
+        return [$page, min(max($limit, 1), $maxLimit)];
     }
 
     /**

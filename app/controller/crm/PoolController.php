@@ -61,8 +61,7 @@ class PoolController extends BaseController
      */
     private function poolCustomers(Request $request): Response
     {
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
         $keyword = $request->input('keyword', '');
         $levelId = $request->input('level_id');
 
@@ -159,8 +158,7 @@ class PoolController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $page = (int) $request->input('page', 1);
-        $limit = (int) $request->input('limit', 15);
+        [$page, $limit] = $this->pageParams($request);
 
         $result = $this->crm()->list(CrmPoolRule::class, [], $page, $limit);
         $list = array_map(fn ($item) => $this->encodeIds($item), $result['list']);
