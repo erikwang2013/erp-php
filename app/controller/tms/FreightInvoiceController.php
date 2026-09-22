@@ -8,7 +8,9 @@ declare(strict_types=1);
 namespace app\controller\tms;
 
 use app\admin\controller\BaseController;
+use app\model\TmsCarrier;
 use app\model\TmsFreightInvoice;
+use app\model\TmsShipment;
 use support\Request;
 use support\Response;
 
@@ -61,9 +63,24 @@ class FreightInvoiceController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $rows = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'carrier_id', 'shipment_id']));
+            ->get()->toArray();
+        // 行补承运商名与运单号（表只有 carrier_id/shipment_id）；运单号键沿用 tms/TrackingController:68
+        // 的 shipment_code（运单无 name 列，两端别名表也把 shipment_id 登记到该键）
+        $carrierNames = TmsCarrier::query()
+            ->whereIn('id', array_column($rows, 'carrier_id'))
+            ->pluck('name', 'id')->all();
+        $shipmentCodes = TmsShipment::query()
+            ->whereIn('id', array_column($rows, 'shipment_id'))
+            ->pluck('code', 'id')->all();
+        $list = array_map(function (array $item) use ($carrierNames, $shipmentCodes) {
+            // 名称按裸 ID 查（encodeIds 之后这两个键是 hashid）
+            $item['carrier_name'] = $carrierNames[$item['carrier_id']] ?? '';
+            $item['shipment_code'] = $shipmentCodes[$item['shipment_id']] ?? '';
+
+            return $this->encodeIds($item, ['id', 'carrier_id', 'shipment_id']);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }

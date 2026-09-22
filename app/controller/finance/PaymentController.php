@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
+use app\model\FinanceBankAccount;
 use app\model\FinancePayment;
 use app\model\FinanceSettlement;
 use app\model\Supplier;
@@ -65,9 +66,15 @@ class PaymentController extends BaseController
         // 行补供应商名（表无 name 列）；FK 编码供编辑弹窗下拉回填 hashid 匹配
         $names = Supplier::whereIn('id', $models->pluck('supplier_id')->all())
             ->pluck('name', 'id')->all();
-        $list = $models->map(function ($item) use ($names) {
-            $row = $this->encodeIds($item->toArray(), ['id', 'supplier_id', 'bank_account_id']);
+        $accountNames = FinanceBankAccount::query()
+            ->whereIn('id', $models->pluck('bank_account_id')->all())
+            ->pluck('name', 'id')->all();
+        $list = $models->map(function ($item) use ($names, $accountNames) {
+            $data = $item->toArray();
+            $row = $this->encodeIds($data, ['id', 'supplier_id', 'bank_account_id']);
             $row['supplier_name'] = $names[$item->supplier_id] ?? '';
+            // 名称按裸 ID 查（$row 里已是 hashid）
+            $row['bank_account_name'] = $accountNames[$data['bank_account_id']] ?? '';
 
             return $row;
         });

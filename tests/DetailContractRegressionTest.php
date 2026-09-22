@@ -8,18 +8,24 @@ declare(strict_types=1);
 
 namespace tests;
 
+use app\admin\controller\PermissionController;
 use app\common\HashidsService;
 use app\common\SnowflakeService;
 use app\controller\eam\EamInspectionController;
 use app\controller\eam\MaintenancePlanController;
 use app\controller\eam\RepairOrderController;
+use app\controller\finance\FinanceBillController;
+use app\controller\finance\PaymentController;
+use app\controller\inventory\TransferController;
 use app\controller\manufacturing\BomController;
 use app\controller\oms\FulfillmentController as OmsFulfillmentController;
 use app\controller\oms\OrderController as OmsOrderController;
 use app\controller\oms\RmaController;
 use app\controller\purchase\OrderController as PurchaseOrderController;
 use app\controller\sales\OrderController as SalesOrderController;
+use app\controller\tms\FreightInvoiceController;
 use app\controller\workflow\ApprovalController;
+use app\model\AdminPermission;
 use app\model\ApprovalInstance;
 use app\model\ApprovalNode;
 use app\model\ApprovalRecord;
@@ -30,6 +36,9 @@ use app\model\EamInspectionResult;
 use app\model\EamInspectionTask;
 use app\model\EamMaintenancePlan;
 use app\model\EamRepairOrder;
+use app\model\FinanceBankAccount;
+use app\model\FinanceBill;
+use app\model\FinancePayment;
 use app\model\Inventory;
 use app\model\MfgBom;
 use app\model\OmsFulfillment;
@@ -43,6 +52,10 @@ use app\model\PurchaseOrderItem;
 use app\model\SalesOrder;
 use app\model\SalesOrderItem;
 use app\model\Supplier;
+use app\model\TmsCarrier;
+use app\model\TmsFreightInvoice;
+use app\model\TmsShipment;
+use app\model\Transfer;
 use app\model\Warehouse;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\TestCase;
@@ -1661,6 +1674,185 @@ class DetailContractRegressionTest extends TestCase
                 EamRepairOrder::where('id', $id)->delete();
             }
             EamEquipment::where('id', $equipmentId)->delete();
+        }
+    }
+
+    /* ======================== 关联名收尾批（v1.19.4） ======================== */
+
+    /** 列表里按裸 ID 找行（列表按 id desc 排，新行通常在最前，但不依赖顺序） */
+    private function rowById(array $list, int $id): ?array
+    {
+        foreach ($list as $item) {
+            if (($item['id'] ?? null) === $this->encodeId($id)) {
+                return $item;
+            }
+        }
+
+        return null;
+    }
+
+    /** 权限树是嵌套结构：按裸 ID 深度优先找节点 */
+    private function treeNodeById(array $nodes, int $id): ?array
+    {
+        foreach ($nodes as $node) {
+            if (($node['id'] ?? null) === $this->encodeId($id)) {
+                return $node;
+            }
+            $hit = $this->treeNodeById((array) ($node['children'] ?? []), $id);
+            if ($hit !== null) {
+                return $hit;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 列表行关联名收尾：/finance/bill、/finance/payment 的 bank_account_name，
+     * /inventory/transfer 的 from_/to_warehouse_name（两键不得互换），
+     * /tms/freight-invoice 的 carrier_name + shipment_code，
+     * /system/permission 的 parent_name（顶级留空）。
+     * 缺任一键，两端详情抽屉就只剩「<标题> -」。
+     */
+    public function testListRowsCarryRemainingForeignKeyNames(): void
+    {
+        $suffix = $this->randSuffix();
+        $accountId = SnowflakeService::generate();
+        $fromWarehouseId = SnowflakeService::generate();
+        $toWarehouseId = SnowflakeService::generate();
+        $supplierId = SnowflakeService::generate();
+        $carrierId = SnowflakeService::generate();
+        $shipmentId = SnowflakeService::generate();
+        $billId = SnowflakeService::generate();
+        $paymentId = SnowflakeService::generate();
+        $transferId = SnowflakeService::generate();
+        $invoiceId = SnowflakeService::generate();
+        $permParentId = SnowflakeService::generate();
+        $permChildId = SnowflakeService::generate();
+        try {
+            $account = new FinanceBankAccount();
+            $account->id = $accountId;
+            $account->name = '批4账户' . $suffix;
+            $account->save();
+
+            $fromWarehouse = new Warehouse();
+            $fromWarehouse->id = $fromWarehouseId;
+            $fromWarehouse->code = 'B4WFA' . $suffix;
+            $fromWarehouse->name = '批4调出仓' . $suffix;
+            $fromWarehouse->save();
+            $toWarehouse = new Warehouse();
+            $toWarehouse->id = $toWarehouseId;
+            $toWarehouse->code = 'B4WTB' . $suffix;
+            $toWarehouse->name = '批4调入仓' . $suffix;
+            $toWarehouse->save();
+
+            $supplier = new Supplier();
+            $supplier->id = $supplierId;
+            $supplier->code = 'B4SI' . $suffix;
+            $supplier->name = '批4供应商' . $suffix;
+            $supplier->save();
+
+            $carrier = new TmsCarrier();
+            $carrier->id = $carrierId;
+            $carrier->code = 'B4C' . $suffix;
+            $carrier->name = '批4承运商' . $suffix;
+            $carrier->save();
+            $shipment = new TmsShipment();
+            $shipment->id = $shipmentId;
+            $shipment->code = 'B4S' . $suffix;
+            $shipment->save();
+
+            // 1. 票据台账：bank_account_id 的表单字段没有 source（裸 hashid 输入框），抽屉只能靠这个兄弟键
+            $bill = new FinanceBill();
+            $bill->id = $billId;
+            $bill->bill_no = 'B4B' . $suffix;
+            $bill->due_date = date('Y-m-d', strtotime('+30 days'));
+            $bill->bank_account_id = $accountId;
+            $bill->save();
+            $body = $this->jsonBody((new FinanceBillController())->index(new FakeRequest(['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $billId);
+            $this->assertNotNull($row, '新插入的票据应出现在列表');
+            $this->assertSame('批4账户' . $suffix, $row['bank_account_name'] ?? null, '票据台账缺 bank_account_name');
+            $this->assertSame($this->encodeId($accountId), $row['bank_account_id'] ?? null, 'bank_account_id 仍应是 hashid');
+
+            // 2. 付款单：与既有的 supplier_name 并列产出
+            $payment = new FinancePayment();
+            $payment->id = $paymentId;
+            $payment->code = 'B4P' . $suffix;
+            $payment->supplier_id = $supplierId;
+            $payment->bank_account_id = $accountId;
+            $payment->save();
+            $body = $this->jsonBody((new PaymentController())->index(new FakeRequest(['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $paymentId);
+            $this->assertNotNull($row, '新插入的付款单应出现在列表');
+            $this->assertSame('批4账户' . $suffix, $row['bank_account_name'] ?? null, '付款单缺 bank_account_name');
+            $this->assertSame('批4供应商' . $suffix, $row['supplier_name'] ?? null, '既有 supplier_name 不得回退');
+
+            // 3. 库存调拨：两个仓库名各归各键（互换即红）
+            $transfer = new Transfer();
+            $transfer->id = $transferId;
+            $transfer->code = 'B4T' . $suffix;
+            $transfer->from_warehouse_id = $fromWarehouseId;
+            $transfer->to_warehouse_id = $toWarehouseId;
+            $transfer->save();
+            $body = $this->jsonBody((new TransferController())->index(new FakeRequest(['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $transferId);
+            $this->assertNotNull($row, '新插入的调拨单应出现在列表');
+            $this->assertSame('批4调出仓' . $suffix, $row['from_warehouse_name'] ?? null, '调拨单缺 from_warehouse_name');
+            $this->assertSame('批4调入仓' . $suffix, $row['to_warehouse_name'] ?? null, '调拨单缺 to_warehouse_name');
+
+            // 4. 运费发票：承运商名 + 运单号（运单号键是 shipment_code，两端别名表也登记到该键）
+            $invoice = new TmsFreightInvoice();
+            $invoice->id = $invoiceId;
+            $invoice->code = 'B4F' . $suffix;
+            $invoice->carrier_id = $carrierId;
+            $invoice->shipment_id = $shipmentId;
+            $invoice->save();
+            $body = $this->jsonBody((new FreightInvoiceController())->index(new FakeRequest(['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $invoiceId);
+            $this->assertNotNull($row, '新插入的运费发票应出现在列表');
+            $this->assertSame('批4承运商' . $suffix, $row['carrier_name'] ?? null, '运费发票缺 carrier_name');
+            $this->assertSame('B4S' . $suffix, $row['shipment_code'] ?? null, '运费发票缺 shipment_code');
+
+            // 5. 权限树：父级名（父节点就在同一结果集里，零查询解出）；顶级留空串
+            $parent = new AdminPermission();
+            $parent->id = $permParentId;
+            $parent->name = '批4父权限' . $suffix;
+            $parent->slug = 'b4.parent.' . $suffix;
+            $parent->type = 1;
+            $parent->save();
+            $child = new AdminPermission();
+            $child->id = $permChildId;
+            $child->parent_id = $permParentId;
+            $child->name = '批4子权限' . $suffix;
+            $child->slug = 'b4.child.' . $suffix;
+            $child->type = 2;
+            $child->save();
+            $body = $this->jsonBody((new PermissionController())->index(new FakeRequest()));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $tree = (array) ($body['data'] ?? []);
+            $childNode = $this->treeNodeById($tree, $permChildId);
+            $this->assertNotNull($childNode, '新插入的子权限应出现在权限树');
+            $this->assertSame('批4父权限' . $suffix, $childNode['parent_name'] ?? null, '权限节点缺 parent_name');
+            $this->assertSame($this->encodeId($permParentId), $childNode['parent_id'] ?? null, 'parent_id 仍应是 hashid');
+            $parentNode = $this->treeNodeById($tree, $permParentId);
+            $this->assertNotNull($parentNode, '新插入的父权限应出现在权限树');
+            $this->assertSame('', $parentNode['parent_name'] ?? null, '顶级节点 parent_name 应为空串');
+        } finally {
+            FinanceBill::where('id', $billId)->delete();
+            FinancePayment::where('id', $paymentId)->delete();
+            Transfer::where('id', $transferId)->delete();
+            TmsFreightInvoice::where('id', $invoiceId)->delete();
+            TmsShipment::where('id', $shipmentId)->delete();
+            TmsCarrier::where('id', $carrierId)->delete();
+            AdminPermission::whereIn('id', [$permChildId, $permParentId])->delete();
+            Supplier::where('id', $supplierId)->delete();
+            FinanceBankAccount::where('id', $accountId)->delete();
+            Warehouse::whereIn('id', [$fromWarehouseId, $toWarehouseId])->delete();
         }
     }
 }

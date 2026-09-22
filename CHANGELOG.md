@@ -2,6 +2,43 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.4 (2026-09-22)
+
+**后端关联名收尾批**：v1.19.3 遗留的「后端外键名缺口 8 处」逐条查证 —— 7 处补齐产出方、1 处（`/sales/settlement`）查证为误报。一并修掉上一批写路径引入的 3 处 PHPStan `property.notFound`（**`main` 的静态分析此前是红的**）。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。
+
+### 修复 · 后端关联名产出方（7 处，全部只补 `index`）
+- **`/finance/bill`、`/finance/payment`**：行补 `bank_account_name`（`erp_finance_bank_account.name`）。票据页的 `bank_account_id` 表单字段没有 `source`（裸 hashid 输入框），只有这个兄弟键能让详情抽屉显出账户名 —— 缺它就只剩「托收账户 -」
+- **`/inventory/transfer`**：行补 `from_warehouse_name`/`to_warehouse_name`（`erp_warehouse.name`，一次 `whereIn` 覆盖两列）
+- **`/tms/freight-invoice`**：行补 `carrier_name`（`tms_carrier.name`）与 `shipment_code`（`tms_shipment.code`，键名与 `tms/TrackingController:68` 既有产出方一致）
+- **`/system/permission`**：行补 `parent_name` —— 权限是自引用树，父节点就在同一结果集里，`array_column` 零查询解出（顶级 `parent_id=0` 留空串）
+- **两端别名表**新增 `shipment_id → shipment_code`（Angular `NAME_ALIAS` + React `REL_ALIAS`，键序一致）：运单表无 `name` 列，默认兄弟 `shipment_name` 全仓零产出方，别名指过去才有值；`check-column-titles.mjs` 的 `EXTRA_KEYS` 早有 `shipment_code`，标题不受影响
+- 三条口径：名称一律按**裸 ID** 查（`encodeIds` 之后同键已是 hashid，误用即整列为空）；新查询走 `Model::query()->whereIn()`（`Model::whereIn()` 是本仓 PHPStan baseline 逐类登记的 `staticMethod.notFound`，新类新写点会直接红）；不新增模型属性读（`$model->xxx_id` 同样计入 baseline 的 `property.notFound` 计数，超一条即红）
+
+### 查证 · `/sales/settlement` 的 `receipt_payment_id` 是误报（不补）
+`receipt_payment_id` 是 `erp_finance_settlement`（核销记录）的列（install.sql:1237），**不在** `/sales/settlement` 返回的 `erp_finance_ar_ap` 行上；前端那一处是**核销弹窗的入参**（`fields` + `source: /admin/v1/finance/receipt`），不是展示列。唯一会列出核销记录行的 `/finance/settlement` 在两端 Web 里**零消费者**（`grep -rn finance/settlement apps/` 命中 0），抽屉永远不会渲染它。补 `receipt_payment_name` 等于产一个没有读方的键。
+
+### 修复 · CI 静态分析（上一批写路径引入，HEAD 即红）
+- `app/controller/bi/WidgetController.php:108-109`（`dashboard_id`/`dataset_id`）、`app/controller/bi/DatasetController.php:101`（`template_id`）：直写模型属性 → 3 处 `property.notFound`。改为 `$item->fill([...])`（三键都在各自 `$fillable` 里；`BiModuleTest` 的落库断言覆盖 `template_id`）
+
+### 新增
+- 测试：`tests/DetailContractRegressionTest.php` +1（`testListRowsCarryRemainingForeignKeyNames`，22 断言：5 个页面/7 个键 + 外键仍是 hashid + 既有 `supplier_name` 不回退 + 调拨两键不互换 + 顶级 `parent_name` 空串）
+- 负控 5 组变异（票据账户名、付款单账户名、调拨 from/to 互换、运费发票承运商名、权限父级名）逐组**变红于对应断言**（断言数 3/7/11/15/19 依次中靶）
+
+### 验证
+- CI 等效双跑（`VERIFY_DB=erp_verify` 临时库 + `TEST_DB_*` 驱动集成测试）：**1048 用例 / 7046 断言 / 2 warning / 8 skipped / 0 失败**，两遍逐字一致（含覆盖采集那一遍，三遍同数字）；相对上一批的**差异恰为本次新增用例**（+1 用例 +22 断言，同环境基线 `/tmp/relcheck.suite.log` 为 1047/7024/8，skipped 数随共享验证库的历史残留浮动、与本次改动无关）
+- 覆盖率门禁：整体 **31.47%**（门槛 30，上批 30.91%）、业务层 `app/service` **77.59%**（门槛 40），另按 CI 现行 4/10 阈值复算同样 PASS
+- PHPStan `--memory-limit=1G` **0 错误**（改前 HEAD 即红的 3 处已清）、PHP CS Fixer dry-run 0 文件可修
+- 14 道 node 门禁全绿（含 `check-fe-detail-items.mjs` 的两端别名表同源比对、`check-column-titles.mjs` 的两端标题一致）、Angular `ng build` 0 warning、React `tsc --noEmit` 干净
+
+### 待办 / 已知遗留（本轮未修）
+- **`/finance/receipt`、`/finance/payment` 的 `method` 表单只给 `bank/cash/other` 三值**，DDL 注释是 `cash/bank/wechat/alipay`、本页词典是五值（含微信/支付宝）—— 后端不校验该字段，属选项缺口
+- **`erp_dms_document.status` 是 `VARCHAR(20) DEFAULT 'draft'`，页面 dict 却写 `{0:'草稿',1:'发布'}`**：数值字典落在字符串列上永不命中，列表显示 `draft` 原文（`domains/mgmt.ts:418`）
+- 三处**编造的前缀状态字典**（`purchase`/`sales`/`crm` 模块通用档）在 140 页里一次也没被查到（不可达），删除前要先改 `check-fe-detail-items.mjs:96/:122` 的故意断言；`COMMON_STATUS[2]='处理中'` 同被 `check-fe-enum-text.mjs:325` 锁住（全库码 2 出现 58 次、无一处该文案）
+- **DDL 通道扫描未做**：字典文案是逐页人工抄 `install.sql` 列注释，没有「DDL 注释 ↔ 词典」的自动对差门禁
+- **`approved_by`/`assigned_to` 这类 `_by` 外键**：前端已跳过裸编码值（落「-」），后端仍无姓名产出方 —— 补产出方还是接受「-」未裁决
+- `DatasetController::update` 的 `template_id` 仍是直写（同文件 `store` 已改 `fill`）：PHPStan 当前未报（`$item` 来自 `find()` 的推断路径不同），本批未动，留给下一轮修静态分析时一并收口
+- React `strStatus` 与 Angular 的状态文案兜底口径有观感差异（未统一）
+
 ## v1.19.3 (2026-09-22)
 
 **枚举文案 · 关联名收尾批（v1.19.2 续批）**：上一批把「状态列的取值来源」「外键兜底值」定死，这一批把同两类问题在**另外三处出口**补齐 —— Web 两端的**详情抽屉 / 动作结果面板**（列里翻了、抽屉里还是码）、**移动端列表**（Flutter / HarmonyOS 的枚举列仍是裸码、关联列仍是裸 hashid）、以及**派生非 DB 列**（`items_count`/`quotes_count` 这类 `withCount` 键此前驼峰化上屏，即用户报的 `itemsCount`、`quotesCount`；`awarded` 中标标记、`issue_status` 发票开具状态同属这一类）。Web 两端各补 78 处 `cfg.dicts`（48 页单行形态 + 4 处多行块，文案逐字抄自 `install.sql` 该列注释，两端逐页对齐）；后端补 20 余处关联名产出方与 6 类双模外键解码；新增 4 道门禁、扩写 3 道，其中 `check-fe-detail-items.mjs` 新增 **140 页全页面扫**（真配置 × 真引擎渲染，喂 DDL 全量数值型外键列的超集哨兵，共 19320 个哨兵）。范围仍只含缺陷修复与既有能力接线：**0 个新增控制器、0 个新增路由、0 个新增数据表**。

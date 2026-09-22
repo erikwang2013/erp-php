@@ -105,8 +105,9 @@ class WidgetController extends BaseController
         $item = new BiWidget();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
-        $item->dashboard_id = $dashboardId;
-        $item->dataset_id = $fkIds['dataset_id'] ?? 0;
+        // fill 而非直写：模型无 @property，直写 $item->xxx_id 会新增 PHPStan property.notFound
+        // （dashboard_id/dataset_id 都在 BiWidget::$fillable 里）
+        $item->fill(['dashboard_id' => $dashboardId, 'dataset_id' => $fkIds['dataset_id'] ?? 0]);
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));

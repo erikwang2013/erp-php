@@ -9,6 +9,7 @@ namespace app\controller\inventory;
 
 use app\admin\controller\BaseController;
 use app\model\Transfer;
+use app\model\Warehouse;
 use support\Request;
 use support\Response;
 
@@ -59,9 +60,22 @@ class TransferController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $rows = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'from_warehouse_id', 'to_warehouse_id']));
+            ->get()->toArray();
+        // 行补调出/调入仓库名（表只有 from_/to_warehouse_id，详情抽屉默认找 <base>_name 兄弟）
+        $warehouseNames = Warehouse::query()
+            ->whereIn('id', array_merge(
+                array_column($rows, 'from_warehouse_id'),
+                array_column($rows, 'to_warehouse_id')
+            ))->pluck('name', 'id')->all();
+        $list = array_map(function (array $item) use ($warehouseNames) {
+            // 名称按裸 ID 查（encodeIds 之后这两个键是 hashid）
+            $item['from_warehouse_name'] = $warehouseNames[$item['from_warehouse_id']] ?? '';
+            $item['to_warehouse_name'] = $warehouseNames[$item['to_warehouse_id']] ?? '';
+
+            return $this->encodeIds($item, ['id', 'from_warehouse_id', 'to_warehouse_id']);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }

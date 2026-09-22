@@ -135,6 +135,9 @@ const NAME_ALIAS: Record<string, string> = {
   // 项目/部门负责人 → 姓名（ProjectController::index:95、DepartmentController::index:261 行内补 manager_name；
   // 两页都没写显式 columns，缺别名时多出一列「负责人 -」，与真正的姓名列同名并存）
   manager_user_id: 'manager_name',
+  // 运单 → 运单号（tms/FreightInvoiceController::index、tms/TrackingController:68 行内补 shipment_code；
+  // 运单无 name 列，默认兄弟 shipment_name 不存在）
+  shipment_id: 'shipment_code',
 };
 
 /** 关系对象里取名称：name → title → label → code；空对象/数组取不到（不给 [object Object]） */

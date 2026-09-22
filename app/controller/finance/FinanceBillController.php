@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
+use app\model\FinanceBankAccount;
 use app\model\FinanceBill;
 use app\service\finance\FinanceBillService;
 use support\Container;
@@ -76,11 +77,19 @@ class FinanceBillController extends BaseController
             $query->where('bill_no', 'like', "%{$keyword}%");
         }
         $total = $query->count();
-        $list = array_map(
-            fn (array $item) => $this->encodeIds($item, self::ID_FIELDS),
-            $query->offset(($page - 1) * $limit)->limit($limit)
-                ->orderBy('id', 'desc')->get()->toArray()
-        );
+        $rows = $query->offset(($page - 1) * $limit)->limit($limit)
+            ->orderBy('id', 'desc')->get()->toArray();
+        // 行补托收账户名：本页 bank_account_id 的表单字段没有 source（裸 hashid 输入框），
+        // 详情抽屉拿不到 `<base>_name` 兄弟就只剩「托收账户 -」
+        $accountNames = FinanceBankAccount::query()
+            ->whereIn('id', array_column($rows, 'bank_account_id'))
+            ->pluck('name', 'id')->all();
+        $list = array_map(function (array $item) use ($accountNames) {
+            // 名称按裸 ID 查（键取自行内原值，不能取 encodeIds 之后的 hashid）
+            $item['bank_account_name'] = $accountNames[$item['bank_account_id']] ?? '';
+
+            return $this->encodeIds($item, self::ID_FIELDS);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }

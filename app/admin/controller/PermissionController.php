@@ -39,6 +39,13 @@ class PermissionController extends BaseController
             ->orderBy('id', 'asc')
             ->get()
             ->toArray();
+        // 行补父级名（详情抽屉默认找 parent_name 兄弟，缺了就只剩「父级 -」）：
+        // 父节点就在本次结果里（自引用树），零查询；顶级 parent_id=0 取不到名，留空
+        $names = array_column($permissions, 'name', 'id');
+        foreach ($permissions as &$perm) {
+            $perm['parent_name'] = $names[$perm['parent_id']] ?? '';
+        }
+        unset($perm);
 
         $tree = $this->buildTree($permissions);
 
