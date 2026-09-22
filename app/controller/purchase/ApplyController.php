@@ -225,8 +225,14 @@ class ApplyController extends BaseController
         // approved_by 恒 0、approved_at 恒 NULL —— 审批人不可考。驳回也是审批动作，两条路径都落。
         // 两列刻意不在 $fillable（防客户端伪造审批人，见模型注释），fill() 会静默丢弃，故 forceFill
         // 显式绕白名单；审批人取中间件注入的 adminId，同 oms RmaService::approve 的取法。
-        $newStatus = (int) $request->input('status', 0);
-        if ($newStatus === 1 || $newStatus === 2) {
+        // 只在状态**真的变化**时写（0→1、0→2、1→2、2→1；1→1 / 2→2 不写）——不是遗漏：本接口是通用
+        // PUT，同一个 status 会被再下发一遍的真实路径有两条：① Web 对已通过的记录再点一次「通过」；
+        // ② E2E 的「PUT 全字段原值回写」探针（tests/E2E/api-coverage.php:430）。不比较原状态的话，
+        // 这两次都会把 approved_by 改成当前编辑者、approved_at 刷成此刻，「最后一次审批决策」被改写。
+        $newStatus = (int) $item->status;
+        // 原状态只能取 getOriginal：上面 fillModelFromRequest 已把 $item->status 改写成新值，读属性就晚了
+        $oldStatus = (int) $item->getOriginal('status');
+        if ($newStatus !== $oldStatus && ($newStatus === 1 || $newStatus === 2)) {
             $item->forceFill([
                 'approved_by' => (int) ($request->adminId ?? 0),
                 'approved_at' => date('Y-m-d H:i:s'),

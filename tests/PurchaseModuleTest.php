@@ -779,6 +779,88 @@ class PurchaseModuleTest extends TestCase
     }
 
     /**
+     * status **与库中现值相同**的再 PUT 不得动审批轨迹 —— 与上一条（未下发 status）不同的口子，
+     * 防的是写入分支只看新值、不看原值：本接口是通用 PUT，同一个 status 被再下发一遍有两条真实路径，
+     * ① Web 上对已通过的记录再点一次「通过」；② E2E 的「PUT 全字段原值回写」探针（api-coverage.php:430）。
+     * 那会把 approved_by 改成本次编辑者、approved_at 刷成此刻，「最后一次审批决策」被改写。
+     *
+     * 判据刻意**不用**「两次调用是否落在同一秒」—— approved_at 是秒级，同秒内即使没修也会绿。
+     * 这里把 approved_by 置成 ≠ 本次编辑者(42) 的 999、approved_at 置成明确的过去时刻，
+     * 只有「本次压根没写这两列」才能同时满足两条。真库 + 事务回滚。
+     */
+    public function testApplyUpdateWithSameStatusLeavesApprovalTraceUntouched(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $applyId = 900000000000920000 + random_int(1, 999);
+            DB::table('purchase_apply')->insert([
+                'id' => $applyId,
+                'code' => 'PA' . $applyId,
+                'apply_user_id' => 7,
+                'department' => '采购部',
+                'status' => 1,
+                'remark' => '',
+                'approved_by' => 999,
+                'approved_at' => '2020-01-01 00:00:00',
+            ]);
+
+            // 与两端行内按钮同形：只下发 status，且值等于库里现值；编辑者 42 ≠ 原审批人 999
+            $resp = (new \app\controller\purchase\ApplyController())->update(
+                new FakeRequest(['status' => 1], ['adminId' => 42]),
+                \app\common\HashidsService::encode($applyId),
+            );
+            $this->assertSame(0, $this->responseCode($resp), '同值再 PUT 应成功：' . $this->responseMessage($resp));
+
+            $row = DB::table('purchase_apply')->where('id', $applyId)->first();
+            $this->assertSame(1, (int) $row->status, '状态应仍是已批准');
+            $this->assertSame(999, (int) $row->approved_by, '状态未变时审批人不得被改成本次编辑者');
+            $this->assertSame('2020-01-01 00:00:00', (string) $row->approved_at, '状态未变时审批时间不得被刷新');
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * 上一条守卫的对照：状态**真的**发生变化（1 已批准 → 2 已驳回）必须改写审批轨迹 ——
+     * 证明守卫只挡「同值重放」，没把批准/驳回的功能一起删掉。真库 + 事务回滚。
+     */
+    public function testApplyUpdateStampsApproverWhenStatusActuallyChanges(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $applyId = 900000000000930000 + random_int(1, 999);
+            DB::table('purchase_apply')->insert([
+                'id' => $applyId,
+                'code' => 'PA' . $applyId,
+                'apply_user_id' => 7,
+                'department' => '采购部',
+                'status' => 1,
+                'remark' => '',
+                'approved_by' => 999,
+                'approved_at' => '2020-01-01 00:00:00',
+            ]);
+
+            $resp = (new \app\controller\purchase\ApplyController())->update(
+                new FakeRequest(['status' => 2], ['adminId' => 42]),
+                \app\common\HashidsService::encode($applyId),
+            );
+            $this->assertSame(0, $this->responseCode($resp), '驳回应成功：' . $this->responseMessage($resp));
+
+            $row = DB::table('purchase_apply')->where('id', $applyId)->first();
+            $this->assertSame(2, (int) $row->status, '驳回后 status 应为 2');
+            $this->assertSame(42, (int) $row->approved_by, '状态变化时审批人应改写为本次编辑者');
+            $this->assertNotNull($row->approved_at, '状态变化时应记下审批时间');
+            $this->assertNotSame('2020-01-01 00:00:00', (string) $row->approved_at, '状态变化时审批时间应刷新');
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
      * 订单认领申请单 → 申请单置「已转订单」(3)。
      *
      * erp_purchase_apply.status=3 此前没有任何写入方（前端无入口、审批不回写目标单据），

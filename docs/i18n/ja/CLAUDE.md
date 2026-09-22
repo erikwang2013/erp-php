@@ -27,7 +27,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟡 **P2** 運用信頼性 | 1-2 週 | マイグレーションロールバック + 自動バックアップ + TraceId + キュー二重ドライバ | ✅ |
 | 🟣 **P3** 体験強化 | 2-3 週 | BI ダッシュボード + EAM + マルチテナント + DMS + 新テーブル 7 枚 | ✅ |
 
-**テスト**: 1044<!-- stats:tests=1044 --> tests, 5020<!-- stats:assertions=5020 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**テスト**: 1046<!-- stats:tests=1046 --> tests, 5029<!-- stats:assertions=5029 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 機能リスト
 

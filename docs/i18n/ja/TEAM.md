@@ -13,7 +13,7 @@
 |------|------|--------------|
 | バックエンド | webman (Workerman) PHP 8.3+、**23 業務モジュール**、159 コントローラー、63 サービス、224 モデル、227 テーブル、11 ミドルウェア（schema は database/install.sql が唯一の事実源） | モノリシックで大きく網羅的。業務ドメインごとに分担し、単一 agent のコンテキスト爆発を防ぐ |
 | フロントエンド | Flutter **102 メニュールート**（`lib/app/config/menu_config.dart`；`main.dart` の getPages は計 110 条 = 102 メニュー + ログイン/個人センター/詳細 6 ページ）+ HarmonyOS **41 ページ**（`main_pages.json`）、全モジュールをカバー | 双端並行メンテナンスのため、専任のフロントエンドロールが必要 |
-| 品質ベースライン | PHPUnit 1044<!-- stats:tests=1044 --> テスト / 5020<!-- stats:assertions=5020 --> アサーション、PHPStan + baseline、CS-Fixer、CI 多バージョンマトリクス | 規律は確立済み。テスト/レビューのロールをパイプラインに直接組み込む |
+| 品質ベースライン | PHPUnit 1046<!-- stats:tests=1046 --> テスト / 5029<!-- stats:assertions=5029 --> アサーション、PHPStan + baseline、CS-Fixer、CI 多バージョンマトリクス | 規律は確立済み。テスト/レビューのロールをパイプラインに直接組み込む |
 | バージョンマトリクス | `main` の 1 ブランチのみ（`lite` / `standard` / `full` は削除済み、アーカイブコミット `eea90c0` は `main` の履歴に残存） | 同期すべきバージョンブランチはなく、バージョン差異は tag で追跡。`docs/EDITIONS.md`「ブランチ戦略」を参照 |
 | ロードマップ | P0~P3 納品済み（総合スコア 89/100）、日常イテレーションと進化期へ | チーム規模はタスク種別に応じて伸縮。プロジェクト制の大人数編成ではない |
 | 既存インフラ | `.claude/agents/`（planner / sparc / testing / swarm / consensus）、`.claude-flow`（hierarchical-mesh、上限 15 agents、consensus 調整）、hooks + 記憶 | チームは既存設定に直接マウントし、新規構築はしない |
@@ -83,7 +83,7 @@
 ### 3.4 品質ゲート（コミット前必須、レビュアーが管理）
 
 ```
-phpunit            # 1044<!-- stats:tests=1044 --> テスト / 5020<!-- stats:assertions=5020 --> アサーション全緑、新規ケースは変更とともにコミット
+phpunit            # 1046<!-- stats:tests=1046 --> テスト / 5029<!-- stats:assertions=5029 --> アサーション全緑、新規ケースは変更とともにコミット
 phpstan            # baseline 外への新規問題は不可
 php-cs-fixer       # --dry-run 合格
 composer audit     # 高リスク依存関係の脆弱性なし

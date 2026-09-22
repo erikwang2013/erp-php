@@ -28,7 +28,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟣 **P3** Experience enhancement | 2-3 weeks | BI dashboards + EAM + DMS | ✅ |
 (Multi-tenancy B5 was delivered ahead of schedule in P2: TenantScope request context + erp_tenant; the isolation middleware seam is not registered)
 
-**Tests**: 1044<!-- stats:tests=1044 --> tests, 5020<!-- stats:assertions=5020 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**Tests**: 1046<!-- stats:tests=1046 --> tests, 5029<!-- stats:assertions=5029 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## Feature List
 

@@ -2,6 +2,44 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.7 (2026-09-22)
+
+**演示数据生成器同步 + 审批轨迹边界批**：把 v1.19.6「待办」里排第一的收口 —— 签入的演示数据生成段比它的生成器差一个版本（`6ed0772` 换过外键解析器、文件此后没再重生成），本轮补解析缺口、把 44 个字符串列从占位 `'d'` 改成 DDL 默认值、按文件自带流程重生成并入，并给生成器加 `--check`；同时收掉 `/purchase/apply` 的 PUT「同值重放也改写审批轨迹」的边界。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。
+
+### 修复 · 演示数据生成器同步（`scripts/gen-demo-data.mjs` + `database/install-demo.sql`）
+- **未解析必填外键 28 → 3**，三类拆分各有依据：
+  - **11 条真解决**，其中 `erp_cost_record.flow_id` 抓得最典型：注释「库存流水ID」指向 `erp_inventory_flow`，而长度兜底会误选 `erp_mfg_wip_flow`；改对后 3 行值与仓内手工值**逐字节相同**
+  - **14 条「用户外键」重新归类**进「按设计填 0」块 —— 依据是本文件**设计约定第 3/6 条原文**（「本文件不建用户」「`owner_user_id`/`submitter_id`/`apply_user_id` 这类只能填 0，展示为空是预期行为，不是数据缺失」）。**是把报告对齐既有文档约定，不是新造例外**
+  - **3 条真多态**留在警告块、**不猜**：`approval_instance.target_id`（`uk_target(target_type,target_id)`）、`ar_ap.partner_id`（「往来对象ID（客户/供应商）」）、`settlement.receipt_payment_id`（「收款/付款单ID」）
+- **44 个「非空 DEFAULT 的字符串列」改为 DDL 默认值**（41 列旧值是占位 `'d'`/`'d1'`；另 **3 列是旧业务码归位** —— `erp_dms_document.status` `'1'`→`draft`、`erp_eam_repair_order.status` `'1'`→`open`、`erp_mfg_bom.version` `'1'/'2'/'3'`→`1.0`）。分母实测自洽：全库「字符串列 + 非空 DEFAULT」= 57，其中**在生成范围且非唯一键 = 54 ⇒ 54 = 44 改 + 10 逐格未变（零回归）**；另 2 列不在生成范围（`erp_finance_tax_rate.type` 属 SEEDED、`erp_operation_log.source` 属 SKIP）、1 列被 `!isUniq` 挡掉（`erp_system_config.group`）⇒ **56 = 54 + 2**。新值形如 `'bank'`/`'CNY'`/`'manual'`/`'pass'`/`'A4'` … —— DDL 默认值是**按构造合法**的值，`'d'` 不是。**两个守卫都做了摘除负控证明承重**：字面量守卫（非空 + 不含引号/反斜杠/制表/换行）摘掉后 **223 对变色，且变色集合 ≡ 探针拒绝集合（逐格 diff 为空）**：**222 对是空串默认值的列被清成 `''`**（`DEMO-*` 编码 / 邮箱 / 电话 / 「演示数据」全丢），**1 对**是 `erp_approval_workflow.canvas_json` —— 全 schema 唯一的表达式默认值 `DEFAULT ('')`，会被渲染成带 `_utf8mb4` 前缀的畸形串；`!isUniq` 守卫摘掉后 `erp_system_config.group` 三行塌成同一值（`uk_group_key(group,key)` 靠 `key` 仍能导入 ⇒ 它是**语义**守卫、不是硬失败守卫，如实记）
+- **落地走文件自带的流程**（不跳步）：生成 → 落 `/tmp` → **空库**导入 `install.sql` → 导入产物（rc=0 / stderr 0 字节 / 227 张 `erp_` 表）→ 才 `--install` 并入。**幂等已验证**：从「install.sql + 演示数据都在」的库重生成，产物与只装 `install.sql` 的参照库**逐字节相同** ⇒ 读种子 ID 的 SELECT 不会把演示行读进来
+- **新增 `--check` 模式**（真逐字节比对、漂移点名到表）：三条负控（改一个值 / 删整块 / `install.sql` 加一列）各自 rc=1 且点名到表，还原 `md5sum -c` 成功。**限制（诚实记）**：它需要活库（`TEST_DB_DATABASE` 指向已导入 `install.sql` 的库）⇒ **接不进 CI** 的 docs 作业（那里没有 MySQL），是本地/合入前守卫；不带库时 rc=1 报错退出，**不静默通过**
+- 手工段 1–95 行与 HEAD **逐字节相同**；全仓消费者复查：只有 `app/controller/InstallController.php:574`（安装向导「带测试数据」）读它，测试与 CI **不依赖它的具体值**
+- 规模：落地后与旧签入文件差 **606 cell / 205 个 (表,列)**，逐格分解（可独立复算）：**数值列 → DDL 默认值 276 格 / 92 列**、字符串列 → DDL 默认值 132 格 / 44 列、年度列 → `YEAR(CURDATE())` 39 格 / 13 列、外键 `0` → 真 ID 99 格 / 33 列、外键改指 51 格 / 20 列、非外键 `0` → 非 `0` 6 格 / 2 列、非 `0` → `0` 3 格 / 1 列
+
+### 修复 · `/purchase/apply` 同值重放改写审批轨迹（v1.19.6 引入的边界）
+- `update` 原先只判新值（`$newStatus === 1 || $newStatus === 2`）⇒ 对已是「已通过/已驳回」的记录**再下发一次相同 status** 也会 `forceFill`，把 `approved_by` 改成**当前编辑者**、`approved_at` 刷成此刻。两条真实路径：① Web 上对已通过的记录再点一次「通过」；② `tests/E2E/api-coverage.php:430` 的「PUT 全字段原值回写」探针
+- 改为**只在状态真的变化时写**（0→1、0→2、1→2、2→1；1→1 / 2→2 / 0→0 不写）：`$newStatus` 读 fill 后的模型属性、原状态走 `getOriginal('status')`（`fillModelFromRequest` 已把属性改写成新值，读属性就晚了；`getOriginal` 不新增属性访问 ⇒ PHPStan 零新增）。fillable / 列名语义 / `forceFill` / 错误面惯例 / 两条审批路径（1 与 2 都落）全未动
+- 两条新用例（+9 断言）：同值重放断言 **`approved_by` 仍是 999、`approved_at` 仍是那个明确过去时刻**（**判据刻意不用「两次调用是否落在同一秒」** —— `approved_at` 是秒级，同秒内即使没修也会绿）；另加一条正向用例证明 1→2 确实改写、守卫没把功能一起删
+- 对照：`RmaService::approve`（status≠0 抛）与 `ExpenseController:216-218`（已批准 422）都**拒绝**，采购是唯一无守卫的写入方 ⇒ **单点根因**。这里选 no-op 而非拒绝：拒绝会打断 Web 上「再点一次通过」，也会让 E2E 那条断言 `bizCode===0` 的原值回写探针变红
+
+### 验证（独立验证方单飞，全部按内容哈希 / 逐格复算，仓库零写入）
+- **phpunit（CI 等效，补 `TEST_REDIS_HOST`）**：`Tests: 1057, Assertions: 7129, Warnings: 2, Skipped: 9` rc=0 ⇒ 在 v1.19.6 基线 `1055 / 7120` 之上正好 **+2 用例 / +9 断言**、跳过数零残差；两条新用例源码里的断言数 4 + 5 = 9 与增量逐数吻合
+- **守卫按全矩阵验，不只跑那两条用例**：探针逐格读回三列，判据 `期望写入 = 新值∈{1,2} 且 新值≠原值` ⇒ **不符格子 = 0**（覆盖 0→1、0→2、1→2、2→1、3→1、1→1、2→2、0→0、3→3，以及不下发 status 的两种库态）。**负控**用 `git show HEAD:` 的改前控制器抢占类名跑同一探针 ⇒ **恰好 2 格不符（1→1、2→2）** —— 行为增量精确等于该格集合，不多不少
+- **演示数据逐格复算**：56 / 54 / 44 / 10 / 2 的分母自洽（见上）；**606 格 / 205 列**的分解被独立算出且与正文逐字吻合；**幂等**用两个库（227 表 / 0 演示行 vs 227 表 / 有演示行）各跑一次 ⇒ 产物 `cmp` 逐字节相同（`882b6d78…`）且与仓内生成段逐字节相同 ⇒ **落盘文件不再落后于它自己的生成器**
+- 15 道 node 门禁 rc=0；`check-ddl-dict` 覆盖度行与上批逐字相同；本轮 7 个申报哈希逐字吻合
+- **`doc-stats` 曾红，且红因只有本轮新增用例**：实测三个真值 = **test files 113 / cases 1046 / assertions 5029**；`--check` 报 `✗ 338 处标注，130 处不一致`，其中 `stats:tests` 65 处（标注 1044 ≠ 1046）、`stats:assertions` 65 处（5020 ≠ 5029），**`stats:test_files` 零漂移**，无第三种红因。冻结时按纪律只跑一次 `--fix`（触动 52 份文档：13 语种 × 4 篇 + 根 README）⇒ 复跑 `--check` **rc=0 / 338 处全部与实测一致**
+- **未验证（显式列出，未吞）**：① `composer audit --no-dev` rc=0，但 packagist 超时、回落本地缓存 ⇒ 该绿只在缓存范围内成立，不等于远端公告面干净 ② E2E 与 docs 两个 CI 作业本轮未复跑 ③ 「全仓只有 `InstallController.php:574` 读演示文件」是上批结论、本轮未重跑 ④ 覆盖率 HTML 子步骤与 pcov 驱动维度（本机环境限制，同上批）
+
+### 待办 / 已知遗留（本轮未修）
+- **`/purchase/apply` 的 `store()` 允许建单即 `status:1|2` 而 `approved_by` 恒 0** ⇒ 会出现「已批准但没有审批人」的记录，审计轨迹同款缺失。与 update 侧对称的修法是「create 时就落轨迹」而非新增 422（新增 422 会打断建单路径）；本轮按范围未开。
+  - **本轮的新守卫把这个洞的影响面变硬了（实测 A/B）**：HEAD 版尚可「对那条记录再点一次通过」把 `approved_by` 由 0 补成编辑者、`approved_at` 由 NULL 补上；新版「无状态变化即非审批动作」⇒ 两者恒为 0 / NULL，**审批人永久不可考、且再无旁路补救**。语义上新版是对的，但这条待办的优先级因此上升 —— 要么在 create 侧落轨迹，要么就接受这类记录无审批人
+- **演示数据 `*_source_id` 有 7 列被指到 `erp_finance_voucher_source`**（`bill`/`invoice`/`tax_record`/`cash_journal`/`invoice_match_log`/`ar_ap` 各一 + `voucher_source.source_id` 自指）——这些列与同表的 `*_type` 判别列配对，**实为多态**。建议规则：某 `*_id` 列所在表同时存在 `<base>_type` 时按多态处理（填 0 并入警告块）。改动面涉及两处调用点，单独一批更稳
+- **`erp_cost_record.type` / `erp_finance_ar_ap.type`**：DDL 注释宣告的域是 `1|2`，而生成值是 `0`（域外，属「DDL 注释即字典」那类）。要修得先定口径：或让规则按注释取首个枚举值，或把这类列收进人工映射
+- 采购金额 11 对（`purchase_order.total_amount`、`purchase_order_item`/`receive_item`/`return_item` 的 price/quantity/amount）生成值是 `0.00` —— **改前就是 `0.00`，非本轮引入**（在「改前差距」桶里，不在「本次改动」桶里）
+- v1.19.6 结转未修：`docs/i18n/ar/CLAUDE.md` 围栏树 10 个模块数过期、11 份 i18n README 的 `tests/` 树行形态差异、dms `status` 空串语义、详情抽屉 `fallbackCell` 的 kd 分支、移动端 `customer_id`/`bank_account_id` 编辑态兜底
+- **真库 `erp` 仍有 `'d'` 系统性占位**：本轮只清了 `method` 那 6 行（改 `bank`）；演示文件侧的占位已由本轮生成器改动消除，但**真库不会被自动更新** —— 要不要按新演示文件回填真库另议
+
 ## v1.19.6 (2026-09-22)
 
 **DDL 字典对差门禁 + 操作人关联名批**：把 v1.19.5「待办」里的三条逐条收口 —— 新增第 15 道门禁 `check-ddl-dict.mjs`（`install.sql` 列注释/默认值 ↔ 词典对差，B5）、dms `update` 补 `status` 值域、`method` 由裸 `string` 收紧为 `in:`；同时补 10 个 index 端点的操作人关联名（B7/B7b）与 `/purchase/apply` 的审批轨迹（B8）。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。

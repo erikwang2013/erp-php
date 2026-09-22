@@ -576,7 +576,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Script d'installation de la base de données | Fichier unique `database/install.sql` (227 tables, toutes les migrations fusionnées) |
 | Pages frontend (Flutter) | 119 (fichiers de page `.dart` sous `apps/flutter/lib/app/pages/` (récursif), mesuré le 2026-09-22, non inclus dans la validation doc-stats) |
 | Pages frontend (HarmonyOS) | 52 (fichiers de page `.ets` sous `apps/harmonyos/entry/src/main/ets/pages/` (récursif), mesuré le 2026-09-22, non inclus dans la validation doc-stats) |
-| Tests unitaires | 113<!-- stats:test_files=113 --> fichiers de test  / 1044<!-- stats:tests=1044 --> cas de test  / 5020<!-- stats:assertions=5020 --> assertions  (décompte statique : méthodes de test + points d'appel d'assertion, indépendant de l'environnement d'exécution) |
+| Tests unitaires | 113<!-- stats:test_files=113 --> fichiers de test  / 1046<!-- stats:tests=1046 --> cas de test  / 5029<!-- stats:assertions=5029 --> assertions  (décompte statique : méthodes de test + points d'appel d'assertion, indépendant de l'environnement d'exécution) |
 
 > Les chiffres ci-dessus sont mesurés par `bash scripts/doc-stats.sh` ; les éléments annotés `<!-- stats:key=value -->` sont vérifiés automatiquement par le CI (job docs de `.github/workflows/ci.yml`) pour être cohérents avec les faits du code — toute dérive fait passer au rouge.
 
