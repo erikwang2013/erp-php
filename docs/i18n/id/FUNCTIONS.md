@@ -562,7 +562,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Skrip instalasi database | file tunggal `database/install.sql` (227 tabel, semua migrasi telah digabungkan) |
 | Halaman frontend (Flutter) | 119 berkas halaman (2026-09-22, penghitungan berkas rekursif; statistik frontend tidak masuk validasi doc-stats) |
 | Halaman frontend (HarmonyOS) | 52 berkas halaman (2026-09-22, penghitungan berkas rekursif; statistik frontend tidak masuk validasi doc-stats) |
-| Unit test | 113<!-- stats:test_files=113 --> file pengujian  / 1046<!-- stats:tests=1046 --> kasus pengujian  / 5029<!-- stats:assertions=5029 --> asersi  (hitungan statis: jumlah metode pengujian + titik pemanggilan asersi, tidak bergantung pada lingkungan eksekusi) |
+| Unit test | 113<!-- stats:test_files=113 --> file pengujian  / 1048<!-- stats:tests=1048 --> kasus pengujian  / 5040<!-- stats:assertions=5040 --> asersi  (hitungan statis: jumlah metode pengujian + titik pemanggilan asersi, tidak bergantung pada lingkungan eksekusi) |
 
 > Angka di atas dihasilkan langsung oleh `bash scripts/doc-stats.sh`; item yang ditandai `<!-- stats:key=value -->` diverifikasi otomatis oleh CI
 > (job docs di `.github/workflows/ci.yml`) agar konsisten dengan fakta kode, penyimpangan berarti merah.

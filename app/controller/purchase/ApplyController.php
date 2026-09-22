@@ -132,6 +132,26 @@ class ApplyController extends BaseController
         // 故解码结果须在 fill 之后覆写（走 fill 而非直写属性：模型无 @property，
         // 直写 $item->apply_user_id 会给 PHPStan 新增 property.notFound）
         $item->fill(['apply_user_id' => $applyUserId]);
+        // 审批轨迹，与 update 侧对称：建单即 status=1|2 是客户端在声明「已批准/已驳回」——
+        // Flutter 建单表单就带 status 下拉（apps/flutter/.../apply_list_page.dart:89，默认 0），
+        // 不落轨迹的话这类记录 approved_by 恒 0、approved_at 恒 NULL ⇒「已批准但没有审批人」，
+        // 且经 update 侧的同值守卫之后再无旁路补救（对已批准的记录再点一次「通过」不再写）。
+        // 取 fillModelFromRequest 之后的 $item->status 才是最终值（请求不带 status 时新建模型上是
+        // null ⇒ 0，不触发；列默认 0 也由 DB 兜）。刻意不选 422 打回：那会打断建单路径，
+        // 且 Flutter 的下拉默认就含这两个值。status=3（已转订单）不在此列——它是订单认领的结果态
+        // （OrderController::markApplyOrdered），不是审批决策：建单时说「已转订单」时无从知道审批人是谁，
+        // 写调用者=把一条没发生过的审批落成事实；要治 3 得连认领侧与 Flutter 表单一起动，不在本批。
+        // 两列刻意不在 $fillable（防伪造，见模型注释），fill() 会静默丢弃，故 forceFill 显式绕白名单；
+        // 审批人取中间件注入的 adminId，与 update 侧同一取法。
+        // 读法用 getAttribute 而非 $item->status：新建模型上没有属性声明，直读会让 PHPStan level 5
+        // 报 property.notFound（模型无 @property；仓内同形先例 CrmService:107）
+        $finalStatus = (int) $item->getAttribute('status');
+        if ($finalStatus === 1 || $finalStatus === 2) {
+            $item->forceFill([
+                'approved_by' => (int) ($request->adminId ?? 0),
+                'approved_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
         $item->save();
 
         // 与列表同一 FK 名单：apply_user_id 漏编码会把 4.1e17 的雪花 ID 原样下发，

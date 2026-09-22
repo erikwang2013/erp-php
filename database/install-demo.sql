@@ -99,6 +99,18 @@ INSERT INTO `erp_supplier` (`id`, `code`, `name`, `contact_person`, `phone`, `em
 --   erp_approval_instance.target_id
 --   erp_finance_ar_ap.partner_id
 --   erp_finance_settlement.receipt_payment_id
+-- 按设计填 0 的多态外键（目标表由判别列决定，0/行号不是真实关联） 11 个：
+--   erp_finance_ar_ap.source_id
+--   erp_finance_bill.source_id
+--   erp_finance_cash_journal.source_id
+--   erp_finance_invoice.source_id
+--   erp_finance_invoice_match_log.source_id
+--   erp_finance_tax_record.source_id
+--   erp_finance_voucher_source.source_id
+--   erp_inventory_flow.source_id
+--   erp_mfg_wip_flow.source_id
+--   erp_notification.source_id
+--   erp_quality_nonconformity.source_id
 -- 按设计填 0 的用户外键（本文件不建用户，见文件头约定 3/6） 14 个：
 --   erp_approval_instance.submitter_id
 --   erp_approval_record.approver_id
@@ -171,9 +183,9 @@ INSERT INTO `erp_company` (`id`, `code`, `name`, `parent_id`, `base_currency`, `
 (410000000000033001, 'DEMO-COMPANY-3', '演示company', 0, 'CNY', 1, '演示数据', NOW(), NOW());
 
 INSERT INTO `erp_cost_record` (`id`, `product_id`, `sku_id`, `flow_id`, `type`, `quantity`, `unit_cost`, `before_avg_cost`, `after_avg_cost`, `created_at`) VALUES
-(410000000000034001, 410000000000000401, 410000000000000501, 410000000000289001, 0, 0.00, 0.00, 0.00, 0.00, NOW()),
-(410000000000035001, 410000000000000402, 410000000000000502, 410000000000290001, 0, 0.00, 0.00, 0.00, 0.00, NOW()),
-(410000000000036001, 410000000000000403, 410000000000000503, 410000000000291001, 0, 0.00, 0.00, 0.00, 0.00, NOW());
+(410000000000034001, 410000000000000401, 410000000000000501, 410000000000289001, 1, 0.00, 0.00, 0.00, 0.00, NOW()),
+(410000000000035001, 410000000000000402, 410000000000000502, 410000000000290001, 1, 0.00, 0.00, 0.00, 0.00, NOW()),
+(410000000000036001, 410000000000000403, 410000000000000503, 410000000000291001, 1, 0.00, 0.00, 0.00, 0.00, NOW());
 
 INSERT INTO `erp_crm_analytics_report` (`id`, `name`, `type`, `period_type`, `period_year`, `period_value`, `created_at`) VALUES
 (410000000000037001, '演示crm_analytics_report', 'd', 1, YEAR(CURDATE()), 0, NOW()),
@@ -301,9 +313,9 @@ INSERT INTO `erp_finance_allocation` (`id`, `source_center_id`, `target_center_i
 (410000000000111001, 410000000000156001, 410000000000154001, 0.00, 'd', YEAR(CURDATE()), 3, NOW());
 
 INSERT INTO `erp_finance_ar_ap` (`id`, `type`, `partner_id`, `source_type`, `source_id`, `amount`, `settled_amount`, `status`, `created_at`, `updated_at`) VALUES
-(410000000000112001, 0, 0, 'd1', 410000000000211001, 0.00, 0.00, 0, NOW(), NOW()),
-(410000000000113001, 0, 0, 'd2', 410000000000212001, 0.00, 0.00, 0, NOW(), NOW()),
-(410000000000114001, 0, 0, 'd3', 410000000000213001, 0.00, 0.00, 0, NOW(), NOW());
+(410000000000112001, 1, 0, 'd1', 1, 0.00, 0.00, 0, NOW(), NOW()),
+(410000000000113001, 1, 0, 'd2', 2, 0.00, 0.00, 0, NOW(), NOW()),
+(410000000000114001, 1, 0, 'd3', 3, 0.00, 0.00, 0, NOW(), NOW());
 
 INSERT INTO `erp_finance_asset` (`id`, `code`, `name`, `category`, `purchase_amount`, `salvage_value`, `useful_life`, `depreciation_method`, `monthly_depreciation`, `accumulated_depreciation`, `net_value`, `status`, `remark`, `created_at`, `updated_at`) VALUES
 (410000000000115001, 'DEMO-FINANCE_ASSET-1', '演示finance_asset', 'd', 0.00, 0.00, 0, 1, 0.00, 0.00, 0.00, 1, '演示数据', NOW(), NOW()),
@@ -331,14 +343,14 @@ INSERT INTO `erp_finance_bank_recon_match` (`id`, `bank_account_id`, `statement_
 (410000000000129001, 410000000000126001, 410000000000132001, 410000000000147001, 3, 0, NOW());
 
 INSERT INTO `erp_finance_bank_statement` (`id`, `bank_account_id`, `stmt_date`, `direction`, `amount`, `counterparty`, `reference`, `import_batch`, `created_at`, `updated_at`) VALUES
-(410000000000130001, 410000000000124001, CURDATE(), 0, 0.00, 'd', 'd', 'd', NOW(), NOW()),
-(410000000000131001, 410000000000125001, CURDATE(), 0, 0.00, 'd', 'd', 'd', NOW(), NOW()),
-(410000000000132001, 410000000000126001, CURDATE(), 0, 0.00, 'd', 'd', 'd', NOW(), NOW());
+(410000000000130001, 410000000000124001, CURDATE(), 1, 0.00, 'd', 'd', 'd', NOW(), NOW()),
+(410000000000131001, 410000000000125001, CURDATE(), 1, 0.00, 'd', 'd', 'd', NOW(), NOW()),
+(410000000000132001, 410000000000126001, CURDATE(), 1, 0.00, 'd', 'd', 'd', NOW(), NOW());
 
 INSERT INTO `erp_finance_bill` (`id`, `bill_no`, `type`, `direction`, `drawer`, `payee`, `acceptor`, `endorsee`, `due_date`, `amount`, `discount_fee`, `bank_account_id`, `status`, `source_type`, `source_id`, `remark`, `created_at`, `updated_at`) VALUES
-(410000000000133001, 'd1', 1, 1, 'd', 'd', 'd', 'd', CURDATE(), 0.00, 0.00, 410000000000124001, 0, 'manual', 410000000000211001, '演示数据', NOW(), NOW()),
-(410000000000134001, 'd2', 1, 1, 'd', 'd', 'd', 'd', CURDATE(), 0.00, 0.00, 410000000000125001, 0, 'manual', 410000000000212001, '演示数据', NOW(), NOW()),
-(410000000000135001, 'd3', 1, 1, 'd', 'd', 'd', 'd', CURDATE(), 0.00, 0.00, 410000000000126001, 0, 'manual', 410000000000213001, '演示数据', NOW(), NOW());
+(410000000000133001, 'd1', 1, 1, 'd', 'd', 'd', 'd', CURDATE(), 0.00, 0.00, 410000000000124001, 0, 'manual', 0, '演示数据', NOW(), NOW()),
+(410000000000134001, 'd2', 1, 1, 'd', 'd', 'd', 'd', CURDATE(), 0.00, 0.00, 410000000000125001, 0, 'manual', 0, '演示数据', NOW(), NOW()),
+(410000000000135001, 'd3', 1, 1, 'd', 'd', 'd', 'd', CURDATE(), 0.00, 0.00, 410000000000126001, 0, 'manual', 0, '演示数据', NOW(), NOW());
 
 INSERT INTO `erp_finance_budget` (`id`, `code`, `name`, `period_year`, `cost_center_id`, `status`, `remark`, `created_at`, `updated_at`) VALUES
 (410000000000136001, 'DEMO-FINANCE_BUDGET-1', '演示finance_budget', YEAR(CURDATE()), 410000000000154001, 0, '演示数据', NOW(), NOW()),
@@ -356,9 +368,9 @@ INSERT INTO `erp_finance_cash_flow` (`id`, `ledger_id`, `report_year`, `report_m
 (410000000000144001, 410000000000180001, YEAR(CURDATE()), 3, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, NOW());
 
 INSERT INTO `erp_finance_cash_journal` (`id`, `bank_account_id`, `direction`, `amount`, `balance`, `source_type`, `source_id`, `summary`, `journal_date`, `created_at`) VALUES
-(410000000000145001, 410000000000124001, 0, 0.00, 0.00, 'd', 410000000000211001, 'd', CURDATE(), NOW()),
-(410000000000146001, 410000000000125001, 0, 0.00, 0.00, 'd', 410000000000212001, 'd', CURDATE(), NOW()),
-(410000000000147001, 410000000000126001, 0, 0.00, 0.00, 'd', 410000000000213001, 'd', CURDATE(), NOW());
+(410000000000145001, 410000000000124001, 1, 0.00, 0.00, 'd', 0, 'd', CURDATE(), NOW()),
+(410000000000146001, 410000000000125001, 1, 0.00, 0.00, 'd', 0, 'd', CURDATE(), NOW()),
+(410000000000147001, 410000000000126001, 1, 0.00, 0.00, 'd', 0, 'd', CURDATE(), NOW());
 
 INSERT INTO `erp_finance_consolidation_report` (`id`, `company_id`, `report_year`, `report_month`, `base_currency`, `status`, `total_assets`, `total_liabilities`, `total_equity`, `revenue`, `net_profit`, `remark`, `created_at`, `updated_at`) VALUES
 (410000000000148001, 410000000000031001, YEAR(CURDATE()), 1, 'CNY', 0, 0.00, 0.00, 0.00, 0.00, 0.00, '演示数据', NOW(), NOW()),
@@ -396,9 +408,9 @@ INSERT INTO `erp_finance_general_ledger` (`id`, `account_id`, `period_year`, `pe
 (410000000000168001, 410000000000108001, YEAR(CURDATE()), 3, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, NOW(), NOW());
 
 INSERT INTO `erp_finance_invoice` (`id`, `invoice_no`, `electronic_no`, `issue_status`, `type`, `customer_id`, `supplier_id`, `biz_type`, `source_id`, `untaxed_amount`, `tax_amount`, `amount`, `currency`, `status`, `void_reason`, `audited_by`, `remark`, `created_at`, `updated_at`) VALUES
-(410000000000169001, 'd1', 'd', 'none', 'ar', 410000000000000701, 410000000000000801, 'manual', 410000000000211001, 0.00, 0.00, 0.00, 'CNY', 'draft', 'd', 0, '演示数据', NOW(), NOW()),
-(410000000000170001, 'd2', 'd', 'none', 'ar', 410000000000000702, 410000000000000802, 'manual', 410000000000212001, 0.00, 0.00, 0.00, 'CNY', 'draft', 'd', 0, '演示数据', NOW(), NOW()),
-(410000000000171001, 'd3', 'd', 'none', 'ar', 410000000000000703, 410000000000000803, 'manual', 410000000000213001, 0.00, 0.00, 0.00, 'CNY', 'draft', 'd', 0, '演示数据', NOW(), NOW());
+(410000000000169001, 'd1', 'd', 'none', 'ar', 410000000000000701, 410000000000000801, 'manual', 0, 0.00, 0.00, 0.00, 'CNY', 'draft', 'd', 0, '演示数据', NOW(), NOW()),
+(410000000000170001, 'd2', 'd', 'none', 'ar', 410000000000000702, 410000000000000802, 'manual', 0, 0.00, 0.00, 0.00, 'CNY', 'draft', 'd', 0, '演示数据', NOW(), NOW()),
+(410000000000171001, 'd3', 'd', 'none', 'ar', 410000000000000703, 410000000000000803, 'manual', 0, 0.00, 0.00, 0.00, 'CNY', 'draft', 'd', 0, '演示数据', NOW(), NOW());
 
 INSERT INTO `erp_finance_invoice_item` (`id`, `invoice_id`, `quantity`, `price`, `amount`, `tax_rate`, `tax_amount`, `line_total`, `created_at`, `updated_at`) VALUES
 (410000000000172001, 410000000000169001, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, NOW(), NOW()),
@@ -406,9 +418,9 @@ INSERT INTO `erp_finance_invoice_item` (`id`, `invoice_id`, `quantity`, `price`,
 (410000000000174001, 410000000000171001, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, NOW(), NOW());
 
 INSERT INTO `erp_finance_invoice_match_log` (`id`, `invoice_id`, `source_type`, `source_id`, `invoiced_total`, `result`, `created_at`, `updated_at`) VALUES
-(410000000000175001, 410000000000169001, 'd', 410000000000211001, 0.00, 'd', NOW(), NOW()),
-(410000000000176001, 410000000000170001, 'd', 410000000000212001, 0.00, 'd', NOW(), NOW()),
-(410000000000177001, 410000000000171001, 'd', 410000000000213001, 0.00, 'd', NOW(), NOW());
+(410000000000175001, 410000000000169001, 'd', 0, 0.00, 'd', NOW(), NOW()),
+(410000000000176001, 410000000000170001, 'd', 0, 0.00, 'd', NOW(), NOW()),
+(410000000000177001, 410000000000171001, 'd', 0, 0.00, 'd', NOW(), NOW());
 
 INSERT INTO `erp_finance_ledger` (`id`, `company_id`, `code`, `name`, `currency`, `is_default`, `status`, `remark`, `created_at`, `updated_at`) VALUES
 (410000000000178001, 410000000000031001, 'DEMO-FINANCE_LEDGER-1', '演示finance_ledger', 'CNY', 0, 1, '演示数据', NOW(), NOW()),
@@ -441,9 +453,9 @@ INSERT INTO `erp_finance_receipt` (`id`, `code`, `customer_id`, `bank_account_id
 (410000000000195001, 'DEMO-FINANCE_RECEIPT-3', 410000000000000703, 410000000000126001, 0.00, 'bank', 0, '演示数据', NOW(), NOW());
 
 INSERT INTO `erp_finance_settlement` (`id`, `ar_ap_id`, `receipt_payment_id`, `type`, `amount`, `created_at`, `updated_at`) VALUES
-(410000000000196001, 410000000000112001, 0, 0, 0.00, NOW(), NOW()),
-(410000000000197001, 410000000000113001, 0, 0, 0.00, NOW(), NOW()),
-(410000000000198001, 410000000000114001, 0, 0, 0.00, NOW(), NOW());
+(410000000000196001, 410000000000112001, 0, 1, 0.00, NOW(), NOW()),
+(410000000000197001, 410000000000113001, 0, 1, 0.00, NOW(), NOW()),
+(410000000000198001, 410000000000114001, 0, 1, 0.00, NOW(), NOW());
 
 INSERT INTO `erp_finance_subsidiary_ledger` (`id`, `account_id`, `voucher_id`, `voucher_item_id`, `direction`, `amount`, `balance`, `summary`, `entry_date`, `created_at`) VALUES
 (410000000000199001, 410000000000106001, 410000000000205001, 410000000000208001, 0, 0.00, 0.00, 'd', CURDATE(), NOW()),
@@ -451,9 +463,9 @@ INSERT INTO `erp_finance_subsidiary_ledger` (`id`, `account_id`, `voucher_id`, `
 (410000000000201001, 410000000000108001, 410000000000207001, 410000000000210001, 0, 0.00, 0.00, 'd', CURDATE(), NOW());
 
 INSERT INTO `erp_finance_tax_record` (`id`, `tax_rate_id`, `source_type`, `source_id`, `taxable_amount`, `tax_amount`, `period_year`, `period_month`, `created_at`) VALUES
-(410000000000202001, 60000000000000001, 'd', 410000000000211001, 0.00, 0.00, YEAR(CURDATE()), 1, NOW()),
-(410000000000203001, 60000000000000002, 'd', 410000000000212001, 0.00, 0.00, YEAR(CURDATE()), 2, NOW()),
-(410000000000204001, 60000000000000003, 'd', 410000000000213001, 0.00, 0.00, YEAR(CURDATE()), 3, NOW());
+(410000000000202001, 60000000000000001, 'd', 0, 0.00, 0.00, YEAR(CURDATE()), 1, NOW()),
+(410000000000203001, 60000000000000002, 'd', 0, 0.00, 0.00, YEAR(CURDATE()), 2, NOW()),
+(410000000000204001, 60000000000000003, 'd', 0, 0.00, 0.00, YEAR(CURDATE()), 3, NOW());
 
 INSERT INTO `erp_finance_voucher` (`id`, `code`, `voucher_date`, `status`, `remark`, `created_at`, `updated_at`) VALUES
 (410000000000205001, 'DEMO-FINANCE_VOUCHER-1', CURDATE(), 0, '演示数据', NOW(), NOW()),
@@ -466,9 +478,9 @@ INSERT INTO `erp_finance_voucher_item` (`id`, `voucher_id`, `account_id`, `summa
 (410000000000210001, 410000000000207001, 410000000000108001, 'd', 0.00, 0.00, NOW(), NOW());
 
 INSERT INTO `erp_finance_voucher_source` (`id`, `voucher_id`, `source_type`, `source_id`, `created_at`) VALUES
-(410000000000211001, 410000000000205001, 'd1', 410000000000211001, NOW()),
-(410000000000212001, 410000000000206001, 'd2', 410000000000212001, NOW()),
-(410000000000213001, 410000000000207001, 'd3', 410000000000213001, NOW());
+(410000000000211001, 410000000000205001, 'd1', 1, NOW()),
+(410000000000212001, 410000000000206001, 'd2', 2, NOW()),
+(410000000000213001, 410000000000207001, 'd3', 3, NOW());
 
 INSERT INTO `erp_hr_attendance` (`id`, `employee_id`, `rule_id`, `work_date`, `status`, `late_minutes`, `early_minutes`, `created_at`) VALUES
 (410000000000214001, 410000000000232001, 410000000000217001, CURDATE(), 1, 0, 0, NOW()),
@@ -531,9 +543,9 @@ INSERT INTO `erp_hr_kpi_template_item` (`id`, `template_id`, `indicator`, `weigh
 (410000000000249001, 410000000000246001, 'd', 0.00, 'd', 2, 0, NOW(), NOW());
 
 INSERT INTO `erp_hr_leave` (`id`, `employee_id`, `type`, `start_date`, `end_date`, `days`, `status`, `reason`, `created_at`, `updated_at`) VALUES
-(410000000000250001, 410000000000232001, 0, CURDATE(), CURDATE(), 0.00, 0, '演示数据', NOW(), NOW()),
-(410000000000251001, 410000000000233001, 0, CURDATE(), CURDATE(), 0.00, 0, '演示数据', NOW(), NOW()),
-(410000000000252001, 410000000000234001, 0, CURDATE(), CURDATE(), 0.00, 0, '演示数据', NOW(), NOW());
+(410000000000250001, 410000000000232001, 1, CURDATE(), CURDATE(), 0.00, 0, '演示数据', NOW(), NOW()),
+(410000000000251001, 410000000000233001, 1, CURDATE(), CURDATE(), 0.00, 0, '演示数据', NOW(), NOW()),
+(410000000000252001, 410000000000234001, 1, CURDATE(), CURDATE(), 0.00, 0, '演示数据', NOW(), NOW());
 
 INSERT INTO `erp_hr_offer` (`id`, `candidate_id`, `offered_salary`, `status`, `created_at`, `updated_at`) VALUES
 (410000000000253001, 410000000000220001, 0.00, 0, NOW(), NOW()),
@@ -596,9 +608,9 @@ INSERT INTO `erp_inventory_batch` (`id`, `product_id`, `sku_id`, `batch_code`, `
 (410000000000288001, 410000000000000403, 410000000000000503, 'd3', NOW(), NOW());
 
 INSERT INTO `erp_inventory_flow` (`id`, `product_id`, `sku_id`, `warehouse_id`, `location_id`, `batch_code`, `direction`, `quantity`, `cost_price`, `source_type`, `source_id`, `created_at`) VALUES
-(410000000000289001, 410000000000000401, 410000000000000501, 410000000000000101, 410000000000000201, 'd', 0, 0.00, 0.00, 'd', 410000000000211001, NOW()),
-(410000000000290001, 410000000000000402, 410000000000000502, 410000000000000102, 410000000000000202, 'd', 0, 0.00, 0.00, 'd', 410000000000212001, NOW()),
-(410000000000291001, 410000000000000403, 410000000000000503, 410000000000000101, 410000000000000203, 'd', 0, 0.00, 0.00, 'd', 410000000000213001, NOW());
+(410000000000289001, 410000000000000401, 410000000000000501, 410000000000000101, 410000000000000201, 'd', 1, 0.00, 0.00, 'd', 0, NOW()),
+(410000000000290001, 410000000000000402, 410000000000000502, 410000000000000102, 410000000000000202, 'd', 1, 0.00, 0.00, 'd', 0, NOW()),
+(410000000000291001, 410000000000000403, 410000000000000503, 410000000000000101, 410000000000000203, 'd', 1, 0.00, 0.00, 'd', 0, NOW());
 
 INSERT INTO `erp_inventory_serial` (`id`, `product_id`, `sku_id`, `serial_code`, `status`, `in_flow_id`, `out_flow_id`, `created_at`, `updated_at`) VALUES
 (410000000000292001, 410000000000000401, 410000000000000501, 'd1', 0, 0, 0, NOW(), NOW()),
@@ -731,9 +743,9 @@ INSERT INTO `erp_mfg_wip` (`id`, `order_id`, `material_cost`, `labor_cost`, `ove
 (410000000000369001, 410000000000351001, 0.00, 0.00, 0.00, 0.00, 0.00, 0, NOW(), NOW());
 
 INSERT INTO `erp_mfg_wip_flow` (`id`, `wip_id`, `order_id`, `source_type`, `source_id`, `amount`, `direction`, `flow_date`, `created_at`) VALUES
-(410000000000370001, 410000000000367001, 410000000000349001, 0, 410000000000211001, 0.00, 1, CURDATE(), NOW()),
-(410000000000371001, 410000000000368001, 410000000000350001, 0, 410000000000212001, 0.00, 1, CURDATE(), NOW()),
-(410000000000372001, 410000000000369001, 410000000000351001, 0, 410000000000213001, 0.00, 1, CURDATE(), NOW());
+(410000000000370001, 410000000000367001, 410000000000349001, 1, 0, 0.00, 1, CURDATE(), NOW()),
+(410000000000371001, 410000000000368001, 410000000000350001, 1, 0, 0.00, 1, CURDATE(), NOW()),
+(410000000000372001, 410000000000369001, 410000000000351001, 1, 0, 0.00, 1, CURDATE(), NOW());
 
 INSERT INTO `erp_mfg_work_report` (`id`, `code`, `order_id`, `product_id`, `routing_id`, `workstation_id`, `employee_id`, `report_date`, `quantity`, `qualified_qty`, `piece_rate`, `amount`, `status`, `remark`, `created_at`, `updated_at`) VALUES
 (410000000000373001, 'DEMO-MFG_WORK_REPORT-1', 410000000000349001, 410000000000000401, 410000000000352001, 410000000000376001, 410000000000232001, CURDATE(), 0.00, 0.00, 0.00, 0.00, 0, '演示数据', NOW(), NOW()),
@@ -746,9 +758,9 @@ INSERT INTO `erp_mfg_workstation` (`id`, `code`, `name`, `capacity`, `status`, `
 (410000000000378001, 'DEMO-MFG_WORKSTATION-3', '演示mfg_workstation', 0, 1, NOW());
 
 INSERT INTO `erp_notification` (`id`, `user_id`, `title`, `type`, `source_type`, `source_id`, `is_read`, `created_at`) VALUES
-(410000000000379001, 0, '演示notification', 'system', 'd', 410000000000211001, 0, NOW()),
-(410000000000380001, 0, '演示notification', 'system', 'd', 410000000000212001, 0, NOW()),
-(410000000000381001, 0, '演示notification', 'system', 'd', 410000000000213001, 0, NOW());
+(410000000000379001, 0, '演示notification', 'system', 'd', 0, 0, NOW()),
+(410000000000380001, 0, '演示notification', 'system', 'd', 0, 0, NOW()),
+(410000000000381001, 0, '演示notification', 'system', 'd', 0, 0, NOW());
 
 INSERT INTO `erp_notification_channel_log` (`id`, `channel`, `to`, `subject`, `content`, `content_hash`, `status`, `message_id`, `error`, `sent_at`, `operator_id`, `created_at`, `updated_at`) VALUES
 (410000000000382001, 'd', 'd', 'd', '演示数据', 'd', 0, 0, 'd', NOW(), 0, NOW(), NOW()),
@@ -776,9 +788,9 @@ INSERT INTO `erp_oms_fulfillment_item` (`id`, `fulfillment_id`, `order_item_id`,
 (410000000000396001, 410000000000393001, 410000000000522001, 410000000000000403, 410000000000000503, 0.00, 0.00, 0.00, 0.00, NOW(), NOW());
 
 INSERT INTO `erp_oms_inventory_reservation` (`id`, `product_id`, `sku_id`, `warehouse_id`, `location_id`, `batch_code`, `source_type`, `source_id`, `source_item_id`, `reserved_quantity`, `status`, `created_at`, `updated_at`) VALUES
-(410000000000397001, 410000000000000401, 410000000000000501, 410000000000000101, 410000000000000201, 'd', 'd', 410000000000211001, 410000000000409001, 0.00, 1, NOW(), NOW()),
-(410000000000398001, 410000000000000402, 410000000000000502, 410000000000000102, 410000000000000202, 'd', 'd', 410000000000212001, 410000000000410001, 0.00, 1, NOW(), NOW()),
-(410000000000399001, 410000000000000403, 410000000000000503, 410000000000000101, 410000000000000203, 'd', 'd', 410000000000213001, 410000000000411001, 0.00, 1, NOW(), NOW());
+(410000000000397001, 410000000000000401, 410000000000000501, 410000000000000101, 410000000000000201, 'd', 'd', 410000000000400001, 410000000000409001, 0.00, 1, NOW(), NOW()),
+(410000000000398001, 410000000000000402, 410000000000000502, 410000000000000102, 410000000000000202, 'd', 'd', 410000000000401001, 410000000000410001, 0.00, 1, NOW(), NOW()),
+(410000000000399001, 410000000000000403, 410000000000000503, 410000000000000101, 410000000000000203, 'd', 'd', 410000000000402001, 410000000000411001, 0.00, 1, NOW(), NOW());
 
 INSERT INTO `erp_oms_order` (`id`, `order_id`, `channel`, `channel_order_no`, `channel_store`, `fulfillment_status`, `payment_status`, `shipping_method`, `shipping_fee`, `buyer_message`, `seller_note`, `priority`, `created_at`, `updated_at`) VALUES
 (410000000000400001, 410000000000517001, 'manual', 'd', 'd', 0, 0, 'd', 0.00, 'd', 'd', 5, NOW(), NOW()),
@@ -931,9 +943,9 @@ INSERT INTO `erp_quality_iqc_record` (`id`, `code`, `receiving_id`, `product_id`
 (410000000000489001, 'DEMO-QUALITY_IQC_RECORD-3', 410000000000612001, 410000000000000403, 410000000000483001, 0, 0, 0, 'pass', 'd', '演示数据', 0, NOW(), NOW());
 
 INSERT INTO `erp_quality_nonconformity` (`id`, `code`, `source_type`, `source_id`, `product_id`, `defect_type`, `defect_qty`, `severity`, `disposition`, `status`, `reported_by`, `created_at`, `updated_at`) VALUES
-(410000000000490001, 'DEMO-QUALITY_NONCONFORMITY-1', 'iqc', 410000000000211001, 410000000000000401, 'd', 0, 'minor', 'pending', 0, 'd', NOW(), NOW()),
-(410000000000491001, 'DEMO-QUALITY_NONCONFORMITY-2', 'iqc', 410000000000212001, 410000000000000402, 'd', 0, 'minor', 'pending', 0, 'd', NOW(), NOW()),
-(410000000000492001, 'DEMO-QUALITY_NONCONFORMITY-3', 'iqc', 410000000000213001, 410000000000000403, 'd', 0, 'minor', 'pending', 0, 'd', NOW(), NOW());
+(410000000000490001, 'DEMO-QUALITY_NONCONFORMITY-1', 'iqc', 0, 410000000000000401, 'd', 0, 'minor', 'pending', 0, 'd', NOW(), NOW()),
+(410000000000491001, 'DEMO-QUALITY_NONCONFORMITY-2', 'iqc', 0, 410000000000000402, 'd', 0, 'minor', 'pending', 0, 'd', NOW(), NOW()),
+(410000000000492001, 'DEMO-QUALITY_NONCONFORMITY-3', 'iqc', 0, 410000000000000403, 'd', 0, 'minor', 'pending', 0, 'd', NOW(), NOW());
 
 INSERT INTO `erp_quality_oqc_record` (`id`, `code`, `delivery_id`, `product_id`, `standard_id`, `inspected_qty`, `passed_qty`, `rejected_qty`, `result`, `inspector`, `remark`, `status`, `created_at`, `updated_at`) VALUES
 (410000000000493001, 'DEMO-QUALITY_OQC_RECORD-1', 410000000000511001, 410000000000000401, 410000000000481001, 0, 0, 0, 'pass', 'd', '演示数据', 0, NOW(), NOW()),

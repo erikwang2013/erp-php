@@ -861,6 +861,81 @@ class PurchaseModuleTest extends TestCase
     }
 
     /**
+     * 建单即 status=1|2 也必须落审批轨迹 —— 否则 approved_by 恒 0、approved_at 恒 NULL，
+     * 「已批准但没有审批人」；且经 update 侧的同值守卫后，这类记录再无旁路补救。
+     *
+     * 不是理论路径：Flutter 建单表单就带 status 下拉（apps/flutter/.../apply_list_page.dart:89，
+     * 选项 0..3、默认 0），用户新建时选「已批准」即落到这个分支。
+     * 判据与 update 侧那条同形（比「非空」更强）：approved_by 必须等于中间件注入的 adminId（42，
+     * 而非请求体里自报的 999），approved_at 非空且不等于客户端自报值。真库 + 事务回滚。
+     */
+    public function testApplyStoreWithDeclaredStatusStampsApprover(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $controller = new \app\controller\purchase\ApplyController();
+            // 1=批准 2=驳回：都是客户端在声明一个审批结论，两条路径都得落
+            foreach ([1 => '批准', 2 => '驳回'] as $status => $label) {
+                $code = 'PA-ST-' . $status . '-' . random_int(100000, 999999);
+                $resp = $controller->store(new FakeRequest(
+                    [
+                        'code' => $code,
+                        'department' => '采购部',
+                        'status' => $status,
+                        // 夹带自报审批人：两列不在 $fillable，必须被无视，只认中间件注入的 adminId
+                        'approved_by' => 999,
+                        'approved_at' => '2000-01-01 00:00:00',
+                    ],
+                    ['adminId' => 42],
+                ));
+                $this->assertSame(0, $this->responseCode($resp), '建单即' . $label . '应成功：' . $this->responseMessage($resp));
+
+                $row = DB::table('purchase_apply')->where('code', $code)->first();
+                $this->assertNotNull($row, '建单后应能按单号取回该行');
+                $this->assertSame($status, (int) $row->status, '建单即' . $label . '后 status 应为 ' . $status);
+                $this->assertSame(42, (int) $row->approved_by, $label . '应记下中间件注入的审批人');
+                $this->assertNotNull($row->approved_at, $label . '应记下审批时间');
+                $this->assertNotSame('2000-01-01 00:00:00', (string) $row->approved_at, '审批时间不能被客户端自报');
+            }
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * 上一条的对照（防守卫过度触发）：建单 status=0、以及干脆不带 status，两列都必须仍是 0 / NULL ——
+     * 待审批的单子没有审批动作，不该凭空多出一条审批轨迹。真库 + 事务回滚。
+     */
+    public function testApplyStoreWithPendingOrOmittedStatusLeavesApprovalTraceUnset(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $controller = new \app\controller\purchase\ApplyController();
+            $payloads = [
+                '显式 status=0' => ['department' => '采购部', 'status' => 0],
+                '不带 status' => ['department' => '采购部'],
+            ];
+            foreach ($payloads as $label => $payload) {
+                $code = 'PA-ST0-' . random_int(100000, 999999);
+                $resp = $controller->store(new FakeRequest($payload + ['code' => $code], ['adminId' => 42]));
+                $this->assertSame(0, $this->responseCode($resp), '建单(' . $label . ')应成功：' . $this->responseMessage($resp));
+
+                $row = DB::table('purchase_apply')->where('code', $code)->first();
+                $this->assertNotNull($row, '建单后应能按单号取回该行');
+                $this->assertSame(0, (int) $row->status, '建单(' . $label . ')后 status 应为待审批 0');
+                $this->assertSame(0, (int) $row->approved_by, '建单(' . $label . ')不该落审批人');
+                $this->assertNull($row->approved_at, '建单(' . $label . ')不该落审批时间');
+            }
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
      * 订单认领申请单 → 申请单置「已转订单」(3)。
      *
      * erp_purchase_apply.status=3 此前没有任何写入方（前端无入口、审批不回写目标单据），

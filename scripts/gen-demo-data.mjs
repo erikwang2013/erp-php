@@ -119,7 +119,32 @@ const MANUAL_FK = {
   'erp_finance_allocation.source_center_id': 'erp_finance_cost_center',
   'erp_finance_allocation.target_center_id': 'erp_finance_cost_center',
   'erp_cost_record.flow_id': 'erp_inventory_flow',
+  'erp_oms_inventory_reservation.source_id': 'erp_oms_order',
 };
+/**
+ * 多态外键：`<base>_id` 指向哪张表由同表的判别列（`<base>_type` / `biz_type`）决定，指向任何单一
+ * 目标都是假关联 —— 段里 12 个 `source_id` 曾整片指到 erp_finance_voucher_source（A2 后缀匹配的
+ * 唯一 `*_source` 表），而它们的注释写的是「来源单据ID」，判别列分别是 manual/receipt、
+ * purchase_receive/sales_delivery、iqc/ipqc/oqc、领料/人工/制费…。
+ * **只收逐列核过注释的**，不做「表里有 `<base>_type` 就算多态」的通用判定：命中集合 16 列里有误伤 ——
+ *   erp_hr_perf_score.rater_id：`rater_type` 是「1自评/2上级/3同事360」的角色快照，rater 永远是员工，
+ *     现指 erp_hr_employee 是对的（且它是 uk_plan_emp_rater_indicator 成员）；
+ *   erp_oms_inventory_reservation.source_id：注释直接写「OMS订单ID」⇒ 目标唯一，进 MANUAL_FK。
+ * 值给 0；唯一键成员退化为行号（uk_source(source_type, source_id) 三行同值会撞）。
+ */
+const POLY_FK = new Set([
+  'erp_finance_ar_ap.source_id',
+  'erp_finance_bill.source_id',
+  'erp_finance_cash_journal.source_id',
+  'erp_finance_invoice.source_id',
+  'erp_finance_invoice_match_log.source_id',
+  'erp_finance_tax_record.source_id',
+  'erp_finance_voucher_source.source_id',
+  'erp_inventory_flow.source_id',
+  'erp_mfg_wip_flow.source_id',
+  'erp_notification.source_id',
+  'erp_quality_nonconformity.source_id',
+]);
 // 用户外键的基名：目标表 erp_admin_user 既不在生成范围也不在种子范围（文件头约定 3/6：本文件不建用户）
 // ⇒ 填 0 是设计，不是解析失败。警告块里单独一类，别混进「无目标表」。
 const USER_BASES = new Set(['user', 'submitter', 'approver', 'operator', 'creator', 'updater', 'auditor', 'handler']);
@@ -146,6 +171,8 @@ function commentTable(col) {
 function fkIds(col, table, ids) {
   const colName = col.name;
   if (!fkName(col)) return null;
+  // 规则 P：多态外键不参与猜测（见 POLY_FK 注释）
+  if (POLY_FK.has(`${table}.${colName}`)) return null;
   // 规则 0：名字规则定不了的少数列，映射表直接钉死（见 MANUAL_FK 注释）
   const forced = MANUAL_FK[`${table}.${colName}`];
   if (forced && ids.get(forced)?.length) return ids.get(forced);
@@ -190,7 +217,10 @@ function lit(col, n, table, ids, isUniq) {
   // 规则 B：必填外键（NOT NULL 且无默认值）解析不到目标表时，不能装作没事 —— 记下来，
   // 收尾时打到 stderr 并写进生成段注释。静默填 0 的数据看起来正常，是这轮修了 23 列的那种坑。
   // 用户外键（目标表 erp_admin_user）是文件头约定 3/6 的设计，单列一类，不混进「无目标表」。
-  if (fkName(col) && col.notNull && !col.hasDefault) {
+  // 多态外键单列一类：值 0（或唯一键成员的行号）是设计，不是「没找到目标表」，别混进 unresolved
+  const poly = POLY_FK.has(`${table}.${name}`);
+  if (poly) polyFk.add(`${table}.${name}`);
+  if (!poly && fkName(col) && col.notNull && !col.hasDefault) {
     (isUserFk(name.slice(0, -3)) ? userFk : unresolved).add(`${table}.${name}`);
   }
   // 唯一键列绝不允许常量（否则三行同值必撞 uk_*）；无对应表时退化为行号
@@ -211,6 +241,13 @@ function lit(col, n, table, ids, isUniq) {
   if (INT.has(col.type)) {
     if (/^(?:.*_)?year$/.test(name)) return 'YEAR(CURDATE())';
     if (/^(?:.*_)?month$/.test(name)) return String(n);
+    // 规则 E：注释宣告了码表（`类型: 1=入库 2=出库`）时取**首个码**。前提是它和兜底的 0 不同 ——
+    // `状态: 0=待盘点 1=已盘点` 的首码就是 0，不动（0 是注释宣告过的值，不是域外）。
+    // 落点在 INT 兜底这一支 ⇒ 抢不到规则 C（DDL 默认值，133 个命中列里 125 个已由它给对）与
+    // 规则 D（年/月，如 uk_account_period 的 period_month 要逐行不同）；`status` 名字规则本来就在
+    // INT 兜底之后，INT 列永远到不了那里。唯一键列除外（三行同值会撞 uk_*）。
+    const code = (col.comment || '').match(/(?:^|[\s：:（(,，/])(\d{1,2})\s*=[^\s=]/);
+    if (!isUniq && code && Number(code[1]) !== 0) return String(Number(code[1]));
   }
   // **类型优先于列名**：真实库里存在「列名叫 email 但类型是 INT」这类情形，
   // 若先按列名给字符串就会 Incorrect integer value。数值列一律给数字。
@@ -260,6 +297,7 @@ for (const t of SEEDED) {
 }
 const unresolved = new Set();
 const userFk = new Set();
+const polyFk = new Set();
 const blocks = [];
 for (const [table, s] of tables) {
   const rowIds = ids.get(table);
@@ -279,8 +317,12 @@ if (unresolved.size) {
 if (userFk.size) {
   console.error(`提示：${userFk.size} 个用户外键按设计填 0（本文件不建用户，见文件头约定 3/6）`);
 }
+if (polyFk.size) {
+  console.error(`提示：${polyFk.size} 个多态外键按设计填 0/行号（目标表由判别列决定，见段头块）`);
+}
 const note = (title, set) => (set.size ? `-- ${title} ${set.size} 个：\n${[...set].map((c) => `--   ${c}`).join('\n')}\n` : '');
 const warn = note('未解析的必填外键（多态：目标表由判别列决定，值是 0，不是真实关联）', unresolved)
+  + note('按设计填 0 的多态外键（目标表由判别列决定，0/行号不是真实关联）', polyFk)
   + note('按设计填 0 的用户外键（本文件不建用户，见文件头约定 3/6）', userFk);
 const generated = `${SENTINEL}\n-- 共 ${blocks.length} 张表（手工段已覆盖的表、install.sql 已种子的表均不在其中）\n${warn}\n${blocks.join('\n\n')}\n`;
 // 只在比对/落盘处用到的辅助：把生成段切成「表名 → 该表的 INSERT 原文」
@@ -324,7 +366,7 @@ if (process.argv.includes('--check')) {
     for (const d of drift.slice(0, 20)) console.error(`  ${d}`);
     process.exit(1);
   }
-  console.log(`ok   生成段逐字节一致：${blocks.length} 张表 / ${path.relative(ROOT, TARGET)}（含 ${unresolved.size} 个多态外键、${userFk.size} 个按设计的用户外键填 0）`);
+  console.log(`ok   生成段逐字节一致：${blocks.length} 张表 / ${path.relative(ROOT, TARGET)}（含 ${unresolved.size} 个未解析、${polyFk.size} 个按设计的多态外键、${userFk.size} 个用户外键填 0）`);
 } else if (!process.argv.includes('--install')) {
   fs.writeFileSync(STAGE, generated);
   console.log(`已生成 ${blocks.length} 段 → ${STAGE}（未触碰正式文件）`);

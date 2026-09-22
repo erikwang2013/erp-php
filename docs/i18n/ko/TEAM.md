@@ -13,7 +13,7 @@
 |------|------|--------------|
 | 백엔드 | webman (Workerman) PHP 8.3+, **23개 업무 모듈**, 159 컨트롤러, 63 서비스, 224 모델, 227개 테이블, 11개 미들웨어(schema는 database/install.sql이 유일한 사실 소스) | 모놀리스 규모가 크므로 업무 도메인별 분업, 단일 agent 컨텍스트 폭발 방지 |
 | 프론트엔드 | Flutter **102개 메뉴 라우트**(`lib/app/config/menu_config.dart`; `main.dart`의 getPages는 총 110개 = 메뉴 102개 + 로그인/개인 센터/상세 6개) + HarmonyOS **41페이지**(`main_pages.json`), 전 모듈 커버 | 양단 병행 유지보수, 전담 프론트엔드 역할 필요 |
-| 품질 베이스라인 | PHPUnit 1046<!-- stats:tests=1046 --> 테스트 / 5029<!-- stats:assertions=5029 --> 어서션, PHPStan + baseline, CS-Fixer, CI 다중 버전 매트릭스 | 이미 규율 확보, 테스트/리뷰 역할이 파이프라인에 직접 내장 |
+| 품질 베이스라인 | PHPUnit 1048<!-- stats:tests=1048 --> 테스트 / 5040<!-- stats:assertions=5040 --> 어서션, PHPStan + baseline, CS-Fixer, CI 다중 버전 매트릭스 | 이미 규율 확보, 테스트/리뷰 역할이 파이프라인에 직접 내장 |
 | 버전 매트릭스 | `main` 한 개 브랜치만 존재(`lite` / `standard` / `full`은 삭제됨, 아카이브 커밋 `eea90c0`은 여전히 `main` 이력에 있음) | 동기화할 버전 브랜치가 없으며 버전 차이는 tag로 추적, `docs/EDITIONS.md`「브랜치 전략」 참고 |
 | 로드맵 | P0~P3 이미 전달(종합 점수 89/100), 일상 반복과 진화 단계 진입 | 팀 규모는 태스크 유형별로 신축, 프로젝트제 대편성 아님 |
 | 기존 시설 | `.claude/agents/`(planner / sparc / testing / swarm / consensus), `.claude-flow`(hierarchical-mesh, 상한 15 agents, consensus 조정), hooks + 메모리 | 팀을 기존 설정에 바로 탑재, 새로 구축하지 않음 |
@@ -83,7 +83,7 @@
 ### 3.4 품질 게이트(커밋 전 필수, 리뷰어가 수문장)
 
 ```
-phpunit            # 1046<!-- stats:tests=1046 --> 테스트 / 5029<!-- stats:assertions=5029 --> 어서션 전부 통과, 신규 케이스는 변경과 함께 커밋
+phpunit            # 1048<!-- stats:tests=1048 --> 테스트 / 5040<!-- stats:assertions=5040 --> 어서션 전부 통과, 신규 케이스는 변경과 함께 커밋
 phpstan            # baseline 밖의 신규 문제 추가 금지
 php-cs-fixer       # --dry-run 통과
 composer audit     # 고위험 의존성 취약점 없음

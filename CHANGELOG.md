@@ -2,6 +2,46 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.8 (2026-09-22)
+
+**审批轨迹 create 侧 + 演示数据两条残单批**：把 v1.19.7「待办」里的头部三条收口 —— `/purchase/apply` 的 `store()` 建单即 `status:1|2` 也落审批轨迹（与 update 侧对称）；演示数据两条残单：多态 `*_source_id` 改人工白名单、8 个「注释宣告码表而值是 0」的列按注释首个码归位。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。
+
+### 修复 · `/purchase/apply` 的 `store()` 也落审批轨迹
+- 此前 `store()` 收 `status`（`integer|between:0,3`）却不写审批列 ⇒ 建单即 `status:1|2` 得到「已批准但没有审批人」，而经 v1.19.7 的同值守卫之后**再无旁路补救**（对已批准的记录再点一次「通过」不再写轨）。**是真实用户路径**：Flutter 建单表单的 status 下拉可手选「已批准/已驳回」（`apps/flutter/lib/app/pages/purchase/apply_list_page.dart:89`；Angular/React 建单表单无 status 字段，从未受影响）
+- 修法：`$finalStatus = (int) $item->getAttribute('status')` ∈ `{1,2}` 时 `forceFill(['approved_by' => adminId, 'approved_at' => now])`，**取 `fillModelFromRequest` 之后的最终值**。**刻意不选 422 打回** —— 那会打断建单路径（Flutter 下拉默认就含这两个值）
+- **`status:3`（已转订单）刻意不落**：它是订单认领的结果态（`OrderController::markApplyOrdered` 既不写审批人也不校验原状态），且 **update 侧对 3 本就不改写** ⇒ create 落而 update 不落就是同一状态两条口径。详见「待办」
+- **读法坑（本仓新建模型专属）**：`store` 的 `$item` 来自 `new PurchaseApply()`（**具体类型**）⇒ 直读 `$item->status` 会让 PHPStan 报 `property.notFound`；而 `update` 的来自 `find()`，本仓无 larastan ⇒ 推成 `mixed` ⇒ 同形读**一直没报错**。**两处不可互抄**，故用 `getAttribute('status')`（仓内先例 `CrmService:107`）
+
+### 修复 · 演示数据两条残单（`scripts/gen-demo-data.mjs` + `database/install-demo.sql`）
+- **多态 `*_source_id`：拟议的通用规则被否决，改人工白名单 `POLY_FK`（11 列）**。规则「某 `*_id` 列所在表存在 `<base>_type` 即按多态填 0」命中 16 列、**误伤 2 列**（按派单阈值「误伤 > 0 不落地」否决）：
+  - `erp_hr_perf_score.rater_id` —— `rater_type` 是评分人**角色快照**（1自评/2上级/3同事360）不是判别列，该列本已正确指向 `erp_hr_employee`，且它是 `uk_plan_emp_rater_indicator` 成员 ⇒ **归零会破唯一键**
+  - `erp_oms_inventory_reservation.source_id` —— 注释「来源ID（OMS订单ID）」**点名了目标表** ⇒ 该**解析**不该归零（已改指 `erp_oms_order`，实测变真订单行）
+  - 白名单 9 个非唯一键列填 `0`、2 个 UK 成员（`uk_source(source_type, source_id)`）落行号 1/2/3 保唯一
+- **真值 12 列，不是登记单上的 7 列 —— 这条是本批最值得记的方法论结论**：登记单是**按 diff 生成的**，而「拿编造值冒充关联」的列**在手工文件里也同样是编造值** ⇒ 两版一致 ⇒ **不产生 diff ⇒ 永远不进残单**。改用**值口径**独立扫描（扫全表全列、值 ∈ `erp_finance_voucher_source` 现有 id 集）才看见：旧文件命中 **13** 列、新文件 **1** 列（那 1 列是 `erp_finance_voucher_source.id` 自己的主键、不是指针）⇒ **12**。多出的 5 列是 `erp_{inventory_flow,mfg_wip_flow,notification,quality_nonconformity,oms_inventory_reservation}.source_id`
+  - **独立强证据**：手工调优文件里 `bill`/`cash_journal`/`invoice`/`invoice_match_log`/`tax_record.source_id` 本就是 `0`、`ar_ap`/`voucher_source.source_id` 本就是 `1,2,3`，与本轮输出**逐格相同**（23 格「修好」桶）⇒ 规则只是把原作者意图形式化，不是改数据
+- **规则 E：注释宣告 `1=… 2=…` 而值是 `0`** —— 判为**值侧缺口**（注释是完整闭合枚举、`0` 不在域内；手工文件这 8 格也全是 `0` ⇒ 长期不一致的根源在值侧），**改值不改注释**。原始命中 133 个 INT 列，**有效改动只有 8 列 / 24 格**（133 = 125 已由既有规则给对 —— 52 个被「非空数字 DEFAULT」先返回 + 73 个首个码本就是 `0` + 8）。8 列全部 `0 → 1`：`erp_cost_record.type`、`erp_finance_ar_ap.type`、`erp_finance_bank_statement.direction`、`erp_finance_cash_journal.direction`、`erp_finance_settlement.type`、`erp_hr_leave.type`、`erp_inventory_flow.direction`、`erp_mfg_wip_flow.source_type`
+  - **承重前提：首个码 ≠ 0 才采**（否则 `0=无` 这类哨兵注释会把合法 `0` 反覆盖）
+  - **零 `status` 列被抢**（既有坑：`lit()` 的 INT 分支排在 `status` 规则之前）—— 用插桩（`#E# reach` / `#E# FIRE`，插桩产物与仓内生成段逐字节相同 ⇒ 无损）实测 reach 82 列、FIRE 恰 8 列；74 个未触发里 73 个首码=0、1 个（`erp_finance_cost_account_config.cost_type`）被 `!isUniq` 挡下
+- 规模：本批相对上一版 **60 格 / 20 个 (表,列)**（= 12 个多态列 × 3 + 8 个规则 E 列 × 3）与 **+12 行**（生成段新增的多态提示块，落在 `install-demo.sql:102-113`）；值为 `'d'` 的格 **504 → 504 未动**。`install-demo.sql` `a7ef9ded…` → **`d4b421d3…`**（1163 行）、`gen-demo-data.mjs` `3df97b1e…` → **`5619551100…`**
+
+### 验证（独立验证方单飞，仓库零写入）
+- **头条数字 12 被值口径独立复算确认**（旧 13 − 新 1 = 12，那 1 是主键）；`16 列命中 / 2 误伤`、`133 = 125 + 8`、`60 格 / 20 列`、`+12 行` 全部逐数吻合；两个「误伤」列实测**未被归零**且值真指向目标表（`rater_id` ⊆ `erp_hr_employee.id`、`oms_inventory_reservation.source_id` ⊆ `erp_oms_order.id`）
+- **`store()` 五态矩阵**（自建探针 × 夹带自报 `approved_by=999`/`approved_at='2000-01-01'`）：显式 `0`/`3`/不下发 ⇒ 两列 `0`/`NULL`；显式 `1`/`2` ⇒ `adminId` + now；**自报值一律未落库**，不符格子 = 0。**负控**用 `git show ad2e463:` 的改前控制器抢类名 ⇒ 恰在 `1`/`2` 两格为 `0`/`NULL`、其余 3 格逐格相同 ⇒ 增量精确等于「建单即 1|2 落轨迹」
+- **演示数据真能装**（自建空库）：`install.sql` rc=0/0B → 落地版演示数据 rc=0 / **stderr 0 字节** / 227 张表
+- **`--check` rc=0** + 四条负控（值漂移 / 删整表 / 坏哨兵 / **另加的多态回填**）各 rc=1 且点名到表，还原 `md5sum -c` 成功且与仓库文件逐字节相同；**幂等**：install-only 库与 install+演示库两次重生成 `cmp` 逐字节相同（`9ac90ec9…`）且等于仓内生成段
+- **phpunit CI 等效**：`Tests: 1059, Assertions: 7151, Warnings: 2, Skipped: 9` rc=0 = 上批 `1057 / 7129` + **2 用例 + 22 断言**（跳过数零残差）；15 道 node 门禁全 rc=0；PHPStan `[OK] No errors`；CS Fixer `0 of 652`
+- **`doc-stats` 红因只有本轮新增用例**：实测 **test files 113 / tests 1048 / assertions 5040**，`--check` 报 130 处不一致（65 `stats:tests` 1044→1048 + 65 `stats:assertions` 5029→5040），`stats:test_files` 零漂移。**口径提醒**：运行时断言 `+22`（两条用例各一个 foreach，`7151 − 7129 = 22`）≠ doc-stats 的**静态调用点** `+11`，两者别混。冻结时跑一次 `--fix`（触动 52 份）⇒ 复跑 `--check` **rc=0 / 338 处全一致**
+- **未验证（显式列出）**：① E2E 与前端构建本轮未跑（本批未动前端；上批跑过均 rc=0）② `composer audit` 未重跑（上批的绿只在本地缓存范围成立）③ 冻结清单（manifest）本轮未核 —— 复核方只有四文件哈希 + `git status`
+
+### 待办 / 已知遗留（本轮未修）
+- **`/purchase/apply` 的 `create` 允许 `status=3`（已转订单）**：3 是订单认领的结果态（唯一写入方 `OrderController::markApplyOrdered` 既不写审批人也不校验原状态）⇒「3 ⇒ 有审批人」这条不变量在本仓本就不成立。要治得**连端一起动**：Flutter 建单/编辑**共用同一个含 0..3 的下拉**（`apply_list_page.dart:82-103`），只禁 create 会被编辑路径绕过；Angular/React 建单表单没有 status 字段 ⇒ 影响面只在 Flutter 与直连 API。单开窗
+- **演示数据 8 张表的 `source_type` 仍是兜底 `'d'`**（`bill`/`cash_journal`/`invoice`/`invoice_match_log`/`tax_record`/`ar_ap`/`voucher_source` 等）—— 它们正是 `POLY_FK` 那些 `source_id` 的**判别列**，现在 `source_id` 已归位而判别列还是占位串。字符串侧同形规则（注释 `code=label` 且值兜底 `'d'`）候选只有 5 列（`invoice_match_log.result` / `member_balance_log.biz_type` / `member_point_log.biz_type` / `notification_channel_log.channel` / `tax_issue_log.action`），**接不住那 8 张表**（它们的注释没有 `code=label` 形态）⇒ 需另立规则，单独量
+- **`erp_approval_instance.target_type`（`'d1'/'d2'/'d3'`）、`erp_member_balance_log.biz_type` / `erp_member_point_log.biz_type`（`'d'`）**：仍是占位串（DDL 默认值为空 ⇒ 被规则 C 的门挡在外），与上批登记的「注释宣告 ASCII 域却留 `'d'`」同类，本批未动
+- **`erp_finance_budget_item.period_month` / `erp_finance_general_ledger.period_month`**：注释只写 `(0=全年)` 而值是 1/2/3（规则 D 给行号）—— 语义没错（月份），但**注释没把 1–12 宣告出来**；将来若有更严的「值 ∈ 注释宣告域」门禁，这两列会亮。属注释表达力问题
+- **`ar_ap.type` 行 3 的手工值 `2` 被规则 E 统一成 `1`**：手工文件原本是 `1,1,2` 混排，看着像刻意让演示覆盖应收/应付两个分支 ⇒ 记为 **demo 质量项**（非缺陷）。要恢复得加「按注释码表轮转」的独立规则，需单独量
+- **3 个中性多态列**（`erp_approval_node.approver_id`、`erp_member_balance_log.biz_id`、`erp_member_point_log.biz_id`）：已量、值为 `0` 且无编造 ⇒ **判定无需动作**，未列入 `POLY_FK`（列进去只多一行提示、不改任何值）。登记以免将来被当漏项重查
+- v1.19.7 结转未修：采购金额 11 对 `0.00`（改前既有）、真库 `erp` 不会被自动更新、`docs/i18n/ar/CLAUDE.md` 围栏树 10 个模块数过期、11 份 i18n README 的 `tests/` 树行形态差异、dms `status` 空串语义、详情抽屉 `fallbackCell` 的 kd 分支、移动端 `customer_id`/`bank_account_id` 编辑态兜底
+
 ## v1.19.7 (2026-09-22)
 
 **演示数据生成器同步 + 审批轨迹边界批**：把 v1.19.6「待办」里排第一的收口 —— 签入的演示数据生成段比它的生成器差一个版本（`6ed0772` 换过外键解析器、文件此后没再重生成），本轮补解析缺口、把 44 个字符串列从占位 `'d'` 改成 DDL 默认值、按文件自带流程重生成并入，并给生成器加 `--check`；同时收掉 `/purchase/apply` 的 PUT「同值重放也改写审批轨迹」的边界。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。
