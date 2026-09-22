@@ -13,7 +13,7 @@
 |------|------|--------------|
 | Backend | webman (Workerman) PHP 8.3+, **23 módulos de negocio**, 159 controladores, 63 servicios, 224 modelos, 227 tablas, 11 middlewares (el schema tiene como única fuente de verdad `database/install.sql`) | Monolito grande y completo; división del trabajo por dominio de negocio para evitar que un solo agente reviente de contexto |
 | Frontend | Flutter **102 rutas de menú** (`lib/app/config/menu_config.dart`; las getPages de `main.dart` suman 110 = 102 menús + inicio de sesión/centro personal/6 páginas de detalle) + HarmonyOS **41 páginas** (`main_pages.json`), que cubren todos los módulos | Mantenimiento paralelo de ambas plataformas; se necesita un rol de frontend dedicado |
-| Línea base de calidad | PHPUnit 1001 tests / 4726 assertions, PHPStan + baseline, CS-Fixer, matriz multiversión del CI | Ya hay disciplina; los roles de prueba/revisión se integran directamente en el pipeline |
+| Línea base de calidad | PHPUnit 1037 tests / 4962 assertions, PHPStan + baseline, CS-Fixer, matriz multiversión del CI | Ya hay disciplina; los roles de prueba/revisión se integran directamente en el pipeline |
 | Matriz de versiones | Una única rama `main` (`lite` / `standard` / `full` eliminadas; el commit de archivo `eea90c0` sigue en el historial de `main`) | No hay ramas de versión que sincronizar; las diferencias de versión se rastrean por tag, véase «Estrategia de ramas» en `docs/EDITIONS.md` |
 | Hoja de ruta | P0~P3 entregados (puntuación global 89/100); entrada en la etapa de iteración y evolución diaria | El tamaño del equipo se ajusta por tipo de tarea, no es una plantilla grande por proyecto |
 | Infraestructura existente | `.claude/agents/` (planner / sparc / testing / swarm / consensus), `.claude-flow` (hierarchical-mesh, límite 15 agentes, coordinación consensus), hooks + memoria | El equipo se monta directamente sobre la configuración existente, sin reinventar la rueda |
@@ -83,7 +83,7 @@
 ### 3.4 Puerta de calidad (obligatoria antes de cada commit, custodiada por el revisor)
 
 ```
-phpunit            # 1001 tests / 4726 assertions todo en verde; los casos nuevos se envían con el cambio
+phpunit            # 1037 tests / 4962 assertions todo en verde; los casos nuevos se envían con el cambio
 phpstan            # no se permiten nuevos problemas fuera del baseline
 php-cs-fixer       # --dry-run aprobado
 composer audit     # sin vulnerabilidades de dependencias de alto riesgo

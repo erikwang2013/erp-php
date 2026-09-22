@@ -13,7 +13,7 @@
 |------|------|--------------|
 | Backend | webman (Workerman) PHP 8.3+, **23 modul bisnis**, 159 controller, 63 layanan, 224 model, 227 tabel, 11 middleware (schema dengan database/install.sql sebagai satu-satunya sumber kebenaran) | Monolit besar dan lengkap, dibagi kerja per domain bisnis, mencegah ledakan konteks pada satu agent |
 | Frontend | Flutter **102 rute menu** (`lib/app/config/menu_config.dart`; getPages `main.dart` total 110 = 102 menu + login/pusat pribadi/6 halaman detail) + HarmonyOS **41 halaman** (`main_pages.json`), mencakup semua modul | Pemeliharaan paralel dua platform, perlu peran frontend khusus |
-| Baseline kualitas | PHPUnit 1001 test / 4726 assertion, PHPStan + baseline, CS-Fixer, matriks multi-versi CI | Disiplin sudah ada, peran pengujian/review langsung tertanam ke pipeline |
+| Baseline kualitas | PHPUnit 1037 test / 4962 assertion, PHPStan + baseline, CS-Fixer, matriks multi-versi CI | Disiplin sudah ada, peran pengujian/review langsung tertanam ke pipeline |
 | Matriks versi | Hanya satu cabang `main` (`lite` / `standard` / `full` sudah dihapus, commit arsip `eea90c0` masih ada di riwayat `main`) | Tidak ada cabang versi untuk disinkronkan, selisih versi dilacak melalui tag, lihat `docs/EDITIONS.md`「Strategi Cabang」|
 | Roadmap | P0~P3 sudah dikirim (skor komprehensif 89/100), memasuki periode iterasi dan evolusi harian | Ukuran tim mengembang sesuai jenis tugas, bukan formasi besar berbasis proyek |
 | Fasilitas yang ada | `.claude/agents/` (planner / sparc / testing / swarm / consensus), `.claude-flow` (hierarchical-mesh, batas 15 agents, koordinasi consensus), hooks + memori | Tim langsung dipasang ke konfigurasi yang ada, tidak membangun dari nol |
@@ -83,7 +83,7 @@
 ### 3.4 Gerbang Kualitas (wajib sebelum commit, dijaga reviewer)
 
 ```
-phpunit            # 1001 test / 4726 assertion semua hijau, kasus baru ikut dikirim bersama perubahan
+phpunit            # 1037 test / 4962 assertion semua hijau, kasus baru ikut dikirim bersama perubahan
 phpstan            # tidak boleh ada masalah baru di luar baseline
 php-cs-fixer       # --dry-run lolos
 composer audit     # tanpa kerentanan dependensi berisiko tinggi

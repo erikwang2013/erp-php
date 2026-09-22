@@ -1416,13 +1416,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get financeMethodCash => 'Cash';
 
   @override
-  String get financeMethodBank => 'Bank';
+  String get financeMethodBank => 'Bank Transfer';
 
   @override
   String get financeMethodWechat => 'WeChat';
 
   @override
   String get financeMethodAlipay => 'Alipay';
+
+  @override
+  String get financeMethodOther => 'Other';
 
   @override
   String get financeReceivedAt => 'Received At';

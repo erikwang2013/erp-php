@@ -49,8 +49,9 @@ const TAX_POOL_DICTS: DictMap = {
 };
 /** erp_finance_receipt.method（install.sql:1202）与 erp_finance_payment.method（1221）：
  * 两张表该列注释**逐字相同**（cash/bank/wechat/alipay），故共用一份，非跨表套用语义。
- * DDL 无中文，译名为 lead 判定；`other` 不在 DDL 码表里，但两页表单声明了它（apidoc 也写
- * bank/cash/other），提交后没有字典就会裸出 —— 依 lead 裁定补上 */
+ * DDL 无中文，译名为 lead 判定；`other` 不在 DDL 码表里，但 apidoc 写 bank/cash/other。
+ * 两页表单 options 逐字对齐本词典（含 wechat/alipay，值仍是机读串）—— 表单是这套码的唯一写入方，
+ * 选项与词典不一致时提交出来的值在列表/抽屉里就没有译名 */
 const PAY_METHOD_DICTS: DictMap = {
   method: { cash: '现金', bank: '银行转账', wechat: '微信', alipay: '支付宝', other: '其他' },
 };
@@ -58,7 +59,7 @@ const PAY_METHOD_DICTS: DictMap = {
 const ASSET_DICTS: DictMap = {
   // '1直线法2双倍余额递减法3年数总和法'（逐字抄）
   depreciation_method: { 1: '直线法', 2: '双倍余额递减法', 3: '年数总和法' },
-  // '1使用中2已处置3报废'（逐字抄；不是 0/1 那套，别套 COMMON_STATUS）
+  // '1使用中2已处置3报废'（逐字抄；不是 0/1 那套，别按状态列猜文案）
   status: { 1: '使用中', 2: '已处置', 3: '报废' },
 };
 /** erp_finance_tax_rate.type（install.sql:1727 税种: vat/cit/pit/stamp/other）：DDL 无中文，译名为 lead 判定 */
@@ -94,8 +95,8 @@ export const financeMenus: MenuGroup[] = [
           fields: [{ key: 'type', label: '类型', type: 'select', options: [{ label: '应收', value: 1 }, { label: '应付', value: 2 }] }, { key: 'partner_id', label: '往来方', source: { endpoint: '/admin/v1/customer', labelKey: 'name' } }, { key: 'amount', label: '金额', type: 'number' }, { key: 'due_date', label: '到期日', type: 'date' }],
         }),
       },
-      { label: '收款管理', path: '/finance/receipt', cfg: f('收款管理', '/admin/v1/finance/receipt', { dicts: PAY_METHOD_DICTS, filters: RECEIPT.filter, columns: [textCol('code', '收款单号', true), textCol('customer_name', '客户'), moneyCol('amount', '金额'), statusCol(RECEIPT.dict), dateCol('received_at', '收款时间')], fields: [{ key: 'customer_id', label: '客户', required: true, source: { endpoint: '/admin/v1/customer' } }, { key: 'amount', label: '收款金额', required: true, type: 'number' }, { key: 'bank_account_id', label: '收款账户', source: { endpoint: '/admin/v1/finance/bank-account', labelKey: 'name' } }, { key: 'method', label: '收款方式', type: 'select', options: [{ label: '银行', value: 'bank' }, { label: '现金', value: 'cash' }, { label: '其他', value: 'other' }] }, { key: 'received_at', label: '收款日期', type: 'datetime' }, { key: 'remark', label: '备注', type: 'textarea', full: true }] }) },
-      { label: '付款管理', path: '/finance/payment', cfg: f('付款管理', '/admin/v1/finance/payment', { dicts: PAY_METHOD_DICTS, filters: PAYMENT.filter, columns: [textCol('code', '付款单号', true), textCol('supplier_name', '供应商'), moneyCol('amount', '金额'), statusCol(PAYMENT.dict), dateCol('paid_at', '付款时间')], fields: [{ key: 'supplier_id', label: '供应商', required: true, source: { endpoint: '/admin/v1/supplier' } }, { key: 'amount', label: '金额', required: true, type: 'number' }, { key: 'bank_account_id', label: '付款账户', source: { endpoint: '/admin/v1/finance/bank-account', labelKey: 'name' } }, { key: 'method', label: '付款方式', type: 'select', options: [{ label: '银行', value: 'bank' }, { label: '现金', value: 'cash' }, { label: '其他', value: 'other' }] }, { key: 'remark', label: '备注', type: 'textarea', full: true }] }) },
+      { label: '收款管理', path: '/finance/receipt', cfg: f('收款管理', '/admin/v1/finance/receipt', { dicts: PAY_METHOD_DICTS, filters: RECEIPT.filter, columns: [textCol('code', '收款单号', true), textCol('customer_name', '客户'), moneyCol('amount', '金额'), statusCol(RECEIPT.dict), dateCol('received_at', '收款时间')], fields: [{ key: 'customer_id', label: '客户', required: true, source: { endpoint: '/admin/v1/customer' } }, { key: 'amount', label: '收款金额', required: true, type: 'number' }, { key: 'bank_account_id', label: '收款账户', source: { endpoint: '/admin/v1/finance/bank-account', labelKey: 'name' } }, { key: 'method', label: '收款方式', type: 'select', options: [{ label: '现金', value: 'cash' }, { label: '银行转账', value: 'bank' }, { label: '微信', value: 'wechat' }, { label: '支付宝', value: 'alipay' }, { label: '其他', value: 'other' }] }, { key: 'received_at', label: '收款日期', type: 'datetime' }, { key: 'remark', label: '备注', type: 'textarea', full: true }] }) },
+      { label: '付款管理', path: '/finance/payment', cfg: f('付款管理', '/admin/v1/finance/payment', { dicts: PAY_METHOD_DICTS, filters: PAYMENT.filter, columns: [textCol('code', '付款单号', true), textCol('supplier_name', '供应商'), moneyCol('amount', '金额'), statusCol(PAYMENT.dict), dateCol('paid_at', '付款时间')], fields: [{ key: 'supplier_id', label: '供应商', required: true, source: { endpoint: '/admin/v1/supplier' } }, { key: 'amount', label: '金额', required: true, type: 'number' }, { key: 'bank_account_id', label: '付款账户', source: { endpoint: '/admin/v1/finance/bank-account', labelKey: 'name' } }, { key: 'method', label: '付款方式', type: 'select', options: [{ label: '现金', value: 'cash' }, { label: '银行转账', value: 'bank' }, { label: '微信', value: 'wechat' }, { label: '支付宝', value: 'alipay' }, { label: '其他', value: 'other' }] }, { key: 'remark', label: '备注', type: 'textarea', full: true }] }) },
       { label: '现金日记账', path: '/finance/cash-journal', cfg: f('现金日记账', '/admin/v1/finance/cash-journal', { filters: { key: 'direction', label: '方向', options: [{ label: '全部', value: null }, { label: '收入', value: 1 }, { label: '支出', value: 2 }] }, columns: [dateCol('journal_date', '日期'), { key: 'direction', title: '方向', render: (r) => mapText(r.direction, { 1: '收入', 2: '支出' }) }, moneyCol('amount', '金额'), moneyCol('balance', '余额'), textCol('summary', '摘要')] }) },
       { label: '费用报销', path: '/finance/expense', cfg: f('费用报销', '/admin/v1/finance/expense', { filters: EXPENSE.filter, columns: [textCol('code', '报销单号', true), textCol('apply_user_name', '申请人'), moneyCol('amount', '金额'), statusCol(EXPENSE.dict), dateCol('created_at', '创建时间')], fields: [{ key: 'apply_user_id', label: '申请人', required: true, source: { endpoint: '/admin/v1/hr/employee', labelKey: 'name' } }, { key: 'account_id', label: '费用科目', required: true, placeholder: '费用科目 ID', help: '费用科目无列表接口，按 ID 填写（后端双模解码）' }, { key: 'amount', label: '报销金额', type: 'number' }, { key: 'remark', label: '备注', type: 'textarea', full: true }], actions: [{ label: '批准', icon: 'check', path: (r) => (Number(r.status) === 0 ? `/admin/v1/finance/expense/${String(r.id)}` : null), method: 'PUT', body: () => ({ status: 1 }), message: '已批准' }] }) },
       {
@@ -162,7 +163,7 @@ export const financeMenus: MenuGroup[] = [
         path: '/finance/asset',
         cfg: f('固定资产', '/admin/v1/finance/asset', {
           // 表无 original_value/use_date 列；status 1使用中2已处置3报废
-          // 列里没有这两键，靠 dicts 供抽屉与结果面板（status 不套通用档，1≠已生效）
+          // 列里没有这两键，靠 dicts 供抽屉与结果面板（status 不按状态列猜，1≠已生效）
           dicts: ASSET_DICTS,
           columns: [textCol('code', '资产编号', true), textCol('name', '资产名称'), moneyCol('purchase_amount', '原值'), moneyCol('net_value', '净值'), dateCol('purchase_date', '购置日期')],
           fields: [

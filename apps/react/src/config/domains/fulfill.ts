@@ -70,6 +70,9 @@ export const fulfillMenus: MenuGroup[] = [
           filters: SALES_ORDER.filter,
           // 列没覆盖的枚举键只在详情抽屉露面，逐键字典取自 install.sql 该列注释（禁止跨表复用）
           dicts: {
+            // 筛选键：erp_oms_order 无 status 列、回包不含该键（OrderController::index 的 select 只有 oms_order.* + sales_order.code），
+            // 但筛选 options 声明的 0..4 就是关联销售订单状态枚举 —— 与筛选同源声明（与 Angular 同源），避免「能提交却显示不了」的码
+            status: SALES_ORDER.dict,
             // erp_oms_order.priority：优先级: 1=最高 5=正常 9=最低
             priority: { 1: '最高', 5: '正常', 9: '最低' },
             // erp_oms_order.payment_status：支付状态: 0=待支付 1=已支付 2=部分退款 3=已退款
@@ -140,7 +143,7 @@ export const fulfillMenus: MenuGroup[] = [
           ],
         },
       },
-      // erp_channel.status：状态: 0=禁用 1=启用（不写 columns 的推断页，不给字典就落通用档误标「已生效」）
+      // erp_channel.status：状态: 0=禁用 1=启用（不写 columns 的推断页，不给字典就裸出原值 —— 引擎「通用档」兜底 2026-09-22 已删，不会再误标「已生效」）
       // erp_channel.type：类型: direct/marketplace/edi/pos（改前裸出 direct；与 erp_oms_order.channel 不同表，禁止跨表复用）
       { label: '渠道管理', path: '/oms/channel', cfg: res('销售渠道', '/admin/v1/oms/channel', { moduleKey: 'oms', deleteNeedsPassword: true, fields: [{ key: 'name', label: '渠道名称', required: true }, { key: 'code', label: '渠道编码', required: true }], dicts: { status: { 1: '启用', 0: '禁用' }, type: { direct: '直销', marketplace: '电商平台', edi: 'EDI', pos: 'POS' } } }) },
     ],
@@ -271,7 +274,7 @@ export const fulfillMenus: MenuGroup[] = [
     icon: 'truck',
     moduleKey: 'tms',
     children: [
-      // erp_tms_carrier.status 状态: 0=禁用 1=启用（推断页，不给字典就落通用档误标「已生效」）
+      // erp_tms_carrier.status 状态: 0=禁用 1=启用（推断页，不给字典就裸出原值 —— 引擎「通用档」兜底 2026-09-22 已删，不会再误标「已生效」）
       // erp_tms_carrier.type 类型: express/ltl/ftl/air/ocean/rail；erp_tms_carrier.api_provider API供应商: custom/shippo/afterShip/17track
       // （api_provider 的 shippo/afterShip/17track 是供应商名，保持拉丁原文）
       { label: '承运商', path: '/tms/carrier', cfg: res('承运商', '/admin/v1/tms/carrier', { moduleKey: 'tms', deleteNeedsPassword: true, fields: [{ key: 'name', label: '承运商名称', required: true }, { key: 'code', label: '编码', required: true }], dicts: { status: { 1: '启用', 0: '禁用' }, type: { express: '快递', ltl: '零担', ftl: '整车', air: '空运', ocean: '海运', rail: '铁路' }, api_provider: { custom: '自定义', shippo: 'Shippo', afterShip: 'AfterShip', '17track': '17TRACK' } } }) },

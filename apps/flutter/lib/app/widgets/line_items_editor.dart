@@ -6,7 +6,7 @@ import '../l10n/app_l10n.dart';
 /// 闭包里取 [onChanged] 累积的结果塞进 payload。
 ///
 /// 为什么挂在 FormDialog 的 child 插槽而不是做成字段类型：FormDialog 的表单值是
-/// Map<String,String>（见 form_dialog.dart 的 _submit），装不下数组；改成 Map<String,dynamic>
+/// `Map<String,String>`（见 form_dialog.dart 的 _submit），装不下数组；改成 `Map<String,dynamic>`
 /// 会波及每一个 Flutter 表单页。child 是既有的富内容插槽（权限树同款），零改动接入。
 /// 行内控制器的写法照抄 pages/oms/order_detail_page.dart 的分配弹框（同一仓库既有范式）。
 ///

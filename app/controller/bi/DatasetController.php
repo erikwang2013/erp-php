@@ -172,7 +172,9 @@ class DatasetController extends BaseController
         }
         $this->fillModelFromRequest($item, $request);
         if ($templateId !== null) {
-            $item->template_id = $templateId;
+            // fill 而非直写：模型无 @property，直写 $item->template_id 是新增的
+            // PHPStan property.notFound（template_id 在 ReportDataset::$fillable 里）
+            $item->fill(['template_id' => $templateId]);
         }
         $item->save();
 

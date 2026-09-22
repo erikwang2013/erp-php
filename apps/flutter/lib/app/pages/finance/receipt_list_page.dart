@@ -11,7 +11,7 @@ import '../../utils/format.dart';
 
 /// 收款单页 — 覆盖 GET/POST/PUT/DELETE /admin/v1/finance/receipt
 /// 契约（erp_finance_receipt，无 name 列）：code/customer_id/bank_account_id/
-/// amount/method(cash|bank|wechat|alipay)/status(0待审核|1已审核)/remark/received_at
+/// amount/method(cash|bank|wechat|alipay|other)/status(0待审核|1已审核)/remark/received_at
 class ReceiptListPage extends StatefulWidget {
   const ReceiptListPage({super.key});
   @override
@@ -35,12 +35,15 @@ class _ReceiptListPageState extends State<ReceiptListPage> {
 
   static List<String> get _statusLabels =>
       [AppL10n.current.financeStatusPending, AppL10n.current.financeStatusApproved];
-  static List<String> get _methodValues => ['cash', 'bank', 'wechat', 'alipay'];
+  /// 后端对 method 只 `string` 不校验：DDL 码表是 cash/bank/wechat/alipay，Web 表单另可提交 other。
+  /// 缺 other 时列表出裸 `other`，编辑态下拉也只能拿 dropdownOptionsWithCurrent 的裸码占位项 —— 故补上词条。
+  static List<String> get _methodValues => ['cash', 'bank', 'wechat', 'alipay', 'other'];
   List<String> get _methodLabels => [
         AppL10n.current.financeMethodCash,
         AppL10n.current.financeMethodBank,
         AppL10n.current.financeMethodWechat,
         AppL10n.current.financeMethodAlipay,
+        AppL10n.current.financeMethodOther,
       ];
   Map<String, String> get _methodOptionLabels => {
         for (var i = 0; i < _methodValues.length; i++) _methodValues[i]: _methodLabels[i],
@@ -104,7 +107,8 @@ class _ReceiptListPageState extends State<ReceiptListPage> {
     await _ensureBanks();
     if (!mounted) return;
     // received_at 为时间列，后端下发 ISO-UTC；输入框回填本地 `Y-m-d H:i:s`
-    await FormDialog.show(context, title: AppL10n.of(context).commonEdit, fields: _formFields(),
+    await FormDialog.show(context, title: AppL10n.of(context).commonEdit,
+      fields: _formFields(methodOptions: dropdownOptionsWithCurrent(_methodOptionLabels, row['method'])),
       initialData: {...row, 'received_at': fmtDateTime(row['received_at'])}, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/finance/receipt/${row['id']}', data: _buildPayload(data));
       _load(); return true;
@@ -121,8 +125,10 @@ class _ReceiptListPageState extends State<ReceiptListPage> {
 
   // 与后端 ReceiptController::store 契约对齐：code 留空自动生成 RCV+时间戳
   // （uk_code 唯一）；customer 必填下拉；method 枚举下拉缺省 bank；银行账户可选
-  List<FormFieldConfig> _formFields() {
+  // [methodOptions] 由编辑态传入（把当前值前置为占位项），新增态走全量词表。
+  List<FormFieldConfig> _formFields({Map<String, String>? methodOptions}) {
     final now = DateTime.now();
+    final methods = methodOptions ?? _methodOptionLabels;
     String pad(int v) => v.toString().padLeft(2, '0');
     return [
       FormFieldConfig(name: 'code', label: AppL10n.of(context).financeReceiptCode, hint: AppL10n.of(context).financeReceiptCodeHint),
@@ -137,7 +143,7 @@ class _ReceiptListPageState extends State<ReceiptListPage> {
       FormFieldConfig(name: 'amount', label: AppL10n.of(context).financeAmount, type: FormFieldType.number, required: true,
         hint: AppL10n.of(context).commonExampleAmount('1000.00')),
       FormFieldConfig(name: 'method', label: AppL10n.of(context).financeMethod, type: FormFieldType.dropdown,
-        options: _methodValues, optionLabels: _methodOptionLabels, initialValue: 'bank'),
+        options: methods.keys.toList(), optionLabels: methods, initialValue: 'bank'),
       FormFieldConfig(name: 'bank_account_id', label: AppL10n.of(context).financeBankAccountTitle, type: FormFieldType.dropdown,
         options: _bankOptions.keys.toList(), optionLabels: _bankOptions),
       FormFieldConfig(name: 'received_at',

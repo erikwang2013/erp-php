@@ -97,7 +97,7 @@ class ReceiptController extends BaseController
     #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'string', require:true, desc:'客户ID(hashid)')]
     #[\erikwang2013\apidoc\annotation\Param(name:'amount', type:'float', require:true, desc:'收款金额')]
     #[\erikwang2013\apidoc\annotation\Param(name:'bank_account_id', type:'string', default:'', desc:'银行账户ID(hashid)')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'method', type:'string', default:'bank', desc:'收款方式(bank/cash/other)')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'method', type:'string', default:'bank', desc:'收款方式(cash/bank/wechat/alipay/other)')]
     #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', default:'', desc:'备注')]
     #[\erikwang2013\apidoc\annotation\Param(name:'received_at', type:'string', default:'', desc:'收款日期(格式:Y-m-d H:i:s)')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码')]
@@ -106,6 +106,9 @@ class ReceiptController extends BaseController
 
     public function store(Request $request): Response
     {
+        // method 码表（并集口径）：cash/bank/wechat/alipay 出自 erp_finance_receipt.method
+        // （install.sql:1202），other 出自两端词典 PAY_METHOD_DICTS（表单 options 逐字对齐该词典）。
+        // 本字段只校验 string、无 in: 白名单，改的只是注释文字，行为不变
         $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'customer_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'bank_account_id' => 'string', 'method' => 'string', 'remark' => 'string', 'received_at' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
@@ -179,7 +182,7 @@ class ReceiptController extends BaseController
     #[\erikwang2013\apidoc\annotation\Param(name:'customer_id', type:'string', default:'', desc:'客户ID(hashid)')]
     #[\erikwang2013\apidoc\annotation\Param(name:'amount', type:'float', default:'', desc:'收款金额')]
     #[\erikwang2013\apidoc\annotation\Param(name:'bank_account_id', type:'string', default:'', desc:'银行账户ID(hashid)')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'method', type:'string', default:'', desc:'收款方式')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'method', type:'string', default:'', desc:'收款方式(cash/bank/wechat/alipay/other)')]
     #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', default:'', desc:'备注')]
     #[\erikwang2013\apidoc\annotation\Param(name:'status', type:'int', default:'', desc:'状态')]
     #[\erikwang2013\apidoc\annotation\Param(name:'received_at', type:'string', default:'', desc:'收款日期')]

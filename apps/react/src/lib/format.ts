@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { currentLocale, tr } from '@/lib/i18n';
+import { tr } from '@/lib/i18n';
 
 /** 通用展示格式化 */
 
@@ -79,21 +79,16 @@ export function statusTone(status: unknown): BadgeTone {
   return 'i';
 }
 
-/** 常见状态码 → 文案（各域字典不同，这里只兜底通用档） */
-export const COMMON_STATUS: Record<number, string> = {
-  0: '待处理',
-  1: '已生效',
-  2: '处理中',
-  3: '已完成',
-  4: '已取消',
-};
-
-export function statusText(status: unknown, dict?: Record<number, string>): string {
-  const n = Number(status);
-  if (Number.isNaN(n)) return text(status);
-  const label = dict?.[n] ?? COMMON_STATUS[n];
-  if (label) return tr(label);
-  return currentLocale() === 'en' ? `Status ${n}` : `状态${n}`;
+/**
+ * 状态文案：**字典命中 → 词典文案；未命中 → 原值直出**（与 Angular `core/format.ts` 的 statusText、
+ * 以及 `cells.tsx` 的 `strStatus`（`labels[v] ?? v`）同口径）。
+ *
+ * 不再有「猜」的兜底：曾退 `COMMON_STATUS` 通用档、最后造 `状态N` —— 两条都编造中文
+ * （`erp_hr_employee.status=0` 被猜成「待处理」，而页面字典只定义了 1/2/3）。真实数据优先。
+ */
+export function statusText(status: unknown, dict?: Record<number | string, string>): string {
+  const label = dict?.[String(status ?? '')];
+  return label ? tr(label) : text(status);
 }
 
 /** 布尔 → 启用/禁用 */

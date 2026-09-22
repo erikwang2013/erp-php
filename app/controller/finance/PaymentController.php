@@ -95,7 +95,7 @@ class PaymentController extends BaseController
     #[\erikwang2013\apidoc\annotation\Param(name:'supplier_id', type:'string', desc:'供应商ID，必填')]
     #[\erikwang2013\apidoc\annotation\Param(name:'amount', type:'float', desc:'金额，必填')]
     #[\erikwang2013\apidoc\annotation\Param(name:'bank_account_id', type:'string', desc:'银行账户ID')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'method', type:'string', desc:'付款方式')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'method', type:'string', desc:'付款方式(cash/bank/wechat/alipay/other)')]
     #[\erikwang2013\apidoc\annotation\Param(name:'remark', type:'string', desc:'备注')]
     #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
     #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
@@ -103,6 +103,9 @@ class PaymentController extends BaseController
 
     public function store(Request $request): Response
     {
+        // method 码表（并集口径）：cash/bank/wechat/alipay 出自 erp_finance_payment.method
+        // （install.sql:1221，与 receipt 那张列注释逐字相同），other 出自两端词典 PAY_METHOD_DICTS
+        // （表单 options 逐字对齐该词典）。本字段只校验 string、无 in: 白名单，改的只是注释文字
         $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'supplier_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'bank_account_id' => 'string', 'method' => 'string', 'remark' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

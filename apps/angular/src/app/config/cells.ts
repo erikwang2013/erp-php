@@ -35,7 +35,8 @@ export const textCol = (key: string, title: string, primary?: boolean): ColumnDe
   kind: key.endsWith('_id') ? 'rel' : 'text',
 });
 
-/** 通用业务状态徽标（0 待处理 / 1|3 完成 / 2 处理中 / 4 取消）；key 缺省 'status'，异名列（如 fulfillment_status）显式传 */
+/** 通用业务状态徽标（色带：0 待办 w / 1|3 终态 s / 2 进行中 i / 4 取消 d）；文案只由传入字典给，
+ *  字典未命中落原值 —— 不再有通用档文案。key 缺省 'status'，异名列（如 fulfillment_status）显式传 */
 export const statusCol = (dict?: Record<number, string>, key = 'status'): ColumnDef => ({
   key,
   title: '状态',
@@ -78,10 +79,12 @@ export const docStatus = (labels: string[]): { dict: Record<number, string>; fil
 
 /**
  * 字符串状态（发票 draft/audited/voided、维修工单 open/…）：筛选值与文案同源。
- * 引擎的状态渲染按 Number() 取 dict，字符串命中不了，故文案走 rel 映射（同义、无色带）。
+ * 引擎的状态渲染按 Number() 取 dict，字符串命中不了 —— 走 `kind:'map'`（cellOf → mapText）：
+ * 命中出词典文案、**表外值原样直出**，与 React 侧 `labels[v] ?? v` 同口径。
+ * 色带不收：React 是 Badge+tone、Angular 是纯文本，属已上报的观感差异（本次只统一兜底语义）。
  */
 export const strStatus = (labels: Record<string, string>): { col: ColumnDef; filter: FilterDef } => ({
-  col: { key: 'status', title: '状态', kind: 'rel', rel: labels },
+  col: { key: 'status', title: '状态', kind: 'map', dict: labels },
   filter: {
     key: 'status',
     label: '状态',

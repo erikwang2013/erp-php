@@ -265,13 +265,6 @@ const isBool = (k: string) => k === 'enabled' || /^is_[a-z_]+$/.test(k);
 /** 「是否X」的通用文案（DDL 里统一 0=否 1=是）；语义特异的表（is_read=未读/已读）由页面 dicts 覆盖 */
 const BOOL_DICT: Record<number, string> = { 0: '否', 1: '是' };
 
-/** 常见状态字典（按资源前缀细化，未命中走通用档） */
-const STATUS_DICTS: Record<string, Record<number, string>> = {
-  purchase: { 0: '草稿', 1: '待审核', 2: '已审核', 3: '已完成', 4: '已取消' },
-  sales: { 0: '草稿', 1: '待审核', 2: '已审核', 3: '已完成', 4: '已取消' },
-  crm: { 0: '未开始', 1: '跟进中', 2: '已报价', 3: '赢单', 4: '输单' },
-};
-
 /**
  * 筛选定义 → 状态字典。`docStatus()` 生成的 filter.options 就是字典本身（首项「全部」无值），
  * 所以声明了状态筛选的资源无需另写 columns，状态列也能拿到本表真枚举。
@@ -299,11 +292,13 @@ export function keyTitle(k: string): string {
  * 从行样本推断列定义。
  * fields 用于两处：`{key,label}` 给出本页列标题；`{key,source}` 给出外键的远程名称源。
  * filter 是本资源的状态筛选，其选项即状态字典（见 dictFromFilter）。
- * dicts 是 cfg.dicts —— 逐键值字典，优先于状态筛选与前缀/通用档（见 config/types.ts）。
+ * dicts 是 cfg.dicts —— 逐键值字典，优先于状态筛选（见 config/types.ts）。
  */
 export function inferColumns(
   rows: Row[],
-  endpoint: string,
+  // 位置参数保留：调用点与 Angular columns.ts 同序（ResourcePage 传 cfg.endpoint）。
+  // 2026-09-22 删掉「按 endpoint 第 4 段猜前缀档」后本函数不再读它，加下划线避开 noUnusedParameters
+  _endpoint: string,
   fields?: FormField[],
   limit = 8,
   filter?: FilterDef,
@@ -356,11 +351,10 @@ export function inferColumns(
     return pa - pb;
   });
 
-  // 字典优先级：本资源状态筛选带的（就是该表枚举的真身）→ 资源前缀档 → 通用档。
-  // 前缀档只收录了 purchase/sales/crm，其余模块猜出来的文案会张冠李戴
-  // （如 erp_hr_leave 的 2=已驳回 被猜成通用档的「处理中」）
-  const prefix = endpoint.split('/')[3] ?? '';
-  const dict = dictFromFilter(filter) ?? STATUS_DICTS[prefix];
+  // 字典只有一个来源：本资源状态筛选带的（`docStatus()`/`ST_FILTER` 的 options 就是该表枚举的真身）。
+  // 与 Angular `columns.ts` 同口径：2026-09-22 删掉「按 endpoint 第 4 段猜前缀档」与通用档，
+  // 未命中一律原值直出（见 lib/format.ts 的 statusText）
+  const dict = dictFromFilter(filter);
 
   return shown.map((k) => {
     const primary = k === 'code' || k === 'no' || k === 'name';

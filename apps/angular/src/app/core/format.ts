@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { currentLocale, tr } from './i18n.service';
+import { tr } from './i18n.service';
 
 /** 通用展示格式化 */
 
@@ -74,23 +74,21 @@ export function statusTone(status: unknown): BadgeTone {
   return 'i';
 }
 
-/** 常见状态码 → 文案（各域字典不同，这里只兜底通用档） */
-export const COMMON_STATUS: Record<number, string> = {
-  0: '待处理',
-  1: '已生效',
-  2: '处理中',
-  3: '已完成',
-  4: '已取消',
-};
-
+/**
+ * 状态文案：**字典命中 → 词典文案；未命中 → 原值直出**（与 React `lib/format.ts` 的 statusText、
+ * 以及 `strStatus` 的 `labels[v] ?? v` 同口径）。
+ *
+ * 不再有「猜」的兜底：曾按 endpoint 段取 purchase/sales/crm 通用档、再退 `COMMON_STATUS`、
+ * 最后造 `状态N` —— 三条都编造中文（`erp_purchase_receive.status=2` 是「已收货」不是「已审核」；
+ * `erp_hr_employee.status=0` 被猜成「待处理」，而页面字典只定义了 1/2/3）。真实数据优先：
+ * 字典没覆盖的码原样上屏，至少能一眼看出「这个码没配字典」，而不是显示一个编出来的词。
+ *
+ * 字符串状态（发票 draft/audited、工单 open/…）与数字状态共用这一支：对象键本按字符串存，
+ * dict[3] 与 dict['3'] 等价，故数字字典不受影响。
+ */
 export function statusText(status: unknown, dict?: Record<number | string, string>): string {
-  const n = Number(status);
-  // 字符串状态（发票 draft/audited、工单 open/…）与数字状态共用这一支：对象键本按字符串存，
-  // dict[3] 与 dict['3'] 等价，故数字字典不受影响。
-  const label = dict?.[String(status ?? '')] ?? (Number.isNaN(n) ? undefined : COMMON_STATUS[n]);
-  if (label) return tr(label);
-  if (Number.isNaN(n)) return text(status);
-  return currentLocale() === 'en' ? `Status ${n}` : `状态${n}`;
+  const label = dict?.[String(status ?? '')];
+  return label ? tr(label) : text(status);
 }
 
 /** 布尔 → 启用/禁用 */

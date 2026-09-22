@@ -2807,7 +2807,7 @@ abstract class AppLocalizations {
   /// No description provided for @financeMethodBank.
   ///
   /// In zh, this message translates to:
-  /// **'银行'**
+  /// **'银行转账'**
   String get financeMethodBank;
 
   /// No description provided for @financeMethodWechat.
@@ -2821,6 +2821,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'支付宝'**
   String get financeMethodAlipay;
+
+  /// No description provided for @financeMethodOther.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他'**
+  String get financeMethodOther;
 
   /// No description provided for @financeReceivedAt.
   ///

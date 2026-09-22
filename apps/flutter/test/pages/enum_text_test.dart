@@ -10,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:admin_app/app/pages/finance/payment_list_page.dart';
+import 'package:admin_app/app/pages/finance/receipt_list_page.dart';
 import 'package:admin_app/app/pages/hr/attendance_page.dart';
 import 'package:admin_app/app/pages/notification/notification_page.dart';
 import 'package:admin_app/app/pages/quality/iqc_list_page.dart';
@@ -126,5 +128,132 @@ void main() {
     final body = req.single.data as Map<String, dynamic>;
     expect(body['disposition'], 'accept', reason: '换的只是显示文案，提交值必须仍是存储值');
     expect(body['severity'], 'critical', reason: '换的只是显示文案，提交值必须仍是存储值');
+  });
+
+  testWidgets('收款方式枚举：列表出「其他」，编辑弹窗回存仍是 other', (tester) async {
+    final adapter = await installApi({
+      '/admin/v1/finance/receipt': (o) => listOf([
+            {
+              'id': 'h1',
+              'code': 'RCV-1',
+              'customer_id': 'hC',
+              'customer_name': '客户A',
+              'amount': '100.00',
+              'method': 'other',
+              'status': 0,
+              'received_at': '2026-09-22T00:00:00Z',
+            },
+          ]),
+      '/admin/v1/customer': (o) => listOf([
+            {'id': 'hC', 'name': '客户A'},
+          ]),
+    });
+
+    await pump(tester, const ReceiptListPage());
+    // 词表口径与 Web 词典逐字对齐（domains/finance.ts method）：cash/bank/wechat/alipay/other
+    expect(find.text('其他'), findsOneWidget, reason: 'method=other 应出「其他」，不许英文裸串上屏');
+    expect(find.text('other'), findsNothing, reason: '机读串 other 不许上屏');
+
+    await tester.tap(find.byIcon(Icons.edit).first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // 「其他」列表行里也有，故限定弹窗内断言，否则假绿
+    expect(find.descendant(of: find.byType(Dialog), matching: find.text('其他')), findsWidgets,
+        reason: '下拉选项缺 other 时 FormDialog 会把预填值置 null（下拉空态）');
+
+    await tester.tap(find.text('提交'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final req = adapter.requests
+        .where((r) => r.method == 'PUT' && r.path == '/admin/v1/finance/receipt/h1')
+        .toList();
+    expect(req, hasLength(1));
+    final body = req.single.data as Map<String, dynamic>;
+    expect(body['method'], 'other', reason: '编辑保存不得把 other 静默改回缺省 bank');
+  });
+
+  testWidgets('收款方式编辑：wechat 行预填「微信」，提交回传机读串 wechat', (tester) async {
+    final adapter = await installApi({
+      '/admin/v1/finance/receipt': (o) => listOf([
+            {
+              'id': 'h5',
+              'code': 'RCV-5',
+              'customer_id': 'hC',
+              'customer_name': '客户A',
+              'amount': '300.00',
+              'method': 'wechat',
+              'status': 0,
+              'received_at': '2026-09-22T00:00:00Z',
+            },
+          ]),
+      '/admin/v1/customer': (o) => listOf([
+            {'id': 'hC', 'name': '客户A'},
+          ]),
+    });
+
+    await pump(tester, const ReceiptListPage());
+    expect(find.text('微信'), findsOneWidget, reason: '列表列走词表，method=wechat 应出「微信」');
+    expect(find.text('wechat'), findsNothing, reason: '机读串 wechat 不许上屏');
+
+    await tester.tap(find.byIcon(Icons.edit).first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // 列表行里也有「微信」，故限定弹窗内断言，否则假绿
+    expect(find.descendant(of: find.byType(Dialog), matching: find.text('微信')), findsWidgets,
+        reason: '下拉须预填「微信」而不是落空（预填值不在 options 时 FormDialog 会置 null）');
+
+    await tester.tap(find.text('提交'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final req = adapter.requests
+        .where((r) => r.method == 'PUT' && r.path == '/admin/v1/finance/receipt/h5')
+        .toList();
+    expect(req, hasLength(1));
+    final body = req.single.data as Map<String, dynamic>;
+    expect(body['method'], 'wechat', reason: '换的只是显示文案，提交值必须仍是机读串（不得变成「微信」）');
+  });
+
+  testWidgets('付款方式编辑：词表外的历史值前置占位项，回存原样（不被改写成 bank）', (tester) async {
+    // method 是自由 VARCHAR（DDL 注释只列 4 值），外部写入/后续新增值可能落在词表外
+    final adapter = await installApi({
+      '/admin/v1/finance/payment': (o) => listOf([
+            {
+              'id': 'h2',
+              'code': 'PAY-1',
+              'supplier_id': 'hS',
+              'supplier_name': '供应商A',
+              'amount': '200.00',
+              'method': 'cheque',
+              'status': 0,
+              'paid_at': '2026-09-22T00:00:00Z',
+            },
+          ]),
+      '/admin/v1/supplier': (o) => listOf([
+            {'id': 'hS', 'name': '供应商A'},
+          ]),
+    });
+
+    await pump(tester, const PaymentListPage());
+    await tester.tap(find.byIcon(Icons.edit).first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.descendant(of: find.byType(Dialog), matching: find.text('cheque')), findsWidgets,
+        reason: '词表外的当前值应前置进选项而不是落空（落空提交即被改成 bank）');
+
+    await tester.tap(find.text('提交'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final req = adapter.requests
+        .where((r) => r.method == 'PUT' && r.path == '/admin/v1/finance/payment/h2')
+        .toList();
+    expect(req, hasLength(1));
+    final body = req.single.data as Map<String, dynamic>;
+    expect(body['method'], 'cheque', reason: '词表外的历史值不得被静默改写');
   });
 }

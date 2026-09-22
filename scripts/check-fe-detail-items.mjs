@@ -92,18 +92,22 @@ const itemByTitle = (items, title) => items.find((it) => it.k === title);
 
 console.log('── A. 详情与列表同源 ──');
 
-// status 列的字典来自资源前缀 purchase（inferColumns 的 STATUS_DICTS）
-eq('状态出字典文案（不是裸数字 2）', itemByTitle(ORDER_ITEMS, '状态')?.v, '已审核');
+// 这条 fixture 没有状态筛选 ⇒ 没有字典。2026-09-22 起「按 endpoint 段猜前缀档」已删
+// （STATUS_DICTS 的 purchase/sales/crm 三档 + COMMON_STATUS 通用档 + `状态N`）：猜错比裸值更隐蔽
+// （erp_purchase_receive 的 2=已收货曾被猜成「已审核」；erp_hr_employee 的 0 曾被猜成「待处理」）。
+// 契约改为**原值直出**（真实数据优先），状态文案的正面契约由下面 LEAVE_FILTER（筛选即字典）那组守。
+eq('无状态筛选 → 原值直出（不猜 purchase 前缀档的「已审核」）', itemByTitle(ORDER_ITEMS, '状态')?.v, '2');
 eq('状态带徽标 tone（与列表同一判定）', itemByTitle(ORDER_ITEMS, '状态')?.tone, cellOf(ORDER_COLS.find((c) => c.key === 'status'), ORDER).tone);
 ok(
-  '状态条目不是裸数字',
-  !ORDER_ITEMS.some((it) => it.v === '2'),
+  '状态未命中不编造文案（不造「状态2」，也不出前缀档/通用档的「已审核」「处理中」）',
+  !ORDER_ITEMS.some(
+    (it) => it.v === '已审核' || it.v === '处理中' || /^状态\s*\d+$/.test(String(it.v)),
+  ),
   JSON.stringify(ORDER_ITEMS),
 );
 
-// 状态字典优先取本资源声明的状态筛选（docStatus 生成的 options 就是字典）。
-// erp_hr_leave 的枚举是 0 待审批 / 1 已批准 / 2 已驳回，而端点前缀 'hr' 不在 STATUS_DICTS 里：
-// 不传 filter 就会落通用档，把 2 猜成「处理中」——错得比裸数字更隐蔽。
+// 状态字典优先取本资源声明的状态筛选（docStatus/ST_FILTER 生成的 options 就是字典）。
+// erp_hr_leave 的枚举是 0 待审批 / 1 已批准 / 2 已驳回。
 const LEAVE_FILTER = {
   key: 'status',
   label: '状态',
@@ -118,8 +122,11 @@ const LEAVE = { id: 'HASH_L', days: 2, status: 2, created_at: '2026-09-21T14:18:
 const leaveCols = inferColumns([LEAVE], '/admin/v1/hr/leave', [], {}, 8, LEAVE_FILTER);
 eq('状态筛选即字典 → 2 出「已驳回」', cellOf(leaveCols.find((c) => c.key === 'status'), LEAVE).text, '已驳回');
 eq('详情条目同步（不是通用档的「处理中」）', itemByTitle(inferDetailItems(LEAVE, leaveCols), '状态')?.v, '已驳回');
-// 未声明状态筛选的资源退回前缀档/通用档，行为不变
-eq('无 filter 时退回前缀档（purchase）', cellOf(ORDER_COLS.find((c) => c.key === 'status'), ORDER).text, '已审核');
+// 无 filter 且无 cfg.dicts ⇒ 无字典 ⇒ 原值直出（负控：把前缀档加回 purchase 段，这条立刻变红）
+eq('无 filter 时原值直出（不再按 endpoint 段猜枚举）', cellOf(ORDER_COLS.find((c) => c.key === 'status'), ORDER).text, '2');
+// 字典的另一个来源 cfg.dicts 仍然生效 —— 真枚举（receiving 的 2=已收货）能出文案
+const orderDictCols = inferColumns([ORDER], '/admin/v1/purchase/order', [], {}, 8, undefined, { status: { 2: '已收货' } });
+eq('cfg.dicts 提供真枚举 → 2 出「已收货」', cellOf(orderDictCols.find((c) => c.key === 'status'), ORDER).text, '已收货');
 
 // 每一条与同名列的 cellOf 输出逐字对齐（列表渲染什么，详情就渲染什么）
 const drift = ORDER_ITEMS.filter((it) => {
@@ -244,6 +251,14 @@ ok(
   'relationValue 末支不再回落裸外键值',
   !/return\s+row\[idKey\]/.test(REACT_DEFAULTS),
   'relationValue 仍在 return row[idKey]',
+);
+// B2 的 React 面：删掉的「按 endpoint 第 4 段猜前缀档」（purchase/sales/crm 通用档）没有行为面
+// 门禁能守 —— defaults.tsx 含 JSX，Node 起不来真身，只能钉源码形状。
+// 负控：把前缀档加回 purchase 段（A 段那条 Angular 断言随即变红），这条同时变红。
+ok(
+  'React 引擎不再按 endpoint 段猜前缀档（STATUS_DICTS）',
+  !/STATUS_DICTS|split\('\/'\)\[3\]/.test(REACT_DEFAULTS),
+  'defaults.tsx 仍在按 endpoint 段取前缀档',
 );
 ok(
   'React inferColumns 把 `*_id` 一律按关联列渲染',

@@ -2,6 +2,51 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.5 (2026-09-22)
+
+**状态与字典口径统一批**：把 v1.19.4「待办」里的字典/状态条目逐条收口 —— 两端状态文案兜底口径统一（命中出译文、表外值直出原值）、删除三处编造的前缀状态字典与 `COMMON_STATUS`、`erp_dms_document.status` 补 DDL 默认值键、`/finance/{receipt,payment}` 表单选项补齐到五值（含 Flutter 编辑态兜底）、文档正文数字机械对齐。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。
+
+### 修复 · 两端状态文案口径统一（★契约变化：未命中不再编造）
+- **canonical：字典命中 → `tr(文案)`；表外值 / 无字典 → 原值直出**（真实数据优先）。两端删掉三条编造分支：按 endpoint 段猜的 `purchase/sales/crm` 前缀档、`COMMON_STATUS` 通用档、`状态N` / `Status N`
+- **Angular `strStatus`**（`/finance/invoice`、`/eam/repair` 的字符串状态）col `kind:'rel'` → `kind:'map'` + `dict`：表外值由关联名的 `-` 兜底改为直出原值、命中同样过 `tr`、空值由 `-` 改为空文本（三档均与 React 对齐）。全页对差（同一次运行内换参数的 A/B，各 11372 行）**253 对变化只落 `/finance/invoice`（166）与 `/eam/repair`（87）**，变化键只有 `status` / `状态`；域内值前后不变（`draft → 开票申请`、`open → 待处理`）。色带不统一（Angular 纯文本 / React Badge+tone）＝已上报的观感差异，本次只统语义
+- **React `strStatus` 命中补 `tr`**：8 个标签（开票申请/已提交审核/已审核入账/已作废/待处理/维修中/已完成/已取消）在两端 12 个语种译文表里都有，不 `tr` 则 en 等语种下两端分叉（**改前两端都不翻 —— 一致但都漏翻**）；改后与各自 `mapText`/`statusText` 的命中口径一致
+- 连带如实上报：真库 6 行表外值（`erp_hr_employee.status=0` ×3、`erp_hr_attendance.status=0` ×3，DDL 值域 1..3 / 1..6）由「待处理」改为显示 `0`。**代码侧维持删除不回退**（不把表外值藏回中文里）；**数据侧按用户裁决修复**：查证这 6 行是早前探针在真库上的残渣（`install-demo.sql` 给这三员工/三考勤写的是 `status=1`，全仓无任何代码路径写 0），已按种子原值与 DDL 默认值还原为 `1`，三条考勤行的 `employee_id=0` 一并按种子配对还原为员工 id（改前快照 `/tmp/hr6-{employee,attendance}-before.sql`，复验三张 `status=0`/`employee_id=0` 计数均为 0）
+- 别误修：**筛选胶囊 label 两端都在渲染期翻译**（Angular `{{ o.label | tr }}`、React `t(o.label)`），不存在「列表翻、筛选不翻」的分叉
+
+### 修复 · 不可达/编造的字典
+- 三处前缀档 + `COMMON_STATUS[2]='处理中'`：可达性探针证不可达（全库码 2 出现 58 次、无一处该文案；前缀档在 140 页里一次也没被查到）后删除；`check-fe-detail-items.mjs`（2 条）与 `check-fe-enum-text.mjs`（1 条）的**故意断言同步改写** —— 负控证明改写是必需的（HEAD 版断言跑新源码恰好那 3 条红，即那三条本身在把编造当契约）
+- **G4「表单/筛选声明的码都渲染成文案」下的第三处假绿**：`/oms/order` ×5 是合成行的**幻 status 键**（`erp_oms_order` 无 status 列，筛选打的是 `sales_order.status`）→ 该页补 `dicts.status`（本页筛选同源枚举）；`/hr/employee` ×1 是真阳性 → 筛选项从 `ST_FILTER`（宣告 `0=禁用`，而 DDL 无码 0）改为按页字典派生的 `EMPLOYEE_STATUS_FILTER`（不给字典造 `0:'禁用'` —— 那会与 DDL 对差门禁打架）
+- **覆盖漏洞补守**：React 前缀档加回去两个门禁都不红（门禁从不 import React 引擎）→ 补静态守，负控在场 rc=1
+
+### 修复 · 字典与 DDL 对齐
+- `erp_dms_document.status`（`VARCHAR(20) DEFAULT 'draft'`）补 `'draft': '草稿'` 键 —— **必须带引号**：G2 只比对字典字面量里的引号串集合，两端一致的裸键增删对它不可见
+- `/finance/{receipt,payment}` 表单 `method` options 3→5（现金/银行转账/微信/支付宝/其他，值与词典同源）；Flutter 五值 + `financeMethodOther`/`financeMethodBank` 两词条 × zh/en + `gen-l10n` 产物（重生成 md5 逐字节一致）
+- **证伪原判据**：「数值字典挂 VARCHAR 列永不命中」不成立 —— 两端 `mapText`/`statusText` 取的是 JS 对象键（恒为字符串），`{0:'草稿'}` 对 VARCHAR `'0'`/`'1'` 照样命中
+- Flutter 编辑态兜底：`dropdownOptionsWithCurrent` + `_edit`/`_formFields`（词表外历史值前置占位项，不被 FormDialog 置 null、不被 `_buildPayload` 的空值改写链吞成 `bank`）
+
+### 修复 · `_by` 外键与静态分析
+- `DatasetController::update` 的 `template_id` 直写改 `fill`（与同文件 `store` 同款）。该改动**对整个门禁不可见**（`find()` 走 PHPStan baseline，直写也不报）—— 不补用例：加 1 个 PHP 用例＝36 份文档重同步（`stats:tests/assertions` 只数 `tests/**/*Test.php`），而失败形态是响的（hashid 直填 BIGINT → 1366 → 500）
+
+### 修复 · 文档正文数字对齐
+- `stats:` 门禁只查「数字 + 仅空白 + 标注」严格相邻的展示值，**夹了文字**的正文数字不会被 `--fix` 改：机械对齐 49 行 / 36 份（`111→113` ×15、`1001→1037` ×49、`4726→4962` ×49），判据是「非数字字符逐字节不变」（数字归一化后 49 对全等）；复验 `--check` 仍 259 处全绿
+
+### 新增
+- 门禁断言：`check-fe-enum-text.mjs` 新增 strStatus 命中/表外值两条 + React 形状（含 `tr`）一条、G4 幻键修补、React 前缀档静态守；`check-fe-detail-items.mjs` 两处故意断言改写
+- Flutter 用例 +3（`enum_text_test.dart`：列表出「其他」、`wechat` 行预填「微信」、词表外历史值前置占位项回存原样）；`wechat` 那条证的是**下标 zip 不串位**，兜底的真证人是词表外值那条
+
+### 验证
+- 14 道 node 门禁全绿；`bash scripts/doc-stats.sh --check` **259 处标注一致**（`docs` 作业，发版阻断级）；React `tsc --noEmit` rc=0；Angular `ng build` rc=0
+- Flutter：`flutter analyze` rc=0（`No issues found!`）、`flutter test` **195 通过**（基线 192 + 3）
+- 负控（均实测变红于对应断言、逐字节还原后复绿）：strStatus 改回 `rel` → 恰好 1 条红；React 摘 `tr` → 恰好 1 条红；G4 删 `status: OMS_STATUS.dict` → 恰好那 5 条红；B2 三组还原 → 各自中靶；React 前缀档还原 → 静态守红
+
+### 待办 / 已知遗留（本轮未修）
+- **引擎级统一「枚举只声明在 `filters` 的页不必再写 `cfg.dicts`」**：探针实测零用户可见收益（140 页 × status 键 × 12 探针值 → 0 变化），且要改 `inferDetailItems` 签名 + 同步 G4 调用点 ⇒ 单开窗口
+- dms `update` 不校验 `status` 且 `status` 在 `$fillable`（客户端可 PUT 任意串，影响筛选）
+- `method` validator 是裸 `string`、不收值域（加 `in:` 前先探线上 `DISTINCT`，可能 422 掉既有客户端）
+- 移动端 `customer_id`/`bank_account_id` 未加同款编辑态兜底（影响有界：空 `bank_account_id` 不上送、`customer_id` 必填拦截，非数据丢失）
+- 详情抽屉 `fallbackCell` 的 kd 分支**先于** isStatus（字典覆盖的 status 形键退化成纯文本、丢徽标；45 对 (页,键)、35 个真列，既有行为）
+- **DDL 通道扫描未做**（B5）：字典文案仍是逐页人工抄 `install.sql` 列注释，没有「DDL 注释/默认值 ↔ 词典」的自动对差门禁
+
 ## v1.19.4 (2026-09-22)
 
 **后端关联名收尾批**：v1.19.3 遗留的「后端外键名缺口 8 处」逐条查证 —— 7 处补齐产出方、1 处（`/sales/settlement`）查证为误报。一并修掉上一批写路径引入的 3 处 PHPStan `property.notFound`（**`main` 的静态分析此前是红的**）。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。

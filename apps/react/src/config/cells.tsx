@@ -38,7 +38,8 @@ export const textCol = (key: string, title: string, primary?: boolean): Column<C
   primary,
 });
 
-/** 通用业务状态徽标（0 待处理 / 1|3 完成 / 2 处理中 / 4 取消）；key 缺省 'status'，异名列（如 fulfillment_status）显式传 */
+/** 通用业务状态徽标（色带：0 待办 w / 1|3 终态 s / 2 进行中 i / 4 取消 d）；文案只由传入字典给，
+ *  字典未命中落原值 —— 不再有通用档文案。key 缺省 'status'，异名列（如 fulfillment_status）显式传 */
 export const statusCol = (dict?: Record<number, string>, key = 'status'): Column<CellRow> => ({
   key,
   title: '状态',
@@ -78,7 +79,12 @@ export const docStatus = (labels: string[]) => {
   return { dict, filter: { key: 'status', label: '状态', options } as FilterDef };
 };
 
-/** 字符串状态（发票 draft/audited/voided、维修工单 open/...）：筛选值与徽标文案同源 */
+/**
+ * 字符串状态（发票 draft/audited/voided、维修工单 open/...）：筛选值与徽标文案同源。
+ * 兜底与命中的口径两端一致：命中出 `tr(文案)`、**表外值原值直出**（Angular 侧走 `kind:'map'` → `mapText`，
+ * 命中同样过 tr —— 这 8 个标签在 12 语种译文表里都有，只直出不出译文会让 en 等语种下两端分叉）。
+ * 色带不收：本端是 Badge+tone、Angular 是纯文本，属已上报的观感差异（本次只统一兜底语义）。
+ */
 export const strStatus = (
   labels: Record<string, string>,
   tones: Record<string, BadgeTone> = {},
@@ -96,7 +102,7 @@ export const strStatus = (
     title: '状态',
     render: (r: CellRow) => {
       const v = String(r.status ?? '');
-      return <Badge text={labels[v] ?? v} tone={tones[v] ?? 'i'} />;
+      return <Badge text={tr(labels[v] ?? v)} tone={tones[v] ?? 'i'} />;
     },
   } as Column<CellRow>,
 });

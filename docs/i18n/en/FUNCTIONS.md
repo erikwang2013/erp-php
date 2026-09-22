@@ -579,7 +579,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Database install script | Single file `database/install.sql` (227 tables, all migrations merged in) |
 | Frontend pages (Flutter) | 119 (measured 2026-09-22: `.dart` page files under `apps/flutter/lib/app/pages/`, recursive; not included in doc-stats validation) |
 | Frontend pages (HarmonyOS) | 52 (measured 2026-09-22: `.ets` page files under `apps/harmonyos/entry/src/main/ets/pages/`, recursive; not included in doc-stats validation) |
-| Unit tests | 111 test files <!-- stats:test_files=113 --> / 1001 test cases <!-- stats:tests=1037 --> / 4726 assertions <!-- stats:assertions=4962 --> (static count of test methods + assertion call sites, independent of the runtime environment) |
+| Unit tests | 113 test files <!-- stats:test_files=113 --> / 1037 test cases <!-- stats:tests=1037 --> / 4962 assertions <!-- stats:assertions=4962 --> (static count of test methods + assertion call sites, independent of the runtime environment) |
 
 > The numbers above are measured by `bash scripts/doc-stats.sh`; items marked `<!-- stats:key=value -->` are automatically
 > validated by CI (the docs job in `.github/workflows/ci.yml`) against code facts; drift turns red.

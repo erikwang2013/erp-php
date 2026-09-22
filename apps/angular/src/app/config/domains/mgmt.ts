@@ -15,12 +15,22 @@ const REPAIR = strStatus({ open: '待处理', in_progress: '维修中', complete
 /*
  * 逐键值字典（cfg.dicts）：文案逐字抄自 database/install.sql 各表**该列**的注释，
  * 一表一份、禁止跨表复用（各表 status 值域互不相同，猜出来就是张冠李戴）。
- * 推断页的 `status` 不写 columns 时落引擎通用档（0→「待处理」1→「已生效」），
+ * 推断页的 `status` 不写 columns 又没字典时按原值直出（引擎已删通用档，2026-09-22），
  * 非 status 形键（gender/plan/frequency/source_type…）更是连字典都没有、裸出 0/1 或机器串，
  * 全部由这里收口；列表列、详情抽屉、动作结果面板三处同源。
  */
 /** erp_hr_employee：`status` 状态: 1=在职 2=离职 3=停职；`gender` 性别: 1=男 2=女 */
 const EMPLOYEE_DICTS = { status: { 1: '在职', 2: '离职', 3: '停职' }, gender: { 1: '男', 2: '女' } };
+/** /hr/employee 筛选：值域与上面这份字典同源（1/2/3，不是 0/1 启用禁用）。
+ * 曾误挂 ST_FILTER —— 筛选项宣告了码 0，字典与 DDL 注释都给不出 0 的文案，G4「声明过的码必须渲染成文案」红。 */
+const EMPLOYEE_STATUS_FILTER = {
+  key: 'status',
+  label: '状态',
+  options: [
+    { label: '全部', value: null },
+    ...Object.entries(EMPLOYEE_DICTS.status).map(([value, label]) => ({ label, value: Number(value) })),
+  ],
+};
 /** erp_hr_attendance：`status` 状态: 1=正常 2=迟到 3=早退 4=缺卡 5=请假 6=出差 */
 const ATTENDANCE_DICTS = { status: { 1: '正常', 2: '迟到', 3: '早退', 4: '缺卡', 5: '请假', 6: '出差' } };
 /** erp_hr_leave：`type` 请假类型: 1=年假 2=事假 3=病假 4=婚假 5=产假 6=调休（`status` 审批状态: 0=待审批 1=已批准 2=已驳回，复用 LEAVE.dict） */
@@ -84,7 +94,7 @@ export const mgmtMenus: MenuGroup[] = [
     moduleKey: 'hr',
     children: [
       { label: '部门管理', path: '/hr/department', cfg: res('部门管理', '/admin/v1/hr/department', { moduleKey: 'hr', dicts: { status: { 0: '禁用', 1: '启用' } }, fields: [{ key: 'code', label: '部门编码', required: true }, { key: 'name', label: '部门名称', required: true }, { key: 'parent_id', label: '上级部门', source: { endpoint: '/admin/v1/hr/department' } }] }) },
-      { label: '员工档案', path: '/hr/employee', cfg: res('员工档案', '/admin/v1/hr/employee', { moduleKey: 'hr', filters: ST_FILTER, dicts: EMPLOYEE_DICTS, fields: [{ key: 'code', label: '员工编码', required: true }, { key: 'name', label: '员工姓名', required: true }, { key: 'department_id', label: '部门', source: { endpoint: '/admin/v1/hr/department' } }] }) },
+      { label: '员工档案', path: '/hr/employee', cfg: res('员工档案', '/admin/v1/hr/employee', { moduleKey: 'hr', filters: EMPLOYEE_STATUS_FILTER, dicts: EMPLOYEE_DICTS, fields: [{ key: 'code', label: '员工编码', required: true }, { key: 'name', label: '员工姓名', required: true }, { key: 'department_id', label: '部门', source: { endpoint: '/admin/v1/hr/department' } }] }) },
       { label: '职位管理', path: '/hr/position', cfg: res('职位管理', '/admin/v1/hr/position', { moduleKey: 'hr', dicts: { status: { 0: '禁用', 1: '启用' } }, fields: [{ key: 'code', label: '职位编码', required: true }, { key: 'name', label: '职位名称', required: true }, { key: 'department_id', label: '所属部门', source: { endpoint: '/admin/v1/hr/department' } }] }) },
       {
         label: '考勤管理',
@@ -413,9 +423,11 @@ export const mgmtMenus: MenuGroup[] = [
     icon: 'file',
     moduleKey: 'dms',
     children: [
-      // 码表取控制器而非 DDL：DocumentController apidoc「状态,0=草稿,1=发布」+ `nullable|integer|between:0,1` 是写入路径，
-      // DDL 却是 `VARCHAR(20) DEFAULT 'draft'`（两处漂移，已另报）；演示库里存的是整数
-      { label: '文档列表', path: '/dms/document', cfg: res('文档管理', '/admin/v1/dms/document', { moduleKey: 'dms', dicts: { status: { 0: '草稿', 1: '发布' } }, fields: [{ key: 'title', label: '文档标题', required: true }, { key: 'category', label: '文档分类', required: true }, { key: 'content', label: '文档内容', type: 'textarea', full: true }] }) },
+      // 码表取控制器：apidoc「状态,0=草稿,1=发布」+ `nullable|integer|between:0,1` 是写入路径，库里的行是 '0'/'1'。
+      // 列是 `VARCHAR(20) DEFAULT 'draft'`（install.sql:4314，无注释），唯一的字符串值就是 DDL 默认值 'draft' —— 补 draft 键兜住它
+      // （mapText 取 `dict[String(v)]`，数值字典在字符串列上照样命中 '0'/'1'，不是「永不命中」；Flutter 侧同为 '0'|'draft'）
+      // 'draft' 带引号不是笔误：G2 只比对字典字面量里的引号串集合，裸键的增删两端都看不见（负控实测）
+      { label: '文档列表', path: '/dms/document', cfg: res('文档管理', '/admin/v1/dms/document', { moduleKey: 'dms', dicts: { status: { 0: '草稿', 1: '发布', 'draft': '草稿' } }, fields: [{ key: 'title', label: '文档标题', required: true }, { key: 'category', label: '文档分类', required: true }, { key: 'content', label: '文档内容', type: 'textarea', full: true }] }) },
     ],
   },
   {

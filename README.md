@@ -199,7 +199,7 @@ open-erp/
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（111 个测试文件，1001 个测试方法，4726 条断言；口径见 docs/FUNCTIONS.md 附录）
+├── tests/                      # PHPUnit 测试（113 个测试文件，1037 个测试方法，4962 条断言；口径见 docs/FUNCTIONS.md 附录）
 ├── resource/
 │   └── translations/           # 13 语种后端消息词典 (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # 中文翻译 (565 条)

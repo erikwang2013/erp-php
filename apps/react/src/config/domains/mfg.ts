@@ -56,7 +56,7 @@ export const mfgMenus: MenuGroup[] = [
         }),
       },
       { label: '工艺路线', path: '/mfg/routing', cfg: m('工艺路线', '/admin/v1/mfg/routing', { fields: [{ key: 'product_id', label: '产品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'name', label: '工序名称', required: true }, { key: 'seq', label: '工序序号', required: true, type: 'number' }, { key: 'workstation_id', label: '工作站', required: true, source: { endpoint: '/admin/v1/mfg/workstation', labelKey: 'name' } }] }) },
-      // status 0=禁用/1=启用（erp_mfg_workstation.status 列注释）；不写 filters 的页没有状态字典，会落通用档
+      // status 0=禁用/1=启用（erp_mfg_workstation.status 列注释）；本页 dicts 给了 status 才出中文 —— 引擎「通用档」兜底 2026-09-22 已删，不给字典就裸出原值
       { label: '工作站', path: '/mfg/workstation', cfg: m('工作站', '/admin/v1/mfg/workstation', { dicts: { status: { 0: '禁用', 1: '启用' } }, fields: [{ key: 'code', label: '工作站编码', required: true }, { key: 'name', label: '工作站名称', required: true }] }) },
       {
         label: 'MRP 计划',
@@ -114,8 +114,8 @@ export const mfgMenus: MenuGroup[] = [
         }),
       },
       // status 0=草稿/1=已审核、entry_type 1=人工 2=制费 3=其他（erp_mfg_cost_entry 列注释）。
-      // 不写 filters 时 status 落通用档（0 显「待处理」、1 显「已生效」—— 与「草稿/已审核」是两回事），
-      // entry_type 非 status 形键推断不出枚举，列表与抽屉都裸出 1/2/3
+      // 不给 dicts 时 status 直接裸出 0/1（引擎「通用档」兜底 2026-09-22 已删，不会再编「待处理/已生效」—— 与「草稿/已审核」是两回事），
+      // entry_type 非 status 形键推断不出枚举，不给 dicts 时列表与抽屉都裸出 1/2/3
       { label: '成本归集', path: '/mfg/cost-entry', cfg: m('成本归集', '/admin/v1/mfg/cost-entry', { dicts: { status: { 0: '草稿', 1: '已审核' }, entry_type: { 1: '人工', 2: '制费', 3: '其他' } }, fields: [{ key: 'order_id', label: '生产工单', required: true, source: { endpoint: '/admin/v1/mfg/production', labelKey: 'code' } }, { key: 'entry_type', label: '费用类型', required: true, type: 'select', options: [{ label: '人工', value: 1 }, { label: '制费', value: 2 }, { label: '其他', value: 3 }] }, { key: 'amount', label: '金额', required: true, type: 'number' }, { key: 'entry_date', label: '归集日期', type: 'date' }, { key: 'summary', label: '摘要' }], actions: [{ label: '审核', icon: 'check', path: (r) => `/admin/v1/mfg/cost-entry/${String(r.id)}/audit`, message: '已审核' }] }) },
       { label: '委外加工', path: '/mfg/subcontract', cfg: m('委外加工', '/admin/v1/mfg/subcontract', { filters: SUBCONTRACT.filter, fields: [{ key: 'supplier_id', label: '供应商', required: true, source: { endpoint: '/admin/v1/supplier' } }, { key: 'product_id', label: '委外产品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'warehouse_id', label: '收料仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'quantity', label: '委外数量', required: true, type: 'number' }, { key: 'unit_price', label: '加工单价', required: true, type: 'number' }, { key: 'remark', label: '备注', type: 'textarea', full: true }] }) },
       {
@@ -168,7 +168,7 @@ export const mfgMenus: MenuGroup[] = [
     moduleKey: 'quality',
     children: [
       // 检验标准 status 0=禁用/1=启用（erp_quality_inspection_standard.status 列注释）；
-      // 该页不写 filters，状态列没有字典可查会落通用档（1 显「已生效」）。
+      // 该页不写 filters，状态列的中文只能靠本页 dicts —— 引擎「通用档」兜底 2026-09-22 已删，无字典可查就裸出原值。
       // type 的标签取自仓内既有词条（「检验类型」的页标题/词条：来料检验/过程检验/出货检验，两端词典早有），
       // install.sql :4108 的列注释只给码 `iqc/ipqc/oqc`、没有中文可抄 —— 不是从注释抄的，别当抄错
       { label: '检验标准', path: '/quality/standard', cfg: res('检验标准', '/admin/v1/quality/standard', { moduleKey: 'quality', deleteNeedsPassword: true, dicts: { status: { 0: '禁用', 1: '启用' }, type: { iqc: '来料检验', ipqc: '过程检验', oqc: '出货检验' } }, fields: [{ key: 'name', label: '标准名称', required: true }] }) },

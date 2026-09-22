@@ -1398,13 +1398,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get financeMethodCash => '现金';
 
   @override
-  String get financeMethodBank => '银行';
+  String get financeMethodBank => '银行转账';
 
   @override
   String get financeMethodWechat => '微信';
 
   @override
   String get financeMethodAlipay => '支付宝';
+
+  @override
+  String get financeMethodOther => '其他';
 
   @override
   String get financeReceivedAt => '收款时间';

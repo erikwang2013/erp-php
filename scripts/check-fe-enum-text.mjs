@@ -102,6 +102,7 @@ const { cellOf, inferColumns, inferDetailItems, keyTitle, resultBlocks } = await
   at('../apps/angular/src/app/pages/resource-page/columns.ts')
 );
 const { setLocale, tr } = await import(at('../apps/angular/src/app/core/i18n.service.ts'));
+const { statusTone } = await import(at('../apps/angular/src/app/core/format.ts'));
 const { zhEn } = await import(at('../apps/angular/src/app/core/zh-en/index.ts'));
 
 console.log('── A. 我的审批 target_type：机读串不上屏（两端） ──');
@@ -344,11 +345,55 @@ const empCol = (dicts) =>
     (c) => c.key === 'status',
   );
 
-// 不变量 1：status 键仍走徽标支（保住色带），只是字典换成 cfg 里的真枚举
-eq('无 dicts：status 2 落通用档（处理中）', cellOf(empCol(undefined), EMP_ROW).text, '处理中');
+// 不变量 1：status 键仍走徽标支（保住色带），只是字典换成 cfg 里的真枚举。
+// 无 dicts 时**原值直出** —— 2026-09-22 删掉通用档 COMMON_STATUS 与 `状态N` 两条编造分支
+// （负控：任一加回去，下面两条立刻变红；实测 /hr/employee 与 /hr/attendance 真有 status=0 的行
+// 被猜成「待处理」，而这两页字典只定义了 1/2/3 与 1..6）
+eq('无 dicts：status 2 原值直出（不落通用档「处理中」）', cellOf(empCol(undefined), EMP_ROW).text, '2');
+eq('无 dicts：status 9 原值直出（不造「状态9」）', cellOf(empCol(undefined), { name: '张三', status: 9 }).text, '9');
 eq('有 dicts：status 2 → 离职', cellOf(empCol({ status: EMP_DICT }), EMP_ROW).text, '离职');
 eq('status 列仍是徽标 kind（不退化成纯文本 map）', empCol({ status: EMP_DICT })?.kind, 'status');
 ok('status 徽标带 tone（有 dicts 时色带不丢）', Boolean(cellOf(empCol({ status: EMP_DICT }), EMP_ROW).tone));
+
+// 两端同一份 statusText/statusTone（React 的 lib/format.ts 是逐字复制的一份实现）。
+// 此前真身断言只覆盖 Angular 引擎 + React relation.ts，React 那份加了/删了没人守 —— 补上，
+// 否则 B6 的「两端统一」在 React 侧只能靠肉眼（负控：把 React 的 COMMON_STATUS / `状态N` 加回去即变红）
+const { statusText: rStatusText, statusTone: rStatusTone } = await import(
+  at('../apps/react/src/lib/format.ts')
+);
+eq('React 真身：statusText 未命中字典 → 原值直出（不落通用档「处理中」）', rStatusText(2), '2');
+eq('React 真身：statusText 未命中也不造「状态N」', rStatusText(9), '9');
+eq('React 真身：statusText 字典命中 → 文案', rStatusText(2, { 2: '离职' }), '离职');
+const TONE_PROBE = [1, 3, 4, 0, 2, 'x'];
+eq(
+  '两端 statusTone 同规则（1|3→s 4→d 0→w 其余→i）',
+  `${TONE_PROBE.map(rStatusTone).join(',')}|${TONE_PROBE.map((v) => statusTone(v)).join(',')}`,
+  's,s,d,w,i,i|s,s,d,w,i,i',
+);
+
+/* 字符串状态（发票 draft/…、工单 open/…）：筛选值与文案同源，**表外值两端都原值直出**。
+ * Angular 走 kind:'map'（cellOf → mapText），React 走 render 里的 `labels[v] ?? v`。
+ * 此前 Angular 挂 kind:'rel'：表外值被关联名的 '-' 兜底吃掉，与 React 直出原值分叉
+ * （负控：把 Angular 的 kind 改回 'rel' → 第 2 条立刻变红）。 */
+const { strStatus } = await import(at('../apps/angular/src/app/config/cells.ts'));
+const STR_LABELS = { draft: '开票申请', audited: '已审核入账' };
+eq(
+  'strStatus 命中 → 文案（两端同源：Angular map / React labels[v]）',
+  cellOf(strStatus(STR_LABELS).col, { status: 'draft' }).text,
+  '开票申请',
+);
+eq(
+  'strStatus 表外值 → 原值直出（不落关联名的「-」兜底）',
+  cellOf(strStatus(STR_LABELS).col, { status: 'void_pending' }).text,
+  'void_pending',
+);
+ok(
+  'React strStatus 同口径（tr(labels[v] ?? v)：命中出译文、表外原值直出）',
+  /const v = String\(r\.status \?\? ''\);\s*return <Badge text=\{tr\(labels\[v\] \?\? v\)\}/.test(
+    read('../apps/react/src/config/cells.tsx'),
+  ),
+  'React strStatus 的兜底/翻译口径变了（应为 tr(labels[v] ?? v)，表外仍直出原值）',
+);
 
 // 不变量 2：非 status 形键（type/priority/…）靠 dicts 走 map 支
 const typeCol = (dicts) =>
